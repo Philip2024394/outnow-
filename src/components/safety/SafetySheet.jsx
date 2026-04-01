@@ -30,23 +30,24 @@ export default function SafetySheet({ open, onClose }) {
   const { show: showIntro, dismiss: dismissIntro } = useFeatureIntro('safety_checkin')
   const existing = getSafetyContact()
 
-  const [name,     setName]     = useState(existing?.name     ?? '')
-  const [phone,    setPhone]    = useState(existing?.phone    ?? existing?.contact ?? '')
-  const [platform, setPlatform] = useState(existing?.platform ?? 'whatsapp')
-  const [saved,    setSaved]    = useState(!!existing)
-  const [error,    setError]    = useState(null)
+  const [name,       setName]       = useState(existing?.name       ?? '')
+  const [phone,      setPhone]      = useState(existing?.phone      ?? existing?.contact ?? '')
+  const [platform,   setPlatform]   = useState(existing?.platform   ?? 'whatsapp')
+  const [smsBackup,  setSmsBackup]  = useState(existing?.smsBackup  ?? true)
+  const [saved,      setSaved]      = useState(!!existing)
+  const [error,      setError]      = useState(null)
 
   const handleSave = () => {
     if (!name.trim())  { setError('Add a name for your contact'); return }
     if (!phone.trim()) { setError('Add their phone number'); return }
-    saveSafetyContact({ name: name.trim(), phone: phone.trim(), platform, contact: phone.trim() })
+    saveSafetyContact({ name: name.trim(), phone: phone.trim(), platform, smsBackup, contact: phone.trim() })
     setSaved(true)
     setError(null)
   }
 
   const handleClear = () => {
     clearSafetyContact()
-    setName(''); setPhone(''); setPlatform('whatsapp'); setSaved(false)
+    setName(''); setPhone(''); setPlatform('whatsapp'); setSmsBackup(true); setSaved(false)
   }
 
   const savedData = getSafetyContact()
@@ -57,12 +58,12 @@ export default function SafetySheet({ open, onClose }) {
       {showIntro && (
         <FeatureIntro
           emoji="🛡️"
-          title="Safety Check-In"
+          title="Your Safety Net"
           bullets={[
-            'Add a trusted person — a friend, family member, anyone you trust',
-            'When you go live, they get a message so they know you\'re out',
-            'If you need help, press the SOS button to send them your location area',
-            'Your exact location is never shared — only the venue and area',
+            'Add one trusted person — a friend, family member, anyone you trust',
+            'When you go live they\'ll know you\'re out and which area you\'re in',
+            'One tap "Alert My Contact" sends them a help message with your venue',
+            'SMS backup means it works even without internet — always there for you',
           ]}
           onDone={dismissIntro}
         />
@@ -72,31 +73,51 @@ export default function SafetySheet({ open, onClose }) {
         <div className={styles.header}>
           <span className={styles.headerEmoji}>🛡️</span>
           <div>
-            <h2 className={styles.title}>Safety Contact</h2>
-            <p className={styles.sub}>Someone who knows you're out</p>
+            <h2 className={styles.title}>Your Safety Net</h2>
+            <p className={styles.sub}>Set once — always there when you need it</p>
           </div>
         </div>
 
         {saved && savedData ? (
-          <div className={styles.savedCard}>
-            <div className={styles.savedInfo}>
-              <span className={styles.savedIcon}>{pl?.emoji ?? '📱'}</span>
-              <div>
-                <span className={styles.savedName}>{savedData.name}</span>
-                <span className={styles.savedContact}>{pl?.label} · {savedData.phone}</span>
+          <div className={styles.activeCard}>
+            <div className={styles.activeTop}>
+              <span className={styles.activeDot} />
+              <span className={styles.activeLabel}>Safety Net Active</span>
+            </div>
+            <div className={styles.activeContact}>
+              <span className={styles.activeEmoji}>{pl?.emoji ?? '📱'}</span>
+              <div className={styles.activeInfo}>
+                <span className={styles.activeName}>{savedData.name}</span>
+                <span className={styles.activeMeta}>{pl?.label}{savedData.smsBackup && platform !== 'sms' ? ' + SMS backup' : ''} · {savedData.phone}</span>
               </div>
             </div>
-            <p className={styles.savedNote}>
-              SOS will open {pl?.label} with a pre-filled help message and send it to {savedData.name}.
+            <div className={styles.activeFeatures}>
+              <div className={styles.activeFeat}>
+                <span>✅</span>
+                <span>Goes live check-in sent to {savedData.name}</span>
+              </div>
+              <div className={styles.activeFeat}>
+                <span>✅</span>
+                <span>One-tap alert with venue + area on SOS</span>
+              </div>
+              {savedData.smsBackup && savedData.platform !== 'sms' && (
+                <div className={styles.activeFeat}>
+                  <span>✅</span>
+                  <span>SMS backup — works offline too</span>
+                </div>
+              )}
+            </div>
+            <p className={styles.activeNote}>
+              This is a one-time setup. Your safety net is always active whenever you go out.
             </p>
-            <button className={styles.changeBtn} onClick={() => setSaved(false)}>Change contact</button>
-            <button className={styles.removeBtn} onClick={handleClear}>Remove</button>
+            <button className={styles.changeBtn} onClick={() => setSaved(false)}>Edit contact</button>
+            <button className={styles.removeBtn} onClick={handleClear}>Remove safety net</button>
           </div>
         ) : (
           <>
             <div className={styles.form}>
               <div className={styles.field}>
-                <label className={styles.label}>Their name</label>
+                <label className={styles.label}>Trusted contact name</label>
                 <input
                   className={styles.input}
                   type="text"
@@ -108,7 +129,7 @@ export default function SafetySheet({ open, onClose }) {
               </div>
 
               <div className={styles.field}>
-                <label className={styles.label}>Send alert via</label>
+                <label className={styles.label}>Alert them via</label>
                 <div className={styles.platformGrid}>
                   {PLATFORMS.map(p => (
                     <button
@@ -138,9 +159,25 @@ export default function SafetySheet({ open, onClose }) {
                 />
               </div>
 
+              {/* SMS backup toggle — only shown when non-SMS platform selected */}
+              {platform !== 'sms' && (
+                <div className={styles.backupRow}>
+                  <div className={styles.backupText}>
+                    <span className={styles.backupTitle}>📱 SMS backup</span>
+                    <span className={styles.backupSub}>Also send via SMS — works offline and without internet</span>
+                  </div>
+                  <button
+                    className={`${styles.toggle} ${smsBackup ? styles.toggleOn : ''}`}
+                    onClick={() => setSmsBackup(v => !v)}
+                  >
+                    <div className={styles.toggleThumb} />
+                  </button>
+                </div>
+              )}
+
               {platform === 'wechat' && (
                 <p className={styles.wechatNote}>
-                  ⚠️ WeChat doesn't support pre-filled messages. SOS will open the WeChat app — you'll need to find your contact manually.
+                  ⚠️ WeChat doesn't support pre-filled messages — SOS will open the app but you'll need to find your contact. SMS backup is recommended.
                 </p>
               )}
 
@@ -150,16 +187,16 @@ export default function SafetySheet({ open, onClose }) {
             <div className={styles.infoCards}>
               <div className={styles.infoCard}>
                 <span>🆘</span>
-                <p>SOS button sends one tap help request with your venue name and area — never your exact GPS</p>
+                <p>SOS sends one-tap help alert with your venue name and area — never your exact GPS coordinates</p>
               </div>
               <div className={styles.infoCard}>
-                <span>🔕</span>
-                <p>They only get notified when you go live and when you finish — or when you press SOS</p>
+                <span>🔒</span>
+                <p>One-time setup — your safety net stays active every time you go out, no need to set it again</p>
               </div>
             </div>
 
             <button className={styles.saveBtn} onClick={handleSave}>
-              Save Contact
+              Activate Safety Net 🛡️
             </button>
           </>
         )}

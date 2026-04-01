@@ -26,10 +26,11 @@ export default function SOSModal({ open, onClose, session }) {
   const area      = session?.area ?? 'my current location'
   const message   = `🆘 I need help! I'm at ${venueName}, ${area}. Please check on me immediately. I'm using IMOUTNOW.`
 
-  const handleSend = () => {
+  const handleSend = (useSms = false) => {
     if (!contact) return
     setConfirmed(true)
-    const link = buildLink(contact.platform ?? 'sms', contact.phone ?? contact.contact, message)
+    const platform = useSms ? 'sms' : (contact.platform ?? 'sms')
+    const link = buildLink(platform, contact.phone ?? contact.contact, message)
     setTimeout(() => {
       window.open(link, '_blank')
       setTimeout(() => { setConfirmed(false); onClose() }, 1500)
@@ -74,11 +75,20 @@ export default function SOSModal({ open, onClose, session }) {
 
             <button
               className={styles.confirmBtn}
-              onClick={handleSend}
+              onClick={() => handleSend(false)}
               disabled={!contact}
             >
-              ✅ Yes — Alert My Contact
+              ✅ Alert via {contact ? platformLabel(contact.platform) : 'app'}
             </button>
+
+            {contact?.smsBackup && contact?.platform !== 'sms' && (
+              <button
+                className={styles.smsBackupBtn}
+                onClick={() => handleSend(true)}
+              >
+                📱 Send via SMS instead (works offline)
+              </button>
+            )}
 
             <button className={styles.cancelBtn} onClick={onClose}>
               Cancel — I'm OK

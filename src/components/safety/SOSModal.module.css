@@ -192,6 +192,23 @@
 
 .cancelBtn:active { background: rgba(255,255,255,0.06); }
 
+.smsBackupBtn {
+  width: 100%;
+  padding: 13px;
+  background: rgba(255,255,255,0.04);
+  border: 1px solid rgba(255,255,255,0.12);
+  border-radius: 100px;
+  color: rgba(255,255,255,0.6);
+  font-size: 14px;
+  font-weight: 600;
+  font-family: var(--font-sans, sans-serif);
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  transition: background 0.15s;
+}
+
+.smsBackupBtn:active { background: rgba(255,255,255,0.08); }
+
 /* Sent state */
 .sentWrap {
   display: flex;
