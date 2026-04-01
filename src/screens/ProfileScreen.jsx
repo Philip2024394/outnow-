@@ -1,10 +1,9 @@
-import { useState } from 'react'
+import { useState, useRef } from 'react'
 import { useAuth } from '@/hooks/useAuth'
 import { useMySession } from '@/hooks/useMySession'
 import { ACTIVITY_TYPES } from '@/firebase/collections'
 import styles from './ProfileScreen.module.css'
 
-const IS_DEMO = import.meta.env.VITE_DEMO_MODE === 'true'
 
 const STATUS_CONFIG = {
   live:      { label: "I'M OUT NOW",   cls: 'bannerLive',      dot: 'dotLive'      },
@@ -21,6 +20,13 @@ export default function ProfileScreen({ onClose }) {
   const [city, setCity]     = useState('London')
   const [bio, setBio]       = useState('Always down for spontaneous plans 🌆')
   const [editMode, setEditMode] = useState(false)
+  const [photoPreview, setPhotoPreview] = useState(null)
+  const fileInputRef = useRef(null)
+
+  const handlePhotoChange = (e) => {
+    const file = e.target.files?.[0]
+    if (file) setPhotoPreview(URL.createObjectURL(file))
+  }
 
   const statusKey = mySession?.status === 'active'    ? 'live'
                   : mySession?.status === 'scheduled' ? 'scheduled'
@@ -31,11 +37,6 @@ export default function ProfileScreen({ onClose }) {
     setSelectedActivities(prev =>
       prev.includes(id) ? prev.filter(a => a !== id) : [...prev, id]
     )
-
-  const handleSignOut = () => {
-    if (IS_DEMO) { alert('Sign out disabled in demo mode.'); return }
-    import('@/services/authService').then(m => m.signOutUser?.())
-  }
 
   return (
     <div className={styles.screen}>
@@ -64,19 +65,30 @@ export default function ProfileScreen({ onClose }) {
           {/* Avatar */}
           <div className={styles.avatarWrap}>
             <div className={styles.avatar}>
-              {user?.photoURL
-                ? <img src={user.photoURL} alt={name} className={styles.avatarImg} />
-                : <span className={styles.avatarInitial}>{name?.[0]?.toUpperCase() ?? '?'}</span>
+              {photoPreview
+                ? <img src={photoPreview} alt={name} className={styles.avatarImg} />
+                : user?.photoURL
+                  ? <img src={user.photoURL} alt={name} className={styles.avatarImg} />
+                  : <span className={styles.avatarInitial}>{name?.[0]?.toUpperCase() ?? '?'}</span>
               }
             </div>
-            {editMode && (
-              <button className={styles.cameraBtn} aria-label="Change photo">
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                  <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/>
-                  <circle cx="12" cy="13" r="4"/>
-                </svg>
-              </button>
-            )}
+            <input
+              ref={fileInputRef}
+              type="file"
+              accept="image/*"
+              style={{ display: 'none' }}
+              onChange={handlePhotoChange}
+            />
+            <button
+              className={styles.cameraBtn}
+              aria-label="Change photo"
+              onClick={() => fileInputRef.current?.click()}
+            >
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/>
+                <circle cx="12" cy="13" r="4"/>
+              </svg>
+            </button>
           </div>
 
           {/* Status banner */}
@@ -170,10 +182,6 @@ export default function ProfileScreen({ onClose }) {
           </div>
         </div>
 
-        {/* ── Sign out ── */}
-        <div className={styles.section}>
-          <button className={styles.signOutBtn} onClick={handleSignOut}>Sign Out</button>
-        </div>
 
       </div>
     </div>
