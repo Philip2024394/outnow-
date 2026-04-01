@@ -181,6 +181,13 @@ export default function GoLiveSheet({ open, onClose, showToast, activeVenues = [
           <div className={styles.section}>
             <label className={styles.label}>When are you going out?</label>
             <div className={styles.dayScroll}>
+              {/* Now shortcut — switches back to Out Now mode */}
+              <button
+                className={styles.dayBtn}
+                onClick={() => setMode('now')}
+              >
+                🟢 Now
+              </button>
               {dayOptions.map((d) => (
                 <button
                   key={d.value.toDateString()}
