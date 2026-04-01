@@ -1,8 +1,10 @@
 import BottomSheet from '@/components/ui/BottomSheet'
+import FeatureIntro, { useFeatureIntro } from '@/components/ui/FeatureIntro'
 import { activityEmoji } from '@/firebase/collections'
 import styles from './VenueSheet.module.css'
 
-export default function VenueSheet({ open, venue, onClose }) {
+export default function VenueSheet({ open, venue, onClose, onSelectSession, onOpenChat }) {
+  const { show: showDealIntro, dismiss: dismissDealIntro } = useFeatureIntro('venue_deals')
   if (!venue) return null
 
   // Activity breakdown: { activityType → count }
@@ -13,6 +15,18 @@ export default function VenueSheet({ open, venue, onClose }) {
 
   return (
     <BottomSheet open={open} onClose={onClose} title="">
+      {venue.deal && showDealIntro && (
+        <FeatureIntro
+          emoji="🏷️"
+          title="Venue Deals"
+          bullets={[
+            'Partner venues offer exclusive deals to IMOUTNOW users',
+            'Just show this screen at the bar or door to claim',
+            'Deals are live tonight only — first come, first served',
+          ]}
+          onDone={dismissDealIntro}
+        />
+      )}
       <div className={styles.content}>
 
         {/* Header */}
@@ -35,6 +49,28 @@ export default function VenueSheet({ open, venue, onClose }) {
           </span>
         </div>
 
+        {/* Group chat button */}
+        <button className={styles.chatBtn} onClick={() => { onClose?.(); setTimeout(() => onOpenChat?.(), 250) }}>
+          <span className={styles.chatBtnDot} />
+          <span className={styles.chatBtnText}>💬 Join Venue Chat</span>
+          <span className={styles.chatBtnSub}>{venue.count} {venue.count === 1 ? 'person' : 'people'} in the room</span>
+        </button>
+
+        {/* Deal card */}
+        {venue.deal && (
+          <div className={styles.dealCard}>
+            <div className={styles.dealHeader}>
+              <span className={styles.dealEmoji}>{venue.deal.emoji}</span>
+              <div className={styles.dealInfo}>
+                <span className={styles.dealTitle}>{venue.deal.title}</span>
+                <span className={styles.dealValid}>Valid until {venue.deal.validUntil}</span>
+              </div>
+              <span className={styles.dealBadge}>🏷️ Deal</span>
+            </div>
+            <p className={styles.dealDesc}>{venue.deal.description}</p>
+          </div>
+        )}
+
         {/* Activity breakdown */}
         <div className={styles.chips}>
           {Object.entries(breakdown).map(([type, n]) => (
@@ -48,7 +84,11 @@ export default function VenueSheet({ open, venue, onClose }) {
         <div className={styles.sectionLabel}>Who's here</div>
         <div className={styles.peopleList}>
           {venue.sessions.map(s => (
-            <div key={s.id} className={styles.personRow}>
+            <button
+              key={s.id}
+              className={styles.personRow}
+              onClick={() => { onSelectSession?.(s); onClose?.() }}
+            >
               <div className={styles.personAvatar}>
                 {s.photoURL
                   ? <img src={s.photoURL} alt={s.displayName} className={styles.personAvatarImg} />
@@ -58,7 +98,8 @@ export default function VenueSheet({ open, venue, onClose }) {
               </div>
               <span className={styles.personName}>{s.displayName?.split(' ')[0]}</span>
               <span className={styles.personActivity}>{activityEmoji(s.activityType)}</span>
-            </div>
+              <span className={styles.personArrow}>›</span>
+            </button>
           ))}
         </div>
 

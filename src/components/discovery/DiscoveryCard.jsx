@@ -1,13 +1,14 @@
 import { useState } from 'react'
-import { useAuth } from '@/hooks/useAuth'
 import { useInterests } from '@/hooks/useInterests'
-import { sendOtwRequest, expressInterest } from '@/services/otwService'
+import { sendOtwRequest, expressInterest, sendWave } from '@/services/otwService'
 import { useOverlay } from '@/contexts/OverlayContext'
+import FeatureIntro, { useFeatureIntro } from '@/components/ui/FeatureIntro'
 import BottomSheet from '@/components/ui/BottomSheet'
 import Button from '@/components/ui/Button'
 import Avatar from '@/components/ui/Avatar'
 import CountdownTimer from '@/components/ui/CountdownTimer'
 import { activityEmoji, ACTIVITY_TYPES } from '@/firebase/collections'
+import { VIBE_TAGS } from '@/utils/vibeTags'
 import styles from './DiscoveryCard.module.css'
 
 const HEART_POSITIONS = [
@@ -36,11 +37,13 @@ function FloatingHearts() {
 }
 
 export default function DiscoveryCard({ open, session, onClose, showToast }) {
-  const { user } = useAuth()
   const { openReport, openOtwSent } = useOverlay()
   const { myInterests, mutualSessions } = useInterests()
   const [otwLoading, setOtwLoading] = useState(false)
   const [inviteLoading, setInviteLoading] = useState(false)
+  const [waveLoading, setWaveLoading] = useState(false)
+  const [waveSent, setWaveSent] = useState(false)
+  const { show: showWaveIntro, dismiss: dismissWaveIntro } = useFeatureIntro('wave')
 
   if (!session) return null
 
@@ -92,13 +95,41 @@ export default function DiscoveryCard({ open, session, onClose, showToast }) {
     setOtwLoading(false)
   }
 
+  const handleWave = async () => {
+    setWaveLoading(true)
+    try {
+      await sendWave(session.userId, session.id)
+      setWaveSent(true)
+      showToast('👋 Wave sent!', 'success')
+    } catch {
+      showToast('Could not send wave. Try again.', 'error')
+    }
+    setWaveLoading(false)
+  }
+
   const handleReport = () => {
     openReport(session)
     onClose()
   }
 
+  const vibeTag    = VIBE_TAGS.find(v => v.id === session.vibe)
+  const isGroup    = !!session.isGroup
+  const groupMembers = session.groupMembers ?? []
+
   return (
     <BottomSheet open={open} onClose={onClose}>
+      {showWaveIntro && (
+        <FeatureIntro
+          emoji="👋"
+          title="Wave at Someone"
+          bullets={[
+            'A wave is a light, no-pressure way to say you noticed them',
+            'No commitment — just a friendly nudge that you\'re nearby',
+            'If they wave back or send OTW, you\'ll know there\'s a match',
+          ]}
+          onDone={dismissWaveIntro}
+        />
+      )}
       <div className={styles.card}>
         {/* Profile */}
         <div className={styles.profile}>
@@ -117,6 +148,17 @@ export default function DiscoveryCard({ open, session, onClose, showToast }) {
                 {activity?.label ?? 'Out now'}
               </span>
             </div>
+            {vibeTag && (
+              <div className={styles.vibeBadge}>
+                {vibeTag.emoji} {vibeTag.label}
+              </div>
+            )}
+            {isGroup && (
+              <div className={styles.groupBadge}>
+                <span className={styles.groupIcon}>👥</span>
+                <span className={styles.groupText}>Group of {session.groupSize}</span>
+              </div>
+            )}
             <div className={styles.area}>
               📍 {session.area ?? 'Nearby area'}
             </div>
@@ -134,6 +176,20 @@ export default function DiscoveryCard({ open, session, onClose, showToast }) {
             <span className={styles.mutualBadge}>💜 Mutual</span>
           )}
         </div>
+
+        {/* Group members strip */}
+        {isGroup && groupMembers.length > 0 && (
+          <div className={styles.membersRow}>
+            {groupMembers.map((m, i) => (
+              <div key={i} className={styles.memberChip}>
+                <div className={styles.memberAvatar}>
+                  {m.isAnon ? '?' : m.displayName[0].toUpperCase()}
+                </div>
+                <span className={styles.memberName}>{m.isAnon ? 'Friend' : m.displayName}</span>
+              </div>
+            ))}
+          </div>
+        )}
 
         {/* Status hint */}
         {isScheduled ? (
@@ -173,8 +229,17 @@ export default function DiscoveryCard({ open, session, onClose, showToast }) {
                 loading={otwLoading}
                 onClick={handleOtw}
               >
-                {isMutual ? '🚀 OTW — I\'m on my way!' : '👟 OTW'}
+                {isMutual ? '🚀 OTW — I\'m on my way!' : isGroup ? `👥 OTW — Join the group` : '👟 OTW'}
               </Button>
+              {!isMutual && (
+                <button
+                  className={`${styles.waveBtn} ${waveSent ? styles.waveSent : ''}`}
+                  disabled={waveSent || waveLoading}
+                  onClick={handleWave}
+                >
+                  {waveSent ? '✓ Waved' : waveLoading ? '…' : '👋 Wave'}
+                </button>
+              )}
               {!hasExpressedInterest && !isMutual && (
                 <div className={styles.inviteWrap}>
                   <FloatingHearts />

@@ -1,0 +1,188 @@
+.sheet {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  padding-bottom: 32px;
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.headerEmoji {
+  font-size: 36px;
+  line-height: 1;
+  flex-shrink: 0;
+}
+
+.title {
+  font-size: 22px;
+  font-weight: 900;
+  color: #fff;
+  margin: 0;
+  letter-spacing: -0.02em;
+}
+
+.sub {
+  font-size: 13px;
+  color: rgba(255,255,255,0.4);
+  margin: 0;
+}
+
+/* ── Saved state ── */
+.savedCard {
+  background: rgba(57,255,20,0.05);
+  border: 1px solid rgba(57,255,20,0.2);
+  border-radius: 18px;
+  padding: 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.savedInfo {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.savedIcon {
+  font-size: 24px;
+  flex-shrink: 0;
+}
+
+.savedName {
+  display: block;
+  font-size: 17px;
+  font-weight: 800;
+  color: #fff;
+}
+
+.savedContact {
+  display: block;
+  font-size: 13px;
+  color: rgba(255,255,255,0.4);
+  margin-top: 2px;
+}
+
+.savedNote {
+  font-size: 13px;
+  color: rgba(255,255,255,0.5);
+  line-height: 1.5;
+  margin: 0;
+}
+
+.changeBtn {
+  width: 100%;
+  padding: 13px;
+  background: rgba(255,255,255,0.06);
+  border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 100px;
+  color: rgba(255,255,255,0.7);
+  font-size: 14px;
+  font-weight: 700;
+  font-family: var(--font-sans);
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.removeBtn {
+  width: 100%;
+  padding: 10px;
+  background: none;
+  border: none;
+  color: rgba(255,59,48,0.6);
+  font-size: 13px;
+  font-weight: 600;
+  font-family: var(--font-sans);
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* ── Form ── */
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.label {
+  font-size: 11px;
+  font-weight: 700;
+  color: rgba(255,255,255,0.35);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+.input {
+  width: 100%;
+  box-sizing: border-box;
+  background: rgba(255,255,255,0.05);
+  border: 1.5px solid rgba(255,255,255,0.1);
+  border-radius: 14px;
+  color: #fff;
+  font-size: 15px;
+  font-family: var(--font-sans);
+  padding: 14px 16px;
+  outline: none;
+  transition: border-color 0.15s;
+}
+
+.input::placeholder { color: rgba(255,255,255,0.2); }
+.input:focus { border-color: rgba(57,255,20,0.4); }
+
+.error {
+  font-size: 13px;
+  color: #FF3B30;
+  margin: 0;
+}
+
+/* ── Info cards ── */
+.infoCards {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.infoCard {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 12px 14px;
+  background: rgba(255,255,255,0.03);
+  border: 1px solid rgba(255,255,255,0.07);
+  border-radius: 14px;
+  font-size: 13px;
+  color: rgba(255,255,255,0.4);
+  line-height: 1.4;
+}
+
+.infoCard span { font-size: 18px; flex-shrink: 0; margin-top: 1px; }
+.infoCard p { margin: 0; }
+
+/* ── Save button ── */
+.saveBtn {
+  width: 100%;
+  padding: 16px;
+  background: #39FF14;
+  color: #080808;
+  font-size: 16px;
+  font-weight: 900;
+  border: none;
+  border-radius: 100px;
+  cursor: pointer;
+  font-family: var(--font-sans);
+  box-shadow: 0 0 20px rgba(57,255,20,0.25);
+  transition: opacity 0.15s, transform 0.12s;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.saveBtn:active { opacity: 0.88; transform: scale(0.98); }

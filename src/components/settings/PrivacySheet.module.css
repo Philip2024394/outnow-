@@ -1,0 +1,32 @@
+.warningRow .rowLabel {
+  color: #FF9500;
+}
+
+.infoCard {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 14px;
+  background: rgba(255,255,255,0.03);
+  border: 1px solid rgba(255,255,255,0.07);
+  border-radius: 14px;
+  margin: 6px 0;
+}
+
+.infoIcon {
+  font-size: 20px;
+  flex-shrink: 0;
+  margin-top: 1px;
+}
+
+.infoText {
+  font-size: 13px;
+  color: rgba(255,255,255,0.45);
+  line-height: 1.5;
+  margin: 0;
+}
+
+.infoText strong {
+  color: rgba(255,255,255,0.7);
+  font-weight: 700;
+}

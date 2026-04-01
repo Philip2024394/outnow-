@@ -87,6 +87,111 @@
   letter-spacing: -0.02em;
 }
 
+/* Group chat button */
+.chatBtn {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 14px 16px;
+  background: rgba(57,255,20,0.07);
+  border: 1.5px solid rgba(57,255,20,0.25);
+  border-radius: 16px;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  transition: background 0.15s;
+}
+
+.chatBtn:active { background: rgba(57,255,20,0.12); }
+
+.chatBtnDot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #39FF14;
+  box-shadow: 0 0 8px #39FF14;
+  flex-shrink: 0;
+  animation: live-dot 1.4s ease-in-out infinite;
+}
+
+.chatBtnText {
+  font-size: 15px;
+  font-weight: 800;
+  color: #39FF14;
+  flex: 1;
+  text-align: left;
+}
+
+.chatBtnSub {
+  font-size: 12px;
+  color: rgba(57,255,20,0.5);
+  flex-shrink: 0;
+}
+
+/* Deal card */
+.dealCard {
+  background: rgba(255, 200, 0, 0.06);
+  border: 1.5px solid rgba(255, 200, 0, 0.3);
+  border-radius: 16px;
+  padding: 14px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.dealHeader {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.dealEmoji {
+  font-size: 28px;
+  flex-shrink: 0;
+  line-height: 1;
+}
+
+.dealInfo {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.dealTitle {
+  font-size: 16px;
+  font-weight: 800;
+  color: #FFD700;
+  letter-spacing: -0.01em;
+}
+
+.dealValid {
+  font-size: 11px;
+  font-weight: 600;
+  color: rgba(255, 200, 0, 0.5);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.dealBadge {
+  font-size: 12px;
+  font-weight: 700;
+  background: rgba(255, 200, 0, 0.12);
+  border: 1px solid rgba(255, 200, 0, 0.25);
+  border-radius: 100px;
+  padding: 4px 10px;
+  color: #FFD700;
+  flex-shrink: 0;
+}
+
+.dealDesc {
+  font-size: 13px;
+  color: rgba(255,255,255,0.5);
+  margin: 0;
+  line-height: 1.4;
+}
+
 /* Activity chips */
 .chips {
   display: flex;
@@ -122,6 +227,7 @@
 }
 
 .personRow {
+  width: 100%;
   display: flex;
   align-items: center;
   gap: 12px;
@@ -129,6 +235,15 @@
   background: #161616;
   border: 1px solid rgba(255,255,255,0.07);
   border-radius: 14px;
+  cursor: pointer;
+  text-align: left;
+  -webkit-tap-highlight-color: transparent;
+  transition: background 0.15s ease, border-color 0.15s ease;
+}
+
+.personRow:active {
+  background: #1e1e1e;
+  border-color: rgba(57,255,20,0.25);
 }
 
 .personAvatar {
@@ -179,4 +294,11 @@
 
 .personActivity {
   font-size: 20px;
+}
+
+.personArrow {
+  font-size: 20px;
+  color: rgba(255,255,255,0.2);
+  flex-shrink: 0;
+  margin-left: auto;
 }

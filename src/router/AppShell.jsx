@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { useJsApiLoader } from '@react-google-maps/api'
 import { useOverlay, OVERLAY } from '@/contexts/OverlayContext'
 import { useMySession } from '@/hooks/useMySession'
@@ -10,6 +10,7 @@ import { useLiveUsers } from '@/hooks/useLiveUsers'
 import MapHeader from '@/components/map/MapHeader'
 import MapOverlay from '@/components/map/MapOverlay'
 import { endSession } from '@/services/sessionService'
+import { getSafetyContact } from '@/components/safety/SafetySheet'
 import ProfileStrip from '@/components/map/ProfileStrip'
 import BottomNav from '@/components/nav/BottomNav'
 import GoLiveSheet from '@/components/golive/GoLiveSheet'
@@ -31,6 +32,12 @@ import BlockedUsersScreen from '@/screens/BlockedUsersScreen'
 import ProfileScreen from '@/screens/ProfileScreen'
 import ChatScreen from '@/screens/ChatScreen'
 import MatchScreen from '@/screens/MatchScreen'
+import VenueGroupChat from '@/components/venue/VenueGroupChat'
+import { DEMO_VENUE_MESSAGES } from '@/demo/mockData'
+import MomentsBar from '@/components/moments/MomentsBar'
+import MomentViewer from '@/components/moments/MomentViewer'
+import AddMomentSheet from '@/components/moments/AddMomentSheet'
+import { DEMO_MOMENTS } from '@/demo/mockData'
 import AddToHomeScreenBanner from '@/components/pwa/AddToHomeScreenBanner'
 import BottomSheet from '@/components/ui/BottomSheet'
 import Toast from '@/components/ui/Toast'
@@ -81,6 +88,11 @@ export default function AppShell({ returnParams }) {
   const [venueSheetOpen, setVenueSheetOpen] = useState(false)
   const [selectedVenue, setSelectedVenue] = useState(null)
   const [venueListOpen, setVenueListOpen] = useState(false)
+  const [venueChatVenue, setVenueChatVenue] = useState(null)
+  const [momentViewerIndex, setMomentViewerIndex] = useState(null)
+  const [addMomentOpen, setAddMomentOpen] = useState(false)
+  const [extraMoments, setExtraMoments] = useState([])
+  const allMoments = [...DEMO_MOMENTS, ...extraMoments]
   // null | 'live' | 'scheduled' — quick strip toggles
   const [hiddenType, setHiddenType] = useState(null)
   const hideLive      = hiddenType === 'live'
@@ -115,6 +127,18 @@ export default function AppShell({ returnParams }) {
   useEffect(() => {
     if (unlock) openVenueReveal(unlock)
   }, [unlock]) // eslint-disable-line
+
+  // Safety check-in — notify when session goes live
+  const prevSessionRef = useRef(null)
+  useEffect(() => {
+    const wasLive = !!prevSessionRef.current
+    const isLive  = !!mySession
+    if (!wasLive && isLive) {
+      const contact = getSafetyContact()
+      if (contact) showToast(`🛡️ Check-in sent to ${contact.name}`, 'success')
+    }
+    prevSessionRef.current = mySession
+  }, [mySession]) // eslint-disable-line
 
   const visibleSessions = sessions.filter(s => {
     if (s.status === 'scheduled' ? hideScheduled : hideLive) return false
@@ -158,6 +182,16 @@ export default function AppShell({ returnParams }) {
           notifCount={notifOpen ? 0 : DEMO_UNREAD_COUNT}
           onOpenLikes={() => setLikedMeOpen(true)}
           onOpenSettings={() => setSettingsOpen(true)}
+        />
+      )}
+
+      {/* Moments bar — map tab, below header */}
+      {activeTab === 'map' && (
+        <MomentsBar
+          moments={allMoments}
+          isLive={!!mySession}
+          onAdd={() => setAddMomentOpen(true)}
+          onView={(i) => setMomentViewerIndex(i)}
         />
       )}
 
@@ -216,7 +250,16 @@ export default function AppShell({ returnParams }) {
         open={venueSheetOpen}
         venue={selectedVenue}
         onClose={() => setVenueSheetOpen(false)}
+        onSelectSession={(s) => { setVenueSheetOpen(false); setTimeout(() => openDiscovery(s), 250) }}
+        onOpenChat={() => setVenueChatVenue(selectedVenue)}
       />
+      {venueChatVenue && (
+        <VenueGroupChat
+          venue={venueChatVenue}
+          initialMessages={DEMO_VENUE_MESSAGES[venueChatVenue.id] ?? []}
+          onClose={() => setVenueChatVenue(null)}
+        />
+      )}
       <VenueListSheet
         open={venueListOpen}
         venues={activeVenues}
@@ -251,13 +294,18 @@ export default function AppShell({ returnParams }) {
 
       <RatingSheet
         open={ratingOpen}
+        session={mySession}
         onSubmit={() => {
           setRatingOpen(false)
           showToast('Thanks for your feedback!', 'success')
+          const contact = getSafetyContact()
+          if (contact) setTimeout(() => showToast(`🛡️ ${contact.name} notified you're home safe`, 'success'), 1200)
           endSession(mySession?.id)
         }}
         onSkip={() => {
           setRatingOpen(false)
+          const contact = getSafetyContact()
+          if (contact) showToast(`🛡️ ${contact.name} notified you're home safe`, 'success')
           endSession(mySession?.id)
         }}
       />
@@ -270,6 +318,27 @@ export default function AppShell({ returnParams }) {
         alert={proximityAlert}
         onDismiss={dismissAlert}
         onTap={(v) => { setSelectedVenue(v); setVenueSheetOpen(true) }}
+      />
+
+      {momentViewerIndex !== null && (
+        <MomentViewer
+          moments={allMoments}
+          startIndex={momentViewerIndex}
+          onClose={() => setMomentViewerIndex(null)}
+        />
+      )}
+      <AddMomentSheet
+        open={addMomentOpen}
+        onClose={() => setAddMomentOpen(false)}
+        onAdd={(m) => setExtraMoments(prev => [{
+          ...m,
+          id: `moment-user-${Date.now()}`,
+          userId: 'me',
+          displayName: 'You',
+          sessionId: mySession?.id,
+          createdAt: Date.now(),
+          expiresAt: Date.now() + 6 * 60 * 60 * 1000,
+        }, ...prev])}
       />
 
       <AddToHomeScreenBanner />

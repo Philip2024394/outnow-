@@ -163,6 +163,100 @@
   filter: drop-shadow(0 0 6px rgba(255,59,48,0.8));
 }
 
+.vibeBadge {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 12px;
+  font-weight: 700;
+  color: #39FF14;
+  background: rgba(57,255,20,0.08);
+  border: 1px solid rgba(57,255,20,0.25);
+  border-radius: 100px;
+  padding: 3px 10px;
+  width: fit-content;
+}
+
+.groupBadge {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 12px;
+  font-weight: 700;
+  color: #fff;
+  background: rgba(255,255,255,0.08);
+  border: 1px solid rgba(255,255,255,0.15);
+  border-radius: 100px;
+  padding: 3px 10px;
+  width: fit-content;
+}
+
+.groupIcon { font-size: 13px; }
+.groupText { color: rgba(255,255,255,0.8); }
+
+.membersRow {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  padding: 4px 0;
+}
+
+.memberChip {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: rgba(255,255,255,0.05);
+  border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 100px;
+  padding: 5px 10px 5px 5px;
+}
+
+.memberAvatar {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: rgba(255,255,255,0.12);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 11px;
+  font-weight: 700;
+  color: rgba(255,255,255,0.6);
+  flex-shrink: 0;
+}
+
+.memberName {
+  font-size: 12px;
+  font-weight: 600;
+  color: rgba(255,255,255,0.6);
+}
+
+.waveBtn {
+  width: 100%;
+  padding: 13px;
+  background: rgba(255,255,255,0.05);
+  border: 1px solid rgba(255,255,255,0.12);
+  border-radius: 100px;
+  color: rgba(255,255,255,0.7);
+  font-size: 15px;
+  font-weight: 700;
+  font-family: var(--font-sans);
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  transition: background 0.15s ease, opacity 0.15s ease;
+}
+
+.waveBtn:active {
+  background: rgba(255,255,255,0.1);
+}
+
+.waveSent {
+  color: #39FF14;
+  border-color: rgba(57,255,20,0.3);
+  background: rgba(57,255,20,0.06);
+  opacity: 0.7;
+}
+
 .reportBtn {
   text-align: center;
   font-size: var(--font-size-sm);

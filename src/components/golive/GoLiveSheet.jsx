@@ -6,6 +6,8 @@ import Button from '@/components/ui/Button'
 import GpsVerifier from './GpsVerifier'
 import PlaceSearch from './PlaceSearch'
 import { ACTIVITY_TYPES } from '@/firebase/collections'
+import { VIBE_TAGS } from '@/utils/vibeTags'
+import FeatureIntro, { useFeatureIntro } from '@/components/ui/FeatureIntro'
 import styles from './GoLiveSheet.module.css'
 
 const DURATIONS = [
@@ -55,8 +57,13 @@ export default function GoLiveSheet({ open, onClose, showToast }) {
   const [selectedDuration, setSelectedDuration] = useState(60)
   const [socialLink, setSocialLink] = useState('')
   const [gpsCoords, setGpsCoords] = useState(null)
+  const [selectedVibe, setSelectedVibe] = useState(null)
+  const [isGroup, setIsGroup] = useState(false)
+  const [groupSize, setGroupSize] = useState(2)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState(null)
+  const { show: showVibeIntro, dismiss: dismissVibeIntro } = useFeatureIntro('vibe_tags')
+  const { show: showGroupIntro, dismiss: dismissGroupIntro } = useFeatureIntro('group_outing')
 
   const dayOptions = useMemo(() => buildDayOptions(), [])
   const [selectedDay, setSelectedDay] = useState(dayOptions[0].value)
@@ -89,6 +96,9 @@ export default function GoLiveSheet({ open, onClose, showToast }) {
         activityType: selectedActivity,
         durationMinutes: selectedDuration,
         socialLink: socialLink.trim() || null,
+        vibe: selectedVibe,
+        isGroup: isGroup || null,
+        groupSize: isGroup ? groupSize : null,
       }
       if (mode === 'later') {
         await scheduleLive({ ...payload, scheduledFor: selectedTime.getTime() })
@@ -111,6 +121,30 @@ export default function GoLiveSheet({ open, onClose, showToast }) {
 
   return (
     <BottomSheet open={open} onClose={onClose} title="">
+      {showVibeIntro && (
+        <FeatureIntro
+          emoji="🎉"
+          title="Set Your Vibe"
+          bullets={[
+            'Tell people what kind of night you\'re after — dancing, quiet drinks, anything goes',
+            'Your vibe shows on your profile so the right people find you',
+            'Totally optional — skip it if you\'re keeping it open',
+          ]}
+          onDone={dismissVibeIntro}
+        />
+      )}
+      {showGroupIntro && (
+        <FeatureIntro
+          emoji="👥"
+          title="Group Outing"
+          bullets={[
+            'Going out with friends? Let others know you\'re a group',
+            'People can OTW to join your whole group, not just you',
+            'Anonymous members show as "Friend" to protect their privacy',
+          ]}
+          onDone={dismissGroupIntro}
+        />
+      )}
       <div className={styles.sheetHeader}>
         <span className={styles.headerTag}>What's the plan?</span>
       </div>
@@ -179,6 +213,55 @@ export default function GoLiveSheet({ open, onClose, showToast }) {
               </button>
             ))}
           </div>
+        </div>
+
+        {/* Vibe */}
+        <div className={styles.section}>
+          <label className={styles.label}>What's the vibe? <span className={styles.optional}>optional</span></label>
+          <div className={styles.activities}>
+            {VIBE_TAGS.map(v => (
+              <button
+                key={v.id}
+                className={[styles.activityBtn, selectedVibe === v.id ? styles.activitySelected : ''].join(' ')}
+                onClick={() => setSelectedVibe(prev => prev === v.id ? null : v.id)}
+              >
+                <span className={styles.activityEmoji}>{v.emoji}</span>
+                <span className={styles.activityLabel}>{v.label}</span>
+              </button>
+            ))}
+          </div>
+        </div>
+
+        {/* Group outing */}
+        <div className={styles.section}>
+          <div className={styles.groupToggleRow}>
+            <div className={styles.groupToggleText}>
+              <span className={styles.label}>Going with others?</span>
+              <span className={styles.groupSub}>Let people know you're a group</span>
+            </div>
+            <button
+              className={`${styles.groupToggle} ${isGroup ? styles.groupToggleOn : ''}`}
+              onClick={() => setIsGroup(v => !v)}
+            >
+              <div className={styles.groupToggleThumb} />
+            </button>
+          </div>
+          {isGroup && (
+            <div className={styles.groupSizeRow}>
+              <span className={styles.groupSizeLabel}>How many?</span>
+              <div className={styles.groupSizes}>
+                {[2, 3, 4, 5].map(n => (
+                  <button
+                    key={n}
+                    className={`${styles.groupSizeBtn} ${groupSize === n ? styles.groupSizeBtnActive : ''}`}
+                    onClick={() => setGroupSize(n)}
+                  >
+                    {n === 5 ? '5+' : n}
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
         </div>
 
         {/* Duration */}

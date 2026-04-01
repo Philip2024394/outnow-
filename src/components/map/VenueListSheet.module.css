@@ -75,6 +75,26 @@
   letter-spacing: 0.08em;
 }
 
+/* Right column wraps deal chip + count */
+.rightCol {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 5px;
+  flex-shrink: 0;
+}
+
+.dealChip {
+  font-size: 10px;
+  font-weight: 700;
+  color: #FFD700;
+  background: rgba(255,200,0,0.1);
+  border: 1px solid rgba(255,200,0,0.25);
+  border-radius: 100px;
+  padding: 2px 7px;
+  white-space: nowrap;
+}
+
 /* Right-side count badge */
 .countBadge {
   display: flex;

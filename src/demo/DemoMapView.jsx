@@ -106,6 +106,7 @@ function VenueMarkers({ venues, onSelectVenue }) {
                  <div class="venue-marker__bubble">
                    <span class="venue-marker__emoji">${venue.emoji}</span>
                    <span class="venue-marker__count">${venue.count} here</span>
+                   ${venue.deal ? '<span class="venue-marker__deal">🏷️</span>' : ''}
                  </div>
                  <div class="venue-marker__label">${venue.name}</div>
                </div>`,

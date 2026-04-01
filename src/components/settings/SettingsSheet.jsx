@@ -2,6 +2,9 @@ import { useState } from 'react'
 import { signOut } from '@/services/authService'
 import { usePushNotifications } from '@/hooks/usePushNotifications'
 import BottomSheet from '@/components/ui/BottomSheet'
+import PrivacySheet from './PrivacySheet'
+import SafetySheet from '@/components/safety/SafetySheet'
+import { getSafetyContact } from '@/components/safety/SafetySheet'
 import styles from './SettingsSheet.module.css'
 
 function Row({ icon, label, sublabel, value, onClick, danger, toggle, toggled }) {
@@ -34,6 +37,9 @@ export default function SettingsSheet({ open, onClose, onOpenLikes, onEditProfil
   const { permission, requestPermission } = usePushNotifications()
   const [notifOn, setNotifOn] = useState(permission === 'granted')
   const [signingOut, setSigningOut] = useState(false)
+  const [privacyOpen, setPrivacyOpen] = useState(false)
+  const [safetyOpen, setSafetyOpen] = useState(false)
+  const safetyContact = getSafetyContact()
 
   const handleNotifToggle = async () => {
     if (notifOn) {
@@ -62,6 +68,7 @@ export default function SettingsSheet({ open, onClose, onOpenLikes, onEditProfil
   }
 
   return (
+    <>
     <BottomSheet open={open} onClose={onClose} title="">
       <div className={styles.sheet}>
         {/* Title */}
@@ -106,9 +113,16 @@ export default function SettingsSheet({ open, onClose, onOpenLikes, onEditProfil
         <Divider label="Privacy & Safety" />
         <Row
           icon="🔒"
-          label="Privacy"
-          sublabel="Your location is only shared in your area — never exact"
-          onClick={() => showToast?.('Your exact address is never shared. Only approximate area shown.')}
+          label="Privacy Controls"
+          sublabel="Manage what others can see about you"
+          onClick={() => setPrivacyOpen(true)}
+        />
+        <Row
+          icon="🛡️"
+          label="Safety Check-In"
+          sublabel={safetyContact ? `Set — notifying ${safetyContact.name}` : 'Add a trusted contact for when you go out'}
+          value={safetyContact ? '✓' : null}
+          onClick={() => setSafetyOpen(true)}
         />
         <Row
           icon="🚫"
@@ -145,5 +159,8 @@ export default function SettingsSheet({ open, onClose, onOpenLikes, onEditProfil
         />
       </div>
     </BottomSheet>
+    <PrivacySheet open={privacyOpen} onClose={() => setPrivacyOpen(false)} />
+    <SafetySheet open={safetyOpen} onClose={() => setSafetyOpen(false)} />
+    </>
   )
 }

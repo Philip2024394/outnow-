@@ -10,6 +10,12 @@ export const DEMO_VENUES = [
     address: '23 Old Compton St, Soho',
     lat: 51.5133,
     lng: -0.1320,
+    deal: {
+      emoji: '🍺',
+      title: 'First drink £4',
+      description: 'Show this screen at the bar to claim your welcome drink',
+      validUntil: '11pm tonight',
+    },
   },
   {
     id: 'venue-cg-cafe',
@@ -28,6 +34,12 @@ export const DEMO_VENUES = [
     address: '62 Goodge St, Fitzrovia',
     lat: 51.5196,
     lng: -0.1357,
+    deal: {
+      emoji: '🍷',
+      title: '2-for-1 wine until 8pm',
+      description: 'Any glass of house wine — show this screen to the staff',
+      validUntil: '8pm tonight',
+    },
   },
   {
     id: 'venue-hyde-pub',
@@ -46,6 +58,12 @@ export const DEMO_VENUES = [
     address: '49 Great Russell St, Bloomsbury',
     lat: 51.5183,
     lng: -0.1264,
+    deal: {
+      emoji: '🎯',
+      title: 'Free bar snacks with any round',
+      description: 'Order a round of drinks and snacks are on us — show this screen',
+      validUntil: '10pm tonight',
+    },
   },
   {
     id: 'venue-oxford-bar',

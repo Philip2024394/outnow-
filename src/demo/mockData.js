@@ -108,6 +108,48 @@ export const DEMO_SESSIONS = [
     startedAtMs: now - 5 * 60 * 1000,
     lat: 51.5130, lng: -0.1324,
   },
+  // Group outings
+  {
+    id: 'demo-group-1',
+    userId: 'demo-user-7',
+    displayName: 'Emma',
+    photoURL: null,
+    gender: 'female',
+    activityType: 'drinks',
+    area: 'Shoreditch',
+    status: 'active',
+    isGroup: true,
+    groupSize: 3,
+    groupMembers: [
+      { displayName: 'Emma',   isAnon: false },
+      { displayName: 'Chloe',  isAnon: false },
+      { displayName: 'Friend', isAnon: true  },
+    ],
+    expiresAtMs: now + 90 * 60 * 1000,
+    startedAtMs: now - 20 * 60 * 1000,
+    lat: 51.5220, lng: -0.0760,
+  },
+  {
+    id: 'demo-group-2',
+    userId: 'demo-user-8',
+    displayName: 'Marcus',
+    photoURL: null,
+    gender: 'male',
+    activityType: 'food',
+    area: 'Camden',
+    status: 'active',
+    isGroup: true,
+    groupSize: 4,
+    groupMembers: [
+      { displayName: 'Marcus', isAnon: false },
+      { displayName: 'Jake',   isAnon: false },
+      { displayName: 'Dan',    isAnon: false },
+      { displayName: 'Friend', isAnon: true  },
+    ],
+    expiresAtMs: now + 50 * 60 * 1000,
+    startedAtMs: now - 35 * 60 * 1000,
+    lat: 51.5390, lng: -0.1426,
+  },
 ]
 
 // Scheduled sessions — "I'm Out Later"
@@ -357,6 +399,82 @@ export const DEMO_MATCH_PROFILES = [
     area: 'Brixton', lookingFor: 'Chat', availability: 'Tonight',
     meetSpeed: 'Today', firstMeet: ['Drinks'],
     responseTime: '~20 min', liked: false,
+  },
+]
+
+// Venue group chat demo messages — keyed by venueId
+export const DEMO_VENUE_MESSAGES = {
+  'venue-soho-bar': [
+    { id: 'vm-1', userId: 'demo-user-1', displayName: 'Jordan', text: "Just got here — it's absolutely packed tonight 🔥", createdAt: now - 18 * 60 * 1000 },
+    { id: 'vm-2', userId: 'demo-user-2', displayName: 'Mia',    text: "Same! Grabbed a table near the back 👋", createdAt: now - 15 * 60 * 1000 },
+    { id: 'vm-3', userId: 'demo-user-6', displayName: 'Leo',    text: "On my way — 5 mins out", createdAt: now - 12 * 60 * 1000 },
+    { id: 'vm-4', userId: 'demo-user-2', displayName: 'Mia',    text: "Live band just started, vibes are unreal 🎶", createdAt: now - 8 * 60 * 1000 },
+    { id: 'vm-5', userId: 'demo-user-6', displayName: 'Leo',    text: "Here now — bar is crazy busy, getting drinks first", createdAt: now - 4 * 60 * 1000 },
+    { id: 'vm-6', userId: 'demo-user-1', displayName: 'Jordan', text: "Someone save us a spot 😂", createdAt: now - 2 * 60 * 1000 },
+  ],
+  'venue-fitz-bistro': [
+    { id: 'vm-7', userId: 'demo-user-3', displayName: 'Raf', text: "Wine is excellent tonight — 2 for 1 still on 🍷", createdAt: now - 20 * 60 * 1000 },
+    { id: 'vm-8', userId: 'demo-user-3', displayName: 'Raf', text: "Anyone else coming here tonight?", createdAt: now - 6 * 60 * 1000 },
+  ],
+}
+
+// Ephemeral moments — disappear after 6 hours
+// In demo, gradient + emoji replace real photos
+export const DEMO_MOMENTS = [
+  {
+    id: 'moment-1',
+    userId: 'demo-user-2',
+    displayName: 'Mia',
+    sessionId: 'demo-session-2',
+    gradient: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+    emoji: '🍸',
+    caption: 'Best spot in Soho tonight — come find me 🔥',
+    createdAt: now - 25 * 60 * 1000,
+    expiresAt: now + 5.6 * 60 * 60 * 1000,
+  },
+  {
+    id: 'moment-2',
+    userId: 'demo-user-1',
+    displayName: 'Jordan',
+    sessionId: 'demo-session-1',
+    gradient: 'linear-gradient(135deg, #f093fb 0%, #f5576c 100%)',
+    emoji: '🎶',
+    caption: 'Live music just started here — absolute vibes',
+    createdAt: now - 10 * 60 * 1000,
+    expiresAt: now + 5.8 * 60 * 60 * 1000,
+  },
+  {
+    id: 'moment-3',
+    userId: 'demo-user-3',
+    displayName: 'Raf',
+    sessionId: 'demo-session-3',
+    gradient: 'linear-gradient(135deg, #4facfe 0%, #00f2fe 100%)',
+    emoji: '🍝',
+    caption: 'This pasta is unreal. Someone come eat with me',
+    createdAt: now - 40 * 60 * 1000,
+    expiresAt: now + 5.3 * 60 * 60 * 1000,
+  },
+  {
+    id: 'moment-4',
+    userId: 'demo-user-5',
+    displayName: 'Priya',
+    sessionId: 'demo-session-5',
+    gradient: 'linear-gradient(135deg, #43e97b 0%, #38f9d7 100%)',
+    emoji: '🌙',
+    caption: 'Perfect evening for a walk — who else is out?',
+    createdAt: now - 55 * 60 * 1000,
+    expiresAt: now + 5.1 * 60 * 60 * 1000,
+  },
+  {
+    id: 'moment-5',
+    userId: 'demo-user-6',
+    displayName: 'Leo',
+    sessionId: 'demo-session-6',
+    gradient: 'linear-gradient(135deg, #fa709a 0%, #fee140 100%)',
+    emoji: '🎯',
+    caption: "Rooftop bar just opened back up — it's packed tonight",
+    createdAt: now - 5 * 60 * 1000,
+    expiresAt: now + 5.9 * 60 * 60 * 1000,
   },
 ]
 

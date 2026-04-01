@@ -24,10 +24,15 @@ export default function VenueListSheet({ open, venues = [], onClose, onSelectVen
                     <span className={styles.name}>{venue.name}</span>
                     <span className={styles.type}>{venue.type}</span>
                   </div>
-                  <div className={styles.countBadge}>
-                    {isHot && <span className={styles.hotDot} />}
-                    <span className={styles.countNum}>{venue.count}</span>
-                    <span className={styles.countLabel}>{venue.count === 1 ? 'here' : 'here'}</span>
+                  <div className={styles.rightCol}>
+                    {venue.deal && (
+                      <span className={styles.dealChip}>🏷️ Deal</span>
+                    )}
+                    <div className={styles.countBadge}>
+                      {isHot && <span className={styles.hotDot} />}
+                      <span className={styles.countNum}>{venue.count}</span>
+                      <span className={styles.countLabel}>here</span>
+                    </div>
                   </div>
                 </button>
               )

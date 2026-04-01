@@ -48,3 +48,12 @@ export async function withdrawInterest(interestDocId) {
   if (!db) return
   await deleteDoc(doc(db, COLLECTIONS.INTERESTS, interestDocId))
 }
+
+export async function sendWave(toUserId, sessionId) {
+  if (!db) { await delay(400); return }
+  await addDoc(collection(db, COLLECTIONS.WAVES ?? 'waves'), {
+    toUserId,
+    sessionId,
+    createdAt: serverTimestamp(),
+  })
+}
