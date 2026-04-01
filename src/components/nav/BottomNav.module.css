@@ -34,11 +34,30 @@
   color: #39FF14;
 }
 
-.icon {
+.iconWrap {
+  position: relative;
   display: flex;
   align-items: center;
   justify-content: center;
   height: 26px;
+}
+
+.badge {
+  position: absolute;
+  top: -4px;
+  right: -8px;
+  min-width: 16px;
+  height: 16px;
+  background: #39FF14;
+  color: #080808;
+  font-size: 9px;
+  font-weight: 800;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 3px;
+  border: 1.5px solid #080808;
 }
 
 .label {

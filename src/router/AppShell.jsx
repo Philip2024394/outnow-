@@ -20,6 +20,9 @@ import PaymentGate from '@/components/payment/PaymentGate'
 import VenueReveal from '@/components/payment/VenueReveal'
 import ReportSheet from '@/components/moderation/ReportSheet'
 import LikedMeSheet from '@/components/likes/LikedMeSheet'
+import ProfileScreen from '@/screens/ProfileScreen'
+import ChatScreen from '@/screens/ChatScreen'
+import MatchScreen from '@/screens/MatchScreen'
 import Toast from '@/components/ui/Toast'
 import DemoMapView from '@/demo/DemoMapView'
 import MapView from '@/components/map/MapView'
@@ -86,11 +89,16 @@ export default function AppShell({ returnParams }) {
 
   return (
     <div className={styles.shell}>
-      {/* Map fills full screen */}
+      {/* Map fills full screen (hidden when on non-map tab) */}
       {HAS_MAPS_KEY
         ? <GoogleMapsWrapper />
         : <DemoMapView sessions={sessions} onSelectUser={openDiscovery} />
       }
+
+      {/* Full-screen tab screens */}
+      {activeTab === 'match'   && <MatchScreen />}
+      {activeTab === 'chat'    && <ChatScreen />}
+      {activeTab === 'profile' && <ProfileScreen />}
 
       <div className="map-top-fade" />
       <div className="map-bottom-fade" />
@@ -131,8 +139,12 @@ export default function AppShell({ returnParams }) {
         </div>
       )}
 
-      {/* Bottom nav */}
-      <BottomNav activeTab={activeTab} onChange={setActiveTab} />
+      {/* Bottom nav — only show on map tab (other screens have own headers) */}
+      <BottomNav
+        activeTab={activeTab}
+        onChange={setActiveTab}
+        unreadChats={activeTab !== 'chat' ? 1 : 0}
+      />
 
       <StillHerePrompt open={needsCheckIn && !!mySession} sessionId={mySession?.id} />
 

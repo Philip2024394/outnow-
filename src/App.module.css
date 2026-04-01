@@ -9,9 +9,8 @@
   gap: var(--space-6);
 }
 
-.logo {
-  font-size: 28px;
-  font-weight: var(--font-weight-bold);
-  letter-spacing: 0.08em;
-  color: var(--color-live);
+.splashLogo {
+  height: 72px;
+  width: auto;
+  object-fit: contain;
 }

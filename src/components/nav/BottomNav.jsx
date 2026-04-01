@@ -42,11 +42,12 @@ const TABS = [
   },
 ]
 
-export default function BottomNav({ activeTab = 'map', onChange }) {
+export default function BottomNav({ activeTab = 'map', onChange, unreadChats = 0 }) {
   return (
     <nav className={styles.nav}>
       {TABS.map((tab) => {
         const active = activeTab === tab.id
+        const badge  = tab.id === 'chat' && unreadChats > 0 ? unreadChats : 0
         return (
           <button
             key={tab.id}
@@ -54,7 +55,10 @@ export default function BottomNav({ activeTab = 'map', onChange }) {
             onClick={() => onChange?.(tab.id)}
             aria-label={tab.label}
           >
-            <span className={styles.icon}>{tab.icon(active)}</span>
+            <span className={styles.iconWrap}>
+              {tab.icon(active)}
+              {badge > 0 && <span className={styles.badge}>{badge > 9 ? '9+' : badge}</span>}
+            </span>
             <span className={styles.label}>{tab.label}</span>
           </button>
         )

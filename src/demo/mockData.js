@@ -100,6 +100,123 @@ export const DEMO_SESSIONS = [
 
 export const DEMO_CENTER = { lat: BASE_LAT, lng: BASE_LNG }
 
+// Chat statuses:
+//  'unlocked' — both paid, full chat open
+//  'locked'   — I received a message but haven't paid to read/reply
+//  'pending'  — I sent my free first message, waiting for them to unlock
+//  'free'     — no messages yet, I can send 1 free message
+export const DEMO_CONVERSATIONS = [
+  {
+    id: 'conv-1',
+    userId: 'demo-user-1',
+    displayName: 'Jordan',
+    emoji: '😎',
+    age: 29,
+    online: true,
+    status: 'unlocked',
+    lastMessage: 'Which bar are you at now?',
+    lastMessageTime: now - 5 * 60 * 1000,
+    unread: 1,
+    messages: [
+      { id: 'm1', fromMe: false, text: 'Hey! Saw you were out in Soho 👋', time: now - 25 * 60 * 1000 },
+      { id: 'm2', fromMe: true,  text: 'Yeah! At The Slug & Lettuce', time: now - 22 * 60 * 1000 },
+      { id: 'm3', fromMe: false, text: "Nice, I'm nearby. Which bar are you at now?", time: now - 5 * 60 * 1000 },
+    ],
+  },
+  {
+    id: 'conv-2',
+    userId: 'demo-user-2',
+    displayName: 'Ava',
+    emoji: '😊',
+    age: 26,
+    online: true,
+    status: 'locked',
+    lastMessage: '🔒 Unlock to read',
+    lastMessageTime: now - 18 * 60 * 1000,
+    unread: 1,
+    messages: [],
+  },
+  {
+    id: 'conv-3',
+    userId: 'demo-user-3',
+    displayName: 'Kai',
+    emoji: '🤙',
+    age: 28,
+    online: false,
+    status: 'pending',
+    lastMessage: 'You around Dalston tonight?',
+    lastMessageTime: now - 45 * 60 * 1000,
+    unread: 0,
+    messages: [
+      { id: 'm1', fromMe: true, text: 'You around Dalston tonight?', time: now - 45 * 60 * 1000 },
+    ],
+  },
+  {
+    id: 'conv-4',
+    userId: 'demo-user-4',
+    displayName: 'Sofia',
+    emoji: '✨',
+    age: 23,
+    online: true,
+    status: 'free',
+    lastMessage: null,
+    lastMessageTime: null,
+    unread: 0,
+    messages: [],
+  },
+]
+
+export const DEMO_MATCH_PROFILES = [
+  {
+    id: 'p1', displayName: 'Sarah', age: 29, emoji: '😊', gender: 'Woman',
+    online: true, distanceKm: 2.1, readyToMeet: true, verified: true,
+    tagline: 'Coffee and a good walk? Yes please.',
+    area: 'Soho', lookingFor: 'Date', availability: 'Tonight',
+    meetSpeed: 'Meet now', firstMeet: ['Coffee', 'Walk'],
+    responseTime: '< 5 min', liked: false,
+  },
+  {
+    id: 'p2', displayName: 'Marcus', age: 31, emoji: '😎', gender: 'Man',
+    online: true, distanceKm: 0.8, readyToMeet: true, verified: true,
+    tagline: 'Free this evening. Drinks?',
+    area: 'Shoreditch', lookingFor: 'Meet now', availability: 'Tonight',
+    meetSpeed: 'Meet now', firstMeet: ['Drinks', 'Dinner'],
+    responseTime: '< 10 min', liked: false,
+  },
+  {
+    id: 'p3', displayName: 'Zoe', age: 25, emoji: '🌸', gender: 'Woman',
+    online: false, distanceKm: 3.4, readyToMeet: false, verified: false,
+    tagline: 'Let\'s find the best coffee spot.',
+    area: 'Camden', lookingFor: 'Chat', availability: 'Today',
+    meetSpeed: 'Today', firstMeet: ['Coffee'],
+    responseTime: '~30 min', liked: false,
+  },
+  {
+    id: 'p4', displayName: 'Kai', age: 27, emoji: '🤙', gender: 'Man',
+    online: true, distanceKm: 1.2, readyToMeet: true, verified: true,
+    tagline: 'Spontaneous plans only.',
+    area: 'Dalston', lookingFor: 'Meet now', availability: 'Tonight',
+    meetSpeed: 'Meet now', firstMeet: ['Drinks', 'Walk'],
+    responseTime: '< 5 min', liked: false,
+  },
+  {
+    id: 'p5', displayName: 'Priya', age: 26, emoji: '✨', gender: 'Woman',
+    online: true, distanceKm: 4.7, readyToMeet: false, verified: true,
+    tagline: 'Art, food, good conversation.',
+    area: 'Notting Hill', lookingFor: 'Date', availability: 'Weekend',
+    meetSpeed: 'This week', firstMeet: ['Dinner', 'Coffee'],
+    responseTime: '~1 hr', liked: false,
+  },
+  {
+    id: 'p6', displayName: 'Finn', age: 30, emoji: '🎯', gender: 'Man',
+    online: false, distanceKm: 2.9, readyToMeet: true, verified: false,
+    tagline: 'Drinks after work — who\'s in?',
+    area: 'Brixton', lookingFor: 'Chat', availability: 'Tonight',
+    meetSpeed: 'Today', firstMeet: ['Drinks'],
+    responseTime: '~20 min', liked: false,
+  },
+]
+
 export const DEMO_LIKED_USERS = [
   { id: 'like-1', displayName: 'Ava', age: 26, online: true,  emoji: '😊', activityType: 'drinks',  area: 'Soho' },
   { id: 'like-2', displayName: 'Marcus', age: 30, online: true,  emoji: '😎', activityType: 'coffee',  area: 'Shoreditch' },

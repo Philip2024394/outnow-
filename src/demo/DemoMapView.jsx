@@ -68,9 +68,20 @@ function MyDot() {
   return null
 }
 
+function EmptyMapState() {
+  return (
+    <div className={styles.emptyState}>
+      <span className={styles.emptyIcon}>📍</span>
+      <p className={styles.emptyTitle}>Nobody out yet</p>
+      <p className={styles.emptySub}>Be the first — tap I'M OUT NOW and get discovered</p>
+    </div>
+  )
+}
+
 export default function DemoMapView({ sessions, onSelectUser }) {
   return (
     <div className={styles.wrapper}>
+      {sessions.length === 0 && <EmptyMapState />}
       <MapContainer
         center={[DEMO_CENTER.lat, DEMO_CENTER.lng]}
         zoom={14}

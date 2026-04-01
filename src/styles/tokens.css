@@ -74,15 +74,15 @@
   --line-height-tight: 1.2;
   --line-height-base: 1.5;
 
-  /* Z-index scale */
+  /* Z-index scale — must stay above Leaflet's internal panes (max ~700) */
   --z-map: 0;
-  --z-map-controls: 10;
-  --z-fab: 100;
-  --z-header: 200;
-  --z-sheet: 300;
-  --z-modal: 400;
-  --z-toast: 500;
-  --z-top: 999;
+  --z-map-controls: 800;
+  --z-fab: 850;
+  --z-header: 900;
+  --z-sheet: 1000;
+  --z-modal: 1100;
+  --z-toast: 1200;
+  --z-top: 9999;
 
   /* Transitions */
   --transition-fast: 150ms ease;
