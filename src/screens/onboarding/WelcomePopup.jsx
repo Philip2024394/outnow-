@@ -11,7 +11,7 @@ const STEPS = [
     img: 'https://ik.imagekit.io/dateme/No%20swiping%20on%20screen.png',
     accent: '#39FF14',
     title: 'No Swiping',
-    body: 'Forget endless swiping. IMOUTNOW connects you with real people who are actually out right now — no endless browsing required.',
+    body: 'Forget endless swiping. imoutnow.com connects you with real people who are actually out right now — no endless browsing required.',
   },
   {
     id: 'chat',
@@ -77,7 +77,7 @@ export default function WelcomePopup({ onDone }) {
       <div className={`${styles.card} ${leaving ? styles.cardLeaving : ''}`}>
 
         {/* Logo */}
-        <img src={LOGO_URL} alt="IMOUTNOW" className={styles.logo} />
+        <img src={LOGO_URL} alt="imoutnow.com" className={styles.logo} />
 
         {/* Step content */}
         {current.id !== 'safety' && current.id !== 'terms' && (
@@ -102,7 +102,7 @@ export default function WelcomePopup({ onDone }) {
             <div className={styles.safetyIcon}>🛡️</div>
             <h2 className={styles.stepTitle}>Your Safety Matters</h2>
             <p className={styles.safetyIntro}>
-              IMOUTNOW is designed to be safe and fun. When used correctly, it&apos;s a great way to meet people.
+              imoutnow.com is designed to be safe and fun. When used correctly, it&apos;s a great way to meet people.
             </p>
             <div className={styles.safetyList}>
               {SAFETY_TIPS.map(tip => (
@@ -126,7 +126,7 @@ export default function WelcomePopup({ onDone }) {
             </div>
             <h2 className={styles.stepTitle}>Before You Start</h2>
             <p className={styles.termsIntro}>
-              We need you to confirm you have read and agree to our Terms &amp; Conditions. These protect you and every member of the IMOUTNOW community.
+              We need you to confirm you have read and agree to our Terms &amp; Conditions. These protect you and every member of the imoutnow.com community.
             </p>
             <a
               href={TC_URL}
