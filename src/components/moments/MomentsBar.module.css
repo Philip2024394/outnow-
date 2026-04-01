@@ -18,8 +18,8 @@
 /* Add square */
 .addCard {
   flex-shrink: 0;
-  width: 72px;
-  height: 88px;
+  width: 50px;
+  height: 62px;
   border-radius: 12px;
   background: rgba(10,10,10,0.7);
   border: 2px dashed rgba(57,255,20,0.5);
@@ -41,7 +41,7 @@
 }
 
 .addPlus {
-  font-size: 26px;
+  font-size: 20px;
   font-weight: 300;
   color: #39FF14;
   line-height: 1;
@@ -58,8 +58,8 @@
 /* Moment square */
 .card {
   flex: 1;
-  height: 88px;
-  max-width: calc((100vw - 28px - 78px) / 3);
+  height: 62px;
+  max-width: calc((100vw - 28px - 56px) / 3);
   background: none;
   border: none;
   padding: 0;
@@ -89,7 +89,7 @@
 }
 
 .cardEmoji {
-  font-size: 28px;
+  font-size: 20px;
   line-height: 1;
   z-index: 1;
 }
