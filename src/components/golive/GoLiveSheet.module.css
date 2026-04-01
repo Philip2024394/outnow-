@@ -235,53 +235,95 @@
 }
 
 /* Trending venues */
-.trendingRow {
-  display: flex;
-  gap: 8px;
-  overflow-x: auto;
-  scrollbar-width: none;
-  padding-bottom: 2px;
-}
-
-.trendingRow::-webkit-scrollbar { display: none; }
-
-.trendingChip {
-  flex-shrink: 0;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 4px;
-  padding: 10px 14px;
+.trendingCard {
   background: var(--color-surface-2);
   border: 1.5px solid rgba(57,255,20,0.2);
   border-radius: 14px;
-  cursor: pointer;
-  -webkit-tap-highlight-color: transparent;
-  transition: background 0.15s, border-color 0.15s, transform 0.1s;
-  font-family: var(--font-sans);
+  overflow: hidden;
 }
 
-.trendingChip:active {
-  transform: scale(0.95);
+.trendingRow {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 13px 14px;
+  width: 100%;
+  background: none;
+  border: none;
+  text-align: left;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  font-family: var(--font-sans);
+  transition: background 0.12s;
+}
+
+.trendingRow:active {
   background: rgba(57,255,20,0.06);
-  border-color: rgba(57,255,20,0.5);
+}
+
+.trendingRowBorder {
+  border-top: 1px solid rgba(255,255,255,0.06);
 }
 
 .trendingEmoji {
-  font-size: 20px;
+  font-size: 22px;
+  flex-shrink: 0;
+}
+
+.trendingInfo {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
 }
 
 .trendingName {
-  font-size: 12px;
+  font-size: 14px;
   font-weight: 700;
   color: var(--color-text);
   white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.trendingMeta {
+  font-size: 11px;
+  color: var(--color-text-muted);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .trendingCount {
   font-size: 11px;
-  font-weight: 600;
+  font-weight: 700;
   color: #39FF14;
+  background: rgba(57,255,20,0.08);
+  border: 1px solid rgba(57,255,20,0.2);
+  border-radius: 100px;
+  padding: 3px 8px;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.trendingToggle {
+  width: 100%;
+  padding: 10px;
+  background: none;
+  border: none;
+  border-top: 1px solid rgba(255,255,255,0.06);
+  color: var(--color-text-muted);
+  font-size: 12px;
+  font-weight: 600;
+  font-family: var(--font-sans);
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  transition: background 0.12s;
+}
+
+.trendingToggle:active {
+  background: rgba(255,255,255,0.04);
 }
 
 /* Place privacy hint */

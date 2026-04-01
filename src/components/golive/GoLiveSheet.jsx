@@ -68,6 +68,7 @@ export default function GoLiveSheet({ open, onClose, showToast, activeVenues = [
   const [groupSize, setGroupSize] = useState(2)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState(null)
+  const [trendingExpanded, setTrendingExpanded] = useState(false)
   const { show: showVibeIntro, dismiss: dismissVibeIntro } = useFeatureIntro('vibe_tags')
   const { show: showGroupIntro, dismiss: dismissGroupIntro } = useFeatureIntro('group_outing')
 
@@ -291,18 +292,47 @@ export default function GoLiveSheet({ open, onClose, showToast, activeVenues = [
         {activeVenues.length > 0 && (
           <div className={styles.section}>
             <label className={styles.label}>🔥 People are here right now</label>
-            <div className={styles.trendingRow}>
-              {activeVenues.slice(0, 4).map(v => (
-                <button
-                  key={v.id}
-                  className={styles.trendingChip}
-                  onClick={() => handlePlaceSelect({ placeId: v.id, name: v.name, types: [v.type?.toLowerCase() ?? 'establishment'] })}
-                >
-                  <span className={styles.trendingEmoji}>{v.emoji}</span>
-                  <span className={styles.trendingName}>{v.name}</span>
-                  <span className={styles.trendingCount}>{v.count} {v.count === 1 ? 'person' : 'people'}</span>
-                </button>
-              ))}
+            <div className={styles.trendingCard}>
+              {/* Always-visible top venue */}
+              <button
+                className={styles.trendingRow}
+                onClick={() => handlePlaceSelect({ placeId: activeVenues[0].id, name: activeVenues[0].name, types: [activeVenues[0].type?.toLowerCase() ?? 'establishment'] })}
+              >
+                <span className={styles.trendingEmoji}>{activeVenues[0].emoji}</span>
+                <div className={styles.trendingInfo}>
+                  <span className={styles.trendingName}>{activeVenues[0].name}</span>
+                  <span className={styles.trendingMeta}>{activeVenues[0].type} · {activeVenues[0].address}</span>
+                </div>
+                <span className={styles.trendingCount}>{activeVenues[0].count} {activeVenues[0].count === 1 ? 'person' : 'people'}</span>
+              </button>
+
+              {/* Dropdown for remaining venues */}
+              {activeVenues.length > 1 && (
+                <>
+                  {trendingExpanded && activeVenues.slice(1).map(v => (
+                    <button
+                      key={v.id}
+                      className={`${styles.trendingRow} ${styles.trendingRowBorder}`}
+                      onClick={() => handlePlaceSelect({ placeId: v.id, name: v.name, types: [v.type?.toLowerCase() ?? 'establishment'] })}
+                    >
+                      <span className={styles.trendingEmoji}>{v.emoji}</span>
+                      <div className={styles.trendingInfo}>
+                        <span className={styles.trendingName}>{v.name}</span>
+                        <span className={styles.trendingMeta}>{v.type} · {v.address}</span>
+                      </div>
+                      <span className={styles.trendingCount}>{v.count} {v.count === 1 ? 'person' : 'people'}</span>
+                    </button>
+                  ))}
+                  <button
+                    className={styles.trendingToggle}
+                    onClick={() => setTrendingExpanded(v => !v)}
+                  >
+                    {trendingExpanded
+                      ? '▲ Show less'
+                      : `▼ ${activeVenues.length - 1} more place${activeVenues.length - 1 > 1 ? 's' : ''}`}
+                  </button>
+                </>
+              )}
             </div>
           </div>
         )}
