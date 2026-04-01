@@ -1,167 +1,254 @@
-.content {
-  padding-bottom: 32px;
-  background-image: url('https://ik.imagekit.io/dateme/UntitledDFSDFASDFDFGSDFGsfdfasd.png');
-  background-size: cover;
-  background-position: center top;
-  background-repeat: no-repeat;
-  border-radius: 20px;
+.container {
   position: relative;
+  border-radius: 20px;
+  overflow: hidden;
+  min-height: 340px;
+  margin-bottom: 8px;
 }
 
-.content::before {
-  content: '';
+/* Full-size image — stretches to fill container completely */
+.bgImage {
   position: absolute;
   inset: 0;
-  background: rgba(8, 8, 8, 0.72);
-  border-radius: 20px;
-  pointer-events: none;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
+  display: block;
   z-index: 0;
 }
 
-.content > * {
-  position: relative;
+/* Frosted dark overlay on top of image */
+.frost {
+  position: absolute;
+  inset: 0;
+  background: rgba(4, 4, 4, 0.52);
+  backdrop-filter: blur(2px);
+  -webkit-backdrop-filter: blur(2px);
   z-index: 1;
+}
+
+.inner {
+  position: relative;
+  z-index: 2;
+  padding: 20px 16px 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
 }
 
 .empty {
   text-align: center;
-  color: rgba(255,255,255,0.3);
+  color: rgba(255,255,255,0.4);
   font-size: 14px;
-  padding: 32px 0;
+  padding: 80px 0;
 }
 
-.list {
+/* Counter */
+.counter {
+  align-self: flex-end;
+  display: flex;
+  align-items: baseline;
+  gap: 2px;
+}
+
+.counterNum {
+  font-size: 24px;
+  font-weight: 900;
+  color: #fff;
+  text-shadow: 0 2px 8px rgba(0,0,0,0.6);
+}
+
+.counterSep,
+.counterTotal {
+  font-size: 14px;
+  color: rgba(255,255,255,0.45);
+}
+
+/* Venue card — black frosted glass */
+.card {
+  width: 100%;
+  background: rgba(0, 0, 0, 0.55);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 18px;
+  backdrop-filter: blur(28px);
+  -webkit-backdrop-filter: blur(28px);
+  padding: 18px;
   display: flex;
   flex-direction: column;
-  gap: 10px;
-}
-
-.row {
-  width: 100%;
-  display: flex;
-  align-items: center;
   gap: 14px;
-  padding: 14px 16px;
-  background: #161616;
-  border: 1px solid rgba(255,255,255,0.07);
-  border-radius: 16px;
   cursor: pointer;
   text-align: left;
   -webkit-tap-highlight-color: transparent;
-  transition: background 0.15s ease, border-color 0.15s ease;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.08);
+  transition: background 0.15s, transform 0.12s;
 }
 
-.row:active {
-  background: #1e1e1e;
+.card:active {
+  background: rgba(0,0,0,0.7);
+  transform: scale(0.98);
 }
 
-.rowHot {
-  border-color: rgba(57,255,20,0.3);
-  background: rgba(57,255,20,0.04);
+.cardTop {
+  display: flex;
+  align-items: center;
+  gap: 14px;
 }
 
-.rowHot:active {
-  background: rgba(57,255,20,0.08);
-}
-
-.emoji {
-  font-size: 32px;
+.cardEmoji {
+  font-size: 40px;
   line-height: 1;
   flex-shrink: 0;
+  filter: drop-shadow(0 2px 8px rgba(0,0,0,0.7));
 }
 
-.info {
-  flex: 1;
+.cardInfo {
   display: flex;
   flex-direction: column;
-  gap: 3px;
+  gap: 4px;
   min-width: 0;
 }
 
-.name {
-  font-size: 16px;
-  font-weight: 800;
+.cardName {
+  font-size: 20px;
+  font-weight: 900;
   color: #fff;
-  letter-spacing: -0.01em;
+  letter-spacing: -0.02em;
+  line-height: 1.1;
+  text-shadow: 0 2px 8px rgba(0,0,0,0.6);
+}
+
+.cardType {
+  font-size: 12px;
+  font-weight: 600;
+  color: rgba(255,255,255,0.45);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
 }
 
-.type {
-  font-size: 11px;
-  font-weight: 700;
-  color: rgba(255,255,255,0.3);
-  text-transform: uppercase;
-  letter-spacing: 0.08em;
-}
-
-/* Right column wraps deal chip + count */
-.rightCol {
+.cardBottom {
   display: flex;
-  flex-direction: column;
   align-items: center;
-  gap: 5px;
-  flex-shrink: 0;
+  justify-content: space-between;
+  gap: 10px;
 }
 
-.dealChip {
-  font-size: 10px;
-  font-weight: 700;
-  color: #FFD700;
-  background: rgba(255,200,0,0.1);
-  border: 1px solid rgba(255,200,0,0.25);
-  border-radius: 100px;
-  padding: 2px 7px;
-  white-space: nowrap;
-}
-
-/* Right-side count badge */
-.countBadge {
+.cardCount {
   display: flex;
-  flex-direction: column;
   align-items: center;
-  gap: 2px;
-  flex-shrink: 0;
-  min-width: 36px;
+  gap: 8px;
 }
 
 .hotDot {
-  width: 8px;
-  height: 8px;
+  width: 9px;
+  height: 9px;
   border-radius: 50%;
   background: #39FF14;
-  box-shadow: 0 0 8px #39FF14;
+  box-shadow: 0 0 10px #39FF14;
+  flex-shrink: 0;
   animation: hot-pulse 1.4s ease-in-out infinite;
-  margin-bottom: 2px;
 }
 
 @keyframes hot-pulse {
   0%, 100% { opacity: 1; transform: scale(1); }
-  50%       { opacity: 0.4; transform: scale(1.35); }
+  50%       { opacity: 0.4; transform: scale(1.4); }
 }
 
 .countNum {
-  font-size: 22px;
+  font-size: 30px;
   font-weight: 900;
   color: #39FF14;
   letter-spacing: -0.03em;
   line-height: 1;
-}
-
-.rowHot .countNum {
-  text-shadow: 0 0 12px rgba(57,255,20,0.5);
-}
-
-/* For non-hot rows, mute the count colour */
-.row:not(.rowHot) .countNum {
-  color: rgba(255,255,255,0.5);
+  text-shadow: 0 0 18px rgba(57,255,20,0.6);
 }
 
 .countLabel {
-  font-size: 10px;
+  font-size: 13px;
   font-weight: 600;
-  color: rgba(255,255,255,0.3);
-  text-transform: uppercase;
-  letter-spacing: 0.06em;
+  color: rgba(255,255,255,0.45);
+}
+
+.dealChip {
+  font-size: 11px;
+  font-weight: 700;
+  color: #FFD700;
+  background: rgba(0,0,0,0.4);
+  border: 1px solid rgba(255,200,0,0.35);
+  border-radius: 100px;
+  padding: 4px 10px;
+  white-space: nowrap;
+  backdrop-filter: blur(8px);
+}
+
+.cardTap {
+  font-size: 11px;
+  font-weight: 600;
+  color: rgba(255,255,255,0.28);
+  text-align: right;
+  letter-spacing: 0.04em;
+}
+
+/* Nav row */
+.navRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+/* Black frosted glass nav buttons */
+.navBtn {
+  width: 46px;
+  height: 46px;
+  border-radius: 50%;
+  background: rgba(0, 0, 0, 0.55);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  color: #fff;
+  font-size: 26px;
+  font-weight: 300;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  transition: background 0.15s, transform 0.1s;
+  flex-shrink: 0;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.08);
+}
+
+.navBtn:active {
+  transform: scale(0.9);
+  background: rgba(0,0,0,0.75);
+}
+
+.navBtnDisabled {
+  opacity: 0.2;
+  cursor: not-allowed;
+}
+
+.dots {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+}
+
+.dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: rgba(255,255,255,0.2);
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  transition: background 0.2s, transform 0.2s;
+}
+
+.dotActive {
+  background: #39FF14;
+  transform: scale(1.5);
+  box-shadow: 0 0 6px #39FF14;
 }
