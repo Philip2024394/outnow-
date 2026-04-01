@@ -30,7 +30,7 @@ const STEPS = [
   {
     id: 'safety',
     icon: '🛡️',
-    accent: '#F5A623',
+    accent: '#39FF14',
     title: 'Your Safety Matters',
     body: null, // renders custom safety list
   },
