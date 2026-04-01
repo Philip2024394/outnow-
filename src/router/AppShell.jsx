@@ -11,6 +11,7 @@ import MapHeader from '@/components/map/MapHeader'
 import MapOverlay from '@/components/map/MapOverlay'
 import { endSession } from '@/services/sessionService'
 import { getSafetyContact } from '@/components/safety/SafetySheet'
+import SOSModal from '@/components/safety/SOSModal'
 import ProfileStrip from '@/components/map/ProfileStrip'
 import BottomNav from '@/components/nav/BottomNav'
 import GoLiveSheet from '@/components/golive/GoLiveSheet'
@@ -92,6 +93,7 @@ export default function AppShell({ returnParams, triggerGoLive }) {
   const [momentViewerIndex, setMomentViewerIndex] = useState(null)
   const [addMomentOpen, setAddMomentOpen] = useState(false)
   const [extraMoments, setExtraMoments] = useState([])
+  const [sosOpen, setSosOpen] = useState(false)
   const allMoments = [...DEMO_MOMENTS, ...extraMoments]
   // null | 'live' | 'scheduled' — quick strip toggles
   const [hiddenType, setHiddenType] = useState(null)
@@ -295,6 +297,13 @@ export default function AppShell({ returnParams, triggerGoLive }) {
         onEditProfile={() => { setSettingsOpen(false); setTimeout(() => setActiveTab('profile'), 200) }}
         onOpenBlockList={() => { setSettingsOpen(false); setTimeout(() => setBlockListOpen(true), 200) }}
         showToast={showToast}
+        onSOS={() => setSosOpen(true)}
+      />
+
+      <SOSModal
+        open={sosOpen}
+        onClose={() => setSosOpen(false)}
+        session={mySession}
       />
 
       <RatingSheet

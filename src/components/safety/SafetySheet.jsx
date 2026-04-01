@@ -17,31 +17,40 @@ export function clearSafetyContact() {
   localStorage.removeItem(STORAGE_KEY)
 }
 
+const PLATFORMS = [
+  { id: 'whatsapp',  label: 'WhatsApp',  emoji: '💬' },
+  { id: 'sms',       label: 'SMS',        emoji: '📱' },
+  { id: 'imessage',  label: 'iMessage',   emoji: '💬' },
+  { id: 'telegram',  label: 'Telegram',   emoji: '✈️' },
+  { id: 'signal',    label: 'Signal',     emoji: '🔒' },
+  { id: 'wechat',    label: 'WeChat',     emoji: '🟢' },
+]
+
 export default function SafetySheet({ open, onClose }) {
   const { show: showIntro, dismiss: dismissIntro } = useFeatureIntro('safety_checkin')
   const existing = getSafetyContact()
 
-  const [name,    setName]    = useState(existing?.name    ?? '')
-  const [contact, setContact] = useState(existing?.contact ?? '')
-  const [saved,   setSaved]   = useState(!!existing)
-  const [error,   setError]   = useState(null)
+  const [name,     setName]     = useState(existing?.name     ?? '')
+  const [phone,    setPhone]    = useState(existing?.phone    ?? existing?.contact ?? '')
+  const [platform, setPlatform] = useState(existing?.platform ?? 'whatsapp')
+  const [saved,    setSaved]    = useState(!!existing)
+  const [error,    setError]    = useState(null)
 
   const handleSave = () => {
-    if (!name.trim())    { setError('Add a name for your contact'); return }
-    if (!contact.trim()) { setError('Add a phone number or email'); return }
-    saveSafetyContact({ name: name.trim(), contact: contact.trim() })
+    if (!name.trim())  { setError('Add a name for your contact'); return }
+    if (!phone.trim()) { setError('Add their phone number'); return }
+    saveSafetyContact({ name: name.trim(), phone: phone.trim(), platform, contact: phone.trim() })
     setSaved(true)
     setError(null)
   }
 
   const handleClear = () => {
     clearSafetyContact()
-    setName('')
-    setContact('')
-    setSaved(false)
+    setName(''); setPhone(''); setPlatform('whatsapp'); setSaved(false)
   }
 
-  const isEmail = contact.includes('@')
+  const savedData = getSafetyContact()
+  const pl = PLATFORMS.find(p => p.id === (savedData?.platform ?? 'whatsapp'))
 
   return (
     <BottomSheet open={open} onClose={onClose} title="">
@@ -52,8 +61,8 @@ export default function SafetySheet({ open, onClose }) {
           bullets={[
             'Add a trusted person — a friend, family member, anyone you trust',
             'When you go live, they get a message so they know you\'re out',
-            'When your session ends safely, they\'re notified you\'re home',
-            'Your exact location is never shared — only that you\'re out and safe',
+            'If you need help, press the SOS button to send them your location area',
+            'Your exact location is never shared — only the venue and area',
           ]}
           onDone={dismissIntro}
         />
@@ -63,25 +72,22 @@ export default function SafetySheet({ open, onClose }) {
         <div className={styles.header}>
           <span className={styles.headerEmoji}>🛡️</span>
           <div>
-            <h2 className={styles.title}>Safety Check-In</h2>
+            <h2 className={styles.title}>Safety Contact</h2>
             <p className={styles.sub}>Someone who knows you're out</p>
           </div>
         </div>
 
-        {saved && existing ? (
+        {saved && savedData ? (
           <div className={styles.savedCard}>
             <div className={styles.savedInfo}>
-              <span className={styles.savedIcon}>✅</span>
+              <span className={styles.savedIcon}>{pl?.emoji ?? '📱'}</span>
               <div>
-                <span className={styles.savedName}>{existing.name}</span>
-                <span className={styles.savedContact}>{existing.contact}</span>
+                <span className={styles.savedName}>{savedData.name}</span>
+                <span className={styles.savedContact}>{pl?.label} · {savedData.phone}</span>
               </div>
             </div>
             <p className={styles.savedNote}>
-              {isEmail
-                ? `${existing.name} will receive an email when you go live and when you end your session safely.`
-                : `${existing.name} will receive an SMS when you go live and when you end your session safely.`
-              }
+              SOS will open {pl?.label} with a pre-filled help message and send it to {savedData.name}.
             </p>
             <button className={styles.changeBtn} onClick={() => setSaved(false)}>Change contact</button>
             <button className={styles.removeBtn} onClick={handleClear}>Remove</button>
@@ -102,29 +108,53 @@ export default function SafetySheet({ open, onClose }) {
               </div>
 
               <div className={styles.field}>
-                <label className={styles.label}>Phone number or email</label>
+                <label className={styles.label}>Send alert via</label>
+                <div className={styles.platformGrid}>
+                  {PLATFORMS.map(p => (
+                    <button
+                      key={p.id}
+                      className={`${styles.platformBtn} ${platform === p.id ? styles.platformBtnActive : ''}`}
+                      onClick={() => setPlatform(p.id)}
+                    >
+                      <span className={styles.platformEmoji}>{p.emoji}</span>
+                      <span className={styles.platformLabel}>{p.label}</span>
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              <div className={styles.field}>
+                <label className={styles.label}>
+                  {platform === 'telegram' ? 'Telegram phone or username' : 'Their phone number'}
+                </label>
                 <input
                   className={styles.input}
-                  type="text"
-                  value={contact}
-                  onChange={e => { setContact(e.target.value); setError(null) }}
-                  placeholder="+44 7700 000000 or email@example.com"
+                  type="tel"
+                  value={phone}
+                  onChange={e => { setPhone(e.target.value); setError(null) }}
+                  placeholder={platform === 'telegram' ? '@username or +44 7700 000000' : '+44 7700 000000'}
                   autoComplete="off"
-                  inputMode="email"
+                  inputMode="tel"
                 />
               </div>
+
+              {platform === 'wechat' && (
+                <p className={styles.wechatNote}>
+                  ⚠️ WeChat doesn't support pre-filled messages. SOS will open the WeChat app — you'll need to find your contact manually.
+                </p>
+              )}
 
               {error && <p className={styles.error}>{error}</p>}
             </div>
 
             <div className={styles.infoCards}>
               <div className={styles.infoCard}>
-                <span>📡</span>
-                <p>They never see your exact location — only that you're out and which area</p>
+                <span>🆘</span>
+                <p>SOS button sends one tap help request with your venue name and area — never your exact GPS</p>
               </div>
               <div className={styles.infoCard}>
                 <span>🔕</span>
-                <p>They only get two messages per outing — one when you go live, one when you finish</p>
+                <p>They only get notified when you go live and when you finish — or when you press SOS</p>
               </div>
             </div>
 

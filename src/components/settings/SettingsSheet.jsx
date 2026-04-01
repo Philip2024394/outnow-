@@ -33,7 +33,7 @@ function Divider({ label }) {
   return <div className={styles.divider}>{label && <span className={styles.dividerLabel}>{label}</span>}</div>
 }
 
-export default function SettingsSheet({ open, onClose, onOpenLikes, onEditProfile, onOpenBlockList, showToast }) {
+export default function SettingsSheet({ open, onClose, onOpenLikes, onEditProfile, onOpenBlockList, showToast, onSOS }) {
   const { permission, requestPermission } = usePushNotifications()
   const [notifOn, setNotifOn] = useState(permission === 'granted')
   const [signingOut, setSigningOut] = useState(false)
@@ -136,6 +136,14 @@ export default function SettingsSheet({ open, onClose, onOpenLikes, onEditProfil
           sublabel="Tips for staying safe while meeting up"
           onClick={() => showToast?.('Always meet in a public place. Trust your instincts.')}
         />
+        <button className={styles.sosRow} onClick={() => { onClose(); setTimeout(() => onSOS?.(), 200) }}>
+          <span className={styles.sosIcon}>🆘</span>
+          <div className={styles.sosText}>
+            <span className={styles.sosLabel}>Emergency SOS</span>
+            <span className={styles.sosSub}>{safetyContact ? `Sends help request to ${safetyContact.name}` : 'Set a safety contact first'}</span>
+          </div>
+          <span className={styles.sosArrow}>›</span>
+        </button>
 
         {/* Account */}
         <Divider label="Account" />
