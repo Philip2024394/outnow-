@@ -310,6 +310,9 @@ export default function GoLiveSheet({ open, onClose, showToast, activeVenues = [
         {/* Place */}
         <div className={styles.section}>
           <label className={styles.label}>{mode === 'later' ? 'Where are you planning to go?' : 'Where are you?'}</label>
+          <p className={styles.placeSub}>
+            Select a public place — only your estimated area is shown to others. Your exact location is never shared unless you choose to share it in chat.
+          </p>
           <PlaceSearch userCoords={gpsCoords ?? coords} onSelect={handlePlaceSelect} />
           {selectedPlace && (
             <div className={styles.selectedPlace}>

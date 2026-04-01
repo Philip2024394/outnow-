@@ -284,6 +284,24 @@
   color: #39FF14;
 }
 
+/* Place privacy hint */
+.placeSub {
+  font-size: 11px;
+  color: var(--color-text-dim, rgba(255,255,255,0.3));
+  margin: -6px 0 10px;
+  line-height: 1.5;
+  display: flex;
+  align-items: flex-start;
+  gap: 5px;
+}
+
+.placeSub::before {
+  content: '🔒';
+  font-size: 11px;
+  flex-shrink: 0;
+  margin-top: 1px;
+}
+
 /* Social link input */
 .socialInputWrap {
   display: flex;
