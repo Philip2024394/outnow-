@@ -63,28 +63,85 @@
 }
 
 /* Time selector */
+/* Time picker */
+.timePicker {
+  display: flex;
+  align-items: flex-start;
+  gap: 6px;
+}
+
+.timeColumn {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  flex: 1;
+}
+
+.timeColLabel {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--color-text-muted);
+  text-align: center;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.timeColon {
+  font-size: 22px;
+  font-weight: 700;
+  color: var(--color-text-muted);
+  padding-top: 22px;
+  flex-shrink: 0;
+}
+
 .timeScroll {
   display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-  max-height: 130px;
+  flex-direction: column;
+  gap: 5px;
+  max-height: 150px;
   overflow-y: auto;
   scrollbar-width: none;
+  padding: 2px;
 }
 
 .timeScroll::-webkit-scrollbar { display: none; }
 
+.ampmCol {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
 .timeBtn {
-  padding: 7px 12px;
-  border-radius: 20px;
+  width: 100%;
+  padding: 9px 0;
+  border-radius: 10px;
   border: 1.5px solid var(--color-border);
   background: var(--color-surface-2);
-  font-size: 13px;
+  font-size: 14px;
   font-weight: 600;
   color: var(--color-text-muted);
   cursor: pointer;
   font-family: var(--font-sans);
+  text-align: center;
   transition: border-color 0.15s, background 0.15s, color 0.15s;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.ampmBtn {
+  width: 100%;
+  padding: 13px 0;
+  border-radius: 10px;
+  border: 1.5px solid var(--color-border);
+  background: var(--color-surface-2);
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--color-text-muted);
+  cursor: pointer;
+  font-family: var(--font-sans);
+  text-align: center;
+  transition: border-color 0.15s, background 0.15s, color 0.15s;
+  -webkit-tap-highlight-color: transparent;
 }
 
 .timeBtnActive {

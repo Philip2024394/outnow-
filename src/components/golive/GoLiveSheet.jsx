@@ -37,22 +37,17 @@ function buildDayOptions() {
   return days
 }
 
-function buildTimeOptions(selectedDay) {
-  const times = []
-  const now = new Date()
-  const isToday = selectedDay && selectedDay.toDateString() === now.toDateString()
-  for (let h = 0; h < 24; h++) {
-    for (const m of [0, 30]) {
-      const t = new Date(selectedDay || now)
-      t.setHours(h, m, 0, 0)
-      if (isToday && t <= now) continue
-      times.push({
-        label: t.toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' }),
-        value: t,
-      })
-    }
-  }
-  return times
+const HOURS   = Array.from({ length: 12 }, (_, i) => String(i + 1).padStart(2, '0'))
+const MINUTES = ['00', '05', '10', '15', '20', '25', '30', '35', '40', '45', '50', '55']
+
+function buildSelectedTime(day, hour12, minute, ampm) {
+  if (!day) return null
+  let h = parseInt(hour12, 10)
+  if (ampm === 'PM' && h !== 12) h += 12
+  if (ampm === 'AM' && h === 12) h = 0
+  const t = new Date(day)
+  t.setHours(h, parseInt(minute, 10), 0, 0)
+  return t
 }
 
 export default function GoLiveSheet({ open, onClose, showToast, activeVenues = [] }) {
@@ -74,8 +69,10 @@ export default function GoLiveSheet({ open, onClose, showToast, activeVenues = [
 
   const dayOptions = useMemo(() => buildDayOptions(), [])
   const [selectedDay, setSelectedDay] = useState(dayOptions[0].value)
-  const timeOptions = useMemo(() => buildTimeOptions(selectedDay), [selectedDay])
-  const [selectedTime, setSelectedTime] = useState(null)
+  const [timeHour,   setTimeHour]   = useState('08')
+  const [timeMinute, setTimeMinute] = useState('00')
+  const [timeAmPm,   setTimeAmPm]   = useState('PM')
+  const selectedTime = buildSelectedTime(selectedDay, timeHour, timeMinute, timeAmPm)
 
   const handleGpsReady = useCallback((c) => setGpsCoords(c), [])
   const handlePlaceSelect = useCallback((place) => {
@@ -87,7 +84,7 @@ export default function GoLiveSheet({ open, onClose, showToast, activeVenues = [
     if (mode === 'now' && !gpsCoords) { setError('Waiting for location…'); return }
     if (!selectedPlace) { setError('Select a place first.'); return }
     if (!selectedActivity) { setError('What are you up to?'); return }
-    if (mode === 'later' && !selectedTime) { setError('Pick a time.'); return }
+    if (mode === 'later' && !selectedTime) { setError('Select a day first.'); return }
 
     setLoading(true)
     setError(null)
@@ -124,7 +121,7 @@ export default function GoLiveSheet({ open, onClose, showToast, activeVenues = [
     setLoading(false)
   }
 
-  const canSubmit = selectedPlace && selectedActivity && (mode === 'now' ? !!gpsCoords : !!selectedTime)
+  const canSubmit = selectedPlace && selectedActivity && (mode === 'now' ? !!gpsCoords : true)
 
   return (
     <BottomSheet open={open} onClose={onClose} title="">
@@ -198,16 +195,35 @@ export default function GoLiveSheet({ open, onClose, showToast, activeVenues = [
                 </button>
               ))}
             </div>
-            <div className={styles.timeScroll}>
-              {timeOptions.map((t) => (
-                <button
-                  key={t.value.getTime()}
-                  className={[styles.timeBtn, selectedTime?.getTime() === t.value.getTime() ? styles.timeBtnActive : ''].join(' ')}
-                  onClick={() => setSelectedTime(t.value)}
-                >
-                  {t.label}
-                </button>
-              ))}
+            <div className={styles.timePicker}>
+              {/* Hour */}
+              <div className={styles.timeColumn}>
+                <span className={styles.timeColLabel}>Hour</span>
+                <div className={styles.timeScroll}>
+                  {HOURS.map(h => (
+                    <button key={h} className={`${styles.timeBtn} ${timeHour === h ? styles.timeBtnActive : ''}`} onClick={() => setTimeHour(h)}>{h}</button>
+                  ))}
+                </div>
+              </div>
+              <span className={styles.timeColon}>:</span>
+              {/* Minute */}
+              <div className={styles.timeColumn}>
+                <span className={styles.timeColLabel}>Min</span>
+                <div className={styles.timeScroll}>
+                  {MINUTES.map(m => (
+                    <button key={m} className={`${styles.timeBtn} ${timeMinute === m ? styles.timeBtnActive : ''}`} onClick={() => setTimeMinute(m)}>{m}</button>
+                  ))}
+                </div>
+              </div>
+              {/* AM / PM */}
+              <div className={styles.timeColumn}>
+                <span className={styles.timeColLabel}>AM/PM</span>
+                <div className={styles.ampmCol}>
+                  {['AM', 'PM'].map(p => (
+                    <button key={p} className={`${styles.ampmBtn} ${timeAmPm === p ? styles.timeBtnActive : ''}`} onClick={() => setTimeAmPm(p)}>{p}</button>
+                  ))}
+                </div>
+              </div>
             </div>
           </div>
         )}
