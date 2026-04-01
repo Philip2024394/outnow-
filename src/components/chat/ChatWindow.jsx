@@ -53,11 +53,14 @@ export default function ChatWindow({ conversation: conv, onBack, onSend, onUnloc
   const handleSend = useCallback(() => {
     const trimmed = text.trim()
     if (!trimmed || expired) return
-    const { blocked, reason } = filterMessage(trimmed)
-    if (blocked) { setBlockedMsg(BLOCK_MESSAGES[reason]); return }
+    // Only filter free/pending chats — once paid and unlocked, users may share freely
+    if (!isUnlocked) {
+      const { blocked, reason } = filterMessage(trimmed)
+      if (blocked) { setBlockedMsg(BLOCK_MESSAGES[reason]); return }
+    }
     onSend(trimmed)
     setText('')
-  }, [text, expired, onSend])
+  }, [text, expired, isUnlocked, onSend])
 
   const handleUnlock = async () => {
     setUnlocking(true)
@@ -145,7 +148,7 @@ export default function ChatWindow({ conversation: conv, onBack, onSend, onUnloc
             <div className={styles.lockCard}>
               <span className={styles.lockEmoji}>🔒</span>
               <h3 className={styles.lockTitle}>{conv.displayName} sent you a message</h3>
-              <p className={styles.lockSub}>Pay {UNLOCK_PRICE} to read and reply. No numbers shared — meet in person.</p>
+              <p className={styles.lockSub}>Pay {UNLOCK_PRICE} to read and reply. Once unlocked you can share numbers, socials — anything you like.</p>
               <button className={styles.unlockBtn} onClick={handleUnlock} disabled={unlocking}>
                 {unlocking ? 'Processing…' : `Unlock Chat · ${UNLOCK_PRICE}`}
               </button>
@@ -178,7 +181,7 @@ export default function ChatWindow({ conversation: conv, onBack, onSend, onUnloc
           <div className={styles.pendingNotice}>
             <span>⏳</span>
             <p>Waiting for {conv.displayName} to unlock.</p>
-            <p className={styles.pendingSub}>They pay {UNLOCK_PRICE} to read and reply.</p>
+            <p className={styles.pendingSub}>They pay {UNLOCK_PRICE} to read, reply, and share freely.</p>
           </div>
         )}
 
@@ -187,7 +190,7 @@ export default function ChatWindow({ conversation: conv, onBack, onSend, onUnloc
           <div className={styles.freeNotice}>
             <span className={styles.freeIcon}>💬</span>
             <h3 className={styles.freeTitle}>Your first message is free</h3>
-            <p className={styles.freeSub}>Say hi to {conv.displayName}. They pay {UNLOCK_PRICE} to reply — then you both get 10 minutes.</p>
+            <p className={styles.freeSub}>Say hi to {conv.displayName}. They pay {UNLOCK_PRICE} to reply — then you both get 10 minutes to chat and share details freely.</p>
           </div>
         )}
 

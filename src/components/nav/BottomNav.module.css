@@ -66,6 +66,11 @@
   border: 1.5px solid rgba(10,10,10,0.9);
 }
 
+/* Active venues indicator */
+.venuesActive {
+  background: rgba(57,255,20,0.08);
+}
+
 /* Active filter indicator on the funnel button */
 .filterActive {
   background: rgba(57,255,20,0.08);

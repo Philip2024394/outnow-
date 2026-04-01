@@ -42,7 +42,7 @@ const TABS = [
   },
 ]
 
-export default function BottomNav({ activeTab = 'map', onChange, unreadChats = 0, hasActiveMapFilter, onOpenFilter }) {
+export default function BottomNav({ activeTab = 'map', onChange, unreadChats = 0, hasActiveMapFilter, onOpenFilter, onOpenVenues, activeVenueCount = 0 }) {
   return (
     <nav className={styles.nav}>
       {TABS.map((tab) => {
@@ -62,6 +62,23 @@ export default function BottomNav({ activeTab = 'map', onChange, unreadChats = 0
           </button>
         )
       })}
+
+      {/* Venues button — always visible */}
+      <button
+        className={`${styles.tab} ${activeVenueCount > 0 ? styles.venuesActive : ''}`}
+        onClick={onOpenVenues}
+        aria-label="Hot venues"
+      >
+        <span className={styles.iconWrap}>
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke={activeVenueCount > 0 ? '#39FF14' : '#666'} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>
+            <polyline points="9 22 9 12 15 12 15 22"/>
+          </svg>
+          {activeVenueCount > 0 && (
+            <span className={styles.badge}>{activeVenueCount > 9 ? '9+' : activeVenueCount}</span>
+          )}
+        </span>
+      </button>
 
       {/* Filter button — only on map tab */}
       {activeTab === 'map' && (

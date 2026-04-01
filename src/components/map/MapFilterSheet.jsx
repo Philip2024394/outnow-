@@ -1,5 +1,6 @@
 import BottomSheet from '@/components/ui/BottomSheet'
 import styles from './MapFilterSheet.module.css'
+import { ALL_COUNTRIES } from '@/utils/countries'
 
 const ACTIVITIES = ['All', 'Drinks', 'Food', 'Coffee', 'Walk', 'Hangout', 'Cinema', 'Shopping']
 const GENDERS    = ['All', 'Men', 'Women', 'Gay', 'Lesbian', 'Bisexual', 'Non-binary', 'Trans', 'Queer']
@@ -82,13 +83,21 @@ export default function MapFilterSheet({ open, onClose, filters, onChange, onRes
           )}
         </div>
 
-        {/* Country — read-only */}
         <div className={styles.field}>
           <label className={styles.fieldLabel}>Country</label>
-          <div className={styles.countryRow}>
-            <span className={styles.flag}>🇬🇧</span>
-            <span className={styles.countryName}>{filters.country}</span>
-            <span className={styles.countryLock}>Auto-detected</span>
+          <div className={styles.selectWrap}>
+            <select
+              className={styles.select}
+              value={filters.country}
+              onChange={e => onChange({ ...filters, country: e.target.value })}
+            >
+              {ALL_COUNTRIES.map(c => (
+                <option key={c.code} value={c.name}>{c.flag} {c.name}</option>
+              ))}
+            </select>
+            <svg className={styles.selectArrow} width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+              <polyline points="6 9 12 15 18 9" />
+            </svg>
           </div>
         </div>
 

@@ -1,81 +1,52 @@
 import styles from './ProfileStrip.module.css'
-import { activityEmoji } from '@/firebase/collections'
 
-function fmtScheduled(ms) {
-  if (!ms) return ''
-  const d = new Date(ms)
-  const now = new Date()
-  const isToday = d.toDateString() === now.toDateString()
-  return (isToday ? '' : d.toLocaleDateString([], { weekday: 'short' }) + ' ') +
-    d.toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' })
-}
-
-export default function ProfileStrip({ sessions = [], selectedId, onSelect, hideLive, hideScheduled, onToggleLive, onToggleScheduled, otwUserId = null }) {
-  if (sessions.length === 0) return null
-
+export default function ProfileStrip({
+  hideLive,
+  hideScheduled,
+  onToggleLive,
+  onToggleScheduled,
+  outNowCount = 0,
+  outLaterCount = 0,
+  isLive = false,
+  onActivate,
+  onEnd,
+}) {
   return (
     <div className={styles.strip}>
 
-      {/* Green — toggle Out Now profiles */}
+      {/* Left — Out Now toggle badge */}
       <button
-        className={`${styles.sideBtn} ${hideLive ? styles.sideBtnOff : ''}`}
+        className={`${styles.sideBtn} ${styles.sideBtnNow} ${hideLive ? styles.sideBtnOff : ''}`}
         onClick={onToggleLive}
         aria-label={hideLive ? 'Show Out Now' : 'Hide Out Now'}
       >
-        <span className={`${styles.sideDot} ${hideLive ? styles.sideDotRed : styles.sideDotGreen}`} />
+        <span className={styles.sideBadgeCount}>{outNowCount}</span>
+        <span className={styles.sideBadgeLabel}>Out Now</span>
       </button>
 
-      <div className={styles.rail}>
-        {sessions.map((s) => {
-          const isSelected = s.id === selectedId
-          const isOtw = otwUserId && s.userId === otwUserId
-          return (
-            <button
-              key={s.id}
-              className={`${styles.card} ${isSelected ? styles.cardSelected : ''}`}
-              onClick={() => onSelect?.(s)}
-            >
-              {/* Avatar */}
-              <div className={`${styles.avatarWrap} ${isOtw ? styles.avatarOtw : isSelected ? styles.avatarSelected : ''}`}>
-                {s.photoURL
-                  ? <img src={s.photoURL} alt={s.displayName} className={`${styles.avatarImg} ${isOtw ? styles.avatarImgOtw : ''}`} />
-                  : <span className={styles.avatarEmoji}>
-                      {s.displayName?.[0]?.toUpperCase() ?? '?'}
-                    </span>
-                }
-                {/* Online / scheduled / OTW dot */}
-                <span className={
-                  isOtw ? styles.otwDot :
-                  s.status === 'scheduled' ? styles.scheduledDot :
-                  styles.onlineDot
-                } />
-                {/* Activity badge */}
-                <span className={styles.activityBadge}>{activityEmoji(s.activityType)}</span>
-                {/* OTW label */}
-                {isOtw && <span className={styles.otwLabel}>OTW</span>}
-              </div>
-
-              {/* Name */}
-              <span className={`${styles.name} ${isOtw ? styles.nameOtw : isSelected ? styles.nameSelected : ''}`}>
-                {s.displayName?.split(' ')[0]}
-              </span>
-
-              {/* Area or scheduled time */}
-              <span className={isOtw ? styles.areaOtw : s.status === 'scheduled' ? styles.areaScheduled : styles.area}>
-                {isOtw ? 'On the way' : s.status === 'scheduled' ? fmtScheduled(s.scheduledFor) : (s.area ?? '')}
-              </span>
-            </button>
-          )
-        })}
+      {/* Centre — action button */}
+      <div className={styles.centre}>
+        {isLive ? (
+          <button className={styles.finishBtn} onClick={onEnd}>
+            <span className={styles.finishDot} />
+            <span className={styles.btnLabel}>FINISH OUT</span>
+          </button>
+        ) : (
+          <button className={styles.activateBtn} onClick={onActivate}>
+            <span className={styles.activateDot} />
+            <span className={styles.btnLabel}>I'M OUT NOW</span>
+          </button>
+        )}
       </div>
 
-      {/* Orange — toggle Out Later profiles */}
+      {/* Right — Out Later toggle badge */}
       <button
-        className={`${styles.sideBtn} ${hideScheduled ? styles.sideBtnOff : ''}`}
+        className={`${styles.sideBtn} ${styles.sideBtnLater} ${hideScheduled ? styles.sideBtnOff : ''}`}
         onClick={onToggleScheduled}
         aria-label={hideScheduled ? 'Show Out Later' : 'Hide Out Later'}
       >
-        <span className={`${styles.sideDot} ${hideScheduled ? styles.sideDotRed : styles.sideDotOrange}`} />
+        <span className={styles.sideBadgeCount}>{outLaterCount}</span>
+        <span className={`${styles.sideBadgeLabel} ${styles.sideBadgeLabelOrange}`}>Out Later</span>
       </button>
 
     </div>

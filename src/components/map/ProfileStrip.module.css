@@ -10,75 +10,166 @@
   overflow: visible;
   display: flex;
   flex-direction: row;
-  align-items: center;
+  align-items: flex-end;
   gap: 10px;
 }
 
-/* ── Side filter buttons — both in normal flex flow ── */
+/* Centre column: avatar + button stacked */
+.centre {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  pointer-events: all;
+}
+
+/* ── Side toggle badge buttons ── */
 .sideBtn {
   flex-shrink: 0;
-  width: 38px;
-  height: 38px;
-  border-radius: 50%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 3px;
+  padding: 8px 10px;
+  border-radius: 16px;
   background: rgba(8, 8, 8, 0.78);
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
-  border: 1.5px solid rgba(255,255,255,0.12);
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  border: 1.5px solid;
   cursor: pointer;
   pointer-events: all;
   -webkit-tap-highlight-color: transparent;
-  transition: opacity 0.15s, border-color 0.15s;
+  transition: opacity 0.2s, background 0.2s;
+  font-family: inherit;
+  min-width: 58px;
 }
 
-.sideBtn:active { transform: scale(0.88); }
+.sideBtn:active { transform: scale(0.92); }
+
+.sideBtnNow   { border-color: rgba(57,255,20,0.35); }
+.sideBtnLater { border-color: rgba(255,149,0,0.35); }
 
 .sideBtnOff {
-  border-color: rgba(255, 59, 48, 0.6);
-  background: rgba(255, 59, 48, 0.1);
+  opacity: 0.35;
 }
 
-.sideDot {
-  width: 12px;
-  height: 12px;
-  border-radius: 50%;
-  transition: box-shadow 0.2s, background 0.2s;
+.sideBadgeCount {
+  font-size: 18px;
+  font-weight: 800;
+  color: #fff;
+  line-height: 1;
+  letter-spacing: -0.02em;
 }
 
-.sideDotGreen {
-  background: #39FF14;
-  box-shadow: 0 0 8px #39FF14;
+.sideBadgeLabel {
+  font-size: 9px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: #39FF14;
+  line-height: 1;
 }
 
-.sideDotOrange {
-  background: #FF9500;
-  box-shadow: 0 0 8px #FF9500;
+.sideBadgeLabelOrange {
+  color: #FF9500;
 }
 
-.sideDotRed {
-  background: #FF3B30;
-  box-shadow: 0 0 8px #FF3B30;
-}
-
-
-.rail {
-  flex: 1;
+/* ── I'M OUT NOW / FINISH OUT buttons ── */
+.activateBtn {
   display: flex;
-  justify-content: center;
-  gap: 10px;
-  overflow-x: auto;
-  overflow-y: visible;
-  -webkit-overflow-scrolling: touch;
-  scrollbar-width: none;
-  padding: 4px 2px 2px;
+  align-items: center;
+  gap: 8px;
+  background: #39FF14;
+  color: #080808;
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: 0.07em;
+  padding: 10px 20px;
+  border-radius: 100px;
+  border: none;
+  cursor: pointer;
   pointer-events: all;
+  box-shadow: 0 0 0 4px rgba(57,255,20,0.15), 0 0 24px rgba(57,255,20,0.35);
+  -webkit-tap-highlight-color: transparent;
+  transition: transform 0.12s ease, box-shadow 0.12s ease;
+  white-space: nowrap;
+  font-family: inherit;
 }
 
-.rail::-webkit-scrollbar { display: none; }
+.activateBtn:active {
+  transform: scale(0.95);
+  box-shadow: 0 0 0 2px rgba(57,255,20,0.1), 0 0 12px rgba(57,255,20,0.2);
+}
 
-/* Each profile card */
+.activateDot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #080808;
+  animation: activate-pulse 1.5s ease-in-out infinite;
+  flex-shrink: 0;
+}
+
+@keyframes activate-pulse {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50%       { opacity: 0.5; transform: scale(1.3); }
+}
+
+.finishBtn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: rgba(18, 18, 18, 0.92);
+  color: #fff;
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: 0.07em;
+  padding: 10px 20px;
+  border-radius: 100px;
+  border: 1.5px solid rgba(255, 59, 48, 0.5);
+  cursor: pointer;
+  pointer-events: all;
+  box-shadow: 0 0 0 4px rgba(255,59,48,0.08), 0 0 20px rgba(255,59,48,0.2);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  -webkit-tap-highlight-color: transparent;
+  transition: transform 0.12s ease, background 0.12s ease;
+  white-space: nowrap;
+  font-family: inherit;
+}
+
+.finishBtn:active {
+  transform: scale(0.95);
+  background: rgba(255,59,48,0.15);
+}
+
+.finishDot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #FF3B30;
+  box-shadow: 0 0 6px #FF3B30;
+  animation: finish-pulse 1.5s ease-in-out infinite;
+  flex-shrink: 0;
+}
+
+@keyframes finish-pulse {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50%       { opacity: 0.5; transform: scale(1.3); }
+}
+
+.btnLabel { text-transform: uppercase; }
+
+.emptyAvatar {
+  width: 70px;
+  height: 70px;
+  border-radius: 50%;
+  background: rgba(255,255,255,0.04);
+  border: 2px dashed rgba(255,255,255,0.1);
+}
+
+/* Featured profile card */
 .card {
   display: flex;
   flex-direction: column;
@@ -100,8 +191,8 @@
 /* Avatar */
 .avatarWrap {
   position: relative;
-  width: 58px;
-  height: 58px;
+  width: 70px;
+  height: 70px;
   border-radius: 50%;
   background: #1e1e1e;
   border: 2.5px solid rgba(255,255,255,0.15);
@@ -128,7 +219,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 22px;
+  font-size: 28px;
   font-weight: 700;
   color: #fff;
   background: #252525;
@@ -241,7 +332,7 @@
 .areaOtw {
   font-size: 10px;
   color: #FF3B30;
-  max-width: 58px;
+  max-width: 70px;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -253,7 +344,7 @@
   font-size: 12px;
   font-weight: 600;
   color: rgba(255,255,255,0.75);
-  max-width: 58px;
+  max-width: 70px;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -267,7 +358,7 @@
 .area {
   font-size: 10px;
   color: rgba(255,255,255,0.35);
-  max-width: 58px;
+  max-width: 70px;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -276,7 +367,7 @@
 .areaScheduled {
   font-size: 10px;
   color: #FF9500;
-  max-width: 58px;
+  max-width: 70px;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;

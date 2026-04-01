@@ -1,35 +1,11 @@
 import { useState, useEffect } from 'react'
 import styles from './ProfileSetup.module.css'
+import { ALL_COUNTRIES, detectCountryByIP } from '@/utils/countries'
 
 const LOGO_URL = 'https://ik.imagekit.io/dateme/Logo%20with%20green%20map%20pin%20element.png'
 
-// Country list with flag emojis
-const COUNTRIES = [
-  { name: 'United Kingdom', flag: '🇬🇧' },
-  { name: 'United States',  flag: '🇺🇸' },
-  { name: 'Ireland',        flag: '🇮🇪' },
-  { name: 'Australia',      flag: '🇦🇺' },
-  { name: 'Canada',         flag: '🇨🇦' },
-  { name: 'Germany',        flag: '🇩🇪' },
-  { name: 'France',         flag: '🇫🇷' },
-  { name: 'Spain',          flag: '🇪🇸' },
-  { name: 'Italy',          flag: '🇮🇹' },
-  { name: 'Netherlands',    flag: '🇳🇱' },
-  { name: 'Sweden',         flag: '🇸🇪' },
-  { name: 'Norway',         flag: '🇳🇴' },
-  { name: 'Denmark',        flag: '🇩🇰' },
-  { name: 'Portugal',       flag: '🇵🇹' },
-  { name: 'Belgium',        flag: '🇧🇪' },
-  { name: 'Switzerland',    flag: '🇨🇭' },
-  { name: 'UAE',            flag: '🇦🇪' },
-  { name: 'South Africa',   flag: '🇿🇦' },
-  { name: 'New Zealand',    flag: '🇳🇿' },
-  { name: 'Singapore',      flag: '🇸🇬' },
-  { name: 'Other',          flag: '🌍' },
-]
-
 function countryFlag(name) {
-  return COUNTRIES.find(c => c.name === name)?.flag ?? '🏳️'
+  return ALL_COUNTRIES.find(c => c.name === name)?.flag ?? '🏳️'
 }
 
 const LOOKING   = ['Date', 'Meet now', 'Chat first', 'Just browsing']
@@ -52,15 +28,9 @@ export default function ProfileSetup({ onDone }) {
   const [, setNotif]  = useState(false)
 
   useEffect(() => {
-    fetch('https://ipapi.co/json/')
-      .then(r => r.json())
-      .then(d => {
-        const match = COUNTRIES.find(c =>
-          c.name.toLowerCase() === (d.country_name ?? '').toLowerCase()
-        )
-        if (match) setCountry(match.name)
-      })
-      .catch(() => {})
+    detectCountryByIP().then(found => {
+      if (found) setCountry(found.name)
+    })
   }, [])
 
   const finish = () => {
@@ -129,8 +99,8 @@ export default function ProfileSetup({ onDone }) {
                 onChange={e => setCountry(e.target.value)}
               >
                 <option value="">Select your country…</option>
-                {COUNTRIES.map(c => (
-                  <option key={c.name} value={c.name}>{c.flag} {c.name}</option>
+                {ALL_COUNTRIES.map(c => (
+                  <option key={c.code} value={c.name}>{c.flag} {c.name}</option>
                 ))}
               </select>
               <svg className={styles.selectChevron} width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">

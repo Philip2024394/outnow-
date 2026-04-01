@@ -92,6 +92,39 @@ function MyDot() {
   return null
 }
 
+function VenueMarkers({ venues, onSelectVenue }) {
+  const map = useMap()
+
+  useEffect(() => {
+    const markers = []
+
+    venues.forEach((venue) => {
+      const isHot = venue.count >= 2
+      const icon = divIcon({
+        className: '',
+        html: `<div class="venue-marker${isHot ? ' venue-marker--hot' : ''}">
+                 <div class="venue-marker__bubble">
+                   <span class="venue-marker__emoji">${venue.emoji}</span>
+                   <span class="venue-marker__count">${venue.count} here</span>
+                 </div>
+                 <div class="venue-marker__label">${venue.name}</div>
+               </div>`,
+        iconSize: [90, 52],
+        iconAnchor: [45, 20],
+      })
+
+      const m = marker([venue.lat, venue.lng], { icon })
+      m.on('click', () => onSelectVenue(venue))
+      m.addTo(map)
+      markers.push(m)
+    })
+
+    return () => markers.forEach(m => m.remove())
+  }, [venues, map, onSelectVenue])
+
+  return null
+}
+
 function EmptyMapState() {
   return (
     <div className={styles.emptyState}>
@@ -102,7 +135,7 @@ function EmptyMapState() {
   )
 }
 
-export default function DemoMapView({ sessions, onSelectUser }) {
+export default function DemoMapView({ sessions, onSelectUser, activeVenues = [], onSelectVenue }) {
   return (
     <div className={styles.wrapper}>
       {sessions.length === 0 && <EmptyMapState />}
@@ -121,6 +154,7 @@ export default function DemoMapView({ sessions, onSelectUser }) {
           maxZoom={19}
         />
         <MyDot />
+        <VenueMarkers venues={activeVenues} onSelectVenue={onSelectVenue ?? (() => {})} />
         <LiveMarkers sessions={sessions} onSelect={onSelectUser} />
       </MapContainer>
     </div>
