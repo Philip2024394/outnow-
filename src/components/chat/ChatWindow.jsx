@@ -1,10 +1,12 @@
 import { useState, useRef, useEffect, useCallback } from 'react'
 import { filterMessage, BLOCK_MESSAGES } from '@/utils/contentFilter'
+import { useAuth } from '@/hooks/useAuth'
 import styles from './ChatWindow.module.css'
 
-const UNLOCK_PRICE = '$0.99'
-const CHAT_WINDOW_MS = 10 * 60 * 1000 // 10 minutes
-const IS_DEMO = import.meta.env.VITE_DEMO_MODE === 'true'
+const UNLOCK_PRICE  = '$0.99'
+const CHAT_WINDOW_MS = 10 * 60 * 1000
+const URGENT_MS      = 2  * 60 * 1000
+const IS_DEMO        = import.meta.env.VITE_DEMO_MODE === 'true'
 
 function formatTime(ms) {
   return new Date(ms).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
@@ -12,34 +14,30 @@ function formatTime(ms) {
 
 function useChatTimer(openedAt) {
   const [msLeft, setMsLeft] = useState(null)
-
   useEffect(() => {
     if (!openedAt) return
-    const tick = () => {
-      const left = Math.max(0, CHAT_WINDOW_MS - (Date.now() - openedAt))
-      setMsLeft(left)
-    }
+    const tick = () => setMsLeft(Math.max(0, CHAT_WINDOW_MS - (Date.now() - openedAt)))
     tick()
     const id = setInterval(tick, 1000)
     return () => clearInterval(id)
   }, [openedAt])
-
   const expired = msLeft === 0
-  const mins = msLeft !== null ? Math.floor(msLeft / 60000) : null
-  const secs = msLeft !== null ? Math.floor((msLeft % 60000) / 1000) : null
+  const urgent  = msLeft !== null && msLeft > 0 && msLeft <= URGENT_MS
+  const mins    = msLeft !== null ? Math.floor(msLeft / 60000) : null
+  const secs    = msLeft !== null ? Math.floor((msLeft % 60000) / 1000) : null
   const display = msLeft !== null
     ? `${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}`
     : null
-  const urgent = msLeft !== null && msLeft < 120000 // last 2 mins
-
-  return { display, expired, urgent }
+  return { display, expired, urgent, msLeft }
 }
 
 export default function ChatWindow({ conversation: conv, onBack, onSend, onUnlock }) {
-  const [text, setText] = useState('')
+  const { user } = useAuth()
+  const [text, setText]           = useState('')
   const [unlocking, setUnlocking] = useState(false)
   const [blockedMsg, setBlockedMsg] = useState(null)
-  const messagesEndRef = useRef(null)
+  const [liked, setLiked]         = useState({})   // msgId → true
+  const messagesEndRef             = useRef(null)
 
   const { display: timerDisplay, expired, urgent } = useChatTimer(conv.openedAt ?? null)
 
@@ -47,7 +45,6 @@ export default function ChatWindow({ conversation: conv, onBack, onSend, onUnloc
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
   }, [conv.messages])
 
-  // Clear blocked message hint after 3s
   useEffect(() => {
     if (!blockedMsg) return
     const id = setTimeout(() => setBlockedMsg(null), 3500)
@@ -57,25 +54,20 @@ export default function ChatWindow({ conversation: conv, onBack, onSend, onUnloc
   const handleSend = useCallback(() => {
     const trimmed = text.trim()
     if (!trimmed || expired) return
-
     const { blocked, reason } = filterMessage(trimmed)
-    if (blocked) {
-      setBlockedMsg(BLOCK_MESSAGES[reason])
-      return
-    }
-
+    if (blocked) { setBlockedMsg(BLOCK_MESSAGES[reason]); return }
     onSend(trimmed)
     setText('')
   }, [text, expired, onSend])
 
   const handleUnlock = async () => {
     setUnlocking(true)
-    if (IS_DEMO) {
-      await new Promise(r => setTimeout(r, 1200))
-      onUnlock()
-    }
+    if (IS_DEMO) { await new Promise(r => setTimeout(r, 1200)); onUnlock() }
     setUnlocking(false)
   }
+
+  const toggleLike = (msgId) =>
+    setLiked(prev => ({ ...prev, [msgId]: !prev[msgId] }))
 
   const isLocked   = conv.status === 'locked'
   const isPending  = conv.status === 'pending'
@@ -83,13 +75,18 @@ export default function ChatWindow({ conversation: conv, onBack, onSend, onUnloc
   const isUnlocked = conv.status === 'unlocked'
   const canType    = (isUnlocked || isFree) && !expired
 
+  const myInitial   = user?.displayName?.[0]?.toUpperCase() ?? 'Me'
+  const myPhoto     = user?.photoURL ?? null
+  const themInitial = conv.displayName?.[0]?.toUpperCase() ?? '?'
+
   return (
     <div className={styles.window}>
-      {/* Header */}
+
+      {/* ── Header (arched, green line) ── */}
       <div className={styles.header}>
-        <button className={styles.backBtn} onClick={onBack}>
+        <button className={styles.backBtn} onClick={onBack} aria-label="Back">
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-            <polyline points="15 18 9 12 15 6" />
+            <polyline points="15 18 9 12 15 6"/>
           </svg>
         </button>
 
@@ -97,44 +94,54 @@ export default function ChatWindow({ conversation: conv, onBack, onSend, onUnloc
           <div className={styles.headerAvatar}>
             {conv.photoURL
               ? <img src={conv.photoURL} alt={conv.displayName} className={styles.headerAvatarImg} />
-              : <span>{conv.emoji}</span>
+              : <span className={styles.headerAvatarEmoji}>{conv.emoji}</span>
             }
-            {conv.online && <span className={styles.onlineDot} />}
+            {conv.online && <span className={styles.headerOnlineDot} />}
           </div>
           <div className={styles.headerInfo}>
             <span className={styles.headerName}>{conv.displayName}</span>
-            <span className={styles.headerStatus}>{conv.online ? 'Online now' : 'Offline'}</span>
+            <span className={styles.headerAge}>{conv.age ? `${conv.age} yrs` : ''}</span>
           </div>
         </div>
 
-        {/* 10-min countdown — only show when chat is active */}
-        {timerDisplay && (isUnlocked || isFree) && (
-          <div className={[styles.timer, urgent ? styles.timerUrgent : ''].join(' ')}>
-            <span className={styles.timerIcon}>⏱</span>
+        {timerDisplay && (isUnlocked || isFree) ? (
+          <div className={`${styles.timer} ${urgent ? styles.timerUrgent : ''}`}>
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+              <circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>
+            </svg>
             <span className={styles.timerDisplay}>{timerDisplay}</span>
           </div>
+        ) : (
+          <div style={{ width: 64 }} />
         )}
-        {!(timerDisplay && (isUnlocked || isFree)) && <div style={{ width: 60 }} />}
       </div>
 
-      {/* Chat window notice */}
-      {(isUnlocked || isFree) && timerDisplay && !expired && (
-        <div className={[styles.windowNotice, urgent ? styles.windowNoticeUrgent : ''].join(' ')}>
-          {urgent
-            ? "Almost out of time — swap numbers in person! 🏃"
-            : "10-min chat window — make it count, then meet IRL 🟢"
-          }
+      {/* ── Urgent contact banner ── */}
+      {urgent && !expired && (
+        <div className={styles.urgentBanner}>
+          <span className={styles.urgentIcon}>⚡</span>
+          <span>
+            Share contact details before this chat closes — <strong>{timerDisplay}</strong> left
+          </span>
         </div>
       )}
 
-      {/* Messages */}
+      {/* ── Regular notice ── */}
+      {!urgent && (isUnlocked || isFree) && timerDisplay && !expired && (
+        <div className={styles.windowNotice}>
+          🟢 10-min chat window — make it count, then meet IRL
+        </div>
+      )}
+
+      {/* ── Messages ── */}
       <div className={styles.messages}>
-        {/* Locked state */}
+
+        {/* Locked */}
         {isLocked && (
           <div className={styles.lockedOverlay}>
             <div className={styles.blurredMsg}>
               <div className={styles.blurBubble} />
-              <div className={styles.blurBubble} style={{ width: '60%' }} />
+              <div className={styles.blurBubble} style={{ width: '55%' }} />
             </div>
             <div className={styles.lockCard}>
               <span className={styles.lockEmoji}>🔒</span>
@@ -150,14 +157,27 @@ export default function ChatWindow({ conversation: conv, onBack, onSend, onUnloc
 
         {/* Pending */}
         {isPending && conv.messages.map(msg => (
-          <div key={msg.id} className={`${styles.bubble} ${styles.bubbleMine}`}>
-            <span className={styles.bubbleText}>{msg.text}</span>
-            <span className={styles.bubbleTime}>{formatTime(msg.time)}</span>
+          <div key={msg.id} className={`${styles.row} ${styles.rowMine}`}>
+            <div className={styles.bubbleWrap}>
+              <div className={`${styles.bubble} ${styles.bubbleMine}`}>
+                <span className={styles.bubbleText}>{msg.text}</span>
+                <span className={styles.bubbleTime}>{formatTime(msg.time)}</span>
+              </div>
+              <button className={`${styles.likeBtn} ${liked[msg.id] ? styles.likeBtnActive : ''}`} onClick={() => toggleLike(msg.id)}>
+                ❤️
+              </button>
+            </div>
+            <div className={styles.bubbleAvatar}>
+              {myPhoto
+                ? <img src={myPhoto} alt="Me" className={styles.bubbleAvatarImg} />
+                : <span className={styles.bubbleAvatarInitial}>{myInitial}</span>
+              }
+            </div>
           </div>
         ))}
         {isPending && (
           <div className={styles.pendingNotice}>
-            <span className={styles.pendingIcon}>⏳</span>
+            <span>⏳</span>
             <p>Waiting for {conv.displayName} to unlock.</p>
             <p className={styles.pendingSub}>They pay {UNLOCK_PRICE} to read and reply.</p>
           </div>
@@ -174,68 +194,96 @@ export default function ChatWindow({ conversation: conv, onBack, onSend, onUnloc
 
         {/* Unlocked messages */}
         {isUnlocked && conv.messages.map(msg => (
-          <div key={msg.id} className={`${styles.bubble} ${msg.fromMe ? styles.bubbleMine : styles.bubbleTheirs}`}>
-            <span className={styles.bubbleText}>{msg.text}</span>
-            <span className={styles.bubbleTime}>{formatTime(msg.time)}</span>
+          <div key={msg.id} className={`${styles.row} ${msg.fromMe ? styles.rowMine : styles.rowTheirs}`}>
+            {/* Their avatar on left */}
+            {!msg.fromMe && (
+              <div className={styles.bubbleAvatar}>
+                {conv.photoURL
+                  ? <img src={conv.photoURL} alt={conv.displayName} className={styles.bubbleAvatarImg} />
+                  : <span className={styles.bubbleAvatarInitial}>{themInitial}</span>
+                }
+              </div>
+            )}
+
+            <div className={styles.bubbleWrap}>
+              <div className={`${styles.bubble} ${msg.fromMe ? styles.bubbleMine : styles.bubbleTheirs}`}>
+                <span className={styles.bubbleText}>{msg.text}</span>
+                <span className={styles.bubbleTime}>{formatTime(msg.time)}</span>
+              </div>
+              <button
+                className={`${styles.likeBtn} ${liked[msg.id] ? styles.likeBtnActive : ''}`}
+                onClick={() => toggleLike(msg.id)}
+              >
+                ❤️
+              </button>
+            </div>
+
+            {/* My avatar on right */}
+            {msg.fromMe && (
+              <div className={styles.bubbleAvatar}>
+                {myPhoto
+                  ? <img src={myPhoto} alt="Me" className={styles.bubbleAvatarImg} />
+                  : <span className={styles.bubbleAvatarInitial}>{myInitial}</span>
+                }
+              </div>
+            )}
           </div>
         ))}
 
-        {/* Expired state */}
+        {/* Expired */}
         {expired && (isUnlocked || isFree) && (
           <div className={styles.expiredCard}>
             <span className={styles.expiredIcon}>🤝</span>
             <h3 className={styles.expiredTitle}>Time's up — go meet them!</h3>
-            <p className={styles.expiredSub}>The chat window closed. If you liked each other, you already know where they are. Go say hi.</p>
+            <p className={styles.expiredSub}>The chat window has closed. If you connected, go say hi in person.</p>
           </div>
         )}
 
         <div ref={messagesEndRef} />
       </div>
 
-      {/* Blocked message hint */}
+      {/* Blocked hint */}
       {blockedMsg && (
-        <div className={styles.blockedHint}>
-          <span>🚫</span> {blockedMsg}
-        </div>
+        <div className={styles.blockedHint}><span>🚫</span> {blockedMsg}</div>
       )}
 
-      {/* Input bar */}
+      {/* ── Input bar ── */}
       {canType && (
         <div className={styles.inputBar}>
-          {isFree && (
-            <div className={styles.freeTag}>
-              <span className={styles.freeTagDot} />
-              First message free
-            </div>
-          )}
-          <div className={styles.inputRow}>
-            <input
-              className={styles.input}
-              value={text}
-              onChange={e => setText(e.target.value)}
-              onKeyDown={e => e.key === 'Enter' && handleSend()}
-              placeholder={isFree ? 'Send your free message…' : 'Message…'}
-              autoComplete="off"
-            />
-            <button className={styles.sendBtn} onClick={handleSend} disabled={!text.trim()}>
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
-                <path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/>
-              </svg>
-            </button>
-          </div>
+          {/* Flag / report */}
+          <button className={styles.flagBtn} aria-label="Report">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"/><line x1="4" y1="22" x2="4" y2="15"/>
+            </svg>
+          </button>
+
+          <input
+            className={styles.input}
+            value={text}
+            onChange={e => setText(e.target.value)}
+            onKeyDown={e => e.key === 'Enter' && handleSend()}
+            placeholder="Message…"
+            autoComplete="off"
+          />
+
+          <button
+            className={`${styles.sendBtn} ${text.trim() ? styles.sendBtnActive : ''}`}
+            onClick={handleSend}
+            disabled={!text.trim()}
+            aria-label="Send"
+          >
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/>
+            </svg>
+          </button>
         </div>
       )}
 
       {isLocked && (
-        <div className={styles.inputBarDisabled}>
-          <span>🔒 Unlock to reply</span>
-        </div>
+        <div className={styles.inputBarDisabled}><span>🔒 Unlock to reply</span></div>
       )}
-
       {expired && (
-        <div className={styles.inputBarDisabled}>
-          <span>⏱ Chat window closed — meet in person</span>
-        </div>
+        <div className={styles.inputBarDisabled}><span>⏱ Chat window closed — meet in person</span></div>
       )}
     </div>
   )
