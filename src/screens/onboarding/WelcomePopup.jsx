@@ -15,7 +15,7 @@ const STEPS = [
   },
   {
     id: 'chat',
-    icon: '💬',
+    img: 'https://ik.imagekit.io/dateme/No%20chatting%20smartphone%20message.png',
     accent: '#39FF14',
     title: 'No Chatting',
     body: "Skip the awkward back-and-forth. There's no messaging — if it's mutual, you both get notified and decide to meet in person.",
