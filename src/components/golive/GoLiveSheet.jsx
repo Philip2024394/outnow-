@@ -11,9 +11,15 @@ import FeatureIntro, { useFeatureIntro } from '@/components/ui/FeatureIntro'
 import styles from './GoLiveSheet.module.css'
 
 const DURATIONS = [
-  { label: '30 min', value: 30 },
-  { label: '1 hour', value: 60 },
-  { label: '2 hours', value: 120 },
+  { label: '30 min',   value: 30 },
+  { label: '1 hour',   value: 60 },
+  { label: '2 hours',  value: 120 },
+  { label: '3 hours',  value: 180 },
+  { label: '4 hours',  value: 240 },
+  { label: 'Tonight',  value: 480,  hint: '~8h' },
+  { label: '1 day',    value: 1440 },
+  { label: 'Weekend',  value: 2880, hint: '2 days' },
+  { label: '1 week',   value: 10080 },
 ]
 
 function buildDayOptions() {
@@ -266,7 +272,7 @@ export default function GoLiveSheet({ open, onClose, showToast }) {
 
         {/* Duration */}
         <div className={styles.section}>
-          <label className={styles.label}>How long?</label>
+          <label className={styles.label}>How long are you around?</label>
           <div className={styles.durations}>
             {DURATIONS.map((d) => (
               <button
@@ -274,7 +280,8 @@ export default function GoLiveSheet({ open, onClose, showToast }) {
                 className={[styles.durationBtn, selectedDuration === d.value ? styles.durationSelected : ''].join(' ')}
                 onClick={() => setSelectedDuration(d.value)}
               >
-                {d.label}
+                <span>{d.label}</span>
+                {d.hint && <span className={styles.durationHint}>{d.hint}</span>}
               </button>
             ))}
           </div>

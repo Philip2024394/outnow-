@@ -190,19 +190,30 @@
 /* Duration chips */
 .durations {
   display: flex;
-  gap: 10px;
+  gap: 8px;
+  overflow-x: auto;
+  scrollbar-width: none;
+  padding-bottom: 4px;
 }
 
+.durations::-webkit-scrollbar { display: none; }
+
 .durationBtn {
-  flex: 1;
-  padding: 12px 0;
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  padding: 10px 16px;
   background: var(--color-surface-2);
   border: 1.5px solid transparent;
   border-radius: 12px;
-  font-size: 14px;
+  font-size: 13px;
   font-weight: 600;
   color: var(--color-text-muted);
+  font-family: var(--font-sans);
   cursor: pointer;
+  white-space: nowrap;
   transition: border-color 0.15s, background 0.15s, color 0.15s, transform 0.1s;
   -webkit-tap-highlight-color: transparent;
 }
@@ -215,6 +226,12 @@
   border-color: var(--color-live);
   background: var(--color-live-dim);
   color: var(--color-live);
+}
+
+.durationHint {
+  font-size: 10px;
+  font-weight: 500;
+  opacity: 0.6;
 }
 
 /* Social link input */
