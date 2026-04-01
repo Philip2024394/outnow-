@@ -72,7 +72,7 @@ const DEMO_UNLOCK = {
   unlockedAt: new Date(),
 }
 
-export default function AppShell({ returnParams }) {
+export default function AppShell({ returnParams, triggerGoLive }) {
   const { overlay, closeOverlay, openGoLive, openVenueReveal, openDiscovery } = useOverlay()
   const { session: mySession, needsCheckIn } = useMySession()
   const { incomingRequest, myOutgoingRequest } = useOtwRequests()
@@ -127,6 +127,11 @@ export default function AppShell({ returnParams }) {
   useEffect(() => {
     if (unlock) openVenueReveal(unlock)
   }, [unlock]) // eslint-disable-line
+
+  // Open Go Live sheet immediately if nudged from onboarding
+  useEffect(() => {
+    if (triggerGoLive) openGoLive()
+  }, [triggerGoLive]) // eslint-disable-line
 
   // Safety check-in — notify when session goes live
   const prevSessionRef = useRef(null)

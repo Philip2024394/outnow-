@@ -5,6 +5,7 @@ import AppShell from '@/router/AppShell'
 import Spinner from '@/components/ui/Spinner'
 import WelcomePopup from '@/screens/onboarding/WelcomePopup'
 import ProfileSetup from '@/screens/onboarding/ProfileSetup'
+import GoLivePrompt from '@/screens/onboarding/GoLivePrompt'
 import AdminApp from '@/admin/AdminApp'
 import styles from './App.module.css'
 
@@ -26,12 +27,12 @@ export default function App() {
   const [adminPass, setAdminPass] = useState(false)
   const [returnParams, setReturnParams] = useState(null)
 
-  // Onboarding state
+  // Onboarding state: 'welcome' → 'setup' → 'golive' → 'done'
   const [onboardStep, setOnboardStep] = useState(() => {
-    // If already completed, skip straight to app
     if (localStorage.getItem(ONBOARDING_KEY)) return 'done'
-    return 'welcome' // 'welcome' → 'setup' → 'done'
+    return 'welcome'
   })
+  const [triggerGoLive, setTriggerGoLive] = useState(false)
 
   // Handle return from Stripe Checkout
   useEffect(() => {
@@ -58,7 +59,7 @@ export default function App() {
 
   return (
     <>
-      <AppShell returnParams={returnParams} />
+      <AppShell returnParams={returnParams} triggerGoLive={triggerGoLive} />
 
       {/* Onboarding overlays — shown once on first visit */}
       {onboardStep === 'welcome' && (
@@ -67,10 +68,15 @@ export default function App() {
       {onboardStep === 'setup' && (
         <ProfileSetup
           onDone={(profile) => {
-            // In a real app: save profile to Firestore here
             localStorage.setItem(ONBOARDING_KEY, JSON.stringify(profile))
-            setOnboardStep('done')
+            setOnboardStep('golive')
           }}
+        />
+      )}
+      {onboardStep === 'golive' && (
+        <GoLivePrompt
+          onGoLive={() => { setTriggerGoLive(true); setOnboardStep('done') }}
+          onSkip={() => setOnboardStep('done')}
         />
       )}
     </>
