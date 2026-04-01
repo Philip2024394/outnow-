@@ -23,7 +23,7 @@ const STEPS = [
   {
     id: 'like',
     icon: '❤️',
-    accent: '#FF6B35',
+    accent: '#FF3B30',
     title: 'Just Like & Wait',
     body: "See someone out nearby? Hit like. When they like back you both get a notification instantly. That's the whole app.",
   },
