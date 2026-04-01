@@ -111,8 +111,6 @@ export default function ProfileSetup({ onDone }) {
         {step === 0 && (
           <div className={styles.stepContent}>
             <img src="https://ik.imagekit.io/dateme/What's%20your%20name_%20in%20green.png" alt="What's your name?" className={styles.stepImg} />
-            <h2 className={styles.title}>What's your name?</h2>
-            <p className={styles.sub}>This is how others will see you on the map.</p>
 
             {/* Name */}
             <input

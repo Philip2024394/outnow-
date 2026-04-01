@@ -34,11 +34,12 @@
 .inner {
   flex: 1;
   overflow: hidden;
-  padding: calc(env(safe-area-inset-top, 0px) + 16px) 24px 16px;
+  padding: calc(env(safe-area-inset-top, 0px) + 12px) 24px 12px;
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 14px;
+  justify-content: center;
+  gap: 12px;
 }
 
 /* ── Logo ── */
@@ -57,12 +58,13 @@
   gap: 12px;
 }
 
-/* Step image (replaces avatar on name step) */
+/* Step image */
 .stepImg {
-  width: 180px;
+  width: 200px;
   height: auto;
   object-fit: contain;
   align-self: center;
+  flex-shrink: 0;
 }
 
 /* Avatar placeholder */
