@@ -55,7 +55,7 @@ function buildTimeOptions(selectedDay) {
   return times
 }
 
-export default function GoLiveSheet({ open, onClose, showToast }) {
+export default function GoLiveSheet({ open, onClose, showToast, activeVenues = [] }) {
   const { coords } = useGeolocation()
   const [mode, setMode] = useState('now') // 'now' | 'later'
   const [selectedPlace, setSelectedPlace] = useState(null)
@@ -286,6 +286,26 @@ export default function GoLiveSheet({ open, onClose, showToast }) {
             ))}
           </div>
         </div>
+
+        {/* Trending venues */}
+        {activeVenues.length > 0 && (
+          <div className={styles.section}>
+            <label className={styles.label}>🔥 People are here right now</label>
+            <div className={styles.trendingRow}>
+              {activeVenues.slice(0, 4).map(v => (
+                <button
+                  key={v.id}
+                  className={styles.trendingChip}
+                  onClick={() => handlePlaceSelect({ placeId: v.id, name: v.name, types: [v.type?.toLowerCase() ?? 'establishment'] })}
+                >
+                  <span className={styles.trendingEmoji}>{v.emoji}</span>
+                  <span className={styles.trendingName}>{v.name}</span>
+                  <span className={styles.trendingCount}>{v.count} {v.count === 1 ? 'person' : 'people'}</span>
+                </button>
+              ))}
+            </div>
+          </div>
+        )}
 
         {/* Place */}
         <div className={styles.section}>

@@ -271,7 +271,7 @@ export default function AppShell({ returnParams, triggerGoLive }) {
         onClose={() => setVenueListOpen(false)}
         onSelectVenue={(v) => { setSelectedVenue(v); setVenueSheetOpen(true) }}
       />
-      <GoLiveSheet open={overlay.type === OVERLAY.GO_LIVE} onClose={closeOverlay} showToast={showToast} />
+      <GoLiveSheet open={overlay.type === OVERLAY.GO_LIVE} onClose={closeOverlay} showToast={showToast} activeVenues={activeVenues} />
       <OtwSentSheet open={overlay.type === OVERLAY.OTW_SENT} request={overlay.data} onClose={closeOverlay} />
       <PaymentGate open={overlay.type === OVERLAY.PAYMENT_GATE} request={overlay.data} onClose={closeOverlay} showToast={showToast} />
       <VenueReveal open={overlay.type === OVERLAY.VENUE_REVEAL} unlock={overlay.data} request={myOutgoingRequest} onClose={closeOverlay} />

@@ -57,7 +57,7 @@ export default function PlaceSearch({ userCoords, onSelect }) {
 
     if (userCoords) {
       request.location = new window.google.maps.LatLng(userCoords.lat, userCoords.lng)
-      request.radius = 2000 // 2km bias
+      request.radius = 10000 // 10km bias
     }
 
     setLoading(true)
