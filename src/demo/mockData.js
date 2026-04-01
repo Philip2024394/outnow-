@@ -98,6 +98,60 @@ export const DEMO_SESSIONS = [
   },
 ]
 
+// Scheduled sessions — "I'm Out Later"
+// scheduledFor = ms timestamp when they go live
+function tonight(hour, minute = 0) {
+  const d = new Date(); d.setHours(hour, minute, 0, 0)
+  if (d.getTime() < Date.now()) d.setDate(d.getDate() + 1)
+  return d.getTime()
+}
+function tomorrow(hour, minute = 0) {
+  const d = new Date(); d.setDate(d.getDate() + 1); d.setHours(hour, minute, 0, 0)
+  return d.getTime()
+}
+
+export const DEMO_SCHEDULED_SESSIONS = [
+  {
+    id: 'demo-sched-1',
+    userId: 'demo-user-7',
+    displayName: 'Chloe',
+    photoURL: null,
+    activityType: 'drinks',
+    area: 'Soho',
+    status: 'scheduled',
+    scheduledFor: tonight(20, 0),
+    expiresAtMs: tonight(20, 0) + 120 * 60 * 1000,
+    startedAtMs: null,
+    ...offset(300, 700),
+  },
+  {
+    id: 'demo-sched-2',
+    userId: 'demo-user-8',
+    displayName: 'Eli',
+    photoURL: null,
+    activityType: 'food',
+    area: 'Shoreditch',
+    status: 'scheduled',
+    scheduledFor: tonight(19, 30),
+    expiresAtMs: tonight(19, 30) + 90 * 60 * 1000,
+    startedAtMs: null,
+    ...offset(400, 800),
+  },
+  {
+    id: 'demo-sched-3',
+    userId: 'demo-user-9',
+    displayName: 'Nina',
+    photoURL: null,
+    activityType: 'cinema',
+    area: 'Leicester Sq',
+    status: 'scheduled',
+    scheduledFor: tomorrow(18, 0),
+    expiresAtMs: tomorrow(18, 0) + 150 * 60 * 1000,
+    startedAtMs: null,
+    ...offset(200, 500),
+  },
+]
+
 export const DEMO_CENTER = { lat: BASE_LAT, lng: BASE_LNG }
 
 // Chat statuses:
@@ -114,6 +168,7 @@ export const DEMO_CONVERSATIONS = [
     age: 29,
     online: true,
     status: 'unlocked',
+    openedAt: now - 4 * 60 * 1000, // 4 minutes ago — 6 minutes left
     lastMessage: 'Which bar are you at now?',
     lastMessageTime: now - 5 * 60 * 1000,
     unread: 1,

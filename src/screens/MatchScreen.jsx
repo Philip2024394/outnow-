@@ -2,6 +2,8 @@ import { useState } from 'react'
 import { DEMO_MATCH_PROFILES } from '@/demo/mockData'
 import ProfileCard from '@/components/match/ProfileCard'
 import MatchModal from '@/components/match/MatchModal'
+import WeeklyDigestCard from '@/components/digest/WeeklyDigestCard'
+import { useWeeklyDigest } from '@/hooks/useWeeklyDigest'
 import styles from './MatchScreen.module.css'
 
 const LOGO_URL = 'https://ik.imagekit.io/dateme/Logo%20with%20green%20map%20pin%20element.png'
@@ -15,6 +17,7 @@ export default function MatchScreen() {
   const [lookingFilter, setLooking] = useState('All')
   const [likedCount, setLikedCount] = useState(0)
   const [matchedProfile, setMatched] = useState(null)
+  const { showDigest, digest, dismissDigest } = useWeeklyDigest()
 
   // Simulate ~50% chance of mutual match in demo
   const handleLike = (id) => {
@@ -78,6 +81,13 @@ export default function MatchScreen() {
 
       {/* Grid */}
       <div className={styles.scroll}>
+        {showDigest && (
+          <WeeklyDigestCard
+            users={digest}
+            onDismiss={dismissDigest}
+          />
+        )}
+
         {filtered.length === 0 && (
           <div className={styles.empty}>
             <span className={styles.emptyIcon}>🔍</span>

@@ -1,3 +1,98 @@
+/* Mode toggle */
+.modeToggle {
+  display: flex;
+  gap: 8px;
+  background: var(--color-surface-2);
+  border-radius: 14px;
+  padding: 4px;
+}
+
+.modeBtn {
+  flex: 1;
+  padding: 10px 0;
+  border-radius: 10px;
+  border: none;
+  background: transparent;
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--color-text-muted);
+  cursor: pointer;
+  font-family: var(--font-sans);
+  transition: background 0.15s, color 0.15s;
+}
+
+.modeBtnActive {
+  background: var(--color-live-dim);
+  color: var(--color-live);
+}
+
+.modeBtnLater {
+  background: rgba(255,149,0,0.12);
+  color: #FF9500;
+}
+
+/* Day selector */
+.dayScroll {
+  display: flex;
+  gap: 8px;
+  overflow-x: auto;
+  scrollbar-width: none;
+  padding-bottom: 2px;
+}
+
+.dayScroll::-webkit-scrollbar { display: none; }
+
+.dayBtn {
+  flex-shrink: 0;
+  padding: 8px 14px;
+  border-radius: 20px;
+  border: 1.5px solid var(--color-border);
+  background: var(--color-surface-2);
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--color-text-muted);
+  cursor: pointer;
+  font-family: var(--font-sans);
+  transition: border-color 0.15s, background 0.15s, color 0.15s;
+}
+
+.dayBtnActive {
+  border-color: #FF9500;
+  background: rgba(255,149,0,0.1);
+  color: #FF9500;
+}
+
+/* Time selector */
+.timeScroll {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  max-height: 130px;
+  overflow-y: auto;
+  scrollbar-width: none;
+}
+
+.timeScroll::-webkit-scrollbar { display: none; }
+
+.timeBtn {
+  padding: 7px 12px;
+  border-radius: 20px;
+  border: 1.5px solid var(--color-border);
+  background: var(--color-surface-2);
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--color-text-muted);
+  cursor: pointer;
+  font-family: var(--font-sans);
+  transition: border-color 0.15s, background 0.15s, color 0.15s;
+}
+
+.timeBtnActive {
+  border-color: #FF9500;
+  background: rgba(255,149,0,0.1);
+  color: #FF9500;
+}
+
 /* Sheet custom header */
 .sheetHeader {
   text-align: center;

@@ -11,8 +11,19 @@ export function useMySession() {
 
   useEffect(() => {
     // Demo / no Firebase → no active session by default
+    // To demo a scheduled session, set window.__DEMO_SCHEDULED = true in console
     if (!db) {
-      setSession(null)
+      if (window.__DEMO_SCHEDULED) {
+        setSession({
+          id: 'demo-my-scheduled',
+          status: 'scheduled',
+          activityType: 'drinks',
+          scheduledFor: Date.now() + 45 * 60 * 1000,
+          expiresAtMs: Date.now() + 165 * 60 * 1000,
+        })
+      } else {
+        setSession(null)
+      }
       return
     }
 
@@ -24,7 +35,7 @@ export function useMySession() {
     const q = query(
       collection(db, COLLECTIONS.SESSIONS),
       where('userId', '==', user.uid),
-      where('status', '==', SESSION_STATUS.ACTIVE),
+      where('status', 'in', [SESSION_STATUS.ACTIVE, 'scheduled']),
       limit(1)
     )
 
@@ -41,6 +52,7 @@ export function useMySession() {
         ...data,
         expiresAtMs: data.expiresAt?.toMillis?.() ?? 0,
         startedAtMs: data.startedAt?.toMillis?.() ?? 0,
+        scheduledFor: data.scheduledFor?.toMillis?.() ?? data.scheduledFor ?? null,
       })
       setNeedsCheckIn(data.needsCheckIn === true)
     })

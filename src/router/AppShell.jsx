@@ -9,6 +9,7 @@ import { useLiveUsers } from '@/hooks/useLiveUsers'
 
 import MapHeader from '@/components/map/MapHeader'
 import MapOverlay from '@/components/map/MapOverlay'
+import ProfileStrip from '@/components/map/ProfileStrip'
 import BottomNav from '@/components/nav/BottomNav'
 import GoLiveSheet from '@/components/golive/GoLiveSheet'
 import ActiveSessionBar from '@/components/session/ActiveSessionBar'
@@ -23,6 +24,7 @@ import LikedMeSheet from '@/components/likes/LikedMeSheet'
 import ProfileScreen from '@/screens/ProfileScreen'
 import ChatScreen from '@/screens/ChatScreen'
 import MatchScreen from '@/screens/MatchScreen'
+import AddToHomeScreenBanner from '@/components/pwa/AddToHomeScreenBanner'
 import Toast from '@/components/ui/Toast'
 import DemoMapView from '@/demo/DemoMapView'
 import MapView from '@/components/map/MapView'
@@ -59,6 +61,7 @@ export default function AppShell({ returnParams }) {
   const [toast, setToast] = useState(null)
   const [likedMeOpen, setLikedMeOpen] = useState(false)
   const [activeTab, setActiveTab] = useState('map')
+  const [selectedStripId, setSelectedStripId] = useState(null)
 
   const watchSessionId = returnParams?.sessionId ?? myOutgoingRequest?.sessionId ?? null
   const { unlock } = useVenueUnlock(watchSessionId)
@@ -92,7 +95,7 @@ export default function AppShell({ returnParams }) {
       {/* Map fills full screen (hidden when on non-map tab) */}
       {HAS_MAPS_KEY
         ? <GoogleMapsWrapper />
-        : <DemoMapView sessions={sessions} onSelectUser={openDiscovery} />
+        : <DemoMapView sessions={sessions} onSelectUser={(s) => { setSelectedStripId(s.id); openDiscovery(s) }} />
       }
 
       {/* Full-screen tab screens */}
@@ -139,6 +142,15 @@ export default function AppShell({ returnParams }) {
         </div>
       )}
 
+      {/* Profile strip — nearest live users, only visible on map tab */}
+      {activeTab === 'map' && (
+        <ProfileStrip
+          sessions={sessions.slice(0, 8)}
+          selectedId={selectedStripId}
+          onSelect={(s) => { setSelectedStripId(s.id); openDiscovery(s) }}
+        />
+      )}
+
       {/* Bottom nav — only show on map tab (other screens have own headers) */}
       <BottomNav
         activeTab={activeTab}
@@ -162,6 +174,7 @@ export default function AppShell({ returnParams }) {
       <ReportSheet open={overlay.type === OVERLAY.REPORT} session={overlay.data} onClose={closeOverlay} showToast={showToast} />
       <LikedMeSheet open={likedMeOpen} onClose={() => setLikedMeOpen(false)} />
 
+      <AddToHomeScreenBanner />
       <Toast message={toast?.message} type={toast?.type} onDismiss={() => setToast(null)} />
     </div>
   )

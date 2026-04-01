@@ -68,6 +68,28 @@
   background: var(--color-mutual);
 }
 
+.dotScheduled {
+  background: #FF9500;
+  animation: none;
+}
+
+.scheduledBadge {
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-semibold);
+  color: #FF9500;
+}
+
+.scheduledBanner {
+  background: rgba(255,149,0,0.08);
+  border: 1px solid rgba(255,149,0,0.3);
+  color: #FF9500;
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-medium);
+  text-align: center;
+  padding: var(--space-3);
+  border-radius: var(--radius-md);
+}
+
 .mutualBadge {
   margin-left: auto;
   font-size: var(--font-size-xs);

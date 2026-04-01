@@ -61,3 +61,23 @@
   color: var(--color-danger);
   border-color: var(--color-danger);
 }
+
+/* Scheduled (Out Later) variant */
+.barScheduled {
+  border-color: #FF9500;
+  box-shadow: 0 0 24px rgba(255,149,0,0.2), var(--shadow-md);
+}
+
+.liveDotScheduled {
+  background: #FF9500;
+  animation: none;
+}
+
+.labelScheduled {
+  color: #FF9500;
+}
+
+.sublabel {
+  font-size: var(--font-size-xs);
+  color: var(--color-text-dim);
+}

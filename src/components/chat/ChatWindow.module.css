@@ -374,6 +374,104 @@
   transform: scale(0.92);
 }
 
+/* ── 10-min timer ── */
+.timer {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  background: var(--color-surface-2);
+  border: 1px solid var(--color-border);
+  border-radius: 20px;
+  padding: 5px 10px;
+  min-width: 60px;
+  justify-content: center;
+}
+
+.timerIcon { font-size: 13px; }
+
+.timerDisplay {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--color-text-muted);
+  font-variant-numeric: tabular-nums;
+}
+
+.timerUrgent {
+  border-color: rgba(255,59,48,0.4);
+  background: rgba(255,59,48,0.08);
+}
+
+.timerUrgent .timerDisplay {
+  color: #FF3B30;
+}
+
+/* ── Chat window notice ── */
+.windowNotice {
+  flex-shrink: 0;
+  text-align: center;
+  font-size: 11px;
+  color: rgba(57,255,20,0.6);
+  padding: 6px 16px;
+  background: rgba(57,255,20,0.05);
+  border-bottom: 1px solid rgba(57,255,20,0.08);
+}
+
+.windowNoticeUrgent {
+  color: #FF3B30;
+  background: rgba(255,59,48,0.06);
+  border-bottom-color: rgba(255,59,48,0.1);
+}
+
+/* ── Blocked message hint ── */
+.blockedHint {
+  flex-shrink: 0;
+  margin: 0 16px 8px;
+  padding: 10px 14px;
+  background: rgba(255,59,48,0.08);
+  border: 1px solid rgba(255,59,48,0.2);
+  border-radius: 12px;
+  font-size: 13px;
+  color: #FF3B30;
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  line-height: 1.4;
+  animation: fade-in 0.2s ease;
+}
+
+@keyframes fade-in {
+  from { opacity: 0; transform: translateY(4px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* ── Expired state ── */
+.expiredCard {
+  margin-top: 24px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  text-align: center;
+  padding: 28px 24px;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: 20px;
+}
+
+.expiredIcon { font-size: 40px; }
+
+.expiredTitle {
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--color-text);
+}
+
+.expiredSub {
+  font-size: 14px;
+  color: var(--color-text-muted);
+  line-height: 1.5;
+}
+
 /* ── Locked input placeholder ── */
 .inputBarDisabled {
   flex-shrink: 0;

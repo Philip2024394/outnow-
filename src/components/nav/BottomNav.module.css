@@ -1,37 +1,44 @@
+/* Vertical right-side floating nav */
 .nav {
   position: absolute;
-  bottom: 0;
-  left: 0;
-  right: 0;
+  right: 14px;
+  top: 50%;
+  transform: translateY(-50%);
   z-index: var(--z-header);
-  display: flex;
-  align-items: flex-end;
-  justify-content: space-around;
-  background: rgba(8, 8, 8, 0.92);
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
-  border-top: 1px solid rgba(255,255,255,0.07);
-  padding-bottom: calc(var(--safe-bottom) + 6px);
-  padding-top: 10px;
-}
-
-.tab {
-  flex: 1;
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 4px;
-  padding: 4px 0 2px;
-  color: #555;
-  cursor: pointer;
-  transition: color 0.15s ease;
-  -webkit-tap-highlight-color: transparent;
+  gap: 10px;
+  background: rgba(10, 10, 10, 0.82);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 40px;
+  padding: 10px 8px;
+}
+
+.tab {
+  width: 46px;
+  height: 46px;
+  border-radius: 50%;
+  background: transparent;
   border: none;
-  background: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: background 0.15s ease, transform 0.12s ease;
+  -webkit-tap-highlight-color: transparent;
+  position: relative;
+}
+
+.tab:active {
+  transform: scale(0.88);
 }
 
 .tabActive {
-  color: #39FF14;
+  background: rgba(57, 255, 20, 0.12);
+  box-shadow: 0 0 0 1.5px rgba(57,255,20,0.35);
 }
 
 .iconWrap {
@@ -39,33 +46,22 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  height: 26px;
 }
 
 .badge {
   position: absolute;
-  top: -4px;
-  right: -8px;
-  min-width: 16px;
-  height: 16px;
+  top: -5px;
+  right: -7px;
+  min-width: 15px;
+  height: 15px;
   background: #39FF14;
   color: #080808;
-  font-size: 9px;
+  font-size: 8px;
   font-weight: 800;
   border-radius: 8px;
   display: flex;
   align-items: center;
   justify-content: center;
   padding: 0 3px;
-  border: 1.5px solid #080808;
-}
-
-.label {
-  font-size: 10px;
-  font-weight: 500;
-  letter-spacing: 0.03em;
-}
-
-.tabActive .label {
-  color: #39FF14;
+  border: 1.5px solid rgba(10,10,10,0.9);
 }

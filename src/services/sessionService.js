@@ -22,3 +22,18 @@ export async function confirmCheckIn(sessionId) {
   if (!functions) { await delay(300); return }
   await httpsCallable(functions, 'confirmCheckIn')({ sessionId })
 }
+
+export async function scheduleLive({ lat, lng, placeId, placeName, venueCategory, activityType, durationMinutes, socialLink, scheduledFor }) {
+  if (!functions) {
+    await delay(800)
+    return { sessionId: `demo-my-scheduled-${Date.now()}`, scheduledFor }
+  }
+  const fn = httpsCallable(functions, 'scheduleLive')
+  const result = await fn({ lat, lng, placeId, placeName, venueCategory, activityType, durationMinutes, socialLink, scheduledFor })
+  return result.data
+}
+
+export async function cancelScheduled(sessionId) {
+  if (!functions) { await delay(300); return }
+  await httpsCallable(functions, 'cancelScheduled')({ sessionId })
+}

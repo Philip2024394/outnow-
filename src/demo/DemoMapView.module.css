@@ -118,6 +118,43 @@
   z-index: 3;
 }
 
+/* Scheduled (Out Later) marker — orange */
+:global(.demo-marker--scheduled) {
+  height: 64px;
+}
+
+:global(.demo-marker__avatar--scheduled) {
+  border-color: #FF9500;
+  box-shadow: 0 0 0 2px #080808, 0 0 14px rgba(255,149,0,0.4);
+}
+
+:global(.demo-marker__clock) {
+  position: absolute;
+  top: -4px;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 13px;
+  z-index: 4;
+  line-height: 1;
+}
+
+:global(.demo-marker__time-label) {
+  position: absolute;
+  bottom: -14px;
+  left: 50%;
+  transform: translateX(-50%);
+  white-space: nowrap;
+  font-size: 9px;
+  font-weight: 700;
+  color: #FF9500;
+  background: rgba(8,8,8,0.85);
+  padding: 1px 5px;
+  border-radius: 6px;
+  border: 1px solid rgba(255,149,0,0.3);
+  font-family: -apple-system, BlinkMacSystemFont, sans-serif;
+  z-index: 4;
+}
+
 /* My location dot */
 :global(.demo-my-dot) {
   width: 16px;

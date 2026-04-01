@@ -6,6 +6,18 @@ import { activityEmoji } from '@/firebase/collections'
 import { DEMO_CENTER } from './mockData'
 import styles from './DemoMapView.module.css'
 
+function formatScheduledTime(ms) {
+  if (!ms) return ''
+  const d = new Date(ms)
+  const now = new Date()
+  const isToday = d.toDateString() === now.toDateString()
+  const isTomorrow = d.toDateString() === new Date(now.getTime() + 86400000).toDateString()
+  const timeStr = d.toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' })
+  if (isToday) return `Tonight ${timeStr}`
+  if (isTomorrow) return `Tomorrow ${timeStr}`
+  return d.toLocaleDateString([], { weekday: 'short' }) + ' ' + timeStr
+}
+
 // Fix default icon paths broken by Vite bundling
 import L from 'leaflet'
 delete L.Icon.Default.prototype._getIconUrl
@@ -25,17 +37,25 @@ function LiveMarkers({ sessions, onSelect }) {
       const emoji = activityEmoji(session.activityType)
       const initial = (session.displayName ?? 'U')[0].toUpperCase()
 
+      const isScheduled = session.status === 'scheduled'
+      const scheduledLabel = isScheduled ? formatScheduledTime(session.scheduledFor) : ''
+
       const icon = divIcon({
         className: '',
-        html: `
-          <div class="demo-marker">
-            <div class="demo-marker__pulse"></div>
-            <div class="demo-marker__pulse demo-marker__pulse--slow"></div>
-            <div class="demo-marker__avatar">${initial}</div>
-            <div class="demo-marker__activity">${emoji}</div>
-          </div>
-        `,
-        iconSize: [52, 52],
+        html: isScheduled
+          ? `<div class="demo-marker demo-marker--scheduled">
+               <div class="demo-marker__clock">🕐</div>
+               <div class="demo-marker__avatar demo-marker__avatar--scheduled">${initial}</div>
+               <div class="demo-marker__activity">${emoji}</div>
+               <div class="demo-marker__time-label">${scheduledLabel}</div>
+             </div>`
+          : `<div class="demo-marker">
+               <div class="demo-marker__pulse"></div>
+               <div class="demo-marker__pulse demo-marker__pulse--slow"></div>
+               <div class="demo-marker__avatar">${initial}</div>
+               <div class="demo-marker__activity">${emoji}</div>
+             </div>`,
+        iconSize: [52, 64],
         iconAnchor: [26, 26],
       })
 

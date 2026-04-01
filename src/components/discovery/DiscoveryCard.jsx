@@ -19,13 +19,23 @@ export default function DiscoveryCard({ open, session, onClose, showToast }) {
 
   if (!session) return null
 
+  const isScheduled = session.status === 'scheduled'
   const activity = ACTIVITY_TYPES.find(a => a.id === session.activityType)
   const emoji = activityEmoji(session.activityType)
   const isMutual = mutualSessions.has(session.id)
   const hasExpressedInterest = myInterests.has(session.id)
-  const minutesLeft = session.expiresAtMs
-    ? Math.max(0, Math.floor((session.expiresAtMs - Date.now()) / 60000))
-    : 0
+
+  function fmtScheduledFull(ms) {
+    if (!ms) return 'later'
+    const d = new Date(ms)
+    const now = new Date()
+    const isToday = d.toDateString() === now.toDateString()
+    const isTomorrow = d.toDateString() === new Date(now.getTime() + 86400000).toDateString()
+    const timeStr = d.toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' })
+    if (isToday) return `Tonight at ${timeStr}`
+    if (isTomorrow) return `Tomorrow at ${timeStr}`
+    return d.toLocaleDateString([], { weekday: 'long' }) + ' at ' + timeStr
+  }
 
   // User A invites User B to their location
   const handleInvite = async () => {
@@ -88,17 +98,24 @@ export default function DiscoveryCard({ open, session, onClose, showToast }) {
           </div>
         </div>
 
-        {/* Timer */}
+        {/* Timer / Scheduled badge */}
         <div className={styles.timerRow}>
-          <div className={[styles.dot, isMutual ? styles.dotMutual : ''].join(' ')} />
-          <CountdownTimer expiresAtMs={session.expiresAtMs} />
-          {isMutual && (
+          <div className={[styles.dot, isScheduled ? styles.dotScheduled : isMutual ? styles.dotMutual : ''].join(' ')} />
+          {isScheduled
+            ? <span className={styles.scheduledBadge}>🕐 {fmtScheduledFull(session.scheduledFor)}</span>
+            : <CountdownTimer expiresAtMs={session.expiresAtMs} />
+          }
+          {isMutual && !isScheduled && (
             <span className={styles.mutualBadge}>💜 Mutual</span>
           )}
         </div>
 
         {/* Status hint */}
-        {isMutual ? (
+        {isScheduled ? (
+          <div className={styles.scheduledBanner}>
+            Planning ahead — like them now and they'll know before they go out
+          </div>
+        ) : isMutual ? (
           <div className={styles.mutualBanner}>
             You both want to meet — press OTW to connect!
           </div>
@@ -110,28 +127,41 @@ export default function DiscoveryCard({ open, session, onClose, showToast }) {
 
         {/* Actions */}
         <div className={styles.actions}>
-          {/* OTW: always available, shows as primary when mutual */}
-          <Button
-            variant={isMutual ? 'otw' : 'ghost'}
-            size="lg"
-            fullWidth
-            loading={otwLoading}
-            onClick={handleOtw}
-          >
-            {isMutual ? '🚀 OTW — I\'m on my way!' : '👟 OTW'}
-          </Button>
-
-          {/* Invite: express interest for mutual match */}
-          {!hasExpressedInterest && !isMutual && (
+          {isScheduled ? (
+            /* Scheduled: express interest before they go live */
             <Button
               variant="mutual"
               size="lg"
               fullWidth
               loading={inviteLoading}
+              disabled={hasExpressedInterest}
               onClick={handleInvite}
             >
-              💜 Invite them to meet
+              {hasExpressedInterest ? '✓ Interest sent' : '🧡 I\'m interested — save my spot'}
             </Button>
+          ) : (
+            <>
+              <Button
+                variant={isMutual ? 'otw' : 'ghost'}
+                size="lg"
+                fullWidth
+                loading={otwLoading}
+                onClick={handleOtw}
+              >
+                {isMutual ? '🚀 OTW — I\'m on my way!' : '👟 OTW'}
+              </Button>
+              {!hasExpressedInterest && !isMutual && (
+                <Button
+                  variant="mutual"
+                  size="lg"
+                  fullWidth
+                  loading={inviteLoading}
+                  onClick={handleInvite}
+                >
+                  💜 Invite them to meet
+                </Button>
+              )}
+            </>
           )}
         </div>
 

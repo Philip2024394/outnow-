@@ -9,8 +9,7 @@
 .countBtn {
   position: absolute;
   left: 16px;
-  top: 50%;
-  transform: translateY(-50%);
+  top: 130px;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -64,8 +63,7 @@
 .timerBadge {
   position: absolute;
   right: 16px;
-  top: 50%;
-  transform: translateY(-50%);
+  top: 130px;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -92,7 +90,7 @@
 /* Bottom center — activate */
 .activateBtn {
   position: absolute;
-  bottom: 110px; /* above bottom nav */
+  bottom: 110px;
   left: 50%;
   transform: translateX(-50%);
   display: flex;
@@ -115,7 +113,7 @@
 }
 
 .activateBtn:active {
-  transform: translateX(-50%) scale(0.94);
+  transform: translateX(-50%) scale(0.95);
   box-shadow: 0 0 0 2px rgba(57,255,20,0.1), 0 0 16px rgba(57,255,20,0.2);
 }
 

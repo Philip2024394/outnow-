@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react'
 import { collection, query, where, onSnapshot } from 'firebase/firestore'
 import { db } from '@/firebase/config'
 import { COLLECTIONS, SESSION_STATUS } from '@/firebase/collections'
-import { DEMO_SESSIONS } from '@/demo/mockData'
+import { DEMO_SESSIONS, DEMO_SCHEDULED_SESSIONS } from '@/demo/mockData'
 import { useAuth } from './useAuth'
 import { useBlockList } from './useBlockList'
 
@@ -15,7 +15,7 @@ export function useLiveUsers() {
   useEffect(() => {
     // Demo mode — return mock sessions
     if (!db) {
-      setSessions(DEMO_SESSIONS)
+      setSessions([...DEMO_SESSIONS, ...DEMO_SCHEDULED_SESSIONS])
       setLoading(false)
       return
     }
@@ -28,7 +28,7 @@ export function useLiveUsers() {
 
     const q = query(
       collection(db, COLLECTIONS.SESSIONS),
-      where('status', '==', SESSION_STATUS.ACTIVE)
+      where('status', 'in', [SESSION_STATUS.ACTIVE, 'scheduled'])
     )
 
     const unsub = onSnapshot(q, (snapshot) => {
