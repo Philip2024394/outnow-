@@ -42,8 +42,9 @@
   gap: 20px;
 }
 
+/* ── Logo — 192px, same across all create-account pages ── */
 .logo {
-  height: 96px;
+  height: 192px;
   width: auto;
   object-fit: contain;
   flex-shrink: 0;
@@ -101,6 +102,7 @@
   outline: none;
   font-family: inherit;
   transition: border-color 0.15s;
+  box-sizing: border-box;
 }
 
 .input:focus {
@@ -111,22 +113,94 @@
   color: #444;
 }
 
-.ageRow {
+/* Country select */
+.selectWrap {
+  position: relative;
   display: flex;
   align-items: center;
-  gap: 12px;
+  background: #1e1e1e;
+  border: 1.5px solid rgba(255,255,255,0.1);
+  border-radius: 14px;
+  transition: border-color 0.15s;
 }
 
-.ageLabel {
-  font-size: 14px;
-  font-weight: 600;
-  color: #888;
-  flex-shrink: 0;
+.selectWrap:focus-within {
+  border-color: rgba(57,255,20,0.5);
+}
+
+.selectIcon {
+  position: absolute;
+  left: 14px;
+  font-size: 18px;
+  pointer-events: none;
+}
+
+.select {
+  width: 100%;
+  appearance: none;
+  -webkit-appearance: none;
+  background: transparent;
+  border: none;
+  color: #fff;
+  font-size: 16px;
+  font-family: inherit;
+  padding: 16px 40px 16px 44px;
+  outline: none;
+  cursor: pointer;
+}
+
+.select option {
+  background: #1e1e1e;
+  color: #fff;
+}
+
+.selectChevron {
+  position: absolute;
+  right: 14px;
+  color: rgba(255,255,255,0.3);
+  pointer-events: none;
+}
+
+/* Age + Gender row */
+.ageGenderRow {
+  display: flex;
+  gap: 10px;
+  align-items: stretch;
 }
 
 .ageInput {
-  width: 100px !important;
+  width: 90px !important;
+  flex-shrink: 0;
   text-align: center;
+  padding: 16px 10px !important;
+}
+
+.genderPair {
+  flex: 1;
+  display: flex;
+  gap: 8px;
+}
+
+.genderBtn {
+  flex: 1;
+  padding: 14px 8px;
+  background: #1e1e1e;
+  border: 1.5px solid rgba(255,255,255,0.1);
+  border-radius: 14px;
+  color: #888;
+  font-size: 15px;
+  font-weight: 600;
+  font-family: inherit;
+  cursor: pointer;
+  transition: border-color 0.15s, color 0.15s, background 0.15s;
+  -webkit-tap-highlight-color: transparent;
+  text-align: center;
+}
+
+.genderActive {
+  border-color: #39FF14;
+  background: rgba(57,255,20,0.1);
+  color: #39FF14;
 }
 
 .error {
@@ -135,7 +209,7 @@
   text-align: center;
 }
 
-/* Option list (gender) */
+/* Option list (kept for other steps if needed) */
 .optionList {
   display: flex;
   flex-direction: column;
@@ -203,6 +277,7 @@
   color: #888;
   font-size: 14px;
   font-weight: 500;
+  font-family: inherit;
   cursor: pointer;
   transition: border-color 0.15s, color 0.15s, background 0.15s;
   -webkit-tap-highlight-color: transparent;
@@ -212,6 +287,35 @@
   border-color: #39FF14;
   color: #39FF14;
   background: rgba(57,255,20,0.1);
+}
+
+/* Photo step */
+.photoBig {
+  width: 120px;
+  height: 120px;
+  border-radius: 50%;
+  background: #1e1e1e;
+  border: 3px solid #39FF14;
+  box-shadow: 0 0 32px rgba(57,255,20,0.3);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 56px;
+  align-self: center;
+}
+
+.photoBtn {
+  width: 100%;
+  padding: 16px;
+  background: #1e1e1e;
+  border: 1.5px solid rgba(57,255,20,0.3);
+  border-radius: 14px;
+  color: #39FF14;
+  font-size: 16px;
+  font-weight: 700;
+  font-family: inherit;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
 }
 
 /* Notifications step */
@@ -263,6 +367,7 @@
   box-shadow: 0 0 24px rgba(57,255,20,0.35);
   -webkit-tap-highlight-color: transparent;
   transition: transform 0.12s;
+  font-family: inherit;
 }
 
 .notifBtn:active { transform: scale(0.97); }
@@ -275,6 +380,7 @@
   color: #444;
   font-size: 14px;
   cursor: pointer;
+  font-family: inherit;
   -webkit-tap-highlight-color: transparent;
 }
 
@@ -303,6 +409,7 @@
   transition: opacity 0.15s, transform 0.12s;
   -webkit-tap-highlight-color: transparent;
   box-shadow: 0 0 24px rgba(57,255,20,0.3);
+  font-family: inherit;
 }
 
 .nextBtn:disabled {

@@ -1,9 +1,30 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import styles from './ProfileSetup.module.css'
 
 const LOGO_URL = 'https://ik.imagekit.io/dateme/Logo%20with%20green%20map%20pin%20element.png'
 
-const GENDERS   = ['Man', 'Woman', 'Non-binary', 'Prefer not to say']
+// Detect country from timezone
+function detectCountry() {
+  try {
+    const tz = Intl.DateTimeFormat().resolvedOptions().timeZone ?? ''
+    if (tz.includes('London') || tz.includes('Europe/London')) return 'United Kingdom'
+    if (tz.includes('America/New_York') || tz.includes('America/Chicago') || tz.includes('America/Los_Angeles') || tz.includes('America/Denver')) return 'United States'
+    if (tz.includes('Europe/Dublin')) return 'Ireland'
+    if (tz.includes('Europe/Paris') || tz.includes('Europe/Berlin') || tz.includes('Europe/Amsterdam')) return 'Europe'
+    if (tz.includes('Australia')) return 'Australia'
+    if (tz.includes('America/Toronto') || tz.includes('America/Vancouver')) return 'Canada'
+    if (tz.includes('Asia/Dubai')) return 'UAE'
+  } catch {}
+  return ''
+}
+
+const COUNTRIES = [
+  'United Kingdom', 'United States', 'Ireland', 'Australia', 'Canada',
+  'Germany', 'France', 'Spain', 'Italy', 'Netherlands', 'Sweden',
+  'Norway', 'Denmark', 'Portugal', 'Belgium', 'Switzerland',
+  'UAE', 'South Africa', 'New Zealand', 'Singapore', 'Other',
+]
+
 const LOOKING   = ['Date', 'Meet now', 'Chat first', 'Just browsing']
 const AVAILABLE = ['Right now', 'Today', 'Tonight', 'This weekend']
 const MEET_FIRST = ['☕ Coffee', '🍺 Drinks', '🚶 Walk', '🍽️ Dinner']
@@ -18,12 +39,18 @@ export default function ProfileSetup({ onDone }) {
   const [name, setName]           = useState('')
   const [age, setAge]             = useState('')
   const [gender, setGender]       = useState('')
+  const [country, setCountry]     = useState('')
   const [tagline, setTagline]     = useState('')
   const [lookingFor, setLooking]  = useState('')
   const [available, setAvailable] = useState('')
   const [meetFirst, setMeetFirst] = useState([])
   const [photoEmoji]              = useState(['😊','😎','🌸','🤙','✨','🎯','🔥','🦋'][Math.floor(Math.random()*8)])
-  const [notifGranted, setNotif]  = useState(false)
+  const [, setNotif]  = useState(false)
+
+  useEffect(() => {
+    const detected = detectCountry()
+    if (detected) setCountry(detected)
+  }, [])
 
   const toggleMeet = (v) =>
     setMeetFirst(p => p.includes(v) ? p.filter(x => x !== v) : [...p, v])
@@ -31,16 +58,16 @@ export default function ProfileSetup({ onDone }) {
   const finish = () => {
     setLeaving(true)
     setTimeout(() => onDone({
-      name, age, gender, tagline, lookingFor, available,
+      name, age, gender, country, tagline, lookingFor, available,
       meetFirst, photoEmoji,
     }), 350)
   }
 
   const canNext = [
-    name.trim().length >= 2 && age >= 18 && age <= 99,
-    !!gender,
+    name.trim().length >= 2 && Number(age) >= 18 && Number(age) <= 99 && !!gender,
     !!lookingFor && !!available,
-    true, // notifications step always passable
+    true,
+    true,
   ][step]
 
   const requestNotif = async () => {
@@ -64,15 +91,16 @@ export default function ProfileSetup({ onDone }) {
       </div>
 
       <div className={styles.inner}>
-        <img src={LOGO_URL} alt="IMOUTNOW" className={styles.logo} />
+        <img src={LOGO_URL} alt="imoutnow.com" className={styles.logo} />
 
-        {/* ── STEP 0: Name + Age ── */}
+        {/* ── STEP 0: Name + Country + Age + Gender ── */}
         {step === 0 && (
           <div className={styles.stepContent}>
             <div className={styles.avatar}>{photoEmoji}</div>
             <h2 className={styles.title}>What's your name?</h2>
             <p className={styles.sub}>This is how others will see you on the map.</p>
 
+            {/* Name */}
             <input
               className={styles.input}
               placeholder="First name"
@@ -82,51 +110,55 @@ export default function ProfileSetup({ onDone }) {
               autoFocus
             />
 
-            <div className={styles.ageRow}>
-              <label className={styles.ageLabel}>Age</label>
+            {/* Country */}
+            <div className={styles.selectWrap}>
+              <span className={styles.selectIcon}>🌍</span>
+              <select
+                className={styles.select}
+                value={country}
+                onChange={e => setCountry(e.target.value)}
+              >
+                <option value="">Select your country…</option>
+                {COUNTRIES.map(c => (
+                  <option key={c} value={c}>{c}</option>
+                ))}
+              </select>
+              <svg className={styles.selectChevron} width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
+                <polyline points="6 9 12 15 18 9"/>
+              </svg>
+            </div>
+
+            {/* Age + Gender row */}
+            <div className={styles.ageGenderRow}>
               <input
                 className={`${styles.input} ${styles.ageInput}`}
-                placeholder="e.g. 26"
+                placeholder="Age"
                 value={age}
-                onChange={e => setAge(e.target.value.replace(/\D/,''))}
+                onChange={e => setAge(e.target.value.replace(/\D/, ''))}
                 inputMode="numeric"
                 maxLength={2}
               />
-            </div>
-
-            {age && (age < 18) && (
-              <p className={styles.error}>You must be 18 or over to use IMOUTNOW.</p>
-            )}
-          </div>
-        )}
-
-        {/* ── STEP 1: Gender ── */}
-        {step === 1 && (
-          <div className={styles.stepContent}>
-            <h2 className={styles.title}>I identify as…</h2>
-            <p className={styles.sub}>Used to personalise your experience and keep the app safe.</p>
-            <div className={styles.optionList}>
-              {GENDERS.map(g => (
-                <button
-                  key={g}
-                  className={`${styles.optionBtn} ${gender === g ? styles.optionActive : ''}`}
-                  onClick={() => setGender(g)}
-                >
-                  {g}
-                  {gender === g && <span className={styles.optionCheck}>✓</span>}
-                </button>
-              ))}
-            </div>
-            {gender === 'Woman' && (
-              <div className={styles.safeNote}>
-                🛡️ Women on IMOUTNOW get verified profile badges and priority safety controls.
+              <div className={styles.genderPair}>
+                {['Male', 'Female'].map(g => (
+                  <button
+                    key={g}
+                    className={`${styles.genderBtn} ${gender === g ? styles.genderActive : ''}`}
+                    onClick={() => setGender(g)}
+                  >
+                    {g === 'Male' ? '♂' : '♀'} {g}
+                  </button>
+                ))}
               </div>
+            </div>
+
+            {age && Number(age) < 18 && (
+              <p className={styles.error}>You must be 18 or over to use imoutnow.com.</p>
             )}
           </div>
         )}
 
-        {/* ── STEP 2: Intent + Meet type ── */}
-        {step === 2 && (
+        {/* ── STEP 1: Intent + Meet type ── */}
+        {step === 1 && (
           <div className={styles.stepContent}>
             <h2 className={styles.title}>What are you here for?</h2>
             <p className={styles.sub}>Be honest — it gets better results.</p>
@@ -174,6 +206,16 @@ export default function ProfileSetup({ onDone }) {
           </div>
         )}
 
+        {/* ── STEP 2: Photo placeholder ── */}
+        {step === 2 && (
+          <div className={styles.stepContent}>
+            <div className={styles.photoBig}>{photoEmoji}</div>
+            <h2 className={styles.title}>Add a photo</h2>
+            <p className={styles.sub}>Profiles with photos get 3× more matches. You can skip this for now.</p>
+            <button className={styles.photoBtn}>📷 Choose photo</button>
+          </div>
+        )}
+
         {/* ── STEP 3: Notifications ── */}
         {step === 3 && (
           <div className={styles.stepContent}>
@@ -215,7 +257,7 @@ export default function ProfileSetup({ onDone }) {
             disabled={!canNext}
             onClick={() => setStep(s => s + 1)}
           >
-            {step === 2 ? 'Almost done →' : 'Continue →'}
+            {step === 1 ? 'Almost done →' : 'Continue →'}
           </button>
           <p className={styles.footerNote}>Step {step + 1} of {TOTAL_STEPS}</p>
         </div>
