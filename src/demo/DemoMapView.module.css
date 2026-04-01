@@ -1,0 +1,101 @@
+.wrapper {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+
+.map {
+  width: 100%;
+  height: 100%;
+  background: #080808;
+}
+
+/* Override Leaflet attribution bar */
+:global(.leaflet-control-attribution) {
+  background: rgba(8, 8, 8, 0.7) !important;
+  color: #444 !important;
+  font-size: 9px !important;
+}
+
+:global(.leaflet-control-attribution a) {
+  color: #555 !important;
+}
+
+/* Live user markers */
+:global(.demo-marker) {
+  position: relative;
+  width: 52px;
+  height: 52px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
+
+:global(.demo-marker__pulse) {
+  position: absolute;
+  inset: 2px;
+  border-radius: 50%;
+  border: 2px solid #39FF14;
+  animation: demo-pulse 2s ease-out infinite;
+  pointer-events: none;
+}
+
+:global(.demo-marker__pulse--slow) {
+  animation: demo-pulse 2s ease-out 1s infinite;
+}
+
+@keyframes demo-pulse {
+  0% { transform: scale(1); opacity: 0.8; }
+  100% { transform: scale(2.2); opacity: 0; }
+}
+
+:global(.demo-marker__avatar) {
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  background: #1e1e1e;
+  border: 2.5px solid #39FF14;
+  box-shadow: 0 0 0 2px #080808, 0 0 16px rgba(57,255,20,0.4);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 16px;
+  font-weight: 600;
+  color: #fff;
+  font-family: -apple-system, BlinkMacSystemFont, sans-serif;
+  position: relative;
+  z-index: 2;
+  transition: transform 0.15s ease;
+}
+
+:global(.demo-marker:hover .demo-marker__avatar) {
+  transform: scale(1.12);
+}
+
+:global(.demo-marker__activity) {
+  position: absolute;
+  bottom: 4px;
+  right: 4px;
+  width: 20px;
+  height: 20px;
+  background: #141414;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 11px;
+  border: 1.5px solid #080808;
+  z-index: 3;
+}
+
+/* My location dot */
+:global(.demo-my-dot) {
+  width: 16px;
+  height: 16px;
+  background: #4A90FF;
+  border-radius: 50%;
+  border: 2.5px solid #fff;
+  box-shadow: 0 0 10px rgba(74,144,255,0.6);
+}

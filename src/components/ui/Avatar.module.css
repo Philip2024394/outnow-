@@ -1,0 +1,28 @@
+.avatar {
+  border-radius: 50%;
+  overflow: hidden;
+  background: var(--color-surface-2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-text);
+  border: 2px solid transparent;
+}
+
+.avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.live {
+  border-color: var(--color-live);
+  box-shadow: 0 0 0 2px var(--color-bg), var(--shadow-live);
+}
+
+.mutual {
+  border-color: var(--color-mutual);
+  box-shadow: 0 0 0 2px var(--color-bg), 0 0 16px rgba(168, 85, 247, 0.5);
+}

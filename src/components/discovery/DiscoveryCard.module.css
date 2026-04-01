@@ -1,0 +1,116 @@
+.card {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  padding-bottom: var(--space-4);
+}
+
+.profile {
+  display: flex;
+  gap: var(--space-4);
+  align-items: flex-start;
+}
+
+.info {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  padding-top: 4px;
+}
+
+.name {
+  font-size: var(--font-size-xl);
+  font-weight: var(--font-weight-bold);
+  line-height: 1.1;
+}
+
+.activityRow {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.activityEmoji {
+  font-size: 20px;
+}
+
+.activityLabel {
+  font-size: var(--font-size-base);
+  font-weight: var(--font-weight-medium);
+  color: var(--color-text-muted);
+}
+
+.area {
+  font-size: var(--font-size-sm);
+  color: var(--color-text-muted);
+}
+
+.timerRow {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-3) var(--space-4);
+  background: var(--color-surface-2);
+  border-radius: var(--radius-md);
+}
+
+.dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--color-live);
+  animation: live-dot 1.2s ease-in-out infinite;
+  flex-shrink: 0;
+}
+
+.dotMutual {
+  background: var(--color-mutual);
+}
+
+.mutualBadge {
+  margin-left: auto;
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-mutual);
+  background: var(--color-mutual-dim);
+  padding: 3px 10px;
+  border-radius: var(--radius-full);
+}
+
+.mutualBanner {
+  background: var(--color-mutual-dim);
+  border: 1px solid var(--color-mutual);
+  color: var(--color-mutual);
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-medium);
+  text-align: center;
+  padding: var(--space-3);
+  border-radius: var(--radius-md);
+}
+
+.pendingBanner {
+  background: var(--color-surface-2);
+  color: var(--color-text-muted);
+  font-size: var(--font-size-sm);
+  text-align: center;
+  padding: var(--space-3);
+  border-radius: var(--radius-md);
+  border: 1px solid var(--color-border);
+}
+
+.actions {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.reportBtn {
+  text-align: center;
+  font-size: var(--font-size-sm);
+  color: var(--color-text-dim);
+  padding: var(--space-2);
+  font-family: var(--font-sans);
+  cursor: pointer;
+  text-decoration: underline;
+}

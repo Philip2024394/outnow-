@@ -1,0 +1,58 @@
+.state {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-3) var(--space-4);
+  background: var(--color-surface-2);
+  border-radius: var(--radius-md);
+  font-size: var(--font-size-sm);
+  color: var(--color-text-muted);
+}
+
+.ring {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  border: 2px solid;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.ok { color: var(--color-live); border-color: var(--color-live); }
+.weak { color: var(--color-warning); border-color: var(--color-warning); }
+
+.ringLabel {
+  font-size: 16px;
+}
+
+.info {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.accuracy {
+  font-size: var(--font-size-xs);
+  color: var(--color-text-dim);
+}
+
+.errorIcon {
+  font-size: 20px;
+}
+
+.errorText {
+  flex: 1;
+  font-size: var(--font-size-sm);
+  color: var(--color-danger);
+}
+
+.retry {
+  color: var(--color-live);
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-medium);
+  text-decoration: underline;
+  font-family: var(--font-sans);
+  cursor: pointer;
+}

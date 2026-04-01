@@ -1,0 +1,97 @@
+:root {
+  /* Colors */
+  --color-bg: #080808;
+  --color-surface: #141414;
+  --color-surface-2: #1e1e1e;
+  --color-surface-3: #252525;
+  --color-border: rgba(255, 255, 255, 0.08);
+  --color-border-strong: rgba(255, 255, 255, 0.15);
+
+  --color-text: #ffffff;
+  --color-text-muted: #888888;
+  --color-text-dim: #555555;
+
+  --color-live: #39FF14;
+  --color-live-dim: rgba(57, 255, 20, 0.15);
+  --color-live-glow: rgba(57, 255, 20, 0.4);
+
+  --color-otw: #FF6B35;
+  --color-otw-dim: rgba(255, 107, 53, 0.15);
+
+  --color-mutual: #A855F7;
+  --color-mutual-dim: rgba(168, 85, 247, 0.15);
+
+  --color-danger: #FF3B30;
+  --color-danger-dim: rgba(255, 59, 48, 0.15);
+
+  --color-success: #30D158;
+  --color-warning: #FFD60A;
+
+  --color-overlay: rgba(8, 8, 8, 0.9);
+  --color-backdrop: rgba(0, 0, 0, 0.7);
+
+  /* Spacing */
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 20px;
+  --space-6: 24px;
+  --space-8: 32px;
+  --space-10: 40px;
+  --space-12: 48px;
+  --space-16: 64px;
+
+  /* Border Radius */
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 20px;
+  --radius-xl: 28px;
+  --radius-full: 9999px;
+
+  /* Shadows */
+  --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.4);
+  --shadow-md: 0 4px 24px rgba(0, 0, 0, 0.6);
+  --shadow-lg: 0 8px 48px rgba(0, 0, 0, 0.8);
+  --shadow-live: 0 0 20px var(--color-live-glow);
+  --shadow-card: 0 -2px 40px rgba(0, 0, 0, 0.8);
+
+  /* Typography */
+  --font-sans: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', system-ui, sans-serif;
+  --font-size-xs: 11px;
+  --font-size-sm: 13px;
+  --font-size-base: 15px;
+  --font-size-md: 17px;
+  --font-size-lg: 20px;
+  --font-size-xl: 24px;
+  --font-size-2xl: 30px;
+
+  --font-weight-regular: 400;
+  --font-weight-medium: 500;
+  --font-weight-semibold: 600;
+  --font-weight-bold: 700;
+
+  --line-height-tight: 1.2;
+  --line-height-base: 1.5;
+
+  /* Z-index scale */
+  --z-map: 0;
+  --z-map-controls: 10;
+  --z-fab: 100;
+  --z-header: 200;
+  --z-sheet: 300;
+  --z-modal: 400;
+  --z-toast: 500;
+  --z-top: 999;
+
+  /* Transitions */
+  --transition-fast: 150ms ease;
+  --transition-base: 250ms ease;
+  --transition-slow: 400ms cubic-bezier(0.32, 0.72, 0, 1);
+
+  /* Safe areas */
+  --safe-top: env(safe-area-inset-top, 0px);
+  --safe-bottom: env(safe-area-inset-bottom, 0px);
+  --safe-left: env(safe-area-inset-left, 0px);
+  --safe-right: env(safe-area-inset-right, 0px);
+}

@@ -1,0 +1,62 @@
+.container {
+  position: fixed;
+  inset: 0;
+  background: var(--color-bg);
+  display: flex;
+  flex-direction: column;
+  padding: var(--space-6);
+  padding-top: calc(var(--safe-top) + var(--space-6));
+  padding-bottom: calc(var(--safe-bottom) + var(--space-6));
+}
+
+.hero {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-5);
+}
+
+.logo {
+  font-size: 42px;
+  font-weight: var(--font-weight-bold);
+  letter-spacing: 0.06em;
+  color: var(--color-live);
+  text-shadow: 0 0 40px var(--color-live-glow);
+}
+
+.tagline {
+  font-size: var(--font-size-lg);
+  color: var(--color-text-muted);
+  text-align: center;
+  line-height: 1.5;
+}
+
+.actions {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.googleBtn {
+  background: #ffffff !important;
+  color: #000000 !important;
+}
+
+.error {
+  text-align: center;
+  color: var(--color-danger);
+  font-size: var(--font-size-sm);
+  padding: var(--space-3);
+  background: var(--color-danger-dim);
+  border-radius: var(--radius-md);
+}
+
+.terms {
+  text-align: center;
+  font-size: var(--font-size-xs);
+  color: var(--color-text-dim);
+  line-height: 1.5;
+  margin-top: var(--space-2);
+}

@@ -1,0 +1,160 @@
+/* Sheet custom header */
+.sheetHeader {
+  text-align: center;
+  padding: 0 0 16px;
+}
+
+.headerTag {
+  font-size: 22px;
+  font-weight: 800;
+  color: var(--color-text);
+  letter-spacing: -0.01em;
+}
+
+.content {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-5);
+  padding-bottom: var(--space-4);
+}
+
+.section {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.label {
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.selectedPlace {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: var(--font-size-sm);
+  color: var(--color-live);
+  padding: var(--space-2) var(--space-3);
+  background: var(--color-live-dim);
+  border-radius: var(--radius-sm);
+}
+
+/* Activities grid */
+.activities {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: var(--space-2);
+}
+
+.activityBtn {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  padding: var(--space-3) var(--space-2);
+  background: var(--color-surface-2);
+  border: 1.5px solid transparent;
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  transition: border-color var(--transition-fast), background var(--transition-fast), transform 0.1s;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.activityBtn:active {
+  transform: scale(0.94);
+}
+
+.activitySelected {
+  border-color: var(--color-live);
+  background: var(--color-live-dim);
+}
+
+.activityEmoji {
+  font-size: 22px;
+}
+
+.activityLabel {
+  font-size: 10px;
+  font-weight: var(--font-weight-medium);
+  color: var(--color-text-muted);
+}
+
+/* Duration chips */
+.durations {
+  display: flex;
+  gap: 10px;
+}
+
+.durationBtn {
+  flex: 1;
+  padding: 12px 0;
+  background: var(--color-surface-2);
+  border: 1.5px solid transparent;
+  border-radius: 12px;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--color-text-muted);
+  cursor: pointer;
+  transition: border-color 0.15s, background 0.15s, color 0.15s, transform 0.1s;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.durationBtn:active {
+  transform: scale(0.95);
+}
+
+.durationSelected {
+  border-color: var(--color-live);
+  background: var(--color-live-dim);
+  color: var(--color-live);
+}
+
+/* Social link input */
+.socialInputWrap {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: var(--color-surface-2);
+  border: 1.5px solid var(--color-border);
+  border-radius: 14px;
+  padding: 0 14px;
+  transition: border-color 0.15s;
+}
+
+.socialInputWrap:focus-within {
+  border-color: rgba(57,255,20,0.4);
+}
+
+.socialIcon {
+  font-size: 16px;
+  flex-shrink: 0;
+}
+
+.socialInput {
+  flex: 1;
+  background: none;
+  border: none;
+  outline: none;
+  font-size: 14px;
+  color: var(--color-text);
+  padding: 14px 0;
+  min-width: 0;
+}
+
+.socialInput::placeholder {
+  color: var(--color-text-dim);
+}
+
+/* Error */
+.error {
+  color: var(--color-danger);
+  font-size: var(--font-size-sm);
+  text-align: center;
+  padding: var(--space-2);
+  background: var(--color-danger-dim);
+  border-radius: var(--radius-sm);
+}

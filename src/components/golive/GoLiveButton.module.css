@@ -1,0 +1,45 @@
+.fab {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  background: var(--color-live);
+  color: #000000;
+  border: none;
+  border-radius: var(--radius-full);
+  padding: 0 var(--space-8);
+  height: 56px;
+  font-family: var(--font-sans);
+  font-size: var(--font-size-base);
+  font-weight: var(--font-weight-bold);
+  letter-spacing: 0.04em;
+  cursor: pointer;
+  box-shadow: 0 4px 24px var(--color-live-glow), var(--shadow-md);
+  transition: transform var(--transition-fast), box-shadow var(--transition-fast);
+  animation: bounce-in 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+}
+
+.fab:active {
+  transform: scale(0.95);
+  box-shadow: 0 2px 12px var(--color-live-glow);
+}
+
+.icon {
+  font-size: 20px;
+}
+
+.label {
+  font-size: var(--font-size-sm);
+  letter-spacing: 0.08em;
+}
+
+.badge {
+  position: absolute;
+  top: -4px;
+  right: -4px;
+  width: 14px;
+  height: 14px;
+  background: var(--color-otw);
+  border-radius: 50%;
+  border: 2px solid var(--color-bg);
+}

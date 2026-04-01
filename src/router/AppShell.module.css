@@ -1,0 +1,38 @@
+.shell {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  background: var(--color-bg);
+}
+
+.loading,
+.error {
+  position: fixed;
+  inset: 0;
+  background: var(--color-bg);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  gap: var(--space-4);
+  color: var(--color-text-muted);
+  font-size: var(--font-size-base);
+}
+
+.interestBadge {
+  position: absolute;
+  top: calc(var(--safe-top) + 70px);
+  left: 50%;
+  transform: translateX(-50%);
+  background: var(--color-mutual);
+  color: white;
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-semibold);
+  padding: 8px 16px;
+  border-radius: var(--radius-full);
+  z-index: var(--z-header);
+  white-space: nowrap;
+  box-shadow: var(--shadow-md);
+  animation: bounce-in 0.4s ease forwards;
+}

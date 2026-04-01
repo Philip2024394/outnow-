@@ -1,0 +1,75 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    function isAuth() {
+      return request.auth != null;
+    }
+    function isOwner(uid) {
+      return request.auth.uid == uid;
+    }
+    function isBlocked(userId) {
+      return exists(/databases/$(database)/documents/blocks/$(request.auth.uid)/blockedUsers/$(userId))
+          || exists(/databases/$(database)/documents/blocks/$(userId)/blockedUsers/$(request.auth.uid));
+    }
+
+    // Users: read by anyone authenticated, write only by owner
+    match /users/{userId} {
+      allow read: if isAuth();
+      allow create: if isOwner(userId);
+      allow update: if isOwner(userId);
+    }
+
+    // Sessions: read active sessions only (not expired/ended), cannot read if blocked
+    match /sessions/{sessionId} {
+      allow read: if isAuth()
+                  && resource.data.status == 'active'
+                  && !isBlocked(resource.data.userId);
+      allow create: if false; // Cloud Functions only
+      allow update: if false; // Cloud Functions only
+    }
+
+    // OTW Requests: participants can read; no client writes
+    match /otwRequests/{requestId} {
+      allow read: if isAuth()
+                  && (resource.data.fromUserId == request.auth.uid
+                      || resource.data.toUserId == request.auth.uid);
+      allow create: if false; // Cloud Functions only
+      allow update: if false; // Cloud Functions only
+    }
+
+    // Interests: mutual like/invite system
+    match /interests/{interestId} {
+      allow read: if isAuth()
+                  && (resource.data.fromUserId == request.auth.uid
+                      || resource.data.toUserId == request.auth.uid);
+      allow create: if isAuth()
+                    && request.resource.data.fromUserId == request.auth.uid;
+      allow delete: if isAuth()
+                    && resource.data.fromUserId == request.auth.uid;
+    }
+
+    // Venue unlocks: written only by server (Stripe webhook CF), read by buyer
+    match /venueUnlocks/{unlockId} {
+      allow read: if isAuth()
+                  && resource.data.buyerUserId == request.auth.uid;
+      allow write: if false; // Cloud Functions only
+    }
+
+    // Blocks: user can manage their own block list
+    match /blocks/{userId}/blockedUsers/{blockedUserId} {
+      allow read: if isOwner(userId);
+      allow create: if isOwner(userId)
+                    && request.resource.data.keys().hasOnly(['createdAt', 'blockedUserId']);
+      allow delete: if isOwner(userId);
+    }
+
+    // Reports: user can create, no reads/updates from client
+    match /reports/{reportId} {
+      allow create: if isAuth()
+                    && request.resource.data.reporterId == request.auth.uid
+                    && request.resource.data.keys().hasOnly(['reporterId','reportedUserId','sessionId','reason','createdAt']);
+      allow read: if false;
+    }
+  }
+}
