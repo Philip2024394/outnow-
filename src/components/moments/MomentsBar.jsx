@@ -24,9 +24,12 @@ export default function MomentsBar({ moments = [], isLive, onAdd, onView }) {
           >
             <div
               className={styles.bubbleInner}
-              style={{ background: moment.gradient }}
+              style={moment.photoURL
+                ? { backgroundImage: `url(${moment.photoURL})`, backgroundSize: 'cover', backgroundPosition: 'center' }
+                : { background: moment.gradient }
+              }
             >
-              <span className={styles.bubbleEmoji}>{moment.emoji}</span>
+              {!moment.photoURL && <span className={styles.bubbleEmoji}>{moment.emoji}</span>}
             </div>
             <span className={styles.bubbleLabel}>{moment.displayName}</span>
           </button>

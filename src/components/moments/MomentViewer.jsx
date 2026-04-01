@@ -61,7 +61,10 @@ export default function MomentViewer({ moments, startIndex = 0, onClose }) {
       {/* Story card */}
       <div
         className={styles.card}
-        style={{ background: moment.gradient }}
+        style={moment.photoURL
+          ? { backgroundImage: `url(${moment.photoURL})`, backgroundSize: 'cover', backgroundPosition: 'center' }
+          : { background: moment.gradient }
+        }
         onClick={e => e.stopPropagation()}
       >
         {/* Progress bars */}
@@ -92,9 +95,9 @@ export default function MomentViewer({ moments, startIndex = 0, onClose }) {
           <button className={styles.closeBtn} onClick={onClose}>✕</button>
         </div>
 
-        {/* Main content */}
+        {/* Main content — emoji only shown when no photo */}
         <div className={styles.content}>
-          <span className={styles.mainEmoji}>{moment.emoji}</span>
+          {!moment.photoURL && <span className={styles.mainEmoji}>{moment.emoji}</span>}
         </div>
 
         {/* Caption */}

@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useRef, useState } from 'react'
 import BottomSheet from '@/components/ui/BottomSheet'
 import FeatureIntro, { useFeatureIntro } from '@/components/ui/FeatureIntro'
 import styles from './AddMomentSheet.module.css'
@@ -16,28 +16,54 @@ const GRADIENTS = [
 
 export default function AddMomentSheet({ open, onClose, onAdd }) {
   const { show: showIntro, dismiss: dismissIntro } = useFeatureIntro('moments')
-  const [emoji,    setEmoji]    = useState(MOMENT_EMOJIS[0])
-  const [gradient, setGradient] = useState(GRADIENTS[0])
-  const [caption,  setCaption]  = useState('')
+  const fileInputRef = useRef(null)
+
+  const [photoURL,  setPhotoURL]  = useState(null)   // data URL from file input
+  const [emoji,     setEmoji]     = useState(MOMENT_EMOJIS[0])
+  const [gradient,  setGradient]  = useState(GRADIENTS[0])
+  const [caption,   setCaption]   = useState('')
+
+  const handleFileChange = (e) => {
+    const file = e.target.files?.[0]
+    if (!file) return
+    const reader = new FileReader()
+    reader.onload = (ev) => setPhotoURL(ev.target.result)
+    reader.readAsDataURL(file)
+    // Reset input so the same file can be re-selected
+    e.target.value = ''
+  }
+
+  const handleRemovePhoto = () => setPhotoURL(null)
 
   const handleAdd = () => {
     if (!caption.trim()) return
-    onAdd?.({ emoji, gradient, caption: caption.trim() })
+    onAdd?.({ emoji, gradient, caption: caption.trim(), photoURL: photoURL ?? null })
     setCaption('')
+    setPhotoURL(null)
     onClose?.()
   }
 
   return (
     <BottomSheet open={open} onClose={onClose} title="">
+      {/* Hidden file input — triggers camera on mobile */}
+      <input
+        ref={fileInputRef}
+        type="file"
+        accept="image/*"
+        capture="environment"
+        style={{ display: 'none' }}
+        onChange={handleFileChange}
+      />
+
       {showIntro && (
         <FeatureIntro
           emoji="⚡"
           title="Ephemeral Moments"
           bullets={[
-            'Share a snap from your night — visible to nearby users for 6 hours only',
-            'Photos and moments auto-delete when the time runs out — nothing stored',
+            'Share a photo from your night — visible to nearby users for 6 hours only',
+            'Photos auto-delete when the time runs out — nothing stored',
             'Only people who are also out can see your moments',
-            'No screenshots saved, no sharing outside the app',
+            'No saving, no forwarding outside the app',
           ]}
           onDone={dismissIntro}
         />
@@ -50,42 +76,65 @@ export default function AddMomentSheet({ open, onClose, onAdd }) {
         </div>
 
         {/* Preview */}
-        <div className={styles.preview} style={{ background: gradient }}>
-          <span className={styles.previewEmoji}>{emoji}</span>
+        <div
+          className={styles.preview}
+          style={photoURL
+            ? { backgroundImage: `url(${photoURL})`, backgroundSize: 'cover', backgroundPosition: 'center' }
+            : { background: gradient }
+          }
+        >
+          {!photoURL && <span className={styles.previewEmoji}>{emoji}</span>}
           {caption && <p className={styles.previewCaption}>{caption}</p>}
           <span className={styles.previewExpiry}>Gone in 6h</span>
-        </div>
 
-        {/* Emoji picker */}
-        <div className={styles.section}>
-          <label className={styles.label}>Pick an emoji</label>
-          <div className={styles.emojiGrid}>
-            {MOMENT_EMOJIS.map(e => (
-              <button
-                key={e}
-                className={`${styles.emojiBtn} ${emoji === e ? styles.emojiBtnActive : ''}`}
-                onClick={() => setEmoji(e)}
-              >
-                {e}
+          {/* Photo controls overlay */}
+          <div className={styles.photoOverlay}>
+            {photoURL ? (
+              <button className={styles.removePhotoBtn} onClick={handleRemovePhoto}>
+                ✕ Remove photo
               </button>
-            ))}
+            ) : (
+              <button className={styles.uploadBtn} onClick={() => fileInputRef.current?.click()}>
+                <span className={styles.uploadIcon}>📷</span>
+                <span className={styles.uploadLabel}>Add Photo</span>
+              </button>
+            )}
           </div>
         </div>
 
-        {/* Gradient picker */}
-        <div className={styles.section}>
-          <label className={styles.label}>Background</label>
-          <div className={styles.gradients}>
-            {GRADIENTS.map(g => (
-              <button
-                key={g}
-                className={`${styles.gradientSwatch} ${gradient === g ? styles.gradientSwatchActive : ''}`}
-                style={{ background: g }}
-                onClick={() => setGradient(g)}
-              />
-            ))}
-          </div>
-        </div>
+        {/* Emoji + gradient — hidden when photo is uploaded */}
+        {!photoURL && (
+          <>
+            <div className={styles.section}>
+              <label className={styles.label}>Pick an emoji</label>
+              <div className={styles.emojiGrid}>
+                {MOMENT_EMOJIS.map(e => (
+                  <button
+                    key={e}
+                    className={`${styles.emojiBtn} ${emoji === e ? styles.emojiBtnActive : ''}`}
+                    onClick={() => setEmoji(e)}
+                  >
+                    {e}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            <div className={styles.section}>
+              <label className={styles.label}>Background</label>
+              <div className={styles.gradients}>
+                {GRADIENTS.map(g => (
+                  <button
+                    key={g}
+                    className={`${styles.gradientSwatch} ${gradient === g ? styles.gradientSwatchActive : ''}`}
+                    style={{ background: g }}
+                    onClick={() => setGradient(g)}
+                  />
+                ))}
+              </div>
+            </div>
+          </>
+        )}
 
         {/* Caption */}
         <div className={styles.section}>
