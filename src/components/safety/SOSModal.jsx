@@ -46,8 +46,12 @@ export default function SOSModal({ open, onClose, session }) {
               <span className={styles.icon}>🆘</span>
             </div>
 
-            <h1 className={styles.title}>Request Help?</h1>
-            <p className={styles.sub}>This will send an emergency message to your trusted contact.</p>
+            <h1 className={styles.title}>Alert My Contact?</h1>
+            <p className={styles.sub}>This will send a help message to your trusted contact.</p>
+
+            <div className={styles.emergencyNote}>
+              🚨 <strong>In immediate danger?</strong> Call <strong>999 / 112 / 911</strong> first — this button alerts a friend, not emergency services.
+            </div>
 
             {contact ? (
               <div className={styles.contactCard}>
@@ -73,7 +77,7 @@ export default function SOSModal({ open, onClose, session }) {
               onClick={handleSend}
               disabled={!contact}
             >
-              ✅ Yes — Send Help Request
+              ✅ Yes — Alert My Contact
             </button>
 
             <button className={styles.cancelBtn} onClick={onClose}>

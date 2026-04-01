@@ -139,8 +139,8 @@ export default function SettingsSheet({ open, onClose, onOpenLikes, onEditProfil
         <button className={styles.sosRow} onClick={() => { onClose(); setTimeout(() => onSOS?.(), 200) }}>
           <span className={styles.sosIcon}>🆘</span>
           <div className={styles.sosText}>
-            <span className={styles.sosLabel}>Emergency SOS</span>
-            <span className={styles.sosSub}>{safetyContact ? `Sends help request to ${safetyContact.name}` : 'Set a safety contact first'}</span>
+            <span className={styles.sosLabel}>Alert My Contact</span>
+            <span className={styles.sosSub}>{safetyContact ? `Sends help alert to ${safetyContact.name}` : 'Set a safety contact first'}</span>
           </div>
           <span className={styles.sosArrow}>›</span>
         </button>
