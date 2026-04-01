@@ -57,6 +57,14 @@
   gap: 12px;
 }
 
+/* Step image (replaces avatar on name step) */
+.stepImg {
+  width: 180px;
+  height: auto;
+  object-fit: contain;
+  align-self: center;
+}
+
 /* Avatar placeholder */
 .avatar {
   width: 88px;
