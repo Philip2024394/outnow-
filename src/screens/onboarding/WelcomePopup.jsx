@@ -16,7 +16,7 @@ const STEPS = [
   {
     id: 'chat',
     icon: '💬',
-    accent: '#A855F7',
+    accent: '#39FF14',
     title: 'No Chatting',
     body: "Skip the awkward back-and-forth. There's no messaging — if it's mutual, you both get notified and decide to meet in person.",
   },
