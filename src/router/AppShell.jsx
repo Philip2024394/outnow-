@@ -151,7 +151,8 @@ export default function AppShell({ returnParams }) {
         ? <ActiveSessionBar session={mySession} />
         : (
           <MapOverlay
-            outNowCount={sessions.length}
+            outNowCount={sessions.filter(s => s.status !== 'scheduled').length}
+            outLaterCount={sessions.filter(s => s.status === 'scheduled').length}
             onActivate={openGoLive}
             isLive={false}
             sessionTimeLeft={null}
@@ -162,7 +163,8 @@ export default function AppShell({ returnParams }) {
       {/* When live, show countdown + FINISH OUT button — tapping opens rating sheet */}
       {mySession && (
         <MapOverlay
-          outNowCount={sessions.length}
+          outNowCount={sessions.filter(s => s.status !== 'scheduled').length}
+          outLaterCount={sessions.filter(s => s.status === 'scheduled').length}
           isLive={true}
           sessionTimeLeft={sessionTimeLeft}
           onEnd={() => setRatingOpen(true)}

@@ -5,7 +5,7 @@ import styles from './ChatScreen.module.css'
 
 const IS_DEMO = import.meta.env.VITE_DEMO_MODE === 'true'
 
-const LOGO_URL = 'https://ik.imagekit.io/dateme/Logo%20with%20green%20map%20pin%20element.png'
+
 
 function timeAgo(ms) {
   if (!ms) return ''
@@ -59,7 +59,6 @@ export default function ChatScreen() {
   return (
     <div className={styles.screen}>
       <div className={styles.header}>
-        <img src={LOGO_URL} alt="IMOUTNOW" className={styles.logo} />
         <span className={styles.headerTitle}>Messages</span>
         <div style={{ width: 40 }} />
       </div>
