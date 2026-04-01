@@ -104,8 +104,11 @@ export default function ProfileSetup({ onDone }) {
         />
       </div>
 
-      <div className={styles.inner}>
+      <div className={styles.header}>
         <img src={LOGO_URL} alt="imoutnow.com" className={styles.logo} />
+      </div>
+
+      <div className={styles.inner}>
 
         {/* ── STEP 0: Name + Country + Age + Gender ── */}
         {step === 0 && (
@@ -171,7 +174,7 @@ export default function ProfileSetup({ onDone }) {
           </div>
         )}
 
-        {/* ── STEP 1: Intent + Meet type ── */}
+        {/* ── STEP 1: Intent ── */}
         {step === 1 && (
           <div className={styles.stepContent}>
             <h2 className={styles.title}>What are you here for?</h2>
@@ -188,7 +191,7 @@ export default function ProfileSetup({ onDone }) {
               ))}
             </div>
 
-            <label className={styles.groupLabel}>Available</label>
+            <label className={styles.groupLabel}>When are you available?</label>
             <div className={styles.chipGrid}>
               {AVAILABLE.map(a => (
                 <button
@@ -198,25 +201,6 @@ export default function ProfileSetup({ onDone }) {
                 >{a}</button>
               ))}
             </div>
-
-            <label className={styles.groupLabel}>Prefer to meet for (pick any)</label>
-            <div className={styles.chipGrid}>
-              {MEET_FIRST.map(m => (
-                <button
-                  key={m}
-                  className={`${styles.chip} ${meetFirst.includes(m) ? styles.chipActive : ''}`}
-                  onClick={() => toggleMeet(m)}
-                >{m}</button>
-              ))}
-            </div>
-
-            <input
-              className={styles.input}
-              placeholder="Quick tagline — e.g. Coffee now? 😊"
-              value={tagline}
-              onChange={e => setTagline(e.target.value)}
-              maxLength={60}
-            />
           </div>
         )}
 
