@@ -129,20 +129,22 @@ export default function AppShell({ returnParams }) {
       }
 
       {/* Full-screen tab screens */}
-      {activeTab === 'match'   && <MatchScreen />}
-      {activeTab === 'chat'    && <ChatScreen />}
-      {activeTab === 'profile' && <ProfileScreen />}
+      {activeTab === 'match'   && <MatchScreen   onClose={() => setActiveTab('map')} />}
+      {activeTab === 'chat'    && <ChatScreen     onClose={() => setActiveTab('map')} />}
+      {activeTab === 'profile' && <ProfileScreen  onClose={() => setActiveTab('map')} />}
 
       <div className="map-top-fade" />
       <div className="map-bottom-fade" />
 
-      {/* Header: logo + notifications + likes + settings */}
-      <MapHeader
-        onOpenNotifications={() => setNotifOpen(true)}
-        notifCount={notifOpen ? 0 : DEMO_UNREAD_COUNT}
-        onOpenLikes={() => setLikedMeOpen(true)}
-        onOpenSettings={() => setSettingsOpen(true)}
-      />
+      {/* Header: logo + notifications + likes + settings — map tab only */}
+      {activeTab === 'map' && (
+        <MapHeader
+          onOpenNotifications={() => setNotifOpen(true)}
+          notifCount={notifOpen ? 0 : DEMO_UNREAD_COUNT}
+          onOpenLikes={() => setLikedMeOpen(true)}
+          onOpenSettings={() => setSettingsOpen(true)}
+        />
+      )}
 
       {/* Map overlay: out now count + activate button (or session bar) */}
       {mySession
@@ -192,14 +194,16 @@ export default function AppShell({ returnParams }) {
         />
       )}
 
-      {/* Bottom nav — only show on map tab (other screens have own headers) */}
-      <BottomNav
-        activeTab={activeTab}
-        onChange={setActiveTab}
-        unreadChats={activeTab !== 'chat' ? 1 : 0}
-        hasActiveMapFilter={hasActiveMapFilter}
-        onOpenFilter={() => setMapFilterOpen(true)}
-      />
+      {/* Bottom nav — map tab only */}
+      {activeTab === 'map' && (
+        <BottomNav
+          activeTab={activeTab}
+          onChange={setActiveTab}
+          unreadChats={0}
+          hasActiveMapFilter={hasActiveMapFilter}
+          onOpenFilter={() => setMapFilterOpen(true)}
+        />
+      )}
 
       <StillHerePrompt open={needsCheckIn && !!mySession} sessionId={mySession?.id} />
 

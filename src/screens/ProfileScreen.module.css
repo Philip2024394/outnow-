@@ -25,6 +25,23 @@
   letter-spacing: -0.02em;
 }
 
+.homeBtn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: rgba(255,255,255,0.06);
+  border: none;
+  color: rgba(255,255,255,0.6);
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  flex-shrink: 0;
+}
+
+.homeBtn:active { background: rgba(255,255,255,0.12); }
+
 .editBtn {
   font-size: 14px;
   font-weight: 700;
