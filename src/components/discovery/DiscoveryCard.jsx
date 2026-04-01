@@ -10,6 +10,31 @@ import CountdownTimer from '@/components/ui/CountdownTimer'
 import { activityEmoji, ACTIVITY_TYPES } from '@/firebase/collections'
 import styles from './DiscoveryCard.module.css'
 
+const HEART_POSITIONS = [
+  { left: '15%', delay: '0s',    duration: '2.2s' },
+  { left: '32%', delay: '0.5s',  duration: '2.6s' },
+  { left: '50%', delay: '1.0s',  duration: '2.0s' },
+  { left: '68%', delay: '0.3s',  duration: '2.8s' },
+  { left: '82%', delay: '1.4s',  duration: '2.3s' },
+  { left: '42%', delay: '1.8s',  duration: '2.5s' },
+]
+
+function FloatingHearts() {
+  return (
+    <div className={styles.heartsWrap} aria-hidden="true">
+      {HEART_POSITIONS.map((h, i) => (
+        <span
+          key={i}
+          className={styles.floatHeart}
+          style={{ left: h.left, animationDelay: h.delay, animationDuration: h.duration }}
+        >
+          ❤️
+        </span>
+      ))}
+    </div>
+  )
+}
+
 export default function DiscoveryCard({ open, session, onClose, showToast }) {
   const { user } = useAuth()
   const { openReport, openOtwSent } = useOverlay()
@@ -151,15 +176,18 @@ export default function DiscoveryCard({ open, session, onClose, showToast }) {
                 {isMutual ? '🚀 OTW — I\'m on my way!' : '👟 OTW'}
               </Button>
               {!hasExpressedInterest && !isMutual && (
-                <Button
-                  variant="mutual"
-                  size="lg"
-                  fullWidth
-                  loading={inviteLoading}
-                  onClick={handleInvite}
-                >
-                  💜 Invite them to meet
-                </Button>
+                <div className={styles.inviteWrap}>
+                  <FloatingHearts />
+                  <Button
+                    variant="mutual"
+                    size="lg"
+                    fullWidth
+                    loading={inviteLoading}
+                    onClick={handleInvite}
+                  >
+                    <span className={styles.redHeart}>❤️</span> Invite them to meet
+                  </Button>
+                </div>
               )}
             </>
           )}

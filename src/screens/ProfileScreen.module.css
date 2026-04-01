@@ -1,3 +1,4 @@
+/* ── Screen ── */
 .screen {
   position: absolute;
   inset: 0;
@@ -17,30 +18,100 @@
   flex-shrink: 0;
 }
 
-.logo {
-  height: 96px;
-  width: auto;
-  object-fit: contain;
-}
-
 .headerTitle {
-  font-size: 17px;
-  font-weight: 700;
+  font-size: 20px;
+  font-weight: 800;
   color: var(--color-text);
-  letter-spacing: -0.01em;
+  letter-spacing: -0.02em;
 }
 
 .editBtn {
   font-size: 14px;
-  font-weight: 600;
+  font-weight: 700;
   color: var(--color-live);
   background: none;
   border: none;
   cursor: pointer;
-  padding: 4px 0;
+  padding: 6px 14px;
+  border-radius: 100px;
+  border: 1.5px solid transparent;
+  transition: all 0.15s;
+  font-family: var(--font-sans);
 }
 
-/* ── Scrollable body ── */
+.editBtnActive {
+  background: rgba(57,255,20,0.1);
+  border-color: rgba(57,255,20,0.3);
+}
+
+/* ── Discovery filter bar ── */
+.filterBar {
+  display: flex;
+  align-items: center;
+  padding: 0 16px;
+  height: 46px;
+  background: rgba(255,255,255,0.02);
+  border-bottom: 1px solid var(--color-border);
+  flex-shrink: 0;
+  gap: 0;
+}
+
+.filterSelectWrap {
+  flex: 1;
+  position: relative;
+  display: flex;
+  align-items: center;
+  min-width: 0;
+}
+
+.filterSelectIcon {
+  position: absolute;
+  left: 6px;
+  color: rgba(255,255,255,0.3);
+  pointer-events: none;
+  flex-shrink: 0;
+}
+
+.filterSelect {
+  width: 100%;
+  appearance: none;
+  -webkit-appearance: none;
+  background: transparent;
+  border: none;
+  color: rgba(255,255,255,0.75);
+  font-size: 12px;
+  font-weight: 700;
+  font-family: var(--font-sans);
+  padding: 0 22px 0 24px;
+  outline: none;
+  cursor: pointer;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.filterSelect option {
+  background: #141414;
+  color: #fff;
+}
+
+.filterChevron {
+  position: absolute;
+  right: 2px;
+  color: rgba(255,255,255,0.2);
+  pointer-events: none;
+  flex-shrink: 0;
+}
+
+.filterDivider {
+  width: 1px;
+  height: 20px;
+  background: var(--color-border);
+  flex-shrink: 0;
+  margin: 0 2px;
+}
+
+/* ── Scroll ── */
 .scroll {
   flex: 1;
   overflow-y: auto;
@@ -49,28 +120,29 @@
   padding-bottom: calc(80px + var(--safe-bottom));
 }
 
-/* ── Hero / avatar ── */
-.heroSection {
+/* ── Profile card ── */
+.profileCard {
   display: flex;
   flex-direction: column;
   align-items: center;
-  padding: 32px 20px 24px;
-  background: linear-gradient(180deg, rgba(57,255,20,0.04) 0%, transparent 100%);
+  padding: 28px 24px 24px;
+  gap: 10px;
   border-bottom: 1px solid var(--color-border);
 }
 
+/* Avatar */
 .avatarWrap {
   position: relative;
-  margin-bottom: 16px;
+  margin-bottom: 4px;
 }
 
 .avatar {
-  width: 96px;
-  height: 96px;
+  width: 100px;
+  height: 100px;
   border-radius: 50%;
   background: var(--color-surface-2);
   border: 3px solid var(--color-live);
-  box-shadow: 0 0 0 3px var(--color-bg), 0 0 24px var(--color-live-glow);
+  box-shadow: 0 0 0 3px var(--color-bg), 0 0 24px rgba(57,255,20,0.25);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -84,8 +156,8 @@
 }
 
 .avatarInitial {
-  font-size: 36px;
-  font-weight: 700;
+  font-size: 38px;
+  font-weight: 800;
   color: var(--color-text);
 }
 
@@ -93,8 +165,8 @@
   position: absolute;
   bottom: 2px;
   right: 2px;
-  width: 30px;
-  height: 30px;
+  width: 28px;
+  height: 28px;
   border-radius: 50%;
   background: var(--color-live);
   color: #080808;
@@ -106,73 +178,139 @@
   -webkit-tap-highlight-color: transparent;
 }
 
+/* ── Status banner ── */
+.statusBanner {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  padding: 6px 16px;
+  border-radius: 100px;
+  font-size: 11px;
+  font-weight: 900;
+  letter-spacing: 0.1em;
+  border: 1.5px solid;
+}
+
+.bannerLive {
+  background: rgba(57,255,20,0.1);
+  border-color: rgba(57,255,20,0.35);
+  color: #39FF14;
+}
+
+.bannerScheduled {
+  background: rgba(255,149,0,0.1);
+  border-color: rgba(255,149,0,0.35);
+  color: #FF9500;
+}
+
+.bannerOnline {
+  background: rgba(255,255,255,0.06);
+  border-color: rgba(255,255,255,0.15);
+  color: rgba(255,255,255,0.55);
+}
+
+.statusDot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.dotLive {
+  background: #39FF14;
+  box-shadow: 0 0 6px #39FF14;
+  animation: dot-pulse 1.4s ease-in-out infinite;
+}
+
+.dotScheduled {
+  background: #FF9500;
+  box-shadow: 0 0 6px #FF9500;
+}
+
+.dotOnline {
+  background: rgba(255,255,255,0.4);
+}
+
+@keyframes dot-pulse {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0.3; }
+}
+
+/* Name */
 .name {
-  font-size: 24px;
-  font-weight: 700;
+  font-size: 26px;
+  font-weight: 900;
   color: var(--color-text);
-  letter-spacing: -0.02em;
-  margin-bottom: 6px;
-  cursor: pointer;
+  letter-spacing: -0.03em;
+  margin: 0;
+  text-align: center;
 }
 
 .nameInput {
-  font-size: 24px;
-  font-weight: 700;
+  font-size: 26px;
+  font-weight: 900;
   color: var(--color-text);
-  letter-spacing: -0.02em;
+  letter-spacing: -0.03em;
   background: transparent;
   border: none;
   border-bottom: 2px solid var(--color-live);
   outline: none;
   text-align: center;
-  width: 180px;
-  margin-bottom: 6px;
+  width: 200px;
   padding-bottom: 4px;
+  font-family: var(--font-sans);
 }
 
-.ageRow {
+/* Age · City identity row */
+.identityRow {
   display: flex;
   align-items: center;
+  justify-content: center;
   gap: 8px;
-  margin-bottom: 20px;
 }
 
-.ageLabel {
-  font-size: 13px;
-  color: var(--color-text-muted);
+.identityText {
+  font-size: 16px;
+  font-weight: 600;
+  color: rgba(255,255,255,0.5);
+  letter-spacing: 0.01em;
 }
 
-.ageInput {
+.inlineInput {
   font-size: 15px;
   font-weight: 600;
   color: var(--color-text);
-  background: var(--color-surface-2);
-  border: 1px solid var(--color-border);
+  background: rgba(255,255,255,0.06);
+  border: 1.5px solid var(--color-border);
   border-radius: 8px;
-  padding: 4px 10px;
-  width: 56px;
-  text-align: center;
+  padding: 6px 10px;
   outline: none;
+  text-align: center;
+  font-family: var(--font-sans);
+  transition: border-color 0.15s;
 }
 
-.ageInput:focus {
-  border-color: var(--color-live);
+.inlineInput:focus { border-color: rgba(57,255,20,0.4); }
+
+.identitySep {
+  color: rgba(255,255,255,0.2);
+  font-size: 16px;
 }
 
-/* Stats */
-.stats {
+/* Stats row */
+.statsRow {
   display: flex;
   align-items: center;
-  gap: 0;
-  background: var(--color-surface-2);
+  width: 100%;
+  max-width: 220px;
+  background: rgba(255,255,255,0.04);
   border: 1px solid var(--color-border);
   border-radius: 16px;
   padding: 14px 0;
-  width: 100%;
-  max-width: 300px;
+  margin-top: 6px;
 }
 
-.stat {
+.statItem {
   flex: 1;
   display: flex;
   flex-direction: column;
@@ -181,208 +319,148 @@
 }
 
 .statNum {
-  font-size: 22px;
-  font-weight: 700;
+  font-size: 20px;
+  font-weight: 900;
   color: var(--color-text);
   line-height: 1;
+  letter-spacing: -0.02em;
 }
 
 .statLabel {
-  font-size: 11px;
-  color: var(--color-text-muted);
+  font-size: 10px;
+  font-weight: 600;
+  color: rgba(255,255,255,0.3);
   text-transform: uppercase;
-  letter-spacing: 0.05em;
+  letter-spacing: 0.06em;
 }
 
 .statDivider {
   width: 1px;
-  height: 32px;
+  height: 28px;
   background: var(--color-border);
+  flex-shrink: 0;
 }
 
 /* ── Sections ── */
 .section {
-  padding: 20px;
+  padding: 20px 20px 16px;
   border-bottom: 1px solid var(--color-border);
-}
-
-.sectionHeader {
   display: flex;
-  align-items: baseline;
-  justify-content: space-between;
-  margin-bottom: 14px;
+  flex-direction: column;
+  gap: 12px;
 }
 
-.sectionTitle {
-  font-size: 16px;
-  font-weight: 700;
-  color: var(--color-text);
-}
-
-.sectionSub {
-  font-size: 12px;
-  color: var(--color-text-muted);
+.sectionLabel {
+  font-size: 11px;
+  font-weight: 800;
+  color: rgba(255,255,255,0.3);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
 }
 
 /* Bio */
+.bioText {
+  font-size: 15px;
+  color: rgba(255,255,255,0.75);
+  line-height: 1.6;
+  margin: 0;
+}
+
+.bioEmpty {
+  color: rgba(255,255,255,0.2);
+  font-style: italic;
+}
+
 .bioInput {
   width: 100%;
-  background: var(--color-surface-2);
+  box-sizing: border-box;
+  background: rgba(255,255,255,0.05);
   border: 1.5px solid var(--color-border);
-  border-radius: 14px;
+  border-radius: 12px;
   color: var(--color-text);
   font-size: 15px;
-  line-height: 1.5;
-  padding: 14px;
+  line-height: 1.55;
+  padding: 12px 14px;
   resize: none;
   outline: none;
   font-family: inherit;
   transition: border-color 0.15s;
 }
 
-.bioInput:focus {
-  border-color: rgba(57,255,20,0.4);
-}
+.bioInput:focus { border-color: rgba(57,255,20,0.4); }
 
 .bioCount {
-  display: block;
-  text-align: right;
   font-size: 11px;
-  color: var(--color-text-dim);
-  margin-top: 6px;
+  color: rgba(255,255,255,0.2);
+  text-align: right;
+  align-self: flex-end;
+  margin-top: -6px;
 }
 
-/* Activities */
+/* Activities — 3-column grid, clean */
 .activitiesGrid {
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 10px;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
 }
 
 .activityChip {
   display: flex;
-  flex-direction: column;
   align-items: center;
-  gap: 5px;
-  padding: 12px 6px;
-  background: var(--color-surface-2);
-  border: 1.5px solid transparent;
-  border-radius: 14px;
-  cursor: pointer;
-  transition: border-color 0.15s, background 0.15s, transform 0.1s;
+  gap: 8px;
+  padding: 11px 12px;
+  background: rgba(255,255,255,0.04);
+  border: 1.5px solid var(--color-border);
+  border-radius: 12px;
+  cursor: default;
+  transition: border-color 0.15s, background 0.15s;
   -webkit-tap-highlight-color: transparent;
 }
 
-.activityChip:active {
-  transform: scale(0.93);
+.activityChip:not(:disabled) {
+  cursor: pointer;
+}
+
+.activityChip:not(:disabled):active {
+  transform: scale(0.95);
 }
 
 .activityActive {
   border-color: var(--color-live);
-  background: var(--color-live-dim);
+  background: rgba(57,255,20,0.07);
 }
 
 .activityEmoji {
-  font-size: 22px;
+  font-size: 18px;
+  flex-shrink: 0;
 }
 
 .activityLabel {
-  font-size: 10px;
-  font-weight: 500;
-  color: var(--color-text-muted);
+  font-size: 12px;
+  font-weight: 600;
+  color: rgba(255,255,255,0.5);
+  text-align: left;
+  line-height: 1.2;
 }
 
 .activityActive .activityLabel {
   color: var(--color-live);
 }
 
-/* Settings list */
-.settingsList {
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
-  background: var(--color-surface-2);
-  border: 1px solid var(--color-border);
-  border-radius: 16px;
-  overflow: hidden;
-}
-
-.settingsRow {
-  display: flex;
-  align-items: center;
-  gap: 14px;
-  padding: 14px 16px;
-  background: none;
-  border: none;
-  cursor: pointer;
-  width: 100%;
-  text-align: left;
-  border-bottom: 1px solid var(--color-border);
-  -webkit-tap-highlight-color: transparent;
-  transition: background 0.12s;
-}
-
-.settingsRow:last-child {
-  border-bottom: none;
-}
-
-.settingsRow:active {
-  background: var(--color-surface-3);
-}
-
-.settingsIcon {
-  font-size: 20px;
-  width: 28px;
-  text-align: center;
-  flex-shrink: 0;
-}
-
-.settingsText {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
-}
-
-.settingsLabel {
-  font-size: 15px;
-  font-weight: 500;
-  color: var(--color-text);
-}
-
-.settingsSub {
-  font-size: 12px;
-  color: var(--color-text-muted);
-}
-
-.settingsChevron {
-  font-size: 20px;
-  color: var(--color-text-dim);
-  line-height: 1;
-}
-
 /* Sign out */
 .signOutBtn {
   width: 100%;
-  padding: 15px;
-  background: rgba(255, 59, 48, 0.1);
-  border: 1.5px solid rgba(255, 59, 48, 0.3);
-  border-radius: 14px;
-  color: var(--color-danger);
-  font-size: 16px;
-  font-weight: 600;
+  padding: 14px;
+  background: rgba(255,59,48,0.08);
+  border: 1.5px solid rgba(255,59,48,0.25);
+  border-radius: 12px;
+  color: #FF6B6B;
+  font-size: 15px;
+  font-weight: 700;
   cursor: pointer;
+  font-family: inherit;
   transition: background 0.15s;
   -webkit-tap-highlight-color: transparent;
 }
 
-.signOutBtn:active {
-  background: rgba(255, 59, 48, 0.2);
-}
-
-.version {
-  text-align: center;
-  font-size: 11px;
-  color: var(--color-text-dim);
-  margin-top: 14px;
-}
+.signOutBtn:active { background: rgba(255,59,48,0.16); }

@@ -10,6 +10,7 @@ export default function MyLocationDot({ lat, lng }) {
     >
       <div className={styles.dot}>
         <div className={styles.ring} />
+        <div className={styles.ring2} />
         <div className={styles.center} />
       </div>
     </OverlayViewF>

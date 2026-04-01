@@ -9,6 +9,7 @@ import { useLiveUsers } from '@/hooks/useLiveUsers'
 
 import MapHeader from '@/components/map/MapHeader'
 import MapOverlay from '@/components/map/MapOverlay'
+import { endSession } from '@/services/sessionService'
 import ProfileStrip from '@/components/map/ProfileStrip'
 import BottomNav from '@/components/nav/BottomNav'
 import GoLiveSheet from '@/components/golive/GoLiveSheet'
@@ -20,11 +21,18 @@ import OtwSentSheet from '@/components/otw/OtwSentSheet'
 import PaymentGate from '@/components/payment/PaymentGate'
 import VenueReveal from '@/components/payment/VenueReveal'
 import ReportSheet from '@/components/moderation/ReportSheet'
-import LikedMeSheet from '@/components/likes/LikedMeSheet'
+import SettingsSheet from '@/components/settings/SettingsSheet'
+import MapFilterSheet, { DEFAULT_MAP_FILTERS } from '@/components/map/MapFilterSheet'
+import RatingSheet from '@/components/session/RatingSheet'
+import ReviewsSection from '@/components/session/ReviewsSection'
+import LikedMeScreen from '@/screens/LikedMeScreen'
+import NotificationsScreen, { DEMO_UNREAD_COUNT } from '@/screens/NotificationsScreen'
+import BlockedUsersScreen from '@/screens/BlockedUsersScreen'
 import ProfileScreen from '@/screens/ProfileScreen'
 import ChatScreen from '@/screens/ChatScreen'
 import MatchScreen from '@/screens/MatchScreen'
 import AddToHomeScreenBanner from '@/components/pwa/AddToHomeScreenBanner'
+import BottomSheet from '@/components/ui/BottomSheet'
 import Toast from '@/components/ui/Toast'
 import DemoMapView from '@/demo/DemoMapView'
 import MapView from '@/components/map/MapView'
@@ -60,6 +68,19 @@ export default function AppShell({ returnParams }) {
   const { sessions } = useLiveUsers()
   const [toast, setToast] = useState(null)
   const [likedMeOpen, setLikedMeOpen] = useState(false)
+  const [settingsOpen, setSettingsOpen] = useState(false)
+  const [notifOpen, setNotifOpen] = useState(false)
+  const [blockListOpen, setBlockListOpen] = useState(false)
+  const [ratingOpen, setRatingOpen] = useState(false)
+  const [reviewsOpen, setReviewsOpen] = useState(false)
+  // null | 'live' | 'scheduled' — quick strip toggles
+  const [hiddenType, setHiddenType] = useState(null)
+  const hideLive      = hiddenType === 'live'
+  const hideScheduled = hiddenType === 'scheduled'
+  // Full map filter sheet
+  const [mapFilterOpen, setMapFilterOpen] = useState(false)
+  const [mapFilters, setMapFilters] = useState(DEFAULT_MAP_FILTERS)
+  const hasActiveMapFilter = Object.entries(mapFilters).some(([k, v]) => v !== DEFAULT_MAP_FILTERS[k])
   const [activeTab, setActiveTab] = useState('map')
   const [selectedStripId, setSelectedStripId] = useState(null)
 
@@ -88,6 +109,15 @@ export default function AppShell({ returnParams }) {
     if (unlock) openVenueReveal(unlock)
   }, [unlock]) // eslint-disable-line
 
+  const visibleSessions = sessions.filter(s => {
+    if (s.status === 'scheduled' ? hideScheduled : hideLive) return false
+    if (mapFilters.status === 'Out Now'    && s.status === 'scheduled') return false
+    if (mapFilters.status === 'Out Later'  && s.status !== 'scheduled') return false
+    if (mapFilters.activity !== 'All' && s.activityType?.toLowerCase() !== mapFilters.activity.toLowerCase()) return false
+    if (mapFilters.city     !== 'All' && !s.area?.toLowerCase().includes(mapFilters.city.toLowerCase())) return false
+    return true
+  })
+
   const showToast = (message, type = 'info') => setToast({ message, type })
 
   return (
@@ -95,7 +125,7 @@ export default function AppShell({ returnParams }) {
       {/* Map fills full screen (hidden when on non-map tab) */}
       {HAS_MAPS_KEY
         ? <GoogleMapsWrapper />
-        : <DemoMapView sessions={sessions} onSelectUser={(s) => { setSelectedStripId(s.id); openDiscovery(s) }} />
+        : <DemoMapView sessions={visibleSessions} onSelectUser={(s) => { setSelectedStripId(s.id); openDiscovery(s) }} />
       }
 
       {/* Full-screen tab screens */}
@@ -106,8 +136,13 @@ export default function AppShell({ returnParams }) {
       <div className="map-top-fade" />
       <div className="map-bottom-fade" />
 
-      {/* Header: logo + settings/likes */}
-      <MapHeader onOpenLikes={() => setLikedMeOpen(true)} />
+      {/* Header: logo + notifications + likes + settings */}
+      <MapHeader
+        onOpenNotifications={() => setNotifOpen(true)}
+        notifCount={notifOpen ? 0 : DEMO_UNREAD_COUNT}
+        onOpenLikes={() => setLikedMeOpen(true)}
+        onOpenSettings={() => setSettingsOpen(true)}
+      />
 
       {/* Map overlay: out now count + activate button (or session bar) */}
       {mySession
@@ -122,12 +157,13 @@ export default function AppShell({ returnParams }) {
         )
       }
 
-      {/* When live, show countdown on map */}
+      {/* When live, show countdown + FINISH OUT button — tapping opens rating sheet */}
       {mySession && (
         <MapOverlay
           outNowCount={sessions.length}
           isLive={true}
           sessionTimeLeft={sessionTimeLeft}
+          onEnd={() => setRatingOpen(true)}
         />
       )}
 
@@ -142,12 +178,17 @@ export default function AppShell({ returnParams }) {
         </div>
       )}
 
-      {/* Profile strip — nearest live users, only visible on map tab */}
+      {/* Profile strip — max 4 nearest live users, only visible on map tab */}
       {activeTab === 'map' && (
         <ProfileStrip
-          sessions={sessions.slice(0, 8)}
+          sessions={visibleSessions.slice(0, 3)}
           selectedId={selectedStripId}
           onSelect={(s) => { setSelectedStripId(s.id); openDiscovery(s) }}
+          hideLive={hideLive}
+          hideScheduled={hideScheduled}
+          onToggleLive={() => setHiddenType(v => v === 'live' ? null : 'live')}
+          onToggleScheduled={() => setHiddenType(v => v === 'scheduled' ? null : 'scheduled')}
+          otwUserId={myOutgoingRequest?.toUserId ?? null}
         />
       )}
 
@@ -156,6 +197,8 @@ export default function AppShell({ returnParams }) {
         activeTab={activeTab}
         onChange={setActiveTab}
         unreadChats={activeTab !== 'chat' ? 1 : 0}
+        hasActiveMapFilter={hasActiveMapFilter}
+        onOpenFilter={() => setMapFilterOpen(true)}
       />
 
       <StillHerePrompt open={needsCheckIn && !!mySession} sessionId={mySession?.id} />
@@ -172,7 +215,43 @@ export default function AppShell({ returnParams }) {
       <PaymentGate open={overlay.type === OVERLAY.PAYMENT_GATE} request={overlay.data} onClose={closeOverlay} showToast={showToast} />
       <VenueReveal open={overlay.type === OVERLAY.VENUE_REVEAL} unlock={overlay.data} request={myOutgoingRequest} onClose={closeOverlay} />
       <ReportSheet open={overlay.type === OVERLAY.REPORT} session={overlay.data} onClose={closeOverlay} showToast={showToast} />
-      <LikedMeSheet open={likedMeOpen} onClose={() => setLikedMeOpen(false)} />
+      {likedMeOpen && <LikedMeScreen onClose={() => setLikedMeOpen(false)} />}
+      {notifOpen && <NotificationsScreen onClose={() => setNotifOpen(false)} />}
+      {blockListOpen && <BlockedUsersScreen onClose={() => setBlockListOpen(false)} />}
+
+      <MapFilterSheet
+        open={mapFilterOpen}
+        onClose={() => setMapFilterOpen(false)}
+        filters={mapFilters}
+        onChange={setMapFilters}
+        onReset={() => setMapFilters(DEFAULT_MAP_FILTERS)}
+      />
+
+      <SettingsSheet
+        open={settingsOpen}
+        onClose={() => setSettingsOpen(false)}
+        onOpenLikes={() => { setSettingsOpen(false); setTimeout(() => setLikedMeOpen(true), 200) }}
+        onEditProfile={() => { setSettingsOpen(false); setTimeout(() => setActiveTab('profile'), 200) }}
+        onOpenBlockList={() => { setSettingsOpen(false); setTimeout(() => setBlockListOpen(true), 200) }}
+        showToast={showToast}
+      />
+
+      <RatingSheet
+        open={ratingOpen}
+        onSubmit={() => {
+          setRatingOpen(false)
+          showToast('Thanks for your feedback!', 'success')
+          endSession(mySession?.id)
+        }}
+        onSkip={() => {
+          setRatingOpen(false)
+          endSession(mySession?.id)
+        }}
+      />
+
+      <BottomSheet open={reviewsOpen} onClose={() => setReviewsOpen(false)} title="">
+        <ReviewsSection />
+      </BottomSheet>
 
       <AddToHomeScreenBanner />
       <Toast message={toast?.message} type={toast?.type} onDismiss={() => setToast(null)} />

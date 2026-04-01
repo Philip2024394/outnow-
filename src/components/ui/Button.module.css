@@ -80,12 +80,13 @@
 }
 
 .mutual {
-  background: var(--color-mutual);
-  color: #ffffff;
+  background: #F5A623;
+  color: #080808;
+  box-shadow: 0 0 16px rgba(245,166,35,0.35);
 }
 
 .mutual:active:not(:disabled) {
-  background: #9333ea;
+  background: #d4891a;
 }
 
 .loading {

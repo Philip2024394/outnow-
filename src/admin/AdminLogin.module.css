@@ -1,0 +1,145 @@
+.page {
+  min-height: 100vh;
+  background: #080808;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+}
+
+.card {
+  width: 100%;
+  max-width: 400px;
+  background: #111;
+  border: 1px solid #1e1e1e;
+  border-radius: 20px;
+  padding: 40px 36px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+}
+
+.logo {
+  height: 64px;
+  width: auto;
+  object-fit: contain;
+  margin-bottom: 8px;
+}
+
+.title {
+  font-size: 22px;
+  font-weight: 800;
+  color: #fff;
+  margin: 0;
+  letter-spacing: -0.02em;
+}
+
+.sub {
+  font-size: 13px;
+  color: #555;
+  margin: 0 0 20px;
+}
+
+.form {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.error {
+  background: rgba(255,59,48,0.12);
+  border: 1px solid rgba(255,59,48,0.3);
+  border-radius: 10px;
+  padding: 10px 14px;
+  font-size: 13px;
+  font-weight: 600;
+  color: #FF6B6B;
+  text-align: center;
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.label {
+  font-size: 11px;
+  font-weight: 700;
+  color: #444;
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+}
+
+.input {
+  width: 100%;
+  box-sizing: border-box;
+  background: rgba(255,255,255,0.05);
+  border: 1.5px solid #1e1e1e;
+  border-radius: 10px;
+  color: #fff;
+  font-size: 15px;
+  padding: 12px 14px;
+  outline: none;
+  transition: border-color 0.15s;
+  font-family: inherit;
+}
+
+.input::placeholder { color: #333; }
+.input:focus { border-color: rgba(57,255,20,0.4); }
+
+.passWrap {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.passWrap .input { padding-right: 44px; }
+
+.eyeBtn {
+  position: absolute;
+  right: 12px;
+  background: none;
+  border: none;
+  font-size: 15px;
+  cursor: pointer;
+  opacity: 0.5;
+  padding: 0;
+}
+
+.submitBtn {
+  width: 100%;
+  padding: 14px;
+  background: #39FF14;
+  color: #080808;
+  font-size: 15px;
+  font-weight: 800;
+  border: none;
+  border-radius: 10px;
+  cursor: pointer;
+  margin-top: 4px;
+  box-shadow: 0 0 18px rgba(57,255,20,0.3);
+  transition: opacity 0.15s;
+  font-family: inherit;
+}
+
+.submitBtn:disabled { opacity: 0.4; cursor: default; box-shadow: none; }
+.submitBtn:not(:disabled):active { opacity: 0.88; }
+
+.hint {
+  font-size: 11px;
+  color: #333;
+  text-align: center;
+  margin-top: 16px;
+  line-height: 1.6;
+}
+
+.hint code {
+  color: #555;
+  background: #1a1a1a;
+  padding: 1px 5px;
+  border-radius: 4px;
+  font-size: 10px;
+}

@@ -1,9 +1,10 @@
+/* ── Backdrop ── */
 .backdrop {
   position: fixed;
   inset: 0;
-  background: rgba(0, 0, 0, 0.85);
-  backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
+  background: rgba(0, 0, 0, 0.88);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
   z-index: 9000;
   display: flex;
   align-items: flex-end;
@@ -19,6 +20,7 @@
 @keyframes fade-in  { from { opacity: 0 } to { opacity: 1 } }
 @keyframes fade-out { from { opacity: 1 } to { opacity: 0 } }
 
+/* ── Card ── */
 .card {
   width: 100%;
   max-width: 480px;
@@ -29,7 +31,7 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 18px;
+  gap: 20px;
   animation: slide-up 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
 }
 
@@ -40,38 +42,22 @@
 @keyframes slide-up   { from { transform: translateY(100%) } to { transform: translateY(0) } }
 @keyframes slide-down { from { transform: translateY(0) }    to { transform: translateY(100%) } }
 
-/* Logo */
+/* ── Logo ── */
 .logo {
-  height: 100px;
+  height: 56px;
   width: auto;
   object-fit: contain;
-  margin-bottom: -6px;
 }
 
-/* Safety badge */
-.safeBadge {
-  display: flex;
-  align-items: center;
-  gap: 7px;
-  background: rgba(168, 85, 247, 0.12);
-  border: 1px solid rgba(168, 85, 247, 0.35);
-  border-radius: 100px;
-  padding: 6px 14px;
-  font-size: 11px;
-  font-weight: 600;
-  color: #c084fc;
-  text-align: center;
-  line-height: 1.4;
-}
-
-/* Step */
+/* ── Generic step ── */
 .stepWrap {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 12px;
+  gap: 14px;
   text-align: center;
-  padding: 8px 0;
+  padding: 4px 0;
+  width: 100%;
 }
 
 .stepIcon {
@@ -84,7 +70,17 @@
   align-items: center;
   justify-content: center;
   font-size: 36px;
-  transition: box-shadow 0.3s ease;
+  transition: box-shadow 0.3s ease, border-color 0.3s ease;
+  flex-shrink: 0;
+  /* Allow image children to overflow the circle */
+  overflow: visible;
+}
+
+.stepIconImg {
+  width: 240px;
+  height: 240px;
+  object-fit: contain;
+  border-radius: 0;
 }
 
 .stepTitle {
@@ -93,36 +89,179 @@
   color: #fff;
   letter-spacing: -0.02em;
   line-height: 1.2;
+  margin: 0;
 }
 
 .stepBody {
   font-size: 15px;
   color: #999;
-  line-height: 1.6;
+  line-height: 1.65;
   max-width: 300px;
+  margin: 0;
 }
 
-/* Dots */
+/* ── Safety step ── */
+.safetyWrap {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 14px;
+  width: 100%;
+  text-align: center;
+}
+
+.safetyIcon {
+  font-size: 52px;
+  line-height: 1;
+}
+
+.safetyIntro {
+  font-size: 14px;
+  color: #888;
+  line-height: 1.6;
+  max-width: 300px;
+  margin: 0;
+}
+
+.safetyList {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  width: 100%;
+  background: rgba(245,166,35,0.06);
+  border: 1px solid rgba(245,166,35,0.2);
+  border-radius: 16px;
+  padding: 14px 16px;
+}
+
+.safetyRow {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  text-align: left;
+}
+
+.safetyEmoji {
+  font-size: 20px;
+  flex-shrink: 0;
+  width: 28px;
+  text-align: center;
+}
+
+.safetyText {
+  font-size: 14px;
+  font-weight: 600;
+  color: rgba(255,255,255,0.85);
+  line-height: 1.4;
+}
+
+.safetyNote {
+  font-size: 12px;
+  font-style: italic;
+  color: rgba(255,255,255,0.35);
+  text-align: center;
+  line-height: 1.5;
+}
+
+/* ── Terms step ── */
+.termsWrap {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 14px;
+  width: 100%;
+}
+
+.termsIconRow {
+  display: flex;
+  justify-content: center;
+}
+
+.termsIconBig {
+  font-size: 52px;
+  line-height: 1;
+}
+
+.termsIntro {
+  font-size: 14px;
+  color: #888;
+  line-height: 1.65;
+  text-align: center;
+  max-width: 300px;
+  margin: 0;
+}
+
+.tcLink {
+  font-size: 14px;
+  font-weight: 700;
+  color: #39FF14;
+  text-decoration: none;
+  letter-spacing: 0.01em;
+}
+
+.tcLink:hover { text-decoration: underline; }
+
+.checkLabel {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  background: rgba(57,255,20,0.06);
+  border: 1.5px solid rgba(57,255,20,0.2);
+  border-radius: 14px;
+  padding: 14px 16px;
+  cursor: pointer;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.checkbox {
+  width: 22px;
+  height: 22px;
+  flex-shrink: 0;
+  margin-top: 1px;
+  accent-color: #39FF14;
+  cursor: pointer;
+}
+
+.checkText {
+  font-size: 13px;
+  font-weight: 600;
+  color: rgba(255,255,255,0.75);
+  line-height: 1.55;
+}
+
+.tcInline {
+  color: #39FF14;
+  text-decoration: none;
+}
+
+.tcInline:hover { text-decoration: underline; }
+
+/* ── Progress dots ── */
 .dots {
   display: flex;
   gap: 8px;
+  align-items: center;
 }
 
 .dot {
   width: 8px;
   height: 8px;
   border-radius: 50%;
-  background: #333;
-  transition: background 0.3s, transform 0.3s, width 0.3s;
+  background: #2a2a2a;
+  transition: background 0.3s, width 0.3s, border-radius 0.3s;
 }
 
 .dotActive {
   width: 24px;
   border-radius: 4px;
-  transform: scale(1);
 }
 
-/* CTA button */
+.dotDone {
+  background: #3a3a3a;
+}
+
+/* ── CTA button ── */
 .btn {
   width: 100%;
   padding: 17px;
@@ -132,17 +271,22 @@
   font-weight: 800;
   color: #080808;
   cursor: pointer;
-  transition: transform 0.12s, opacity 0.12s;
+  transition: transform 0.12s, opacity 0.12s, background 0.3s;
   -webkit-tap-highlight-color: transparent;
   letter-spacing: 0.01em;
 }
 
-.btn:active {
+.btn:disabled {
+  color: rgba(255,255,255,0.25);
+  cursor: default;
+}
+
+.btn:not(:disabled):active {
   transform: scale(0.97);
   opacity: 0.9;
 }
 
-/* Skip */
+/* ── Skip ── */
 .skip {
   font-size: 13px;
   color: #555;
@@ -150,14 +294,8 @@
   border: none;
   cursor: pointer;
   padding: 4px;
-  margin-top: -8px;
+  margin-top: -10px;
   -webkit-tap-highlight-color: transparent;
 }
 
-/* Tagline */
-.tagline {
-  font-size: 12px;
-  color: #444;
-  text-align: center;
-  font-style: italic;
-}
+.skip:active { color: #888; }

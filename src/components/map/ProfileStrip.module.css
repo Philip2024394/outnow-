@@ -4,13 +4,69 @@
   left: 0;
   right: 0;
   z-index: var(--z-map-controls);
-  padding: 10px 80px calc(var(--safe-bottom) + 14px) 12px;
+  padding: 10px 12px calc(var(--safe-bottom) + 14px) 12px;
   background: linear-gradient(to top, rgba(8,8,8,0.95) 0%, rgba(8,8,8,0.6) 70%, transparent 100%);
   pointer-events: none;
+  overflow: visible;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 10px;
 }
 
-.rail {
+/* ── Side filter buttons — both in normal flex flow ── */
+.sideBtn {
+  flex-shrink: 0;
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  background: rgba(8, 8, 8, 0.78);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1.5px solid rgba(255,255,255,0.12);
   display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  pointer-events: all;
+  -webkit-tap-highlight-color: transparent;
+  transition: opacity 0.15s, border-color 0.15s;
+}
+
+.sideBtn:active { transform: scale(0.88); }
+
+.sideBtnOff {
+  border-color: rgba(255, 59, 48, 0.6);
+  background: rgba(255, 59, 48, 0.1);
+}
+
+.sideDot {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  transition: box-shadow 0.2s, background 0.2s;
+}
+
+.sideDotGreen {
+  background: #39FF14;
+  box-shadow: 0 0 8px #39FF14;
+}
+
+.sideDotOrange {
+  background: #FF9500;
+  box-shadow: 0 0 8px #FF9500;
+}
+
+.sideDotRed {
+  background: #FF3B30;
+  box-shadow: 0 0 8px #FF3B30;
+}
+
+
+.rail {
+  flex: 1;
+  display: flex;
+  justify-content: center;
   gap: 10px;
   overflow-x: auto;
   overflow-y: visible;
@@ -124,6 +180,72 @@
   border-radius: 50%;
   border: 2px solid #080808;
   box-shadow: 0 0 6px #FF9500;
+}
+
+/* ── OTW state — profile turns red ── */
+.avatarOtw {
+  border-color: #FF3B30;
+  box-shadow: 0 0 0 3px rgba(255,59,48,0.25), 0 0 20px rgba(255,59,48,0.5);
+  animation: otw-pulse 1.6s ease-in-out infinite;
+}
+
+@keyframes otw-pulse {
+  0%, 100% { box-shadow: 0 0 0 3px rgba(255,59,48,0.25), 0 0 20px rgba(255,59,48,0.5); }
+  50%       { box-shadow: 0 0 0 5px rgba(255,59,48,0.15), 0 0 30px rgba(255,59,48,0.7); }
+}
+
+.avatarImgOtw {
+  filter: saturate(0.7) brightness(0.85);
+}
+
+.otwDot {
+  position: absolute;
+  top: 2px;
+  right: 2px;
+  width: 12px;
+  height: 12px;
+  background: #FF3B30;
+  border-radius: 50%;
+  border: 2px solid #080808;
+  box-shadow: 0 0 8px #FF3B30;
+  animation: otw-dot 1s ease-in-out infinite;
+}
+
+@keyframes otw-dot {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0.4; }
+}
+
+.otwLabel {
+  position: absolute;
+  bottom: -6px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: #FF3B30;
+  color: #fff;
+  font-size: 8px;
+  font-weight: 900;
+  letter-spacing: 0.06em;
+  padding: 2px 5px;
+  border-radius: 100px;
+  white-space: nowrap;
+  border: 1.5px solid #080808;
+  box-shadow: 0 0 8px rgba(255,59,48,0.6);
+}
+
+.nameOtw {
+  color: #FF3B30;
+  font-weight: 700;
+}
+
+.areaOtw {
+  font-size: 10px;
+  color: #FF3B30;
+  max-width: 58px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-weight: 700;
 }
 
 /* Text */

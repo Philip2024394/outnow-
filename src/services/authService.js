@@ -4,6 +4,7 @@ import {
   PhoneAuthProvider,
   RecaptchaVerifier,
   signInWithPhoneNumber,
+  signInWithEmailAndPassword as fbSignInEmail,
   signOut as fbSignOut,
 } from 'firebase/auth'
 import { auth } from '@/firebase/config'
@@ -38,6 +39,11 @@ export async function sendPhoneOTP(phoneNumber) {
 
 export async function verifyOTP(confirmationResult, code) {
   const result = await confirmationResult.confirm(code)
+  return result.user
+}
+
+export async function signInWithEmail(email, password) {
+  const result = await fbSignInEmail(auth, email, password)
   return result.user
 }
 

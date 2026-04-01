@@ -5,14 +5,25 @@ import AppShell from '@/router/AppShell'
 import Spinner from '@/components/ui/Spinner'
 import WelcomePopup from '@/screens/onboarding/WelcomePopup'
 import ProfileSetup from '@/screens/onboarding/ProfileSetup'
+import AdminApp from '@/admin/AdminApp'
 import styles from './App.module.css'
 
 const LOGO_URL = 'https://ik.imagekit.io/dateme/Logo%20with%20green%20map%20pin%20element.png'
 
 const ONBOARDING_KEY = 'imoutnow_onboarded_v1'
 
+// Route /admin path to the admin dashboard
+if (window.location.pathname.startsWith('/admin')) {
+  document.title = 'IMOUTNOW Admin'
+}
+
 export default function App() {
+  // Render admin dashboard for /admin route
+  if (window.location.pathname.startsWith('/admin')) {
+    return <AdminApp />
+  }
   const { user, loading } = useAuth()
+  const [adminPass, setAdminPass] = useState(false)
   const [returnParams, setReturnParams] = useState(null)
 
   // Onboarding state
@@ -43,7 +54,7 @@ export default function App() {
     )
   }
 
-  if (!user) return <AuthScreen />
+  if (!user && !adminPass) return <AuthScreen onAdminPass={() => setAdminPass(true)} />
 
   return (
     <>

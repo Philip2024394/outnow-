@@ -65,3 +65,20 @@
   padding: 0 3px;
   border: 1.5px solid rgba(10,10,10,0.9);
 }
+
+/* Active filter indicator on the funnel button */
+.filterActive {
+  background: rgba(57,255,20,0.08);
+}
+
+.filterDot {
+  position: absolute;
+  top: -3px;
+  right: -3px;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #39FF14;
+  box-shadow: 0 0 6px #39FF14;
+  border: 1.5px solid rgba(10,10,10,0.9);
+}

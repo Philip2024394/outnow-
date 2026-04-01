@@ -1,0 +1,180 @@
+.screen {
+  position: absolute;
+  inset: 0;
+  background: var(--color-bg);
+  z-index: var(--z-header);
+  display: flex;
+  flex-direction: column;
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: calc(var(--safe-top) + 10px) 16px 12px;
+  border-bottom: 1px solid var(--color-border);
+  flex-shrink: 0;
+}
+
+.backBtn {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: var(--color-surface-2);
+  border: 1.5px solid var(--color-border);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--color-text);
+  cursor: pointer;
+  flex-shrink: 0;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.backBtn:active {
+  transform: scale(0.92);
+}
+
+.title {
+  flex: 1;
+  font-size: 20px;
+  font-weight: 800;
+  color: var(--color-text);
+}
+
+.countBadge {
+  font-size: 12px;
+  font-weight: 700;
+  color: rgba(255, 59, 100, 0.9);
+  background: rgba(255, 59, 100, 0.12);
+  border: 1px solid rgba(255, 59, 100, 0.3);
+  border-radius: 100px;
+  padding: 4px 10px;
+}
+
+/* ── Info banner ── */
+.infoBanner {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  background: rgba(255, 59, 100, 0.06);
+  border-bottom: 1px solid rgba(255, 59, 100, 0.15);
+  padding: 12px 16px;
+}
+
+.infoIcon {
+  font-size: 18px;
+  flex-shrink: 0;
+  margin-top: 1px;
+}
+
+.infoText {
+  font-size: 13px;
+  color: rgba(255, 255, 255, 0.55);
+  line-height: 1.5;
+  margin: 0;
+}
+
+/* ── Scroll ── */
+.scroll {
+  flex: 1;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior: contain;
+  padding-bottom: calc(80px + var(--safe-bottom));
+}
+
+/* ── Empty state ── */
+.empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 60px 32px;
+  gap: 8px;
+  text-align: center;
+}
+
+.emptyIcon {
+  font-size: 44px;
+}
+
+.emptyText {
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--color-text);
+  margin: 0;
+}
+
+.emptySub {
+  font-size: 14px;
+  color: var(--color-text-muted);
+  margin: 0;
+}
+
+/* ── Blocked user row ── */
+.row {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 14px 16px;
+  border-bottom: 1px solid var(--color-border);
+}
+
+.avatar {
+  width: 46px;
+  height: 46px;
+  border-radius: 50%;
+  background: var(--color-surface-2);
+  border: 1.5px solid var(--color-border);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 24px;
+  flex-shrink: 0;
+  filter: grayscale(0.6);
+  opacity: 0.7;
+}
+
+.meta {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.name {
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--color-text);
+}
+
+.sub {
+  font-size: 12px;
+  color: var(--color-text-muted);
+}
+
+.unblockBtn {
+  padding: 8px 16px;
+  border-radius: 100px;
+  background: none;
+  border: 1.5px solid rgba(57, 255, 20, 0.5);
+  color: var(--color-live);
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  font-family: var(--font-sans);
+  transition: background 0.12s, opacity 0.12s;
+  flex-shrink: 0;
+  -webkit-tap-highlight-color: transparent;
+  min-width: 80px;
+  text-align: center;
+}
+
+.unblockBtn:not(:disabled):active {
+  background: var(--color-live-dim);
+}
+
+.unblockBusy {
+  opacity: 0.5;
+}

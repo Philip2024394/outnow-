@@ -1,6 +1,6 @@
 import styles from './MapOverlay.module.css'
 
-export default function MapOverlay({ outNowCount = 0, onActivate, isLive, sessionTimeLeft }) {
+export default function MapOverlay({ outNowCount = 0, onActivate, onEnd, isLive, sessionTimeLeft }) {
   return (
     <div className={styles.overlay}>
       {/* Left — total out now */}
@@ -18,11 +18,17 @@ export default function MapOverlay({ outNowCount = 0, onActivate, isLive, sessio
         </div>
       )}
 
-      {/* Bottom center — activate button */}
+      {/* Bottom center — I'M OUT NOW when inactive, FINISH OUT when live */}
       {!isLive && (
         <button className={styles.activateBtn} onClick={onActivate}>
           <span className={styles.activateDot} />
           <span className={styles.activateLabel}>I'M OUT NOW</span>
+        </button>
+      )}
+      {isLive && (
+        <button className={styles.finishBtn} onClick={onEnd}>
+          <span className={styles.finishDot} />
+          <span className={styles.activateLabel}>FINISH OUT</span>
         </button>
       )}
     </div>

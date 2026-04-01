@@ -77,9 +77,13 @@ function MyDot() {
   useEffect(() => {
     const icon = divIcon({
       className: '',
-      html: `<div class="demo-my-dot"></div>`,
-      iconSize: [20, 20],
-      iconAnchor: [10, 10],
+      html: `<div class="demo-my-dot">
+               <div class="demo-my-dot__ring"></div>
+               <div class="demo-my-dot__ring demo-my-dot__ring--2"></div>
+               <div class="demo-my-dot__center"></div>
+             </div>`,
+      iconSize: [28, 28],
+      iconAnchor: [14, 14],
     })
     const m = marker([DEMO_CENTER.lat, DEMO_CENTER.lng], { icon }).addTo(map)
     return () => m.remove()

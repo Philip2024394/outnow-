@@ -1,33 +1,48 @@
 import { usePWA } from '@/hooks/usePWA'
 import styles from './AddToHomeScreenBanner.module.css'
 
+const LOGO_URL = 'https://ik.imagekit.io/dateme/Logo%20with%20green%20map%20pin%20element.png'
+
 export default function AddToHomeScreenBanner() {
   const { canShowBanner, isIOS, install, dismiss } = usePWA()
 
   if (!canShowBanner) return null
 
   return (
-    <div className={styles.banner}>
-      <div className={styles.left}>
-        <span className={styles.icon}>📲</span>
-        <div className={styles.text}>
-          <span className={styles.title}>Add to Home Screen</span>
-          <span className={styles.sub}>
-            {isIOS
-              ? 'Tap Share then "Add to Home Screen"'
-              : 'Install for instant notifications when someone is out'}
-          </span>
-        </div>
-      </div>
-      <div className={styles.actions}>
-        {!isIOS && (
-          <button className={styles.installBtn} onClick={install}>
-            Install
-          </button>
+    <div className={styles.overlay}>
+      <div className={styles.card}>
+        {/* Logo */}
+        <img src={LOGO_URL} alt="IMOUTNOW" className={styles.logo} />
+
+        {/* Title */}
+        <h2 className={styles.title}>Add to Home Screen</h2>
+
+        {/* Description */}
+        <p className={styles.desc}>
+          {isIOS
+            ? 'Tap the Share button below then select "Add to Home Screen" to get instant notifications when someone you like goes out.'
+            : 'Install IMOUTNOW for instant push notifications the moment someone you liked goes out nearby.'}
+        </p>
+
+        {/* iOS instruction visual */}
+        {isIOS && (
+          <div className={styles.iosHint}>
+            <span className={styles.iosStep}>1. Tap <strong>Share</strong> ↑</span>
+            <span className={styles.iosStep}>2. Select <strong>Add to Home Screen</strong></span>
+          </div>
         )}
-        <button className={styles.dismissBtn} onClick={dismiss} aria-label="Dismiss">
-          ✕
-        </button>
+
+        {/* Buttons */}
+        <div className={styles.buttons}>
+          {!isIOS && (
+            <button className={styles.addBtn} onClick={install}>
+              Add to Home Screen
+            </button>
+          )}
+          <button className={styles.laterBtn} onClick={dismiss}>
+            Later
+          </button>
+        </div>
       </div>
     </div>
   )

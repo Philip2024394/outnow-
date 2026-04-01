@@ -1,57 +1,129 @@
 import { useState } from 'react'
 import { useAuth } from '@/hooks/useAuth'
+import { useMySession } from '@/hooks/useMySession'
 import { ACTIVITY_TYPES } from '@/firebase/collections'
-import { DEMO_LIKED_USERS } from '@/demo/mockData'
 import styles from './ProfileScreen.module.css'
 
 const IS_DEMO = import.meta.env.VITE_DEMO_MODE === 'true'
 
-const LOGO_URL = 'https://ik.imagekit.io/dateme/Logo%20with%20green%20map%20pin%20element.png'
+const STATUS_CONFIG = {
+  live:      { label: "I'M OUT NOW",   cls: 'bannerLive',      dot: 'dotLive'      },
+  scheduled: { label: "I'M OUT LATER", cls: 'bannerScheduled', dot: 'dotScheduled' },
+  online:    { label: "I'M ONLINE",    cls: 'bannerOnline',    dot: 'dotOnline'    },
+}
 
-const SETTINGS_ROWS = [
-  { icon: '🔔', label: 'Notifications', sub: 'Manage alerts' },
-  { icon: '🔒', label: 'Privacy', sub: 'Who can see you' },
-  { icon: '🚫', label: 'Blocked Users', sub: 'Manage blocks' },
-  { icon: '💬', label: 'Help & Feedback', sub: 'Get support' },
-  { icon: '⭐', label: 'Rate IMOUTNOW', sub: 'Leave a review' },
-]
+const CITIES   = ['All Cities', 'London', 'Manchester', 'Birmingham', 'Leeds', 'Glasgow', 'Edinburgh', 'Bristol', 'Liverpool', 'Sheffield']
+const GENDERS  = ['Everyone', 'Men', 'Women', 'Non-binary']
+const AGE_OPTS = ['Any Age', '18–24', '25–30', '31–35', '36–40', '40+']
 
 export default function ProfileScreen() {
   const { user, userProfile } = useAuth()
+  const { session: mySession } = useMySession()
   const [selectedActivities, setSelectedActivities] = useState(['drinks', 'coffee', 'food'])
-  const [editingName, setEditingName] = useState(false)
-  const [name, setName] = useState(userProfile?.displayName ?? user?.displayName ?? 'You')
-  const [age, setAge] = useState('28')
-  const [bio, setBio] = useState('Always down for spontaneous plans 🌆')
+  const [name, setName]     = useState(userProfile?.displayName ?? user?.displayName ?? 'You')
+  const [age, setAge]       = useState('28')
+  const [city, setCity]     = useState('London')
+  const [bio, setBio]       = useState('Always down for spontaneous plans 🌆')
+  const [editMode, setEditMode] = useState(false)
 
-  const toggleActivity = (id) => {
+  // Discovery filters
+  const [filterCity,   setFilterCity]   = useState('All Cities')
+  const [filterGender, setFilterGender] = useState('Everyone')
+  const [filterAge,    setFilterAge]    = useState('Any Age')
+
+  const statusKey = mySession?.status === 'active'    ? 'live'
+                  : mySession?.status === 'scheduled' ? 'scheduled'
+                  : 'online'
+  const status = STATUS_CONFIG[statusKey]
+
+  const toggleActivity = (id) =>
     setSelectedActivities(prev =>
       prev.includes(id) ? prev.filter(a => a !== id) : [...prev, id]
     )
-  }
 
   const handleSignOut = () => {
-    if (IS_DEMO) {
-      alert('Sign out disabled in demo mode.')
-      return
-    }
+    if (IS_DEMO) { alert('Sign out disabled in demo mode.'); return }
     import('@/services/authService').then(m => m.signOutUser?.())
   }
 
-  const likesCount = IS_DEMO ? DEMO_LIKED_USERS.length : 0
-
   return (
     <div className={styles.screen}>
-      {/* Header */}
+
+      {/* ── Header ── */}
       <div className={styles.header}>
-        <img src={LOGO_URL} alt="IMOUTNOW" className={styles.logo} />
-        <span className={styles.headerTitle}>Profile</span>
-        <button className={styles.editBtn} onClick={() => setEditingName(true)}>Edit</button>
+        <span className={styles.headerTitle}>My Profile</span>
+        <button
+          className={`${styles.editBtn} ${editMode ? styles.editBtnActive : ''}`}
+          onClick={() => setEditMode(v => !v)}
+        >
+          {editMode ? 'Done' : 'Edit'}
+        </button>
+      </div>
+
+      {/* ── Discovery filter bar ── */}
+      <div className={styles.filterBar}>
+        {/* City — left */}
+        <div className={styles.filterSelectWrap}>
+          <svg className={styles.filterSelectIcon} width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M21 10c0 7-9 13-9 13S3 17 3 10a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/>
+          </svg>
+          <select
+            className={styles.filterSelect}
+            value={filterCity}
+            onChange={e => setFilterCity(e.target.value)}
+          >
+            {CITIES.map(c => <option key={c} value={c}>{c}</option>)}
+          </select>
+          <svg className={styles.filterChevron} width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
+            <polyline points="6 9 12 15 18 9"/>
+          </svg>
+        </div>
+
+        <div className={styles.filterDivider} />
+
+        {/* Gender */}
+        <div className={styles.filterSelectWrap}>
+          <svg className={styles.filterSelectIcon} width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+            <circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/>
+          </svg>
+          <select
+            className={styles.filterSelect}
+            value={filterGender}
+            onChange={e => setFilterGender(e.target.value)}
+          >
+            {GENDERS.map(g => <option key={g} value={g}>{g}</option>)}
+          </select>
+          <svg className={styles.filterChevron} width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
+            <polyline points="6 9 12 15 18 9"/>
+          </svg>
+        </div>
+
+        <div className={styles.filterDivider} />
+
+        {/* Age */}
+        <div className={styles.filterSelectWrap}>
+          <svg className={styles.filterSelectIcon} width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+            <rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/>
+          </svg>
+          <select
+            className={styles.filterSelect}
+            value={filterAge}
+            onChange={e => setFilterAge(e.target.value)}
+          >
+            {AGE_OPTS.map(a => <option key={a} value={a}>{a}</option>)}
+          </select>
+          <svg className={styles.filterChevron} width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
+            <polyline points="6 9 12 15 18 9"/>
+          </svg>
+        </div>
       </div>
 
       <div className={styles.scroll}>
-        {/* Avatar + identity */}
-        <div className={styles.heroSection}>
+
+        {/* ── Profile card ── */}
+        <div className={styles.profileCard}>
+
+          {/* Avatar */}
           <div className={styles.avatarWrap}>
             <div className={styles.avatar}>
               {user?.photoURL
@@ -59,85 +131,99 @@ export default function ProfileScreen() {
                 : <span className={styles.avatarInitial}>{name?.[0]?.toUpperCase() ?? '?'}</span>
               }
             </div>
-            <button className={styles.cameraBtn} aria-label="Change photo">
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/>
-                <circle cx="12" cy="13" r="4"/>
-              </svg>
-            </button>
+            {editMode && (
+              <button className={styles.cameraBtn} aria-label="Change photo">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/>
+                  <circle cx="12" cy="13" r="4"/>
+                </svg>
+              </button>
+            )}
           </div>
 
-          {editingName ? (
-            <input
-              className={styles.nameInput}
-              value={name}
-              onChange={e => setName(e.target.value)}
-              onBlur={() => setEditingName(false)}
-              autoFocus
-            />
-          ) : (
-            <h1 className={styles.name} onClick={() => setEditingName(true)}>{name}</h1>
-          )}
-
-          <div className={styles.ageRow}>
-            <span className={styles.ageLabel}>Age</span>
-            <input
-              className={styles.ageInput}
-              value={age}
-              onChange={e => setAge(e.target.value)}
-              maxLength={3}
-              inputMode="numeric"
-              placeholder="--"
-            />
+          {/* Status banner */}
+          <div className={`${styles.statusBanner} ${styles[status.cls]}`}>
+            <span className={`${styles.statusDot} ${styles[status.dot]}`} />
+            {status.label}
           </div>
 
-          {/* Stats row */}
-          <div className={styles.stats}>
-            <div className={styles.stat}>
+          {/* Name */}
+          {editMode
+            ? <input className={styles.nameInput} value={name} onChange={e => setName(e.target.value)} autoFocus />
+            : <h1 className={styles.name}>{name}</h1>
+          }
+
+          {/* Age · City */}
+          <div className={styles.identityRow}>
+            {editMode ? (
+              <>
+                <input
+                  className={styles.inlineInput}
+                  value={age}
+                  onChange={e => setAge(e.target.value.replace(/\D/, ''))}
+                  placeholder="Age"
+                  inputMode="numeric"
+                  maxLength={2}
+                  style={{ width: 52 }}
+                />
+                <span className={styles.identitySep}>·</span>
+                <input
+                  className={styles.inlineInput}
+                  value={city}
+                  onChange={e => setCity(e.target.value)}
+                  placeholder="City"
+                  style={{ flex: 1 }}
+                />
+              </>
+            ) : (
+              <span className={styles.identityText}>{age} · {city}</span>
+            )}
+          </div>
+
+          {/* Stats — sessions & meetups only */}
+          <div className={styles.statsRow}>
+            <div className={styles.statItem}>
               <span className={styles.statNum}>12</span>
               <span className={styles.statLabel}>Sessions</span>
             </div>
             <div className={styles.statDivider} />
-            <div className={styles.stat}>
-              <span className={styles.statNum}>{likesCount}</span>
-              <span className={styles.statLabel}>Likes</span>
-            </div>
-            <div className={styles.statDivider} />
-            <div className={styles.stat}>
+            <div className={styles.statItem}>
               <span className={styles.statNum}>4</span>
               <span className={styles.statLabel}>Meetups</span>
             </div>
           </div>
         </div>
 
-        {/* Bio */}
+        {/* ── Bio ── */}
         <div className={styles.section}>
-          <div className={styles.sectionHeader}>
-            <span className={styles.sectionTitle}>About</span>
-          </div>
-          <textarea
-            className={styles.bioInput}
-            value={bio}
-            onChange={e => setBio(e.target.value)}
-            placeholder="Tell people what you're about…"
-            rows={3}
-            maxLength={150}
-          />
-          <span className={styles.bioCount}>{bio.length}/150</span>
+          <span className={styles.sectionLabel}>About me</span>
+          {editMode ? (
+            <>
+              <textarea
+                className={styles.bioInput}
+                value={bio}
+                onChange={e => setBio(e.target.value)}
+                placeholder="Tell people what you're about…"
+                rows={3}
+                maxLength={150}
+              />
+              <span className={styles.bioCount}>{bio.length}/150</span>
+            </>
+          ) : (
+            <p className={styles.bioText}>{bio || <span className={styles.bioEmpty}>No bio yet</span>}</p>
+          )}
         </div>
 
-        {/* Activity preferences */}
+        {/* ── I'm out for ── */}
         <div className={styles.section}>
-          <div className={styles.sectionHeader}>
-            <span className={styles.sectionTitle}>I'm into</span>
-            <span className={styles.sectionSub}>Tap to select</span>
-          </div>
+          <span className={styles.sectionLabel}>I&apos;m out for</span>
           <div className={styles.activitiesGrid}>
             {ACTIVITY_TYPES.map(a => (
               <button
                 key={a.id}
                 className={`${styles.activityChip} ${selectedActivities.includes(a.id) ? styles.activityActive : ''}`}
-                onClick={() => toggleActivity(a.id)}
+                onClick={editMode ? () => toggleActivity(a.id) : undefined}
+                disabled={!editMode}
               >
                 <span className={styles.activityEmoji}>{a.emoji}</span>
                 <span className={styles.activityLabel}>{a.label}</span>
@@ -146,32 +232,11 @@ export default function ProfileScreen() {
           </div>
         </div>
 
-        {/* Settings rows */}
+        {/* ── Sign out ── */}
         <div className={styles.section}>
-          <div className={styles.sectionHeader}>
-            <span className={styles.sectionTitle}>Settings</span>
-          </div>
-          <div className={styles.settingsList}>
-            {SETTINGS_ROWS.map(row => (
-              <button key={row.label} className={styles.settingsRow}>
-                <span className={styles.settingsIcon}>{row.icon}</span>
-                <div className={styles.settingsText}>
-                  <span className={styles.settingsLabel}>{row.label}</span>
-                  <span className={styles.settingsSub}>{row.sub}</span>
-                </div>
-                <span className={styles.settingsChevron}>›</span>
-              </button>
-            ))}
-          </div>
+          <button className={styles.signOutBtn} onClick={handleSignOut}>Sign Out</button>
         </div>
 
-        {/* Sign out */}
-        <div className={styles.section}>
-          <button className={styles.signOutBtn} onClick={handleSignOut}>
-            Sign Out
-          </button>
-          <p className={styles.version}>IMOUTNOW v0.1 · demo mode</p>
-        </div>
       </div>
     </div>
   )

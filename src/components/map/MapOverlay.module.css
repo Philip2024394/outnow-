@@ -59,6 +59,7 @@
   text-transform: uppercase;
 }
 
+
 /* Right — live session countdown */
 .timerBadge {
   position: absolute;
@@ -87,21 +88,49 @@
   line-height: 1;
 }
 
+/* Reviews chip */
+.reviewsChip {
+  position: absolute;
+  bottom: 160px;
+  right: 16px;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  background: rgba(8, 8, 8, 0.78);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 215, 0, 0.3);
+  border-radius: 100px;
+  padding: 7px 14px;
+  font-size: 12px;
+  font-weight: 700;
+  color: rgba(255, 215, 0, 0.85);
+  cursor: pointer;
+  pointer-events: all;
+  font-family: var(--font-sans);
+  -webkit-tap-highlight-color: transparent;
+  transition: background 0.15s;
+}
+
+.reviewsChip:active {
+  background: rgba(255, 215, 0, 0.1);
+}
+
 /* Bottom center — activate */
 .activateBtn {
   position: absolute;
-  bottom: 110px;
+  bottom: 140px;
   left: 50%;
   transform: translateX(-50%);
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 8px;
   background: #39FF14;
   color: #080808;
-  font-size: 15px;
+  font-size: 13px;
   font-weight: 800;
-  letter-spacing: 0.08em;
-  padding: 16px 32px;
+  letter-spacing: 0.07em;
+  padding: 11px 24px;
   border-radius: 100px;
   border: none;
   cursor: pointer;
@@ -133,4 +162,50 @@
 
 .activateLabel {
   text-transform: uppercase;
+}
+
+/* Finish Out button — shown when live */
+.finishBtn {
+  position: absolute;
+  bottom: 140px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: rgba(18, 18, 18, 0.92);
+  color: #fff;
+  font-size: 13px;
+  font-weight: 800;
+  letter-spacing: 0.07em;
+  padding: 11px 24px;
+  border-radius: 100px;
+  border: 1.5px solid rgba(255, 59, 48, 0.5);
+  cursor: pointer;
+  pointer-events: all;
+  box-shadow: 0 0 0 4px rgba(255,59,48,0.08), 0 0 24px rgba(255,59,48,0.2);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  -webkit-tap-highlight-color: transparent;
+  transition: transform 0.12s ease, background 0.12s ease;
+  white-space: nowrap;
+}
+
+.finishBtn:active {
+  transform: translateX(-50%) scale(0.95);
+  background: rgba(255,59,48,0.15);
+}
+
+.finishDot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: #FF3B30;
+  box-shadow: 0 0 8px #FF3B30;
+  animation: finish-pulse 1.5s ease-in-out infinite;
+}
+
+@keyframes finish-pulse {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50%       { opacity: 0.5; transform: scale(1.3); }
 }

@@ -8,12 +8,18 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
+  overflow: visible;
 }
 
 .logo {
-  height: 100px;
+  height: 120px;
   width: auto;
   object-fit: contain;
+  /* Anchor top of logo to the header top, let it overflow downward */
+  position: absolute;
+  top: calc(var(--safe-top) + 4px);
+  left: var(--space-5);
+  pointer-events: none;
 }
 
 .right {
@@ -70,4 +76,26 @@
 
 .notifDot {
   fill: #39FF14;
+}
+
+/* Red badge on bell */
+.notifBadge {
+  position: absolute;
+  top: 4px;
+  right: 4px;
+  min-width: 17px;
+  height: 17px;
+  border-radius: 100px;
+  background: #FF3B30;
+  color: #fff;
+  font-size: 10px;
+  font-weight: 800;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 4px;
+  border: 2px solid rgba(8, 8, 8, 0.9);
+  pointer-events: none;
+  line-height: 1;
+  box-shadow: 0 0 6px rgba(255,59,48,0.6);
 }

@@ -152,6 +152,79 @@ export const DEMO_SCHEDULED_SESSIONS = [
   },
 ]
 
+export const DEMO_REVIEWS = [
+  {
+    id: 'r1',
+    displayName: 'Isabelle M.',
+    emoji: '😊',
+    age: 27,
+    area: 'Soho, London',
+    country: 'GB',
+    flag: '🇬🇧',
+    rating: 5,
+    text: 'Met someone incredible within 20 minutes of going live. We ended up staying at the bar for 3 hours. This app is genuinely different — no awkward texting, just real chemistry in person.',
+    activityType: 'drinks',
+    verified: true,
+    timeAgo: '2 days ago',
+  },
+  {
+    id: 'r2',
+    displayName: 'James T.',
+    emoji: '😎',
+    age: 31,
+    area: 'Shoreditch, London',
+    country: 'GB',
+    flag: '🇬🇧',
+    rating: 5,
+    text: 'Refreshing concept. No endless swiping, no ghosting. Hit the button, someone nearby was also out, we grabbed coffee. Simple as that.',
+    activityType: 'coffee',
+    verified: true,
+    timeAgo: '4 days ago',
+  },
+  {
+    id: 'r3',
+    displayName: 'Priya K.',
+    emoji: '✨',
+    age: 25,
+    area: 'Notting Hill, London',
+    country: 'GB',
+    flag: '🇬🇧',
+    rating: 5,
+    text: 'Finally an app that feels safe. No random messages from strangers — just people who are actually nearby and actually out. The female safety features are a massive plus.',
+    activityType: 'food',
+    verified: true,
+    timeAgo: '1 week ago',
+  },
+  {
+    id: 'r4',
+    displayName: 'Marcus O.',
+    emoji: '🎯',
+    age: 29,
+    area: 'Camden, London',
+    country: 'GB',
+    flag: '🇬🇧',
+    rating: 4,
+    text: 'Third time using it this week — matched twice and met once. The vibe is totally different to Tinder. People are actually there and ready to meet. Love the Out Later feature for planning weekends.',
+    activityType: 'hangout',
+    verified: false,
+    timeAgo: '3 days ago',
+  },
+  {
+    id: 'r5',
+    displayName: 'Sophie R.',
+    emoji: '🌸',
+    age: 24,
+    area: 'Brixton, London',
+    country: 'GB',
+    flag: '🇬🇧',
+    rating: 5,
+    text: 'The 10-minute chat window is genius. Forces you to actually go meet them instead of chatting forever. Went on two spontaneous dates this month.',
+    activityType: 'drinks',
+    verified: true,
+    timeAgo: '5 days ago',
+  },
+]
+
 export const DEMO_CENTER = { lat: BASE_LAT, lng: BASE_LNG }
 
 // Chat statuses:
@@ -273,10 +346,10 @@ export const DEMO_MATCH_PROFILES = [
 ]
 
 export const DEMO_LIKED_USERS = [
-  { id: 'like-1', displayName: 'Ava', age: 26, online: true,  emoji: '😊', activityType: 'drinks',  area: 'Soho' },
-  { id: 'like-2', displayName: 'Marcus', age: 30, online: true,  emoji: '😎', activityType: 'coffee',  area: 'Shoreditch' },
-  { id: 'like-3', displayName: 'Zoe', age: 24, online: false, emoji: '🌸', activityType: 'food',    area: 'Camden' },
-  { id: 'like-4', displayName: 'Kai', age: 28, online: true,  emoji: '🤙', activityType: 'hangout', area: 'Dalston' },
-  { id: 'like-5', displayName: 'Sofia', age: 23, online: false, emoji: '✨', activityType: 'walk',    area: 'Notting Hill' },
-  { id: 'like-6', displayName: 'Finn', age: 31, online: true,  emoji: '🎯', activityType: 'drinks',  area: 'Brixton' },
+  { id: 'like-1', displayName: 'Ava',    age: 26, online: true,  emoji: '😊', activityType: 'drinks',  area: 'Soho',         viewCount: 7,  tagline: 'Up for anything tonight 🍸',      likedAt: now - 2 * 60 * 60 * 1000 },
+  { id: 'like-2', displayName: 'Marcus', age: 30, online: true,  emoji: '😎', activityType: 'coffee',  area: 'Shoreditch',   viewCount: 12, tagline: 'Coffee first, then we\'ll see 😄', likedAt: now - 5 * 60 * 60 * 1000 },
+  { id: 'like-3', displayName: 'Zoe',    age: 24, online: false, emoji: '🌸', activityType: 'food',    area: 'Camden',       viewCount: 3,  tagline: 'Foodie looking for a partner in crime', likedAt: now - 1 * 24 * 60 * 60 * 1000 },
+  { id: 'like-4', displayName: 'Kai',    age: 28, online: true,  emoji: '🤙', activityType: 'hangout', area: 'Dalston',      viewCount: 9,  tagline: 'Spontaneous plans only.',          likedAt: now - 3 * 60 * 60 * 1000 },
+  { id: 'like-5', displayName: 'Sofia',  age: 23, online: false, emoji: '✨', activityType: 'walk',    area: 'Notting Hill', viewCount: 5,  tagline: 'Art, walks, good vibes ✨',        likedAt: now - 2 * 24 * 60 * 60 * 1000 },
+  { id: 'like-6', displayName: 'Finn',   age: 31, online: true,  emoji: '🎯', activityType: 'drinks',  area: 'Brixton',      viewCount: 14, tagline: 'Drinks after work — who\'s in?',   likedAt: now - 30 * 60 * 1000 },
 ]
