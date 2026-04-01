@@ -241,6 +241,7 @@ export default function AppShell({ returnParams, triggerGoLive }) {
           onOpenFilter={() => setMapFilterOpen(true)}
           onOpenVenues={() => setVenueListOpen(true)}
           activeVenueCount={activeVenues.length}
+          onSOS={() => setSosOpen(true)}
         />
       )}
 

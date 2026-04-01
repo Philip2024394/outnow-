@@ -2,11 +2,9 @@
   position: relative;
   border-radius: 20px;
   overflow: hidden;
-  min-height: 340px;
   margin-bottom: 8px;
 }
 
-/* Full-size image — stretches to fill container completely */
 .bgImage {
   position: absolute;
   inset: 0;
@@ -18,136 +16,130 @@
   z-index: 0;
 }
 
-/* Frosted dark overlay on top of image */
 .frost {
   position: absolute;
   inset: 0;
-  background: rgba(4, 4, 4, 0.52);
-  backdrop-filter: blur(2px);
-  -webkit-backdrop-filter: blur(2px);
+  background: rgba(4, 4, 4, 0.58);
   z-index: 1;
+}
+
+/* Green strip across the top */
+.greenStrip {
+  position: relative;
+  z-index: 2;
+  height: 4px;
+  background: #39FF14;
+  box-shadow: 0 0 12px rgba(57,255,20,0.8);
 }
 
 .inner {
   position: relative;
   z-index: 2;
-  padding: 20px 16px 24px;
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
+  padding: 14px 0 18px;
 }
 
 .empty {
   text-align: center;
   color: rgba(255,255,255,0.4);
   font-size: 14px;
-  padding: 80px 0;
+  padding: 40px 16px;
 }
 
-/* Counter */
-.counter {
-  align-self: flex-end;
-  display: flex;
-  align-items: baseline;
-  gap: 2px;
-}
-
-.counterNum {
-  font-size: 24px;
-  font-weight: 900;
-  color: #fff;
-  text-shadow: 0 2px 8px rgba(0,0,0,0.6);
-}
-
-.counterSep,
-.counterTotal {
-  font-size: 14px;
-  color: rgba(255,255,255,0.45);
-}
-
-/* Venue card — black frosted glass */
-.card {
-  width: 100%;
-  background: rgba(0, 0, 0, 0.55);
-  border: 1px solid rgba(255, 255, 255, 0.15);
-  border-radius: 18px;
-  backdrop-filter: blur(28px);
-  -webkit-backdrop-filter: blur(28px);
-  padding: 18px;
+/* Horizontal scrolling row */
+.scrollRow {
   display: flex;
   flex-direction: column;
-  gap: 14px;
+  gap: 8px;
+  padding: 0 14px;
+  overflow-y: auto;
+  max-height: 320px;
+  scrollbar-width: none;
+}
+
+.scrollRow::-webkit-scrollbar { display: none; }
+
+/* Landscape card */
+.card {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 13px 16px;
+  background: rgba(0, 0, 0, 0.6);
+  border: 1px solid rgba(255,255,255,0.12);
+  border-radius: 14px;
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
   cursor: pointer;
   text-align: left;
+  width: 100%;
   -webkit-tap-highlight-color: transparent;
-  box-shadow: 0 8px 32px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.08);
-  transition: background 0.15s, transform 0.12s;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.4);
+  transition: background 0.15s, transform 0.1s;
 }
 
 .card:active {
-  background: rgba(0,0,0,0.7);
+  background: rgba(0,0,0,0.8);
   transform: scale(0.98);
 }
 
-.cardTop {
-  display: flex;
-  align-items: center;
-  gap: 14px;
-}
-
 .cardEmoji {
-  font-size: 40px;
+  font-size: 28px;
   line-height: 1;
   flex-shrink: 0;
-  filter: drop-shadow(0 2px 8px rgba(0,0,0,0.7));
 }
 
 .cardInfo {
+  flex: 1;
   display: flex;
   flex-direction: column;
-  gap: 4px;
+  gap: 3px;
   min-width: 0;
 }
 
 .cardName {
-  font-size: 20px;
-  font-weight: 900;
+  font-size: 15px;
+  font-weight: 800;
   color: #fff;
-  letter-spacing: -0.02em;
-  line-height: 1.1;
-  text-shadow: 0 2px 8px rgba(0,0,0,0.6);
-}
-
-.cardType {
-  font-size: 12px;
-  font-weight: 600;
-  color: rgba(255,255,255,0.45);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+  text-shadow: 0 1px 6px rgba(0,0,0,0.6);
 }
 
-.cardBottom {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 10px;
+.cardType {
+  font-size: 11px;
+  font-weight: 600;
+  color: rgba(255,255,255,0.4);
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
 }
 
-.cardCount {
+.cardRight {
   display: flex;
   align-items: center;
   gap: 8px;
+  flex-shrink: 0;
+}
+
+.dealChip {
+  font-size: 14px;
+}
+
+.countWrap {
+  display: flex;
+  align-items: center;
+  gap: 5px;
 }
 
 .hotDot {
-  width: 9px;
-  height: 9px;
+  width: 7px;
+  height: 7px;
   border-radius: 50%;
   background: #39FF14;
-  box-shadow: 0 0 10px #39FF14;
-  flex-shrink: 0;
+  box-shadow: 0 0 8px #39FF14;
   animation: hot-pulse 1.4s ease-in-out infinite;
+  flex-shrink: 0;
 }
 
 @keyframes hot-pulse {
@@ -156,97 +148,10 @@
 }
 
 .countNum {
-  font-size: 30px;
+  font-size: 20px;
   font-weight: 900;
   color: #39FF14;
-  letter-spacing: -0.03em;
+  letter-spacing: -0.02em;
   line-height: 1;
-  text-shadow: 0 0 18px rgba(57,255,20,0.6);
-}
-
-.countLabel {
-  font-size: 13px;
-  font-weight: 600;
-  color: rgba(255,255,255,0.45);
-}
-
-.dealChip {
-  font-size: 11px;
-  font-weight: 700;
-  color: #FFD700;
-  background: rgba(0,0,0,0.4);
-  border: 1px solid rgba(255,200,0,0.35);
-  border-radius: 100px;
-  padding: 4px 10px;
-  white-space: nowrap;
-  backdrop-filter: blur(8px);
-}
-
-.cardTap {
-  font-size: 11px;
-  font-weight: 600;
-  color: rgba(255,255,255,0.28);
-  text-align: right;
-  letter-spacing: 0.04em;
-}
-
-/* Nav row */
-.navRow {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 12px;
-}
-
-/* Black frosted glass nav buttons */
-.navBtn {
-  width: 46px;
-  height: 46px;
-  border-radius: 50%;
-  background: #000;
-  border: none;
-  color: #fff;
-  font-size: 26px;
-  font-weight: 300;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-  -webkit-tap-highlight-color: transparent;
-  transition: opacity 0.15s, transform 0.1s;
-  flex-shrink: 0;
-  box-shadow: 0 4px 16px rgba(0,0,0,0.6);
-}
-
-.navBtn:active {
-  transform: scale(0.9);
-  opacity: 0.8;
-}
-
-.navBtnDisabled {
-  opacity: 0.2;
-  cursor: not-allowed;
-}
-
-.dots {
-  display: flex;
-  align-items: center;
-  gap: 7px;
-}
-
-.dot {
-  width: 6px;
-  height: 6px;
-  border-radius: 50%;
-  background: rgba(255,255,255,0.2);
-  border: none;
-  padding: 0;
-  cursor: pointer;
-  transition: background 0.2s, transform 0.2s;
-}
-
-.dotActive {
-  background: #39FF14;
-  transform: scale(1.5);
-  box-shadow: 0 0 6px #39FF14;
+  text-shadow: 0 0 12px rgba(57,255,20,0.5);
 }

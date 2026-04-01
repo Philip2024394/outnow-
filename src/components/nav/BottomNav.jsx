@@ -14,7 +14,7 @@ const TABS = [
   },
   {
     id: 'match',
-    label: 'Match',
+    label: 'Discover',
     icon: (active) => (
       <svg width="22" height="22" viewBox="0 0 24 24" fill={active ? '#39FF14' : 'none'} stroke={active ? '#39FF14' : '#666'} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
         <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
@@ -30,19 +30,9 @@ const TABS = [
       </svg>
     ),
   },
-  {
-    id: 'profile',
-    label: 'Me',
-    icon: (active) => (
-      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke={active ? '#39FF14' : '#666'} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-        <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
-        <circle cx="12" cy="7" r="4"/>
-      </svg>
-    ),
-  },
 ]
 
-export default function BottomNav({ activeTab = 'map', onChange, unreadChats = 0, hasActiveMapFilter, onOpenFilter, onOpenVenues, activeVenueCount = 0 }) {
+export default function BottomNav({ activeTab = 'map', onChange, unreadChats = 0, hasActiveMapFilter, onOpenFilter, onOpenVenues, activeVenueCount = 0, onSOS }) {
   return (
     <nav className={styles.nav}>
       {TABS.map((tab) => {
@@ -97,6 +87,11 @@ export default function BottomNav({ activeTab = 'map', onChange, unreadChats = 0
           </span>
         </button>
       )}
+
+      {/* SOS button */}
+      <button className={styles.sosTab} onClick={onSOS} aria-label="Alert my contact">
+        <span className={styles.sosIcon}>🆘</span>
+      </button>
     </nav>
   )
 }
