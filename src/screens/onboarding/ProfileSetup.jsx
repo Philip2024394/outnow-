@@ -3,27 +3,34 @@ import styles from './ProfileSetup.module.css'
 
 const LOGO_URL = 'https://ik.imagekit.io/dateme/Logo%20with%20green%20map%20pin%20element.png'
 
-// Detect country from timezone
-function detectCountry() {
-  try {
-    const tz = Intl.DateTimeFormat().resolvedOptions().timeZone ?? ''
-    if (tz.includes('London') || tz.includes('Europe/London')) return 'United Kingdom'
-    if (tz.includes('America/New_York') || tz.includes('America/Chicago') || tz.includes('America/Los_Angeles') || tz.includes('America/Denver')) return 'United States'
-    if (tz.includes('Europe/Dublin')) return 'Ireland'
-    if (tz.includes('Europe/Paris') || tz.includes('Europe/Berlin') || tz.includes('Europe/Amsterdam')) return 'Europe'
-    if (tz.includes('Australia')) return 'Australia'
-    if (tz.includes('America/Toronto') || tz.includes('America/Vancouver')) return 'Canada'
-    if (tz.includes('Asia/Dubai')) return 'UAE'
-  } catch {}
-  return ''
-}
-
+// Country list with flag emojis
 const COUNTRIES = [
-  'United Kingdom', 'United States', 'Ireland', 'Australia', 'Canada',
-  'Germany', 'France', 'Spain', 'Italy', 'Netherlands', 'Sweden',
-  'Norway', 'Denmark', 'Portugal', 'Belgium', 'Switzerland',
-  'UAE', 'South Africa', 'New Zealand', 'Singapore', 'Other',
+  { name: 'United Kingdom', flag: '🇬🇧' },
+  { name: 'United States',  flag: '🇺🇸' },
+  { name: 'Ireland',        flag: '🇮🇪' },
+  { name: 'Australia',      flag: '🇦🇺' },
+  { name: 'Canada',         flag: '🇨🇦' },
+  { name: 'Germany',        flag: '🇩🇪' },
+  { name: 'France',         flag: '🇫🇷' },
+  { name: 'Spain',          flag: '🇪🇸' },
+  { name: 'Italy',          flag: '🇮🇹' },
+  { name: 'Netherlands',    flag: '🇳🇱' },
+  { name: 'Sweden',         flag: '🇸🇪' },
+  { name: 'Norway',         flag: '🇳🇴' },
+  { name: 'Denmark',        flag: '🇩🇰' },
+  { name: 'Portugal',       flag: '🇵🇹' },
+  { name: 'Belgium',        flag: '🇧🇪' },
+  { name: 'Switzerland',    flag: '🇨🇭' },
+  { name: 'UAE',            flag: '🇦🇪' },
+  { name: 'South Africa',   flag: '🇿🇦' },
+  { name: 'New Zealand',    flag: '🇳🇿' },
+  { name: 'Singapore',      flag: '🇸🇬' },
+  { name: 'Other',          flag: '🌍' },
 ]
+
+function countryFlag(name) {
+  return COUNTRIES.find(c => c.name === name)?.flag ?? '🏳️'
+}
 
 const LOOKING   = ['Date', 'Meet now', 'Chat first', 'Just browsing']
 const AVAILABLE = ['Right now', 'Today', 'Tonight', 'This weekend']
@@ -48,8 +55,15 @@ export default function ProfileSetup({ onDone }) {
   const [, setNotif]  = useState(false)
 
   useEffect(() => {
-    const detected = detectCountry()
-    if (detected) setCountry(detected)
+    fetch('https://ipapi.co/json/')
+      .then(r => r.json())
+      .then(d => {
+        const match = COUNTRIES.find(c =>
+          c.name.toLowerCase() === (d.country_name ?? '').toLowerCase()
+        )
+        if (match) setCountry(match.name)
+      })
+      .catch(() => {})
   }, [])
 
   const toggleMeet = (v) =>
@@ -112,7 +126,9 @@ export default function ProfileSetup({ onDone }) {
 
             {/* Country */}
             <div className={styles.selectWrap}>
-              <span className={styles.selectIcon}>🌍</span>
+              <span className={styles.selectIcon}>
+                {country ? countryFlag(country) : '🏳️'}
+              </span>
               <select
                 className={styles.select}
                 value={country}
@@ -120,7 +136,7 @@ export default function ProfileSetup({ onDone }) {
               >
                 <option value="">Select your country…</option>
                 {COUNTRIES.map(c => (
-                  <option key={c} value={c}>{c}</option>
+                  <option key={c.name} value={c.name}>{c.flag} {c.name}</option>
                 ))}
               </select>
               <svg className={styles.selectChevron} width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
