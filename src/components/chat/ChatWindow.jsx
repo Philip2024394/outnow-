@@ -1,9 +1,8 @@
 import { useState, useRef, useEffect, useCallback } from 'react'
 import { filterMessage, BLOCK_MESSAGES } from '@/utils/contentFilter'
 import { useAuth } from '@/hooks/useAuth'
+import { UNLOCK_PRICE } from '@/utils/pricing'
 import styles from './ChatWindow.module.css'
-
-const UNLOCK_PRICE  = '$0.99'
 const CHAT_WINDOW_MS = 10 * 60 * 1000
 const URGENT_MS      = 2  * 60 * 1000
 const IS_DEMO        = import.meta.env.VITE_DEMO_MODE === 'true'
