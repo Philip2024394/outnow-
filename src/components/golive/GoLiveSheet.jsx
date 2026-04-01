@@ -272,7 +272,7 @@ export default function GoLiveSheet({ open, onClose, showToast, activeVenues = [
 
         {/* Duration */}
         <div className={styles.section}>
-          <label className={styles.label}>How long are you around?</label>
+          <label className={styles.label}>Staying out for…</label>
           <div className={styles.durations}>
             {DURATIONS.map((d) => (
               <button
