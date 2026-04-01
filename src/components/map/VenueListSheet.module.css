@@ -1,5 +1,26 @@
 .content {
   padding-bottom: 32px;
+  background-image: url('https://ik.imagekit.io/dateme/UntitledDFSDFASDFDFGSDFGsfdfasd.png');
+  background-size: cover;
+  background-position: center top;
+  background-repeat: no-repeat;
+  border-radius: 20px;
+  position: relative;
+}
+
+.content::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: rgba(8, 8, 8, 0.72);
+  border-radius: 20px;
+  pointer-events: none;
+  z-index: 0;
+}
+
+.content > * {
+  position: relative;
+  z-index: 1;
 }
 
 .empty {
