@@ -2,7 +2,7 @@ import BottomSheet from '@/components/ui/BottomSheet'
 import styles from './MapFilterSheet.module.css'
 
 const ACTIVITIES = ['All', 'Drinks', 'Food', 'Coffee', 'Walk', 'Hangout', 'Cinema', 'Shopping']
-const GENDERS    = ['All', 'Men', 'Women']
+const GENDERS    = ['All', 'Men', 'Women', 'Gay', 'Lesbian', 'Bisexual', 'Non-binary', 'Trans', 'Queer']
 const STATUSES   = ['All', 'Out Now', 'Out Later']
 const CITIES     = ['All', 'Soho', 'Shoreditch', 'Camden', 'Notting Hill', 'Brixton', 'Dalston', 'Covent Garden', 'Bloomsbury', 'Fitzrovia', 'Oxford Street', 'Leicester Sq', 'Hyde Park']
 

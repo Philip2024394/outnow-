@@ -34,7 +34,6 @@ function countryFlag(name) {
 
 const LOOKING   = ['Date', 'Meet now', 'Chat first', 'Just browsing']
 const AVAILABLE = ['Right now', 'Today', 'Tonight', 'This weekend']
-const MEET_FIRST = ['☕ Coffee', '🍺 Drinks', '🚶 Walk', '🍽️ Dinner']
 
 const TOTAL_STEPS = 4
 
@@ -47,10 +46,8 @@ export default function ProfileSetup({ onDone }) {
   const [age, setAge]             = useState('')
   const [gender, setGender]       = useState('')
   const [country, setCountry]     = useState('')
-  const [tagline, setTagline]     = useState('')
   const [lookingFor, setLooking]  = useState('')
   const [available, setAvailable] = useState('')
-  const [meetFirst, setMeetFirst] = useState([])
   const [photoEmoji]              = useState(['😊','😎','🌸','🤙','✨','🎯','🔥','🦋'][Math.floor(Math.random()*8)])
   const [, setNotif]  = useState(false)
 
@@ -66,14 +63,10 @@ export default function ProfileSetup({ onDone }) {
       .catch(() => {})
   }, [])
 
-  const toggleMeet = (v) =>
-    setMeetFirst(p => p.includes(v) ? p.filter(x => x !== v) : [...p, v])
-
   const finish = () => {
     setLeaving(true)
     setTimeout(() => onDone({
-      name, age, gender, country, tagline, lookingFor, available,
-      meetFirst, photoEmoji,
+      name, age, gender, country, lookingFor, available, photoEmoji,
     }), 350)
   }
 
@@ -167,7 +160,15 @@ export default function ProfileSetup({ onDone }) {
                 ))}
               </div>
             </div>
-
+            <div className={styles.genderExtended}>
+              {['Gay', 'Lesbian', 'Bisexual', 'Non-binary', 'Trans', 'Queer', 'Prefer not to say'].map(g => (
+                <button
+                  key={g}
+                  className={`${styles.genderChip} ${gender === g ? styles.genderChipActive : ''}`}
+                  onClick={() => setGender(g)}
+                >{g}</button>
+              ))}
+            </div>
             {age && Number(age) < 18 && (
               <p className={styles.error}>You must be 18 or over to use imoutnow.com.</p>
             )}
