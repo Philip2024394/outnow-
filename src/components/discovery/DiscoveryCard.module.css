@@ -107,6 +107,123 @@
   padding-bottom: var(--space-4);
 }
 
+/* ── Photo carousel banner ── */
+.photoBanner {
+  position: relative;
+  width: calc(100% - 16px);
+  margin: 8px auto 0;
+  height: 200px;
+  border-radius: 14px;
+  overflow: hidden;
+  flex-shrink: 0;
+  border: 2px solid var(--status-color, #39FF14);
+  box-shadow: 0 0 12px rgba(0,0,0,0.3), 0 0 0 1px rgba(255,255,255,0.04);
+}
+
+.photoBannerImg {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center top;
+  display: block;
+  animation: photo-fade 0.25s ease;
+}
+
+@keyframes photo-fade {
+  from { opacity: 0.5; transform: scale(1.03); }
+  to   { opacity: 1;   transform: scale(1); }
+}
+
+/* Dark gradient at bottom for text legibility */
+.photoBanner::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(to bottom, transparent 45%, rgba(0,0,0,0.75) 100%);
+  pointer-events: none;
+}
+
+.photoBannerMeta {
+  position: absolute;
+  bottom: 10px;
+  left: 12px;
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 2px;
+}
+
+.photoBannerVenue {
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--status-color, #39FF14);
+  text-shadow: 0 0 6px var(--status-color, #39FF14), 0 1px 4px rgba(0,0,0,0.8);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.photoBannerName {
+  font-size: 17px;
+  font-weight: 800;
+  color: #fff;
+  text-shadow: 0 1px 4px rgba(0,0,0,0.6);
+}
+
+.photoBannerAge {
+  font-size: 15px;
+  font-weight: 600;
+  color: rgba(255,255,255,0.85);
+}
+
+.photoBannerStatus {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  z-index: 2;
+  color: var(--status-color, #39FF14);
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  text-shadow: 0 0 8px var(--status-color, #39FF14), 0 1px 4px rgba(0,0,0,0.8);
+}
+
+.photoBannerDist {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  z-index: 2;
+  color: rgba(255,255,255,0.85);
+  font-size: 11px;
+  font-weight: 700;
+  text-shadow: 0 1px 4px rgba(0,0,0,0.8);
+  letter-spacing: 0.02em;
+}
+
+.photoNavBtn {
+  position: absolute;
+  bottom: 10px;
+  right: 10px;
+  z-index: 2;
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  background: var(--status-color, #39FF14);
+  border: none;
+  font-size: 18px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  box-shadow: 0 2px 14px rgba(0,0,0,0.4), 0 0 8px var(--status-color, #39FF14);
+  transition: transform 0.12s;
+  -webkit-tap-highlight-color: transparent;
+  line-height: 1;
+}
+
+.photoNavBtn:active { transform: scale(0.9); }
+
 /* Status badge — top right */
 .statusTag {
   position: absolute;
@@ -193,6 +310,36 @@
   font-size: var(--font-size-lg);
   font-weight: var(--font-weight-medium);
   color: var(--color-text-muted);
+}
+
+.cityLine {
+  font-size: 12px;
+  font-weight: 600;
+  color: rgba(255,255,255,0.45);
+  letter-spacing: 0.01em;
+  margin-top: -2px;
+}
+
+.fingerprintBtn {
+  flex-shrink: 0;
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background: rgba(255,255,255,0.07);
+  border: 1.5px solid rgba(255,255,255,0.15);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: rgba(255,255,255,0.55);
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s, border-color 0.15s;
+  margin-top: 4px;
+}
+
+.fingerprintBtn:active {
+  background: rgba(57,255,20,0.1);
+  border-color: rgba(57,255,20,0.4);
+  color: #39FF14;
 }
 
 .activityRow {
@@ -390,7 +537,7 @@
 .memberAvatar {
   width: 24px;
   height: 24px;
-  border-radius: 50%;
+  border-radius: 6px;
   background: rgba(255,255,255,0.12);
   display: flex;
   align-items: center;

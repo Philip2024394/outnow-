@@ -85,10 +85,39 @@ export default function DiscoveryCard({ open, session, mySession, onClose, showT
   }, [onClose])
   const { show: showWaveIntro, dismiss: dismissWaveIntro } = useFeatureIntro('wave')
 
+  // Photo carousel state — guard against null session (hooks must be called unconditionally)
+  const photos = session?.photos?.length ? session.photos : session?.photoURL ? [session.photoURL] : []
+  const [photoIdx, setPhotoIdx] = useState(0)
+  const [direction, setDirection] = useState('forward') // 'forward' | 'backward'
+
+  const handlePhotoBtn = () => {
+    if (photos.length <= 1) return
+    if (direction === 'forward') {
+      if (photoIdx < photos.length - 1) {
+        setPhotoIdx(i => i + 1)
+      } else {
+        // On last image — first press goes back, then keep going back
+        setDirection('backward')
+        setPhotoIdx(i => i - 1)
+      }
+    } else {
+      if (photoIdx > 0) {
+        setPhotoIdx(i => i - 1)
+      } else {
+        // Back at first — switch to forward
+        setDirection('forward')
+        setPhotoIdx(i => i + 1)
+      }
+    }
+  }
+
+  const isOnLast  = photos.length > 0 && photoIdx === photos.length - 1
+  const showArrow = direction === 'forward' && isOnLast
+
   if (!session) return null
 
-  const isScheduled  = session.status === 'scheduled'
-  const isInviteOut  = session.status === 'invite_out'
+  const isScheduled = session.status === 'scheduled'
+  const isInviteOut = session.status === 'invite_out'
   const activity = ACTIVITY_TYPES.find(a => a.id === session.activityType)
   const isMutual = mutualSessions.has(session.id)
   const hasExpressedInterest = myInterests.has(session.id)
@@ -207,18 +236,54 @@ export default function DiscoveryCard({ open, session, mySession, onClose, showT
         />
       )}
       <div className={styles.card}>
-        {/* Status badge — top right */}
-        {isInviteOut ? (
-          <div className={`${styles.statusTag} ${styles.statusTagInvite}`}>
-            <span className={styles.statusDot} />
-            Invite Out
+
+        {/* ── Photo carousel banner ── */}
+        {photos.length > 0 && (
+          <div
+            className={styles.photoBanner}
+            style={{ '--status-color': isInviteOut ? '#FFD60A' : isScheduled ? '#FF9500' : '#39FF14' }}
+          >
+            <img
+              key={photoIdx}
+              src={photos[photoIdx]}
+              alt={session.displayName}
+              className={styles.photoBannerImg}
+            />
+            {/* Bottom-left: venue type + name + age */}
+            <div className={styles.photoBannerMeta}>
+              {activity && (
+                <span className={styles.photoBannerVenue}>
+                  {activity.emoji ?? '📍'} {activity.label}
+                </span>
+              )}
+              <span className={styles.photoBannerName}>
+                {session.displayName ?? 'Someone'}
+                {session.age ? <span className={styles.photoBannerAge}>, {session.age}</span> : null}
+              </span>
+            </div>
+
+            {/* Top-left: distance */}
+            {session.distanceKm != null && (
+              <div className={styles.photoBannerDist}>
+                📍 {session.distanceKm < 1
+                  ? `${Math.round(session.distanceKm * 1000)}m`
+                  : `${session.distanceKm.toFixed(1)}km`} away
+              </div>
+            )}
+
+            {/* Top-right: status */}
+            <div className={styles.photoBannerStatus}>
+              {isInviteOut ? 'Invite Out' : isScheduled ? 'Out Later' : 'Out Now'}
+            </div>
+            {/* Fingerprint / back-arrow nav button — only if more than 1 photo */}
+            {photos.length > 1 && (
+              <button className={styles.photoNavBtn} onClick={handlePhotoBtn} aria-label="Next photo">
+                {showArrow ? '←' : '👆'}
+              </button>
+            )}
           </div>
-        ) : !isScheduled ? (
-          <div className={`${styles.statusTag} ${styles.statusTagNow}`}>
-            <span className={styles.statusDot} />
-            Out Now
-          </div>
-        ) : null}
+        )}
+
 
         {/* Profile */}
         <div className={styles.profile}>
@@ -236,6 +301,11 @@ export default function DiscoveryCard({ open, session, mySession, onClose, showT
               {session.displayName ?? 'Someone'}
               {session.age && <span className={styles.nameAge}> {session.age}</span>}
             </h2>
+            {(session.city || session.area) && (
+              <div className={styles.cityLine}>
+                📍 {session.city ?? session.area}
+              </div>
+            )}
             <div className={styles.activityRow}>
               <ActivityIcon activity={activity} size={22} className={styles.activityEmoji} />
               <span className={styles.activityLabel}>
@@ -262,6 +332,22 @@ export default function DiscoveryCard({ open, session, mySession, onClose, showT
               📍 {session.area ?? 'Nearby area'}
             </div>
           </div>
+          <button
+            className={styles.fingerprintBtn}
+            onClick={() => showToast?.('Identity verification coming soon', 'info')}
+            aria-label="Verify identity"
+          >
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M12 2C9.5 2 7.2 3 5.5 4.7"/>
+              <path d="M2.5 8.5C2 9.6 1.8 10.8 2 12"/>
+              <path d="M22 12c0-5.5-4.5-10-10-10"/>
+              <path d="M12 8c-2.2 0-4 1.8-4 4 0 3.5 1.5 6.5 4 8.5"/>
+              <path d="M20 12c0 4-2 7.5-5 9.5"/>
+              <path d="M12 12v.01"/>
+              <path d="M12 16c0 1.1-.4 2.1-1 2.9"/>
+              <path d="M16 12c0 1.4-.3 2.8-.9 4"/>
+            </svg>
+          </button>
         </div>
 
         {/* Timer / Scheduled badge */}
