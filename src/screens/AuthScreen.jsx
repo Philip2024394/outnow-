@@ -4,7 +4,6 @@ import PhoneAuthScreen from './PhoneAuthScreen'
 import styles from './AuthScreen.module.css'
 
 const HERO_URL = 'https://ik.imagekit.io/dateme/UntitledDFSDFASDF.png'
-const LOGO_URL = 'https://ik.imagekit.io/dateme/Logo%20with%20green%20map%20pin%20element.png'
 
 export default function AuthScreen({ onAdminPass, onGuest }) {
   const [showPhone, setShowPhone]       = useState(false)
@@ -47,9 +46,8 @@ export default function AuthScreen({ onAdminPass, onGuest }) {
       <img src={HERO_URL} alt="" className={styles.hero} />
       <div className={styles.overlay} />
 
-      {/* Logo */}
+      {/* Tagline only — no logo image over hero */}
       <div className={styles.logoWrap}>
-        <img src={LOGO_URL} alt="IMOUTNOW" className={styles.logo} />
         <p className={styles.tagline}>Meet people who are out right now</p>
       </div>
 

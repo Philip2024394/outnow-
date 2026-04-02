@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { useAuth } from '@/hooks/useAuth'
 import AuthScreen from '@/screens/AuthScreen'
 import AppShell from '@/router/AppShell'
@@ -12,7 +12,7 @@ import styles from './App.module.css'
 
 const LOGO_URL = 'https://ik.imagekit.io/dateme/Logo%20with%20green%20map%20pin%20element.png'
 
-const ONBOARDING_KEY = 'imoutnow_onboarded_v1'
+const ONBOARDING_BASE_KEY = 'imoutnow_onboarded_v1'
 
 // Route /admin path to the admin dashboard
 if (window.location.pathname.startsWith('/admin')) {
@@ -29,12 +29,20 @@ export default function App() {
   const [guestMode, setGuestMode] = useState(false)
   const [returnParams, setReturnParams] = useState(null)
 
-  // Onboarding state: 'welcome' → 'setup' → 'golive' → 'done'
-  const [onboardStep, setOnboardStep] = useState(() => {
-    if (localStorage.getItem(ONBOARDING_KEY)) return 'done'
-    return 'setup'  // skip WelcomePopup — go straight to profile slides
-  })
+  // Onboarding step — starts 'checking' until we know the user's id,
+  // then resolves to 'setup' (new user) or 'done' (returning user).
+  const [onboardStep, setOnboardStep] = useState('checking')
   const [triggerGoLive, setTriggerGoLive] = useState(false)
+
+  // Resolve onboarding state per-user so each new account sees onboarding
+  const resolvedRef = useRef(null)
+  useEffect(() => {
+    if (!user) { setOnboardStep('checking'); resolvedRef.current = null; return }
+    if (resolvedRef.current === user.id) return  // already resolved for this user
+    resolvedRef.current = user.id
+    const key = `${ONBOARDING_BASE_KEY}_${user.id}`
+    setOnboardStep(localStorage.getItem(key) ? 'done' : 'setup')
+  }, [user])
 
   // Handle return from Stripe Checkout
   useEffect(() => {
@@ -78,7 +86,7 @@ export default function App() {
       {user && onboardStep === 'setup' && (
         <ProfileSetup
           onDone={(profile) => {
-            localStorage.setItem(ONBOARDING_KEY, JSON.stringify(profile))
+            localStorage.setItem(`${ONBOARDING_BASE_KEY}_${user.id}`, JSON.stringify(profile))
             setOnboardStep('golive')
           }}
         />
