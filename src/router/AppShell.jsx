@@ -7,6 +7,8 @@ import { useVenueUnlock } from '@/hooks/useVenueUnlock'
 import { useInterests } from '@/hooks/useInterests'
 import { useLiveUsers } from '@/hooks/useLiveUsers'
 
+import { useInviteOut } from '@/hooks/useInviteOut'
+import InviteOutSheet from '@/components/golive/InviteOutSheet'
 import MapHeader from '@/components/map/MapHeader'
 import MapOverlay from '@/components/map/MapOverlay'
 import { endSession } from '@/services/sessionService'
@@ -94,11 +96,11 @@ export default function AppShell({ returnParams, triggerGoLive }) {
   const [addMomentOpen, setAddMomentOpen] = useState(false)
   const [extraMoments, setExtraMoments] = useState([])
   const [sosOpen, setSosOpen] = useState(false)
+  const [inviteOutSheetOpen, setInviteOutSheetOpen] = useState(false)
+  const { inviteOut, post: postInviteOut, goingLive, revertToInviteOut } = useInviteOut()
   const allMoments = [...DEMO_MOMENTS, ...extraMoments]
-  // null | 'live' | 'scheduled' — quick strip toggles
-  const [hiddenType, setHiddenType] = useState(null)
-  const hideLive      = hiddenType === 'live'
-  const hideScheduled = hiddenType === 'scheduled'
+  // 'all' | 'now' | 'later'
+  const [whoFilter, setWhoFilter] = useState('all')
   // Full map filter sheet
   const [mapFilterOpen, setMapFilterOpen] = useState(false)
   const [mapFilters, setMapFilters] = useState(DEFAULT_MAP_FILTERS)
@@ -148,9 +150,10 @@ export default function AppShell({ returnParams, triggerGoLive }) {
   }, [mySession]) // eslint-disable-line
 
   const visibleSessions = sessions.filter(s => {
-    if (s.status === 'scheduled' ? hideScheduled : hideLive) return false
-    if (mapFilters.status === 'Out Now'    && s.status === 'scheduled') return false
-    if (mapFilters.status === 'Out Later'  && s.status !== 'scheduled') return false
+    if (whoFilter === 'now'   && s.status === 'scheduled') return false
+    if (whoFilter === 'later' && s.status !== 'scheduled') return false
+    if (mapFilters.status === 'Out Now'   && s.status === 'scheduled') return false
+    if (mapFilters.status === 'Out Later' && s.status !== 'scheduled') return false
     if (mapFilters.activity !== 'All' && s.activityType?.toLowerCase() !== mapFilters.activity.toLowerCase()) return false
     if (mapFilters.city     !== 'All' && !s.area?.toLowerCase().includes(mapFilters.city.toLowerCase())) return false
     return true
@@ -219,14 +222,14 @@ export default function AppShell({ returnParams, triggerGoLive }) {
       {/* Profile strip — max 4 nearest live users, only visible on map tab */}
       {activeTab === 'map' && (
         <ProfileStrip
-          hideLive={hideLive}
-          hideScheduled={hideScheduled}
-          onToggleLive={() => setHiddenType(v => v === 'live' ? null : 'live')}
-          onToggleScheduled={() => setHiddenType(v => v === 'scheduled' ? null : 'scheduled')}
-          outNowCount={sessions.filter(s => s.status !== 'scheduled').length}
+          filter={whoFilter}
+          onFilterChange={setWhoFilter}
+          outNowCount={sessions.filter(s => s.status !== 'scheduled' && s.status !== 'invite_out').length}
           outLaterCount={sessions.filter(s => s.status === 'scheduled').length}
           isLive={!!mySession}
+          isInviteOut={!mySession && !!inviteOut}
           onActivate={openGoLive}
+          onInviteOut={() => setInviteOutSheetOpen(true)}
           onEnd={() => setRatingOpen(true)}
         />
       )}
@@ -251,6 +254,7 @@ export default function AppShell({ returnParams, triggerGoLive }) {
       <DiscoveryCard
         open={overlay.type === OVERLAY.DISCOVERY}
         session={overlay.data}
+        mySession={mySession}
         onClose={closeOverlay}
         showToast={showToast}
       />
@@ -316,13 +320,22 @@ export default function AppShell({ returnParams, triggerGoLive }) {
           const contact = getSafetyContact()
           if (contact) setTimeout(() => showToast(`🛡️ ${contact.name} notified you're home safe`, 'success'), 1200)
           endSession(mySession?.id)
+          revertToInviteOut()
         }}
         onSkip={() => {
           setRatingOpen(false)
           const contact = getSafetyContact()
           if (contact) showToast(`🛡️ ${contact.name} notified you're home safe`, 'success')
           endSession(mySession?.id)
+          revertToInviteOut()
         }}
+      />
+      <InviteOutSheet
+        open={inviteOutSheetOpen}
+        onClose={() => setInviteOutSheetOpen(false)}
+        onPost={(activity, message) => postInviteOut(activity, message)}
+        onGoLive={() => { goingLive(); openGoLive() }}
+        onGoLater={() => { goingLive(); openGoLive() }}
       />
 
       <BottomSheet open={reviewsOpen} onClose={() => setReviewsOpen(false)} title="">

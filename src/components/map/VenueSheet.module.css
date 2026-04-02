@@ -1,8 +1,208 @@
+/* Overlay wrapper */
+.wrapper {
+  position: fixed;
+  inset: 0;
+  z-index: var(--z-sheet);
+  pointer-events: none;
+}
+
+.backdrop {
+  position: absolute;
+  inset: 0;
+  background: rgba(0,0,0,0.5);
+  pointer-events: all;
+  animation: fade-in 0.2s forwards;
+}
+
+@keyframes fade-in {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+/* Panel */
+.sheet {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  border-radius: 20px 20px 0 0;
+  max-height: 88dvh;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  pointer-events: all;
+  animation: slide-up 0.32s cubic-bezier(0.32,0.72,0,1) forwards;
+  will-change: transform;
+}
+
+@keyframes slide-up {
+  from { transform: translateY(100%); }
+  to   { transform: translateY(0); }
+}
+
+/* Full-bleed background image */
+.bgImage {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
+  z-index: 0;
+}
+
+/* Dark frost overlay */
+.frost {
+  position: absolute;
+  inset: 0;
+  background: rgba(4,4,4,0.78);
+  z-index: 1;
+}
+
+/* Drag handle */
+.handle {
+  position: relative;
+  z-index: 2;
+  width: 36px;
+  height: 4px;
+  background: rgba(255,255,255,0.25);
+  border-radius: 100px;
+  margin: 12px auto 0;
+  flex-shrink: 0;
+}
+
+/* Scrollable content */
 .content {
+  position: relative;
+  z-index: 2;
+  flex: 1;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior: contain;
   display: flex;
   flex-direction: column;
   gap: 14px;
-  padding-bottom: 24px;
+  padding: 16px 20px calc(env(safe-area-inset-bottom, 0px) + 24px);
+  scrollbar-width: none;
+}
+
+.content::-webkit-scrollbar { display: none; }
+
+/* IMOUTNOW discount banner */
+.discountBanner {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  background: rgba(255,214,10,0.08);
+  border: 1.5px solid rgba(255,214,10,0.35);
+  border-radius: 16px;
+  overflow: hidden;
+}
+
+.discountTop {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 14px 16px 0;
+}
+
+.discountLeft {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.discountPct {
+  font-size: 26px;
+  font-weight: 900;
+  color: #FFD60A;
+  letter-spacing: -0.03em;
+  line-height: 1;
+  text-shadow: 0 0 20px rgba(255,214,10,0.5);
+}
+
+.discountType {
+  font-size: 11px;
+  font-weight: 700;
+  color: rgba(255,214,10,0.6);
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+}
+
+.discountRight {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 4px;
+}
+
+.discountTag {
+  font-size: 12px;
+  font-weight: 700;
+  color: #FFD60A;
+}
+
+.discountClaim {
+  font-size: 11px;
+  color: rgba(255,214,10,0.5);
+  font-weight: 600;
+}
+
+/* Discount code row */
+.codeRow {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 16px;
+  background: rgba(255,214,10,0.06);
+  border-top: 1px solid rgba(255,214,10,0.15);
+  border: none;
+  border-top: 1px solid rgba(255,214,10,0.15);
+  width: 100%;
+  cursor: pointer;
+  font-family: var(--font-sans);
+  -webkit-tap-highlight-color: transparent;
+  transition: background 0.15s;
+}
+
+.codeRow:active { background: rgba(255,214,10,0.12); }
+
+.codeLabel {
+  font-size: 10px;
+  font-weight: 700;
+  color: rgba(255,214,10,0.5);
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+  flex-shrink: 0;
+}
+
+.codeValue {
+  flex: 1;
+  font-size: 15px;
+  font-weight: 800;
+  color: #FFD60A;
+  letter-spacing: 0.1em;
+  text-align: left;
+  font-family: monospace;
+}
+
+.codeCopy {
+  font-size: 12px;
+  font-weight: 700;
+  color: rgba(255,214,10,0.6);
+  background: rgba(255,214,10,0.1);
+  border: 1px solid rgba(255,214,10,0.25);
+  border-radius: 100px;
+  padding: 3px 10px;
+  flex-shrink: 0;
+  transition: all 0.15s;
+}
+
+.codeCopied {
+  color: #39FF14;
+  background: rgba(57,255,20,0.1);
+  border-color: rgba(57,255,20,0.3);
 }
 
 /* Header */
@@ -75,10 +275,7 @@
   50%       { opacity: 0.3; }
 }
 
-.countText {
-  font-size: 14px;
-  color: rgba(255,255,255,0.75);
-}
+.countText { font-size: 14px; color: rgba(255,255,255,0.75); }
 
 .countNum {
   font-size: 20px;
@@ -102,7 +299,7 @@
   transition: background 0.15s;
 }
 
-.chatBtn:active { background: rgba(57,255,20,0.12); }
+.chatBtn:active { background: rgba(57,255,20,0.14); }
 
 .chatBtnDot {
   width: 8px;
@@ -114,24 +311,13 @@
   animation: live-dot 1.4s ease-in-out infinite;
 }
 
-.chatBtnText {
-  font-size: 15px;
-  font-weight: 800;
-  color: #39FF14;
-  flex: 1;
-  text-align: left;
-}
-
-.chatBtnSub {
-  font-size: 12px;
-  color: rgba(57,255,20,0.5);
-  flex-shrink: 0;
-}
+.chatBtnText { font-size: 15px; font-weight: 800; color: #39FF14; flex: 1; text-align: left; }
+.chatBtnSub  { font-size: 12px; color: rgba(57,255,20,0.5); flex-shrink: 0; }
 
 /* Deal card */
 .dealCard {
-  background: rgba(255, 200, 0, 0.06);
-  border: 1.5px solid rgba(255, 200, 0, 0.3);
+  background: rgba(255,200,0,0.06);
+  border: 1.5px solid rgba(255,200,0,0.3);
   border-radius: 16px;
   padding: 14px 16px;
   display: flex;
@@ -139,17 +325,8 @@
   gap: 8px;
 }
 
-.dealHeader {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-}
-
-.dealEmoji {
-  font-size: 28px;
-  flex-shrink: 0;
-  line-height: 1;
-}
+.dealHeader { display: flex; align-items: center; gap: 10px; }
+.dealEmoji  { font-size: 28px; flex-shrink: 0; line-height: 1; }
 
 .dealInfo {
   flex: 1;
@@ -159,51 +336,30 @@
   min-width: 0;
 }
 
-.dealTitle {
-  font-size: 16px;
-  font-weight: 800;
-  color: #FFD700;
-  letter-spacing: -0.01em;
-}
-
-.dealValid {
-  font-size: 11px;
-  font-weight: 600;
-  color: rgba(255, 200, 0, 0.5);
-  text-transform: uppercase;
-  letter-spacing: 0.06em;
-}
+.dealTitle  { font-size: 16px; font-weight: 800; color: #FFD700; letter-spacing: -0.01em; }
+.dealValid  { font-size: 11px; font-weight: 600; color: rgba(255,200,0,0.5); text-transform: uppercase; letter-spacing: 0.06em; }
 
 .dealBadge {
   font-size: 12px;
   font-weight: 700;
-  background: rgba(255, 200, 0, 0.12);
-  border: 1px solid rgba(255, 200, 0, 0.25);
+  background: rgba(255,200,0,0.12);
+  border: 1px solid rgba(255,200,0,0.25);
   border-radius: 100px;
   padding: 4px 10px;
   color: #FFD700;
   flex-shrink: 0;
 }
 
-.dealDesc {
-  font-size: 13px;
-  color: rgba(255,255,255,0.5);
-  margin: 0;
-  line-height: 1.4;
-}
+.dealDesc { font-size: 13px; color: rgba(255,255,255,0.5); margin: 0; line-height: 1.4; }
 
 /* Activity chips */
-.chips {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-}
+.chips { display: flex; flex-wrap: wrap; gap: 8px; }
 
 .chip {
   font-size: 12px;
   font-weight: 600;
-  background: rgba(255,255,255,0.06);
-  border: 1px solid rgba(255,255,255,0.1);
+  background: rgba(255,255,255,0.07);
+  border: 1px solid rgba(255,255,255,0.12);
   border-radius: 100px;
   padding: 5px 12px;
   color: rgba(255,255,255,0.6);
@@ -220,11 +376,7 @@
   margin-top: 4px;
 }
 
-.peopleList {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-}
+.peopleList { display: flex; flex-direction: column; gap: 8px; }
 
 .personRow {
   width: 100%;
@@ -232,17 +384,17 @@
   align-items: center;
   gap: 12px;
   padding: 10px 14px;
-  background: #161616;
-  border: 1px solid rgba(255,255,255,0.07);
+  background: rgba(255,255,255,0.05);
+  border: 1px solid rgba(255,255,255,0.08);
   border-radius: 14px;
   cursor: pointer;
   text-align: left;
   -webkit-tap-highlight-color: transparent;
-  transition: background 0.15s ease, border-color 0.15s ease;
+  transition: background 0.15s, border-color 0.15s;
 }
 
 .personRow:active {
-  background: #1e1e1e;
+  background: rgba(255,255,255,0.09);
   border-color: rgba(57,255,20,0.25);
 }
 
@@ -260,23 +412,13 @@
   justify-content: center;
 }
 
-.personAvatarImg {
-  width: 100%;
-  height: 100%;
-  border-radius: 50%;
-  object-fit: cover;
-}
-
-.personAvatarInitial {
-  font-size: 15px;
-  font-weight: 700;
-  color: #fff;
-}
+.personAvatarImg    { width: 100%; height: 100%; border-radius: 50%; object-fit: cover; }
+.personAvatarInitial{ font-size: 15px; font-weight: 700; color: #fff; }
 
 .personOnlineDot {
   position: absolute;
-  bottom: 0px;
-  right: 0px;
+  bottom: 0;
+  right: 0;
   width: 10px;
   height: 10px;
   border-radius: 50%;
@@ -285,20 +427,6 @@
   box-shadow: 0 0 6px #39FF14;
 }
 
-.personName {
-  flex: 1;
-  font-size: 15px;
-  font-weight: 700;
-  color: #fff;
-}
-
-.personActivity {
-  font-size: 20px;
-}
-
-.personArrow {
-  font-size: 20px;
-  color: rgba(255,255,255,0.2);
-  flex-shrink: 0;
-  margin-left: auto;
-}
+.personName     { flex: 1; font-size: 15px; font-weight: 700; color: #fff; }
+.personActivity { font-size: 20px; }
+.personArrow    { font-size: 20px; color: rgba(255,255,255,0.2); flex-shrink: 0; margin-left: auto; }

@@ -1,4 +1,3 @@
-import BottomSheet from '@/components/ui/BottomSheet'
 import styles from './VenueListSheet.module.css'
 
 const BG_URL = 'https://ik.imagekit.io/dateme/UntitledDFSDFASDFDFGSDFGsfdfasd.png'
@@ -6,51 +5,61 @@ const BG_URL = 'https://ik.imagekit.io/dateme/UntitledDFSDFASDFDFGSDFGsfdfasd.pn
 export default function VenueListSheet({ open, venues = [], onClose, onSelectVenue }) {
   const sorted = [...venues].sort((a, b) => b.count - a.count)
 
-  return (
-    <BottomSheet open={open} onClose={onClose} title="Hot Venues">
-      <div className={styles.container}>
+  if (!open) return null
 
-        {/* Full background image */}
+  return (
+    <div className={styles.wrapper}>
+      <div className={styles.backdrop} onClick={onClose} />
+
+      <div className={styles.sheet}>
+        {/* Full-bleed background image */}
         <img src={BG_URL} alt="" className={styles.bgImage} />
-        {/* Dark overlay */}
+        {/* Dark frost overlay */}
         <div className={styles.frost} />
 
-        {/* Green strip top */}
+        {/* Green strip — sits flush at top edge, corners clipped by sheet radius */}
         <div className={styles.greenStrip} />
 
-        {/* Horizontal scroll row */}
-        <div className={styles.inner}>
+        {/* Drag handle */}
+        <div className={styles.handle} />
+
+        {/* Header row */}
+        <div className={styles.header}>
+          <span className={styles.headerTitle}>Hot Venues</span>
+          <button className={styles.closeBtn} onClick={onClose}>✕</button>
+        </div>
+
+        {/* Scrollable venue list */}
+        <div className={styles.scrollRow}>
           {sorted.length === 0 ? (
             <div className={styles.empty}>No active venues right now</div>
           ) : (
-            <div className={styles.scrollRow}>
-              {sorted.map(venue => {
-                const isHot = venue.count >= 2
-                return (
-                  <button
-                    key={venue.id}
-                    className={styles.card}
-                    onClick={() => { onSelectVenue?.(venue); onClose?.() }}
-                  >
-                    <span className={styles.cardEmoji}>{venue.emoji}</span>
-                    <div className={styles.cardInfo}>
-                      <span className={styles.cardName}>{venue.name}</span>
-                      <span className={styles.cardType}>{venue.type}</span>
+            sorted.map(venue => {
+              const isHot = venue.count >= 2
+              return (
+                <button
+                  key={venue.id}
+                  className={styles.card}
+                  onClick={() => { onSelectVenue?.(venue); onClose?.() }}
+                >
+                  <span className={styles.cardEmoji}>{venue.emoji}</span>
+                  <div className={styles.cardInfo}>
+                    <span className={styles.cardName}>{venue.name}</span>
+                    <span className={styles.cardType}>{venue.type}</span>
+                  </div>
+                  <div className={styles.cardRight}>
+                    {venue.deal && <span className={styles.dealChip}>🏷️</span>}
+                    <div className={styles.countWrap}>
+                      {isHot && <span className={styles.hotDot} />}
+                      <span className={styles.countNum}>{venue.count}</span>
                     </div>
-                    <div className={styles.cardRight}>
-                      {venue.deal && <span className={styles.dealChip}>🏷️</span>}
-                      <div className={styles.countWrap}>
-                        {isHot && <span className={styles.hotDot} />}
-                        <span className={styles.countNum}>{venue.count}</span>
-                      </div>
-                    </div>
-                  </button>
-                )
-              })}
-            </div>
+                  </div>
+                </button>
+              )
+            })
           )}
         </div>
       </div>
-    </BottomSheet>
+    </div>
   )
 }

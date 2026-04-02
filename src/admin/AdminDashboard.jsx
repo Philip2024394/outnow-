@@ -378,6 +378,169 @@ function TrafficTab() {
   )
 }
 
+// ── Venues Tab ────────────────────────────────────────────────────────────────
+
+const DEMO_SUGGESTIONS = [
+  { id: 'v1', name: 'The Dolphin',        area: 'Hackney, London',       activityTypes: ['drinks','hangout'], link: 'https://instagram.com/thedolphinlondon',    openTime: '17:00', closeTime: '01:00', submittedByName: 'Ava Mitchell',  submittedAt: '2026-04-01', status: 'pending',  adminNote: '', offersDiscount: true,  discountPercent: 15, discountType: 'drinks', discountStatus: 'offered'   },
+  { id: 'v2', name: 'Monmouth Coffee',    area: 'Covent Garden, London', activityTypes: ['coffee'],           link: 'https://maps.google.com/?q=monmouth+coffee', openTime: '07:30', closeTime: '18:00', submittedByName: 'Jordan Lee',    submittedAt: '2026-03-30', status: 'pending',  adminNote: '', offersDiscount: true,  discountPercent: 10, discountType: 'all',    discountStatus: 'offered'   },
+  { id: 'v3', name: 'Netil Market',       area: 'London Fields, London', activityTypes: ['food','hangout'],   link: 'https://instagram.com/netilmarket',          openTime: '10:00', closeTime: '17:00', submittedByName: 'Maya Patel',    submittedAt: '2026-03-29', status: 'approved', adminNote: '', offersDiscount: true,  discountPercent: 20, discountType: 'food',   discountStatus: 'confirmed' },
+  { id: 'v4', name: 'Lucky Voice',        area: 'Soho, London',          activityTypes: ['hangout'],          link: 'https://facebook.com/luckyvoice',            openTime: '17:00', closeTime: '03:00', submittedByName: 'Kai Thompson',  submittedAt: '2026-03-28', status: 'rejected', adminNote: 'Already on the map', offersDiscount: false, discountPercent: null, discountType: null, discountStatus: null },
+  { id: 'v5', name: 'Pergola on the Roof',area: 'White City, London',    activityTypes: ['drinks','food'],    link: 'https://instagram.com/pergolarooftop',       openTime: '12:00', closeTime: '23:00', submittedByName: 'Priya Sharma',  submittedAt: '2026-03-27', status: 'pending',  adminNote: '', offersDiscount: true,  discountPercent: 12, discountType: 'entry',  discountStatus: 'offered'   },
+  { id: 'v6', name: 'Victoria Park',      area: 'Hackney, London',       activityTypes: ['walk','workout'],   link: '',                                           openTime: '06:00', closeTime: '21:30', submittedByName: 'Zara Ahmed',    submittedAt: '2026-03-25', status: 'approved', adminNote: '', offersDiscount: false, discountPercent: null, discountType: null, discountStatus: null },
+]
+
+function VenuesTab() {
+  const [filter,      setFilter]      = useState('pending')
+  const [suggestions, setSuggestions] = useState(DEMO_SUGGESTIONS)
+  const [rejectNote,  setRejectNote]  = useState({})   // id → note string
+  const [rejectOpen,  setRejectOpen]  = useState(null) // id of row being rejected
+
+  const filtered = suggestions.filter(s => filter === 'all' || s.status === filter)
+
+  const approve = (id) => {
+    setSuggestions(prev => prev.map(s => s.id === id ? { ...s, status: 'approved' } : s))
+  }
+
+  const reject = (id) => {
+    setSuggestions(prev => prev.map(s => s.id === id ? { ...s, status: 'rejected', adminNote: rejectNote[id] ?? '' } : s))
+    setRejectOpen(null)
+  }
+
+  const confirmDiscount = (id) => {
+    setSuggestions(prev => prev.map(s => s.id === id ? { ...s, discountStatus: 'confirmed' } : s))
+  }
+
+  const declineDiscount = (id) => {
+    setSuggestions(prev => prev.map(s => s.id === id ? { ...s, discountStatus: 'declined' } : s))
+  }
+
+  const pendingCount    = suggestions.filter(s => s.status === 'pending').length
+  const discountPending = suggestions.filter(s => s.discountStatus === 'offered').length
+
+  return (
+    <div className={styles.tabContent}>
+      <div className={styles.statsGrid}>
+        <StatCard label="Pending Review"     value={pendingCount}                                              sub="awaiting decision"    accent="#F5A623" />
+        <StatCard label="Approved"           value={suggestions.filter(s => s.status === 'approved').length}  sub="on the map"           accent="#39FF14" />
+        <StatCard label="Discount Offers"    value={discountPending}                                           sub="need venue contact"   accent="#FFD60A" />
+        <StatCard label="Total Submitted"    value={suggestions.length}                                        sub="all time"             accent="#A855F7" />
+      </div>
+
+      <div className={styles.tableToolbar}>
+        <div className={styles.filterBtns}>
+          {[
+            { id: 'pending',  label: 'Pending' },
+            { id: 'approved', label: 'Approved' },
+            { id: 'rejected', label: 'Rejected' },
+            { id: 'all',      label: 'All' },
+          ].map(f => (
+            <button
+              key={f.id}
+              className={`${styles.filterBtn} ${filter === f.id ? styles.filterBtnActive : ''}`}
+              onClick={() => setFilter(f.id)}
+            >
+              {f.label}
+              {f.id === 'pending' && pendingCount > 0 && (
+                <span className={styles.pendingBadge}>{pendingCount}</span>
+              )}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      <div className={styles.section}>
+        <table className={styles.table}>
+          <thead>
+            <tr>
+              <th>Venue</th>
+              <th>Area</th>
+              <th>Good For</th>
+              <th>Hours</th>
+              <th>Link</th>
+              <th>Discount</th>
+              <th>Submitted By</th>
+              <th>Date</th>
+              <th>Status</th>
+              <th>Action</th>
+            </tr>
+          </thead>
+          <tbody>
+            {filtered.map(s => (
+              <>
+                <tr key={s.id}>
+                  <td className={styles.tdBold}>{s.name}</td>
+                  <td className={styles.tdMuted}>{s.area}</td>
+                  <td className={styles.tdMuted}>{s.activityTypes.join(', ') || '—'}</td>
+                  <td className={styles.tdMuted}>
+                    {s.openTime && s.closeTime ? `${s.openTime}–${s.closeTime}` : '—'}
+                  </td>
+                  <td>
+                    {s.link
+                      ? <a href={s.link} target="_blank" rel="noreferrer" className={styles.venueLink}>View</a>
+                      : <span className={styles.tdMuted}>—</span>
+                    }
+                  </td>
+                  <td>
+                    {s.offersDiscount ? (
+                      <div className={styles.discountCell}>
+                        <span className={styles.discountPct}>{s.discountPercent}% {s.discountType}</span>
+                        {s.discountStatus === 'offered' && (
+                          <div className={styles.venueBtns}>
+                            <button className={`${styles.actionBtn} ${styles.actionBtnGreen}`} onClick={() => confirmDiscount(s.id)}>✓ Confirm</button>
+                            <button className={`${styles.actionBtn} ${styles.actionBtnRed}`}   onClick={() => declineDiscount(s.id)}>✕</button>
+                          </div>
+                        )}
+                        {s.discountStatus === 'confirmed' && <span className={`${styles.pill} ${styles.pillGreen}`}>Confirmed</span>}
+                        {s.discountStatus === 'declined'  && <span className={`${styles.pill} ${styles.pillRed}`}>Declined</span>}
+                      </div>
+                    ) : (
+                      <span className={styles.tdMuted}>—</span>
+                    )}
+                  </td>
+                  <td className={styles.tdMuted}>{s.submittedByName}</td>
+                  <td className={styles.tdMuted}>{s.submittedAt}</td>
+                  <td>
+                    <StatusPill status={s.status} />
+                    {s.adminNote && <div className={styles.adminNote}>{s.adminNote}</div>}
+                  </td>
+                  <td>
+                    {s.status === 'pending' && (
+                      <div className={styles.venueBtns}>
+                        <button className={`${styles.actionBtn} ${styles.actionBtnGreen}`} onClick={() => approve(s.id)}>Approve</button>
+                        <button className={`${styles.actionBtn} ${styles.actionBtnRed}`}   onClick={() => setRejectOpen(rejectOpen === s.id ? null : s.id)}>Reject</button>
+                      </div>
+                    )}
+                  </td>
+                </tr>
+                {rejectOpen === s.id && (
+                  <tr key={`${s.id}-reject`} className={styles.rejectRow}>
+                    <td colSpan={10}>
+                      <div className={styles.rejectWrap}>
+                        <input
+                          className={`${styles.searchInput} ${styles.rejectInput}`}
+                          type="text"
+                          placeholder="Optional note (e.g. Already on the map)…"
+                          value={rejectNote[s.id] ?? ''}
+                          onChange={e => setRejectNote(prev => ({ ...prev, [s.id]: e.target.value }))}
+                        />
+                        <button className={`${styles.actionBtn} ${styles.actionBtnRed}`} onClick={() => reject(s.id)}>Confirm Reject</button>
+                        <button className={`${styles.actionBtn} ${styles.filterBtn}`}    onClick={() => setRejectOpen(null)}>Cancel</button>
+                      </div>
+                    </td>
+                  </tr>
+                )}
+              </>
+            ))}
+          </tbody>
+        </table>
+        {filtered.length === 0 && (
+          <p className={styles.empty}>No suggestions in this category.</p>
+        )}
+      </div>
+    </div>
+  )
+}
+
 // ── Main Dashboard ────────────────────────────────────────────────────────────
 
 const TABS = [
@@ -385,6 +548,7 @@ const TABS = [
   { id: 'users',    icon: '👥', label: 'Users'     },
   { id: 'revenue',  icon: '💰', label: 'Revenue'   },
   { id: 'traffic',  icon: '📈', label: 'Traffic'   },
+  { id: 'venues',   icon: '📍', label: 'Venues'    },
 ]
 
 export default function AdminDashboard({ onLogout }) {
@@ -442,6 +606,7 @@ export default function AdminDashboard({ onLogout }) {
           {activeTab === 'users'    && <UsersTab />}
           {activeTab === 'revenue'  && <RevenueTab />}
           {activeTab === 'traffic'  && <TrafficTab />}
+          {activeTab === 'venues'   && <VenuesTab />}
         </div>
       </main>
     </div>

@@ -90,10 +90,10 @@
 
 /* SOS button */
 .sosTab {
-  width: 40px;
-  height: 40px;
-  border-radius: 50%;
-  background: #FF3B30;
+  width: 46px;
+  height: 32px;
+  border-radius: 8px;
+  background: #CC0000;
   border: none;
   display: flex;
   align-items: center;
@@ -101,12 +101,15 @@
   cursor: pointer;
   -webkit-tap-highlight-color: transparent;
   transition: opacity 0.15s, transform 0.1s;
-  box-shadow: 0 4px 14px rgba(255,59,48,0.5);
+  box-shadow: 0 4px 14px rgba(180,0,0,0.5);
+  color: #fff;
+  font-size: 12px;
+  font-weight: 900;
+  letter-spacing: 0.06em;
+  font-family: var(--font-sans, sans-serif);
 }
 
 .sosTab:active {
   transform: scale(0.9);
   opacity: 0.85;
 }
-
-.sosIcon { font-size: 18px; }

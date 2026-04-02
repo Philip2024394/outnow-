@@ -14,7 +14,7 @@
   gap: 10px;
 }
 
-/* Centre column: avatar + button stacked */
+/* Centre column */
 .centre {
   flex: 1;
   display: flex;
@@ -24,7 +24,7 @@
   pointer-events: all;
 }
 
-/* ── Side toggle badge buttons ── */
+/* Side toggle badge buttons */
 .sideBtn {
   flex-shrink: 0;
   display: flex;
@@ -50,8 +50,12 @@
 .sideBtnNow   { border-color: rgba(57,255,20,0.35); }
 .sideBtnLater { border-color: rgba(255,149,0,0.35); }
 
-.sideBtnOff {
-  opacity: 0.35;
+.sideBtnActive {
+  background: rgba(57,255,20,0.1);
+}
+
+.sideBtnLater.sideBtnActive {
+  background: rgba(255,149,0,0.1);
 }
 
 .sideBadgeCount {
@@ -114,6 +118,48 @@
 @keyframes activate-pulse {
   0%, 100% { opacity: 1; transform: scale(1); }
   50%       { opacity: 0.5; transform: scale(1.3); }
+}
+
+/* ── INVITE OUT button — yellow ── */
+.inviteOutBtn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: rgba(255,214,10,0.12);
+  color: #FFD60A;
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: 0.07em;
+  padding: 10px 20px;
+  border-radius: 100px;
+  border: 1.5px solid rgba(255,214,10,0.45);
+  cursor: pointer;
+  pointer-events: all;
+  box-shadow: 0 0 0 4px rgba(255,214,10,0.08), 0 0 20px rgba(255,214,10,0.25);
+  -webkit-tap-highlight-color: transparent;
+  transition: transform 0.12s ease, box-shadow 0.12s ease;
+  white-space: nowrap;
+  font-family: inherit;
+}
+
+.inviteOutBtn:active {
+  transform: scale(0.95);
+  box-shadow: 0 0 0 2px rgba(255,214,10,0.06), 0 0 10px rgba(255,214,10,0.15);
+}
+
+.inviteOutDot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #FFD60A;
+  box-shadow: 0 0 6px #FFD60A;
+  animation: invite-pulse 1.5s ease-in-out infinite;
+  flex-shrink: 0;
+}
+
+@keyframes invite-pulse {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50%       { opacity: 0.4; transform: scale(1.4); }
 }
 
 .finishBtn {

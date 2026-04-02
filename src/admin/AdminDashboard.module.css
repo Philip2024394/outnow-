@@ -480,3 +480,68 @@
   text-transform: uppercase;
   letter-spacing: 0.06em;
 }
+
+/* ── Venues tab ── */
+.pendingBadge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 18px;
+  height: 18px;
+  padding: 0 5px;
+  border-radius: 100px;
+  background: #F5A623;
+  color: #000;
+  font-size: 10px;
+  font-weight: 800;
+  margin-left: 6px;
+}
+
+.venueLink {
+  color: #39FF14;
+  font-size: 12px;
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.venueLink:hover { text-decoration: underline; }
+
+.adminNote {
+  font-size: 10px;
+  color: #FF6B6B;
+  margin-top: 3px;
+}
+
+.venueBtns {
+  display: flex;
+  gap: 6px;
+}
+
+.rejectRow td {
+  padding: 0 !important;
+  border-bottom: 1px solid #1a1a1a;
+}
+
+.rejectWrap {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 0;
+}
+
+.rejectInput {
+  flex: 1;
+  min-width: 0;
+}
+
+.discountCell {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.discountPct {
+  font-size: 12px;
+  font-weight: 700;
+  color: #FFD60A;
+}

@@ -1,9 +1,92 @@
+/* Overlay wrapper */
+.wrapper {
+  position: fixed;
+  inset: 0;
+  z-index: var(--z-sheet);
+  pointer-events: none;
+}
+
+.backdrop {
+  position: absolute;
+  inset: 0;
+  background: rgba(0,0,0,0.5);
+  pointer-events: all;
+  animation: fade-in 0.2s forwards;
+}
+
+@keyframes fade-in {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+/* Panel */
 .sheet {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  border-radius: 20px 20px 0 0;
+  max-height: 92dvh;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  pointer-events: all;
+  animation: slide-up 0.32s cubic-bezier(0.32,0.72,0,1) forwards;
+  will-change: transform;
+}
+
+@keyframes slide-up {
+  from { transform: translateY(100%); }
+  to   { transform: translateY(0); }
+}
+
+/* Full-bleed background image */
+.bgImage {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
+  z-index: 0;
+}
+
+/* Dark frost overlay */
+.frost {
+  position: absolute;
+  inset: 0;
+  background: rgba(4,4,4,0.82);
+  z-index: 1;
+}
+
+/* Drag handle */
+.handle {
+  position: relative;
+  z-index: 2;
+  width: 36px;
+  height: 4px;
+  background: rgba(255,255,255,0.25);
+  border-radius: 100px;
+  margin: 12px auto 0;
+  flex-shrink: 0;
+}
+
+/* Scrollable content sits above image */
+.content {
+  position: relative;
+  z-index: 2;
+  flex: 1;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior: contain;
   display: flex;
   flex-direction: column;
   gap: 20px;
-  padding-bottom: var(--space-4);
+  padding: 16px 20px calc(env(safe-area-inset-bottom, 0px) + 20px);
+  scrollbar-width: none;
 }
+
+.content::-webkit-scrollbar { display: none; }
 
 /* ── Header ── */
 .header {
@@ -11,19 +94,19 @@
   align-items: center;
   justify-content: space-between;
   padding-bottom: 4px;
-  border-bottom: 1px solid var(--color-border);
+  border-bottom: 1px solid rgba(255,255,255,0.1);
 }
 
 .title {
   font-size: 20px;
   font-weight: 800;
-  color: var(--color-text);
+  color: #fff;
 }
 
 .resetBtn {
   font-size: 13px;
   font-weight: 600;
-  color: var(--color-live);
+  color: #39FF14;
   background: none;
   border: none;
   cursor: pointer;
@@ -40,39 +123,9 @@
 .fieldLabel {
   font-size: 11px;
   font-weight: 700;
-  color: rgba(255,255,255,0.35);
+  color: rgba(255,255,255,0.4);
   text-transform: uppercase;
   letter-spacing: 0.08em;
-}
-
-/* ── Country row ── */
-.countryRow {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  background: var(--color-surface-2);
-  border: 1.5px solid var(--color-border);
-  border-radius: 12px;
-  padding: 13px 14px;
-}
-
-.flag { font-size: 20px; }
-
-.countryName {
-  flex: 1;
-  font-size: 14px;
-  font-weight: 700;
-  color: var(--color-text);
-}
-
-.countryLock {
-  font-size: 11px;
-  font-weight: 700;
-  color: #F5A623;
-  background: rgba(245,166,35,0.15);
-  border: 1px solid rgba(245,166,35,0.35);
-  border-radius: 100px;
-  padding: 3px 9px;
 }
 
 /* ── Dropdown ── */
@@ -86,10 +139,10 @@
   width: 100%;
   appearance: none;
   -webkit-appearance: none;
-  background: var(--color-surface-2);
-  border: 1.5px solid var(--color-border);
+  background: #111111;
+  border: 1.5px solid rgba(255,255,255,0.15);
   border-radius: 12px;
-  color: var(--color-text);
+  color: #fff;
   font-size: 14px;
   font-weight: 600;
   font-family: var(--font-sans);
@@ -99,11 +152,8 @@
   transition: border-color 0.15s;
 }
 
-.select:focus {
-  border-color: rgba(57,255,20,0.45);
-}
+.select:focus { border-color: rgba(57,255,20,0.45); }
 
-/* Style the dropdown options (limited browser support but better than nothing) */
 .select option {
   background: #141414;
   color: #fff;
@@ -117,6 +167,35 @@
   flex-shrink: 0;
 }
 
+/* ── Activity button grid ── */
+.activityGrid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+}
+
+.activityChip {
+  padding: 10px 6px;
+  background: #111111;
+  border: 1.5px solid rgba(255,255,255,0.15);
+  border-radius: 12px;
+  color: rgba(255,255,255,0.75);
+  font-size: 13px;
+  font-weight: 600;
+  font-family: var(--font-sans);
+  cursor: pointer;
+  transition: border-color 0.15s, background 0.15s, color 0.15s, transform 0.1s;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.activityChip:active { transform: scale(0.95); }
+
+.activityChipActive {
+  border-color: #39FF14;
+  background: rgba(57,255,20,0.12);
+  color: #39FF14;
+}
+
 /* ── Radius slider ── */
 .sliderHeader {
   display: flex;
@@ -127,7 +206,7 @@
 .sliderValue {
   font-size: 15px;
   font-weight: 800;
-  color: var(--color-live);
+  color: #39FF14;
 }
 
 .sliderWrap {
@@ -149,7 +228,6 @@
   border-radius: 100px;
   outline: none;
   cursor: pointer;
-  /* filled portion in green, unfilled in surface */
   background: linear-gradient(
     to right,
     #39FF14 0%,
@@ -159,10 +237,8 @@
   );
 }
 
-/* Thumb */
 .slider::-webkit-slider-thumb {
   -webkit-appearance: none;
-  appearance: none;
   width: 22px;
   height: 22px;
   border-radius: 50%;
@@ -170,7 +246,6 @@
   border: 2.5px solid #080808;
   box-shadow: 0 0 10px rgba(57,255,20,0.6);
   cursor: pointer;
-  transition: box-shadow 0.15s;
 }
 
 .slider::-moz-range-thumb {
@@ -183,11 +258,6 @@
   cursor: pointer;
 }
 
-.slider::-webkit-slider-thumb:active {
-  box-shadow: 0 0 16px rgba(57,255,20,0.9);
-}
-
-/* Tick labels */
 .sliderTicks {
   display: flex;
   justify-content: space-between;
@@ -212,7 +282,6 @@
   border-radius: 100px;
   cursor: pointer;
   font-family: var(--font-sans);
-  margin-top: 4px;
   box-shadow: 0 0 20px rgba(57,255,20,0.3);
   transition: opacity 0.15s, transform 0.12s;
 }

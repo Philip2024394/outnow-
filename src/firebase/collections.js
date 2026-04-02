@@ -39,7 +39,9 @@ export const INTEREST_STATUS = {
 
 // Session statuses
 export const SESSION_STATUS = {
+  INVITE_OUT: 'invite_out', // wants to go out — yellow, visible on map
   ACTIVE: 'active',
+  SCHEDULED: 'scheduled',
   EXPIRED: 'expired',
   ENDED: 'ended',
 }

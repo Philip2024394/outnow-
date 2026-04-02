@@ -16,6 +16,7 @@ export const DEMO_VENUES = [
       description: 'Show this screen at the bar to claim your welcome drink',
       validUntil: '11pm tonight',
     },
+    discount: { percent: 15, type: 'drinks', confirmed: true },
   },
   {
     id: 'venue-cg-cafe',

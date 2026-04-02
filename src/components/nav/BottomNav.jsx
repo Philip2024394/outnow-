@@ -90,7 +90,7 @@ export default function BottomNav({ activeTab = 'map', onChange, unreadChats = 0
 
       {/* SOS button */}
       <button className={styles.sosTab} onClick={onSOS} aria-label="Alert my contact">
-        <span className={styles.sosIcon}>🆘</span>
+        SOS
       </button>
     </nav>
   )

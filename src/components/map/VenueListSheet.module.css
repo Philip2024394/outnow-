@@ -1,10 +1,47 @@
-.container {
-  position: relative;
-  border-radius: 20px;
-  overflow: hidden;
-  margin-bottom: 8px;
+/* Overlay wrapper */
+.wrapper {
+  position: fixed;
+  inset: 0;
+  z-index: var(--z-sheet);
+  pointer-events: none;
 }
 
+.backdrop {
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.5);
+  pointer-events: all;
+  animation: fade-in 0.2s forwards;
+}
+
+@keyframes fade-in {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+/* The sheet itself — full-bleed, image fills everything */
+.sheet {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  border-radius: 20px 20px 0 0;
+  max-height: 72dvh;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  pointer-events: all;
+  animation: slide-up 0.32s cubic-bezier(0.32, 0.72, 0, 1) forwards;
+  will-change: transform;
+  padding-bottom: calc(env(safe-area-inset-bottom, 0px) + 16px);
+}
+
+@keyframes slide-up {
+  from { transform: translateY(100%); }
+  to   { transform: translateY(0); }
+}
+
+/* Background image — covers the entire sheet */
 .bgImage {
   position: absolute;
   inset: 0;
@@ -16,43 +53,88 @@
   z-index: 0;
 }
 
+/* Dark frost overlay on top of image */
 .frost {
   position: absolute;
   inset: 0;
-  background: rgba(4, 4, 4, 0.58);
+  background: rgba(4, 4, 4, 0.62);
   z-index: 1;
 }
 
-/* Green strip across the top */
+/* Drag handle */
+.handle {
+  position: relative;
+  z-index: 2;
+  width: 36px;
+  height: 4px;
+  background: rgba(255, 255, 255, 0.3);
+  border-radius: 100px;
+  margin: 12px auto 0;
+  flex-shrink: 0;
+}
+
+/* Green strip — flush at top edge, rounded by sheet corners */
 .greenStrip {
   position: relative;
   z-index: 2;
   height: 4px;
   background: #39FF14;
-  box-shadow: 0 0 12px rgba(57,255,20,0.8);
+  box-shadow: 0 0 14px rgba(57, 255, 20, 0.9);
+  flex-shrink: 0;
 }
 
-.inner {
+/* Header row */
+.header {
   position: relative;
   z-index: 2;
-  padding: 14px 0 18px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 18px 8px;
+  flex-shrink: 0;
+}
+
+.headerTitle {
+  font-size: 17px;
+  font-weight: 800;
+  color: #fff;
+  text-shadow: 0 1px 8px rgba(0,0,0,0.6);
+}
+
+.closeBtn {
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  background: rgba(0,0,0,0.35);
+  border: none;
+  color: rgba(255,255,255,0.7);
+  font-size: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
 }
 
 .empty {
+  position: relative;
+  z-index: 2;
   text-align: center;
   color: rgba(255,255,255,0.4);
   font-size: 14px;
   padding: 40px 16px;
 }
 
-/* Horizontal scrolling row */
+/* Vertical scroll list */
 .scrollRow {
+  position: relative;
+  z-index: 2;
   display: flex;
   flex-direction: column;
   gap: 8px;
-  padding: 0 14px;
+  padding: 4px 14px 8px;
   overflow-y: auto;
-  max-height: 320px;
+  flex: 1;
   scrollbar-width: none;
 }
 
@@ -65,7 +147,7 @@
   align-items: center;
   gap: 12px;
   padding: 13px 16px;
-  background: rgba(0, 0, 0, 0.6);
+  background: rgba(0, 0, 0, 0.55);
   border: 1px solid rgba(255,255,255,0.12);
   border-radius: 14px;
   backdrop-filter: blur(20px);
@@ -74,7 +156,6 @@
   text-align: left;
   width: 100%;
   -webkit-tap-highlight-color: transparent;
-  box-shadow: 0 4px 16px rgba(0,0,0,0.4);
   transition: background 0.15s, transform 0.1s;
 }
 

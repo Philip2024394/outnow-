@@ -26,3 +26,13 @@
   border-color: var(--color-mutual);
   box-shadow: 0 0 0 2px var(--color-bg), 0 0 16px rgba(168, 85, 247, 0.5);
 }
+
+.scheduled {
+  border-color: #FF9500;
+  box-shadow: 0 0 0 2px var(--color-bg), 0 0 14px rgba(255,149,0,0.45);
+}
+
+.inviteOut {
+  border-color: #FFD60A;
+  box-shadow: 0 0 0 2px var(--color-bg), 0 0 14px rgba(255,214,10,0.45);
+}

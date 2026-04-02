@@ -38,17 +38,23 @@ export default function SOSModal({ open, onClose, session }) {
   }
 
   return (
-    <div className={styles.overlay} onClick={onClose}>
-      <div className={`${styles.modal} ${confirmed ? styles.modalSent : ''}`} onClick={e => e.stopPropagation()}>
+    <div className={styles.overlay}>
+      <div className={styles.topBar}>
+        <span className={styles.topTitle}>Alert My Contact</span>
+        <button className={styles.closeBtn} onClick={onClose}>✕</button>
+      </div>
 
-        {!confirmed ? (
-          <>
-            <div className={styles.iconWrap}>
-              <span className={styles.icon}>🆘</span>
+
+      {!confirmed ? (
+        <div className={styles.body}>
+          <div>
+            <div className={styles.titleBlock}>
+              <div className={styles.iconWrap}>
+                <span className={styles.sosLabel}>SOS</span>
+              </div>
+              <h1 className={styles.title}>Alert My Contact?</h1>
+              <p className={styles.sub}>This will send a help message to your trusted contact.</p>
             </div>
-
-            <h1 className={styles.title}>Alert My Contact?</h1>
-            <p className={styles.sub}>This will send a help message to your trusted contact.</p>
 
             <div className={styles.emergencyNote}>
               🚨 <strong>In immediate danger?</strong> Call <strong>999 / 112 / 911</strong> first — this button alerts a friend, not emergency services.
@@ -72,7 +78,9 @@ export default function SOSModal({ open, onClose, session }) {
               <span className={styles.messageLabel}>Message that will be sent:</span>
               <p className={styles.messageText}>{message}</p>
             </div>
+          </div>
 
+          <div className={styles.actions}>
             <button
               className={styles.confirmBtn}
               onClick={() => handleSend(false)}
@@ -93,15 +101,15 @@ export default function SOSModal({ open, onClose, session }) {
             <button className={styles.cancelBtn} onClick={onClose}>
               Cancel — I'm OK
             </button>
-          </>
-        ) : (
-          <div className={styles.sentWrap}>
-            <span className={styles.sentIcon}>✅</span>
-            <h2 className={styles.sentTitle}>Help Requested</h2>
-            <p className={styles.sentSub}>Opening {platformLabel(contact?.platform)} to send your message to {contact?.name}.</p>
           </div>
-        )}
-      </div>
+        </div>
+      ) : (
+        <div className={styles.sentPage}>
+          <span className={styles.sentIcon}>✅</span>
+          <h2 className={styles.sentTitle}>Help Requested</h2>
+          <p className={styles.sentSub}>Opening {platformLabel(contact?.platform)} to send your message to {contact?.name}.</p>
+        </div>
+      )}
     </div>
   )
 }

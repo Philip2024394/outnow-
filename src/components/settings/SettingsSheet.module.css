@@ -1,20 +1,93 @@
-.sheet {
-  display: flex;
-  flex-direction: column;
-  padding-bottom: var(--space-4);
+/* Full-screen overlay wrapper */
+.wrapper {
+  position: fixed;
+  inset: 0;
+  z-index: var(--z-sheet);
+  pointer-events: none;
 }
 
+/* Backdrop — left 30% visible, tap to close */
+.backdrop {
+  position: absolute;
+  inset: 0;
+  background: rgba(0,0,0,0.55);
+  pointer-events: all;
+  animation: fade-in 0.22s forwards;
+}
+
+@keyframes fade-in {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+/* Drawer — right 70%, slides in from right */
+.drawer {
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  width: 70%;
+  background: #0d0d0d;
+  border-left: 1px solid rgba(255,255,255,0.07);
+  display: flex;
+  flex-direction: column;
+  pointer-events: all;
+  animation: slide-in 0.28s cubic-bezier(0.32,0.72,0,1) forwards;
+  will-change: transform;
+  overflow: hidden;
+}
+
+@keyframes slide-in {
+  from { transform: translateX(100%); }
+  to   { transform: translateX(0); }
+}
+
+/* Sticky header */
 .header {
-  padding: 0 4px 16px;
-  border-bottom: 1px solid var(--color-border);
-  margin-bottom: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: calc(env(safe-area-inset-top, 0px) + 18px) 20px 16px;
+  border-bottom: 1px solid rgba(255,255,255,0.07);
+  flex-shrink: 0;
+  background: #0d0d0d;
 }
 
 .title {
-  font-size: 22px;
+  font-size: 20px;
   font-weight: 800;
-  color: var(--color-text);
+  color: #fff;
 }
+
+.closeBtn {
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  background: rgba(255,255,255,0.06);
+  border: none;
+  color: rgba(255,255,255,0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  transition: background 0.15s;
+  flex-shrink: 0;
+}
+
+.closeBtn:active { background: rgba(255,255,255,0.12); }
+
+/* Scrollable content */
+.content {
+  flex: 1;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior: contain;
+  padding: 4px 16px calc(env(safe-area-inset-bottom, 0px) + 24px);
+  scrollbar-width: none;
+}
+
+.content::-webkit-scrollbar { display: none; }
 
 /* Section divider */
 .divider {
@@ -24,11 +97,11 @@
 }
 
 .dividerLabel {
-  font-size: 11px;
+  font-size: 10px;
   font-weight: 700;
-  color: rgba(255,255,255,0.3);
+  color: rgba(255,255,255,0.25);
   text-transform: uppercase;
-  letter-spacing: 0.08em;
+  letter-spacing: 0.1em;
 }
 
 /* Row */
@@ -36,8 +109,8 @@
   width: 100%;
   display: flex;
   align-items: center;
-  gap: 14px;
-  padding: 13px 4px;
+  gap: 12px;
+  padding: 12px 4px;
   background: none;
   border: none;
   cursor: pointer;
@@ -47,17 +120,13 @@
   font-family: var(--font-sans);
 }
 
-.row:active {
-  background: rgba(255,255,255,0.05);
-}
+.row:active { background: rgba(255,255,255,0.05); }
 
-.rowDanger .rowLabel {
-  color: var(--color-danger, #FF3B30);
-}
+.rowDanger .rowLabel { color: #FF3B30; }
 
 .rowIcon {
-  font-size: 22px;
-  width: 32px;
+  font-size: 20px;
+  width: 28px;
   text-align: center;
   flex-shrink: 0;
 }
@@ -72,26 +141,26 @@
 }
 
 .rowLabel {
-  font-size: 15px;
+  font-size: 14px;
   font-weight: 600;
-  color: var(--color-text);
+  color: #fff;
   line-height: 1.2;
 }
 
 .rowSub {
-  font-size: 12px;
-  color: rgba(255,255,255,0.4);
+  font-size: 11px;
+  color: rgba(255,255,255,0.35);
   line-height: 1.4;
 }
 
 .rowValue {
-  font-size: 13px;
-  color: rgba(255,255,255,0.35);
+  font-size: 12px;
+  color: rgba(255,255,255,0.3);
   flex-shrink: 0;
 }
 
 .arrow {
-  color: rgba(255,255,255,0.25);
+  color: rgba(255,255,255,0.2);
   flex-shrink: 0;
 }
 
@@ -99,8 +168,8 @@
 .sosRow {
   display: flex;
   align-items: center;
-  gap: 14px;
-  padding: 14px 20px;
+  gap: 12px;
+  padding: 13px 14px;
   background: rgba(255,59,48,0.06);
   border: 1px solid rgba(255,59,48,0.25);
   border-radius: 14px;
@@ -113,8 +182,7 @@
 }
 
 .sosRow:active { background: rgba(255,59,48,0.12); }
-
-.sosIcon { font-size: 22px; flex-shrink: 0; }
+.sosIcon { font-size: 20px; flex-shrink: 0; }
 
 .sosText {
   flex: 1;
@@ -124,29 +192,17 @@
   text-align: left;
 }
 
-.sosLabel {
-  font-size: 15px;
-  font-weight: 700;
-  color: #FF3B30;
-}
-
-.sosSub {
-  font-size: 12px;
-  color: rgba(255,59,48,0.6);
-}
-
-.sosArrow {
-  font-size: 18px;
-  color: rgba(255,59,48,0.4);
-}
+.sosLabel { font-size: 14px; font-weight: 700; color: #FF3B30; }
+.sosSub   { font-size: 11px; color: rgba(255,59,48,0.55); }
+.sosArrow { font-size: 16px; color: rgba(255,59,48,0.35); }
 
 /* Toggle switch */
 .toggle {
-  width: 44px;
-  height: 26px;
-  border-radius: 13px;
-  background: rgba(255,255,255,0.12);
-  border: 1.5px solid rgba(255,255,255,0.1);
+  width: 40px;
+  height: 24px;
+  border-radius: 12px;
+  background: rgba(255,255,255,0.1);
+  border: 1.5px solid rgba(255,255,255,0.08);
   flex-shrink: 0;
   position: relative;
   transition: background 0.2s, border-color 0.2s;
@@ -161,14 +217,14 @@
   position: absolute;
   top: 2px;
   left: 2px;
-  width: 18px;
-  height: 18px;
+  width: 16px;
+  height: 16px;
   border-radius: 50%;
   background: rgba(255,255,255,0.4);
   transition: transform 0.2s, background 0.2s;
 }
 
 .toggleOn .toggleThumb {
-  transform: translateX(18px);
+  transform: translateX(16px);
   background: #39FF14;
 }

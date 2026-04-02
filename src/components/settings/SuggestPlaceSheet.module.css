@@ -1,0 +1,402 @@
+.wrapper {
+  position: fixed;
+  inset: 0;
+  z-index: var(--z-sheet);
+  pointer-events: none;
+}
+
+.backdrop {
+  position: absolute;
+  inset: 0;
+  background: rgba(0,0,0,0.5);
+  pointer-events: all;
+  animation: fade-in 0.2s forwards;
+}
+
+@keyframes fade-in {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+.sheet {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  border-radius: 20px 20px 0 0;
+  max-height: 90dvh;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  pointer-events: all;
+  animation: slide-up 0.32s cubic-bezier(0.32,0.72,0,1) forwards;
+  will-change: transform;
+}
+
+@keyframes slide-up {
+  from { transform: translateY(100%); }
+  to   { transform: translateY(0); }
+}
+
+.bgImage {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
+  z-index: 0;
+}
+
+.frost {
+  position: absolute;
+  inset: 0;
+  background: rgba(4,4,4,0.82);
+  z-index: 1;
+}
+
+.greenStrip {
+  position: relative;
+  z-index: 2;
+  height: 4px;
+  background: #39FF14;
+  box-shadow: 0 0 14px rgba(57,255,20,0.9);
+  flex-shrink: 0;
+}
+
+.handle {
+  position: relative;
+  z-index: 2;
+  width: 36px;
+  height: 4px;
+  background: rgba(255,255,255,0.25);
+  border-radius: 100px;
+  margin: 12px auto 0;
+  flex-shrink: 0;
+}
+
+.scrollContent {
+  position: relative;
+  z-index: 2;
+  flex: 1;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior: contain;
+  padding: 20px 20px calc(env(safe-area-inset-bottom, 0px) + 24px);
+  scrollbar-width: none;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+.scrollContent::-webkit-scrollbar { display: none; }
+
+.title {
+  font-size: var(--font-size-xl);
+  font-weight: var(--font-weight-bold);
+  color: #fff;
+  margin: 0;
+}
+
+.sub {
+  font-size: var(--font-size-sm);
+  color: var(--color-text-muted);
+  margin: 0;
+}
+
+/* Fields */
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.label {
+  font-size: 12px;
+  font-weight: 700;
+  color: rgba(255,255,255,0.45);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.input {
+  background: #111111;
+  border: 1.5px solid rgba(255,255,255,0.1);
+  border-radius: 12px;
+  color: #fff;
+  font-size: 15px;
+  padding: 12px 14px;
+  outline: none;
+  font-family: var(--font-sans);
+  width: 100%;
+  box-sizing: border-box;
+  -webkit-appearance: none;
+}
+
+.input:focus {
+  border-color: rgba(57,255,20,0.5);
+}
+
+.input::placeholder {
+  color: rgba(255,255,255,0.2);
+}
+
+/* Activity chips */
+.chipGrid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+}
+
+.chip {
+  padding: 10px 6px;
+  background: #111111;
+  border: 1.5px solid rgba(255,255,255,0.1);
+  border-radius: 12px;
+  color: rgba(255,255,255,0.55);
+  font-size: 13px;
+  font-weight: 600;
+  font-family: var(--font-sans);
+  cursor: pointer;
+  text-align: center;
+  transition: background 0.12s, border-color 0.12s, color 0.12s;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.chip:active { opacity: 0.75; }
+
+.chipActive {
+  background: rgba(57,255,20,0.08);
+  border-color: rgba(57,255,20,0.45);
+  color: #39FF14;
+}
+
+/* Time row */
+.timeRow {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+
+.timeField {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.timeLabel {
+  font-size: 11px;
+  font-weight: 600;
+  color: rgba(255,255,255,0.3);
+}
+
+/* Submit */
+.submitBtn {
+  width: 100%;
+  padding: 14px;
+  background: rgba(57,255,20,0.1);
+  border: 1.5px solid rgba(57,255,20,0.4);
+  border-radius: 100px;
+  color: #39FF14;
+  font-size: 15px;
+  font-weight: 700;
+  font-family: var(--font-sans);
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  transition: background 0.15s;
+}
+
+.submitBtn:active { background: rgba(57,255,20,0.18); }
+
+.submitDisabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+}
+
+.disclaimer {
+  font-size: 11px;
+  color: rgba(255,255,255,0.2);
+  text-align: center;
+  margin: 0;
+}
+
+/* ── Discount section ── */
+.discountBox {
+  border: 1.5px solid rgba(255,214,10,0.2);
+  border-radius: 16px;
+  overflow: hidden;
+}
+
+.discountToggle {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 14px;
+  background: rgba(255,214,10,0.05);
+  border: none;
+  cursor: pointer;
+  font-family: var(--font-sans);
+  -webkit-tap-highlight-color: transparent;
+  text-align: left;
+}
+
+.discountToggleText {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.discountToggleTitle {
+  font-size: 14px;
+  font-weight: 700;
+  color: #fff;
+}
+
+.discountToggleSub {
+  font-size: 11px;
+  color: rgba(255,255,255,0.35);
+}
+
+/* Reuse toggle style from SettingsSheet */
+.toggle {
+  width: 40px;
+  height: 24px;
+  border-radius: 12px;
+  background: rgba(255,255,255,0.1);
+  border: 1.5px solid rgba(255,255,255,0.08);
+  flex-shrink: 0;
+  position: relative;
+  transition: background 0.2s, border-color 0.2s;
+}
+
+.toggleOn {
+  background: rgba(255,214,10,0.3);
+  border-color: #FFD60A;
+}
+
+.toggleThumb {
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: rgba(255,255,255,0.4);
+  transition: transform 0.2s, background 0.2s;
+}
+
+.toggleOn .toggleThumb {
+  transform: translateX(16px);
+  background: #FFD60A;
+}
+
+.discountFields {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  padding: 0 14px 14px;
+}
+
+.discountRow {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.discountRow .label {
+  flex-shrink: 0;
+}
+
+.percentWrap {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.percentInput {
+  width: 72px !important;
+  text-align: center;
+}
+
+.percentSign {
+  font-size: 16px;
+  font-weight: 700;
+  color: #FFD60A;
+}
+
+.discountWarn {
+  font-size: 11px;
+  color: #FF9500;
+  font-weight: 600;
+}
+
+.discountTypeRow {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 8px;
+}
+
+.chipDiscount {
+  background: rgba(255,214,10,0.1) !important;
+  border-color: rgba(255,214,10,0.5) !important;
+  color: #FFD60A !important;
+}
+
+.discountNote {
+  font-size: 11px;
+  color: rgba(255,149,0,0.7);
+  background: rgba(255,149,0,0.06);
+  border: 1px solid rgba(255,149,0,0.15);
+  border-radius: 10px;
+  padding: 10px 12px;
+  margin: 0;
+  line-height: 1.5;
+}
+
+/* Done state */
+.doneWrap {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-4);
+  padding: 40px 20px;
+  text-align: center;
+}
+
+.doneIcon {
+  font-size: 52px;
+}
+
+.doneTitle {
+  font-size: var(--font-size-xl);
+  font-weight: var(--font-weight-bold);
+  color: #39FF14;
+  margin: 0;
+}
+
+.doneSub {
+  font-size: var(--font-size-sm);
+  color: var(--color-text-muted);
+  max-width: 280px;
+  line-height: 1.5;
+  margin: 0;
+}
+
+.doneBtn {
+  margin-top: var(--space-4);
+  padding: 12px 40px;
+  background: rgba(255,255,255,0.06);
+  border: 1px solid rgba(255,255,255,0.12);
+  border-radius: 100px;
+  color: rgba(255,255,255,0.7);
+  font-size: 15px;
+  font-weight: 700;
+  font-family: var(--font-sans);
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}

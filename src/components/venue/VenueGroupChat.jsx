@@ -72,19 +72,22 @@ export default function VenueGroupChat({ venue, initialMessages = [], onClose })
 
       {/* Header */}
       <div className={styles.header}>
-        <button className={styles.backBtn} onClick={onClose} aria-label="Close">
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-            <polyline points="15 18 9 12 15 6" />
-          </svg>
-        </button>
         <div className={styles.headerInfo}>
           <span className={styles.headerEmoji}>{venue.emoji}</span>
           <div>
             <span className={styles.headerName}>{venue.name}</span>
-            <span className={styles.headerSub}>{venue.count} {venue.count === 1 ? 'person' : 'people'} here tonight</span>
+            <span className={styles.headerSub}>
+              <span style={{ display: 'inline-block', width: 6, height: 6, borderRadius: '50%', background: '#39FF14', boxShadow: '0 0 6px #39FF14', marginRight: 5, verticalAlign: 'middle' }} />
+              {venue.count} {venue.count === 1 ? 'person' : 'people'} here tonight
+            </span>
           </div>
         </div>
-        <div className={styles.liveDot} />
+        <button className={styles.backBtn} onClick={onClose} aria-label="Close">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>
+            <polyline points="9 22 9 12 15 12 15 22"/>
+          </svg>
+        </button>
       </div>
 
       {/* Privacy banner */}
