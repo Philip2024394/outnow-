@@ -242,7 +242,7 @@ export default function DiscoveryCard({ open, session, mySession, onClose, showT
           onDone={dismissWaveIntro}
         />
       )}
-      <div className={styles.card}>
+      <div className={styles.card} style={{ '--status-color': isInviteOut ? '#FFD60A' : isScheduled ? '#FF9500' : '#39FF14' }}>
 
         {/* ── Card header — activity outside/above the photo ── */}
         {activity && (
