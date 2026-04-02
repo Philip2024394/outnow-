@@ -119,6 +119,19 @@ export default function DiscoveryCard({ open, session, mySession, onClose, showT
   const isScheduled = session.status === 'scheduled'
   const isInviteOut = session.status === 'invite_out'
   const activity = ACTIVITY_TYPES.find(a => a.id === session.activityType)
+
+  const ACTIVITY_SLOGANS = {
+    drinks:  'Up for drinks tonight',
+    food:    'Looking for somewhere to eat',
+    coffee:  'Coffee & good conversation',
+    walk:    'Fresh air & good company',
+    hangout: 'Down to hang out tonight',
+    culture: 'Exploring the city tonight',
+    other:   'Out and about tonight',
+  }
+  const activitySlogan = session.message
+    ?? ACTIVITY_SLOGANS[session.activityType]
+    ?? 'Out and about tonight'
   const isMutual = mutualSessions.has(session.id)
   const hasExpressedInterest = myInterests.has(session.id)
 
@@ -246,7 +259,10 @@ export default function DiscoveryCard({ open, session, mySession, onClose, showT
             </div>
             <div className={styles.activityHeader}>
               <span className={styles.activityHeaderIcon}>{activity.emoji ?? '🎯'}</span>
-              <span className={styles.activityHeaderLabel}>{activity.label}</span>
+              <div className={styles.activityHeaderText}>
+                <span className={styles.activityHeaderLabel}>{activity.label}</span>
+                <span className={styles.activityHeaderSlogan}>{activitySlogan}</span>
+              </div>
             </div>
 
           </div>

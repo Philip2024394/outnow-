@@ -118,7 +118,7 @@
 .activityHeader {
   display: flex;
   align-items: center;
-  gap: 6px;
+  gap: 8px;
 }
 
 .activityHeaderIcon {
@@ -126,10 +126,24 @@
   line-height: 1;
 }
 
+.activityHeaderText {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+}
+
 .activityHeaderLabel {
   font-size: 17px;
   font-weight: 800;
   color: #fff;
+  letter-spacing: 0.01em;
+  line-height: 1.1;
+}
+
+.activityHeaderSlogan {
+  font-size: 11px;
+  font-weight: 500;
+  color: rgba(255,255,255,0.45);
   letter-spacing: 0.01em;
 }
 
