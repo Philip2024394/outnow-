@@ -413,12 +413,22 @@ export default function DiscoveryCard({ open, session, mySession, onClose, showT
 
         {/* Timer / Scheduled badge */}
         <div className={styles.timerRow}>
-          {isScheduled
-            ? <span className={styles.scheduledBadge}>🕐 {fmtScheduledFull(session.scheduledFor)}</span>
-            : <CountdownTimer expiresAtMs={session.expiresAtMs} />
-          }
-          {isMutual && !isScheduled && (
-            <span className={styles.mutualBadge}>💜 Mutual</span>
+          {isScheduled ? (
+            <>
+              <span className={styles.scheduledBadge}>🕐 {fmtScheduledFull(session.scheduledFor)}</span>
+              <button
+                className={styles.timerMeetBtn}
+                disabled={hasExpressedInterest || inviteLoading}
+                onClick={handleInvite}
+              >
+                {hasExpressedInterest ? '✓ Sent' : '🧡 Let\'s Meet'}
+              </button>
+            </>
+          ) : (
+            <>
+              <CountdownTimer expiresAtMs={session.expiresAtMs} />
+              {isMutual && <span className={styles.mutualBadge}>💜 Mutual</span>}
+            </>
           )}
         </div>
 
