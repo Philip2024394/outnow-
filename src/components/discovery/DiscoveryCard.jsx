@@ -7,7 +7,6 @@ import Button from '@/components/ui/Button'
 import Avatar from '@/components/ui/Avatar'
 import CountdownTimer from '@/components/ui/CountdownTimer'
 import { ACTIVITY_TYPES } from '@/firebase/collections'
-import ActivityIcon from '@/components/ui/ActivityIcon'
 import { VIBE_TAGS } from '@/utils/vibeTags'
 import GiftPickerSheet from './GiftPickerSheet'
 import styles from './DiscoveryCard.module.css'
@@ -383,12 +382,6 @@ export default function DiscoveryCard({ open, session, mySession, onClose, showT
               {session.displayName ?? 'Someone'}
               {session.age && <span className={styles.nameAge}> {session.age}</span>}
             </h2>
-            <div className={styles.activityRow}>
-              <ActivityIcon activity={activity} size={22} className={styles.activityEmoji} />
-              <span className={styles.activityLabel}>
-                {activity?.label ?? (isScheduled ? 'Going out later' : 'Out now')}
-              </span>
-            </div>
             {isScheduled && session.placeName && (
               <div className={styles.venuePlan}>
                 {session.placeName}
@@ -405,11 +398,15 @@ export default function DiscoveryCard({ open, session, mySession, onClose, showT
                 <span className={styles.groupText}>Group of {session.groupSize}</span>
               </div>
             )}
-            <div className={styles.area}>
-              📍 {session.area ?? 'Nearby area'}
-            </div>
           </div>
         </div>
+
+        {/* Bio */}
+        {session.bio && (
+          <div className={styles.bio}>
+            {session.bio}
+          </div>
+        )}
 
         {/* Timer / Scheduled badge */}
         <div className={styles.timerRow}>
