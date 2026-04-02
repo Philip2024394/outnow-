@@ -7,6 +7,28 @@ import { supabase } from '@/lib/supabase'
 export function setupRecaptcha() {}
 
 /**
+ * Sign in with Google via Supabase OAuth.
+ */
+export async function signInWithGoogle() {
+  if (!supabase) return
+  const { error } = await supabase.auth.signInWithOAuth({
+    provider: 'google',
+    options: { redirectTo: window.location.origin },
+  })
+  if (error) throw new Error(error.message)
+}
+
+/**
+ * Sign in with email + password via Supabase Auth.
+ */
+export async function signInWithEmail(email, password) {
+  if (!supabase) return
+  const { data, error } = await supabase.auth.signInWithPassword({ email, password })
+  if (error) throw new Error(error.message)
+  return data.user
+}
+
+/**
  * Send an SMS OTP to the given phone number via Supabase Auth.
  * Returns a "confirmation" object { phone } used by verifyOTP.
  */

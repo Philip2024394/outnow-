@@ -1,6 +1,7 @@
 import { useState } from 'react'
-import { DEMO_LIKED_USERS } from '@/demo/mockData'
+import { useNotifications } from '@/hooks/useNotifications'
 import { activityEmoji } from '@/firebase/collections'
+import { DEMO_LIKED_USERS } from '@/demo/mockData'
 import styles from './NotificationsScreen.module.css'
 
 function timeAgo(ms) {
@@ -13,85 +14,28 @@ function timeAgo(ms) {
   return `${Math.floor(h / 24)}d ago`
 }
 
-const DEMO_VIEWS = [
-  { id: 'v1', name: 'Ava Mitchell',  age: 26, city: 'Soho, London',         views: 3,  avatar: '👩',   youLiked: true  },
-  { id: 'v2', name: 'Maya Patel',    age: 29, city: 'Shoreditch, London',   views: 1,  avatar: '👩‍🦱', youLiked: false },
-  { id: 'v3', name: 'Jordan Lee',    age: 31, city: 'Brixton, London',      views: 2,  avatar: '🧑',   youLiked: true  },
-  { id: 'v4', name: 'Priya Sharma',  age: 24, city: 'Notting Hill, London', views: 1,  avatar: '👩‍🦳', youLiked: false },
-  { id: 'v5', name: 'Kai Thompson',  age: 28, city: 'Camden, London',       views: 4,  avatar: '🧔',   youLiked: false },
-  { id: 'v6', name: 'Zara Ahmed',    age: 27, city: 'Hackney, London',      views: 1,  avatar: '👩‍🦰', youLiked: true  },
-]
+// Notification type → emoji
+const NOTIF_EMOJI = {
+  match:   '🔥',
+  like:    '❤️',
+  wave:    '👋',
+  gift:    '🎁',
+  otw:     '🚶',
+  system:  '🛡️',
+  digest:  '📅',
+}
 
-const DEMO_NOTIFS = [
-  {
-    id: 'n1',
-    type: 'like',
-    emoji: '❤️',
-    title: 'Ava liked your profile',
-    body: "She's out in Soho right now",
-    time: '2 min ago',
-    unread: true,
-  },
-  {
-    id: 'n2',
-    type: 'match',
-    emoji: '🔥',
-    title: 'You matched with Jordan!',
-    body: "You both liked each other — you're both out right now",
-    time: '18 min ago',
-    unread: true,
-  },
-  {
-    id: 'n4',
-    type: 'otw',
-    emoji: '🚶',
-    title: 'Kai is on the way',
-    body: 'He accepted your OTW request',
-    time: '1 hr ago',
-    unread: false,
-  },
-  {
-    id: 'n5',
-    type: 'like',
-    emoji: '❤️',
-    title: 'Priya liked your profile',
-    body: "She's out in Notting Hill",
-    time: 'Yesterday',
-    unread: false,
-  },
-  {
-    id: 'n6',
-    type: 'digest',
-    emoji: '📅',
-    title: 'Weekend Digest',
-    body: '8 people are out near you this weekend',
-    time: 'Yesterday',
-    unread: false,
-  },
-  {
-    id: 'n7',
-    type: 'system',
-    emoji: '🛡️',
-    title: 'Safety reminder',
-    body: 'Always meet in a public place. Trust your instincts.',
-    time: '3 days ago',
-    unread: false,
-  },
-]
-
-export const DEMO_UNREAD_COUNT = DEMO_NOTIFS.filter(n => n.unread).length
-
-const TOTAL_VIEWS   = DEMO_VIEWS.reduce((s, v) => s + v.views, 0)
-const TOTAL_LIKES   = 6
-const TOTAL_MATCHES = 2
+export const DEMO_UNREAD_COUNT = 2
 
 export default function NotificationsScreen({ onClose }) {
-  const [views, setViews] = useState(DEMO_VIEWS)
-  const unreadCount = DEMO_NOTIFS.filter(n => n.unread).length
+  const { notifications, profileViews, unreadCount, markAllRead } = useNotifications()
 
-  const toggleLike = (id) => {
-    setViews(prev => prev.map(v => v.id === id ? { ...v, youLiked: !v.youLiked } : v))
-  }
+  // Use real notifications if available, otherwise show demo placeholders
+  const hasRealNotifs = notifications.length > 0
+  const hasRealViews  = profileViews.length > 0
+
+  const unread  = (hasRealNotifs ? notifications : []).filter(n => !n.read)
+  const earlier = (hasRealNotifs ? notifications : []).filter(n => n.read)
 
   return (
     <div className={styles.screen}>
@@ -100,10 +44,15 @@ export default function NotificationsScreen({ onClose }) {
       <div className={styles.header}>
         <span className={styles.title}>Notifications</span>
         {unreadCount > 0 && (
-          <span className={styles.unreadBadge}>{unreadCount} new</span>
+          <span
+            className={styles.unreadBadge}
+            onClick={markAllRead}
+            style={{ cursor: 'pointer' }}
+          >
+            {unreadCount} new
+          </span>
         )}
         <button className={styles.homeBtn} onClick={onClose} aria-label="Go to map">
-          {/* Home icon */}
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
             <path d="M3 9.5L12 3l9 6.5V20a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V9.5z"/>
             <polyline points="9 21 9 12 15 12 15 21"/>
@@ -111,28 +60,27 @@ export default function NotificationsScreen({ onClose }) {
         </button>
       </div>
 
-      {/* ── Stats strip — directly under header ── */}
+      {/* ── Stats strip ── */}
       <div className={styles.statsStrip}>
         <div className={styles.statChip}>
-          <span className={styles.statNum}>{TOTAL_VIEWS}</span>
+          <span className={styles.statNum}>{profileViews.length || '—'}</span>
           <span className={styles.statMeta}>Profile Views</span>
         </div>
         <div className={styles.statDivider} />
         <div className={styles.statChip}>
-          <span className={styles.statNum}>{TOTAL_LIKES}</span>
+          <span className={styles.statNum}>{notifications.filter(n => n.type === 'like').length || '—'}</span>
           <span className={styles.statMeta}>Likes Received</span>
         </div>
         <div className={styles.statDivider} />
         <div className={styles.statChip}>
-          <span className={styles.statNum}>{TOTAL_MATCHES}</span>
+          <span className={styles.statNum}>{notifications.filter(n => n.type === 'match').length || '—'}</span>
           <span className={styles.statMeta}>Matches</span>
         </div>
       </div>
 
-      {/* ── Scrollable content ── */}
       <div className={styles.scroll}>
 
-        {/* ── LIKED YOU THIS WEEK ── */}
+        {/* ── LIKED YOU — real interests/likes from Supabase (demo fallback) ── */}
         <div className={styles.sectionHeader}>
           <span className={styles.sectionIcon}>❤️</span>
           <span className={styles.sectionTitle}>Liked You This Week</span>
@@ -143,37 +91,52 @@ export default function NotificationsScreen({ onClose }) {
         ))}
 
         {/* ── WHO VIEWED YOUR PROFILE ── */}
-        <div className={styles.sectionHeader}>
-          <span className={styles.sectionIcon}>👁️</span>
-          <span className={styles.sectionTitle}>Who Viewed Your Profile</span>
-          <span className={styles.sectionCount}>{views.length}</span>
-        </div>
-        {views.map(v => (
-          <ViewerCard key={v.id} viewer={v} onToggleLike={toggleLike} />
-        ))}
+        {(hasRealViews ? profileViews : []).length > 0 && (
+          <>
+            <div className={styles.sectionHeader}>
+              <span className={styles.sectionIcon}>👁️</span>
+              <span className={styles.sectionTitle}>Who Viewed Your Profile</span>
+              <span className={styles.sectionCount}>{profileViews.length}</span>
+            </div>
+            {profileViews.map(v => (
+              <ViewerCard key={v.id} viewer={v} />
+            ))}
+          </>
+        )}
 
         {/* ── NEW NOTIFICATIONS ── */}
-        {unreadCount > 0 && (
+        {unread.length > 0 && (
           <>
             <div className={styles.sectionHeader}>
               <span className={styles.sectionIcon}>🔴</span>
               <span className={styles.sectionTitle}>New</span>
-              <span className={styles.sectionCount}>{unreadCount}</span>
+              <span className={styles.sectionCount}>{unread.length}</span>
             </div>
-            {DEMO_NOTIFS.filter(n => n.unread).map(n => (
+            {unread.map(n => (
               <NotifRow key={n.id} notif={n} />
             ))}
           </>
         )}
 
         {/* ── EARLIER ── */}
-        <div className={styles.sectionHeader}>
-          <span className={styles.sectionIcon}>🕐</span>
-          <span className={styles.sectionTitle}>Earlier</span>
-        </div>
-        {DEMO_NOTIFS.filter(n => !n.unread).map(n => (
-          <NotifRow key={n.id} notif={n} />
-        ))}
+        {earlier.length > 0 && (
+          <>
+            <div className={styles.sectionHeader}>
+              <span className={styles.sectionIcon}>🕐</span>
+              <span className={styles.sectionTitle}>Earlier</span>
+            </div>
+            {earlier.map(n => (
+              <NotifRow key={n.id} notif={n} />
+            ))}
+          </>
+        )}
+
+        {/* Empty state when no Supabase data yet */}
+        {!hasRealNotifs && (
+          <div className={styles.sectionHeader} style={{ opacity: 0.5, justifyContent: 'center' }}>
+            <span className={styles.sectionTitle}>No notifications yet — get out there! 🌆</span>
+          </div>
+        )}
 
       </div>
     </div>
@@ -206,7 +169,6 @@ function LikedCard({ user }) {
       <button
         className={`${styles.likeBtn} ${liked ? styles.likeBtnActive : ''}`}
         onClick={() => setLiked(v => !v)}
-        aria-label={liked ? 'Unlike' : 'Like back'}
       >
         <svg width="18" height="18" viewBox="0 0 24 24" fill={liked ? 'currentColor' : 'none'} stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
           <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
@@ -217,48 +179,41 @@ function LikedCard({ user }) {
   )
 }
 
-/* ── Landscape viewer card ── */
-function ViewerCard({ viewer, onToggleLike }) {
+/* ── Profile viewer card (real data) ── */
+function ViewerCard({ viewer }) {
   return (
     <div className={styles.viewerCard}>
-      <div className={styles.viewerAvatar}>{viewer.avatar}</div>
+      <div className={styles.viewerAvatar}>
+        {viewer.photoURL
+          ? <img src={viewer.photoURL} alt={viewer.displayName} style={{ width: '100%', height: '100%', borderRadius: '50%', objectFit: 'cover' }} />
+          : viewer.displayName?.[0]?.toUpperCase() ?? '?'
+        }
+      </div>
       <div className={styles.viewerBody}>
         <div className={styles.viewerTop}>
-          <span className={styles.viewerName}>{viewer.name}</span>
-          <span className={styles.viewerAge}>{viewer.age}</span>
+          <span className={styles.viewerName}>{viewer.displayName}</span>
+          {viewer.age && <span className={styles.viewerAge}>{viewer.age}</span>}
         </div>
-        <span className={styles.viewerCity}>📍 {viewer.city}</span>
-        <span className={styles.viewerViews}>
-          Viewed your profile {viewer.views} {viewer.views === 1 ? 'time' : 'times'}
-        </span>
+        {viewer.city && <span className={styles.viewerCity}>📍 {viewer.city}</span>}
+        <span className={styles.viewerViews}>{timeAgo(viewer.createdAt)}</span>
       </div>
-      <button
-        className={`${styles.likeBtn} ${viewer.youLiked ? styles.likeBtnActive : ''}`}
-        onClick={() => onToggleLike(viewer.id)}
-        aria-label={viewer.youLiked ? 'Unlike' : 'Like'}
-      >
-        <svg width="18" height="18" viewBox="0 0 24 24" fill={viewer.youLiked ? 'currentColor' : 'none'} stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-          <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
-        </svg>
-        {viewer.youLiked ? 'Liked' : 'Like'}
-      </button>
     </div>
   )
 }
 
-/* ── Notification row ── */
+/* ── Notification row (real Supabase data) ── */
 function NotifRow({ notif }) {
   return (
-    <div className={`${styles.row} ${notif.unread ? styles.rowUnread : ''}`}>
-      <div className={`${styles.rowEmoji} ${notif.unread ? styles.rowEmojiUnread : ''}`}>
-        {notif.emoji}
+    <div className={`${styles.row} ${!notif.read ? styles.rowUnread : ''}`}>
+      <div className={`${styles.rowEmoji} ${!notif.read ? styles.rowEmojiUnread : ''}`}>
+        {NOTIF_EMOJI[notif.type] ?? '🔔'}
       </div>
       <div className={styles.rowText}>
         <span className={styles.rowTitle}>{notif.title}</span>
-        <span className={styles.rowBody}>{notif.body}</span>
-        <span className={styles.rowTime}>{notif.time}</span>
+        {notif.body && <span className={styles.rowBody}>{notif.body}</span>}
+        <span className={styles.rowTime}>{timeAgo(notif.createdAt)}</span>
       </div>
-      {notif.unread && <span className={styles.dot} />}
+      {!notif.read && <span className={styles.dot} />}
     </div>
   )
 }

@@ -32,7 +32,7 @@ import MapFilterSheet, { DEFAULT_MAP_FILTERS } from '@/components/map/MapFilterS
 import RatingSheet from '@/components/session/RatingSheet'
 import ReviewsSection from '@/components/session/ReviewsSection'
 import LikedMeScreen from '@/screens/LikedMeScreen'
-import NotificationsScreen, { DEMO_UNREAD_COUNT } from '@/screens/NotificationsScreen'
+import NotificationsScreen from '@/screens/NotificationsScreen'
 import BlockedUsersScreen from '@/screens/BlockedUsersScreen'
 import ProfileScreen from '@/screens/ProfileScreen'
 import WalletScreen from '@/screens/WalletScreen'
@@ -43,7 +43,10 @@ import { DEMO_VENUE_MESSAGES } from '@/demo/mockData'
 import MomentsBar from '@/components/moments/MomentsBar'
 import MomentViewer from '@/components/moments/MomentViewer'
 import AddMomentSheet from '@/components/moments/AddMomentSheet'
-import { DEMO_MOMENTS } from '@/demo/mockData'
+import { useMoments } from '@/hooks/useMoments'
+import { useNotifications } from '@/hooks/useNotifications'
+import { useAuth } from '@/hooks/useAuth'
+
 import AddToHomeScreenBanner from '@/components/pwa/AddToHomeScreenBanner'
 import BottomSheet from '@/components/ui/BottomSheet'
 import Toast from '@/components/ui/Toast'
@@ -80,10 +83,13 @@ const DEMO_UNLOCK = {
 
 export default function AppShell({ returnParams, triggerGoLive }) {
   const { overlay, closeOverlay, openGoLive, openVenueReveal, openDiscovery } = useOverlay()
+  const { userProfile } = useAuth()
   const { session: mySession, needsCheckIn } = useMySession()
   const { incomingRequest, myOutgoingRequest } = useOtwRequests()
   const { incomingInterests } = useInterests()
   const { sessions } = useLiveUsers()
+  const { moments, addMoment } = useMoments()
+  const { unreadCount: notifUnreadCount } = useNotifications()
   const [toast, setToast] = useState(null)
   const [likedMeOpen, setLikedMeOpen] = useState(false)
   const [settingsOpen, setSettingsOpen] = useState(false)
@@ -97,13 +103,12 @@ export default function AppShell({ returnParams, triggerGoLive }) {
   const [venueChatVenue, setVenueChatVenue] = useState(null)
   const [momentViewerIndex, setMomentViewerIndex] = useState(null)
   const [addMomentOpen, setAddMomentOpen] = useState(false)
-  const [extraMoments, setExtraMoments] = useState([])
   const [sosOpen, setSosOpen] = useState(false)
   const [walletOpen, setWalletOpen] = useState(false)
   const [inviteOutSheetOpen, setInviteOutSheetOpen] = useState(false)
   const { inviteOut, post: postInviteOut, goingLive, revertToInviteOut } = useInviteOut()
   const { earn: earnCoins } = useCoins()
-  const allMoments = [...DEMO_MOMENTS, ...extraMoments]
+  const allMoments = moments
   const [discoveryListFilter, setDiscoveryListFilter] = useState('now')
   const [discoveryListOpen,   setDiscoveryListOpen]   = useState(false)
 
@@ -228,7 +233,7 @@ export default function AppShell({ returnParams, triggerGoLive }) {
       {activeTab === 'map' && (
         <MapHeader
           onOpenNotifications={() => setNotifOpen(true)}
-          notifCount={notifOpen ? 0 : DEMO_UNREAD_COUNT}
+          notifCount={notifOpen ? 0 : notifUnreadCount}
           onOpenLikes={() => setLikedMeOpen(true)}
           onOpenSettings={() => setSettingsOpen(true)}
         />
@@ -286,8 +291,8 @@ export default function AppShell({ returnParams, triggerGoLive }) {
           onOpenFilter={() => setMapFilterOpen(true)}
           onOpenVenues={() => setVenueListOpen(true)}
           activeVenueCount={activeVenues.length}
-          userPhotoURL={null}
-          userName="You"
+          userPhotoURL={userProfile?.photoURL ?? null}
+          userName={userProfile?.displayName ?? 'You'}
           isLive={!!mySession}
           isInviteOut={!mySession && !!inviteOut}
           isScheduled={false}
@@ -420,15 +425,7 @@ export default function AppShell({ returnParams, triggerGoLive }) {
       <AddMomentSheet
         open={addMomentOpen}
         onClose={() => setAddMomentOpen(false)}
-        onAdd={(m) => setExtraMoments(prev => [{
-          ...m,
-          id: `moment-user-${Date.now()}`,
-          userId: 'me',
-          displayName: 'You',
-          sessionId: mySession?.id,
-          createdAt: Date.now(),
-          expiresAt: Date.now() + 6 * 60 * 60 * 1000,
-        }, ...prev])}
+        onAdd={(m) => addMoment({ ...m, sessionId: mySession?.id })}
       />
 
       <AddToHomeScreenBanner />

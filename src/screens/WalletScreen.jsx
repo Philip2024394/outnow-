@@ -1,9 +1,11 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useCoins, COIN_REWARDS, TOP_UP_PACKS, getTransactions, getEarnedKeys } from '@/hooks/useCoins'
+import { useAuth } from '@/hooks/useAuth'
+import { supabase } from '@/lib/supabase'
 import styles from './WalletScreen.module.css'
 
 function timeAgo(ts) {
-  const diff = Date.now() - ts
+  const diff = Date.now() - (typeof ts === 'string' ? new Date(ts).getTime() : ts)
   const m = Math.floor(diff / 60000)
   if (m < 1)  return 'Just now'
   if (m < 60) return `${m}m ago`
@@ -12,21 +14,66 @@ function timeAgo(ts) {
   return `${Math.floor(h / 24)}d ago`
 }
 
+function txTypeIcon(type) {
+  if (type === 'earn')   return '🎁'
+  if (type === 'topup')  return '🪙'
+  return '💸'
+}
+
 export default function WalletScreen({ onClose }) {
+  const { user } = useAuth()
   const { balance, topUp } = useCoins()
   const [toppingUp, setToppingUp] = useState(null)
   const [flashPack, setFlashPack] = useState(null)
-  const transactions = getTransactions()
-  const earnedKeys   = getEarnedKeys()
+
+  // Merge Supabase transactions (source of truth) with localStorage fallback
+  const [transactions, setTransactions] = useState(getTransactions)
+  const earnedKeys = getEarnedKeys()
+
+  useEffect(() => {
+    if (!supabase || !user) return
+    supabase
+      .from('coin_transactions')
+      .select('id, type, label, amount, created_at')
+      .eq('user_id', user.id)
+      .order('created_at', { ascending: false })
+      .limit(50)
+      .then(({ data }) => {
+        if (!data?.length) return
+        // Map Supabase rows to the same shape localStorage uses
+        setTransactions(data.map(row => ({
+          type:   row.type,
+          label:  row.label,
+          amount: row.amount,
+          ts:     new Date(row.created_at).getTime(),
+        })))
+      })
+  }, [user])
 
   function handleTopUp(pack) {
     setToppingUp(pack.id)
-    // Simulate payment — in production wire to Stripe/IAP
     setTimeout(() => {
       topUp(pack.coins, `${pack.label} pack (${pack.coins} coins)`)
       setToppingUp(null)
       setFlashPack(pack.id)
       setTimeout(() => setFlashPack(null), 1200)
+      // Refresh transactions from Supabase after top-up
+      if (supabase && user) {
+        supabase
+          .from('coin_transactions')
+          .select('id, type, label, amount, created_at')
+          .eq('user_id', user.id)
+          .order('created_at', { ascending: false })
+          .limit(50)
+          .then(({ data }) => {
+            if (data?.length) {
+              setTransactions(data.map(row => ({
+                type: row.type, label: row.label, amount: row.amount,
+                ts: new Date(row.created_at).getTime(),
+              })))
+            }
+          })
+      }
     }, 900)
   }
 
@@ -63,7 +110,7 @@ export default function WalletScreen({ onClose }) {
                 key={pack.id}
                 className={[
                   styles.packCard,
-                  pack.badge ? styles.packCardFeatured : '',
+                  pack.badge       ? styles.packCardFeatured : '',
                   flashPack === pack.id ? styles.packCardFlash : '',
                 ].filter(Boolean).join(' ')}
                 onClick={() => handleTopUp(pack)}
@@ -103,20 +150,16 @@ export default function WalletScreen({ onClose }) {
         </div>
 
         {/* Recent activity */}
-        {transactions.length > 0 && (
+        {transactions.length > 0 ? (
           <div className={styles.section}>
             <span className={styles.sectionTitle}>Recent Activity</span>
             <div className={styles.txList}>
               {transactions.map((tx, i) => (
                 <div key={i} className={styles.txRow}>
-                  <span className={styles.txIcon}>
-                    {tx.type === 'earn'   ? '🎁'
-                   : tx.type === 'topup' ? '🪙'
-                   : '💸'}
-                  </span>
+                  <span className={styles.txIcon}>{txTypeIcon(tx.type)}</span>
                   <div className={styles.txInfo}>
                     <span className={styles.txLabel}>{tx.label}</span>
-                    <span className={styles.txTime}>{timeAgo(tx.ts)}</span>
+                    <span className={styles.txTime}>{timeAgo(tx.ts ?? tx.created_at)}</span>
                   </div>
                   <span className={`${styles.txAmount} ${tx.type === 'spend' ? styles.txAmountSpend : styles.txAmountEarn}`}>
                     {tx.type === 'spend' ? '-' : '+'}{tx.amount}
@@ -125,9 +168,7 @@ export default function WalletScreen({ onClose }) {
               ))}
             </div>
           </div>
-        )}
-
-        {transactions.length === 0 && (
+        ) : (
           <div className={styles.emptyTx}>
             <span className={styles.emptyIcon}>🪙</span>
             <span className={styles.emptyText}>No transactions yet</span>
