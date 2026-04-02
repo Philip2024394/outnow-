@@ -5,45 +5,45 @@ import { useCoins, GIFT_COSTS } from '@/hooks/useCoins'
 import styles from './OnMeSheet.module.css'
 
 const GIFTS = [
-  { id: 'coffee', emoji: '☕', label: 'Coffee',  sub: 'A hot one on me' },
-  { id: 'drinks', emoji: '🍺', label: 'Drinks',  sub: 'First round on me' },
-  { id: 'food',   emoji: '🍕', label: 'Food',    sub: 'I\'ve got the food' },
-  { id: 'entry',  emoji: '🎟️', label: 'Entry',   sub: 'I\'ll cover the door' },
+  { id: 'coffee',  emoji: '☕',  label: 'Coffee'  },
+  { id: 'drinks',  emoji: '🍺',  label: 'Drinks'  },
+  { id: 'food',    emoji: '🍕',  label: 'Food'    },
+  { id: 'entry',   emoji: '🎟️', label: 'Entry'   },
+  { id: 'juice',   emoji: '🧃',  label: 'Juice'   },
+  { id: 'flowers', emoji: '💐',  label: 'Flowers' },
 ]
 
-export default function OnMeSheet({ session, onSend, onSkip, onClose }) {
-  const [onMe,    setOnMe]    = useState(false)
+export default function OnMeSheet({ session, onSend, onSkip, onWave, onClose }) {
   const [gift,    setGift]    = useState(null)
   const [message, setMessage] = useState('')
   const [earned,  setEarned]  = useState(false)
+  const [waved,   setWaved]   = useState(false)
   const { balance, spend, earn, canAfford } = useCoins()
 
   if (!session) return null
 
   function handleSend() {
-    if (onMe && gift) {
+    if (gift) {
       const cost = GIFT_COSTS[gift]
-      if (!spend(cost)) return          // guard — shouldn't reach here if UI is correct
-      // First connect reward (one-time)
+      if (!spend(cost)) return
       const rewarded = earn('FIRST_CONNECT')
       if (rewarded > 0) setEarned(true)
     }
     onSend?.({
       session,
-      onMe,
-      gift: onMe ? gift : null,
+      gift: gift ?? null,
       message: message.trim() || null,
     })
   }
 
-  function toggleOnMe() {
-    setOnMe(v => !v)
-    setGift(null)
+  function handleWave() {
+    setWaved(true)
+    onWave?.({ session })
   }
 
-  const selectedGift  = GIFTS.find(g => g.id === gift)
-  const giftCost      = gift ? GIFT_COSTS[gift] : 0
-  const canSendGift   = !onMe || !gift || canAfford(giftCost)
+  const selectedGift = GIFTS.find(g => g.id === gift)
+  const giftCost     = gift ? GIFT_COSTS[gift] : 0
+  const canSendGift  = !gift || canAfford(giftCost)
 
   return (
     <div className={styles.overlay}>
@@ -70,53 +70,41 @@ export default function OnMeSheet({ session, onSend, onSkip, onClose }) {
             <CoinBadge balance={balance} size="sm" flash={earned} />
           </div>
 
-          {/* On Me toggle */}
-          <button
-            className={`${styles.onMeToggle} ${onMe ? styles.onMeToggleOn : ''}`}
-            onClick={toggleOnMe}
-          >
-            <span className={styles.onMeIcon}>🤝</span>
-            <div className={styles.onMeText}>
-              <span className={styles.onMeLabel}>On Me</span>
-              <span className={styles.onMeDesc}>offer to treat them — costs coins</span>
-            </div>
-            <span className={`${styles.onMePill} ${onMe ? styles.onMePillOn : ''}`}>
-              {onMe ? 'ON' : 'OFF'}
-            </span>
-          </button>
+          {/* On Me header */}
+          <div className={styles.onMeHeader}>
+            <span className={styles.onMeTitle}>First Date On Me</span>
+            <span className={styles.onMeSubtitle}>Offering a treat gets 70% more replies</span>
+          </div>
 
-          {/* Gift cards — visible when On Me is on */}
-          {onMe && (
-            <div className={styles.giftGrid}>
-              {GIFTS.map(g => {
-                const cost     = GIFT_COSTS[g.id]
-                const selected = gift === g.id
-                const broke    = !canAfford(cost)
-                return (
-                  <button
-                    key={g.id}
-                    className={[
-                      styles.giftCard,
-                      selected ? styles.giftCardSel : '',
-                      broke    ? styles.giftCardBroke : '',
-                    ].filter(Boolean).join(' ')}
-                    onClick={() => !broke && setGift(gift === g.id ? null : g.id)}
-                    disabled={broke}
-                  >
-                    <span className={styles.giftEmoji}>{g.emoji}</span>
-                    <span className={styles.giftLabel}>{g.label}</span>
-                    <span className={styles.giftSub}>{g.sub}</span>
-                    <span className={`${styles.giftCost} ${broke ? styles.giftCostBroke : ''}`}>
-                      🪙 {cost}
-                    </span>
-                  </button>
-                )
-              })}
-            </div>
-          )}
+          {/* Gift cards — always visible */}
+          <div className={styles.giftGrid}>
+            {GIFTS.map(g => {
+              const cost     = GIFT_COSTS[g.id]
+              const selected = gift === g.id
+              const broke    = !canAfford(cost)
+              return (
+                <button
+                  key={g.id}
+                  className={[
+                    styles.giftCard,
+                    selected ? styles.giftCardSel : '',
+                    broke    ? styles.giftCardBroke : '',
+                  ].filter(Boolean).join(' ')}
+                  onClick={() => !broke && setGift(gift === g.id ? null : g.id)}
+                  disabled={broke}
+                >
+                  <span className={styles.giftEmoji}>{g.emoji}</span>
+                  <span className={styles.giftLabel}>{g.label}</span>
+                  <span className={`${styles.giftCost} ${broke ? styles.giftCostBroke : ''}`}>
+                    🪙 {cost}
+                  </span>
+                </button>
+              )
+            })}
+          </div>
 
           {/* Insufficient coins warning */}
-          {onMe && gift && !canAfford(giftCost) && (
+          {gift && !canAfford(giftCost) && (
             <div className={styles.brokeWarning}>
               Not enough coins — earn more by completing your profile
             </div>
@@ -144,10 +132,20 @@ export default function OnMeSheet({ session, onSend, onSkip, onClose }) {
               onClick={handleSend}
               disabled={!canSendGift}
             >
-              {onMe && selectedGift
+              {selectedGift
                 ? `${selectedGift.emoji} ${selectedGift.label} On Me — Send`
                 : '💛 Send & Connect'}
             </button>
+
+            {/* Free Wave */}
+            <button
+              className={`${styles.waveBtn} ${waved ? styles.waveBtnSent : ''}`}
+              onClick={handleWave}
+              disabled={waved}
+            >
+              {waved ? '🌊 Wave Sent!' : '🌊 Free Wave'}
+            </button>
+
             <button className={styles.skipBtn} onClick={() => onSkip?.(session)}>
               Just view profile →
             </button>

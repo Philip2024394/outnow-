@@ -242,7 +242,13 @@ export default function AppShell({ returnParams, triggerGoLive }) {
         />
       )}
 
-      {mySession && <ActiveSessionBar session={mySession} />}
+      {mySession && (
+        <ActiveSessionBar
+          session={mySession}
+          onEnded={() => setRatingOpen(true)}
+          onCancelled={() => revertToInviteOut()}
+        />
+      )}
       <MapOverlay isLive={!!mySession} sessionTimeLeft={sessionTimeLeft} />
 
       {/* Incoming OTW banner */}
@@ -379,9 +385,14 @@ export default function AppShell({ returnParams, triggerGoLive }) {
       <InviteOutSheet
         open={inviteOutSheetOpen}
         onClose={() => setInviteOutSheetOpen(false)}
-        onPost={(activity, message) => { postInviteOut(activity, message); earnCoins('FIRST_INVITE_OUT') }}
+        onPost={async (activity, message) => {
+          if (mySession) { try { await endSession(mySession.id) } catch {} }
+          postInviteOut(activity, message)
+          earnCoins('FIRST_INVITE_OUT')
+        }}
         onGoLive={() => { goingLive(); openGoLive() }}
         onGoLater={() => { goingLive(); openGoLive() }}
+        currentStatus={mySession?.status === 'scheduled' ? 'later' : !!mySession ? 'live' : !!inviteOut ? 'invite' : null}
       />
 
       <BottomSheet open={reviewsOpen} onClose={() => setReviewsOpen(false)} title="">

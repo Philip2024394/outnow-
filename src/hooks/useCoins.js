@@ -11,10 +11,12 @@ export const COIN_REWARDS = {
 }
 
 export const GIFT_COSTS = {
-  coffee: 5,
-  drinks: 10,
-  food:   15,
-  entry:  20,
+  coffee:  5,
+  drinks:  10,
+  food:    15,
+  entry:   20,
+  juice:   5,
+  flowers: 15,
 }
 
 // On first ever load award all onboarding coins (demo — represents completed account)

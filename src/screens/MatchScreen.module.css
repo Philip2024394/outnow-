@@ -1,10 +1,28 @@
 .screen {
   position: absolute;
   inset: 0;
-  background: var(--color-bg);
+  background: #080808;
+  background-image: url('https://ik.imagekit.io/dateme/UntitledDFSDFASDFDFGSDFGsfdfasdsadas.png?updatedAt=1775081066476');
+  background-size: cover;
+  background-position: center;
+  background-attachment: fixed;
   z-index: var(--z-header);
   display: flex;
   flex-direction: column;
+}
+
+.screen::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: rgba(4,4,4,0.78);
+  z-index: 0;
+  pointer-events: none;
+}
+
+.screen > * {
+  position: relative;
+  z-index: 1;
 }
 
 /* ── Header ── */
@@ -13,8 +31,8 @@
   align-items: center;
   justify-content: space-between;
   padding: calc(var(--safe-top) + 14px) 16px 14px;
-  border-bottom: 1px solid var(--color-border);
   flex-shrink: 0;
+  background: transparent;
 }
 
 .headerTitle {
@@ -23,22 +41,6 @@
   color: var(--color-text);
 }
 
-.headerRight {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  flex-shrink: 0;
-}
-
-.likedCount {
-  font-size: 12px;
-  font-weight: 700;
-  color: #FF3B64;
-  background: rgba(255,59,100,0.12);
-  border: 1px solid rgba(255,59,100,0.3);
-  border-radius: 100px;
-  padding: 4px 10px;
-}
 
 .homeBtn {
   width: 40px;
@@ -57,83 +59,168 @@
 
 .homeBtn:active { background: rgba(255,255,255,0.12); }
 
-/* ── Filter bar (below header) ── */
-.filterBar {
+
+/* ── Likes carousel ── */
+.likesSection {
   display: flex;
-  align-items: center;
-  gap: 8px;
-  padding: 10px 16px;
-  border-bottom: 1px solid var(--color-border);
-  overflow-x: auto;
-  scrollbar-width: none;
-  flex-shrink: 0;
+  flex-direction: column;
+  gap: 10px;
+  padding: 14px 0 4px;
 }
 
-.filterBar::-webkit-scrollbar { display: none; }
+.likesTitle {
+  font-size: 13px;
+  font-weight: 700;
+  color: rgba(255,255,255,0.55);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  padding: 0 16px;
+}
 
-/* Filter button */
-.filterBtn {
-  position: relative;
+.carouselWrap {
   display: flex;
   align-items: center;
   gap: 6px;
-  padding: 7px 14px;
-  border-radius: 100px;
-  background: var(--color-surface-2);
-  border: 1.5px solid var(--color-border);
-  color: var(--color-text-muted);
-  font-size: 13px;
-  font-weight: 600;
-  font-family: var(--font-sans);
-  cursor: pointer;
-  white-space: nowrap;
+  padding: 0 12px;
+}
+
+.rail {
+  flex: 1;
+  display: flex;
+  gap: 10px;
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+  padding: 4px 0;
+}
+
+.rail::-webkit-scrollbar { display: none; }
+
+/* Arrow buttons */
+.arrow {
   flex-shrink: 0;
-  transition: background 0.15s, border-color 0.15s, color 0.15s;
-  -webkit-tap-highlight-color: transparent;
-}
-
-.filterBtnActive {
-  border-color: var(--color-live);
-  color: var(--color-live);
-  background: var(--color-live-dim);
-}
-
-.filterBtn:active { transform: scale(0.95); }
-
-.filterDot {
-  position: absolute;
-  top: 4px;
-  right: 4px;
-  width: 7px;
-  height: 7px;
+  width: 32px;
+  height: 32px;
   border-radius: 50%;
-  background: #39FF14;
-  border: 1.5px solid var(--color-bg);
-  box-shadow: 0 0 6px #39FF14;
+  background: rgba(20,20,20,0.85);
+  border: 1px solid rgba(255,255,255,0.15);
+  color: #fff;
+  font-size: 22px;
+  line-height: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  transition: background 0.15s;
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
 }
 
-.activeChip {
-  font-size: 12px;
-  font-weight: 600;
-  color: var(--color-live);
-  background: var(--color-live-dim);
-  border: 1px solid rgba(57,255,20,0.3);
-  border-radius: 100px;
-  padding: 4px 10px;
-  white-space: nowrap;
-}
+.arrow:active { background: rgba(255,255,255,0.15); }
 
-.clearBtn {
-  font-size: 12px;
-  font-weight: 600;
-  color: rgba(255,255,255,0.35);
+/* Individual like card */
+.likeCard {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 5px;
+  scroll-snap-align: start;
+  flex-shrink: 0;
   background: none;
   border: none;
   cursor: pointer;
-  white-space: nowrap;
-  font-family: var(--font-sans);
-  margin-left: auto;
+  font-family: inherit;
+  -webkit-tap-highlight-color: transparent;
+  padding: 0;
+  width: 72px;
+}
+
+.likeAvatarWrap {
+  position: relative;
+  width: 62px;
+  height: 62px;
   flex-shrink: 0;
+}
+
+.likeAvatar {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2px solid rgba(255,59,100,0.6);
+  box-shadow: 0 0 0 2px rgba(255,59,100,0.2);
+}
+
+.likeAvatarFallback {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  background: var(--color-surface-2);
+  border: 2px solid rgba(255,59,100,0.6);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 26px;
+}
+
+.likeOnlineDot {
+  position: absolute;
+  bottom: 2px;
+  right: 2px;
+  width: 10px;
+  height: 10px;
+  background: #39FF14;
+  border-radius: 50%;
+  border: 2px solid var(--color-bg);
+  box-shadow: 0 0 5px #39FF14;
+}
+
+.likeName {
+  font-size: 11px;
+  font-weight: 700;
+  color: #fff;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 72px;
+  text-align: center;
+}
+
+.likeArea {
+  font-size: 10px;
+  color: rgba(255,255,255,0.4);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 72px;
+  text-align: center;
+}
+
+/* Section divider before grid */
+.sectionDivider {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 16px 0 8px;
+}
+
+.sectionDivider::before,
+.sectionDivider::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: rgba(255,255,255,0.08);
+}
+
+.sectionLabel {
+  font-size: 11px;
+  font-weight: 700;
+  color: rgba(255,255,255,0.3);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  white-space: nowrap;
 }
 
 /* ── Scroll + Grid ── */
@@ -147,8 +234,8 @@
 
 .grid {
   display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 12px;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
 }
 
 /* ── Empty state ── */

@@ -4,7 +4,8 @@ import styles from './InviteOutSheet.module.css'
 
 const BG_URL = 'https://ik.imagekit.io/dateme/UntitledDFSDFASDFDFGSDFGsfdfasdsadas.png?updatedAt=1775081066476'
 
-export default function InviteOutSheet({ open, onClose, onPost, onGoLive, onGoLater }) {
+// currentStatus: 'invite' | 'live' | 'later' | null
+export default function InviteOutSheet({ open, onClose, onPost, onGoLive, onGoLater, currentStatus = null }) {
   const [activity, setActivity] = useState(null)
   const [message, setMessage]   = useState('')
   const [loading, setLoading]   = useState(false)
@@ -79,24 +80,29 @@ export default function InviteOutSheet({ open, onClose, onPost, onGoLive, onGoLa
             />
           </div>
 
-          {/* Actions */}
+          {/* Actions — hide the button matching current status */}
           <div className={styles.actions}>
-            <button
-              className={styles.postBtn}
-              onClick={handlePost}
-              disabled={loading}
-            >
-              {loading ? 'Posting…' : '🟡 Post Invite Out'}
-            </button>
+            {currentStatus !== 'invite' && (
+              <button
+                className={styles.postBtn}
+                onClick={handlePost}
+                disabled={loading}
+              >
+                {loading ? 'Posting…' : '🟡 Post Invite Out'}
+              </button>
+            )}
 
-            <div className={styles.divider}><span>or go out now</span></div>
+            {currentStatus !== 'live' && (
+              <button className={styles.liveBtn} onClick={handleGoLive}>
+                🟢 I'm Out Now
+              </button>
+            )}
 
-            <button className={styles.liveBtn} onClick={handleGoLive}>
-              🟢 I'm Out Now
-            </button>
-            <button className={styles.laterBtn} onClick={handleGoLater}>
-              🟠 Going Out Later
-            </button>
+            {currentStatus !== 'later' && (
+              <button className={styles.laterBtn} onClick={handleGoLater}>
+                🟠 Going Out Later
+              </button>
+            )}
           </div>
 
           <p className={styles.disclaimer}>

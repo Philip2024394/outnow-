@@ -97,84 +97,47 @@
   color: rgba(255,255,255,0.35);
 }
 
-/* On Me toggle */
-.onMeToggle {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  width: 100%;
-  padding: 12px 14px;
-  border-radius: 14px;
-  background: rgba(255,255,255,0.04);
-  border: 1.5px solid rgba(255,255,255,0.1);
-  cursor: pointer;
-  font-family: inherit;
-  text-align: left;
-  transition: border-color 0.15s, background 0.15s;
-  -webkit-tap-highlight-color: transparent;
-}
-
-.onMeToggleOn {
-  background: rgba(255,214,10,0.07);
-  border-color: rgba(255,214,10,0.4);
-}
-
-.onMeIcon { font-size: 22px; flex-shrink: 0; }
-
-.onMeText {
-  flex: 1;
+/* On Me header */
+.onMeHeader {
   display: flex;
   flex-direction: column;
-  gap: 1px;
+  gap: 3px;
 }
 
-.onMeLabel {
-  font-size: 15px;
-  font-weight: 700;
-  color: #fff;
-}
-
-.onMeDesc {
-  font-size: 11px;
-  color: rgba(255,255,255,0.35);
-}
-
-.onMePill {
-  font-size: 10px;
+.onMeTitle {
+  font-size: 18px;
   font-weight: 800;
-  letter-spacing: 0.06em;
-  padding: 3px 9px;
-  border-radius: 100px;
-  background: rgba(255,255,255,0.08);
-  color: rgba(255,255,255,0.3);
-  transition: background 0.15s, color 0.15s;
-  flex-shrink: 0;
+  color: #fff;
+  letter-spacing: -0.01em;
 }
 
-.onMePillOn {
-  background: rgba(255,214,10,0.2);
-  color: #FFD60A;
+.onMeSubtitle {
+  font-size: 12px;
+  color: rgba(255,255,255,0.4);
+  font-weight: 500;
 }
 
-/* Gift card grid — 2 columns */
+/* Gift card grid — 3 columns */
 .giftGrid {
   display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 8px;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 7px;
 }
 
 .giftCard {
+  position: relative;
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 4px;
-  padding: 14px 10px 12px;
-  border-radius: 16px;
-  background: rgba(255,255,255,0.05);
-  border: 1.5px solid rgba(255,255,255,0.1);
+  justify-content: flex-end;
+  gap: 3px;
+  padding: 28px 6px 10px;
+  border-radius: 14px;
+  background: rgba(255,214,10,0.07);
+  border: 1.5px solid rgba(255,214,10,0.3);
   cursor: pointer;
   font-family: inherit;
-  transition: background 0.12s, border-color 0.12s, transform 0.1s;
+  transition: background 0.12s, border-color 0.12s, transform 0.1s, box-shadow 0.12s;
   -webkit-tap-highlight-color: transparent;
   text-align: center;
 }
@@ -182,9 +145,9 @@
 .giftCard:active { transform: scale(0.96); }
 
 .giftCardSel {
-  background: rgba(255,214,10,0.1);
-  border-color: rgba(255,214,10,0.55);
-  box-shadow: 0 0 14px rgba(255,214,10,0.15);
+  background: rgba(255,214,10,0.18);
+  border-color: #FFD60A;
+  box-shadow: 0 0 14px rgba(255,214,10,0.25);
 }
 
 .giftCardBroke {
@@ -192,28 +155,29 @@
   cursor: not-allowed;
 }
 
+/* Emoji — top-left corner */
 .giftEmoji {
-  font-size: 28px;
+  position: absolute;
+  top: 7px;
+  left: 8px;
+  font-size: 20px;
   line-height: 1;
 }
 
 .giftLabel {
-  font-size: 13px;
+  font-size: 12px;
   font-weight: 700;
   color: #fff;
 }
 
 .giftSub {
-  font-size: 10px;
-  color: rgba(255,255,255,0.35);
-  line-height: 1.3;
+  display: none;
 }
 
 .giftCost {
   font-size: 11px;
   font-weight: 700;
   color: #FFD60A;
-  margin-top: 2px;
 }
 
 .giftCostBroke { color: rgba(255,255,255,0.25); }
@@ -275,15 +239,42 @@
   cursor: pointer;
   font-family: inherit;
   letter-spacing: 0.02em;
-  transition: opacity 0.12s, transform 0.1s;
+  box-shadow: 0 0 0 3px rgba(255,214,10,0.2), 0 4px 18px rgba(255,214,10,0.35);
+  transition: opacity 0.12s, transform 0.1s, box-shadow 0.12s;
   -webkit-tap-highlight-color: transparent;
 }
 
-.sendBtn:active  { opacity: 0.85; transform: scale(0.98); }
+.sendBtn:active  { opacity: 0.85; transform: scale(0.98); box-shadow: 0 0 0 2px rgba(255,214,10,0.15); }
 
 .sendBtnDisabled {
   opacity: 0.4;
   cursor: not-allowed;
+  pointer-events: none;
+}
+
+/* Free Wave button */
+.waveBtn {
+  width: 100%;
+  padding: 13px;
+  border-radius: 14px;
+  background: transparent;
+  border: 1.5px solid rgba(255,255,255,0.18);
+  color: #fff;
+  font-size: 15px;
+  font-weight: 700;
+  cursor: pointer;
+  font-family: inherit;
+  letter-spacing: 0.02em;
+  transition: background 0.15s, border-color 0.15s, transform 0.1s;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.waveBtn:active { transform: scale(0.98); background: rgba(255,255,255,0.06); }
+
+.waveBtnSent {
+  border-color: rgba(57,255,20,0.35);
+  color: #39FF14;
+  cursor: default;
   pointer-events: none;
 }
 

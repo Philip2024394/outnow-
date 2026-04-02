@@ -21,7 +21,7 @@ function useCountdownToTime(ms) {
   return display
 }
 
-export default function ActiveSessionBar({ session }) {
+export default function ActiveSessionBar({ session, onEnded, onCancelled }) {
   const [ending, setEnding] = useState(false)
   const isScheduled = session.status === 'scheduled'
   const countdown = useCountdownToTime(isScheduled ? session.scheduledFor : null)
@@ -29,8 +29,13 @@ export default function ActiveSessionBar({ session }) {
   const handleEnd = async () => {
     setEnding(true)
     try {
-      if (isScheduled) await cancelScheduled(session.id)
-      else await endSession(session.id)
+      if (isScheduled) {
+        await cancelScheduled(session.id)
+        onCancelled?.()
+      } else {
+        await endSession(session.id)
+        onEnded?.()
+      }
     } catch {
       setEnding(false)
     }

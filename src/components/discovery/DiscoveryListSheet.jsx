@@ -4,8 +4,6 @@ import { ACTIVITY_TYPES, activityEmoji } from '@/firebase/collections'
 import OnMeSheet from './OnMeSheet'
 import styles from './DiscoveryListSheet.module.css'
 
-const BG_URL = 'https://ik.imagekit.io/dateme/UntitledDFSDFASDFDFGSDFGsfdfasdsadas.png?updatedAt=1775081066476'
-
 const CONFIG = {
   now:    { label: 'Out Now',    strip: styles.stripNow,    badge: styles.badgeNow,    empty: 'No one is out right now nearby.' },
   invite: { label: 'Invite Out', strip: styles.stripInvite, badge: styles.badgeInvite, empty: 'No one is looking to go out right now.' },
@@ -64,8 +62,6 @@ export default function DiscoveryListSheet({ open, filter = 'now', sessions = []
     <div className={styles.wrapper}>
       <div className={styles.backdrop} onClick={onClose} />
       <div ref={sheetRef} className={styles.sheet}>
-        <img src={BG_URL} alt="" className={styles.bgImage} />
-        <div className={styles.frost} />
 
         {/* Coloured top strip */}
         <div className={`${styles.strip} ${cfg.strip}`} />
@@ -76,8 +72,17 @@ export default function DiscoveryListSheet({ open, filter = 'now', sessions = []
           {/* Header */}
           <div className={styles.header}>
             <div className={styles.headerLeft}>
-              <span className={`${styles.badge} ${cfg.badge}`}>{cfg.label}</span>
-              <span className={styles.count}>{filtered.length} {filtered.length === 1 ? 'person' : 'people'}</span>
+              {filter === 'invite' ? (
+                <div className={styles.inviteHeader}>
+                  <span className={styles.inviteTitle}>Invite Out</span>
+                  <span className={styles.inviteSub}>Connect And Organise The Place</span>
+                </div>
+              ) : (
+                <>
+                  <span className={`${styles.badge} ${cfg.badge}`}>{cfg.label}</span>
+                  <span className={styles.count}>{filtered.length} {filtered.length === 1 ? 'person' : 'people'}</span>
+                </>
+              )}
             </div>
             <button className={styles.closeBtn} onClick={onClose}>✕</button>
           </div>
