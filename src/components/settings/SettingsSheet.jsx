@@ -37,7 +37,7 @@ function Divider({ label }) {
   return <div className={styles.divider}>{label && <span className={styles.dividerLabel}>{label}</span>}</div>
 }
 
-export default function SettingsSheet({ open, onClose, onOpenLikes, onEditProfile, onOpenBlockList, showToast, onSOS }) {
+export default function SettingsSheet({ open, onClose, onOpenLikes, onEditProfile, onOpenBlockList, onOpenWallet, showToast, onSOS }) {
   const { permission, requestPermission } = usePushNotifications()
   const { userProfile } = useAuth()
   const { balance, earn } = useCoins()
@@ -118,6 +118,7 @@ export default function SettingsSheet({ open, onClose, onOpenLikes, onEditProfil
 
         {/* Drawer — slides in from right at 70% width */}
         <div ref={drawerRef} className={styles.drawer}>
+          <img src="https://ik.imagekit.io/dateme/UntitledDFSDFASDFDFGSDFGsfdfasdsadas.png?updatedAt=1775081066476" alt="" className={styles.drawerBg} />
 
           {/* Header */}
           <div className={styles.header}>
@@ -224,10 +225,10 @@ export default function SettingsSheet({ open, onClose, onOpenLikes, onEditProfil
             {/* Account */}
             <Divider label="Account" />
             <Row
-              icon="💳"
-              label="Payment History"
-              sublabel="View your unlocked chats"
-              onClick={() => showToast?.('Payment history coming soon.')}
+              icon="🪙"
+              label="Coin Wallet"
+              sublabel={`${balance} coins — top up or earn more`}
+              onClick={() => { onClose(); setTimeout(() => onOpenWallet?.(), 200) }}
             />
             <Row
               icon="ℹ️"

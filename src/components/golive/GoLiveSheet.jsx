@@ -6,6 +6,7 @@ import Button from '@/components/ui/Button'
 import GpsVerifier from './GpsVerifier'
 import PlaceSearch from './PlaceSearch'
 import { ACTIVITY_TYPES } from '@/firebase/collections'
+import ActivityIcon from '@/components/ui/ActivityIcon'
 import { VIBE_TAGS } from '@/utils/vibeTags'
 import FeatureIntro, { useFeatureIntro } from '@/components/ui/FeatureIntro'
 import styles from './GoLiveSheet.module.css'
@@ -238,7 +239,7 @@ export default function GoLiveSheet({ open, onClose, showToast, activeVenues = [
                 className={[styles.activityBtn, selectedActivity === a.id ? styles.activitySelected : ''].join(' ')}
                 onClick={() => setSelectedActivity(a.id)}
               >
-                <span className={styles.activityEmoji}>{a.emoji}</span>
+                <ActivityIcon activity={a} size={22} className={styles.activityEmoji} />
                 <span className={styles.activityLabel}>{a.label}</span>
               </button>
             ))}

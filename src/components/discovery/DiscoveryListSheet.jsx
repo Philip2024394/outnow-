@@ -1,8 +1,11 @@
 import { useEffect, useRef, useState } from 'react'
 import Avatar from '@/components/ui/Avatar'
-import { ACTIVITY_TYPES, activityEmoji } from '@/firebase/collections'
+import { ACTIVITY_TYPES } from '@/firebase/collections'
+import ActivityIcon from '@/components/ui/ActivityIcon'
 import OnMeSheet from './OnMeSheet'
 import styles from './DiscoveryListSheet.module.css'
+
+const BG_URL = 'https://ik.imagekit.io/dateme/UntitledDFSDFASDFDFGSDFGsfdfasdsadas.png?updatedAt=1775081066476'
 
 const CONFIG = {
   now:    { label: 'Out Now',    strip: styles.stripNow,    badge: styles.badgeNow,    empty: 'No one is out right now nearby.' },
@@ -62,6 +65,7 @@ export default function DiscoveryListSheet({ open, filter = 'now', sessions = []
     <div className={styles.wrapper}>
       <div className={styles.backdrop} onClick={onClose} />
       <div ref={sheetRef} className={styles.sheet}>
+        <img src={BG_URL} alt="" className={styles.bgImage} />
 
         {/* Coloured top strip */}
         <div className={`${styles.strip} ${cfg.strip}`} />
@@ -76,6 +80,16 @@ export default function DiscoveryListSheet({ open, filter = 'now', sessions = []
                 <div className={styles.inviteHeader}>
                   <span className={styles.inviteTitle}>Invite Out</span>
                   <span className={styles.inviteSub}>Connect And Organise The Place</span>
+                </div>
+              ) : filter === 'now' ? (
+                <div className={styles.inviteHeader}>
+                  <span className={styles.inviteTitle}>Out Now</span>
+                  <span className={styles.inviteSub}>Connect with people out near you</span>
+                </div>
+              ) : filter === 'later' ? (
+                <div className={styles.inviteHeader}>
+                  <span className={styles.inviteTitle}>Out Later</span>
+                  <span className={styles.inviteSub}>Plan ahead — see who's going out soon</span>
                 </div>
               ) : (
                 <>
@@ -93,10 +107,10 @@ export default function DiscoveryListSheet({ open, filter = 'now', sessions = []
           ) : (
             <div className={styles.list}>
               {filtered.map(s => {
-                const emoji    = activityEmoji(s.activityType)
-                const activity = ACTIVITY_TYPES.find(a => a.id === s.activityType)?.label ?? ''
                 const isInviteOut  = s.status === 'invite_out'
                 const isScheduled  = s.status === 'scheduled'
+
+                const activities = (s.activities ?? [s.activityType]).slice(0, 3)
 
                 return (
                   <button
@@ -115,15 +129,15 @@ export default function DiscoveryListSheet({ open, filter = 'now', sessions = []
                     <div className={styles.cardInfo}>
                       <div className={styles.cardName}>
                         {s.displayName ?? 'Someone'}
-                        {s.age && <span className={styles.cardAge}> {s.age}</span>}
+                        {s.age && <span className={styles.cardAge}>, {s.age}</span>}
                         {s.isGroup && <span className={styles.groupTag}>👥 {s.groupSize}</span>}
                       </div>
-                      <div className={styles.cardActivity}>{emoji} {activity}</div>
-                      {isInviteOut && s.message ? (
-                        <div className={styles.cardMessage}>"{s.message}"</div>
-                      ) : (
-                        <div className={styles.cardArea}>📍 {s.area ?? 'Nearby'}</div>
+                      {s.lookingFor && (
+                        <div className={styles.cardSeeking}>{s.lookingFor}</div>
                       )}
+                      <div className={styles.cardArea}>
+                        📍 {s.city ?? s.area ?? 'Nearby'}
+                      </div>
                     </div>
                     <div className={styles.cardRight}>
                       {isScheduled && s.scheduledFor && (
@@ -131,7 +145,16 @@ export default function DiscoveryListSheet({ open, filter = 'now', sessions = []
                           {new Date(s.scheduledFor).toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' })}
                         </span>
                       )}
-                      <span className={styles.cardArrow}>›</span>
+                      <div className={styles.cardActivities}>
+                        {activities.map(id => {
+                          const a = ACTIVITY_TYPES.find(x => x.id === id)
+                          return a ? (
+                            <span key={id} className={styles.cardActivityPill}>
+                              <ActivityIcon activity={a} size={18} />
+                            </span>
+                          ) : null
+                        })}
+                      </div>
                     </div>
                   </button>
                 )

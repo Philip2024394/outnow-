@@ -144,10 +144,10 @@ export default function AddMomentSheet({ open, onClose, onAdd }) {
             value={caption}
             onChange={e => setCaption(e.target.value)}
             placeholder="What's happening right now?"
-            maxLength={120}
-            rows={2}
+            maxLength={350}
+            rows={3}
           />
-          <span className={styles.charCount}>{caption.length}/120</span>
+          <span className={styles.charCount}>{caption.length}/350</span>
         </div>
 
         <div className={styles.privacyNote}>

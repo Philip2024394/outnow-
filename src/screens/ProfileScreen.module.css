@@ -297,8 +297,8 @@
   font-size: 15px;
   font-weight: 600;
   color: var(--color-text);
-  background: rgba(255,255,255,0.06);
-  border: 1.5px solid var(--color-border);
+  background: rgba(0,0,0,0.75);
+  border: 1.5px solid rgba(255,255,255,0.2);
   border-radius: 8px;
   padding: 6px 10px;
   outline: none;
@@ -391,13 +391,14 @@
 .bioInput {
   width: 100%;
   box-sizing: border-box;
-  background: rgba(255,255,255,0.05);
-  border: 1.5px solid var(--color-border);
+  background: rgba(0,0,0,0.75);
+  border: 1.5px solid rgba(255,255,255,0.2);
   border-radius: 12px;
   color: var(--color-text);
   font-size: 15px;
-  line-height: 1.55;
+  line-height: 1.6;
   padding: 12px 14px;
+  min-height: 80px;
   resize: none;
   outline: none;
   font-family: inherit;

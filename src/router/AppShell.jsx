@@ -35,6 +35,7 @@ import LikedMeScreen from '@/screens/LikedMeScreen'
 import NotificationsScreen, { DEMO_UNREAD_COUNT } from '@/screens/NotificationsScreen'
 import BlockedUsersScreen from '@/screens/BlockedUsersScreen'
 import ProfileScreen from '@/screens/ProfileScreen'
+import WalletScreen from '@/screens/WalletScreen'
 import ChatScreen from '@/screens/ChatScreen'
 import MatchScreen from '@/screens/MatchScreen'
 import VenueGroupChat from '@/components/venue/VenueGroupChat'
@@ -98,6 +99,7 @@ export default function AppShell({ returnParams, triggerGoLive }) {
   const [addMomentOpen, setAddMomentOpen] = useState(false)
   const [extraMoments, setExtraMoments] = useState([])
   const [sosOpen, setSosOpen] = useState(false)
+  const [walletOpen, setWalletOpen] = useState(false)
   const [inviteOutSheetOpen, setInviteOutSheetOpen] = useState(false)
   const { inviteOut, post: postInviteOut, goingLive, revertToInviteOut } = useInviteOut()
   const { earn: earnCoins } = useCoins()
@@ -340,12 +342,15 @@ export default function AppShell({ returnParams, triggerGoLive }) {
         onReset={() => setMapFilters(DEFAULT_MAP_FILTERS)}
       />
 
+      {walletOpen && <WalletScreen onClose={() => setWalletOpen(false)} />}
+
       <SettingsSheet
         open={settingsOpen}
         onClose={() => setSettingsOpen(false)}
         onOpenLikes={() => { setSettingsOpen(false); setTimeout(() => setLikedMeOpen(true), 200) }}
         onEditProfile={() => { setSettingsOpen(false); setTimeout(() => setActiveTab('profile'), 200) }}
         onOpenBlockList={() => { setSettingsOpen(false); setTimeout(() => setBlockListOpen(true), 200) }}
+        onOpenWallet={() => setWalletOpen(true)}
         showToast={showToast}
         onSOS={() => setSosOpen(true)}
       />

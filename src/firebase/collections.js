@@ -47,10 +47,14 @@ export const SESSION_STATUS = {
 }
 
 // Activity types with labels and emoji
+const COFFEE_IMG = 'https://ik.imagekit.io/dateme/Untitledsdff-removebg-preview.png'
+const DRINKS_IMG = 'https://ik.imagekit.io/dateme/Untitleddsdddd-removebg-preview%20(1).png'
+const FOOD_IMG   = 'https://ik.imagekit.io/dateme/Untitledvv-removebg-preview.png'
+
 export const ACTIVITY_TYPES = [
-  { id: 'coffee',   label: 'Coffee',   emoji: '☕' },
-  { id: 'drinks',   label: 'Drinks',   emoji: '🍺' },
-  { id: 'food',     label: 'Food',     emoji: '🍕' },
+  { id: 'coffee',   label: 'Coffee',   emoji: '☕', img: COFFEE_IMG },
+  { id: 'drinks',   label: 'Drinks',   emoji: '🍺', img: DRINKS_IMG },
+  { id: 'food',     label: 'Food',     emoji: '🍕', img: FOOD_IMG   },
   { id: 'walk',     label: 'Walk',     emoji: '🚶' },
   { id: 'shopping', label: 'Shopping', emoji: '🛍️' },
   { id: 'hangout',  label: 'Hangout',  emoji: '👥' },

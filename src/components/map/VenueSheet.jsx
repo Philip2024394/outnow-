@@ -67,8 +67,6 @@ export default function VenueSheet({ open, venue, onClose, onSelectSession, onOp
       <div ref={sheetRef} className={styles.sheet}>
         {/* Full-bleed background image */}
         <img src={BG_URL} alt="" className={styles.bgImage} />
-        {/* Dark frost */}
-        <div className={styles.frost} />
 
         {/* Drag handle */}
         <div className={styles.handle} />

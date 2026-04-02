@@ -1,5 +1,5 @@
-import { useState, useEffect, useRef } from 'react'
-import { setupRecaptcha, sendPhoneOTP, verifyOTP } from '@/services/authService'
+import { useState } from 'react'
+import { sendPhoneOTP, verifyOTP } from '@/services/authService'
 import Button from '@/components/ui/Button'
 import styles from './PhoneAuthScreen.module.css'
 
@@ -9,19 +9,15 @@ export default function PhoneAuthScreen({ onBack }) {
   const [step, setStep] = useState('phone') // 'phone' | 'otp'
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState(null)
-  const confirmationRef = useRef(null)
-  const recaptchaRef = useRef(null)
-
-  useEffect(() => {
-    setupRecaptcha('recaptcha-container')
-  }, [])
+  const [confirmation, setConfirmation] = useState(null)
 
   const handleSendOTP = async (e) => {
     e.preventDefault()
     setError(null)
     setLoading(true)
     try {
-      confirmationRef.current = await sendPhoneOTP(phone)
+      const result = await sendPhoneOTP(phone)
+      setConfirmation(result)
       setStep('otp')
     } catch (err) {
       setError(err.message ?? 'Failed to send OTP. Check your number.')
@@ -34,7 +30,7 @@ export default function PhoneAuthScreen({ onBack }) {
     setError(null)
     setLoading(true)
     try {
-      await verifyOTP(confirmationRef.current, otp)
+      await verifyOTP(confirmation, otp)
       // Auth state change handled by AuthContext
     } catch {
       setError('Invalid code. Please try again.')
@@ -104,9 +100,6 @@ export default function PhoneAuthScreen({ onBack }) {
           </form>
         )}
       </div>
-
-      {/* Invisible recaptcha container */}
-      <div id="recaptcha-container" ref={recaptchaRef} />
     </div>
   )
 }

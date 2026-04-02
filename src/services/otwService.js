@@ -1,59 +1,66 @@
-import { httpsCallable } from 'firebase/functions'
-import { addDoc, deleteDoc, doc, collection, serverTimestamp } from 'firebase/firestore'
-import { functions, db } from '@/firebase/config'
-import { COLLECTIONS, INTEREST_STATUS } from '@/firebase/collections'
+import { supabase } from '@/lib/supabase'
 
 const delay = (ms) => new Promise(r => setTimeout(r, ms))
 
 export async function sendOtwRequest(sessionId, toUserId) {
-  if (!functions) {
+  if (!supabase) {
     await delay(600)
     return { requestId: `demo-otw-${Date.now()}`, sessionId, toUserId }
   }
-  const fn = httpsCallable(functions, 'sendOtwRequest')
-  const result = await fn({ sessionId, toUserId })
-  return result.data
+  const { data, error } = await supabase
+    .from('otw_requests')
+    .insert({ session_id: sessionId, to_user_id: toUserId, status: 'pending' })
+    .select('id')
+    .single()
+  if (error) throw new Error(error.message)
+  return { requestId: data.id, sessionId, toUserId }
 }
 
 export async function respondToOtw(requestId, accept) {
-  if (!functions) { await delay(400); return { status: accept ? 'accepted' : 'declined' } }
-  const fn = httpsCallable(functions, 'respondToOtw')
-  const result = await fn({ requestId, accept })
-  return result.data
+  if (!supabase) { await delay(400); return { status: accept ? 'accepted' : 'declined' } }
+  const status = accept ? 'accepted' : 'declined'
+  const { error } = await supabase
+    .from('otw_requests')
+    .update({ status })
+    .eq('id', requestId)
+  if (error) throw new Error(error.message)
+  return { status }
 }
 
 export async function markOtwProceeding(requestId, etaMinutes) {
-  if (!functions) { await delay(400); return { success: true, etaMinutes } }
-  const fn = httpsCallable(functions, 'markOtwProceeding')
-  const result = await fn({ requestId, etaMinutes })
-  return result.data
+  if (!supabase) { await delay(400); return { success: true, etaMinutes } }
+  const { error } = await supabase
+    .from('otw_requests')
+    .update({ status: 'proceeding', eta_minutes: etaMinutes })
+    .eq('id', requestId)
+  if (error) throw new Error(error.message)
+  return { success: true, etaMinutes }
 }
 
 export async function cancelOtw(requestId) {
-  if (!functions) { await delay(300); return }
-  await httpsCallable(functions, 'cancelOtw')({ requestId })
+  if (!supabase) { await delay(300); return }
+  await supabase.from('otw_requests').update({ status: 'cancelled' }).eq('id', requestId)
 }
 
-export async function expressInterest(toUserId, sessionId) {
-  if (!db) { await delay(400); return }
-  await addDoc(collection(db, COLLECTIONS.INTERESTS), {
-    toUserId,
-    sessionId,
-    status: INTEREST_STATUS.PENDING,
-    createdAt: serverTimestamp(),
-  })
+export async function expressInterest(toUserId, sessionId, gift = null, message = '') {
+  if (!supabase) { await delay(400); return }
+  const { error } = await supabase.from('interests').upsert({
+    to_user_id: toUserId,
+    session_id: sessionId,
+    status: 'pending',
+    gift,
+    message,
+  }, { onConflict: 'from_user_id,session_id' })
+  if (error) throw new Error(error.message)
 }
 
-export async function withdrawInterest(interestDocId) {
-  if (!db) return
-  await deleteDoc(doc(db, COLLECTIONS.INTERESTS, interestDocId))
+export async function withdrawInterest(interestId) {
+  if (!supabase) return
+  await supabase.from('interests').delete().eq('id', interestId)
 }
 
 export async function sendWave(toUserId, sessionId) {
-  if (!db) { await delay(400); return }
-  await addDoc(collection(db, COLLECTIONS.WAVES ?? 'waves'), {
-    toUserId,
-    sessionId,
-    createdAt: serverTimestamp(),
-  })
+  if (!supabase) { await delay(400); return }
+  const { error } = await supabase.from('waves').insert({ to_user_id: toUserId, session_id: sessionId })
+  if (error) throw new Error(error.message)
 }

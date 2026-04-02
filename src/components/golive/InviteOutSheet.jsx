@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { ACTIVITY_TYPES } from '@/firebase/collections'
+import ActivityIcon from '@/components/ui/ActivityIcon'
 import styles from './InviteOutSheet.module.css'
 
 const BG_URL = 'https://ik.imagekit.io/dateme/UntitledDFSDFASDFDFGSDFGsfdfasdsadas.png?updatedAt=1775081066476'
@@ -61,7 +62,7 @@ export default function InviteOutSheet({ open, onClose, onPost, onGoLive, onGoLa
                   onClick={() => setActivity(a.id === activity ? null : a.id)}
                   type="button"
                 >
-                  {a.emoji} {a.label}
+                  <ActivityIcon activity={a} size={18} /> {a.label}
                 </button>
               ))}
             </div>
@@ -75,7 +76,7 @@ export default function InviteOutSheet({ open, onClose, onPost, onGoLive, onGoLa
               placeholder="e.g. Anyone fancy a casual drink tonight?"
               value={message}
               onChange={e => setMessage(e.target.value)}
-              maxLength={120}
+              maxLength={350}
               rows={2}
             />
           </div>
@@ -88,19 +89,31 @@ export default function InviteOutSheet({ open, onClose, onPost, onGoLive, onGoLa
                 onClick={handlePost}
                 disabled={loading}
               >
-                {loading ? 'Posting…' : '🟡 Post Invite Out'}
+                <div className={styles.btnLeft}>
+                  <span className={styles.btnDot}>🟡</span>
+                  <span className={styles.btnText}>{loading ? 'Posting…' : 'Post Invite Out'}</span>
+                </div>
+                <span className={styles.btnIcon}>📍</span>
               </button>
             )}
 
             {currentStatus !== 'live' && (
               <button className={styles.liveBtn} onClick={handleGoLive}>
-                🟢 I'm Out Now
+                <div className={styles.btnLeft}>
+                  <span className={styles.btnDot}>🟢</span>
+                  <span className={styles.btnText}>I'm Out Now</span>
+                </div>
+                <span className={styles.btnIcon}>📍</span>
               </button>
             )}
 
             {currentStatus !== 'later' && (
               <button className={styles.laterBtn} onClick={handleGoLater}>
-                🟠 Going Out Later
+                <div className={styles.btnLeft}>
+                  <span className={styles.btnDot}>🟠</span>
+                  <span className={styles.btnText}>Going Out Later</span>
+                </div>
+                <span className={styles.btnIcon}>🕐</span>
               </button>
             )}
           </div>

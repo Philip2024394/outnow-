@@ -10,8 +10,6 @@ export default function ProfileStrip({
 }) {
   return (
     <div className={styles.strip}>
-
-      {/* 3 equal discovery buttons */}
       <div className={styles.discRow}>
 
         <button className={`${styles.discBtn} ${styles.discBtnNow}`} onClick={onDiscoverNow}>

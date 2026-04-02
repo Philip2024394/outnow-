@@ -1,6 +1,6 @@
 import styles from './VenueListSheet.module.css'
 
-const BG_URL = 'https://ik.imagekit.io/dateme/UntitledDFSDFASDFDFGSDFGsfdfasd.png'
+const BG_URL = 'https://ik.imagekit.io/dateme/UntitledDFSDFASDFDFGSDFGsfdfasdsadas.png?updatedAt=1775081066476'
 
 export default function VenueListSheet({ open, venues = [], onClose, onSelectVenue }) {
   const sorted = [...venues].sort((a, b) => b.count - a.count)
@@ -14,8 +14,6 @@ export default function VenueListSheet({ open, venues = [], onClose, onSelectVen
       <div className={styles.sheet}>
         {/* Full-bleed background image */}
         <img src={BG_URL} alt="" className={styles.bgImage} />
-        {/* Dark frost overlay */}
-        <div className={styles.frost} />
 
         {/* Green strip — sits flush at top edge, corners clipped by sheet radius */}
         <div className={styles.greenStrip} />

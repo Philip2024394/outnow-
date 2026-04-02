@@ -1,7 +1,5 @@
 import { useState, useEffect } from 'react'
-import { collection, getDocs } from 'firebase/firestore'
-import { db } from '@/firebase/config'
-import { BLOCKS_SUB } from '@/firebase/collections'
+import { supabase } from '@/lib/supabase'
 import { useAuth } from './useAuth'
 
 export function useBlockList() {
@@ -9,17 +7,23 @@ export function useBlockList() {
   const [blockedIds, setBlockedIds] = useState(new Set())
 
   useEffect(() => {
-    if (!db || !user) return
+    if (!supabase || !user) return
 
-    getDocs(collection(db, BLOCKS_SUB(user.uid))).then((snapshot) => {
-      const ids = new Set()
-      snapshot.forEach(doc => ids.add(doc.id))
-      setBlockedIds(ids)
-    }).catch(() => {})
+    supabase
+      .from('blocks')
+      .select('blocked_user_id')
+      .eq('user_id', user.id)
+      .then(({ data }) => {
+        if (!data) return
+        setBlockedIds(new Set(data.map(row => row.blocked_user_id)))
+      })
   }, [user])
 
   const addBlock = (userId) => {
     setBlockedIds(prev => new Set([...prev, userId]))
+    if (supabase && user) {
+      supabase.from('blocks').insert({ user_id: user.id, blocked_user_id: userId }).then(() => {})
+    }
   }
 
   return { blockedIds, addBlock }

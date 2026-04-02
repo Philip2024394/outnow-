@@ -2,12 +2,15 @@ import { useState } from 'react'
 import Avatar from '@/components/ui/Avatar'
 import CoinBadge from '@/components/ui/CoinBadge'
 import { useCoins, GIFT_COSTS } from '@/hooks/useCoins'
+import ActivityIcon from '@/components/ui/ActivityIcon'
 import styles from './OnMeSheet.module.css'
 
+const BG_URL = 'https://ik.imagekit.io/dateme/UntitledDFSDFASDFDFGSDFGsfdfasdsadas.png?updatedAt=1775081066476'
+
 const GIFTS = [
-  { id: 'coffee',  emoji: '☕',  label: 'Coffee'  },
-  { id: 'drinks',  emoji: '🍺',  label: 'Drinks'  },
-  { id: 'food',    emoji: '🍕',  label: 'Food'    },
+  { id: 'coffee',  emoji: '☕',  img: 'https://ik.imagekit.io/dateme/Untitledsdff-removebg-preview.png',          label: 'Coffee'  },
+  { id: 'drinks',  emoji: '🍺',  img: 'https://ik.imagekit.io/dateme/Untitleddsdddd-removebg-preview%20(1).png', label: 'Drinks'  },
+  { id: 'food',    emoji: '🍕',  img: 'https://ik.imagekit.io/dateme/Untitledvv-removebg-preview.png',           label: 'Food'    },
   { id: 'entry',   emoji: '🎟️', label: 'Entry'   },
   { id: 'juice',   emoji: '🧃',  label: 'Juice'   },
   { id: 'flowers', emoji: '💐',  label: 'Flowers' },
@@ -50,6 +53,7 @@ export default function OnMeSheet({ session, onSend, onSkip, onWave, onClose }) 
       <div className={styles.backdrop} onClick={onClose} />
 
       <div className={styles.sheet}>
+        <img src={BG_URL} alt="" className={styles.bgImage} />
         <div className={styles.strip} />
         <div className={styles.handle} />
 
@@ -93,7 +97,7 @@ export default function OnMeSheet({ session, onSend, onSkip, onWave, onClose }) 
                   onClick={() => !broke && setGift(gift === g.id ? null : g.id)}
                   disabled={broke}
                 >
-                  <span className={styles.giftEmoji}>{g.emoji}</span>
+                  <ActivityIcon activity={g} size={24} className={styles.giftEmoji} />
                   <span className={styles.giftLabel}>{g.label}</span>
                   <span className={`${styles.giftCost} ${broke ? styles.giftCostBroke : ''}`}>
                     🪙 {cost}
@@ -115,7 +119,7 @@ export default function OnMeSheet({ session, onSend, onSkip, onWave, onClose }) 
             <textarea
               className={styles.msgInput}
               placeholder="Add a message… (optional)"
-              maxLength={160}
+              maxLength={350}
               rows={2}
               value={message}
               onChange={e => setMessage(e.target.value)}

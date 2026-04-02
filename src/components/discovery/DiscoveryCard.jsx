@@ -6,7 +6,8 @@ import FeatureIntro, { useFeatureIntro } from '@/components/ui/FeatureIntro'
 import Button from '@/components/ui/Button'
 import Avatar from '@/components/ui/Avatar'
 import CountdownTimer from '@/components/ui/CountdownTimer'
-import { activityEmoji, ACTIVITY_TYPES } from '@/firebase/collections'
+import { ACTIVITY_TYPES } from '@/firebase/collections'
+import ActivityIcon from '@/components/ui/ActivityIcon'
 import { VIBE_TAGS } from '@/utils/vibeTags'
 import GiftPickerSheet from './GiftPickerSheet'
 import styles from './DiscoveryCard.module.css'
@@ -89,7 +90,6 @@ export default function DiscoveryCard({ open, session, mySession, onClose, showT
   const isScheduled  = session.status === 'scheduled'
   const isInviteOut  = session.status === 'invite_out'
   const activity = ACTIVITY_TYPES.find(a => a.id === session.activityType)
-  const emoji = activityEmoji(session.activityType)
   const isMutual = mutualSessions.has(session.id)
   const hasExpressedInterest = myInterests.has(session.id)
 
@@ -234,7 +234,7 @@ export default function DiscoveryCard({ open, session, mySession, onClose, showT
               {session.age && <span className={styles.nameAge}> {session.age}</span>}
             </h2>
             <div className={styles.activityRow}>
-              <span className={styles.activityEmoji}>{emoji}</span>
+              <ActivityIcon activity={activity} size={22} className={styles.activityEmoji} />
               <span className={styles.activityLabel}>
                 {activity?.label ?? (isScheduled ? 'Going out later' : 'Out now')}
               </span>

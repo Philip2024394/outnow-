@@ -1,7 +1,9 @@
 import { useState, useRef } from 'react'
 import { useAuth } from '@/hooks/useAuth'
 import { useMySession } from '@/hooks/useMySession'
+import { useCoins } from '@/hooks/useCoins'
 import { ACTIVITY_TYPES } from '@/firebase/collections'
+import ActivityIcon from '@/components/ui/ActivityIcon'
 import styles from './ProfileScreen.module.css'
 
 
@@ -14,6 +16,7 @@ const STATUS_CONFIG = {
 export default function ProfileScreen({ onClose }) {
   const { user, userProfile } = useAuth()
   const { session: mySession } = useMySession()
+  const { earn } = useCoins()
   const [selectedActivities, setSelectedActivities] = useState(['drinks', 'coffee', 'food'])
   const [name, setName]     = useState(userProfile?.displayName ?? user?.displayName ?? 'You')
   const [age, setAge]       = useState('28')
@@ -51,7 +54,14 @@ export default function ProfileScreen({ onClose }) {
         <span className={styles.headerTitle}>My Profile</span>
         <button
           className={`${styles.editBtn} ${editMode ? styles.editBtnActive : ''}`}
-          onClick={() => setEditMode(v => !v)}
+          onClick={() => {
+            if (editMode) {
+              if (photoPreview) earn('PROFILE_PHOTO')
+              if (bio.trim().length > 0) earn('BIO_WRITTEN')
+              if (selectedActivities.length > 0) earn('ACTIVITIES_SET')
+            }
+            setEditMode(v => !v)
+          }}
         >
           {editMode ? 'Done' : 'Edit'}
         </button>
@@ -175,7 +185,7 @@ export default function ProfileScreen({ onClose }) {
                 onClick={editMode ? () => toggleActivity(a.id) : undefined}
                 disabled={!editMode}
               >
-                <span className={styles.activityEmoji}>{a.emoji}</span>
+                <ActivityIcon activity={a} size={22} className={styles.activityEmoji} />
                 <span className={styles.activityLabel}>{a.label}</span>
               </button>
             ))}

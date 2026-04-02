@@ -1,5 +1,10 @@
-const BALANCE_KEY = 'imoutnow_coins'
-const HISTORY_KEY = 'imoutnow_coins_history'
+import { useState, useCallback, useEffect } from 'react'
+import { supabase } from '@/lib/supabase'
+import { useAuth } from './useAuth'
+
+const BALANCE_KEY      = 'imoutnow_coins'
+const HISTORY_KEY      = 'imoutnow_coins_history'
+const TRANSACTIONS_KEY = 'imoutnow_transactions'
 
 export const COIN_REWARDS = {
   PROFILE_PHOTO:    { amount: 10, label: 'Added profile photo' },
@@ -19,16 +24,23 @@ export const GIFT_COSTS = {
   flowers: 15,
 }
 
-// On first ever load award all onboarding coins (demo — represents completed account)
+export const TOP_UP_PACKS = [
+  { id: 'starter',  coins: 50,   price: '$1.99',  label: 'Starter' },
+  { id: 'popular',  coins: 150,  price: '$4.99',  label: 'Popular',    badge: '⭐ Most Popular' },
+  { id: 'value',    coins: 400,  price: '$9.99',  label: 'Best Value' },
+  { id: 'bignight', coins: 1000, price: '$19.99', label: 'Big Night' },
+]
+
+// ── localStorage helpers ──────────────────────────────────
+
 function initBalance() {
   try {
     const raw = localStorage.getItem(BALANCE_KEY)
     if (raw !== null) return Math.max(0, parseInt(raw, 10) || 0)
+    // First ever run — seed with onboarding rewards total
     const starter = Object.values(COIN_REWARDS).reduce((s, r) => s + r.amount, 0)
     localStorage.setItem(BALANCE_KEY, String(starter))
-    // Mark all rewards as already earned so they don't double-award later
-    const keys = Object.keys(COIN_REWARDS)
-    localStorage.setItem(HISTORY_KEY, JSON.stringify(keys))
+    localStorage.setItem(HISTORY_KEY, JSON.stringify(Object.keys(COIN_REWARDS)))
     return starter
   } catch { return 0 }
 }
@@ -43,10 +55,8 @@ function writeBalance(n) {
 }
 
 function hasEarned(key) {
-  try {
-    const earned = JSON.parse(localStorage.getItem(HISTORY_KEY) || '[]')
-    return earned.includes(key)
-  } catch { return false }
+  try { return JSON.parse(localStorage.getItem(HISTORY_KEY) || '[]').includes(key) }
+  catch { return false }
 }
 
 function markEarned(key) {
@@ -59,38 +69,104 @@ function markEarned(key) {
   } catch {}
 }
 
-import { useState, useCallback } from 'react'
+export function getEarnedKeys() {
+  try { return JSON.parse(localStorage.getItem(HISTORY_KEY) || '[]') }
+  catch { return [] }
+}
+
+export function getTransactions() {
+  try { return JSON.parse(localStorage.getItem(TRANSACTIONS_KEY) || '[]') }
+  catch { return [] }
+}
+
+function addLocalTransaction(entry) {
+  try {
+    const txs = getTransactions()
+    txs.unshift({ ...entry, ts: Date.now() })
+    localStorage.setItem(TRANSACTIONS_KEY, JSON.stringify(txs.slice(0, 50)))
+  } catch {}
+}
+
+// ── Supabase sync helpers ─────────────────────────────────
+
+async function syncEarnToSupabase(amount, label, userId) {
+  if (!supabase || !userId) return
+  try {
+    await supabase.rpc('adjust_coins', { p_delta: amount, p_label: label, p_type: 'earn' })
+  } catch {}
+}
+
+async function syncSpendToSupabase(amount, label, userId) {
+  if (!supabase || !userId) return
+  try {
+    await supabase.rpc('adjust_coins', { p_delta: -amount, p_label: label, p_type: 'spend' })
+  } catch {}
+}
+
+async function syncTopUpToSupabase(amount, label, userId) {
+  if (!supabase || !userId) return
+  try {
+    await supabase.rpc('adjust_coins', { p_delta: amount, p_label: label, p_type: 'topup' })
+  } catch {}
+}
+
+// ── Hook ─────────────────────────────────────────────────
 
 export function useCoins() {
+  const { user } = useAuth()
   const [balance, setBalance] = useState(initBalance)
 
-  /**
-   * Award coins for a one-time onboarding milestone.
-   * Returns the amount awarded (0 if already earned).
-   */
+  // On mount with a real user: pull Supabase balance and reconcile with localStorage
+  useEffect(() => {
+    if (!supabase || !user) return
+    supabase
+      .from('profiles')
+      .select('coins')
+      .eq('id', user.id)
+      .single()
+      .then(({ data }) => {
+        if (!data) return
+        const remote = data.coins ?? 0
+        const local = readBalance()
+        // Trust whichever is higher (handles offline edits gracefully)
+        const resolved = Math.max(remote, local)
+        writeBalance(resolved)
+        setBalance(resolved)
+      })
+  }, [user])
+
   const earn = useCallback((rewardKey) => {
     const reward = COIN_REWARDS[rewardKey]
     if (!reward || hasEarned(rewardKey)) return 0
     markEarned(rewardKey)
     const next = readBalance() + reward.amount
     writeBalance(next)
+    addLocalTransaction({ type: 'earn', label: reward.label, amount: reward.amount })
     setBalance(next)
+    syncEarnToSupabase(reward.amount, reward.label, user?.id)
     return reward.amount
-  }, [])
+  }, [user])
 
-  /**
-   * Spend coins. Returns true if successful, false if insufficient balance.
-   */
-  const spend = useCallback((amount) => {
+  const spend = useCallback((amount, label = 'Gift sent') => {
     const current = readBalance()
     if (current < amount) return false
     const next = current - amount
     writeBalance(next)
+    addLocalTransaction({ type: 'spend', label, amount })
     setBalance(next)
+    syncSpendToSupabase(amount, label, user?.id)
     return true
-  }, [])
+  }, [user])
+
+  const topUp = useCallback((amount, label = 'Coin top-up') => {
+    const next = readBalance() + amount
+    writeBalance(next)
+    addLocalTransaction({ type: 'topup', label, amount })
+    setBalance(next)
+    syncTopUpToSupabase(amount, label, user?.id)
+  }, [user])
 
   const canAfford = useCallback((amount) => readBalance() >= amount, [])
 
-  return { balance, earn, spend, canAfford }
+  return { balance, earn, spend, canAfford, topUp }
 }

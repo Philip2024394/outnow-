@@ -1,18 +1,41 @@
-import { useState, useEffect } from 'react'
-import { collection, query, where, onSnapshot, limit } from 'firebase/firestore'
-import { db } from '@/firebase/config'
-import { COLLECTIONS, SESSION_STATUS } from '@/firebase/collections'
+import { useState, useEffect, useRef } from 'react'
+import { supabase } from '@/lib/supabase'
 import { useAuth } from './useAuth'
+
+const ACTIVE_STATUSES = ['active', 'scheduled', 'invite_out']
+
+function mapRow(row) {
+  return {
+    id: row.id,
+    status: row.status,
+    activityType: row.activity_type ?? null,
+    activities: row.activities ?? [],
+    lat: row.lat ?? null,
+    lng: row.lng ?? null,
+    placeId: row.place_id ?? null,
+    placeName: row.place_name ?? null,
+    venueCategory: row.venue_category ?? null,
+    expiresAtMs: row.expires_at ? new Date(row.expires_at).getTime() : 0,
+    scheduledFor: row.scheduled_for ? new Date(row.scheduled_for).getTime() : null,
+    needsCheckIn: row.needs_check_in ?? false,
+    isGroup: row.is_group ?? false,
+    groupSize: row.group_size ?? null,
+    groupMembers: row.group_members ?? [],
+    vibe: row.vibe ?? null,
+    area: row.area ?? null,
+    message: row.message ?? '',
+    socialLink: row.social_link ?? null,
+  }
+}
 
 export function useMySession() {
   const { user } = useAuth()
   const [session, setSession] = useState(undefined)
   const [needsCheckIn, setNeedsCheckIn] = useState(false)
+  const channelRef = useRef(null)
 
   useEffect(() => {
-    // Demo / no Firebase → no active session by default
-    // To demo a scheduled session, set window.__DEMO_SCHEDULED = true in console
-    if (!db) {
+    if (!supabase) {
       if (window.__DEMO_SCHEDULED) {
         setSession({
           id: 'demo-my-scheduled',
@@ -32,32 +55,60 @@ export function useMySession() {
       return
     }
 
-    const q = query(
-      collection(db, COLLECTIONS.SESSIONS),
-      where('userId', '==', user.uid),
-      where('status', 'in', [SESSION_STATUS.ACTIVE, 'scheduled']),
-      limit(1)
-    )
+    let mounted = true
 
-    const unsub = onSnapshot(q, (snapshot) => {
-      if (snapshot.empty) {
-        setSession(null)
-        setNeedsCheckIn(false)
-        return
+    async function fetchMine() {
+      const { data, error } = await supabase
+        .from('sessions')
+        .select('*')
+        .eq('user_id', user.id)
+        .in('status', ACTIVE_STATUSES)
+        .order('created_at', { ascending: false })
+        .limit(1)
+        .maybeSingle()
+
+      if (!mounted) return
+      if (error) { setSession(null); return }
+      if (!data) { setSession(null); setNeedsCheckIn(false); return }
+
+      setSession(mapRow(data))
+      setNeedsCheckIn(data.needs_check_in === true)
+    }
+
+    fetchMine()
+
+    channelRef.current = supabase
+      .channel(`my-session-${user.id}`)
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'sessions',
+          filter: `user_id=eq.${user.id}`,
+        },
+        (payload) => {
+          if (!mounted) return
+          if (payload.eventType === 'DELETE') { setSession(null); setNeedsCheckIn(false); return }
+          const row = payload.new
+          if (!ACTIVE_STATUSES.includes(row?.status)) {
+            setSession(null)
+            setNeedsCheckIn(false)
+            return
+          }
+          setSession(mapRow(row))
+          setNeedsCheckIn(row.needs_check_in === true)
+        }
+      )
+      .subscribe()
+
+    return () => {
+      mounted = false
+      if (channelRef.current) {
+        supabase.removeChannel(channelRef.current)
+        channelRef.current = null
       }
-      const doc = snapshot.docs[0]
-      const data = doc.data()
-      setSession({
-        id: doc.id,
-        ...data,
-        expiresAtMs: data.expiresAt?.toMillis?.() ?? 0,
-        startedAtMs: data.startedAt?.toMillis?.() ?? 0,
-        scheduledFor: data.scheduledFor?.toMillis?.() ?? data.scheduledFor ?? null,
-      })
-      setNeedsCheckIn(data.needsCheckIn === true)
-    })
-
-    return unsub
+    }
   }, [user])
 
   return {

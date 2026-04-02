@@ -163,8 +163,8 @@ export default function RatingSheet({ open, onSubmit, onSkip, session }) {
               value={nightText}
               onChange={e => setNightText(e.target.value)}
               placeholder="Share your story — it helps others feel confident going out..."
-              maxLength={280}
-              rows={3}
+              maxLength={350}
+              rows={4}
             />
           )}
 
@@ -233,8 +233,8 @@ export default function RatingSheet({ open, onSubmit, onSkip, session }) {
               value={venueText}
               onChange={e => setVenueText(e.target.value)}
               placeholder="What made it great? Others will see this before they go out..."
-              maxLength={280}
-              rows={3}
+              maxLength={350}
+              rows={4}
             />
           )}
 
