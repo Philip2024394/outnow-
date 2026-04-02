@@ -135,6 +135,23 @@ export default function DiscoveryCard({ open, session, mySession, onClose, showT
   const isMutual = mutualSessions.has(session.id)
   const hasExpressedInterest = myInterests.has(session.id)
 
+  // Match percentage — based on shared activities, mutual status, same area
+  const matchPercent = (() => {
+    let score = 52
+    const myActs = mySession?.activities ?? []
+    const theirActs = session.activities ?? []
+    const overlap = myActs.filter(a => theirActs.includes(a)).length
+    score += Math.min(overlap * 7, 21)
+    if (mySession?.activityType === session.activityType) score += 12
+    if (isMutual) score += 15
+    if (mySession?.area && session.area && mySession.area === session.area) score += 5
+    // Seed extra consistency from session id
+    const seed = session.id.split('').reduce((acc, c) => acc + c.charCodeAt(0), 0) % 10
+    score += seed
+    return Math.min(score, 99)
+  })()
+  const isHighMatch = matchPercent >= 80
+
   function fmtScheduledFull(ms) {
     if (!ms) return 'later'
     const d = new Date(ms)
@@ -253,9 +270,10 @@ export default function DiscoveryCard({ open, session, mySession, onClose, showT
         {/* ── Card header — activity outside/above the photo ── */}
         {activity && (
           <div className={styles.cardHeader}>
-            <div className={`${styles.statusTag} ${isInviteOut ? styles.statusTagInvite : isScheduled ? styles.statusTagLater : styles.statusTagNow}`}>
-              <span className={styles.statusDot} />
-              {isInviteOut ? 'Invite Out' : isScheduled ? 'Out Later' : 'Out Now'}
+            <div className={styles.matchBadge}>
+              {isHighMatch && <span className={styles.matchStar}>⭐</span>}
+              <span className={styles.matchPercent}>{matchPercent}%</span>
+              <span className={styles.matchLabel}>Match</span>
             </div>
             <div className={styles.activityHeader}>
               <span className={styles.activityHeaderIcon}>{activity.emoji ?? '🎯'}</span>
@@ -285,6 +303,7 @@ export default function DiscoveryCard({ open, session, mySession, onClose, showT
               <span className={styles.photoBannerName}>
                 {session.displayName ?? 'Someone'}
                 {session.age ? <span className={styles.photoBannerAge}>, {session.age}</span> : null}
+                {!isScheduled && !isInviteOut && <span className={styles.liveDot} />}
               </span>
               {(session.city || session.area) && (
                 <span className={styles.photoBannerCity}>
