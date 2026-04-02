@@ -274,14 +274,19 @@ export default function DiscoveryCard({ open, session, mySession, onClose, showT
               alt={session.displayName}
               className={styles.photoBannerImg}
             />
-            {/* Bottom-left: location */}
-            {(session.city || session.area) && (
-              <div className={styles.photoBannerMeta}>
+            {/* Bottom-left: name + age + location */}
+            <div className={styles.photoBannerMeta}>
+              <span className={styles.photoBannerName}>
+                {session.displayName ?? 'Someone'}
+                {session.age ? <span className={styles.photoBannerAge}>, {session.age}</span> : null}
+                {!isScheduled && !isInviteOut && <span className={styles.liveDot} />}
+              </span>
+              {(session.city || session.area) && (
                 <span className={styles.photoBannerCity}>
                   📍 {session.city ?? session.area}
                 </span>
-              </div>
-            )}
+              )}
+            </div>
 
             {/* Top-left: walk time + distance */}
             {session.distanceKm != null && (
@@ -373,11 +378,6 @@ export default function DiscoveryCard({ open, session, mySession, onClose, showT
             inviteOut={isInviteOut}
           />
           <div className={styles.info}>
-            <h2 className={styles.name}>
-              {session.displayName ?? 'Someone'}
-              {session.age && <span className={styles.nameAge}> {session.age}</span>}
-              {!isScheduled && !isInviteOut && <span className={styles.liveDot} />}
-            </h2>
             {isScheduled && session.placeName && (
               <div className={styles.venuePlan}>
                 {session.placeName}
