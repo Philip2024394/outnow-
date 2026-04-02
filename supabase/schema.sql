@@ -213,12 +213,12 @@ create table if not exists conversations (
   last_message_at timestamptz,
   unread_a        int         default 0,
   unread_b        int         default 0,
-  created_at      timestamptz default now(),
-  unique (
-    least(user_a_id::text, user_b_id::text),
-    greatest(user_a_id::text, user_b_id::text)
-  )
+  created_at      timestamptz default now()
 );
+
+-- Unique index prevents duplicate conversation pairs regardless of who is user_a vs user_b
+create unique index if not exists idx_convs_pair
+  on conversations (least(user_a_id::text, user_b_id::text), greatest(user_a_id::text, user_b_id::text));
 
 alter table conversations enable row level security;
 
