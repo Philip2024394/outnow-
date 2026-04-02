@@ -49,6 +49,8 @@ export default function DiscoveryCard({ open, session, mySession, onClose, showT
   const [giftPickerOpen, setGiftPickerOpen] = useState(false)
   const [pendingInviteType, setPendingInviteType] = useState(null)
   const [selectedGift, setSelectedGift] = useState(null)
+  const [liked, setLiked] = useState(false)
+  const [hearts, setHearts] = useState([])
   const sheetRef = useRef(null)
   const startYRef = useRef(null)
   const currentYRef = useRef(0)
@@ -209,6 +211,21 @@ export default function DiscoveryCard({ open, session, mySession, onClose, showT
     setGiftPickerOpen(true)
   }
 
+  const handleLike = () => {
+    if (liked) return
+    setLiked(true)
+    // Spawn 6 hearts at slightly varied horizontal positions
+    const batch = Array.from({ length: 6 }, (_, i) => ({
+      id: Date.now() + i,
+      left: 38 + (Math.random() * 40 - 20), // % offset from right edge area
+      delay: i * 0.12,
+      size: 14 + Math.random() * 10,
+    }))
+    setHearts(batch)
+    setTimeout(() => setHearts([]), 2000)
+    showToast?.(`❤️ You liked ${session.displayName ?? 'this profile'}!`, 'success')
+  }
+
   const handleReport = () => {
     openReport(session)
     onClose()
@@ -306,23 +323,25 @@ export default function DiscoveryCard({ open, session, mySession, onClose, showT
               </svg>
             </button>
 
-            {/* Fingerprint — bottom-right of photo */}
+            {/* Like button — bottom-right of photo */}
             <button
-              className={styles.fingerprintBtn}
-              onClick={() => showToast?.('Identity verification coming soon', 'info')}
-              aria-label="Verify identity"
+              className={`${styles.likeBtn} ${liked ? styles.likeBtnActive : ''}`}
+              onClick={handleLike}
+              aria-label="Like photo"
             >
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-                <path d="M12 2C9.5 2 7.2 3 5.5 4.7"/>
-                <path d="M2.5 8.5C2 9.6 1.8 10.8 2 12"/>
-                <path d="M22 12c0-5.5-4.5-10-10-10"/>
-                <path d="M12 8c-2.2 0-4 1.8-4 4 0 3.5 1.5 6.5 4 8.5"/>
-                <path d="M20 12c0 4-2 7.5-5 9.5"/>
-                <path d="M12 12v.01"/>
-                <path d="M12 16c0 1.1-.4 2.1-1 2.9"/>
-                <path d="M16 12c0 1.4-.3 2.8-.9 4"/>
+              <svg width="18" height="18" viewBox="0 0 24 24" fill={liked ? '#fff' : 'none'} stroke="#fff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
               </svg>
             </button>
+
+            {/* Floating hearts */}
+            {hearts.map(h => (
+              <span
+                key={h.id}
+                className={styles.floatingHeart}
+                style={{ right: `${h.left}px`, fontSize: `${h.size}px`, animationDelay: `${h.delay}s` }}
+              >❤️</span>
+            ))}
           </div>
         )}
 
