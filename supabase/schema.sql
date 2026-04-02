@@ -410,7 +410,7 @@ create table if not exists profile_views (
 );
 
 create unique index if not exists idx_profile_views_day
-  on profile_views (viewer_id, viewed_id, date_trunc('day', created_at));
+  on profile_views (viewer_id, viewed_id, date_trunc('day', created_at::timestamp));
 
 alter table profile_views enable row level security;
 
