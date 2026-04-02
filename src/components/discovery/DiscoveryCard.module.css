@@ -129,7 +129,7 @@
 .matchPercent {
   font-size: 20px;
   font-weight: 900;
-  color: #39FF14;
+  color: var(--status-color, #39FF14);
   line-height: 1;
   letter-spacing: -0.02em;
 }

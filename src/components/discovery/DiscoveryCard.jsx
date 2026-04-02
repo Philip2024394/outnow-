@@ -269,7 +269,7 @@ export default function DiscoveryCard({ open, session, mySession, onClose, showT
 
         {/* ── Card header — activity outside/above the photo ── */}
         {activity && (
-          <div className={styles.cardHeader}>
+          <div className={styles.cardHeader} style={{ '--status-color': isInviteOut ? '#FFD60A' : isScheduled ? '#FF9500' : '#39FF14' }}>
             <div className={styles.activityHeader}>
               <span className={styles.activityHeaderIcon}>{activity.emoji ?? '🎯'}</span>
               <div className={styles.activityHeaderText}>
