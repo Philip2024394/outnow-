@@ -6,7 +6,7 @@ import styles from './AuthScreen.module.css'
 const HERO_URL = 'https://ik.imagekit.io/dateme/UntitledDFSDFASDF.png'
 const LOGO_URL = 'https://ik.imagekit.io/dateme/Logo%20with%20green%20map%20pin%20element.png'
 
-export default function AuthScreen({ onAdminPass }) {
+export default function AuthScreen({ onAdminPass, onGuest }) {
   const [showPhone, setShowPhone]       = useState(false)
   const [googleLoading, setGoogleLoading] = useState(false)
   const [emailLoading, setEmailLoading] = useState(false)
@@ -124,6 +124,10 @@ export default function AuthScreen({ onAdminPass }) {
         <p className={styles.terms}>
           By continuing you agree to our Terms & Privacy Policy. Must be 18+.
         </p>
+
+        <button className={styles.browseBtn} onClick={onGuest}>
+          Browse the map first →
+        </button>
 
         {/* Admin pass — hidden tap sequence (tap 7× on logo area triggers this) */}
         <button className={styles.adminBtn} onClick={onAdminPass} aria-hidden="true" tabIndex={-1}>

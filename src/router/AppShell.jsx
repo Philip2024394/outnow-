@@ -46,6 +46,7 @@ import AddMomentSheet from '@/components/moments/AddMomentSheet'
 import { useMoments } from '@/hooks/useMoments'
 import { useNotifications } from '@/hooks/useNotifications'
 import { useAuth } from '@/hooks/useAuth'
+import { useGuestGate } from '@/contexts/GuestGateContext'
 
 import AddToHomeScreenBanner from '@/components/pwa/AddToHomeScreenBanner'
 import BottomSheet from '@/components/ui/BottomSheet'
@@ -83,7 +84,9 @@ const DEMO_UNLOCK = {
 
 export default function AppShell({ returnParams, triggerGoLive }) {
   const { overlay, closeOverlay, openGoLive, openVenueReveal, openDiscovery } = useOverlay()
-  const { userProfile } = useAuth()
+  const { userProfile, user } = useAuth()
+  const { triggerGate } = useGuestGate()
+  const isGuest = !user
   const { session: mySession, needsCheckIn } = useMySession()
   const { incomingRequest, myOutgoingRequest } = useOtwRequests()
   const { incomingInterests } = useInterests()
@@ -244,7 +247,7 @@ export default function AppShell({ returnParams, triggerGoLive }) {
         <MomentsBar
           moments={allMoments}
           isLive={!!mySession}
-          onAdd={() => setAddMomentOpen(true)}
+          onAdd={() => { if (isGuest) { triggerGate(); return } setAddMomentOpen(true) }}
           onView={(i) => setMomentViewerIndex(i)}
         />
       )}
@@ -285,7 +288,7 @@ export default function AppShell({ returnParams, triggerGoLive }) {
       {activeTab === 'map' && (
         <BottomNav
           activeTab={activeTab}
-          onChange={setActiveTab}
+          onChange={(tab) => { if (isGuest && tab !== 'map') { triggerGate(); return } setActiveTab(tab) }}
           unreadChats={0}
           hasActiveMapFilter={hasActiveMapFilter}
           onOpenFilter={() => setMapFilterOpen(true)}
@@ -296,7 +299,7 @@ export default function AppShell({ returnParams, triggerGoLive }) {
           isLive={!!mySession}
           isInviteOut={!mySession && !!inviteOut}
           isScheduled={false}
-          onProfileTap={() => setInviteOutSheetOpen(true)}
+          onProfileTap={() => { if (isGuest) { triggerGate(); return } setInviteOutSheetOpen(true) }}
         />
       )}
 
@@ -309,6 +312,7 @@ export default function AppShell({ returnParams, triggerGoLive }) {
         mySession={mySession}
         onClose={closeOverlay}
         showToast={showToast}
+        onGuestAction={isGuest ? triggerGate : null}
       />
       <VenueSheet
         open={venueSheetOpen}

@@ -7,6 +7,7 @@ import WelcomePopup from '@/screens/onboarding/WelcomePopup'
 import ProfileSetup from '@/screens/onboarding/ProfileSetup'
 import GoLivePrompt from '@/screens/onboarding/GoLivePrompt'
 import AdminApp from '@/admin/AdminApp'
+import { GuestGateProvider } from '@/contexts/GuestGateContext'
 import styles from './App.module.css'
 
 const LOGO_URL = 'https://ik.imagekit.io/dateme/Logo%20with%20green%20map%20pin%20element.png'
@@ -25,6 +26,7 @@ export default function App() {
   }
   const { user, loading } = useAuth()
   const [adminPass, setAdminPass] = useState(false)
+  const [guestMode, setGuestMode] = useState(false)
   const [returnParams, setReturnParams] = useState(null)
 
   // Onboarding state: 'welcome' → 'setup' → 'golive' → 'done'
@@ -55,17 +57,25 @@ export default function App() {
     )
   }
 
-  if (!user && !adminPass) return <AuthScreen onAdminPass={() => setAdminPass(true)} />
+  // Show auth screen until they sign in OR choose to browse as guest
+  if (!user && !adminPass && !guestMode) {
+    return (
+      <AuthScreen
+        onAdminPass={() => setAdminPass(true)}
+        onGuest={() => setGuestMode(true)}
+      />
+    )
+  }
 
   return (
-    <>
+    <GuestGateProvider>
       <AppShell returnParams={returnParams} triggerGoLive={triggerGoLive} />
 
-      {/* Onboarding overlays — shown once on first visit */}
-      {onboardStep === 'welcome' && (
+      {/* Onboarding overlays — only shown to signed-in users, once on first visit */}
+      {user && onboardStep === 'welcome' && (
         <WelcomePopup onDone={() => setOnboardStep('setup')} />
       )}
-      {onboardStep === 'setup' && (
+      {user && onboardStep === 'setup' && (
         <ProfileSetup
           onDone={(profile) => {
             localStorage.setItem(ONBOARDING_KEY, JSON.stringify(profile))
@@ -73,12 +83,12 @@ export default function App() {
           }}
         />
       )}
-      {onboardStep === 'golive' && (
+      {user && onboardStep === 'golive' && (
         <GoLivePrompt
           onGoLive={() => { setTriggerGoLive(true); setOnboardStep('done') }}
           onSkip={() => setOnboardStep('done')}
         />
       )}
-    </>
+    </GuestGateProvider>
   )
 }

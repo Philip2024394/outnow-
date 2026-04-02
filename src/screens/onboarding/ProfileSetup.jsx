@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
-import styles from './ProfileSetup.module.css'
+import { useCoins } from '@/hooks/useCoins'
 import { ALL_COUNTRIES, detectCountryByIP } from '@/utils/countries'
+import styles from './ProfileSetup.module.css'
 
 const LOGO_URL = 'https://ik.imagekit.io/dateme/Logo%20with%20green%20map%20pin%20element.png'
 
@@ -8,77 +9,106 @@ function countryFlag(name) {
   return ALL_COUNTRIES.find(c => c.name === name)?.flag ?? '🏳️'
 }
 
-const LOOKING   = ['Date', 'Meet now', 'Chat first', 'Just browsing']
-const AVAILABLE = ['Right now', 'Today', 'Tonight', 'This weekend']
+const LOOKING_FOR  = ['A date', 'New friends', 'Networking', 'Just browsing']
+const GENDERS      = ['Man', 'Woman', 'Gay', 'Lesbian', 'Bisexual', 'Non-binary', 'Trans', 'Queer', 'Prefer not to say']
+const VENUE_TYPES  = ['Bar / Pub 🍺', 'Restaurant 🍽️', 'Coffee shop ☕', 'Gym / Sport 🏋️', 'Park / Outdoors 🌳', 'Cinema / Theatre 🎬', 'Club / Nightlife 🎵', 'Art / Gallery 🎨', 'Market / Festival 🎪', 'Other 📍']
 
-const TOTAL_STEPS = 4
+const SLIDE_REWARDS = {
+  0: null,                // name/age — no reward, just basics
+  1: { key: 'ACTIVITIES_SET', label: '+5 🪙 Intent saved!',  amount: 5  },
+  2: { key: 'PROFILE_PHOTO',  label: '+10 🪙 Photo added!', amount: 10 },
+}
 
 export default function ProfileSetup({ onDone }) {
-  const [step, setStep]       = useState(0)
+  const { earn } = useCoins()
+  const [slide, setSlide]     = useState(0)
   const [leaving, setLeaving] = useState(false)
+  const [coinPop, setCoinPop] = useState(null) // text shown on coin reward
 
-  // Profile fields
-  const [name, setName]           = useState('')
-  const [age, setAge]             = useState('')
-  const [gender, setGender]       = useState('')
-  const [country, setCountry]     = useState('')
-  const [lookingFor, setLooking]  = useState('')
-  const [available, setAvailable] = useState('')
-  const [photoEmoji]              = useState(['😊','😎','🌸','🤙','✨','🎯','🔥','🦋'][Math.floor(Math.random()*8)])
-  const [, setNotif]  = useState(false)
+  // Slide 0 — name, age, country, city
+  const [name, setName]       = useState('')
+  const [age, setAge]         = useState('')
+  const [country, setCountry] = useState('')
+  const [city, setCity]       = useState('')
+
+  // Slide 1 — gender, intent, venue preference
+  const [gender, setGender]     = useState('')
+  const [lookingFor, setLooking] = useState('')
+  const [venueType, setVenue]   = useState('')
+
+  // Slide 2 — photo, bio
+  const [photoEmoji]            = useState(['😊','😎','🌸','🤙','✨','🎯','🔥','🦋'][Math.floor(Math.random()*8)])
+  const [bio, setBio]           = useState('')
 
   useEffect(() => {
-    detectCountryByIP().then(found => {
-      if (found) setCountry(found.name)
-    })
+    detectCountryByIP().then(found => { if (found) setCountry(found.name) })
   }, [])
 
-  const finish = () => {
-    setLeaving(true)
-    setTimeout(() => onDone({
-      name, age, gender, country, lookingFor, available, photoEmoji,
-    }), 350)
+  const canAdvance = [
+    name.trim().length >= 2 && Number(age) >= 18 && Number(age) <= 99 && !!country,
+    !!gender && !!lookingFor,
+    true, // photo + bio are optional
+  ][slide]
+
+  const showCoinPop = (text) => {
+    setCoinPop(text)
+    setTimeout(() => setCoinPop(null), 2000)
   }
 
-  const canNext = [
-    name.trim().length >= 2 && Number(age) >= 18 && Number(age) <= 99 && !!gender,
-    !!lookingFor && !!available,
-    true,
-    true,
-  ][step]
+  const advance = () => {
+    const reward = SLIDE_REWARDS[slide]
+    if (reward) {
+      earn(reward.key)
+      showCoinPop(reward.label)
+      // Delay slide change so user sees the reward flash
+      setTimeout(() => setSlide(s => s + 1), 600)
+    } else {
+      setSlide(s => s + 1)
+    }
+  }
+
+  const finish = () => {
+    const reward = SLIDE_REWARDS[2]
+    if (bio.trim() && reward) earn('BIO_WRITTEN')
+    if (reward) earn(reward.key)
+    setLeaving(true)
+    setTimeout(() => onDone({ name, age, gender, country, city, lookingFor, venueType, bio, photoEmoji }), 350)
+  }
 
   const requestNotif = async () => {
-    try {
-      const perm = await Notification.requestPermission()
-      setNotif(perm === 'granted')
-    } catch {
-      setNotif(false)
-    }
+    try { await Notification.requestPermission() } catch {}
     finish()
   }
 
   return (
     <div className={`${styles.screen} ${leaving ? styles.leaving : ''}`}>
+
       {/* Progress bar */}
       <div className={styles.progressBar}>
-        <div
-          className={styles.progressFill}
-          style={{ width: `${((step + 1) / TOTAL_STEPS) * 100}%` }}
-        />
+        <div className={styles.progressFill} style={{ width: `${((slide + 1) / 3) * 100}%` }} />
       </div>
 
       <div className={styles.header}>
         <img src={LOGO_URL} alt="imoutnow.com" className={styles.logo} />
+        <span className={styles.stepLabel}>Step {slide + 1} of 3</span>
       </div>
+
+      {/* Coin reward pop */}
+      {coinPop && (
+        <div className={styles.coinPop}>{coinPop}</div>
+      )}
 
       <div className={styles.inner}>
 
-        {/* ── STEP 0: Name + Country + Age + Gender ── */}
-        {step === 0 && (
-          <div className={styles.stepContent}>
-            <img src="https://ik.imagekit.io/dateme/What's%20your%20name_%20in%20green.png" alt="What's your name?" className={styles.stepImg} />
+        {/* ── SLIDE 0: Name, Age, Country, City ── */}
+        {slide === 0 && (
+          <div className={styles.slideContent}>
+            <img
+              src="https://ik.imagekit.io/dateme/What's%20your%20name_%20in%20green.png"
+              alt="What's your name?"
+              className={styles.stepImg}
+            />
 
-            {/* Name */}
             <input
               className={styles.input}
               placeholder="First name"
@@ -88,11 +118,20 @@ export default function ProfileSetup({ onDone }) {
               autoFocus
             />
 
-            {/* Country */}
+            <input
+              className={styles.input}
+              placeholder="Age"
+              value={age}
+              onChange={e => setAge(e.target.value.replace(/\D/, ''))}
+              inputMode="numeric"
+              maxLength={2}
+            />
+            {age && Number(age) < 18 && (
+              <p className={styles.error}>You must be 18 or over.</p>
+            )}
+
             <div className={styles.selectWrap}>
-              <span className={styles.selectIcon}>
-                {country ? countryFlag(country) : '🏳️'}
-              </span>
+              <span className={styles.selectIcon}>{country ? countryFlag(country) : '🏳️'}</span>
               <select
                 className={styles.select}
                 value={country}
@@ -108,52 +147,36 @@ export default function ProfileSetup({ onDone }) {
               </svg>
             </div>
 
-            {/* Age + Gender row */}
-            <div className={styles.ageGenderRow}>
-              <input
-                className={`${styles.input} ${styles.ageInput}`}
-                placeholder="Age"
-                value={age}
-                onChange={e => setAge(e.target.value.replace(/\D/, ''))}
-                inputMode="numeric"
-                maxLength={2}
-              />
-              <div className={styles.genderPair}>
-                {['Male', 'Female'].map(g => (
-                  <button
-                    key={g}
-                    className={`${styles.genderBtn} ${gender === g ? styles.genderActive : ''}`}
-                    onClick={() => setGender(g)}
-                  >
-                    {g === 'Male' ? '♂' : '♀'} {g}
-                  </button>
-                ))}
-              </div>
-            </div>
-            <div className={styles.genderExtended}>
-              {['Gay', 'Lesbian', 'Bisexual', 'Non-binary', 'Trans', 'Queer', 'Prefer not to say'].map(g => (
+            <input
+              className={styles.input}
+              placeholder="City (e.g. London)"
+              value={city}
+              onChange={e => setCity(e.target.value)}
+              maxLength={40}
+            />
+          </div>
+        )}
+
+        {/* ── SLIDE 1: Gender, Intent, Venue preference ── */}
+        {slide === 1 && (
+          <div className={styles.slideContent}>
+            <h2 className={styles.title}>Tell us about you</h2>
+            <p className={styles.sub}>Helps us show you the right people</p>
+
+            <label className={styles.groupLabel}>I am a…</label>
+            <div className={styles.chipGrid}>
+              {GENDERS.map(g => (
                 <button
                   key={g}
-                  className={`${styles.genderChip} ${gender === g ? styles.genderChipActive : ''}`}
+                  className={`${styles.chip} ${gender === g ? styles.chipActive : ''}`}
                   onClick={() => setGender(g)}
                 >{g}</button>
               ))}
             </div>
-            {age && Number(age) < 18 && (
-              <p className={styles.error}>You must be 18 or over to use imoutnow.com.</p>
-            )}
-          </div>
-        )}
 
-        {/* ── STEP 1: Intent ── */}
-        {step === 1 && (
-          <div className={styles.stepContent}>
-            <h2 className={styles.title}>What are you here for?</h2>
-            <p className={styles.sub}>Be honest — it gets better results.</p>
-
-            <label className={styles.groupLabel}>Looking for</label>
+            <label className={styles.groupLabel}>I'm here to…</label>
             <div className={styles.chipGrid}>
-              {LOOKING.map(l => (
+              {LOOKING_FOR.map(l => (
                 <button
                   key={l}
                   className={`${styles.chip} ${lookingFor === l ? styles.chipActive : ''}`}
@@ -162,75 +185,71 @@ export default function ProfileSetup({ onDone }) {
               ))}
             </div>
 
-            <label className={styles.groupLabel}>When are you available?</label>
+            <label className={styles.groupLabel}>My ideal first meet…</label>
             <div className={styles.chipGrid}>
-              {AVAILABLE.map(a => (
+              {VENUE_TYPES.map(v => (
                 <button
-                  key={a}
-                  className={`${styles.chip} ${available === a ? styles.chipActive : ''}`}
-                  onClick={() => setAvailable(a)}
-                >{a}</button>
+                  key={v}
+                  className={`${styles.chip} ${venueType === v ? styles.chipActive : ''}`}
+                  onClick={() => setVenue(v)}
+                >{v}</button>
               ))}
+            </div>
+
+            <div className={styles.rewardHint}>
+              Complete this step and earn <strong>+5 🪙</strong>
             </div>
           </div>
         )}
 
-        {/* ── STEP 2: Photo placeholder ── */}
-        {step === 2 && (
-          <div className={styles.stepContent}>
+        {/* ── SLIDE 2: Photo + Bio ── */}
+        {slide === 2 && (
+          <div className={styles.slideContent}>
             <div className={styles.photoBig}>{photoEmoji}</div>
-            <h2 className={styles.title}>Add a photo</h2>
-            <p className={styles.sub}>Profiles with photos get 3× more matches. You can skip this for now.</p>
-            <button className={styles.photoBtn}>📷 Choose photo</button>
-          </div>
-        )}
+            <h2 className={styles.title}>Add a photo & short bio</h2>
+            <p className={styles.sub}>Profiles with photos get 3× more matches</p>
 
-        {/* ── STEP 3: Notifications ── */}
-        {step === 3 && (
-          <div className={styles.stepContent}>
-            <div className={styles.notifIcon}>🔔</div>
-            <h2 className={styles.title}>Never miss a match</h2>
-            <p className={styles.sub}>
-              When someone nearby goes live that matches your vibe, we'll notify you instantly.
-              No spam. Just real-time meet-up alerts.
-            </p>
+            <button className={styles.photoBtn}>📷 Choose photo  +10 🪙</button>
 
-            <div className={styles.notifFeatures}>
-              {[
-                ['⚡', 'Instant match alerts'],
-                ['📍', 'Someone near you is out'],
-                ['❤️', 'Mutual interest notification'],
-              ].map(([icon, text]) => (
-                <div key={text} className={styles.notifFeature}>
-                  <span className={styles.notifFeatureIcon}>{icon}</span>
-                  <span>{text}</span>
-                </div>
-              ))}
+            <textarea
+              className={styles.bioInput}
+              placeholder="A short line about yourself… (optional)"
+              value={bio}
+              onChange={e => setBio(e.target.value)}
+              maxLength={160}
+              rows={3}
+            />
+            {bio.trim().length > 0 && (
+              <span className={styles.rewardHint}>Bio earns you <strong>+5 🪙</strong> too!</span>
+            )}
+
+            <div className={styles.notifBlock}>
+              <div className={styles.notifIcon}>🔔</div>
+              <p className={styles.notifText}>Turn on notifications so you never miss a match nearby</p>
+              <button className={styles.notifBtn} onClick={requestNotif}>
+                Allow notifications
+              </button>
             </div>
-
-            <button className={styles.notifBtn} onClick={requestNotif}>
-              🔔 Turn on notifications
-            </button>
-            <button className={styles.notifSkip} onClick={finish}>
-              Maybe later
-            </button>
           </div>
         )}
+
       </div>
 
-      {/* Bottom CTA — all steps except notifications */}
-      {step < 3 && (
-        <div className={styles.footer}>
-          <button
-            className={styles.nextBtn}
-            disabled={!canNext}
-            onClick={() => setStep(s => s + 1)}
-          >
-            {step === 1 ? 'Almost done →' : 'Continue →'}
+      {/* Footer CTA */}
+      <div className={styles.footer}>
+        <button
+          className={styles.nextBtn}
+          disabled={!canAdvance}
+          onClick={slide < 2 ? advance : finish}
+        >
+          {slide === 2 ? "Let's go 🚀" : 'Continue →'}
+        </button>
+        {slide < 2 && (
+          <button className={styles.skipLink} onClick={() => setSlide(s => s + 1)}>
+            Skip
           </button>
-          <p className={styles.footerNote}>Step {step + 1} of {TOTAL_STEPS}</p>
-        </div>
-      )}
+        )}
+      </div>
     </div>
   )
 }

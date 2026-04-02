@@ -3,7 +3,7 @@ import { sendPhoneOTP, verifyOTP } from '@/services/authService'
 import Button from '@/components/ui/Button'
 import styles from './PhoneAuthScreen.module.css'
 
-const COUNTRIES = [
+export const COUNTRIES = [
   { flag: '🇬🇧', name: 'United Kingdom', dial: '+44' },
   { flag: '🇺🇸', name: 'United States',  dial: '+1'  },
   { flag: '🇨🇦', name: 'Canada',          dial: '+1'  },

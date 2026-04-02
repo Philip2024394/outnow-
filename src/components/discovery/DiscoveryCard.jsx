@@ -39,7 +39,7 @@ function FloatingHearts() {
 
 const BG_URL = 'https://ik.imagekit.io/dateme/UntitledDFSDFASDFDFGSDFGsfdfasdsadas.png?updatedAt=1775081066476'
 
-export default function DiscoveryCard({ open, session, mySession, onClose, showToast }) {
+export default function DiscoveryCard({ open, session, mySession, onClose, showToast, onGuestAction }) {
   const { openReport, openOtwSent } = useOverlay()
   const { myInterests, mutualSessions } = useInterests()
   const [otwLoading, setOtwLoading] = useState(false)
@@ -131,12 +131,14 @@ export default function DiscoveryCard({ open, session, mySession, onClose, showT
   }
 
   const handleInvite = () => {
+    if (onGuestAction) { onGuestAction(); return }
     setPendingInviteType('meet')
     setGiftPickerOpen(true)
   }
 
   // User B presses OTW (requires mutual interest or direct OTW flow)
   const handleOtw = async () => {
+    if (onGuestAction) { onGuestAction(); return }
     setOtwLoading(true)
     try {
       const result = await sendOtwRequest(session.id, session.userId)
@@ -154,6 +156,7 @@ export default function DiscoveryCard({ open, session, mySession, onClose, showT
   }
 
   const handleWave = async () => {
+    if (onGuestAction) { onGuestAction(); return }
     setWaveLoading(true)
     try {
       await sendWave(session.userId, session.id)

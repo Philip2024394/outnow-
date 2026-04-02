@@ -29,6 +29,16 @@ export async function signInWithEmail(email, password) {
 }
 
 /**
+ * Create a new account with email + password via Supabase Auth.
+ */
+export async function signUpWithEmail(email, password) {
+  if (!supabase) return
+  const { data, error } = await supabase.auth.signUp({ email, password })
+  if (error) throw new Error(error.message)
+  return data.user
+}
+
+/**
  * Send an SMS OTP to the given phone number via Supabase Auth.
  * Returns a "confirmation" object { phone } used by verifyOTP.
  */
