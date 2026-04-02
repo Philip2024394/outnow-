@@ -39,6 +39,11 @@
   background: #080808;
 }
 
+/* Force dark background on unloaded tile areas */
+:global(.leaflet-container) {
+  background: #080808 !important;
+}
+
 /* Override Leaflet attribution bar */
 :global(.leaflet-control-attribution) {
   background: rgba(8, 8, 8, 0.7) !important;
@@ -48,6 +53,48 @@
 
 :global(.leaflet-control-attribution a) {
   color: #555 !important;
+}
+
+/* ── Cluster bubbles ── */
+:global(.demo-cluster) {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background: rgba(18,18,18,0.92);
+  border: 2.5px solid #39FF14;
+  box-shadow: 0 0 12px rgba(57,255,20,0.4), 0 0 0 4px rgba(57,255,20,0.12);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: -apple-system, BlinkMacSystemFont, sans-serif;
+  font-size: 14px;
+  font-weight: 800;
+  color: #39FF14;
+  cursor: pointer;
+}
+
+:global(.demo-cluster--venue) {
+  border-color: rgba(255,255,255,0.4);
+  box-shadow: 0 0 10px rgba(255,255,255,0.15), 0 0 0 4px rgba(255,255,255,0.06);
+  color: rgba(255,255,255,0.85);
+}
+
+/* Override default leaflet cluster styles */
+:global(.leaflet-cluster-anim .leaflet-marker-icon),
+:global(.leaflet-cluster-anim .leaflet-marker-shadow) {
+  transition: transform 0.3s ease-out, opacity 0.3s ease-in;
+}
+
+:global(.marker-cluster-small),
+:global(.marker-cluster-medium),
+:global(.marker-cluster-large) {
+  background: transparent !important;
+}
+
+:global(.marker-cluster-small div),
+:global(.marker-cluster-medium div),
+:global(.marker-cluster-large div) {
+  background: transparent !important;
 }
 
 /* Live user markers */
@@ -116,6 +163,43 @@
   font-size: 11px;
   border: 1.5px solid #080808;
   z-index: 3;
+}
+
+/* Invite Out marker — gold */
+:global(.demo-marker--invite) {
+  height: 68px;
+}
+
+:global(.demo-marker__avatar--invite) {
+  border-color: #FFD60A !important;
+  box-shadow: 0 0 0 2px #080808, 0 0 14px rgba(255,214,10,0.5) !important;
+}
+
+:global(.demo-marker__invite-badge) {
+  position: absolute;
+  top: -4px;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 13px;
+  z-index: 4;
+  line-height: 1;
+}
+
+:global(.demo-marker__invite-label) {
+  position: absolute;
+  bottom: -14px;
+  left: 50%;
+  transform: translateX(-50%);
+  white-space: nowrap;
+  font-size: 9px;
+  font-weight: 700;
+  color: #FFD60A;
+  background: rgba(8,8,8,0.85);
+  padding: 1px 5px;
+  border-radius: 6px;
+  border: 1px solid rgba(255,214,10,0.3);
+  font-family: -apple-system, BlinkMacSystemFont, sans-serif;
+  z-index: 4;
 }
 
 /* Scheduled (Out Later) marker — orange */
@@ -253,6 +337,68 @@
   overflow: hidden;
   text-overflow: ellipsis;
   font-family: -apple-system, BlinkMacSystemFont, sans-serif;
+}
+
+/* ── Partner venue markers (gold) ── */
+:global(.partner-marker) {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 3px;
+  cursor: pointer;
+}
+
+:global(.partner-marker__bubble) {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  background: rgba(0, 8, 20, 0.92);
+  border: 2px solid #4DA6FF;
+  border-radius: 20px;
+  padding: 5px 10px;
+  font-family: -apple-system, BlinkMacSystemFont, sans-serif;
+  box-shadow: 0 0 12px rgba(77,166,255,0.35), 0 4px 16px rgba(0,0,0,0.7);
+  white-space: nowrap;
+  transition: transform 0.15s ease;
+  animation: partner-glow 2.5s ease-in-out infinite;
+}
+
+:global(.partner-marker:hover .partner-marker__bubble) {
+  transform: scale(1.06);
+}
+
+:global(.partner-marker__star) {
+  font-size: 12px;
+  line-height: 1;
+}
+
+:global(.partner-marker__emoji) {
+  font-size: 14px;
+  line-height: 1;
+}
+
+:global(.partner-marker__name) {
+  font-size: 11px;
+  font-weight: 700;
+  color: #4DA6FF;
+  line-height: 1;
+}
+
+:global(.partner-marker__tag) {
+  font-size: 10px;
+  font-weight: 800;
+  color: #4DA6FF;
+  background: rgba(8,8,8,0.8);
+  border: 1px solid rgba(77,166,255,0.4);
+  padding: 2px 7px;
+  border-radius: 6px;
+  white-space: nowrap;
+  font-family: -apple-system, BlinkMacSystemFont, sans-serif;
+}
+
+@keyframes partner-glow {
+  0%, 100% { box-shadow: 0 0 10px rgba(77,166,255,0.3), 0 4px 16px rgba(0,0,0,0.7); }
+  50%       { box-shadow: 0 0 20px rgba(77,166,255,0.6), 0 4px 16px rgba(0,0,0,0.7); }
 }
 
 /* Hot venue (≥2 people) — green pulse */

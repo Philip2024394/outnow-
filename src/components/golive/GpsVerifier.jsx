@@ -1,3 +1,4 @@
+import { useEffect } from 'react'
 import { useGeolocation } from '@/hooks/useGeolocation'
 import Spinner from '@/components/ui/Spinner'
 import styles from './GpsVerifier.module.css'
@@ -33,9 +34,9 @@ export default function GpsVerifier({ onReady }) {
     : ''
 
   // Notify parent once we have usable coordinates
-  if (coords && onReady) {
-    onReady(coords)
-  }
+  useEffect(() => {
+    if (coords && onReady) onReady(coords)
+  }, [coords]) // eslint-disable-line
 
   return (
     <div className={styles.state}>

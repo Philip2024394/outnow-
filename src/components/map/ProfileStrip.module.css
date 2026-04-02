@@ -98,6 +98,7 @@
 
 .discBtn {
   flex: 1;
+  position: relative;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -116,6 +117,34 @@
 }
 
 .discBtn:active { transform: scale(0.95); }
+
+/* Red notification badge — top-right corner of button */
+.notifBadge {
+  position: absolute;
+  top: -7px;
+  right: -7px;
+  min-width: 18px;
+  height: 18px;
+  background: #FF3B30;
+  color: #fff;
+  font-size: 10px;
+  font-weight: 800;
+  border-radius: 100px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 5px;
+  border: 2px solid rgba(8,8,8,0.9);
+  box-shadow: 0 0 8px rgba(255,59,48,0.6);
+  pointer-events: none;
+  line-height: 1;
+  animation: badge-pop 0.3s cubic-bezier(0.34,1.56,0.64,1) forwards;
+}
+
+@keyframes badge-pop {
+  from { transform: scale(0); opacity: 0; }
+  to   { transform: scale(1); opacity: 1; }
+}
 
 .discBtnNow    { border-color: rgba(57,255,20,0.65);  }
 .discBtnInvite { border-color: rgba(255,214,10,0.65); }

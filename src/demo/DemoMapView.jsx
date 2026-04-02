@@ -1,7 +1,11 @@
 import { useEffect } from 'react'
-import { MapContainer, TileLayer, useMap } from 'react-leaflet'
+import { MapContainer, TileLayer, useMap, useMapEvents } from 'react-leaflet'
 import { divIcon, marker } from 'leaflet'
+import L from 'leaflet'
 import 'leaflet/dist/leaflet.css'
+import 'leaflet.markercluster/dist/MarkerCluster.css'
+import 'leaflet.markercluster/dist/MarkerCluster.Default.css'
+import 'leaflet.markercluster'
 import { activityEmoji } from '@/firebase/collections'
 import { DEMO_CENTER } from './mockData'
 import styles from './DemoMapView.module.css'
@@ -19,7 +23,6 @@ function formatScheduledTime(ms) {
 }
 
 // Fix default icon paths broken by Vite bundling
-import L from 'leaflet'
 delete L.Icon.Default.prototype._getIconUrl
 L.Icon.Default.mergeOptions({
   iconRetinaUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon-2x.png',
@@ -31,13 +34,22 @@ function LiveMarkers({ sessions, onSelect }) {
   const map = useMap()
 
   useEffect(() => {
-    const markers = []
+    const cluster = L.markerClusterGroup({
+      maxClusterRadius: 60,
+      showCoverageOnHover: false,
+      iconCreateFunction: (c) => divIcon({
+        className: '',
+        html: `<div class="demo-cluster"><span>${c.getChildCount()}</span></div>`,
+        iconSize: [44, 44],
+        iconAnchor: [22, 22],
+      }),
+    })
 
     sessions.forEach((session) => {
       const emoji = activityEmoji(session.activityType)
       const initial = (session.displayName ?? 'U')[0].toUpperCase()
-
-      const isScheduled = session.status === 'scheduled'
+      const isScheduled  = session.status === 'scheduled'
+      const isInviteOut  = session.status === 'invite_out'
       const scheduledLabel = isScheduled ? formatScheduledTime(session.scheduledFor) : ''
 
       const icon = divIcon({
@@ -49,23 +61,30 @@ function LiveMarkers({ sessions, onSelect }) {
                <div class="demo-marker__activity">${emoji}</div>
                <div class="demo-marker__time-label">${scheduledLabel}</div>
              </div>`
+          : isInviteOut
+          ? `<div class="demo-marker demo-marker--invite">
+               <div class="demo-marker__invite-badge">💌</div>
+               <div class="demo-marker__avatar demo-marker__avatar--invite">${initial}</div>
+               <div class="demo-marker__activity">${emoji}</div>
+               <div class="demo-marker__invite-label">Invite Out</div>
+             </div>`
           : `<div class="demo-marker">
                <div class="demo-marker__pulse"></div>
                <div class="demo-marker__pulse demo-marker__pulse--slow"></div>
                <div class="demo-marker__avatar">${initial}</div>
                <div class="demo-marker__activity">${emoji}</div>
              </div>`,
-        iconSize: [52, 64],
+        iconSize: [52, 68],
         iconAnchor: [26, 26],
       })
 
       const m = marker([session.lat, session.lng], { icon })
       m.on('click', () => onSelect(session))
-      m.addTo(map)
-      markers.push(m)
+      cluster.addLayer(m)
     })
 
-    return () => markers.forEach(m => m.remove())
+    map.addLayer(cluster)
+    return () => map.removeLayer(cluster)
   }, [sessions, map, onSelect])
 
   return null
@@ -92,11 +111,69 @@ function MyDot() {
   return null
 }
 
-function VenueMarkers({ venues, onSelectVenue }) {
+function PartnerVenueMarkers({ venues, onSelect }) {
   const map = useMap()
 
   useEffect(() => {
     const markers = []
+
+    venues.forEach((venue) => {
+      const icon = divIcon({
+        className: '',
+        html: `<div class="partner-marker">
+                 <div class="partner-marker__bubble">
+                   <span class="partner-marker__star">⭐</span>
+                   <span class="partner-marker__emoji">${venue.emoji}</span>
+                   <span class="partner-marker__name">${venue.name}</span>
+                 </div>
+                 <div class="partner-marker__tag">${venue.minDiscount}%+ off</div>
+               </div>`,
+        iconSize: [120, 54],
+        iconAnchor: [60, 20],
+      })
+
+      const m = marker([venue.lat, venue.lng], { icon })
+      m.on('click', () => onSelect(venue))
+      m.addTo(map)
+      markers.push(m)
+    })
+
+    return () => markers.forEach(m => m.remove())
+  }, [venues, map, onSelect])
+
+  return null
+}
+
+function MapEventsHandler({ onMapMove, flyTarget }) {
+  const map = useMapEvents({
+    moveend: () => {
+      const c = map.getCenter()
+      onMapMove?.({ lat: c.lat, lng: c.lng })
+    },
+  })
+
+  useEffect(() => {
+    if (!flyTarget) return
+    map.flyTo([flyTarget.lat, flyTarget.lng], 14, { duration: 1.2 })
+  }, [flyTarget, map])
+
+  return null
+}
+
+function VenueMarkers({ venues, onSelectVenue }) {
+  const map = useMap()
+
+  useEffect(() => {
+    const cluster = L.markerClusterGroup({
+      maxClusterRadius: 50,
+      showCoverageOnHover: false,
+      iconCreateFunction: (c) => divIcon({
+        className: '',
+        html: `<div class="demo-cluster demo-cluster--venue"><span>${c.getChildCount()}</span></div>`,
+        iconSize: [40, 40],
+        iconAnchor: [20, 20],
+      }),
+    })
 
     venues.forEach((venue) => {
       const isHot = venue.count >= 2
@@ -116,11 +193,11 @@ function VenueMarkers({ venues, onSelectVenue }) {
 
       const m = marker([venue.lat, venue.lng], { icon })
       m.on('click', () => onSelectVenue(venue))
-      m.addTo(map)
-      markers.push(m)
+      cluster.addLayer(m)
     })
 
-    return () => markers.forEach(m => m.remove())
+    map.addLayer(cluster)
+    return () => map.removeLayer(cluster)
   }, [venues, map, onSelectVenue])
 
   return null
@@ -136,10 +213,10 @@ function EmptyMapState() {
   )
 }
 
-export default function DemoMapView({ sessions, onSelectUser, activeVenues = [], onSelectVenue }) {
+export default function DemoMapView({ sessions, onSelectUser, activeVenues = [], onSelectVenue, partnerVenues = [], onSelectPartner, venuesOn = false, onMapMove, flyTarget }) {
   return (
     <div className={styles.wrapper}>
-      {sessions.length === 0 && <EmptyMapState />}
+      {!venuesOn && sessions.length === 0 && <EmptyMapState />}
       <MapContainer
         center={[DEMO_CENTER.lat, DEMO_CENTER.lng]}
         zoom={14}
@@ -153,10 +230,19 @@ export default function DemoMapView({ sessions, onSelectUser, activeVenues = [],
           attribution='&copy; <a href="https://carto.com/">CARTO</a>'
           subdomains="abcd"
           maxZoom={19}
+          keepBuffer={8}
+          updateWhenIdle={false}
+          updateWhenZooming={false}
         />
+        <MapEventsHandler onMapMove={onMapMove} flyTarget={flyTarget} />
         <MyDot />
-        <VenueMarkers venues={activeVenues} onSelectVenue={onSelectVenue ?? (() => {})} />
-        <LiveMarkers sessions={sessions} onSelect={onSelectUser} />
+        {venuesOn
+          ? <PartnerVenueMarkers venues={partnerVenues} onSelect={onSelectPartner ?? (() => {})} />
+          : <>
+              <VenueMarkers venues={activeVenues} onSelectVenue={onSelectVenue ?? (() => {})} />
+              <LiveMarkers sessions={sessions} onSelect={onSelectUser} />
+            </>
+        }
       </MapContainer>
     </div>
   )

@@ -1,17 +1,90 @@
+import { useState, useRef, useEffect } from 'react'
 import { useMySession } from '@/hooks/useMySession'
 import styles from './MapHeader.module.css'
 
-const LOGO_URL = 'https://ik.imagekit.io/dateme/Logo%20with%20green%20map%20pin%20element.png'
+const LOGO_URL = 'https://ik.imagekit.io/nepgaxllc/Untitledxczxc-removebg-preview.png'
 
-export default function MapHeader({ onOpenLikes, onOpenSettings, onOpenNotifications, notifCount = 0 }) {
+const CITIES_BY_COUNTRY = {
+  'United Kingdom': ['All', 'London', 'Manchester', 'Birmingham', 'Edinburgh', 'Glasgow', 'Bristol', 'Leeds', 'Liverpool'],
+  'United States':  ['All', 'New York', 'Los Angeles', 'Chicago', 'Miami', 'San Francisco', 'Las Vegas', 'Austin', 'Seattle'],
+  'UAE':            ['All', 'Dubai', 'Abu Dhabi', 'Sharjah', 'Ajman'],
+  'Ireland':        ['All', 'Dublin', 'Cork', 'Galway', 'Limerick', 'Waterford'],
+  'Australia':      ['All', 'Sydney', 'Melbourne', 'Brisbane', 'Perth', 'Adelaide', 'Gold Coast'],
+  'Canada':         ['All', 'Toronto', 'Vancouver', 'Montreal', 'Calgary', 'Ottawa'],
+}
+
+const COUNTRY_FLAGS = {
+  'United Kingdom': '🇬🇧',
+  'United States':  '🇺🇸',
+  'UAE':            '🇦🇪',
+  'Ireland':        '🇮🇪',
+  'Australia':      '🇦🇺',
+  'Canada':         '🇨🇦',
+}
+
+export default function MapHeader({
+  onOpenNotifications,
+  notifCount = 0,
+  onOpenSettings,
+  onOpenFilter,
+  hasActiveFilter = false,
+  selectedCountry = 'United Kingdom',
+  selectedCity    = 'All',
+  onCityChange,
+  mapAreaLabel,
+}) {
   const { isLive } = useMySession()
+  const [cityOpen, setCityOpen] = useState(false)
+  const dropRef = useRef(null)
+
+  const cities = CITIES_BY_COUNTRY[selectedCountry] ?? ['All']
+  const displayCity = mapAreaLabel ?? (selectedCity === 'All' ? (CITIES_BY_COUNTRY[selectedCountry]?.[1] ?? selectedCountry) : selectedCity)
+  const flag = COUNTRY_FLAGS[selectedCountry] ?? '🌍'
+
+  useEffect(() => {
+    if (!cityOpen) return
+    function handle(e) {
+      if (dropRef.current && !dropRef.current.contains(e.target)) setCityOpen(false)
+    }
+    document.addEventListener('mousedown', handle)
+    return () => document.removeEventListener('mousedown', handle)
+  }, [cityOpen])
 
   return (
     <div className={styles.header}>
-      {/* Logo — absolutely positioned, overflows below header */}
-      <img src={LOGO_URL} alt="IMOUTNOW" className={styles.logo} />
-      {/* Spacer keeps the right-side buttons from drifting left */}
-      <div style={{ width: 120 }} />
+      {/* Logo + city picker — left side */}
+      <div className={styles.logoArea}>
+        <img src={LOGO_URL} alt="IMOUTNOW" className={styles.logo} />
+        <div className={styles.countryWrap} ref={dropRef}>
+          <button
+            className={styles.countryPill}
+            onClick={() => setCityOpen(o => !o)}
+            aria-label="Select city"
+          >
+            <span>{flag}</span>
+            <span className={styles.countryName}>📍 {displayCity}</span>
+            <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
+              <polyline points="6 9 12 15 18 9" />
+            </svg>
+          </button>
+          {cityOpen && (
+            <ul className={styles.countryDropdown}>
+              {cities.map(city => (
+                <li key={city}>
+                  <button
+                    className={`${styles.countryOption} ${city === selectedCity ? styles.countryOptionActive : ''}`}
+                    onClick={() => { onCityChange?.(city); setCityOpen(false) }}
+                  >
+                    <span className={styles.cityDot}>📍</span>
+                    <span>{city === 'All' ? `All of ${selectedCountry}` : city}</span>
+                    {city === selectedCity && <span className={styles.countryCheck}>✓</span>}
+                  </button>
+                </li>
+              ))}
+            </ul>
+          )}
+        </div>
+      </div>
 
       <div className={styles.right}>
         {isLive && (
@@ -32,13 +105,14 @@ export default function MapHeader({ onOpenLikes, onOpenSettings, onOpenNotificat
           )}
         </button>
 
-        {/* Who liked me */}
-        <button className={styles.settingsBtn} onClick={onOpenLikes} aria-label="Who liked me">
-          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-            <circle cx="12" cy="8" r="4" />
-            <path d="M4 20c0-4 3.6-7 8-7s8 3 8 7" />
-            <circle cx="19" cy="7" r="3" fill="currentColor" stroke="none" className={styles.notifDot} />
+        {/* Filter */}
+        <button className={`${styles.settingsBtn} ${hasActiveFilter ? styles.settingsBtnActive : ''}`} onClick={onOpenFilter} aria-label="Filter map">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+            <line x1="4" y1="6" x2="20" y2="6" />
+            <line x1="8" y1="12" x2="16" y2="12" />
+            <line x1="11" y1="18" x2="13" y2="18" />
           </svg>
+          {hasActiveFilter && <span className={styles.filterDot} />}
         </button>
 
         {/* Settings */}

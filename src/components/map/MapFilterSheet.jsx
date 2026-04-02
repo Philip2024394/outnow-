@@ -7,7 +7,6 @@ const BG_URL = 'https://ik.imagekit.io/dateme/UntitledDFSDFASDFDFGSDFGsfdfasdsad
 const ACTIVITIES = ['All', 'Drinks', 'Food', 'Coffee', 'Walk', 'Hangout', 'Cinema', 'Shopping']
 const GENDERS    = ['All', 'Men', 'Women', 'Gay', 'Lesbian', 'Bisexual', 'Non-binary', 'Trans', 'Queer']
 const STATUSES   = ['All', 'Out Now', 'Out Later']
-const CITIES     = ['All', 'Soho', 'Shoreditch', 'Camden', 'Notting Hill', 'Brixton', 'Dalston', 'Covent Garden', 'Bloomsbury', 'Fitzrovia', 'Oxford Street', 'Leicester Sq', 'Hyde Park']
 
 export const DEFAULT_MAP_FILTERS = {
   status:   'All',
@@ -155,13 +154,6 @@ export default function MapFilterSheet({ open, onClose, filters, onChange, onRes
               </svg>
             </div>
           </div>
-
-          <Dropdown
-            label="City"
-            options={CITIES}
-            value={filters.city}
-            onChange={v => onChange({ ...filters, city: v })}
-          />
 
           <Dropdown
             label="Who's Out"

@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { useJsApiLoader } from '@react-google-maps/api'
 import { useOverlay, OVERLAY } from '@/contexts/OverlayContext'
 import { useMySession } from '@/hooks/useMySession'
@@ -39,7 +39,7 @@ import WalletScreen from '@/screens/WalletScreen'
 import ChatScreen from '@/screens/ChatScreen'
 import MatchScreen from '@/screens/MatchScreen'
 import VenueGroupChat from '@/components/venue/VenueGroupChat'
-import { DEMO_VENUE_MESSAGES } from '@/demo/mockData'
+import { DEMO_VENUE_MESSAGES, DEMO_CENTER } from '@/demo/mockData'
 import MomentsBar from '@/components/moments/MomentsBar'
 import MomentViewer from '@/components/moments/MomentViewer'
 import AddMomentSheet from '@/components/moments/AddMomentSheet'
@@ -55,6 +55,8 @@ import DemoMapView from '@/demo/DemoMapView'
 import { DEMO_VENUES, getActiveVenues } from '@/demo/mockVenues'
 import VenueSheet from '@/components/map/VenueSheet'
 import VenueListSheet from '@/components/map/VenueListSheet'
+import VenuePartnerSheet from '@/components/venue/VenuePartnerSheet'
+import { PARTNER_VENUES } from '@/demo/mockPartnerVenues'
 import ProximityBanner from '@/components/map/ProximityBanner'
 import { useVenueProximity } from '@/hooks/useVenueProximity'
 import MapView from '@/components/map/MapView'
@@ -104,6 +106,9 @@ export default function AppShell({ returnParams, triggerGoLive }) {
   const [selectedVenue, setSelectedVenue] = useState(null)
   const [venueListOpen, setVenueListOpen] = useState(false)
   const [venueChatVenue, setVenueChatVenue] = useState(null)
+  const [partnerSheetOpen, setPartnerSheetOpen] = useState(false)
+  const [selectedPartner, setSelectedPartner]   = useState(null)
+  const [venuesOn, setVenuesOn] = useState(false)
   const [momentViewerIndex, setMomentViewerIndex] = useState(null)
   const [addMomentOpen, setAddMomentOpen] = useState(false)
   const [sosOpen, setSosOpen] = useState(false)
@@ -114,8 +119,44 @@ export default function AppShell({ returnParams, triggerGoLive }) {
   const allMoments = moments
   const [discoveryListFilter, setDiscoveryListFilter] = useState('now')
   const [discoveryListOpen,   setDiscoveryListOpen]   = useState(false)
+  const [newNowCount,    setNewNowCount]    = useState(0)
+  const [newInviteCount, setNewInviteCount] = useState(0)
+  const [newLaterCount,  setNewLaterCount]  = useState(0)
+  const seenNowRef    = useRef(0)
+  const seenInviteRef = useRef(0)
+  const seenLaterRef  = useRef(0)
+  const [mapAreaLabel, setMapAreaLabel] = useState('London')
+  const [mapCenter,    setMapCenter]    = useState({ lat: DEMO_CENTER.lat, lng: DEMO_CENTER.lng })
+  const [flyTarget,    setFlyTarget]    = useState(null)
+  const reverseGeoDebounce = useRef(null)
+
+  const handleMapMove = ({ lat, lng }) => {
+    setMapCenter({ lat, lng })
+    clearTimeout(reverseGeoDebounce.current)
+    reverseGeoDebounce.current = setTimeout(async () => {
+      try {
+        const res  = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}`, {
+          headers: { 'Accept-Language': 'en' }
+        })
+        const data = await res.json()
+        const label = data.address?.city ?? data.address?.town ?? data.address?.village ?? data.address?.suburb ?? data.address?.county ?? ''
+        if (label) setMapAreaLabel(label)
+      } catch {}
+    }, 600)
+  }
 
   const openDiscoveryList = (filter) => {
+    if (filter === 'now') {
+      seenNowRef.current = visibleSessions.filter(s => s.status !== 'scheduled' && s.status !== 'invite_out').length
+      setNewNowCount(0)
+    } else if (filter === 'invite') {
+      seenInviteRef.current = visibleSessions.filter(s => s.status === 'invite_out').length
+      setNewInviteCount(0)
+    } else if (filter === 'later') {
+      seenLaterRef.current = visibleSessions.filter(s => s.status === 'scheduled').length
+      setNewLaterCount(0)
+    }
+    setFlyTarget({ lat: DEMO_CENTER.lat, lng: DEMO_CENTER.lng })
     setDiscoveryListFilter(filter)
     setDiscoveryListOpen(true)
   }
@@ -206,6 +247,33 @@ export default function AppShell({ returnParams, triggerGoLive }) {
     return true
   })
 
+  // Cap visible sessions at 50 nearest to map center.
+  // The current user's own session is always included regardless of distance.
+  const cappedSessions = useMemo(() => {
+    const MAX = 50
+    if (visibleSessions.length <= MAX) return visibleSessions
+    const myUserId = user?.uid ?? null
+    const mine   = myUserId ? visibleSessions.filter(s => s.userId === myUserId) : []
+    const others  = visibleSessions.filter(s => s.userId !== myUserId)
+    const { lat: cLat, lng: cLng } = mapCenter
+    const sorted = [...others].sort((a, b) => {
+      const da = (a.lat - cLat) ** 2 + (a.lng - cLng) ** 2
+      const db = (b.lat - cLat) ** 2 + (b.lng - cLng) ** 2
+      return da - db
+    })
+    return [...mine, ...sorted.slice(0, MAX - mine.length)]
+  }, [visibleSessions, mapCenter, user])
+
+  // Update "new since last seen" badge counts when sessions change
+  useEffect(() => {
+    const nowCount    = visibleSessions.filter(s => s.status !== 'scheduled' && s.status !== 'invite_out').length
+    const inviteCount = visibleSessions.filter(s => s.status === 'invite_out').length
+    const laterCount  = visibleSessions.filter(s => s.status === 'scheduled').length
+    setNewNowCount(Math.max(0, nowCount - seenNowRef.current))
+    setNewInviteCount(Math.max(0, inviteCount - seenInviteRef.current))
+    setNewLaterCount(Math.max(0, laterCount - seenLaterRef.current))
+  }, [visibleSessions])
+
   const activeVenues = getActiveVenues(visibleSessions, DEMO_VENUES)
   const { proximityAlert, dismissAlert } = useVenueProximity(activeVenues)
 
@@ -217,10 +285,15 @@ export default function AppShell({ returnParams, triggerGoLive }) {
       {HAS_MAPS_KEY
         ? <GoogleMapsWrapper />
         : <DemoMapView
-            sessions={visibleSessions}
+            sessions={cappedSessions}
             onSelectUser={(s) => openDiscovery(s)}
             activeVenues={activeVenues}
             onSelectVenue={(v) => { setSelectedVenue(v); setVenueSheetOpen(true) }}
+            venuesOn={venuesOn}
+            partnerVenues={PARTNER_VENUES.filter(v => !v.country || v.country === mapFilters.country)}
+            onSelectPartner={(v) => { setSelectedPartner(v); setPartnerSheetOpen(true) }}
+            onMapMove={handleMapMove}
+            flyTarget={flyTarget}
           />
       }
 
@@ -237,8 +310,13 @@ export default function AppShell({ returnParams, triggerGoLive }) {
         <MapHeader
           onOpenNotifications={() => setNotifOpen(true)}
           notifCount={notifOpen ? 0 : notifUnreadCount}
-          onOpenLikes={() => setLikedMeOpen(true)}
           onOpenSettings={() => setSettingsOpen(true)}
+          onOpenFilter={() => setMapFilterOpen(true)}
+          hasActiveFilter={hasActiveMapFilter}
+          selectedCountry={mapFilters.country}
+          selectedCity={mapFilters.city}
+          onCityChange={(city) => setMapFilters(f => ({ ...f, city }))}
+          mapAreaLabel={mapAreaLabel}
         />
       )}
 
@@ -275,9 +353,12 @@ export default function AppShell({ returnParams, triggerGoLive }) {
       {/* Profile strip — max 4 nearest live users, only visible on map tab */}
       {activeTab === 'map' && (
         <ProfileStrip
-          outNowCount={sessions.filter(s => s.status !== 'scheduled' && s.status !== 'invite_out').length}
-          inviteOutCount={sessions.filter(s => s.status === 'invite_out').length}
-          outLaterCount={sessions.filter(s => s.status === 'scheduled').length}
+          outNowCount={visibleSessions.filter(s => s.status !== 'scheduled' && s.status !== 'invite_out').length}
+          inviteOutCount={visibleSessions.filter(s => s.status === 'invite_out').length}
+          outLaterCount={visibleSessions.filter(s => s.status === 'scheduled').length}
+          newNowCount={newNowCount}
+          newInviteCount={newInviteCount}
+          newLaterCount={newLaterCount}
           onDiscoverNow={()    => openDiscoveryList('now')}
           onDiscoverInvite={() => openDiscoveryList('invite')}
           onDiscoverLater={()  => openDiscoveryList('later')}
@@ -288,12 +369,12 @@ export default function AppShell({ returnParams, triggerGoLive }) {
       {activeTab === 'map' && (
         <BottomNav
           activeTab={activeTab}
-          onChange={(tab) => { if (isGuest && tab !== 'map') { triggerGate(); return } setActiveTab(tab) }}
+          onChange={(tab) => { if (isGuest && tab !== 'map') { triggerGate(); return } setActiveTab(tab); if (tab === 'map') setVenuesOn(false) }}
           unreadChats={0}
-          hasActiveMapFilter={hasActiveMapFilter}
-          onOpenFilter={() => setMapFilterOpen(true)}
           onOpenVenues={() => setVenueListOpen(true)}
           activeVenueCount={activeVenues.length}
+          venuesOn={venuesOn}
+          onToggleVenues={() => setVenuesOn(v => !v)}
           userPhotoURL={userProfile?.photoURL ?? null}
           userName={userProfile?.displayName ?? 'You'}
           isLive={!!mySession}
@@ -333,6 +414,14 @@ export default function AppShell({ returnParams, triggerGoLive }) {
         venues={activeVenues}
         onClose={() => setVenueListOpen(false)}
         onSelectVenue={(v) => { setSelectedVenue(v); setVenueSheetOpen(true) }}
+      />
+      <VenuePartnerSheet
+        open={partnerSheetOpen}
+        venue={selectedPartner}
+        venues={PARTNER_VENUES}
+        onSelectVenue={(v) => setSelectedPartner(v)}
+        onClose={() => { if (selectedPartner) { setSelectedPartner(null) } else { setPartnerSheetOpen(false) } }}
+        sessions={visibleSessions}
       />
       <GoLiveSheet open={overlay.type === OVERLAY.GO_LIVE} onClose={closeOverlay} showToast={showToast} activeVenues={activeVenues} />
       <OtwSentSheet open={overlay.type === OVERLAY.OTW_SENT} request={overlay.data} onClose={closeOverlay} />

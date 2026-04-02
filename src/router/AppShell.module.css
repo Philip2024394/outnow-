@@ -20,6 +20,28 @@
   font-size: var(--font-size-base);
 }
 
+.partnerBtn {
+  position: fixed;
+  bottom: calc(env(safe-area-inset-bottom, 0px) + 90px);
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 200;
+  background: rgba(0,0,0,0.75);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border: 1.5px solid #FFD60A;
+  color: #FFD60A;
+  font-size: 13px;
+  font-weight: 800;
+  padding: 9px 20px;
+  border-radius: 100px;
+  cursor: pointer;
+  letter-spacing: 0.04em;
+  box-shadow: 0 0 14px rgba(255,214,10,0.3);
+  -webkit-tap-highlight-color: transparent;
+  white-space: nowrap;
+}
+
 .interestBadge {
   position: absolute;
   top: calc(var(--safe-top) + 70px);

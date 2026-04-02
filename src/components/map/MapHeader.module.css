@@ -6,20 +6,117 @@
   z-index: var(--z-header);
   padding: calc(var(--safe-top) + var(--space-3)) var(--space-5) var(--space-3);
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   justify-content: space-between;
   overflow: visible;
 }
 
+/* Logo + country dropdown stacked on left */
+.logoArea {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 6px;
+  padding-top: 2px;
+}
+
 .logo {
-  height: 120px;
+  height: 36px;
   width: auto;
   object-fit: contain;
-  /* Anchor top of logo to the header top, let it overflow downward */
-  position: absolute;
-  top: calc(var(--safe-top) + 4px);
-  left: var(--space-5);
   pointer-events: none;
+}
+
+/* Country pill */
+.countryWrap {
+  position: relative;
+}
+
+.countryPill {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  background: rgba(14, 14, 14, 0.8);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border: 1px solid rgba(255,255,255,0.12);
+  border-radius: 100px;
+  padding: 5px 10px;
+  cursor: pointer;
+  color: #fff;
+  -webkit-tap-highlight-color: transparent;
+  white-space: nowrap;
+}
+
+.countryPill:active {
+  background: rgba(57,255,20,0.1);
+}
+
+.countryName {
+  font-size: 11px;
+  font-weight: 600;
+  color: rgba(255,255,255,0.8);
+  max-width: 100px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.countryDropdown {
+  position: absolute;
+  top: calc(100% + 6px);
+  left: 0;
+  background: rgba(16, 16, 16, 0.97);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 16px;
+  overflow: hidden;
+  list-style: none;
+  padding: 6px;
+  margin: 0;
+  min-width: 180px;
+  z-index: 9999;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.6);
+}
+
+.countryOption {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  padding: 10px 12px;
+  background: transparent;
+  border: none;
+  border-radius: 10px;
+  cursor: pointer;
+  color: rgba(255,255,255,0.75);
+  font-size: 13px;
+  font-weight: 500;
+  text-align: left;
+  -webkit-tap-highlight-color: transparent;
+  transition: background 0.12s;
+}
+
+.countryOption:active,
+.countryOption:hover {
+  background: rgba(255,255,255,0.07);
+}
+
+.countryOptionActive {
+  color: #fff;
+  background: rgba(57,255,20,0.08);
+}
+
+.countryCheck {
+  margin-left: auto;
+  color: #39FF14;
+  font-size: 12px;
+  font-weight: 800;
+}
+
+.cityDot {
+  font-size: 12px;
+  flex-shrink: 0;
 }
 
 .right {
@@ -50,6 +147,11 @@
   animation: live-dot 1.2s ease-in-out infinite;
 }
 
+@keyframes live-dot {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0.3; }
+}
+
 /* Settings / people button */
 .settingsBtn {
   position: relative;
@@ -72,6 +174,24 @@
 .settingsBtn:active {
   background: rgba(57,255,20,0.15);
   transform: scale(0.9);
+}
+
+.settingsBtnActive {
+  border-color: rgba(57,255,20,0.4);
+  background: rgba(57,255,20,0.1);
+}
+
+.filterDot {
+  position: absolute;
+  top: 5px;
+  right: 5px;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #39FF14;
+  box-shadow: 0 0 6px #39FF14;
+  border: 1.5px solid rgba(8,8,8,0.9);
+  pointer-events: none;
 }
 
 .notifDot {
