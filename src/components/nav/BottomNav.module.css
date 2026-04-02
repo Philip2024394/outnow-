@@ -88,28 +88,26 @@
   border: 1.5px solid rgba(10,10,10,0.9);
 }
 
-/* SOS button */
-.sosTab {
-  width: 46px;
-  height: 32px;
-  border-radius: 8px;
-  background: #CC0000;
+/* Profile avatar button */
+.avatarTab {
+  border-radius: 50%;
+  background: transparent;
   border: none;
   display: flex;
   align-items: center;
   justify-content: center;
   cursor: pointer;
   -webkit-tap-highlight-color: transparent;
-  transition: opacity 0.15s, transform 0.1s;
-  box-shadow: 0 4px 14px rgba(180,0,0,0.5);
-  color: #fff;
-  font-size: 12px;
-  font-weight: 900;
-  letter-spacing: 0.06em;
-  font-family: var(--font-sans, sans-serif);
+  transition: transform 0.12s;
+  padding: 8px 0 0;
+  margin-top: 4px;
+  border-top: 1px solid rgba(255,255,255,0.07);
+  width: 46px;
 }
 
-.sosTab:active {
-  transform: scale(0.9);
-  opacity: 0.85;
-}
+.avatarTab:active { transform: scale(0.88); }
+
+/* Status glow around the avatar image */
+.avatarLive   { filter: drop-shadow(0 0 5px rgba(57,255,20,0.8));  }
+.avatarInvite { filter: drop-shadow(0 0 5px rgba(255,214,10,0.8)); }
+.avatarLater  { filter: drop-shadow(0 0 5px rgba(255,149,0,0.8));  }

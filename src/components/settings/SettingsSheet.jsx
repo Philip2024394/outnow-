@@ -1,6 +1,10 @@
 import { useState, useEffect, useRef } from 'react'
 import { signOut } from '@/services/authService'
 import { usePushNotifications } from '@/hooks/usePushNotifications'
+import { useAuth } from '@/hooks/useAuth'
+import { useCoins } from '@/hooks/useCoins'
+import Avatar from '@/components/ui/Avatar'
+import CoinBadge from '@/components/ui/CoinBadge'
 import PrivacySheet from './PrivacySheet'
 import SafetySheet from '@/components/safety/SafetySheet'
 import { getSafetyContact } from '@/components/safety/SafetySheet'
@@ -35,6 +39,8 @@ function Divider({ label }) {
 
 export default function SettingsSheet({ open, onClose, onOpenLikes, onEditProfile, onOpenBlockList, showToast, onSOS }) {
   const { permission, requestPermission } = usePushNotifications()
+  const { userProfile } = useAuth()
+  const { balance, earn } = useCoins()
   const [notifOn, setNotifOn] = useState(permission === 'granted')
   const [signingOut, setSigningOut] = useState(false)
   const [privacyOpen, setPrivacyOpen] = useState(false)
@@ -115,7 +121,17 @@ export default function SettingsSheet({ open, onClose, onOpenLikes, onEditProfil
 
           {/* Header */}
           <div className={styles.header}>
-            <span className={styles.title}>Settings</span>
+            <div className={styles.headerUser}>
+              <Avatar
+                src={userProfile?.photoURL}
+                name={userProfile?.displayName ?? 'You'}
+                size={40}
+              />
+              <div className={styles.headerMeta}>
+                <span className={styles.title}>{userProfile?.displayName ?? 'You'}</span>
+                <CoinBadge balance={balance} size="sm" />
+              </div>
+            </div>
             <button className={styles.closeBtn} onClick={onClose} aria-label="Close">
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
                 <line x1="18" y1="6" x2="6" y2="18" />
@@ -125,6 +141,16 @@ export default function SettingsSheet({ open, onClose, onOpenLikes, onEditProfil
           </div>
 
           <div className={styles.content}>
+            {/* SOS — top of drawer */}
+            <button className={styles.sosRow} onClick={() => { onClose(); setTimeout(() => onSOS?.(), 200) }}>
+              <span className={styles.sosIcon}>🆘</span>
+              <div className={styles.sosText}>
+                <span className={styles.sosLabel}>Alert My Contact</span>
+                <span className={styles.sosSub}>{safetyContact ? `Sends help alert to ${safetyContact.name}` : 'Set a safety contact first'}</span>
+              </div>
+              <span className={styles.sosArrow}>›</span>
+            </button>
+
             {/* Activity */}
             <Divider label="Activity" />
             <Row
@@ -185,14 +211,6 @@ export default function SettingsSheet({ open, onClose, onOpenLikes, onEditProfil
               sublabel="Tips for staying safe while meeting up"
               onClick={() => showToast?.('Always meet in a public place. Trust your instincts.')}
             />
-            <button className={styles.sosRow} onClick={() => { onClose(); setTimeout(() => onSOS?.(), 200) }}>
-              <span className={styles.sosIcon}>🆘</span>
-              <div className={styles.sosText}>
-                <span className={styles.sosLabel}>Alert My Contact</span>
-                <span className={styles.sosSub}>{safetyContact ? `Sends help alert to ${safetyContact.name}` : 'Set a safety contact first'}</span>
-              </div>
-              <span className={styles.sosArrow}>›</span>
-            </button>
 
             {/* Community */}
             <Divider label="Community" />
@@ -228,7 +246,7 @@ export default function SettingsSheet({ open, onClose, onOpenLikes, onEditProfil
       </div>
 
       <PrivacySheet open={privacyOpen} onClose={() => setPrivacyOpen(false)} />
-      <SafetySheet open={safetyOpen} onClose={() => setSafetyOpen(false)} />
+      <SafetySheet open={safetyOpen} onClose={() => setSafetyOpen(false)} onSave={() => earn('SAFETY_CONTACT')} />
       <SuggestPlaceSheet open={suggestOpen} onClose={() => setSuggestOpen(false)} showToast={showToast} />
     </>
   )

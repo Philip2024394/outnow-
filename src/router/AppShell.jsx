@@ -8,6 +8,7 @@ import { useInterests } from '@/hooks/useInterests'
 import { useLiveUsers } from '@/hooks/useLiveUsers'
 
 import { useInviteOut } from '@/hooks/useInviteOut'
+import { useCoins } from '@/hooks/useCoins'
 import InviteOutSheet from '@/components/golive/InviteOutSheet'
 import MapHeader from '@/components/map/MapHeader'
 import MapOverlay from '@/components/map/MapOverlay'
@@ -20,6 +21,7 @@ import GoLiveSheet from '@/components/golive/GoLiveSheet'
 import ActiveSessionBar from '@/components/session/ActiveSessionBar'
 import StillHerePrompt from '@/components/session/StillHerePrompt'
 import DiscoveryCard from '@/components/discovery/DiscoveryCard'
+import DiscoveryListSheet from '@/components/discovery/DiscoveryListSheet'
 import OtwRequestBanner from '@/components/otw/OtwRequestBanner'
 import OtwSentSheet from '@/components/otw/OtwSentSheet'
 import PaymentGate from '@/components/payment/PaymentGate'
@@ -98,9 +100,15 @@ export default function AppShell({ returnParams, triggerGoLive }) {
   const [sosOpen, setSosOpen] = useState(false)
   const [inviteOutSheetOpen, setInviteOutSheetOpen] = useState(false)
   const { inviteOut, post: postInviteOut, goingLive, revertToInviteOut } = useInviteOut()
+  const { earn: earnCoins } = useCoins()
   const allMoments = [...DEMO_MOMENTS, ...extraMoments]
-  // 'all' | 'now' | 'later'
-  const [whoFilter, setWhoFilter] = useState('all')
+  const [discoveryListFilter, setDiscoveryListFilter] = useState('now')
+  const [discoveryListOpen,   setDiscoveryListOpen]   = useState(false)
+
+  const openDiscoveryList = (filter) => {
+    setDiscoveryListFilter(filter)
+    setDiscoveryListOpen(true)
+  }
   // Full map filter sheet
   const [mapFilterOpen, setMapFilterOpen] = useState(false)
   const [mapFilters, setMapFilters] = useState(DEFAULT_MAP_FILTERS)
@@ -137,6 +145,37 @@ export default function AppShell({ returnParams, triggerGoLive }) {
     if (triggerGoLive) openGoLive()
   }, [triggerGoLive]) // eslint-disable-line
 
+  // Out Later auto-reset at 3am local time
+  useEffect(() => {
+    if (!mySession || mySession.status !== 'scheduled') return
+
+    const msUntil3am = () => {
+      const now  = new Date()
+      const next = new Date(now)
+      next.setHours(3, 0, 0, 0)
+      if (next <= now) next.setDate(next.getDate() + 1)
+      return next.getTime() - now.getTime()
+    }
+
+    // If it's already past 3am today and the session was posted before today's 3am, reset now
+    const now       = new Date()
+    const today3am  = new Date(now); today3am.setHours(3, 0, 0, 0)
+    const postedAt  = mySession.startedAtMs ?? mySession.scheduledFor ?? 0
+    if (now >= today3am && postedAt < today3am.getTime()) {
+      endSession(mySession.id)
+      revertToInviteOut()
+      return
+    }
+
+    // Otherwise schedule a timeout for the next 3am
+    const t = setTimeout(() => {
+      endSession(mySession.id)
+      revertToInviteOut()
+    }, msUntil3am())
+
+    return () => clearTimeout(t)
+  }, [mySession, revertToInviteOut]) // eslint-disable-line
+
   // Safety check-in — notify when session goes live
   const prevSessionRef = useRef(null)
   useEffect(() => {
@@ -150,10 +189,8 @@ export default function AppShell({ returnParams, triggerGoLive }) {
   }, [mySession]) // eslint-disable-line
 
   const visibleSessions = sessions.filter(s => {
-    if (whoFilter === 'now'   && s.status === 'scheduled') return false
-    if (whoFilter === 'later' && s.status !== 'scheduled') return false
-    if (mapFilters.status === 'Out Now'   && s.status === 'scheduled') return false
-    if (mapFilters.status === 'Out Later' && s.status !== 'scheduled') return false
+    if (mapFilters.status === 'Out Now'   && s.status === 'scheduled')  return false
+    if (mapFilters.status === 'Out Later' && s.status !== 'scheduled')  return false
     if (mapFilters.activity !== 'All' && s.activityType?.toLowerCase() !== mapFilters.activity.toLowerCase()) return false
     if (mapFilters.city     !== 'All' && !s.area?.toLowerCase().includes(mapFilters.city.toLowerCase())) return false
     return true
@@ -222,15 +259,12 @@ export default function AppShell({ returnParams, triggerGoLive }) {
       {/* Profile strip — max 4 nearest live users, only visible on map tab */}
       {activeTab === 'map' && (
         <ProfileStrip
-          filter={whoFilter}
-          onFilterChange={setWhoFilter}
           outNowCount={sessions.filter(s => s.status !== 'scheduled' && s.status !== 'invite_out').length}
+          inviteOutCount={sessions.filter(s => s.status === 'invite_out').length}
           outLaterCount={sessions.filter(s => s.status === 'scheduled').length}
-          isLive={!!mySession}
-          isInviteOut={!mySession && !!inviteOut}
-          onActivate={openGoLive}
-          onInviteOut={() => setInviteOutSheetOpen(true)}
-          onEnd={() => setRatingOpen(true)}
+          onDiscoverNow={()    => openDiscoveryList('now')}
+          onDiscoverInvite={() => openDiscoveryList('invite')}
+          onDiscoverLater={()  => openDiscoveryList('later')}
         />
       )}
 
@@ -244,7 +278,12 @@ export default function AppShell({ returnParams, triggerGoLive }) {
           onOpenFilter={() => setMapFilterOpen(true)}
           onOpenVenues={() => setVenueListOpen(true)}
           activeVenueCount={activeVenues.length}
-          onSOS={() => setSosOpen(true)}
+          userPhotoURL={null}
+          userName="You"
+          isLive={!!mySession}
+          isInviteOut={!mySession && !!inviteOut}
+          isScheduled={false}
+          onProfileTap={() => setInviteOutSheetOpen(true)}
         />
       )}
 
@@ -330,10 +369,17 @@ export default function AppShell({ returnParams, triggerGoLive }) {
           revertToInviteOut()
         }}
       />
+      <DiscoveryListSheet
+        open={discoveryListOpen}
+        filter={discoveryListFilter}
+        sessions={visibleSessions}
+        onClose={() => setDiscoveryListOpen(false)}
+        onSelect={(s) => { setDiscoveryListOpen(false); setTimeout(() => openDiscovery(s), 200) }}
+      />
       <InviteOutSheet
         open={inviteOutSheetOpen}
         onClose={() => setInviteOutSheetOpen(false)}
-        onPost={(activity, message) => postInviteOut(activity, message)}
+        onPost={(activity, message) => { postInviteOut(activity, message); earnCoins('FIRST_INVITE_OUT') }}
         onGoLive={() => { goingLive(); openGoLive() }}
         onGoLater={() => { goingLive(); openGoLive() }}
       />

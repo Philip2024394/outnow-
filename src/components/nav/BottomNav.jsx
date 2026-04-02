@@ -1,3 +1,4 @@
+import Avatar from '@/components/ui/Avatar'
 import styles from './BottomNav.module.css'
 
 const TABS = [
@@ -32,7 +33,7 @@ const TABS = [
   },
 ]
 
-export default function BottomNav({ activeTab = 'map', onChange, unreadChats = 0, hasActiveMapFilter, onOpenFilter, onOpenVenues, activeVenueCount = 0, onSOS }) {
+export default function BottomNav({ activeTab = 'map', onChange, unreadChats = 0, hasActiveMapFilter, onOpenFilter, onOpenVenues, activeVenueCount = 0, userPhotoURL, userName, isLive = false, isInviteOut = false, isScheduled = false, onProfileTap }) {
   return (
     <nav className={styles.nav}>
       {TABS.map((tab) => {
@@ -88,9 +89,25 @@ export default function BottomNav({ activeTab = 'map', onChange, unreadChats = 0
         </button>
       )}
 
-      {/* SOS button */}
-      <button className={styles.sosTab} onClick={onSOS} aria-label="Alert my contact">
-        SOS
+      {/* Profile avatar — status ring shows current state */}
+      <button
+        className={[
+          styles.avatarTab,
+          isLive      ? styles.avatarLive    : '',
+          isInviteOut ? styles.avatarInvite  : '',
+          isScheduled ? styles.avatarLater   : '',
+        ].filter(Boolean).join(' ')}
+        onClick={onProfileTap}
+        aria-label="My status"
+      >
+        <Avatar
+          src={userPhotoURL}
+          name={userName ?? 'Me'}
+          size={34}
+          live={isLive}
+          inviteOut={isInviteOut}
+          scheduled={isScheduled}
+        />
       </button>
     </nav>
   )

@@ -1,0 +1,252 @@
+.wrapper {
+  position: fixed;
+  inset: 0;
+  z-index: var(--z-sheet);
+  pointer-events: none;
+}
+
+.backdrop {
+  position: absolute;
+  inset: 0;
+  background: rgba(0,0,0,0.5);
+  pointer-events: all;
+  animation: fade-in 0.2s forwards;
+}
+
+@keyframes fade-in {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+.sheet {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  border-radius: 20px 20px 0 0;
+  max-height: 88dvh;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  pointer-events: all;
+  animation: slide-up 0.32s cubic-bezier(0.32,0.72,0,1) forwards;
+  will-change: transform;
+}
+
+@keyframes slide-up {
+  from { transform: translateY(100%); }
+  to   { transform: translateY(0); }
+}
+
+.bgImage {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
+  z-index: 0;
+}
+
+.frost {
+  position: absolute;
+  inset: 0;
+  background: rgba(4,4,4,0.82);
+  z-index: 1;
+}
+
+/* Coloured top strip */
+.strip {
+  position: relative;
+  z-index: 2;
+  height: 4px;
+  flex-shrink: 0;
+}
+
+.stripNow    { background: #39FF14; box-shadow: 0 0 14px rgba(57,255,20,0.9);  }
+.stripInvite { background: #FFD60A; box-shadow: 0 0 14px rgba(255,214,10,0.9); }
+.stripLater  { background: #FF9500; box-shadow: 0 0 14px rgba(255,149,0,0.9);  }
+
+.handle {
+  position: relative;
+  z-index: 2;
+  width: 36px;
+  height: 4px;
+  background: rgba(255,255,255,0.25);
+  border-radius: 100px;
+  margin: 12px auto 0;
+  flex-shrink: 0;
+}
+
+.scrollContent {
+  position: relative;
+  z-index: 2;
+  flex: 1;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior: contain;
+  padding: 16px 16px calc(env(safe-area-inset-bottom, 0px) + 20px);
+  scrollbar-width: none;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.scrollContent::-webkit-scrollbar { display: none; }
+
+/* Header */
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-bottom: 4px;
+}
+
+.headerLeft {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.badge {
+  font-size: 11px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+  padding: 4px 10px;
+  border-radius: 100px;
+  border: 1.5px solid;
+}
+
+.badgeNow    { color: #39FF14; background: rgba(57,255,20,0.1);  border-color: rgba(57,255,20,0.3);  }
+.badgeInvite { color: #FFD60A; background: rgba(255,214,10,0.1); border-color: rgba(255,214,10,0.3); }
+.badgeLater  { color: #FF9500; background: rgba(255,149,0,0.1);  border-color: rgba(255,149,0,0.3);  }
+
+.count {
+  font-size: 13px;
+  color: rgba(255,255,255,0.4);
+  font-weight: 600;
+}
+
+.closeBtn {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: rgba(255,255,255,0.06);
+  border: none;
+  color: rgba(255,255,255,0.4);
+  font-size: 14px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: inherit;
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* Profile list */
+.list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+/* Landscape profile card */
+.card {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 12px 14px;
+  background: rgba(255,255,255,0.04);
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 16px;
+  cursor: pointer;
+  font-family: inherit;
+  text-align: left;
+  -webkit-tap-highlight-color: transparent;
+  transition: background 0.12s;
+  width: 100%;
+}
+
+.card:active { background: rgba(255,255,255,0.08); }
+
+.cardInfo {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.cardName {
+  font-size: 15px;
+  font-weight: 700;
+  color: #fff;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.cardAge {
+  font-size: 14px;
+  font-weight: 500;
+  color: rgba(255,255,255,0.45);
+}
+
+.groupTag {
+  font-size: 11px;
+  font-weight: 700;
+  color: rgba(255,255,255,0.5);
+  background: rgba(255,255,255,0.07);
+  padding: 2px 7px;
+  border-radius: 100px;
+}
+
+.cardActivity {
+  font-size: 13px;
+  color: rgba(255,255,255,0.6);
+  font-weight: 500;
+}
+
+.cardArea {
+  font-size: 12px;
+  color: rgba(255,255,255,0.35);
+}
+
+.cardMessage {
+  font-size: 12px;
+  color: rgba(255,255,255,0.4);
+  font-style: italic;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.cardRight {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 4px;
+  flex-shrink: 0;
+}
+
+.cardTime {
+  font-size: 11px;
+  font-weight: 600;
+  color: #FF9500;
+}
+
+.cardArrow {
+  font-size: 22px;
+  color: rgba(255,255,255,0.2);
+  line-height: 1;
+}
+
+/* Empty state */
+.empty {
+  text-align: center;
+  color: rgba(255,255,255,0.25);
+  font-size: 14px;
+  padding: 40px 20px;
+  line-height: 1.6;
+}

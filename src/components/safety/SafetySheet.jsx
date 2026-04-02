@@ -26,7 +26,7 @@ const PLATFORMS = [
   { id: 'wechat',    label: 'WeChat',     emoji: '🟢' },
 ]
 
-export default function SafetySheet({ open, onClose }) {
+export default function SafetySheet({ open, onClose, onSave }) {
   const { show: showIntro, dismiss: dismissIntro } = useFeatureIntro('safety_checkin')
   const existing = getSafetyContact()
 
@@ -43,6 +43,7 @@ export default function SafetySheet({ open, onClose }) {
     saveSafetyContact({ name: name.trim(), phone: phone.trim(), platform, smsBackup, contact: phone.trim() })
     setSaved(true)
     setError(null)
+    onSave?.()
   }
 
   const handleClear = () => {
