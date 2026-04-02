@@ -58,10 +58,18 @@ function LiveMarkers({ sessions, onSelect }) {
       const tierClass = tier ? ` demo-marker--${tier}` : ''
       const avatarTierClass = tier ? ` demo-marker__avatar--${tier}` : ''
       const crownHtml = tier === 'vip' ? `<div class="demo-marker__crown">👑</div>` : ''
+      const isReplied = !!session.hasReplied
 
       const icon = divIcon({
         className: '',
-        html: isScheduled
+        html: isReplied
+          ? `<div class="demo-marker demo-marker--replied${tierClass}">
+               <div class="demo-marker__reply-badge">💌</div>
+               <div class="demo-marker__pulse demo-marker__pulse--slow"></div>
+               <div class="demo-marker__avatar${avatarTierClass}">${avatarInner}</div>
+               <div class="demo-marker__activity">${emoji}</div>
+             </div>`
+          : isScheduled
           ? `<div class="demo-marker demo-marker--scheduled${tierClass}">
                <div class="demo-marker__clock">🕐</div>
                <div class="demo-marker__avatar demo-marker__avatar--scheduled${avatarTierClass}">${avatarInner}</div>

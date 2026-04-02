@@ -165,6 +165,27 @@
   z-index: 3;
 }
 
+/* ── Replied marker (OTW accepted) ── */
+:global(.demo-marker--replied) {
+  height: 68px;
+}
+
+:global(.demo-marker__reply-badge) {
+  position: absolute;
+  top: -6px;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 15px;
+  z-index: 4;
+  line-height: 1;
+  animation: reply-bounce 1.2s ease-in-out infinite;
+}
+
+@keyframes reply-bounce {
+  0%, 100% { transform: translateX(-50%) translateY(0); }
+  50%       { transform: translateX(-50%) translateY(-4px); }
+}
+
 /* ── Premium photo avatar ── */
 :global(.demo-marker__photo) {
   width: 100%;

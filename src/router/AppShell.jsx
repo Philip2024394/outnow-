@@ -24,6 +24,7 @@ import DiscoveryCard from '@/components/discovery/DiscoveryCard'
 import DiscoveryListSheet from '@/components/discovery/DiscoveryListSheet'
 import OtwRequestBanner from '@/components/otw/OtwRequestBanner'
 import OtwSentSheet from '@/components/otw/OtwSentSheet'
+import OtwReplyBanner from '@/components/otw/OtwReplyBanner'
 import PaymentGate from '@/components/payment/PaymentGate'
 import VenueReveal from '@/components/payment/VenueReveal'
 import ReportSheet from '@/components/moderation/ReportSheet'
@@ -131,6 +132,8 @@ export default function AppShell({ returnParams, triggerGoLive }) {
   const [mapCenter,    setMapCenter]    = useState({ lat: DEMO_CENTER.lat, lng: DEMO_CENTER.lng })
   const [flyTarget,    setFlyTarget]    = useState(null)
   const reverseGeoDebounce = useRef(null)
+  const prevOtwStatusRef = useRef(null)
+  const [otwReplyBanner, setOtwReplyBanner] = useState(null)
 
   const handleMapMove = ({ lat, lng }) => {
     setMapCenter({ lat, lng })
@@ -249,14 +252,37 @@ export default function AppShell({ returnParams, triggerGoLive }) {
     return true
   })
 
+  // Hide sessions the user already messaged (OTW pending).
+  // When the other person accepts, bring them back with hasReplied flag.
+  const mapSessions = useMemo(() => {
+    if (!myOutgoingRequest?.sessionId) return visibleSessions
+    return visibleSessions.reduce((acc, s) => {
+      if (s.id !== myOutgoingRequest.sessionId) { acc.push(s); return acc }
+      if (myOutgoingRequest.status === 'accepted') acc.push({ ...s, hasReplied: true })
+      // status === 'pending' → excluded (hidden from map)
+      return acc
+    }, [])
+  }, [visibleSessions, myOutgoingRequest])
+
+  // Detect when outgoing OTW switches to accepted → show reply banner
+  useEffect(() => {
+    const prev = prevOtwStatusRef.current
+    const curr = myOutgoingRequest?.status ?? null
+    if (prev === 'pending' && curr === 'accepted') {
+      const repliedSession = sessions.find(s => s.id === myOutgoingRequest.sessionId)
+      if (repliedSession) setOtwReplyBanner({ session: repliedSession })
+    }
+    prevOtwStatusRef.current = curr
+  }, [myOutgoingRequest?.status]) // eslint-disable-line
+
   // Cap visible sessions at 50 nearest to map center.
   // The current user's own session is always included regardless of distance.
   const cappedSessions = useMemo(() => {
     const MAX = 50
-    if (visibleSessions.length <= MAX) return visibleSessions
+    if (mapSessions.length <= MAX) return mapSessions
     const myUserId = user?.uid ?? null
-    const mine   = myUserId ? visibleSessions.filter(s => s.userId === myUserId) : []
-    const others  = visibleSessions.filter(s => s.userId !== myUserId)
+    const mine   = myUserId ? mapSessions.filter(s => s.userId === myUserId) : []
+    const others  = mapSessions.filter(s => s.userId !== myUserId)
     const { lat: cLat, lng: cLng } = mapCenter
     const sorted = [...others].sort((a, b) => {
       const da = (a.lat - cLat) ** 2 + (a.lng - cLng) ** 2
@@ -264,7 +290,7 @@ export default function AppShell({ returnParams, triggerGoLive }) {
       return da - db
     })
     return [...mine, ...sorted.slice(0, MAX - mine.length)]
-  }, [visibleSessions, mapCenter, user])
+  }, [mapSessions, mapCenter, user])
 
   // Update "new since last seen" badge counts when sessions change
   useEffect(() => {
@@ -345,6 +371,13 @@ export default function AppShell({ returnParams, triggerGoLive }) {
       {incomingRequest && (
         <OtwRequestBanner request={incomingRequest} onAction={() => showToast} />
       )}
+
+      <OtwReplyBanner
+        banner={otwReplyBanner}
+        onView={(s) => { setOtwReplyBanner(null); openDiscovery(s) }}
+        onOpenNotifications={() => { setOtwReplyBanner(null); setNotifOpen(true) }}
+        onDismiss={() => setOtwReplyBanner(null)}
+      />
 
       {incomingInterests.length > 0 && !incomingRequest && (
         <div className={styles.interestBadge}>
