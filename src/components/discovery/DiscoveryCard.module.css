@@ -118,23 +118,19 @@
 .activityHeader {
   display: flex;
   align-items: center;
-  gap: 5px;
-  background: rgba(255,255,255,0.07);
-  border: 1px solid rgba(255,255,255,0.12);
-  border-radius: 100px;
-  padding: 5px 11px;
+  gap: 6px;
 }
 
 .activityHeaderIcon {
-  font-size: 15px;
+  font-size: 22px;
   line-height: 1;
 }
 
 .activityHeaderLabel {
-  font-size: 12px;
-  font-weight: 700;
-  color: rgba(255,255,255,0.85);
-  letter-spacing: 0.02em;
+  font-size: 17px;
+  font-weight: 800;
+  color: #fff;
+  letter-spacing: 0.01em;
 }
 
 /* ── Photo carousel banner ── */
@@ -204,6 +200,14 @@
   font-size: 15px;
   font-weight: 600;
   color: rgba(255,255,255,0.85);
+}
+
+.photoBannerCity {
+  font-size: 11px;
+  font-weight: 600;
+  color: rgba(255,255,255,0.7);
+  text-shadow: 0 1px 4px rgba(0,0,0,0.7);
+  letter-spacing: 0.02em;
 }
 
 .photoBannerStatus {

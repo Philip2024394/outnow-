@@ -248,6 +248,7 @@ export default function DiscoveryCard({ open, session, mySession, onClose, showT
               <span className={styles.activityHeaderIcon}>{activity.emoji ?? '🎯'}</span>
               <span className={styles.activityHeaderLabel}>{activity.label}</span>
             </div>
+
           </div>
         )}
 
@@ -263,12 +264,17 @@ export default function DiscoveryCard({ open, session, mySession, onClose, showT
               alt={session.displayName}
               className={styles.photoBannerImg}
             />
-            {/* Bottom-left: name + age */}
+            {/* Bottom-left: name + age + location */}
             <div className={styles.photoBannerMeta}>
               <span className={styles.photoBannerName}>
                 {session.displayName ?? 'Someone'}
                 {session.age ? <span className={styles.photoBannerAge}>, {session.age}</span> : null}
               </span>
+              {(session.city || session.area) && (
+                <span className={styles.photoBannerCity}>
+                  📍 {session.city ?? session.area}
+                </span>
+              )}
             </div>
 
             {/* Top-left: distance */}
@@ -306,11 +312,6 @@ export default function DiscoveryCard({ open, session, mySession, onClose, showT
               {session.displayName ?? 'Someone'}
               {session.age && <span className={styles.nameAge}> {session.age}</span>}
             </h2>
-            {(session.city || session.area) && (
-              <div className={styles.cityLine}>
-                📍 {session.city ?? session.area}
-              </div>
-            )}
             <div className={styles.activityRow}>
               <ActivityIcon activity={activity} size={22} className={styles.activityEmoji} />
               <span className={styles.activityLabel}>
