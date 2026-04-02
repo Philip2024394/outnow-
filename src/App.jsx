@@ -32,7 +32,7 @@ export default function App() {
   // Onboarding state: 'welcome' → 'setup' → 'golive' → 'done'
   const [onboardStep, setOnboardStep] = useState(() => {
     if (localStorage.getItem(ONBOARDING_KEY)) return 'done'
-    return 'welcome'
+    return 'setup'  // skip WelcomePopup — go straight to profile slides
   })
   const [triggerGoLive, setTriggerGoLive] = useState(false)
 
