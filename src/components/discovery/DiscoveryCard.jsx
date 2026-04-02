@@ -270,11 +270,6 @@ export default function DiscoveryCard({ open, session, mySession, onClose, showT
         {/* ── Card header — activity outside/above the photo ── */}
         {activity && (
           <div className={styles.cardHeader}>
-            <div className={styles.matchBadge}>
-              {isHighMatch && <span className={styles.matchStar}>⭐</span>}
-              <span className={styles.matchPercent}>{matchPercent}%</span>
-              <span className={styles.matchLabel}>Match</span>
-            </div>
             <div className={styles.activityHeader}>
               <span className={styles.activityHeaderIcon}>{activity.emoji ?? '🎯'}</span>
               <div className={styles.activityHeaderText}>
@@ -282,7 +277,11 @@ export default function DiscoveryCard({ open, session, mySession, onClose, showT
                 <span className={styles.activityHeaderSlogan}>{activitySlogan}</span>
               </div>
             </div>
-
+            <div className={styles.matchBadge}>
+              {isHighMatch && <span className={styles.matchStar}>⭐</span>}
+              <span className={styles.matchPercent}>{matchPercent}%</span>
+              <span className={styles.matchLabel}>Match</span>
+            </div>
           </div>
         )}
 
