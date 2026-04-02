@@ -326,6 +326,24 @@ export default function DiscoveryCard({ open, session, mySession, onClose, showT
                 {showArrow ? '←' : '👆'}
               </button>
             )}
+
+            {/* Fingerprint — bottom-right of photo */}
+            <button
+              className={styles.fingerprintBtn}
+              onClick={() => showToast?.('Identity verification coming soon', 'info')}
+              aria-label="Verify identity"
+            >
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M12 2C9.5 2 7.2 3 5.5 4.7"/>
+                <path d="M2.5 8.5C2 9.6 1.8 10.8 2 12"/>
+                <path d="M22 12c0-5.5-4.5-10-10-10"/>
+                <path d="M12 8c-2.2 0-4 1.8-4 4 0 3.5 1.5 6.5 4 8.5"/>
+                <path d="M20 12c0 4-2 7.5-5 9.5"/>
+                <path d="M12 12v.01"/>
+                <path d="M12 16c0 1.1-.4 2.1-1 2.9"/>
+                <path d="M16 12c0 1.4-.3 2.8-.9 4"/>
+              </svg>
+            </button>
           </div>
         )}
 
@@ -372,22 +390,6 @@ export default function DiscoveryCard({ open, session, mySession, onClose, showT
               📍 {session.area ?? 'Nearby area'}
             </div>
           </div>
-          <button
-            className={styles.fingerprintBtn}
-            onClick={() => showToast?.('Identity verification coming soon', 'info')}
-            aria-label="Verify identity"
-          >
-            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-              <path d="M12 2C9.5 2 7.2 3 5.5 4.7"/>
-              <path d="M2.5 8.5C2 9.6 1.8 10.8 2 12"/>
-              <path d="M22 12c0-5.5-4.5-10-10-10"/>
-              <path d="M12 8c-2.2 0-4 1.8-4 4 0 3.5 1.5 6.5 4 8.5"/>
-              <path d="M20 12c0 4-2 7.5-5 9.5"/>
-              <path d="M12 12v.01"/>
-              <path d="M12 16c0 1.1-.4 2.1-1 2.9"/>
-              <path d="M16 12c0 1.4-.3 2.8-.9 4"/>
-            </svg>
-          </button>
         </div>
 
         {/* Timer / Scheduled badge */}
