@@ -56,6 +56,7 @@ import { DEMO_VENUES, getActiveVenues } from '@/demo/mockVenues'
 import VenueSheet from '@/components/map/VenueSheet'
 import VenueListSheet from '@/components/map/VenueListSheet'
 import VenuePartnerSheet from '@/components/venue/VenuePartnerSheet'
+import UpgradeSheet from '@/components/premium/UpgradeSheet'
 import { PARTNER_VENUES } from '@/demo/mockPartnerVenues'
 import ProximityBanner from '@/components/map/ProximityBanner'
 import { useVenueProximity } from '@/hooks/useVenueProximity'
@@ -113,6 +114,7 @@ export default function AppShell({ returnParams, triggerGoLive }) {
   const [addMomentOpen, setAddMomentOpen] = useState(false)
   const [sosOpen, setSosOpen] = useState(false)
   const [walletOpen, setWalletOpen] = useState(false)
+  const [upgradeOpen, setUpgradeOpen] = useState(false)
   const [inviteOutSheetOpen, setInviteOutSheetOpen] = useState(false)
   const { inviteOut, post: postInviteOut, goingLive, revertToInviteOut } = useInviteOut()
   const { earn: earnCoins } = useCoins()
@@ -442,6 +444,12 @@ export default function AppShell({ returnParams, triggerGoLive }) {
 
       {walletOpen && <WalletScreen onClose={() => setWalletOpen(false)} />}
 
+      <UpgradeSheet
+        open={upgradeOpen}
+        onClose={() => setUpgradeOpen(false)}
+        showToast={showToast}
+      />
+
       <SettingsSheet
         open={settingsOpen}
         onClose={() => setSettingsOpen(false)}
@@ -449,6 +457,7 @@ export default function AppShell({ returnParams, triggerGoLive }) {
         onEditProfile={() => { setSettingsOpen(false); setTimeout(() => setActiveTab('profile'), 200) }}
         onOpenBlockList={() => { setSettingsOpen(false); setTimeout(() => setBlockListOpen(true), 200) }}
         onOpenWallet={() => setWalletOpen(true)}
+        onUpgrade={() => { setSettingsOpen(false); setTimeout(() => setUpgradeOpen(true), 200) }}
         showToast={showToast}
         onSOS={() => setSosOpen(true)}
       />

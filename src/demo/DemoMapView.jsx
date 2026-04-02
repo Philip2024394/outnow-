@@ -51,27 +51,35 @@ function LiveMarkers({ sessions, onSelect }) {
       const isScheduled  = session.status === 'scheduled'
       const isInviteOut  = session.status === 'invite_out'
       const scheduledLabel = isScheduled ? formatScheduledTime(session.scheduledFor) : ''
+      const tier = session.tier ?? null
+      const avatarInner = (tier && session.photoURL)
+        ? `<img src="${session.photoURL}" class="demo-marker__photo" alt="" />`
+        : initial
+      const tierClass = tier ? ` demo-marker--${tier}` : ''
+      const avatarTierClass = tier ? ` demo-marker__avatar--${tier}` : ''
+      const crownHtml = tier === 'vip' ? `<div class="demo-marker__crown">👑</div>` : ''
 
       const icon = divIcon({
         className: '',
         html: isScheduled
-          ? `<div class="demo-marker demo-marker--scheduled">
+          ? `<div class="demo-marker demo-marker--scheduled${tierClass}">
                <div class="demo-marker__clock">🕐</div>
-               <div class="demo-marker__avatar demo-marker__avatar--scheduled">${initial}</div>
+               <div class="demo-marker__avatar demo-marker__avatar--scheduled${avatarTierClass}">${avatarInner}</div>
                <div class="demo-marker__activity">${emoji}</div>
                <div class="demo-marker__time-label">${scheduledLabel}</div>
              </div>`
           : isInviteOut
-          ? `<div class="demo-marker demo-marker--invite">
+          ? `<div class="demo-marker demo-marker--invite${tierClass}">
                <div class="demo-marker__invite-badge">💌</div>
-               <div class="demo-marker__avatar demo-marker__avatar--invite">${initial}</div>
+               <div class="demo-marker__avatar demo-marker__avatar--invite${avatarTierClass}">${avatarInner}</div>
                <div class="demo-marker__activity">${emoji}</div>
                <div class="demo-marker__invite-label">Invite Out</div>
              </div>`
-          : `<div class="demo-marker">
+          : `<div class="demo-marker${tierClass}">
+               ${crownHtml}
                <div class="demo-marker__pulse"></div>
                <div class="demo-marker__pulse demo-marker__pulse--slow"></div>
-               <div class="demo-marker__avatar">${initial}</div>
+               <div class="demo-marker__avatar${avatarTierClass}">${avatarInner}</div>
                <div class="demo-marker__activity">${emoji}</div>
              </div>`,
         iconSize: [52, 68],

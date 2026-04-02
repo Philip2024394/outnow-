@@ -37,7 +37,7 @@ function Divider({ label }) {
   return <div className={styles.divider}>{label && <span className={styles.dividerLabel}>{label}</span>}</div>
 }
 
-export default function SettingsSheet({ open, onClose, onOpenLikes, onEditProfile, onOpenBlockList, onOpenWallet, showToast, onSOS }) {
+export default function SettingsSheet({ open, onClose, onOpenLikes, onEditProfile, onOpenBlockList, onOpenWallet, onUpgrade, showToast, onSOS }) {
   const { permission, requestPermission } = usePushNotifications()
   const { userProfile } = useAuth()
   const { balance, earn } = useCoins()
@@ -150,6 +150,16 @@ export default function SettingsSheet({ open, onClose, onOpenLikes, onEditProfil
                 <span className={styles.sosSub}>{safetyContact ? `Sends help alert to ${safetyContact.name}` : 'Set a safety contact first'}</span>
               </div>
               <span className={styles.sosArrow}>›</span>
+            </button>
+
+            {/* Upgrade */}
+            <button className={styles.upgradeRow} onClick={() => { onClose(); setTimeout(() => onUpgrade?.(), 200) }}>
+              <span className={styles.upgradeIcon}>✨</span>
+              <div className={styles.upgradeText}>
+                <span className={styles.upgradeLabel}>Boost Your Profile</span>
+                <span className={styles.upgradeSub}>Show your photo on the map — from £2.99/mo</span>
+              </div>
+              <span className={styles.upgradeArrow}>›</span>
             </button>
 
             {/* Activity */}
