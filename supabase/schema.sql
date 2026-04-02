@@ -406,9 +406,11 @@ create table if not exists profile_views (
   id         uuid        primary key default gen_random_uuid(),
   viewer_id  uuid        references auth.users on delete cascade not null,
   viewed_id  uuid        references auth.users on delete cascade not null,
-  created_at timestamptz default now(),
-  unique (viewer_id, viewed_id, date_trunc('day', created_at))
+  created_at timestamptz default now()
 );
+
+create unique index if not exists idx_profile_views_day
+  on profile_views (viewer_id, viewed_id, date_trunc('day', created_at));
 
 alter table profile_views enable row level security;
 
