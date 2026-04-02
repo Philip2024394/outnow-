@@ -228,6 +228,17 @@
   text-align: center;
 }
 
+/* ── Dev preview button ── */
+.devBtn {
+  color: rgba(255,255,255,0.25);
+  font-size: 12px;
+  text-align: center;
+  padding: var(--space-1) var(--space-3);
+  border: 1px dashed rgba(255,255,255,0.12);
+  border-radius: var(--radius-sm);
+  font-family: monospace;
+}
+
 /* ── Browse as guest ── */
 .browseBtn {
   color: var(--color-text-muted);

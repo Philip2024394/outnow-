@@ -38,12 +38,22 @@ export default function App() {
   // Resolve onboarding state per-user so each new account sees onboarding
   const resolvedRef = useRef(null)
   useEffect(() => {
-    if (!user) { setOnboardStep('checking'); resolvedRef.current = null; return }
+    if (!user) {
+      // Don't reset if admin dev preview is active
+      if (!adminPass) { setOnboardStep('checking'); resolvedRef.current = null }
+      return
+    }
     if (resolvedRef.current === user.id) return  // already resolved for this user
     resolvedRef.current = user.id
     const key = `${ONBOARDING_BASE_KEY}_${user.id}`
     setOnboardStep(localStorage.getItem(key) ? 'done' : 'video')
-  }, [user])
+  }, [user, adminPass])
+
+  // Dev preview: bypass auth + force full first-time user flow
+  const handleDevPreview = () => {
+    setAdminPass(true)
+    setOnboardStep('video')
+  }
 
   // Handle return from Stripe Checkout
   useEffect(() => {
@@ -72,6 +82,7 @@ export default function App() {
       <AuthScreen
         onAdminPass={() => setAdminPass(true)}
         onGuest={() => setGuestMode(true)}
+        onDevPreview={handleDevPreview}
       />
     )
   }
@@ -80,22 +91,22 @@ export default function App() {
     <GuestGateProvider>
       <AppShell returnParams={returnParams} triggerGoLive={triggerGoLive} />
 
-      {/* Onboarding overlays — only shown to signed-in users, once on first visit */}
-      {user && onboardStep === 'video' && (
+      {/* Onboarding overlays — signed-in users OR admin dev preview */}
+      {(user || adminPass) && onboardStep === 'video' && (
         <VideoIntro onDone={() => setOnboardStep('setup')} />
       )}
-      {user && onboardStep === 'welcome' && (
+      {(user || adminPass) && onboardStep === 'welcome' && (
         <WelcomePopup onDone={() => setOnboardStep('setup')} />
       )}
-      {user && onboardStep === 'setup' && (
+      {(user || adminPass) && onboardStep === 'setup' && (
         <ProfileSetup
           onDone={(profile) => {
-            localStorage.setItem(`${ONBOARDING_BASE_KEY}_${user.id}`, JSON.stringify(profile))
+            if (user) localStorage.setItem(`${ONBOARDING_BASE_KEY}_${user.id}`, JSON.stringify(profile))
             setOnboardStep('golive')
           }}
         />
       )}
-      {user && onboardStep === 'golive' && (
+      {(user || adminPass) && onboardStep === 'golive' && (
         <GoLivePrompt
           onGoLive={() => { setTriggerGoLive(true); setOnboardStep('done') }}
           onSkip={() => setOnboardStep('done')}

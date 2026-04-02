@@ -4,7 +4,7 @@ import styles from './AuthScreen.module.css'
 
 const HERO_URL = 'https://ik.imagekit.io/dateme/UntitledDFSDFASDF.png'
 
-export default function AuthScreen({ onAdminPass, onGuest }) {
+export default function AuthScreen({ onAdminPass, onGuest, onDevPreview }) {
   const [googleLoading, setGoogleLoading] = useState(false)
   const [emailLoading, setEmailLoading] = useState(false)
   const [email, setEmail]               = useState('')
@@ -121,6 +121,10 @@ export default function AuthScreen({ onAdminPass, onGuest }) {
 
         <button className={styles.browseBtn} onClick={onGuest}>
           Browse the map first →
+        </button>
+
+        <button className={styles.devBtn} onClick={onDevPreview}>
+          🛠 Dev: preview new user flow
         </button>
       </div>
     </div>
