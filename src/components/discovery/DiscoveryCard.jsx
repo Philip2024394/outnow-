@@ -311,12 +311,14 @@ export default function DiscoveryCard({ open, session, mySession, onClose, showT
               )}
             </div>
 
-            {/* Top-left: distance */}
+            {/* Top-left: walk time + distance */}
             {session.distanceKm != null && (
               <div className={styles.photoBannerDist}>
-                📍 {session.distanceKm < 1
+                🚶 {Math.max(1, Math.round(session.distanceKm / 0.083))} min
+                {' · '}
+                {session.distanceKm < 1
                   ? `${Math.round(session.distanceKm * 1000)}m`
-                  : `${session.distanceKm.toFixed(1)}km`} away
+                  : `${session.distanceKm.toFixed(1)}km`}
               </div>
             )}
 
