@@ -196,6 +196,7 @@ export const DEMO_SCHEDULED_SESSIONS = [
     id: 'demo-sched-2', userId: 'demo-user-8',
     displayName: 'Grace', age: 30,
     photoURL: 'https://ik.imagekit.io/nepgaxllc/uk10.png',
+    photos: ['https://ik.imagekit.io/nepgaxllc/uk10.png', 'https://ik.imagekit.io/nepgaxllc/Untitleddfsdf.png'],
     gender: 'female',
     bio: 'Film nights and good restaurants. Simple pleasures 🎬',
     activityType: 'food',
