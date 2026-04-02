@@ -107,6 +107,36 @@
   padding-bottom: var(--space-4);
 }
 
+/* ── Card header: status left, activity right — outside the photo ── */
+.cardHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 16px 6px;
+}
+
+.activityHeader {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  background: rgba(255,255,255,0.07);
+  border: 1px solid rgba(255,255,255,0.12);
+  border-radius: 100px;
+  padding: 5px 11px;
+}
+
+.activityHeaderIcon {
+  font-size: 15px;
+  line-height: 1;
+}
+
+.activityHeaderLabel {
+  font-size: 12px;
+  font-weight: 700;
+  color: rgba(255,255,255,0.85);
+  letter-spacing: 0.02em;
+}
+
 /* ── Photo carousel banner ── */
 .photoBanner {
   position: relative;

@@ -237,6 +237,20 @@ export default function DiscoveryCard({ open, session, mySession, onClose, showT
       )}
       <div className={styles.card}>
 
+        {/* ── Card header — activity outside/above the photo ── */}
+        {activity && (
+          <div className={styles.cardHeader}>
+            <div className={`${styles.statusTag} ${isInviteOut ? styles.statusTagInvite : isScheduled ? styles.statusTagLater : styles.statusTagNow}`}>
+              <span className={styles.statusDot} />
+              {isInviteOut ? 'Invite Out' : isScheduled ? 'Out Later' : 'Out Now'}
+            </div>
+            <div className={styles.activityHeader}>
+              <span className={styles.activityHeaderIcon}>{activity.emoji ?? '🎯'}</span>
+              <span className={styles.activityHeaderLabel}>{activity.label}</span>
+            </div>
+          </div>
+        )}
+
         {/* ── Photo carousel banner ── */}
         {photos.length > 0 && (
           <div
@@ -249,13 +263,8 @@ export default function DiscoveryCard({ open, session, mySession, onClose, showT
               alt={session.displayName}
               className={styles.photoBannerImg}
             />
-            {/* Bottom-left: venue type + name + age */}
+            {/* Bottom-left: name + age */}
             <div className={styles.photoBannerMeta}>
-              {activity && (
-                <span className={styles.photoBannerVenue}>
-                  {activity.emoji ?? '📍'} {activity.label}
-                </span>
-              )}
               <span className={styles.photoBannerName}>
                 {session.displayName ?? 'Someone'}
                 {session.age ? <span className={styles.photoBannerAge}>, {session.age}</span> : null}
@@ -271,10 +280,6 @@ export default function DiscoveryCard({ open, session, mySession, onClose, showT
               </div>
             )}
 
-            {/* Top-right: status */}
-            <div className={styles.photoBannerStatus}>
-              {isInviteOut ? 'Invite Out' : isScheduled ? 'Out Later' : 'Out Now'}
-            </div>
             {/* Fingerprint / back-arrow nav button — only if more than 1 photo */}
             {photos.length > 1 && (
               <button className={styles.photoNavBtn} onClick={handlePhotoBtn} aria-label="Next photo">
