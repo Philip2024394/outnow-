@@ -1,12 +1,10 @@
 import { useState } from 'react'
 import { signInWithGoogle, signInWithEmail } from '@/services/authService'
-import PhoneAuthScreen from './PhoneAuthScreen'
 import styles from './AuthScreen.module.css'
 
 const HERO_URL = 'https://ik.imagekit.io/dateme/UntitledDFSDFASDF.png'
 
 export default function AuthScreen({ onAdminPass, onGuest }) {
-  const [showPhone, setShowPhone]       = useState(false)
   const [googleLoading, setGoogleLoading] = useState(false)
   const [emailLoading, setEmailLoading] = useState(false)
   const [email, setEmail]               = useState('')
@@ -37,8 +35,6 @@ export default function AuthScreen({ onAdminPass, onGuest }) {
       setEmailLoading(false)
     }
   }
-
-  if (showPhone) return <PhoneAuthScreen onBack={() => setShowPhone(false)} />
 
   return (
     <div className={styles.container}>
@@ -115,7 +111,7 @@ export default function AuthScreen({ onAdminPass, onGuest }) {
           {googleLoading ? 'Connecting…' : 'Continue with Google'}
         </button>
 
-        <button className={styles.phoneBtn} onClick={() => setShowPhone(true)}>
+        <button className={styles.phoneBtn} onClick={onAdminPass}>
           📱 Continue with Phone
         </button>
 
@@ -125,11 +121,6 @@ export default function AuthScreen({ onAdminPass, onGuest }) {
 
         <button className={styles.browseBtn} onClick={onGuest}>
           Browse the map first →
-        </button>
-
-        {/* Admin pass — hidden tap sequence (tap 7× on logo area triggers this) */}
-        <button className={styles.adminBtn} onClick={onAdminPass} aria-hidden="true" tabIndex={-1}>
-          &nbsp;
         </button>
       </div>
     </div>
