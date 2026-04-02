@@ -1,45 +1,56 @@
--- ============================================================
--- IMOUTNOW — Supabase Schema
--- Run this in the Supabase SQL editor (Dashboard → SQL editor)
--- ============================================================
+-- ================================================================
+-- IMOUTNOW — Complete Supabase Schema
+-- Idempotent: safe to re-run after changes.
+-- Run in: Supabase Dashboard → SQL Editor → New query → Run
+-- ================================================================
 
--- ────────────────────────────────────────────────────────────
+-- ────────────────────────────────────────────────────────────────
 -- EXTENSIONS
--- ────────────────────────────────────────────────────────────
+-- ────────────────────────────────────────────────────────────────
 create extension if not exists "uuid-ossp";
+create extension if not exists "pg_trgm";   -- fuzzy text search on names/places
 
--- ────────────────────────────────────────────────────────────
--- PROFILES
--- ────────────────────────────────────────────────────────────
+-- ================================================================
+-- TABLE: profiles
+-- One row per auth user. Auto-created on first sign-up.
+-- ================================================================
 create table if not exists profiles (
-  id           uuid references auth.users on delete cascade primary key,
-  display_name text,
-  photo_url    text,
-  phone        text,
-  age          int,
-  bio          text,
-  city         text,
-  activities   text[]  default '{}',
-  looking_for  text,
-  coins        int     default 65,   -- 65 free coins on signup
-  created_at   timestamptz default now(),
-  updated_at   timestamptz default now()
+  id            uuid references auth.users on delete cascade primary key,
+  display_name  text,
+  photo_url     text,
+  phone         text,
+  age           int  check (age is null or (age >= 18 and age <= 99)),
+  bio           text check (bio is null or length(bio) <= 350),
+  city          text,
+  country       text,
+  activities    text[]  default '{}',
+  looking_for   text,                        -- e.g. 'Friends', 'Dating', 'Networking'
+  gender        text,
+  coins         int     not null default 65, -- 65 free welcome coins
+  is_verified   boolean default false,
+  is_banned     boolean default false,
+  push_token    text,                        -- FCM / APNS token for push
+  created_at    timestamptz default now(),
+  updated_at    timestamptz default now()
 );
 
 alter table profiles enable row level security;
 
-create policy "Users can view all profiles"
-  on profiles for select using (true);
+-- Drop existing policies before re-creating (idempotent)
+drop policy if exists "profiles_select"       on profiles;
+drop policy if exists "profiles_insert"       on profiles;
+drop policy if exists "profiles_update"       on profiles;
 
-create policy "Users can update own profile"
-  on profiles for update using (auth.uid() = id);
+create policy "profiles_select"  on profiles for select  using (true);
+create policy "profiles_insert"  on profiles for insert  with check (auth.uid() = id);
+create policy "profiles_update"  on profiles for update  using  (auth.uid() = id);
 
-create policy "Users can insert own profile"
-  on profiles for insert with check (auth.uid() = id);
+-- Index for fuzzy name search
+create index if not exists idx_profiles_display_name on profiles using gin(display_name gin_trgm_ops);
 
--- Auto-create profile on new user signup
+-- ── Trigger: auto-create profile row on new auth user ──────────
 create or replace function handle_new_user()
-returns trigger language plpgsql security definer as $$
+returns trigger language plpgsql security definer set search_path = public as $$
 begin
   insert into profiles (id, phone, display_name, coins)
   values (
@@ -49,9 +60,12 @@ begin
     65
   )
   on conflict (id) do nothing;
-  -- Seed initial coin transaction
+
+  -- Seed welcome coin transaction
   insert into coin_transactions (user_id, type, label, amount)
-  values (new.id, 'earn', 'Welcome gift 🎉', 65);
+  values (new.id, 'earn', 'Welcome gift 🎉', 65)
+  on conflict do nothing;
+
   return new;
 end;
 $$;
@@ -61,216 +75,74 @@ create trigger on_auth_user_created
   after insert on auth.users
   for each row execute procedure handle_new_user();
 
--- ────────────────────────────────────────────────────────────
--- SESSIONS
--- ────────────────────────────────────────────────────────────
+-- ── Trigger: keep updated_at current ───────────────────────────
+create or replace function touch_updated_at()
+returns trigger language plpgsql as $$
+begin new.updated_at = now(); return new; end;
+$$;
+
+drop trigger if exists profiles_updated_at on profiles;
+create trigger profiles_updated_at
+  before update on profiles
+  for each row execute procedure touch_updated_at();
+
+
+-- ================================================================
+-- TABLE: sessions
+-- Covers: Out Now (active), Out Later (scheduled), Invite Out.
+-- Each user can have at most one non-ended session at a time.
+-- ================================================================
 create table if not exists sessions (
-  id               uuid primary key default gen_random_uuid(),
-  user_id          uuid references auth.users on delete cascade not null,
-  status           text not null default 'invite_out',
-                   -- invite_out | active | scheduled | expired | ended
-  activity_type    text,
-  activities       text[] default '{}',
+  id               uuid        primary key default gen_random_uuid(),
+  user_id          uuid        references auth.users on delete cascade not null,
+  status           text        not null default 'invite_out',
+  -- status values: invite_out | active | scheduled | expired | ended
+  activity_type    text,                   -- primary activity
+  activities       text[]      default '{}', -- multi-activity (tags)
   lat              float8,
   lng              float8,
-  place_id         text,
+  place_id         text,                   -- Google Places ID
   place_name       text,
-  venue_category   text,
+  venue_category   text,                   -- bar | cafe | restaurant | park | …
   expires_at       timestamptz,
   scheduled_for    timestamptz,
-  duration_minutes int default 90,
-  needs_check_in   boolean default false,
-  is_group         boolean default false,
+  duration_minutes int         default 90,
+  needs_check_in   boolean     default false,
+  is_group         boolean     default false,
   group_size       int,
-  group_members    jsonb default '[]',
-  vibe             text,
-  area             text,
+  group_members    jsonb       default '[]',
+  vibe             text,                   -- e.g. 'chill', 'party'
+  area             text,                   -- human-readable neighbourhood
   social_link      text,
-  message          text,
+  message          text        check (message is null or length(message) <= 350),
   created_at       timestamptz default now()
 );
 
 alter table sessions enable row level security;
 
-create policy "Anyone can view active sessions"
-  on sessions for select using (true);
+drop policy if exists "sessions_select" on sessions;
+drop policy if exists "sessions_insert" on sessions;
+drop policy if exists "sessions_update" on sessions;
+drop policy if exists "sessions_delete" on sessions;
 
-create policy "Users can insert own sessions"
-  on sessions for insert with check (auth.uid() = user_id);
+create policy "sessions_select" on sessions for select using (true);
+create policy "sessions_insert" on sessions for insert with check (auth.uid() = user_id);
+create policy "sessions_update" on sessions for update using (auth.uid() = user_id);
+create policy "sessions_delete" on sessions for delete using (auth.uid() = user_id);
 
-create policy "Users can update own sessions"
-  on sessions for update using (auth.uid() = user_id);
+create index if not exists idx_sessions_user_id  on sessions(user_id);
+create index if not exists idx_sessions_status   on sessions(status);
+create index if not exists idx_sessions_lat_lng  on sessions(lat, lng)
+  where lat is not null and lng is not null;
 
-create policy "Users can delete own sessions"
-  on sessions for delete using (auth.uid() = user_id);
-
--- Enable real-time replication for sessions
+-- Real-time
 alter publication supabase_realtime add table sessions;
 
--- ────────────────────────────────────────────────────────────
--- INTERESTS (mutual likes / invites)
--- ────────────────────────────────────────────────────────────
-create table if not exists interests (
-  id           uuid primary key default gen_random_uuid(),
-  from_user_id uuid references auth.users on delete cascade not null,
-  to_user_id   uuid references auth.users on delete cascade not null,
-  session_id   uuid references sessions on delete cascade not null,
-  status       text default 'pending',   -- pending | mutual
-  gift         text,
-  message      text,
-  created_at   timestamptz default now(),
-  unique (from_user_id, session_id)
-);
 
-alter table interests enable row level security;
-
-create policy "Users can view their interests"
-  on interests for select
-  using (auth.uid() = from_user_id or auth.uid() = to_user_id);
-
-create policy "Users can create interests"
-  on interests for insert with check (auth.uid() = from_user_id);
-
-create policy "Users can delete own interests"
-  on interests for delete using (auth.uid() = from_user_id);
-
-create policy "Users can update interests"
-  on interests for update
-  using (auth.uid() = from_user_id or auth.uid() = to_user_id);
-
-alter publication supabase_realtime add table interests;
-
--- ────────────────────────────────────────────────────────────
--- OTW REQUESTS
--- ────────────────────────────────────────────────────────────
-create table if not exists otw_requests (
-  id           uuid primary key default gen_random_uuid(),
-  from_user_id uuid references auth.users on delete cascade not null,
-  to_user_id   uuid references auth.users on delete cascade not null,
-  session_id   uuid references sessions on delete cascade not null,
-  status       text default 'pending',
-               -- pending | accepted | declined | cancelled | paid | proceeding | completed
-  eta_minutes  int,
-  created_at   timestamptz default now()
-);
-
-alter table otw_requests enable row level security;
-
-create policy "Users can view their OTW requests"
-  on otw_requests for select
-  using (auth.uid() = from_user_id or auth.uid() = to_user_id);
-
-create policy "Users can create OTW requests"
-  on otw_requests for insert with check (auth.uid() = from_user_id);
-
-create policy "Users can update OTW requests"
-  on otw_requests for update
-  using (auth.uid() = from_user_id or auth.uid() = to_user_id);
-
-alter publication supabase_realtime add table otw_requests;
-
--- ────────────────────────────────────────────────────────────
--- WAVES
--- ────────────────────────────────────────────────────────────
-create table if not exists waves (
-  id           uuid primary key default gen_random_uuid(),
-  from_user_id uuid references auth.users on delete cascade not null,
-  to_user_id   uuid references auth.users on delete cascade not null,
-  session_id   uuid references sessions on delete cascade not null,
-  created_at   timestamptz default now()
-);
-
-alter table waves enable row level security;
-
-create policy "Users can view their waves"
-  on waves for select
-  using (auth.uid() = from_user_id or auth.uid() = to_user_id);
-
-create policy "Users can send waves"
-  on waves for insert with check (auth.uid() = from_user_id);
-
--- ────────────────────────────────────────────────────────────
--- BLOCKS
--- ────────────────────────────────────────────────────────────
-create table if not exists blocks (
-  id              uuid primary key default gen_random_uuid(),
-  user_id         uuid references auth.users on delete cascade not null,
-  blocked_user_id uuid references auth.users on delete cascade not null,
-  created_at      timestamptz default now(),
-  unique (user_id, blocked_user_id)
-);
-
-alter table blocks enable row level security;
-
-create policy "Users can view own blocks"
-  on blocks for select using (auth.uid() = user_id);
-
-create policy "Users can create blocks"
-  on blocks for insert with check (auth.uid() = user_id);
-
-create policy "Users can delete own blocks"
-  on blocks for delete using (auth.uid() = user_id);
-
--- ────────────────────────────────────────────────────────────
--- COIN TRANSACTIONS
--- ────────────────────────────────────────────────────────────
-create table if not exists coin_transactions (
-  id         uuid primary key default gen_random_uuid(),
-  user_id    uuid references auth.users on delete cascade not null,
-  type       text not null,   -- earn | spend | topup
-  label      text,
-  amount     int not null,
-  created_at timestamptz default now()
-);
-
-alter table coin_transactions enable row level security;
-
-create policy "Users can view own transactions"
-  on coin_transactions for select using (auth.uid() = user_id);
-
-create policy "Users can insert own transactions"
-  on coin_transactions for insert with check (auth.uid() = user_id);
-
--- ────────────────────────────────────────────────────────────
--- REPORTS
--- ────────────────────────────────────────────────────────────
-create table if not exists reports (
-  id              uuid primary key default gen_random_uuid(),
-  reporter_id     uuid references auth.users on delete cascade not null,
-  reported_user_id uuid references auth.users on delete cascade not null,
-  session_id      uuid references sessions on delete set null,
-  reason          text,
-  details         text,
-  created_at      timestamptz default now()
-);
-
-alter table reports enable row level security;
-
-create policy "Users can create reports"
-  on reports for insert with check (auth.uid() = reporter_id);
-
--- ────────────────────────────────────────────────────────────
--- VENUE UNLOCKS
--- ────────────────────────────────────────────────────────────
-create table if not exists venue_unlocks (
-  id         uuid primary key default gen_random_uuid(),
-  buyer_id   uuid references auth.users on delete cascade not null,
-  session_id uuid references sessions on delete cascade not null,
-  created_at timestamptz default now(),
-  unique (buyer_id, session_id)
-);
-
-alter table venue_unlocks enable row level security;
-
-create policy "Users can view own unlocks"
-  on venue_unlocks for select using (auth.uid() = buyer_id);
-
-create policy "Users can create unlocks"
-  on venue_unlocks for insert with check (auth.uid() = buyer_id);
-
--- ────────────────────────────────────────────────────────────
--- CONVENIENCE VIEW: sessions joined with profiles
--- ────────────────────────────────────────────────────────────
+-- ================================================================
+-- VIEW: sessions_with_profiles
+-- Convenience join used by useLiveUsers and discovery screens.
+-- ================================================================
 create or replace view sessions_with_profiles as
   select
     s.*,
@@ -278,38 +150,507 @@ create or replace view sessions_with_profiles as
     p.photo_url,
     p.age,
     p.looking_for,
-    p.city as profile_city
+    p.city          as profile_city,
+    p.is_verified,
+    p.is_banned
   from sessions s
   left join profiles p on p.id = s.user_id;
 
--- ────────────────────────────────────────────────────────────
--- RPC: go_live — end existing active session and start new one
--- ────────────────────────────────────────────────────────────
+
+-- ================================================================
+-- TABLE: interests
+-- Mutual like system. One doc per (from_user, session) pair.
+-- When both sides have a pending interest → backend sets mutual.
+-- ================================================================
+create table if not exists interests (
+  id           uuid        primary key default gen_random_uuid(),
+  from_user_id uuid        references auth.users on delete cascade not null,
+  to_user_id   uuid        references auth.users on delete cascade not null,
+  session_id   uuid        references sessions   on delete cascade not null,
+  status       text        default 'pending',   -- pending | mutual
+  gift         text,                            -- gift type sent with interest
+  message      text        check (message is null or length(message) <= 350),
+  created_at   timestamptz default now(),
+  unique (from_user_id, session_id)
+);
+
+alter table interests enable row level security;
+
+drop policy if exists "interests_select" on interests;
+drop policy if exists "interests_insert" on interests;
+drop policy if exists "interests_update" on interests;
+drop policy if exists "interests_delete" on interests;
+
+create policy "interests_select" on interests for select
+  using (auth.uid() = from_user_id or auth.uid() = to_user_id);
+create policy "interests_insert" on interests for insert
+  with check (auth.uid() = from_user_id);
+create policy "interests_update" on interests for update
+  using (auth.uid() = from_user_id or auth.uid() = to_user_id);
+create policy "interests_delete" on interests for delete
+  using (auth.uid() = from_user_id);
+
+create index if not exists idx_interests_from_user on interests(from_user_id);
+create index if not exists idx_interests_to_user   on interests(to_user_id);
+
+alter publication supabase_realtime add table interests;
+
+-- ── Trigger: detect mutual interest and create conversation ─────
+create or replace function check_mutual_interest()
+returns trigger language plpgsql security definer set search_path = public as $$
+declare
+  reverse_row interests%rowtype;
+begin
+  -- Look for the mirror interest (B → A for same session)
+  select * into reverse_row
+    from interests
+    where from_user_id = new.to_user_id
+      and to_user_id   = new.from_user_id
+      and session_id   = new.session_id
+      and status       = 'pending';
+
+  if found then
+    -- Mark both as mutual
+    update interests set status = 'mutual'
+      where (from_user_id = new.from_user_id and to_user_id = new.to_user_id and session_id = new.session_id)
+         or (from_user_id = new.to_user_id   and to_user_id = new.from_user_id and session_id = new.session_id);
+
+    -- Create a conversation between the two (if not already exists)
+    insert into conversations (user_a_id, user_b_id, session_id, status)
+    values (new.from_user_id, new.to_user_id, new.session_id, 'free')
+    on conflict (least(user_a_id::text, user_b_id::text), greatest(user_a_id::text, user_b_id::text)) do nothing;
+
+    -- Notify both users
+    insert into notifications (user_id, type, title, body, from_user_id)
+    values
+      (new.from_user_id, 'match', 'You matched! 🔥', 'You both liked each other — say hi!', new.to_user_id),
+      (new.to_user_id,   'match', 'You matched! 🔥', 'You both liked each other — say hi!', new.from_user_id)
+    on conflict do nothing;
+  end if;
+
+  return new;
+end;
+$$;
+
+drop trigger if exists on_interest_created on interests;
+create trigger on_interest_created
+  after insert on interests
+  for each row execute procedure check_mutual_interest();
+
+
+-- ================================================================
+-- TABLE: otw_requests  (On The Way)
+-- ================================================================
+create table if not exists otw_requests (
+  id           uuid        primary key default gen_random_uuid(),
+  from_user_id uuid        references auth.users on delete cascade not null,
+  to_user_id   uuid        references auth.users on delete cascade not null,
+  session_id   uuid        references sessions   on delete cascade not null,
+  status       text        default 'pending',
+  -- pending | accepted | declined | cancelled | paid | proceeding | completed
+  eta_minutes  int,
+  created_at   timestamptz default now()
+);
+
+alter table otw_requests enable row level security;
+
+drop policy if exists "otw_select" on otw_requests;
+drop policy if exists "otw_insert" on otw_requests;
+drop policy if exists "otw_update" on otw_requests;
+
+create policy "otw_select" on otw_requests for select
+  using (auth.uid() = from_user_id or auth.uid() = to_user_id);
+create policy "otw_insert" on otw_requests for insert
+  with check (auth.uid() = from_user_id);
+create policy "otw_update" on otw_requests for update
+  using (auth.uid() = from_user_id or auth.uid() = to_user_id);
+
+create index if not exists idx_otw_from_user on otw_requests(from_user_id);
+create index if not exists idx_otw_to_user   on otw_requests(to_user_id);
+
+alter publication supabase_realtime add table otw_requests;
+
+
+-- ================================================================
+-- TABLE: waves
+-- Free anonymous wave — no coins needed.
+-- ================================================================
+create table if not exists waves (
+  id           uuid        primary key default gen_random_uuid(),
+  from_user_id uuid        references auth.users on delete cascade not null,
+  to_user_id   uuid        references auth.users on delete cascade not null,
+  session_id   uuid        references sessions   on delete cascade not null,
+  created_at   timestamptz default now()
+);
+
+alter table waves enable row level security;
+
+drop policy if exists "waves_select" on waves;
+drop policy if exists "waves_insert" on waves;
+
+create policy "waves_select" on waves for select
+  using (auth.uid() = from_user_id or auth.uid() = to_user_id);
+create policy "waves_insert" on waves for insert
+  with check (auth.uid() = from_user_id);
+
+alter publication supabase_realtime add table waves;
+
+
+-- ================================================================
+-- TABLE: conversations
+-- Created automatically when two users match (mutual interest).
+-- status: free | pending | unlocked | expired
+-- ================================================================
+create table if not exists conversations (
+  id           uuid        primary key default gen_random_uuid(),
+  user_a_id    uuid        references auth.users on delete cascade not null,
+  user_b_id    uuid        references auth.users on delete cascade not null,
+  session_id   uuid        references sessions   on delete set null,
+  status       text        default 'free',
+  opened_at    timestamptz,                     -- when first message sent
+  expires_at   timestamptz,                     -- opened_at + 10 min
+  last_message text,
+  last_message_at timestamptz,
+  unread_a     int         default 0,           -- unread for user_a
+  unread_b     int         default 0,           -- unread for user_b
+  created_at   timestamptz default now(),
+  -- Unique pair regardless of order
+  unique (
+    least(user_a_id::text, user_b_id::text),
+    greatest(user_a_id::text, user_b_id::text)
+  )
+);
+
+alter table conversations enable row level security;
+
+drop policy if exists "convs_select" on conversations;
+drop policy if exists "convs_update" on conversations;
+
+create policy "convs_select" on conversations for select
+  using (auth.uid() = user_a_id or auth.uid() = user_b_id);
+create policy "convs_update" on conversations for update
+  using (auth.uid() = user_a_id or auth.uid() = user_b_id);
+
+create index if not exists idx_convs_user_a on conversations(user_a_id);
+create index if not exists idx_convs_user_b on conversations(user_b_id);
+
+alter publication supabase_realtime add table conversations;
+
+
+-- ================================================================
+-- TABLE: messages
+-- Messages inside a conversation. Soft-delete via deleted_at.
+-- ================================================================
+create table if not exists messages (
+  id              uuid        primary key default gen_random_uuid(),
+  conversation_id uuid        references conversations on delete cascade not null,
+  sender_id       uuid        references auth.users   on delete cascade not null,
+  text            text        not null check (length(text) <= 1000),
+  liked           boolean     default false,
+  deleted_at      timestamptz,               -- soft-delete
+  created_at      timestamptz default now()
+);
+
+alter table messages enable row level security;
+
+drop policy if exists "msgs_select" on messages;
+drop policy if exists "msgs_insert" on messages;
+drop policy if exists "msgs_update" on messages;
+
+-- Only conversation participants can see messages
+create policy "msgs_select" on messages for select
+  using (
+    exists (
+      select 1 from conversations c
+      where c.id = conversation_id
+        and (c.user_a_id = auth.uid() or c.user_b_id = auth.uid())
+    )
+  );
+create policy "msgs_insert" on messages for insert
+  with check (auth.uid() = sender_id);
+create policy "msgs_update" on messages for update
+  using (auth.uid() = sender_id);
+
+create index if not exists idx_msgs_conversation on messages(conversation_id, created_at);
+
+alter publication supabase_realtime add table messages;
+
+-- ── Trigger: update conversation on new message ─────────────────
+create or replace function on_new_message()
+returns trigger language plpgsql security definer set search_path = public as $$
+declare
+  conv conversations%rowtype;
+begin
+  select * into conv from conversations where id = new.conversation_id;
+
+  update conversations set
+    last_message    = new.text,
+    last_message_at = new.created_at,
+    -- Increment unread for the OTHER user
+    unread_a = case when conv.user_a_id != new.sender_id then unread_a + 1 else unread_a end,
+    unread_b = case when conv.user_b_id != new.sender_id then unread_b + 1 else unread_b end,
+    -- Start the 10-min window on first message
+    opened_at  = coalesce(conv.opened_at, new.created_at),
+    expires_at = coalesce(conv.expires_at, new.created_at + interval '10 minutes'),
+    status     = case when conv.status = 'free' then 'pending' else conv.status end
+  where id = new.conversation_id;
+
+  return new;
+end;
+$$;
+
+drop trigger if exists on_message_created on messages;
+create trigger on_message_created
+  after insert on messages
+  for each row execute procedure on_new_message();
+
+
+-- ================================================================
+-- TABLE: moments
+-- Short photo/text moments posted while live.
+-- ================================================================
+create table if not exists moments (
+  id           uuid        primary key default gen_random_uuid(),
+  user_id      uuid        references auth.users on delete cascade not null,
+  session_id   uuid        references sessions   on delete cascade,
+  photo_url    text,
+  caption      text        check (caption is null or length(caption) <= 350),
+  emoji        text,
+  gradient     text,        -- fallback CSS gradient when no photo
+  expires_at   timestamptz default (now() + interval '24 hours'),
+  created_at   timestamptz default now()
+);
+
+alter table moments enable row level security;
+
+drop policy if exists "moments_select" on moments;
+drop policy if exists "moments_insert" on moments;
+drop policy if exists "moments_delete" on moments;
+
+create policy "moments_select" on moments for select using (true);
+create policy "moments_insert" on moments for insert with check (auth.uid() = user_id);
+create policy "moments_delete" on moments for delete using (auth.uid() = user_id);
+
+create index if not exists idx_moments_session on moments(session_id);
+create index if not exists idx_moments_user    on moments(user_id);
+create index if not exists idx_moments_expires on moments(expires_at);
+
+alter publication supabase_realtime add table moments;
+
+
+-- ================================================================
+-- TABLE: notifications
+-- In-app notification feed. Types: match | like | otw | wave |
+--   gift | system | digest
+-- ================================================================
+create table if not exists notifications (
+  id           uuid        primary key default gen_random_uuid(),
+  user_id      uuid        references auth.users on delete cascade not null,
+  type         text        not null,
+  title        text        not null,
+  body         text,
+  from_user_id uuid        references auth.users on delete set null,
+  session_id   uuid        references sessions   on delete set null,
+  read         boolean     default false,
+  created_at   timestamptz default now(),
+  -- Prevent duplicate notifications for the same event
+  constraint notifications_pkey_unique unique (user_id, type, from_user_id, session_id)
+    deferrable initially deferred
+);
+
+alter table notifications enable row level security;
+
+drop policy if exists "notifs_select" on notifications;
+drop policy if exists "notifs_insert" on notifications;
+drop policy if exists "notifs_update" on notifications;
+
+create policy "notifs_select" on notifications for select using (auth.uid() = user_id);
+create policy "notifs_insert" on notifications for insert with check (true);  -- triggers insert
+create policy "notifs_update" on notifications for update using (auth.uid() = user_id);
+
+create index if not exists idx_notifs_user on notifications(user_id, read, created_at desc);
+
+alter publication supabase_realtime add table notifications;
+
+
+-- ================================================================
+-- TABLE: profile_views
+-- Records who viewed whose profile for the "Who Viewed You" feed.
+-- ================================================================
+create table if not exists profile_views (
+  id           uuid        primary key default gen_random_uuid(),
+  viewer_id    uuid        references auth.users on delete cascade not null,
+  viewed_id    uuid        references auth.users on delete cascade not null,
+  created_at   timestamptz default now(),
+  unique (viewer_id, viewed_id, date_trunc('day', created_at))  -- one view per day
+);
+
+alter table profile_views enable row level security;
+
+drop policy if exists "views_select" on profile_views;
+drop policy if exists "views_insert" on profile_views;
+
+-- Only the viewed person can see who viewed them
+create policy "views_select" on profile_views for select using (auth.uid() = viewed_id);
+create policy "views_insert" on profile_views for insert with check (auth.uid() = viewer_id);
+
+create index if not exists idx_views_viewed_id on profile_views(viewed_id, created_at desc);
+
+
+-- ================================================================
+-- TABLE: blocks
+-- ================================================================
+create table if not exists blocks (
+  id              uuid        primary key default gen_random_uuid(),
+  user_id         uuid        references auth.users on delete cascade not null,
+  blocked_user_id uuid        references auth.users on delete cascade not null,
+  created_at      timestamptz default now(),
+  unique (user_id, blocked_user_id)
+);
+
+alter table blocks enable row level security;
+
+drop policy if exists "blocks_select" on blocks;
+drop policy if exists "blocks_insert" on blocks;
+drop policy if exists "blocks_delete" on blocks;
+
+create policy "blocks_select" on blocks for select using (auth.uid() = user_id);
+create policy "blocks_insert" on blocks for insert with check (auth.uid() = user_id);
+create policy "blocks_delete" on blocks for delete using (auth.uid() = user_id);
+
+
+-- ================================================================
+-- TABLE: reports
+-- ================================================================
+create table if not exists reports (
+  id               uuid        primary key default gen_random_uuid(),
+  reporter_id      uuid        references auth.users on delete cascade not null,
+  reported_user_id uuid        references auth.users on delete cascade not null,
+  session_id       uuid        references sessions   on delete set null,
+  reason           text,
+  details          text        check (details is null or length(details) <= 1000),
+  status           text        default 'pending',  -- pending | reviewed | actioned
+  created_at       timestamptz default now()
+);
+
+alter table reports enable row level security;
+
+drop policy if exists "reports_insert" on reports;
+drop policy if exists "reports_select_own" on reports;
+
+create policy "reports_insert"     on reports for insert with check (auth.uid() = reporter_id);
+create policy "reports_select_own" on reports for select using (auth.uid() = reporter_id);
+
+
+-- ================================================================
+-- TABLE: venue_unlocks
+-- Created after successful Stripe payment — reveals exact venue.
+-- ================================================================
+create table if not exists venue_unlocks (
+  id         uuid        primary key default gen_random_uuid(),
+  buyer_id   uuid        references auth.users on delete cascade not null,
+  session_id uuid        references sessions   on delete cascade not null,
+  created_at timestamptz default now(),
+  unique (buyer_id, session_id)
+);
+
+alter table venue_unlocks enable row level security;
+
+drop policy if exists "unlocks_select" on venue_unlocks;
+drop policy if exists "unlocks_insert" on venue_unlocks;
+
+create policy "unlocks_select" on venue_unlocks for select using (auth.uid() = buyer_id);
+create policy "unlocks_insert" on venue_unlocks for insert with check (auth.uid() = buyer_id);
+
+alter publication supabase_realtime add table venue_unlocks;
+
+
+-- ================================================================
+-- TABLE: coin_transactions
+-- ================================================================
+create table if not exists coin_transactions (
+  id         uuid        primary key default gen_random_uuid(),
+  user_id    uuid        references auth.users on delete cascade not null,
+  type       text        not null,  -- earn | spend | topup
+  label      text,
+  amount     int         not null check (amount > 0),
+  created_at timestamptz default now()
+);
+
+alter table coin_transactions enable row level security;
+
+drop policy if exists "coins_select" on coin_transactions;
+drop policy if exists "coins_insert" on coin_transactions;
+
+create policy "coins_select" on coin_transactions for select using (auth.uid() = user_id);
+create policy "coins_insert" on coin_transactions for insert with check (auth.uid() = user_id);
+
+create index if not exists idx_coins_user on coin_transactions(user_id, created_at desc);
+
+
+-- ================================================================
+-- TABLE: suggested_venues
+-- Submitted by users, reviewed by admin.
+-- ================================================================
+create table if not exists suggested_venues (
+  id               uuid        primary key default gen_random_uuid(),
+  name             text        not null,
+  area             text,
+  activity_types   text[]      default '{}',
+  link             text,
+  open_time        text,
+  close_time       text,
+  offers_discount  boolean     default false,
+  discount_percent int,
+  discount_type    text,
+  discount_status  text,        -- offered | confirmed | declined
+  submitted_by     uuid        references auth.users on delete set null,
+  submitted_by_name text,
+  status           text        default 'pending',  -- pending | approved | rejected
+  admin_note       text,
+  created_at       timestamptz default now()
+);
+
+alter table suggested_venues enable row level security;
+
+drop policy if exists "venues_insert" on suggested_venues;
+drop policy if exists "venues_select_own" on suggested_venues;
+drop policy if exists "venues_select_approved" on suggested_venues;
+
+create policy "venues_insert"           on suggested_venues for insert with check (auth.uid() = submitted_by);
+create policy "venues_select_own"       on suggested_venues for select using (auth.uid() = submitted_by);
+create policy "venues_select_approved"  on suggested_venues for select using (status = 'approved');
+
+
+-- ================================================================
+-- RPC: go_live
+-- Ends any existing active/scheduled/invite_out session,
+-- then creates a new 'active' session. Returns the new session ID.
+-- ================================================================
 create or replace function go_live(
-  p_activity_type  text,
-  p_activities     text[],
-  p_lat            float8,
-  p_lng            float8,
-  p_place_id       text,
-  p_place_name     text,
-  p_venue_category text,
-  p_duration_min   int default 90,
-  p_is_group       boolean default false,
-  p_group_size     int default null,
-  p_vibe           text default null,
-  p_area           text default null
+  p_activity_type  text     default null,
+  p_activities     text[]   default '{}',
+  p_lat            float8   default null,
+  p_lng            float8   default null,
+  p_place_id       text     default null,
+  p_place_name     text     default null,
+  p_venue_category text     default null,
+  p_duration_min   int      default 90,
+  p_is_group       boolean  default false,
+  p_group_size     int      default null,
+  p_vibe           text     default null,
+  p_area           text     default null
 )
-returns uuid language plpgsql security definer as $$
+returns uuid language plpgsql security definer set search_path = public as $$
 declare
   new_id uuid;
 begin
-  -- End any existing active/scheduled/invite_out session for this user
+  -- Close any existing live sessions for this user
   update sessions
     set status = 'ended'
     where user_id = auth.uid()
       and status in ('active', 'scheduled', 'invite_out');
 
-  -- Insert the new active session
   insert into sessions (
     user_id, status, activity_type, activities,
     lat, lng, place_id, place_name, venue_category,
@@ -318,7 +659,7 @@ begin
   ) values (
     auth.uid(), 'active', p_activity_type, p_activities,
     p_lat, p_lng, p_place_id, p_place_name, p_venue_category,
-    p_duration_min, now() + (p_duration_min * interval '1 minute'),
+    p_duration_min, now() + (p_duration_min || ' minutes')::interval,
     p_is_group, p_group_size, p_vibe, p_area
   ) returning id into new_id;
 
@@ -326,23 +667,23 @@ begin
 end;
 $$;
 
--- ────────────────────────────────────────────────────────────
--- RPC: schedule_live — create a scheduled session
--- ────────────────────────────────────────────────────────────
+-- ================================================================
+-- RPC: schedule_live
+-- ================================================================
 create or replace function schedule_live(
-  p_activity_type  text,
-  p_activities     text[],
-  p_lat            float8,
-  p_lng            float8,
-  p_place_id       text,
-  p_place_name     text,
-  p_venue_category text,
-  p_duration_min   int default 90,
+  p_activity_type  text        default null,
+  p_activities     text[]      default '{}',
+  p_lat            float8      default null,
+  p_lng            float8      default null,
+  p_place_id       text        default null,
+  p_place_name     text        default null,
+  p_venue_category text        default null,
+  p_duration_min   int         default 90,
   p_scheduled_for  timestamptz default null,
-  p_social_link    text default null,
-  p_vibe           text default null
+  p_social_link    text        default null,
+  p_vibe           text        default null
 )
-returns uuid language plpgsql security definer as $$
+returns uuid language plpgsql security definer set search_path = public as $$
 declare
   new_id uuid;
 begin
@@ -360,7 +701,7 @@ begin
     auth.uid(), 'scheduled', p_activity_type, p_activities,
     p_lat, p_lng, p_place_id, p_place_name, p_venue_category,
     p_duration_min, p_scheduled_for,
-    p_scheduled_for + (p_duration_min * interval '1 minute'),
+    p_scheduled_for + (p_duration_min || ' minutes')::interval,
     p_social_link, p_vibe
   ) returning id into new_id;
 
@@ -368,14 +709,14 @@ begin
 end;
 $$;
 
--- ────────────────────────────────────────────────────────────
+-- ================================================================
 -- RPC: post_invite_out
--- ────────────────────────────────────────────────────────────
+-- ================================================================
 create or replace function post_invite_out(
   p_activity_type text default null,
   p_message       text default ''
 )
-returns uuid language plpgsql security definer as $$
+returns uuid language plpgsql security definer set search_path = public as $$
 declare
   new_id uuid;
 begin
@@ -392,11 +733,11 @@ begin
 end;
 $$;
 
--- ────────────────────────────────────────────────────────────
+-- ================================================================
 -- RPC: end_session
--- ────────────────────────────────────────────────────────────
+-- ================================================================
 create or replace function end_session(p_session_id uuid)
-returns void language plpgsql security definer as $$
+returns void language plpgsql security definer set search_path = public as $$
 begin
   update sessions
     set status = 'ended'
@@ -404,16 +745,18 @@ begin
 end;
 $$;
 
--- ────────────────────────────────────────────────────────────
--- RPC: adjust_coins — safely update user coin balance
--- ────────────────────────────────────────────────────────────
+-- ================================================================
+-- RPC: adjust_coins
+-- Atomically updates profile.coins and logs a transaction.
+-- Returns the new balance.
+-- ================================================================
 create or replace function adjust_coins(p_delta int, p_label text, p_type text)
-returns int language plpgsql security definer as $$
+returns int language plpgsql security definer set search_path = public as $$
 declare
   new_balance int;
 begin
   update profiles
-    set coins = greatest(0, coins + p_delta),
+    set coins      = greatest(0, coins + p_delta),
         updated_at = now()
     where id = auth.uid()
     returning coins into new_balance;
@@ -421,6 +764,174 @@ begin
   insert into coin_transactions (user_id, type, label, amount)
   values (auth.uid(), p_type, p_label, abs(p_delta));
 
+  return coalesce(new_balance, 0);
+end;
+$$;
+
+-- ================================================================
+-- RPC: send_gift
+-- Deducts coins, records interest with gift, notifies recipient.
+-- Returns new coin balance or raises exception if insufficient.
+-- ================================================================
+create or replace function send_gift(
+  p_to_user_id uuid,
+  p_session_id uuid,
+  p_gift       text,
+  p_message    text default '',
+  p_cost       int  default 5
+)
+returns int language plpgsql security definer set search_path = public as $$
+declare
+  current_coins int;
+  new_balance   int;
+begin
+  select coins into current_coins from profiles where id = auth.uid();
+
+  if current_coins < p_cost then
+    raise exception 'Insufficient coins. Have %, need %.', current_coins, p_cost;
+  end if;
+
+  -- Deduct coins
+  update profiles
+    set coins = coins - p_cost, updated_at = now()
+    where id = auth.uid()
+    returning coins into new_balance;
+
+  insert into coin_transactions (user_id, type, label, amount)
+  values (auth.uid(), 'spend', 'Sent ' || p_gift || ' gift', p_cost);
+
+  -- Upsert interest with gift info
+  insert into interests (from_user_id, to_user_id, session_id, gift, message)
+  values (auth.uid(), p_to_user_id, p_session_id, p_gift, p_message)
+  on conflict (from_user_id, session_id)
+    do update set gift = p_gift, message = p_message;
+
+  -- Notify recipient
+  insert into notifications (user_id, type, title, body, from_user_id, session_id)
+  values (p_to_user_id, 'gift', 'You got a gift! 🎁',
+          'Someone sent you a ' || p_gift, auth.uid(), p_session_id)
+  on conflict do nothing;
+
   return new_balance;
 end;
 $$;
+
+-- ================================================================
+-- RPC: send_wave
+-- Free wave — notifies recipient and records in waves table.
+-- ================================================================
+create or replace function send_wave_notify(p_to_user_id uuid, p_session_id uuid)
+returns void language plpgsql security definer set search_path = public as $$
+begin
+  insert into waves (from_user_id, to_user_id, session_id)
+  values (auth.uid(), p_to_user_id, p_session_id);
+
+  insert into notifications (user_id, type, title, body, from_user_id, session_id)
+  values (p_to_user_id, 'wave', 'Someone waved 👋',
+          'Tap to see who', auth.uid(), p_session_id)
+  on conflict do nothing;
+end;
+$$;
+
+-- ================================================================
+-- RPC: mark_notifications_read
+-- ================================================================
+create or replace function mark_notifications_read()
+returns void language plpgsql security definer set search_path = public as $$
+begin
+  update notifications set read = true
+    where user_id = auth.uid() and read = false;
+end;
+$$;
+
+-- ================================================================
+-- RPC: unlock_conversation
+-- Called after Stripe payment confirms. Sets status = 'unlocked'.
+-- ================================================================
+create or replace function unlock_conversation(p_conversation_id uuid)
+returns void language plpgsql security definer set search_path = public as $$
+begin
+  update conversations
+    set status = 'unlocked'
+    where id = p_conversation_id
+      and (user_a_id = auth.uid() or user_b_id = auth.uid());
+end;
+$$;
+
+-- ================================================================
+-- RPC: block_and_report_user
+-- Blocks a user and creates a report in one call.
+-- ================================================================
+create or replace function block_and_report_user(
+  p_blocked_user_id uuid,
+  p_session_id      uuid   default null,
+  p_reason          text   default null,
+  p_details         text   default null
+)
+returns void language plpgsql security definer set search_path = public as $$
+begin
+  insert into blocks (user_id, blocked_user_id)
+  values (auth.uid(), p_blocked_user_id)
+  on conflict do nothing;
+
+  if p_reason is not null then
+    insert into reports (reporter_id, reported_user_id, session_id, reason, details)
+    values (auth.uid(), p_blocked_user_id, p_session_id, p_reason, p_details);
+  end if;
+end;
+$$;
+
+-- ================================================================
+-- SCHEDULED CLEANUP: expire old sessions (run via pg_cron or
+-- Supabase Edge Function cron).
+-- You can call this manually or via a cron job.
+-- ================================================================
+create or replace function expire_sessions()
+returns void language plpgsql security definer set search_path = public as $$
+begin
+  update sessions
+    set status = 'expired'
+    where status = 'active'
+      and expires_at < now();
+end;
+$$;
+
+-- Expire moments older than 24h
+create or replace function expire_moments()
+returns void language plpgsql security definer set search_path = public as $$
+begin
+  delete from moments where expires_at < now();
+end;
+$$;
+
+-- ================================================================
+-- STORAGE BUCKETS (create via Supabase Dashboard or CLI)
+-- ================================================================
+-- Bucket: avatars     — public read, auth write, 5 MB limit per file
+-- Bucket: moments     — public read, auth write, 10 MB limit per file
+--
+-- SQL equivalent (run if using supabase-js storage admin):
+-- insert into storage.buckets (id, name, public) values ('avatars', 'avatars', true) on conflict do nothing;
+-- insert into storage.buckets (id, name, public) values ('moments', 'moments', true) on conflict do nothing;
+
+-- Storage RLS for avatars bucket
+-- drop policy if exists "avatar_upload"   on storage.objects;
+-- drop policy if exists "avatar_read"     on storage.objects;
+-- create policy "avatar_upload" on storage.objects for insert
+--   with check (bucket_id = 'avatars' and auth.uid()::text = (storage.foldername(name))[1]);
+-- create policy "avatar_read"   on storage.objects for select using (bucket_id = 'avatars');
+
+-- ================================================================
+-- HELPFUL QUERIES (reference — not run automatically)
+-- ================================================================
+-- Get all active sessions with profile data:
+--   select * from sessions_with_profiles where status in ('active','scheduled','invite_out');
+--
+-- Get unread notification count for current user:
+--   select count(*) from notifications where user_id = auth.uid() and read = false;
+--
+-- Manually expire sessions:
+--   select expire_sessions();
+--
+-- Check a user's coin balance:
+--   select coins from profiles where id = '<user-uuid>';

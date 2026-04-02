@@ -1,30 +1,29 @@
-import { httpsCallable } from 'firebase/functions'
-import { doc, setDoc, serverTimestamp } from 'firebase/firestore'
-import { functions, db } from '@/firebase/config'
-import { BLOCKS_SUB } from '@/firebase/collections'
-import { auth } from '@/firebase/config'
-
-const handleReportFn = httpsCallable(functions, 'handleReport')
+import { supabase } from '@/lib/supabase'
 
 /**
  * Report a user with a reason.
- * Cloud Function writes the report doc and handles auto-moderation.
  */
-export async function reportUser({ reportedUserId, sessionId, reason }) {
-  await handleReportFn({ reportedUserId, sessionId, reason })
+export async function reportUser({ reportedUserId, sessionId, reason, details = '' }) {
+  if (!supabase) return
+  const { error } = await supabase.from('reports').insert({
+    reported_user_id: reportedUserId,
+    session_id:       sessionId ?? null,
+    reason,
+    details,
+  })
+  if (error) throw new Error(error.message)
 }
 
 /**
- * Block a user immediately on the client side.
- * This removes them from the map instantly without waiting for server.
+ * Block a user and optionally file a report in one atomic call.
  */
-export async function blockUser(blockedUserId) {
-  const currentUid = auth.currentUser?.uid
-  if (!currentUid) return
-
-  const blockRef = doc(db, BLOCKS_SUB(currentUid), blockedUserId)
-  await setDoc(blockRef, {
-    blockedUserId,
-    createdAt: serverTimestamp(),
+export async function blockUser(blockedUserId, sessionId = null, reason = null, details = null) {
+  if (!supabase) return
+  const { error } = await supabase.rpc('block_and_report_user', {
+    p_blocked_user_id: blockedUserId,
+    p_session_id:      sessionId,
+    p_reason:          reason,
+    p_details:         details,
   })
+  if (error) throw new Error(error.message)
 }

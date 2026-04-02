@@ -1,48 +1,56 @@
-import { db } from '@/firebase/config'
-import {
-  collection, addDoc, getDocs, doc, updateDoc,
-  serverTimestamp, query, orderBy,
-} from 'firebase/firestore'
-
-const COL = 'suggestedVenues'
+import { supabase } from '@/lib/supabase'
 
 export async function submitVenueSuggestion({ name, area, activityTypes, link, openTime, closeTime, offersDiscount, discountPercent, discountType, userId, displayName }) {
-  return addDoc(collection(db, COL), {
-    name,
-    area,
-    activityTypes:   activityTypes   ?? [],
-    link:            link            ?? '',
-    openTime:        openTime        ?? '',
-    closeTime:       closeTime       ?? '',
-    offersDiscount:  offersDiscount  ?? false,
-    discountPercent: discountPercent ?? null,
-    discountType:    discountType    ?? null,
-    discountStatus:  offersDiscount ? 'offered' : null, // 'offered' | 'confirmed' | 'declined'
-    submittedBy:     userId,
-    submittedByName: displayName,
-    submittedAt: serverTimestamp(),
-    status: 'pending',
-    adminNote: '',
-  })
-}
-
-export async function confirmVenueDiscount(id) {
-  return updateDoc(doc(db, COL, id), { discountStatus: 'confirmed' })
-}
-
-export async function declineVenueDiscount(id) {
-  return updateDoc(doc(db, COL, id), { discountStatus: 'declined' })
+  if (!supabase) return { id: `demo-venue-${Date.now()}` }
+  const { data, error } = await supabase
+    .from('suggested_venues')
+    .insert({
+      name,
+      area,
+      activity_types:   activityTypes   ?? [],
+      link:             link            ?? '',
+      open_time:        openTime        ?? '',
+      close_time:       closeTime       ?? '',
+      offers_discount:  offersDiscount  ?? false,
+      discount_percent: discountPercent ?? null,
+      discount_type:    discountType    ?? null,
+      discount_status:  offersDiscount ? 'offered' : null,
+      submitted_by:     userId,
+      submitted_by_name: displayName,
+      status:           'pending',
+    })
+    .select('id')
+    .single()
+  if (error) throw new Error(error.message)
+  return data
 }
 
 export async function getSuggestedVenues() {
-  const snap = await getDocs(query(collection(db, COL), orderBy('submittedAt', 'desc')))
-  return snap.docs.map(d => ({ id: d.id, ...d.data() }))
+  if (!supabase) return []
+  const { data, error } = await supabase
+    .from('suggested_venues')
+    .select('*')
+    .order('created_at', { ascending: false })
+  if (error) throw new Error(error.message)
+  return data ?? []
 }
 
 export async function approveVenueSuggestion(id) {
-  return updateDoc(doc(db, COL, id), { status: 'approved' })
+  if (!supabase) return
+  await supabase.from('suggested_venues').update({ status: 'approved' }).eq('id', id)
 }
 
 export async function rejectVenueSuggestion(id, note = '') {
-  return updateDoc(doc(db, COL, id), { status: 'rejected', adminNote: note })
+  if (!supabase) return
+  await supabase.from('suggested_venues').update({ status: 'rejected', admin_note: note }).eq('id', id)
+}
+
+export async function confirmVenueDiscount(id) {
+  if (!supabase) return
+  await supabase.from('suggested_venues').update({ discount_status: 'confirmed' }).eq('id', id)
+}
+
+export async function declineVenueDiscount(id) {
+  if (!supabase) return
+  await supabase.from('suggested_venues').update({ discount_status: 'declined' }).eq('id', id)
 }
