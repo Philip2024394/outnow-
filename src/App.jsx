@@ -4,6 +4,7 @@ import AuthScreen from '@/screens/AuthScreen'
 import AppShell from '@/router/AppShell'
 import Spinner from '@/components/ui/Spinner'
 import WelcomePopup from '@/screens/onboarding/WelcomePopup'
+import VideoIntro from '@/screens/onboarding/VideoIntro'
 import ProfileSetup from '@/screens/onboarding/ProfileSetup'
 import GoLivePrompt from '@/screens/onboarding/GoLivePrompt'
 import AdminApp from '@/admin/AdminApp'
@@ -41,7 +42,7 @@ export default function App() {
     if (resolvedRef.current === user.id) return  // already resolved for this user
     resolvedRef.current = user.id
     const key = `${ONBOARDING_BASE_KEY}_${user.id}`
-    setOnboardStep(localStorage.getItem(key) ? 'done' : 'setup')
+    setOnboardStep(localStorage.getItem(key) ? 'done' : 'video')
   }, [user])
 
   // Handle return from Stripe Checkout
@@ -80,6 +81,9 @@ export default function App() {
       <AppShell returnParams={returnParams} triggerGoLive={triggerGoLive} />
 
       {/* Onboarding overlays — only shown to signed-in users, once on first visit */}
+      {user && onboardStep === 'video' && (
+        <VideoIntro onDone={() => setOnboardStep('setup')} />
+      )}
       {user && onboardStep === 'welcome' && (
         <WelcomePopup onDone={() => setOnboardStep('setup')} />
       )}
