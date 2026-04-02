@@ -85,34 +85,12 @@ export default function DiscoveryCard({ open, session, mySession, onClose, showT
   }, [onClose])
   const { show: showWaveIntro, dismiss: dismissWaveIntro } = useFeatureIntro('wave')
 
-  // Photo carousel state — guard against null session (hooks must be called unconditionally)
+  // Photo carousel state
   const photos = session?.photos?.length ? session.photos : session?.photoURL ? [session.photoURL] : []
   const [photoIdx, setPhotoIdx] = useState(0)
-  const [direction, setDirection] = useState('forward') // 'forward' | 'backward'
 
-  const handlePhotoBtn = () => {
-    if (photos.length <= 1) return
-    if (direction === 'forward') {
-      if (photoIdx < photos.length - 1) {
-        setPhotoIdx(i => i + 1)
-      } else {
-        // On last image — first press goes back, then keep going back
-        setDirection('backward')
-        setPhotoIdx(i => i - 1)
-      }
-    } else {
-      if (photoIdx > 0) {
-        setPhotoIdx(i => i - 1)
-      } else {
-        // Back at first — switch to forward
-        setDirection('forward')
-        setPhotoIdx(i => i + 1)
-      }
-    }
-  }
-
-  const isOnLast  = photos.length > 0 && photoIdx === photos.length - 1
-  const showArrow = direction === 'forward' && isOnLast
+  const goPrev = () => setPhotoIdx(i => Math.max(0, i - 1))
+  const goNext = () => setPhotoIdx(i => Math.min(photos.length - 1, i + 1))
 
   if (!session) return null
 
@@ -322,13 +300,6 @@ export default function DiscoveryCard({ open, session, mySession, onClose, showT
               </div>
             )}
 
-            {/* Fingerprint / back-arrow nav button — only if more than 1 photo */}
-            {photos.length > 1 && (
-              <button className={styles.photoNavBtn} onClick={handlePhotoBtn} aria-label="Next photo">
-                {showArrow ? '←' : '👆'}
-              </button>
-            )}
-
             {/* Close — top-right of photo */}
             <button className={styles.photoCloseBtn} onClick={onClose} aria-label="Close">
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
@@ -356,6 +327,45 @@ export default function DiscoveryCard({ open, session, mySession, onClose, showT
           </div>
         )}
 
+        {/* ── Thumbnail strip ── */}
+        {photos.length > 1 && (
+          <div className={styles.thumbStrip}>
+            <button
+              className={styles.thumbArrow}
+              onClick={goPrev}
+              disabled={photoIdx === 0}
+              aria-label="Previous photo"
+            >
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                <polyline points="15 18 9 12 15 6" />
+              </svg>
+            </button>
+
+            <div className={styles.thumbList}>
+              {photos.map((url, i) => (
+                <button
+                  key={i}
+                  className={`${styles.thumb} ${i === photoIdx ? styles.thumbActive : ''}`}
+                  onClick={() => setPhotoIdx(i)}
+                  aria-label={`Photo ${i + 1}`}
+                >
+                  <img src={url} alt="" className={styles.thumbImg} />
+                </button>
+              ))}
+            </div>
+
+            <button
+              className={styles.thumbArrow}
+              onClick={goNext}
+              disabled={photoIdx === photos.length - 1}
+              aria-label="Next photo"
+            >
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                <polyline points="9 18 15 12 9 6" />
+              </svg>
+            </button>
+          </div>
+        )}
 
         {/* Profile */}
         <div className={styles.profile}>
