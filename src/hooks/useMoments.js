@@ -3,20 +3,42 @@ import { supabase } from '@/lib/supabase'
 import { useAuth } from './useAuth'
 import { DEMO_MOMENTS } from '@/demo/mockData'
 
-function mapRow(row) {
+function mapRow(row, profileMap = {}) {
+  const profile = profileMap[row.user_id] ?? {}
   return {
     id:          row.id,
     userId:      row.user_id,
     sessionId:   row.session_id ?? null,
-    photoURL:    row.photo_url ?? null,
+    photoURL:    row.photo_url ?? profile.photo_url ?? null,
     caption:     row.caption ?? '',
     emoji:       row.emoji ?? '✨',
     gradient:    row.gradient ?? 'linear-gradient(135deg,#667eea,#764ba2)',
     expiresAt:   row.expires_at ? new Date(row.expires_at).getTime() : null,
     createdAt:   row.created_at ? new Date(row.created_at).getTime() : Date.now(),
-    displayName: row.profile?.display_name ?? 'Someone',
-    photoURL:    row.photo_url ?? row.profile?.photo_url ?? null,
+    displayName: profile.display_name ?? 'Someone',
   }
+}
+
+// Fetch moments then enrich with profile data via separate query
+async function fetchWithProfiles() {
+  const { data: rows } = await supabase
+    .from('moments')
+    .select('*')
+    .gt('expires_at', new Date().toISOString())
+    .order('created_at', { ascending: false })
+    .limit(30)
+
+  if (!rows?.length) return []
+
+  // Get unique user ids and fetch their profiles
+  const userIds = [...new Set(rows.map(r => r.user_id))]
+  const { data: profiles } = await supabase
+    .from('profiles')
+    .select('id, display_name, photo_url')
+    .in('id', userIds)
+
+  const profileMap = Object.fromEntries((profiles ?? []).map(p => [p.id, p]))
+  return rows.map(r => mapRow(r, profileMap))
 }
 
 export function useMoments() {
@@ -32,19 +54,9 @@ export function useMoments() {
 
     let mounted = true
 
-    async function fetchMoments() {
-      const { data } = await supabase
-        .from('moments')
-        .select('*, profile:profiles(display_name, photo_url)')
-        .gt('expires_at', new Date().toISOString())
-        .order('created_at', { ascending: false })
-        .limit(30)
-
-      if (!mounted) return
-      setMoments((data ?? []).map(mapRow))
-    }
-
-    fetchMoments()
+    fetchWithProfiles().then(mapped => {
+      if (mounted) setMoments(mapped)
+    })
 
     channelRef.current = supabase
       .channel('moments-feed')
@@ -54,14 +66,21 @@ export function useMoments() {
           setMoments(prev => prev.filter(m => m.id !== payload.old.id))
           return
         }
-        // Re-fetch with profile join
-        const { data } = await supabase
+        // Re-fetch the changed row with profile
+        const { data: row } = await supabase
           .from('moments')
-          .select('*, profile:profiles(display_name, photo_url)')
+          .select('*')
           .eq('id', payload.new.id)
           .single()
-        if (!mounted || !data) return
-        const mapped = mapRow(data)
+        if (!mounted || !row) return
+
+        const { data: profiles } = await supabase
+          .from('profiles')
+          .select('id, display_name, photo_url')
+          .eq('id', row.user_id)
+        const profileMap = Object.fromEntries((profiles ?? []).map(p => [p.id, p]))
+        const mapped = mapRow(row, profileMap)
+
         setMoments(prev => {
           const without = prev.filter(m => m.id !== mapped.id)
           return [mapped, ...without]
@@ -78,9 +97,6 @@ export function useMoments() {
     }
   }, [user])
 
-  /**
-   * Post a new moment. Optionally uploads a photo file to Storage first.
-   */
   async function addMoment({ emoji, gradient, caption, photoFile, sessionId }) {
     if (!supabase || !user) return
 
@@ -98,8 +114,6 @@ export function useMoments() {
       }
     }
 
-    const expiresAt = new Date(Date.now() + 6 * 60 * 60 * 1000).toISOString()
-
     await supabase.from('moments').insert({
       user_id:    user.id,
       session_id: sessionId ?? null,
@@ -107,7 +121,7 @@ export function useMoments() {
       caption:    caption ?? '',
       emoji:      emoji ?? '✨',
       gradient:   gradient ?? null,
-      expires_at: expiresAt,
+      expires_at: new Date(Date.now() + 6 * 60 * 60 * 1000).toISOString(),
     })
   }
 
