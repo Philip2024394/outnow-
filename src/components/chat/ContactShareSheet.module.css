@@ -26,6 +26,28 @@
   to   { transform: translateY(0); }
 }
 
+.closeBtn {
+  position: absolute;
+  top: 14px;
+  right: 16px;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: rgba(220, 38, 38, 0.15);
+  border: 1.5px solid rgba(220, 38, 38, 0.5);
+  color: #ef4444;
+  font-size: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  z-index: 20;
+  -webkit-tap-highlight-color: transparent;
+  transition: background 0.15s;
+}
+
+.closeBtn:active { background: rgba(220, 38, 38, 0.3); }
+
 .handle {
   width: 36px;
   height: 4px;

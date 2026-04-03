@@ -57,6 +57,7 @@ export default function ContactShareSheet({ open, onClose, onSend, contactUnlock
     <div className={styles.overlay} onClick={onClose}>
       <div className={styles.sheet} onClick={e => e.stopPropagation()}>
 
+        <button className={styles.closeBtn} onClick={onClose} aria-label="Close">✕</button>
         <div className={styles.handle} />
 
         {/* ── FAQ panel slides over sheet ── */}
