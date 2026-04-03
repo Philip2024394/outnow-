@@ -126,6 +126,7 @@ const MOCK_MEET_REQUEST = {
 
 const MOCK_MEET_ACCEPTED = {
   id: 'dev-meet-acc-1', sessionId: 'dev-now-1',
+  fromUserId: 'dev-u1',
   fromDisplayName: 'Sophie',
   fromPhotoURL: 'https://ik.imagekit.io/nepgaxllc/uk1.png',
   status: 'accepted',
@@ -353,7 +354,25 @@ export default function DevPanel() {
         <div className={styles.bannerWrap}>
           <MeetAcceptedBanner
             session={MOCK_MEET_ACCEPTED}
-            onTapToChat={close}
+            onTapToChat={() => {
+              close()
+              setDevPendingConv({
+                id: `meet-${MOCK_MEET_ACCEPTED.sessionId}`,
+                userId: MOCK_MEET_ACCEPTED.fromUserId,
+                displayName: MOCK_MEET_ACCEPTED.fromDisplayName,
+                photoURL: MOCK_MEET_ACCEPTED.fromPhotoURL,
+                age: MOCK_SESSION_NOW.age,
+                area: MOCK_SESSION_NOW.area,
+                emoji: '💌',
+                online: true,
+                status: 'free',
+                openedAt: Date.now(),
+                lastMessage: null,
+                lastMessageTime: Date.now(),
+                unread: 0,
+                messages: [],
+              })
+            }}
             onDismiss={close}
           />
         </div>
