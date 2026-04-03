@@ -76,6 +76,13 @@ export default function DiscoveryCard({ open, session, mySession, onClose, showT
     }
   }, [onClose])
 
+  // Record that someone viewed a no-photo profile (must be before early return)
+  useEffect(() => {
+    if (open && session?.userId && !(session.photos?.length) && !session.photoURL) {
+      recordPhotoView(session.userId)
+    }
+  }, [open, session?.userId]) // eslint-disable-line
+
   if (!open || !session) return null
 
   const isScheduled = session.status === 'scheduled'
@@ -85,13 +92,6 @@ export default function DiscoveryCard({ open, session, mySession, onClose, showT
   const statusColor = isInviteOut ? '#FFD60A' : isScheduled ? '#FF9500' : '#39FF14'
 
   const photos = session.photos?.length ? session.photos : session.photoURL ? [session.photoURL] : []
-
-  // Record that someone viewed a no-photo profile
-  useEffect(() => {
-    if (open && photos.length === 0 && session?.userId) {
-      recordPhotoView(session.userId)
-    }
-  }, [open]) // eslint-disable-line
 
   const activity   = ACTIVITY_TYPES.find(a => a.id === session.activityType)
   const slogan     = session.message ?? ACTIVITY_SLOGANS[session.activityType] ?? 'Out and about tonight'
