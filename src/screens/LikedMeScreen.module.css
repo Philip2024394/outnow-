@@ -32,10 +32,44 @@
   -webkit-tap-highlight-color: transparent;
 }
 
-.logo {
-  height: 40px;
-  width: auto;
-  object-fit: contain;
+.headerAvatars {
+  display: flex;
+  align-items: center;
+}
+
+.headerAvatar {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: var(--color-surface-2);
+  border: 2px solid var(--color-bg);
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-left: -10px;
+  flex-shrink: 0;
+}
+
+.headerAvatar:first-child { margin-left: 0; }
+
+.headerAvatarImg {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.headerAvatarInitial {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--color-text);
+}
+
+.headerAvatarMore {
+  font-size: 11px;
+  font-weight: 800;
+  color: rgba(255,255,255,0.6);
+  background: var(--color-surface-3);
 }
 
 /* Stats row */

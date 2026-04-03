@@ -3,7 +3,6 @@ import { activityEmoji } from '@/firebase/collections'
 import styles from './LikedMeScreen.module.css'
 
 const IS_DEMO = import.meta.env.VITE_DEMO_MODE === 'true'
-const LOGO_URL = 'https://ik.imagekit.io/dateme/Logo%20with%20green%20map%20pin%20element.png'
 
 function timeAgo(ms) {
   if (!ms) return ''
@@ -29,7 +28,21 @@ export default function LikedMeScreen({ onClose, likedUsers }) {
             <polyline points="15 18 9 12 15 6" />
           </svg>
         </button>
-        <img src={LOGO_URL} alt="IMOUTNOW" className={styles.logo} />
+        <div className={styles.headerAvatars}>
+          {users.slice(0, 4).map((u, i) => (
+            <div key={u.id} className={styles.headerAvatar} style={{ zIndex: 4 - i }}>
+              {u.photoURL
+                ? <img src={u.photoURL} alt={u.displayName} className={styles.headerAvatarImg} />
+                : <span className={styles.headerAvatarInitial}>{u.displayName?.[0]?.toUpperCase()}</span>
+              }
+            </div>
+          ))}
+          {users.length > 4 && (
+            <div className={`${styles.headerAvatar} ${styles.headerAvatarMore}`} style={{ zIndex: 0 }}>
+              +{users.length - 4}
+            </div>
+          )}
+        </div>
         <div style={{ width: 40 }} />
       </div>
 
