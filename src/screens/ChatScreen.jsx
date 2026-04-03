@@ -40,8 +40,7 @@ export default function ChatScreen({ onClose, pendingConv, openConvId }) {
 
   if (openConv) {
     const conv = allConvs.find(c => c.id === openConv)
-    if (!conv) return null
-    return (
+    if (conv) return (
       <ChatWindow
         conversation={conv}
         onBack={() => setOpenConv(null)}

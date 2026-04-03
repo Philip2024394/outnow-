@@ -29,15 +29,6 @@ export default function MeetAcceptedBanner({ session, onTapToChat, onDismiss }) 
         </div>
       </div>
       <button
-        className={styles.chatBtn}
-        onClick={(e) => { e.stopPropagation(); onTapToChat?.() }}
-        aria-label="Open chat"
-      >
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
-          <path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2z"/>
-        </svg>
-      </button>
-      <button
         className={styles.closeBtn}
         onClick={(e) => { e.stopPropagation(); onDismiss?.() }}
         aria-label="Dismiss"

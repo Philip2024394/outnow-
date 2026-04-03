@@ -316,7 +316,7 @@ export default function AppShell({ returnParams, triggerGoLive }) {
 
       {/* Full-screen tab screens */}
       {activeTab === 'match'   && <MatchScreen   onClose={() => setActiveTab('map')} />}
-      {activeTab === 'chat'    && <ChatScreen     onClose={() => setActiveTab('map')} pendingConv={pendingConv} />}
+      {activeTab === 'chat'    && <ChatScreen key={pendingConv?.id ?? 'chat'} onClose={() => setActiveTab('map')} pendingConv={pendingConv} />}
       {activeTab === 'profile' && <ProfileScreen  onClose={() => setActiveTab('map')} />}
 
       <div className="map-top-fade" />

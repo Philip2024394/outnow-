@@ -105,6 +105,7 @@ export function useMeetRequests() {
       setAcceptedMeetSession({
         id: `demo-meet-${Date.now()}`,
         sessionId: session.id,
+        fromUserId: session.userId ?? `demo-user-${session.id}`,
         fromDisplayName: session.displayName,
         fromPhotoURL: session.photoURL,
         status: 'accepted',
