@@ -3,11 +3,9 @@ import { MapContainer, TileLayer, useMap, useMapEvents } from 'react-leaflet'
 import { divIcon, marker } from 'leaflet'
 import L from 'leaflet'
 import 'leaflet/dist/leaflet.css'
-import 'leaflet.markercluster/dist/MarkerCluster.css'
-import 'leaflet.markercluster/dist/MarkerCluster.Default.css'
-import 'leaflet.markercluster'
 import { activityEmoji } from '@/firebase/collections'
 import { DEMO_CENTER } from './mockData'
+import { spreadMarkers } from '@/utils/spreadMarkers'
 import styles from './DemoMapView.module.css'
 
 function formatScheduledTime(ms) {
@@ -34,18 +32,9 @@ function LiveMarkers({ sessions, onSelect }) {
   const map = useMap()
 
   useEffect(() => {
-    const cluster = L.markerClusterGroup({
-      maxClusterRadius: 60,
-      showCoverageOnHover: false,
-      iconCreateFunction: (c) => divIcon({
-        className: '',
-        html: `<div class="demo-cluster"><span>${c.getChildCount()}</span></div>`,
-        iconSize: [44, 44],
-        iconAnchor: [22, 22],
-      }),
-    })
+    const cluster = L.layerGroup()
 
-    sessions.forEach((session) => {
+    spreadMarkers(sessions, 'lat', 'lng').forEach((session) => {
       const emoji = activityEmoji(session.activityType)
       const initial = (session.displayName ?? 'U')[0].toUpperCase()
       const isScheduled  = session.status === 'scheduled'
@@ -78,10 +67,8 @@ function LiveMarkers({ sessions, onSelect }) {
              </div>`
           : isInviteOut
           ? `<div class="demo-marker demo-marker--invite${tierClass}">
-               <div class="demo-marker__invite-badge">💌</div>
                <div class="demo-marker__avatar demo-marker__avatar--invite${avatarTierClass}">${avatarInner}</div>
                <div class="demo-marker__activity">${emoji}</div>
-               <div class="demo-marker__invite-label">Invite Out</div>
              </div>`
           : `<div class="demo-marker${tierClass}">
                ${crownHtml}
@@ -127,38 +114,6 @@ function MyDot() {
   return null
 }
 
-function PartnerVenueMarkers({ venues, onSelect }) {
-  const map = useMap()
-
-  useEffect(() => {
-    const markers = []
-
-    venues.forEach((venue) => {
-      const icon = divIcon({
-        className: '',
-        html: `<div class="partner-marker">
-                 <div class="partner-marker__bubble">
-                   <span class="partner-marker__star">⭐</span>
-                   <span class="partner-marker__emoji">${venue.emoji}</span>
-                   <span class="partner-marker__name">${venue.name}</span>
-                 </div>
-                 <div class="partner-marker__tag">${venue.minDiscount}%+ off</div>
-               </div>`,
-        iconSize: [120, 54],
-        iconAnchor: [60, 20],
-      })
-
-      const m = marker([venue.lat, venue.lng], { icon })
-      m.on('click', () => onSelect(venue))
-      m.addTo(map)
-      markers.push(m)
-    })
-
-    return () => markers.forEach(m => m.remove())
-  }, [venues, map, onSelect])
-
-  return null
-}
 
 function MapEventsHandler({ onMapMove, flyTarget }) {
   const map = useMapEvents({
@@ -180,31 +135,21 @@ function VenueMarkers({ venues, onSelectVenue }) {
   const map = useMap()
 
   useEffect(() => {
-    const cluster = L.markerClusterGroup({
-      maxClusterRadius: 50,
-      showCoverageOnHover: false,
-      iconCreateFunction: (c) => divIcon({
-        className: '',
-        html: `<div class="demo-cluster demo-cluster--venue"><span>${c.getChildCount()}</span></div>`,
-        iconSize: [40, 40],
-        iconAnchor: [20, 20],
-      }),
-    })
+    const cluster = L.layerGroup()
 
-    venues.forEach((venue) => {
-      const isHot = venue.count >= 2
+    spreadMarkers(venues, 'lat', 'lng').forEach((venue) => {
+      const isActive = venue.count > 0
       const icon = divIcon({
         className: '',
-        html: `<div class="venue-marker${isHot ? ' venue-marker--hot' : ''}">
+        html: `<div class="venue-marker${isActive ? ' venue-marker--active' : ''}">
+                 ${isActive ? `<div class="venue-marker__count">${venue.count}</div>` : ''}
                  <div class="venue-marker__bubble">
                    <span class="venue-marker__emoji">${venue.emoji}</span>
-                   <span class="venue-marker__count">${venue.count} here</span>
-                   ${venue.deal ? '<span class="venue-marker__deal">🏷️</span>' : ''}
                  </div>
                  <div class="venue-marker__label">${venue.name}</div>
                </div>`,
-        iconSize: [90, 52],
-        iconAnchor: [45, 20],
+        iconSize: [80, 60],
+        iconAnchor: [40, 22],
       })
 
       const m = marker([venue.lat, venue.lng], { icon })
@@ -229,7 +174,7 @@ function EmptyMapState() {
   )
 }
 
-export default function DemoMapView({ sessions, onSelectUser, activeVenues = [], onSelectVenue, partnerVenues = [], onSelectPartner, venuesOn = false, onMapMove, flyTarget }) {
+export default function DemoMapView({ sessions, onSelectUser, allVenues = [], activeVenues = [], onSelectVenue, venuesOn = false, onMapMove, flyTarget }) {
   return (
     <div className={styles.wrapper}>
       {!venuesOn && sessions.length === 0 && <EmptyMapState />}
@@ -253,11 +198,14 @@ export default function DemoMapView({ sessions, onSelectUser, activeVenues = [],
         <MapEventsHandler onMapMove={onMapMove} flyTarget={flyTarget} />
         <MyDot />
         {venuesOn
-          ? <PartnerVenueMarkers venues={partnerVenues} onSelect={onSelectPartner ?? (() => {})} />
-          : <>
-              <VenueMarkers venues={activeVenues} onSelectVenue={onSelectVenue ?? (() => {})} />
-              <LiveMarkers sessions={sessions} onSelect={onSelectUser} />
-            </>
+          ? <VenueMarkers
+              venues={allVenues.map(v => ({
+                ...v,
+                count: activeVenues.find(a => a.id === v.id)?.count ?? 0,
+              }))}
+              onSelectVenue={onSelectVenue ?? (() => {})}
+            />
+          : <LiveMarkers sessions={sessions} onSelect={onSelectUser} />
         }
       </MapContainer>
     </div>

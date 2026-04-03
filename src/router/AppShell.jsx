@@ -124,6 +124,7 @@ export default function AppShell({ returnParams, triggerGoLive }) {
   const { inviteOut, post: postInviteOut, goingLive, revertToInviteOut } = useInviteOut()
   const { earn: earnCoins, spend: spendCoins } = useCoins()
   const allMoments = moments
+  const [mapFilter,           setMapFilter]           = useState('invite')
   const [discoveryListFilter, setDiscoveryListFilter] = useState('now')
   const [discoveryListOpen,   setDiscoveryListOpen]   = useState(false)
   const [newNowCount,    setNewNowCount]    = useState(0)
@@ -168,6 +169,7 @@ export default function AppShell({ returnParams, triggerGoLive }) {
     setFlyTarget({ lat: DEMO_CENTER.lat, lng: DEMO_CENTER.lng })
     setDiscoveryListFilter(filter)
     setDiscoveryListOpen(true)
+    setMapFilter(filter)
   }
   // Full map filter sheet
   const [mapFilterOpen, setMapFilterOpen] = useState(false)
@@ -260,7 +262,12 @@ export default function AppShell({ returnParams, triggerGoLive }) {
     return sortByRelevance(filtered, mySession, mutualSessions)
   }, [sessions, declinedUserIds, mapFilters, mySession, mutualSessions]) // eslint-disable-line
 
-  const mapSessions = visibleSessions
+  const mapSessions = useMemo(() => visibleSessions.filter(s => {
+    if (mapFilter === 'now')    return s.status !== 'scheduled' && s.status !== 'invite_out'
+    if (mapFilter === 'invite') return s.status === 'invite_out'
+    if (mapFilter === 'later')  return s.status === 'scheduled'
+    return true
+  }), [visibleSessions, mapFilter])
 
   // acceptedMeetSession — banner shown, chat opened only when user taps it
 
@@ -304,11 +311,10 @@ export default function AppShell({ returnParams, triggerGoLive }) {
         : <DemoMapView
             sessions={cappedSessions}
             onSelectUser={(s) => openDiscovery(s)}
+            allVenues={DEMO_VENUES}
             activeVenues={activeVenues}
             onSelectVenue={(v) => { setSelectedVenue(v); setVenueSheetOpen(true) }}
             venuesOn={venuesOn}
-            partnerVenues={PARTNER_VENUES.filter(v => !v.country || v.country === mapFilters.country)}
-            onSelectPartner={(v) => { setSelectedPartner(v); setPartnerSheetOpen(true) }}
             onMapMove={handleMapMove}
             flyTarget={flyTarget}
           />

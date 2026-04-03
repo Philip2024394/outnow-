@@ -102,7 +102,7 @@ export default function DiscoveryListSheet({ open, filter = 'now', sessions = []
                 const isInviteOut  = s.status === 'invite_out'
                 const isScheduled  = s.status === 'scheduled'
 
-                const activities = (s.activities ?? [s.activityType]).slice(0, 3)
+                const activities = (s.activities ?? [s.activityType]).slice(0, 1)
 
                 return (
                   <button
@@ -142,7 +142,8 @@ export default function DiscoveryListSheet({ open, filter = 'now', sessions = []
                           const a = ACTIVITY_TYPES.find(x => x.id === id)
                           return a ? (
                             <span key={id} className={styles.cardActivityPill}>
-                              <ActivityIcon activity={a} size={18} />
+                              <ActivityIcon activity={a} size={26} />
+                              <span className={styles.cardActivityLabel}>{a.label}</span>
                             </span>
                           ) : null
                         })}

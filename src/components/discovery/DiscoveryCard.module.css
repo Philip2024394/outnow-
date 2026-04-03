@@ -47,7 +47,7 @@
   z-index: 2;
   width: 36px;
   height: 4px;
-  background: #ef4444;
+  background: var(--status-color, #39FF14);
   border-radius: 100px;
   margin: 12px auto 0;
   flex-shrink: 0;

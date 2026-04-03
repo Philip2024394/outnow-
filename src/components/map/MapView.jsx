@@ -6,6 +6,7 @@ import { useLiveUsers } from '@/hooks/useLiveUsers'
 import { useInterests } from '@/hooks/useInterests'
 import LiveUserMarker from './LiveUserMarker'
 import MyLocationDot from './MyLocationDot'
+import { spreadMarkers } from '@/utils/spreadMarkers'
 
 const MAP_OPTIONS = {
   disableDefaultUI: true,
@@ -63,8 +64,8 @@ export default function MapView() {
         {/* My location dot */}
         {coords && <MyLocationDot lat={coords.lat} lng={coords.lng} />}
 
-        {/* Live user markers */}
-        {sessions.map((session) => (
+        {/* Live user markers — spread so no two overlap */}
+        {spreadMarkers(sessions, 'fuzzedLat', 'fuzzedLng').map((session) => (
           <LiveUserMarker
             key={session.id}
             session={session}

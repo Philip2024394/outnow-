@@ -76,7 +76,7 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding-bottom: 4px;
+  padding: 4px 0 8px;
 }
 
 .headerLeft {
@@ -89,19 +89,19 @@
 .inviteHeader {
   display: flex;
   flex-direction: column;
-  gap: 3px;
+  gap: 5px;
 }
 
 .inviteTitle {
-  font-size: 22px;
+  font-size: 28px;
   font-weight: 800;
   color: #fff;
-  line-height: 1.1;
-  letter-spacing: -0.01em;
+  line-height: 1.05;
+  letter-spacing: -0.02em;
 }
 
 .inviteSub {
-  font-size: 12px;
+  font-size: 13px;
   color: rgba(255,255,255,0.45);
   font-weight: 500;
 }
@@ -227,14 +227,29 @@
 
 .cardActivities {
   display: flex;
-  gap: 4px;
+  gap: 8px;
   flex-wrap: wrap;
   justify-content: flex-end;
-  max-width: 80px;
+  max-width: 100px;
 }
 
 .cardActivityPill {
-  font-size: 18px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  min-width: 38px;
+}
+
+.cardActivityLabel {
+  font-size: 11px;
+  font-weight: 700;
+  color: rgba(255,255,255,0.8);
+  text-align: center;
+  max-width: 46px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
   line-height: 1;
 }
 

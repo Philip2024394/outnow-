@@ -1,33 +1,32 @@
 import { useEffect, useRef, useState } from 'react'
-import FeatureIntro, { useFeatureIntro } from '@/components/ui/FeatureIntro'
-import { activityEmoji } from '@/firebase/collections'
 import styles from './VenueSheet.module.css'
 
-
-function venueCoinCost(count) {
-  if (count <= 3)  return 5
-  if (count <= 8)  return 10
-  if (count <= 15) return 15
-  return 20
+function haversineMeters(lat1, lng1, lat2, lng2) {
+  const R = 6371000
+  const dLat = (lat2 - lat1) * Math.PI / 180
+  const dLng = (lng2 - lng1) * Math.PI / 180
+  const a = Math.sin(dLat / 2) ** 2 +
+    Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) * Math.sin(dLng / 2) ** 2
+  return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a))
 }
 
-export default function VenueSheet({ open, venue, onClose, onSelectSession, onOpenChat, userTier, onSpendCoins }) {
-  const { show: showDealIntro, dismiss: dismissDealIntro } = useFeatureIntro('venue_deals')
+function formatHours(hours) {
+  if (!hours) return null
+  const fmt = (t) => {
+    const [h, m] = t.split(':').map(Number)
+    const ampm = h >= 12 ? 'pm' : 'am'
+    const h12 = h % 12 || 12
+    return `${h12}.${m.toString().padStart(2, '0')}${ampm}`
+  }
+  return `Time ${fmt(hours.open)} / ${fmt(hours.close)}`
+}
+
+export default function VenueSheet({ open, venue, onClose, onOpenChat }) {
   const sheetRef = useRef(null)
   const startYRef = useRef(null)
   const currentYRef = useRef(0)
-  const [unlocked, setUnlocked] = useState(false)
-
-  useEffect(() => { setUnlocked(false) }, [venue?.id])
-
-  const isPremium = userTier === 'pro' || userTier === 'vip'
-  const coinCost  = venue ? venueCoinCost(venue.count) : 5
-  const isUnlocked = unlocked || isPremium
-
-  const handleUnlock = () => {
-    onSpendCoins?.(coinCost)
-    setUnlocked(true)
-  }
+  const [proximity, setProximity] = useState(null)
+  const [codeCopied, setCodeCopied] = useState(false)
 
   useEffect(() => {
     const sheet = sheetRef.current
@@ -59,7 +58,19 @@ export default function VenueSheet({ open, venue, onClose, onSelectSession, onOp
     }
   }, [onClose])
 
-  const [codeCopied, setCodeCopied] = useState(false)
+  useEffect(() => {
+    if (!open || !venue) return
+    setProximity(null)
+    if (!navigator.geolocation) { setProximity('far'); return }
+    navigator.geolocation.getCurrentPosition(
+      (pos) => {
+        const dist = haversineMeters(pos.coords.latitude, pos.coords.longitude, venue.lat, venue.lng)
+        setProximity(dist <= 100 ? 'near' : 'far')
+      },
+      () => setProximity('far'),
+      { timeout: 8000, maximumAge: 30000 }
+    )
+  }, [open, venue])
 
   const discountCode = venue?.name
     ? venue.name.replace(/^the\s+/i, '').slice(0, 2).toUpperCase() + '-3637-ION'
@@ -73,68 +84,67 @@ export default function VenueSheet({ open, venue, onClose, onSelectSession, onOp
 
   if (!open || !venue) return null
 
-  const breakdown = {}
-  ;(venue.sessions ?? []).forEach(s => {
-    breakdown[s.activityType] = (breakdown[s.activityType] ?? 0) + 1
-  })
+  const canChat = proximity === 'near'
+  const hoursLabel = formatHours(venue.hours)
 
   return (
     <div className={styles.wrapper}>
       <div className={styles.backdrop} onClick={onClose} />
 
-      <div ref={sheetRef} className={styles.sheet}>
-        {/* Green top strip */}
+      <div ref={sheetRef} className={styles.sheet} style={{ '--venue-color': venue.count > 0 ? '#39FF14' : '#4DA6FF' }}>
 
-        {/* Drag handle */}
         <div className={styles.handle} onClick={onClose} />
 
-        {/* Scrollable content */}
         <div className={styles.content}>
 
-          {venue.deal && showDealIntro && (
-            <FeatureIntro
-              emoji="🏷️"
-              title="Venue Deals"
-              bullets={[
-                'Partner venues offer exclusive deals to IMOUTNOW users',
-                'Just show this screen at the bar or door to claim',
-                'Deals are live tonight only — first come, first served',
-              ]}
-              onDone={dismissDealIntro}
-            />
-          )}
-
-          {/* Header */}
           <div className={styles.header}>
             <span className={styles.venueEmoji}>{venue.emoji}</span>
             <div className={styles.headerText}>
               <h2 className={styles.venueName}>{venue.name}</h2>
               <span className={styles.venueType}>{venue.type}</span>
+              <p className={styles.address}>📍 {venue.address}</p>
+              {(venue.serves ?? []).length > 0 && (
+                <p className={styles.serves}>
+                  <span className={styles.servesLabel}>Serves</span>
+                  {venue.serves.map((item, i) => (
+                    <span key={item}>
+                      {i > 0 && <span className={styles.servesDot}> • </span>}
+                      {item}
+                    </span>
+                  ))}
+                </p>
+              )}
             </div>
           </div>
 
-          <p className={styles.address}>📍 {venue.address}</p>
-
-          {/* Live count */}
           <div className={styles.countRow}>
             <span className={styles.countDot} />
             <span className={styles.countText}>
               <strong className={styles.countNum}>{venue.count}</strong>
-              {venue.count === 1 ? ' person' : ' people'} out here now
+              {venue.count === 1 ? ' Person Here Now' : ' People Here Now'}
             </span>
           </div>
 
-          {/* Group chat button */}
           <button
-            className={styles.chatBtn}
-            onClick={() => { onClose?.(); setTimeout(() => onOpenChat?.(), 250) }}
+            className={`${styles.chatBtn} ${!canChat ? styles.chatBtnDisabled : ''}`}
+            disabled={!canChat}
+            onClick={() => { if (canChat) { onClose?.(); setTimeout(() => onOpenChat?.(), 250) } }}
           >
-            <span className={styles.chatBtnDot} />
-            <span className={styles.chatBtnText}>💬 Join Venue Chat</span>
-            <span className={styles.chatBtnSub}>{venue.count} {venue.count === 1 ? 'person' : 'people'} in the room</span>
+            {canChat
+              ? <span className={styles.chatBtnText}>💬 Join Chat</span>
+              : <span className={styles.chatBtnText}>
+                  <span className={styles.chatBtnLine1}>💬 Group Chat</span>
+                  <span className={styles.chatBtnLine2}>🔒 Activates at Premises</span>
+                </span>
+            }
           </button>
 
-          {/* IMOUTNOW discount banner */}
+          {hoursLabel && (
+            <div className={styles.hoursRow}>
+              <span className={styles.hoursText}>{hoursLabel}</span>
+            </div>
+          )}
+
           {venue.discount?.confirmed && (
             <div className={styles.discountBanner}>
               <div className={styles.discountTop}>
@@ -145,7 +155,11 @@ export default function VenueSheet({ open, venue, onClose, onSelectSession, onOp
                   </span>
                 </div>
                 <div className={styles.discountRight}>
-                  <span className={styles.discountTag}>🏷️ IMOUTNOW exclusive</span>
+                  <img
+                    src="https://ik.imagekit.io/nepgaxllc/Untitledxczxc-removebg-preview.png?updatedAt=1775162044064"
+                    alt="IMOUTNOW"
+                    className={styles.discountLogo}
+                  />
                   <span className={styles.discountClaim}>Show this screen to claim</span>
                 </div>
               </div>
@@ -156,81 +170,6 @@ export default function VenueSheet({ open, venue, onClose, onSelectSession, onOp
                   {codeCopied ? '✓ Copied!' : 'Copy'}
                 </span>
               </button>
-            </div>
-          )}
-
-          {/* Deal card */}
-          {venue.deal && (
-            <div className={styles.dealCard}>
-              <div className={styles.dealHeader}>
-                <span className={styles.dealEmoji}>{venue.deal.emoji}</span>
-                <div className={styles.dealInfo}>
-                  <span className={styles.dealTitle}>{venue.deal.title}</span>
-                  <span className={styles.dealValid}>Valid until {venue.deal.validUntil}</span>
-                </div>
-                <span className={styles.dealBadge}>🏷️ Deal</span>
-              </div>
-              <p className={styles.dealDesc}>{venue.deal.description}</p>
-            </div>
-          )}
-
-          {/* Activity breakdown */}
-          <div className={styles.chips}>
-            {Object.entries(breakdown).map(([type, n]) => (
-              <span key={type} className={styles.chip}>
-                {activityEmoji(type)} {type} {n > 1 ? `×${n}` : ''}
-              </span>
-            ))}
-          </div>
-
-          {/* Who's there — coin gate */}
-          <div className={styles.sectionLabel}>Who's here</div>
-          {isUnlocked ? (
-            <div className={styles.peopleList}>
-              {(venue.sessions ?? []).map(s => (
-                <button
-                  key={s.id}
-                  className={styles.personRow}
-                  onClick={() => { onSelectSession?.(s); onClose?.() }}
-                >
-                  <div className={styles.personAvatar}>
-                    {s.photoURL
-                      ? <img src={s.photoURL} alt={s.displayName} className={styles.personAvatarImg} />
-                      : <span className={styles.personAvatarInitial}>{s.displayName?.[0]?.toUpperCase()}</span>
-                    }
-                    <span className={styles.personOnlineDot} />
-                  </div>
-                  <span className={styles.personName}>{s.displayName?.split(' ')[0]}</span>
-                  <span className={styles.personActivity}>{activityEmoji(s.activityType)}</span>
-                  <span className={styles.personArrow}>›</span>
-                </button>
-              ))}
-            </div>
-          ) : (
-            <div className={styles.venueGate}>
-              <div className={styles.venueGateBlur}>
-                {(venue.sessions ?? []).slice(0, 3).map(s => (
-                  <div key={s.id} className={styles.venueGateRow}>
-                    <div className={styles.venueGateAvatar}>
-                      {s.displayName?.[0]?.toUpperCase()}
-                    </div>
-                    <div className={styles.venueGateName}>••••••</div>
-                  </div>
-                ))}
-              </div>
-              <div className={styles.venueGateOverlay}>
-                <span className={styles.venueGateLock}>🔒</span>
-                <p className={styles.venueGateTitle}>See who's inside</p>
-                <p className={styles.venueGateSub}>
-                  {venue.count} {venue.count === 1 ? 'person' : 'people'} at this venue right now
-                </p>
-                <button className={styles.venueGateBtn} onClick={handleUnlock}>
-                  🪙 {coinCost} Coins — Unlock
-                </button>
-                {isPremium && (
-                  <p className={styles.venueGateFree}>Free for Pro & VIP members</p>
-                )}
-              </div>
             </div>
           )}
 

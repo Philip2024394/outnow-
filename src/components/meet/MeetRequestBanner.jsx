@@ -80,7 +80,7 @@ export default function MeetRequestBanner({ request, onAccepted, onDeclined, onV
           onClick={() => handle(true)}
           disabled={!!loading}
         >
-          {loading === 'accept' ? <Spinner size={14} color="#000" /> : '💌 Accept & Send'}
+          {loading === 'accept' ? <Spinner size={14} color="#000" /> : "Let's Meet"}
         </button>
       </div>
 

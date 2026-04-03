@@ -155,30 +155,28 @@
 /* Settings / people button */
 .settingsBtn {
   position: relative;
-  width: 42px;
-  height: 42px;
+  width: 36px;
+  height: 36px;
   border-radius: 50%;
-  background: rgba(14, 14, 14, 0.75);
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
-  border: 1px solid rgba(255,255,255,0.1);
+  background: none;
+  border: none;
   display: flex;
   align-items: center;
   justify-content: center;
-  color: #fff;
+  color: rgba(255,255,255,0.65);
   cursor: pointer;
-  transition: background 0.15s ease, transform 0.12s ease;
+  transition: color 0.15s ease, transform 0.12s ease;
   -webkit-tap-highlight-color: transparent;
+  flex-shrink: 0;
 }
 
 .settingsBtn:active {
-  background: rgba(57,255,20,0.15);
+  color: #fff;
   transform: scale(0.9);
 }
 
 .settingsBtnActive {
-  border-color: rgba(57,255,20,0.4);
-  background: rgba(57,255,20,0.1);
+  color: #fff;
 }
 
 .filterDot {
