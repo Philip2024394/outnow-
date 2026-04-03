@@ -3,7 +3,6 @@ import FeatureIntro, { useFeatureIntro } from '@/components/ui/FeatureIntro'
 import { activityEmoji } from '@/firebase/collections'
 import styles from './VenueSheet.module.css'
 
-const BG_URL = 'https://ik.imagekit.io/dateme/UntitledDFSDFASDFDFGSDFGsfdfasdsadas.png?updatedAt=1775081066476'
 
 function venueCoinCost(count) {
   if (count <= 3)  return 5
@@ -84,8 +83,8 @@ export default function VenueSheet({ open, venue, onClose, onSelectSession, onOp
       <div className={styles.backdrop} onClick={onClose} />
 
       <div ref={sheetRef} className={styles.sheet}>
-        {/* Full-bleed background image */}
-        <img src={BG_URL} alt="" className={styles.bgImage} />
+        {/* Green top strip */}
+        <div className={styles.greenStrip} />
 
         {/* Drag handle */}
         <div className={styles.handle} />
