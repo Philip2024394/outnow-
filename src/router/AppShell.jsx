@@ -175,7 +175,7 @@ export default function AppShell({ returnParams, triggerGoLive }) {
   const hasActiveMapFilter = Object.entries(mapFilters).some(([k, v]) => v !== DEFAULT_MAP_FILTERS[k])
   const [activeTab, setActiveTab] = useState('map')
 
-  const watchSessionId = returnParams?.sessionId ?? myOutgoingRequest?.sessionId ?? null
+  const watchSessionId = returnParams?.sessionId ?? null
   const { unlock } = useVenueUnlock(watchSessionId)
 
   // Time left on session in ms
