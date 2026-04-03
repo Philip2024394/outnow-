@@ -19,9 +19,12 @@ export default function ChatScreen({ onClose, pendingConv, openConvId }) {
   // Initialise directly from pendingConv so we never wait for a useEffect render cycle
   const [openConv, setOpenConv] = useState(pendingConv?.id ?? openConvId ?? null)
 
+  console.log('[ChatScreen] render — pendingConv:', pendingConv?.id, 'openConv:', openConv, 'convs:', conversations.length)
+
   // Keep conversations list in sync and re-open if pendingConv changes
   useEffect(() => {
     if (!pendingConv) return
+    console.log('[ChatScreen] pendingConv effect — adding conv + setting openConv:', pendingConv.id)
     setConversations(prev => {
       if (prev.some(c => c.id === pendingConv.id)) return prev
       return [pendingConv, ...prev]
@@ -39,6 +42,7 @@ export default function ChatScreen({ onClose, pendingConv, openConvId }) {
     // pendingConv is used as fallback while setConversations hasn't re-rendered yet
     const conv = conversations.find(c => c.id === openConv)
               ?? (pendingConv?.id === openConv ? pendingConv : null)
+    console.log('[ChatScreen] openConv:', openConv, '→ conv found:', !!conv, 'fallback used:', !conversations.find(c => c.id === openConv))
     if (!conv) return null
     return (
       <ChatWindow
