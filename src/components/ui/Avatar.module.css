@@ -1,5 +1,5 @@
 .avatar {
-  border-radius: 50%;
+  border-radius: 14px;
   overflow: hidden;
   background: var(--color-surface-2);
   display: flex;

@@ -53,7 +53,8 @@ export function useLiveUsers() {
     }
 
     if (!user) {
-      setSessions([])
+      // Guest browsing — show demo profiles so the map isn't empty
+      setSessions([...DEMO_SESSIONS, ...DEMO_SCHEDULED_SESSIONS, ...DEMO_INVITE_OUT_SESSIONS])
       setLoading(false)
       return
     }

@@ -89,11 +89,17 @@ export default function App() {
 
   return (
     <GuestGateProvider>
-      <AppShell returnParams={returnParams} triggerGoLive={triggerGoLive} />
+      {(guestMode || onboardStep === 'done') && (
+        <AppShell returnParams={returnParams} triggerGoLive={triggerGoLive} />
+      )}
 
-      {/* Onboarding overlays — signed-in users OR admin dev preview */}
-      {(user || adminPass) && onboardStep === 'video' && (
-        <VideoIntro onDone={() => setOnboardStep('setup')} />
+      {/* Video background — stays mounted through all onboarding slides */}
+      {(user || adminPass) && ['video','setup','golive'].includes(onboardStep) && (
+        <VideoIntro
+          forcePlay={adminPass && !user}
+          bgOnly={onboardStep !== 'video'}
+          onDone={() => setOnboardStep('setup')}
+        />
       )}
       {(user || adminPass) && onboardStep === 'welcome' && (
         <WelcomePopup onDone={() => setOnboardStep('setup')} />

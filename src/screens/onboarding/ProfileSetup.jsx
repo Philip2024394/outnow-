@@ -1,10 +1,9 @@
 import { useEffect, useRef, useState } from 'react'
 import { useCoins } from '@/hooks/useCoins'
-import { ALL_COUNTRIES, detectCountryByIP } from '@/utils/countries'
+import { ALL_COUNTRIES, detectCountryByIP, flagEmoji } from '@/utils/countries'
 import styles from './ProfileSetup.module.css'
 
-const LOGO_URL    = 'https://ik.imagekit.io/dateme/Logo%20with%20green%20map%20pin%20element.png'
-const VIDEO_URL   = import.meta.env.VITE_ONBOARDING_VIDEO_URL ?? ''
+const LOGO_URL = 'https://ik.imagekit.io/dateme/Logo%20with%20green%20map%20pin%20element.png'
 
 // Coins that fly from behind the reward card down to the footer badge
 const FLY_COINS = [
@@ -42,23 +41,10 @@ const SLIDE_REWARDS = [
   { key: 'PROFILE_PHOTO',  amount: 10 },         // slide 2 — photo + bio
 ]
 
-const LOOKING_FOR  = ['A date', 'New friends', 'Networking', 'Just browsing']
-const GENDERS      = ['Man', 'Woman', 'Gay', 'Lesbian', 'Bisexual', 'Non-binary', 'Trans', 'Queer', 'Prefer not to say']
+const GENDERS      = ['Male', 'Female']
+const LOOKING_FOR  = ['Man', 'Woman']
+const INTENT       = ['A date tonight', 'Something casual', 'Something serious', 'Open to anything']
 const VENUE_TYPES  = ['Bar / Pub 🍺', 'Restaurant 🍽️', 'Coffee shop ☕', 'Gym / Sport 🏋️', 'Park / Outdoors 🌳', 'Cinema 🎬', 'Club / Nightlife 🎵', 'Art / Gallery 🎨', 'Market / Festival 🎪']
-
-// ─── Background video (or animated gradient fallback) ──────────────────────
-function BgVideo() {
-  if (!VIDEO_URL) {
-    return <div className={styles.bgGradient} />
-  }
-  return (
-    <video
-      src={VIDEO_URL}
-      className={styles.bgVideo}
-      autoPlay muted loop playsInline
-    />
-  )
-}
 
 // ─── Coin burst overlay (per-slide reward) ─────────────────────────────────
 function CoinBurst({ amount, onComplete }) {
@@ -131,16 +117,31 @@ export default function ProfileSetup({ onDone }) {
   const [showCompletion, setShowCompletion] = useState(false)
   const [earnedTotal, setEarnedTotal] = useState(0)
   const [badgePulseTick, setBadgePulseTick] = useState(0)
+  const [showSlider, setShowSlider]   = useState(false)
+  const [coinFallActive, setCoinFallActive] = useState(false)
+  const nameCoinRef  = useRef(null)
+  const btnRef       = useRef(null)
+  const btnCoinRef   = useRef(null)
+  const [fallCoins, setFallCoins] = useState([])
+
+  // Slide the card up as soon as the screen mounts (video has already ended/faded)
+  useEffect(() => {
+    const t = setTimeout(() => setShowSlider(true), 80)
+    return () => clearTimeout(t)
+  }, [])
 
   // Slide 0
-  const [name, setName]       = useState('')
-  const [age, setAge]         = useState('')
-  const [country, setCountry] = useState('')
-  const [city, setCity]       = useState('')
+  const [name, setName]           = useState('')
+  const [country, setCountry]     = useState('')   // selected country name
+  const [countryQ, setCountryQ]   = useState('')   // typeahead query
+  const [showSugg, setShowSugg]   = useState(false)
+  const countryRef                = useRef(null)
+  const countryInputRef           = useRef(null)
 
   // Slide 1
   const [gender, setGender]     = useState('')
   const [lookingFor, setLooking] = useState('')
+  const [intent, setIntent]     = useState('')
   const [venueType, setVenue]   = useState('')
 
   // Slide 2
@@ -148,12 +149,32 @@ export default function ProfileSetup({ onDone }) {
   const [bio, setBio] = useState('')
 
   useEffect(() => {
-    detectCountryByIP().then(found => { if (found) setCountry(found.name) })
+    detectCountryByIP().then(found => {
+      if (found) { setCountry(found.name); setCountryQ(found.name) }
+    })
   }, [])
 
+  // Close country suggestions when clicking outside
+  useEffect(() => {
+    function handleClick(e) {
+      if (countryRef.current && !countryRef.current.contains(e.target)) setShowSugg(false)
+    }
+    document.addEventListener('mousedown', handleClick)
+    return () => document.removeEventListener('mousedown', handleClick)
+  }, [])
+
+
+  const countrySuggestions = (() => {
+    const q = countryQ.trim().toLowerCase()
+    if (!q) return []
+    const starts   = ALL_COUNTRIES.filter(c => c.name.toLowerCase().startsWith(q))
+    const contains = ALL_COUNTRIES.filter(c => !c.name.toLowerCase().startsWith(q) && c.name.toLowerCase().includes(q))
+    return [...starts, ...contains].slice(0, 8)
+  })()
+
   const canAdvance = [
-    name.trim().length >= 2 && Number(age) >= 18 && Number(age) <= 99 && !!country,
-    !!gender && !!lookingFor,
+    name.trim().length >= 2 && !!country && !!gender,
+    !!gender && !!lookingFor && !!intent,
     true,
   ][slide]
 
@@ -165,8 +186,30 @@ export default function ProfileSetup({ onDone }) {
       setEarnedTotal(t => t + reward.amount + (slide === 2 && bio.trim() ? 5 : 0))
       setShowBurst(true)
     } else {
-      // Slide 0 — no reward, just advance
-      setSlide(1)
+      // Slide 0 — coins fall into button, show total for 2s, then advance
+      const coinBadgeRect = btnCoinRef.current?.getBoundingClientRect()
+      const nameRect      = nameCoinRef.current?.getBoundingClientRect()
+      if (coinBadgeRect && nameRect) {
+        const endX = coinBadgeRect.left + coinBadgeRect.width / 2
+        const endY = coinBadgeRect.top  + coinBadgeRect.height / 2
+        setFallCoins([
+          { id: 'name', startX: nameRect.left + nameRect.width / 2, startY: nameRect.top, endX, endY, label: '+6 🪙' },
+        ])
+        setCoinFallActive(true)
+        // Coins land — show total
+        setTimeout(() => {
+          setEarnedTotal(6)
+          setBadgePulseTick(t => t + 1)
+          setCoinFallActive(false)
+          setFallCoins([])
+        }, 800)
+        // 2 seconds showing total, then advance
+        setTimeout(() => {
+          setSlide(1)
+        }, 2800)
+      } else {
+        setSlide(1)
+      }
     }
   }
 
@@ -182,7 +225,7 @@ export default function ProfileSetup({ onDone }) {
 
   const handleFinish = () => {
     setLeaving(true)
-    setTimeout(() => onDone({ name, age, gender, country, city, lookingFor, venueType, bio, photoEmoji }), 350)
+    setTimeout(() => onDone({ name, gender, country, lookingFor, intent, venueType, bio, photoEmoji }), 350)
   }
 
   const requestNotifThenFinish = async () => {
@@ -192,8 +235,9 @@ export default function ProfileSetup({ onDone }) {
 
   return (
     <div className={`${styles.screen} ${leaving ? styles.leaving : ''}`}>
-      <BgVideo />
-      <div className={styles.veil} />
+
+      {showSlider && (
+      <div className={styles.sliderCard}>
 
       {/* Progress bar */}
       <div className={styles.progressBar}>
@@ -202,7 +246,12 @@ export default function ProfileSetup({ onDone }) {
 
       {/* Header */}
       <div className={styles.header}>
-        <img src={LOGO_URL} alt="imoutnow" className={styles.logo} />
+        <div className={styles.headerTitleWrap} style={{flex:1}}>
+          <span className={styles.headerTitle}>
+            {['Who are you?', '', 'Your profile'][slide]}
+          </span>
+          {slide === 0 && <span className={styles.headerSub}>Let's get to know you</span>}
+        </div>
         <span className={styles.stepLabel}>Step {slide + 1} of 3</span>
       </div>
 
@@ -213,49 +262,77 @@ export default function ProfileSetup({ onDone }) {
           {/* ── SLIDE 0: Name, Age, Country, City ── */}
           {slide === 0 && (
             <>
-              <img
-                src="https://ik.imagekit.io/dateme/What's%20your%20name_%20in%20green.png"
-                alt="What's your name?"
-                className={styles.stepImg}
-              />
-              <input
-                className={styles.input}
-                placeholder="First name"
-                value={name}
-                onChange={e => setName(e.target.value)}
-                maxLength={24}
-                autoFocus
-              />
-              <input
-                className={styles.input}
-                placeholder="Age"
-                value={age}
-                onChange={e => setAge(e.target.value.replace(/\D/, ''))}
-                inputMode="numeric"
-                maxLength={2}
-              />
-              {age && Number(age) < 18 && <p className={styles.error}>You must be 18 or over.</p>}
-              <div className={styles.selectWrap}>
-                <span className={styles.selectIcon}>
-                  {country ? (ALL_COUNTRIES.find(c => c.name === country)?.flag ?? '🏳️') : '🏳️'}
-                </span>
-                <select className={styles.select} value={country} onChange={e => setCountry(e.target.value)}>
-                  <option value="">Select your country…</option>
-                  {ALL_COUNTRIES.map(c => (
-                    <option key={c.code} value={c.name}>{c.flag} {c.name}</option>
-                  ))}
-                </select>
-                <svg className={styles.selectChevron} width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
-                  <polyline points="6 9 12 15 18 9"/>
-                </svg>
+              <div className={styles.inputWrap}>
+                <input
+                  className={`${styles.input} ${styles.inputGlow}`}
+                  placeholder="First name"
+                  value={name}
+                  onChange={e => {
+                    const cleaned = e.target.value.replace(/[^\p{L}]/gu, '')
+                    setName(cleaned)
+                  }}
+                  maxLength={24}
+                  autoComplete="given-name"
+                  autoFocus
+                  style={{ paddingRight: '64px' }}
+                />
+                <span ref={nameCoinRef} className={styles.inputInlineHint}>+5 🪙</span>
               </div>
-              <input
-                className={styles.input}
-                placeholder="City (e.g. London)"
-                value={city}
-                onChange={e => setCity(e.target.value)}
-                maxLength={40}
-              />
+              <p className={styles.fieldLabel}>Dating Country</p>
+              <div className={styles.countryWrap} ref={countryRef}>
+                <div className={styles.countryInputRow}>
+                  {country && (
+                    <span className={styles.countryFlag}>
+                      {flagEmoji(ALL_COUNTRIES.find(c => c.name === country)?.code ?? '')}
+                    </span>
+                  )}
+                  <input
+                    ref={countryInputRef}
+                    className={styles.countryInput}
+                    placeholder="Search country…"
+                    value={countryQ}
+                    onChange={e => {
+                      setCountryQ(e.target.value)
+                      setCountry('')
+                      setShowSugg(true)
+                    }}
+                    onFocus={() => setShowSugg(true)}
+                    autoComplete="off"
+                  />
+                  {country && (
+                    <button type="button" className={styles.countryClear}
+                      onClick={() => { setCountry(''); setCountryQ(''); setShowSugg(true) }}>
+                      ✕
+                    </button>
+                  )}
+                </div>
+                {showSugg && countrySuggestions.length > 0 && (
+                  <ul className={styles.suggList}>
+                    {countrySuggestions.map(c => (
+                      <li
+                        key={c.code}
+                        className={styles.suggItem}
+                        onMouseDown={() => {
+                          setCountry(c.name)
+                          setCountryQ(c.name)
+                          setShowSugg(false)
+                        }}
+                      >
+                        <span className={styles.suggFlag}>{flagEmoji(c.code)}</span>
+                        {c.name}
+                      </li>
+                    ))}
+                  </ul>
+                )}
+              </div>
+              <label className={styles.groupLabel}>I am</label>
+              <div className={styles.chipGrid}>
+                {GENDERS.map(g => (
+                  <button key={g} className={`${styles.chip} ${gender === g ? styles.chipActive : ''}`} onClick={() => setGender(g)}>
+                    {g} <span className={styles.chipCoin}>{gender === g ? '🪙' : '+1 🪙'}</span>
+                  </button>
+                ))}
+              </div>
             </>
           )}
 
@@ -264,22 +341,28 @@ export default function ProfileSetup({ onDone }) {
             <>
               <h2 className={styles.title}>Tell us about you</h2>
               <p className={styles.sub}>Helps us show you the right people  •  Earns <strong className={styles.green}>+5 🪙</strong></p>
-              <label className={styles.groupLabel}>I am a…</label>
-              <div className={styles.chipGrid}>
-                {GENDERS.map(g => (
-                  <button key={g} className={`${styles.chip} ${gender === g ? styles.chipActive : ''}`} onClick={() => setGender(g)}>{g}</button>
-                ))}
-              </div>
-              <label className={styles.groupLabel}>I'm here to…</label>
+              <label className={styles.groupLabel}>Looking for</label>
               <div className={styles.chipGrid}>
                 {LOOKING_FOR.map(l => (
-                  <button key={l} className={`${styles.chip} ${lookingFor === l ? styles.chipActive : ''}`} onClick={() => setLooking(l)}>{l}</button>
+                  <button key={l} className={`${styles.chip} ${lookingFor === l ? styles.chipActive : ''}`} onClick={() => setLooking(l)}>
+                    {l} <span className={styles.chipCoin}>{lookingFor === l ? '🪙' : '+1 🪙'}</span>
+                  </button>
+                ))}
+              </div>
+              <label className={styles.groupLabel}>I want</label>
+              <div className={styles.chipGrid}>
+                {INTENT.map(i => (
+                  <button key={i} className={`${styles.chip} ${intent === i ? styles.chipActive : ''}`} onClick={() => setIntent(i)}>
+                    {i} <span className={styles.chipCoin}>{intent === i ? '🪙' : '+1 🪙'}</span>
+                  </button>
                 ))}
               </div>
               <label className={styles.groupLabel}>My ideal first meet…</label>
               <div className={styles.chipGrid}>
                 {VENUE_TYPES.map(v => (
-                  <button key={v} className={`${styles.chip} ${venueType === v ? styles.chipActive : ''}`} onClick={() => setVenue(v)}>{v}</button>
+                  <button key={v} className={`${styles.chip} ${venueType === v ? styles.chipActive : ''}`} onClick={() => setVenue(v)}>
+                    {v} <span className={styles.chipCoin}>{venueType === v ? '🪙' : '+1 🪙'}</span>
+                  </button>
                 ))}
               </div>
             </>
@@ -323,11 +406,26 @@ export default function ProfileSetup({ onDone }) {
         )}
 
         <button
-          className={styles.nextBtn}
+          ref={btnRef}
+          className={`${styles.nextBtn} ${canAdvance ? styles.nextBtnPulse : ''}`}
           disabled={!canAdvance}
           onClick={handleContinue}
         >
-          {slide === 2 ? "Complete  🚀" : 'Continue →'}
+          <span>
+            {slide === 0 ? (() => {
+              const steps = [
+                name.trim().length >= 2,
+                !!country,
+                !!gender,
+              ]
+              const done = steps.filter(Boolean).length
+              const chars = [1, 5, 9, 13][done]
+              return 'Collect coins'.slice(0, chars)
+            })() : 'Collect coins'}
+          </span>
+          <span ref={btnCoinRef} className={styles.nextBtnCoins}>
+            🪙 {String(earnedTotal).padStart(3, '0')}
+          </span>
         </button>
 
         {slide > 0 && (
@@ -339,6 +437,27 @@ export default function ProfileSetup({ onDone }) {
           </button>
         )}
       </div>
+
+      </div>
+      )}
+
+      {/* Slide 0 — flying coins from fields to button */}
+      {coinFallActive && fallCoins.map(c => (
+        <span
+          key={c.id}
+          className={styles.fallingCoin}
+          style={{
+            left: c.startX,
+            top:  c.startY,
+            '--end-x': `${c.endX - c.startX}px`,
+            '--end-y': `${c.endY - c.startY}px`,
+            animationDelay: `${(c.delay ?? 0)}ms`,
+          }}
+        >
+          {c.label}
+        </span>
+      ))}
+
 
       {/* Per-slide coin burst */}
       {showBurst && (

@@ -2,7 +2,8 @@ import { useEffect, useRef, useState } from 'react'
 import { detectCountryByIP } from '@/utils/countries'
 import styles from './VideoIntro.module.css'
 
-const VIDEO_URL = 'https://ik.imagekit.io/nepgaxllc/good.mp4'
+const VIDEO_URL   = 'https://ik.imagekit.io/nepgaxllc/good.mp4?updatedAt=1775120536152'
+const POSTER_URL  = 'https://ik.imagekit.io/nepgaxllc/uk10dd.png'
 
 // ISO codes where English is the primary or official language
 const ENGLISH_COUNTRY_CODES = new Set([
@@ -14,21 +15,22 @@ const ENGLISH_COUNTRY_CODES = new Set([
   'LR','SL','GM','SH','MU',             // other English-official
 ])
 
-export default function VideoIntro({ onDone }) {
+export default function VideoIntro({ onDone, forcePlay = false, bgOnly = false }) {
   const videoRef = useRef(null)
-  const [status, setStatus] = useState('checking') // checking | playing | skip
+  const [status, setStatus]       = useState('checking') // checking | playing | skip
+  const [ending, setEnding]       = useState(false)
+  const [videoVisible, setVideoVisible] = useState(true)
 
-  // Step 1: detect country on mount
+  // Step 1: detect country on mount (skip detection if forcePlay)
   useEffect(() => {
+    if (forcePlay) { setStatus('playing'); return }
     detectCountryByIP().then(country => {
       if (country && ENGLISH_COUNTRY_CODES.has(country.code)) {
         setStatus('playing')
       } else {
-        // Non-English country — skip straight to slider
         onDone()
       }
     }).catch(() => {
-      // IP detection failed — show video anyway (safe default)
       setStatus('playing')
     })
   }, []) // eslint-disable-line
@@ -42,22 +44,41 @@ export default function VideoIntro({ onDone }) {
     })
   }, [status]) // eslint-disable-line
 
+  const handleEnd = () => {
+    if (videoRef.current) videoRef.current.pause()
+    setVideoVisible(false)   // instantly hide video — shows poster bg instead
+    setEnding(true)          // start screen fade-out
+    setTimeout(onDone, 420)
+  }
+
+  // bgOnly — stay mounted as poster background behind the slider cards (z-index below ProfileSetup)
+  if (bgOnly) return (
+    <div className={`${styles.screen} ${styles.bgOnly}`} style={{ backgroundImage: `url(${POSTER_URL})` }}>
+      <img src={POSTER_URL} className={styles.poster} alt="" />
+    </div>
+  )
+
   if (status === 'checking') return null
   if (status === 'skip')     return null
 
   return (
-    <div className={styles.screen}>
+    <div
+      className={`${styles.screen} ${ending ? styles.fadeOut : ''}`}
+      style={{ backgroundImage: `url(${POSTER_URL})` }}
+    >
+      {/* Poster rendered as img layer too — ensures it's loaded early */}
+      <img src={POSTER_URL} className={styles.poster} alt="" />
       <video
         ref={videoRef}
         src={VIDEO_URL}
         className={styles.video}
-        muted
         playsInline
-        onEnded={onDone}
+        onEnded={handleEnd}
+        style={{ opacity: videoVisible ? 1 : 0 }}
       />
 
       {/* Skip button — fades in after 3 seconds */}
-      <button className={styles.skipBtn} onClick={onDone}>
+      <button className={styles.skipBtn} onClick={handleEnd}>
         Skip  ›
       </button>
     </div>

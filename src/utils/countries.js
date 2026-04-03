@@ -203,9 +203,9 @@ export const ALL_COUNTRIES = [
 // Detect country from IP — returns { code, name, flag } or null
 export async function detectCountryByIP() {
   try {
-    const res  = await fetch('https://ipapi.co/json/')
+    const res  = await fetch('https://api.country.is/')
     const data = await res.json()
-    const code = data.country_code ?? ''
+    const code = data.country ?? ''
     const found = ALL_COUNTRIES.find(c => c.code === code)
     return found ?? null
   } catch {

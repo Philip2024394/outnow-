@@ -1,12 +1,15 @@
 .screen {
   position: fixed;
   inset: 0;
-  background: #000;
+  background: #080808 center / cover no-repeat;
   z-index: 8600;
-  display: flex;
-  align-items: center;
-  justify-content: center;
   animation: fadeIn 0.4s ease;
+}
+
+/* When used as background behind ProfileSetup — must sit below it */
+.bgOnly {
+  z-index: 8400;
+  animation: none;
 }
 
 @keyframes fadeIn {
@@ -14,7 +17,19 @@
   to   { opacity: 1 }
 }
 
+.fadeOut {
+  animation: fadeOut 0.4s ease forwards;
+}
+
+@keyframes fadeOut {
+  from { opacity: 1 }
+  to   { opacity: 0 }
+}
+
+.poster,
 .video {
+  position: absolute;
+  inset: 0;
   width: 100%;
   height: 100%;
   object-fit: cover;

@@ -1,54 +1,23 @@
 import { useState, useEffect, useRef } from 'react'
 import { useInterests } from '@/hooks/useInterests'
-import { sendOtwRequest, expressInterest, sendWave } from '@/services/otwService'
+import { expressInterest } from '@/services/otwService'
 import { useOverlay } from '@/contexts/OverlayContext'
 import FeatureIntro, { useFeatureIntro } from '@/components/ui/FeatureIntro'
 import Button from '@/components/ui/Button'
-import Avatar from '@/components/ui/Avatar'
 import CountdownTimer from '@/components/ui/CountdownTimer'
 import { ACTIVITY_TYPES } from '@/firebase/collections'
 import { VIBE_TAGS } from '@/utils/vibeTags'
-import GiftPickerSheet from './GiftPickerSheet'
 import styles from './DiscoveryCard.module.css'
 
-const HEART_POSITIONS = [
-  { left: '15%', delay: '0s',    duration: '2.2s' },
-  { left: '32%', delay: '0.5s',  duration: '2.6s' },
-  { left: '50%', delay: '1.0s',  duration: '2.0s' },
-  { left: '68%', delay: '0.3s',  duration: '2.8s' },
-  { left: '82%', delay: '1.4s',  duration: '2.3s' },
-  { left: '42%', delay: '1.8s',  duration: '2.5s' },
-]
-
-function FloatingHearts() {
-  return (
-    <div className={styles.heartsWrap} aria-hidden="true">
-      {HEART_POSITIONS.map((h, i) => (
-        <span
-          key={i}
-          className={styles.floatHeart}
-          style={{ left: h.left, animationDelay: h.delay, animationDuration: h.duration }}
-        >
-          ❤️
-        </span>
-      ))}
-    </div>
-  )
-}
 
 const BG_URL = 'https://ik.imagekit.io/dateme/UntitledDFSDFASDFDFGSDFGsfdfasdsadas.png?updatedAt=1775081066476'
 
+
 export default function DiscoveryCard({ open, session, mySession, onClose, showToast, onGuestAction }) {
-  const { openReport, openOtwSent } = useOverlay()
+  useOverlay()
   const { myInterests, mutualSessions } = useInterests()
-  const [otwLoading, setOtwLoading] = useState(false)
-  const [inviteLoading, setInviteLoading] = useState(false)
-  const [waveLoading, setWaveLoading] = useState(false)
-  const [waveSent, setWaveSent] = useState(false)
-  const [venueInviteSent, setVenueInviteSent] = useState(false)
-  const [giftPickerOpen, setGiftPickerOpen] = useState(false)
-  const [pendingInviteType, setPendingInviteType] = useState(null)
-  const [selectedGift, setSelectedGift] = useState(null)
+  const [meetLoading, setMeetLoading] = useState(false)
+  const [meetSent, setMeetSent] = useState(false)
   const [liked, setLiked] = useState(false)
   const [hearts, setHearts] = useState([])
   const sheetRef = useRef(null)
@@ -131,6 +100,12 @@ export default function DiscoveryCard({ open, session, mySession, onClose, showT
   })()
   const isHighMatch = matchPercent >= 80
 
+  // Profile star rating (3–5) — seeded from session id for consistency
+  const profileStars = (() => {
+    const seed = session.id.split('').reduce((acc, c) => acc + c.charCodeAt(0), 0)
+    return 3 + (seed % 3) // 3, 4, or 5
+  })()
+
   function fmtScheduledFull(ms) {
     if (!ms) return 'later'
     const d = new Date(ms)
@@ -143,72 +118,21 @@ export default function DiscoveryCard({ open, session, mySession, onClose, showT
     return d.toLocaleDateString([], { weekday: 'long' }) + ' at ' + timeStr
   }
 
-  // Opens gift picker before sending — gift is null if skipped
-  const handleGiftConfirm = async (gift) => {
-    setSelectedGift(gift)
-    setGiftPickerOpen(false)
-    const type = pendingInviteType
-    setPendingInviteType(null)
-
-    if (type === 'venue') {
-      setVenueInviteSent(true)
-      const venue = mySession?.placeName ?? 'my spot'
-      const giftMsg = gift ? ` — ${gift.emoji} ${gift.label} on me!` : '!'
-      showToast(`📍 Invite sent — join me at ${venue}${giftMsg}`, 'success')
-    } else {
-      setInviteLoading(true)
-      try {
-        await expressInterest(session.userId, session.id)
-        const giftMsg = gift ? ` with ${gift.emoji} ${gift.label} on me` : ''
-        showToast(`Invite sent${giftMsg}! Waiting for them to reciprocate.`, 'success')
-      } catch {
-        showToast('Could not send invite. Try again.', 'error')
-      }
-      setInviteLoading(false)
-    }
-  }
-
-  const handleInvite = () => {
+  const handleLetsMeet = async () => {
     if (onGuestAction) { onGuestAction(); return }
-    setPendingInviteType('meet')
-    setGiftPickerOpen(true)
-  }
-
-  // User B presses OTW (requires mutual interest or direct OTW flow)
-  const handleOtw = async () => {
-    if (onGuestAction) { onGuestAction(); return }
-    setOtwLoading(true)
+    if (meetSent) return
+    setMeetLoading(true)
     try {
-      const result = await sendOtwRequest(session.id, session.userId)
-      openOtwSent({ ...result, sessionId: session.id, toUserId: session.userId, session })
-      onClose()
+      await expressInterest(session.userId, session.id)
+      setMeetSent(true)
+      showToast(`💬 Message sent to ${session.displayName ?? 'them'}!`, 'success')
     } catch (err) {
       const msg = err?.code === 'functions/already-exists'
-        ? 'You already sent a request.'
-        : err?.code === 'functions/resource-exhausted'
-        ? 'Too many requests. Wait a moment.'
-        : 'Could not send request. Try again.'
+        ? 'Already sent — waiting for their reply.'
+        : 'Could not send. Try again.'
       showToast(msg, 'error')
     }
-    setOtwLoading(false)
-  }
-
-  const handleWave = async () => {
-    if (onGuestAction) { onGuestAction(); return }
-    setWaveLoading(true)
-    try {
-      await sendWave(session.userId, session.id)
-      setWaveSent(true)
-      showToast('👋 Wave sent!', 'success')
-    } catch {
-      showToast('Could not send wave. Try again.', 'error')
-    }
-    setWaveLoading(false)
-  }
-
-  const handleVenueInvite = () => {
-    setPendingInviteType('venue')
-    setGiftPickerOpen(true)
+    setMeetLoading(false)
   }
 
   const handleLike = () => {
@@ -226,10 +150,6 @@ export default function DiscoveryCard({ open, session, mySession, onClose, showT
     showToast?.(`❤️ You liked ${session.displayName ?? 'this profile'}!`, 'success')
   }
 
-  const handleReport = () => {
-    openReport(session)
-    onClose()
-  }
 
   const vibeTag    = VIBE_TAGS.find(v => v.id === session.vibe)
   const isGroup    = !!session.isGroup
@@ -387,15 +307,6 @@ export default function DiscoveryCard({ open, session, mySession, onClose, showT
 
         {/* Profile */}
         <div className={styles.profile}>
-          <Avatar
-            src={session.photoURL}
-            name={session.displayName}
-            size={72}
-            live={!isMutual && !isScheduled && !isInviteOut}
-            mutual={isMutual}
-            scheduled={isScheduled}
-            inviteOut={isInviteOut}
-          />
           <div className={styles.info}>
             {isScheduled && session.placeName && (
               <div className={styles.venuePlan}>
@@ -416,10 +327,12 @@ export default function DiscoveryCard({ open, session, mySession, onClose, showT
           </div>
         </div>
 
-        {/* Bio */}
-        {session.bio && (
-          <div className={styles.bio}>
-            {session.bio}
+
+        {/* Looking for */}
+        {session.lookingFor && (
+          <div className={styles.lookingForRow}>
+            <span className={styles.lookingForLabel}>Here for</span>
+            <span className={styles.lookingForText}>{session.lookingFor}</span>
           </div>
         )}
 
@@ -428,13 +341,10 @@ export default function DiscoveryCard({ open, session, mySession, onClose, showT
           {isScheduled ? (
             <>
               <span className={styles.scheduledBadge}>🕐 {fmtScheduledFull(session.scheduledFor)}</span>
-              <button
-                className={styles.timerMeetBtn}
-                disabled={hasExpressedInterest || inviteLoading}
-                onClick={handleInvite}
-              >
-                {hasExpressedInterest ? '✓ Sent' : '🧡 Let\'s Meet'}
-              </button>
+              <div className={styles.profileStars}>
+                {'★'.repeat(profileStars)}{'☆'.repeat(5 - profileStars)}
+                <span className={styles.profileStarsLabel}>Active</span>
+              </div>
             </>
           ) : (
             <>
@@ -458,100 +368,23 @@ export default function DiscoveryCard({ open, session, mySession, onClose, showT
           </div>
         )}
 
-        {/* Status hint */}
-        {isScheduled ? (
-          <div className={styles.scheduledBanner}>
-            I'm going out later — if you'd like to meet, hit the Let's Meet button below. Who knows? 😉
-          </div>
-        ) : isMutual ? (
-          <div className={styles.mutualBanner}>
-            You both want to meet — press OTW to connect!
-          </div>
-        ) : hasExpressedInterest ? (
-          <div className={styles.pendingBanner}>
-            Invite sent — waiting for them to reciprocate
-          </div>
-        ) : null}
-
         {/* Actions */}
         <div className={styles.actions}>
-          {isScheduled ? (
-            /* Scheduled: express interest before they go live */
-            <Button
-              variant="mutual"
-              size="lg"
-              fullWidth
-              loading={inviteLoading}
-              disabled={hasExpressedInterest}
-              onClick={handleInvite}
-            >
-              {hasExpressedInterest ? '✓ Request Sent' : '🧡 Let\'s Meet'}
-            </Button>
-          ) : (
-            <>
-              <Button
-                variant={isMutual ? 'otw' : 'ghost'}
-                size="lg"
-                fullWidth
-                loading={otwLoading}
-                onClick={handleOtw}
-              >
-                {isMutual ? '🚀 OTW — I\'m on my way!' : isGroup ? `👥 OTW — Join the group` : '👟 OTW'}
-              </Button>
-              {!isMutual && (
-                <button
-                  className={`${styles.waveBtn} ${waveSent ? styles.waveSent : ''}`}
-                  disabled={waveSent || waveLoading}
-                  onClick={handleWave}
-                >
-                  {waveSent ? '✓ Waved' : waveLoading ? '…' : '👋 Wave'}
-                </button>
-              )}
-              {!hasExpressedInterest && !isMutual && (
-                <div className={styles.inviteWrap}>
-                  <FloatingHearts />
-                  <Button
-                    variant="mutual"
-                    size="lg"
-                    fullWidth
-                    loading={inviteLoading}
-                    onClick={handleInvite}
-                  >
-                    <span className={styles.redHeart}>❤️</span> Let's Meet
-                  </Button>
-                </div>
-              )}
-              {mySession?.placeName && !venueInviteSent && (
-                <button
-                  className={styles.venueInviteBtn}
-                  onClick={handleVenueInvite}
-                >
-                  📍 Join me at {mySession.placeName}
-                </button>
-              )}
-              {venueInviteSent && (
-                <div className={styles.venueInviteSent}>
-                  ✓ Invite sent{selectedGift ? ` — ${selectedGift.emoji} ${selectedGift.label} on me` : ''} — they can see where you are
-                </div>
-              )}
-            </>
-          )}
+          <Button
+            variant="mutual"
+            size="lg"
+            fullWidth
+            loading={meetLoading}
+            disabled={meetSent || hasExpressedInterest}
+            onClick={handleLetsMeet}
+          >
+            {meetSent || hasExpressedInterest ? '✓ Message Sent' : 'Let\'s Meet Who Knows'}
+          </Button>
         </div>
-
-        {/* Report */}
-        <button className={styles.reportBtn} onClick={handleReport}>
-          Report or Block
-        </button>
       </div>
         </div>{/* scrollContent */}
       </div>{/* sheet */}
     </div>{/* wrapper */}
-    <GiftPickerSheet
-      open={giftPickerOpen}
-      recipientName={session.displayName}
-      onSend={handleGiftConfirm}
-      onSkip={() => handleGiftConfirm(null)}
-    />
     </>
   )
 }

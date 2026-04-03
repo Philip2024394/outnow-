@@ -26,7 +26,7 @@
 .avatar {
   width: 56px;
   height: 56px;
-  border-radius: 50%;
+  border-radius: 14px;
   object-fit: cover;
   border: 2.5px solid var(--color-live);
   box-shadow: 0 0 0 2px var(--color-surface-2), 0 0 12px var(--color-live-glow);
@@ -35,7 +35,7 @@
 .avatarFallback {
   width: 56px;
   height: 56px;
-  border-radius: 50%;
+  border-radius: 14px;
   background: var(--color-surface-3);
   border: 2.5px solid var(--color-live);
   box-shadow: 0 0 0 2px var(--color-surface-2), 0 0 12px var(--color-live-glow);

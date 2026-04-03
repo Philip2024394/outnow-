@@ -103,7 +103,7 @@
   position: relative;
   display: flex;
   flex-direction: column;
-  gap: var(--space-4);
+  gap: var(--space-2);
   padding-bottom: var(--space-4);
 }
 
@@ -333,6 +333,41 @@
   object-fit: cover;
   object-position: center top;
   display: block;
+}
+
+/* ── Looking for row ── */
+.lookingForRow {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 16px;
+}
+
+.lookingForLabel {
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: rgba(255,255,255,0.35);
+}
+
+.lookingForValue {
+  font-size: 12px;
+  font-weight: 800;
+  color: var(--status-color, #39FF14);
+  background: rgba(0,0,0,0.3);
+  border: 1.5px solid var(--status-color, #39FF14);
+  border-radius: 100px;
+  padding: 3px 12px;
+  letter-spacing: 0.04em;
+  opacity: 0.9;
+}
+
+.lookingForText {
+  font-size: 14px;
+  font-weight: 700;
+  color: rgba(255,255,255,0.8);
+  letter-spacing: 0.01em;
 }
 
 .photoBannerStatus {
@@ -579,25 +614,61 @@
 }
 
 .bio {
-  font-size: 14px;
-  line-height: 1.55;
-  color: rgba(255,255,255,0.75);
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
   background: rgba(0,0,0,0.5);
   border: 1px solid rgba(255,255,255,0.07);
   border-radius: 12px;
-  padding: 12px 14px;
+  padding: 12px 14px 16px;
   margin: 0 var(--space-4);
+  min-height: 90px;
+}
+
+.bioLabel {
+  font-size: 9px;
+  font-weight: 800;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--status-color, #39FF14);
+  opacity: 0.7;
+  line-height: 1;
+}
+
+.bioText {
+  font-size: 14px;
+  line-height: 1.6;
+  color: rgba(255,255,255,0.78);
 }
 
 .timerRow {
-  display: inline-flex;
+  display: flex;
   align-items: center;
+  justify-content: space-between;
   gap: 10px;
-  padding: 8px 10px 8px 14px;
+  padding: 8px 14px;
   background: var(--color-surface-2);
   border-radius: var(--radius-md);
-  align-self: flex-start;
   margin: 0 var(--space-4);
+}
+
+.profileStars {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 13px;
+  color: #FFD60A;
+  letter-spacing: 0.05em;
+  line-height: 1;
+}
+
+.profileStarsLabel {
+  font-size: 9px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: rgba(255,255,255,0.35);
+  margin-left: 2px;
 }
 
 .timerMeetBtn {
@@ -694,6 +765,16 @@
   display: flex;
   flex-direction: column;
   gap: var(--space-3);
+}
+
+.meetMsg {
+  font-size: 12px;
+  font-style: italic;
+  color: rgba(255,255,255,0.4);
+  text-align: center;
+  margin: 0;
+  padding: 0 4px;
+  line-height: 1.5;
 }
 
 /* ── Invite button with floating hearts ── */
@@ -852,6 +933,141 @@
   font-weight: 600;
   color: rgba(57,255,20,0.6);
   padding: 6px 0;
+}
+
+/* ── Send A Message section ── */
+.messageSection {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin: 0 var(--space-4);
+}
+
+.messageSectionTitle {
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: rgba(255,255,255,0.55);
+  margin: 0;
+}
+
+.boostRow {
+  display: flex;
+  gap: 8px;
+}
+
+.boostCard {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  padding: 10px 6px 8px;
+  border-radius: 14px;
+  background: rgba(255,255,255,0.05);
+  border: 1.5px solid rgba(255,255,255,0.1);
+  cursor: pointer;
+  font-family: inherit;
+  -webkit-tap-highlight-color: transparent;
+  transition: background 0.15s, border-color 0.15s, transform 0.1s;
+}
+
+.boostCard:active { transform: scale(0.95); }
+
+.boostCardActive {
+  background: rgba(57,255,20,0.08);
+  border-color: rgba(57,255,20,0.5);
+  box-shadow: 0 0 10px rgba(57,255,20,0.15);
+}
+
+.boostEmoji {
+  font-size: 22px;
+  line-height: 1;
+}
+
+.boostLabel {
+  font-size: 10px;
+  font-weight: 700;
+  color: rgba(255,255,255,0.7);
+  letter-spacing: 0.02em;
+}
+
+.boostPrice {
+  font-size: 10px;
+  font-weight: 800;
+  color: #FFD60A;
+  letter-spacing: 0.02em;
+  line-height: 1;
+}
+
+.boostFree {
+  color: #39FF14;
+}
+
+.msgInputWrap {
+  position: relative;
+}
+
+.msgInput {
+  width: 100%;
+  background: rgba(0,0,0,0.45);
+  border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 12px;
+  color: #fff;
+  font-size: 14px;
+  font-family: inherit;
+  line-height: 1.5;
+  padding: 12px 14px 28px;
+  resize: none;
+  outline: none;
+  box-sizing: border-box;
+  -webkit-appearance: none;
+  transition: border-color 0.15s;
+}
+
+.msgInput::placeholder { color: rgba(255,255,255,0.3); }
+.msgInput:focus { border-color: rgba(255,255,255,0.25); }
+.msgInput:disabled { opacity: 0.5; }
+
+.charCount {
+  position: absolute;
+  bottom: 10px;
+  right: 12px;
+  font-size: 10px;
+  font-weight: 600;
+  color: rgba(255,255,255,0.3);
+  pointer-events: none;
+}
+
+.sendMsgBtn {
+  width: 100%;
+  padding: 13px;
+  background: var(--status-color, #39FF14);
+  border: none;
+  border-radius: 100px;
+  color: #080808;
+  font-size: 15px;
+  font-weight: 800;
+  font-family: inherit;
+  letter-spacing: 0.02em;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  transition: opacity 0.15s, transform 0.1s;
+}
+
+.sendMsgBtn:active { transform: scale(0.97); }
+
+.sendMsgBtn:disabled {
+  opacity: 0.35;
+  cursor: default;
+  transform: none;
+}
+
+.sendMsgBtnSent {
+  background: rgba(57,255,20,0.15);
+  color: #39FF14;
+  border: 1.5px solid rgba(57,255,20,0.3);
 }
 
 .reportBtn {
