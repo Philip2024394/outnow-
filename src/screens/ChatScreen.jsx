@@ -16,9 +16,10 @@ function timeAgo(ms) {
 
 export default function ChatScreen({ onClose, pendingConv, openConvId }) {
   const { conversations, setConversations, updateConversation } = useConversations()
-  const [openConv, setOpenConv] = useState(openConvId ?? null)
+  // Initialise directly from pendingConv so we never wait for a useEffect render cycle
+  const [openConv, setOpenConv] = useState(pendingConv?.id ?? openConvId ?? null)
 
-  // When a new conversation arrives (meet accepted), prepend + auto-open
+  // Keep conversations list in sync and re-open if pendingConv changes
   useEffect(() => {
     if (!pendingConv) return
     setConversations(prev => {
@@ -35,7 +36,9 @@ export default function ChatScreen({ onClose, pendingConv, openConvId }) {
   }, [conversations]) // eslint-disable-line
 
   if (openConv) {
+    // pendingConv is used as fallback while setConversations hasn't re-rendered yet
     const conv = conversations.find(c => c.id === openConv)
+              ?? (pendingConv?.id === openConv ? pendingConv : null)
     if (!conv) return null
     return (
       <ChatWindow
