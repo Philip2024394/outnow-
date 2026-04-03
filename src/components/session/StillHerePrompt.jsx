@@ -49,7 +49,7 @@ export default function StillHerePrompt({ open: dbOpen, sessionId }) {
             loading={loading === 'yes'}
             onClick={handleYes}
           >
-            ✅ Still here
+            Still here
           </Button>
           <Button
             variant="ghost"
@@ -58,7 +58,7 @@ export default function StillHerePrompt({ open: dbOpen, sessionId }) {
             loading={loading === 'no'}
             onClick={handleNo}
           >
-            🚶 No, I'm leaving
+            No, I'm leaving
           </Button>
         </div>
       </div>
