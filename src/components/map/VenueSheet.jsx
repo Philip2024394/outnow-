@@ -84,10 +84,9 @@ export default function VenueSheet({ open, venue, onClose, onSelectSession, onOp
 
       <div ref={sheetRef} className={styles.sheet}>
         {/* Green top strip */}
-        <div className={styles.greenStrip} />
 
         {/* Drag handle */}
-        <div className={styles.handle} />
+        <div className={styles.handle} onClick={onClose} />
 
         {/* Scrollable content */}
         <div className={styles.content}>

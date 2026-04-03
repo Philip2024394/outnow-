@@ -55,7 +55,7 @@ export default function OnMeSheet({ session, onSend, onSkip, onWave, onClose }) 
       <div className={styles.sheet}>
         <img src={BG_URL} alt="" className={styles.bgImage} />
         <div className={styles.strip} />
-        <div className={styles.handle} />
+        <div className={styles.handle} onClick={onClose} />
 
         <div className={styles.body}>
 

@@ -24,6 +24,7 @@
   left: 0;
   right: 0;
   border-radius: 20px 20px 0 0;
+  border-top: 3px solid #ef4444;
   background: #111;
   pointer-events: all;
   animation: slide-up 0.3s cubic-bezier(0.32,0.72,0,1) forwards;
@@ -60,9 +61,10 @@
   z-index: 1;
   width: 36px;
   height: 4px;
-  background: rgba(255,255,255,0.18);
+  background: #ef4444;
   border-radius: 100px;
   margin: 12px auto 0;
+  cursor: pointer;
 }
 
 .body {

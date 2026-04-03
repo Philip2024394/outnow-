@@ -25,7 +25,7 @@
   right: 0;
   background: #0f0f0f;
   border-radius: 24px 24px 0 0;
-  border-top: 1px solid rgba(255,255,255,0.08);
+  border-top: 3px solid #ef4444;
   padding-bottom: calc(env(safe-area-inset-bottom, 0px) + 24px);
   pointer-events: all;
   animation: slide-up 0.3s cubic-bezier(0.32,0.72,0,1) forwards;
@@ -40,9 +40,10 @@
 .handle {
   width: 36px;
   height: 4px;
-  background: rgba(255,255,255,0.2);
+  background: #ef4444;
   border-radius: 100px;
   margin: 12px auto 0;
+  cursor: pointer;
 }
 
 .header {

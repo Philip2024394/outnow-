@@ -24,6 +24,7 @@
   left: 0;
   right: 0;
   border-radius: 20px 20px 0 0;
+  border-top: 3px solid #ef4444;
   max-height: 90dvh;
   display: flex;
   flex-direction: column;
@@ -55,21 +56,13 @@
   z-index: 1;
 }
 
-.greenStrip {
-  position: relative;
-  z-index: 2;
-  height: 4px;
-  background: #39FF14;
-  box-shadow: 0 0 14px rgba(57,255,20,0.9);
-  flex-shrink: 0;
-}
-
 .handle {
   position: relative;
   z-index: 2;
   width: 36px;
   height: 4px;
-  background: rgba(255,255,255,0.25);
+  background: #ef4444;
+  cursor: pointer;
   border-radius: 100px;
   margin: 12px auto 0;
   flex-shrink: 0;

@@ -144,7 +144,7 @@ export default function JoinSheet({ open, onClose }) {
   return (
     <div className={styles.backdrop} onClick={(e) => e.target === e.currentTarget && handleDone()}>
       <div className={styles.sheet}>
-        <div className={styles.handle} />
+        <div className={styles.handle} onClick={handleDone} />
 
         {/* ── STEP: account ── */}
         {step === 'account' && (

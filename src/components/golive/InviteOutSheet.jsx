@@ -40,7 +40,7 @@ export default function InviteOutSheet({ open, onClose, onPost, onGoLive, onGoLa
         <img src={BG_URL} alt="" className={styles.bgImage} />
         <div className={styles.frost} />
         <div className={styles.yellowStrip} />
-        <div className={styles.handle} />
+        <div className={styles.handle} onClick={onClose} />
 
         <div className={styles.scrollContent}>
           <div className={styles.header}>

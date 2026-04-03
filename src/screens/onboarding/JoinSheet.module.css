@@ -31,9 +31,10 @@
 .handle {
   width: 40px;
   height: 4px;
-  background: var(--color-border);
+  background: #ef4444;
   border-radius: 2px;
   margin: 0 auto var(--space-5);
+  cursor: pointer;
 }
 
 .content {

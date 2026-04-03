@@ -4,7 +4,7 @@ import styles from './BottomSheet.module.css'
 /**
  * Reusable bottom sheet with swipe-to-dismiss support.
  */
-export default function BottomSheet({ open, onClose, children, title, snapPoints = ['60%', '95%'] }) {
+export default function BottomSheet({ open, onClose, children, title, borderColor }) {
   const sheetRef = useRef(null)
   const startYRef = useRef(null)
   const currentYRef = useRef(0)
@@ -55,8 +55,8 @@ export default function BottomSheet({ open, onClose, children, title, snapPoints
   return (
     <div className={styles.wrapper}>
       <div className={styles.backdrop} onClick={onClose} />
-      <div ref={sheetRef} className={styles.sheet}>
-        <div className={styles.handle} />
+      <div ref={sheetRef} className={styles.sheet} style={borderColor ? { borderTopColor: borderColor } : undefined}>
+        <div className={styles.handle} onClick={onClose} style={borderColor ? { background: borderColor } : undefined} />
         {title && <div className={styles.title}>{title}</div>}
         <div className={styles.content}>
           {children}

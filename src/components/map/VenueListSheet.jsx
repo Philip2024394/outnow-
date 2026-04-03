@@ -11,11 +11,8 @@ export default function VenueListSheet({ open, venues = [], onClose, onSelectVen
 
       <div className={styles.sheet}>
 
-        {/* Green strip — sits flush at top edge, corners clipped by sheet radius */}
-        <div className={styles.greenStrip} />
-
         {/* Drag handle */}
-        <div className={styles.handle} />
+        <div className={styles.handle} onClick={onClose} />
 
         {/* Header row */}
         <div className={styles.header}>

@@ -58,7 +58,7 @@ export default function VibeCheckSheet({ open, sessions = [], onClose, onVibeYes
     return (
       <div className={styles.overlay} onClick={onClose}>
         <div className={styles.sheet} onClick={e => e.stopPropagation()}>
-          <div className={styles.handle} />
+          <div className={styles.handle} onClick={onClose} />
           <div className={styles.emptyState}>
             <span className={styles.emptyIcon}>👀</span>
             <p className={styles.emptyText}>No one nearby to check right now</p>

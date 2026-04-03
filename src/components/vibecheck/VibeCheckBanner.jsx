@@ -4,7 +4,7 @@ import styles from './VibeCheckBanner.module.css'
 const VARIANTS = {
   active:     {
     accent: '#39FF14',
-    bg:     'rgba(57,255,20,0.1)',
+    bg:     '#0e0e0e',
     border: 'rgba(57,255,20,0.3)',
     icon:   '💚',
     title:  'Someone wants to meet you tonight',
@@ -13,7 +13,7 @@ const VARIANTS = {
   },
   live:       {
     accent: '#39FF14',
-    bg:     'rgba(57,255,20,0.1)',
+    bg:     '#0e0e0e',
     border: 'rgba(57,255,20,0.3)',
     icon:   '💚',
     title:  'Someone wants to meet you tonight',
@@ -22,7 +22,7 @@ const VARIANTS = {
   },
   invite_out: {
     accent: '#FFD60A',
-    bg:     'rgba(255,214,10,0.1)',
+    bg:     '#0e0e0e',
     border: 'rgba(255,214,10,0.35)',
     icon:   '✨',
     title:  'Someone wants to invite you out tonight',
@@ -31,7 +31,7 @@ const VARIANTS = {
   },
   scheduled:  {
     accent: '#FF9500',
-    bg:     'rgba(255,149,0,0.1)',
+    bg:     '#0e0e0e',
     border: 'rgba(255,149,0,0.3)',
     icon:   '🕐',
     title:  'Someone wants to meet you later',

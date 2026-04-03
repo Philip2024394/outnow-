@@ -19,6 +19,7 @@
   left: 0;
   right: 0;
   border-radius: var(--radius-xl) var(--radius-xl) 0 0;
+  border-top: 3px solid #ef4444;
   padding-bottom: calc(var(--space-6) + var(--safe-bottom));
   max-height: 92dvh;
   overflow: hidden;
@@ -46,10 +47,11 @@
   z-index: 1;
   width: 36px;
   height: 4px;
-  background: var(--color-border-strong);
+  background: #ef4444;
   border-radius: var(--radius-full);
   margin: var(--space-3) auto var(--space-2);
   flex-shrink: 0;
+  cursor: pointer;
 }
 
 .title {

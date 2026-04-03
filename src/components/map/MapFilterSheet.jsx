@@ -118,7 +118,7 @@ export default function MapFilterSheet({ open, onClose, filters, onChange, onRes
         <div className={styles.frost} />
 
         {/* Drag handle */}
-        <div className={styles.handle} />
+        <div className={styles.handle} onClick={onClose} />
 
         {/* Scrollable content */}
         <div className={styles.content}>

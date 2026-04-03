@@ -4,7 +4,6 @@ import { submitVenueSuggestion } from '@/services/suggestVenueService'
 import { ACTIVITY_TYPES } from '@/firebase/collections'
 import styles from './SuggestPlaceSheet.module.css'
 
-const BG_URL = 'https://ik.imagekit.io/dateme/UntitledDFSDFASDFDFGSDFGsfdfasdsadas.png?updatedAt=1775081066476'
 
 export default function SuggestPlaceSheet({ open, onClose, showToast }) {
   const { user, userProfile } = useAuth()
@@ -73,10 +72,7 @@ export default function SuggestPlaceSheet({ open, onClose, showToast }) {
     <div className={styles.wrapper}>
       <div className={styles.backdrop} onClick={handleClose} />
       <div className={styles.sheet}>
-        <img src={BG_URL} alt="" className={styles.bgImage} />
-        <div className={styles.frost} />
-        <div className={styles.greenStrip} />
-        <div className={styles.handle} />
+        <div className={styles.handle} onClick={handleClose} />
 
         <div className={styles.scrollContent}>
           {done ? (

@@ -19,6 +19,7 @@
   z-index: 3001;
   background: #0a0a0a;
   border-radius: 24px 24px 0 0;
+  border-top: 3px solid #ef4444;
   max-height: 88vh;
   display: flex;
   flex-direction: column;
@@ -34,10 +35,11 @@
 .handle {
   width: 40px;
   height: 4px;
-  background: rgba(255,255,255,0.15);
+  background: #ef4444;
   border-radius: 100px;
   margin: 12px auto 0;
   flex-shrink: 0;
+  cursor: pointer;
 }
 
 /* ── Gallery ── */

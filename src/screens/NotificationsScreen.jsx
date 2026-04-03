@@ -148,7 +148,10 @@ function LikedCard({ user }) {
   return (
     <div className={styles.viewerCard}>
       <div className={styles.viewerAvatar}>
-        {user.emoji ?? user.displayName?.[0]?.toUpperCase()}
+        {user.photoURL
+          ? <img src={user.photoURL} alt={user.displayName} style={{ width: '100%', height: '100%', borderRadius: '50%', objectFit: 'cover' }} />
+          : (user.emoji ?? user.displayName?.[0]?.toUpperCase())
+        }
         {user.online && <span className={styles.onlineDot} />}
       </div>
       <div className={styles.viewerBody}>

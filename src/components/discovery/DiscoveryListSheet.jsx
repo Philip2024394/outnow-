@@ -60,11 +60,9 @@ export default function DiscoveryListSheet({ open, filter = 'now', sessions = []
     <>
     <div className={styles.wrapper}>
       <div className={styles.backdrop} onClick={onClose} />
-      <div ref={sheetRef} className={styles.sheet}>
+      <div ref={sheetRef} className={styles.sheet} style={{ '--theme-color': filter === 'invite' ? '#FFD60A' : filter === 'later' ? '#FF9500' : '#39FF14' }}>
 
-        {/* Coloured top strip */}
-        <div className={`${styles.strip} ${cfg.strip}`} />
-        <div className={styles.handle} />
+        <div className={styles.handle} onClick={onClose} />
 
         <div className={styles.scrollContent}>
 
@@ -93,7 +91,6 @@ export default function DiscoveryListSheet({ open, filter = 'now', sessions = []
                 </>
               )}
             </div>
-            <button className={styles.closeBtn} onClick={onClose}>✕</button>
           </div>
 
           {/* Profile cards */}

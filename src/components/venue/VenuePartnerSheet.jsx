@@ -97,7 +97,7 @@ export default function VenuePartnerSheet({ open, venue, venues = [], onSelectVe
       {open && <div className={styles.backdrop} onClick={onClose} />}
       <div ref={sheetRef} className={`${styles.sheet} ${open ? styles.open : ''}`}>
 
-        <div className={styles.handle} />
+        <div className={styles.handle} onClick={onClose} />
 
         {/* ── LIST VIEW ── */}
         {!venue && (

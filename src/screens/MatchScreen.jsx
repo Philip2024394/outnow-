@@ -1,5 +1,5 @@
-import { useState, useRef } from 'react'
-import { DEMO_MATCH_PROFILES, DEMO_LIKED_USERS } from '@/demo/mockData'
+import { useState } from 'react'
+import { DEMO_MATCH_PROFILES } from '@/demo/mockData'
 import ProfileCard from '@/components/match/ProfileCard'
 import DiscoveryCard from '@/components/discovery/DiscoveryCard'
 import styles from './MatchScreen.module.css'
@@ -18,41 +18,6 @@ function toSession(p) {
   }
 }
 
-function LikesCarousel({ likes, onView }) {
-  const railRef = useRef(null)
-
-  const scroll = (dir) => {
-    railRef.current?.scrollBy({ left: dir * 200, behavior: 'smooth' })
-  }
-
-  return (
-    <div className={styles.likesSection}>
-      <span className={styles.likesTitle}>Likes My Profile</span>
-
-      <div className={styles.carouselWrap}>
-        <button className={styles.arrow} onClick={() => scroll(-1)} aria-label="Scroll left">‹</button>
-
-        <div ref={railRef} className={styles.rail}>
-          {likes.map(u => (
-            <button key={u.id} className={styles.likeCard} onClick={() => onView(u)}>
-              <div className={styles.likeAvatarWrap}>
-                {u.photoURL
-                  ? <img src={u.photoURL} alt={u.displayName} className={styles.likeAvatar} />
-                  : <div className={styles.likeAvatarFallback}>{u.emoji}</div>
-                }
-                {u.online && <span className={styles.likeOnlineDot} />}
-              </div>
-              <span className={styles.likeName}>{u.displayName.split(' ')[0]}, {u.age}</span>
-              <span className={styles.likeArea}>{u.area}</span>
-            </button>
-          ))}
-        </div>
-
-        <button className={styles.arrow} onClick={() => scroll(1)} aria-label="Scroll right">›</button>
-      </div>
-    </div>
-  )
-}
 
 export default function MatchScreen({ onClose }) {
   const [profiles] = useState(DEMO_MATCH_PROFILES)
@@ -73,8 +38,6 @@ export default function MatchScreen({ onClose }) {
       </div>
 
       <div className={styles.scroll}>
-
-        <LikesCarousel likes={DEMO_LIKED_USERS} onView={setViewingProfile} />
 
         <div className={styles.sectionDivider}>
           <span className={styles.sectionLabel}>All Members</span>

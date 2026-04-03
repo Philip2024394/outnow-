@@ -26,6 +26,7 @@
 .card {
   background: var(--color-surface, #111);
   border-radius: 24px 24px 0 0;
+  border-top: 3px solid #ef4444;
   padding: 32px 24px calc(48px + env(safe-area-inset-bottom));
   width: 100%;
   max-width: 480px;

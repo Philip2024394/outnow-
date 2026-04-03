@@ -166,11 +166,7 @@ export default function DiscoveryCard({ open, session, mySession, onClose, showT
     <div className={styles.wrapper}>
       <div className={styles.backdrop} onClick={onClose} />
       <div ref={sheetRef} className={styles.sheet} style={{ '--status-color': statusColor }}>
-        <div
-          className={styles.greenStrip}
-          style={{ background: statusColor, boxShadow: `0 0 14px ${statusColor}99` }}
-        />
-        <div className={styles.handle} />
+        <div className={styles.handle} onClick={onClose} />
         <div className={styles.sheetHeaderRow}>
           <button className={styles.sheetCloseBtn} onClick={onClose} aria-label="Close">
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">

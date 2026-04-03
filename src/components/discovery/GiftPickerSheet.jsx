@@ -17,7 +17,7 @@ export default function GiftPickerSheet({ open, recipientName, onSend, onSkip })
       <div className={styles.backdrop} onClick={onSkip} />
 
       <div className={styles.sheet}>
-        <div className={styles.handle} />
+        <div className={styles.handle} onClick={onSkip} />
 
         <div className={styles.header}>
           <p className={styles.title}>Add a gift offer?</p>
