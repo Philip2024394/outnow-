@@ -27,6 +27,7 @@
   pointer-events: all;
   animation: slide-up var(--transition-slow) forwards;
   will-change: transform;
+  background: #0e0e0e;
 }
 
 .bgImage {

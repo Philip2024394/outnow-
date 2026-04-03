@@ -52,13 +52,10 @@ export default function BottomSheet({ open, onClose, children, title, snapPoints
 
   if (!open) return null
 
-  const BG_URL = 'https://ik.imagekit.io/dateme/UntitledDFSDFASDFDFGSDFGsfdfasdsadas.png?updatedAt=1775081066476'
-
   return (
     <div className={styles.wrapper}>
       <div className={styles.backdrop} onClick={onClose} />
       <div ref={sheetRef} className={styles.sheet}>
-        <img src={BG_URL} alt="" className={styles.bgImage} />
         <div className={styles.handle} />
         {title && <div className={styles.title}>{title}</div>}
         <div className={styles.content}>
