@@ -15,34 +15,31 @@ function timeAgo(ms) {
 }
 
 export default function ChatScreen({ onClose, pendingConv, openConvId }) {
-  const { conversations, setConversations, updateConversation } = useConversations()
+  const { conversations, updateConversation } = useConversations()
   // Initialise directly from pendingConv so we never wait for a useEffect render cycle
   const [openConv, setOpenConv] = useState(pendingConv?.id ?? openConvId ?? null)
 
-  console.log('[ChatScreen] render — pendingConv:', pendingConv?.id, 'openConv:', openConv, 'convs:', conversations.length)
+  // Always keep pendingConv in the list — survives any setConversations overwrite
+  const allConvs = (() => {
+    if (!pendingConv) return conversations
+    if (conversations.some(c => c.id === pendingConv.id)) return conversations
+    return [pendingConv, ...conversations]
+  })()
 
-  // Keep conversations list in sync and re-open if pendingConv changes
+  // Sync openConv if pendingConv changes after mount
   useEffect(() => {
     if (!pendingConv) return
-    console.log('[ChatScreen] pendingConv effect — adding conv + setting openConv:', pendingConv.id)
-    setConversations(prev => {
-      if (prev.some(c => c.id === pendingConv.id)) return prev
-      return [pendingConv, ...prev]
-    })
     setOpenConv(pendingConv.id)
   }, [pendingConv]) // eslint-disable-line
 
   // Auto-open when new locked conv arrives (someone messaged us)
   useEffect(() => {
-    const locked = conversations.find(c => c.status === 'locked' && c.unread > 0)
+    const locked = allConvs.find(c => c.status === 'locked' && c.unread > 0)
     if (locked && !openConv) setOpenConv(locked.id)
-  }, [conversations]) // eslint-disable-line
+  }, [allConvs]) // eslint-disable-line
 
   if (openConv) {
-    // pendingConv is used as fallback while setConversations hasn't re-rendered yet
-    const conv = conversations.find(c => c.id === openConv)
-              ?? (pendingConv?.id === openConv ? pendingConv : null)
-    console.log('[ChatScreen] openConv:', openConv, '→ conv found:', !!conv, 'fallback used:', !conversations.find(c => c.id === openConv))
+    const conv = allConvs.find(c => c.id === openConv)
     if (!conv) return null
     return (
       <ChatWindow

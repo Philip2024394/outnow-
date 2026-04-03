@@ -411,7 +411,6 @@ export default function AppShell({ returnParams, triggerGoLive }) {
         <MeetAcceptedBanner
           session={acceptedMeetSession}
           onTapToChat={() => {
-            console.log('[AppShell] onTapToChat fired — acceptedMeetSession:', acceptedMeetSession)
             const _src = sessions.find(s => s.id === acceptedMeetSession.sessionId)
             setPendingConv({
               id: `meet-${acceptedMeetSession.sessionId ?? acceptedMeetSession.id}`,
@@ -429,7 +428,6 @@ export default function AppShell({ returnParams, triggerGoLive }) {
               unread: 0,
               messages: [],
             })
-            console.log('[AppShell] switching to chat tab with pendingConv id:', `meet-${acceptedMeetSession.sessionId ?? acceptedMeetSession.id}`)
             setActiveTab('chat')
             clearAccepted()
           }}
