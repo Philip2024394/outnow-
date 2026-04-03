@@ -310,6 +310,115 @@
   opacity: 0.9;
 }
 
+/* ── Bio picker step ── */
+.bioWrap {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+}
+
+.bioHint {
+  font-size: 13px;
+  color: rgba(255,255,255,0.4);
+  margin: 0;
+  text-align: center;
+}
+
+.bioPicker {
+  position: relative;
+  width: 100%;
+  height: 336px; /* 3 × ITEM_H */
+  overflow: hidden;
+  border-radius: 16px;
+}
+
+/* Fade top edge */
+.bioFadeTop {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 96px;
+  background: linear-gradient(to bottom, #111 20%, transparent);
+  pointer-events: none;
+  z-index: 2;
+}
+
+/* Fade bottom edge */
+.bioFadeBot {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 96px;
+  background: linear-gradient(to top, #111 20%, transparent);
+  pointer-events: none;
+  z-index: 2;
+}
+
+/* Highlight box around center item */
+.bioHighlight {
+  position: absolute;
+  top: 112px; /* ITEM_H offset */
+  left: 0;
+  right: 0;
+  height: 112px;
+  background: rgba(57, 255, 20, 0.05);
+  border-top: 1px solid rgba(57, 255, 20, 0.25);
+  border-bottom: 1px solid rgba(57, 255, 20, 0.25);
+  pointer-events: none;
+  z-index: 1;
+}
+
+.bioScroll {
+  height: 100%;
+  overflow-y: scroll;
+  scroll-snap-type: y mandatory;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+}
+
+.bioScroll::-webkit-scrollbar { display: none; }
+
+/* Each bio item */
+.bioSpacer {
+  height: 112px;
+  flex-shrink: 0;
+  display: block;
+}
+
+.bioItem {
+  display: flex;
+  align-items: center;
+  padding: 10px 18px;
+  font-size: 12.5px;
+  color: rgba(255,255,255,0.2);
+  line-height: 1.55;
+  overflow: hidden;
+  scroll-snap-align: center;
+  box-sizing: border-box;
+  transition: color 0.25s, font-size 0.25s;
+  /* clamp to 4 lines */
+  display: -webkit-box;
+  -webkit-line-clamp: 4;
+  -webkit-box-orient: vertical;
+}
+
+.bioItemActive {
+  color: rgba(255,255,255,0.95);
+  font-size: 13px;
+}
+
+.bioNote {
+  font-size: 12px;
+  color: rgba(255,255,255,0.3);
+  margin: 0;
+  text-align: center;
+  font-style: italic;
+}
+
 /* ── Skip ── */
 .skip {
   font-size: 13px;

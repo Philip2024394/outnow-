@@ -1,5 +1,4 @@
 import { useState } from 'react'
-import { markOtwProceeding, cancelOtw } from '@/services/otwService'
 import BottomSheet from '@/components/ui/BottomSheet'
 import Button from '@/components/ui/Button'
 import styles from './VenueReveal.module.css'
@@ -9,7 +8,7 @@ import styles from './VenueReveal.module.css'
  * Displays exact venue name, address, and estimated travel time.
  * User B confirms "Proceed" → User A is notified.
  */
-export default function VenueReveal({ open, unlock, request, onClose }) {
+export default function VenueReveal({ open, unlock, onClose }) {
   const [eta, setEta] = useState(null)
   const [loading, setLoading] = useState(false)
   const [confirmed, setConfirmed] = useState(false)
@@ -24,9 +23,6 @@ export default function VenueReveal({ open, unlock, request, onClose }) {
       // Calculate ETA using Google Maps Distance Matrix if available
       const etaMinutes = await getEtaMinutes(unlock.venueLat, unlock.venueLng)
       setEta(etaMinutes)
-      if (request?.id) {
-        await markOtwProceeding(request.id, etaMinutes)
-      }
       setConfirmed(true)
     } catch {
       setConfirmed(true)
@@ -34,12 +30,7 @@ export default function VenueReveal({ open, unlock, request, onClose }) {
     setLoading(false)
   }
 
-  const handleCancel = async () => {
-    if (request?.id) {
-      try { await cancelOtw(request.id) } catch {}
-    }
-    onClose()
-  }
+  const handleCancel = () => onClose()
 
   if (confirmed) {
     return (
@@ -87,7 +78,7 @@ export default function VenueReveal({ open, unlock, request, onClose }) {
             Proceed and notify them you're on your way?
           </p>
           <div className={styles.confirmActions}>
-            <Button variant="otw" size="lg" fullWidth loading={loading} onClick={handleProceed}>
+            <Button variant="primary" size="lg" fullWidth loading={loading} onClick={handleProceed}>
               🚀 I'm on my way!
             </Button>
             <Button variant="ghost" fullWidth onClick={handleCancel}>

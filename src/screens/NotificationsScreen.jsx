@@ -20,7 +20,6 @@ const NOTIF_EMOJI = {
   like:    '❤️',
   wave:    '👋',
   gift:    '🎁',
-  otw:     '🚶',
   system:  '🛡️',
   digest:  '📅',
 }

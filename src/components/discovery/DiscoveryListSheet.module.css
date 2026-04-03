@@ -31,17 +31,7 @@
   pointer-events: all;
   animation: slide-up 0.32s cubic-bezier(0.32,0.72,0,1) forwards;
   will-change: transform;
-}
-
-.bgImage {
-  position: absolute;
-  inset: 0;
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  object-position: center;
-  z-index: 0;
-  pointer-events: none;
+  background: #0e0e0e;
 }
 
 
@@ -148,9 +138,9 @@
   width: 32px;
   height: 32px;
   border-radius: 50%;
-  background: rgba(255,255,255,0.08);
-  border: none;
-  color: #fff;
+  background: rgba(192, 0, 42, 0.2);
+  border: 1px solid rgba(192, 0, 42, 0.4);
+  color: #ff4444;
   font-size: 14px;
   cursor: pointer;
   display: flex;
@@ -158,7 +148,10 @@
   justify-content: center;
   font-family: inherit;
   -webkit-tap-highlight-color: transparent;
+  transition: background 0.15s;
 }
+
+.closeBtn:active { background: rgba(192, 0, 42, 0.4); }
 
 /* Profile list */
 .list {

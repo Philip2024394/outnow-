@@ -56,10 +56,22 @@ export const ACTIVITY_TYPES = [
   { id: 'drinks',   label: 'Drinks',   emoji: '🍺', img: DRINKS_IMG },
   { id: 'food',     label: 'Food',     emoji: '🍕', img: FOOD_IMG   },
   { id: 'walk',     label: 'Walk',     emoji: '🚶' },
+  { id: 'hiking',   label: 'Hiking',   emoji: '🥾' },
+  { id: 'swimming', label: 'Swimming', emoji: '🏊' },
+  { id: 'cycling',  label: 'Cycling',  emoji: '🚴' },
+  { id: 'yoga',     label: 'Yoga',     emoji: '🧘' },
+  { id: 'gym',      label: 'Gym',      emoji: '🏋️' },
+  { id: 'tennis',   label: 'Tennis',   emoji: '🎾' },
+  { id: 'running',  label: 'Running',  emoji: '🏃' },
   { id: 'shopping', label: 'Shopping', emoji: '🛍️' },
   { id: 'hangout',  label: 'Hangout',  emoji: '👥' },
   { id: 'workout',  label: 'Workout',  emoji: '💪' },
   { id: 'culture',  label: 'Culture',  emoji: '🎨' },
+  { id: 'gaming',   label: 'Gaming',   emoji: '🎮' },
+  { id: 'cinema',   label: 'Cinema',   emoji: '🎬' },
+  { id: 'music',    label: 'Music',    emoji: '🎵' },
+  { id: 'travel',   label: 'Travel',   emoji: '✈️' },
+  { id: 'beach',    label: 'Beach',    emoji: '🏖️' },
 ]
 
 export const activityEmoji = (activityId) =>

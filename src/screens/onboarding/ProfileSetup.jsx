@@ -108,7 +108,7 @@ function CompletionBanner({ total, onGo }) {
 }
 
 // ─── Main component ────────────────────────────────────────────────────────
-export default function ProfileSetup({ onDone }) {
+export default function ProfileSetup({ onDone, prefillBio = '' }) {
   const { earn } = useCoins()
 
   const [slide, setSlide]             = useState(0)
@@ -146,7 +146,7 @@ export default function ProfileSetup({ onDone }) {
 
   // Slide 2
   const [photoEmoji] = useState(['😊','😎','🌸','🤙','✨','🎯','🔥','🦋'][Math.floor(Math.random()*8)])
-  const [bio, setBio] = useState('')
+  const [bio, setBio] = useState(prefillBio)
 
   useEffect(() => {
     detectCountryByIP().then(found => {

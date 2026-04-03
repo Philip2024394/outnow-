@@ -5,6 +5,7 @@ import { useCoins } from '@/hooks/useCoins'
 import { ACTIVITY_TYPES } from '@/firebase/collections'
 import ActivityIcon from '@/components/ui/ActivityIcon'
 import { saveProfile, uploadAvatar } from '@/services/profileService'
+import { getPhotoViewCount, clearPhotoViewCount } from '@/services/photoNudgeService'
 import styles from './ProfileScreen.module.css'
 
 const STATUS_CONFIG = {
@@ -24,10 +25,15 @@ export default function ProfileScreen({ onClose }) {
   const [age,      setAge]      = useState(userProfile?.age ? String(userProfile.age) : '')
   const [city,     setCity]     = useState(userProfile?.city ?? '')
   const [bio,      setBio]      = useState(userProfile?.bio ?? '')
-  const [photoURL, setPhotoURL] = useState(userProfile?.photoURL ?? user?.photoURL ?? null)
-  const [editMode, setEditMode] = useState(false)
-  const [saving,   setSaving]   = useState(false)
-  const [photoFile, setPhotoFile] = useState(null)  // raw File for upload
+  const [photoURL,     setPhotoURL]     = useState(userProfile?.photoURL ?? user?.photoURL ?? null)
+  const [editMode,     setEditMode]     = useState(false)
+  const [saving,       setSaving]       = useState(false)
+  const photoViewCount = !photoURL ? getPhotoViewCount(user?.id) : 0
+  const [photoFile,    setPhotoFile]    = useState(null)
+  const [photoEditOpen, setPhotoEditOpen] = useState(false)
+  const [photoOffsetX, setPhotoOffsetX] = useState(userProfile?.photoOffsetX ?? 50)
+  const [photoOffsetY, setPhotoOffsetY] = useState(userProfile?.photoOffsetY ?? 50)
+  const [photoZoom,    setPhotoZoom]    = useState(userProfile?.photoZoom ?? 1)
   const fileInputRef = useRef(null)
 
   // Re-sync if userProfile loads after mount
@@ -38,6 +44,9 @@ export default function ProfileScreen({ onClose }) {
     setCity(userProfile.city ?? '')
     setBio(userProfile.bio ?? '')
     setPhotoURL(userProfile.photoURL ?? null)
+    setPhotoOffsetX(userProfile.photoOffsetX ?? 50)
+    setPhotoOffsetY(userProfile.photoOffsetY ?? 50)
+    setPhotoZoom(userProfile.photoZoom ?? 1)
     setSelectedActivities(userProfile.activities?.length ? userProfile.activities : ['drinks', 'coffee', 'food'])
   }, [userProfile]) // eslint-disable-line
 
@@ -46,6 +55,11 @@ export default function ProfileScreen({ onClose }) {
     if (!file) return
     setPhotoFile(file)
     setPhotoURL(URL.createObjectURL(file))
+    setPhotoOffsetX(50)
+    setPhotoOffsetY(50)
+    setPhotoZoom(1)
+    setPhotoEditOpen(true)
+    clearPhotoViewCount(user?.id)
   }
 
   const handleDone = async () => {
@@ -64,6 +78,9 @@ export default function ProfileScreen({ onClose }) {
         bio,
         city,
         activities: selectedActivities,
+        photoOffsetX,
+        photoOffsetY,
+        photoZoom,
       })
       if (bio.trim().length > 0)         earn('BIO_WRITTEN')
       if (selectedActivities.length > 0) earn('ACTIVITIES_SET')
@@ -111,11 +128,36 @@ export default function ProfileScreen({ onClose }) {
         {/* ── Profile card ── */}
         <div className={styles.profileCard}>
 
+          {/* No-photo nudge — shown when user hasn't uploaded a photo */}
+          {!photoURL && (
+            <div className={styles.photoNudge}>
+              {photoViewCount > 0 && (
+                <p className={styles.nudgeViews}>
+                  👀 <strong>{photoViewCount}</strong> {photoViewCount === 1 ? 'person' : 'people'} viewed your profile and wanted to see your photo
+                </p>
+              )}
+              <p className={styles.nudgeVisibility}>
+                📸 Add a photo to appear in <strong>3× more searches</strong>
+              </p>
+              <button
+                className={styles.nudgeBtn}
+                onClick={() => { setEditMode(true); setTimeout(() => fileInputRef.current?.click(), 50) }}
+              >
+                Add Photo Now
+              </button>
+            </div>
+          )}
+
           {/* Avatar */}
           <div className={styles.avatarWrap}>
             <div className={styles.avatar}>
               {photoURL
-                ? <img src={photoURL} alt={name} className={styles.avatarImg} />
+                ? <img
+                    src={photoURL}
+                    alt={name}
+                    className={styles.avatarImg}
+                    style={{ transform: `translate(${(photoOffsetX - 50) * 0.6}%, ${(photoOffsetY - 50) * 0.6}%) scale(${photoZoom})`, transformOrigin: 'center' }}
+                  />
                 : <span className={styles.avatarInitial}>{name?.[0]?.toUpperCase() ?? '?'}</span>
               }
             </div>
@@ -221,6 +263,55 @@ export default function ProfileScreen({ onClose }) {
         </div>
 
       </div>
+
+      {/* ── Photo reposition panel ── */}
+      {photoEditOpen && (
+        <div className={styles.photoEditPanel}>
+          <div className={styles.photoEditHeader}>
+            <button className={styles.photoEditCancel} onClick={() => setPhotoEditOpen(false)}>Cancel</button>
+            <span className={styles.photoEditTitle}>Adjust Photo</span>
+            <button className={styles.photoEditDone} onClick={() => setPhotoEditOpen(false)}>Done</button>
+          </div>
+
+          <div className={styles.photoEditPreviewWrap}>
+            <img
+              src={photoURL}
+              alt="Preview"
+              className={styles.photoEditPreviewImg}
+              style={{ transform: `translate(${(photoOffsetX - 50) * 0.8}%, ${(photoOffsetY - 50) * 0.8}%) scale(${photoZoom})` }}
+            />
+          </div>
+
+          <div className={styles.photoEditSliders}>
+            <div className={styles.photoEditRow}>
+              <span className={styles.photoEditLabel}>↔</span>
+              <input
+                type="range" min={0} max={100} value={photoOffsetX}
+                onChange={e => setPhotoOffsetX(Number(e.target.value))}
+                className={styles.photoEditSlider}
+              />
+            </div>
+            <div className={styles.photoEditRow}>
+              <span className={styles.photoEditLabel}>↕</span>
+              <input
+                type="range" min={0} max={100} value={photoOffsetY}
+                onChange={e => setPhotoOffsetY(Number(e.target.value))}
+                className={styles.photoEditSlider}
+              />
+            </div>
+            <div className={styles.photoEditRow}>
+              <span className={styles.photoEditLabel}>🔍</span>
+              <input
+                type="range" min={100} max={250} value={Math.round(photoZoom * 100)}
+                onChange={e => setPhotoZoom(Number(e.target.value) / 100)}
+                className={styles.photoEditSlider}
+              />
+            </div>
+          </div>
+
+          <p className={styles.photoEditHint}>Drag sliders to reposition · zoom in to fill the frame</p>
+        </div>
+      )}
     </div>
   )
 }

@@ -2,10 +2,11 @@ import { useEffect, useMemo, useRef, useState } from 'react'
 import { useJsApiLoader } from '@react-google-maps/api'
 import { useOverlay, OVERLAY } from '@/contexts/OverlayContext'
 import { useMySession } from '@/hooks/useMySession'
-import { useOtwRequests } from '@/hooks/useOtwRequests'
 import { useVenueUnlock } from '@/hooks/useVenueUnlock'
 import { useInterests } from '@/hooks/useInterests'
+import { sortByRelevance } from '@/utils/sessionScore'
 import { useLiveUsers } from '@/hooks/useLiveUsers'
+import { useMeetRequests } from '@/hooks/useMeetRequests'
 
 import { useInviteOut } from '@/hooks/useInviteOut'
 import { useCoins } from '@/hooks/useCoins'
@@ -22,9 +23,8 @@ import ActiveSessionBar from '@/components/session/ActiveSessionBar'
 import StillHerePrompt from '@/components/session/StillHerePrompt'
 import DiscoveryCard from '@/components/discovery/DiscoveryCard'
 import DiscoveryListSheet from '@/components/discovery/DiscoveryListSheet'
-import OtwRequestBanner from '@/components/otw/OtwRequestBanner'
-import OtwSentSheet from '@/components/otw/OtwSentSheet'
-import OtwReplyBanner from '@/components/otw/OtwReplyBanner'
+import MeetRequestBanner from '@/components/meet/MeetRequestBanner'
+import MeetAcceptedBanner from '@/components/meet/MeetAcceptedBanner'
 import PaymentGate from '@/components/payment/PaymentGate'
 import VenueReveal from '@/components/payment/VenueReveal'
 import ReportSheet from '@/components/moderation/ReportSheet'
@@ -62,6 +62,8 @@ import { PARTNER_VENUES } from '@/demo/mockPartnerVenues'
 import ProximityBanner from '@/components/map/ProximityBanner'
 import { useVenueProximity } from '@/hooks/useVenueProximity'
 import MapView from '@/components/map/MapView'
+import VibeCheckSheet  from '@/components/vibecheck/VibeCheckSheet'
+import VibeCheckBanner from '@/components/vibecheck/VibeCheckBanner'
 
 import '@/styles/map.css'
 import styles from './AppShell.module.css'
@@ -92,11 +94,13 @@ export default function AppShell({ returnParams, triggerGoLive }) {
   const { triggerGate } = useGuestGate()
   const isGuest = !user
   const { session: mySession, needsCheckIn } = useMySession()
-  const { incomingRequest, myOutgoingRequest } = useOtwRequests()
-  const { incomingInterests } = useInterests()
+  const { incomingInterests, mutualSessions } = useInterests()
+  const { incomingMeetRequest, acceptedMeetSession, simulateAcceptance, clearAccepted, clearIncoming } = useMeetRequests()
+  const [pendingConv, setPendingConv] = useState(null)
+  const [declinedUserIds, setDeclinedUserIds] = useState(new Set())
   const { sessions } = useLiveUsers()
   const { moments, addMoment } = useMoments()
-  const { unreadCount: notifUnreadCount } = useNotifications()
+  useNotifications()
   const [toast, setToast] = useState(null)
   const [likedMeOpen, setLikedMeOpen] = useState(false)
   const [settingsOpen, setSettingsOpen] = useState(false)
@@ -118,7 +122,7 @@ export default function AppShell({ returnParams, triggerGoLive }) {
   const [upgradeOpen, setUpgradeOpen] = useState(false)
   const [inviteOutSheetOpen, setInviteOutSheetOpen] = useState(false)
   const { inviteOut, post: postInviteOut, goingLive, revertToInviteOut } = useInviteOut()
-  const { earn: earnCoins } = useCoins()
+  const { earn: earnCoins, spend: spendCoins } = useCoins()
   const allMoments = moments
   const [discoveryListFilter, setDiscoveryListFilter] = useState('now')
   const [discoveryListOpen,   setDiscoveryListOpen]   = useState(false)
@@ -132,8 +136,8 @@ export default function AppShell({ returnParams, triggerGoLive }) {
   const [mapCenter,    setMapCenter]    = useState({ lat: DEMO_CENTER.lat, lng: DEMO_CENTER.lng })
   const [flyTarget,    setFlyTarget]    = useState(null)
   const reverseGeoDebounce = useRef(null)
-  const prevOtwStatusRef = useRef(null)
-  const [otwReplyBanner, setOtwReplyBanner] = useState(null)
+  const [vibeCheckOpen, setVibeCheckOpen]   = useState(false)
+  const [vibeBanner, setVibeBanner]         = useState(null) // { status: 'active'|'invite_out'|'scheduled' }
 
   const handleMapMove = ({ lat, lng }) => {
     setMapCenter({ lat, lng })
@@ -244,36 +248,43 @@ export default function AppShell({ returnParams, triggerGoLive }) {
     prevSessionRef.current = mySession
   }, [mySession]) // eslint-disable-line
 
-  const visibleSessions = sessions.filter(s => {
-    if (mapFilters.status === 'Out Now'   && s.status === 'scheduled')  return false
-    if (mapFilters.status === 'Out Later' && s.status !== 'scheduled')  return false
-    if (mapFilters.activity !== 'All' && s.activityType?.toLowerCase() !== mapFilters.activity.toLowerCase()) return false
-    if (mapFilters.city     !== 'All' && !s.area?.toLowerCase().includes(mapFilters.city.toLowerCase())) return false
-    return true
-  })
+  const visibleSessions = useMemo(() => {
+    const filtered = sessions.filter(s => {
+      if (declinedUserIds.has(s.userId))                                   return false
+      if (mapFilters.status === 'Out Now'   && s.status === 'scheduled')   return false
+      if (mapFilters.status === 'Out Later' && s.status !== 'scheduled')   return false
+      if (mapFilters.activity !== 'All' && s.activityType?.toLowerCase() !== mapFilters.activity.toLowerCase()) return false
+      if (mapFilters.city     !== 'All' && !s.area?.toLowerCase().includes(mapFilters.city.toLowerCase())) return false
+      return true
+    })
+    return sortByRelevance(filtered, mySession, mutualSessions)
+  }, [sessions, declinedUserIds, mapFilters, mySession, mutualSessions]) // eslint-disable-line
 
-  // Hide sessions the user already messaged (OTW pending).
-  // When the other person accepts, bring them back with hasReplied flag.
-  const mapSessions = useMemo(() => {
-    if (!myOutgoingRequest?.sessionId) return visibleSessions
-    return visibleSessions.reduce((acc, s) => {
-      if (s.id !== myOutgoingRequest.sessionId) { acc.push(s); return acc }
-      if (myOutgoingRequest.status === 'accepted') acc.push({ ...s, hasReplied: true })
-      // status === 'pending' → excluded (hidden from map)
-      return acc
-    }, [])
-  }, [visibleSessions, myOutgoingRequest])
+  const mapSessions = visibleSessions
 
-  // Detect when outgoing OTW switches to accepted → show reply banner
+  // When our "Let's Meet" request gets accepted → open chat immediately
   useEffect(() => {
-    const prev = prevOtwStatusRef.current
-    const curr = myOutgoingRequest?.status ?? null
-    if (prev === 'pending' && curr === 'accepted') {
-      const repliedSession = sessions.find(s => s.id === myOutgoingRequest.sessionId)
-      if (repliedSession) setOtwReplyBanner({ session: repliedSession })
+    if (!acceptedMeetSession) return
+    const _src = sessions.find(s => s.id === acceptedMeetSession.sessionId)
+    const conv = {
+      id: `meet-${acceptedMeetSession.sessionId ?? acceptedMeetSession.id}`,
+      userId: acceptedMeetSession.fromUserId ?? 'unknown',
+      displayName: acceptedMeetSession.fromDisplayName ?? 'New Match',
+      photoURL: acceptedMeetSession.fromPhotoURL ?? null,
+      age: _src?.age ?? null,
+      area: _src?.area ?? _src?.city ?? null,
+      emoji: '💌',
+      online: true,
+      status: 'free',
+      openedAt: Date.now(),
+      lastMessage: null,
+      lastMessageTime: Date.now(),
+      unread: 0,
+      messages: [],
     }
-    prevOtwStatusRef.current = curr
-  }, [myOutgoingRequest?.status]) // eslint-disable-line
+    setPendingConv(conv)
+    setActiveTab('chat') // mount ChatScreen immediately so pendingConv is received
+  }, [acceptedMeetSession]) // eslint-disable-line
 
   // Cap visible sessions at 50 nearest to map center.
   // The current user's own session is always included regardless of distance.
@@ -327,7 +338,7 @@ export default function AppShell({ returnParams, triggerGoLive }) {
 
       {/* Full-screen tab screens */}
       {activeTab === 'match'   && <MatchScreen   onClose={() => setActiveTab('map')} />}
-      {activeTab === 'chat'    && <ChatScreen     onClose={() => setActiveTab('map')} />}
+      {activeTab === 'chat'    && <ChatScreen     onClose={() => setActiveTab('map')} pendingConv={pendingConv} />}
       {activeTab === 'profile' && <ProfileScreen  onClose={() => setActiveTab('map')} />}
 
       <div className="map-top-fade" />
@@ -336,8 +347,8 @@ export default function AppShell({ returnParams, triggerGoLive }) {
       {/* Header: logo + notifications + likes + settings — map tab only */}
       {activeTab === 'map' && (
         <MapHeader
-          onOpenNotifications={() => setNotifOpen(true)}
-          notifCount={notifOpen ? 0 : notifUnreadCount}
+          onOpenNotifications={() => setActiveTab('chat')}
+          notifCount={0}
           onOpenSettings={() => setSettingsOpen(true)}
           onOpenFilter={() => setMapFilterOpen(true)}
           hasActiveFilter={hasActiveMapFilter}
@@ -367,19 +378,66 @@ export default function AppShell({ returnParams, triggerGoLive }) {
       )}
       <MapOverlay isLive={!!mySession} sessionTimeLeft={sessionTimeLeft} />
 
-      {/* Incoming OTW banner */}
-      {incomingRequest && (
-        <OtwRequestBanner request={incomingRequest} onAction={() => showToast} />
+
+      {/* User B: incoming meet request — accept/decline */}
+      {incomingMeetRequest && (
+        <MeetRequestBanner
+          request={incomingMeetRequest}
+          onViewProfile={() => {
+            const session = sessions.find(s => s.id === incomingMeetRequest.sessionId) ?? {
+              id: incomingMeetRequest.sessionId ?? incomingMeetRequest.id,
+              userId: incomingMeetRequest.fromUserId,
+              displayName: incomingMeetRequest.fromDisplayName ?? 'Someone',
+              photoURL: incomingMeetRequest.fromPhotoURL ?? null,
+              photos: incomingMeetRequest.fromPhotoURL ? [incomingMeetRequest.fromPhotoURL] : [],
+              status: 'active',
+            }
+            openDiscovery(session)
+          }}
+          onAccepted={(req, greeting) => {
+            clearIncoming()
+            const _reqSrc = sessions.find(s => s.id === req.sessionId)
+            const firstMsg = greeting
+              ? [{ id: `greeting-${Date.now()}`, fromMe: true, text: greeting, time: Date.now() }]
+              : []
+            const conv = {
+              id: `meet-${req.sessionId ?? req.id}`,
+              userId: req.fromUserId ?? 'unknown',
+              displayName: req.fromDisplayName ?? 'New Match',
+              photoURL: req.fromPhotoURL ?? null,
+              age: _reqSrc?.age ?? null,
+              area: _reqSrc?.area ?? _reqSrc?.city ?? null,
+              emoji: '💌',
+              online: true,
+              status: 'free',
+              openedAt: Date.now(),
+              lastMessage: greeting || null,
+              lastMessageTime: Date.now(),
+              unread: 0,
+              messages: firstMsg,
+            }
+            setPendingConv(conv)
+            setActiveTab('chat')
+          }}
+          onDeclined={() => {
+            clearIncoming()
+            if (incomingMeetRequest?.fromUserId) {
+              setDeclinedUserIds(prev => new Set([...prev, incomingMeetRequest.fromUserId]))
+            }
+          }}
+        />
       )}
 
-      <OtwReplyBanner
-        banner={otwReplyBanner}
-        onView={(s) => { setOtwReplyBanner(null); openDiscovery(s) }}
-        onOpenNotifications={() => { setOtwReplyBanner(null); setNotifOpen(true) }}
-        onDismiss={() => setOtwReplyBanner(null)}
-      />
+      {/* User A: their request was accepted — tap to open chat */}
+      {acceptedMeetSession && !incomingMeetRequest && (
+        <MeetAcceptedBanner
+          session={acceptedMeetSession}
+          onTapToChat={clearAccepted}
+          onDismiss={clearAccepted}
+        />
+      )}
 
-      {incomingInterests.length > 0 && !incomingRequest && (
+      {incomingInterests.length > 0 && (
         <div className={styles.interestBadge}>
           {incomingInterests.length} want to meet you
         </div>
@@ -429,6 +487,7 @@ export default function AppShell({ returnParams, triggerGoLive }) {
         onClose={closeOverlay}
         showToast={showToast}
         onGuestAction={isGuest ? triggerGate : null}
+        onMeetSent={(session) => simulateAcceptance(session)}
       />
       <VenueSheet
         open={venueSheetOpen}
@@ -436,6 +495,8 @@ export default function AppShell({ returnParams, triggerGoLive }) {
         onClose={() => setVenueSheetOpen(false)}
         onSelectSession={(s) => { setVenueSheetOpen(false); setTimeout(() => openDiscovery(s), 250) }}
         onOpenChat={() => setVenueChatVenue(selectedVenue)}
+        userTier={userProfile?.tier ?? null}
+        onSpendCoins={(cost) => spendCoins(cost, 'Venue unlock')}
       />
       {venueChatVenue && (
         <VenueGroupChat
@@ -459,9 +520,8 @@ export default function AppShell({ returnParams, triggerGoLive }) {
         sessions={visibleSessions}
       />
       <GoLiveSheet open={overlay.type === OVERLAY.GO_LIVE} onClose={closeOverlay} showToast={showToast} activeVenues={activeVenues} />
-      <OtwSentSheet open={overlay.type === OVERLAY.OTW_SENT} request={overlay.data} onClose={closeOverlay} />
       <PaymentGate open={overlay.type === OVERLAY.PAYMENT_GATE} request={overlay.data} onClose={closeOverlay} showToast={showToast} />
-      <VenueReveal open={overlay.type === OVERLAY.VENUE_REVEAL} unlock={overlay.data} request={myOutgoingRequest} onClose={closeOverlay} />
+      <VenueReveal open={overlay.type === OVERLAY.VENUE_REVEAL} unlock={overlay.data} onClose={closeOverlay} />
       <ReportSheet open={overlay.type === OVERLAY.REPORT} session={overlay.data} onClose={closeOverlay} showToast={showToast} />
       {likedMeOpen && <LikedMeScreen onClose={() => setLikedMeOpen(false)} />}
       {notifOpen && <NotificationsScreen onClose={() => setNotifOpen(false)} />}
@@ -561,6 +621,19 @@ export default function AppShell({ returnParams, triggerGoLive }) {
         open={addMomentOpen}
         onClose={() => setAddMomentOpen(false)}
         onAdd={(m) => addMoment({ ...m, sessionId: mySession?.id })}
+      />
+
+      <VibeCheckSheet
+        open={vibeCheckOpen}
+        sessions={visibleSessions}
+        onClose={() => setVibeCheckOpen(false)}
+        onVibeYes={(session) => setVibeBanner({ status: session.status })}
+      />
+
+      <VibeCheckBanner
+        banner={vibeBanner}
+        onDismiss={() => setVibeBanner(null)}
+        onView={() => { setVibeBanner(null); showToast('Anonymous until they match back 💚', 'info') }}
       />
 
       <AddToHomeScreenBanner />

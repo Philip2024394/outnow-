@@ -1,11 +1,7 @@
-import { useState } from 'react'
-import { DEMO_CONVERSATIONS } from '@/demo/mockData'
+import { useState, useEffect } from 'react'
+import { useConversations } from '@/hooks/useConversations'
 import ChatWindow from '@/components/chat/ChatWindow'
 import styles from './ChatScreen.module.css'
-
-const IS_DEMO = import.meta.env.VITE_DEMO_MODE === 'true'
-
-
 
 function timeAgo(ms) {
   if (!ms) return ''
@@ -18,40 +14,34 @@ function timeAgo(ms) {
   return `${Math.floor(h / 24)}d`
 }
 
-export default function ChatScreen({ onClose }) {
-  const [conversations, setConversations] = useState(
-    IS_DEMO ? DEMO_CONVERSATIONS : []
-  )
-  const [openConv, setOpenConv] = useState(null)
+export default function ChatScreen({ onClose, pendingConv, openConvId }) {
+  const { conversations, setConversations, updateConversation } = useConversations()
+  const [openConv, setOpenConv] = useState(openConvId ?? null)
 
-  const handleSendMessage = (convId, text) => {
-    setConversations(prev => prev.map(c => {
-      if (c.id !== convId) return c
-      const newMsg = { id: `m-${Date.now()}`, fromMe: true, text, time: Date.now() }
-      return {
-        ...c,
-        status: c.status === 'free' ? 'pending' : c.status,
-        messages: [...c.messages, newMsg],
-        lastMessage: text,
-        lastMessageTime: Date.now(),
-      }
-    }))
-  }
+  // When a new conversation arrives (meet accepted), prepend + auto-open
+  useEffect(() => {
+    if (!pendingConv) return
+    setConversations(prev => {
+      if (prev.some(c => c.id === pendingConv.id)) return prev
+      return [pendingConv, ...prev]
+    })
+    setOpenConv(pendingConv.id)
+  }, [pendingConv]) // eslint-disable-line
 
-  const handleUnlock = (convId) => {
-    setConversations(prev => prev.map(c =>
-      c.id === convId ? { ...c, status: 'unlocked', unread: 0 } : c
-    ))
-  }
+  // Auto-open when new locked conv arrives (someone messaged us)
+  useEffect(() => {
+    const locked = conversations.find(c => c.status === 'locked' && c.unread > 0)
+    if (locked && !openConv) setOpenConv(locked.id)
+  }, [conversations]) // eslint-disable-line
 
   if (openConv) {
     const conv = conversations.find(c => c.id === openConv)
+    if (!conv) return null
     return (
       <ChatWindow
         conversation={conv}
         onBack={() => setOpenConv(null)}
-        onSend={(text) => handleSendMessage(conv.id, text)}
-        onUnlock={() => handleUnlock(conv.id)}
+        onConvUpdate={(updates) => updateConversation(conv.id, updates)}
       />
     )
   }
@@ -69,6 +59,12 @@ export default function ChatScreen({ onClose }) {
       </div>
 
       <div className={styles.scroll}>
+        {/* 30-day history notice */}
+        <div className={styles.expiryNotice}>
+          <span className={styles.expiryIcon}>⏳</span>
+          <span className={styles.expiryText}>Chat history is saved for <strong>30 days</strong> after unlock — save any contact details you want to keep before they expire.</span>
+        </div>
+
         {conversations.length === 0 && (
           <div className={styles.empty}>
             <span className={styles.emptyIcon}>💬</span>
@@ -88,7 +84,7 @@ export default function ChatScreen({ onClose }) {
               <div className={styles.avatar}>
                 {conv.photoURL
                   ? <img src={conv.photoURL} alt={conv.displayName} className={styles.avatarImg} />
-                  : <span className={styles.avatarEmoji}>{conv.emoji}</span>
+                  : <span className={styles.avatarEmoji}>{conv.emoji ?? '💬'}</span>
                 }
               </div>
               {conv.online && <span className={styles.onlineDot} />}
@@ -101,17 +97,13 @@ export default function ChatScreen({ onClose }) {
                 <span className={styles.convTime}>{timeAgo(conv.lastMessageTime)}</span>
               </div>
               <div className={styles.convBottom}>
-                <span className={`${styles.convPreview} ${conv.status === 'locked' ? styles.locked : ''}`}>
-                  {conv.status === 'locked' && <span className={styles.lockIcon}>🔒</span>}
-                  {conv.lastMessage ?? 'Send the first message — it\'s free!'}
+                <span className={styles.convPreview}>
+                  {conv.lastMessage ?? "Say hi — chat is free!"}
                 </span>
-                {conv.unread > 0 && conv.status !== 'locked' && (
+                {conv.unread > 0 && (
                   <span className={styles.unreadBadge}>{conv.unread}</span>
                 )}
-                {conv.status === 'locked' && (
-                  <span className={styles.lockBadge}>Unlock</span>
-                )}
-                {conv.status === 'free' && (
+                {conv.status !== 'unlocked' && !conv.unread && (
                   <span className={styles.freeBadge}>FREE</span>
                 )}
               </div>

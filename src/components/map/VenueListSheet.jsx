@@ -1,7 +1,5 @@
 import styles from './VenueListSheet.module.css'
 
-const BG_URL = 'https://ik.imagekit.io/dateme/UntitledDFSDFASDFDFGSDFGsfdfasdsadas.png?updatedAt=1775081066476'
-
 export default function VenueListSheet({ open, venues = [], onClose, onSelectVenue }) {
   const sorted = [...venues].sort((a, b) => b.count - a.count)
 
@@ -12,8 +10,6 @@ export default function VenueListSheet({ open, venues = [], onClose, onSelectVen
       <div className={styles.backdrop} onClick={onClose} />
 
       <div className={styles.sheet}>
-        {/* Full-bleed background image */}
-        <img src={BG_URL} alt="" className={styles.bgImage} />
 
         {/* Green strip — sits flush at top edge, corners clipped by sheet radius */}
         <div className={styles.greenStrip} />
@@ -23,7 +19,10 @@ export default function VenueListSheet({ open, venues = [], onClose, onSelectVen
 
         {/* Header row */}
         <div className={styles.header}>
-          <span className={styles.headerTitle}>Hot Venues</span>
+          <div className={styles.headerLeft}>
+            <span className={styles.headerTitle}>Hot Venues</span>
+            <span className={styles.headerSub}>Active Venues · Places</span>
+          </div>
           <button className={styles.closeBtn} onClick={onClose}>✕</button>
         </div>
 

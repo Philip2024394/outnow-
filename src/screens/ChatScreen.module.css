@@ -233,3 +233,32 @@
   padding: 2px 8px;
   flex-shrink: 0;
 }
+
+/* 30-day history notice */
+.expiryNotice {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  padding: 10px 14px;
+  background: rgba(255,149,0,0.07);
+  border: 1px solid rgba(255,149,0,0.22);
+  border-radius: 10px;
+  margin-bottom: 4px;
+}
+
+.expiryIcon {
+  font-size: 14px;
+  flex-shrink: 0;
+  margin-top: 1px;
+}
+
+.expiryText {
+  font-size: 12px;
+  line-height: 1.5;
+  color: rgba(255,255,255,0.55);
+}
+
+.expiryText strong {
+  color: #FF9500;
+  font-weight: 700;
+}

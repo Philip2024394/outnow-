@@ -36,3 +36,58 @@
   border-color: #FFD60A;
   box-shadow: 0 0 0 2px var(--color-bg), 0 0 14px rgba(255,214,10,0.45);
 }
+
+/* ── No-photo brand card ── */
+.brandCard {
+  background: linear-gradient(160deg, #0d1a0d 0%, #0e0e0e 100%);
+  border-color: rgba(57,255,20,0.3) !important;
+  overflow: hidden;
+}
+
+.brandInner {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 3px;
+  padding: 6px 4px 4px;
+  width: 100%;
+  height: 100%;
+  text-align: center;
+}
+
+.brandMark {
+  font-size: 9px;
+  font-weight: 900;
+  letter-spacing: 0.08em;
+  color: #39FF14;
+  text-transform: lowercase;
+  line-height: 1;
+}
+
+.brandQuote {
+  font-size: 8px;
+  font-weight: 600;
+  color: rgba(255,255,255,0.8);
+  line-height: 1.35;
+  overflow: hidden;
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+}
+
+.noPhotoTag {
+  font-size: 6.5px;
+  font-weight: 500;
+  color: rgba(255,255,255,0.3);
+  line-height: 1;
+  margin-top: 2px;
+  white-space: nowrap;
+}
+
+/* Very small fallback */
+.brandMarkSm {
+  font-size: 0.7em;
+  color: #39FF14;
+  opacity: 0.8;
+}

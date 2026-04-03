@@ -60,7 +60,7 @@ export default function PaymentGate({ open, request, onClose, showToast }) {
         </div>
 
         <Button
-          variant="otw"
+          variant="primary"
           size="lg"
           fullWidth
           loading={loading}

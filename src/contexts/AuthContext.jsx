@@ -54,7 +54,7 @@ export function AuthProvider({ children }) {
 
       const { data } = await supabase
         .from('profiles')
-        .select('display_name, photo_url, age, bio, city, activities, looking_for, coins')
+        .select('display_name, photo_url, age, bio, city, activities, looking_for, coins, tier')
         .eq('id', authUser.id)
         .single()
 
@@ -68,6 +68,7 @@ export function AuthProvider({ children }) {
           activities: data.activities ?? [],
           lookingFor: data.looking_for ?? '',
           coins: data.coins ?? 0,
+          tier: data.tier ?? null,
         })
       }
     } catch {

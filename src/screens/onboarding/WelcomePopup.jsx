@@ -1,45 +1,55 @@
-import { useState } from 'react'
+import { useState, useRef, useMemo, useEffect, useCallback } from 'react'
+import { shuffleBios } from './bios'
 import styles from './WelcomePopup.module.css'
 
 const LOGO_URL = 'https://ik.imagekit.io/dateme/Logo%20with%20green%20map%20pin%20element.png'
 const TC_URL = import.meta.env.VITE_TC_URL ?? 'https://imoutnow.com/terms'
 const PP_URL = import.meta.env.VITE_PP_URL ?? 'https://imoutnow.com/privacy'
 
+const ITEM_H = 112 // px — height of each bio row in the carousel
+
 const STEPS = [
   {
-    id: 'swipe',
-    img: 'https://ik.imagekit.io/dateme/No%20swiping%20on%20screen.png',
+    id: 'discover',
+    icon: '📍',
     accent: '#39FF14',
-    title: 'No Swiping',
-    body: 'Forget endless swiping. imoutnow.com connects you with real people who are actually out right now — no endless browsing required.',
+    title: "See Who's Out Near You",
+    body: "imoutnow shows real people who are actually out nearby right now — on a live map. No endless profiles, no swiping. If they're out, you'll see them.",
   },
   {
-    id: 'chat',
-    img: 'https://ik.imagekit.io/dateme/No%20chatting%20smartphone%20message.png',
+    id: 'meet',
+    icon: '💌',
     accent: '#39FF14',
-    title: 'No Chatting',
-    body: "Skip the awkward back-and-forth. There's no messaging — if it's mutual, you both get notified and decide to meet in person.",
+    title: 'Send a Meet Request',
+    body: "See someone you'd like to meet? Tap their profile and send a request. If they accept, a chat window opens instantly between you both.",
   },
   {
-    id: 'like',
-    icon: '❤️',
-    accent: '#FF3B30',
-    title: 'Just Like & Wait',
-    body: "See someone out nearby? Hit like. When they like back you both get a notification instantly. That's the whole app.",
+    id: 'unlock',
+    icon: '🔓',
+    accent: '#39FF14',
+    title: 'Share Contact · £1.99',
+    body: "Chat is completely free. When you're both ready to share personal contact details, either of you pays £1.99 once — then sharing is free forever. No pressure, no time limit.",
   },
   {
     id: 'safety',
     icon: '🛡️',
     accent: '#39FF14',
     title: 'Your Safety Matters',
-    body: null, // renders custom safety list
+    body: null,
+  },
+  {
+    id: 'bio',
+    icon: '✏️',
+    accent: '#39FF14',
+    title: 'Pick Your Bio',
+    body: null,
   },
   {
     id: 'terms',
     icon: null,
     accent: '#39FF14',
     title: 'Before You Start',
-    body: null, // renders T&C checkbox
+    body: null,
   },
 ]
 
@@ -55,12 +65,39 @@ export default function WelcomePopup({ onDone }) {
   const [leaving, setLeaving] = useState(false)
   const [agreed, setAgreed]   = useState(false)
 
+  // Bio carousel
+  const bios           = useMemo(() => shuffleBios(), [])
+  const startIdx       = useMemo(() => Math.floor(Math.random() * bios.length), [bios])
+  const [bioIdx, setBioIdx] = useState(startIdx)
+  const selectedBioRef = useRef(bios[startIdx])
+  const bioScrollRef   = useRef(null)
+  const scrollRafRef   = useRef(null)
+
+  // Scroll carousel to the random start index on mount
+  useEffect(() => {
+    const el = bioScrollRef.current
+    if (!el) return
+    el.scrollTop = startIdx * ITEM_H
+  }, [startIdx])
+
+  const handleBioScroll = useCallback(() => {
+    if (scrollRafRef.current) cancelAnimationFrame(scrollRafRef.current)
+    scrollRafRef.current = requestAnimationFrame(() => {
+      const el = bioScrollRef.current
+      if (!el) return
+      const idx = Math.round(el.scrollTop / ITEM_H)
+      const clamped = Math.max(0, Math.min(idx, bios.length - 1))
+      setBioIdx(clamped)
+      selectedBioRef.current = bios[clamped]
+    })
+  }, [bios])
+
   const current = STEPS[step]
   const isLast  = step === STEPS.length - 1
 
   const finish = () => {
     setLeaving(true)
-    setTimeout(onDone, 350)
+    setTimeout(() => onDone(selectedBioRef.current), 350)
   }
 
   const next = () => {
@@ -79,8 +116,8 @@ export default function WelcomePopup({ onDone }) {
         {/* Logo */}
         <img src={LOGO_URL} alt="imoutnow.com" className={styles.logo} />
 
-        {/* Step content */}
-        {current.id !== 'safety' && current.id !== 'terms' && (
+        {/* Generic info steps */}
+        {current.id !== 'safety' && current.id !== 'bio' && current.id !== 'terms' && (
           <div className={styles.stepWrap}>
             <div
               className={styles.stepIcon}
@@ -115,6 +152,44 @@ export default function WelcomePopup({ onDone }) {
             <div className={styles.safetyNote}>
               The application, if used in the correct manner, is safe for all.
             </div>
+          </div>
+        )}
+
+        {/* Bio picker step */}
+        {current.id === 'bio' && (
+          <div className={styles.bioWrap}>
+            <h2 className={styles.stepTitle}>Pick Your Bio</h2>
+            <p className={styles.bioHint}>Scroll up or down · the one in the middle is yours</p>
+
+            <div className={styles.bioPicker}>
+              {/* Fade overlays */}
+              <div className={styles.bioFadeTop} />
+              <div className={styles.bioFadeBot} />
+              {/* Center selection highlight */}
+              <div className={styles.bioHighlight} />
+
+              <div
+                ref={bioScrollRef}
+                className={styles.bioScroll}
+                onScroll={handleBioScroll}
+              >
+                {/* Top spacer so first item can center */}
+                <div className={styles.bioSpacer} />
+                {bios.map((bio, i) => (
+                  <div
+                    key={i}
+                    className={`${styles.bioItem} ${i === bioIdx ? styles.bioItemActive : ''}`}
+                    style={{ height: ITEM_H }}
+                  >
+                    {bio}
+                  </div>
+                ))}
+                {/* Bottom spacer */}
+                <div className={styles.bioSpacer} />
+              </div>
+            </div>
+
+            <p className={styles.bioNote}>You can edit this anytime from your profile</p>
           </div>
         )}
 
@@ -175,7 +250,7 @@ export default function WelcomePopup({ onDone }) {
           onClick={next}
           disabled={isLast && !agreed}
         >
-          {isLast ? "Let's go \uD83D\uDE80" : 'Next'}
+          {isLast ? "Let's go 🚀" : current.id === 'bio' ? 'Use this bio' : 'Next'}
         </button>
 
         {/* Skip */}

@@ -9,6 +9,7 @@ import ProfileSetup from '@/screens/onboarding/ProfileSetup'
 import GoLivePrompt from '@/screens/onboarding/GoLivePrompt'
 import AdminApp from '@/admin/AdminApp'
 import { GuestGateProvider } from '@/contexts/GuestGateContext'
+import DevPanel from '@/dev/DevPanel'
 import styles from './App.module.css'
 
 const LOGO_URL = 'https://ik.imagekit.io/dateme/Logo%20with%20green%20map%20pin%20element.png'
@@ -34,6 +35,7 @@ export default function App() {
   // then resolves to 'setup' (new user) or 'done' (returning user).
   const [onboardStep, setOnboardStep] = useState('checking')
   const [triggerGoLive, setTriggerGoLive] = useState(false)
+  const [prefillBio, setPrefillBio] = useState('')
 
   // Resolve onboarding state per-user so each new account sees onboarding
   const resolvedRef = useRef(null)
@@ -89,6 +91,7 @@ export default function App() {
 
   return (
     <GuestGateProvider>
+      <DevPanel />
       {(guestMode || onboardStep === 'done') && (
         <AppShell returnParams={returnParams} triggerGoLive={triggerGoLive} />
       )}
@@ -102,10 +105,11 @@ export default function App() {
         />
       )}
       {(user || adminPass) && onboardStep === 'welcome' && (
-        <WelcomePopup onDone={() => setOnboardStep('setup')} />
+        <WelcomePopup onDone={(bio) => { setPrefillBio(bio ?? ''); setOnboardStep('setup') }} />
       )}
       {(user || adminPass) && onboardStep === 'setup' && (
         <ProfileSetup
+          prefillBio={prefillBio}
           onDone={(profile) => {
             if (user) localStorage.setItem(`${ONBOARDING_BASE_KEY}_${user.id}`, JSON.stringify(profile))
             setOnboardStep('golive')

@@ -439,3 +439,115 @@
 .personName     { flex: 1; font-size: 15px; font-weight: 700; color: #fff; }
 .personActivity { font-size: 20px; }
 .personArrow    { font-size: 20px; color: rgba(255,255,255,0.2); flex-shrink: 0; margin-left: auto; }
+
+/* ── Venue coin gate ── */
+.venueGate {
+  position: relative;
+  border-radius: 16px;
+  overflow: hidden;
+  border: 1px solid rgba(255,255,255,0.08);
+}
+
+.venueGateBlur {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  filter: blur(6px);
+  pointer-events: none;
+  user-select: none;
+  padding: 8px;
+}
+
+.venueGateRow {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 12px;
+  background: rgba(255,255,255,0.05);
+  border-radius: 10px;
+}
+
+.venueGateAvatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: rgba(255,255,255,0.12);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 16px;
+  font-weight: 700;
+  color: rgba(255,255,255,0.5);
+  flex-shrink: 0;
+}
+
+.venueGateName {
+  font-size: 15px;
+  font-weight: 700;
+  color: rgba(255,255,255,0.3);
+  letter-spacing: 0.08em;
+}
+
+.venueGateOverlay {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  background: rgba(8,8,8,0.7);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+  padding: 20px 16px;
+}
+
+.venueGateLock {
+  font-size: 28px;
+  line-height: 1;
+  margin-bottom: 2px;
+}
+
+.venueGateTitle {
+  font-size: 16px;
+  font-weight: 800;
+  color: #fff;
+  margin: 0;
+  letter-spacing: 0.01em;
+}
+
+.venueGateSub {
+  font-size: 12px;
+  color: rgba(255,255,255,0.45);
+  margin: 0 0 6px;
+  text-align: center;
+}
+
+.venueGateBtn {
+  background: #39FF14;
+  color: #080808;
+  border: none;
+  border-radius: 100px;
+  padding: 12px 28px;
+  font-size: 15px;
+  font-weight: 800;
+  font-family: inherit;
+  letter-spacing: 0.02em;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  transition: opacity 0.15s, transform 0.1s;
+  box-shadow: 0 0 18px rgba(57,255,20,0.35);
+}
+
+.venueGateBtn:active {
+  transform: scale(0.96);
+  opacity: 0.85;
+}
+
+.venueGateFree {
+  font-size: 10px;
+  font-weight: 600;
+  color: rgba(57,255,20,0.5);
+  margin: 2px 0 0;
+  text-align: center;
+}

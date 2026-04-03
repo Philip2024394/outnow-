@@ -15,6 +15,12 @@ export const COIN_REWARDS = {
   FIRST_CONNECT:    { amount: 10, label: 'First connection sent' },
 }
 
+// Repeatable rewards (no one-time guard)
+export const REPEAT_REWARDS = {
+  VIBE_CHECK_VOTE:     { amount: 2,  label: 'Vibe Check vote' },
+  VIBE_CHECK_COMPLETE: { amount: 5,  label: 'Vibe Check completed' },
+}
+
 export const GIFT_COSTS = {
   coffee:  5,
   drinks:  10,
@@ -147,6 +153,18 @@ export function useCoins() {
     return reward.amount
   }, [user])
 
+  // Repeatable earn — no one-time guard, for actions that recur (e.g. Vibe Check votes)
+  const earnRepeat = useCallback((rewardKey) => {
+    const reward = REPEAT_REWARDS[rewardKey]
+    if (!reward) return 0
+    const next = readBalance() + reward.amount
+    writeBalance(next)
+    addLocalTransaction({ type: 'earn', label: reward.label, amount: reward.amount })
+    setBalance(next)
+    syncEarnToSupabase(reward.amount, reward.label, user?.id)
+    return reward.amount
+  }, [user])
+
   const spend = useCallback((amount, label = 'Gift sent') => {
     const current = readBalance()
     if (current < amount) return false
@@ -168,5 +186,5 @@ export function useCoins() {
 
   const canAfford = useCallback((amount) => readBalance() >= amount, [])
 
-  return { balance, earn, spend, canAfford, topUp }
+  return { balance, earn, earnRepeat, spend, canAfford, topUp }
 }

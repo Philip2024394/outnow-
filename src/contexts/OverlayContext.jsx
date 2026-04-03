@@ -8,7 +8,6 @@ export const OVERLAY = {
   NONE: null,
   DISCOVERY: 'discovery',     // tapped a live user
   GO_LIVE: 'go_live',         // local user opening go-live sheet
-  OTW_SENT: 'otw_sent',       // sender waiting for response
   PAYMENT_GATE: 'payment',    // ready to pay $2.99
   VENUE_REVEAL: 'venue',      // paid, showing exact location
   REPORT: 'report',           // reporting a user
@@ -51,10 +50,6 @@ export function OverlayProvider({ children }) {
     openOverlay(OVERLAY.GO_LIVE)
   }, [openOverlay])
 
-  const openOtwSent = useCallback((otwRequest) => {
-    openOverlay(OVERLAY.OTW_SENT, otwRequest)
-  }, [openOverlay])
-
   const openPayment = useCallback((otwRequest) => {
     openOverlay(OVERLAY.PAYMENT_GATE, otwRequest)
   }, [openOverlay])
@@ -73,7 +68,6 @@ export function OverlayProvider({ children }) {
       closeOverlay,
       openDiscovery,
       openGoLive,
-      openOtwSent,
       openPayment,
       openVenueReveal,
       openReport,

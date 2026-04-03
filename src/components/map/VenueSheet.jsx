@@ -5,11 +5,30 @@ import styles from './VenueSheet.module.css'
 
 const BG_URL = 'https://ik.imagekit.io/dateme/UntitledDFSDFASDFDFGSDFGsfdfasdsadas.png?updatedAt=1775081066476'
 
-export default function VenueSheet({ open, venue, onClose, onSelectSession, onOpenChat }) {
+function venueCoinCost(count) {
+  if (count <= 3)  return 5
+  if (count <= 8)  return 10
+  if (count <= 15) return 15
+  return 20
+}
+
+export default function VenueSheet({ open, venue, onClose, onSelectSession, onOpenChat, userTier, onSpendCoins }) {
   const { show: showDealIntro, dismiss: dismissDealIntro } = useFeatureIntro('venue_deals')
   const sheetRef = useRef(null)
   const startYRef = useRef(null)
   const currentYRef = useRef(0)
+  const [unlocked, setUnlocked] = useState(false)
+
+  useEffect(() => { setUnlocked(false) }, [venue?.id])
+
+  const isPremium = userTier === 'pro' || userTier === 'vip'
+  const coinCost  = venue ? venueCoinCost(venue.count) : 5
+  const isUnlocked = unlocked || isPremium
+
+  const handleUnlock = () => {
+    onSpendCoins?.(coinCost)
+    setUnlocked(true)
+  }
 
   useEffect(() => {
     const sheet = sheetRef.current
@@ -56,7 +75,7 @@ export default function VenueSheet({ open, venue, onClose, onSelectSession, onOp
   if (!open || !venue) return null
 
   const breakdown = {}
-  venue.sessions.forEach(s => {
+  ;(venue.sessions ?? []).forEach(s => {
     breakdown[s.activityType] = (breakdown[s.activityType] ?? 0) + 1
   })
 
@@ -166,28 +185,56 @@ export default function VenueSheet({ open, venue, onClose, onSelectSession, onOp
             ))}
           </div>
 
-          {/* Who's there */}
+          {/* Who's there — coin gate */}
           <div className={styles.sectionLabel}>Who's here</div>
-          <div className={styles.peopleList}>
-            {venue.sessions.map(s => (
-              <button
-                key={s.id}
-                className={styles.personRow}
-                onClick={() => { onSelectSession?.(s); onClose?.() }}
-              >
-                <div className={styles.personAvatar}>
-                  {s.photoURL
-                    ? <img src={s.photoURL} alt={s.displayName} className={styles.personAvatarImg} />
-                    : <span className={styles.personAvatarInitial}>{s.displayName?.[0]?.toUpperCase()}</span>
-                  }
-                  <span className={styles.personOnlineDot} />
-                </div>
-                <span className={styles.personName}>{s.displayName?.split(' ')[0]}</span>
-                <span className={styles.personActivity}>{activityEmoji(s.activityType)}</span>
-                <span className={styles.personArrow}>›</span>
-              </button>
-            ))}
-          </div>
+          {isUnlocked ? (
+            <div className={styles.peopleList}>
+              {(venue.sessions ?? []).map(s => (
+                <button
+                  key={s.id}
+                  className={styles.personRow}
+                  onClick={() => { onSelectSession?.(s); onClose?.() }}
+                >
+                  <div className={styles.personAvatar}>
+                    {s.photoURL
+                      ? <img src={s.photoURL} alt={s.displayName} className={styles.personAvatarImg} />
+                      : <span className={styles.personAvatarInitial}>{s.displayName?.[0]?.toUpperCase()}</span>
+                    }
+                    <span className={styles.personOnlineDot} />
+                  </div>
+                  <span className={styles.personName}>{s.displayName?.split(' ')[0]}</span>
+                  <span className={styles.personActivity}>{activityEmoji(s.activityType)}</span>
+                  <span className={styles.personArrow}>›</span>
+                </button>
+              ))}
+            </div>
+          ) : (
+            <div className={styles.venueGate}>
+              <div className={styles.venueGateBlur}>
+                {(venue.sessions ?? []).slice(0, 3).map(s => (
+                  <div key={s.id} className={styles.venueGateRow}>
+                    <div className={styles.venueGateAvatar}>
+                      {s.displayName?.[0]?.toUpperCase()}
+                    </div>
+                    <div className={styles.venueGateName}>••••••</div>
+                  </div>
+                ))}
+              </div>
+              <div className={styles.venueGateOverlay}>
+                <span className={styles.venueGateLock}>🔒</span>
+                <p className={styles.venueGateTitle}>See who's inside</p>
+                <p className={styles.venueGateSub}>
+                  {venue.count} {venue.count === 1 ? 'person' : 'people'} at this venue right now
+                </p>
+                <button className={styles.venueGateBtn} onClick={handleUnlock}>
+                  🪙 {coinCost} Coins — Unlock
+                </button>
+                {isPremium && (
+                  <p className={styles.venueGateFree}>Free for Pro & VIP members</p>
+                )}
+              </div>
+            </div>
+          )}
 
         </div>
       </div>

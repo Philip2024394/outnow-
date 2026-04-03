@@ -1,11 +1,8 @@
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useRef } from 'react'
 import Avatar from '@/components/ui/Avatar'
 import { ACTIVITY_TYPES } from '@/firebase/collections'
 import ActivityIcon from '@/components/ui/ActivityIcon'
-import OnMeSheet from './OnMeSheet'
 import styles from './DiscoveryListSheet.module.css'
-
-const BG_URL = 'https://ik.imagekit.io/dateme/UntitledDFSDFASDFDFGSDFGsfdfasdsadas.png?updatedAt=1775081066476'
 
 const CONFIG = {
   now:    { label: 'Out Now',    strip: styles.stripNow,    badge: styles.badgeNow,    empty: 'No one is out right now nearby.' },
@@ -17,7 +14,6 @@ export default function DiscoveryListSheet({ open, filter = 'now', sessions = []
   const sheetRef    = useRef(null)
   const startYRef   = useRef(null)
   const currentYRef = useRef(0)
-  const [pendingSession, setPendingSession] = useState(null)
 
   useEffect(() => {
     const sheet = sheetRef.current
@@ -65,7 +61,6 @@ export default function DiscoveryListSheet({ open, filter = 'now', sessions = []
     <div className={styles.wrapper}>
       <div className={styles.backdrop} onClick={onClose} />
       <div ref={sheetRef} className={styles.sheet}>
-        <img src={BG_URL} alt="" className={styles.bgImage} />
 
         {/* Coloured top strip */}
         <div className={`${styles.strip} ${cfg.strip}`} />
@@ -116,7 +111,7 @@ export default function DiscoveryListSheet({ open, filter = 'now', sessions = []
                   <button
                     key={s.id}
                     className={styles.card}
-                    onClick={() => isInviteOut ? setPendingSession(s) : onSelect?.(s)}
+                    onClick={() => onSelect?.(s)}
                   >
                     <Avatar
                       src={s.photoURL}
@@ -166,14 +161,6 @@ export default function DiscoveryListSheet({ open, filter = 'now', sessions = []
       </div>
     </div>
 
-    {pendingSession && (
-      <OnMeSheet
-        session={pendingSession}
-        onSend={({ session, ...meta }) => { setPendingSession(null); onSelect?.(session, meta) }}
-        onSkip={session => { setPendingSession(null); onSelect?.(session) }}
-        onClose={() => setPendingSession(null)}
-      />
-    )}
-    </>
+</>
   )
 }

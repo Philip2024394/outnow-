@@ -19,7 +19,7 @@
   to   { opacity: 1; }
 }
 
-/* The sheet itself — full-bleed, image fills everything */
+/* The sheet itself */
 .sheet {
   position: absolute;
   bottom: 0;
@@ -34,31 +34,12 @@
   animation: slide-up 0.32s cubic-bezier(0.32, 0.72, 0, 1) forwards;
   will-change: transform;
   padding-bottom: calc(env(safe-area-inset-bottom, 0px) + 16px);
+  background: #0e0e0e;
 }
 
 @keyframes slide-up {
   from { transform: translateY(100%); }
   to   { transform: translateY(0); }
-}
-
-/* Background image — covers the entire sheet */
-.bgImage {
-  position: absolute;
-  inset: 0;
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  object-position: center;
-  display: block;
-  z-index: 0;
-}
-
-/* Dark frost overlay on top of image */
-.frost {
-  position: absolute;
-  inset: 0;
-  background: rgba(4, 4, 4, 0.62);
-  z-index: 1;
 }
 
 /* Drag handle */
@@ -94,27 +75,44 @@
   flex-shrink: 0;
 }
 
+.headerLeft {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
 .headerTitle {
   font-size: 17px;
   font-weight: 800;
   color: #fff;
-  text-shadow: 0 1px 8px rgba(0,0,0,0.6);
+  line-height: 1.1;
+}
+
+.headerSub {
+  font-size: 11px;
+  font-weight: 500;
+  color: rgba(255,255,255,0.4);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
 }
 
 .closeBtn {
   width: 30px;
   height: 30px;
   border-radius: 50%;
-  background: rgba(0,0,0,0.35);
-  border: none;
-  color: rgba(255,255,255,0.7);
+  background: rgba(192, 0, 42, 0.2);
+  border: 1px solid rgba(192, 0, 42, 0.4);
+  color: #ff4444;
   font-size: 14px;
   display: flex;
   align-items: center;
   justify-content: center;
   cursor: pointer;
   -webkit-tap-highlight-color: transparent;
+  transition: background 0.15s;
 }
+
+.closeBtn:active { background: rgba(192, 0, 42, 0.4); }
 
 .empty {
   position: relative;

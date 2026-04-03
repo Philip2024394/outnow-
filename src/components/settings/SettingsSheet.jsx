@@ -118,7 +118,6 @@ export default function SettingsSheet({ open, onClose, onOpenLikes, onEditProfil
 
         {/* Drawer — slides in from right at 70% width */}
         <div ref={drawerRef} className={styles.drawer}>
-          <img src="https://ik.imagekit.io/dateme/UntitledDFSDFASDFDFGSDFGsfdfasdsadas.png?updatedAt=1775081066476" alt="" className={styles.drawerBg} />
 
           {/* Header */}
           <div className={styles.header}>

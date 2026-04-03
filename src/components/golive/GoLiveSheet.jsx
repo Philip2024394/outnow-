@@ -144,7 +144,7 @@ export default function GoLiveSheet({ open, onClose, showToast, activeVenues = [
           title="Group Outing"
           bullets={[
             'Going out with friends? Let others know you\'re a group',
-            'People can OTW to join your whole group, not just you',
+            'People can request to join your whole group, not just you',
             'Anonymous members show as "Friend" to protect their privacy',
           ]}
           onDone={dismissGroupIntro}
@@ -190,7 +190,7 @@ export default function GoLiveSheet({ open, onClose, showToast, activeVenues = [
                 <button
                   key={d.value.toDateString()}
                   className={[styles.dayBtn, selectedDay?.toDateString() === d.value.toDateString() ? styles.dayBtnActive : ''].join(' ')}
-                  onClick={() => { setSelectedDay(d.value); setSelectedTime(null) }}
+                  onClick={() => { setSelectedDay(d.value); setTimeHour('08'); setTimeMinute('00'); setTimeAmPm('PM') }}
                 >
                   {d.label}
                 </button>
