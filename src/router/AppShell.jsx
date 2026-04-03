@@ -262,29 +262,7 @@ export default function AppShell({ returnParams, triggerGoLive }) {
 
   const mapSessions = visibleSessions
 
-  // When our "Let's Meet" request gets accepted → open chat immediately
-  useEffect(() => {
-    if (!acceptedMeetSession) return
-    const _src = sessions.find(s => s.id === acceptedMeetSession.sessionId)
-    const conv = {
-      id: `meet-${acceptedMeetSession.sessionId ?? acceptedMeetSession.id}`,
-      userId: acceptedMeetSession.fromUserId ?? 'unknown',
-      displayName: acceptedMeetSession.fromDisplayName ?? 'New Match',
-      photoURL: acceptedMeetSession.fromPhotoURL ?? null,
-      age: _src?.age ?? null,
-      area: _src?.area ?? _src?.city ?? null,
-      emoji: '💌',
-      online: true,
-      status: 'free',
-      openedAt: Date.now(),
-      lastMessage: null,
-      lastMessageTime: Date.now(),
-      unread: 0,
-      messages: [],
-    }
-    setPendingConv(conv)
-    setActiveTab('chat') // mount ChatScreen immediately so pendingConv is received
-  }, [acceptedMeetSession]) // eslint-disable-line
+  // acceptedMeetSession — banner shown, chat opened only when user taps it
 
   // Cap visible sessions at 50 nearest to map center.
   // The current user's own session is always included regardless of distance.
