@@ -125,8 +125,8 @@ export default function ProfileScreen({ onClose }) {
 
       <div className={styles.scroll}>
 
-        {/* ── Profile card ── */}
-        <div className={styles.profileCard}>
+        {/* ── Hero ── */}
+        <div className={styles.hero}>
 
           {/* No-photo nudge — shown when user hasn't uploaded a photo */}
           {!photoURL && (
