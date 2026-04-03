@@ -432,7 +432,27 @@ export default function AppShell({ returnParams, triggerGoLive }) {
       {acceptedMeetSession && !incomingMeetRequest && (
         <MeetAcceptedBanner
           session={acceptedMeetSession}
-          onTapToChat={clearAccepted}
+          onTapToChat={() => {
+            const _src = sessions.find(s => s.id === acceptedMeetSession.sessionId)
+            setPendingConv({
+              id: `meet-${acceptedMeetSession.sessionId ?? acceptedMeetSession.id}`,
+              userId: acceptedMeetSession.fromUserId ?? 'unknown',
+              displayName: acceptedMeetSession.fromDisplayName ?? 'New Match',
+              photoURL: acceptedMeetSession.fromPhotoURL ?? null,
+              age: _src?.age ?? null,
+              area: _src?.area ?? _src?.city ?? null,
+              emoji: '💌',
+              online: true,
+              status: 'free',
+              openedAt: Date.now(),
+              lastMessage: null,
+              lastMessageTime: Date.now(),
+              unread: 0,
+              messages: [],
+            })
+            setActiveTab('chat')
+            clearAccepted()
+          }}
           onDismiss={clearAccepted}
         />
       )}
