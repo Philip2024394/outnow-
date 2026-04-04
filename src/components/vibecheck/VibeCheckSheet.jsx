@@ -1,6 +1,8 @@
 import { useState, useEffect } from 'react'
 import { useCoins } from '@/hooks/useCoins'
 import { formatDistance } from '@/utils/distance'
+import { activityEmoji } from '@/firebase/collections'
+import { lookingForText } from '@/utils/lookingForLabels'
 import styles from './VibeCheckSheet.module.css'
 
 const COINS_PER_VOTE     = 2
@@ -158,13 +160,11 @@ export default function VibeCheckSheet({ open, sessions = [], onClose, onVibeYes
             <div className={styles.meta}>
               {current.activityType && (
                 <span className={styles.metaItem}>
-                  {current.activityType === 'drinks'  ? '🍹' :
-                   current.activityType === 'food'    ? '🍽️' :
-                   current.activityType === 'coffee'  ? '☕' :
-                   current.activityType === 'dancing' ? '💃' :
-                   current.activityType === 'culture' ? '🎨' : '✨'}
-                  {' '}{current.activityType.charAt(0).toUpperCase() + current.activityType.slice(1)}
+                  {activityEmoji(current.activityType)} {current.activityType.charAt(0).toUpperCase() + current.activityType.slice(1)}
                 </span>
+              )}
+              {current.lookingFor && (
+                <span className={styles.metaItem}>{lookingForText(current.lookingFor)}</span>
               )}
               {(current.city || current.area) && (
                 <span className={styles.metaItem}>📍 {current.city ?? current.area}</span>

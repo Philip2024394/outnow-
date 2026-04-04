@@ -6,6 +6,8 @@ import { useVenueUnlock } from '@/hooks/useVenueUnlock'
 import { useInterests } from '@/hooks/useInterests'
 import { sortByRelevance } from '@/utils/sessionScore'
 import { useLiveUsers } from '@/hooks/useLiveUsers'
+import { useGeolocation } from '@/hooks/useGeolocation'
+import { haversineKm } from '@/utils/distance'
 import { useMeetRequests } from '@/hooks/useMeetRequests'
 
 import { useInviteOut } from '@/hooks/useInviteOut'
@@ -104,7 +106,18 @@ export default function AppShell({ returnParams, triggerGoLive }) {
   const { incomingMeetRequest, acceptedMeetSession, simulateAcceptance, clearAccepted, clearIncoming } = useMeetRequests()
   const [pendingConv, setPendingConv] = useState(null)
   const [declinedUserIds, setDeclinedUserIds] = useState(new Set())
-  const { sessions } = useLiveUsers()
+  const { sessions: rawSessions } = useLiveUsers()
+  const { coords: viewerCoords } = useGeolocation()
+
+  // Attach distanceKm to every session using viewer's GPS position
+  const sessions = useMemo(() =>
+    rawSessions.map(s => ({
+      ...s,
+      distanceKm: (viewerCoords && s.lat != null && s.lng != null)
+        ? haversineKm(viewerCoords.lat, viewerCoords.lng, s.lat, s.lng)
+        : s.distanceKm ?? null,
+    })),
+  [rawSessions, viewerCoords])
   const { moments, addMoment } = useMoments()
   useNotifications()
   const [toast, setToast] = useState(null)

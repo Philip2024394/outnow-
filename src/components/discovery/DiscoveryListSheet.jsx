@@ -2,6 +2,7 @@ import { useEffect, useRef } from 'react'
 import Avatar from '@/components/ui/Avatar'
 import { ACTIVITY_TYPES } from '@/firebase/collections'
 import { lookingForText } from '@/utils/lookingForLabels'
+import { formatDistance } from '@/utils/distance'
 import ActivityIcon from '@/components/ui/ActivityIcon'
 import styles from './DiscoveryListSheet.module.css'
 
@@ -86,12 +87,12 @@ export default function DiscoveryListSheet({ open, filter = 'now', sessions = []
                   <span className={styles.inviteSub}>Plan ahead — see who's going out soon</span>
                 </div>
               ) : (
-                <>
-                  <span className={`${styles.badge} ${cfg.badge}`}>{cfg.label}</span>
-                  <span className={styles.count}>{filtered.length} {filtered.length === 1 ? 'person' : 'people'}</span>
-                </>
+                <span className={`${styles.badge} ${cfg.badge}`}>{cfg.label}</span>
               )}
             </div>
+            <span className={styles.count}>
+              {filtered.length} {filtered.length === 1 ? 'person' : 'people'}
+            </span>
           </div>
 
           {/* Profile cards */}
@@ -130,6 +131,9 @@ export default function DiscoveryListSheet({ open, filter = 'now', sessions = []
                       )}
                       <div className={styles.cardArea}>
                         📍 {s.city ?? s.area ?? 'Nearby'}
+                        {formatDistance(s.distanceKm) && (
+                          <span className={styles.cardDistance}> · {formatDistance(s.distanceKm)}</span>
+                        )}
                       </div>
                     </div>
                     <div className={styles.cardRight}>
