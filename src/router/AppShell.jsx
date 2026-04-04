@@ -99,7 +99,7 @@ export default function AppShell({ returnParams, triggerGoLive }) {
   const { triggerGate } = useGuestGate()
   const isGuest = !user
   const { session: mySession, needsCheckIn } = useMySession()
-  const { showBanner: showCheckIn, handleStillOut, handleLeaving } = useStatusCheckIn(mySession)
+  const { showBanner: showCheckIn, bannerReason, handleStillOut, handleLeaving } = useStatusCheckIn(mySession)
   const { incomingInterests, mutualSessions } = useInterests()
   const { incomingMeetRequest, acceptedMeetSession, simulateAcceptance, clearAccepted, clearIncoming } = useMeetRequests()
   const [pendingConv, setPendingConv] = useState(null)
@@ -479,7 +479,7 @@ export default function AppShell({ returnParams, triggerGoLive }) {
 
       {showCheckIn && (
         <StatusCheckInBanner
-          session={mySession}
+          reason={bannerReason}
           onStillOut={handleStillOut}
           onLeaving={handleLeaving}
         />

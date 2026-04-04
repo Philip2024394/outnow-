@@ -1,14 +1,29 @@
 import styles from './StatusCheckInBanner.module.css'
 
-export default function StatusCheckInBanner({ session, onStillOut, onLeaving }) {
+const CONTENT = {
+  time: {
+    icon:    '🌙',
+    title:   'Still out?',
+    sub:     "You've been out for a while — tap below so we keep showing your profile to people nearby.",
+    autoNote: "No response in 3 hours and we'll automatically switch you to Invite Out so you still appear on the map.",
+  },
+  location: {
+    icon:    '📍',
+    title:   'You\'ve moved',
+    sub:     "Looks like you've left your venue. Are you still out tonight? Tap below and we'll update your location.",
+    autoNote: "No response in 5 minutes and we'll automatically switch you to Invite Out.",
+  },
+}
+
+export default function StatusCheckInBanner({ reason = 'time', onStillOut, onLeaving }) {
+  const c = CONTENT[reason] ?? CONTENT.time
+
   return (
     <div className={styles.overlay}>
       <div className={styles.card}>
-        <div className={styles.moon}>🌙</div>
-        <h2 className={styles.title}>Still out?</h2>
-        <p className={styles.sub}>
-          You've been out for a while — tap below so we keep showing your profile to people nearby.
-        </p>
+        <div className={styles.moon}>{c.icon}</div>
+        <h2 className={styles.title}>{c.title}</h2>
+        <p className={styles.sub}>{c.sub}</p>
 
         <div className={styles.btnRow}>
           <button className={styles.btnOut} onClick={onStillOut}>
@@ -21,9 +36,7 @@ export default function StatusCheckInBanner({ session, onStillOut, onLeaving }) 
           </button>
         </div>
 
-        <p className={styles.autoNote}>
-          No response in 3 hours and we&apos;ll automatically switch you to <strong>Invite Out</strong> so you still appear on the map.
-        </p>
+        <p className={styles.autoNote}>{c.autoNote}</p>
       </div>
     </div>
   )
