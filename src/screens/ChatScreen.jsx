@@ -90,7 +90,13 @@ export default function ChatScreen({ onClose, pendingConv, openConvId }) {
                   : <span className={styles.avatarEmoji}>{conv.emoji ?? '💬'}</span>
                 }
               </div>
-              {conv.online && <span className={styles.onlineDot} />}
+              {conv.sessionStatus && (
+                <span className={[
+                  styles.statusDot,
+                  conv.sessionStatus === 'active' || conv.sessionStatus === 'live' ? styles.dotLive :
+                  conv.sessionStatus === 'invite_out' ? styles.dotInvite : styles.dotLater
+                ].join(' ')} />
+              )}
             </div>
 
             {/* Info */}

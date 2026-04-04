@@ -54,24 +54,44 @@ export function AuthProvider({ children }) {
 
       const { data } = await supabase
         .from('profiles')
-        .select('display_name, photo_url, age, dob, bio, city, country, activities, looking_for, coins, tier, extra_photos')
+        .select(`
+          display_name, photo_url, age, dob, bio, city, country,
+          activities, looking_for, coins, tier, extra_photos,
+          speaking_native, speaking_second,
+          price_min, price_max, brand_name, trade_role, market,
+          relationship_goal, star_sign, height,
+          photo_offset_x, photo_offset_y, photo_zoom
+        `)
         .eq('id', authUser.id)
         .single()
 
       if (data) {
         setUserProfile({
-          displayName:  data.display_name ?? authUser.displayName,
-          photoURL:     data.photo_url ?? null,
-          age:          data.age ?? null,
-          dob:          data.dob ?? null,
-          bio:          data.bio ?? '',
-          city:         data.city ?? '',
-          country:      data.country ?? '',
-          activities:   data.activities ?? [],
-          lookingFor:   data.looking_for ?? '',
-          coins:        data.coins ?? 0,
-          tier:         data.tier ?? null,
-          extraPhotos:  data.extra_photos ?? [],
+          displayName:      data.display_name ?? authUser.displayName,
+          photoURL:         data.photo_url ?? null,
+          age:              data.age ?? null,
+          dob:              data.dob ?? null,
+          bio:              data.bio ?? '',
+          city:             data.city ?? '',
+          country:          data.country ?? '',
+          activities:       data.activities ?? [],
+          lookingFor:       data.looking_for ?? '',
+          coins:            data.coins ?? 0,
+          tier:             data.tier ?? null,
+          extraPhotos:      data.extra_photos ?? [],
+          speakingNative:   data.speaking_native ?? '',
+          speakingSecond:   data.speaking_second ?? '',
+          priceMin:         data.price_min ?? '',
+          priceMax:         data.price_max ?? '',
+          brandName:        data.brand_name ?? '',
+          tradeRole:        data.trade_role ?? '',
+          market:           data.market ?? '',
+          relationshipGoal: data.relationship_goal ?? '',
+          starSign:         data.star_sign ?? '',
+          height:           data.height ?? '',
+          photoOffsetX:     data.photo_offset_x ?? 50,
+          photoOffsetY:     data.photo_offset_y ?? 50,
+          photoZoom:        data.photo_zoom ?? 1,
         })
       }
     } catch {

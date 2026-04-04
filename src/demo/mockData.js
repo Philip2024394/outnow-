@@ -7,9 +7,16 @@ const BASE_LNG = -0.1278
 function offset(minM, maxM) {
   const r = (Math.random() * (maxM - minM) + minM) / 111320
   const angle = Math.random() * 2 * Math.PI
+  const lat = BASE_LAT + r * Math.cos(angle)
+  const lng = BASE_LNG + r * Math.sin(angle) / Math.cos(BASE_LAT * Math.PI / 180)
+  // Add a small secondary fuzz so the map pin doesn't sit on the exact session coord
+  const r2 = (Math.random() * 300 + 200) / 111320
+  const a2 = Math.random() * 2 * Math.PI
   return {
-    lat: BASE_LAT + r * Math.cos(angle),
-    lng: BASE_LNG + r * Math.sin(angle) / Math.cos(BASE_LAT * Math.PI / 180),
+    lat,
+    lng,
+    fuzzedLat: lat + r2 * Math.cos(a2),
+    fuzzedLng: lng + r2 * Math.sin(a2) / Math.cos(lat * Math.PI / 180),
   }
 }
 
@@ -230,13 +237,23 @@ export const DEMO_INVITE_OUT_SESSIONS = [
   {
     id: 'demo-invite-1', userId: 'demo-user-10',
     isSeeded: true,
+    userJoinedAt: new Date('2025-08-14').getTime(),
     displayName: 'Zara', age: 26,
-    photoURL: 'https://ik.imagekit.io/nepgaxllc/uk5.png',
+    photoURL: null,
+    photos: ['https://ik.imagekit.io/nepgaxllc/Untitledsdfasdfddd.png', 'https://ik.imagekit.io/nepgaxllc/Untitledsdfasdfdddfsdfsd.png'],
+    isVerified: true,
+    market: 'Local & Export',
+    brandName: 'Zara Clothes',
+    tradeRole: 'selling',
+    priceMin: 'Rp 12.000',
+    priceMax: 'Rp 24.000',
+    speakingNative: 'Indonesian',
+    speakingSecond: 'English',
     gender: 'female',
-    bio: 'Always up for a spontaneous evening 🍸',
-    activityType: 'drinks',
-    activities: ['drinks', 'hangout', 'food'],
-    lookingFor: 'Dating',
+    bio: 'I am a designer and fabric maker for shoes and hats of all types with any fabric selection. Please contact me for any request, I am always happy to meet and discuss the possibility to work together.',
+    activityType: 'dress_making',
+    activities: ['dress_making', 'fashion_design', 'sewing'],
+    lookingFor: 'handmade',
     area: 'Shoreditch', city: 'London',
     distanceKm: 0.5,
     status: 'invite_out',
@@ -246,13 +263,17 @@ export const DEMO_INVITE_OUT_SESSIONS = [
   {
     id: 'demo-invite-2', userId: 'demo-user-11',
     isSeeded: true,
+    userJoinedAt: new Date('2025-10-03').getTime(),
     displayName: 'Daisy', age: 29,
     photoURL: 'https://ik.imagekit.io/nepgaxllc/uk4.png',
     gender: 'female',
     bio: 'Obsessed with finding hidden gem restaurants 🍝',
     activityType: 'food',
     activities: ['food', 'drinks', 'culture'],
-    lookingFor: 'Dating',
+    lookingFor: 'dating',
+    relationshipGoal: 'open',
+    starSign: 'Libra',
+    height: '5\'6"',
     area: 'Soho', city: 'London',
     distanceKm: 1.9,
     status: 'invite_out',
@@ -262,6 +283,7 @@ export const DEMO_INVITE_OUT_SESSIONS = [
   {
     id: 'demo-invite-3', userId: 'demo-user-12',
     isSeeded: true,
+    userJoinedAt: new Date('2025-11-20').getTime(),
     displayName: 'Freya', age: 24,
     photoURL: 'https://ik.imagekit.io/nepgaxllc/uk6.png',
     gender: 'female',
@@ -278,6 +300,7 @@ export const DEMO_INVITE_OUT_SESSIONS = [
   {
     id: 'demo-invite-4', userId: 'demo-user-13',
     isSeeded: true,
+    userJoinedAt: new Date('2026-01-07').getTime(),
     displayName: 'Imogen', age: 32,
     photoURL: 'https://ik.imagekit.io/nepgaxllc/uk9.png',
     gender: 'female',
@@ -294,6 +317,7 @@ export const DEMO_INVITE_OUT_SESSIONS = [
   {
     id: 'demo-invite-5', userId: 'demo-user-14',
     isSeeded: true,
+    userJoinedAt: new Date('2026-02-19').getTime(),
     displayName: 'Rosie', age: 27,
     photoURL: 'https://ik.imagekit.io/nepgaxllc/uk10.png',
     gender: 'female',

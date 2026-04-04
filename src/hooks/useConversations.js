@@ -52,7 +52,25 @@ export function useConversations() {
       if (!mounted) return
       if (error) { setLoading(false); return }
 
-      setConversations((data ?? []).map(row => mapConv(row, user.id)))
+      const convs = (data ?? []).map(row => mapConv(row, user.id))
+
+      // Fetch active session status for each conversation partner
+      const partnerIds = convs.map(c => c.userId).filter(Boolean)
+      if (partnerIds.length > 0) {
+        const { data: sessions } = await supabase
+          .from('sessions')
+          .select('user_id, status')
+          .in('user_id', partnerIds)
+          .in('status', ['active', 'live', 'invite_out', 'scheduled'])
+
+        if (mounted && sessions) {
+          const statusMap = Object.fromEntries(sessions.map(s => [s.user_id, s.status]))
+          convs.forEach(c => { c.sessionStatus = statusMap[c.userId] ?? null })
+        }
+      }
+
+      if (!mounted) return
+      setConversations(convs)
       setLoading(false)
     }
 

@@ -7,30 +7,21 @@
   overflow: hidden;
 }
 
-/* ── Hero image ── */
 .hero {
   position: absolute;
-  inset: 0;
+  top: 0;
+  left: 0;
   width: 100%;
-  height: 100%;
-  object-fit: cover;
-  object-position: center top;
+  height: auto;
+  object-fit: contain;
+  object-position: top center;
 }
 
-/* Gradient overlay — light at top, heavy at bottom */
 .overlay {
-  position: absolute;
-  inset: 0;
-  background: linear-gradient(
-    to bottom,
-    rgba(8, 8, 8, 0.25) 0%,
-    rgba(8, 8, 8, 0.15) 30%,
-    rgba(8, 8, 8, 0.7)  60%,
-    rgba(8, 8, 8, 0.97) 100%
-  );
+  display: none;
 }
 
-/* ── Logo area ── */
+/* ── Logo ── */
 .logoWrap {
   position: relative;
   z-index: 2;
@@ -44,270 +35,119 @@
 }
 
 .logo {
-  height: 72px;
+  height: 50px;
   width: auto;
   object-fit: contain;
-  filter: drop-shadow(0 0 20px rgba(141,198,63,0.35));
 }
 
 .tagline {
-  font-size: 14px;
-  font-weight: 600;
-  color: rgba(255,255,255,0.65);
-  letter-spacing: 0.02em;
+  font-size: 17px;
+  font-weight: 700;
+  color: #ffffff;
+  letter-spacing: -0.01em;
   text-align: center;
 }
 
-/* ── Sign-in panel ── */
+/* ── Bottom panel ── */
 .panel {
   position: relative;
   z-index: 2;
   display: flex;
   flex-direction: column;
+  align-items: center;
   gap: 12px;
-  padding: 24px 20px calc(var(--safe-bottom) + 16px);
-  background: rgba(10, 10, 10, 0.6);
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
-  border-top: 1px solid rgba(255,255,255,0.08);
+  padding: 20px 20px 0;
 }
 
-/* ── Email form ── */
-.form {
+.footer {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  z-index: 2;
   display: flex;
   flex-direction: column;
-  gap: 10px;
-}
-
-.input {
-  width: 100%;
-  box-sizing: border-box;
-  background: rgba(255,255,255,0.07);
-  border: 1.5px solid rgba(255,255,255,0.12);
-  border-radius: 12px;
-  color: #fff;
-  font-size: 15px;
-  font-family: var(--font-sans);
-  padding: 14px 16px;
-  outline: none;
-  transition: border-color 0.15s;
-}
-
-.input::placeholder {
-  color: rgba(255,255,255,0.3);
-}
-
-.input:focus {
-  border-color: rgba(141,198,63,0.45);
-}
-
-.passwordWrap {
-  position: relative;
-  display: flex;
   align-items: center;
+  gap: 12px;
+  padding: 16px 20px calc(var(--safe-bottom) + 16px);
 }
 
-.passwordWrap .input {
-  padding-right: 46px;
-}
-
-.eyeBtn {
-  position: absolute;
-  right: 14px;
-  background: none;
-  border: none;
-  font-size: 16px;
-  cursor: pointer;
-  padding: 0;
-  line-height: 1;
-  opacity: 0.6;
-}
-
-.signInBtn {
+/* ── Members block ── */
+.membersBlock {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 8px;
   width: 100%;
-  padding: 15px;
+}
+
+.memberAvatars {
+  display: flex;
+}
+
+.memberAvatar {
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2px solid #080808;
+  margin-left: -6px;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.5);
+}
+
+.memberAvatar:first-child {
+  margin-left: 0;
+}
+
+.membersLabel {
+  font-size: 12px;
+  font-weight: 700;
+  color: rgba(255,255,255,0.75);
+  letter-spacing: 0.01em;
+  margin: 0;
+  text-align: left;
+}
+
+/* ── Enter button ── */
+.enterBtn {
+  width: 100%;
+  padding: 16px;
   background: #8DC63F;
   color: #080808;
-  font-size: 15px;
-  font-weight: 800;
+  font-size: 16px;
+  font-weight: 900;
   border: none;
-  border-radius: 12px;
+  border-radius: 14px;
   cursor: pointer;
   font-family: var(--font-sans);
-  box-shadow: 0 0 18px rgba(141,198,63,0.3);
+  letter-spacing: 0.03em;
+  box-shadow: 0 0 24px rgba(141,198,63,0.35);
   transition: opacity 0.15s, transform 0.12s;
 }
 
-.signInBtn:disabled {
-  opacity: 0.4;
-  cursor: default;
-  box-shadow: none;
-}
-
-.signInBtn:not(:disabled):active {
+.enterBtn:active {
   opacity: 0.9;
   transform: scale(0.98);
 }
 
-/* ── Divider ── */
-.divider {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-}
-
-.dividerLine {
-  flex: 1;
-  height: 1px;
-  background: rgba(255,255,255,0.1);
-}
-
-.dividerText {
-  font-size: 12px;
-  font-weight: 600;
-  color: rgba(255,255,255,0.3);
-  text-transform: uppercase;
-  letter-spacing: 0.06em;
-}
-
-/* ── Social buttons ── */
-.googleBtn {
-  width: 100%;
-  padding: 14px 16px;
-  background: #ffffff;
-  color: #1a1a1a;
-  font-size: 14px;
-  font-weight: 700;
-  border: none;
-  border-radius: 12px;
-  cursor: pointer;
-  font-family: var(--font-sans);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 10px;
-  transition: opacity 0.15s;
-}
-
-.googleBtn:disabled { opacity: 0.6; cursor: default; }
-.googleBtn:not(:disabled):active { opacity: 0.88; }
-
-.phoneBtn {
-  width: 100%;
-  padding: 14px 16px;
-  background: rgba(255,255,255,0.06);
-  color: rgba(255,255,255,0.8);
-  font-size: 14px;
-  font-weight: 700;
-  border: 1.5px solid rgba(255,255,255,0.12);
-  border-radius: 12px;
-  cursor: pointer;
-  font-family: var(--font-sans);
-  transition: background 0.15s;
-}
-
-.phoneBtn:active { background: rgba(255,255,255,0.1); }
-
 /* ── Footer ── */
 .terms {
   font-size: 11px;
-  color: rgba(255,255,255,0.25);
+  color: rgba(255,255,255,0.22);
   text-align: center;
   line-height: 1.5;
   margin: 0;
 }
 
-.error {
-  background: rgba(255,59,48,0.12);
-  border: 1px solid rgba(255,59,48,0.3);
-  border-radius: 10px;
-  padding: 10px 14px;
-  font-size: 13px;
-  font-weight: 600;
-  color: #FF6B6B;
-  text-align: center;
-}
-
-/* ── Dev preview button ── */
+/* ── Admin (hidden-ish) ── */
 .devBtn {
-  color: rgba(255,255,255,0.25);
-  font-size: 12px;
+  color: rgba(255,255,255,0.15);
+  font-size: 11px;
   text-align: center;
-  padding: var(--space-1) var(--space-3);
-  border: 1px dashed rgba(255,255,255,0.12);
-  border-radius: var(--radius-sm);
-  font-family: monospace;
-}
-
-/* ── Browse as guest ── */
-.browseBtn {
-  color: var(--color-text-muted);
-  font-size: var(--font-size-sm);
-  text-align: center;
-  padding: var(--space-2) var(--space-4);
-  text-decoration: underline;
-  opacity: 0.7;
-}
-
-/* ── Email step helpers ── */
-.emailRow {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  background: rgba(255,255,255,0.05);
-  border: 1px solid rgba(255,255,255,0.1);
-  border-radius: 10px;
-  padding: 10px 14px;
-}
-
-.emailDisplay {
-  font-size: 14px;
-  color: rgba(255,255,255,0.75);
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-.changeBtn {
-  background: none;
-  border: none;
-  color: #8DC63F;
-  font-size: 13px;
-  font-weight: 700;
-  cursor: pointer;
-  padding: 0;
-  flex-shrink: 0;
-  margin-left: 10px;
-}
-
-.stepLabel {
-  font-size: 13px;
-  color: rgba(255,255,255,0.5);
-  margin: 0;
-  text-align: center;
-}
-
-.switchBtn {
-  background: none;
-  border: none;
-  color: rgba(255,255,255,0.45);
-  font-size: 13px;
-  cursor: pointer;
-  text-align: center;
-  padding: 4px 0;
-  font-family: var(--font-sans);
-  text-decoration: underline;
-}
-
-/* ── Admin pass ── */
-.adminBtn {
-  align-self: center;
-  background: none;
-  border: none;
-  color: transparent;
-  cursor: default;
   padding: 4px 8px;
-  -webkit-tap-highlight-color: transparent;
-  user-select: none;
-  pointer-events: none;
+  border: 1px dashed rgba(255,255,255,0.08);
+  border-radius: 6px;
+  font-family: monospace;
+  background: none;
+  cursor: pointer;
 }

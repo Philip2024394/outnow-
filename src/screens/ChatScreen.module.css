@@ -126,23 +126,20 @@
   font-size: 24px;
 }
 
-.onlineDot {
+/* Status dot — small indicator bottom-right of avatar */
+.statusDot {
   position: absolute;
   bottom: 2px;
   right: 2px;
   width: 12px;
   height: 12px;
-  background: #8DC63F;
   border-radius: 50%;
   border: 2px solid var(--color-bg);
-  box-shadow: 0 0 6px #8DC63F;
-  animation: online-pulse 1.8s ease-in-out infinite;
 }
 
-@keyframes online-pulse {
-  0%, 100% { opacity: 1; }
-  50%       { opacity: 0.4; }
-}
+.dotLive   { background: #8DC63F; box-shadow: 0 0 5px rgba(141,198,63,0.7); }
+.dotInvite { background: #F5C518; box-shadow: 0 0 5px rgba(245,197,24,0.7); }
+.dotLater  { background: #E8890C; box-shadow: 0 0 5px rgba(232,137,12,0.7); }
 
 /* Conversation info */
 .convInfo {

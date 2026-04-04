@@ -16,8 +16,9 @@ function timeAgo(ms) {
 
 // Notification type → emoji
 const NOTIF_EMOJI = {
-  match:   '🔥',
-  like:    '❤️',
+  connect: '🤝',
+  match:   '🤝', // legacy
+  like:    '👋',
   wave:    '👋',
   gift:    '🎁',
   system:  '🛡️',
@@ -72,8 +73,8 @@ export default function NotificationsScreen({ onClose }) {
         </div>
         <div className={styles.statDivider} />
         <div className={styles.statChip}>
-          <span className={styles.statNum}>{notifications.filter(n => n.type === 'match').length || '—'}</span>
-          <span className={styles.statMeta}>Matches</span>
+          <span className={styles.statNum}>{notifications.filter(n => n.type === 'connect' || n.type === 'match').length || '—'}</span>
+          <span className={styles.statMeta}>Connections</span>
         </div>
       </div>
 

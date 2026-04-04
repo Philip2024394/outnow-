@@ -245,6 +245,31 @@
 .upgradeSub   { font-size: 11px; color: rgba(141,198,63,0.55); }
 .upgradeArrow { font-size: 18px; color: rgba(141,198,63,0.5); }
 
+.verifiedRow {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  padding: 14px 16px;
+  background: rgba(245,197,24,0.06);
+  border: 1px solid rgba(245,197,24,0.25);
+  border-radius: 12px;
+  margin-bottom: 8px;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  transition: background 0.15s;
+}
+.verifiedRow:active { background: rgba(245,197,24,0.12); }
+.verifiedRowText {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  text-align: left;
+}
+.verifiedRowLabel { font-size: 14px; font-weight: 700; color: #F5C518; }
+.verifiedRowSub   { font-size: 11px; color: rgba(245,197,24,0.5); }
+
 /* Toggle switch */
 .toggle {
   width: 40px;

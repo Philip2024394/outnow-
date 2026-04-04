@@ -1,0 +1,114 @@
+/* ── MakerCard — Handmade · Property · Professional layout ── */
+.wrapper { position: fixed; inset: 0; z-index: var(--z-sheet); pointer-events: none; }
+.backdrop { position: absolute; inset: 0; background: rgba(0,0,0,0.5); pointer-events: all; animation: fade-in 0.2s forwards; }
+@keyframes fade-in { from { opacity: 0; } to { opacity: 1; } }
+
+.sheet {
+  position: absolute; bottom: 0; left: 0; right: 0;
+  border-radius: 20px 20px 0 0;
+  border-top: 3px solid var(--status-color, #F5C518);
+  height: 88dvh; display: flex; flex-direction: column;
+  overflow: hidden; pointer-events: all;
+  animation: slide-up 0.32s cubic-bezier(0.32,0.72,0,1) forwards;
+  background: #0e0e0e;
+}
+@keyframes slide-up { from { transform: translateY(100%); } to { transform: translateY(0); } }
+
+.handle { width: 36px; height: 4px; background: #F5C518; border-radius: 100px; margin: 12px auto 0; flex-shrink: 0; cursor: pointer; }
+
+.scrollContent {
+  flex: 1; overflow: hidden; display: flex; flex-direction: column;
+  padding: 4px 20px calc(env(safe-area-inset-bottom, 0px) + 12px);
+}
+.card { display: flex; flex-direction: column; flex: 1; min-height: 0; gap: 6px; }
+
+/* Category header */
+.categoryHeader { display: flex; align-items: center; gap: 10px; padding: 8px 4px 2px; }
+.categoryEmoji { font-size: 26px; line-height: 1; }
+.categoryLabel { display: block; font-size: 17px; font-weight: 800; color: #F5C518; line-height: 1.1; }
+.categorySlogan { display: block; font-size: 11px; color: rgba(255,255,255,0.45); font-weight: 500; margin-top: 1px; }
+
+/* Photo banner */
+.photoBanner { position: relative; width: calc(100% - 16px); margin: 4px auto 0; flex: 1; min-height: 0; border-radius: 14px; overflow: hidden; border: 2px solid #F5C518; }
+.photoBannerImg { width: 100%; height: 100%; object-fit: cover; object-position: center top; display: block; animation: photo-fade 0.25s ease; }
+@keyframes photo-fade { from { opacity: 0.5; transform: scale(1.03); } to { opacity: 1; transform: scale(1); } }
+.photoBanner::after { content: ''; position: absolute; inset: 0; background: linear-gradient(to bottom, transparent 45%, rgba(0,0,0,0.75) 100%); pointer-events: none; }
+.photoBannerMeta { position: absolute; bottom: 10px; left: 12px; z-index: 2; display: flex; flex-direction: column; align-items: flex-start; gap: 2px; }
+.verifiedBadge { display: flex; align-items: center; gap: 4px; background: rgba(0,0,0,0.45); backdrop-filter: blur(6px); border: 1px solid rgba(245,197,24,0.5); border-radius: 100px; padding: 3px 8px 3px 6px; margin-bottom: 2px; }
+.verifiedText { font-size: 10px; font-weight: 800; color: #F5C518; letter-spacing: 0.06em; }
+.photoBannerName { font-size: 18px; font-weight: 800; color: #fff; line-height: 1.1; text-shadow: 0 1px 4px rgba(0,0,0,0.8); display: flex; align-items: center; gap: 2px; }
+.photoBannerAge { font-weight: 600; }
+.photoBannerCity { font-size: 12px; color: rgba(255,255,255,0.75); font-weight: 500; text-shadow: 0 1px 3px rgba(0,0,0,0.7); }
+.photoBannerDist { position: absolute; top: 10px; left: 10px; z-index: 2; background: rgba(0,0,0,0.55); backdrop-filter: blur(6px); border-radius: 100px; padding: 4px 10px; font-size: 12px; font-weight: 600; color: #fff; }
+
+/* Live dot */
+.liveDot { display: inline-block; width: 8px; height: 8px; background: #8DC63F; border-radius: 50%; margin-left: 6px; box-shadow: 0 0 6px #8DC63F; vertical-align: middle; animation: live-dot-flash 1.4s ease-in-out infinite; flex-shrink: 0; }
+.liveDotInvite { background: #F5C518; box-shadow: 0 0 6px #F5C518; }
+.liveDotLater  { background: #E8890C; box-shadow: 0 0 6px #E8890C; }
+@keyframes live-dot-flash { 0%,100% { opacity:1; transform:scale(1); } 50% { opacity:0.35; transform:scale(0.7); } }
+
+/* Buttons on photo */
+.fingerprintBtn { position: absolute; bottom: 10px; right: 10px; z-index: 3; width: 34px; height: 34px; border-radius: 50%; background: rgba(0,0,0,0.4); backdrop-filter: blur(6px); border: 1.5px solid rgba(255,255,255,0.18); display: flex; align-items: center; justify-content: center; cursor: pointer; -webkit-tap-highlight-color: transparent; }
+.likeBtn { position: absolute; top: 10px; right: 10px; z-index: 3; width: 36px; height: 36px; border-radius: 50%; background: rgba(0,0,0,0.4); backdrop-filter: blur(6px); border: 1.5px solid rgba(255,255,255,0.18); display: flex; align-items: center; justify-content: center; cursor: pointer; transition: background 0.15s; -webkit-tap-highlight-color: transparent; }
+.likeBtnActive { background: #e0314b; border-color: #e0314b; }
+.floatingHeart { position: absolute; z-index: 10; animation: float-up 1.8s ease-out forwards; pointer-events: none; }
+@keyframes float-up { 0% { transform: translateY(0) scale(1); opacity: 1; } 100% { transform: translateY(-90px) scale(1.4); opacity: 0; } }
+
+/* Info rows */
+.infoRow { display: flex; align-items: center; gap: 8px; padding: 4px 4px; border-bottom: 1px solid rgba(255,255,255,0.05); }
+.infoLabel { font-size: 12px; font-weight: 600; color: rgba(255,255,255,0.4); min-width: 76px; flex-shrink: 0; }
+.infoValue { font-size: 13px; font-weight: 600; color: #fff; }
+
+/* Bio snippet */
+.bioSnippet { background: none; border: none; text-align: left; cursor: pointer; padding: 6px 4px; width: 100%; -webkit-tap-highlight-color: transparent; }
+.bioSnippetText { font-size: 13px; color: rgba(255,255,255,0.65); line-height: 1.55; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; word-break: break-word; min-height: calc(13px * 1.55 * 2); }
+
+/* Timer + stars */
+.timerRow { display: flex; align-items: center; justify-content: space-between; padding: 4px 4px 0; }
+.scheduledBadge { font-size: 13px; font-weight: 600; color: rgba(255,255,255,0.6); }
+.profileStars { display: flex; flex-direction: column; align-items: center; font-size: 14px; color: #F5C518; letter-spacing: 2px; line-height: 1.2; }
+.profileStarsLabel { font-size: 9px; font-weight: 700; color: rgba(255,255,255,0.4); letter-spacing: 0.08em; text-transform: uppercase; margin-top: 2px; }
+
+/* Connect button */
+.actions { padding: 8px 4px 0; }
+.connectBtn { width: 100%; padding: 14px; border-radius: 14px; background: #F5C518; border: none; color: #000; font-size: 16px; font-weight: 800; font-family: inherit; cursor: pointer; display: flex; flex-direction: column; align-items: center; gap: 2px; transition: opacity 0.15s; -webkit-tap-highlight-color: transparent; }
+.connectBtn:disabled { opacity: 0.5; cursor: default; }
+.connectBtnSent { background: #1a1a1a; border: 1.5px solid rgba(255,255,255,0.12); color: #fff; }
+.btnFlashOut    { font-size: 10px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: #000; animation: flash-badge 1.2s ease-in-out infinite; }
+.btnFlashInvite { font-size: 10px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: #000; animation: flash-badge 1.2s ease-in-out infinite; }
+.btnFlashLater  { font-size: 10px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: rgba(0,0,0,0.7); animation: flash-badge 1.2s ease-in-out infinite; }
+@keyframes flash-badge { 0%,100% { opacity:1; } 50% { opacity:0.3; } }
+
+/* ── Bio overlay (page 2) ── */
+.bioOverlay { position: absolute; inset: 0; z-index: 20; display: flex; flex-direction: column; background: #0e0e0e; }
+.bioHandle { position: absolute; top: 10px; left: 50%; transform: translateX(-50%); width: 36px; height: 4px; border-radius: 2px; background: #F5C518; z-index: 30; cursor: pointer; -webkit-tap-highlight-color: transparent; }
+.bioFullImg { position: absolute; inset: 0; z-index: 1; }
+.bioFullImgEl { width: 100%; height: 100%; object-fit: cover; object-position: center top; display: block; }
+.bioImgGradient { position: absolute; bottom: 0; left: 0; right: 0; height: 65%; background: linear-gradient(to bottom, transparent, rgba(0,0,0,0.98)); pointer-events: none; }
+.bioBackBtn { position: absolute; top: 14px; right: 14px; z-index: 2; width: 34px; height: 34px; border-radius: 50%; background: rgba(0,0,0,0.4); backdrop-filter: blur(6px); border: 1.5px solid rgba(255,255,255,0.2); display: flex; align-items: center; justify-content: center; color: #fff; cursor: pointer; -webkit-tap-highlight-color: transparent; }
+.bioBrandLabel { position: absolute; top: 14px; left: 14px; z-index: 2; display: flex; flex-direction: column; gap: 1px; background: rgba(0,0,0,0.45); backdrop-filter: blur(6px); border: 1px solid rgba(245,197,24,0.35); border-radius: 10px; padding: 5px 10px; }
+.bioBrandKey { font-size: 9px; font-weight: 700; color: rgba(255,255,255,0.45); text-transform: uppercase; letter-spacing: 0.08em; }
+.bioBrandValue { font-size: 13px; font-weight: 800; color: #F5C518; line-height: 1.1; }
+.bioBody { position: absolute; bottom: 0; left: 0; right: 0; z-index: 2; padding: 16px 20px calc(env(safe-area-inset-bottom,0px) + 16px); display: flex; flex-direction: column; gap: 10px; }
+.bioBodyText { font-size: 14px; color: rgba(255,255,255,0.88); line-height: 1.6; margin: 0; }
+
+/* Thumbnail strip */
+.bioThumbStrip { display: flex; align-items: center; gap: 8px; }
+.bioThumbArrow { flex-shrink: 0; width: 30px; height: 30px; border-radius: 50%; background: rgba(255,255,255,0.9); border: none; display: flex; align-items: center; justify-content: center; color: #000; cursor: pointer; transition: opacity 0.15s; -webkit-tap-highlight-color: transparent; }
+.bioThumbArrow:disabled { opacity: 0.25; cursor: default; }
+.thumbList { display: flex; gap: 6px; flex: 1; overflow-x: auto; scrollbar-width: none; }
+.thumbList::-webkit-scrollbar { display: none; }
+.thumb { width: 44px; height: 44px; border-radius: 8px; overflow: hidden; border: 2px solid rgba(255,255,255,0.15); flex-shrink: 0; padding: 0; cursor: pointer; background: none; -webkit-tap-highlight-color: transparent; }
+.thumbActive { border-color: #F5C518; }
+.thumbImg { width: 100%; height: 100%; object-fit: cover; }
+
+/* Meta rows */
+.bioMeta { display: flex; align-items: center; justify-content: center; gap: 6px; width: 100%; }
+.bioMetaLabel { font-size: 12px; font-weight: 700; color: rgba(255,255,255,0.5); text-transform: uppercase; letter-spacing: 0.06em; }
+.bioMetaDot { color: rgba(255,255,255,0.3); }
+.bioMetaValue { font-size: 14px; font-weight: 700; color: #F5C518; }
+
+/* Nav buttons */
+.bioNavRow { display: flex; gap: 10px; }
+.bioNavBtn { flex: 1; padding: 12px; background: #F5C518; border: none; border-radius: 100px; color: #000; font-size: 14px; font-weight: 800; font-family: inherit; cursor: pointer; transition: opacity 0.15s; -webkit-tap-highlight-color: transparent; }
+.bioNavBtn:disabled { opacity: 0.25; cursor: default; }

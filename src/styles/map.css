@@ -44,6 +44,9 @@
   position: relative;
   z-index: 2;
   transition: transform var(--transition-fast);
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .live-marker__avatar img {
@@ -60,6 +63,15 @@
   font-size: 18px;
   font-weight: var(--font-weight-semibold);
   color: var(--color-text);
+}
+
+.live-marker__avatar--maker {
+  position: absolute;
+  inset: 0;
+  background: #1a1a1a;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .live-marker__activity {

@@ -1,15 +1,15 @@
 import { useState } from 'react'
-import { ACTIVITY_TYPES } from '@/firebase/collections'
-import ActivityIcon from '@/components/ui/ActivityIcon'
+import { ACTIVITY_TYPES, ACTIVITY_CATEGORIES } from '@/firebase/collections'
 import styles from './InviteOutSheet.module.css'
 
 const BG_URL = 'https://ik.imagekit.io/dateme/UntitledDFSDFASDFDFGSDFGsfdfasdsadas.png?updatedAt=1775081066476'
 
 // currentStatus: 'invite' | 'live' | 'later' | null
 export default function InviteOutSheet({ open, onClose, onPost, onGoLive, onGoLater, currentStatus = null }) {
-  const [activity, setActivity] = useState(null)
-  const [message, setMessage]   = useState('')
-  const [loading, setLoading]   = useState(false)
+  const [activity,         setActivity]         = useState(null)
+  const [selectedCategory, setSelectedCategory] = useState(null)
+  const [message, setMessage]                   = useState('')
+  const [loading, setLoading]                   = useState(false)
 
   const handlePost = async () => {
     if (loading) return
@@ -51,21 +51,39 @@ export default function InviteOutSheet({ open, onClose, onPost, onGoLive, onGoLa
             Let people nearby know you're looking for plans. Your pin appears yellow on the map.
           </p>
 
-          {/* Activity */}
+          {/* Activity — two-step: category → activity */}
           <div className={styles.section}>
             <span className={styles.label}>What are you up for?</span>
-            <div className={styles.chipGrid}>
-              {ACTIVITY_TYPES.map(a => (
+
+            {/* Step 1: category pills */}
+            <div className={styles.categoryRow}>
+              {ACTIVITY_CATEGORIES.map(cat => (
                 <button
-                  key={a.id}
-                  className={`${styles.chip} ${activity === a.id ? styles.chipActive : ''}`}
-                  onClick={() => setActivity(a.id === activity ? null : a.id)}
+                  key={cat.id}
                   type="button"
+                  className={`${styles.categoryPill} ${selectedCategory === cat.id ? styles.categoryPillActive : ''}`}
+                  onClick={() => setSelectedCategory(selectedCategory === cat.id ? null : cat.id)}
                 >
-                  <ActivityIcon activity={a} size={18} /> {a.label}
+                  {cat.label}
                 </button>
               ))}
             </div>
+
+            {/* Step 2: activity chips for selected category */}
+            {selectedCategory && (
+              <div className={styles.chipGrid}>
+                {ACTIVITY_TYPES.filter(a => a.category === selectedCategory).map(a => (
+                  <button
+                    key={a.id}
+                    type="button"
+                    className={`${styles.chip} ${activity === a.id ? styles.chipActive : ''}`}
+                    onClick={() => setActivity(a.id === activity ? null : a.id)}
+                  >
+                    {a.label}
+                  </button>
+                ))}
+              </div>
+            )}
           </div>
 
           {/* Optional message */}

@@ -5,7 +5,8 @@
 -- lat/lng are kept for map pin placement only; the app enforces a 2 km
 -- display floor so precise positions cannot be triangulated.
 
-CREATE OR REPLACE VIEW sessions_with_profiles AS
+DROP VIEW IF EXISTS sessions_with_profiles;
+CREATE VIEW sessions_with_profiles AS
   SELECT
     s.id,
     s.user_id,
@@ -27,7 +28,6 @@ CREATE OR REPLACE VIEW sessions_with_profiles AS
     s.group_members,
     s.social_link,
     s.created_at,
-    s.updated_at,
     p.display_name,
     p.photo_url,
     p.age,

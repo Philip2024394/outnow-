@@ -45,10 +45,23 @@ export const VIBE_TAGS = [
   { id: 'outdoor',     label: 'Outdoor Vibes',     emoji: '🌿', category: 'active' },
   { id: 'sporty',      label: 'Sporty',            emoji: '🏃', category: 'active' },
 
+  // Music
+  { id: 'live_music',  label: 'Live Music',        emoji: '🎵', category: 'music' },
+  { id: 'dj_vibes',    label: 'DJ Night',          emoji: '🎧', category: 'music' },
+  { id: 'festival',    label: 'Festival Mood',     emoji: '🎪', category: 'music' },
+
+  // Arts & Creative
+  { id: 'art_lover',   label: 'Art & Galleries',   emoji: '🖼️', category: 'arts' },
+  { id: 'creative',    label: 'Creative Mood',     emoji: '🎨', category: 'arts' },
+  { id: 'photography', label: 'Photography',       emoji: '📷', category: 'arts' },
+
   // Culture
   { id: 'cultural',    label: 'Cultural Night',    emoji: '🎭', category: 'culture' },
-  { id: 'music',       label: 'Live Music',        emoji: '🎵', category: 'culture' },
   { id: 'foodie',      label: 'Foodie Night',      emoji: '🍽️', category: 'food_drink' },
+
+  // Tech & Gaming
+  { id: 'tech_vibes',  label: 'Tech Meetup',       emoji: '💻', category: 'tech' },
+  { id: 'gaming',      label: 'Gaming Night',      emoji: '🎮', category: 'tech' },
 
   // Wellness
   { id: 'wellness',    label: 'Wellness Day',      emoji: '🧘', category: 'wellness' },

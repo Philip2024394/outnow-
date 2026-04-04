@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from 'react'
 import { supabase } from '@/lib/supabase'
 import { useAuth } from './useAuth'
+import { usePushNotifications } from './usePushNotifications'
 
 function mapNotif(row) {
   return {
@@ -20,16 +21,18 @@ function mapNotif(row) {
 
 export function useNotifications() {
   const { user } = useAuth()
+  const { notify } = usePushNotifications()
   const [notifications, setNotifications] = useState([])
   const [profileViews, setProfileViews] = useState([])
   const [unreadCount, setUnreadCount] = useState(0)
   const channelRef = useRef(null)
+  const knownIdsRef = useRef(new Set())
 
   useEffect(() => {
     if (!supabase || !user) return
     let mounted = true
 
-    async function fetchAll() {
+    async function fetchAll(isRealtime = false) {
       // Fetch notifications
       const { data: notifs } = await supabase
         .from('notifications')
@@ -49,6 +52,15 @@ export function useNotifications() {
 
       if (!mounted) return
       const mapped = (notifs ?? []).map(mapNotif)
+
+      // Fire push for any new unread notifications that arrived via real-time
+      if (isRealtime) {
+        mapped.filter(n => !n.read && !knownIdsRef.current.has(n.id)).forEach(n => {
+          notify(n.title || 'IMOUTNOW', { body: n.body || '', tag: n.id })
+        })
+      }
+      mapped.forEach(n => knownIdsRef.current.add(n.id))
+
       setNotifications(mapped)
       setUnreadCount(mapped.filter(n => !n.read).length)
       setProfileViews((views ?? []).map(v => ({
@@ -62,14 +74,14 @@ export function useNotifications() {
       })))
     }
 
-    fetchAll()
+    fetchAll(false)
 
     channelRef.current = supabase
       .channel(`notifs-${user.id}`)
       .on(
         'postgres_changes',
         { event: '*', schema: 'public', table: 'notifications', filter: `user_id=eq.${user.id}` },
-        () => { if (mounted) fetchAll() }
+        () => { if (mounted) fetchAll(true) }
       )
       .subscribe()
 

@@ -40,6 +40,8 @@ import MapFilterSheet, { DEFAULT_MAP_FILTERS } from '@/components/map/MapFilterS
 import RatingSheet from '@/components/session/RatingSheet'
 import ReviewsSection from '@/components/session/ReviewsSection'
 import LikedMeScreen from '@/screens/LikedMeScreen'
+import LikedProfilesScreen from '@/screens/LikedProfilesScreen'
+import { useLikedProfiles } from '@/hooks/useLikedProfiles'
 import NotificationsScreen from '@/screens/NotificationsScreen'
 import BlockedUsersScreen from '@/screens/BlockedUsersScreen'
 import ProfileScreen from '@/screens/ProfileScreen'
@@ -122,6 +124,8 @@ export default function AppShell({ returnParams, triggerGoLive }) {
   useNotifications()
   const [toast, setToast] = useState(null)
   const [likedMeOpen, setLikedMeOpen] = useState(false)
+  const [likedProfilesOpen, setLikedProfilesOpen] = useState(false)
+  const { likedProfiles, saveLike, removeLike } = useLikedProfiles()
   const [settingsOpen, setSettingsOpen] = useState(false)
   const [notifOpen, setNotifOpen] = useState(false)
   const [blockListOpen, setBlockListOpen] = useState(false)
@@ -196,6 +200,13 @@ export default function AppShell({ returnParams, triggerGoLive }) {
   const [mapFilters, setMapFilters] = useState(DEFAULT_MAP_FILTERS)
   const hasActiveMapFilter = Object.entries(mapFilters).some(([k, v]) => v !== DEFAULT_MAP_FILTERS[k])
   const [activeTab, setActiveTab] = useState('map')
+
+  // Send new users (no display name yet) straight to profile setup
+  useEffect(() => {
+    if (userProfile !== null && !userProfile.displayName) {
+      setActiveTab('profile')
+    }
+  }, [userProfile])
 
   const watchSessionId = returnParams?.sessionId ?? null
   const { unlock } = useVenueUnlock(watchSessionId)
@@ -343,7 +354,7 @@ export default function AppShell({ returnParams, triggerGoLive }) {
       {/* Full-screen tab screens */}
       {activeTab === 'match'   && <MatchScreen   onClose={() => setActiveTab('map')} />}
       {activeTab === 'chat'    && <ChatScreen key={pendingConv?.id ?? 'chat'} onClose={() => setActiveTab('map')} pendingConv={pendingConv} />}
-      {activeTab === 'profile' && <ProfileScreen  onClose={() => setActiveTab('map')} />}
+      {activeTab === 'profile' && <ProfileScreen onClose={() => setActiveTab('map')} onOpenSettings={() => setSettingsOpen(true)} />}
 
       <div className="map-top-fade" />
       <div className="map-bottom-fade" />
@@ -548,6 +559,7 @@ export default function AppShell({ returnParams, triggerGoLive }) {
         showToast={showToast}
         onGuestAction={isGuest ? triggerGate : null}
         onMeetSent={(session) => simulateAcceptance(session)}
+        onLike={saveLike}
       />
       <VenueSheet
         open={venueSheetOpen}
@@ -607,6 +619,7 @@ export default function AppShell({ returnParams, triggerGoLive }) {
         open={settingsOpen}
         onClose={() => setSettingsOpen(false)}
         onOpenLikes={() => { setSettingsOpen(false); setTimeout(() => setLikedMeOpen(true), 200) }}
+        onOpenMyLikes={() => { setSettingsOpen(false); setTimeout(() => setLikedProfilesOpen(true), 200) }}
         onEditProfile={() => { setSettingsOpen(false); setTimeout(() => setActiveTab('profile'), 200) }}
         onOpenBlockList={() => { setSettingsOpen(false); setTimeout(() => setBlockListOpen(true), 200) }}
         onOpenWallet={() => setWalletOpen(true)}
@@ -614,6 +627,14 @@ export default function AppShell({ returnParams, triggerGoLive }) {
         showToast={showToast}
         onSOS={() => setSosOpen(true)}
       />
+
+      {likedProfilesOpen && (
+        <LikedProfilesScreen
+          onClose={() => setLikedProfilesOpen(false)}
+          likedProfiles={likedProfiles}
+          onRemove={removeLike}
+        />
+      )}
 
       <SOSModal
         open={sosOpen}
@@ -693,7 +714,7 @@ export default function AppShell({ returnParams, triggerGoLive }) {
       <VibeCheckBanner
         banner={vibeBanner}
         onDismiss={() => setVibeBanner(null)}
-        onView={() => { setVibeBanner(null); showToast('Anonymous until they match back 💚', 'info') }}
+        onView={() => { setVibeBanner(null); showToast('Anonymous until they connect back 💚', 'info') }}
       />
 
       <AddToHomeScreenBanner />

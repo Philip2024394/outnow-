@@ -9,6 +9,7 @@ import PrivacySheet from './PrivacySheet'
 import SafetySheet from '@/components/safety/SafetySheet'
 import { getSafetyContact } from '@/components/safety/SafetySheet'
 import SuggestPlaceSheet from './SuggestPlaceSheet'
+import VerifiedPage from './VerifiedPage'
 import VenueOwnerLanding from '@/screens/venue-owner/VenueOwnerLanding'
 import VenueOwnerSignup from '@/screens/venue-owner/VenueOwnerSignup'
 import VenueOwnerDashboard from '@/screens/venue-owner/VenueOwnerDashboard'
@@ -40,7 +41,7 @@ function Divider({ label }) {
   return <div className={styles.divider}>{label && <span className={styles.dividerLabel}>{label}</span>}</div>
 }
 
-export default function SettingsSheet({ open, onClose, onOpenLikes, onEditProfile, onOpenBlockList, onOpenWallet, onUpgrade, showToast, onSOS }) {
+export default function SettingsSheet({ open, onClose, onOpenLikes, onOpenMyLikes, onEditProfile, onOpenBlockList, onOpenWallet, onUpgrade, showToast, onSOS }) {
   const { permission, requestPermission } = usePushNotifications()
   const { userProfile } = useAuth()
   const { balance, earn } = useCoins()
@@ -49,6 +50,7 @@ export default function SettingsSheet({ open, onClose, onOpenLikes, onEditProfil
   const [privacyOpen, setPrivacyOpen] = useState(false)
   const [safetyOpen, setSafetyOpen] = useState(false)
   const [suggestOpen, setSuggestOpen] = useState(false)
+  const [verifiedOpen, setVerifiedOpen]         = useState(false)
   const [venueOwnerScreen, setVenueOwnerScreen] = useState(null) // null | 'landing' | 'signup' | 'dashboard'
   const [venueOwnerData, setVenueOwnerData] = useState(null)
   const safetyContact = getSafetyContact()
@@ -124,6 +126,14 @@ export default function SettingsSheet({ open, onClose, onOpenLikes, onEditProfil
         {/* Drawer — slides in from right at 70% width */}
         <div ref={drawerRef} className={styles.drawer}>
 
+          {/* Verified sub-page */}
+          {verifiedOpen && (
+            <VerifiedPage
+              onBack={() => setVerifiedOpen(false)}
+              isVerified={userProfile?.isVerified ?? false}
+            />
+          )}
+
           {/* Header */}
           <div className={styles.header}>
             <div className={styles.headerUser}>
@@ -166,6 +176,23 @@ export default function SettingsSheet({ open, onClose, onOpenLikes, onEditProfil
               <span className={styles.upgradeArrow}>›</span>
             </button>
 
+            {/* Verified */}
+            <button className={styles.verifiedRow} onClick={() => setVerifiedOpen(true)}>
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="#F5C518" stroke="#F5C518" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/>
+                <polyline points="22 4 12 14.01 9 11.01"/>
+              </svg>
+              <div className={styles.verifiedRowText}>
+                <span className={styles.verifiedRowLabel}>Verified Profile</span>
+                <span className={styles.verifiedRowSub}>
+                  {userProfile?.isVerified ? 'Active — yellow badge on your card' : 'Get your verified badge — from £2.99/mo'}
+                </span>
+              </div>
+              <svg className={styles.arrow} width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                <polyline points="9 18 15 12 9 6" />
+              </svg>
+            </button>
+
             {/* Activity */}
             <Divider label="Activity" />
             <Row
@@ -173,6 +200,12 @@ export default function SettingsSheet({ open, onClose, onOpenLikes, onEditProfil
               label="Who Liked Me"
               sublabel="See profiles that liked you this week"
               onClick={() => { onClose(); setTimeout(() => onOpenLikes?.(), 200) }}
+            />
+            <Row
+              icon="🤍"
+              label="Liked Profiles"
+              sublabel="Profiles you've saved with a heart"
+              onClick={() => { onClose(); setTimeout(() => onOpenMyLikes?.(), 200) }}
             />
             <Row
               icon="👤"

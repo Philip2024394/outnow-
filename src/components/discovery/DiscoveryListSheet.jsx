@@ -113,7 +113,7 @@ export default function DiscoveryListSheet({ open, filter = 'now', sessions = []
                     onClick={() => onSelect?.(s)}
                   >
                     <Avatar
-                      src={s.photoURL}
+                      src={s.photoURL ?? s.photos?.[0] ?? null}
                       name={s.displayName}
                       size={52}
                       live={!isScheduled && !isInviteOut}

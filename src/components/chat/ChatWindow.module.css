@@ -17,8 +17,8 @@
   padding: calc(env(safe-area-inset-top, 0px) + 14px) 16px 20px;
   background: #111;
   border-radius: 0 0 28px 28px;
-  border-bottom: 2px solid #8DC63F;
-  box-shadow: 0 4px 24px rgba(141,198,63,0.12);
+  border-bottom: 2px solid var(--color-live);
+  box-shadow: 0 4px 24px var(--color-live-dim);
   gap: 12px;
 }
 
@@ -78,8 +78,7 @@
   height: 44px;
   border-radius: 50%;
   background: #222;
-  border: 2px solid #8DC63F;
-  box-shadow: 0 0 12px rgba(141,198,63,0.3);
+  border: 2.5px solid rgba(255,255,255,0.12);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -97,10 +96,12 @@
   width: 10px;
   height: 10px;
   border-radius: 50%;
-  background: #8DC63F;
   border: 2px solid #111;
-  box-shadow: 0 0 6px #8DC63F;
 }
+
+.dotLive   { background: #8DC63F; box-shadow: 0 0 5px rgba(141,198,63,0.7); }
+.dotInvite { background: #F5C518; box-shadow: 0 0 5px rgba(245,197,24,0.7); }
+.dotLater  { background: #E8890C; box-shadow: 0 0 5px rgba(232,137,12,0.7); }
 
 .headerInfo { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
 
@@ -220,6 +221,10 @@
   display: flex;
   flex-direction: column;
   gap: 10px;
+  background-image: url('https://ik.imagekit.io/nepgaxllc/Untitledsdfasdf.png');
+  background-size: cover;
+  background-position: center;
+  background-attachment: local;
 }
 .messages::-webkit-scrollbar { display: none; }
 

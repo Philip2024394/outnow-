@@ -3,8 +3,7 @@ import { useAuth } from '@/hooks/useAuth'
 import { useMySession } from '@/hooks/useMySession'
 import { useCoins } from '@/hooks/useCoins'
 import { ACTIVITY_TYPES, ACTIVITY_CATEGORIES } from '@/firebase/collections'
-import { LOOKING_FOR_OPTIONS } from '@/utils/lookingForLabels'
-import ActivityIcon from '@/components/ui/ActivityIcon'
+import { LOOKING_FOR_OPTIONS, LANGUAGE_FLAGS } from '@/utils/lookingForLabels'
 import Toast from '@/components/ui/Toast'
 import { saveProfile, uploadAvatar, uploadGalleryPhoto } from '@/services/profileService'
 import GoOutSetup from './GoOutSetup'
@@ -207,13 +206,41 @@ function validateProfile({ name, dobDay, dobMonth, dobYear, country, city }) {
   return null
 }
 
+const COUNTRY_NATIVE_LANGUAGE = {
+  'Indonesia': 'Indonesian', 'Philippines': 'Filipino', 'Vietnam': 'Vietnamese',
+  'Thailand': 'Thai', 'Malaysia': 'Malay', 'Singapore': 'English',
+  'Japan': 'Japanese', 'South Korea': 'Korean', 'China': 'Mandarin',
+  'India': 'Hindi', 'Pakistan': 'Urdu', 'Bangladesh': 'Bengali',
+  'United Kingdom': 'English', 'United States': 'English', 'Australia': 'English',
+  'Canada': 'English', 'Ireland': 'English', 'New Zealand': 'English',
+  'France': 'French', 'Germany': 'German', 'Spain': 'Spanish',
+  'Italy': 'Italian', 'Portugal': 'Portuguese', 'Brazil': 'Portuguese',
+  'Mexico': 'Spanish', 'Argentina': 'Spanish', 'Colombia': 'Spanish',
+  'Russia': 'Russian', 'Ukraine': 'Ukrainian', 'Poland': 'Polish',
+  'Netherlands': 'Dutch', 'Belgium': 'Dutch', 'Sweden': 'Swedish',
+  'Norway': 'Norwegian', 'Denmark': 'Danish', 'Finland': 'Finnish',
+  'Turkey': 'Turkish', 'Saudi Arabia': 'Arabic', 'Egypt': 'Arabic',
+  'Nigeria': 'English', 'Ghana': 'English', 'South Africa': 'English',
+  'Kenya': 'Swahili', 'Ethiopia': 'Amharic', 'Tanzania': 'Swahili',
+}
+
+const LANGUAGES = [
+  'English', 'Mandarin', 'Hindi', 'Spanish', 'French', 'Arabic', 'Bengali',
+  'Portuguese', 'Russian', 'Urdu', 'Indonesian', 'Filipino', 'Vietnamese',
+  'Thai', 'Malay', 'Japanese', 'Korean', 'Turkish', 'Italian', 'German',
+  'Dutch', 'Polish', 'Ukrainian', 'Swedish', 'Norwegian', 'Danish', 'Finnish',
+  'Swahili', 'Amharic', 'Yoruba', 'Zulu', 'Tamil', 'Telugu', 'Punjabi',
+  'Burmese', 'Khmer', 'Lao', 'Sinhala', 'Nepali', 'Georgian', 'Armenian',
+  'Hebrew', 'Persian', 'Pashto', 'Somali', 'Hausa',
+].sort()
+
 const STATUS_CONFIG = {
   live:      { label: "I'M OUT NOW",   cls: 'bannerLive',      dot: 'dotLive'      },
   scheduled: { label: "I'M OUT LATER", cls: 'bannerScheduled', dot: 'dotScheduled' },
   online:    { label: "I'M ONLINE",    cls: 'bannerOnline',    dot: 'dotOnline'    },
 }
 
-export default function ProfileScreen({ onClose }) {
+export default function ProfileScreen({ onClose, onOpenSettings }) {
   const { user, userProfile } = useAuth()
   const { session: mySession } = useMySession()
   const { earn } = useCoins()
@@ -221,11 +248,19 @@ export default function ProfileScreen({ onClose }) {
   const [selectedActivity, setSelectedActivity] = useState(
     userProfile?.activities?.[0] ?? null
   )
+  const [expandedCategory, setExpandedCategory] = useState(null)
   const [name,    setName]    = useState(userProfile?.displayName ?? user?.displayName ?? 'You')
-  const [country,    setCountry]    = useState(userProfile?.country ?? '')
-  const [city,       setCity]       = useState(userProfile?.city ?? '')
-  const [lookingFor, setLookingFor] = useState(userProfile?.lookingFor ?? '')
-  const [bio,        setBio]        = useState(userProfile?.bio ?? '')
+  const [country,        setCountry]        = useState(userProfile?.country ?? '')
+  const [city,           setCity]           = useState(userProfile?.city ?? '')
+  const [lookingFor,     setLookingFor]     = useState(userProfile?.lookingFor ?? '')
+  const [bio,            setBio]            = useState(userProfile?.bio ?? '')
+  const [speakingNative, setSpeakingNative] = useState(userProfile?.speakingNative ?? (userProfile?.country ? (COUNTRY_NATIVE_LANGUAGE[userProfile.country] ?? '') : ''))
+  const [speakingSecond, setSpeakingSecond] = useState(userProfile?.speakingSecond ?? '')
+  const [priceMin,      setPriceMin]      = useState(userProfile?.priceMin ?? '')
+  const [priceMax,      setPriceMax]      = useState(userProfile?.priceMax ?? '')
+  const [market,        setMarket]        = useState(userProfile?.market ?? '')
+  const [brandName,     setBrandName]     = useState(userProfile?.brandName ?? '')
+  const [tradeRole,     setTradeRole]     = useState(userProfile?.tradeRole ?? '')
 
   // Status buttons
   const [pendingStatus,   setPendingStatus]   = useState(null) // 'im_out' | 'invite_out' | 'later_out'
@@ -299,6 +334,13 @@ export default function ProfileScreen({ onClose }) {
     setCity(userProfile.city ?? '')
     setLookingFor(userProfile.lookingFor ?? '')
     setBio(userProfile.bio ?? '')
+    setSpeakingNative(userProfile.speakingNative ?? (userProfile.country ? (COUNTRY_NATIVE_LANGUAGE[userProfile.country] ?? '') : ''))
+    setSpeakingSecond(userProfile.speakingSecond ?? '')
+    setPriceMin(userProfile.priceMin ?? '')
+    setPriceMax(userProfile.priceMax ?? '')
+    setMarket(userProfile.market ?? '')
+    setBrandName(userProfile.brandName ?? '')
+    setTradeRole(userProfile.tradeRole ?? '')
     setPhotoURL(userProfile.photoURL ?? null)
     setPhotoOffsetX(userProfile.photoOffsetX ?? 50)
     setPhotoOffsetY(userProfile.photoOffsetY ?? 50)
@@ -333,6 +375,17 @@ export default function ProfileScreen({ onClose }) {
     setExtraPhotos(prev => { const n = [...prev]; n[idx] = URL.createObjectURL(file); return n })
     setExtraPhotoFiles(prev => { const n = [...prev]; n[idx] = file; return n })
     e.target.value = ''
+  }
+
+  const MAKER_CATEGORIES = ['handmade', 'craft_supplies', 'property', 'professional']
+
+  function handleStatusClick(status) {
+    if (MAKER_CATEGORIES.includes(lookingFor) && !photoURL && extraPhotos.every(p => !p)) {
+      showToast('You must add at least 1 photo before posting your profile.')
+      return
+    }
+    setPendingStatus(status)
+    triggerParticles(status)
   }
 
   function triggerParticles(type) {
@@ -383,6 +436,13 @@ export default function ProfileScreen({ onClose }) {
         country,
         activities:  selectedActivity ? [selectedActivity] : [],
         lookingFor,
+        speakingNative,
+        speakingSecond,
+        priceMin,
+        priceMax,
+        market,
+        brandName,
+        tradeRole,
         extraPhotos: savedExtra,
         photoOffsetX,
         photoOffsetY,
@@ -402,8 +462,6 @@ export default function ProfileScreen({ onClose }) {
                   : 'online'
   const status = STATUS_CONFIG[statusKey]
 
-  const toggleActivity = (id) =>
-    setSelectedActivity(prev => prev === id ? null : id)
 
   return (
     <div className={styles.screen}>
@@ -417,11 +475,19 @@ export default function ProfileScreen({ onClose }) {
           </svg>
           <span className={styles.headerTitle}>Profile Details</span>
         </div>
-        <button className={styles.homeBtn} onClick={onClose} aria-label="Back to map">
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-            <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/>
-          </svg>
-        </button>
+        <div className={styles.headerRight}>
+          <button className={styles.settingsBtn} onClick={onOpenSettings} aria-label="Dashboard">
+            <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <circle cx="12" cy="12" r="3"/>
+              <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/>
+            </svg>
+          </button>
+          <button className={styles.homeBtn} onClick={onClose} aria-label="Back to map">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/>
+            </svg>
+          </button>
+        </div>
       </div>
 
       {/* ── Toast ── */}
@@ -443,7 +509,7 @@ export default function ProfileScreen({ onClose }) {
                 <span className={styles.photoSectionTitle}>Profile Photos</span>
                 <HelpTip text="Your main photo appears on the map — make it clear and friendly. Add up to 4 extra photos so matches can get a better sense of who you are. Accepted: JPG, PNG, WEBP. Max 5MB each." />
               </div>
-              <span className={styles.photoSectionSub}>Complete profiles gain 70% more exposure</span>
+              <span className={styles.photoSectionSub}>Let's Get Your Profile Setup</span>
             </div>
             <div className={`${styles.statusBadge} ${styles[status.cls]}`}>
               <span className={`${styles.statusDot} ${styles[status.dot]}`} />
@@ -453,24 +519,23 @@ export default function ProfileScreen({ onClose }) {
 
           {/* Main photo slot */}
           <div className={styles.mainSlot} onClick={() => mainInputRef.current?.click()}>
-            {photoURL
-              ? <img
-                  src={photoURL}
-                  alt="Main"
-                  className={styles.mainSlotImg}
-                  style={{
-                    transform: `translate(${(photoOffsetX - 50) * 0.6}%, ${(photoOffsetY - 50) * 0.6}%) scale(${photoZoom})`,
-                    transformOrigin: 'center',
-                  }}
-                />
-              : <div className={styles.slotEmpty}>
-                  <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round">
-                    <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/>
-                    <circle cx="12" cy="13" r="4"/>
-                  </svg>
-                  <span className={styles.slotLabel}>Tap to add main photo</span>
-                </div>
-            }
+            <img
+              src={photoURL || 'https://ik.imagekit.io/nepgaxllc/sdfasdfasdf.png'}
+              alt="Main"
+              className={styles.mainSlotImg}
+              style={photoURL ? {
+                objectPosition: `${photoOffsetX}% ${photoOffsetY}%`,
+                transform: `scale(${photoZoom})`,
+                transformOrigin: `${photoOffsetX}% ${photoOffsetY}%`,
+              } : {
+                objectPosition: 'top center',
+              }}
+            />
+            {!photoURL && (
+              <div className={styles.slotDefaultOverlay}>
+                <span className={styles.slotDefaultLabel}>Tap to add your photo</span>
+              </div>
+            )}
             {/* Camera overlay button */}
             <div className={styles.mainSlotOverlay}>
               <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
@@ -559,6 +624,23 @@ export default function ProfileScreen({ onClose }) {
             </div>
           </div>
 
+          {/* Bio */}
+          <div className={styles.fieldRow}>
+            <div className={styles.fieldLabelRow}>
+              <label className={styles.fieldLabel}>Bio</label>
+              <HelpTip text="Tell people what makes you interesting! Profiles with a bio get 3× more messages. Keep it genuine — mention your interests, vibe, or what you're looking for." />
+            </div>
+            <textarea
+              className={styles.bioInput}
+              value={bio}
+              onChange={e => setBio(e.target.value)}
+              placeholder="Tell people what you're about…"
+              rows={3}
+              maxLength={350}
+            />
+            <span className={styles.bioCount}>{bio.length}/350</span>
+          </div>
+
           {/* Country typeahead */}
           <div className={styles.fieldRow} ref={countryRef}>
             <div className={styles.fieldLabelRow}>
@@ -569,10 +651,9 @@ export default function ProfileScreen({ onClose }) {
               <input
                 className={styles.fieldInput}
                 value={countryQuery}
-                onChange={e => { setCountryQuery(e.target.value); setCountryOpen(true) }}
-                onFocus={() => setCountryOpen(true)}
+                onChange={e => { setCountryQuery(e.target.value); setCountryOpen(e.target.value.length > 0) }}
+                onBlur={() => setTimeout(() => setCountryOpen(false), 150)}
                 placeholder="Type to search country…"
-                disabled={false}
                 autoComplete="off"
               />
               {countryOpen && filteredCountries.length > 0 && (
@@ -585,6 +666,7 @@ export default function ProfileScreen({ onClose }) {
                         setCountry(c.name)
                         setCountryQuery(c.name)
                         setCountryOpen(false)
+                        setSpeakingNative(COUNTRY_NATIVE_LANGUAGE[c.name] ?? '')
                       }}
                     >
                       <span className={styles.countryFlag}>{c.flag}</span>
@@ -612,7 +694,7 @@ export default function ProfileScreen({ onClose }) {
             <div className={styles.locationPrivacy}>
               <span className={styles.locationPrivacyIcon}>🔒</span>
               <span className={styles.locationPrivacyText}>
-                Your location is <strong>never shared</strong> publicly — it is only used to calculate km distance for your dating experience. Not setting a location will cause errors on the map and prevent you from appearing in matches near you.
+                Your location is <strong>never shared</strong> publicly — it is only used to calculate km distance and show you to people nearby. Not setting a location will cause errors on the map and prevent you from appearing to others near you.
               </span>
             </div>
           </div>
@@ -620,77 +702,212 @@ export default function ProfileScreen({ onClose }) {
           {/* What I'm here for */}
           <div className={styles.fieldRow}>
             <div className={styles.fieldLabelRow}>
-              <label className={styles.fieldLabel}>I&apos;m here for</label>
+              <label className={styles.fieldLabel}>Joined the app for</label>
               <HelpTip text="Helps people understand your vibe before they connect with you. No wrong answer — you can change this any time." />
             </div>
-            <div className={styles.hereForGrid}>
-              {LOOKING_FOR_OPTIONS.map(opt => (
-                <button
-                  key={opt.value}
-                  type="button"
-                  className={`${styles.hereForChip} ${lookingFor === opt.value ? styles.hereForChipActive : ''}`}
-                  onClick={() => setLookingFor(prev => prev === opt.value ? '' : opt.value)}
-                >
-                  <span className={styles.hereForEmoji}>{opt.emoji}</span>
-                  <span className={styles.hereForLabel}>{opt.label}</span>
-                </button>
-              ))}
+            <div className={styles.selectWrap}>
+              <select
+                className={styles.fieldSelect}
+                value={lookingFor}
+                onChange={e => setLookingFor(e.target.value)}
+              >
+                <option value="">Select a reason…</option>
+                {LOOKING_FOR_OPTIONS.map(opt => (
+                  <option
+                    key={opt.value}
+                    value={opt.value}
+                    style={['handmade', 'craft_supplies'].includes(opt.value) ? { color: '#ef4444' } : undefined}
+                  >{opt.label}</option>
+                ))}
+              </select>
+              <svg className={styles.selectArrow} width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                <polyline points="6 9 12 15 18 9" />
+              </svg>
             </div>
           </div>
-        </div>
-
-        {/* ── Bio ── */}
-        <div className={styles.section}>
-          <div className={styles.sectionLabelRow}>
-            <span className={styles.sectionLabel}>About me</span>
-            <HelpTip text="Tell people what makes you interesting! Profiles with a bio get 3× more messages. Keep it genuine — mention your interests, vibe, or what you're looking for tonight." />
+          {/* Speaking */}
+          <div className={styles.fieldRow}>
+            <div className={styles.fieldLabelRow}>
+              <label className={styles.fieldLabel}>Speaking</label>
+              <HelpTip text="Your native language is set automatically from your country. Add a second language if you speak one — it helps people know how to connect with you." />
+            </div>
+            <div className={styles.speakingRow}>
+              <div className={styles.speakingNative}>
+                <span className={styles.speakingNativeLabel}>Native</span>
+                <span className={styles.speakingNativeValue}>{speakingNative ? `${LANGUAGE_FLAGS[speakingNative] ?? ''} ${speakingNative}` : '—'}</span>
+              </div>
+              <div className={styles.selectWrap} style={{ flex: 1 }}>
+                <select
+                  className={styles.fieldSelect}
+                  value={speakingSecond}
+                  onChange={e => setSpeakingSecond(e.target.value)}
+                >
+                  <option value="">+ Add second language</option>
+                  {LANGUAGES.filter(l => l !== speakingNative).map(l => (
+                    <option key={l} value={l}>{LANGUAGE_FLAGS[l] ?? ''} {l}</option>
+                  ))}
+                </select>
+                <svg className={styles.selectArrow} width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                  <polyline points="6 9 12 15 18 9" />
+                </svg>
+              </div>
+            </div>
           </div>
-          <textarea
-            className={styles.bioInput}
-            value={bio}
-            onChange={e => setBio(e.target.value)}
-            placeholder="Tell people what you're about…"
-            rows={3}
-            maxLength={350}
-          />
-          <span className={styles.bioCount}>{bio.length}/350</span>
-        </div>
 
-        {/* ── Interests For Going Out ── */}
-        <div className={styles.section}>
-          <div className={styles.sectionLabelRow}>
-            <span className={styles.sectionLabel}>Interests For Going Out</span>
-            <HelpTip text="Pick what best describes your plans — one selection. People with matching interests will find you on the map." />
-          </div>
-          <p className={styles.activityHint}>Tap one activity that best describes your plans</p>
-          {ACTIVITY_CATEGORIES.map(cat => {
-            const items = ACTIVITY_TYPES.filter(a => a.category === cat.id)
-            if (!items.length) return null
-            return (
-              <div key={cat.id} className={styles.activityCategoryGroup}>
-                <span className={styles.activityCategoryLabel}>{cat.emoji} {cat.label}</span>
-                <div className={styles.activitiesGrid}>
-                  {items.map(a => (
+          {/* Maker / Craft profile fields — only shown for relevant categories */}
+          {['handmade', 'craft_supplies', 'property', 'professional'].includes(lookingFor) && (
+            <>
+              <div className={styles.fieldRow}>
+                <div className={styles.fieldLabelRow}>
+                  <label className={styles.fieldLabel}>I am here to</label>
+                  <HelpTip text="Are you selling products or services, buying, or both? This helps people understand your intent straight away." />
+                </div>
+                <div className={styles.selectWrap}>
+                  <select
+                    className={styles.fieldSelect}
+                    value={tradeRole}
+                    onChange={e => setTradeRole(e.target.value)}
+                  >
+                    <option value="">Select role…</option>
+                    <option value="selling">Selling</option>
+                    <option value="buying">Buying</option>
+                    <option value="both">Selling &amp; Buying</option>
+                  </select>
+                  <svg className={styles.selectArrow} width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                    <polyline points="6 9 12 15 18 9" />
+                  </svg>
+                </div>
+              </div>
+              <div className={styles.fieldRow}>
+                <div className={styles.fieldLabelRow}>
+                  <label className={styles.fieldLabel}>Brand Name</label>
+                  <HelpTip text="Type your brand name, or choose a quick option below." />
+                </div>
+                <input
+                  className={styles.fieldInput}
+                  value={brandName}
+                  onChange={e => setBrandName(e.target.value)}
+                  placeholder="Type your brand name…"
+                  maxLength={50}
+                />
+                <div className={styles.brandQuickRow}>
+                  {['Unbranded', 'On Request'].map(opt => (
                     <button
-                      key={a.id}
-                      className={`${styles.activityChip} ${selectedActivity === a.id ? styles.activityActive : ''}`}
-                      onClick={() => toggleActivity(a.id)}
+                      key={opt}
+                      type="button"
+                      className={`${styles.brandQuickBtn} ${brandName === opt ? styles.brandQuickBtnActive : ''}`}
+                      onClick={() => setBrandName(brandName === opt ? '' : opt)}
                     >
-                      <ActivityIcon activity={a} size={22} className={styles.activityEmoji} />
-                      <span className={styles.activityLabel}>{a.label}</span>
+                      {opt}
                     </button>
                   ))}
                 </div>
               </div>
-            )
-          })}
+              <div className={styles.fieldRow}>
+                <div className={styles.fieldLabelRow}>
+                  <label className={styles.fieldLabel}>Price Range</label>
+                  <HelpTip text="Set a min and max price so visitors know what to expect before reaching out." />
+                </div>
+                <div className={styles.priceRangeRow}>
+                  <input
+                    className={styles.fieldInput}
+                    value={priceMin}
+                    onChange={e => setPriceMin(e.target.value)}
+                    placeholder="Min price"
+                    maxLength={30}
+                  />
+                  <span className={styles.priceRangeSep}>–</span>
+                  <input
+                    className={styles.fieldInput}
+                    value={priceMax}
+                    onChange={e => setPriceMax(e.target.value)}
+                    placeholder="Max price"
+                    maxLength={30}
+                  />
+                </div>
+              </div>
+              <div className={styles.fieldRow}>
+                <div className={styles.fieldLabelRow}>
+                  <label className={styles.fieldLabel}>Market</label>
+                  <HelpTip text="Let people know whether you sell locally, export internationally, or both." />
+                </div>
+                <div className={styles.selectWrap}>
+                  <select
+                    className={styles.fieldSelect}
+                    value={market}
+                    onChange={e => setMarket(e.target.value)}
+                  >
+                    <option value="">Select market…</option>
+                    <option value="Local">Local</option>
+                    <option value="Export">Export</option>
+                    <option value="Local & Export">Local &amp; Export</option>
+                  </select>
+                  <svg className={styles.selectArrow} width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                    <polyline points="6 9 12 15 18 9" />
+                  </svg>
+                </div>
+              </div>
+            </>
+          )}
         </div>
+
+        {/* ── Let's Meet With — accordion ── */}
+        {lookingFor && !MAKER_CATEGORIES.includes(lookingFor) && <div className={styles.section}>
+          <div className={styles.sectionLabelRow}>
+            <span className={styles.sectionLabel}>Let's Meet With</span>
+            <HelpTip text="Pick what best describes your plans. People with matching interests will find you on the map." />
+          </div>
+
+          <div className={styles.accordionList}>
+            {ACTIVITY_CATEGORIES.map(cat => {
+              const items = ACTIVITY_TYPES.filter(a => a.category === cat.id)
+              if (!items.length) return null
+              const isOpen   = expandedCategory === cat.id
+              const selected = items.find(a => a.id === selectedActivity)
+              return (
+                <div key={cat.id} className={`${styles.accordionItem} ${selected ? styles.accordionItemSelected : ''}`}>
+                  <button
+                    className={styles.accordionHeader}
+                    onClick={() => setExpandedCategory(isOpen ? null : cat.id)}
+                  >
+                    <span className={styles.accordionLabel}>{cat.label}</span>
+                    {selected && <span className={styles.accordionPick}>{selected.label}</span>}
+                    <svg
+                      className={`${styles.accordionChevron} ${isOpen ? styles.chevronOpen : ''}`}
+                      width="16" height="16" viewBox="0 0 24 24" fill="none"
+                      stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"
+                    >
+                      <polyline points="6 9 12 15 18 9" />
+                    </svg>
+                  </button>
+
+                  {isOpen && (
+                    <div className={styles.accordionBody}>
+                      {items.map(a => (
+                        <button
+                          key={a.id}
+                          className={`${styles.accordionChip} ${selectedActivity === a.id ? styles.accordionChipActive : ''}`}
+                          onClick={() => {
+                            setSelectedActivity(prev => prev === a.id ? null : a.id)
+                            setExpandedCategory(null)
+                          }}
+                        >
+                          {a.label}
+                        </button>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              )
+            })}
+          </div>
+        </div>}
 
         {/* ── Online status ── */}
         <div className={styles.section}>
           <div className={styles.sectionLabelRow}>
             <span className={styles.sectionLabel}>Set Your Status</span>
-            <HelpTip text="I'm Out — you're out right now. Invite Out — you want someone to invite you out. Later Out — set a time for when you'll be going out. We'll check in every 3 hours and auto-switch to Invite Out if you don't respond." />
+            <HelpTip text="Let people know if you're ready to meet. I'm Out — you're out right now. Invite Out — you want someone to invite you out. Later Out — set a time for when you'll be going out." />
           </div>
           <p className={styles.activityHint}>Let people know you're available — your status is set when you save your profile</p>
 
@@ -710,27 +927,39 @@ export default function ProfileScreen({ onClose }) {
               {/* I'm Out */}
               <button
                 className={`${styles.statusBtn} ${pendingStatus === 'im_out' ? styles.statusBtnGreen : mySession?.status === 'active' && !pendingStatus ? styles.statusBtnGreen : ''}`}
-                onClick={() => { setPendingStatus('im_out'); triggerParticles('im_out') }}
+                onClick={() => handleStatusClick('im_out')}
               >
-                <span className={styles.statusBtnEmoji}>🚀</span>
+                <span className={`${styles.statusDot} ${styles.statusDotGreen}`}>
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M12 10a2 2 0 0 0-2 2c0 1.02-.1 2.51-.26 4"/><path d="M14 13.12c0 2.38 0 6.38-1 8.88"/><path d="M17.29 21.02c.12-.6.43-2.3.5-3.02"/><path d="M2 12a10 10 0 0 1 18-6"/><path d="M2 16h.01"/><path d="M21.8 16c.2-2 .131-5.354 0-6"/><path d="M5 19.5C5.5 18 6 15 6 12a6 6 0 0 1 .34-2"/><path d="M8.65 22c.21-.66.45-1.32.57-2"/><path d="M9 6.8a6 6 0 0 1 9 5.2v2"/>
+                  </svg>
+                </span>
                 <span className={styles.statusBtnLabel}>I&apos;m Out</span>
               </button>
 
               {/* Invite Out */}
               <button
                 className={`${styles.statusBtn} ${pendingStatus === 'invite_out' ? styles.statusBtnYellow : mySession?.status === 'invite_out' && !pendingStatus ? styles.statusBtnYellow : ''}`}
-                onClick={() => { setPendingStatus('invite_out'); triggerParticles('invite_out') }}
+                onClick={() => handleStatusClick('invite_out')}
               >
-                <span className={styles.statusBtnEmoji}>💌</span>
+                <span className={`${styles.statusDot} ${styles.statusDotYellow}`}>
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M12 10a2 2 0 0 0-2 2c0 1.02-.1 2.51-.26 4"/><path d="M14 13.12c0 2.38 0 6.38-1 8.88"/><path d="M17.29 21.02c.12-.6.43-2.3.5-3.02"/><path d="M2 12a10 10 0 0 1 18-6"/><path d="M2 16h.01"/><path d="M21.8 16c.2-2 .131-5.354 0-6"/><path d="M5 19.5C5.5 18 6 15 6 12a6 6 0 0 1 .34-2"/><path d="M8.65 22c.21-.66.45-1.32.57-2"/><path d="M9 6.8a6 6 0 0 1 9 5.2v2"/>
+                  </svg>
+                </span>
                 <span className={styles.statusBtnLabel}>Invite Out</span>
               </button>
 
               {/* Later Out */}
               <button
                 className={`${styles.statusBtn} ${pendingStatus === 'later_out' ? styles.statusBtnOrange : mySession?.status === 'scheduled' && !pendingStatus ? styles.statusBtnOrange : ''}`}
-                onClick={() => { setPendingStatus('later_out'); triggerParticles('later_out') }}
+                onClick={() => handleStatusClick('later_out')}
               >
-                <span className={styles.statusBtnEmoji}>🕐</span>
+                <span className={`${styles.statusDot} ${styles.statusDotOrange}`}>
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M12 10a2 2 0 0 0-2 2c0 1.02-.1 2.51-.26 4"/><path d="M14 13.12c0 2.38 0 6.38-1 8.88"/><path d="M17.29 21.02c.12-.6.43-2.3.5-3.02"/><path d="M2 12a10 10 0 0 1 18-6"/><path d="M2 16h.01"/><path d="M21.8 16c.2-2 .131-5.354 0-6"/><path d="M5 19.5C5.5 18 6 15 6 12a6 6 0 0 1 .34-2"/><path d="M8.65 22c.21-.66.45-1.32.57-2"/><path d="M9 6.8a6 6 0 0 1 9 5.2v2"/>
+                  </svg>
+                </span>
                 <span className={styles.statusBtnLabel}>Later Out</span>
               </button>
             </div>
@@ -775,20 +1004,18 @@ export default function ProfileScreen({ onClose }) {
                 <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/>
               </svg>
             </button>
-            <div className={styles.photoEditTitleRow}>
-              <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#8DC63F" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
-                <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/>
-                <circle cx="12" cy="13" r="4"/>
-              </svg>
-              <span className={styles.photoEditTitle}>Photo Editor</span>
-            </div>
+            <span className={styles.photoEditTitle}>Photo Editor</span>
           </div>
           <div className={styles.photoEditPreviewWrap}>
             <img
               src={photoURL}
               alt="Preview"
               className={styles.photoEditPreviewImg}
-              style={{ transform: `translate(${(photoOffsetX - 50) * 0.8}%, ${(photoOffsetY - 50) * 0.8}%) scale(${photoZoom})` }}
+              style={{
+                objectPosition: `${photoOffsetX}% ${photoOffsetY}%`,
+                transform: `scale(${photoZoom})`,
+                transformOrigin: `${photoOffsetX}% ${photoOffsetY}%`,
+              }}
             />
             <div className={styles.photoEditOverlayLabel}>
               <span className={styles.photoEditOverlayTitle}>Adjust Photo</span>

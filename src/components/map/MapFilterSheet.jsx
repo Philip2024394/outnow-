@@ -183,7 +183,7 @@ export default function MapFilterSheet({ open, onClose, filters, onChange, onRes
                   className={`${styles.categoryPill} ${activeCategory === c.id ? styles.categoryPillActive : ''}`}
                   onClick={() => setActiveCategory(c.id)}
                 >
-                  {c.emoji} {c.label}
+                  {c.label}
                 </button>
               ))}
             </div>
@@ -195,7 +195,7 @@ export default function MapFilterSheet({ open, onClose, filters, onChange, onRes
                   className={`${styles.activityChip} ${filters.activity === a.id ? styles.activityChipActive : ''}`}
                   onClick={() => onChange({ ...filters, activity: a.id })}
                 >
-                  {a.emoji} {a.label}
+                  {a.label}
                 </button>
               ))}
             </div>

@@ -558,7 +558,7 @@ export default function DevPanel() {
           <VibeCheckBanner
             banner={{ status: 'active' }}
             onDismiss={close}
-            onView={() => { close(); showToast('Anonymous until they match back 💚', 'info') }}
+            onView={() => { close(); showToast('Anonymous until they connect back 💚', 'info') }}
           />
         </div>
       )}
@@ -567,7 +567,7 @@ export default function DevPanel() {
           <VibeCheckBanner
             banner={{ status: 'invite_out' }}
             onDismiss={close}
-            onView={() => { close(); showToast('Anonymous until they match back ✨', 'info') }}
+            onView={() => { close(); showToast('Anonymous until they connect back ✨', 'info') }}
           />
         </div>
       )}
@@ -576,7 +576,7 @@ export default function DevPanel() {
           <VibeCheckBanner
             banner={{ status: 'scheduled' }}
             onDismiss={close}
-            onView={() => { close(); showToast('Anonymous until they match back 🕐', 'info') }}
+            onView={() => { close(); showToast('Anonymous until they connect back 🕐', 'info') }}
           />
         </div>
       )}

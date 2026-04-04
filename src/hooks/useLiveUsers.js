@@ -4,8 +4,22 @@ import { DEMO_SESSIONS, DEMO_SCHEDULED_SESSIONS, DEMO_INVITE_OUT_SESSIONS } from
 import { useAuth } from './useAuth'
 import { useBlockList } from './useBlockList'
 
+const FUZZ_MIN = Number(import.meta.env.VITE_FUZZ_MIN_METERS ?? 200)
+const FUZZ_MAX = Number(import.meta.env.VITE_FUZZ_MAX_METERS ?? 500)
+
+function fuzzCoord(lat, lng) {
+  if (lat == null || lng == null) return { fuzzedLat: null, fuzzedLng: null }
+  const r = (Math.random() * (FUZZ_MAX - FUZZ_MIN) + FUZZ_MIN) / 111320
+  const angle = Math.random() * 2 * Math.PI
+  return {
+    fuzzedLat: lat + r * Math.cos(angle),
+    fuzzedLng: lng + r * Math.sin(angle) / Math.cos(lat * Math.PI / 180),
+  }
+}
+
 /** Map a Supabase sessions_with_profiles row to the app's session shape. */
 function mapRow(row) {
+  const { fuzzedLat, fuzzedLng } = fuzzCoord(row.lat, row.lng)
   return {
     id: row.id,
     userId: row.user_id,
@@ -14,6 +28,8 @@ function mapRow(row) {
     activities: row.activities ?? [],
     lat: row.lat ?? null,
     lng: row.lng ?? null,
+    fuzzedLat,
+    fuzzedLng,
     // placeName, placeId and venueCategory are intentionally NOT mapped here.
     // Venue details are private — they are used only for internal distance
     // calculation and must never be exposed to other users.
@@ -32,6 +48,18 @@ function mapRow(row) {
     age: row.age ?? null,
     lookingFor: row.looking_for ?? null,
     city: row.profile_city ?? row.city ?? null,
+    userJoinedAt: row.profile_created_at ? new Date(row.profile_created_at).getTime() : null,
+    isVerified: row.is_verified ?? false,
+    market: row.market ?? null,
+    priceMin: row.price_min ?? null,
+    priceMax: row.price_max ?? null,
+    brandName: row.brand_name ?? null,
+    tradeRole: row.trade_role ?? null,
+    relationshipGoal: row.relationship_goal ?? null,
+    starSign: row.star_sign ?? null,
+    height: row.height ?? null,
+    speakingNative: row.speaking_native ?? null,
+    speakingSecond: row.speaking_second ?? null,
   }
 }
 
@@ -81,7 +109,19 @@ export function useLiveUsers() {
 
     fetchAll()
 
-    // Real-time: subscribe to ALL session changes, filter client-side
+    // Helper: re-fetch a session row with profile join and update state
+    async function refetchSession(sessionId) {
+      const { data: full } = await supabase
+        .from('sessions_with_profiles')
+        .select('*')
+        .eq('id', sessionId)
+        .single()
+      if (!mounted || !full) return
+      const mapped = mapRow(full)
+      setSessions(prev => [...prev.filter(s => s.id !== mapped.id), mapped])
+    }
+
+    // Real-time: subscribe to session AND profile changes
     channelRef.current = supabase
       .channel(`live-sessions-${user.id}`)
       .on(
@@ -97,31 +137,29 @@ export function useLiveUsers() {
 
           const row = payload.new
           if (!row) return
-
-          // Skip own sessions
           if (row.user_id === user.id) return
-          // Skip blocked
           if (blockedIds.has(row.user_id)) return
 
           if (!ACTIVE_STATUSES.includes(row.status)) {
-            // Session ended/expired — remove from list
             setSessions(prev => prev.filter(s => s.id !== row.id))
             return
           }
 
-          // Re-fetch with profile join to get display data
-          const { data: full } = await supabase
-            .from('sessions_with_profiles')
-            .select('*')
-            .eq('id', row.id)
-            .single()
-
-          if (!mounted || !full) return
-          const mapped = mapRow(full)
-
+          await refetchSession(row.id)
+        }
+      )
+      .on(
+        'postgres_changes',
+        { event: 'UPDATE', schema: 'public', table: 'profiles' },
+        async (payload) => {
+          if (!mounted) return
+          const updatedUserId = payload.new?.id
+          if (!updatedUserId || updatedUserId === user.id) return
+          // Find all sessions belonging to this user and refresh them
           setSessions(prev => {
-            const without = prev.filter(s => s.id !== mapped.id)
-            return [...without, mapped]
+            const affectedIds = prev.filter(s => s.userId === updatedUserId).map(s => s.id)
+            affectedIds.forEach(id => refetchSession(id))
+            return prev
           })
         }
       )

@@ -29,13 +29,18 @@ export default function MeetRequestBanner({ request, onAccepted, onDeclined, onV
     setLoading(null)
   }
 
+  const isLive     = request.status === 'active' || request.status === 'live'
+  const isInvite   = request.status === 'invite_out'
+  const isScheduled= request.status === 'scheduled'
+  const ringClass  = isLive ? styles.ringLive : isInvite ? styles.ringInvite : isScheduled ? styles.ringLater : styles.ringDefault
+
   return (
     <div className={styles.banner}>
 
       {/* ── Top row: avatar + name + buttons ── */}
       <div className={styles.bannerTop}>
         <div className={styles.left}>
-          <div className={styles.avatarWrap}>
+          <div className={`${styles.avatarRing} ${ringClass}`}>
             <button className={styles.avatar} onClick={() => onViewProfile?.()} aria-label="View profile">
               {request.fromPhotoURL
                 ? <img src={request.fromPhotoURL} alt="" className={styles.avatarImg} />
@@ -44,17 +49,15 @@ export default function MeetRequestBanner({ request, onAccepted, onDeclined, onV
                   </span>
               }
             </button>
-            <div className={styles.heartsField} aria-hidden="true">
-              {[...Array(6)].map((_, i) => (
-                <span key={i} className={styles.floatHeart} style={{ '--i': i }}>♥</span>
-              ))}
-            </div>
+            {(isLive || isInvite || isScheduled) && (
+              <span className={`${styles.statusDot} ${isLive ? styles.dotLive : isInvite ? styles.dotInvite : styles.dotLater}`} />
+            )}
           </div>
           <div className={styles.text}>
             <span className={styles.name}>{request.fromDisplayName ?? 'Someone'}</span>
-            <span className={styles.sub}>wants to meet up 💌</span>
+            <span className={styles.sub}>New Connection Request</span>
           </div>
-        </div>
+        </div>  {/* .left */}
         <button
           className={[styles.btn, styles.decline].join(' ')}
           onClick={() => handle(false)}
@@ -80,7 +83,7 @@ export default function MeetRequestBanner({ request, onAccepted, onDeclined, onV
           onClick={() => handle(true)}
           disabled={!!loading}
         >
-          {loading === 'accept' ? <Spinner size={14} color="#000" /> : "Let's Meet"}
+          {loading === 'accept' ? <Spinner size={14} color="#000" /> : "Let's Connect"}
         </button>
       </div>
 

@@ -6,7 +6,6 @@ import Button from '@/components/ui/Button'
 import GpsVerifier from './GpsVerifier'
 import PlaceSearch from './PlaceSearch'
 import { ACTIVITY_TYPES, ACTIVITY_CATEGORIES } from '@/firebase/collections'
-import ActivityIcon from '@/components/ui/ActivityIcon'
 import { VIBE_TAGS } from '@/utils/vibeTags'
 import FeatureIntro, { useFeatureIntro } from '@/components/ui/FeatureIntro'
 import styles from './GoLiveSheet.module.css'
@@ -59,6 +58,7 @@ export default function GoLiveSheet({ open, onClose, showToast, activeVenues = [
   const [selectedDuration, setSelectedDuration] = useState(60)
   const [socialLink, setSocialLink] = useState('')
   const [gpsCoords, setGpsCoords] = useState(null)
+  const [selectedCategory, setSelectedCategory] = useState(null)
   const [selectedVibe, setSelectedVibe] = useState(null)
   const [isGroup, setIsGroup] = useState(false)
   const [groupSize, setGroupSize] = useState(2)
@@ -229,30 +229,42 @@ export default function GoLiveSheet({ open, onClose, showToast, activeVenues = [
           </div>
         )}
 
-        {/* Activity */}
+        {/* Activity — two-step: category grid → activity chips */}
         <div className={styles.section}>
-          <label className={styles.label}>I'm going for…</label>
-          {ACTIVITY_CATEGORIES.map(cat => {
-            const items = ACTIVITY_TYPES.filter(a => a.category === cat.id)
-            if (!items.length) return null
-            return (
-              <div key={cat.id} className={styles.categoryGroup}>
-                <span className={styles.categoryLabel}>{cat.emoji} {cat.label}</span>
-                <div className={styles.activities}>
-                  {items.map((a) => (
-                    <button
-                      key={a.id}
-                      className={[styles.activityBtn, selectedActivity === a.id ? styles.activitySelected : ''].join(' ')}
-                      onClick={() => setSelectedActivity(a.id)}
-                    >
-                      <ActivityIcon activity={a} size={22} className={styles.activityEmoji} />
-                      <span className={styles.activityLabel}>{a.label}</span>
-                    </button>
-                  ))}
-                </div>
-              </div>
-            )
-          })}
+          <div className={styles.activityHeader}>
+            <label className={styles.label}>I'm going for…</label>
+            {selectedCategory && (
+              <button className={styles.backBtn} onClick={() => setSelectedCategory(null)}>
+                ← Back
+              </button>
+            )}
+          </div>
+
+          {!selectedCategory ? (
+            <div className={styles.categoryGrid}>
+              {ACTIVITY_CATEGORIES.map(cat => (
+                <button
+                  key={cat.id}
+                  className={styles.categoryTile}
+                  onClick={() => setSelectedCategory(cat.id)}
+                >
+                  {cat.label}
+                </button>
+              ))}
+            </div>
+          ) : (
+            <div className={styles.activities}>
+              {ACTIVITY_TYPES.filter(a => a.category === selectedCategory).map(a => (
+                <button
+                  key={a.id}
+                  className={[styles.activityChip, selectedActivity === a.id ? styles.activitySelected : ''].join(' ')}
+                  onClick={() => setSelectedActivity(a.id)}
+                >
+                  {a.label}
+                </button>
+              ))}
+            </div>
+          )}
         </div>
 
         {/* Vibe */}
@@ -262,11 +274,10 @@ export default function GoLiveSheet({ open, onClose, showToast, activeVenues = [
             {VIBE_TAGS.map(v => (
               <button
                 key={v.id}
-                className={[styles.activityBtn, selectedVibe === v.id ? styles.activitySelected : ''].join(' ')}
+                className={[styles.activityChip, selectedVibe === v.id ? styles.activitySelected : ''].join(' ')}
                 onClick={() => setSelectedVibe(prev => prev === v.id ? null : v.id)}
               >
-                <span className={styles.activityEmoji}>{v.emoji}</span>
-                <span className={styles.activityLabel}>{v.label}</span>
+                {v.label}
               </button>
             ))}
           </div>

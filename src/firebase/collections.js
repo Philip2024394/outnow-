@@ -51,8 +51,11 @@ export const SESSION_STATUS = {
 export const ACTIVITY_CATEGORIES = [
   { id: 'night_out',    label: 'Night Out',          emoji: '🌙' },
   { id: 'food_drink',   label: 'Food & Drink',       emoji: '🍽️' },
+  { id: 'music',        label: 'Music & Gigs',       emoji: '🎵' },
+  { id: 'arts',         label: 'Arts & Creative',    emoji: '🎨' },
   { id: 'active',       label: 'Active & Sport',     emoji: '🏃' },
   { id: 'culture',      label: 'Culture & Events',   emoji: '🎭' },
+  { id: 'tech',         label: 'Tech & Gaming',      emoji: '💻' },
   { id: 'social',       label: 'Social & Friends',   emoji: '👥' },
   { id: 'family',       label: 'Family & Kids',      emoji: '👨‍👩‍👧' },
   { id: 'travel',       label: 'Travel & Explore',   emoji: '✈️' },
@@ -60,6 +63,8 @@ export const ACTIVITY_CATEGORIES = [
   { id: 'learning',     label: 'Learning & Skills',  emoji: '📚' },
   { id: 'community',    label: 'Community & Causes', emoji: '🤝' },
   { id: 'wellness',     label: 'Sober & Wellness',   emoji: '🧘' },
+  { id: 'property',     label: 'Property & Rentals', emoji: '🏠' },
+  { id: 'handmade',     label: 'Handmade & Makers',  emoji: '🧵' },
 ]
 
 // ─── Activity image assets ─────────────────────────────────────────────────
@@ -109,6 +114,11 @@ export const ACTIVITY_TYPES = [
   { id: 'brunch',       label: 'Brunch',          emoji: '🥂',                     category: 'food_drink' },
   { id: 'sushi',        label: 'Sushi',           emoji: '🍣',                     category: 'food_drink' },
   { id: 'dinner',       label: 'Dinner',          emoji: '🍽️',                    category: 'food_drink' },
+  { id: 'cooking_class',label: 'Cooking Class',   emoji: '👨‍🍳',                   category: 'food_drink' },
+  { id: 'wine_tasting', label: 'Wine Tasting',    emoji: '🍷',                     category: 'food_drink' },
+  { id: 'food_tour',    label: 'Food Tour',       emoji: '🗺️',                    category: 'food_drink' },
+  { id: 'street_food',  label: 'Street Food',     emoji: '🌮',                     category: 'food_drink' },
+  { id: 'pop_up',       label: 'Pop-Up Dining',   emoji: '🍴',                     category: 'food_drink' },
 
   // Active & Sport
   { id: 'walk',         label: 'Walk',            emoji: '🚶', img: WALKING_IMG,   category: 'active' },
@@ -121,20 +131,58 @@ export const ACTIVITY_TYPES = [
   { id: 'football',     label: 'Football',        emoji: '⚽',                     category: 'active' },
   { id: 'basketball',   label: 'Basketball',      emoji: '🏀',                     category: 'active' },
   { id: 'padel',        label: 'Padel',           emoji: '🏓',                     category: 'active' },
+  { id: 'rugby',        label: 'Rugby',           emoji: '🏉',                     category: 'active' },
+  { id: 'cricket',      label: 'Cricket',         emoji: '🏏',                     category: 'active' },
+  { id: 'volleyball',   label: 'Volleyball',      emoji: '🏐',                     category: 'active' },
+  { id: 'golf',         label: 'Golf',            emoji: '⛳',                     category: 'active' },
+  { id: 'martial_arts', label: 'Martial Arts',    emoji: '🥋',                     category: 'active' },
+  { id: 'climbing',     label: 'Climbing',        emoji: '🧗',                     category: 'active' },
+  { id: 'skiing',       label: 'Skiing',          emoji: '⛷️',                    category: 'active' },
+
+  // Music & Gigs
+  { id: 'live_gig',     label: 'Live Gig',        emoji: '🎸',                     category: 'music' },
+  { id: 'open_mic',     label: 'Open Mic Night',  emoji: '🎤',                     category: 'music' },
+  { id: 'dj_night',     label: 'DJ Night',        emoji: '🎧',                     category: 'music' },
+  { id: 'concert',      label: 'Concert',         emoji: '🎶',                     category: 'music' },
+  { id: 'festival',     label: 'Music Festival',  emoji: '🎪',                     category: 'music' },
+  { id: 'jazz_night',   label: 'Jazz Night',      emoji: '🎷',                     category: 'music' },
+  { id: 'acoustic',     label: 'Acoustic Set',    emoji: '🪕',                     category: 'music' },
+  { id: 'rave',         label: 'Rave / Club',     emoji: '🕺',                     category: 'music' },
+
+  // Arts & Creative
+  { id: 'art_gallery',  label: 'Art Gallery',     emoji: '🖼️', img: ART_IMG,      category: 'arts' },
+  { id: 'photo_walk',   label: 'Photography Walk',emoji: '📷',                     category: 'arts' },
+  { id: 'pottery',      label: 'Pottery Class',   emoji: '🏺',                     category: 'arts' },
+  { id: 'life_drawing', label: 'Life Drawing',    emoji: '✏️',                    category: 'arts' },
+  { id: 'improv',       label: 'Improv / Drama',  emoji: '🎭',                     category: 'arts' },
+  { id: 'creative_writ',label: 'Creative Writing',emoji: '✍️',                    category: 'arts' },
+  { id: 'street_art',   label: 'Street Art Tour', emoji: '🎨',                     category: 'arts' },
+  { id: 'craft',        label: 'Craft Workshop',  emoji: '🧶',                     category: 'arts' },
+  { id: 'film_screening',label: 'Film Screening', emoji: '🎞️',                    category: 'arts' },
 
   // Culture & Events
   { id: 'cinema',       label: 'Cinema',          emoji: '🎬', img: CINEMA_IMG,    category: 'culture' },
   { id: 'tickets',      label: 'Events',          emoji: '🎟️', img: TICKETS_IMG,  category: 'culture' },
-  { id: 'art',          label: 'Art',             emoji: '🎨', img: ART_IMG,       category: 'culture' },
-  { id: 'music',        label: 'Live Music',      emoji: '🎵',                     category: 'culture' },
   { id: 'theatre',      label: 'Theatre',         emoji: '🎭',                     category: 'culture' },
   { id: 'museum',       label: 'Museum',          emoji: '🏛️',                    category: 'culture' },
   { id: 'comedy',       label: 'Comedy Night',    emoji: '😂',                     category: 'culture' },
+  { id: 'exhibition',   label: 'Exhibition',      emoji: '🗿',                     category: 'culture' },
+  { id: 'spoken_word',  label: 'Spoken Word',     emoji: '🗣️',                    category: 'culture' },
+  { id: 'cultural_fest',label: 'Cultural Festival',emoji: '🌍',                   category: 'culture' },
+
+  // Tech & Gaming
+  { id: 'hackathon',    label: 'Hackathon',       emoji: '💡',                     category: 'tech' },
+  { id: 'tech_meetup',  label: 'Tech Meetup',     emoji: '💻',                     category: 'tech' },
+  { id: 'gaming_night', label: 'Gaming Night',    emoji: '🎮',                     category: 'tech' },
+  { id: 'esports',      label: 'Esports',         emoji: '🏆',                     category: 'tech' },
+  { id: 'vr_experience',label: 'VR Experience',   emoji: '🥽',                     category: 'tech' },
+  { id: 'ai_meetup',    label: 'AI & Robotics',   emoji: '🤖',                     category: 'tech' },
+  { id: 'crypto',       label: 'Web3 / Crypto',   emoji: '⛓️',                    category: 'tech' },
+  { id: 'dev_conf',     label: 'Dev Conference',  emoji: '🖥️',                    category: 'tech' },
 
   // Social & Friends
   { id: 'hangout',      label: 'Hangout',         emoji: '👥', img: HANGOUT_IMG,   category: 'social' },
   { id: 'bowling',      label: 'Bowling',         emoji: '🎳', img: BOWLING_IMG,   category: 'social' },
-  { id: 'gaming',       label: 'Gaming',          emoji: '🎮',                     category: 'social' },
   { id: 'shopping',     label: 'Shopping',        emoji: '🛍️', img: SHOPPING_IMG, category: 'social' },
   { id: 'beach',        label: 'Beach',           emoji: '🏖️', img: BEACH_IMG,    category: 'social' },
   { id: 'picnic',       label: 'Picnic',          emoji: '🧺',                     category: 'social' },
@@ -181,6 +229,33 @@ export const ACTIVITY_TYPES = [
   { id: 'activism',     label: 'Activism',        emoji: '✊',                     category: 'community' },
   { id: 'faith_group',  label: 'Faith & Belief',  emoji: '🕊️',                    category: 'community' },
   { id: 'environment',  label: 'Environment',     emoji: '🌱',                     category: 'community' },
+
+  // Handmade & Makers
+  { id: 'sewing',         label: 'Sewing',              emoji: '🧵', category: 'handmade' },
+  { id: 'handbags',       label: 'Handbags & Bags',     emoji: '👜', category: 'handmade' },
+  { id: 'jewellery',      label: 'Jewellery Making',    emoji: '💍', category: 'handmade' },
+  { id: 'knitting',       label: 'Knitting & Crochet',  emoji: '🧶', category: 'handmade' },
+  { id: 'candle_making',  label: 'Candle Making',       emoji: '🕯️', category: 'handmade' },
+  { id: 'embroidery',     label: 'Embroidery',          emoji: '🪡', category: 'handmade' },
+  { id: 'leatherwork',    label: 'Leatherwork',         emoji: '🧳', category: 'handmade' },
+  { id: 'upcycling',      label: 'Upcycling & DIY',     emoji: '♻️', category: 'handmade' },
+  { id: 'printmaking',    label: 'Print & Screen Print',emoji: '🖨️', category: 'handmade' },
+  { id: 'makers_market',  label: 'Makers Market',       emoji: '🏪', category: 'handmade' },
+  { id: 'fashion_design', label: 'Fashion Design',      emoji: '👗', category: 'handmade' },
+  { id: 'dress_making',   label: 'Dress Making',         emoji: '🪡', category: 'handmade' },
+  { id: 'textile_art',    label: 'Textile Art',         emoji: '🎨', category: 'handmade' },
+
+  // Property & Rentals
+  { id: 'property_viewing', label: 'Property Viewing',   emoji: '🏠', category: 'property' },
+  { id: 'open_house',       label: 'Open House',         emoji: '🚪', category: 'property' },
+  { id: 'rental_search',    label: 'Rental Search',      emoji: '🔑', category: 'property' },
+  { id: 'flatmate_search',  label: 'Flatmate Search',    emoji: '🛋️', category: 'property' },
+  { id: 'property_invest',  label: 'Property Investment',emoji: '📈', category: 'property' },
+  { id: 'landlord_meet',    label: 'Landlord Meetup',    emoji: '🤝', category: 'property' },
+  { id: 'first_buyer',      label: 'First Time Buyer',   emoji: '🏡', category: 'property' },
+  { id: 'property_network', label: 'Property Networking',emoji: '💼', category: 'property' },
+  { id: 'moving_day',       label: 'Moving Day Help',    emoji: '📦', category: 'property' },
+  { id: 'interior_design',  label: 'Interior Design',    emoji: '🛏️', category: 'property' },
 
   // Sober & Wellness
   { id: 'yoga',         label: 'Yoga',            emoji: '🧘', img: YOGA_IMG,      category: 'wellness' },

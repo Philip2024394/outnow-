@@ -135,7 +135,13 @@ export default function ChatWindow({ conversation: conv, onBack, onConvUpdate })
               ? <img src={conv.photoURL} alt={conv.displayName} className={styles.headerAvatarImg} />
               : <span className={styles.headerAvatarEmoji}>{conv.emoji}</span>
             }
-            {conv.online && <span className={styles.headerOnlineDot} />}
+            {conv.sessionStatus && (
+              <span className={[
+                styles.headerOnlineDot,
+                conv.sessionStatus === 'active' || conv.sessionStatus === 'live' ? styles.dotLive :
+                conv.sessionStatus === 'invite_out' ? styles.dotInvite : styles.dotLater
+              ].join(' ')} />
+            )}
           </div>
           <div className={styles.headerInfo}>
             <span className={styles.headerName}>{conv.displayName}</span>

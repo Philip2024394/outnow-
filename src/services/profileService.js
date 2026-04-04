@@ -3,7 +3,13 @@ import { supabase } from '@/lib/supabase'
 /**
  * Save profile fields to Supabase profiles table.
  */
-export async function saveProfile({ userId, displayName, dob, bio, city, country, activities, lookingFor, extraPhotos }) {
+export async function saveProfile({
+  userId, displayName, dob, bio, city, country, activities, lookingFor, extraPhotos,
+  speakingNative, speakingSecond,
+  priceMin, priceMax, brandName, tradeRole, market,
+  relationshipGoal, starSign, height,
+  photoOffsetX, photoOffsetY, photoZoom,
+}) {
   if (!supabase || !userId) return
 
   // Calculate age from dob string "YYYY-MM-DD"
@@ -19,16 +25,29 @@ export async function saveProfile({ userId, displayName, dob, bio, city, country
   const { error } = await supabase
     .from('profiles')
     .update({
-      display_name:  displayName ?? null,
-      dob:           dob ?? null,
-      age:           age,
-      bio:           bio ?? null,
-      city:          city ?? null,
-      country:       country ?? null,
-      activities:    activities ?? [],
-      looking_for:   lookingFor ?? null,
-      extra_photos:  (extraPhotos ?? []).filter(Boolean),
-      updated_at:    new Date().toISOString(),
+      display_name:      displayName ?? null,
+      dob:               dob ?? null,
+      age:               age,
+      bio:               bio ?? null,
+      city:              city ?? null,
+      country:           country ?? null,
+      activities:        activities ?? [],
+      looking_for:       lookingFor ?? null,
+      extra_photos:      (extraPhotos ?? []).filter(Boolean),
+      speaking_native:   speakingNative ?? null,
+      speaking_second:   speakingSecond ?? null,
+      price_min:         priceMin || null,
+      price_max:         priceMax || null,
+      brand_name:        brandName || null,
+      trade_role:        tradeRole || null,
+      market:            market || null,
+      relationship_goal: relationshipGoal || null,
+      star_sign:         starSign || null,
+      height:            height || null,
+      photo_offset_x:    photoOffsetX ?? 50,
+      photo_offset_y:    photoOffsetY ?? 50,
+      photo_zoom:        photoZoom ?? 1,
+      updated_at:        new Date().toISOString(),
     })
     .eq('id', userId)
   if (error) throw new Error(error.message)

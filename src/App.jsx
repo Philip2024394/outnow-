@@ -3,18 +3,12 @@ import { useAuth } from '@/hooks/useAuth'
 import AuthScreen from '@/screens/AuthScreen'
 import AppShell from '@/router/AppShell'
 import Spinner from '@/components/ui/Spinner'
-import WelcomePopup from '@/screens/onboarding/WelcomePopup'
-import VideoIntro from '@/screens/onboarding/VideoIntro'
-import ProfileSetup from '@/screens/onboarding/ProfileSetup'
-import GoLivePrompt from '@/screens/onboarding/GoLivePrompt'
 import AdminApp from '@/admin/AdminApp'
 import { GuestGateProvider } from '@/contexts/GuestGateContext'
 import DevPanel from '@/dev/DevPanel'
 import styles from './App.module.css'
 
 const LOGO_URL = 'https://ik.imagekit.io/dateme/Logo%20with%20green%20map%20pin%20element.png'
-
-const ONBOARDING_BASE_KEY = 'imoutnow_onboarded_v1'
 
 // Route /admin path to the admin dashboard
 if (window.location.pathname.startsWith('/admin')) {
@@ -34,8 +28,7 @@ export default function App() {
   // Onboarding step — starts 'checking' until we know the user's id,
   // then resolves to 'setup' (new user) or 'done' (returning user).
   const [onboardStep, setOnboardStep] = useState('checking')
-  const [triggerGoLive, setTriggerGoLive] = useState(false)
-  const [prefillBio, setPrefillBio] = useState('')
+  const [triggerGoLive] = useState(false)
 
   // Resolve onboarding state per-user so each new account sees onboarding
   const resolvedRef = useRef(null)
@@ -47,15 +40,8 @@ export default function App() {
     }
     if (resolvedRef.current === user.id) return  // already resolved for this user
     resolvedRef.current = user.id
-    const key = `${ONBOARDING_BASE_KEY}_${user.id}`
-    setOnboardStep(localStorage.getItem(key) ? 'done' : 'video')
+    setOnboardStep('done')
   }, [user, adminPass])
-
-  // Dev preview: bypass auth + force full first-time user flow
-  const handleDevPreview = () => {
-    setAdminPass(true)
-    setOnboardStep('video')
-  }
 
   // Admin dev: bypass auth + skip onboarding → straight to app
   const handleAdminDev = () => {
@@ -88,9 +74,7 @@ export default function App() {
   if (!user && !adminPass && !guestMode) {
     return (
       <AuthScreen
-        onAdminPass={() => setAdminPass(true)}
         onGuest={() => setGuestMode(true)}
-        onDevPreview={handleDevPreview}
         onAdminDev={handleAdminDev}
       />
     )
@@ -103,32 +87,6 @@ export default function App() {
         <AppShell returnParams={returnParams} triggerGoLive={triggerGoLive} />
       )}
 
-      {/* Video background — stays mounted through all onboarding slides */}
-      {(user || adminPass) && ['video','setup','golive'].includes(onboardStep) && (
-        <VideoIntro
-          forcePlay={adminPass && !user}
-          bgOnly={onboardStep !== 'video'}
-          onDone={() => setOnboardStep('setup')}
-        />
-      )}
-      {(user || adminPass) && onboardStep === 'welcome' && (
-        <WelcomePopup onDone={(bio) => { setPrefillBio(bio ?? ''); setOnboardStep('setup') }} />
-      )}
-      {(user || adminPass) && onboardStep === 'setup' && (
-        <ProfileSetup
-          prefillBio={prefillBio}
-          onDone={(profile) => {
-            if (user) localStorage.setItem(`${ONBOARDING_BASE_KEY}_${user.id}`, JSON.stringify(profile))
-            setOnboardStep('golive')
-          }}
-        />
-      )}
-      {(user || adminPass) && onboardStep === 'golive' && (
-        <GoLivePrompt
-          onGoLive={() => { setTriggerGoLive(true); setOnboardStep('done') }}
-          onSkip={() => setOnboardStep('done')}
-        />
-      )}
     </GuestGateProvider>
   )
 }

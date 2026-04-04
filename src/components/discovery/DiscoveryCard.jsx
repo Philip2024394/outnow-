@@ -6,11 +6,15 @@ import { useAuth } from '@/hooks/useAuth'
 import { useOverlay } from '@/contexts/OverlayContext'
 import CountdownTimer from '@/components/ui/CountdownTimer'
 import { ACTIVITY_TYPES } from '@/firebase/collections'
-import { lookingForText } from '@/utils/lookingForLabels'
+import { lookingForText, LANGUAGE_FLAGS } from '@/utils/lookingForLabels'
 import styles from './DiscoveryCard.module.css'
-
+import MakerCard from './layouts/MakerCard'
+import DatingCard from './layouts/DatingCard'
+import CraftSuppliesCard from './layouts/CraftSuppliesCard'
 import { quoteForUser } from '@/data/brandQuotes'
 import { recordPhotoView } from '@/services/photoNudgeService'
+
+const MAKER_CATEGORIES = ['handmade', 'property', 'professional']
 
 const ACTIVITY_SLOGANS = {
   drinks:  'Up for drinks tonight',
@@ -34,7 +38,7 @@ function fmtScheduledFull(ms) {
   return d.toLocaleDateString([], { weekday: 'long' }) + ' at ' + timeStr
 }
 
-export default function DiscoveryCard({ open, session, mySession, onClose, showToast, onGuestAction, onMeetSent }) {
+export default function DiscoveryCard({ open, session, mySession, onClose, showToast, onGuestAction, onMeetSent, onLike }) {
   useOverlay()
   const { user } = useAuth()
   const { myInterests, mutualSessions } = useInterests()
@@ -87,6 +91,14 @@ export default function DiscoveryCard({ open, session, mySession, onClose, showT
 
   if (!open || !session) return null
 
+  // Route to specialised layouts
+  if (session.lookingFor === 'dating')
+    return <DatingCard open={open} session={session} mySession={mySession} onClose={onClose} showToast={showToast} onGuestAction={onGuestAction} onMeetSent={onMeetSent} onLike={onLike} />
+  if (MAKER_CATEGORIES.includes(session.lookingFor))
+    return <MakerCard open={open} session={session} mySession={mySession} onClose={onClose} showToast={showToast} onGuestAction={onGuestAction} onMeetSent={onMeetSent} onLike={onLike} />
+  if (session.lookingFor === 'craft_supplies')
+    return <CraftSuppliesCard open={open} session={session} onClose={onClose} showToast={showToast} onGuestAction={onGuestAction} onMeetSent={onMeetSent} onLike={onLike} />
+
   const isScheduled = session.status === 'scheduled'
   const isInviteOut = session.status === 'invite_out'
   const isOutNow    = !isScheduled && !isInviteOut
@@ -114,10 +126,19 @@ export default function DiscoveryCard({ open, session, mySession, onClose, showT
 
   const profileStars = 3 + (session.id.split('').reduce((acc, c) => acc + c.charCodeAt(0), 0) % 3)
 
+  const joinedLabel = (() => {
+    if (!session.userJoinedAt) return 'Joined'
+    const d = new Date(session.userJoinedAt)
+    const dd = String(d.getDate()).padStart(2, '0')
+    const mm = String(d.getMonth() + 1).padStart(2, '0')
+    const yyyy = d.getFullYear()
+    return `Joined ${dd}/${mm}/${yyyy}`
+  })()
+
   const timerLabel = isScheduled
     ? `🕐 ${fmtScheduledFull(session.scheduledFor)}`
     : isInviteOut
-    ? '💌 Open Invite'
+    ? joinedLabel
     : null // Out Now shows CountdownTimer component
 
   const handleLetsMeet = async () => {
@@ -148,6 +169,7 @@ export default function DiscoveryCard({ open, session, mySession, onClose, showT
   const handleLike = () => {
     if (liked) return
     setLiked(true)
+    onLike?.(session)
     const batch = Array.from({ length: 6 }, (_, i) => ({
       id: Date.now() + i,
       left: 38 + (Math.random() * 40 - 20),
@@ -157,7 +179,7 @@ export default function DiscoveryCard({ open, session, mySession, onClose, showT
     setHearts(batch)
     setTimeout(() => setHearts([]), 2000)
     if (isMutual) {
-      showToast?.(`🎉 It's mutual! Chat with ${session.displayName ?? 'them'} is opening — it's free!`, 'success')
+      showToast?.(`🎉 You're connected! Chat with ${session.displayName ?? 'them'} is opening — it's free!`, 'success')
       setTimeout(() => onMeetSent?.(session), 900)
     } else {
       showToast?.(`❤️ You liked ${session.displayName ?? 'this profile'}!`, 'success')
@@ -179,13 +201,12 @@ export default function DiscoveryCard({ open, session, mySession, onClose, showT
                   <span className={styles.activityHeaderIcon}>{activity.emoji ?? '🎯'}</span>
                   <div className={styles.activityHeaderText}>
                     <span className={styles.activityHeaderLabel}>{activity.label}</span>
-                    <span className={styles.activityHeaderSlogan}>{slogan}</span>
+                    <span className={styles.activityHeaderSlogan}>First Meet Preference</span>
                   </div>
                 </div>
                 <div className={styles.matchBadge}>
-                  {matchPercent >= 80 && <span className={styles.matchStar}>⭐</span>}
                   <span className={styles.matchPercent}>{matchPercent}%</span>
-                  <span className={styles.matchLabel}>Match</span>
+                  <span className={styles.matchLabel}>Active</span>
                 </div>
               </div>
             )}
@@ -217,10 +238,19 @@ export default function DiscoveryCard({ open, session, mySession, onClose, showT
                   className={styles.photoBannerImg}
                 />
                 <div className={styles.photoBannerMeta}>
+                  {session.isVerified && (
+                    <div className={styles.verifiedBadge}>
+                      <svg width="11" height="11" viewBox="0 0 24 24" fill="#F5C518" stroke="#F5C518" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                        <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/>
+                        <polyline points="22 4 12 14.01 9 11.01"/>
+                      </svg>
+                      <span className={styles.verifiedText}>Verified</span>
+                    </div>
+                  )}
                   <span className={styles.photoBannerName}>
                     {session.displayName ?? 'Someone'}
                     {session.age ? <span className={styles.photoBannerAge}>, {session.age}</span> : null}
-                    {isOutNow && <span className={styles.liveDot} />}
+                    <span className={`${styles.liveDot} ${isInviteOut ? styles.liveDotInvite : isScheduled ? styles.liveDotLater : ''}`} />
                   </span>
                   {(session.city || session.area) && (
                     <span className={styles.photoBannerCity}>
@@ -274,41 +304,38 @@ export default function DiscoveryCard({ open, session, mySession, onClose, showT
               </div>
             )}
 
-            {/* Thumbnail strip */}
-            {photos.length > 1 && (
-              <div className={styles.thumbStrip}>
-                <button className={styles.thumbArrow} onClick={() => setPhotoIdx(i => Math.max(0, i - 1))} disabled={photoIdx === 0} aria-label="Previous">
-                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                    <polyline points="15 18 9 12 15 6" />
-                  </svg>
-                </button>
-                <div className={styles.thumbList}>
-                  {photos.map((url, i) => (
-                    <button key={i} className={`${styles.thumb} ${i === photoIdx ? styles.thumbActive : ''}`} onClick={() => setPhotoIdx(i)}>
-                      <img src={url} alt="" className={styles.thumbImg} />
-                    </button>
-                  ))}
-                </div>
-                <button className={styles.thumbArrow} onClick={() => setPhotoIdx(i => Math.min(photos.length - 1, i + 1))} disabled={photoIdx === photos.length - 1} aria-label="Next">
-                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                    <polyline points="9 18 15 12 9 6" />
-                  </svg>
-                </button>
-              </div>
-            )}
 
             {/* Here for */}
             {session.lookingFor && (
               <div className={styles.lookingForRow}>
                 <div className={styles.lookingForLeft}>
-                  <span className={styles.lookingForLabel}>Here for</span>
+                  <span className={styles.lookingForLabel}>Joined for</span>
                   <span className={styles.lookingForText}>{lookingForText(session.lookingFor)}</span>
                 </div>
-                {isOutNow    && <span className={styles.outNowFlash}>I'm Out Now</span>}
-                {isInviteOut && <span className={styles.inviteOutFlash}>Invite Out</span>}
-                {isScheduled && <span className={styles.laterOutFlash}>Out Later</span>}
               </div>
             )}
+
+            {(session.speakingNative || session.speakingSecond) && (
+              <div className={styles.speakingRow}>
+                <span className={styles.lookingForLabel}>Speaking</span>
+                <span className={styles.speakingLangs}>
+                  {[session.speakingNative, session.speakingSecond].filter(Boolean).map((lang, i, arr) => (
+                    <span key={lang}>{LANGUAGE_FLAGS[lang] ?? ''} {lang}{i < arr.length - 1 ? ' · ' : ''}</span>
+                  ))}
+                </span>
+              </div>
+            )}
+
+            {/* Bio snippet */}
+            {session.bio && (() => {
+              const cleanBio = session.bio.replace(/[\p{Emoji_Presentation}\p{Extended_Pictographic}]/gu, '').trim()
+              const preview = cleanBio.slice(0, 160)
+              return (
+                <button className={styles.bioSnippet} onClick={() => setBioOpen(true)}>
+                  <span className={styles.bioSnippetText}>{preview}...</span>
+                </button>
+              )
+            })()}
 
             {/* Timer + stars */}
             <div className={styles.timerRow}>
@@ -318,7 +345,7 @@ export default function DiscoveryCard({ open, session, mySession, onClose, showT
               }
               <div className={styles.profileStars}>
                 {'★'.repeat(profileStars)}{'☆'.repeat(5 - profileStars)}
-                <span className={styles.profileStarsLabel}>Active</span>
+                <span className={styles.profileStarsLabel}>Account Health</span>
               </div>
             </div>
 
@@ -329,7 +356,14 @@ export default function DiscoveryCard({ open, session, mySession, onClose, showT
                 disabled={meetSent || hasExpressedInterest || meetLoading}
                 onClick={handleLetsMeet}
               >
-                {meetLoading ? '…' : meetSent || hasExpressedInterest ? '✓ Message Sent' : 'Let\'s Meet Who Knows'}
+                <span>{meetLoading ? '…' : meetSent || hasExpressedInterest ? '✓ Connected' : 'Let\'s Connect'}</span>
+                {!meetSent && !hasExpressedInterest && !meetLoading && (
+                  <>
+                    {isOutNow    && <span className={styles.btnFlashOut}>I'm Out Now</span>}
+                    {isInviteOut && <span className={styles.btnFlashInvite}>Invite Out</span>}
+                    {isScheduled && <span className={styles.btnFlashLater}>Out Later</span>}
+                  </>
+                )}
               </button>
             </div>
 
@@ -339,6 +373,7 @@ export default function DiscoveryCard({ open, session, mySession, onClose, showT
         {/* ── Bio full-view overlay ── */}
         {bioOpen && (
           <div className={styles.bioOverlay}>
+            <div className={styles.bioHandle} onClick={() => setBioOpen(false)} />
             <div className={styles.bioFullImg}>
               <img src={photos[photoIdx]} alt={session.displayName} className={styles.bioFullImgEl} />
               <div className={styles.bioImgGradient} />
@@ -352,6 +387,49 @@ export default function DiscoveryCard({ open, session, mySession, onClose, showT
               <p className={styles.bioBodyText}>
                 {session.bio ?? `${session.displayName ?? 'They'} ${isOutNow ? "is out right now" : isInviteOut ? "has an open invite" : "is planning to head out"} and looking for good company. Spontaneous, fun-loving and always up for a great time — ${slogan.toLowerCase()}.`}
               </p>
+              {photos.length > 1 && (
+                <div className={styles.bioThumbStrip}>
+                  <button
+                    className={styles.bioThumbArrow}
+                    onClick={() => setPhotoIdx(i => Math.max(0, i - 1))}
+                    disabled={photoIdx === 0}
+                    aria-label="Previous photo"
+                  >
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                      <polyline points="15 18 9 12 15 6" />
+                    </svg>
+                  </button>
+                  <div className={styles.thumbList}>
+                    {photos.map((url, i) => (
+                      <button
+                        key={i}
+                        className={`${styles.thumb} ${i === photoIdx ? styles.thumbActive : ''}`}
+                        onClick={() => setPhotoIdx(i)}
+                      >
+                        <img src={url} alt="" className={styles.thumbImg} />
+                      </button>
+                    ))}
+                  </div>
+                  <button
+                    className={styles.bioThumbArrow}
+                    onClick={() => setPhotoIdx(i => Math.min(photos.length - 1, i + 1))}
+                    disabled={photoIdx === photos.length - 1}
+                    aria-label="Next photo"
+                  >
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                      <polyline points="9 18 15 12 9 6" />
+                    </svg>
+                  </button>
+                </div>
+              )}
+
+              {session.priceStart && (
+                <div className={styles.bioMeta} style={{ marginBottom: 6 }}>
+                  <span className={styles.bioMetaLabel}>Prices Start</span>
+                  <span className={styles.bioMetaDot}>·</span>
+                  <span className={styles.bioMetaValue}>{session.priceStart}</span>
+                </div>
+              )}
               <div className={styles.bioNavRow}>
                 <button
                   className={styles.bioNavBtn}
@@ -368,15 +446,13 @@ export default function DiscoveryCard({ open, session, mySession, onClose, showT
                   Next →
                 </button>
               </div>
-              <div className={styles.bioMeta}>
-                {activity && <span>{activity.emoji} {activity.label}</span>}
-                <span className={styles.bioMetaDot}>·</span>
-                <span style={{ color: statusColor }}>
-                  {isOutNow ? "I'm Out Now" : isInviteOut ? "Invite Out" : "Out Later"}
-                </span>
-                <span className={styles.bioMetaDot}>·</span>
-                <span>{slogan}</span>
-              </div>
+              {session.market && (
+                <div className={styles.bioMeta}>
+                  <span className={styles.bioMetaLabel}>Market</span>
+                  <span className={styles.bioMetaDot}>·</span>
+                  <span className={styles.bioMetaValue}>{session.market}</span>
+                </div>
+              )}
             </div>
           </div>
         )}
