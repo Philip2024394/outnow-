@@ -3,6 +3,7 @@ import { signInWithEmail, signUpWithEmail } from '@/services/authService'
 import styles from './AuthScreen.module.css'
 
 const HERO_URL  = 'https://ik.imagekit.io/nepgaxllc/Untitledxzxczcxzxcdassdasdvvvvv.png'
+const BRAND_URL = 'https://ik.imagekit.io/nepgaxllc/Untitledxczxc-removebg-preview.png?updatedAt=1775162044064'
 const INTRO_VIDEO = 'https://ik.imagekit.io/nepgaxllc/good.mp4?updatedAt=1775120536152'
 
 // Step 1: email entry → Step 2: password (sign-in or create account)
@@ -88,7 +89,8 @@ export default function AuthScreen({ onAdminPass, onGuest, onDevPreview, onAdmin
       <div className={styles.overlay} />
 
       <div className={styles.logoWrap}>
-        <p className={styles.tagline}>Meet people who are out right now</p>
+        <img src={BRAND_URL} alt="IMOUTNOW" className={styles.logo} />
+        <p className={styles.tagline}>Meet People Out Near You</p>
       </div>
 
       <div className={styles.panel}>
