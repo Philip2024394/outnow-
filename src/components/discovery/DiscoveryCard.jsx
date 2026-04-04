@@ -6,6 +6,7 @@ import { useAuth } from '@/hooks/useAuth'
 import { useOverlay } from '@/contexts/OverlayContext'
 import CountdownTimer from '@/components/ui/CountdownTimer'
 import { ACTIVITY_TYPES } from '@/firebase/collections'
+import { lookingForText } from '@/utils/lookingForLabels'
 import styles from './DiscoveryCard.module.css'
 
 import { quoteForUser } from '@/data/brandQuotes'
@@ -301,7 +302,7 @@ export default function DiscoveryCard({ open, session, mySession, onClose, showT
               <div className={styles.lookingForRow}>
                 <div className={styles.lookingForLeft}>
                   <span className={styles.lookingForLabel}>Here for</span>
-                  <span className={styles.lookingForText}>{session.lookingFor}</span>
+                  <span className={styles.lookingForText}>{lookingForText(session.lookingFor)}</span>
                 </div>
                 {isOutNow    && <span className={styles.outNowFlash}>I'm Out Now</span>}
                 {isInviteOut && <span className={styles.inviteOutFlash}>Invite Out</span>}

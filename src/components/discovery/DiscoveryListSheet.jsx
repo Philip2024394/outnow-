@@ -1,6 +1,7 @@
 import { useEffect, useRef } from 'react'
 import Avatar from '@/components/ui/Avatar'
 import { ACTIVITY_TYPES } from '@/firebase/collections'
+import { lookingForText } from '@/utils/lookingForLabels'
 import ActivityIcon from '@/components/ui/ActivityIcon'
 import styles from './DiscoveryListSheet.module.css'
 
@@ -125,7 +126,7 @@ export default function DiscoveryListSheet({ open, filter = 'now', sessions = []
                         {s.isGroup && <span className={styles.groupTag}>👥 {s.groupSize}</span>}
                       </div>
                       {s.lookingFor && (
-                        <div className={styles.cardSeeking}>{s.lookingFor}</div>
+                        <div className={styles.cardSeeking}>{lookingForText(s.lookingFor)}</div>
                       )}
                       <div className={styles.cardArea}>
                         📍 {s.city ?? s.area ?? 'Nearby'}

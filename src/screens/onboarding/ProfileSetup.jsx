@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
 import { useCoins } from '@/hooks/useCoins'
 import { ALL_COUNTRIES, detectCountryByIP, flagEmoji } from '@/utils/countries'
+import { LOOKING_FOR_OPTIONS } from '@/utils/lookingForLabels'
 import styles from './ProfileSetup.module.css'
 
 const LOGO_URL = 'https://ik.imagekit.io/dateme/Logo%20with%20green%20map%20pin%20element.png'
@@ -41,10 +42,13 @@ const SLIDE_REWARDS = [
   { key: 'PROFILE_PHOTO',  amount: 10 },         // slide 2 — photo + bio
 ]
 
-const GENDERS      = ['Male', 'Female']
-const LOOKING_FOR  = ['Man', 'Woman']
-const INTENT       = ['Meet new people', 'Activity partner', 'Open to anything', 'Dating', 'Networking', 'Travel companion']
-const VENUE_TYPES  = ['Bar / Pub 🍺', 'Restaurant 🍽️', 'Coffee shop ☕', 'Gym / Sport 🏋️', 'Park / Outdoors 🌳', 'Cinema 🎬', 'Club / Nightlife 🎵', 'Art / Gallery 🎨', 'Market / Festival 🎪']
+const GENDERS      = ['Male', 'Female', 'Non-binary', 'Other']
+const VENUE_TYPES  = [
+  'Bar / Pub 🍺', 'Restaurant 🍽️', 'Coffee shop ☕',
+  'Gym / Sport 🏋️', 'Park / Outdoors 🌳', 'Cinema 🎬',
+  'Club / Nightlife 🎵', 'Art / Gallery 🎨', 'Market / Festival 🎪',
+  'Rooftop Bar 🌃', 'Sports Court 🎾', 'Spa / Wellness 🧘',
+]
 
 // ─── Coin burst overlay (per-slide reward) ─────────────────────────────────
 function CoinBurst({ amount, onComplete }) {
@@ -141,7 +145,7 @@ export default function ProfileSetup({ onDone, prefillBio = '' }) {
   // Slide 1
   const [gender, setGender]     = useState('')
   const [lookingFor, setLooking] = useState('')
-  const [intent, setIntent]     = useState('')
+  const [intent] = useState('')
   const [venueType, setVenue]   = useState('')
 
   // Slide 2
@@ -174,7 +178,7 @@ export default function ProfileSetup({ onDone, prefillBio = '' }) {
 
   const canAdvance = [
     name.trim().length >= 2 && !!country && !!gender,
-    !!gender && !!lookingFor && !!intent,
+    !!gender && !!lookingFor,
     true,
   ][slide]
 
@@ -336,24 +340,17 @@ export default function ProfileSetup({ onDone, prefillBio = '' }) {
             </>
           )}
 
-          {/* ── SLIDE 1: Gender, Intent, Venue ── */}
+          {/* ── SLIDE 1: Here For + Ideal Meet ── */}
           {slide === 1 && (
             <>
-              <h2 className={styles.title}>Tell us about you</h2>
-              <p className={styles.sub}>Helps us show you the right people  •  Earns <strong className={styles.green}>+5 🪙</strong></p>
-              <label className={styles.groupLabel}>Looking for</label>
+              <h2 className={styles.title}>What are you here for?</h2>
+              <p className={styles.sub}>Shown on your profile so the right people find you  •  Earns <strong className={styles.green}>+5 🪙</strong></p>
+              <label className={styles.groupLabel}>I'm here for</label>
               <div className={styles.chipGrid}>
-                {LOOKING_FOR.map(l => (
-                  <button key={l} className={`${styles.chip} ${lookingFor === l ? styles.chipActive : ''}`} onClick={() => setLooking(l)}>
-                    {l} <span className={styles.chipCoin}>{lookingFor === l ? '🪙' : '+1 🪙'}</span>
-                  </button>
-                ))}
-              </div>
-              <label className={styles.groupLabel}>I want</label>
-              <div className={styles.chipGrid}>
-                {INTENT.map(i => (
-                  <button key={i} className={`${styles.chip} ${intent === i ? styles.chipActive : ''}`} onClick={() => setIntent(i)}>
-                    {i} <span className={styles.chipCoin}>{intent === i ? '🪙' : '+1 🪙'}</span>
+                {LOOKING_FOR_OPTIONS.map(opt => (
+                  <button key={opt.value} className={`${styles.chip} ${lookingFor === opt.value ? styles.chipActive : ''}`} onClick={() => setLooking(opt.value)}>
+                    {opt.emoji} {opt.label}
+                    <span className={styles.chipCoin}>{lookingFor === opt.value ? '🪙' : '+1 🪙'}</span>
                   </button>
                 ))}
               </div>
