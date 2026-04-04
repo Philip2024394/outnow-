@@ -253,8 +253,8 @@ export default function SettingsSheet({ open, onClose, onOpenLikes, onEditProfil
             <Row
               icon="ℹ️"
               label="About IMOUTNOW"
-              sublabel="Version 0.1.0 — real dating, real life"
-              onClick={() => showToast?.('IMOUTNOW v0.1.0 — meet people, not profiles.')}
+              sublabel="Version 0.1.0 — meet people out near you"
+              onClick={() => showToast?.('IMOUTNOW v0.1.0 — your city is out, are you?')}
             />
             <Row
               icon="🚪"

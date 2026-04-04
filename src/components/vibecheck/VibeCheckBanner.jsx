@@ -7,8 +7,8 @@ const VARIANTS = {
     bg:     '#0e0e0e',
     border: 'rgba(141,198,63,0.3)',
     icon:   '💚',
-    title:  'Someone wants to meet you tonight',
-    sub:    'Someone nearby is interested — find out who after they match',
+    title:  'Someone nearby wants to meet up',
+    sub:    'Someone out near you sent you an interest — tap to see who',
     cta:    'See Who It Is',
   },
   live:       {
@@ -16,8 +16,8 @@ const VARIANTS = {
     bg:     '#0e0e0e',
     border: 'rgba(141,198,63,0.3)',
     icon:   '💚',
-    title:  'Someone wants to meet you tonight',
-    sub:    'Someone nearby is interested — find out who after they match',
+    title:  'Someone nearby wants to meet up',
+    sub:    'Someone out near you sent you an interest — tap to see who',
     cta:    'See Who It Is',
   },
   invite_out: {
@@ -25,8 +25,8 @@ const VARIANTS = {
     bg:     '#0e0e0e',
     border: 'rgba(245,197,24,0.35)',
     icon:   '✨',
-    title:  'Someone wants to invite you out tonight',
-    sub:    "You've caught someone's eye — find out who after they match",
+    title:  'Someone wants to invite you out',
+    sub:    'Someone near you is keen to connect — tap to see their invite',
     cta:    'See the Invite',
   },
   scheduled:  {
@@ -34,8 +34,8 @@ const VARIANTS = {
     bg:     '#0e0e0e',
     border: 'rgba(232,137,12,0.3)',
     icon:   '🕐',
-    title:  'Someone wants to meet you later',
-    sub:    'Someone is keen to meet up — identity revealed on mutual match',
+    title:  'Someone wants to meet up later',
+    sub:    'Someone nearby is planning an outing and wants you along',
     cta:    'See Who It Is',
   },
 }

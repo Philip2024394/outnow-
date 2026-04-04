@@ -60,7 +60,6 @@ export const ACTIVITY_CATEGORIES = [
   { id: 'learning',     label: 'Learning & Skills',  emoji: '📚' },
   { id: 'community',    label: 'Community & Causes', emoji: '🤝' },
   { id: 'wellness',     label: 'Sober & Wellness',   emoji: '🧘' },
-  { id: 'dating',       label: 'Dating',             emoji: '💕' },
 ]
 
 // ─── Activity image assets ─────────────────────────────────────────────────
@@ -191,12 +190,6 @@ export const ACTIVITY_TYPES = [
   { id: 'journaling',   label: 'Journaling',      emoji: '📓',                     category: 'wellness' },
   { id: 'sober_social', label: 'Sober Social',    emoji: '🫖',                     category: 'wellness' },
 
-  // Dating
-  { id: 'dinner_date',  label: 'Dinner Date',     emoji: '🕯️',                    category: 'dating' },
-  { id: 'coffee_date',  label: 'Coffee Date',     emoji: '☕',                     category: 'dating' },
-  { id: 'activity_date',label: 'Activity Date',   emoji: '🎯',                     category: 'dating' },
-  { id: 'sunset_walk',  label: 'Sunset Walk',     emoji: '🌅',                     category: 'dating' },
-  { id: 'speed_dating', label: 'Speed Dating',    emoji: '⚡',                     category: 'dating' },
 ]
 
 export const activityEmoji = (activityId) =>

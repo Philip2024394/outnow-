@@ -55,8 +55,4 @@ export const VIBE_TAGS = [
   { id: 'sober',       label: 'Sober Social',      emoji: '🫖', category: 'wellness' },
   { id: 'mindful',     label: 'Mindful Outing',    emoji: '🕯️', category: 'wellness' },
 
-  // Dating
-  { id: 'datenight',   label: 'Date Night',        emoji: '💕', category: 'dating' },
-  { id: 'romantic',    label: 'Romantic Vibes',    emoji: '🌹', category: 'dating' },
-  { id: 'first_date',  label: 'First Date',        emoji: '😊', category: 'dating' },
 ]
