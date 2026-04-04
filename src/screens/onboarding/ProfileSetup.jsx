@@ -43,7 +43,7 @@ const SLIDE_REWARDS = [
 
 const GENDERS      = ['Male', 'Female']
 const LOOKING_FOR  = ['Man', 'Woman']
-const INTENT       = ['A date tonight', 'Something casual', 'Something serious', 'Open to anything']
+const INTENT       = ['Meet new people', 'Activity partner', 'Open to anything', 'Dating', 'Networking', 'Travel companion']
 const VENUE_TYPES  = ['Bar / Pub 🍺', 'Restaurant 🍽️', 'Coffee shop ☕', 'Gym / Sport 🏋️', 'Park / Outdoors 🌳', 'Cinema 🎬', 'Club / Nightlife 🎵', 'Art / Gallery 🎨', 'Market / Festival 🎪']
 
 // ─── Coin burst overlay (per-slide reward) ─────────────────────────────────

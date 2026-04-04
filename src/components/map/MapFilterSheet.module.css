@@ -170,6 +170,37 @@
 }
 
 /* ── Activity button grid ── */
+.categoryRow {
+  display: flex;
+  gap: 6px;
+  overflow-x: auto;
+  padding-bottom: 10px;
+  scrollbar-width: none;
+}
+.categoryRow::-webkit-scrollbar { display: none; }
+
+.categoryPill {
+  flex-shrink: 0;
+  padding: 6px 12px;
+  background: #111111;
+  border: 1.5px solid rgba(255,255,255,0.15);
+  border-radius: 20px;
+  color: rgba(255,255,255,0.6);
+  font-size: 12px;
+  font-weight: 600;
+  font-family: var(--font-sans);
+  cursor: pointer;
+  white-space: nowrap;
+  transition: border-color 0.15s, background 0.15s, color 0.15s;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.categoryPillActive {
+  border-color: #8DC63F;
+  background: rgba(141,198,63,0.12);
+  color: #8DC63F;
+}
+
 .activityGrid {
   display: grid;
   grid-template-columns: repeat(3, 1fr);

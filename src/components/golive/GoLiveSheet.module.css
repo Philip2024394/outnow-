@@ -213,6 +213,21 @@
   border-radius: var(--radius-sm);
 }
 
+/* Activity category grouping */
+.categoryGroup {
+  margin-bottom: 12px;
+}
+
+.categoryLabel {
+  display: block;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: rgba(255,255,255,0.4);
+  margin-bottom: 8px;
+}
+
 /* Activities grid */
 .activities {
   display: grid;

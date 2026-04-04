@@ -628,15 +628,15 @@ export default function ProfileScreen({ onClose }) {
               onChange={e => setLookingFor(e.target.value)}
               style={{ cursor: 'pointer' }}
             >
-              <option value="">Select your intention…</option>
-              <option value="marriage">💍 Marriage — looking for my person</option>
-              <option value="serious">❤️ Serious relationship</option>
-              <option value="dating">😊 Dating — seeing where it goes</option>
-              <option value="casual">🌿 Something casual</option>
-              <option value="friends_first">🤝 Friends first, open to more</option>
-              <option value="nothing_serious">✌️ Nothing serious — keeping it fun</option>
-              <option value="meet_people">👋 Just here to meet new people</option>
-              <option value="open">🌍 Open to anything</option>
+              <option value="">Select your vibe…</option>
+              <option value="friends">👋 Friends &amp; Social — meeting new people</option>
+              <option value="activity">⚡ Activity Partner — someone to do stuff with</option>
+              <option value="open">🌍 Open to Everything — no agenda</option>
+              <option value="culture">🎭 Culture &amp; Events — shows, art, nights out</option>
+              <option value="wellness">🧘 Wellness Social — active &amp; sober meetups</option>
+              <option value="professional">💼 Professional — networking &amp; collab</option>
+              <option value="travel">✈️ Travel Companion — adventures together</option>
+              <option value="dating">💕 Dating — open to something more</option>
             </select>
             <div className={styles.lookingForNote}>
               <span className={styles.lookingForNoteIcon}>💡</span>

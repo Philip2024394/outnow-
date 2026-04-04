@@ -5,7 +5,7 @@ import BottomSheet from '@/components/ui/BottomSheet'
 import Button from '@/components/ui/Button'
 import GpsVerifier from './GpsVerifier'
 import PlaceSearch from './PlaceSearch'
-import { ACTIVITY_TYPES } from '@/firebase/collections'
+import { ACTIVITY_TYPES, ACTIVITY_CATEGORIES } from '@/firebase/collections'
 import ActivityIcon from '@/components/ui/ActivityIcon'
 import { VIBE_TAGS } from '@/utils/vibeTags'
 import FeatureIntro, { useFeatureIntro } from '@/components/ui/FeatureIntro'
@@ -232,18 +232,27 @@ export default function GoLiveSheet({ open, onClose, showToast, activeVenues = [
         {/* Activity */}
         <div className={styles.section}>
           <label className={styles.label}>I'm going for…</label>
-          <div className={styles.activities}>
-            {ACTIVITY_TYPES.map((a) => (
-              <button
-                key={a.id}
-                className={[styles.activityBtn, selectedActivity === a.id ? styles.activitySelected : ''].join(' ')}
-                onClick={() => setSelectedActivity(a.id)}
-              >
-                <ActivityIcon activity={a} size={22} className={styles.activityEmoji} />
-                <span className={styles.activityLabel}>{a.label}</span>
-              </button>
-            ))}
-          </div>
+          {ACTIVITY_CATEGORIES.map(cat => {
+            const items = ACTIVITY_TYPES.filter(a => a.category === cat.id)
+            if (!items.length) return null
+            return (
+              <div key={cat.id} className={styles.categoryGroup}>
+                <span className={styles.categoryLabel}>{cat.emoji} {cat.label}</span>
+                <div className={styles.activities}>
+                  {items.map((a) => (
+                    <button
+                      key={a.id}
+                      className={[styles.activityBtn, selectedActivity === a.id ? styles.activitySelected : ''].join(' ')}
+                      onClick={() => setSelectedActivity(a.id)}
+                    >
+                      <ActivityIcon activity={a} size={22} className={styles.activityEmoji} />
+                      <span className={styles.activityLabel}>{a.label}</span>
+                    </button>
+                  ))}
+                </div>
+              </div>
+            )
+          })}
         </div>
 
         {/* Vibe */}

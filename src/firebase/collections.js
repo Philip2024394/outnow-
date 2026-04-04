@@ -46,7 +46,22 @@ export const SESSION_STATUS = {
   ENDED: 'ended',
 }
 
-// Activity types with labels and emoji
+// ─── Activity categories ───────────────────────────────────────────────────
+
+export const ACTIVITY_CATEGORIES = [
+  { id: 'night_out',    label: 'Night Out',        emoji: '🌙' },
+  { id: 'food_drink',   label: 'Food & Drink',     emoji: '🍽️' },
+  { id: 'active',       label: 'Active & Sport',   emoji: '🏃' },
+  { id: 'culture',      label: 'Culture & Events', emoji: '🎭' },
+  { id: 'social',       label: 'Social & Friends', emoji: '👥' },
+  { id: 'travel',       label: 'Travel & Explore', emoji: '✈️' },
+  { id: 'professional', label: 'Professional',     emoji: '💼' },
+  { id: 'wellness',     label: 'Sober & Wellness', emoji: '🧘' },
+  { id: 'dating',       label: 'Dating',           emoji: '💕' },
+]
+
+// ─── Activity image assets ─────────────────────────────────────────────────
+
 const COFFEE_IMG    = 'https://ik.imagekit.io/dateme/Untitledsdff-removebg-preview.png'
 const DRINKS_IMG    = 'https://ik.imagekit.io/dateme/Untitleddsdddd-removebg-preview%20(1).png'
 const FOOD_IMG      = 'https://ik.imagekit.io/dateme/Untitledvv-removebg-preview.png'
@@ -72,33 +87,81 @@ const CINEMA_IMG    = 'https://ik.imagekit.io/nepgaxllc/Untitleddsfsdg.png'
 const PIZZA_IMG     = 'https://ik.imagekit.io/nepgaxllc/Untitleddfsdfdsdfsd-removebg-preview.png'
 const COCKTAILS_IMG = 'https://ik.imagekit.io/nepgaxllc/Untitledcocktail-removebg-preview.png'
 
+// ─── Activity types (with category) ───────────────────────────────────────
+
 export const ACTIVITY_TYPES = [
-  { id: 'coffee',    label: 'Coffee',    emoji: '☕', img: COFFEE_IMG    },
-  { id: 'drinks',    label: 'Drinks',    emoji: '🍺', img: DRINKS_IMG    },
-  { id: 'food',      label: 'Food',      emoji: '🍕', img: FOOD_IMG      },
-  { id: 'cocktails', label: 'Cocktails', emoji: '🍸', img: COCKTAILS_IMG },
-  { id: 'wine',      label: 'Wine',      emoji: '🍷', img: WINE_IMG      },
-  { id: 'pizza',     label: 'Pizza',     emoji: '🍕', img: PIZZA_IMG     },
-  { id: 'fastfood',  label: 'Fast Food', emoji: '🍔', img: FASTFOOD_IMG  },
-  { id: 'cinema',    label: 'Cinema',    emoji: '🎬', img: CINEMA_IMG    },
-  { id: 'bowling',   label: 'Bowling',   emoji: '🎳', img: BOWLING_IMG   },
-  { id: 'tickets',   label: 'Events',    emoji: '🎟️', img: TICKETS_IMG   },
-  { id: 'walk',      label: 'Walk',      emoji: '🚶', img: WALKING_IMG  },
-  { id: 'hiking',    label: 'Hiking',    emoji: '🥾', img: HIKING_IMG   },
-  { id: 'swimming',  label: 'Swimming',  emoji: '🏊', img: SWIMMING_IMG },
-  { id: 'cycling',   label: 'Cycling',   emoji: '🚴', img: CYCLING_IMG  },
-  { id: 'yoga',      label: 'Yoga',      emoji: '🧘', img: YOGA_IMG     },
-  { id: 'gym',       label: 'Gym',       emoji: '🏋️', img: GYM_IMG      },
-  { id: 'tennis',    label: 'Tennis',    emoji: '🎾', img: TENNIS_IMG   },
-  { id: 'running',   label: 'Running',   emoji: '🏃', img: RUNNING_IMG  },
-  { id: 'shopping',  label: 'Shopping',  emoji: '🛍️', img: SHOPPING_IMG },
-  { id: 'hangout',   label: 'Hangout',   emoji: '👥', img: HANGOUT_IMG  },
-  { id: 'art',       label: 'Art',       emoji: '🎨', img: ART_IMG      },
-  { id: 'gaming',    label: 'Gaming',    emoji: '🎮' },
-  { id: 'music',     label: 'Music',     emoji: '🎵' },
-  { id: 'travel',    label: 'Travel',    emoji: '✈️', img: TRAVEL_IMG   },
-  { id: 'karaoke',   label: 'Karaoke',   emoji: '🎤', img: KARAOKE_IMG  },
-  { id: 'beach',     label: 'Beach',     emoji: '🏖️', img: BEACH_IMG    },
+  // Night Out
+  { id: 'drinks',       label: 'Drinks',         emoji: '🍺', img: DRINKS_IMG,    category: 'night_out' },
+  { id: 'cocktails',    label: 'Cocktails',       emoji: '🍸', img: COCKTAILS_IMG, category: 'night_out' },
+  { id: 'wine',         label: 'Wine',            emoji: '🍷', img: WINE_IMG,      category: 'night_out' },
+  { id: 'karaoke',      label: 'Karaoke',         emoji: '🎤', img: KARAOKE_IMG,   category: 'night_out' },
+  { id: 'dancing',      label: 'Dancing',         emoji: '💃',                     category: 'night_out' },
+  { id: 'afterparty',   label: 'After Party',     emoji: '🎉',                     category: 'night_out' },
+  { id: 'rooftop',      label: 'Rooftop Bar',     emoji: '🌃',                     category: 'night_out' },
+
+  // Food & Drink
+  { id: 'coffee',       label: 'Coffee',          emoji: '☕', img: COFFEE_IMG,    category: 'food_drink' },
+  { id: 'food',         label: 'Food',            emoji: '🍕', img: FOOD_IMG,      category: 'food_drink' },
+  { id: 'pizza',        label: 'Pizza',           emoji: '🍕', img: PIZZA_IMG,     category: 'food_drink' },
+  { id: 'fastfood',     label: 'Fast Food',       emoji: '🍔', img: FASTFOOD_IMG,  category: 'food_drink' },
+  { id: 'brunch',       label: 'Brunch',          emoji: '🥂',                     category: 'food_drink' },
+  { id: 'sushi',        label: 'Sushi',           emoji: '🍣',                     category: 'food_drink' },
+  { id: 'dinner',       label: 'Dinner',          emoji: '🍽️',                    category: 'food_drink' },
+
+  // Active & Sport
+  { id: 'walk',         label: 'Walk',            emoji: '🚶', img: WALKING_IMG,   category: 'active' },
+  { id: 'running',      label: 'Running',         emoji: '🏃', img: RUNNING_IMG,   category: 'active' },
+  { id: 'cycling',      label: 'Cycling',         emoji: '🚴', img: CYCLING_IMG,   category: 'active' },
+  { id: 'gym',          label: 'Gym',             emoji: '🏋️', img: GYM_IMG,      category: 'active' },
+  { id: 'tennis',       label: 'Tennis',          emoji: '🎾', img: TENNIS_IMG,    category: 'active' },
+  { id: 'swimming',     label: 'Swimming',        emoji: '🏊', img: SWIMMING_IMG,  category: 'active' },
+  { id: 'hiking',       label: 'Hiking',          emoji: '🥾', img: HIKING_IMG,    category: 'active' },
+  { id: 'football',     label: 'Football',        emoji: '⚽',                     category: 'active' },
+  { id: 'basketball',   label: 'Basketball',      emoji: '🏀',                     category: 'active' },
+  { id: 'padel',        label: 'Padel',           emoji: '🏓',                     category: 'active' },
+
+  // Culture & Events
+  { id: 'cinema',       label: 'Cinema',          emoji: '🎬', img: CINEMA_IMG,    category: 'culture' },
+  { id: 'tickets',      label: 'Events',          emoji: '🎟️', img: TICKETS_IMG,  category: 'culture' },
+  { id: 'art',          label: 'Art',             emoji: '🎨', img: ART_IMG,       category: 'culture' },
+  { id: 'music',        label: 'Live Music',      emoji: '🎵',                     category: 'culture' },
+  { id: 'theatre',      label: 'Theatre',         emoji: '🎭',                     category: 'culture' },
+  { id: 'museum',       label: 'Museum',          emoji: '🏛️',                    category: 'culture' },
+  { id: 'comedy',       label: 'Comedy Night',    emoji: '😂',                     category: 'culture' },
+
+  // Social & Friends
+  { id: 'hangout',      label: 'Hangout',         emoji: '👥', img: HANGOUT_IMG,   category: 'social' },
+  { id: 'bowling',      label: 'Bowling',         emoji: '🎳', img: BOWLING_IMG,   category: 'social' },
+  { id: 'gaming',       label: 'Gaming',          emoji: '🎮',                     category: 'social' },
+  { id: 'shopping',     label: 'Shopping',        emoji: '🛍️', img: SHOPPING_IMG, category: 'social' },
+  { id: 'beach',        label: 'Beach',           emoji: '🏖️', img: BEACH_IMG,    category: 'social' },
+  { id: 'picnic',       label: 'Picnic',          emoji: '🧺',                     category: 'social' },
+  { id: 'board_games',  label: 'Board Games',     emoji: '🎲',                     category: 'social' },
+  { id: 'pub_quiz',     label: 'Pub Quiz',        emoji: '🧠',                     category: 'social' },
+
+  // Travel & Explore
+  { id: 'travel',       label: 'Travel',          emoji: '✈️', img: TRAVEL_IMG,   category: 'travel' },
+  { id: 'day_trip',     label: 'Day Trip',        emoji: '🗺️',                    category: 'travel' },
+  { id: 'city_walk',    label: 'City Explore',    emoji: '🌆',                     category: 'travel' },
+  { id: 'road_trip',    label: 'Road Trip',       emoji: '🚗',                     category: 'travel' },
+
+  // Professional
+  { id: 'networking',   label: 'Networking',      emoji: '🤝',                     category: 'professional' },
+  { id: 'coworking',    label: 'Co-working',      emoji: '💻',                     category: 'professional' },
+  { id: 'startup',      label: 'Startup Meet',    emoji: '🚀',                     category: 'professional' },
+  { id: 'workshop',     label: 'Workshop',        emoji: '🔧',                     category: 'professional' },
+
+  // Sober & Wellness
+  { id: 'yoga',         label: 'Yoga',            emoji: '🧘', img: YOGA_IMG,      category: 'wellness' },
+  { id: 'meditation',   label: 'Meditation',      emoji: '🕯️',                    category: 'wellness' },
+  { id: 'spa',          label: 'Spa Day',         emoji: '🛁',                     category: 'wellness' },
+  { id: 'book_club',    label: 'Book Club',       emoji: '📚',                     category: 'wellness' },
+
+  // Dating
+  { id: 'dinner_date',  label: 'Dinner Date',     emoji: '🕯️',                    category: 'dating' },
+  { id: 'coffee_date',  label: 'Coffee Date',     emoji: '☕',                     category: 'dating' },
+  { id: 'activity_date',label: 'Activity Date',   emoji: '🎯',                     category: 'dating' },
+  { id: 'sunset_walk',  label: 'Sunset Walk',     emoji: '🌅',                     category: 'dating' },
 ]
 
 export const activityEmoji = (activityId) =>

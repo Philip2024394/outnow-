@@ -1,10 +1,10 @@
-import { useEffect, useRef } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import styles from './MapFilterSheet.module.css'
 import { ALL_COUNTRIES } from '@/utils/countries'
+import { ACTIVITY_TYPES, ACTIVITY_CATEGORIES } from '@/firebase/collections'
 
 const BG_URL = 'https://ik.imagekit.io/dateme/UntitledDFSDFASDFDFGSDFGsfdfasdsadas.png'
 
-const ACTIVITIES = ['All', 'Drinks', 'Food', 'Coffee', 'Walk', 'Hangout', 'Cinema', 'Shopping']
 const GENDERS    = ['All', 'Men', 'Women', 'Gay', 'Lesbian', 'Bisexual', 'Non-binary', 'Trans', 'Queer']
 const STATUSES   = ['All', 'Out Now', 'Out Later']
 
@@ -73,6 +73,11 @@ export default function MapFilterSheet({ open, onClose, filters, onChange, onRes
   const startYRef = useRef(null)
   const currentYRef = useRef(0)
   const isActive = Object.entries(filters).some(([k, v]) => v !== DEFAULT_MAP_FILTERS[k])
+  const [activeCategory, setActiveCategory] = useState('all')
+
+  const visibleActivities = activeCategory === 'all'
+    ? ACTIVITY_TYPES
+    : ACTIVITY_TYPES.filter(a => a.category === activeCategory)
 
   // Swipe to dismiss
   useEffect(() => {
@@ -164,14 +169,33 @@ export default function MapFilterSheet({ open, onClose, filters, onChange, onRes
 
           <div className={styles.field}>
             <label className={styles.fieldLabel}>Activity</label>
-            <div className={styles.activityGrid}>
-              {ACTIVITIES.map(a => (
+            {/* Category pills */}
+            <div className={styles.categoryRow}>
+              <button
+                className={`${styles.categoryPill} ${activeCategory === 'all' ? styles.categoryPillActive : ''}`}
+                onClick={() => { setActiveCategory('all'); onChange({ ...filters, activity: 'All' }) }}
+              >
+                All
+              </button>
+              {ACTIVITY_CATEGORIES.map(c => (
                 <button
-                  key={a}
-                  className={`${styles.activityChip} ${filters.activity === a ? styles.activityChipActive : ''}`}
-                  onClick={() => onChange({ ...filters, activity: a })}
+                  key={c.id}
+                  className={`${styles.categoryPill} ${activeCategory === c.id ? styles.categoryPillActive : ''}`}
+                  onClick={() => setActiveCategory(c.id)}
                 >
-                  {a}
+                  {c.emoji} {c.label}
+                </button>
+              ))}
+            </div>
+            {/* Activity chips filtered by category */}
+            <div className={styles.activityGrid}>
+              {visibleActivities.map(a => (
+                <button
+                  key={a.id}
+                  className={`${styles.activityChip} ${filters.activity === a.id ? styles.activityChipActive : ''}`}
+                  onClick={() => onChange({ ...filters, activity: a.id })}
+                >
+                  {a.emoji} {a.label}
                 </button>
               ))}
             </div>
