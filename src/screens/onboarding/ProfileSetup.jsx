@@ -1,8 +1,8 @@
 import { useEffect, useRef, useState } from 'react'
 import { useCoins } from '@/hooks/useCoins'
 import { ALL_COUNTRIES, detectCountryByIP, flagEmoji } from '@/utils/countries'
-import { LOOKING_FOR_OPTIONS } from '@/utils/lookingForLabels'
 import styles from './ProfileSetup.module.css'
+import { LOOKING_FOR_OPTIONS } from '@/utils/lookingForLabels'
 
 const LOGO_URL = 'https://ik.imagekit.io/dateme/Logo%20with%20green%20map%20pin%20element.png'
 
@@ -44,10 +44,13 @@ const SLIDE_REWARDS = [
 
 const GENDERS      = ['Male', 'Female', 'Non-binary', 'Other']
 const VENUE_TYPES  = [
-  'Bar / Pub 🍺', 'Restaurant 🍽️', 'Coffee shop ☕',
-  'Gym / Sport 🏋️', 'Park / Outdoors 🌳', 'Cinema 🎬',
-  'Club / Nightlife 🎵', 'Art / Gallery 🎨', 'Market / Festival 🎪',
-  'Rooftop Bar 🌃', 'Sports Court 🎾', 'Spa / Wellness 🧘',
+  'Bar / Pub 🍺',         'Restaurant 🍽️',       'Coffee Shop ☕',
+  'Club / Nightlife 🎵',  'Rooftop Bar 🌃',       'Gym / Sport 🏋️',
+  'Park / Outdoors 🌳',   'Sports Court 🎾',       'Cinema 🎬',
+  'Art / Gallery 🎨',     'Theatre / Show 🎭',     'Museum 🏛️',
+  'Spa / Wellness 🧘',    'Co-working Space 💻',   'Library 📚',
+  'Community Centre 🏘️', 'Family Attraction 🧸',  'Market / Festival 🎪',
+  'Place of Worship 🕊️', 'University / Campus 🎓','Anywhere 🌍',
 ]
 
 // ─── Coin burst overlay (per-slide reward) ─────────────────────────────────

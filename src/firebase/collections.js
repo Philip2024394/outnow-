@@ -49,15 +49,18 @@ export const SESSION_STATUS = {
 // ─── Activity categories ───────────────────────────────────────────────────
 
 export const ACTIVITY_CATEGORIES = [
-  { id: 'night_out',    label: 'Night Out',        emoji: '🌙' },
-  { id: 'food_drink',   label: 'Food & Drink',     emoji: '🍽️' },
-  { id: 'active',       label: 'Active & Sport',   emoji: '🏃' },
-  { id: 'culture',      label: 'Culture & Events', emoji: '🎭' },
-  { id: 'social',       label: 'Social & Friends', emoji: '👥' },
-  { id: 'travel',       label: 'Travel & Explore', emoji: '✈️' },
-  { id: 'professional', label: 'Professional',     emoji: '💼' },
-  { id: 'wellness',     label: 'Sober & Wellness', emoji: '🧘' },
-  { id: 'dating',       label: 'Dating',           emoji: '💕' },
+  { id: 'night_out',    label: 'Night Out',          emoji: '🌙' },
+  { id: 'food_drink',   label: 'Food & Drink',       emoji: '🍽️' },
+  { id: 'active',       label: 'Active & Sport',     emoji: '🏃' },
+  { id: 'culture',      label: 'Culture & Events',   emoji: '🎭' },
+  { id: 'social',       label: 'Social & Friends',   emoji: '👥' },
+  { id: 'family',       label: 'Family & Kids',      emoji: '👨‍👩‍👧' },
+  { id: 'travel',       label: 'Travel & Explore',   emoji: '✈️' },
+  { id: 'professional', label: 'Career & Business',  emoji: '💼' },
+  { id: 'learning',     label: 'Learning & Skills',  emoji: '📚' },
+  { id: 'community',    label: 'Community & Causes', emoji: '🤝' },
+  { id: 'wellness',     label: 'Sober & Wellness',   emoji: '🧘' },
+  { id: 'dating',       label: 'Dating',             emoji: '💕' },
 ]
 
 // ─── Activity image assets ─────────────────────────────────────────────────
@@ -139,29 +142,61 @@ export const ACTIVITY_TYPES = [
   { id: 'board_games',  label: 'Board Games',     emoji: '🎲',                     category: 'social' },
   { id: 'pub_quiz',     label: 'Pub Quiz',        emoji: '🧠',                     category: 'social' },
 
+  // Family & Kids
+  { id: 'family_day',    label: 'Family Day Out',  emoji: '👨‍👩‍👧',                   category: 'family' },
+  { id: 'kids_play',     label: 'Kids Playdate',   emoji: '🧸',                     category: 'family' },
+  { id: 'parent_meet',   label: 'Parent Meetup',   emoji: '👩‍👧',                   category: 'family' },
+  { id: 'family_meal',   label: 'Family Meal',     emoji: '🍽️',                    category: 'family' },
+  { id: 'park_kids',     label: 'Park & Play',     emoji: '🌳',                     category: 'family' },
+  { id: 'family_sports', label: 'Family Sport',    emoji: '⚽',                     category: 'family' },
+
   // Travel & Explore
   { id: 'travel',       label: 'Travel',          emoji: '✈️', img: TRAVEL_IMG,   category: 'travel' },
   { id: 'day_trip',     label: 'Day Trip',        emoji: '🗺️',                    category: 'travel' },
   { id: 'city_walk',    label: 'City Explore',    emoji: '🌆',                     category: 'travel' },
   { id: 'road_trip',    label: 'Road Trip',       emoji: '🚗',                     category: 'travel' },
+  { id: 'backpacking',  label: 'Backpacking',     emoji: '🎒',                     category: 'travel' },
 
-  // Professional
+  // Career & Business
   { id: 'networking',   label: 'Networking',      emoji: '🤝',                     category: 'professional' },
   { id: 'coworking',    label: 'Co-working',      emoji: '💻',                     category: 'professional' },
   { id: 'startup',      label: 'Startup Meet',    emoji: '🚀',                     category: 'professional' },
-  { id: 'workshop',     label: 'Workshop',        emoji: '🔧',                     category: 'professional' },
+  { id: 'mentoring',    label: 'Mentoring',       emoji: '🎓',                     category: 'professional' },
+  { id: 'job_hunting',  label: 'Job Hunting',     emoji: '📋',                     category: 'professional' },
+  { id: 'freelance',    label: 'Freelancer Meet', emoji: '🖥️',                    category: 'professional' },
+  { id: 'industry_meet',label: 'Industry Meet',   emoji: '🏢',                     category: 'professional' },
+  { id: 'pitch_night',  label: 'Pitch Night',     emoji: '📊',                     category: 'professional' },
+
+  // Learning & Skills
+  { id: 'study_group',  label: 'Study Group',     emoji: '📖',                     category: 'learning' },
+  { id: 'lang_exchange',label: 'Language Exchange',emoji: '🗣️',                   category: 'learning' },
+  { id: 'skill_share',  label: 'Skill Share',     emoji: '💡',                     category: 'learning' },
+  { id: 'coding',       label: 'Coding Meetup',   emoji: '👨‍💻',                   category: 'learning' },
+  { id: 'reading',      label: 'Reading Group',   emoji: '📕',                     category: 'learning' },
+  { id: 'creative_wksp',label: 'Creative Workshop',emoji: '🎨',                   category: 'learning' },
+
+  // Community & Causes
+  { id: 'volunteering', label: 'Volunteering',    emoji: '❤️',                     category: 'community' },
+  { id: 'charity',      label: 'Charity Event',   emoji: '🫶',                     category: 'community' },
+  { id: 'local_event',  label: 'Local Event',     emoji: '🏘️',                    category: 'community' },
+  { id: 'activism',     label: 'Activism',        emoji: '✊',                     category: 'community' },
+  { id: 'faith_group',  label: 'Faith & Belief',  emoji: '🕊️',                    category: 'community' },
+  { id: 'environment',  label: 'Environment',     emoji: '🌱',                     category: 'community' },
 
   // Sober & Wellness
   { id: 'yoga',         label: 'Yoga',            emoji: '🧘', img: YOGA_IMG,      category: 'wellness' },
   { id: 'meditation',   label: 'Meditation',      emoji: '🕯️',                    category: 'wellness' },
   { id: 'spa',          label: 'Spa Day',         emoji: '🛁',                     category: 'wellness' },
   { id: 'book_club',    label: 'Book Club',       emoji: '📚',                     category: 'wellness' },
+  { id: 'journaling',   label: 'Journaling',      emoji: '📓',                     category: 'wellness' },
+  { id: 'sober_social', label: 'Sober Social',    emoji: '🫖',                     category: 'wellness' },
 
   // Dating
   { id: 'dinner_date',  label: 'Dinner Date',     emoji: '🕯️',                    category: 'dating' },
   { id: 'coffee_date',  label: 'Coffee Date',     emoji: '☕',                     category: 'dating' },
   { id: 'activity_date',label: 'Activity Date',   emoji: '🎯',                     category: 'dating' },
   { id: 'sunset_walk',  label: 'Sunset Walk',     emoji: '🌅',                     category: 'dating' },
+  { id: 'speed_dating', label: 'Speed Dating',    emoji: '⚡',                     category: 'dating' },
 ]
 
 export const activityEmoji = (activityId) =>

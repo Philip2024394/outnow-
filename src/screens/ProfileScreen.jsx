@@ -3,6 +3,7 @@ import { useAuth } from '@/hooks/useAuth'
 import { useMySession } from '@/hooks/useMySession'
 import { useCoins } from '@/hooks/useCoins'
 import { ACTIVITY_TYPES, ACTIVITY_CATEGORIES } from '@/firebase/collections'
+import { LOOKING_FOR_OPTIONS } from '@/utils/lookingForLabels'
 import ActivityIcon from '@/components/ui/ActivityIcon'
 import Toast from '@/components/ui/Toast'
 import { saveProfile, uploadAvatar, uploadGalleryPhoto } from '@/services/profileService'
@@ -623,16 +624,7 @@ export default function ProfileScreen({ onClose }) {
               <HelpTip text="Helps people understand your vibe before they connect with you. No wrong answer — you can change this any time." />
             </div>
             <div className={styles.hereForGrid}>
-              {[
-                { value: 'friends',      emoji: '👋', label: 'Friends & Social' },
-                { value: 'activity',     emoji: '⚡', label: 'Activity Partner' },
-                { value: 'open',         emoji: '🌍', label: 'Open to Everything' },
-                { value: 'culture',      emoji: '🎭', label: 'Culture & Events' },
-                { value: 'wellness',     emoji: '🧘', label: 'Wellness Social' },
-                { value: 'professional', emoji: '💼', label: 'Networking' },
-                { value: 'travel',       emoji: '✈️', label: 'Travel Companion' },
-                { value: 'dating',       emoji: '💕', label: 'Dating' },
-              ].map(opt => (
+              {LOOKING_FOR_OPTIONS.map(opt => (
                 <button
                   key={opt.value}
                   type="button"
