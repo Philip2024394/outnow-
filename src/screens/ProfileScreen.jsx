@@ -2,7 +2,7 @@ import { useState, useRef, useEffect, useCallback } from 'react'
 import { useAuth } from '@/hooks/useAuth'
 import { useMySession } from '@/hooks/useMySession'
 import { useCoins } from '@/hooks/useCoins'
-import { ACTIVITY_TYPES } from '@/firebase/collections'
+import { ACTIVITY_TYPES, ACTIVITY_CATEGORIES } from '@/firebase/collections'
 import ActivityIcon from '@/components/ui/ActivityIcon'
 import Toast from '@/components/ui/Toast'
 import { saveProfile, uploadAvatar, uploadGalleryPhoto } from '@/services/profileService'
@@ -616,33 +616,33 @@ export default function ProfileScreen({ onClose }) {
             </div>
           </div>
 
-          {/* What I'm looking for */}
+          {/* What I'm here for */}
           <div className={styles.fieldRow}>
             <div className={styles.fieldLabelRow}>
-              <label className={styles.fieldLabel}>What I&apos;m Looking For</label>
-              <HelpTip text="Helps matches understand your intentions so everyone's on the same page. There's no wrong answer — be honest about where you're at right now. You can change this any time." />
+              <label className={styles.fieldLabel}>I&apos;m here for</label>
+              <HelpTip text="Helps people understand your vibe before they connect with you. No wrong answer — you can change this any time." />
             </div>
-            <select
-              className={styles.fieldInput}
-              value={lookingFor}
-              onChange={e => setLookingFor(e.target.value)}
-              style={{ cursor: 'pointer' }}
-            >
-              <option value="">Select your vibe…</option>
-              <option value="friends">👋 Friends &amp; Social — meeting new people</option>
-              <option value="activity">⚡ Activity Partner — someone to do stuff with</option>
-              <option value="open">🌍 Open to Everything — no agenda</option>
-              <option value="culture">🎭 Culture &amp; Events — shows, art, nights out</option>
-              <option value="wellness">🧘 Wellness Social — active &amp; sober meetups</option>
-              <option value="professional">💼 Professional — networking &amp; collab</option>
-              <option value="travel">✈️ Travel Companion — adventures together</option>
-              <option value="dating">💕 Dating — open to something more</option>
-            </select>
-            <div className={styles.lookingForNote}>
-              <span className={styles.lookingForNoteIcon}>💡</span>
-              <span className={styles.lookingForNoteText}>
-                Be honest about where you're at right now — there's no wrong answer. Life changes and so do feelings, you can update this any time.
-              </span>
+            <div className={styles.hereForGrid}>
+              {[
+                { value: 'friends',      emoji: '👋', label: 'Friends & Social' },
+                { value: 'activity',     emoji: '⚡', label: 'Activity Partner' },
+                { value: 'open',         emoji: '🌍', label: 'Open to Everything' },
+                { value: 'culture',      emoji: '🎭', label: 'Culture & Events' },
+                { value: 'wellness',     emoji: '🧘', label: 'Wellness Social' },
+                { value: 'professional', emoji: '💼', label: 'Networking' },
+                { value: 'travel',       emoji: '✈️', label: 'Travel Companion' },
+                { value: 'dating',       emoji: '💕', label: 'Dating' },
+              ].map(opt => (
+                <button
+                  key={opt.value}
+                  type="button"
+                  className={`${styles.hereForChip} ${lookingFor === opt.value ? styles.hereForChipActive : ''}`}
+                  onClick={() => setLookingFor(prev => prev === opt.value ? '' : opt.value)}
+                >
+                  <span className={styles.hereForEmoji}>{opt.emoji}</span>
+                  <span className={styles.hereForLabel}>{opt.label}</span>
+                </button>
+              ))}
             </div>
           </div>
         </div>
@@ -668,21 +668,30 @@ export default function ProfileScreen({ onClose }) {
         <div className={styles.section}>
           <div className={styles.sectionLabelRow}>
             <span className={styles.sectionLabel}>I&apos;m out for</span>
-            <HelpTip text="Select the activity you're planning so people with matching interests can find you on the map. Only one selection — pick whatever fits best for tonight." />
+            <HelpTip text="Pick what best describes your plans — one selection. People with matching interests will find you on the map." />
           </div>
-          <p className={styles.activityHint}>Select one activity that best describes your plans</p>
-          <div className={styles.activitiesGrid}>
-            {ACTIVITY_TYPES.map(a => (
-              <button
-                key={a.id}
-                className={`${styles.activityChip} ${selectedActivity === a.id ? styles.activityActive : ''}`}
-                onClick={() => toggleActivity(a.id)}
-              >
-                <ActivityIcon activity={a} size={22} className={styles.activityEmoji} />
-                <span className={styles.activityLabel}>{a.label}</span>
-              </button>
-            ))}
-          </div>
+          <p className={styles.activityHint}>Tap one activity that best describes your plans</p>
+          {ACTIVITY_CATEGORIES.map(cat => {
+            const items = ACTIVITY_TYPES.filter(a => a.category === cat.id)
+            if (!items.length) return null
+            return (
+              <div key={cat.id} className={styles.activityCategoryGroup}>
+                <span className={styles.activityCategoryLabel}>{cat.emoji} {cat.label}</span>
+                <div className={styles.activitiesGrid}>
+                  {items.map(a => (
+                    <button
+                      key={a.id}
+                      className={`${styles.activityChip} ${selectedActivity === a.id ? styles.activityActive : ''}`}
+                      onClick={() => toggleActivity(a.id)}
+                    >
+                      <ActivityIcon activity={a} size={22} className={styles.activityEmoji} />
+                      <span className={styles.activityLabel}>{a.label}</span>
+                    </button>
+                  ))}
+                </div>
+              </div>
+            )
+          })}
         </div>
 
         {/* ── Online status ── */}

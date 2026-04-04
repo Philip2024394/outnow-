@@ -426,6 +426,69 @@
 
 .activityActive .activityLabel { color: #8DC63F; }
 
+/* Activity category grouping */
+.activityCategoryGroup {
+  margin-bottom: 20px;
+}
+
+.activityCategoryLabel {
+  display: block;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  color: rgba(255,255,255,0.35);
+  margin-bottom: 10px;
+  padding-left: 2px;
+}
+
+/* "I'm here for" chips */
+.hereForGrid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 8px;
+  margin-top: 4px;
+}
+
+.hereForChip {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 13px 14px;
+  background: rgba(255,255,255,0.04);
+  border: 1.5px solid rgba(255,255,255,0.1);
+  border-radius: 14px;
+  cursor: pointer;
+  transition: border-color 0.15s, background 0.15s, transform 0.12s;
+  -webkit-tap-highlight-color: transparent;
+  text-align: left;
+}
+
+.hereForChip:active { transform: scale(0.96); }
+
+.hereForChipActive {
+  background: rgba(141,198,63,0.12);
+  border-color: rgba(141,198,63,0.5);
+  box-shadow: 0 0 14px rgba(141,198,63,0.1);
+}
+
+.hereForEmoji {
+  font-size: 22px;
+  flex-shrink: 0;
+  line-height: 1;
+}
+
+.hereForLabel {
+  font-size: 13px;
+  font-weight: 600;
+  color: rgba(255,255,255,0.6);
+  line-height: 1.3;
+}
+
+.hereForChipActive .hereForLabel {
+  color: #8DC63F;
+}
+
 /* ── Photo reposition panel ── */
 .photoEditPanel {
   position: absolute;
@@ -1007,24 +1070,6 @@
 .lateConfirmBtn:disabled { opacity: 0.4; cursor: default; }
 .lateConfirmBtn:active { opacity: 0.85; }
 
-/* Looking for note */
-.lookingForNote {
-  display: flex;
-  align-items: flex-start;
-  gap: 8px;
-  background: rgba(255,255,255,0.03);
-  border: 1px solid rgba(255,255,255,0.07);
-  border-radius: 12px;
-  padding: 10px 12px;
-}
-
-.lookingForNoteIcon { font-size: 13px; flex-shrink: 0; margin-top: 1px; }
-
-.lookingForNoteText {
-  font-size: 11px;
-  color: rgba(255,255,255,0.3);
-  line-height: 1.6;
-}
 
 /* Date of birth */
 .dobRow {
