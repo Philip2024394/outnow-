@@ -1,4 +1,25 @@
+import { useRef, useState, useCallback, useEffect } from 'react'
 import styles from './ProfileStrip.module.css'
+
+const HOLD_MS = 3000
+const CIRCUMFERENCE = 2 * Math.PI * 22 // radius 22
+
+const BUTTONS = [
+  { filter: 'now',    label: 'Out Now',    activeClass: 'circleNowActive',    dimClass: 'circleNowDim',    color: '#8DC63F'  },
+  { filter: 'invite', label: 'Invite Out', activeClass: 'circleInviteActive', dimClass: 'circleInviteDim', color: '#F5C518'  },
+  { filter: 'later',  label: 'Out Later',  activeClass: 'circleLatersActive', dimClass: 'circleLaterDim',  color: '#E8890C'  },
+]
+
+// Read / write daily boost usage from localStorage
+function getTodayKey(filter) {
+  return `boost_${filter}_${new Date().toDateString()}`
+}
+function hasUsedBoost(filter) {
+  return !!localStorage.getItem(getTodayKey(filter))
+}
+function markBoostUsed(filter) {
+  localStorage.setItem(getTodayKey(filter), '1')
+}
 
 export default function ProfileStrip({
   outNowCount    = 0,
@@ -7,38 +28,129 @@ export default function ProfileStrip({
   newNowCount    = 0,
   newInviteCount = 0,
   newLaterCount  = 0,
+  activeFilter   = 'invite',
   onDiscoverNow,
   onDiscoverInvite,
   onDiscoverLater,
+  onBoost,         // onBoost(filter) — parent handles go-live + boost logic
 }) {
+  const counts    = { now: outNowCount, invite: inviteOutCount, later: outLaterCount }
+  const newCounts = { now: newNowCount, invite: newInviteCount, later: newLaterCount }
+  const handlers  = { now: onDiscoverNow, invite: onDiscoverInvite, later: onDiscoverLater }
+
+  const [holding, setHolding]     = useState(null)   // filter key being held
+  const [progress, setProgress]   = useState(0)      // 0–1
+  const [fired, setFired]         = useState(null)   // filter that just fired (flash)
+  const [boostUsed, setBoostUsed] = useState({
+    now: hasUsedBoost('now'), invite: hasUsedBoost('invite'), later: hasUsedBoost('later'),
+  })
+
+  const holdTimer   = useRef(null)
+  const rafRef      = useRef(null)
+  const startRef    = useRef(null)
+  const holdingRef  = useRef(null)
+
+  const cancelHold = useCallback(() => {
+    clearTimeout(holdTimer.current)
+    cancelAnimationFrame(rafRef.current)
+    setHolding(null)
+    setProgress(0)
+    holdingRef.current = null
+  }, [])
+
+  const startHold = useCallback((filter) => {
+    if (boostUsed[filter]) return
+    holdingRef.current = filter
+    setHolding(filter)
+    startRef.current = performance.now()
+
+    const tick = (now) => {
+      if (!holdingRef.current) return
+      const elapsed = now - startRef.current
+      const p = Math.min(elapsed / HOLD_MS, 1)
+      setProgress(p)
+      if (p < 1) {
+        rafRef.current = requestAnimationFrame(tick)
+      } else {
+        // Fired!
+        const f = holdingRef.current
+        markBoostUsed(f)
+        setBoostUsed(prev => ({ ...prev, [f]: true }))
+        setFired(f)
+        setHolding(null)
+        setProgress(0)
+        holdingRef.current = null
+        onBoost?.(f)
+        setTimeout(() => setFired(null), 1200)
+      }
+    }
+    rafRef.current = requestAnimationFrame(tick)
+  }, [boostUsed, onBoost])
+
+  // Clean up on unmount
+  useEffect(() => () => {
+    cancelAnimationFrame(rafRef.current)
+    clearTimeout(holdTimer.current)
+  }, [])
+
+  const strokeOffset = CIRCUMFERENCE * (1 - progress)
+
   return (
     <div className={styles.strip}>
       <div className={styles.discRow}>
+        {BUTTONS.map(({ filter, label, activeClass, dimClass, color }) => {
+          const active   = activeFilter === filter
+          const isHolding = holding === filter
+          const isFired  = fired === filter
+          const used     = boostUsed[filter]
 
-        <button className={`${styles.discBtn} ${styles.discBtnNow}`} onClick={onDiscoverNow}>
-          {newNowCount > 0 && (
-            <span className={styles.notifBadge}>{newNowCount > 9 ? '9+' : newNowCount}</span>
-          )}
-          <span className={styles.discCount}>{outNowCount}</span>
-          <span className={`${styles.discLabel} ${styles.discLabelNow}`}>Out Now</span>
-        </button>
+          return (
+            <button
+              key={filter}
+              className={`${styles.circle} ${active ? styles[activeClass] : styles[dimClass]} ${isFired ? styles.circleFired : ''}`}
+              onClick={() => { if (!isHolding) handlers[filter]?.() }}
+              onPointerDown={() => startHold(filter)}
+              onPointerUp={cancelHold}
+              onPointerLeave={cancelHold}
+              onPointerCancel={cancelHold}
+            >
+              {/* Charging ring SVG */}
+              {(isHolding || isFired) && (
+                <svg className={styles.ringsvg} viewBox="0 0 48 48">
+                  <circle
+                    cx="24" cy="24" r="22"
+                    fill="none"
+                    stroke={color}
+                    strokeWidth="3"
+                    strokeDasharray={CIRCUMFERENCE}
+                    strokeDashoffset={isFired ? 0 : strokeOffset}
+                    strokeLinecap="round"
+                    transform="rotate(-90 24 24)"
+                    className={isFired ? styles.ringFired : ''}
+                  />
+                </svg>
+              )}
 
-        <button className={`${styles.discBtn} ${styles.discBtnInvite}`} onClick={onDiscoverInvite}>
-          {newInviteCount > 0 && (
-            <span className={styles.notifBadge}>{newInviteCount > 9 ? '9+' : newInviteCount}</span>
-          )}
-          <span className={styles.discCount}>{inviteOutCount}</span>
-          <span className={`${styles.discLabel} ${styles.discLabelInvite}`}>Invite Out</span>
-        </button>
+              {/* Boost used indicator — small dot on rim */}
+              {used && !isHolding && !isFired && (
+                <span className={styles.boostUsedDot} style={{ background: color }} />
+              )}
 
-        <button className={`${styles.discBtn} ${styles.discBtnLater}`} onClick={onDiscoverLater}>
-          {newLaterCount > 0 && (
-            <span className={styles.notifBadge}>{newLaterCount > 9 ? '9+' : newLaterCount}</span>
-          )}
-          <span className={styles.discCount}>{outLaterCount}</span>
-          <span className={`${styles.discLabel} ${styles.discLabelLater}`}>Out Later</span>
-        </button>
+              {newCounts[filter] > 0 && (
+                <span className={styles.notifBadge}>{newCounts[filter] > 9 ? '9+' : newCounts[filter]}</span>
+              )}
 
+              <div className={styles.circleBubble}>
+                <span className={`${styles.circleCount} ${!active ? styles.countDim : ''}`}>
+                  {counts[filter]}
+                </span>
+              </div>
+              <span className={`${styles.circleLabel} ${!active ? styles.labelDim : ''}`}>
+                {label}
+              </span>
+            </button>
+          )
+        })}
       </div>
     </div>
   )

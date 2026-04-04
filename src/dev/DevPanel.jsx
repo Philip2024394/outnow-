@@ -146,7 +146,7 @@ const ALL_SESSIONS = [MOCK_SESSION_NOW, MOCK_SESSION_INVITE, MOCK_SESSION_LATER,
 const GROUPS = [
   {
     label: 'BANNERS',
-    color: '#FFD60A',
+    color: '#F5C518',
     items: [
       { id: 'meetRequest',  label: '💌 Meet Request (User B)' },
       { id: 'meetAccepted', label: '✅ Meet Accepted (User A)' },
@@ -155,7 +155,7 @@ const GROUPS = [
   },
   {
     label: 'TOAST',
-    color: '#39FF14',
+    color: '#8DC63F',
     items: [
       { id: 'toastSuccess', label: '✅ Toast — Success' },
       { id: 'toastError',   label: '❌ Toast — Error' },
@@ -164,7 +164,7 @@ const GROUPS = [
   },
   {
     label: 'PROFILE SLIDERS',
-    color: '#39FF14',
+    color: '#8DC63F',
     items: [
       { id: 'profileNow',     label: '🟢 Out Now Profile' },
       { id: 'profileInvite',  label: '💛 Invite Out Profile' },
@@ -174,7 +174,7 @@ const GROUPS = [
   },
   {
     label: 'LIST SHEETS',
-    color: '#FF9500',
+    color: '#E8890C',
     items: [
       { id: 'listNow',    label: '🟢 Out Now List' },
       { id: 'listInvite', label: '💛 Invite Out List' },
@@ -184,7 +184,7 @@ const GROUPS = [
   },
   {
     label: 'VENUE',
-    color: '#FF9500',
+    color: '#E8890C',
     items: [
       { id: 'venueSheet', label: '🏠 Venue Sheet' },
     ],
@@ -211,7 +211,7 @@ const GROUPS = [
   },
   {
     label: 'VIBE CHECK',
-    color: '#39FF14',
+    color: '#8DC63F',
     items: [
       { id: 'vibeCheckSheet',   label: '✨ Vibe Check Sheet' },
       { id: 'vibeBannerNow',    label: '💚 Vibe Banner – Out Now' },

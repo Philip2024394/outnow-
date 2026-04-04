@@ -1,3 +1,4 @@
+import { formatDistance } from '@/utils/distance'
 import styles from './ProfileCard.module.css'
 
 export default function ProfileCard({ profile, onView }) {
@@ -14,7 +15,9 @@ export default function ProfileCard({ profile, onView }) {
         }
 
         {/* Distance — top right */}
-        <span className={styles.distanceBadge}>{profile.distanceKm} km</span>
+        {formatDistance(profile.distanceKm) != null && (
+          <span className={styles.distanceBadge}>{formatDistance(profile.distanceKm)}</span>
+        )}
 
         {/* Online dot — top left */}
         {profile.online && <span className={styles.onlineDot} />}

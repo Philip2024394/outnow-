@@ -125,7 +125,7 @@ export default function GoLiveSheet({ open, onClose, showToast, activeVenues = [
   const canSubmit = selectedPlace && selectedActivity && (mode === 'now' ? !!gpsCoords : true)
 
   return (
-    <BottomSheet open={open} onClose={onClose} title="" borderColor={mode === 'now' ? '#39FF14' : '#FF9500'}>
+    <BottomSheet open={open} onClose={onClose} title="" borderColor={mode === 'now' ? '#8DC63F' : '#E8890C'}>
       {showVibeIntro && (
         <FeatureIntro
           emoji="🎉"

@@ -17,7 +17,7 @@
   width: 100%;
   background: var(--color-surface);
   border-radius: var(--radius-xl) var(--radius-xl) 0 0;
-  border-top: 3px solid #39FF14;
+  border-top: 3px solid #8DC63F;
   padding: var(--space-3) var(--space-6) calc(var(--safe-bottom) + var(--space-6));
   max-height: 92dvh;
   overflow-y: auto;
@@ -32,7 +32,7 @@
 .handle {
   width: 40px;
   height: 4px;
-  background: #39FF14;
+  background: #8DC63F;
   border-radius: 2px;
   margin: 0 auto var(--space-5);
   cursor: pointer;

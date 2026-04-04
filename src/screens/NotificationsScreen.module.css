@@ -55,8 +55,8 @@
 
 .homeBtn:active {
   transform: scale(0.92);
-  background: rgba(57,255,20,0.1);
-  color: #39FF14;
+  background: rgba(141,198,63,0.1);
+  color: #8DC63F;
 }
 
 /* ── Stats strip — fixed just below header ── */
@@ -213,7 +213,7 @@
 .viewerViews {
   font-size: 11px;
   font-weight: 600;
-  color: rgba(57,255,20,0.7);
+  color: rgba(141,198,63,0.7);
 }
 
 /* Online dot on avatar */
@@ -228,16 +228,16 @@
   width: 11px;
   height: 11px;
   border-radius: 50%;
-  background: #39FF14;
+  background: #8DC63F;
   border: 2px solid var(--color-bg);
-  box-shadow: 0 0 6px #39FF14;
+  box-shadow: 0 0 6px #8DC63F;
 }
 
 /* Online / time pills */
 .onlinePill {
   font-size: 10px;
   font-weight: 700;
-  color: #39FF14;
+  color: #8DC63F;
   margin-left: auto;
   flex-shrink: 0;
 }

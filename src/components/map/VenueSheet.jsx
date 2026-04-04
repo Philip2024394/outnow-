@@ -26,6 +26,7 @@ export default function VenueSheet({ open, venue, onClose, onOpenChat }) {
   const startYRef = useRef(null)
   const currentYRef = useRef(0)
   const [proximity, setProximity] = useState(null)
+  const [distanceM, setDistanceM] = useState(null)
   const [codeCopied, setCodeCopied] = useState(false)
 
   useEffect(() => {
@@ -61,13 +62,29 @@ export default function VenueSheet({ open, venue, onClose, onOpenChat }) {
   useEffect(() => {
     if (!open || !venue) return
     setProximity(null)
-    if (!navigator.geolocation) { setProximity('far'); return }
+    setDistanceM(null)
+
+    // Stable mock distance per venue for demo (0.4km – 4.8km range)
+    const mockDist = venue.lat
+      ? Math.round(((venue.lat * 1000) % 44 + 4)) * 100
+      : 1800
+
+    if (!navigator.geolocation) {
+      setDistanceM(mockDist)
+      setProximity('far')
+      return
+    }
     navigator.geolocation.getCurrentPosition(
       (pos) => {
         const dist = haversineMeters(pos.coords.latitude, pos.coords.longitude, venue.lat, venue.lng)
-        setProximity(dist <= 100 ? 'near' : 'far')
+        const safe = isNaN(dist) ? mockDist : dist
+        setDistanceM(safe)
+        setProximity(safe <= 100 ? 'near' : 'far')
       },
-      () => setProximity('far'),
+      () => {
+        setDistanceM(mockDist)
+        setProximity('far')
+      },
       { timeout: 8000, maximumAge: 30000 }
     )
   }, [open, venue])
@@ -91,7 +108,7 @@ export default function VenueSheet({ open, venue, onClose, onOpenChat }) {
     <div className={styles.wrapper}>
       <div className={styles.backdrop} onClick={onClose} />
 
-      <div ref={sheetRef} className={styles.sheet} style={{ '--venue-color': venue.count > 0 ? '#39FF14' : '#4DA6FF' }}>
+      <div ref={sheetRef} className={styles.sheet} style={{ '--venue-color': venue.count > 0 ? '#8DC63F' : '#4DA6FF' }}>
 
         <div className={styles.handle} onClick={onClose} />
 
@@ -101,7 +118,6 @@ export default function VenueSheet({ open, venue, onClose, onOpenChat }) {
             <span className={styles.venueEmoji}>{venue.emoji}</span>
             <div className={styles.headerText}>
               <h2 className={styles.venueName}>{venue.name}</h2>
-              <span className={styles.venueType}>{venue.type}</span>
               <p className={styles.address}>📍 {venue.address}</p>
               {(venue.serves ?? []).length > 0 && (
                 <p className={styles.serves}>
@@ -134,7 +150,17 @@ export default function VenueSheet({ open, venue, onClose, onOpenChat }) {
               ? <span className={styles.chatBtnText}>💬 Join Chat</span>
               : <span className={styles.chatBtnText}>
                   <span className={styles.chatBtnLine1}>💬 Group Chat</span>
-                  <span className={styles.chatBtnLine2}>🔒 Activates at Premises</span>
+                  <span className={styles.chatBtnLine2}>
+                    🔒 Activates at Premises
+                    {distanceM != null && (
+                      <span className={styles.chatBtnDist}>
+                        {' · '}
+                        {distanceM >= 1000
+                          ? `${(distanceM / 1000).toFixed(1)}km away`
+                          : `${Math.round(distanceM)}m away`}
+                      </span>
+                    )}
+                  </span>
                 </span>
             }
           </button>

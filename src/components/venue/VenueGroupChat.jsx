@@ -77,7 +77,7 @@ export default function VenueGroupChat({ venue, initialMessages = [], onClose })
           <div>
             <span className={styles.headerName}>{venue.name}</span>
             <span className={styles.headerSub}>
-              <span style={{ display: 'inline-block', width: 6, height: 6, borderRadius: '50%', background: '#39FF14', boxShadow: '0 0 6px #39FF14', marginRight: 5, verticalAlign: 'middle' }} />
+              <span style={{ display: 'inline-block', width: 6, height: 6, borderRadius: '50%', background: '#8DC63F', boxShadow: '0 0 6px #8DC63F', marginRight: 5, verticalAlign: 'middle' }} />
               {venue.count} {venue.count === 1 ? 'person' : 'people'} here tonight
             </span>
           </div>

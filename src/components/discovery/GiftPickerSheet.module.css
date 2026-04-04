@@ -88,8 +88,8 @@
 }
 
 .card:active {
-  background: rgba(57,255,20,0.08);
-  border-color: rgba(57,255,20,0.4);
+  background: rgba(141,198,63,0.08);
+  border-color: rgba(141,198,63,0.4);
   transform: scale(0.95);
 }
 

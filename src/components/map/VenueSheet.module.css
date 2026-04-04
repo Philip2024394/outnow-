@@ -206,6 +206,7 @@
   flex-direction: column;
   gap: 4px;
   min-width: 0;
+  flex: 1;
 }
 
 .venueName {
@@ -235,11 +236,14 @@
 .serves {
   font-size: 12px;
   color: rgba(255,255,255,0.5);
-  margin: 4px 0 0;
+  margin: 6px 0 0;
   display: flex;
   align-items: center;
+  justify-content: center;
   flex-wrap: wrap;
   gap: 0;
+  width: 100%;
+  text-align: center;
 }
 
 .servesLabel {
@@ -281,23 +285,23 @@
   align-items: center;
   gap: 10px;
   background: #0a0a0a;
-  border: 1px solid rgba(57,255,20,0.35);
+  border: 1px solid rgba(141,198,63,0.35);
   border-radius: 14px;
   padding: 12px 16px;
   animation: count-glow 3s ease-in-out infinite;
 }
 
 @keyframes count-glow {
-  0%, 100% { box-shadow: 0 0 8px rgba(57,255,20,0.15); }
-  50%       { box-shadow: 0 0 20px rgba(57,255,20,0.35); }
+  0%, 100% { box-shadow: 0 0 8px rgba(141,198,63,0.15); }
+  50%       { box-shadow: 0 0 20px rgba(141,198,63,0.35); }
 }
 
 .countDot {
   width: 9px;
   height: 9px;
   border-radius: 50%;
-  background: #39FF14;
-  box-shadow: 0 0 8px #39FF14;
+  background: #8DC63F;
+  box-shadow: 0 0 8px #8DC63F;
   flex-shrink: 0;
   animation: live-dot 1.4s ease-in-out infinite;
 }
@@ -312,7 +316,7 @@
 .countNum {
   font-size: 20px;
   font-weight: 900;
-  color: #39FF14;
+  color: #8DC63F;
   letter-spacing: -0.02em;
 }
 
@@ -324,16 +328,16 @@
   justify-content: center;
   gap: 10px;
   padding: 16px 16px;
-  background: rgba(57,255,20,0.12);
-  border: 1.5px solid rgba(57,255,20,0.5);
-  box-shadow: 0 0 18px rgba(57,255,20,0.2);
+  background: rgba(141,198,63,0.12);
+  border: 1.5px solid rgba(141,198,63,0.5);
+  box-shadow: 0 0 18px rgba(141,198,63,0.2);
   border-radius: 16px;
   cursor: pointer;
   -webkit-tap-highlight-color: transparent;
   transition: background 0.15s;
 }
 
-.chatBtn:active:not(:disabled) { background: rgba(57,255,20,0.18); }
+.chatBtn:active:not(:disabled) { background: rgba(141,198,63,0.18); }
 
 .chatBtnDisabled {
   cursor: default;
@@ -348,17 +352,18 @@
   width: 8px;
   height: 8px;
   border-radius: 50%;
-  background: #39FF14;
-  box-shadow: 0 0 8px #39FF14;
+  background: #8DC63F;
+  box-shadow: 0 0 8px #8DC63F;
   flex-shrink: 0;
   animation: live-dot 1.4s ease-in-out infinite;
 }
 
-.chatBtnText { font-size: 16px; font-weight: 800; color: #39FF14; flex: 1; text-align: center; display: flex; flex-direction: column; gap: 2px; align-items: center; }
-.chatBtnSub  { font-size: 12px; color: rgba(57,255,20,0.5); flex-shrink: 0; }
+.chatBtnText { font-size: 16px; font-weight: 800; color: #8DC63F; flex: 1; text-align: center; display: flex; flex-direction: column; gap: 2px; align-items: center; }
+.chatBtnSub  { font-size: 12px; color: rgba(141,198,63,0.5); flex-shrink: 0; }
 
 .chatBtnLine1 { font-size: 15px; font-weight: 800; color: rgba(255,255,255,0.55); }
 .chatBtnLine2 { font-size: 13px; font-weight: 700; color: rgba(255,255,255,0.35); }
+.chatBtnDist  { font-size: 12px; font-weight: 600; color: rgba(255,255,255,0.25); }
 
 /* Deal card */
 .dealCard {

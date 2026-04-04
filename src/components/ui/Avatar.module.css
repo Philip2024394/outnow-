@@ -28,19 +28,19 @@
 }
 
 .scheduled {
-  border-color: #FF9500;
-  box-shadow: 0 0 0 2px var(--color-bg), 0 0 14px rgba(255,149,0,0.45);
+  border-color: #E8890C;
+  box-shadow: 0 0 0 2px var(--color-bg), 0 0 14px rgba(232,137,12,0.45);
 }
 
 .inviteOut {
-  border-color: #FFD60A;
-  box-shadow: 0 0 0 2px var(--color-bg), 0 0 14px rgba(255,214,10,0.45);
+  border-color: #F5C518;
+  box-shadow: 0 0 0 2px var(--color-bg), 0 0 14px rgba(245,197,24,0.45);
 }
 
 /* ── No-photo brand card ── */
 .brandCard {
   background: linear-gradient(160deg, #0d1a0d 0%, #0e0e0e 100%);
-  border-color: rgba(57,255,20,0.3) !important;
+  border-color: rgba(141,198,63,0.3) !important;
   overflow: hidden;
 }
 
@@ -60,7 +60,7 @@
   font-size: 9px;
   font-weight: 900;
   letter-spacing: 0.08em;
-  color: #39FF14;
+  color: #8DC63F;
   text-transform: lowercase;
   line-height: 1;
 }
@@ -88,6 +88,6 @@
 /* Very small fallback */
 .brandMarkSm {
   font-size: 0.7em;
-  color: #39FF14;
+  color: #8DC63F;
   opacity: 0.8;
 }

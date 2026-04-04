@@ -64,17 +64,17 @@
 
 /* Scheduled (Out Later) variant */
 .barScheduled {
-  border-color: #FF9500;
-  box-shadow: 0 0 24px rgba(255,149,0,0.2), var(--shadow-md);
+  border-color: #E8890C;
+  box-shadow: 0 0 24px rgba(232,137,12,0.2), var(--shadow-md);
 }
 
 .liveDotScheduled {
-  background: #FF9500;
+  background: #E8890C;
   animation: none;
 }
 
 .labelScheduled {
-  color: #FF9500;
+  color: #E8890C;
 }
 
 .sublabel {

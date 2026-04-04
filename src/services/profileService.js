@@ -3,18 +3,32 @@ import { supabase } from '@/lib/supabase'
 /**
  * Save profile fields to Supabase profiles table.
  */
-export async function saveProfile({ userId, displayName, age, bio, city, activities, lookingFor }) {
+export async function saveProfile({ userId, displayName, dob, bio, city, country, activities, lookingFor, extraPhotos }) {
   if (!supabase || !userId) return
+
+  // Calculate age from dob string "YYYY-MM-DD"
+  let age = null
+  if (dob) {
+    const birth = new Date(dob)
+    const today = new Date()
+    age = today.getFullYear() - birth.getFullYear()
+    const m = today.getMonth() - birth.getMonth()
+    if (m < 0 || (m === 0 && today.getDate() < birth.getDate())) age--
+  }
+
   const { error } = await supabase
     .from('profiles')
     .update({
-      display_name: displayName ?? null,
-      age:          age ? parseInt(age, 10) : null,
-      bio:          bio ?? null,
-      city:         city ?? null,
-      activities:   activities ?? [],
-      looking_for:  lookingFor ?? null,
-      updated_at:   new Date().toISOString(),
+      display_name:  displayName ?? null,
+      dob:           dob ?? null,
+      age:           age,
+      bio:           bio ?? null,
+      city:          city ?? null,
+      country:       country ?? null,
+      activities:    activities ?? [],
+      looking_for:   lookingFor ?? null,
+      extra_photos:  (extraPhotos ?? []).filter(Boolean),
+      updated_at:    new Date().toISOString(),
     })
     .eq('id', userId)
   if (error) throw new Error(error.message)
@@ -45,6 +59,29 @@ export async function uploadAvatar(userId, file) {
     .from('profiles')
     .update({ photo_url: publicUrl, updated_at: new Date().toISOString() })
     .eq('id', userId)
+
+  return publicUrl
+}
+
+/**
+ * Upload one of the 4 gallery (extra) photos to Supabase Storage.
+ * Returns the public URL.
+ */
+export async function uploadGalleryPhoto(userId, file, index) {
+  if (!supabase || !userId || !file) return null
+
+  const ext  = file.name.split('.').pop() || 'jpg'
+  const path = `${userId}/gallery_${index}.${ext}`
+
+  const { error: uploadError } = await supabase.storage
+    .from('avatars')
+    .upload(path, file, { upsert: true, contentType: file.type })
+
+  if (uploadError) throw new Error(uploadError.message)
+
+  const { data: { publicUrl } } = supabase.storage
+    .from('avatars')
+    .getPublicUrl(path)
 
   return publicUrl
 }

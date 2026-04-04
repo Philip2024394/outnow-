@@ -127,7 +127,7 @@
 }
 
 .input:focus {
-  border-color: rgba(57,255,20,0.5);
+  border-color: rgba(141,198,63,0.5);
 }
 
 .input::placeholder {
@@ -159,9 +159,9 @@
 .chip:active { opacity: 0.75; }
 
 .chipActive {
-  background: rgba(57,255,20,0.08);
-  border-color: rgba(57,255,20,0.45);
-  color: #39FF14;
+  background: rgba(141,198,63,0.08);
+  border-color: rgba(141,198,63,0.45);
+  color: #8DC63F;
 }
 
 /* Time row */
@@ -187,10 +187,10 @@
 .submitBtn {
   width: 100%;
   padding: 14px;
-  background: rgba(57,255,20,0.1);
-  border: 1.5px solid rgba(57,255,20,0.4);
+  background: rgba(141,198,63,0.1);
+  border: 1.5px solid rgba(141,198,63,0.4);
   border-radius: 100px;
-  color: #39FF14;
+  color: #8DC63F;
   font-size: 15px;
   font-weight: 700;
   font-family: var(--font-sans);
@@ -199,7 +199,7 @@
   transition: background 0.15s;
 }
 
-.submitBtn:active { background: rgba(57,255,20,0.18); }
+.submitBtn:active { background: rgba(141,198,63,0.18); }
 
 .submitDisabled {
   opacity: 0.35;
@@ -215,7 +215,7 @@
 
 /* ── Discount section ── */
 .discountBox {
-  border: 1.5px solid rgba(255,214,10,0.2);
+  border: 1.5px solid rgba(245,197,24,0.2);
   border-radius: 16px;
   overflow: hidden;
 }
@@ -226,7 +226,7 @@
   align-items: center;
   gap: 12px;
   padding: 14px;
-  background: rgba(255,214,10,0.05);
+  background: rgba(245,197,24,0.05);
   border: none;
   cursor: pointer;
   font-family: var(--font-sans);
@@ -265,8 +265,8 @@
 }
 
 .toggleOn {
-  background: rgba(255,214,10,0.3);
-  border-color: #FFD60A;
+  background: rgba(245,197,24,0.3);
+  border-color: #F5C518;
 }
 
 .toggleThumb {
@@ -282,7 +282,7 @@
 
 .toggleOn .toggleThumb {
   transform: translateX(16px);
-  background: #FFD60A;
+  background: #F5C518;
 }
 
 .discountFields {
@@ -317,12 +317,12 @@
 .percentSign {
   font-size: 16px;
   font-weight: 700;
-  color: #FFD60A;
+  color: #F5C518;
 }
 
 .discountWarn {
   font-size: 11px;
-  color: #FF9500;
+  color: #E8890C;
   font-weight: 600;
 }
 
@@ -333,16 +333,16 @@
 }
 
 .chipDiscount {
-  background: rgba(255,214,10,0.1) !important;
-  border-color: rgba(255,214,10,0.5) !important;
-  color: #FFD60A !important;
+  background: rgba(245,197,24,0.1) !important;
+  border-color: rgba(245,197,24,0.5) !important;
+  color: #F5C518 !important;
 }
 
 .discountNote {
   font-size: 11px;
-  color: rgba(255,149,0,0.7);
-  background: rgba(255,149,0,0.06);
-  border: 1px solid rgba(255,149,0,0.15);
+  color: rgba(232,137,12,0.7);
+  background: rgba(232,137,12,0.06);
+  border: 1px solid rgba(232,137,12,0.15);
   border-radius: 10px;
   padding: 10px 12px;
   margin: 0;
@@ -368,7 +368,7 @@
 .doneTitle {
   font-size: var(--font-size-xl);
   font-weight: var(--font-weight-bold);
-  color: #39FF14;
+  color: #8DC63F;
   margin: 0;
 }
 

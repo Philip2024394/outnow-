@@ -78,9 +78,9 @@
 .freeBadge {
   font-size: 11px;
   font-weight: 700;
-  color: #39FF14;
-  background: rgba(57,255,20,0.1);
-  border: 1px solid rgba(57,255,20,0.25);
+  color: #8DC63F;
+  background: rgba(141,198,63,0.1);
+  border: 1px solid rgba(141,198,63,0.25);
   border-radius: 100px;
   padding: 3px 10px;
 }
@@ -124,8 +124,8 @@
 .optionBtn:active { opacity: 0.7; }
 
 .optionBtnActive {
-  border-color: #39FF14;
-  background: rgba(57,255,20,0.08);
+  border-color: #8DC63F;
+  background: rgba(141,198,63,0.08);
 }
 
 .optionIcon { font-size: 20px; }
@@ -137,7 +137,7 @@
   white-space: nowrap;
 }
 
-.optionBtnActive .optionLabel { color: #39FF14; }
+.optionBtnActive .optionLabel { color: #8DC63F; }
 
 /* ── FAQ panel ── */
 .faqPanel {
@@ -205,7 +205,7 @@
 .faqQ {
   font-size: 14px;
   font-weight: 700;
-  color: #39FF14;
+  color: #8DC63F;
 }
 
 .faqA {
@@ -235,9 +235,9 @@
 }
 
 .faqBtn:active {
-  background: rgba(57,255,20,0.15);
-  color: #39FF14;
-  border-color: rgba(57,255,20,0.4);
+  background: rgba(141,198,63,0.15);
+  color: #8DC63F;
+  border-color: rgba(141,198,63,0.4);
 }
 
 /* ── Input ── */
@@ -268,7 +268,7 @@
 /* ── Send button ── */
 .sendBtn {
   width: 100%;
-  background: #39FF14;
+  background: #8DC63F;
   color: #000;
   border: none;
   border-radius: 14px;
@@ -356,8 +356,8 @@
   flex-direction: column;
   gap: 6px;
   width: 100%;
-  background: rgba(57,255,20,0.05);
-  border: 1px solid rgba(57,255,20,0.15);
+  background: rgba(141,198,63,0.05);
+  border: 1px solid rgba(141,198,63,0.15);
   border-radius: 12px;
   padding: 12px 16px;
 }
@@ -372,7 +372,7 @@
 .unlockBtn {
   width: 100%;
   padding: 14px;
-  background: #39FF14;
+  background: #8DC63F;
   border: none;
   border-radius: 100px;
   color: #080808;

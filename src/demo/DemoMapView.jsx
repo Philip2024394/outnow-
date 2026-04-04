@@ -3,7 +3,7 @@ import { MapContainer, TileLayer, useMap, useMapEvents } from 'react-leaflet'
 import { divIcon, marker } from 'leaflet'
 import L from 'leaflet'
 import 'leaflet/dist/leaflet.css'
-import { activityEmoji } from '@/firebase/collections'
+import { activityImage } from '@/firebase/collections'
 import { DEMO_CENTER } from './mockData'
 import { spreadMarkers } from '@/utils/spreadMarkers'
 import styles from './DemoMapView.module.css'
@@ -35,19 +35,29 @@ function LiveMarkers({ sessions, onSelect }) {
     const cluster = L.layerGroup()
 
     spreadMarkers(sessions, 'lat', 'lng').forEach((session) => {
-      const emoji = activityEmoji(session.activityType)
       const initial = (session.displayName ?? 'U')[0].toUpperCase()
       const isScheduled  = session.status === 'scheduled'
       const isInviteOut  = session.status === 'invite_out'
       const scheduledLabel = isScheduled ? formatScheduledTime(session.scheduledFor) : ''
       const tier = session.tier ?? null
+      const actImg = activityImage(session.activityType)
       const avatarInner = (tier && session.photoURL)
         ? `<img src="${session.photoURL}" class="demo-marker__photo" alt="" />`
+        : actImg
+        ? `<img src="${actImg}" class="demo-marker__activity-img" alt="" />`
         : initial
       const tierClass = tier ? ` demo-marker--${tier}` : ''
       const avatarTierClass = tier ? ` demo-marker__avatar--${tier}` : ''
       const crownHtml = tier === 'vip' ? `<div class="demo-marker__crown">👑</div>` : ''
       const isReplied = !!session.hasReplied
+
+      // Status dot — color by mode, pulsing, no dot for offline
+      const dotClass = isInviteOut
+        ? 'demo-marker__status-dot demo-marker__status-dot--invite'
+        : isScheduled
+        ? 'demo-marker__status-dot demo-marker__status-dot--later'
+        : 'demo-marker__status-dot demo-marker__status-dot--now'
+      const statusDot = `<div class="${dotClass}"></div>`
 
       const icon = divIcon({
         className: '',
@@ -56,26 +66,26 @@ function LiveMarkers({ sessions, onSelect }) {
                <div class="demo-marker__reply-badge">💌</div>
                <div class="demo-marker__pulse demo-marker__pulse--slow"></div>
                <div class="demo-marker__avatar${avatarTierClass}">${avatarInner}</div>
-               <div class="demo-marker__activity">${emoji}</div>
+               ${statusDot}
              </div>`
           : isScheduled
           ? `<div class="demo-marker demo-marker--scheduled${tierClass}">
                <div class="demo-marker__clock">🕐</div>
                <div class="demo-marker__avatar demo-marker__avatar--scheduled${avatarTierClass}">${avatarInner}</div>
-               <div class="demo-marker__activity">${emoji}</div>
+               ${statusDot}
                <div class="demo-marker__time-label">${scheduledLabel}</div>
              </div>`
           : isInviteOut
           ? `<div class="demo-marker demo-marker--invite${tierClass}">
                <div class="demo-marker__avatar demo-marker__avatar--invite${avatarTierClass}">${avatarInner}</div>
-               <div class="demo-marker__activity">${emoji}</div>
+               ${statusDot}
              </div>`
           : `<div class="demo-marker${tierClass}">
                ${crownHtml}
                <div class="demo-marker__pulse"></div>
                <div class="demo-marker__pulse demo-marker__pulse--slow"></div>
                <div class="demo-marker__avatar${avatarTierClass}">${avatarInner}</div>
-               <div class="demo-marker__activity">${emoji}</div>
+               ${statusDot}
              </div>`,
         iconSize: [52, 68],
         iconAnchor: [26, 26],

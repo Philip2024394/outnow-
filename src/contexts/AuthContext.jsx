@@ -54,21 +54,24 @@ export function AuthProvider({ children }) {
 
       const { data } = await supabase
         .from('profiles')
-        .select('display_name, photo_url, age, bio, city, activities, looking_for, coins, tier')
+        .select('display_name, photo_url, age, dob, bio, city, country, activities, looking_for, coins, tier, extra_photos')
         .eq('id', authUser.id)
         .single()
 
       if (data) {
         setUserProfile({
-          displayName: data.display_name ?? authUser.displayName,
-          photoURL: data.photo_url ?? null,
-          age: data.age ?? null,
-          bio: data.bio ?? '',
-          city: data.city ?? '',
-          activities: data.activities ?? [],
-          lookingFor: data.looking_for ?? '',
-          coins: data.coins ?? 0,
-          tier: data.tier ?? null,
+          displayName:  data.display_name ?? authUser.displayName,
+          photoURL:     data.photo_url ?? null,
+          age:          data.age ?? null,
+          dob:          data.dob ?? null,
+          bio:          data.bio ?? '',
+          city:         data.city ?? '',
+          country:      data.country ?? '',
+          activities:   data.activities ?? [],
+          lookingFor:   data.looking_for ?? '',
+          coins:        data.coins ?? 0,
+          tier:         data.tier ?? null,
+          extraPhotos:  data.extra_photos ?? [],
         })
       }
     } catch {

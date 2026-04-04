@@ -24,7 +24,7 @@
   left: 0;
   right: 0;
   border-radius: 20px 20px 0 0;
-  border-top: 3px solid var(--theme-color, #39FF14);
+  border-top: 3px solid var(--theme-color, #8DC63F);
   max-height: 88dvh;
   display: flex;
   flex-direction: column;
@@ -44,8 +44,8 @@
 .handle {
   width: 48px;
   height: 4px;
-  background: var(--theme-color, #39FF14);
-  box-shadow: 0 0 10px color-mix(in srgb, var(--theme-color, #39FF14) 70%, transparent);
+  background: var(--theme-color, #8DC63F);
+  box-shadow: 0 0 10px color-mix(in srgb, var(--theme-color, #8DC63F) 70%, transparent);
   border-radius: 100px;
   margin: 12px auto 0;
   flex-shrink: 0;
@@ -116,9 +116,9 @@
   border: 1.5px solid;
 }
 
-.badgeNow    { color: #39FF14; background: rgba(57,255,20,0.1);  border-color: rgba(57,255,20,0.3);  }
-.badgeInvite { color: #FFD60A; background: rgba(255,214,10,0.1); border-color: rgba(255,214,10,0.3); }
-.badgeLater  { color: #FF9500; background: rgba(255,149,0,0.1);  border-color: rgba(255,149,0,0.3);  }
+.badgeNow    { color: #8DC63F; background: rgba(141,198,63,0.1);  border-color: rgba(141,198,63,0.3);  }
+.badgeInvite { color: #F5C518; background: rgba(245,197,24,0.1); border-color: rgba(245,197,24,0.3); }
+.badgeLater  { color: #E8890C; background: rgba(232,137,12,0.1);  border-color: rgba(232,137,12,0.3);  }
 
 .count {
   font-size: 13px;
@@ -222,7 +222,7 @@
 .cardTime {
   font-size: 11px;
   font-weight: 600;
-  color: #FF9500;
+  color: #E8890C;
 }
 
 .cardActivities {

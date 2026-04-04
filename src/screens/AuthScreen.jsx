@@ -6,7 +6,7 @@ const HERO_URL  = 'https://ik.imagekit.io/dateme/UntitledDFSDFASDF.png'
 const INTRO_VIDEO = 'https://ik.imagekit.io/nepgaxllc/good.mp4?updatedAt=1775120536152'
 
 // Step 1: email entry → Step 2: password (sign-in or create account)
-export default function AuthScreen({ onAdminPass, onGuest, onDevPreview }) {
+export default function AuthScreen({ onAdminPass, onGuest, onDevPreview, onAdminDev }) {
   // Preload the intro video while the user is on this screen
   useEffect(() => {
     const video = document.createElement('video')
@@ -205,6 +205,9 @@ export default function AuthScreen({ onAdminPass, onGuest, onDevPreview }) {
 
         <button className={styles.devBtn} onClick={onDevPreview}>
           🛠 Dev: preview new user flow
+        </button>
+        <button className={styles.devBtn} onClick={onAdminDev}>
+          ⚡ Admin Dev — Skip to App
         </button>
       </div>
     </div>

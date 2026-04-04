@@ -60,7 +60,7 @@ export default function DiscoveryListSheet({ open, filter = 'now', sessions = []
     <>
     <div className={styles.wrapper}>
       <div className={styles.backdrop} onClick={onClose} />
-      <div ref={sheetRef} className={styles.sheet} style={{ '--theme-color': filter === 'invite' ? '#FFD60A' : filter === 'later' ? '#FF9500' : '#39FF14' }}>
+      <div ref={sheetRef} className={styles.sheet} style={{ '--theme-color': filter === 'invite' ? '#F5C518' : filter === 'later' ? '#E8890C' : '#8DC63F' }}>
 
         <div className={styles.handle} onClick={onClose} />
 

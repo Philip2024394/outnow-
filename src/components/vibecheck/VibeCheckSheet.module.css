@@ -14,7 +14,7 @@
   width: 100%;
   background: #0e0e0e;
   border-radius: 24px 24px 0 0;
-  border-top: 3px solid #39FF14;
+  border-top: 3px solid #8DC63F;
   padding-bottom: calc(env(safe-area-inset-bottom, 0px) + 16px);
   display: flex;
   flex-direction: column;
@@ -70,7 +70,7 @@
   padding: 5px 12px;
   font-size: 13px;
   font-weight: 700;
-  color: #FFD60A;
+  color: #F5C518;
 }
 
 /* ── Progress ── */
@@ -84,10 +84,10 @@
 
 .progressFill {
   height: 100%;
-  background: #39FF14;
+  background: #8DC63F;
   border-radius: 100px;
   transition: width 0.3s ease;
-  box-shadow: 0 0 8px rgba(57,255,20,0.5);
+  box-shadow: 0 0 8px rgba(141,198,63,0.5);
 }
 
 .progressLabel {
@@ -109,8 +109,8 @@
 
 .cardYes {
   transform: scale(1.02);
-  border-color: rgba(57,255,20,0.5);
-  box-shadow: 0 0 24px rgba(57,255,20,0.2);
+  border-color: rgba(141,198,63,0.5);
+  box-shadow: 0 0 24px rgba(141,198,63,0.2);
 }
 
 .cardPass {
@@ -171,21 +171,21 @@
   border: 1px solid;
 }
 
-.badgeNow    { background: rgba(57,255,20,0.15); color: #39FF14; border-color: rgba(57,255,20,0.4); }
-.badgeInvite { background: rgba(255,214,10,0.15); color: #FFD60A; border-color: rgba(255,214,10,0.4); }
-.badgeLater  { background: rgba(255,149,0,0.15); color: #FF9500; border-color: rgba(255,149,0,0.4); }
+.badgeNow    { background: rgba(141,198,63,0.15); color: #8DC63F; border-color: rgba(141,198,63,0.4); }
+.badgeInvite { background: rgba(245,197,24,0.15); color: #F5C518; border-color: rgba(245,197,24,0.4); }
+.badgeLater  { background: rgba(232,137,12,0.15); color: #E8890C; border-color: rgba(232,137,12,0.4); }
 
 /* Vote flash overlays */
 .flashYes {
   position: absolute;
   inset: 0;
-  background: rgba(57,255,20,0.15);
+  background: rgba(141,198,63,0.15);
   display: flex;
   align-items: center;
   justify-content: center;
   font-size: 28px;
   font-weight: 800;
-  color: #39FF14;
+  color: #8DC63F;
   animation: flash-in 0.3s ease forwards;
 }
 
@@ -289,9 +289,9 @@
 }
 
 .yesBtn {
-  background: rgba(57,255,20,0.12);
-  border: 1.5px solid rgba(57,255,20,0.35);
-  color: #39FF14;
+  background: rgba(141,198,63,0.12);
+  border: 1.5px solid rgba(141,198,63,0.35);
+  color: #8DC63F;
   font-size: 15px;
 }
 
@@ -350,7 +350,7 @@
 .coinAmt {
   font-size: 16px;
   font-weight: 800;
-  color: #FFD60A;
+  color: #F5C518;
 }
 
 .completionNote {
@@ -364,7 +364,7 @@
   width: 100%;
   max-width: 280px;
   padding: 15px;
-  background: #39FF14;
+  background: #8DC63F;
   color: #080808;
   border: none;
   border-radius: 100px;

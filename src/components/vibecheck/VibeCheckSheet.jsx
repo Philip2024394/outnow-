@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
 import { useCoins } from '@/hooks/useCoins'
+import { formatDistance } from '@/utils/distance'
 import styles from './VibeCheckSheet.module.css'
 
 const COINS_PER_VOTE     = 2
@@ -168,11 +169,9 @@ export default function VibeCheckSheet({ open, sessions = [], onClose, onVibeYes
               {(current.city || current.area) && (
                 <span className={styles.metaItem}>📍 {current.city ?? current.area}</span>
               )}
-              {current.distanceKm != null && (
+              {formatDistance(current.distanceKm) != null && (
                 <span className={styles.metaItem}>
-                  {current.distanceKm < 1
-                    ? `${Math.round(current.distanceKm * 1000)}m away`
-                    : `${current.distanceKm.toFixed(1)}km away`}
+                  {formatDistance(current.distanceKm)} away
                 </span>
               )}
             </div>

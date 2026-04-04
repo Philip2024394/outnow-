@@ -194,7 +194,7 @@
 .tcLink {
   font-size: 14px;
   font-weight: 700;
-  color: #39FF14;
+  color: #8DC63F;
   text-decoration: none;
   letter-spacing: 0.01em;
 }
@@ -205,8 +205,8 @@
   display: flex;
   align-items: flex-start;
   gap: 12px;
-  background: rgba(57,255,20,0.06);
-  border: 1.5px solid rgba(57,255,20,0.2);
+  background: rgba(141,198,63,0.06);
+  border: 1.5px solid rgba(141,198,63,0.2);
   border-radius: 14px;
   padding: 14px 16px;
   cursor: pointer;
@@ -230,9 +230,9 @@
 }
 
 .checkbox:checked {
-  border-color: #39FF14;
-  background: #39FF14;
-  box-shadow: 0 0 10px rgba(57,255,20,0.45);
+  border-color: #8DC63F;
+  background: #8DC63F;
+  box-shadow: 0 0 10px rgba(141,198,63,0.45);
 }
 
 .checkbox:checked::after {
@@ -255,7 +255,7 @@
 }
 
 .tcInline {
-  color: #39FF14;
+  color: #8DC63F;
   text-decoration: none;
 }
 

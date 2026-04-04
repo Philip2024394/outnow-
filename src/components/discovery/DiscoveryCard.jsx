@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from 'react'
+import { formatDistance, walkMinutes } from '@/utils/distance'
 import { useInterests } from '@/hooks/useInterests'
 import { sendMeetRequest } from '@/services/meetService'
 import { useAuth } from '@/hooks/useAuth'
@@ -89,7 +90,7 @@ export default function DiscoveryCard({ open, session, mySession, onClose, showT
   const isInviteOut = session.status === 'invite_out'
   const isOutNow    = !isScheduled && !isInviteOut
 
-  const statusColor = isInviteOut ? '#FFD60A' : isScheduled ? '#FF9500' : '#39FF14'
+  const statusColor = isInviteOut ? '#F5C518' : isScheduled ? '#E8890C' : '#8DC63F'
 
   const photos = session.photos?.length ? session.photos : session.photoURL ? [session.photoURL] : []
 
@@ -226,13 +227,12 @@ export default function DiscoveryCard({ open, session, mySession, onClose, showT
                     </span>
                   )}
                 </div>
-                {session.distanceKm != null && (
+                {formatDistance(session.distanceKm) != null && (
                   <div className={styles.photoBannerDist}>
-                    🚶 {Math.max(1, Math.round(session.distanceKm / 0.083))} min
-                    {' · '}
-                    {session.distanceKm < 1
-                      ? `${Math.round(session.distanceKm * 1000)}m`
-                      : `${session.distanceKm.toFixed(1)}km`}
+                    {walkMinutes(session.distanceKm) != null && (
+                      <>🚶 {walkMinutes(session.distanceKm)} min · </>
+                    )}
+                    {formatDistance(session.distanceKm)}
                   </div>
                 )}
                 {/* Fingerprint — opens bio view */}

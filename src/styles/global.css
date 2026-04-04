@@ -44,7 +44,7 @@ body {
     position: fixed;
     inset: 0;
     background:
-      radial-gradient(ellipse 60% 50% at 50% 0%, rgba(57,255,20,0.04) 0%, transparent 70%),
+      radial-gradient(ellipse 60% 50% at 50% 0%, rgba(141,198,63,0.04) 0%, transparent 70%),
       repeating-linear-gradient(
         0deg,
         transparent,
@@ -84,7 +84,7 @@ body {
     box-shadow:
       0 0 0 1px rgba(255,255,255,0.08),
       0 40px 120px rgba(0,0,0,0.8),
-      0 0 60px rgba(57,255,20,0.06);
+      0 0 60px rgba(141,198,63,0.06);
     overflow: hidden;
   }
 }
@@ -170,3 +170,8 @@ img {
 /* Safe area padding helpers */
 .pt-safe { padding-top: var(--safe-top); }
 .pb-safe { padding-bottom: var(--safe-bottom); }
+
+@keyframes fadeInUp {
+  from { opacity: 0; transform: translateX(-50%) translateY(10px); }
+  to   { opacity: 1; transform: translateX(-50%) translateY(0); }
+}

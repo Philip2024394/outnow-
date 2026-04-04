@@ -25,7 +25,7 @@ export default function MatchModal({ profile, onChat, onClose }) {
           style={{
             left: `${5 + (i * 5.5) % 90}%`,
             animationDelay: `${(i * 0.08).toFixed(2)}s`,
-            background: ['#39FF14','#FF6B35','#A855F7','#FFD60A','#FF3B64'][i % 5],
+            background: ['#8DC63F','#FF6B35','#A855F7','#F5C518','#FF3B64'][i % 5],
           }}
         />
       ))}

@@ -61,9 +61,9 @@
 .chip:active { background: rgba(255,255,255,0.12); }
 
 .chipActive {
-  background: rgba(57,255,20,0.12);
-  border-color: rgba(57,255,20,0.4);
-  color: #39FF14;
+  background: rgba(141,198,63,0.12);
+  border-color: rgba(141,198,63,0.4);
+  color: #8DC63F;
 }
 
 .greetingHint {
@@ -89,7 +89,7 @@
 }
 
 .greetingInput::placeholder { color: rgba(255,255,255,0.25); }
-.greetingInput:focus { border-color: rgba(57,255,20,0.35); }
+.greetingInput:focus { border-color: rgba(141,198,63,0.35); }
 
 .sendBtn {
   width: 100%;

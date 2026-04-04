@@ -19,7 +19,7 @@
 
 .card {
   background: #141414;
-  border: 1px solid rgba(57,255,20,0.25);
+  border: 1px solid rgba(141,198,63,0.25);
   border-radius: 28px;
   padding: 32px 24px 24px;
   max-width: 340px;
@@ -28,7 +28,7 @@
   flex-direction: column;
   align-items: center;
   gap: 16px;
-  box-shadow: 0 0 0 4px rgba(57,255,20,0.06), 0 24px 64px rgba(0,0,0,0.8);
+  box-shadow: 0 0 0 4px rgba(141,198,63,0.06), 0 24px 64px rgba(0,0,0,0.8);
   animation: slide-up 0.3s cubic-bezier(0.16,1,0.3,1);
 }
 
@@ -40,7 +40,7 @@
 .emoji {
   font-size: 52px;
   line-height: 1;
-  filter: drop-shadow(0 0 16px rgba(57,255,20,0.3));
+  filter: drop-shadow(0 0 16px rgba(141,198,63,0.3));
 }
 
 .title {
@@ -76,8 +76,8 @@
   width: 6px;
   height: 6px;
   border-radius: 50%;
-  background: #39FF14;
-  box-shadow: 0 0 6px #39FF14;
+  background: #8DC63F;
+  box-shadow: 0 0 6px #8DC63F;
   flex-shrink: 0;
   margin-top: 5px;
 }
@@ -85,7 +85,7 @@
 .btn {
   width: 100%;
   padding: 14px;
-  background: #39FF14;
+  background: #8DC63F;
   color: #080808;
   font-size: 15px;
   font-weight: 900;

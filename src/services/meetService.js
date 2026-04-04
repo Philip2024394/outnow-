@@ -38,3 +38,15 @@ export async function declineMeetRequest(interestId) {
     .eq('id', interestId)
   if (error) throw new Error(error.message)
 }
+
+// Creates (or returns existing) real Supabase conversation UUID for a meet request.
+export async function createMeetConversation(otherUserId, sessionId = null) {
+  if (!supabase || !otherUserId) return null
+  const { data, error } = await supabase
+    .rpc('create_meet_conversation', {
+      p_other_user_id: otherUserId,
+      p_session_id:    sessionId ?? null,
+    })
+  if (error) throw new Error(error.message)
+  return data // real UUID string
+}

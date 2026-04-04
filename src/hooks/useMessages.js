@@ -22,12 +22,15 @@ export function useMessages(conversationId, demoMessages = []) {
   const channelRef = useRef(null)
 
   useEffect(() => {
-    if (!supabase) {
+    if (!supabase || !conversationId ||
+        conversationId.startsWith('demo-') ||
+        conversationId.startsWith('conv-') ||
+        conversationId.startsWith('meet-')) {
       setMessages(demoMessages)
       return
     }
 
-    if (!conversationId || !user) {
+    if (!user) {
       setMessages([])
       return
     }

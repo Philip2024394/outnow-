@@ -29,15 +29,15 @@
   background: rgba(0,0,0,0.75);
   backdrop-filter: blur(10px);
   -webkit-backdrop-filter: blur(10px);
-  border: 1.5px solid #FFD60A;
-  color: #FFD60A;
+  border: 1.5px solid #F5C518;
+  color: #F5C518;
   font-size: 13px;
   font-weight: 800;
   padding: 9px 20px;
   border-radius: 100px;
   cursor: pointer;
   letter-spacing: 0.04em;
-  box-shadow: 0 0 14px rgba(255,214,10,0.3);
+  box-shadow: 0 0 14px rgba(245,197,24,0.3);
   -webkit-tap-highlight-color: transparent;
   white-space: nowrap;
 }

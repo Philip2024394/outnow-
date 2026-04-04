@@ -66,3 +66,16 @@ export async function cancelScheduled(sessionId) {
   if (!supabase) { await delay(300); return }
   await endSession(sessionId)
 }
+
+export async function postInviteOut({ activityType, message } = {}) {
+  if (!supabase) {
+    await delay(400)
+    return { sessionId: `demo-my-invite-${Date.now()}` }
+  }
+  const { data, error } = await supabase.rpc('post_invite_out', {
+    p_activity_type: activityType ?? null,
+    p_message:       message ?? '',
+  })
+  if (error) throw new Error(error.message)
+  return { sessionId: data }
+}

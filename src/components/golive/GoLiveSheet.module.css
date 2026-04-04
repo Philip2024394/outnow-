@@ -27,8 +27,8 @@
 }
 
 .modeBtnLater {
-  background: rgba(255,149,0,0.12);
-  color: #FF9500;
+  background: rgba(232,137,12,0.12);
+  color: #E8890C;
 }
 
 /* Day selector */
@@ -60,9 +60,9 @@
 }
 
 .dayBtnActive {
-  border-color: #FF9500;
-  background: rgba(255,149,0,0.1);
-  color: #FF9500;
+  border-color: #E8890C;
+  background: rgba(232,137,12,0.1);
+  color: #E8890C;
 }
 
 /* Time selector */
@@ -154,9 +154,9 @@
 }
 
 .timeBtnActive {
-  border-color: #FF9500;
-  background: rgba(255,149,0,0.1);
-  color: #FF9500;
+  border-color: #E8890C;
+  background: rgba(232,137,12,0.1);
+  color: #E8890C;
 }
 
 /* Sheet custom header */
@@ -311,7 +311,7 @@
   background: rgba(255,255,255,0.1);
   backdrop-filter: blur(20px) saturate(1.8);
   -webkit-backdrop-filter: blur(20px) saturate(1.8);
-  border: 1.5px solid rgba(57,255,20,0.35);
+  border: 1.5px solid rgba(141,198,63,0.35);
   box-shadow: inset 0 1px 0 rgba(255,255,255,0.1);
   border-radius: 14px;
   overflow: hidden;
@@ -333,7 +333,7 @@
 }
 
 .trendingRow:active {
-  background: rgba(57,255,20,0.06);
+  background: rgba(141,198,63,0.06);
 }
 
 .trendingRowBorder {
@@ -373,9 +373,9 @@
 .trendingCount {
   font-size: 11px;
   font-weight: 700;
-  color: #39FF14;
-  background: rgba(57,255,20,0.08);
-  border: 1px solid rgba(57,255,20,0.2);
+  color: #8DC63F;
+  background: rgba(141,198,63,0.08);
+  border: 1px solid rgba(141,198,63,0.2);
   border-radius: 100px;
   padding: 3px 8px;
   white-space: nowrap;
@@ -435,7 +435,7 @@
 }
 
 .socialInputWrap:focus-within {
-  border-color: rgba(57,255,20,0.4);
+  border-color: rgba(141,198,63,0.4);
 }
 
 .socialIcon {
@@ -491,8 +491,8 @@
 }
 
 .groupToggleOn {
-  background: rgba(57,255,20,0.25);
-  border-color: #39FF14;
+  background: rgba(141,198,63,0.25);
+  border-color: #8DC63F;
 }
 
 .groupToggleThumb {
@@ -508,7 +508,7 @@
 
 .groupToggleOn .groupToggleThumb {
   transform: translateX(18px);
-  background: #39FF14;
+  background: #8DC63F;
 }
 
 .groupSizeRow {
@@ -549,9 +549,9 @@
 }
 
 .groupSizeBtnActive {
-  border-color: #39FF14;
-  background: rgba(57,255,20,0.12);
-  color: #39FF14;
+  border-color: #8DC63F;
+  background: rgba(141,198,63,0.12);
+  color: #8DC63F;
 }
 
 /* Error */

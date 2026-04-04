@@ -63,8 +63,8 @@
   left: 12px;
   background: rgba(0,0,0,0.65);
   backdrop-filter: blur(8px);
-  border: 1px solid rgba(255,214,10,0.5);
-  color: #FFD60A;
+  border: 1px solid rgba(245,197,24,0.5);
+  color: #F5C518;
   font-size: 11px;
   font-weight: 800;
   padding: 4px 10px;
@@ -76,7 +76,7 @@
   position: absolute;
   top: 12px;
   right: 12px;
-  background: #FFD60A;
+  background: #F5C518;
   color: #000;
   font-size: 13px;
   font-weight: 900;
@@ -105,7 +105,7 @@
 }
 
 .imgDotActive {
-  background: #FFD60A;
+  background: #F5C518;
   width: 18px;
   border-radius: 3px;
 }
@@ -148,7 +148,7 @@
 
 .venueCategory {
   font-size: 12px;
-  color: #FFD60A;
+  color: #F5C518;
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.06em;
@@ -177,7 +177,7 @@
 
 .infoLink {
   font-size: 13px;
-  color: #FFD60A;
+  color: #F5C518;
   text-decoration: none;
 }
 
@@ -202,8 +202,8 @@
 
 /* ── Offer card ── */
 .offerCard {
-  background: rgba(255,214,10,0.06);
-  border: 1.5px solid rgba(255,214,10,0.2);
+  background: rgba(245,197,24,0.06);
+  border: 1.5px solid rgba(245,197,24,0.2);
   border-radius: 16px;
   padding: 14px 16px;
   display: flex;
@@ -232,10 +232,10 @@
 .offerType {
   font-size: 10px;
   font-weight: 800;
-  color: #FFD60A;
+  color: #F5C518;
   text-transform: uppercase;
   letter-spacing: 0.08em;
-  background: rgba(255,214,10,0.12);
+  background: rgba(245,197,24,0.12);
   padding: 2px 8px;
   border-radius: 100px;
   align-self: flex-start;
@@ -269,7 +269,7 @@
 .offerClaim {
   font-size: 12px;
   font-weight: 700;
-  color: #FFD60A;
+  color: #F5C518;
 }
 
 .partnerSince {
@@ -297,16 +297,16 @@
 }
 
 .venueListItemFeatured {
-  border-color: rgba(255,214,10,0.35) !important;
-  background: rgba(255,214,10,0.05) !important;
+  border-color: rgba(245,197,24,0.35) !important;
+  background: rgba(245,197,24,0.05) !important;
 }
 
 .featuredBadge {
   font-size: 9px;
   font-weight: 900;
-  color: #FFD60A;
-  background: rgba(255,214,10,0.15);
-  border: 1px solid rgba(255,214,10,0.3);
+  color: #F5C518;
+  background: rgba(245,197,24,0.15);
+  border: 1px solid rgba(245,197,24,0.3);
   padding: 1px 5px;
   border-radius: 4px;
   letter-spacing: 0.05em;
@@ -415,15 +415,15 @@
   width: 8px;
   height: 8px;
   border-radius: 50%;
-  background: #39FF14;
-  box-shadow: 0 0 6px #39FF14;
+  background: #8DC63F;
+  box-shadow: 0 0 6px #8DC63F;
   flex-shrink: 0;
 }
 
 .hereNowLabel {
   font-size: 13px;
   font-weight: 700;
-  color: #39FF14;
+  color: #8DC63F;
 }
 
 .hereNowAvatars {
@@ -444,8 +444,8 @@
   height: 44px;
   border-radius: 50%;
   background: #1e1e1e;
-  border: 2px solid #39FF14;
-  box-shadow: 0 0 8px rgba(57,255,20,0.3);
+  border: 2px solid #8DC63F;
+  box-shadow: 0 0 8px rgba(141,198,63,0.3);
   overflow: hidden;
   display: flex;
   align-items: center;
@@ -474,14 +474,14 @@
   left: 12px;
   background: rgba(0,0,0,0.75);
   backdrop-filter: blur(8px);
-  border: 1px solid rgba(255,214,10,0.7);
-  color: #FFD60A;
+  border: 1px solid rgba(245,197,24,0.7);
+  color: #F5C518;
   font-size: 11px;
   font-weight: 800;
   padding: 4px 10px;
   border-radius: 100px;
   letter-spacing: 0.05em;
-  box-shadow: 0 0 10px rgba(255,214,10,0.3);
+  box-shadow: 0 0 10px rgba(245,197,24,0.3);
 }
 
 .listTitle {
@@ -512,8 +512,8 @@
 }
 
 .venueListItem:active {
-  background: rgba(255,214,10,0.08);
-  border-color: rgba(255,214,10,0.3);
+  background: rgba(245,197,24,0.08);
+  border-color: rgba(245,197,24,0.3);
 }
 
 .venueListLeft {
@@ -551,7 +551,7 @@
 .venueListDiscount {
   font-size: 13px;
   font-weight: 900;
-  color: #FFD60A;
+  color: #F5C518;
 }
 
 .venueListOffers {

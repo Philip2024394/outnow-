@@ -2,11 +2,11 @@
   display: inline-flex;
   align-items: center;
   gap: 4px;
-  background: rgba(255,214,10,0.1);
-  border: 1px solid rgba(255,214,10,0.3);
+  background: rgba(245,197,24,0.1);
+  border: 1px solid rgba(245,197,24,0.3);
   border-radius: 100px;
   font-weight: 800;
-  color: #FFD60A;
+  color: #F5C518;
   white-space: nowrap;
 }
 
@@ -25,8 +25,8 @@
 
 /* Flash animation when coins are earned */
 @keyframes coin-flash {
-  0%   { background: rgba(255,214,10,0.1); box-shadow: none; }
-  40%  { background: rgba(255,214,10,0.35); box-shadow: 0 0 14px rgba(255,214,10,0.6); }
-  100% { background: rgba(255,214,10,0.1); box-shadow: none; }
+  0%   { background: rgba(245,197,24,0.1); box-shadow: none; }
+  40%  { background: rgba(245,197,24,0.35); box-shadow: 0 0 14px rgba(245,197,24,0.6); }
+  100% { background: rgba(245,197,24,0.1); box-shadow: none; }
 }
 .flash { animation: coin-flash 0.8s ease-out forwards; }

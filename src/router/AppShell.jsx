@@ -17,6 +17,9 @@ import { endSession } from '@/services/sessionService'
 import { getSafetyContact } from '@/components/safety/SafetySheet'
 import SOSModal from '@/components/safety/SOSModal'
 import ProfileStrip from '@/components/map/ProfileStrip'
+import BoostBanner from '@/components/ui/BoostBanner'
+import StatusCheckInBanner from '@/components/status/StatusCheckInBanner'
+import { useStatusCheckIn } from '@/hooks/useStatusCheckIn'
 import BottomNav from '@/components/nav/BottomNav'
 import GoLiveSheet from '@/components/golive/GoLiveSheet'
 import ActiveSessionBar from '@/components/session/ActiveSessionBar'
@@ -25,6 +28,8 @@ import DiscoveryCard from '@/components/discovery/DiscoveryCard'
 import DiscoveryListSheet from '@/components/discovery/DiscoveryListSheet'
 import MeetRequestBanner from '@/components/meet/MeetRequestBanner'
 import MeetAcceptedBanner from '@/components/meet/MeetAcceptedBanner'
+import { createMeetConversation } from '@/services/meetService'
+import { sendMessage } from '@/services/conversationService'
 import PaymentGate from '@/components/payment/PaymentGate'
 import VenueReveal from '@/components/payment/VenueReveal'
 import ReportSheet from '@/components/moderation/ReportSheet'
@@ -94,6 +99,7 @@ export default function AppShell({ returnParams, triggerGoLive }) {
   const { triggerGate } = useGuestGate()
   const isGuest = !user
   const { session: mySession, needsCheckIn } = useMySession()
+  const { showBanner: showCheckIn, handleStillOut, handleLeaving } = useStatusCheckIn(mySession)
   const { incomingInterests, mutualSessions } = useInterests()
   const { incomingMeetRequest, acceptedMeetSession, simulateAcceptance, clearAccepted, clearIncoming } = useMeetRequests()
   const [pendingConv, setPendingConv] = useState(null)
@@ -124,15 +130,16 @@ export default function AppShell({ returnParams, triggerGoLive }) {
   const { inviteOut, post: postInviteOut, goingLive, revertToInviteOut } = useInviteOut()
   const { earn: earnCoins, spend: spendCoins } = useCoins()
   const allMoments = moments
+  const [boostToast, setBoostToast] = useState(null)
   const [mapFilter,           setMapFilter]           = useState('invite')
   const [discoveryListFilter, setDiscoveryListFilter] = useState('now')
   const [discoveryListOpen,   setDiscoveryListOpen]   = useState(false)
   const [newNowCount,    setNewNowCount]    = useState(0)
   const [newInviteCount, setNewInviteCount] = useState(0)
   const [newLaterCount,  setNewLaterCount]  = useState(0)
-  const seenNowRef    = useRef(0)
-  const seenInviteRef = useRef(0)
-  const seenLaterRef  = useRef(0)
+  const seenNowRef    = useRef(-1)
+  const seenInviteRef = useRef(-1)
+  const seenLaterRef  = useRef(-1)
   const [mapAreaLabel, setMapAreaLabel] = useState('London')
   const [mapCenter,    setMapCenter]    = useState({ lat: DEMO_CENTER.lat, lng: DEMO_CENTER.lng })
   const [flyTarget,    setFlyTarget]    = useState(null)
@@ -378,14 +385,31 @@ export default function AppShell({ returnParams, triggerGoLive }) {
             }
             openDiscovery(session)
           }}
-          onAccepted={(req, greeting) => {
+          onAccepted={async (req, greeting) => {
             clearIncoming()
             const _reqSrc = sessions.find(s => s.id === req.sessionId)
-            const firstMsg = greeting
-              ? [{ id: `greeting-${Date.now()}`, fromMe: true, text: greeting, time: Date.now() }]
-              : []
+            const myUserId = user?.uid ?? user?.id ?? null
+
+            // Try to create a persisted conversation in Supabase
+            let convId = `meet-${req.sessionId ?? req.id}`
+            try {
+              const realId = await createMeetConversation(req.fromUserId, req.sessionId ?? null)
+              if (realId) convId = realId
+            } catch { /* fallback to local meet- id */ }
+
+            // For real Supabase convs, save greeting to DB so it survives refresh
+            const isRealConv = !convId.startsWith('meet-')
+            const firstMsg = []
+            if (greeting) {
+              if (isRealConv && myUserId) {
+                try { await sendMessage(convId, myUserId, greeting) } catch {}
+              } else {
+                firstMsg.push({ id: `greeting-${Date.now()}`, fromMe: true, text: greeting, time: Date.now() })
+              }
+            }
+
             const conv = {
-              id: `meet-${req.sessionId ?? req.id}`,
+              id: convId,
               userId: req.fromUserId ?? 'unknown',
               displayName: req.fromDisplayName ?? 'New Match',
               photoURL: req.fromPhotoURL ?? null,
@@ -399,6 +423,7 @@ export default function AppShell({ returnParams, triggerGoLive }) {
               lastMessageTime: Date.now(),
               unread: 0,
               messages: firstMsg,
+              waitingForReply: !!greeting,
             }
             setPendingConv(conv)
             setActiveTab('chat')
@@ -447,6 +472,19 @@ export default function AppShell({ returnParams, triggerGoLive }) {
         </div>
       )}
 
+      {/* Boost banner */}
+      {boostToast && (
+        <BoostBanner filter={boostToast} onDone={() => setBoostToast(null)} />
+      )}
+
+      {showCheckIn && (
+        <StatusCheckInBanner
+          session={mySession}
+          onStillOut={handleStillOut}
+          onLeaving={handleLeaving}
+        />
+      )}
+
       {/* Profile strip — max 4 nearest live users, only visible on map tab */}
       {activeTab === 'map' && (
         <ProfileStrip
@@ -456,9 +494,14 @@ export default function AppShell({ returnParams, triggerGoLive }) {
           newNowCount={newNowCount}
           newInviteCount={newInviteCount}
           newLaterCount={newLaterCount}
+          activeFilter={mapFilter}
           onDiscoverNow={()    => openDiscoveryList('now')}
           onDiscoverInvite={() => openDiscoveryList('invite')}
           onDiscoverLater={()  => openDiscoveryList('later')}
+          onBoost={(filter) => {
+            setMapFilter(filter)
+            setBoostToast(filter)
+          }}
         />
       )}
 

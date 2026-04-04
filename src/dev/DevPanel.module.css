@@ -4,7 +4,7 @@
   top: 12px;
   right: 12px;
   z-index: 99999;
-  background: #FFD60A;
+  background: #F5C518;
   color: #000;
   border: none;
   border-radius: 8px;
@@ -33,7 +33,7 @@
   z-index: 99998;
   background: #000;
   /* Left edge strip — green = Out Now status colour */
-  border-left: 3px solid #39FF14;
+  border-left: 3px solid #8DC63F;
   display: flex;
   flex-direction: column;
   animation: slide-in-right 0.2s ease forwards;
@@ -62,7 +62,7 @@
   font-weight: 800;
   font-family: var(--font-mono, monospace);
   letter-spacing: 0.12em;
-  color: #FFD60A;
+  color: #F5C518;
 }
 
 .panelSub {
@@ -121,8 +121,8 @@
 
 .itemActive {
   background: #252508 !important;
-  border-color: #FFD60A !important;
-  color: #FFD60A !important;
+  border-color: #F5C518 !important;
+  color: #F5C518 !important;
 }
 
 /* ── Banner wrapper (positions banners at top like real app) ─────── */

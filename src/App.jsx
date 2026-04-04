@@ -57,6 +57,12 @@ export default function App() {
     setOnboardStep('video')
   }
 
+  // Admin dev: bypass auth + skip onboarding → straight to app
+  const handleAdminDev = () => {
+    setAdminPass(true)
+    setOnboardStep('done')
+  }
+
   // Handle return from Stripe Checkout
   useEffect(() => {
     const params = new URLSearchParams(window.location.search)
@@ -85,6 +91,7 @@ export default function App() {
         onAdminPass={() => setAdminPass(true)}
         onGuest={() => setGuestMode(true)}
         onDevPreview={handleDevPreview}
+        onAdminDev={handleAdminDev}
       />
     )
   }

@@ -14,9 +14,9 @@ function mapRow(row) {
     activities: row.activities ?? [],
     lat: row.lat ?? null,
     lng: row.lng ?? null,
-    placeId: row.place_id ?? null,
-    placeName: row.place_name ?? null,
-    venueCategory: row.venue_category ?? null,
+    // placeName, placeId and venueCategory are intentionally NOT mapped here.
+    // Venue details are private — they are used only for internal distance
+    // calculation and must never be exposed to other users.
     expiresAtMs: row.expires_at ? new Date(row.expires_at).getTime() : 0,
     scheduledFor: row.scheduled_for ? new Date(row.scheduled_for).getTime() : null,
     needsCheckIn: row.needs_check_in ?? false,

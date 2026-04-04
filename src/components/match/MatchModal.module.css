@@ -72,8 +72,8 @@
   height: 72px;
   border-radius: 50%;
   background: #1e1e1e;
-  border: 3px solid #39FF14;
-  box-shadow: 0 0 20px rgba(57,255,20,0.3);
+  border: 3px solid #8DC63F;
+  box-shadow: 0 0 20px rgba(141,198,63,0.3);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -100,7 +100,7 @@
 .title {
   font-size: 30px;
   font-weight: 900;
-  background: linear-gradient(135deg, #39FF14, #A855F7);
+  background: linear-gradient(135deg, #8DC63F, #A855F7);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
@@ -123,14 +123,14 @@
 .chatBtn {
   width: 100%;
   padding: 16px;
-  background: #39FF14;
+  background: #8DC63F;
   color: #080808;
   font-size: 16px;
   font-weight: 800;
   border: none;
   border-radius: 100px;
   cursor: pointer;
-  box-shadow: 0 0 24px rgba(57,255,20,0.35);
+  box-shadow: 0 0 24px rgba(141,198,63,0.35);
   transition: transform 0.12s;
   -webkit-tap-highlight-color: transparent;
 }

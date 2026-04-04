@@ -273,6 +273,18 @@ export default function ChatWindow({ conversation: conv, onBack, onConvUpdate })
           </div>
         ))}
 
+        {/* Waiting for reply indicator — shown after meet-request greeting */}
+        {conv.waitingForReply && messages.length > 0 && !messages.some(m => !m.fromMe) && !isTyping && (
+          <div className={styles.waitingRow}>
+            <div className={styles.waitingDots}>
+              <span className={styles.waitingDot} style={{ '--d': '0s' }} />
+              <span className={styles.waitingDot} style={{ '--d': '0.2s' }} />
+              <span className={styles.waitingDot} style={{ '--d': '0.4s' }} />
+            </div>
+            <span className={styles.waitingText}>Waiting for {conv.displayName} to reply…</span>
+          </div>
+        )}
+
         {/* 30-day history warning */}
         {historyWarning && (
           <div className={styles.historyWarning}>

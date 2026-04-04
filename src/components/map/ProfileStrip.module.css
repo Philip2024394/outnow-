@@ -4,127 +4,149 @@
   left: 0;
   right: 0;
   z-index: var(--z-map-controls);
-  padding: 10px 12px calc(var(--safe-bottom) + 14px) 12px;
+  padding: 10px 24px calc(var(--safe-bottom) + 14px) 24px;
   background: linear-gradient(to top, rgba(8,8,8,0.96) 0%, rgba(8,8,8,0.6) 70%, transparent 100%);
   pointer-events: none;
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 10px;
 }
 
-/* ── User's own status pill ── */
-.statusRow {
-  pointer-events: all;
-}
-
-.myBtn {
-  display: flex;
-  align-items: center;
-  gap: 7px;
-  padding: 8px 20px;
-  border-radius: 100px;
-  font-size: 11px;
-  font-weight: 800;
-  letter-spacing: 0.08em;
-  cursor: pointer;
-  border: 1.5px solid;
-  font-family: inherit;
-  -webkit-tap-highlight-color: transparent;
-  transition: transform 0.12s, opacity 0.12s;
-  white-space: nowrap;
-}
-
-.myBtn:active { transform: scale(0.95); opacity: 0.8; }
-
-.myBtnLive {
-  background: #39FF14;
-  color: #080808;
-  border-color: #39FF14;
-  box-shadow: 0 0 0 3px rgba(57,255,20,0.15), 0 0 18px rgba(57,255,20,0.3);
-}
-
-.myBtnInvite {
-  background: rgba(255,214,10,0.12);
-  color: #FFD60A;
-  border-color: rgba(255,214,10,0.45);
-  box-shadow: 0 0 0 3px rgba(255,214,10,0.08), 0 0 16px rgba(255,214,10,0.2);
-}
-
-.myBtnFinish {
-  background: rgba(18,18,18,0.92);
-  color: #fff;
-  border-color: rgba(255,59,48,0.5);
-  box-shadow: 0 0 0 3px rgba(255,59,48,0.08), 0 0 16px rgba(255,59,48,0.2);
-  backdrop-filter: blur(12px);
-}
-
-.myDot {
-  width: 7px;
-  height: 7px;
-  border-radius: 50%;
-  flex-shrink: 0;
-}
-
-.myDotLive {
-  background: #080808;
-  animation: dot-pulse 1.5s ease-in-out infinite;
-}
-
-.myDotInvite {
-  background: #FFD60A;
-  box-shadow: 0 0 5px #FFD60A;
-  animation: dot-pulse 1.5s ease-in-out infinite;
-}
-
-.myDotFinish {
-  background: #FF3B30;
-  box-shadow: 0 0 5px #FF3B30;
-  animation: dot-pulse 1.5s ease-in-out infinite;
-}
-
-@keyframes dot-pulse {
-  0%, 100% { opacity: 1; transform: scale(1); }
-  50%       { opacity: 0.4; transform: scale(1.4); }
-}
-
-/* ── 3 discovery buttons ── */
+/* ── 3 circle buttons ── */
 .discRow {
   display: flex;
-  gap: 8px;
-  width: 100%;
+  gap: 20px;
   pointer-events: all;
+  align-items: center;
 }
 
-.discBtn {
-  flex: 1;
+.circle {
   position: relative;
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 4px;
-  padding: 12px 6px 10px;
-  border-radius: 20px;
-  background: rgba(255,255,255,0.07);
-  backdrop-filter: blur(20px) saturate(1.4);
-  -webkit-backdrop-filter: blur(20px) saturate(1.4);
-  border: 2.5px solid;
+  gap: 7px;
+  background: transparent;
+  border: none;
   cursor: pointer;
   font-family: inherit;
   -webkit-tap-highlight-color: transparent;
-  transition: background 0.15s, transform 0.1s;
-  box-shadow: inset 0 1px 0 rgba(255,255,255,0.1), 0 4px 16px rgba(0,0,0,0.35);
+  transition: transform 0.12s;
+  padding: 0;
 }
 
-.discBtn:active { transform: scale(0.95); }
+.circle:active { transform: scale(0.92); }
 
-/* Red notification badge — top-right corner of button */
+/* The visible circle */
+.circleBubble {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.18s, border-color 0.18s, box-shadow 0.18s;
+}
+
+/* Active — solid fill */
+.circleNowActive    .circleBubble { background: #8DC63F; border: 2.5px solid #8DC63F; box-shadow: 0 0 22px rgba(141,198,63,0.5); }
+.circleInviteActive .circleBubble { background: #F5C518; border: 2.5px solid #F5C518; box-shadow: 0 0 22px rgba(245,197,24,0.5); }
+.circleLatersActive .circleBubble { background: #E8890C; border: 2.5px solid #E8890C; box-shadow: 0 0 22px rgba(232,137,12,0.5); }
+
+/* Dim — coloured rim, no fill */
+.circleNowDim    .circleBubble { background: transparent; border: 2px solid rgba(141,198,63,0.5);  }
+.circleInviteDim .circleBubble { background: transparent; border: 2px solid rgba(245,197,24,0.5); }
+.circleLaterDim  .circleBubble { background: transparent; border: 2px solid rgba(232,137,12,0.5);  }
+
+/* Count inside circle */
+.circleCount {
+  font-size: 17px;
+  font-weight: 900;
+  line-height: 1;
+  letter-spacing: -0.03em;
+}
+
+.circleNowActive    .circleCount,
+.circleInviteActive .circleCount,
+.circleLatersActive .circleCount { color: #080808; }
+
+.circleNowDim    .circleCount { color: rgba(141,198,63,0.6);  }
+.circleInviteDim .circleCount { color: rgba(245,197,24,0.6); }
+.circleLaterDim  .circleCount { color: rgba(232,137,12,0.6);  }
+.countDim { color: rgba(255,255,255,0.5); }
+
+/* Label below circle */
+.circleLabel {
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+  line-height: 1;
+  white-space: nowrap;
+}
+
+.circleNowActive    .circleLabel { color: #8DC63F; }
+.circleInviteActive .circleLabel { color: #F5C518; }
+.circleLatersActive .circleLabel { color: #E8890C; }
+.circleNowDim    .circleLabel { color: rgba(141,198,63,0.5);  }
+.circleInviteDim .circleLabel { color: rgba(245,197,24,0.5); }
+.circleLaterDim  .circleLabel { color: rgba(232,137,12,0.5);  }
+.labelDim { color: rgba(255,255,255,0.3); }
+
+/* ── Boost ring SVG overlay ── */
+.ringsvg {
+  position: absolute;
+  top: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 48px;
+  height: 48px;
+  pointer-events: none;
+  z-index: 3;
+}
+
+.ringFired {
+  animation: ring-flash 0.6s ease-out forwards;
+}
+
+@keyframes ring-flash {
+  0%   { opacity: 1; }
+  50%  { opacity: 0.3; }
+  100% { opacity: 1; }
+}
+
+/* Flash the whole circle on fire */
+.circleFired .circleBubble {
+  animation: bubble-flash 0.8s ease-out forwards;
+}
+
+@keyframes bubble-flash {
+  0%   { transform: scale(1);    opacity: 1; }
+  30%  { transform: scale(1.18); opacity: 0.9; }
+  60%  { transform: scale(0.95); opacity: 1; }
+  100% { transform: scale(1);    opacity: 1; }
+}
+
+/* Small dot showing boost already used today */
+.boostUsedDot {
+  position: absolute;
+  bottom: 50px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  opacity: 0.6;
+  z-index: 3;
+}
+
+/* Red notification badge */
 .notifBadge {
   position: absolute;
-  top: -7px;
-  right: -7px;
-  min-width: 18px;
-  height: 18px;
+  top: -6px;
+  right: -6px;
+  min-width: 20px;
+  height: 20px;
   background: #FF3B30;
   color: #fff;
   font-size: 10px;
@@ -134,10 +156,10 @@
   align-items: center;
   justify-content: center;
   padding: 0 5px;
-  border: 2px solid rgba(8,8,8,0.9);
-  box-shadow: 0 0 8px rgba(255,59,48,0.6);
+  border: 2px solid #080808;
+  box-shadow: 0 0 10px rgba(255,59,48,0.7);
   pointer-events: none;
-  line-height: 1;
+  z-index: 2;
   animation: badge-pop 0.3s cubic-bezier(0.34,1.56,0.64,1) forwards;
 }
 
@@ -145,32 +167,3 @@
   from { transform: scale(0); opacity: 0; }
   to   { transform: scale(1); opacity: 1; }
 }
-
-.discBtnNow    { border-color: rgba(57,255,20,0.65);  }
-.discBtnInvite { border-color: rgba(255,214,10,0.65); }
-.discBtnLater  { border-color: rgba(255,149,0,0.65);  }
-
-.discBtnNow:active    { background: rgba(57,255,20,0.12);  }
-.discBtnInvite:active { background: rgba(255,214,10,0.12); }
-.discBtnLater:active  { background: rgba(255,149,0,0.12);  }
-
-
-.discCount {
-  font-size: 18px;
-  font-weight: 900;
-  color: #fff;
-  line-height: 1;
-  letter-spacing: -0.03em;
-}
-
-.discLabel {
-  font-size: 9px;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.07em;
-  line-height: 1;
-}
-
-.discLabelNow    { color: #39FF14; }
-.discLabelInvite { color: #FFD60A; }
-.discLabelLater  { color: #FF9500; }

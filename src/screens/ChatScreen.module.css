@@ -132,10 +132,10 @@
   right: 2px;
   width: 12px;
   height: 12px;
-  background: #39FF14;
+  background: #8DC63F;
   border-radius: 50%;
   border: 2px solid var(--color-bg);
-  box-shadow: 0 0 6px #39FF14;
+  box-shadow: 0 0 6px #8DC63F;
   animation: online-pulse 1.8s ease-in-out infinite;
 }
 
@@ -240,8 +240,8 @@
   align-items: flex-start;
   gap: 8px;
   padding: 10px 14px;
-  background: rgba(255,149,0,0.07);
-  border: 1px solid rgba(255,149,0,0.22);
+  background: rgba(232,137,12,0.07);
+  border: 1px solid rgba(232,137,12,0.22);
   border-radius: 10px;
   margin-bottom: 4px;
 }
@@ -259,6 +259,6 @@
 }
 
 .expiryText strong {
-  color: #FF9500;
+  color: #E8890C;
   font-weight: 700;
 }
