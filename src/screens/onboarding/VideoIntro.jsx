@@ -3,7 +3,7 @@ import { detectCountryByIP } from '@/utils/countries'
 import styles from './VideoIntro.module.css'
 
 const VIDEO_URL   = 'https://ik.imagekit.io/nepgaxllc/good.mp4?updatedAt=1775120536152'
-const POSTER_URL  = 'https://ik.imagekit.io/nepgaxllc/uk10dd.png'
+const POSTER_URL  = 'https://ik.imagekit.io/nepgaxllc/Untitledxzxczcxzxcdassdasdvvvvv.png'
 
 // ISO codes where English is the primary or official language
 const ENGLISH_COUNTRY_CODES = new Set([

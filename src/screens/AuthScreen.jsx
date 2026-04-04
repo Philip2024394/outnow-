@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react'
 import { signInWithEmail, signUpWithEmail } from '@/services/authService'
 import styles from './AuthScreen.module.css'
 
-const HERO_URL  = 'https://ik.imagekit.io/dateme/UntitledDFSDFASDF.png'
+const HERO_URL  = 'https://ik.imagekit.io/nepgaxllc/Untitledxzxczcxzxcdassdasdvvvvv.png'
 const INTRO_VIDEO = 'https://ik.imagekit.io/nepgaxllc/good.mp4?updatedAt=1775120536152'
 
 // Step 1: email entry → Step 2: password (sign-in or create account)
