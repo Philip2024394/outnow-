@@ -664,10 +664,10 @@ export default function ProfileScreen({ onClose }) {
           <span className={styles.bioCount}>{bio.length}/350</span>
         </div>
 
-        {/* ── I'm out for ── */}
+        {/* ── Interests For Going Out ── */}
         <div className={styles.section}>
           <div className={styles.sectionLabelRow}>
-            <span className={styles.sectionLabel}>I&apos;m out for</span>
+            <span className={styles.sectionLabel}>Interests For Going Out</span>
             <HelpTip text="Pick what best describes your plans — one selection. People with matching interests will find you on the map." />
           </div>
           <p className={styles.activityHint}>Tap one activity that best describes your plans</p>
