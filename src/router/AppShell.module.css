@@ -52,6 +52,57 @@
   white-space: nowrap;
 }
 
+/* ── Go-live nudge bar ── */
+.goLiveNudge {
+  position: absolute;
+  bottom: calc(env(safe-area-inset-bottom, 0px) + 90px);
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: var(--z-map-controls);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: rgba(10,10,10,0.92);
+  border: 1.5px solid rgba(141,198,63,0.5);
+  color: rgba(255,255,255,0.85);
+  font-size: 13px;
+  font-weight: 700;
+  padding: 11px 20px;
+  border-radius: 100px;
+  cursor: pointer;
+  font-family: inherit;
+  white-space: nowrap;
+  box-shadow: 0 0 20px rgba(141,198,63,0.2);
+  -webkit-tap-highlight-color: transparent;
+  animation: nudge-in 0.4s cubic-bezier(0.34,1.56,0.64,1) forwards, nudge-pulse 2.5s ease-in-out 1s infinite;
+}
+.goLiveNudge:active { transform: translateX(-50%) scale(0.96); }
+
+.goLiveNudgeDot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #8DC63F;
+  box-shadow: 0 0 6px rgba(141,198,63,0.8);
+  flex-shrink: 0;
+  animation: dot-blink 1.2s ease-in-out infinite;
+}
+
+@keyframes nudge-in {
+  from { opacity: 0; transform: translateX(-50%) translateY(12px); }
+  to   { opacity: 1; transform: translateX(-50%) translateY(0); }
+}
+
+@keyframes nudge-pulse {
+  0%, 100% { box-shadow: 0 0 20px rgba(141,198,63,0.2); }
+  50%       { box-shadow: 0 0 28px rgba(141,198,63,0.45); }
+}
+
+@keyframes dot-blink {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0.3; }
+}
+
 /* ── Right-side status filter panel ── */
 .statusPanel {
   position: absolute;

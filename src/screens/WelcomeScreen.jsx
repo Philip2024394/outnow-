@@ -19,23 +19,47 @@ const SLIDES = [
   },
 ]
 
+const PATHS = [
+  {
+    id: 'social',
+    emoji: '🤝',
+    label: 'Meet People',
+    sub: 'Connect with people out near you tonight',
+    color: '#8DC63F',
+  },
+  {
+    id: 'maker',
+    emoji: '🛍️',
+    label: "I'm a Maker / Seller",
+    sub: 'Showcase your products & find local customers',
+    color: '#F5C518',
+  },
+]
+
 export default function WelcomeScreen({ onDone }) {
-  const [slide, setSlide] = useState(0)
+  const [slide, setSlide]     = useState(0)
+  const [showPath, setShowPath] = useState(false)
   const [exiting, setExiting] = useState(false)
 
-  // Auto-advance every 2.8 seconds
+  // Auto-advance every 2.8s — stops at last slide to wait for user tap
   useEffect(() => {
+    if (showPath) return
     const t = setTimeout(() => {
-      if (slide < SLIDES.length - 1) {
-        setSlide(s => s + 1)
-      } else {
-        handleDone()
-      }
+      if (slide < SLIDES.length - 1) setSlide(s => s + 1)
     }, 2800)
     return () => clearTimeout(t)
-  }, [slide]) // eslint-disable-line
+  }, [slide, showPath])
 
-  function handleDone() {
+  function handleContinue() {
+    if (slide < SLIDES.length - 1) {
+      setSlide(s => s + 1)
+    } else {
+      setShowPath(true)
+    }
+  }
+
+  function handlePickPath(pathId) {
+    localStorage.setItem('user_path', pathId)
     setExiting(true)
     setTimeout(onDone, 500)
   }
@@ -44,38 +68,66 @@ export default function WelcomeScreen({ onDone }) {
 
   return (
     <div className={`${styles.screen} ${exiting ? styles.screenExit : ''}`}>
-      {/* Background glow */}
       <div className={styles.glow} />
 
-      <div className={styles.body}>
-        {/* Logo wordmark */}
-        <div className={styles.wordmark}>IMOUTNOW</div>
+      {!showPath ? (
+        <>
+          <div className={styles.body}>
+            <div className={styles.wordmark}>IMOUTNOW</div>
 
-        {/* Slide content */}
-        <div className={styles.slide} key={slide}>
-          <div className={styles.emoji}>{current.emoji}</div>
-          <h1 className={styles.title}>{current.title}</h1>
-          <p className={styles.sub}>{current.sub}</p>
-        </div>
+            <div className={styles.slide} key={slide}>
+              <div className={styles.emoji}>{current.emoji}</div>
+              <h1 className={styles.title}>{current.title}</h1>
+              <p className={styles.sub}>{current.sub}</p>
+            </div>
 
-        {/* Dot indicators */}
-        <div className={styles.dots}>
-          {SLIDES.map((_, i) => (
-            <div
-              key={i}
-              className={`${styles.dot} ${i === slide ? styles.dotActive : ''}`}
-              onClick={() => setSlide(i)}
-            />
-          ))}
-        </div>
-      </div>
+            <div className={styles.dots}>
+              {SLIDES.map((_, i) => (
+                <div
+                  key={i}
+                  className={`${styles.dot} ${i === slide ? styles.dotActive : ''}`}
+                  onClick={() => setSlide(i)}
+                />
+              ))}
+            </div>
+          </div>
 
-      {/* Skip / Continue button */}
-      <div className={styles.footer}>
-        <button className={styles.continueBtn} onClick={handleDone}>
-          {slide === SLIDES.length - 1 ? "Let's Go →" : 'Skip'}
-        </button>
-      </div>
+          <div className={styles.footer}>
+            <button className={styles.continueBtn} onClick={handleContinue}>
+              {slide === SLIDES.length - 1 ? "Let's Go →" : 'Skip'}
+            </button>
+          </div>
+        </>
+      ) : (
+        <>
+          <div className={styles.body}>
+            <div className={styles.wordmark}>IMOUTNOW</div>
+            <div className={styles.slide}>
+              <div className={styles.emoji}>👋</div>
+              <h1 className={styles.title}>What brings\nyou here?</h1>
+              <p className={styles.sub}>We'll set things up to match how you use the app.</p>
+            </div>
+          </div>
+
+          <div className={styles.pathCards}>
+            {PATHS.map(({ id, emoji, label, sub, color }) => (
+              <button
+                key={id}
+                className={styles.pathCard}
+                style={{ '--path-color': color }}
+                onClick={() => handlePickPath(id)}
+              >
+                <span className={styles.pathEmoji}>{emoji}</span>
+                <div className={styles.pathText}>
+                  <span className={styles.pathLabel}>{label}</span>
+                  <span className={styles.pathSub}>{sub}</span>
+                </div>
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className={styles.pathArrow}><polyline points="9 18 15 12 9 6"/></svg>
+              </button>
+            ))}
+          </div>
+        </>
+      )}
     </div>
   )
 }

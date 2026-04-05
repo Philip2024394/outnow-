@@ -1,4 +1,4 @@
-import { useEffect } from 'react'
+import { useEffect, useState, useCallback } from 'react'
 import { MapContainer, TileLayer, useMap, useMapEvents } from 'react-leaflet'
 import { divIcon, marker } from 'leaflet'
 import L from 'leaflet'
@@ -176,6 +176,27 @@ function VenueMarkers({ venues, onSelectVenue }) {
   return null
 }
 
+const MIN_ZOOM = 5   // below this you'd see blank polar/edge tiles
+const HOME_ZOOM = 14
+
+function ZoomPanWatcher({ onDrift }) {
+  const map = useMapEvents({
+    zoomend: () => check(),
+    moveend: () => check(),
+  })
+
+  function check() {
+    const zoom = map.getZoom()
+    const center = map.getCenter()
+    const dLat = Math.abs(center.lat - DEMO_CENTER.lat)
+    const dLng = Math.abs(center.lng - DEMO_CENTER.lng)
+    const drifted = zoom < 10 || dLat > 1.5 || dLng > 1.5
+    onDrift(drifted)
+  }
+
+  return null
+}
+
 function EmptyMapState() {
   return (
     <div className={styles.emptyState}>
@@ -187,12 +208,32 @@ function EmptyMapState() {
 }
 
 export default function DemoMapView({ sessions, onSelectUser, allVenues = [], activeVenues = [], onSelectVenue, venuesOn = false, onMapMove, flyTarget }) {
+  const [drifted, setDrifted] = useState(false)
+  const [homeFly, setHomeFly] = useState(null)
+
+  const handleReturnHome = useCallback(() => {
+    setHomeFly({ lat: DEMO_CENTER.lat, lng: DEMO_CENTER.lng, zoom: HOME_ZOOM, ts: Date.now() })
+    setDrifted(false)
+  }, [])
+
   return (
     <div className={styles.wrapper}>
       {!venuesOn && sessions.length === 0 && <EmptyMapState />}
+
+      {drifted && (
+        <button className={styles.returnBtn} onClick={handleReturnHome}>
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>
+            <polyline points="9 22 9 12 15 12 15 22"/>
+          </svg>
+          My area
+        </button>
+      )}
+
       <MapContainer
         center={[DEMO_CENTER.lat, DEMO_CENTER.lng]}
-        zoom={14}
+        zoom={HOME_ZOOM}
+        minZoom={MIN_ZOOM}
         zoomControl={false}
         attributionControl={true}
         className={styles.map}
@@ -207,7 +248,8 @@ export default function DemoMapView({ sessions, onSelectUser, allVenues = [], ac
           updateWhenIdle={false}
           updateWhenZooming={false}
         />
-        <MapEventsHandler onMapMove={onMapMove} flyTarget={flyTarget} />
+        <MapEventsHandler onMapMove={onMapMove} flyTarget={homeFly ?? flyTarget} />
+        <ZoomPanWatcher onDrift={setDrifted} />
         <MyDot />
         {venuesOn
           ? <VenueMarkers

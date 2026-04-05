@@ -81,22 +81,26 @@
   box-shadow: 0 0 6px rgba(239,68,68,0.6);
 }
 
-/* Orange discover button */
-.matchBtn {
+/* Blue venues button */
+.venueRoundBtn {
+  position: relative;
   width: 36px;
   height: 36px;
   border-radius: 50%;
-  background: #E8890C;
+  background: #3B82F6;
   border: none;
   cursor: pointer;
   -webkit-tap-highlight-color: transparent;
   transition: transform 0.12s, box-shadow 0.12s;
-  box-shadow: 0 2px 10px rgba(232,137,12,0.5);
+  box-shadow: 0 2px 10px rgba(59,130,246,0.5);
   flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
-.matchBtn:active {
+.venueRoundBtn:active {
   transform: scale(0.88);
-  box-shadow: 0 1px 5px rgba(232,137,12,0.4);
+  box-shadow: 0 1px 5px rgba(59,130,246,0.4);
 }
 
 /* Yellow chat button */
@@ -188,4 +192,3 @@
 /* Status glow around the avatar image */
 .avatarLive   { filter: drop-shadow(0 0 5px rgba(141,198,63,0.8));  }
 .avatarInvite { filter: drop-shadow(0 0 5px rgba(245,197,24,0.8)); }
-.avatarLater  { filter: drop-shadow(0 0 5px rgba(232,137,12,0.8));  }

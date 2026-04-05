@@ -5,9 +5,8 @@ const HOLD_MS = 3000
 const CIRCUMFERENCE = 2 * Math.PI * 22 // radius 22
 
 const BUTTONS = [
-  { filter: 'now',    label: 'Out Now',    activeClass: 'circleNowActive',    dimClass: 'circleNowDim',    color: '#8DC63F'  },
-  { filter: 'invite', label: 'Invite Out', activeClass: 'circleInviteActive', dimClass: 'circleInviteDim', color: '#F5C518'  },
-  { filter: 'later',  label: 'Out Later',  activeClass: 'circleLatersActive', dimClass: 'circleLaterDim',  color: '#E8890C'  },
+  { filter: 'now',    label: 'Out Now',    color: '#8DC63F' },
+  { filter: 'invite', label: 'Invite Out', color: '#F5C518' },
 ]
 
 // Read / write daily boost usage from localStorage
@@ -24,22 +23,20 @@ function markBoostUsed(filter) {
 export default function ProfileStrip({
   outNowCount    = 0,
   inviteOutCount = 0,
-  outLaterCount  = 0,
   newNowCount    = 0,
   newInviteCount = 0,
-  newLaterCount  = 0,
   onBoost,          // onBoost(filter) — parent handles go-live + boost logic
   onSelectFilter,   // onSelectFilter(filter|null) — tap to pin-filter the map
   activeFilter = null,
 }) {
-  const counts    = { now: outNowCount, invite: inviteOutCount, later: outLaterCount }
-  const newCounts = { now: newNowCount, invite: newInviteCount, later: newLaterCount }
+  const counts    = { now: outNowCount, invite: inviteOutCount }
+  const newCounts = { now: newNowCount, invite: newInviteCount }
 
   const [holding, setHolding]     = useState(null)   // filter key being held
   const [progress, setProgress]   = useState(0)      // 0–1
   const [fired, setFired]         = useState(null)   // filter that just fired (flash)
   const [boostUsed, setBoostUsed] = useState({
-    now: hasUsedBoost('now'), invite: hasUsedBoost('invite'), later: hasUsedBoost('later'),
+    now: hasUsedBoost('now'), invite: hasUsedBoost('invite'),
   })
 
   const holdTimer   = useRef(null)

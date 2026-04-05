@@ -7,6 +7,7 @@ import { useVenueUnlock } from '@/hooks/useVenueUnlock'
 import { useInterests } from '@/hooks/useInterests'
 import { sortByRelevance } from '@/utils/sessionScore'
 import { isMakerSession } from '@/utils/sessionCategory'
+import { ACTIVITY_TYPES } from '@/firebase/collections'
 import { useLiveUsers } from '@/hooks/useLiveUsers'
 import { useGeolocation } from '@/hooks/useGeolocation'
 import { haversineKm } from '@/utils/distance'
@@ -84,6 +85,8 @@ import { useVenueProximity } from '@/hooks/useVenueProximity'
 import MapView from '@/components/map/MapView'
 import VibeCheckSheet  from '@/components/vibecheck/VibeCheckSheet'
 import VibeCheckBanner from '@/components/vibecheck/VibeCheckBanner'
+
+import MapIntroOverlay from '@/components/ui/MapIntroOverlay'
 
 import '@/styles/map.css'
 import styles from './AppShell.module.css'
@@ -178,10 +181,8 @@ export default function AppShell({ returnParams, triggerGoLive }) {
   const [discoveryListOpen,   setDiscoveryListOpen]   = useState(false)
   const [newNowCount,    setNewNowCount]    = useState(0)
   const [newInviteCount, setNewInviteCount] = useState(0)
-  const [newLaterCount,  setNewLaterCount]  = useState(0)
   const seenNowRef    = useRef(-1)
   const seenInviteRef = useRef(-1)
-  const seenLaterRef  = useRef(-1)
   const [mapCenter,    setMapCenter]    = useState({ lat: DEMO_CENTER.lat, lng: DEMO_CENTER.lng })
   const [flyTarget,    setFlyTarget]    = useState(null)
   const [vibeCheckOpen, setVibeCheckOpen]   = useState(false)
@@ -193,14 +194,11 @@ export default function AppShell({ returnParams, triggerGoLive }) {
 
   const openDiscoveryList = (filter) => {
     if (filter === 'now') {
-      seenNowRef.current = categorySessions.filter(s => s.status !== 'scheduled' && s.status !== 'invite_out').length
+      seenNowRef.current = categorySessions.filter(s => s.status !== 'invite_out').length
       setNewNowCount(0)
     } else if (filter === 'invite') {
       seenInviteRef.current = categorySessions.filter(s => s.status === 'invite_out').length
       setNewInviteCount(0)
-    } else if (filter === 'later') {
-      seenLaterRef.current = categorySessions.filter(s => s.status === 'scheduled').length
-      setNewLaterCount(0)
     }
     setFlyTarget({ lat: DEMO_CENTER.lat, lng: DEMO_CENTER.lng })
     setDiscoveryListFilter(filter)
@@ -262,36 +260,6 @@ export default function AppShell({ returnParams, triggerGoLive }) {
     if (triggerGoLive) openGoLive()
   }, [triggerGoLive]) // eslint-disable-line
 
-  // Out Later auto-reset at 3am local time
-  useEffect(() => {
-    if (!mySession || mySession.status !== 'scheduled') return
-
-    const msUntil3am = () => {
-      const now  = new Date()
-      const next = new Date(now)
-      next.setHours(3, 0, 0, 0)
-      if (next <= now) next.setDate(next.getDate() + 1)
-      return next.getTime() - now.getTime()
-    }
-
-    // If it's already past 3am today and the session was posted before today's 3am, reset now
-    const now       = new Date()
-    const today3am  = new Date(now); today3am.setHours(3, 0, 0, 0)
-    const postedAt  = mySession.startedAtMs ?? mySession.scheduledFor ?? 0
-    if (now >= today3am && postedAt < today3am.getTime()) {
-      endSession(mySession.id)
-      revertToInviteOut()
-      return
-    }
-
-    // Otherwise schedule a timeout for the next 3am
-    const t = setTimeout(() => {
-      endSession(mySession.id)
-      revertToInviteOut()
-    }, msUntil3am())
-
-    return () => clearTimeout(t)
-  }, [mySession, revertToInviteOut]) // eslint-disable-line
 
   // Safety check-in — notify when session goes live
   const prevSessionRef = useRef(null)
@@ -307,9 +275,9 @@ export default function AppShell({ returnParams, triggerGoLive }) {
 
   const visibleSessions = useMemo(() => {
     const filtered = sessions.filter(s => {
+      if (s.status === 'scheduled')                                         return false
       if (declinedUserIds.has(s.userId))                                   return false
-      if (mapFilters.status === 'Out Now'   && s.status === 'scheduled')   return false
-      if (mapFilters.status === 'Out Later' && s.status !== 'scheduled')   return false
+      if (mapFilters.status === 'Out Now'   && s.status === 'invite_out') return false
       if (mapFilters.activity !== 'All' && s.activityType?.toLowerCase() !== mapFilters.activity.toLowerCase()) return false
       if (mapFilters.city     !== 'All' && !s.area?.toLowerCase().includes(mapFilters.city.toLowerCase())) return false
       return true
@@ -336,12 +304,28 @@ export default function AppShell({ returnParams, triggerGoLive }) {
   , [companyPanelOpen, categorySessions])
 
   const mapSessions = useMemo(() => {
-    const base = categorySessions
-    if (mapFilter === 'now')    return base.filter(s => s.status !== 'scheduled' && s.status !== 'invite_out')
-    if (mapFilter === 'invite') return base.filter(s => s.status === 'invite_out')
-    if (mapFilter === 'later')  return base.filter(s => s.status === 'scheduled')
+    let base = categorySessions
+    if (mapFilter === 'now')    base = base.filter(s => s.status !== 'invite_out')
+    if (mapFilter === 'invite') base = base.filter(s => s.status === 'invite_out')
+
+    const q = searchQuery.toLowerCase().trim()
+    if (q.length >= 2) {
+      base = base.filter(s => {
+        const actLabel = ACTIVITY_TYPES.find(a => a.id === s.activityType)?.label?.toLowerCase() ?? ''
+        return (
+          actLabel.includes(q) ||
+          s.displayName?.toLowerCase().includes(q) ||
+          s.brandName?.toLowerCase().includes(q) ||
+          s.lookingFor?.toLowerCase().includes(q) ||
+          s.area?.toLowerCase().includes(q) ||
+          s.city?.toLowerCase().includes(q) ||
+          (s.tags ?? []).some(t => t.toLowerCase().includes(q))
+        )
+      })
+    }
+
     return base
-  }, [categorySessions, mapFilter])
+  }, [categorySessions, mapFilter, searchQuery])
 
   // acceptedMeetSession — banner shown, chat opened only when user taps it
 
@@ -364,12 +348,10 @@ export default function AppShell({ returnParams, triggerGoLive }) {
 
   // Update "new since last seen" badge counts when sessions change
   useEffect(() => {
-    const nowCount    = categorySessions.filter(s => s.status !== 'scheduled' && s.status !== 'invite_out').length
+    const nowCount    = categorySessions.filter(s => s.status !== 'invite_out').length
     const inviteCount = categorySessions.filter(s => s.status === 'invite_out').length
-    const laterCount  = categorySessions.filter(s => s.status === 'scheduled').length
     setNewNowCount(Math.max(0, nowCount - seenNowRef.current))
     setNewInviteCount(Math.max(0, inviteCount - seenInviteRef.current))
-    setNewLaterCount(Math.max(0, laterCount - seenLaterRef.current))
   }, [categorySessions])
 
   const activeVenues = getActiveVenues(visibleSessions, DEMO_VENUES)
@@ -430,9 +412,8 @@ export default function AppShell({ returnParams, triggerGoLive }) {
         />
       )}
 
-      {/* Search results sheet — not used in search flow (city slider opens instead) */}
       <SearchResultsSheet
-        open={false}
+        open={searchQuery.trim().length >= 2 && !cityResultsOpen}
         query={searchQuery}
         sessions={categorySessions}
         mapCategory={mapCategory}
@@ -579,12 +560,10 @@ export default function AppShell({ returnParams, triggerGoLive }) {
       {/* Profile strip — hidden when company drawer is open */}
       {activeTab === 'map' && !companyPanelOpen && (
         <ProfileStrip
-          outNowCount={categorySessions.filter(s => s.status !== 'scheduled' && s.status !== 'invite_out').length}
+          outNowCount={categorySessions.filter(s => s.status !== 'invite_out').length}
           inviteOutCount={categorySessions.filter(s => s.status === 'invite_out').length}
-          outLaterCount={categorySessions.filter(s => s.status === 'scheduled').length}
           newNowCount={newNowCount}
           newInviteCount={newInviteCount}
-          newLaterCount={newLaterCount}
           mapCategory={mapCategory}
           onCategoryChange={setMapCategory}
           activeFilter={mapFilter}
@@ -610,18 +589,27 @@ export default function AppShell({ returnParams, triggerGoLive }) {
           userName={userProfile?.displayName ?? 'You'}
           isLive={!!mySession}
           isInviteOut={!mySession && !!inviteOut}
-          isScheduled={false}
           onProfileTap={() => { if (isGuest) { triggerGate(); return } setInviteOutSheetOpen(true) }}
           onDiscoverNow={()    => openDiscoveryList('now')}
           onDiscoverInvite={() => openDiscoveryList('invite')}
-          onDiscoverLater={()  => openDiscoveryList('later')}
-          outNowCount={categorySessions.filter(s => s.status !== 'scheduled' && s.status !== 'invite_out').length}
+          outNowCount={categorySessions.filter(s => s.status !== 'invite_out').length}
           inviteOutCount={categorySessions.filter(s => s.status === 'invite_out').length}
-          outLaterCount={categorySessions.filter(s => s.status === 'scheduled').length}
           newNowCount={newNowCount}
           newInviteCount={newInviteCount}
-          newLaterCount={newLaterCount}
         />
+      )}
+
+      {/* First-use map intro — shown once, walks user through the UI */}
+      {activeTab === 'map' && (
+        <MapIntroOverlay onGoLive={() => setInviteOutSheetOpen(true)} />
+      )}
+
+      {/* Go-live nudge — visible when user has no active session */}
+      {activeTab === 'map' && !mySession && !inviteOut && !isGuest && (
+        <button className={styles.goLiveNudge} onClick={() => setInviteOutSheetOpen(true)}>
+          <span className={styles.goLiveNudgeDot} />
+          You're invisible — tap to go live 🚀
+        </button>
       )}
 
       <StillHerePrompt open={needsCheckIn && !!mySession} sessionId={mySession?.id} />
@@ -813,8 +801,7 @@ export default function AppShell({ returnParams, triggerGoLive }) {
           earnCoins('FIRST_INVITE_OUT')
         }}
         onGoLive={() => { goingLive(); openGoLive() }}
-        onGoLater={() => { goingLive(); openGoLive() }}
-        currentStatus={mySession?.status === 'scheduled' ? 'later' : !!mySession ? 'live' : !!inviteOut ? 'invite' : null}
+        currentStatus={!!mySession ? 'live' : !!inviteOut ? 'invite' : null}
       />
 
       <BottomSheet open={reviewsOpen} onClose={() => setReviewsOpen(false)} title="">

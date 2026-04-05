@@ -40,7 +40,7 @@ const TABS = [
   },
 ]
 
-export default function BottomNav({ activeTab = 'map', onChange, unreadChats = 0, onOpenVenues, activeVenueCount = 0, userPhotoURL, userName, isLive = false, isInviteOut = false, isScheduled = false, onProfileTap, onDiscoverLater, onDiscoverInvite, onDiscoverNow, outNowCount = 0, inviteOutCount = 0, outLaterCount = 0, newNowCount = 0, newInviteCount = 0, newLaterCount = 0 }) {
+export default function BottomNav({ activeTab = 'map', onChange, unreadChats = 0, onOpenVenues, activeVenueCount = 0, userPhotoURL, userName, isLive = false, isInviteOut = false, onProfileTap, onDiscoverInvite, onDiscoverNow, outNowCount = 0, inviteOutCount = 0, newNowCount = 0, newInviteCount = 0 }) {
   const select = (id, extra) => { onChange?.(id); extra?.() }
 
   return (
@@ -52,8 +52,8 @@ export default function BottomNav({ activeTab = 'map', onChange, unreadChats = 0
 
         if (id === 'match') {
           return (
-            <button key={id} className={styles.matchBtn} onClick={onDiscoverLater} aria-label="Out Later profiles">
-              <span className={`${styles.colorBtnCount} ${newLaterCount > 0 ? styles.colorBtnCountNew : ''}`}>{outLaterCount}</span>
+            <button key={id} className={styles.venueRoundBtn} onClick={onOpenVenues} aria-label="Venues">
+              <span className={styles.colorBtnCount}>{activeVenueCount > 0 ? activeVenueCount : '🏛'}</span>
             </button>
           )
         }
@@ -97,7 +97,6 @@ export default function BottomNav({ activeTab = 'map', onChange, unreadChats = 0
           activeTab === 'profile' ? styles.avatarTabActive : '',
           isLive      ? styles.avatarLive   : '',
           isInviteOut ? styles.avatarInvite : '',
-          isScheduled ? styles.avatarLater  : '',
         ].filter(Boolean).join(' ')}
         onClick={() => select('profile', onProfileTap)}
         aria-label="My status"
@@ -108,7 +107,6 @@ export default function BottomNav({ activeTab = 'map', onChange, unreadChats = 0
           size={30}
           live={isLive}
           inviteOut={isInviteOut}
-          scheduled={isScheduled}
         />
         {activeTab === 'profile' && <span className={styles.tabLabel}>Me</span>}
       </button>

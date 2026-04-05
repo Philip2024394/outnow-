@@ -17,7 +17,7 @@ export function spreadMarkers(
   latKey       = 'lat',
   lngKey       = 'lng',
   thresholdDeg = 0.0075,
-  spacingDeg   = 0.0082,
+  spacingDeg   = 0.0095,
 ) {
   if (!items || items.length <= 1) return items ?? []
 
@@ -68,7 +68,7 @@ export function spreadMarkers(
     // Max 3 per row keeps the spread within ~60% of a 390px phone screen at
     // zoom 14 (3 × 95px ≈ 190px). Rows beyond that wrap downward with a
     // half-step stagger on alternating rows for a natural brick pattern.
-    const MAX_PER_ROW = 3
+    const MAX_PER_ROW = 2
     const hStep = spacingDeg          // horizontal centre-to-centre
     const vStep = spacingDeg * 0.88   // vertical step — slightly tighter than horizontal
 

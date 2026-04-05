@@ -55,7 +55,6 @@ function mapGlobalRow(row) {
 
 function statusLabel(status) {
   if (status === 'invite_out') return { text: 'Invite Out', color: '#F5C518' }
-  if (status === 'scheduled')  return { text: 'Out Later',  color: '#E8890C' }
   return                              { text: 'Out Now',    color: '#8DC63F' }
 }
 
@@ -82,7 +81,7 @@ export default function SearchResultsSheet({ open, query, sessions, mapCategory 
     supabase
       .from('sessions_with_profiles')
       .select('*')
-      .in('status', ['active', 'scheduled', 'invite_out'])
+      .in('status', ['active', 'invite_out'])
       .ilike('country', detected.country)
       .limit(80)
       .then(({ data }) => {

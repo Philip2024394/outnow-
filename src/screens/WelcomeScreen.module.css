@@ -152,3 +152,62 @@
   opacity: 0.85;
   transform: scale(0.98);
 }
+
+/* ── Path selection cards ── */
+.pathCards {
+  width: 100%;
+  padding: 0 24px calc(env(safe-area-inset-bottom, 0px) + 32px);
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.pathCard {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  width: 100%;
+  padding: 20px 18px;
+  background: rgba(255,255,255,0.05);
+  border: 1.5px solid rgba(255,255,255,0.1);
+  border-radius: 20px;
+  cursor: pointer;
+  font-family: inherit;
+  -webkit-tap-highlight-color: transparent;
+  transition: background 0.15s, border-color 0.15s, transform 0.1s;
+  text-align: left;
+  color: #fff;
+}
+.pathCard:active { transform: scale(0.97); background: rgba(255,255,255,0.09); }
+.pathCard:hover  { border-color: var(--path-color); background: rgba(255,255,255,0.07); }
+
+.pathEmoji {
+  font-size: 32px;
+  line-height: 1;
+  flex-shrink: 0;
+}
+
+.pathText {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.pathLabel {
+  font-size: 17px;
+  font-weight: 800;
+  color: var(--path-color);
+  letter-spacing: -0.02em;
+}
+
+.pathSub {
+  font-size: 13px;
+  color: rgba(255,255,255,0.55);
+  line-height: 1.4;
+}
+
+.pathArrow {
+  color: rgba(255,255,255,0.3);
+  flex-shrink: 0;
+}
