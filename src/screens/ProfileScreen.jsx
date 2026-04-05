@@ -1,15 +1,44 @@
 import { useState, useRef, useEffect, useCallback } from 'react'
+import { createPortal } from 'react-dom'
 import { useAuth } from '@/hooks/useAuth'
 import { useMySession } from '@/hooks/useMySession'
 import { useCoins } from '@/hooks/useCoins'
 import { ACTIVITY_TYPES, ACTIVITY_CATEGORIES } from '@/firebase/collections'
 import { LOOKING_FOR_OPTIONS, LANGUAGE_FLAGS } from '@/utils/lookingForLabels'
+import LookingForSheet from '@/components/ui/LookingForSheet'
 import Toast from '@/components/ui/Toast'
 import { saveProfile, uploadAvatar, uploadGalleryPhoto } from '@/services/profileService'
+import { signOut } from '@/services/authService'
+import { endSession } from '@/services/sessionService'
 import GoOutSetup from './GoOutSetup'
 import UpgradeSheet from '@/components/premium/UpgradeSheet'
 import { clearPhotoViewCount } from '@/services/photoNudgeService'
+import { useIpCountry } from '@/hooks/useIpCountry'
+import { usePushNotifications } from '@/hooks/usePushNotifications'
 import styles from './ProfileScreen.module.css'
+
+const EU_COUNTRIES = new Set([
+  'Austria','Belgium','Bulgaria','Croatia','Cyprus','Czech Republic','Denmark',
+  'Estonia','Finland','France','Germany','Greece','Hungary','Ireland','Italy',
+  'Latvia','Lithuania','Luxembourg','Malta','Netherlands','Poland','Portugal',
+  'Romania','Slovakia','Slovenia','Spain','Sweden','Norway','Iceland','Switzerland',
+])
+
+const ASIA_COUNTRIES = new Set([
+  'India','Pakistan','Bangladesh','Sri Lanka','Nepal','Myanmar','Cambodia',
+  'Vietnam','Thailand','Malaysia','Indonesia','Philippines','Singapore',
+  'Japan','South Korea','China','Mongolia','Kazakhstan','Kyrgyzstan',
+  'Uzbekistan','Azerbaijan','Georgia','Armenia','Lebanon','Jordan','Iraq','Iran',
+])
+
+function getRegionPricing(country) {
+  if (!country) return { display: '$1.99', note: 'USD' }
+  if (country === 'United Kingdom')       return { display: '£1.99', note: 'GBP' }
+  if (country === 'Australia')            return { display: 'A$1.99', note: 'AUD' }
+  if (EU_COUNTRIES.has(country))          return { display: '€1.99', note: 'EUR' }
+  if (ASIA_COUNTRIES.has(country))        return { display: '$1.50', note: 'USD' }
+  return { display: '$1.99', note: 'USD' }
+}
 
 const ACCEPTED_TYPES = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp']
 const MAX_MB    = 5
@@ -241,10 +270,12 @@ const STATUS_CONFIG = {
   online:    { label: "I'M ONLINE",    cls: 'bannerOnline',    dot: 'dotOnline'    },
 }
 
-export default function ProfileScreen({ onClose, onOpenSettings }) {
+export default function ProfileScreen({ onClose, onboarding = false }) {
   const { user, userProfile } = useAuth()
   const { session: mySession } = useMySession()
   const { earn } = useCoins()
+  const ipCountry = useIpCountry()
+  const pricing = getRegionPricing(ipCountry)
 
   const [selectedActivity, setSelectedActivity] = useState(
     userProfile?.activities?.[0] ?? null
@@ -284,6 +315,18 @@ export default function ProfileScreen({ onClose, onOpenSettings }) {
   const [showGoOutSetup,  setShowGoOutSetup]  = useState(false)
   const [showUpgrade,     setShowUpgrade]     = useState(false)
   const isFirstSave = !userProfile?.lookingFor
+
+  // Tab: 'profile' | 'verified'
+  const [profileTab, setProfileTab] = useState('profile')
+  // Per-link confirm state (link opened in new tab = confirmed)
+  const [confirmedLinks, setConfirmedLinks] = useState({})
+  // Looking-for sheet
+  const [lookingForOpen, setLookingForOpen] = useState(false)
+  // Self-contained account drawer
+  const [drawerOpen, setDrawerOpen] = useState(false)
+  const [drawerSigningOut, setDrawerSigningOut] = useState(false)
+  const { permission, requestPermission } = usePushNotifications()
+  const [notifOn, setNotifOn] = useState(permission === 'granted')
   // DOB — parsed from stored "YYYY-MM-DD" string
   const parseDob = (dobStr) => {
     if (!dobStr) return { day: '', month: '', year: '' }
@@ -374,6 +417,27 @@ export default function ProfileScreen({ onClose, onOpenSettings }) {
     setToast({ message: msg, type: 'error' })
   }
 
+  async function handleDrawerSignOut() {
+    setDrawerSigningOut(true)
+    try {
+      if (mySession?.id) await endSession(mySession.id)
+      await signOut()
+      setDrawerOpen(false)
+    } catch {
+      setToast({ message: 'Could not sign out. Try again.', type: 'error' })
+    }
+    setDrawerSigningOut(false)
+  }
+
+  async function handleNotifToggle() {
+    if (notifOn) {
+      setNotifOn(false)
+    } else {
+      const result = await requestPermission()
+      if (result === 'granted') setNotifOn(true)
+    }
+  }
+
   function handleMainPhoto(e) {
     const file = e.target.files?.[0]
     if (!file) return
@@ -397,7 +461,28 @@ export default function ProfileScreen({ onClose, onOpenSettings }) {
     e.target.value = ''
   }
 
-  const MAKER_CATEGORIES = ['handmade', 'craft_supplies', 'property', 'professional']
+  // All commerce, service, professional & hiring categories — require photo + show business fields
+  const MAKER_CATEGORIES = [
+    // Buying & Selling
+    'buy_sell', 'fresh_produce', 'agri_goods', 'fashion', 'electronics', 'vehicles',
+    'property', 'tools_equip', 'antiques', 'import_export',
+    // Trades & Home Services
+    'trades', 'auto_repair', 'cleaning', 'garden', 'security', 'laundry', 'tailoring',
+    'childcare', 'eldercare', 'pet_care', 'transport',
+    // Health & Wellness
+    'healthcare', 'beauty', 'fitness_pt', 'mental_health', 'alt_medicine', 'veterinary', 'pharmacy',
+    // Food, Hospitality & Events
+    'catering', 'restaurant', 'hotel_accom', 'tourism_guide', 'event_planning', 'bar_nightclub',
+    // Creative & Media
+    'creative', 'content_creator', 'music_perform', 'writing', 'fashion_design', 'art_craft',
+    // Professional & Business
+    'business', 'technology', 'legal', 'engineering', 'sales_leads', 'consulting',
+    'real_estate', 'marketing', 'media_pro',
+    // Work & Employment (commercial)
+    'hiring', 'freelance', 'domestic_work', 'agri_work', 'manufacturing', 'mining',
+    // Education
+    'education', 'coaching',
+  ]
 
   function handleStatusClick(status) {
     if (MAKER_CATEGORIES.includes(lookingFor) && !photoURL && extraPhotos.every(p => !p)) {
@@ -479,7 +564,7 @@ export default function ProfileScreen({ onClose, onOpenSettings }) {
       if (selectedActivity)            earn('ACTIVITIES_SET')
       // After successful save, open the go-out setup if user selected a status
       if (pendingStatus) setShowGoOutSetup(true)
-      else if (isFirstSave) setShowUpgrade(true)
+      else if (isFirstSave) setProfileTab('verified')
     } catch { /* silent */ }
     setSaving(false)
     setPhotoFile(null)
@@ -501,10 +586,10 @@ export default function ProfileScreen({ onClose, onOpenSettings }) {
             <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/>
             <circle cx="12" cy="13" r="4"/>
           </svg>
-          <span className={styles.headerTitle}>Profile Details</span>
+          <span className={styles.headerTitle}>{profileTab === 'verified' ? 'Verified Listing' : 'Profile Details'}</span>
         </div>
         <div className={styles.headerRight}>
-          <button className={styles.settingsBtn} onClick={onOpenSettings} aria-label="Dashboard">
+          <button className={styles.settingsBtn} onClick={() => setDrawerOpen(true)} aria-label="Dashboard">
             <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
               <circle cx="12" cy="12" r="3"/>
               <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/>
@@ -526,7 +611,20 @@ export default function ProfileScreen({ onClose, onOpenSettings }) {
         duration={4500}
       />
 
-      <div className={styles.scroll}>
+      {/* ── Tab Switcher ── */}
+      {profileTab === 'profile' && (
+        <div className={styles.tabRow}>
+          <button
+            className={`${styles.tabBtn} ${styles.tabBtnActiveGold}`}
+            onClick={() => setProfileTab('verified')}
+          >
+            Get Verified
+            <span className={styles.tabVerifiedBadge}>{pricing.display}</span>
+          </button>
+        </div>
+      )}
+
+      <div className={styles.scroll} style={profileTab === 'verified' ? { display: 'none' } : {}}>
 
         {/* ── Photo grid ── */}
         <div className={styles.photoSection}>
@@ -733,25 +831,19 @@ export default function ProfileScreen({ onClose, onOpenSettings }) {
               <label className={styles.fieldLabel}>Joined the app for</label>
               <HelpTip text="Helps people understand your vibe before they connect with you. No wrong answer — you can change this any time." />
             </div>
-            <div className={styles.selectWrap}>
-              <select
-                className={styles.fieldSelect}
-                value={lookingFor}
-                onChange={e => setLookingFor(e.target.value)}
-              >
-                <option value="">Select a reason…</option>
-                {LOOKING_FOR_OPTIONS.map(opt => (
-                  <option
-                    key={opt.value}
-                    value={opt.value}
-                    style={['handmade', 'craft_supplies'].includes(opt.value) ? { color: '#ef4444' } : undefined}
-                  >{opt.label}</option>
-                ))}
-              </select>
-              <svg className={styles.selectArrow} width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                <polyline points="6 9 12 15 18 9" />
+            <button
+              type="button"
+              className={styles.lookingForTrigger}
+              onClick={() => setLookingForOpen(true)}
+            >
+              {lookingFor
+                ? (() => { const opt = LOOKING_FOR_OPTIONS.find(o => o.value === lookingFor); return opt ? <><span>{opt.emoji}</span><span>{opt.label}</span></> : 'I\'m here for…' })()
+                : <span className={styles.lookingForPlaceholder}>I'm here for… tap to choose</span>
+              }
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{ marginLeft: 'auto', flexShrink: 0, opacity: 0.5 }}>
+                <polyline points="6 9 12 15 18 9"/>
               </svg>
-            </div>
+            </button>
           </div>
           {/* Search Tags */}
           <div className={styles.fieldRow}>
@@ -843,7 +935,7 @@ export default function ProfileScreen({ onClose, onOpenSettings }) {
           </div>
 
           {/* Maker / Craft profile fields — only shown for relevant categories */}
-          {['handmade', 'craft_supplies', 'property', 'professional'].includes(lookingFor) && (
+          {MAKER_CATEGORIES.includes(lookingFor) && (
             <>
               <div className={styles.fieldRow}>
                 <div className={styles.fieldLabelRow}>
@@ -983,53 +1075,7 @@ export default function ProfileScreen({ onClose, onOpenSettings }) {
                 </p>
               </div>
 
-              {/* ── Social Media Links ── */}
-              <div className={styles.fieldRow}>
-                <div className={styles.fieldLabelRow}>
-                  <label className={styles.fieldLabel}>Social Media Links</label>
-                  <HelpTip text="Add your social handles so buyers can follow and connect with you. These appear on your profile's Social Media page." />
-                </div>
-                <p className={styles.socialHandleHint}>Buyers can tap these to follow you directly from your profile.</p>
-                <div className={styles.socialHandleList}>
-                  {[
-                    { label: 'Instagram', placeholder: 'your_username', value: instagramHandle, set: setInstagramHandle, color: '#E1306C', icon: (
-                      <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/></svg>
-                    )},
-                    { label: 'TikTok',    placeholder: 'your_username', value: tiktokHandle,    set: setTiktokHandle,    color: '#69C9D0', icon: (
-                      <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M19.59 6.69a4.83 4.83 0 01-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 01-2.88 2.5 2.89 2.89 0 01-2.89-2.89 2.89 2.89 0 012.89-2.89c.28 0 .54.04.79.1V9.01a6.33 6.33 0 00-.79-.05 6.34 6.34 0 00-6.34 6.34 6.34 6.34 0 006.34 6.34 6.34 6.34 0 006.33-6.34V9.05a8.16 8.16 0 004.77 1.52V7.12a4.85 4.85 0 01-1-.43z"/></svg>
-                    )},
-                    { label: 'Facebook',  placeholder: 'page name or URL', value: facebookHandle, set: setFacebookHandle, color: '#1877F2', icon: (
-                      <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg>
-                    )},
-                    { label: 'YouTube',   placeholder: '@channel or handle', value: youtubeHandle, set: setYoutubeHandle,  color: '#FF0000', icon: (
-                      <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M23.498 6.186a3.016 3.016 0 00-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 00.502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 002.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 002.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/></svg>
-                    )},
-                    { label: 'Website',   placeholder: 'https://yoursite.com', value: websiteUrl,  set: setWebsiteUrl,    color: '#8DC63F', icon: (
-                      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 014 10 15.3 15.3 0 01-4 10 15.3 15.3 0 01-4-10 15.3 15.3 0 014-10z"/></svg>
-                    )},
-                  ].map(({ label, placeholder, value, set, color, icon }) => (
-                    <div key={label} className={styles.socialHandleRow}>
-                      <div className={styles.socialHandleIcon} style={{ background: color }}>
-                        {icon}
-                      </div>
-                      <div className={styles.socialHandleInputWrap}>
-                        <span className={styles.socialHandleName}>{label}</span>
-                        <input
-                          className={styles.socialHandleInput}
-                          value={value}
-                          onChange={e => set(e.target.value)}
-                          placeholder={placeholder}
-                          maxLength={100}
-                          autoCapitalize="none"
-                          autoCorrect="off"
-                          spellCheck="false"
-                        />
-                      </div>
-                      {value ? <span className={styles.socialHandleTick}>✓</span> : null}
-                    </div>
-                  ))}
-                </div>
-              </div>
+              {/* Social links moved to Get Verified tab */}
             </>
           )}
         </div>
@@ -1159,21 +1205,183 @@ export default function ProfileScreen({ onClose, onOpenSettings }) {
         </div>
 
         {/* ── Save button ── */}
-        <div className={styles.saveRow}>
-          <button className={styles.saveBtn} onClick={handleDone} disabled={saving}>
-            {saving ? 'Saving…' : 'Save Changes'}
-          </button>
-        </div>
-
-        {/* ── Dev: preview membership page ── */}
-        <button
-          style={{ background: 'none', border: '1px dashed rgba(255,255,255,0.12)', borderRadius: 8, color: 'rgba(255,255,255,0.25)', fontSize: 11, padding: '6px 12px', cursor: 'pointer', alignSelf: 'center', fontFamily: 'monospace' }}
-          onClick={() => setShowUpgrade(true)}
-        >
-          🛠 Preview Membership Page
-        </button>
+        {profileTab === 'profile' && (
+          <div className={styles.saveRow}>
+            <button className={styles.saveBtn} onClick={handleDone} disabled={saving}>
+              {saving ? 'Saving…' : 'Save Profile'}
+            </button>
+            <button
+              style={{ background: 'none', border: '1px dashed rgba(255,255,255,0.12)', borderRadius: 8, color: 'rgba(255,255,255,0.25)', fontSize: 11, padding: '6px 12px', cursor: 'pointer', fontFamily: 'monospace', marginTop: 8, width: '100%' }}
+              onClick={() => setProfileTab('verified')}
+            >
+              🛠 Dev: preview Get Verified page
+            </button>
+          </div>
+        )}
 
       </div>
+
+      {/* ── Get Verified Tab ── */}
+      {profileTab === 'verified' && (() => {
+        const SOCIAL_LINKS = [
+          { key: 'instagram', label: 'Instagram', placeholder: 'your_username', value: instagramHandle, set: setInstagramHandle, color: '#8B0000',
+            getUrl: v => `https://instagram.com/${v}`,
+            icon: <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/></svg>,
+          },
+          { key: 'tiktok', label: 'TikTok', placeholder: 'your_username', value: tiktokHandle, set: setTiktokHandle, color: '#010101',
+            getUrl: v => `https://tiktok.com/@${v}`,
+            icon: <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M19.59 6.69a4.83 4.83 0 01-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 01-2.88 2.5 2.89 2.89 0 01-2.89-2.89 2.89 2.89 0 012.89-2.89c.28 0 .54.04.79.1V9.01a6.33 6.33 0 00-.79-.05 6.34 6.34 0 00-6.34 6.34 6.34 6.34 0 006.34 6.34 6.34 6.34 0 006.33-6.34V9.05a8.16 8.16 0 004.77 1.52V7.12a4.85 4.85 0 01-1-.43z"/></svg>,
+          },
+          { key: 'facebook', label: 'Facebook', placeholder: 'page name or URL', value: facebookHandle, set: setFacebookHandle, color: '#1877F2',
+            getUrl: v => `https://facebook.com/${v}`,
+            icon: <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg>,
+          },
+          { key: 'youtube', label: 'YouTube', placeholder: '@channel or handle', value: youtubeHandle, set: setYoutubeHandle, color: '#FF0000',
+            getUrl: v => `https://youtube.com/${v.startsWith('@') ? v : '@' + v}`,
+            icon: <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M23.498 6.186a3.016 3.016 0 00-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 00.502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 002.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 002.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/></svg>,
+          },
+          { key: 'website', label: 'Website', placeholder: 'https://yoursite.com', value: websiteUrl, set: setWebsiteUrl, color: '#8DC63F',
+            getUrl: v => v.startsWith('http') ? v : `https://${v}`,
+            icon: <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 014 10 15.3 15.3 0 01-4 10 15.3 15.3 0 01-4-10 15.3 15.3 0 014-10z"/></svg>,
+          },
+        ]
+        const hasAnyLink     = SOCIAL_LINKS.some(l => l.value.trim())
+        const hasAnyConfirmed = SOCIAL_LINKS.some(l => l.value.trim() && confirmedLinks[l.key])
+        const spotsTotal = 10000
+        const spotsTaken = 8241
+        const spotsLeft  = spotsTotal - spotsTaken
+        const barPct     = Math.round((spotsTaken / spotsTotal) * 100)
+
+        return (
+          <div className={styles.verifiedScroll}>
+
+            {/* ── Hero ── */}
+            <div className={styles.vHero}>
+              <span className={styles.vHeroTitle}>0% Commission</span>
+              <p className={styles.vHeroSub}>
+                imoutnow.com never takes a cut — no commission on sales, no fee when contact changes hands.
+                Get verified and your account is fully live, open for business, and completely yours.
+              </p>
+            </div>
+
+            {/* ── Benefits ── */}
+            <div className={styles.vBenefits}>
+              {[
+                'Verified badge on your profile',
+                'Social media links shown to all buyers',
+                'Higher listing on imoutnow.com',
+                'Local buyers message you free — no unlock fee',
+                'No commission, ever',
+              ].map(b => (
+                <div key={b} className={styles.vBenefitRow}>
+                  <span className={styles.vBenefitCheck}>✓</span>
+                  <span className={styles.vBenefitText}>{b}</span>
+                </div>
+              ))}
+            </div>
+
+            {/* ── Divider ── */}
+            <div className={styles.vDivider} />
+
+            {/* ── Seats ── */}
+            <div className={styles.vSeats}>
+              <div className={styles.vSeatsTop}>
+                <span className={styles.vSeatCount}>{spotsLeft.toLocaleString()}</span>
+                <span className={styles.vSeatLabel}> founding seats remaining</span>
+              </div>
+              <div className={styles.vBar}>
+                <div className={styles.vBarFill} style={{ width: `${barPct}%` }} />
+              </div>
+              <p className={styles.vSeatSub}>Window closing fast — {spotsTaken.toLocaleString()} of {spotsTotal.toLocaleString()} seats filled</p>
+            </div>
+
+            {/* ── Price ── */}
+            <div className={styles.vPrice}>
+              <span className={styles.vPriceAmount}>{pricing.display}</span>
+              <span className={styles.vPricePer}>/mo</span>
+              <span className={styles.vPriceTag}>Full premium · Price locked 3 years</span>
+            </div>
+
+            {/* ── Divider ── */}
+            <div className={styles.vDivider} />
+
+            {/* ── Social links ── */}
+            <div className={styles.vSocialSection}>
+              <p className={styles.vSocialTitle}>Your Social Links</p>
+              <p className={styles.vSocialHint}>Add one or all — edit and update any time. Tap Confirm to verify each link works.</p>
+              <div className={styles.vSocialList}>
+                {SOCIAL_LINKS.map(({ key, label, placeholder, value, set, color, getUrl, icon }) => (
+                  <div key={key} className={styles.vSocialRow}>
+                    <div className={styles.vSocialIcon} style={{ background: color }}>{icon}</div>
+                    <div className={styles.vSocialInputWrap}>
+                      <span className={styles.vSocialName}>{label}</span>
+                      <input
+                        className={styles.vSocialInput}
+                        value={value}
+                        onChange={e => { set(e.target.value); setConfirmedLinks(p => ({ ...p, [key]: false })) }}
+                        placeholder={placeholder}
+                        maxLength={100}
+                        autoCapitalize="none"
+                        autoCorrect="off"
+                        spellCheck="false"
+                      />
+                    </div>
+                    {value.trim() && (
+                      <button
+                        className={`${styles.vConfirmBtn} ${confirmedLinks[key] ? styles.vConfirmBtnDone : ''}`}
+                        type="button"
+                        onClick={() => {
+                          window.open(getUrl(value.trim()), '_blank', 'noopener')
+                          setConfirmedLinks(p => ({ ...p, [key]: true }))
+                        }}
+                      >
+                        {confirmedLinks[key] ? '✓' : 'Confirm'}
+                      </button>
+                    )}
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* ── Divider ── */}
+            <div className={styles.vDivider} />
+
+            {/* ── Action buttons ── */}
+            <div className={styles.vActions}>
+              {hasAnyConfirmed ? (
+                <button
+                  className={styles.vGetVerifiedBtn}
+                  onClick={() => {
+                    showToast('Payment coming soon — we\'ll notify you when it\'s live.')
+                    if (onboarding) setTimeout(() => onClose?.(), 1800)
+                  }}
+                >
+                  Get Verified — {pricing.display}/mo
+                </button>
+              ) : hasAnyLink ? (
+                <button className={styles.vGetVerifiedBtnWaiting} disabled>
+                  Confirm a link above to continue
+                </button>
+              ) : (
+                <button className={styles.vGetVerifiedBtnWaiting} disabled>
+                  Add a social link above to get verified
+                </button>
+              )}
+              <button
+                className={styles.vPassBtn}
+                onClick={() => {
+                  if (onboarding) { onClose?.() }
+                  else { setProfileTab('profile'); showToast('No problem — your basic profile is live.') }
+                }}
+              >
+                {onboarding ? 'Continue to App →' : 'Pass Offer — Stay on Basic'}
+              </button>
+              <p className={styles.vFootnote}>No commission · No price increases · Cancel any time</p>
+            </div>
+
+          </div>
+        )
+      })()}
 
       {/* ── Go Out Setup overlay ── */}
       {showGoOutSetup && (
@@ -1191,6 +1399,113 @@ export default function ProfileScreen({ onClose, onOpenSettings }) {
         showToast={showToast}
         lookingFor={lookingFor}
       />
+
+      {/* ── Looking For sheet ── */}
+      <LookingForSheet
+        open={lookingForOpen}
+        value={lookingFor}
+        onChange={setLookingFor}
+        onClose={() => setLookingForOpen(false)}
+      />
+
+      {/* ── Account Drawer (self-contained portal) ── */}
+      {drawerOpen && createPortal(
+        <div className={styles.drawerOverlay}>
+          <div className={styles.drawerBackdrop} onClick={() => setDrawerOpen(false)} />
+          <div className={styles.drawerPanel}>
+            {/* Header */}
+            <div className={styles.drawerHeader}>
+              <div className={styles.drawerHeaderUser}>
+                <div className={styles.drawerAvatar}>
+                  {userProfile?.photoURL
+                    ? <img src={userProfile.photoURL} alt="" className={styles.drawerAvatarImg} />
+                    : <span className={styles.drawerAvatarInitial}>{(userProfile?.displayName ?? 'Y')[0].toUpperCase()}</span>
+                  }
+                </div>
+                <div>
+                  <div className={styles.drawerName}>{userProfile?.displayName ?? 'You'}</div>
+                  <div className={styles.drawerEmail}>{user?.email ?? ''}</div>
+                </div>
+              </div>
+              <button className={styles.drawerCloseBtn} onClick={() => setDrawerOpen(false)} aria-label="Close">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                  <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+                </svg>
+              </button>
+            </div>
+
+            <div className={styles.drawerContent}>
+              {/* Notifications toggle */}
+              <button className={styles.drawerRow} onClick={handleNotifToggle}>
+                <span className={styles.drawerRowIcon}>🔔</span>
+                <div className={styles.drawerRowText}>
+                  <span className={styles.drawerRowLabel}>Push Notifications</span>
+                  <span className={styles.drawerRowSub}>{notifOn ? 'On — tap to disable' : 'Off — tap to enable'}</span>
+                </div>
+                <div className={`${styles.drawerToggle} ${notifOn ? styles.drawerToggleOn : ''}`}>
+                  <div className={styles.drawerToggleThumb} />
+                </div>
+              </button>
+
+              {/* Privacy */}
+              <button className={styles.drawerRow} onClick={() => setToast({ message: 'Privacy controls coming soon.', type: 'error' })}>
+                <span className={styles.drawerRowIcon}>🔒</span>
+                <div className={styles.drawerRowText}>
+                  <span className={styles.drawerRowLabel}>Privacy Controls</span>
+                  <span className={styles.drawerRowSub}>Manage what others can see</span>
+                </div>
+                <svg className={styles.drawerRowArrow} width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                  <polyline points="9 18 15 12 9 6"/>
+                </svg>
+              </button>
+
+              {/* Blocked users */}
+              <button className={styles.drawerRow} onClick={() => setToast({ message: 'Block list coming soon.', type: 'error' })}>
+                <span className={styles.drawerRowIcon}>🚫</span>
+                <div className={styles.drawerRowText}>
+                  <span className={styles.drawerRowLabel}>Blocked Users</span>
+                  <span className={styles.drawerRowSub}>Manage people you've blocked</span>
+                </div>
+                <svg className={styles.drawerRowArrow} width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                  <polyline points="9 18 15 12 9 6"/>
+                </svg>
+              </button>
+
+              {/* Safety */}
+              <button className={styles.drawerRow} onClick={() => setToast({ message: 'Always meet in a public place. Trust your instincts.', type: 'error' })}>
+                <span className={styles.drawerRowIcon}>🛡️</span>
+                <div className={styles.drawerRowText}>
+                  <span className={styles.drawerRowLabel}>Safety Centre</span>
+                  <span className={styles.drawerRowSub}>Tips for staying safe while out</span>
+                </div>
+                <svg className={styles.drawerRowArrow} width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                  <polyline points="9 18 15 12 9 6"/>
+                </svg>
+              </button>
+
+              {/* About */}
+              <button className={styles.drawerRow} onClick={() => setToast({ message: 'IMOUTNOW v0.1.0 — your city is out, are you?', type: 'error' })}>
+                <span className={styles.drawerRowIcon}>ℹ️</span>
+                <div className={styles.drawerRowText}>
+                  <span className={styles.drawerRowLabel}>About IMOUTNOW</span>
+                  <span className={styles.drawerRowSub}>Version 0.1.0</span>
+                </div>
+              </button>
+
+              {/* Sign out */}
+              <div className={styles.drawerDivider} />
+              <button className={`${styles.drawerRow} ${styles.drawerRowDanger}`} onClick={handleDrawerSignOut} disabled={drawerSigningOut}>
+                <span className={styles.drawerRowIcon}>🚪</span>
+                <div className={styles.drawerRowText}>
+                  <span className={styles.drawerRowLabel}>{drawerSigningOut ? 'Signing out…' : 'Sign Out'}</span>
+                  <span className={styles.drawerRowSub}>Your listing drops from the map instantly</span>
+                </div>
+              </button>
+            </div>
+          </div>
+        </div>,
+        document.body
+      )}
 
       {/* ── Photo reposition panel ── */}
       {photoEditOpen && (

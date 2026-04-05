@@ -1,7 +1,9 @@
 import { useState, useEffect, useRef } from 'react'
 import { signOut } from '@/services/authService'
+import { endSession } from '@/services/sessionService'
 import { usePushNotifications } from '@/hooks/usePushNotifications'
 import { useAuth } from '@/hooks/useAuth'
+import { useMySession } from '@/hooks/useMySession'
 import { useCoins } from '@/hooks/useCoins'
 import Avatar from '@/components/ui/Avatar'
 import CoinBadge from '@/components/ui/CoinBadge'
@@ -44,6 +46,7 @@ function Divider({ label }) {
 export default function SettingsSheet({ open, onClose, onOpenLikes, onOpenMyLikes, onEditProfile, onOpenBlockList, onOpenWallet, onUpgrade, showToast, onSOS }) {
   const { permission, requestPermission } = usePushNotifications()
   const { userProfile } = useAuth()
+  const { session: mySession } = useMySession()
   const { balance, earn } = useCoins()
   const [notifOn, setNotifOn] = useState(permission === 'granted')
   const [signingOut, setSigningOut] = useState(false)
@@ -107,6 +110,7 @@ export default function SettingsSheet({ open, onClose, onOpenLikes, onOpenMyLike
   const handleSignOut = async () => {
     setSigningOut(true)
     try {
+      if (mySession?.id) await endSession(mySession.id)
       await signOut()
       onClose()
     } catch {

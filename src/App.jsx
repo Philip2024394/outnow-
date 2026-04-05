@@ -2,6 +2,8 @@ import { useEffect, useRef, useState } from 'react'
 import { useAuth } from '@/hooks/useAuth'
 import AuthScreen from '@/screens/AuthScreen'
 import AppShell from '@/router/AppShell'
+import WelcomeScreen from '@/screens/WelcomeScreen'
+import ProfileScreen from '@/screens/ProfileScreen'
 import Spinner from '@/components/ui/Spinner'
 import AdminApp from '@/admin/AdminApp'
 import { GuestGateProvider } from '@/contexts/GuestGateContext'
@@ -20,13 +22,16 @@ export default function App() {
   if (window.location.pathname.startsWith('/admin')) {
     return <AdminApp />
   }
-  const { user, loading } = useAuth()
+  const { user, userProfile, loading } = useAuth()
   const [adminPass, setAdminPass] = useState(false)
   const [guestMode, setGuestMode] = useState(false)
   const [returnParams, setReturnParams] = useState(null)
 
-  // Onboarding step — starts 'checking' until we know the user's id,
-  // then resolves to 'setup' (new user) or 'done' (returning user).
+  // Onboarding step:
+  //  'checking'  — waiting for auth + profile to load
+  //  'welcome'   — brand new user, show intro slides
+  //  'profile'   — new user must complete their profile
+  //  'done'      — returning user, go straight to map
   const [onboardStep, setOnboardStep] = useState('checking')
   const [triggerGoLive] = useState(false)
 
@@ -34,20 +39,29 @@ export default function App() {
   const resolvedRef = useRef(null)
   useEffect(() => {
     if (!user) {
-      // Don't reset if admin dev preview is active
       if (!adminPass) { setOnboardStep('checking'); resolvedRef.current = null }
       return
     }
-    if (resolvedRef.current === user.id) return  // already resolved for this user
-    resolvedRef.current = user.id
-    setOnboardStep('done')
-  }, [user, adminPass])
+    if (resolvedRef.current === user.uid) return  // already resolved for this user
+    resolvedRef.current = user.uid
+    // New user = no lookingFor set yet → show welcome → profile setup
+    // Returning user → go straight to map
+    if (!userProfile?.lookingFor) {
+      setOnboardStep('welcome')
+    } else {
+      setOnboardStep('done')
+    }
+  }, [user, userProfile, adminPass])
 
   // Admin dev: bypass auth + skip onboarding → straight to app
   const handleAdminDev = () => {
     setAdminPass(true)
     setOnboardStep('done')
   }
+
+  // New-user onboarding handlers
+  const handleWelcomeDone = () => setOnboardStep('profile')
+  const handleProfileDone = () => setOnboardStep('done')
 
   // Handle return from Stripe Checkout
   useEffect(() => {
@@ -83,6 +97,18 @@ export default function App() {
   return (
     <GuestGateProvider>
       <DevPanel />
+
+      {/* ── New user: welcome slides ── */}
+      {onboardStep === 'welcome' && (
+        <WelcomeScreen onDone={handleWelcomeDone} />
+      )}
+
+      {/* ── New user: profile setup (required before map) ── */}
+      {onboardStep === 'profile' && (
+        <ProfileScreen onClose={handleProfileDone} onboarding />
+      )}
+
+      {/* ── Returning user or after onboarding complete ── */}
       {(guestMode || onboardStep === 'done') && (
         <AppShell returnParams={returnParams} triggerGoLive={triggerGoLive} />
       )}
