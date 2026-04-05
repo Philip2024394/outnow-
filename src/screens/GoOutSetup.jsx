@@ -1,9 +1,12 @@
 import { useState } from 'react'
 import { goLive, scheduleLive, postInviteOut } from '@/services/sessionService'
+import { useAuth } from '@/hooks/useAuth'
 import PlaceSearch from '@/components/golive/PlaceSearch'
 import styles from './GoOutSetup.module.css'
 
 export default function GoOutSetup({ pendingStatus, activityType, userCity, userCoords, onDone, onSkip }) {
+  const { userProfile } = useAuth()
+  const tier = userProfile?.tier ?? null
   const [placeName, setPlaceName]   = useState('')
   const [placeId,   setPlaceId]     = useState(null)
   const [areaName,  setAreaName]    = useState('')
@@ -44,15 +47,15 @@ export default function GoOutSetup({ pendingStatus, activityType, userCity, user
     setSaving(true)
     try {
       if (isInviteOut) {
-        await postInviteOut({ activityType, message: resolvedName })
+        await postInviteOut({ activityType, message: resolvedName, tier })
       } else if (isLaterOut && !goNow) {
         const base = new Date()
         if (lateDay === 'tomorrow') base.setDate(base.getDate() + 1)
         const [hh, mm] = lateTime.split(':').map(Number)
         base.setHours(hh, mm, 0, 0)
-        await scheduleLive({ activityType, placeName: resolvedName, placeId, scheduledFor: base.toISOString() })
+        await scheduleLive({ activityType, placeName: resolvedName, placeId, scheduledFor: base.toISOString(), tier })
       } else {
-        await goLive({ activityType, placeName: resolvedName, placeId })
+        await goLive({ activityType, placeName: resolvedName, placeId, tier })
       }
       onDone?.()
     } catch { /* silent */ }

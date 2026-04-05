@@ -1,8 +1,13 @@
 import { useState, useEffect, useRef } from 'react'
 import { supabase } from '@/lib/supabase'
-import { DEMO_SESSIONS, DEMO_SCHEDULED_SESSIONS, DEMO_INVITE_OUT_SESSIONS } from '@/demo/mockData'
+import { DEMO_SESSIONS, DEMO_SCHEDULED_SESSIONS, DEMO_INVITE_OUT_SESSIONS, DEMO_MAKER_SESSIONS } from '@/demo/mockData'
 import { useAuth } from './useAuth'
 import { useBlockList } from './useBlockList'
+
+// Normalise country strings for comparison (lowercase, trimmed)
+function normaliseCountry(c) {
+  return (c ?? '').toLowerCase().trim()
+}
 
 const FUZZ_MIN = Number(import.meta.env.VITE_FUZZ_MIN_METERS ?? 200)
 const FUZZ_MAX = Number(import.meta.env.VITE_FUZZ_MAX_METERS ?? 500)
@@ -60,14 +65,26 @@ function mapRow(row) {
     height: row.height ?? null,
     speakingNative: row.speaking_native ?? null,
     speakingSecond: row.speaking_second ?? null,
+    country: row.country ?? null,
+    international: row.international ?? false,
+    tags: row.tags ?? [],
+    photos: row.extra_photos ?? [],
+    instagram: row.instagram_handle ?? null,
+    tiktok: row.tiktok_handle ?? null,
+    facebook: row.facebook_handle ?? null,
+    website: row.website_url ?? null,
+    youtube: row.youtube_handle ?? null,
+    tier: row.tier ?? null,
   }
 }
 
 const ACTIVE_STATUSES = ['active', 'scheduled', 'invite_out']
 
-export function useLiveUsers() {
-  const { user } = useAuth()
+export function useLiveUsers({ browseCountry } = {}) {
+  const { user, userProfile } = useAuth()
   const { blockedIds } = useBlockList()
+  // browseCountry prop overrides the user's home country (Business tier browsing)
+  const myCountry = normaliseCountry(browseCountry ?? userProfile?.country)
   const [sessions, setSessions] = useState([])
   const [loading, setLoading] = useState(true)
   const channelRef = useRef(null)
@@ -75,14 +92,14 @@ export function useLiveUsers() {
   useEffect(() => {
     // Demo mode
     if (!supabase) {
-      setSessions([...DEMO_SESSIONS, ...DEMO_SCHEDULED_SESSIONS, ...DEMO_INVITE_OUT_SESSIONS])
+      setSessions([...DEMO_SESSIONS, ...DEMO_SCHEDULED_SESSIONS, ...DEMO_INVITE_OUT_SESSIONS, ...DEMO_MAKER_SESSIONS])
       setLoading(false)
       return
     }
 
     if (!user) {
       // Guest browsing — show demo profiles so the map isn't empty
-      setSessions([...DEMO_SESSIONS, ...DEMO_SCHEDULED_SESSIONS, ...DEMO_INVITE_OUT_SESSIONS])
+      setSessions([...DEMO_SESSIONS, ...DEMO_SCHEDULED_SESSIONS, ...DEMO_INVITE_OUT_SESSIONS, ...DEMO_MAKER_SESSIONS])
       setLoading(false)
       return
     }
@@ -90,11 +107,19 @@ export function useLiveUsers() {
     let mounted = true
 
     async function fetchAll() {
-      const { data, error } = await supabase
+      let query = supabase
         .from('sessions_with_profiles')
         .select('*')
         .in('status', ACTIVE_STATUSES)
         .neq('user_id', user.id)
+
+      // Country filter: show same country OR international sessions
+      // If myCountry is empty (profile not set), show all to avoid empty map
+      if (myCountry) {
+        query = query.or(`country.eq.${myCountry},international.eq.true`)
+      }
+
+      const { data, error } = await query
 
       if (!mounted) return
       if (error) { setLoading(false); return }
@@ -172,7 +197,7 @@ export function useLiveUsers() {
         channelRef.current = null
       }
     }
-  }, [user, blockedIds])
+  }, [user, userProfile, browseCountry, blockedIds, myCountry])
 
   return { sessions, loading }
 }

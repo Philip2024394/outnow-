@@ -38,7 +38,7 @@ function fmtScheduledFull(ms) {
   return d.toLocaleDateString([], { weekday: 'long' }) + ' at ' + timeStr
 }
 
-export default function DiscoveryCard({ open, session, mySession, onClose, showToast, onGuestAction, onMeetSent, onLike }) {
+export default function DiscoveryCard({ open, session, mySession, onClose, showToast, onGuestAction, onMeetSent, onLike, onUnlockContact, buyerCountry }) {
   useOverlay()
   const { user } = useAuth()
   const { myInterests, mutualSessions } = useInterests()
@@ -95,7 +95,7 @@ export default function DiscoveryCard({ open, session, mySession, onClose, showT
   if (session.lookingFor === 'dating')
     return <DatingCard open={open} session={session} mySession={mySession} onClose={onClose} showToast={showToast} onGuestAction={onGuestAction} onMeetSent={onMeetSent} onLike={onLike} />
   if (MAKER_CATEGORIES.includes(session.lookingFor))
-    return <MakerCard open={open} session={session} mySession={mySession} onClose={onClose} showToast={showToast} onGuestAction={onGuestAction} onMeetSent={onMeetSent} onLike={onLike} />
+    return <MakerCard open={open} session={session} mySession={mySession} onClose={onClose} showToast={showToast} onGuestAction={onGuestAction} onMeetSent={onMeetSent} onLike={onLike} onUnlockContact={onUnlockContact} buyerCountry={buyerCountry} />
   if (session.lookingFor === 'craft_supplies')
     return <CraftSuppliesCard open={open} session={session} onClose={onClose} showToast={showToast} onGuestAction={onGuestAction} onMeetSent={onMeetSent} onLike={onLike} />
 

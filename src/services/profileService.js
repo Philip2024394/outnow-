@@ -9,6 +9,8 @@ export async function saveProfile({
   priceMin, priceMax, brandName, tradeRole, market,
   relationshipGoal, starSign, height,
   photoOffsetX, photoOffsetY, photoZoom,
+  tags,
+  instagramHandle, tiktokHandle, facebookHandle, websiteUrl, youtubeHandle,
 }) {
   if (!supabase || !userId) return
 
@@ -47,6 +49,12 @@ export async function saveProfile({
       photo_offset_x:    photoOffsetX ?? 50,
       photo_offset_y:    photoOffsetY ?? 50,
       photo_zoom:        photoZoom ?? 1,
+      tags:              (tags ?? []).filter(Boolean).slice(0, 10),
+      instagram_handle:  instagramHandle || null,
+      tiktok_handle:     tiktokHandle || null,
+      facebook_handle:   facebookHandle || null,
+      website_url:       websiteUrl || null,
+      youtube_handle:    youtubeHandle || null,
       updated_at:        new Date().toISOString(),
     })
     .eq('id', userId)

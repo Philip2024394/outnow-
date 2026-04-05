@@ -100,8 +100,8 @@
 /* Live user markers */
 :global(.demo-marker) {
   position: relative;
-  width: 52px;
-  height: 52px;
+  width: 80px;
+  height: 80px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -127,8 +127,8 @@
 }
 
 :global(.demo-marker__avatar) {
-  width: 42px;
-  height: 42px;
+  width: 73px;
+  height: 73px;
   border-radius: 50%;
   background: #1e1e1e;
   border: 2.5px solid #8DC63F;
@@ -136,12 +136,13 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 16px;
+  font-size: 26px;
   font-weight: 600;
   color: #fff;
   font-family: -apple-system, BlinkMacSystemFont, sans-serif;
   position: relative;
   z-index: 2;
+  overflow: hidden;
   transition: transform 0.15s ease;
 }
 
@@ -154,8 +155,8 @@
   position: absolute;
   bottom: 2px;
   right: 2px;
-  width: 11px;
-  height: 11px;
+  width: 14px;
+  height: 14px;
   border-radius: 50%;
   border: 2px solid #080808;
   z-index: 3;
@@ -197,7 +198,7 @@
 
 /* ── Replied marker (OTW accepted) ── */
 :global(.demo-marker--replied) {
-  height: 68px;
+  height: 100px;
 }
 
 :global(.demo-marker__reply-badge) {
@@ -216,11 +217,10 @@
   50%       { transform: translateX(-50%) translateY(-4px); }
 }
 
-/* ── Premium photo avatar ── */
+/* ── Photo avatar ── */
 :global(.demo-marker__photo) {
   width: 100%;
   height: 100%;
-  border-radius: 50%;
   object-fit: cover;
   display: block;
 }
@@ -234,45 +234,9 @@
   filter: drop-shadow(0 1px 4px rgba(0,0,0,0.6));
 }
 
-/* Boost — slightly larger circle */
-:global(.demo-marker__avatar--boost) {
-  width: 48px;
-  height: 48px;
-  font-size: 18px;
-}
-
-/* Pro — larger circle */
-:global(.demo-marker__avatar--pro) {
-  width: 52px;
-  height: 52px;
-  font-size: 19px;
-}
-
-/* VIP — largest circle + crown offset */
-:global(.demo-marker--vip) {
-  height: 68px;
-}
-
-:global(.demo-marker__avatar--vip) {
-  width: 56px;
-  height: 56px;
-  font-size: 20px;
-}
-
-:global(.demo-marker__crown) {
-  position: absolute;
-  top: -6px;
-  left: 50%;
-  transform: translateX(-50%);
-  font-size: 14px;
-  z-index: 4;
-  line-height: 1;
-  filter: drop-shadow(0 0 4px rgba(141,198,63,0.6));
-}
-
 /* Invite Out marker — gold */
 :global(.demo-marker--invite) {
-  height: 68px;
+  height: 100px;
 }
 
 :global(.demo-marker__avatar--invite) {
@@ -309,7 +273,7 @@
 
 /* Scheduled (Out Later) marker — orange */
 :global(.demo-marker--scheduled) {
-  height: 64px;
+  height: 100px;
 }
 
 :global(.demo-marker__avatar--scheduled) {

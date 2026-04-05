@@ -1,0 +1,165 @@
+.overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 1200;
+  display: flex;
+  align-items: flex-end;
+}
+
+.backdrop {
+  position: absolute;
+  inset: 0;
+  background: rgba(0,0,0,0.6);
+}
+
+.sheet {
+  position: relative;
+  width: 100%;
+  background: #0f0f0f;
+  border-radius: 20px 20px 0 0;
+  border-top: 3px solid #8DC63F;
+  max-height: 75vh;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.handle {
+  width: 36px;
+  height: 4px;
+  background: #8DC63F;
+  border-radius: 2px;
+  margin: 12px auto 4px;
+  flex-shrink: 0;
+  cursor: pointer;
+}
+
+
+
+/* Sections */
+.section {
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  flex: 1;
+  min-height: 0;
+}
+
+.sectionLabel {
+  font-size: 11px;
+  font-weight: 700;
+  color: rgba(255,255,255,0.25);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  padding: 0 16px 6px;
+  margin: 0;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.sectionFlag {
+  font-size: 14px;
+  line-height: 1;
+}
+
+.sectionCount {
+  font-size: 11px;
+  font-weight: 800;
+  color: #000;
+  background: #8DC63F;
+  border-radius: 50%;
+  width: 22px;
+  height: 22px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  letter-spacing: 0;
+  flex-shrink: 0;
+}
+
+/* Sticky "All countries" heading */
+.allCountriesHeader {
+  position: sticky;
+  top: 0;
+  z-index: 5;
+  background: #0f0f0f;
+  box-shadow: 0 4px 12px #0f0f0f;
+  padding: 14px 16px 12px;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  border-bottom: 1px solid rgba(255,255,255,0.06);
+}
+
+.allCountriesTitle {
+  font-size: 20px;
+  font-weight: 900;
+  color: #fff;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  letter-spacing: -0.01em;
+}
+
+.allCountriesSub {
+  font-size: 11px;
+  font-weight: 500;
+  color: rgba(255,255,255,0.35);
+  margin: 0;
+  letter-spacing: 0.01em;
+}
+
+/* Country list */
+.list {
+  list-style: none;
+  margin: 0;
+  padding: 0 8px 24px;
+}
+
+.countryRow {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  padding: 11px 10px;
+  background: none;
+  border: none;
+  border-radius: 10px;
+  cursor: pointer;
+  color: rgba(255,255,255,0.8);
+  font-size: 14px;
+  text-align: left;
+  transition: background 0.1s;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.countryRow:active,
+.countryRow:hover {
+  background: rgba(255,255,255,0.06);
+}
+
+.countryRowActive {
+  background: rgba(141,198,63,0.08);
+  color: #fff;
+}
+
+
+.flag {
+  font-size: 20px;
+  flex-shrink: 0;
+  line-height: 1;
+}
+
+.countryName {
+  flex: 1;
+  font-weight: 500;
+}
+
+.check {
+  color: #8DC63F;
+  font-weight: 800;
+  font-size: 13px;
+  margin-left: auto;
+}
+

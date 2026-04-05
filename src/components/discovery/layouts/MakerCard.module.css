@@ -6,15 +6,15 @@
 .sheet {
   position: absolute; bottom: 0; left: 0; right: 0;
   border-radius: 20px 20px 0 0;
-  border-top: 3px solid var(--status-color, #F5C518);
-  height: 88dvh; display: flex; flex-direction: column;
+  border-top: 3px solid var(--status-color, var(--status-color));
+  height: 78dvh; display: flex; flex-direction: column;
   overflow: hidden; pointer-events: all;
   animation: slide-up 0.32s cubic-bezier(0.32,0.72,0,1) forwards;
   background: #0e0e0e;
 }
 @keyframes slide-up { from { transform: translateY(100%); } to { transform: translateY(0); } }
 
-.handle { width: 36px; height: 4px; background: #F5C518; border-radius: 100px; margin: 12px auto 0; flex-shrink: 0; cursor: pointer; }
+.handle { width: 36px; height: 4px; background: var(--status-color); border-radius: 100px; margin: 12px auto 0; flex-shrink: 0; cursor: pointer; }
 
 .scrollContent {
   flex: 1; overflow: hidden; display: flex; flex-direction: column;
@@ -23,18 +23,19 @@
 .card { display: flex; flex-direction: column; flex: 1; min-height: 0; gap: 6px; }
 
 /* Category header */
-.categoryHeader { display: flex; align-items: center; gap: 10px; padding: 8px 4px 2px; }
+.categoryHeader { display: flex; align-items: flex-start; gap: 10px; padding: 8px 4px 2px; }
+.categoryHeaderInner { display: flex; flex-direction: column; gap: 2px; }
 .categoryEmoji { font-size: 26px; line-height: 1; }
-.categoryLabel { display: block; font-size: 17px; font-weight: 800; color: #F5C518; line-height: 1.1; }
+.categoryLabel { display: block; font-size: 17px; font-weight: 800; color: var(--status-color); line-height: 1.1; }
 .categorySlogan { display: block; font-size: 11px; color: rgba(255,255,255,0.45); font-weight: 500; margin-top: 1px; }
 
 /* Photo banner */
-.photoBanner { position: relative; width: calc(100% - 16px); margin: 4px auto 0; flex: 1; min-height: 0; border-radius: 14px; overflow: hidden; border: 2px solid #F5C518; }
+.photoBanner { position: relative; width: calc(100% - 16px); margin: 4px auto 0; flex: 1; min-height: 0; border-radius: 14px; overflow: hidden; border: 2px solid var(--status-color); }
 .photoBannerImg { width: 100%; height: 100%; object-fit: cover; object-position: center top; display: block; animation: photo-fade 0.25s ease; }
 @keyframes photo-fade { from { opacity: 0.5; transform: scale(1.03); } to { opacity: 1; transform: scale(1); } }
 .photoBanner::after { content: ''; position: absolute; inset: 0; background: linear-gradient(to bottom, transparent 45%, rgba(0,0,0,0.75) 100%); pointer-events: none; }
 .photoBannerMeta { position: absolute; bottom: 10px; left: 12px; z-index: 2; display: flex; flex-direction: column; align-items: flex-start; gap: 2px; }
-.verifiedBadge { display: flex; align-items: center; gap: 4px; background: rgba(0,0,0,0.45); backdrop-filter: blur(6px); border: 1px solid rgba(245,197,24,0.5); border-radius: 100px; padding: 3px 8px 3px 6px; margin-bottom: 2px; }
+.verifiedBadge { position: absolute; top: 10px; left: 10px; z-index: 2; display: flex; align-items: center; gap: 4px; background: rgba(0,0,0,0.45); backdrop-filter: blur(6px); border: 1px solid rgba(245,197,24,0.6); border-radius: 100px; padding: 3px 8px 3px 6px; }
 .verifiedText { font-size: 10px; font-weight: 800; color: #F5C518; letter-spacing: 0.06em; }
 .photoBannerName { font-size: 18px; font-weight: 800; color: #fff; line-height: 1.1; text-shadow: 0 1px 4px rgba(0,0,0,0.8); display: flex; align-items: center; gap: 2px; }
 .photoBannerAge { font-weight: 600; }
@@ -43,12 +44,12 @@
 
 /* Live dot */
 .liveDot { display: inline-block; width: 8px; height: 8px; background: #8DC63F; border-radius: 50%; margin-left: 6px; box-shadow: 0 0 6px #8DC63F; vertical-align: middle; animation: live-dot-flash 1.4s ease-in-out infinite; flex-shrink: 0; }
-.liveDotInvite { background: #F5C518; box-shadow: 0 0 6px #F5C518; }
+.liveDotInvite { background: var(--status-color); box-shadow: 0 0 6px var(--status-color); }
 .liveDotLater  { background: #E8890C; box-shadow: 0 0 6px #E8890C; }
 @keyframes live-dot-flash { 0%,100% { opacity:1; transform:scale(1); } 50% { opacity:0.35; transform:scale(0.7); } }
 
 /* Buttons on photo */
-.fingerprintBtn { position: absolute; bottom: 10px; right: 10px; z-index: 3; width: 34px; height: 34px; border-radius: 50%; background: rgba(0,0,0,0.4); backdrop-filter: blur(6px); border: 1.5px solid rgba(255,255,255,0.18); display: flex; align-items: center; justify-content: center; cursor: pointer; -webkit-tap-highlight-color: transparent; }
+.fingerprintBtn { position: absolute; bottom: 10px; right: 10px; z-index: 3; width: 48px; height: 48px; border-radius: 50%; background: rgba(0,0,0,0.4); backdrop-filter: blur(6px); border: 1.5px solid rgba(255,255,255,0.18); display: flex; align-items: center; justify-content: center; cursor: pointer; -webkit-tap-highlight-color: transparent; }
 .likeBtn { position: absolute; top: 10px; right: 10px; z-index: 3; width: 36px; height: 36px; border-radius: 50%; background: rgba(0,0,0,0.4); backdrop-filter: blur(6px); border: 1.5px solid rgba(255,255,255,0.18); display: flex; align-items: center; justify-content: center; cursor: pointer; transition: background 0.15s; -webkit-tap-highlight-color: transparent; }
 .likeBtnActive { background: #e0314b; border-color: #e0314b; }
 .floatingHeart { position: absolute; z-index: 10; animation: float-up 1.8s ease-out forwards; pointer-events: none; }
@@ -71,7 +72,10 @@
 
 /* Connect button */
 .actions { padding: 8px 4px 0; }
-.connectBtn { width: 100%; padding: 14px; border-radius: 14px; background: #F5C518; border: none; color: #000; font-size: 16px; font-weight: 800; font-family: inherit; cursor: pointer; display: flex; flex-direction: column; align-items: center; gap: 2px; transition: opacity 0.15s; -webkit-tap-highlight-color: transparent; }
+.unlockBtn { width: 100%; padding: 14px; border-radius: 14px; background: #8DC63F; border: none; color: #000; font-size: 16px; font-weight: 800; font-family: inherit; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; -webkit-tap-highlight-color: transparent; transition: opacity 0.15s; }
+.unlockBtn:active { opacity: 0.85; }
+.unlockBtnInactive { width: 100%; padding: 14px; border-radius: 14px; background: rgba(255,255,255,0.06); border: 1.5px solid rgba(255,255,255,0.12); color: rgba(255,255,255,0.35); font-size: 15px; font-weight: 700; font-family: inherit; cursor: default; display: flex; align-items: center; justify-content: center; gap: 8px; }
+.connectBtn { width: 100%; padding: 14px; border-radius: 14px; background: var(--status-color); border: none; color: #000; font-size: 16px; font-weight: 800; font-family: inherit; cursor: pointer; display: flex; flex-direction: column; align-items: center; gap: 2px; transition: opacity 0.15s; -webkit-tap-highlight-color: transparent; }
 .connectBtn:disabled { opacity: 0.5; cursor: default; }
 .connectBtnSent { background: #1a1a1a; border: 1.5px solid rgba(255,255,255,0.12); color: #fff; }
 .btnFlashOut    { font-size: 10px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: #000; animation: flash-badge 1.2s ease-in-out infinite; }
@@ -80,16 +84,35 @@
 @keyframes flash-badge { 0%,100% { opacity:1; } 50% { opacity:0.3; } }
 
 /* ── Bio overlay (page 2) ── */
-.bioOverlay { position: absolute; inset: 0; z-index: 20; display: flex; flex-direction: column; background: #0e0e0e; }
-.bioHandle { position: absolute; top: 10px; left: 50%; transform: translateX(-50%); width: 36px; height: 4px; border-radius: 2px; background: #F5C518; z-index: 30; cursor: pointer; -webkit-tap-highlight-color: transparent; }
+.bioOverlay { position: absolute; inset: 0; z-index: 20; display: flex; flex-direction: column; background: #0e0e0e; border-radius: 20px 20px 0 0; overflow: hidden; }
+.bioHandle { position: absolute; top: 10px; left: 50%; transform: translateX(-50%); width: 36px; height: 4px; border-radius: 2px; background: var(--status-color); z-index: 30; cursor: pointer; -webkit-tap-highlight-color: transparent; }
 .bioFullImg { position: absolute; inset: 0; z-index: 1; }
 .bioFullImgEl { width: 100%; height: 100%; object-fit: cover; object-position: center top; display: block; }
 .bioImgGradient { position: absolute; bottom: 0; left: 0; right: 0; height: 65%; background: linear-gradient(to bottom, transparent, rgba(0,0,0,0.98)); pointer-events: none; }
 .bioBackBtn { position: absolute; top: 14px; right: 14px; z-index: 2; width: 34px; height: 34px; border-radius: 50%; background: rgba(0,0,0,0.4); backdrop-filter: blur(6px); border: 1.5px solid rgba(255,255,255,0.2); display: flex; align-items: center; justify-content: center; color: #fff; cursor: pointer; -webkit-tap-highlight-color: transparent; }
-.bioBrandLabel { position: absolute; top: 14px; left: 14px; z-index: 2; display: flex; flex-direction: column; gap: 1px; background: rgba(0,0,0,0.45); backdrop-filter: blur(6px); border: 1px solid rgba(245,197,24,0.35); border-radius: 10px; padding: 5px 10px; }
+.socialPageGlossyBtn { position: absolute; top: 14px; right: 14px; z-index: 2; width: 104px; height: 104px; background: none; border: none; padding: 0; cursor: pointer; -webkit-tap-highlight-color: transparent; filter: drop-shadow(0 0 12px rgba(255,255,255,0.7)) drop-shadow(0 0 24px rgba(255,255,255,0.4)); animation: glossy-heartbeat 1.6s ease-in-out infinite; }
+.socialPageGlossyBtn:active { animation: none; transform: scale(0.92); }
+@keyframes glossy-heartbeat {
+  0%, 100% { transform: scale(1); }
+  14%       { transform: scale(1.12); }
+  28%       { transform: scale(1); }
+  42%       { transform: scale(1.08); }
+  56%       { transform: scale(1); }
+}
+.socialPageGlossyImg { width: 100%; height: 100%; object-fit: contain; }
+.bioBrandLabel { position: absolute; top: 14px; left: 14px; z-index: 2; display: flex; flex-direction: column; gap: 1px; background: rgba(0,0,0,0.45); backdrop-filter: blur(6px); border: 1px solid color-mix(in srgb, var(--status-color) 35%, transparent); border-radius: 10px; padding: 5px 10px; }
 .bioBrandKey { font-size: 9px; font-weight: 700; color: rgba(255,255,255,0.45); text-transform: uppercase; letter-spacing: 0.08em; }
-.bioBrandValue { font-size: 13px; font-weight: 800; color: #F5C518; line-height: 1.1; }
+.bioBrandValue { font-size: 13px; font-weight: 800; color: var(--status-color); line-height: 1.1; }
 .bioBody { position: absolute; bottom: 0; left: 0; right: 0; z-index: 2; padding: 16px 20px calc(env(safe-area-inset-bottom,0px) + 16px); display: flex; flex-direction: column; gap: 10px; }
+/* Social Media page — flex column, content-driven height */
+.socialInfoPage { position: absolute; inset: 0; z-index: 20; display: flex; flex-direction: column; border-radius: 20px 20px 0 0; overflow: hidden; }
+.socialInfoBanner { position: absolute; inset: 0; z-index: 0; }
+.socialInfoBannerImg { width: 100%; height: 100%; object-fit: cover; object-position: center top; display: block; }
+.socialInfoBannerGrad { position: absolute; inset: 0; background: rgba(0,0,0,0.45); pointer-events: none; }
+.socialInfoContent { position: relative; z-index: 1; flex: 1; padding: 10px 20px 8px; display: flex; flex-direction: column; gap: 8px; justify-content: flex-end; }
+.socialInfoBackWrap { position: relative; z-index: 1; flex-shrink: 0; padding: 10px 20px calc(env(safe-area-inset-bottom,0px) + 14px); }
+.socialInfoBack { display: block; width: 100%; padding: 14px; background: #8DC63F; border: none; border-radius: 14px; color: #000; font-size: 15px; font-weight: 800; font-family: inherit; cursor: pointer; text-align: center; -webkit-tap-highlight-color: transparent; transition: opacity 0.12s; }
+.socialInfoBack:active { opacity: 0.85; }
 .bioBodyText { font-size: 14px; color: rgba(255,255,255,0.88); line-height: 1.6; margin: 0; }
 
 /* Thumbnail strip */
@@ -99,8 +122,33 @@
 .thumbList { display: flex; gap: 6px; flex: 1; overflow-x: auto; scrollbar-width: none; }
 .thumbList::-webkit-scrollbar { display: none; }
 .thumb { width: 44px; height: 44px; border-radius: 8px; overflow: hidden; border: 2px solid rgba(255,255,255,0.15); flex-shrink: 0; padding: 0; cursor: pointer; background: none; -webkit-tap-highlight-color: transparent; }
-.thumbActive { border-color: #F5C518; }
+.thumbActive { border-color: var(--status-color); }
 .thumbImg { width: 100%; height: 100%; object-fit: cover; }
+.thumbInfo { border-color: rgba(141,198,63,0.45); }
+
+/* Social media page */
+.bioBodyTitle { font-size: 17px; font-weight: 900; color: #fff; margin: 0 0 4px; }
+.socialPageHeader { display: flex; align-items: center; gap: 8px; padding-bottom: 10px; border-bottom: 1px solid rgba(255,255,255,0.07); }
+.socialPageTitle { font-size: 18px; font-weight: 900; color: #fff; margin: 0; }
+.socialPageSub { font-size: 12px; color: rgba(255,255,255,0.75); margin: 3px 0 0; font-weight: 500; line-height: 1.4; }
+.socialPageBadge { font-size: 10px; font-weight: 800; color: #000; background: #8DC63F; border-radius: 20px; padding: 2px 8px; letter-spacing: 0.04em; }
+.socialPageLinks { display: flex; flex-direction: column; gap: 8px; }
+.socialPageRow { display: flex; align-items: center; gap: 12px; padding: 9px 12px; border-radius: 12px; background: rgba(255,255,255,0.08); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); border: 1px solid rgba(255,255,255,0.12); text-decoration: none; -webkit-tap-highlight-color: transparent; transition: background 0.12s; }
+.socialPageRow:active { background: rgba(255,255,255,0.14); }
+.socialPageRowIcon { width: 36px; height: 36px; border-radius: 9px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+.socialPageRowInfo { display: flex; flex-direction: column; gap: 2px; flex: 1; min-width: 0; }
+.socialPageRowPlatform { font-size: 10px; font-weight: 700; color: rgba(255,255,255,0.35); text-transform: uppercase; letter-spacing: 0.06em; }
+.socialPageRowHandle { font-size: 14px; font-weight: 700; color: #fff; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.socialPageArrow { color: rgba(255,255,255,0.25); flex-shrink: 0; }
+.socialPageLocked { display: flex; flex-direction: column; align-items: center; gap: 8px; padding: 24px 16px; background: rgba(255,255,255,0.03); border-radius: 16px; border: 1px solid rgba(255,255,255,0.07); text-align: center; }
+.socialPageLockedIcon { font-size: 32px; }
+.socialPageLockedText { font-size: 14px; font-weight: 700; color: rgba(255,255,255,0.5); margin: 0; }
+.socialPageLockedSub { font-size: 12px; color: rgba(255,255,255,0.3); margin: 0; line-height: 1.5; }
+.infoPageRow { display: flex; align-items: center; gap: 12px; padding: 10px 0; border-bottom: 1px solid rgba(255,255,255,0.06); }
+.infoPageEmoji { font-size: 20px; flex-shrink: 0; width: 32px; text-align: center; }
+.infoPageMeta { display: flex; flex-direction: column; gap: 2px; }
+.infoPageLabel { font-size: 10px; font-weight: 700; color: rgba(255,255,255,0.3); text-transform: uppercase; letter-spacing: 0.06em; }
+.infoPageValue { font-size: 14px; font-weight: 700; color: #fff; }
 
 /* Meta rows */
 .bioMeta { display: flex; align-items: center; justify-content: center; gap: 6px; width: 100%; }
@@ -110,5 +158,50 @@
 
 /* Nav buttons */
 .bioNavRow { display: flex; gap: 10px; }
-.bioNavBtn { flex: 1; padding: 12px; background: #F5C518; border: none; border-radius: 100px; color: #000; font-size: 14px; font-weight: 800; font-family: inherit; cursor: pointer; transition: opacity 0.15s; -webkit-tap-highlight-color: transparent; }
+.bioNavBtn { flex: 1; padding: 12px; background: var(--status-color); border: none; border-radius: 100px; color: #000; font-size: 14px; font-weight: 800; font-family: inherit; cursor: pointer; transition: opacity 0.15s; -webkit-tap-highlight-color: transparent; }
 .bioNavBtn:disabled { opacity: 0.25; cursor: default; }
+
+/* Share button — top right of photo banner */
+.shareRow { display: none; }
+.shareBtn { position: absolute; top: 10px; right: 52px; z-index: 3; width: 34px; height: 34px; border-radius: 50%; background: rgba(0,0,0,0.45); backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px); border: 1.5px solid rgba(255,255,255,0.2); display: flex; align-items: center; justify-content: center; color: #fff; cursor: pointer; -webkit-tap-highlight-color: transparent; transition: background 0.12s; padding: 0; }
+.shareBtn:active { background: rgba(0,0,0,0.7); }
+
+/* Share popup */
+.sharePopupOverlay { position: absolute; inset: 0; z-index: 30; background: rgba(0,0,0,0.55); display: flex; align-items: flex-end; }
+.sharePopup { width: 100%; background: #161616; border-radius: 20px 20px 0 0; border-top: 2px solid rgba(255,255,255,0.08); padding: 0 20px calc(env(safe-area-inset-bottom,0px) + 20px); display: flex; flex-direction: column; gap: 16px; animation: slide-up 0.25s cubic-bezier(0.32,0.72,0,1) forwards; }
+@keyframes slide-up { from { transform: translateY(100%) } to { transform: translateY(0) } }
+.sharePopupHandle { width: 36px; height: 4px; background: rgba(255,255,255,0.2); border-radius: 2px; margin: 12px auto 0; cursor: pointer; }
+.sharePopupTitle { font-size: 17px; font-weight: 900; color: #fff; margin: 0; text-align: center; }
+.sharePopupSub { font-size: 12px; color: rgba(255,255,255,0.35); margin: -10px 0 0; text-align: center; }
+.shareGrid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; padding-bottom: 4px; }
+.sharePlatform { display: flex; flex-direction: column; align-items: center; gap: 7px; background: none; border: none; cursor: pointer; -webkit-tap-highlight-color: transparent; text-decoration: none; padding: 0; }
+.sharePlatformIcon { width: 52px; height: 52px; border-radius: 16px; display: flex; align-items: center; justify-content: center; transition: transform 0.1s; }
+.sharePlatform:active .sharePlatformIcon { transform: scale(0.92); }
+.sharePlatformLabel { font-size: 11px; font-weight: 600; color: rgba(255,255,255,0.6); text-align: center; }
+
+/* Social button on photo banner */
+.socialBtn { position: absolute; bottom: 52px; right: 10px; z-index: 3; width: 34px; height: 34px; border-radius: 50%; background: rgba(0,0,0,0.4); backdrop-filter: blur(6px); border: 1.5px solid var(--status-color); display: flex; align-items: center; justify-content: center; cursor: pointer; -webkit-tap-highlight-color: transparent; }
+
+/* ── Social overlay (page 2b) ── */
+.socialOverlay { position: absolute; inset: 0; z-index: 20; display: flex; flex-direction: column; background: #0e0e0e; }
+
+/* Verified banner inside photo area */
+.socialVerifiedBanner { position: absolute; bottom: 14px; left: 14px; z-index: 2; display: flex; align-items: center; gap: 8px; background: rgba(0,0,0,0.55); backdrop-filter: blur(8px); border: 1px solid rgba(245,197,24,0.5); border-radius: 12px; padding: 8px 12px; }
+.socialVerifiedText { display: flex; flex-direction: column; gap: 1px; }
+.socialVerifiedTitle { font-size: 12px; font-weight: 800; color: #F5C518; line-height: 1.1; }
+.socialVerifiedSub { font-size: 10px; font-weight: 500; color: rgba(255,255,255,0.55); line-height: 1.1; }
+
+/* Social body */
+.socialBody { position: absolute; bottom: 0; left: 0; right: 0; z-index: 2; padding: 16px 20px calc(env(safe-area-inset-bottom,0px) + 20px); display: flex; flex-direction: column; gap: 8px; }
+.socialBodyTitle { font-size: 13px; font-weight: 800; color: rgba(255,255,255,0.35); text-transform: uppercase; letter-spacing: 0.08em; margin: 0 0 4px; }
+
+/* Platform rows */
+.socialRow { display: flex; align-items: center; gap: 12px; background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.09); border-radius: 14px; padding: 12px 14px; text-decoration: none; -webkit-tap-highlight-color: transparent; transition: background 0.12s; }
+.socialRow:active { background: rgba(255,255,255,0.1); }
+.socialRowIcon { font-size: 20px; line-height: 1; flex-shrink: 0; }
+.socialRowInfo { display: flex; flex-direction: column; gap: 1px; flex: 1; min-width: 0; }
+.socialRowPlatform { font-size: 11px; font-weight: 700; color: rgba(255,255,255,0.4); text-transform: uppercase; letter-spacing: 0.06em; }
+.socialRowHandle { font-size: 14px; font-weight: 700; color: #fff; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.socialRowArrow { color: rgba(255,255,255,0.3); flex-shrink: 0; }
+
+.socialEmpty { font-size: 13px; color: rgba(255,255,255,0.3); text-align: center; margin: 16px 0; }

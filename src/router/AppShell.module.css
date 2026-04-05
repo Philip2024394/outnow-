@@ -6,6 +6,16 @@
   background: var(--color-bg);
 }
 
+.mapWrap {
+  position: absolute;
+  inset: 0;
+  transition: filter 0.3s ease;
+}
+.mapWrapBlurred {
+  filter: blur(12px) saturate(0.4);
+  transform: scale(1.05); /* hides blur edge artefacts */
+}
+
 .loading,
 .error {
   position: fixed;

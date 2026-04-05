@@ -12,6 +12,41 @@
   align-items: center;
 }
 
+/* ── Category toggle ── */
+.categoryToggle {
+  display: flex;
+  gap: 6px;
+  margin-bottom: 10px;
+  pointer-events: all;
+}
+
+.catBtn {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  padding: 5px 14px;
+  border-radius: 100px;
+  border: 1.5px solid rgba(255,255,255,0.15);
+  background: rgba(255,255,255,0.06);
+  color: rgba(255,255,255,0.45);
+  cursor: pointer;
+  font-family: inherit;
+  transition: all 0.15s;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.catBtnActive {
+  background: rgba(255,255,255,0.12);
+  border-color: rgba(255,255,255,0.35);
+  color: #fff;
+}
+
+.catBtnMaker {
+  background: rgba(141,198,63,0.15);
+  border-color: #8DC63F;
+  color: #8DC63F;
+}
+
 /* ── 3 circle buttons ── */
 .discRow {
   display: flex;

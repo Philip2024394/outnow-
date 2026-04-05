@@ -1,0 +1,118 @@
+.wrap {
+  position: absolute;
+  top: calc(var(--safe-top) + var(--space-3) + 36px + 28px + var(--space-3) + 6px - 40px);
+  left: 16px;
+  right: 16px;
+  z-index: var(--z-header);
+}
+
+.bar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: rgba(12, 12, 12, 0.88);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 14px;
+  padding: 10px 14px;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.5);
+}
+
+.icon {
+  color: rgba(255,255,255,0.35);
+  flex-shrink: 0;
+}
+
+.input {
+  flex: 1;
+  background: none;
+  border: none;
+  outline: none;
+  color: #fff;
+  font-size: 14px;
+  font-family: var(--font-sans);
+  caret-color: #8DC63F;
+}
+
+.input::placeholder {
+  color: rgba(255,255,255,0.28);
+}
+
+.clear {
+  background: rgba(255,255,255,0.1);
+  border: none;
+  border-radius: 50%;
+  width: 20px;
+  height: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: rgba(255,255,255,0.5);
+  cursor: pointer;
+  flex-shrink: 0;
+  padding: 0;
+}
+
+/* Country filter button */
+.filterBtn {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  border: 1.5px solid rgba(255,255,255,0.15);
+  background: rgba(255,255,255,0.06);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  flex-shrink: 0;
+  color: rgba(255,255,255,0.5);
+  padding: 0;
+  transition: border-color 0.15s, background 0.15s;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.filterBtn:active {
+  background: rgba(255,255,255,0.12);
+}
+
+.filterFlag {
+  font-size: 18px;
+  line-height: 1;
+}
+
+/* Active city filter pill */
+.cityPill {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  margin-top: 8px;
+  background: rgba(141,198,63,0.12);
+  border: 1px solid rgba(141,198,63,0.35);
+  border-radius: 100px;
+  padding: 5px 10px 5px 8px;
+}
+
+.cityPillIcon {
+  font-size: 12px;
+}
+
+.cityPillText {
+  font-size: 12px;
+  font-weight: 700;
+  color: #8DC63F;
+  letter-spacing: 0.02em;
+}
+
+.cityPillClear {
+  background: none;
+  border: none;
+  color: rgba(141,198,63,0.6);
+  cursor: pointer;
+  font-size: 15px;
+  line-height: 1;
+  padding: 0;
+  margin-left: 2px;
+  display: flex;
+  align-items: center;
+}

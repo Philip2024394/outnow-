@@ -2,7 +2,7 @@ import { supabase } from '@/lib/supabase'
 
 const delay = (ms) => new Promise(r => setTimeout(r, ms))
 
-export async function goLive({ lat, lng, placeId, placeName, venueCategory, activityType, activities, isGroup, groupSize, vibe, area }) {
+export async function goLive({ lat, lng, placeId, placeName, venueCategory, activityType, activities, isGroup, groupSize, vibe, area, tier }) {
   if (!supabase) {
     await delay(1200)
     return { sessionId: `demo-my-session-${Date.now()}` }
@@ -22,6 +22,9 @@ export async function goLive({ lat, lng, placeId, placeName, venueCategory, acti
     p_area:           area ?? null,
   })
   if (error) throw new Error(error.message)
+  if (tier === 'business') {
+    await supabase.from('sessions').update({ international: true }).eq('id', data)
+  }
   return { sessionId: data }
 }
 
@@ -40,7 +43,7 @@ export async function confirmCheckIn(sessionId) {
   if (error) throw new Error(error.message)
 }
 
-export async function scheduleLive({ lat, lng, placeId, placeName, venueCategory, activityType, activities, durationMinutes, socialLink, scheduledFor, vibe }) {
+export async function scheduleLive({ lat, lng, placeId, placeName, venueCategory, activityType, activities, durationMinutes, socialLink, scheduledFor, vibe, tier }) {
   if (!supabase) {
     await delay(800)
     return { sessionId: `demo-my-scheduled-${Date.now()}`, scheduledFor }
@@ -59,6 +62,9 @@ export async function scheduleLive({ lat, lng, placeId, placeName, venueCategory
     p_vibe:           vibe ?? null,
   })
   if (error) throw new Error(error.message)
+  if (tier === 'business') {
+    await supabase.from('sessions').update({ international: true }).eq('id', data)
+  }
   return { sessionId: data, scheduledFor }
 }
 
@@ -67,7 +73,7 @@ export async function cancelScheduled(sessionId) {
   await endSession(sessionId)
 }
 
-export async function postInviteOut({ activityType, message } = {}) {
+export async function postInviteOut({ activityType, message, tier } = {}) {
   if (!supabase) {
     await delay(400)
     return { sessionId: `demo-my-invite-${Date.now()}` }
@@ -77,5 +83,8 @@ export async function postInviteOut({ activityType, message } = {}) {
     p_message:       message ?? '',
   })
   if (error) throw new Error(error.message)
+  if (tier === 'business') {
+    await supabase.from('sessions').update({ international: true }).eq('id', data)
+  }
   return { sessionId: data }
 }

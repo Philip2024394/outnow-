@@ -3,7 +3,10 @@ import { MapContainer, TileLayer, useMap, useMapEvents } from 'react-leaflet'
 import { divIcon, marker } from 'leaflet'
 import L from 'leaflet'
 import 'leaflet/dist/leaflet.css'
-import { activityImage } from '@/firebase/collections'
+import { activityImage, ACTIVITY_TYPES } from '@/firebase/collections'
+
+const MAKER_CRAFT_IMG = 'https://ik.imagekit.io/nepgaxllc/UntitledsdfasdfdddfsdfsdzxcZXcxxx.png'
+const MAKER_CATEGORIES = ['handmade', 'craft_supplies', 'property', 'professional']
 import { DEMO_CENTER } from './mockData'
 import { spreadMarkers } from '@/utils/spreadMarkers'
 import styles from './DemoMapView.module.css'
@@ -39,16 +42,16 @@ function LiveMarkers({ sessions, onSelect }) {
       const isScheduled  = session.status === 'scheduled'
       const isInviteOut  = session.status === 'invite_out'
       const scheduledLabel = isScheduled ? formatScheduledTime(session.scheduledFor) : ''
-      const tier = session.tier ?? null
       const actImg = activityImage(session.activityType)
-      const avatarInner = (tier && session.photoURL)
+      const activityCategory = ACTIVITY_TYPES.find(a => a.id === session.activityType)?.category
+      const isMaker = MAKER_CATEGORIES.includes(session.lookingFor) || activityCategory === 'handmade'
+      const avatarInner = session.photoURL
         ? `<img src="${session.photoURL}" class="demo-marker__photo" alt="" />`
+        : isMaker
+        ? `<img src="${MAKER_CRAFT_IMG}" class="demo-marker__photo" alt="" />`
         : actImg
         ? `<img src="${actImg}" class="demo-marker__activity-img" alt="" />`
         : initial
-      const tierClass = tier ? ` demo-marker--${tier}` : ''
-      const avatarTierClass = tier ? ` demo-marker__avatar--${tier}` : ''
-      const crownHtml = tier === 'vip' ? `<div class="demo-marker__crown">👑</div>` : ''
       const isReplied = !!session.hasReplied
 
       // Status dot — color by mode, pulsing, no dot for offline
@@ -62,33 +65,32 @@ function LiveMarkers({ sessions, onSelect }) {
       const icon = divIcon({
         className: '',
         html: isReplied
-          ? `<div class="demo-marker demo-marker--replied${tierClass}">
+          ? `<div class="demo-marker demo-marker--replied">
                <div class="demo-marker__reply-badge">💌</div>
                <div class="demo-marker__pulse demo-marker__pulse--slow"></div>
-               <div class="demo-marker__avatar${avatarTierClass}">${avatarInner}</div>
+               <div class="demo-marker__avatar">${avatarInner}</div>
                ${statusDot}
              </div>`
           : isScheduled
-          ? `<div class="demo-marker demo-marker--scheduled${tierClass}">
+          ? `<div class="demo-marker demo-marker--scheduled">
                <div class="demo-marker__clock">🕐</div>
-               <div class="demo-marker__avatar demo-marker__avatar--scheduled${avatarTierClass}">${avatarInner}</div>
+               <div class="demo-marker__avatar demo-marker__avatar--scheduled">${avatarInner}</div>
                ${statusDot}
                <div class="demo-marker__time-label">${scheduledLabel}</div>
              </div>`
           : isInviteOut
-          ? `<div class="demo-marker demo-marker--invite${tierClass}">
-               <div class="demo-marker__avatar demo-marker__avatar--invite${avatarTierClass}">${avatarInner}</div>
+          ? `<div class="demo-marker demo-marker--invite">
+               <div class="demo-marker__avatar demo-marker__avatar--invite">${avatarInner}</div>
                ${statusDot}
              </div>`
-          : `<div class="demo-marker${tierClass}">
-               ${crownHtml}
+          : `<div class="demo-marker">
                <div class="demo-marker__pulse"></div>
                <div class="demo-marker__pulse demo-marker__pulse--slow"></div>
-               <div class="demo-marker__avatar${avatarTierClass}">${avatarInner}</div>
+               <div class="demo-marker__avatar">${avatarInner}</div>
                ${statusDot}
              </div>`,
-        iconSize: [52, 68],
-        iconAnchor: [26, 26],
+        iconSize: [80, 100],
+        iconAnchor: [40, 50],
       })
 
       const m = marker([session.lat, session.lng], { icon })

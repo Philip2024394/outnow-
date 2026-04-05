@@ -1,5 +1,6 @@
 import { useState, useCallback, useMemo } from 'react'
 import { useGeolocation } from '@/hooks/useGeolocation'
+import { useAuth } from '@/hooks/useAuth'
 import { goLive, scheduleLive } from '@/services/sessionService'
 import BottomSheet from '@/components/ui/BottomSheet'
 import Button from '@/components/ui/Button'
@@ -51,6 +52,7 @@ function buildSelectedTime(day, hour12, minute, ampm) {
 }
 
 export default function GoLiveSheet({ open, onClose, showToast, activeVenues = [] }) {
+  const { userProfile } = useAuth()
   const { coords } = useGeolocation()
   const [mode, setMode] = useState('now') // 'now' | 'later'
   const [selectedPlace, setSelectedPlace] = useState(null)
@@ -104,6 +106,7 @@ export default function GoLiveSheet({ open, onClose, showToast, activeVenues = [
         vibe: selectedVibe,
         isGroup: isGroup || null,
         groupSize: isGroup ? groupSize : null,
+        tier: userProfile?.tier ?? null,
       }
       if (mode === 'later') {
         await scheduleLive({ ...payload, scheduledFor: selectedTime.getTime() })

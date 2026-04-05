@@ -1,5 +1,6 @@
 import { OverlayViewF } from '@react-google-maps/api'
 import { activityEmoji, ACTIVITY_TYPES } from '@/firebase/collections'
+import { formatCountdown } from '@/utils/formatCountdown'
 
 /**
  * Custom map marker rendered as a React component via OverlayView.
@@ -18,6 +19,10 @@ export default function LiveUserMarker({ session, isMutual, onClick }) {
   const activityCategory = ACTIVITY_TYPES.find(a => a.id === session.activityType)?.category
   const isMaker = MAKER_CATEGORIES.includes(session.lookingFor) || activityCategory === 'handmade'
 
+  const MAKER_DEFAULT_IMG = 'https://ik.imagekit.io/nepgaxllc/UntitledsdfasdfdddfsdfsdzxcZXcxxx.png'
+  const avatarSrc = session.photoURL || (isMaker ? MAKER_DEFAULT_IMG : null)
+  const countdown = session.status === 'active' ? formatCountdown(session.expiresAtMs) : null
+
   return (
     <OverlayViewF
       position={position}
@@ -33,21 +38,16 @@ export default function LiveUserMarker({ session, isMutual, onClick }) {
         <div className="live-marker__pulse" />
         <div className="live-marker__pulse-slow" />
         <div className="live-marker__avatar">
-          {session.photoURL ? (
-            <img src={session.photoURL} alt={session.displayName ?? 'User'} />
-          ) : isMaker ? (
-            <div className="live-marker__avatar--maker">
-              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round">
-                <path d="M20.24 12.24a6 6 0 0 0-8.49-8.49L5 10.5V19h8.5z"/>
-                <line x1="16" y1="8" x2="2" y2="22"/>
-                <line x1="17.5" y1="15" x2="9" y2="15"/>
-              </svg>
-            </div>
+          {avatarSrc ? (
+            <img src={avatarSrc} alt={session.displayName ?? 'User'} />
           ) : (
             <div className="live-marker__avatar--fallback">{initial}</div>
           )}
         </div>
         <div className="live-marker__activity">{emoji}</div>
+        {countdown && (
+          <div className="live-marker__countdown">{countdown}</div>
+        )}
       </div>
     </OverlayViewF>
   )

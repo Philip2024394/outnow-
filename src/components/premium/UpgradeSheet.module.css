@@ -225,6 +225,140 @@
   margin: 8px 0 16px;
 }
 
+/* View toggle (maker) */
+.viewToggle {
+  display: flex;
+  background: rgba(255,255,255,0.05);
+  border-radius: 10px;
+  padding: 3px;
+  margin-bottom: 18px;
+  gap: 3px;
+}
+
+.toggleBtn {
+  flex: 1;
+  padding: 9px;
+  background: none;
+  border: none;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 600;
+  color: rgba(255,255,255,0.45);
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s;
+}
+
+.toggleBtnActive {
+  background: #F5C518;
+  color: #000;
+  font-weight: 800;
+}
+
+/* Highlight banner (maker) */
+.highlightBanner {
+  background: rgba(245,197,24,0.1);
+  border: 1px solid rgba(245,197,24,0.3);
+  border-radius: 10px;
+  padding: 10px 14px;
+  font-size: 13px;
+  font-weight: 700;
+  color: #F5C518;
+  text-align: center;
+  margin-bottom: 14px;
+}
+
+/* Unlock packs (maker) */
+.unlockIntro {
+  font-size: 13px;
+  color: rgba(255,255,255,0.45);
+  text-align: center;
+  margin: 0 0 16px;
+  line-height: 1.5;
+}
+
+.packList {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-bottom: 18px;
+}
+
+.packCard {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: rgba(255,255,255,0.04);
+  border: 1.5px solid rgba(255,255,255,0.1);
+  border-radius: 12px;
+  padding: 14px 16px;
+  cursor: pointer;
+  transition: border-color 0.15s;
+  width: 100%;
+}
+
+.packCardActive {
+  border-color: #F5C518;
+  background: rgba(245,197,24,0.06);
+}
+
+.packInfo {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 3px;
+}
+
+.packLabel {
+  font-size: 14px;
+  font-weight: 700;
+  color: #fff;
+}
+
+.packEach {
+  font-size: 11px;
+  color: rgba(255,255,255,0.4);
+}
+
+.packRight {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 3px;
+}
+
+.packSave {
+  font-size: 11px;
+  font-weight: 700;
+  color: #F5C518;
+}
+
+.packPrice {
+  font-size: 16px;
+  font-weight: 800;
+  color: #fff;
+}
+
+/* Unlock note link */
+.unlockNote {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  font-size: 12px;
+  color: rgba(255,255,255,0.35);
+  margin-top: 4px;
+}
+
+.unlockNoteBtn {
+  background: none;
+  border: none;
+  color: rgba(245,197,24,0.8);
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  padding: 0;
+}
+
 /* Lifetime option */
 .lifetimeBtn {
   width: 100%;

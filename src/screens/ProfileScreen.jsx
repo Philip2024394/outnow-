@@ -7,6 +7,7 @@ import { LOOKING_FOR_OPTIONS, LANGUAGE_FLAGS } from '@/utils/lookingForLabels'
 import Toast from '@/components/ui/Toast'
 import { saveProfile, uploadAvatar, uploadGalleryPhoto } from '@/services/profileService'
 import GoOutSetup from './GoOutSetup'
+import UpgradeSheet from '@/components/premium/UpgradeSheet'
 import { clearPhotoViewCount } from '@/services/photoNudgeService'
 import styles from './ProfileScreen.module.css'
 
@@ -260,12 +261,29 @@ export default function ProfileScreen({ onClose, onOpenSettings }) {
   const [priceMax,      setPriceMax]      = useState(userProfile?.priceMax ?? '')
   const [market,        setMarket]        = useState(userProfile?.market ?? '')
   const [brandName,     setBrandName]     = useState(userProfile?.brandName ?? '')
+
+  const DEFAULT_HOURS = { open: '', close: '', closed: false }
+  const DAYS = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']
+  const [businessHours, setBusinessHours] = useState(
+    userProfile?.businessHours ?? Object.fromEntries(DAYS.map(d => [d, { ...DEFAULT_HOURS }]))
+  )
+  const updateHour = (day, field, value) =>
+    setBusinessHours(prev => ({ ...prev, [day]: { ...prev[day], [field]: value } }))
   const [tradeRole,     setTradeRole]     = useState(userProfile?.tradeRole ?? '')
+  const [instagramHandle, setInstagramHandle] = useState(userProfile?.instagram ?? '')
+  const [tiktokHandle,    setTiktokHandle]    = useState(userProfile?.tiktok ?? '')
+  const [facebookHandle,  setFacebookHandle]  = useState(userProfile?.facebook ?? '')
+  const [websiteUrl,      setWebsiteUrl]      = useState(userProfile?.website ?? '')
+  const [youtubeHandle,   setYoutubeHandle]   = useState(userProfile?.youtube ?? '')
+  const [tags,          setTags]          = useState(userProfile?.tags ?? [])
+  const [tagInput,      setTagInput]      = useState('')
 
   // Status buttons
   const [pendingStatus,   setPendingStatus]   = useState(null) // 'im_out' | 'invite_out' | 'later_out'
   const [particles,       setParticles]       = useState([])
   const [showGoOutSetup,  setShowGoOutSetup]  = useState(false)
+  const [showUpgrade,     setShowUpgrade]     = useState(false)
+  const isFirstSave = !userProfile?.lookingFor
   // DOB — parsed from stored "YYYY-MM-DD" string
   const parseDob = (dobStr) => {
     if (!dobStr) return { day: '', month: '', year: '' }
@@ -341,6 +359,8 @@ export default function ProfileScreen({ onClose, onOpenSettings }) {
     setMarket(userProfile.market ?? '')
     setBrandName(userProfile.brandName ?? '')
     setTradeRole(userProfile.tradeRole ?? '')
+    setBusinessHours(userProfile.businessHours ?? Object.fromEntries(DAYS.map(d => [d, { ...DEFAULT_HOURS }])))
+    setTags(userProfile.tags ?? [])
     setPhotoURL(userProfile.photoURL ?? null)
     setPhotoOffsetX(userProfile.photoOffsetX ?? 50)
     setPhotoOffsetY(userProfile.photoOffsetY ?? 50)
@@ -443,6 +463,13 @@ export default function ProfileScreen({ onClose, onOpenSettings }) {
         market,
         brandName,
         tradeRole,
+        businessHours,
+        tags,
+        instagramHandle,
+        tiktokHandle,
+        facebookHandle,
+        websiteUrl,
+        youtubeHandle,
         extraPhotos: savedExtra,
         photoOffsetX,
         photoOffsetY,
@@ -452,6 +479,7 @@ export default function ProfileScreen({ onClose, onOpenSettings }) {
       if (selectedActivity)            earn('ACTIVITIES_SET')
       // After successful save, open the go-out setup if user selected a status
       if (pendingStatus) setShowGoOutSetup(true)
+      else if (isFirstSave) setShowUpgrade(true)
     } catch { /* silent */ }
     setSaving(false)
     setPhotoFile(null)
@@ -725,6 +753,66 @@ export default function ProfileScreen({ onClose, onOpenSettings }) {
               </svg>
             </div>
           </div>
+          {/* Search Tags */}
+          <div className={styles.fieldRow}>
+            <div className={styles.fieldLabelRow}>
+              <label className={styles.fieldLabel}>Search Tags</label>
+              <HelpTip text="Add keywords that describe what you offer or sell — e.g. 'leather handbags', 'handmade scarves', 'wedding dress'. People searching these words will find your profile. Max 10 tags." />
+            </div>
+            {/* Existing tag chips */}
+            {tags.length > 0 && (
+              <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6, marginBottom: 8 }}>
+                {tags.map(tag => (
+                  <span key={tag} style={{
+                    display: 'inline-flex', alignItems: 'center', gap: 5,
+                    background: 'rgba(141,198,63,0.12)', border: '1px solid rgba(141,198,63,0.35)',
+                    borderRadius: 100, padding: '4px 10px',
+                    fontSize: 12, fontWeight: 600, color: '#8DC63F',
+                  }}>
+                    {tag}
+                    <button
+                      type="button"
+                      onClick={() => setTags(prev => prev.filter(t => t !== tag))}
+                      style={{ background: 'none', border: 'none', color: 'rgba(141,198,63,0.6)', cursor: 'pointer', padding: 0, lineHeight: 1, fontSize: 13 }}
+                      aria-label={`Remove ${tag}`}
+                    >×</button>
+                  </span>
+                ))}
+              </div>
+            )}
+            {/* Tag input */}
+            {tags.length < 10 && (
+              <div style={{ display: 'flex', gap: 8 }}>
+                <input
+                  className={styles.fieldInput}
+                  value={tagInput}
+                  onChange={e => setTagInput(e.target.value.toLowerCase().slice(0, 25))}
+                  onKeyDown={e => {
+                    if ((e.key === 'Enter' || e.key === ',') && tagInput.trim()) {
+                      e.preventDefault()
+                      const t = tagInput.trim().replace(/,/g, '')
+                      if (t && !tags.includes(t)) setTags(prev => [...prev, t])
+                      setTagInput('')
+                    }
+                  }}
+                  placeholder="Type a tag and press Enter…"
+                  autoComplete="off"
+                />
+                <button
+                  type="button"
+                  className={styles.adjustBtn}
+                  style={{ flexShrink: 0, padding: '0 14px' }}
+                  onClick={() => {
+                    const t = tagInput.trim().replace(/,/g, '')
+                    if (t && !tags.includes(t)) setTags(prev => [...prev, t])
+                    setTagInput('')
+                  }}
+                >Add</button>
+              </div>
+            )}
+            <span style={{ fontSize: 11, color: 'rgba(255,255,255,0.3)', marginTop: 4 }}>{tags.length}/10 tags</span>
+          </div>
+
           {/* Speaking */}
           <div className={styles.fieldRow}>
             <div className={styles.fieldLabelRow}>
@@ -845,6 +933,101 @@ export default function ProfileScreen({ onClose, onOpenSettings }) {
                   <svg className={styles.selectArrow} width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
                     <polyline points="6 9 12 15 18 9" />
                   </svg>
+                </div>
+              </div>
+
+              {/* ── Business Hours ── */}
+              <div className={styles.fieldRow}>
+                <div className={styles.fieldLabelRow}>
+                  <label className={styles.fieldLabel}>Business Hours</label>
+                  <HelpTip text="Set your hours for each day. Outside these hours your status shows as Invite Out automatically." />
+                </div>
+                <div className={styles.hoursGrid}>
+                  {DAYS.map(day => {
+                    const h = businessHours[day] ?? DEFAULT_HOURS
+                    return (
+                      <div key={day} className={styles.hoursRow}>
+                        <span className={`${styles.hoursDay} ${h.closed ? styles.hoursDayClosed : ''}`}>{day}</span>
+                        {h.closed ? (
+                          <span className={styles.hoursClosedLabel}>Closed</span>
+                        ) : (
+                          <>
+                            <input
+                              type="time"
+                              className={styles.hoursInput}
+                              value={h.open}
+                              onChange={e => updateHour(day, 'open', e.target.value)}
+                            />
+                            <span className={styles.hoursSep}>–</span>
+                            <input
+                              type="time"
+                              className={styles.hoursInput}
+                              value={h.close}
+                              onChange={e => updateHour(day, 'close', e.target.value)}
+                            />
+                          </>
+                        )}
+                        <button
+                          type="button"
+                          className={`${styles.hoursClosedBtn} ${h.closed ? styles.hoursClosedBtnActive : ''}`}
+                          onClick={() => updateHour(day, 'closed', !h.closed)}
+                        >
+                          {h.closed ? 'Open' : 'Closed'}
+                        </button>
+                      </div>
+                    )
+                  })}
+                </div>
+                <p className={styles.hoursHint}>
+                  Outside these hours your status will automatically show as <strong>Invite Out</strong>
+                </p>
+              </div>
+
+              {/* ── Social Media Links ── */}
+              <div className={styles.fieldRow}>
+                <div className={styles.fieldLabelRow}>
+                  <label className={styles.fieldLabel}>Social Media Links</label>
+                  <HelpTip text="Add your social handles so buyers can follow and connect with you. These appear on your profile's Social Media page." />
+                </div>
+                <p className={styles.socialHandleHint}>Buyers can tap these to follow you directly from your profile.</p>
+                <div className={styles.socialHandleList}>
+                  {[
+                    { label: 'Instagram', placeholder: 'your_username', value: instagramHandle, set: setInstagramHandle, color: '#E1306C', icon: (
+                      <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/></svg>
+                    )},
+                    { label: 'TikTok',    placeholder: 'your_username', value: tiktokHandle,    set: setTiktokHandle,    color: '#69C9D0', icon: (
+                      <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M19.59 6.69a4.83 4.83 0 01-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 01-2.88 2.5 2.89 2.89 0 01-2.89-2.89 2.89 2.89 0 012.89-2.89c.28 0 .54.04.79.1V9.01a6.33 6.33 0 00-.79-.05 6.34 6.34 0 00-6.34 6.34 6.34 6.34 0 006.34 6.34 6.34 6.34 0 006.33-6.34V9.05a8.16 8.16 0 004.77 1.52V7.12a4.85 4.85 0 01-1-.43z"/></svg>
+                    )},
+                    { label: 'Facebook',  placeholder: 'page name or URL', value: facebookHandle, set: setFacebookHandle, color: '#1877F2', icon: (
+                      <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg>
+                    )},
+                    { label: 'YouTube',   placeholder: '@channel or handle', value: youtubeHandle, set: setYoutubeHandle,  color: '#FF0000', icon: (
+                      <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M23.498 6.186a3.016 3.016 0 00-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 00.502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 002.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 002.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/></svg>
+                    )},
+                    { label: 'Website',   placeholder: 'https://yoursite.com', value: websiteUrl,  set: setWebsiteUrl,    color: '#8DC63F', icon: (
+                      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 014 10 15.3 15.3 0 01-4 10 15.3 15.3 0 01-4-10 15.3 15.3 0 014-10z"/></svg>
+                    )},
+                  ].map(({ label, placeholder, value, set, color, icon }) => (
+                    <div key={label} className={styles.socialHandleRow}>
+                      <div className={styles.socialHandleIcon} style={{ background: color }}>
+                        {icon}
+                      </div>
+                      <div className={styles.socialHandleInputWrap}>
+                        <span className={styles.socialHandleName}>{label}</span>
+                        <input
+                          className={styles.socialHandleInput}
+                          value={value}
+                          onChange={e => set(e.target.value)}
+                          placeholder={placeholder}
+                          maxLength={100}
+                          autoCapitalize="none"
+                          autoCorrect="off"
+                          spellCheck="false"
+                        />
+                      </div>
+                      {value ? <span className={styles.socialHandleTick}>✓</span> : null}
+                    </div>
+                  ))}
                 </div>
               </div>
             </>
@@ -982,6 +1165,14 @@ export default function ProfileScreen({ onClose, onOpenSettings }) {
           </button>
         </div>
 
+        {/* ── Dev: preview membership page ── */}
+        <button
+          style={{ background: 'none', border: '1px dashed rgba(255,255,255,0.12)', borderRadius: 8, color: 'rgba(255,255,255,0.25)', fontSize: 11, padding: '6px 12px', cursor: 'pointer', alignSelf: 'center', fontFamily: 'monospace' }}
+          onClick={() => setShowUpgrade(true)}
+        >
+          🛠 Preview Membership Page
+        </button>
+
       </div>
 
       {/* ── Go Out Setup overlay ── */}
@@ -994,6 +1185,12 @@ export default function ProfileScreen({ onClose, onOpenSettings }) {
           onSkip={() => { setShowGoOutSetup(false); onClose?.() }}
         />
       )}
+      <UpgradeSheet
+        open={showUpgrade}
+        onClose={() => { setShowUpgrade(false); onClose?.() }}
+        showToast={showToast}
+        lookingFor={lookingFor}
+      />
 
       {/* ── Photo reposition panel ── */}
       {photoEditOpen && (

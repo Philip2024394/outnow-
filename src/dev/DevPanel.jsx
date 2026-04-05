@@ -4,7 +4,7 @@
  * banner, sheet, and notification in the app with mock data.
  * Only mounts when import.meta.env.DEV === true (or localStorage dev_panel='1').
  */
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 
 // ── UI ──────────────────────────────────────────────────────────────
 import Toast from '@/components/ui/Toast'
@@ -246,6 +246,11 @@ export default function DevPanel() {
   const [toast, setToast]                   = useState(null)
   const [profileSession, setProfileSession] = useState(null)
   const [devPendingConv, setDevPendingConv] = useState(null) // chat opened by accepting
+
+  useEffect(() => {
+    document.documentElement.style.setProperty('--dev-panel-width', panelOpen ? '260px' : '0px')
+    return () => document.documentElement.style.setProperty('--dev-panel-width', '0px')
+  }, [panelOpen])
 
   const open  = (id) => { setActive(id); setPanelOpen(false) }
   const close = ()   => { setActive(null); setProfileSession(null) }
@@ -511,6 +516,7 @@ export default function DevPanel() {
         open={active === 'upgrade'}
         onClose={close}
         showToast={showToast}
+        lookingFor="handmade"
       />
 
       {/* SCREENS — full screen overlays */}

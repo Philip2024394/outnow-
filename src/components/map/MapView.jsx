@@ -1,8 +1,6 @@
 import { useCallback, useRef } from 'react'
 import { GoogleMap } from '@react-google-maps/api'
-import { useOverlay } from '@/contexts/OverlayContext'
 import { useGeolocation } from '@/hooks/useGeolocation'
-import { useLiveUsers } from '@/hooks/useLiveUsers'
 import { useInterests } from '@/hooks/useInterests'
 import LiveUserMarker from './LiveUserMarker'
 import MyLocationDot from './MyLocationDot'
@@ -32,11 +30,9 @@ const MAP_OPTIONS = {
 
 const DEFAULT_CENTER = { lat: 51.505, lng: -0.09 } // London fallback
 
-export default function MapView() {
+export default function MapView({ sessions = [], onSelectUser }) {
   const mapRef = useRef(null)
-  const { openDiscovery } = useOverlay()
   const { coords } = useGeolocation({ watch: true })
-  const { sessions } = useLiveUsers()
   const { mutualSessions } = useInterests()
 
   const onLoad = useCallback((map) => {
@@ -70,7 +66,7 @@ export default function MapView() {
             key={session.id}
             session={session}
             isMutual={mutualSessions.has(session.id)}
-            onClick={() => openDiscovery(session)}
+            onClick={() => onSelectUser?.(session)}
           />
         ))}
       </GoogleMap>

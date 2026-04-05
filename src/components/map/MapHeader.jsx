@@ -1,26 +1,8 @@
-import { useState, useRef, useEffect } from 'react'
 import { useMySession } from '@/hooks/useMySession'
 import styles from './MapHeader.module.css'
 
 const LOGO_URL = 'https://ik.imagekit.io/nepgaxllc/Untitledxczxc-removebg-preview.png'
 
-const CITIES_BY_COUNTRY = {
-  'United Kingdom': ['All', 'London', 'Manchester', 'Birmingham', 'Edinburgh', 'Glasgow', 'Bristol', 'Leeds', 'Liverpool'],
-  'United States':  ['All', 'New York', 'Los Angeles', 'Chicago', 'Miami', 'San Francisco', 'Las Vegas', 'Austin', 'Seattle'],
-  'UAE':            ['All', 'Dubai', 'Abu Dhabi', 'Sharjah', 'Ajman'],
-  'Ireland':        ['All', 'Dublin', 'Cork', 'Galway', 'Limerick', 'Waterford'],
-  'Australia':      ['All', 'Sydney', 'Melbourne', 'Brisbane', 'Perth', 'Adelaide', 'Gold Coast'],
-  'Canada':         ['All', 'Toronto', 'Vancouver', 'Montreal', 'Calgary', 'Ottawa'],
-}
-
-const COUNTRY_FLAGS = {
-  'United Kingdom': '🇬🇧',
-  'United States':  '🇺🇸',
-  'UAE':            '🇦🇪',
-  'Ireland':        '🇮🇪',
-  'Australia':      '🇦🇺',
-  'Canada':         '🇨🇦',
-}
 
 export default function MapHeader({
   onOpenNotifications,
@@ -28,62 +10,14 @@ export default function MapHeader({
   onOpenSettings,
   onOpenFilter,
   hasActiveFilter = false,
-  selectedCountry = 'United Kingdom',
-  selectedCity    = 'All',
-  onCityChange,
-  mapAreaLabel,
 }) {
   const { isLive } = useMySession()
-  const [cityOpen, setCityOpen] = useState(false)
-  const dropRef = useRef(null)
-
-  const cities = CITIES_BY_COUNTRY[selectedCountry] ?? ['All']
-  const displayCity = mapAreaLabel ?? (selectedCity === 'All' ? (CITIES_BY_COUNTRY[selectedCountry]?.[1] ?? selectedCountry) : selectedCity)
-  const flag = COUNTRY_FLAGS[selectedCountry] ?? '🌍'
-
-  useEffect(() => {
-    if (!cityOpen) return
-    function handle(e) {
-      if (dropRef.current && !dropRef.current.contains(e.target)) setCityOpen(false)
-    }
-    document.addEventListener('mousedown', handle)
-    return () => document.removeEventListener('mousedown', handle)
-  }, [cityOpen])
 
   return (
     <div className={styles.header}>
-      {/* Logo + city picker — left side */}
+      {/* Logo — left side */}
       <div className={styles.logoArea}>
         <img src={LOGO_URL} alt="IMOUTNOW" className={styles.logo} />
-        <div className={styles.countryWrap} ref={dropRef}>
-          <button
-            className={styles.countryPill}
-            onClick={() => setCityOpen(o => !o)}
-            aria-label="Select city"
-          >
-            <span>{flag}</span>
-            <span className={styles.countryName}>📍 {displayCity}</span>
-            <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
-              <polyline points="6 9 12 15 18 9" />
-            </svg>
-          </button>
-          {cityOpen && (
-            <ul className={styles.countryDropdown}>
-              {cities.map(city => (
-                <li key={city}>
-                  <button
-                    className={`${styles.countryOption} ${city === selectedCity ? styles.countryOptionActive : ''}`}
-                    onClick={() => { onCityChange?.(city); setCityOpen(false) }}
-                  >
-                    <span className={styles.cityDot}>📍</span>
-                    <span>{city === 'All' ? `All of ${selectedCountry}` : city}</span>
-                    {city === selectedCity && <span className={styles.countryCheck}>✓</span>}
-                  </button>
-                </li>
-              ))}
-            </ul>
-          )}
-        </div>
       </div>
 
       <div className={styles.right}>

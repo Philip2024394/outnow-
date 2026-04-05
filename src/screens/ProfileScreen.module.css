@@ -1402,3 +1402,166 @@
   padding: 0 4px;
   margin-top: -4px;
 }
+
+
+/* ── Business Hours ── */
+.hoursGrid {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: 4px;
+}
+
+.hoursRow {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.hoursDay {
+  width: 34px;
+  font-size: 11px;
+  font-weight: 700;
+  color: rgba(255,255,255,0.7);
+  flex-shrink: 0;
+  letter-spacing: 0.03em;
+}
+
+.hoursDayClosed {
+  color: rgba(255,255,255,0.25);
+}
+
+.hoursInput {
+  flex: 1;
+  background: rgba(255,255,255,0.06);
+  border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 8px;
+  color: #fff;
+  font-size: 12px;
+  font-weight: 600;
+  padding: 6px 8px;
+  font-family: inherit;
+  min-width: 0;
+  -webkit-appearance: none;
+}
+
+.hoursInput:focus {
+  outline: none;
+  border-color: rgba(141,198,63,0.5);
+}
+
+.hoursSep {
+  font-size: 11px;
+  color: rgba(255,255,255,0.3);
+  flex-shrink: 0;
+}
+
+.hoursClosedLabel {
+  flex: 1;
+  font-size: 11px;
+  color: rgba(255,255,255,0.25);
+  font-style: italic;
+}
+
+.hoursClosedBtn {
+  font-size: 10px;
+  font-weight: 700;
+  padding: 4px 10px;
+  border-radius: 20px;
+  border: 1px solid rgba(255,255,255,0.15);
+  background: transparent;
+  color: rgba(255,255,255,0.4);
+  cursor: pointer;
+  font-family: inherit;
+  flex-shrink: 0;
+  -webkit-tap-highlight-color: transparent;
+  transition: all 0.15s;
+}
+
+.hoursClosedBtnActive {
+  border-color: #8DC63F;
+  color: #8DC63F;
+  background: rgba(141,198,63,0.1);
+}
+
+.hoursHint {
+  font-size: 11px;
+  color: rgba(255,255,255,0.35);
+  margin: 8px 0 0 0;
+  line-height: 1.5;
+}
+
+.hoursHint strong {
+  color: #F5C518;
+}
+
+.socialHandleHint {
+  font-size: 12px;
+  color: rgba(255,255,255,0.35);
+  margin: 0 0 12px;
+}
+
+.socialHandleList {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.socialHandleRow {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: rgba(255,255,255,0.05);
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 14px;
+  padding: 10px 12px;
+}
+
+.socialHandleIcon {
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #fff;
+  flex-shrink: 0;
+}
+
+.socialHandleInputWrap {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.socialHandleName {
+  font-size: 11px;
+  font-weight: 700;
+  color: rgba(255,255,255,0.4);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.socialHandleInput {
+  background: none;
+  border: none;
+  outline: none;
+  color: #fff;
+  font-size: 14px;
+  font-family: inherit;
+  width: 100%;
+  padding: 0;
+}
+
+.socialHandleInput::placeholder {
+  color: rgba(255,255,255,0.2);
+}
+
+.socialHandleTick {
+  font-size: 14px;
+  color: #8DC63F;
+  font-weight: 700;
+  flex-shrink: 0;
+}

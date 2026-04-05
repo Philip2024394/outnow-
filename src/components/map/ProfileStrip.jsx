@@ -141,9 +141,7 @@ export default function ProfileStrip({
               )}
 
               <div className={styles.circleBubble}>
-                <span className={`${styles.circleCount} ${!active ? styles.countDim : ''}`}>
-                  {counts[filter]}
-                </span>
+                <span className={`${styles.circleCount} ${!active ? styles.countDim : ''}`}>{counts[filter]}</span>
               </div>
               <span className={`${styles.circleLabel} ${!active ? styles.labelDim : ''}`}>
                 {label}

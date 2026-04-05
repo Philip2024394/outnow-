@@ -1,23 +1,23 @@
 /**
- * Prevents map markers from overlapping by spreading any that are too close
- * into a horizontal row, centered on their group's midpoint.
+ * Prevents map markers from overlapping by arranging close markers into a
+ * staggered honeycomb grid — natural looking, fills center first, capped at
+ * MAX_PER_ROW columns (~60% of a phone screen) before wrapping to a new row.
  *
- * Uses connected-component grouping so chains of close markers are all
- * spread together, not just pairwise.
+ * Odd rows are offset by half the horizontal spacing (brick/honeycomb pattern).
  *
  * @param {Array}  items        - array of session/venue objects
  * @param {string} latKey       - key holding latitude  (e.g. 'lat' or 'fuzzedLat')
  * @param {string} lngKey       - key holding longitude (e.g. 'lng' or 'fuzzedLng')
  * @param {number} thresholdDeg - center-to-center distance (degrees) that counts as overlapping
- * @param {number} spacingDeg   - horizontal gap (degrees) between spread marker centres
+ * @param {number} spacingDeg   - horizontal distance (degrees) between marker centres
  * @returns {Array} new array with adjusted lat/lng — originals are NOT mutated
  */
 export function spreadMarkers(
   items,
-  latKey      = 'lat',
-  lngKey      = 'lng',
-  thresholdDeg = 0.005,
-  spacingDeg   = 0.0055,
+  latKey       = 'lat',
+  lngKey       = 'lng',
+  thresholdDeg = 0.0075,
+  spacingDeg   = 0.0082,
 ) {
   if (!items || items.length <= 1) return items ?? []
 
@@ -56,6 +56,7 @@ export function spreadMarkers(
 
   // Clone and apply offsets
   const result = items.map(item => ({ ...item }))
+
   for (const group of groups) {
     if (group.length <= 1) continue
 
@@ -63,11 +64,35 @@ export function spreadMarkers(
     const cLat = group.reduce((s, i) => s + items[i][latKey], 0) / group.length
     const cLng = group.reduce((s, i) => s + items[i][lngKey], 0) / group.length
 
-    // Lay out in a horizontal row centred on (cLat, cLng)
-    const half = (group.length - 1) * spacingDeg / 2
-    group.forEach((idx, pos) => {
-      result[idx][latKey] = cLat
-      result[idx][lngKey] = cLng - half + pos * spacingDeg
+    // ── Honeycomb staggered grid ──────────────────────────────────────────
+    // Max 3 per row keeps the spread within ~60% of a 390px phone screen at
+    // zoom 14 (3 × 95px ≈ 190px). Rows beyond that wrap downward with a
+    // half-step stagger on alternating rows for a natural brick pattern.
+    const MAX_PER_ROW = 3
+    const hStep = spacingDeg          // horizontal centre-to-centre
+    const vStep = spacingDeg * 0.88   // vertical step — slightly tighter than horizontal
+
+    // Slice group into rows of at most MAX_PER_ROW
+    const rows = []
+    for (let i = 0; i < group.length; i += MAX_PER_ROW) {
+      rows.push(group.slice(i, i + MAX_PER_ROW))
+    }
+
+    const totalRows = rows.length
+    // Total vertical span, centred on cLat
+    const totalVSpan = (totalRows - 1) * vStep
+
+    rows.forEach((row, rowIdx) => {
+      // Odd rows staggered by half horizontal step (brick pattern)
+      const stagger  = rowIdx % 2 === 1 ? hStep * 0.5 : 0
+      const rowWidth = (row.length - 1) * hStep
+      // lat increases northward; row 0 at top (highest lat)
+      const rowLat   = cLat + totalVSpan / 2 - rowIdx * vStep
+
+      row.forEach((idx, colIdx) => {
+        result[idx][latKey] = rowLat
+        result[idx][lngKey] = cLng - rowWidth / 2 + stagger + colIdx * hStep
+      })
     })
   }
 

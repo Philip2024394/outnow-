@@ -35,8 +35,8 @@
 }
 
 .live-marker__avatar {
-  width: 48px;
-  height: 48px;
+  width: 62px;
+  height: 62px;
   border-radius: 50%;
   overflow: hidden;
   border: 2.5px solid var(--color-live);
@@ -111,6 +111,25 @@
 .live-marker:hover .live-marker__avatar,
 .live-marker:active .live-marker__avatar {
   transform: scale(1.1);
+}
+
+/* Open-until countdown pill below avatar */
+.live-marker__countdown {
+  position: absolute;
+  bottom: -18px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: rgba(8,8,8,0.85);
+  border: 1px solid rgba(141,198,63,0.5);
+  color: #8DC63F;
+  font-size: 9px;
+  font-weight: 800;
+  letter-spacing: 0.03em;
+  padding: 2px 6px;
+  border-radius: 10px;
+  white-space: nowrap;
+  pointer-events: none;
+  z-index: 4;
 }
 
 /* Mutual interest marker variant */

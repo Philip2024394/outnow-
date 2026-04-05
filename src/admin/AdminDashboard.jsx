@@ -1096,14 +1096,326 @@ function VenuesTab() {
   )
 }
 
+// ── Businesses Tab ────────────────────────────────────────────────────────────
+
+const BUSINESS_CATEGORIES = [
+  'Handbags','Shoes','Clothing','Jewellery','Watches','Accessories',
+  'Leather Goods','Skincare & Beauty','Candles & Soap','Ceramics & Pottery',
+  'Art & Print','Furniture & Wood','Plants & Flowers','Food & Bakery',
+  'Toys & Kids','Books & Stationery','Tech & Electronics','Professional Services',
+  'Craft Supplies','Other',
+]
+
+const BLANK_BUSINESS = {
+  brandName: '', category: '', tradeRole: 'selling',
+  country: '', city: '', area: '',
+  priceFrom: '', priceTo: '',
+  bio: '',
+  email: '', phone: '', instagram: '', website: '',
+  status: 'active',
+  claimStatus: 'unclaimed', ownerEmail: '',
+  addedAt: '',
+}
+
+const DEMO_BUSINESSES = [
+  { id:'b1', brandName:'Sari Bags Studio',    category:'Handbags',          tradeRole:'selling', country:'Indonesia', city:'Jakarta',   area:'Kemang',        priceFrom:'350.000', priceTo:'1.200.000', bio:'Handcrafted leather handbags made to order.',              email:'sari@saribags.com',     phone:'+62 812 000 0001', instagram:'@saribags',      website:'', status:'active',   claimStatus:'unclaimed', ownerEmail:'',                   addedAt:'2026-04-01' },
+  { id:'b2', brandName:'Dewi Leather Co',     category:'Leather Goods',     tradeRole:'selling', country:'Indonesia', city:'Jakarta',   area:'Menteng',       priceFrom:'580.000', priceTo:'2.500.000', bio:'Premium leather goods — handbags, wallets, belts.',        email:'dewi@dewileather.com',  phone:'+62 812 000 0002', instagram:'@dewileather',   website:'https://dewileather.co.id', status:'active', claimStatus:'claimed',   ownerEmail:'dewi@dewileather.com', addedAt:'2026-04-01' },
+  { id:'b3', brandName:'Bali Boho Bags',      category:'Handbags',          tradeRole:'selling', country:'Indonesia', city:'Bali',      area:'Seminyak',      priceFrom:'290.000', priceTo:'950.000',   bio:'Boho-style handwoven bags. Wholesale available.',          email:'',                      phone:'+62 813 000 0006', instagram:'@baliboho',      website:'', status:'active',   claimStatus:'unclaimed', ownerEmail:'',                   addedAt:'2026-04-02' },
+  { id:'b4', brandName:'Made Leather Bali',   category:'Leather Goods',     tradeRole:'selling', country:'Indonesia', city:'Bali',      area:'Ubud',          priceFrom:'750.000', priceTo:'4.500.000', bio:'Artisan leather bags crafted in Ubud. Export quality.',    email:'made@madeleather.com',  phone:'+62 813 000 0007', instagram:'@madeleatherbali', website:'', status:'active', claimStatus:'claimed',   ownerEmail:'made@madeleather.com', addedAt:'2026-04-02' },
+  { id:'b5', brandName:'Tari Denim Bags',     category:'Clothing',          tradeRole:'selling', country:'Indonesia', city:'Bandung',   area:'Dago',          priceFrom:'275.000', priceTo:'900.000',   bio:'Upcycled denim handbags. Every piece is one of a kind.',   email:'tari@denim.id',         phone:'+62 857 000 0013', instagram:'@taridenim',     website:'', status:'active',   claimStatus:'unclaimed', ownerEmail:'',                   addedAt:'2026-04-03' },
+  { id:'b6', brandName:'Aisyah Songket Bags', category:'Handbags',          tradeRole:'selling', country:'Indonesia', city:'Medan',     area:'Medan Baru',    priceFrom:'520.000', priceTo:'2.800.000', bio:'Songket fabric handbags. Traditional North Sumatran craft.',email:'aisyah@songket.id',     phone:'+62 821 000 0015', instagram:'@aisyahsongket', website:'', status:'active',   claimStatus:'unclaimed', ownerEmail:'',                   addedAt:'2026-04-03' },
+]
+
+function BusinessFormPanel({ initial, onSave, onClose }) {
+  const [form, setForm] = useState(initial ?? { ...BLANK_BUSINESS, addedAt: new Date().toISOString().split('T')[0] })
+  const set = (k, v) => setForm(f => ({ ...f, [k]: v }))
+
+  return (
+    <>
+      <div className={styles.panelBackdrop} onClick={onClose} />
+      <div className={styles.formPanel}>
+        <div className={styles.panelHeader}>
+          <h2 className={styles.panelTitle}>{initial?.id ? 'Edit Business' : '+ Add Business'}</h2>
+          <button className={styles.panelClose} onClick={onClose}>✕</button>
+        </div>
+        <div className={styles.panelBody}>
+
+          {/* Brand */}
+          <div className={styles.panelSection}>
+            <p className={styles.panelSectionTitle}>Brand / Business Name</p>
+            <div className={styles.formGrid2}>
+              <div className={styles.formField}>
+                <label className={styles.formLabel}>Brand Name</label>
+                <input className={styles.formInput} placeholder="e.g. Sari Bags Studio" value={form.brandName} onChange={e => set('brandName', e.target.value)} />
+              </div>
+              <div className={styles.formField}>
+                <label className={styles.formLabel}>Category</label>
+                <select className={styles.formSelect} value={form.category} onChange={e => set('category', e.target.value)}>
+                  <option value="">Select category…</option>
+                  {BUSINESS_CATEGORIES.map(c => <option key={c}>{c}</option>)}
+                </select>
+              </div>
+              <div className={styles.formField}>
+                <label className={styles.formLabel}>Trade Role</label>
+                <select className={styles.formSelect} value={form.tradeRole} onChange={e => set('tradeRole', e.target.value)}>
+                  <option value="selling">Selling</option>
+                  <option value="buying">Buying</option>
+                  <option value="both">Selling &amp; Buying</option>
+                </select>
+              </div>
+              <div className={styles.formField}>
+                <label className={styles.formLabel}>Status</label>
+                <select className={styles.formSelect} value={form.status} onChange={e => set('status', e.target.value)}>
+                  <option value="active">Active (Im Out)</option>
+                  <option value="invite_out">Invite Out</option>
+                  <option value="scheduled">Out Later</option>
+                  <option value="inactive">Inactive</option>
+                </select>
+              </div>
+            </div>
+          </div>
+
+          {/* Location */}
+          <div className={styles.panelSection}>
+            <p className={styles.panelSectionTitle}>Location</p>
+            <div className={styles.formGrid2}>
+              <div className={styles.formField}>
+                <label className={styles.formLabel}>Country</label>
+                <input className={styles.formInput} placeholder="e.g. Indonesia" value={form.country} onChange={e => set('country', e.target.value)} />
+              </div>
+              <div className={styles.formField}>
+                <label className={styles.formLabel}>City</label>
+                <input className={styles.formInput} placeholder="e.g. Jakarta" value={form.city} onChange={e => set('city', e.target.value)} />
+              </div>
+              <div className={styles.formField}>
+                <label className={styles.formLabel}>Area / District</label>
+                <input className={styles.formInput} placeholder="e.g. Kemang" value={form.area} onChange={e => set('area', e.target.value)} />
+              </div>
+            </div>
+          </div>
+
+          {/* Pricing */}
+          <div className={styles.panelSection}>
+            <p className={styles.panelSectionTitle}>Price Range</p>
+            <div className={styles.formGrid2}>
+              <div className={styles.formField}>
+                <label className={styles.formLabel}>From</label>
+                <input className={styles.formInput} placeholder="e.g. 350.000" value={form.priceFrom} onChange={e => set('priceFrom', e.target.value)} />
+              </div>
+              <div className={styles.formField}>
+                <label className={styles.formLabel}>To</label>
+                <input className={styles.formInput} placeholder="e.g. 1.200.000" value={form.priceTo} onChange={e => set('priceTo', e.target.value)} />
+              </div>
+            </div>
+          </div>
+
+          {/* Bio */}
+          <div className={styles.panelSection}>
+            <p className={styles.panelSectionTitle}>Business Description</p>
+            <textarea
+              className={styles.formTextarea}
+              rows={3}
+              placeholder="Short description of the business…"
+              value={form.bio}
+              onChange={e => set('bio', e.target.value)}
+            />
+          </div>
+
+          {/* Contact */}
+          <div className={styles.panelSection}>
+            <p className={styles.panelSectionTitle}>Contact Details</p>
+            <div className={styles.formGrid2}>
+              <div className={styles.formField}>
+                <label className={styles.formLabel}>Email</label>
+                <input className={styles.formInput} type="email" placeholder="hello@brand.com" value={form.email} onChange={e => set('email', e.target.value)} />
+              </div>
+              <div className={styles.formField}>
+                <label className={styles.formLabel}>Phone</label>
+                <input className={styles.formInput} placeholder="+62 812 000 0000" value={form.phone} onChange={e => set('phone', e.target.value)} />
+              </div>
+              <div className={styles.formField}>
+                <label className={styles.formLabel}>Instagram</label>
+                <input className={styles.formInput} placeholder="@yourbrand" value={form.instagram} onChange={e => set('instagram', e.target.value)} />
+              </div>
+              <div className={styles.formField}>
+                <label className={styles.formLabel}>Website</label>
+                <input className={styles.formInput} placeholder="https://brand.com" value={form.website} onChange={e => set('website', e.target.value)} />
+              </div>
+            </div>
+          </div>
+
+          {/* Claim status */}
+          <div className={styles.panelSection}>
+            <p className={styles.panelSectionTitle}>Claim Status</p>
+            <div className={styles.formGrid2}>
+              <div className={styles.formField}>
+                <label className={styles.formLabel}>Status</label>
+                <select className={styles.formSelect} value={form.claimStatus} onChange={e => set('claimStatus', e.target.value)}>
+                  <option value="unclaimed">Unclaimed — outreach pending</option>
+                  <option value="contacted">Contacted — awaiting reply</option>
+                  <option value="claimed">Claimed — owner managing</option>
+                  <option value="rejected">Rejected — remove listing</option>
+                </select>
+              </div>
+              <div className={styles.formField}>
+                <label className={styles.formLabel}>Owner Email (if claimed)</label>
+                <input className={styles.formInput} type="email" placeholder="owner@brand.com" value={form.ownerEmail} onChange={e => set('ownerEmail', e.target.value)} />
+              </div>
+            </div>
+          </div>
+
+        </div>
+        <div className={styles.panelFooter}>
+          <button className={styles.panelCancelBtn} onClick={onClose}>Cancel</button>
+          <button className={styles.panelSaveBtn} onClick={() => onSave(form)}
+            disabled={!form.brandName || !form.country || !form.city}>
+            {initial?.id ? 'Save Changes' : '+ Add Business'}
+          </button>
+        </div>
+      </div>
+    </>
+  )
+}
+
+function BusinessesTab() {
+  const [businesses, setBusinesses] = useState(DEMO_BUSINESSES)
+  const [search,     setSearch]     = useState('')
+  const [countryF,   setCountryF]   = useState('all')
+  const [claimF,     setClaimF]     = useState('all')
+  const [panel,      setPanel]      = useState(null)
+
+  const saveBusiness = (form) => {
+    if (form.id) {
+      setBusinesses(p => p.map(b => b.id === form.id ? form : b))
+    } else {
+      setBusinesses(p => [...p, { ...form, id: `b${Date.now()}`, addedAt: new Date().toISOString().split('T')[0] }])
+    }
+    setPanel(null)
+  }
+
+  const deleteBusiness = (id) => {
+    if (window.confirm('Remove this business listing?')) setBusinesses(p => p.filter(b => b.id !== id))
+  }
+
+  const countries = ['all', ...new Set(businesses.map(b => b.country))].sort((a,b) => a === 'all' ? -1 : a.localeCompare(b))
+
+  const filtered = businesses.filter(b => {
+    const q = search.toLowerCase()
+    const matchSearch = !q || b.brandName.toLowerCase().includes(q) || b.city.toLowerCase().includes(q) || b.category.toLowerCase().includes(q)
+    const matchCountry = countryF === 'all' || b.country === countryF
+    const matchClaim   = claimF   === 'all' || b.claimStatus === claimF
+    return matchSearch && matchCountry && matchClaim
+  })
+
+  const claimColor = { unclaimed:'#F5A623', contacted:'#A855F7', claimed:'#8DC63F', rejected:'#FF3B30' }
+  const claimLabel = { unclaimed:'Unclaimed', contacted:'Contacted', claimed:'Claimed', rejected:'Rejected' }
+
+  return (
+    <div className={styles.tabContent}>
+      {/* Stats */}
+      <div className={styles.statsGrid}>
+        <StatCard label="Total Listings"  value={businesses.length}                                           sub="across all cities"   accent="#8DC63F" />
+        <StatCard label="Unclaimed"        value={businesses.filter(b=>b.claimStatus==='unclaimed').length}    sub="awaiting outreach"   accent="#F5A623" />
+        <StatCard label="Contacted"        value={businesses.filter(b=>b.claimStatus==='contacted').length}    sub="awaiting reply"      accent="#A855F7" />
+        <StatCard label="Claimed"          value={businesses.filter(b=>b.claimStatus==='claimed').length}      sub="owner managing"      accent="#8DC63F" />
+      </div>
+
+      {/* Toolbar */}
+      <div className={styles.tableToolbar}>
+        <input
+          className={styles.searchInput}
+          type="search"
+          placeholder="Search brand, city, category…"
+          value={search}
+          onChange={e => setSearch(e.target.value)}
+        />
+        <div className={styles.filterBtns}>
+          {countries.map(c => (
+            <button key={c} className={`${styles.filterBtn} ${countryF === c ? styles.filterBtnActive : ''}`} onClick={() => setCountryF(c)}>
+              {c === 'all' ? 'All Countries' : c}
+            </button>
+          ))}
+        </div>
+        <div className={styles.filterBtns}>
+          {['all','unclaimed','contacted','claimed','rejected'].map(f => (
+            <button key={f} className={`${styles.filterBtn} ${claimF === f ? styles.filterBtnActive : ''}`} onClick={() => setClaimF(f)}>
+              {f === 'all' ? 'All Claims' : claimLabel[f]}
+            </button>
+          ))}
+        </div>
+        <button className={styles.addVenueBtn} onClick={() => setPanel({})}>+ Add Business</button>
+      </div>
+
+      {/* Table */}
+      <div className={styles.section}>
+        <table className={styles.table}>
+          <thead>
+            <tr>
+              <th>Brand</th>
+              <th>Category</th>
+              <th>City</th>
+              <th>Country</th>
+              <th>Price Range</th>
+              <th>Contact</th>
+              <th>Claim</th>
+              <th>Added</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            {filtered.map(b => (
+              <tr key={b.id}>
+                <td className={styles.tdBold}>{b.brandName}</td>
+                <td className={styles.tdMuted}>{b.category}</td>
+                <td>{b.city}{b.area ? `, ${b.area}` : ''}</td>
+                <td className={styles.tdMuted}>{b.country}</td>
+                <td className={styles.tdMuted}>
+                  {b.priceFrom && b.priceTo ? `${b.priceFrom} – ${b.priceTo}` : '—'}
+                </td>
+                <td className={styles.tdMuted}>
+                  {b.email && <div>{b.email}</div>}
+                  {b.phone && <div>{b.phone}</div>}
+                  {!b.email && !b.phone && '—'}
+                </td>
+                <td>
+                  <span className={styles.pill} style={{ background: `${claimColor[b.claimStatus]}22`, color: claimColor[b.claimStatus], border: `1px solid ${claimColor[b.claimStatus]}55` }}>
+                    {claimLabel[b.claimStatus]}
+                  </span>
+                </td>
+                <td className={styles.tdMuted}>{b.addedAt}</td>
+                <td>
+                  <div className={styles.venueBtns}>
+                    <button className={`${styles.actionBtn} ${styles.actionBtnGreen}`} onClick={() => setPanel(b)}>Edit</button>
+                    <button className={`${styles.actionBtn} ${styles.actionBtnRed}`}   onClick={() => deleteBusiness(b.id)}>Delete</button>
+                  </div>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+        {filtered.length === 0 && <p className={styles.empty}>No businesses match your filters.</p>}
+      </div>
+
+      {panel !== null && (
+        <BusinessFormPanel
+          initial={panel?.id ? panel : null}
+          onSave={saveBusiness}
+          onClose={() => setPanel(null)}
+        />
+      )}
+    </div>
+  )
+}
+
 // ── Main Dashboard ────────────────────────────────────────────────────────────
 
 const TABS = [
-  { id: 'overview', icon: '📊', label: 'Overview'  },
-  { id: 'users',    icon: '👥', label: 'Users'     },
-  { id: 'revenue',  icon: '💰', label: 'Revenue'   },
-  { id: 'traffic',  icon: '📈', label: 'Traffic'   },
-  { id: 'venues',   icon: '📍', label: 'Venues'    },
+  { id: 'overview',   icon: '📊', label: 'Overview'    },
+  { id: 'users',      icon: '👥', label: 'Users'       },
+  { id: 'revenue',    icon: '💰', label: 'Revenue'     },
+  { id: 'traffic',    icon: '📈', label: 'Traffic'     },
+  { id: 'venues',     icon: '📍', label: 'Venues'      },
+  { id: 'businesses', icon: '🏪', label: 'Businesses'  },
 ]
 
 export default function AdminDashboard({ onLogout }) {
@@ -1157,11 +1469,12 @@ export default function AdminDashboard({ onLogout }) {
         </header>
 
         <div className={styles.contentWrap}>
-          {activeTab === 'overview' && <OverviewTab />}
-          {activeTab === 'users'    && <UsersTab />}
-          {activeTab === 'revenue'  && <RevenueTab />}
-          {activeTab === 'traffic'  && <TrafficTab />}
-          {activeTab === 'venues'   && <VenuesTab />}
+          {activeTab === 'overview'    && <OverviewTab />}
+          {activeTab === 'users'       && <UsersTab />}
+          {activeTab === 'revenue'     && <RevenueTab />}
+          {activeTab === 'traffic'     && <TrafficTab />}
+          {activeTab === 'venues'      && <VenuesTab />}
+          {activeTab === 'businesses'  && <BusinessesTab />}
         </div>
       </main>
     </div>
