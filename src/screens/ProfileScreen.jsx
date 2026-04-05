@@ -4,7 +4,7 @@ import { useAuth } from '@/hooks/useAuth'
 import { useMySession } from '@/hooks/useMySession'
 import { useCoins } from '@/hooks/useCoins'
 import { ACTIVITY_TYPES, ACTIVITY_CATEGORIES } from '@/firebase/collections'
-import { LOOKING_FOR_OPTIONS, LANGUAGE_FLAGS } from '@/utils/lookingForLabels'
+import { LOOKING_FOR_OPTIONS, LANGUAGE_FLAGS, subCategoryText, getSearchKeywords } from '@/utils/lookingForLabels'
 import LookingForSheet from '@/components/ui/LookingForSheet'
 import Toast from '@/components/ui/Toast'
 import { saveProfile, uploadAvatar, uploadGalleryPhoto } from '@/services/profileService'
@@ -287,6 +287,7 @@ export default function ProfileScreen({ onClose, onboarding = false }) {
   const [country,        setCountry]        = useState(userProfile?.country ?? '')
   const [city,           setCity]           = useState(userProfile?.city ?? '')
   const [lookingFor,     setLookingFor]     = useState(userProfile?.lookingFor ?? '')
+  const [subCategory,   setSubCategory]   = useState(userProfile?.subCategory ?? null)
   const [bio,            setBio]            = useState(userProfile?.bio ?? '')
   const [speakingNative, setSpeakingNative] = useState(userProfile?.speakingNative ?? (userProfile?.country ? (COUNTRY_NATIVE_LANGUAGE[userProfile.country] ?? '') : ''))
   const [speakingSecond, setSpeakingSecond] = useState(userProfile?.speakingSecond ?? '')
@@ -396,6 +397,7 @@ export default function ProfileScreen({ onClose, onboarding = false }) {
     setCountryQuery(userProfile.country ?? '')
     setCity(userProfile.city ?? '')
     setLookingFor(userProfile.lookingFor ?? '')
+    setSubCategory(userProfile.subCategory ?? null)
     setBio(userProfile.bio ?? '')
     setSpeakingNative(userProfile.speakingNative ?? (userProfile.country ? (COUNTRY_NATIVE_LANGUAGE[userProfile.country] ?? '') : ''))
     setSpeakingSecond(userProfile.speakingSecond ?? '')
@@ -534,6 +536,10 @@ export default function ProfileScreen({ onClose, onboarding = false }) {
       const dob = (dobYear && dobMonth && dobDay)
         ? `${dobYear}-${String(dobMonth).padStart(2,'0')}-${String(dobDay).padStart(2,'0')}`
         : null
+      // Merge auto-keywords from category selection into tags
+      const autoKeywords = getSearchKeywords(lookingFor, subCategory)
+      const mergedTags = [...new Set([...tags, ...autoKeywords])]
+
       await saveProfile({
         userId:      user?.id,
         displayName: name,
@@ -543,6 +549,7 @@ export default function ProfileScreen({ onClose, onboarding = false }) {
         country,
         activities:  selectedActivity ? [selectedActivity] : [],
         lookingFor,
+        subCategory,
         speakingNative,
         speakingSecond,
         priceMin,
@@ -551,7 +558,7 @@ export default function ProfileScreen({ onClose, onboarding = false }) {
         brandName,
         tradeRole,
         businessHours,
-        tags,
+        tags: mergedTags,
         instagramHandle,
         tiktokHandle,
         facebookHandle,
@@ -868,7 +875,22 @@ export default function ProfileScreen({ onClose, onboarding = false }) {
               onClick={() => setLookingForOpen(true)}
             >
               {lookingFor
-                ? (() => { const opt = LOOKING_FOR_OPTIONS.find(o => o.value === lookingFor); return opt ? <><span>{opt.emoji}</span><span>{opt.label}</span></> : 'I\'m here for…' })()
+                ? (() => {
+                    const opt = LOOKING_FOR_OPTIONS.find(o => o.value === lookingFor)
+                    if (!opt) return 'I\'m here for…'
+                    const subLabel = subCategory ? subCategoryText(lookingFor, subCategory) : null
+                    return (
+                      <span style={{ display: 'flex', flexDirection: 'column', gap: 2, textAlign: 'left' }}>
+                        <span style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                          <span>{opt.emoji}</span>
+                          <span style={{ fontWeight: 700 }}>{opt.label}</span>
+                        </span>
+                        {subLabel && (
+                          <span style={{ fontSize: 12, color: '#8DC63F', paddingLeft: 28 }}>{subLabel}</span>
+                        )}
+                      </span>
+                    )
+                  })()
                 : <span className={styles.lookingForPlaceholder}>I'm here for… tap to choose</span>
               }
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{ marginLeft: 'auto', flexShrink: 0, opacity: 0.5 }}>
@@ -1435,7 +1457,8 @@ export default function ProfileScreen({ onClose, onboarding = false }) {
       <LookingForSheet
         open={lookingForOpen}
         value={lookingFor}
-        onChange={setLookingFor}
+        subValue={subCategory}
+        onChange={(main, sub) => { setLookingFor(main); setSubCategory(sub ?? null) }}
         onClose={() => setLookingForOpen(false)}
       />
 

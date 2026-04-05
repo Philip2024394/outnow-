@@ -205,3 +205,51 @@
 .optionCheckHint {
   background: rgba(141, 198, 63, 0.06);
 }
+
+/* ── Sub-category sheet (slides higher) ── */
+.subSheet {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  max-height: 78vh;
+  animation: slideUp 0.28s cubic-bezier(0.32, 0.72, 0, 1) forwards;
+}
+
+/* ── Back button ── */
+.backBtn {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.08);
+  border: none;
+  color: rgba(255, 255, 255, 0.7);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  flex-shrink: 0;
+  margin-right: 6px;
+  -webkit-tap-highlight-color: transparent;
+}
+.backBtn:active { background: rgba(255, 255, 255, 0.14); }
+
+/* ── Arrow indicator (has sub-categories) ── */
+.optionArrow {
+  flex-shrink: 0;
+  margin-left: auto;
+  display: flex;
+  align-items: center;
+}
+
+/* ── Skip / general option ── */
+.optionSkip {
+  margin-top: 6px;
+  border-color: rgba(255, 255, 255, 0.08);
+  background: rgba(255, 255, 255, 0.03);
+}
+.optionSkip .optionLabel {
+  color: rgba(255, 255, 255, 0.5);
+  font-size: 14px;
+  font-weight: 500;
+}
