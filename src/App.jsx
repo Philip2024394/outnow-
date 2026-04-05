@@ -10,6 +10,8 @@ import { GuestGateProvider } from '@/contexts/GuestGateContext'
 import DevPanel from '@/dev/DevPanel'
 import styles from './App.module.css'
 
+// import CategorySelector from '@/components/ui/CategorySelector'
+
 const LOGO_URL = 'https://ik.imagekit.io/dateme/Logo%20with%20green%20map%20pin%20element.png'
 
 // Route /admin path to the admin dashboard
@@ -97,6 +99,8 @@ export default function App() {
   return (
     <GuestGateProvider>
       <DevPanel />
+
+      {/* Category Selector Sample Demo removed */}
 
       {/* ── New user: welcome slides ── */}
       {onboardStep === 'welcome' && (

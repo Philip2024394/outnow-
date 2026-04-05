@@ -17,6 +17,8 @@ import { useIpCountry } from '@/hooks/useIpCountry'
 import { usePushNotifications } from '@/hooks/usePushNotifications'
 import styles from './ProfileScreen.module.css'
 
+import SideDrawer from '@/components/ui/SideDrawer'
+
 const EU_COUNTRIES = new Set([
   'Austria','Belgium','Bulgaria','Croatia','Cyprus','Czech Republic','Denmark',
   'Estonia','Finland','France','Germany','Greece','Hungary','Ireland','Italy',
@@ -589,19 +591,48 @@ export default function ProfileScreen({ onClose, onboarding = false }) {
           <span className={styles.headerTitle}>{profileTab === 'verified' ? 'Verified Listing' : 'Profile Details'}</span>
         </div>
         <div className={styles.headerRight}>
-          <button className={styles.settingsBtn} onClick={() => setDrawerOpen(true)} aria-label="Dashboard">
-            <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              <circle cx="12" cy="12" r="3"/>
-              <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/>
-            </svg>
-          </button>
-          <button className={styles.homeBtn} onClick={onClose} aria-label="Back to map">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-              <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/>
-            </svg>
-          </button>
+            <button className={styles.settingsBtn} onClick={() => setDrawerOpen(true)} aria-label="Dashboard">
+              <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <circle cx="12" cy="12" r="3"/>
+                <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/>
+              </svg>
+            </button>
+            <button className={styles.homeBtn} onClick={onClose} aria-label="Back to map">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/>
+              </svg>
+            </button>
         </div>
       </div>
+
+      {/* ── Side Drawer for Settings ── */}
+      <SideDrawer open={drawerOpen} onClose={() => setDrawerOpen(false)}>
+        <div style={{display: 'flex', flexDirection: 'column', gap: 4}}>
+          <h2 style={{marginTop: 0, marginBottom: 20, color: '#fff', fontSize: 20, fontWeight: 800, letterSpacing: '-0.5px'}}>Dashboard</h2>
+          
+          {/* Profile Section */}
+          <button style={{width: '100%', padding: '14px 16px', background: '#1a1a1a', color: '#fff', border: '1px solid #2a2a2a', borderRadius: 12, fontSize: 15, fontWeight: 600, marginBottom: 8, cursor: 'pointer', textAlign: 'left', transition: 'all 0.2s ease', boxShadow: '0 2px 8px rgba(0,0,0,0.3)'}} onMouseEnter={(e) => {e.target.style.background = '#252525'; e.target.style.borderColor = '#353535'; e.target.style.boxShadow = '0 4px 16px rgba(141,198,63,0.15)';}} onMouseLeave={(e) => {e.target.style.background = '#1a1a1a'; e.target.style.borderColor = '#2a2a2a'; e.target.style.boxShadow = '0 2px 8px rgba(0,0,0,0.3)';}}><span style={{display: 'inline-block', marginRight: 10}}>👤</span>View My Profile</button>
+          <button onClick={() => setDrawerOpen(false)} style={{width: '100%', padding: '14px 16px', background: '#1a1a1a', color: '#fff', border: '1px solid #2a2a2a', borderRadius: 12, fontSize: 15, fontWeight: 600, marginBottom: 12, cursor: 'pointer', textAlign: 'left', transition: 'all 0.2s ease', boxShadow: '0 2px 8px rgba(0,0,0,0.3)'}} onMouseEnter={(e) => {e.target.style.background = '#252525'; e.target.style.borderColor = '#353535'; e.target.style.boxShadow = '0 4px 16px rgba(141,198,63,0.15)';}} onMouseLeave={(e) => {e.target.style.background = '#1a1a1a'; e.target.style.borderColor = '#2a2a2a'; e.target.style.boxShadow = '0 2px 8px rgba(0,0,0,0.3)';}}><span style={{display: 'inline-block', marginRight: 10}}>📸</span>Edit Photos</button>
+          
+          <hr style={{border: 0, borderTop: '1px solid rgba(141,198,63,0.15)', margin: '12px 0'}} />
+          
+          {/* Account Section */}
+          <button style={{width: '100%', padding: '14px 16px', background: '#1a1a1a', color: '#fff', border: '1px solid #2a2a2a', borderRadius: 12, fontSize: 15, fontWeight: 600, marginBottom: 8, cursor: 'pointer', textAlign: 'left', transition: 'all 0.2s ease', boxShadow: '0 2px 8px rgba(0,0,0,0.3)'}} onMouseEnter={(e) => {e.target.style.background = '#252525'; e.target.style.borderColor = '#353535'; e.target.style.boxShadow = '0 4px 16px rgba(141,198,63,0.15)';}} onMouseLeave={(e) => {e.target.style.background = '#1a1a1a'; e.target.style.borderColor = '#2a2a2a'; e.target.style.boxShadow = '0 2px 8px rgba(0,0,0,0.3)';}}><span style={{display: 'inline-block', marginRight: 10}}>⚙️</span>Account Settings</button>
+          <button style={{width: '100%', padding: '14px 16px', background: '#1a1a1a', color: '#fff', border: '1px solid #2a2a2a', borderRadius: 12, fontSize: 15, fontWeight: 600, marginBottom: 8, cursor: 'pointer', textAlign: 'left', transition: 'all 0.2s ease', boxShadow: '0 2px 8px rgba(0,0,0,0.3)'}} onMouseEnter={(e) => {e.target.style.background = '#252525'; e.target.style.borderColor = '#353535'; e.target.style.boxShadow = '0 4px 16px rgba(141,198,63,0.15)';}} onMouseLeave={(e) => {e.target.style.background = '#1a1a1a'; e.target.style.borderColor = '#2a2a2a'; e.target.style.boxShadow = '0 2px 8px rgba(0,0,0,0.3)';}}><span style={{display: 'inline-block', marginRight: 10}}>🔒</span>Privacy & Security</button>
+          <button onClick={() => { showToast('Push notifications can be toggled in your device settings'); setDrawerOpen(false); }} style={{width: '100%', padding: '14px 16px', background: '#1a1a1a', color: '#fff', border: '1px solid #2a2a2a', borderRadius: 12, fontSize: 15, fontWeight: 600, marginBottom: 12, cursor: 'pointer', textAlign: 'left', transition: 'all 0.2s ease', boxShadow: '0 2px 8px rgba(0,0,0,0.3)'}} onMouseEnter={(e) => {e.target.style.background = '#252525'; e.target.style.borderColor = '#353535'; e.target.style.boxShadow = '0 4px 16px rgba(141,198,63,0.15)';}} onMouseLeave={(e) => {e.target.style.background = '#1a1a1a'; e.target.style.borderColor = '#2a2a2a'; e.target.style.boxShadow = '0 2px 8px rgba(0,0,0,0.3)';}}><span style={{display: 'inline-block', marginRight: 10}}>🔔</span>Notifications</button>
+          
+          <hr style={{border: 0, borderTop: '1px solid rgba(141,198,63,0.15)', margin: '12px 0'}} />
+          
+          {/* Support Section */}
+          <button onClick={() => { showToast('Help & Support page coming soon'); setDrawerOpen(false); }} style={{width: '100%', padding: '14px 16px', background: '#1a1a1a', color: '#fff', border: '1px solid #2a2a2a', borderRadius: 12, fontSize: 15, fontWeight: 600, marginBottom: 8, cursor: 'pointer', textAlign: 'left', transition: 'all 0.2s ease', boxShadow: '0 2px 8px rgba(0,0,0,0.3)'}} onMouseEnter={(e) => {e.target.style.background = '#252525'; e.target.style.borderColor = '#353535'; e.target.style.boxShadow = '0 4px 16px rgba(141,198,63,0.15)';}} onMouseLeave={(e) => {e.target.style.background = '#1a1a1a'; e.target.style.borderColor = '#2a2a2a'; e.target.style.boxShadow = '0 2px 8px rgba(0,0,0,0.3)';}}><span style={{display: 'inline-block', marginRight: 10}}>❓</span>Help & Support</button>
+          <button onClick={() => { showToast('IMOUTNOW v0.1.0 — your city is out, are you?'); setDrawerOpen(false); }} style={{width: '100%', padding: '14px 16px', background: '#1a1a1a', color: '#fff', border: '1px solid #2a2a2a', borderRadius: 12, fontSize: 15, fontWeight: 600, marginBottom: 12, cursor: 'pointer', textAlign: 'left', transition: 'all 0.2s ease', boxShadow: '0 2px 8px rgba(0,0,0,0.3)'}} onMouseEnter={(e) => {e.target.style.background = '#252525'; e.target.style.borderColor = '#353535'; e.target.style.boxShadow = '0 4px 16px rgba(141,198,63,0.15)';}} onMouseLeave={(e) => {e.target.style.background = '#1a1a1a'; e.target.style.borderColor = '#2a2a2a'; e.target.style.boxShadow = '0 2px 8px rgba(0,0,0,0.3)';}}><span style={{display: 'inline-block', marginRight: 10}}>ℹ️</span>About IMOUTNOW</button>
+          
+          <hr style={{border: 0, borderTop: '1px solid rgba(141,198,63,0.15)', margin: '12px 0'}} />
+          
+          {/* Action Section */}
+          <button onClick={() => setDrawerOpen(false)} style={{width: '100%', padding: '14px 16px', background: '#1a1a1a', color: '#fff', border: '1px solid #2a2a2a', borderRadius: 12, fontSize: 15, fontWeight: 600, cursor: 'pointer', textAlign: 'center', transition: 'all 0.2s ease', boxShadow: '0 2px 8px rgba(0,0,0,0.3)'}} onMouseEnter={(e) => {e.target.style.background = '#252525'; e.target.style.borderColor = '#353535'; e.target.style.boxShadow = '0 4px 16px rgba(141,198,63,0.15)';}} onMouseLeave={(e) => {e.target.style.background = '#1a1a1a'; e.target.style.borderColor = '#2a2a2a'; e.target.style.boxShadow = '0 2px 8px rgba(0,0,0,0.3)';}}><span style={{display: 'inline-block', marginRight: 8}}>✕</span>Close</button>
+        </div>
+      </SideDrawer>
 
       {/* ── Toast ── */}
       <Toast
