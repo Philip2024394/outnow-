@@ -71,3 +71,29 @@ export async function signOut() {
   if (!supabase) return
   await supabase.auth.signOut()
 }
+
+/**
+ * Send a password-reset email. User clicks the link and lands back in the app
+ * where updatePassword() can be called with their new password.
+ * GDPR: Users must be able to regain access to manage/delete their data.
+ */
+export async function sendPasswordReset(email) {
+  if (!supabase) return
+  const { error } = await supabase.auth.resetPasswordForEmail(email.trim(), {
+    redirectTo: `${window.location.origin}?reset_password=1`,
+  })
+  if (error) throw new Error(error.message)
+}
+
+/**
+ * Update the currently signed-in user's password.
+ * Call this after the user arrives from the reset-password email link.
+ */
+export async function updatePassword(newPassword) {
+  if (!supabase) return
+  if (!newPassword || newPassword.length < 8) {
+    throw new Error('Password must be at least 8 characters')
+  }
+  const { error } = await supabase.auth.updateUser({ password: newPassword })
+  if (error) throw new Error(error.message)
+}

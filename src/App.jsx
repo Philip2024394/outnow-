@@ -8,6 +8,7 @@ import Spinner from '@/components/ui/Spinner'
 import AdminApp from '@/admin/AdminApp'
 import { GuestGateProvider } from '@/contexts/GuestGateContext'
 import DevPanel from '@/dev/DevPanel'
+import CookieBanner from '@/components/ui/CookieBanner'
 import styles from './App.module.css'
 
 // import CategorySelector from '@/components/ui/CategorySelector'
@@ -56,7 +57,9 @@ export default function App() {
   }, [user, userProfile, adminPass])
 
   // Admin dev: bypass auth + skip onboarding → straight to app
+  // Gated to development builds only — never exposed in production
   const handleAdminDev = () => {
+    if (!import.meta.env.DEV) return
     setAdminPass(true)
     setOnboardStep('done')
   }
@@ -98,6 +101,7 @@ export default function App() {
 
   return (
     <GuestGateProvider>
+      <CookieBanner />
       <DevPanel />
 
       {/* Category Selector Sample Demo removed */}

@@ -123,3 +123,72 @@ export async function recordProfileView(viewedUserId) {
     .upsert({ viewed_id: viewedUserId }, { onConflict: 'viewer_id,viewed_id,date_trunc(day, created_at)', ignoreDuplicates: true })
     .then(() => {})
 }
+
+// ─────────────────────────────────────────────────────────────────────────────
+// GDPR COMPLIANCE
+// ─────────────────────────────────────────────────────────────────────────────
+
+/**
+ * Delete all user data and request account deletion via Edge Function.
+ * GDPR Article 17 — Right to Erasure.
+ *
+ * Flow:
+ *  1. Delete all photos from Storage
+ *  2. Delete profile row (cascades to sessions, messages via FK)
+ *  3. Call delete-account edge function to remove the auth user
+ */
+export async function deleteAccount(userId) {
+  if (!supabase || !userId) return
+
+  // 1. Remove all storage files for this user
+  try {
+    const { data: files } = await supabase.storage.from('avatars').list(userId)
+    if (files?.length) {
+      const paths = files.map(f => `${userId}/${f.name}`)
+      await supabase.storage.from('avatars').remove(paths)
+    }
+  } catch {
+    // Non-fatal — continue with account deletion
+  }
+
+  // 2. Wipe profile data (RLS allows owner to delete their own row)
+  await supabase.from('profiles').delete().eq('id', userId)
+
+  // 3. Delete the auth user via Edge Function (requires service_role server-side)
+  const { error } = await supabase.functions.invoke('delete-account', {
+    body: { userId },
+  })
+  if (error) throw new Error('Account deletion failed — please contact support@imoutnow.com')
+}
+
+/**
+ * Export all data held for the current user as a downloadable JSON file.
+ * GDPR Article 20 — Right to Data Portability.
+ */
+export async function exportMyData(userId) {
+  if (!supabase || !userId) return
+
+  const [profileRes, sessionsRes, messagesRes] = await Promise.all([
+    supabase.from('profiles').select('*').eq('id', userId).single(),
+    supabase.from('sessions').select('*').eq('user_id', userId),
+    supabase.from('messages').select('*').eq('sender_id', userId),
+  ])
+
+  const payload = {
+    _exported_at: new Date().toISOString(),
+    _note: 'Your personal data export from IMOUTNOW. Contact privacy@imoutnow.com to request changes.',
+    profile:  profileRes.data  ?? null,
+    sessions: sessionsRes.data ?? [],
+    messages: messagesRes.data ?? [],
+  }
+
+  const blob = new Blob([JSON.stringify(payload, null, 2)], { type: 'application/json' })
+  const url  = URL.createObjectURL(blob)
+  const a    = document.createElement('a')
+  a.href     = url
+  a.download = `imoutnow-my-data-${new Date().toISOString().split('T')[0]}.json`
+  document.body.appendChild(a)
+  a.click()
+  document.body.removeChild(a)
+  URL.revokeObjectURL(url)
+}

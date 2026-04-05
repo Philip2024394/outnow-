@@ -7,8 +7,8 @@ import { ACTIVITY_TYPES, ACTIVITY_CATEGORIES } from '@/firebase/collections'
 import { LOOKING_FOR_OPTIONS, LANGUAGE_FLAGS, subCategoryText, getSearchKeywords } from '@/utils/lookingForLabels'
 import LookingForSheet from '@/components/ui/LookingForSheet'
 import Toast from '@/components/ui/Toast'
-import { saveProfile, uploadAvatar, uploadGalleryPhoto } from '@/services/profileService'
-import { signOut } from '@/services/authService'
+import { saveProfile, uploadAvatar, uploadGalleryPhoto, deleteAccount, exportMyData } from '@/services/profileService'
+import { signOut, sendPasswordReset } from '@/services/authService'
 import { endSession } from '@/services/sessionService'
 import GoOutSetup from './GoOutSetup'
 import UpgradeSheet from '@/components/premium/UpgradeSheet'
@@ -328,6 +328,9 @@ export default function ProfileScreen({ onClose, onboarding = false }) {
   // Self-contained account drawer
   const [drawerOpen, setDrawerOpen] = useState(false)
   const [drawerSigningOut, setDrawerSigningOut] = useState(false)
+  const [deleteStep, setDeleteStep] = useState(null)   // null | 'confirm' | 'deleting'
+  const [exportingData, setExportingData] = useState(false)
+  const [resetPwStep, setResetPwStep] = useState(null) // null | 'sent'
   const { permission, requestPermission } = usePushNotifications()
   const [notifOn, setNotifOn] = useState(permission === 'granted')
   // DOB — parsed from stored "YYYY-MM-DD" string
@@ -1546,6 +1549,50 @@ export default function ProfileScreen({ onClose, onboarding = false }) {
                 </div>
               </button>
 
+              {/* Download my data — GDPR Art. 20 */}
+              <button
+                className={styles.drawerRow}
+                onClick={async () => {
+                  setExportingData(true)
+                  try { await exportMyData(user?.id) }
+                  catch { setToast({ message: 'Export failed — try again', type: 'error' }) }
+                  finally { setExportingData(false) }
+                }}
+                disabled={exportingData}
+              >
+                <span className={styles.drawerRowIcon}>📥</span>
+                <div className={styles.drawerRowText}>
+                  <span className={styles.drawerRowLabel}>{exportingData ? 'Preparing download…' : 'Download My Data'}</span>
+                  <span className={styles.drawerRowSub}>GDPR export — all your data as JSON</span>
+                </div>
+              </button>
+
+              {/* Reset password (email users only) */}
+              {user?.email && (
+                <button
+                  className={styles.drawerRow}
+                  onClick={async () => {
+                    try {
+                      await sendPasswordReset(user.email)
+                      setResetPwStep('sent')
+                      setTimeout(() => setResetPwStep(null), 6000)
+                    } catch (e) {
+                      setToast({ message: e.message, type: 'error' })
+                    }
+                  }}
+                >
+                  <span className={styles.drawerRowIcon}>🔑</span>
+                  <div className={styles.drawerRowText}>
+                    <span className={styles.drawerRowLabel}>
+                      {resetPwStep === 'sent' ? '✅ Reset link sent!' : 'Reset Password'}
+                    </span>
+                    <span className={styles.drawerRowSub}>
+                      {resetPwStep === 'sent' ? `Check ${user.email}` : 'Send a reset link to your email'}
+                    </span>
+                  </div>
+                </button>
+              )}
+
               {/* Sign out */}
               <div className={styles.drawerDivider} />
               <button className={`${styles.drawerRow} ${styles.drawerRowDanger}`} onClick={handleDrawerSignOut} disabled={drawerSigningOut}>
@@ -1555,6 +1602,60 @@ export default function ProfileScreen({ onClose, onboarding = false }) {
                   <span className={styles.drawerRowSub}>Your listing drops from the map instantly</span>
                 </div>
               </button>
+
+              {/* Delete account — GDPR Art. 17 */}
+              <div className={styles.drawerDivider} />
+              {deleteStep === null && (
+                <button
+                  className={`${styles.drawerRow} ${styles.drawerRowDanger}`}
+                  onClick={() => setDeleteStep('confirm')}
+                >
+                  <span className={styles.drawerRowIcon}>🗑️</span>
+                  <div className={styles.drawerRowText}>
+                    <span className={styles.drawerRowLabel}>Delete Account</span>
+                    <span className={styles.drawerRowSub}>Permanently remove all your data</span>
+                  </div>
+                </button>
+              )}
+              {deleteStep === 'confirm' && (
+                <div className={styles.drawerDeleteConfirm}>
+                  <p className={styles.drawerDeleteWarning}>
+                    ⚠️ This permanently deletes your profile, photos, and all data. This cannot be undone.
+                  </p>
+                  <div className={styles.drawerDeleteBtns}>
+                    <button
+                      className={styles.drawerDeleteCancel}
+                      onClick={() => setDeleteStep(null)}
+                    >
+                      Cancel
+                    </button>
+                    <button
+                      className={styles.drawerDeleteConfirmBtn}
+                      onClick={async () => {
+                        setDeleteStep('deleting')
+                        try {
+                          await deleteAccount(user?.id)
+                          await signOut()
+                        } catch (e) {
+                          setDeleteStep(null)
+                          setToast({ message: e.message, type: 'error' })
+                        }
+                      }}
+                    >
+                      Yes, delete everything
+                    </button>
+                  </div>
+                </div>
+              )}
+              {deleteStep === 'deleting' && (
+                <div className={styles.drawerRow}>
+                  <span className={styles.drawerRowIcon}>⏳</span>
+                  <div className={styles.drawerRowText}>
+                    <span className={styles.drawerRowLabel}>Deleting your account…</span>
+                    <span className={styles.drawerRowSub}>Please wait</span>
+                  </div>
+                </div>
+              )}
             </div>
           </div>
         </div>,

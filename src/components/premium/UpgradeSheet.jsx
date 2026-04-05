@@ -1,4 +1,6 @@
 import { useState } from 'react'
+import { useAuth } from '@/hooks/useAuth'
+import { startCheckout } from '@/services/checkoutService'
 import styles from './UpgradeSheet.module.css'
 
 /* ─────────────────────────────────────────
@@ -124,16 +126,26 @@ const MAKER_SUBSCRIPTIONS = [
 const MAKER_CATEGORIES = ['handmade', 'craft_supplies', 'property', 'professional']
 
 export default function UpgradeSheet({ open, onClose, showToast, lookingFor }) {
+  const { user } = useAuth()
   const isMaker = MAKER_CATEGORIES.includes(lookingFor)
-  const [makerView, setMakerView]   = useState('subscribe') // 'subscribe' | 'unlocks'
+  const [makerView, setMakerView]       = useState('subscribe')
   const [selectedSub, setSelectedSub]   = useState('social')
   const [selectedPack, setSelectedPack] = useState('pack8')
   const [selectedSocial, setSelectedSocial] = useState('pro')
+  const [paying, setPaying] = useState(false)
 
   if (!open) return null
 
-  const handlePay = (label) => {
-    showToast?.(`${label} — payment coming soon!`)
+  async function handlePay(priceKey, mode = 'subscription') {
+    if (paying) return
+    setPaying(true)
+    try {
+      await startCheckout(priceKey, mode, user?.id)
+      // startCheckout redirects the browser — if we reach here something failed
+    } catch (err) {
+      showToast?.(err.message ?? 'Payment unavailable — try again')
+      setPaying(false)
+    }
   }
 
   /* ── MAKER SHEET ── */
@@ -218,9 +230,10 @@ export default function UpgradeSheet({ open, onClose, showToast, lookingFor }) {
               <button
                 className={styles.ctaBtn}
                 style={{ background: '#F5C518', color: '#000' }}
-                onClick={() => handlePay(sub.name)}
+                onClick={() => handlePay(`maker_${sub.id}`, 'subscription')}
+                disabled={paying}
               >
-                {sub.cta} — {sub.price}{sub.period}
+                {paying ? 'Redirecting to checkout…' : `${sub.cta} — ${sub.price}${sub.period}`}
               </button>
               <p className={styles.ctaSub}>Renews monthly · Cancel anytime</p>
 
@@ -263,9 +276,10 @@ export default function UpgradeSheet({ open, onClose, showToast, lookingFor }) {
               <button
                 className={styles.ctaBtn}
                 style={{ background: '#F5C518', color: '#000' }}
-                onClick={() => handlePay(pack.label)}
+                onClick={() => handlePay(`maker_${pack.id}`, 'payment')}
+                disabled={paying}
               >
-                Buy {pack.label} — {pack.price}
+                {paying ? 'Redirecting to checkout…' : `Buy ${pack.label} — ${pack.price}`}
               </button>
               <p className={styles.ctaSub}>Expires in 30 days · No subscription</p>
 
@@ -336,12 +350,12 @@ export default function UpgradeSheet({ open, onClose, showToast, lookingFor }) {
           </ul>
         </div>
 
-        <button className={styles.ctaBtn} onClick={() => handlePay(pkg.name)}>
-          {pkg.cta} — {pkg.price}{pkg.period}
+        <button className={styles.ctaBtn} onClick={() => handlePay(`social_${pkg.id}`, 'subscription')} disabled={paying}>
+          {paying ? 'Redirecting to checkout…' : `${pkg.cta} — ${pkg.price}${pkg.period}`}
         </button>
         <p className={styles.ctaSub}>Cancel anytime. No commitment.</p>
 
-        <button className={styles.lifetimeBtn} onClick={() => handlePay(SOCIAL_LIFETIME.label)}>
+        <button className={styles.lifetimeBtn} onClick={() => handlePay('social_lifetime', 'payment')} disabled={paying}>
           <div className={styles.lifetimeLeft}>
             <span className={styles.lifetimeName}>{SOCIAL_LIFETIME.label}</span>
             <span className={styles.lifetimeSub}>{SOCIAL_LIFETIME.sub}</span>
