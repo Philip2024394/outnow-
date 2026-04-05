@@ -28,15 +28,12 @@ export default function ProfileStrip({
   newNowCount    = 0,
   newInviteCount = 0,
   newLaterCount  = 0,
-  activeFilter   = 'invite',
-  onDiscoverNow,
-  onDiscoverInvite,
-  onDiscoverLater,
-  onBoost,         // onBoost(filter) — parent handles go-live + boost logic
+  onBoost,          // onBoost(filter) — parent handles go-live + boost logic
+  onSelectFilter,   // onSelectFilter(filter|null) — tap to pin-filter the map
+  activeFilter = null,
 }) {
   const counts    = { now: outNowCount, invite: inviteOutCount, later: outLaterCount }
   const newCounts = { now: newNowCount, invite: newInviteCount, later: newLaterCount }
-  const handlers  = { now: onDiscoverNow, invite: onDiscoverInvite, later: onDiscoverLater }
 
   const [holding, setHolding]     = useState(null)   // filter key being held
   const [progress, setProgress]   = useState(0)      // 0–1
@@ -98,17 +95,17 @@ export default function ProfileStrip({
   return (
     <div className={styles.strip}>
       <div className={styles.discRow}>
-        {BUTTONS.map(({ filter, label, activeClass, dimClass, color }) => {
-          const active   = activeFilter === filter
+        {BUTTONS.map(({ filter, label, color }) => {
           const isHolding = holding === filter
-          const isFired  = fired === filter
-          const used     = boostUsed[filter]
+          const isFired   = fired === filter
+          const used      = boostUsed[filter]
 
           return (
             <button
               key={filter}
-              className={`${styles.circle} ${active ? styles[activeClass] : styles[dimClass]} ${isFired ? styles.circleFired : ''}`}
-              onClick={() => { if (!isHolding) handlers[filter]?.() }}
+              className={`${styles.colorBtn} ${isFired ? styles.colorBtnFired : ''} ${activeFilter === filter ? styles.colorBtnActive : ''}`}
+              style={{ background: color }}
+              onClick={() => { if (!isHolding) onSelectFilter?.(activeFilter === filter ? null : filter) }}
               onPointerDown={() => startHold(filter)}
               onPointerUp={cancelHold}
               onPointerLeave={cancelHold}
@@ -120,7 +117,7 @@ export default function ProfileStrip({
                   <circle
                     cx="24" cy="24" r="22"
                     fill="none"
-                    stroke={color}
+                    stroke="rgba(255,255,255,0.8)"
                     strokeWidth="3"
                     strokeDasharray={CIRCUMFERENCE}
                     strokeDashoffset={isFired ? 0 : strokeOffset}
@@ -131,21 +128,16 @@ export default function ProfileStrip({
                 </svg>
               )}
 
-              {/* Boost used indicator — small dot on rim */}
               {used && !isHolding && !isFired && (
-                <span className={styles.boostUsedDot} style={{ background: color }} />
+                <span className={styles.boostUsedDot} style={{ background: 'rgba(255,255,255,0.6)' }} />
               )}
 
               {newCounts[filter] > 0 && (
                 <span className={styles.notifBadge}>{newCounts[filter] > 9 ? '9+' : newCounts[filter]}</span>
               )}
 
-              <div className={styles.circleBubble}>
-                <span className={`${styles.circleCount} ${!active ? styles.countDim : ''}`}>{counts[filter]}</span>
-              </div>
-              <span className={`${styles.circleLabel} ${!active ? styles.labelDim : ''}`}>
-                {label}
-              </span>
+              <span className={styles.colorBtnCount}>{counts[filter]}</span>
+              <span className={styles.colorBtnLabel}>{label}</span>
             </button>
           )
         })}

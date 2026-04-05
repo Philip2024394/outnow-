@@ -1649,6 +1649,31 @@
   letter-spacing: 0.04em;
 }
 
+/* Shop tab button variants */
+.tabBtnShop {
+  background: rgba(141,198,63,0.05);
+  border-color: rgba(141,198,63,0.2);
+  color: rgba(255,255,255,0.55);
+}
+
+.tabBtnShopActive {
+  background: rgba(141,198,63,0.12);
+  border-color: rgba(141,198,63,0.5);
+  color: #8DC63F;
+}
+
+.tabShopLock {
+  font-size: 9px;
+  font-weight: 800;
+  background: rgba(141,198,63,0.15);
+  border: 1px solid rgba(141,198,63,0.3);
+  color: #8DC63F;
+  border-radius: 100px;
+  padding: 2px 6px;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
 /* ── Get Verified scroll ── */
 .verifiedScroll {
   flex: 1;

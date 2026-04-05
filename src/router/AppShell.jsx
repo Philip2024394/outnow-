@@ -585,12 +585,10 @@ export default function AppShell({ returnParams, triggerGoLive }) {
           newNowCount={newNowCount}
           newInviteCount={newInviteCount}
           newLaterCount={newLaterCount}
-          activeFilter={mapFilter}
           mapCategory={mapCategory}
           onCategoryChange={setMapCategory}
-          onDiscoverNow={()    => openDiscoveryList('now')}
-          onDiscoverInvite={() => openDiscoveryList('invite')}
-          onDiscoverLater={()  => openDiscoveryList('later')}
+          activeFilter={mapFilter}
+          onSelectFilter={(filter) => setMapFilter(filter)}
           onBoost={(filter) => {
             setMapFilter(filter)
             setBoostToast(filter)
@@ -614,6 +612,15 @@ export default function AppShell({ returnParams, triggerGoLive }) {
           isInviteOut={!mySession && !!inviteOut}
           isScheduled={false}
           onProfileTap={() => { if (isGuest) { triggerGate(); return } setInviteOutSheetOpen(true) }}
+          onDiscoverNow={()    => openDiscoveryList('now')}
+          onDiscoverInvite={() => openDiscoveryList('invite')}
+          onDiscoverLater={()  => openDiscoveryList('later')}
+          outNowCount={categorySessions.filter(s => s.status !== 'scheduled' && s.status !== 'invite_out').length}
+          inviteOutCount={categorySessions.filter(s => s.status === 'invite_out').length}
+          outLaterCount={categorySessions.filter(s => s.status === 'scheduled').length}
+          newNowCount={newNowCount}
+          newInviteCount={newInviteCount}
+          newLaterCount={newLaterCount}
         />
       )}
 

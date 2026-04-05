@@ -52,6 +52,76 @@
   white-space: nowrap;
 }
 
+/* ── Right-side status filter panel ── */
+.statusPanel {
+  position: absolute;
+  right: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: var(--z-map-controls);
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  pointer-events: all;
+}
+
+.statusBtn {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 58px;
+  height: 58px;
+  border-radius: 16px;
+  border: none;
+  cursor: pointer;
+  gap: 2px;
+  box-shadow: 0 3px 14px rgba(0,0,0,0.45);
+  -webkit-tap-highlight-color: transparent;
+  transition: transform 0.12s, box-shadow 0.12s;
+}
+.statusBtn:active {
+  transform: scale(0.93);
+  box-shadow: 0 1px 6px rgba(0,0,0,0.35);
+}
+
+.statusBtnCount {
+  font-size: 20px;
+  font-weight: 800;
+  color: #fff;
+  line-height: 1;
+  text-shadow: 0 1px 3px rgba(0,0,0,0.25);
+}
+
+.statusBtnLabel {
+  font-size: 9px;
+  font-weight: 700;
+  color: rgba(255,255,255,0.92);
+  line-height: 1;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+}
+
+.statusBtnBadge {
+  position: absolute;
+  top: -5px;
+  right: -5px;
+  min-width: 18px;
+  height: 18px;
+  background: #ff3b30;
+  color: #fff;
+  font-size: 10px;
+  font-weight: 800;
+  border-radius: 100px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 4px;
+  border: 2px solid #080808;
+  line-height: 1;
+}
+
 .interestBadge {
   position: absolute;
   top: calc(var(--safe-top) + 70px);

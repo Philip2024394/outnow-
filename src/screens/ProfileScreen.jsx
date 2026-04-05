@@ -18,6 +18,8 @@ import { usePushNotifications } from '@/hooks/usePushNotifications'
 import styles from './ProfileScreen.module.css'
 
 import SideDrawer from '@/components/ui/SideDrawer'
+import MicroShop from '@/components/ui/MicroShop'
+import MicroShopEditor from '@/components/ui/MicroShopEditor'
 
 const EU_COUNTRIES = new Set([
   'Austria','Belgium','Bulgaria','Croatia','Cyprus','Czech Republic','Denmark',
@@ -319,8 +321,10 @@ export default function ProfileScreen({ onClose, onboarding = false }) {
   const [showUpgrade,     setShowUpgrade]     = useState(false)
   const isFirstSave = !userProfile?.lookingFor
 
-  // Tab: 'profile' | 'verified'
+  // Tab: 'profile' | 'verified' | 'shop'
   const [profileTab, setProfileTab] = useState('profile')
+  const tier = userProfile?.tier ?? 'free'
+  const hasShop = tier === 'premium' || tier === 'business'
   // Per-link confirm state (link opened in new tab = confirmed)
   const [confirmedLinks, setConfirmedLinks] = useState({})
   // Looking-for sheet
@@ -653,7 +657,7 @@ export default function ProfileScreen({ onClose, onboarding = false }) {
       />
 
       {/* ── Tab Switcher ── */}
-      {profileTab === 'profile' && (
+      {(profileTab === 'profile' || profileTab === 'shop') && (
         <div className={styles.tabRow}>
           <button
             className={`${styles.tabBtn} ${styles.tabBtnActiveGold}`}
@@ -662,10 +666,25 @@ export default function ProfileScreen({ onClose, onboarding = false }) {
             Get Verified
             <span className={styles.tabVerifiedBadge}>{pricing.display}</span>
           </button>
+          {hasShop ? (
+            <button
+              className={`${styles.tabBtn} ${profileTab === 'shop' ? styles.tabBtnShopActive : styles.tabBtnShop}`}
+              onClick={() => setProfileTab(profileTab === 'shop' ? 'profile' : 'shop')}
+            >
+              🛍️ My Shop
+            </button>
+          ) : (
+            <button
+              className={`${styles.tabBtn} ${styles.tabBtnShop}`}
+              onClick={() => setShowUpgrade(true)}
+            >
+              🛍️ Shop <span className={styles.tabShopLock}>Premium</span>
+            </button>
+          )}
         </div>
       )}
 
-      <div className={styles.scroll} style={profileTab === 'verified' ? { display: 'none' } : {}}>
+      <div className={styles.scroll} style={(profileTab === 'verified' || profileTab === 'shop') ? { display: 'none' } : {}}>
 
         {/* ── Photo grid ── */}
         <div className={styles.photoSection}>
@@ -1438,6 +1457,15 @@ export default function ProfileScreen({ onClose, onboarding = false }) {
           </div>
         )
       })()}
+
+      {/* ── Shop Tab ── */}
+      {profileTab === 'shop' && hasShop && (
+        <MicroShopEditor
+          userId={user?.uid ?? user?.id}
+          tier={tier}
+          visible={profileTab === 'shop'}
+        />
+      )}
 
       {/* ── Go Out Setup overlay ── */}
       {showGoOutSetup && (

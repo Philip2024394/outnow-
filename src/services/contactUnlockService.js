@@ -39,14 +39,15 @@ export async function initiateContactUnlock({ buyerUserId, sellerUserId, session
 export async function getContactUnlock(buyerUserId, sellerUserId) {
   if (!supabase) return { unlocked: false }
 
-  const { data } = await supabase
+  const { data, error } = await supabase
     .from('contact_unlocks')
     .select('id')
     .eq('buyer_id', buyerUserId)
     .eq('seller_id', sellerUserId)
     .maybeSingle()
 
-  if (!data) return { unlocked: false }
+  // 404 = table doesn't exist yet (migration pending) — treat as not unlocked
+  if (error || !data) return { unlocked: false }
 
   // Fetch seller contact details
   const { data: profile } = await supabase

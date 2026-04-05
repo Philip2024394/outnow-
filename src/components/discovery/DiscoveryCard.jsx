@@ -13,6 +13,7 @@ import DatingCard from './layouts/DatingCard'
 import CraftSuppliesCard from './layouts/CraftSuppliesCard'
 import { quoteForUser } from '@/data/brandQuotes'
 import { recordPhotoView } from '@/services/photoNudgeService'
+import MicroShop from '@/components/ui/MicroShop'
 
 const MAKER_CATEGORIES = ['handmade', 'property', 'professional']
 
@@ -44,10 +45,9 @@ export default function DiscoveryCard({ open, session, mySession, onClose, showT
   const { myInterests, mutualSessions } = useInterests()
   const [meetLoading, setMeetLoading] = useState(false)
   const [meetSent, setMeetSent] = useState(false)
-  const [liked, setLiked] = useState(false)
-  const [hearts, setHearts] = useState([])
   const [photoIdx, setPhotoIdx] = useState(0)
   const [bioOpen, setBioOpen]   = useState(false)
+  const [cardPage, setCardPage] = useState(0) // 0 = profile, 1 = shop
   const sheetRef = useRef(null)
   const startYRef = useRef(null)
   const currentYRef = useRef(0)
@@ -89,7 +89,13 @@ export default function DiscoveryCard({ open, session, mySession, onClose, showT
     }
   }, [open, session?.userId]) // eslint-disable-line
 
+  // Reset to profile page whenever a new card opens
+  useEffect(() => { if (open) setCardPage(0) }, [open])
+
   if (!open || !session) return null
+
+  // Always show shop tab — tier gate is on the editor side (ProfileScreen), not viewer side
+  const hasShop = !!session.userId
 
   // Route to specialised layouts
   if (session.lookingFor === 'dating')
@@ -166,32 +172,14 @@ export default function DiscoveryCard({ open, session, mySession, onClose, showT
     setMeetLoading(false)
   }
 
-  const handleLike = () => {
-    if (liked) return
-    setLiked(true)
-    onLike?.(session)
-    const batch = Array.from({ length: 6 }, (_, i) => ({
-      id: Date.now() + i,
-      left: 38 + (Math.random() * 40 - 20),
-      delay: i * 0.12,
-      size: 14 + Math.random() * 10,
-    }))
-    setHearts(batch)
-    setTimeout(() => setHearts([]), 2000)
-    if (isMutual) {
-      showToast?.(`🎉 You're connected! Chat with ${session.displayName ?? 'them'} is opening — it's free!`, 'success')
-      setTimeout(() => onMeetSent?.(session), 900)
-    } else {
-      showToast?.(`❤️ You liked ${session.displayName ?? 'this profile'}!`, 'success')
-    }
-  }
 
   return (
     <div className={styles.wrapper}>
       <div className={styles.backdrop} onClick={onClose} />
       <div ref={sheetRef} className={styles.sheet} style={{ '--status-color': statusColor }}>
         <div className={styles.handle} onClick={onClose} />
-        <div className={styles.scrollContent}>
+
+        <div className={styles.scrollContent} style={cardPage !== 0 ? { display: 'none' } : {}}>
           <div className={styles.card} style={{ '--status-color': statusColor }}>
 
             {/* Activity header */}
@@ -225,6 +213,13 @@ export default function DiscoveryCard({ open, session, mySession, onClose, showT
                   </span>
                   <span className={styles.noPhotoLabel}>📷 {session.displayName ?? 'This user'} hasn't added a photo yet</span>
                 </div>
+                {hasShop && (
+                  <button
+                    className={`${styles.shopIconBtn} ${cardPage === 1 ? styles.shopIconBtnActive : ''}`}
+                    onClick={() => setCardPage(p => p === 1 ? 0 : 1)}
+                    aria-label="Toggle shop"
+                  >🛍️</button>
+                )}
               </div>
             )}
 
@@ -285,22 +280,17 @@ export default function DiscoveryCard({ open, session, mySession, onClose, showT
                   </svg>
                 </button>
 
-                <button
-                  className={`${styles.likeBtn} ${liked ? styles.likeBtnActive : ''}`}
-                  onClick={handleLike}
-                  aria-label="Like"
-                >
-                  <svg width="18" height="18" viewBox="0 0 24 24" fill={liked ? '#fff' : 'none'} stroke="#fff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                    <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
-                  </svg>
-                </button>
-                {hearts.map(h => (
-                  <span
-                    key={h.id}
-                    className={styles.floatingHeart}
-                    style={{ right: `${h.left}px`, fontSize: `${h.size}px`, animationDelay: `${h.delay}s` }}
-                  >❤️</span>
-                ))}
+
+                {/* Shop toggle — top right of photo */}
+                {hasShop && (
+                  <button
+                    className={`${styles.shopIconBtn} ${cardPage === 1 ? styles.shopIconBtnActive : ''}`}
+                    onClick={() => setCardPage(p => p === 1 ? 0 : 1)}
+                    aria-label="Toggle shop"
+                  >
+                    🛍️
+                  </button>
+                )}
               </div>
             )}
 
@@ -369,6 +359,13 @@ export default function DiscoveryCard({ open, session, mySession, onClose, showT
 
           </div>
         </div>
+
+        {/* ── Shop page ── */}
+        {cardPage === 1 && (
+          <div className={styles.shopSlideScroll}>
+            <MicroShop userId={session.userId} visible={true} />
+          </div>
+        )}
 
         {/* ── Bio full-view overlay ── */}
         {bioOpen && (

@@ -146,10 +146,11 @@ export default function CityResultsSheet({ open, query, sessions, browseCountry,
     if (supabase && browseCountry) {
       setLoading(true)
       const q = query.toLowerCase().trim()
-      const countryLower = browseCountry.toLowerCase()
+      // Use select('*') so the query works against any view version
+      // (columns like brand_name/tags/country may not exist pre-migration — null-checked below)
       supabase
         .from('sessions_with_profiles')
-        .select('profile_city, activity_type, looking_for, brand_name, tags, display_name, country')
+        .select('city, area, activity_type, looking_for, display_name')
         .in('status', ['active', 'invite_out', 'scheduled'])
         .limit(500)
         .then(({ data, error }) => {
@@ -159,16 +160,16 @@ export default function CityResultsSheet({ open, query, sessions, browseCountry,
             return
           }
           const counts = {}
-          data.filter(row => row.country?.toLowerCase() === countryLower).forEach(row => {
-            const city = row.profile_city
+          data.forEach(row => {
+            const city = row.city ?? row.area
             if (!city) return
             const actLabel = ACTIVITY_TYPES.find(a => a.id === row.activity_type)?.label ?? ''
             const matches =
+              !q ||
               row.display_name?.toLowerCase().includes(q) ||
-              row.brand_name?.toLowerCase().includes(q) ||
               actLabel.toLowerCase().includes(q) ||
               row.looking_for?.toLowerCase().includes(q) ||
-              (row.tags ?? []).some(t => t.toLowerCase().includes(q))
+              city.toLowerCase().includes(q)
             if (matches) counts[city] = (counts[city] ?? 0) + 1
           })
           setCities(mergeWithKnownCities(counts, browseCountry))

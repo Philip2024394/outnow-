@@ -7,20 +7,20 @@ import CountdownTimer from '@/components/ui/CountdownTimer'
 import { ACTIVITY_TYPES } from '@/firebase/collections'
 import { lookingForText, LANGUAGE_FLAGS } from '@/utils/lookingForLabels'
 import styles from './MakerCard.module.css'
+import MicroShop from '@/components/ui/MicroShop'
 
 /** Profile layout for Handmade · Property · Professional categories */
-export default function MakerCard({ open, session, onClose, showToast, onGuestAction, onMeetSent, onLike, onUnlockContact, buyerCountry }) {
+export default function MakerCard({ open, session, onClose, showToast, onGuestAction, onMeetSent, onUnlockContact, buyerCountry }) {
   useOverlay()
   const { user }  = useAuth()
-  const { myInterests, mutualSessions } = useInterests()
+  const { myInterests } = useInterests()
   const [meetLoading, setMeetLoading] = useState(false)
   const [meetSent,    setMeetSent]    = useState(false)
-  const [liked,       setLiked]       = useState(false)
-  const [hearts,      setHearts]      = useState([])
   const [photoIdx,    setPhotoIdx]    = useState(0)
   const [bioOpen,     setBioOpen]     = useState(false)
   const [socialOpen,  setSocialOpen]  = useState(false)
   const [infoOpen,    setInfoOpen]    = useState(false)
+  const [cardPage,    setCardPage]    = useState(0)
   const sheetRef   = useRef(null)
   const startYRef  = useRef(null)
   const currentYRef = useRef(0)
@@ -50,7 +50,12 @@ export default function MakerCard({ open, session, onClose, showToast, onGuestAc
     }
   }, [onClose])
 
+  useEffect(() => { if (open) setCardPage(0) }, [open])
+
   if (!open || !session) return null
+
+  // Always show shop tab — tier gate is on the editor side (ProfileScreen), not viewer side
+  const hasShop = !!session.userId
 
   const isScheduled = session.status === 'scheduled'
   const isInviteOut = session.status === 'invite_out'
@@ -59,7 +64,6 @@ export default function MakerCard({ open, session, onClose, showToast, onGuestAc
 
   const photos    = session.photos?.length ? session.photos : session.photoURL ? [session.photoURL] : []
   const activity  = ACTIVITY_TYPES.find(a => a.id === session.activityType)
-  const isMutual  = mutualSessions.has(session.id)
   const hasInterest = myInterests.has(session.id)
 
   const profileStars = 3 + (session.id.split('').reduce((acc, c) => acc + c.charCodeAt(0), 0) % 3)
@@ -98,19 +102,6 @@ export default function MakerCard({ open, session, onClose, showToast, onGuestAc
     setMeetLoading(false)
   }
 
-  const handleLike = () => {
-    if (liked) return
-    setLiked(true); onLike?.(session)
-    const batch = Array.from({ length: 6 }, (_, i) => ({ id: Date.now() + i, left: 38 + (Math.random() * 40 - 20), delay: i * 0.12, size: 14 + Math.random() * 10 }))
-    setHearts(batch)
-    setTimeout(() => setHearts([]), 2000)
-    if (isMutual) {
-      showToast?.(`🎉 Connected! Chat with ${session.displayName} is opening!`, 'success')
-      setTimeout(() => onMeetSent?.(session), 900)
-    } else {
-      showToast?.(`❤️ You liked ${session.displayName}!`, 'success')
-    }
-  }
 
   return (
     <div className={styles.wrapper}>
@@ -120,7 +111,8 @@ export default function MakerCard({ open, session, onClose, showToast, onGuestAc
         ...(infoOpen ? { height: `${Math.min(92, 46 + [session?.instagram, session?.tiktok, session?.facebook, session?.youtube, session?.website].filter(Boolean).length * 8)}dvh` } : {})
       }}>
         <div className={styles.handle} onClick={onClose} />
-        <div className={styles.scrollContent}>
+
+        <div className={styles.scrollContent} style={cardPage !== 0 ? { display: 'none' } : {}}>
           <div className={styles.card}>
 
             {/* Category header */}
@@ -175,14 +167,14 @@ export default function MakerCard({ open, session, onClose, showToast, onGuestAc
                     <path d="M14 13.12c0 2.38 0 6.38-1 8.88"/><path d="M17.29 21.02c.12-.6.43-2.3.5-3.02"/>
                   </svg>
                 </button>
-                <button className={`${styles.likeBtn} ${liked ? styles.likeBtnActive : ''}`} onClick={handleLike} aria-label="Like">
-                  <svg width="18" height="18" viewBox="0 0 24 24" fill={liked ? '#fff' : 'none'} stroke="#fff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                    <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
-                  </svg>
-                </button>
-                {hearts.map(h => (
-                  <span key={h.id} className={styles.floatingHeart} style={{ right: `${h.left}px`, fontSize: `${h.size}px`, animationDelay: `${h.delay}s` }}>❤️</span>
-                ))}
+                {/* Shop toggle — top right of photo */}
+                {hasShop && (
+                  <button
+                    className={`${styles.shopIconBtn} ${cardPage === 1 ? styles.shopIconBtnActive : ''}`}
+                    onClick={() => setCardPage(p => p === 1 ? 0 : 1)}
+                    aria-label="Toggle shop"
+                  >🛍️</button>
+                )}
               </div>
             )}
 
@@ -288,6 +280,13 @@ export default function MakerCard({ open, session, onClose, showToast, onGuestAc
 
           </div>
         </div>
+
+        {/* ── Shop page ── */}
+        {cardPage === 1 && (
+          <div className={styles.shopSlideScroll}>
+            <MicroShop userId={session.userId} visible={true} />
+          </div>
+        )}
 
         {/* ── Social Media page (seller premium feature) ── */}
         {infoOpen && (
