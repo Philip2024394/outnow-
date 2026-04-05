@@ -46,6 +46,8 @@ import CityResultsSheet from '@/components/map/CityResultsSheet'
 import CompanyBrowsePanel from '@/components/map/CompanyBrowsePanel'
 import ContactUnlockSheet from '@/components/payment/ContactUnlockSheet'
 import { useIpCountry } from '@/hooks/useIpCountry'
+import MomentumBanner from '@/components/map/MomentumBanner'
+import ExtendSessionPrompt from '@/components/ui/ExtendSessionPrompt'
 import RatingSheet from '@/components/session/RatingSheet'
 import ReviewsSection from '@/components/session/ReviewsSection'
 import LikedMeScreen from '@/screens/LikedMeScreen'
@@ -223,6 +225,18 @@ export default function AppShell({ returnParams, triggerGoLive }) {
 
   // Time left on session in ms
   const sessionTimeLeft = mySession ? Math.max(0, mySession.expiresAtMs - Date.now()) : null
+
+  // Extend-session prompt — show when <= 15 min remaining on an active session
+  const [extendDismissed, setExtendDismissed] = useState(false)
+  const showExtendPrompt = !!(
+    mySession?.status === 'active' &&
+    sessionTimeLeft !== null &&
+    sessionTimeLeft <= 15 * 60 * 1000 &&
+    sessionTimeLeft > 0 &&
+    !extendDismissed
+  )
+  // Reset dismiss flag whenever a new session starts or is extended
+  useEffect(() => { setExtendDismissed(false) }, [mySession?.id, mySession?.expiresAtMs])
 
   useEffect(() => {
     if (!returnParams) return
@@ -604,6 +618,23 @@ export default function AppShell({ returnParams, triggerGoLive }) {
       )}
 
       <StillHerePrompt open={needsCheckIn && !!mySession} sessionId={mySession?.id} />
+
+      {/* Extend session prompt — appears when <= 15min left on active session */}
+      {showExtendPrompt && (
+        <ExtendSessionPrompt
+          session={mySession}
+          onEnd={async () => {
+            await endSession(mySession.id)
+            setExtendDismissed(true)
+          }}
+          onDismiss={() => setExtendDismissed(true)}
+        />
+      )}
+
+      {/* Momentum banner — "🔥 X people out in [City]" floating pill */}
+      {!mySession && userProfile?.city && (
+        <MomentumBanner city={userProfile.city} />
+      )}
 
       {/* Sheets */}
       <DiscoveryCard

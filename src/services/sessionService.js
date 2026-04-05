@@ -112,7 +112,7 @@ export async function cancelScheduled(sessionId) {
   await endSession(sessionId)
 }
 
-export async function postInviteOut({ activityType, message, tier } = {}) {
+export async function postInviteOut({ activityType, message, vibe, tier } = {}) {
   if (!supabase) {
     await delay(400)
     return { sessionId: `demo-my-invite-${Date.now()}` }
@@ -122,8 +122,39 @@ export async function postInviteOut({ activityType, message, tier } = {}) {
     p_message:       message ?? '',
   })
   if (error) throw new Error(error.message)
-  if (tier === 'business') {
-    await supabase.from('sessions').update({ international: true }).eq('id', data)
+  // Patch vibe + international flag in one update
+  const patch = {}
+  if (vibe) patch.vibe = vibe
+  if (tier === 'business') patch.international = true
+  if (Object.keys(patch).length) {
+    await supabase.from('sessions').update(patch).eq('id', data)
   }
   return { sessionId: data }
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// SESSION EXTENSION — adds extra minutes to an active session's expiry
+// Called from the "Still out? Extend 30min" prompt in ExtendSessionPrompt
+// ─────────────────────────────────────────────────────────────────────────────
+export async function extendSession(sessionId, extraMinutes = 30) {
+  if (!supabase) { await delay(300); return }
+  const { error } = await supabase.rpc('extend_session', {
+    p_session_id:    sessionId,
+    p_extra_minutes: extraMinutes,
+  })
+  if (error) throw new Error(error.message)
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// OTW REQUEST — guard: only allowed when target session is 'active'
+// Uses the send_otw_request RPC which enforces the status check server-side
+// ─────────────────────────────────────────────────────────────────────────────
+export async function sendOtwRequest(toUserId, sessionId) {
+  if (!supabase) { await delay(500); return { otwId: `demo-otw-${Date.now()}` } }
+  const { data, error } = await supabase.rpc('send_otw_request', {
+    p_to_user_id: toUserId,
+    p_session_id: sessionId,
+  })
+  if (error) throw new Error(error.message)
+  return { otwId: data }
 }

@@ -142,6 +142,65 @@
   border-color: var(--color-mutual);
 }
 
+/* ── VIP / Business tier marker ── */
+.live-marker--vip .live-marker__avatar {
+  border-color: #F5C518;
+  border-width: 3px;
+  box-shadow: 0 0 0 2px var(--color-bg), 0 0 24px rgba(245, 197, 24, 0.55);
+}
+
+.live-marker--vip .live-marker__pulse {
+  border-color: #F5C518;
+}
+
+.live-marker--vip .live-marker__pulse-slow {
+  border-color: rgba(245, 197, 24, 0.45);
+}
+
+/* Crown badge floats above the avatar */
+.live-marker__crown {
+  position: absolute;
+  top: -13px;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 15px;
+  z-index: 5;
+  filter: drop-shadow(0 1px 4px rgba(0, 0, 0, 0.9));
+  pointer-events: none;
+  line-height: 1;
+}
+
+/* Status ring variants — invite_out = yellow, scheduled = orange */
+.live-marker--invite .live-marker__avatar {
+  border-color: #F5A623;
+}
+.live-marker--invite .live-marker__pulse,
+.live-marker--invite .live-marker__pulse-slow {
+  border-color: rgba(245, 166, 35, 0.6);
+}
+
+.live-marker--scheduled .live-marker__avatar {
+  border-color: #FF8C00;
+  border-style: dashed;
+}
+.live-marker--scheduled .live-marker__pulse,
+.live-marker--scheduled .live-marker__pulse-slow {
+  border-color: rgba(255, 140, 0, 0.5);
+  animation: none;
+}
+
+/* Vibe colour accent on the activity badge */
+.live-marker__vibe {
+  position: absolute;
+  top: -8px;
+  left: -8px;
+  font-size: 11px;
+  z-index: 5;
+  pointer-events: none;
+  line-height: 1;
+  filter: drop-shadow(0 1px 3px rgba(0,0,0,0.8));
+}
+
 /* Map overlay gradient (top and bottom) */
 .map-top-fade {
   position: absolute;

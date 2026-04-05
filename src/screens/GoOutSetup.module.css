@@ -291,3 +291,41 @@
   padding: 4px;
   -webkit-tap-highlight-color: transparent;
 }
+
+/* ── Vibe selector ── */
+.vibeRow {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.vibeChip {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  padding: 8px 14px;
+  border-radius: 100px;
+  border: 1.5px solid rgba(255, 255, 255, 0.1);
+  background: rgba(255, 255, 255, 0.04);
+  cursor: pointer;
+  font-family: inherit;
+  -webkit-tap-highlight-color: transparent;
+  transition: border-color 0.15s, background 0.15s, transform 0.1s;
+}
+
+.vibeChip:active { transform: scale(0.95); }
+
+.vibeChipActive {
+  border-color: rgba(141, 198, 63, 0.5);
+  background: rgba(141, 198, 63, 0.1);
+}
+
+.vibeEmoji { font-size: 16px; line-height: 1; }
+
+.vibeLabel {
+  font-size: 13px;
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.55);
+}
+
+.vibeChipActive .vibeLabel { color: #8DC63F; }
