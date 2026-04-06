@@ -6,6 +6,8 @@ import { useCoins } from '@/hooks/useCoins'
 import { ACTIVITY_TYPES, ACTIVITY_CATEGORIES } from '@/firebase/collections'
 import { LOOKING_FOR_OPTIONS, LANGUAGE_FLAGS, subCategoryText, getSearchKeywords } from '@/utils/lookingForLabels'
 import LookingForSheet from '@/components/ui/LookingForSheet'
+import CuisineSheet, { WORLD_CUISINES } from '@/components/ui/CuisineSheet'
+import TradeRoleSheet, { TRADE_ROLE_GROUPS } from '@/components/ui/TradeRoleSheet'
 import Toast from '@/components/ui/Toast'
 import { saveProfile, uploadAvatar, uploadGalleryPhoto, deleteAccount, exportMyData } from '@/services/profileService'
 import { signOut, sendPasswordReset } from '@/services/authService'
@@ -306,6 +308,10 @@ export default function ProfileScreen({ onClose, onboarding = false }) {
   const updateHour = (day, field, value) =>
     setBusinessHours(prev => ({ ...prev, [day]: { ...prev[day], [field]: value } }))
   const [tradeRole,     setTradeRole]     = useState(userProfile?.tradeRole ?? '')
+  const [cuisineType,   setCuisineType]   = useState(userProfile?.cuisineType ?? null)
+  const [cuisineOpen,   setCuisineOpen]   = useState(false)
+  const [tradeRoleOpen, setTradeRoleOpen] = useState(false)
+  const [targetAudience, setTargetAudience] = useState(userProfile?.targetAudience ?? [])
   const [instagramHandle, setInstagramHandle] = useState(userProfile?.instagram ?? '')
   const [tiktokHandle,    setTiktokHandle]    = useState(userProfile?.tiktok ?? '')
   const [facebookHandle,  setFacebookHandle]  = useState(userProfile?.facebook ?? '')
@@ -413,6 +419,8 @@ export default function ProfileScreen({ onClose, onboarding = false }) {
     setMarket(userProfile.market ?? '')
     setBrandName(userProfile.brandName ?? '')
     setTradeRole(userProfile.tradeRole ?? '')
+    setCuisineType(userProfile.cuisineType ?? null)
+    setTargetAudience(userProfile.targetAudience ?? [])
     setBusinessHours(userProfile.businessHours ?? Object.fromEntries(DAYS.map(d => [d, { ...DEFAULT_HOURS }])))
     setTags(userProfile.tags ?? [])
     setPhotoURL(userProfile.photoURL ?? null)
@@ -564,6 +572,8 @@ export default function ProfileScreen({ onClose, onboarding = false }) {
         market,
         brandName,
         tradeRole,
+        cuisineType,
+        targetAudience,
         businessHours,
         tags: mergedTags,
         instagramHandle,
@@ -639,7 +649,7 @@ export default function ProfileScreen({ onClose, onboarding = false }) {
           
           {/* Support Section */}
           <button onClick={() => { showToast('Help & Support page coming soon'); setDrawerOpen(false); }} style={{width: '100%', padding: '14px 16px', background: '#1a1a1a', color: '#fff', border: '1px solid #2a2a2a', borderRadius: 12, fontSize: 15, fontWeight: 600, marginBottom: 8, cursor: 'pointer', textAlign: 'left', transition: 'all 0.2s ease', boxShadow: '0 2px 8px rgba(0,0,0,0.3)'}} onMouseEnter={(e) => {e.target.style.background = '#252525'; e.target.style.borderColor = '#353535'; e.target.style.boxShadow = '0 4px 16px rgba(141,198,63,0.15)';}} onMouseLeave={(e) => {e.target.style.background = '#1a1a1a'; e.target.style.borderColor = '#2a2a2a'; e.target.style.boxShadow = '0 2px 8px rgba(0,0,0,0.3)';}}><span style={{display: 'inline-block', marginRight: 10}}>❓</span>Help & Support</button>
-          <button onClick={() => { showToast('Hangger v0.1.0 — who's hanging near you?'); setDrawerOpen(false); }} style={{width: '100%', padding: '14px 16px', background: '#1a1a1a', color: '#fff', border: '1px solid #2a2a2a', borderRadius: 12, fontSize: 15, fontWeight: 600, marginBottom: 12, cursor: 'pointer', textAlign: 'left', transition: 'all 0.2s ease', boxShadow: '0 2px 8px rgba(0,0,0,0.3)'}} onMouseEnter={(e) => {e.target.style.background = '#252525'; e.target.style.borderColor = '#353535'; e.target.style.boxShadow = '0 4px 16px rgba(141,198,63,0.15)';}} onMouseLeave={(e) => {e.target.style.background = '#1a1a1a'; e.target.style.borderColor = '#2a2a2a'; e.target.style.boxShadow = '0 2px 8px rgba(0,0,0,0.3)';}}><span style={{display: 'inline-block', marginRight: 10}}>ℹ️</span>About Hangger</button>
+          <button onClick={() => { showToast("Hangger v0.1.0 — who's hanging near you?"); setDrawerOpen(false); }} style={{width: '100%', padding: '14px 16px', background: '#1a1a1a', color: '#fff', border: '1px solid #2a2a2a', borderRadius: 12, fontSize: 15, fontWeight: 600, marginBottom: 12, cursor: 'pointer', textAlign: 'left', transition: 'all 0.2s ease', boxShadow: '0 2px 8px rgba(0,0,0,0.3)'}} onMouseEnter={(e) => {e.target.style.background = '#252525'; e.target.style.borderColor = '#353535'; e.target.style.boxShadow = '0 4px 16px rgba(141,198,63,0.15)';}} onMouseLeave={(e) => {e.target.style.background = '#1a1a1a'; e.target.style.borderColor = '#2a2a2a'; e.target.style.boxShadow = '0 2px 8px rgba(0,0,0,0.3)';}}><span style={{display: 'inline-block', marginRight: 10}}>ℹ️</span>About Hangger</button>
           
           <hr style={{border: 0, borderTop: '1px solid rgba(141,198,63,0.15)', margin: '12px 0'}} />
           
@@ -1017,22 +1027,89 @@ export default function ProfileScreen({ onClose, onboarding = false }) {
                   <label className={styles.fieldLabel}>I am here to</label>
                   <HelpTip text="Are you selling products or services, buying, or both? This helps people understand your intent straight away." />
                 </div>
-                <div className={styles.selectWrap}>
-                  <select
-                    className={styles.fieldSelect}
-                    value={tradeRole}
-                    onChange={e => setTradeRole(e.target.value)}
-                  >
-                    <option value="">Select role…</option>
-                    <option value="selling">Selling</option>
-                    <option value="buying">Buying</option>
-                    <option value="both">Selling &amp; Buying</option>
-                  </select>
-                  <svg className={styles.selectArrow} width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                <button
+                  type="button"
+                  className={styles.lookingForTrigger}
+                  onClick={() => setTradeRoleOpen(true)}
+                >
+                  {tradeRole
+                    ? (() => {
+                        const opt = TRADE_ROLE_GROUPS.flatMap(g => g.options).find(o => o.value === tradeRole)
+                        return opt
+                          ? <span>{opt.emoji} {opt.label}</span>
+                          : <span>{tradeRole}</span>
+                      })()
+                    : <span className={styles.lookingForPlaceholder}>Tap to choose…</span>
+                  }
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
                     <polyline points="6 9 12 15 18 9" />
                   </svg>
-                </div>
+                </button>
               </div>
+              {/* ── Cuisine Type — food & hospitality categories ── */}
+              {['restaurant','catering','bar_nightclub','hotel_accom','fresh_produce','food_drink'].includes(lookingFor) && (
+                <div className={styles.fieldRow}>
+                  <div className={styles.fieldLabelRow}>
+                    <label className={styles.fieldLabel}>Cuisine Type</label>
+                    <HelpTip text="Let people know what type of food or cuisine you specialise in." />
+                  </div>
+                  <button
+                    type="button"
+                    className={styles.lookingForTrigger}
+                    onClick={() => setCuisineOpen(true)}
+                  >
+                    {cuisineType
+                      ? (() => {
+                          const c = WORLD_CUISINES.find(x => x.value === cuisineType)
+                          return c ? <span>{c.emoji} {c.label}</span> : <span>{cuisineType}</span>
+                        })()
+                      : <span className={styles.lookingForPlaceholder}>Select cuisine…</span>
+                    }
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                      <polyline points="6 9 12 15 18 9" />
+                    </svg>
+                  </button>
+                  {cuisineType && (
+                    <button
+                      type="button"
+                      className={styles.brandQuickBtn}
+                      onClick={() => setCuisineType(null)}
+                    >✕ Clear</button>
+                  )}
+                </div>
+              )}
+
+              {/* ── Target Audience — craft, handmade, art ── */}
+              {['handmade','craft_supplies','art_craft','fashion','buy_sell'].includes(lookingFor) && (
+                <div className={styles.fieldRow}>
+                  <div className={styles.fieldLabelRow}>
+                    <label className={styles.fieldLabel}>Target Audience</label>
+                    <HelpTip text="Who are your products made for? Select all that apply." />
+                  </div>
+                  <div className={styles.brandQuickRow}>
+                    {[
+                      { value: 'women',    label: '👩 Women'   },
+                      { value: 'men',      label: '👨 Men'     },
+                      { value: 'children', label: '👧 Children'},
+                      { value: 'gifts',    label: '🎁 Gifts'   },
+                      { value: 'all',      label: '🌍 All'     },
+                    ].map(opt => {
+                      const active = targetAudience.includes(opt.value)
+                      return (
+                        <button
+                          key={opt.value}
+                          type="button"
+                          className={`${styles.brandQuickBtn} ${active ? styles.brandQuickBtnActive : ''}`}
+                          onClick={() => setTargetAudience(prev =>
+                            active ? prev.filter(v => v !== opt.value) : [...prev, opt.value]
+                          )}
+                        >{opt.label}</button>
+                      )
+                    })}
+                  </div>
+                </div>
+              )}
+
               <div className={styles.fieldRow}>
                 <div className={styles.fieldLabelRow}>
                   <label className={styles.fieldLabel}>Brand Name</label>
@@ -1484,6 +1561,22 @@ export default function ProfileScreen({ onClose, onboarding = false }) {
         lookingFor={lookingFor}
       />
 
+      {/* ── Trade role sheet ── */}
+      <TradeRoleSheet
+        open={tradeRoleOpen}
+        value={tradeRole}
+        onChange={setTradeRole}
+        onClose={() => setTradeRoleOpen(false)}
+      />
+
+      {/* ── Cuisine picker sheet ── */}
+      <CuisineSheet
+        open={cuisineOpen}
+        value={cuisineType}
+        onChange={setCuisineType}
+        onClose={() => setCuisineOpen(false)}
+      />
+
       {/* ── Looking For sheet ── */}
       <LookingForSheet
         open={lookingForOpen}
@@ -1569,7 +1662,7 @@ export default function ProfileScreen({ onClose, onboarding = false }) {
               </button>
 
               {/* About */}
-              <button className={styles.drawerRow} onClick={() => setToast({ message: 'Hangger v0.1.0 — who's hanging near you?', type: 'error' })}>
+              <button className={styles.drawerRow} onClick={() => setToast({ message: "Hangger v0.1.0 — who's hanging near you?", type: 'error' })}>
                 <span className={styles.drawerRowIcon}>ℹ️</span>
                 <div className={styles.drawerRowText}>
                   <span className={styles.drawerRowLabel}>About Hangger</span>

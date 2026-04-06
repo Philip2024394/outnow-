@@ -324,7 +324,7 @@ export default function SettingsSheet({ open, onClose, onOpenLikes, onOpenMyLike
               icon="ℹ️"
               label="About Hangger"
               sublabel="Version 0.1.0 — meet people out near you"
-              onClick={() => showToast?.('Hangger v0.1.0 — who's hanging near you?')}
+              onClick={() => showToast?.("Hangger v0.1.0 — who's hanging near you?")}
             />
             <Row
               icon="🚪"

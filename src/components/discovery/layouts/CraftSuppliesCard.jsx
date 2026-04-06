@@ -6,7 +6,8 @@ import { useAuth } from '@/hooks/useAuth'
 import { useOverlay } from '@/contexts/OverlayContext'
 import CountdownTimer from '@/components/ui/CountdownTimer'
 import { ACTIVITY_TYPES } from '@/firebase/collections'
-import { lookingForText, LANGUAGE_FLAGS } from '@/utils/lookingForLabels'
+import { LANGUAGE_FLAGS } from '@/utils/lookingForLabels'
+import { getCategoryCopy } from '@/constants/categoryCopy'
 import styles from './CraftSuppliesCard.module.css'
 
 /** Profile layout for Handy Craft Supplies */
@@ -50,6 +51,8 @@ export default function CraftSuppliesCard({ open, session, onClose, showToast, o
   }, [onClose])
 
   if (!open || !session) return null
+
+  const copy = getCategoryCopy(session.lookingFor)
 
   const isScheduled = session.status === 'scheduled'
   const isInviteOut = session.status === 'invite_out'
@@ -119,9 +122,12 @@ export default function CraftSuppliesCard({ open, session, onClose, showToast, o
 
             {/* Category header */}
             <div className={styles.categoryHeader}>
+              <span className={styles.categoryEmoji}>{copy.emoji}</span>
               <div>
-                <span className={styles.categoryLabel}>{lookingForText(session.lookingFor)}</span>
-                <span className={styles.categorySlogan}>Craft Supplies Profile</span>
+                <span className={styles.categoryLabel}>{copy.slogan}</span>
+                {session.brandName && (
+                  <span className={styles.categorySlogan}>{session.brandName}</span>
+                )}
               </div>
             </div>
 
@@ -175,13 +181,13 @@ export default function CraftSuppliesCard({ open, session, onClose, showToast, o
             {/* Craft Supplies rows */}
             {session.priceMin && (
               <div className={styles.infoRow}>
-                <span className={styles.infoLabel}>Prices Start</span>
+                <span className={styles.infoLabel}>{copy.priceLabel}</span>
                 <span className={styles.infoValue}>{session.priceMin}</span>
               </div>
             )}
             {activity && (
               <div className={styles.infoRow}>
-                <span className={styles.infoLabel}>Speciality</span>
+                <span className={styles.infoLabel}>{copy.specialityLabel}</span>
                 <span className={styles.infoValue}>{activity.emoji} {activity.label}</span>
               </div>
             )}
@@ -225,12 +231,12 @@ export default function CraftSuppliesCard({ open, session, onClose, showToast, o
                 disabled={meetSent || hasInterest || meetLoading}
                 onClick={handleLetsMeet}
               >
-                <span>{meetLoading ? '…' : meetSent || hasInterest ? '✓ Connected' : "Let's Connect"}</span>
+                <span>{meetLoading ? '…' : meetSent || hasInterest ? '✓ Connected' : copy.ctaActive}</span>
                 {!meetSent && !hasInterest && !meetLoading && (
                   <>
-                    {isOutNow    && <span className={styles.btnFlashOut}>I'm Out Now</span>}
-                    {isInviteOut && <span className={styles.btnFlashInvite}>Invite Out</span>}
-                    {isScheduled && <span className={styles.btnFlashLater}>Out Later</span>}
+                    {isOutNow    && <span className={styles.btnFlashOut}>{copy.statusActive}</span>}
+                    {isInviteOut && <span className={styles.btnFlashInvite}>{copy.statusWants}</span>}
+                    {isScheduled && <span className={styles.btnFlashLater}>{copy.statusBooked}</span>}
                   </>
                 )}
               </button>

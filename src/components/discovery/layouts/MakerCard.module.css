@@ -35,10 +35,21 @@
 .shopSlideScroll::-webkit-scrollbar { display: none; }
 
 .scrollContent {
-  flex: 1; overflow: hidden; display: flex; flex-direction: column;
-  padding: 4px 20px calc(env(safe-area-inset-bottom, 0px) + 12px);
+  flex: 1; overflow-y: auto; -webkit-overflow-scrolling: touch;
+  overscroll-behavior: contain; scrollbar-width: none;
+  display: flex; flex-direction: column;
+  padding: 4px 20px 8px;
 }
-.card { display: flex; flex-direction: column; flex: 1; min-height: 0; gap: 6px; }
+.scrollContent::-webkit-scrollbar { display: none; }
+.card { display: flex; flex-direction: column; gap: 6px; }
+
+/* Pinned CTA footer — always visible */
+.cardFooter {
+  flex-shrink: 0;
+  padding: 8px 20px calc(env(safe-area-inset-bottom, 0px) + 12px);
+  background: #0e0e0e;
+  border-top: 1px solid rgba(255,255,255,0.05);
+}
 
 /* Category header */
 .categoryHeader { display: flex; align-items: flex-start; gap: 10px; padding: 8px 4px 2px; }
@@ -48,7 +59,7 @@
 .categorySlogan { display: block; font-size: 11px; color: rgba(255,255,255,0.45); font-weight: 500; margin-top: 1px; }
 
 /* Photo banner */
-.photoBanner { position: relative; width: calc(100% - 16px); margin: 4px auto 0; flex: 1; min-height: 0; border-radius: 14px; overflow: hidden; border: 2px solid var(--status-color); }
+.photoBanner { position: relative; width: calc(100% - 16px); margin: 4px auto 0; flex: 1; min-height: 220px; max-height: 320px; border-radius: 14px; overflow: hidden; border: 2px solid var(--status-color); }
 .photoBannerImg { width: 100%; height: 100%; object-fit: cover; object-position: center top; display: block; animation: photo-fade 0.25s ease; }
 @keyframes photo-fade { from { opacity: 0.5; transform: scale(1.03); } to { opacity: 1; transform: scale(1); } }
 .photoBanner::after { content: ''; position: absolute; inset: 0; background: linear-gradient(to bottom, transparent 45%, rgba(0,0,0,0.75) 100%); pointer-events: none; }
@@ -88,8 +99,8 @@
 .profileStars { display: flex; flex-direction: column; align-items: center; font-size: 14px; color: #F5C518; letter-spacing: 2px; line-height: 1.2; }
 .profileStarsLabel { font-size: 9px; font-weight: 700; color: rgba(255,255,255,0.4); letter-spacing: 0.08em; text-transform: uppercase; margin-top: 2px; }
 
-/* Connect button */
-.actions { padding: 8px 4px 0; }
+/* Connect button (inside cardFooter) */
+.actions { padding: 0; }
 .lockedBadge { display: flex; align-items: center; gap: 10px; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); border-radius: 12px; padding: 10px 12px; cursor: pointer; margin-bottom: 8px; }
 .lockedBadge:active { background: rgba(255,255,255,0.09); }
 .lockedIcon { width: 34px; height: 34px; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 10px; font-weight: 800; letter-spacing: -0.5px; flex-shrink: 0; }

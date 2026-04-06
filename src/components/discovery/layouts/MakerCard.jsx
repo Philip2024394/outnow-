@@ -6,7 +6,9 @@ import { useOverlay } from '@/contexts/OverlayContext'
 import CountdownTimer from '@/components/ui/CountdownTimer'
 import { ACTIVITY_TYPES } from '@/firebase/collections'
 import { lookingForText, LANGUAGE_FLAGS } from '@/utils/lookingForLabels'
+import { WORLD_CUISINES } from '@/components/ui/CuisineSheet'
 import { getPlatform } from '@/constants/messagingPlatforms'
+import { getCategoryCopy } from '@/constants/categoryCopy'
 import styles from './MakerCard.module.css'
 import MicroShop from '@/components/ui/MicroShop'
 
@@ -55,8 +57,12 @@ export default function MakerCard({ open, session, onClose, showToast, onGuestAc
 
   if (!open || !session) return null
 
-  // Always show shop tab — tier gate is on the editor side (ProfileScreen), not viewer side
-  const hasShop = !!session.userId
+  const copy = getCategoryCopy(session.lookingFor)
+
+  // Show the tab if the session has a page type and a userId (or is seeded demo)
+  const pageType = copy.pageType
+  const pageIcon = pageType === 'menu' ? '📋' : pageType === 'services' ? '🗒️' : '🛍️'
+  const hasShop = pageType !== null && (!!session.userId || !!session.isSeeded)
 
   const isScheduled = session.status === 'scheduled'
   const isInviteOut = session.status === 'invite_out'
@@ -117,26 +123,15 @@ export default function MakerCard({ open, session, onClose, showToast, onGuestAc
           <div className={styles.card}>
 
             {/* Category header */}
-            {(() => {
-              const EMOJI_MAP = [
-                {value:'open',emoji:'🌍'},{value:'handmade',emoji:'🧵'},
-                {value:'craft_supplies',emoji:'🪡'},{value:'property',emoji:'🏠'},
-                {value:'professional',emoji:'💼'}
-              ]
-              const lfEmoji = EMOJI_MAP.find(o => o.value === session.lookingFor)?.emoji ?? '🏪'
-              const lfLabel = lookingForText(session.lookingFor)?.replace(/^\S+\s/, '') ?? 'Makers'
-              return (
-                <div className={styles.categoryHeader}>
-                  <span className={styles.categoryEmoji}>{lfEmoji}</span>
-                  <div className={styles.categoryHeaderInner}>
-                    <span className={styles.categoryLabel}>{lfLabel}</span>
-                    <span className={styles.categorySlogan}>
-                      {['handmade','craft_supplies'].includes(session.lookingFor) ? 'Make & Sell' : 'Seller Profile'}
-                    </span>
-                  </div>
-                </div>
-              )
-            })()}
+            <div className={styles.categoryHeader}>
+              <span className={styles.categoryEmoji}>{copy.emoji}</span>
+              <div className={styles.categoryHeaderInner}>
+                <span className={styles.categoryLabel}>{copy.slogan}</span>
+                {session.brandName && (
+                  <span className={styles.categorySlogan}>{session.brandName}</span>
+                )}
+              </div>
+            </div>
 
             {/* Photo */}
             {photos.length > 0 && (
@@ -174,7 +169,7 @@ export default function MakerCard({ open, session, onClose, showToast, onGuestAc
                     className={`${styles.shopIconBtn} ${cardPage === 1 ? styles.shopIconBtnActive : ''}`}
                     onClick={() => setCardPage(p => p === 1 ? 0 : 1)}
                     aria-label="Toggle shop"
-                  >🛍️</button>
+                  >{pageIcon}</button>
                 )}
               </div>
             )}
@@ -182,20 +177,34 @@ export default function MakerCard({ open, session, onClose, showToast, onGuestAc
             {/* Maker-specific rows */}
             {session.tradeRole && (
               <div className={styles.infoRow}>
-                <span className={styles.infoLabel}>Here to</span>
+                <span className={styles.infoLabel}>{copy.hereToLabel}</span>
                 <span className={styles.infoValue}>
                   {(() => {
                     const isMaker = ['handmade','craft_supplies'].includes(session.lookingFor)
-                    if (session.tradeRole === 'buying') return '🛍️ Buying'
+                    const ROLE_LABELS = {
+                      selling:    '🏷️ Selling / Offering',
+                      buying:     '🛍️ Buying',
+                      both:       '🏷️ Buying & Selling',
+                      leads:      '📊 Lead Generation',
+                      networking: '🤝 Networking',
+                      collab:     '🔗 Collaboration',
+                      recruiting: '👥 Recruiting',
+                      showcasing: '🎯 Showcasing',
+                      investing:  '💰 Investing',
+                      socialising:'👋 Socialising',
+                      community:  '🌍 Community',
+                      events:     '🎉 Hosting Events',
+                    }
+                    if (ROLE_LABELS[session.tradeRole]) return ROLE_LABELS[session.tradeRole]
                     if (isMaker) return '🧵 Make & Sell'
-                    return session.tradeRole === 'both' ? '🏷️ Selling & Buying' : '🏷️ Selling'
+                    return '🏷️ Selling'
                   })()}
                 </span>
               </div>
             )}
-            {session.tradeRole !== 'buying' && session.priceMin && (
+            {!['buying','socialising','community','events'].includes(session.tradeRole) && session.priceMin && (
               <div className={styles.infoRow}>
-                <span className={styles.infoLabel}>Prices Start</span>
+                <span className={styles.infoLabel}>{copy.priceLabel}</span>
                 <span className={styles.infoValue}>{session.priceMin}{session.priceMax ? ` – ${session.priceMax}` : ''}</span>
               </div>
             )}
@@ -207,8 +216,32 @@ export default function MakerCard({ open, session, onClose, showToast, onGuestAc
             )}
             {activity && (
               <div className={styles.infoRow}>
-                <span className={styles.infoLabel}>Speciality</span>
+                <span className={styles.infoLabel}>{copy.specialityLabel}</span>
                 <span className={styles.infoValue}>{activity.emoji} {activity.label}</span>
+              </div>
+            )}
+            {/* Cuisine type — food/hospitality categories */}
+            {session.cuisineType && (
+              <div className={styles.infoRow}>
+                <span className={styles.infoLabel}>Cuisine</span>
+                <span className={styles.infoValue}>
+                  {(() => {
+                    const c = WORLD_CUISINES.find(x => x.value === session.cuisineType)
+                    return c ? `${c.emoji} ${c.label}` : session.cuisineType
+                  })()}
+                </span>
+              </div>
+            )}
+            {/* Target audience — maker/craft categories */}
+            {session.targetAudience?.length > 0 && (
+              <div className={styles.infoRow}>
+                <span className={styles.infoLabel}>For</span>
+                <span className={styles.infoValue}>
+                  {session.targetAudience.map(v => {
+                    const MAP = { women: '👩 Women', men: '👨 Men', children: '👧 Children', gifts: '🎁 Gifts', all: '🌍 All' }
+                    return MAP[v] ?? v
+                  }).join(' · ')}
+                </span>
               </div>
             )}
             {(session.speakingNative || session.speakingSecond) && (
@@ -244,31 +277,34 @@ export default function MakerCard({ open, session, onClose, showToast, onGuestAc
               </div>
             </div>
 
-            {/* Unlock Contact (maker) or Let's Connect (social) */}
-            <div className={styles.actions}>
-              {onUnlockContact ? (
-                <>
-                  {/* Locked contact badge — visible teaser for cross-border viewers */}
-                  {session.contactPlatform && (buyerCountry ?? '').toLowerCase() !== (session?.country ?? '').toLowerCase() && (() => {
-                    const p = getPlatform(session.contactPlatform)
-                    return p ? (
-                      <div className={styles.lockedBadge} onClick={() => onUnlockContact(session)}>
-                        <span className={styles.lockedIcon} style={{ background: p.color, color: p.textColor }}>{p.abbr}</span>
-                        <div className={styles.lockedInfo}>
-                          <span className={styles.lockedPlatform}>{p.label}</span>
-                          <span className={styles.lockedNumber}>•••• ••••</span>
-                        </div>
-                        <svg className={styles.padlock} width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                          <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/>
-                        </svg>
+          </div>
+        </div>
+
+        {/* ── CTA footer — always visible, pinned above shop/bio pages ── */}
+        {cardPage === 0 && !infoOpen && (
+          <div className={styles.cardFooter}>
+            {onUnlockContact ? (
+              <>
+                {session.contactPlatform && (buyerCountry ?? '').toLowerCase() !== (session?.country ?? '').toLowerCase() && (() => {
+                  const p = getPlatform(session.contactPlatform)
+                  return p ? (
+                    <div className={styles.lockedBadge} onClick={() => onUnlockContact(session)}>
+                      <span className={styles.lockedIcon} style={{ background: p.color, color: p.textColor }}>{p.abbr}</span>
+                      <div className={styles.lockedInfo}>
+                        <span className={styles.lockedPlatform}>{p.label}</span>
+                        <span className={styles.lockedNumber}>•••• ••••</span>
                       </div>
-                    ) : null
-                  })()}
-                  <button className={styles.unlockBtn} onClick={() => onUnlockContact(session)}>
+                      <svg className={styles.padlock} width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                        <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+                      </svg>
+                    </div>
+                  ) : null
+                })()}
+                <button className={styles.unlockBtn} onClick={() => onUnlockContact(session)}>
                   {(buyerCountry ?? '').toLowerCase() === (session?.country ?? '').toLowerCase() ? (
-                    isOutNow    ? <>I'm Out — Free To Chat</> :
-                    isInviteOut ? <>Invite Out — Send Message</> :
-                                  <>Out Later — Send Message</>
+                    isOutNow    ? <>{copy.ctaActive}</> :
+                    isInviteOut ? <>{copy.ctaWants}</> :
+                                  <>{copy.ctaScheduled}</>
                   ) : (
                     <>
                       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
@@ -278,32 +314,30 @@ export default function MakerCard({ open, session, onClose, showToast, onGuestAc
                     </>
                   )}
                 </button>
-                </>
-              ) : (
-                <button
-                  className={`${styles.connectBtn} ${meetSent || hasInterest ? styles.connectBtnSent : ''}`}
-                  disabled={meetSent || hasInterest || meetLoading}
-                  onClick={handleLetsMeet}
-                >
-                  <span>{meetLoading ? '…' : meetSent || hasInterest ? '✓ Connected' : "Let's Connect"}</span>
-                  {!meetSent && !hasInterest && !meetLoading && (
-                    <>
-                      {isOutNow    && <span className={styles.btnFlashOut}>I'm Out Now</span>}
-                      {isInviteOut && <span className={styles.btnFlashInvite}>Invite Out</span>}
-                      {isScheduled && <span className={styles.btnFlashLater}>Out Later</span>}
-                    </>
-                  )}
-                </button>
-              )}
-            </div>
-
+              </>
+            ) : (
+              <button
+                className={`${styles.connectBtn} ${meetSent || hasInterest ? styles.connectBtnSent : ''}`}
+                disabled={meetSent || hasInterest || meetLoading}
+                onClick={handleLetsMeet}
+              >
+                <span>{meetLoading ? '…' : meetSent || hasInterest ? '✓ Connected' : copy.ctaActive}</span>
+                {!meetSent && !hasInterest && !meetLoading && (
+                  <>
+                    {isOutNow    && <span className={styles.btnFlashOut}>{copy.statusActive}</span>}
+                    {isInviteOut && <span className={styles.btnFlashInvite}>{copy.statusWants}</span>}
+                    {isScheduled && <span className={styles.btnFlashLater}>{copy.statusBooked}</span>}
+                  </>
+                )}
+              </button>
+            )}
           </div>
-        </div>
+        )}
 
         {/* ── Shop page ── */}
         {cardPage === 1 && (
           <div className={styles.shopSlideScroll}>
-            <MicroShop userId={session.userId} visible={true} />
+            <MicroShop userId={session.userId} visible={true} mode={pageType ?? 'shop'} />
           </div>
         )}
 

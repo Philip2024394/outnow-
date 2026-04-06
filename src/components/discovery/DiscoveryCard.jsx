@@ -10,12 +10,33 @@ import { lookingForText, LANGUAGE_FLAGS } from '@/utils/lookingForLabels'
 import styles from './DiscoveryCard.module.css'
 import MakerCard from './layouts/MakerCard'
 import DatingCard from './layouts/DatingCard'
-import CraftSuppliesCard from './layouts/CraftSuppliesCard'
 import { quoteForUser } from '@/data/brandQuotes'
 import { recordPhotoView } from '@/services/photoNudgeService'
 import MicroShop from '@/components/ui/MicroShop'
 
-const MAKER_CATEGORIES = ['handmade', 'property', 'professional']
+const MAKER_CATEGORIES = [
+  // Handmade & Craft
+  'handmade', 'craft_supplies', 'art_craft',
+  // Commerce & Retail
+  'buy_sell', 'fresh_produce', 'agri_goods', 'fashion', 'electronics', 'vehicles',
+  'property', 'hardware', 'tools_equip', 'antiques', 'import_export', 'vintage',
+  // Trades & Home Services
+  'trades', 'auto_repair', 'cleaning', 'garden', 'security', 'laundry', 'tailoring',
+  'childcare', 'eldercare', 'pet_care', 'transport',
+  // Health & Wellness
+  'healthcare', 'beauty', 'fitness_pt', 'mental_health', 'alt_medicine', 'veterinary', 'pharmacy',
+  // Food & Hospitality
+  'catering', 'restaurant', 'hotel_accom', 'tourism_guide', 'event_planning', 'bar_nightclub', 'food_drink',
+  // Creative & Media
+  'creative', 'content_creator', 'music_perform', 'writing', 'fashion_design',
+  // Professional Services
+  'business', 'technology', 'legal', 'engineering', 'sales_leads', 'consulting',
+  'real_estate', 'marketing', 'media_pro', 'professional',
+  // Work & Employment
+  'hiring', 'freelance', 'manufacturing', 'mining',
+  // Education
+  'education', 'coaching',
+]
 
 const ACTIVITY_SLOGANS = {
   drinks:  'Up for drinks tonight',
@@ -102,9 +123,6 @@ export default function DiscoveryCard({ open, session, mySession, onClose, showT
     return <DatingCard open={open} session={session} mySession={mySession} onClose={onClose} showToast={showToast} onGuestAction={onGuestAction} onMeetSent={onMeetSent} onLike={onLike} />
   if (MAKER_CATEGORIES.includes(session.lookingFor))
     return <MakerCard open={open} session={session} mySession={mySession} onClose={onClose} showToast={showToast} onGuestAction={onGuestAction} onMeetSent={onMeetSent} onLike={onLike} onUnlockContact={onUnlockContact} buyerCountry={buyerCountry} />
-  if (session.lookingFor === 'craft_supplies')
-    return <CraftSuppliesCard open={open} session={session} onClose={onClose} showToast={showToast} onGuestAction={onGuestAction} onMeetSent={onMeetSent} onLike={onLike} />
-
   const isScheduled = session.status === 'scheduled'
   const isInviteOut = session.status === 'invite_out'
   const isOutNow    = !isScheduled && !isInviteOut

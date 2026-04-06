@@ -36,13 +36,21 @@ function Lightbox({ product, onClose }) {
   )
 }
 
+const MODE_CONFIG = {
+  shop:     { icon: '🛍️', title: 'Shop',     emptyIcon: '🛒', emptyText: 'No products listed yet' },
+  menu:     { icon: '📋', title: 'Menu',     emptyIcon: '🍽️', emptyText: 'Menu coming soon'        },
+  services: { icon: '🗒️', title: 'Services', emptyIcon: '✅', emptyText: 'Services coming soon'    },
+}
+
 /**
- * Read-only micro shop grid shown on a user's profile.
+ * Read-only micro shop/menu/services grid shown on a user's profile.
  * Props:
  *  userId  — whose products to load
  *  visible — whether this tab is active (avoids fetching when hidden)
+ *  mode    — 'shop' | 'menu' | 'services' (default: 'shop')
  */
-export default function MicroShop({ userId, visible = true }) {
+export default function MicroShop({ userId, visible = true, mode = 'shop' }) {
+  const cfg = MODE_CONFIG[mode] ?? MODE_CONFIG.shop
   const [products,  setProducts] = useState([])
   const [loading,   setLoading]  = useState(false)
   const [fetched,   setFetched]  = useState(false)
@@ -70,8 +78,8 @@ export default function MicroShop({ userId, visible = true }) {
     return (
       <div className={styles.root}>
         <header className={styles.header}>
-          <span className={styles.headerIcon}>🛍️</span>
-          <span className={styles.headerTitle}>Shop</span>
+          <span className={styles.headerIcon}>{cfg.icon}</span>
+          <span className={styles.headerTitle}>{cfg.title}</span>
         </header>
         <div className={styles.skeletonGrid}>
           {[0, 1, 2, 3].map(i => (
@@ -86,12 +94,12 @@ export default function MicroShop({ userId, visible = true }) {
     return (
       <div className={styles.root}>
         <header className={styles.header}>
-          <span className={styles.headerIcon}>🛍️</span>
-          <span className={styles.headerTitle}>Shop</span>
+          <span className={styles.headerIcon}>{cfg.icon}</span>
+          <span className={styles.headerTitle}>{cfg.title}</span>
         </header>
         <div className={styles.empty}>
-          <span className={styles.emptyIcon}>🛒</span>
-          <p className={styles.emptyText}>No products listed yet</p>
+          <span className={styles.emptyIcon}>{cfg.emptyIcon}</span>
+          <p className={styles.emptyText}>{cfg.emptyText}</p>
         </div>
       </div>
     )
@@ -100,8 +108,8 @@ export default function MicroShop({ userId, visible = true }) {
   return (
     <div className={styles.root}>
       <header className={styles.header}>
-        <span className={styles.headerIcon}>🛍️</span>
-        <span className={styles.headerTitle}>Shop</span>
+        <span className={styles.headerIcon}>{cfg.icon}</span>
+        <span className={styles.headerTitle}>{cfg.title}</span>
         <span className={styles.headerCount}>{products.length} item{products.length !== 1 ? 's' : ''}</span>
       </header>
 

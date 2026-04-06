@@ -77,12 +77,6 @@ function LiveMarkers({ sessions, onSelect, homeMode = false }) {
         return
       }
 
-      // Status dot — color by mode
-      const dotClass = isInviteOut
-        ? 'demo-marker__status-dot demo-marker__status-dot--invite'
-        : 'demo-marker__status-dot demo-marker__status-dot--now'
-      const statusDot = `<div class="${dotClass}"></div>`
-
       const icon = divIcon({
         className: '',
         html: isReplied
@@ -90,18 +84,15 @@ function LiveMarkers({ sessions, onSelect, homeMode = false }) {
                <div class="demo-marker__reply-badge">💌</div>
                <div class="demo-marker__pulse demo-marker__pulse--slow"></div>
                <div class="demo-marker__avatar">${avatarInner}</div>
-               ${statusDot}
              </div>`
           : isInviteOut
           ? `<div class="demo-marker demo-marker--invite">
                <div class="demo-marker__avatar demo-marker__avatar--invite">${avatarInner}</div>
-               ${statusDot}
              </div>`
           : `<div class="demo-marker">
                <div class="demo-marker__pulse"></div>
                <div class="demo-marker__pulse demo-marker__pulse--slow"></div>
                <div class="demo-marker__avatar">${avatarInner}</div>
-               ${statusDot}
              </div>`,
         iconSize: [80, 100],
         iconAnchor: [40, 50],

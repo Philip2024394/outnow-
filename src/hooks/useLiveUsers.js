@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from 'react'
 import { supabase } from '@/lib/supabase'
-import { DEMO_SESSIONS, DEMO_SCHEDULED_SESSIONS, DEMO_INVITE_OUT_SESSIONS, DEMO_MAKER_SESSIONS } from '@/demo/mockData'
+import { DEMO_SESSIONS, DEMO_SCHEDULED_SESSIONS, DEMO_INVITE_OUT_SESSIONS, DEMO_MAKER_SESSIONS, DEMO_CATEGORY_SESSIONS } from '@/demo/mockData'
 import { useAuth } from './useAuth'
 import { useBlockList } from './useBlockList'
 
@@ -75,6 +75,8 @@ function mapRow(row) {
     website: row.website_url ?? null,
     youtube: row.youtube_handle ?? null,
     tier: row.tier ?? null,
+    cuisineType: row.cuisine_type ?? null,
+    targetAudience: row.target_audience ?? [],
   }
 }
 
@@ -92,14 +94,14 @@ export function useLiveUsers({ browseCountry } = {}) {
   useEffect(() => {
     // Demo mode
     if (!supabase) {
-      setSessions([...DEMO_SESSIONS, ...DEMO_SCHEDULED_SESSIONS, ...DEMO_INVITE_OUT_SESSIONS, ...DEMO_MAKER_SESSIONS])
+      setSessions([...DEMO_SESSIONS, ...DEMO_SCHEDULED_SESSIONS, ...DEMO_INVITE_OUT_SESSIONS, ...DEMO_MAKER_SESSIONS, ...DEMO_CATEGORY_SESSIONS])
       setLoading(false)
       return
     }
 
     if (!user) {
       // Guest browsing — show demo profiles so the map isn't empty
-      setSessions([...DEMO_SESSIONS, ...DEMO_SCHEDULED_SESSIONS, ...DEMO_INVITE_OUT_SESSIONS, ...DEMO_MAKER_SESSIONS])
+      setSessions([...DEMO_SESSIONS, ...DEMO_SCHEDULED_SESSIONS, ...DEMO_INVITE_OUT_SESSIONS, ...DEMO_MAKER_SESSIONS, ...DEMO_CATEGORY_SESSIONS])
       setLoading(false)
       return
     }
@@ -128,7 +130,8 @@ export function useLiveUsers({ browseCountry } = {}) {
         .filter(row => !blockedIds.has(row.user_id))
         .map(mapRow)
 
-      setSessions(filtered)
+      // Always show category showcase profiles globally (isSeeded — not real users)
+      setSessions([...filtered, ...DEMO_CATEGORY_SESSIONS])
       setLoading(false)
     }
 
@@ -156,7 +159,7 @@ export function useLiveUsers({ browseCountry } = {}) {
           if (!mounted) return
 
           if (payload.eventType === 'DELETE') {
-            setSessions(prev => prev.filter(s => s.id !== payload.old.id))
+            setSessions(prev => prev.filter(s => s.id !== payload.old.id || s.isSeeded))
             return
           }
 
@@ -166,7 +169,7 @@ export function useLiveUsers({ browseCountry } = {}) {
           if (blockedIds.has(row.user_id)) return
 
           if (!ACTIVE_STATUSES.includes(row.status)) {
-            setSessions(prev => prev.filter(s => s.id !== row.id))
+            setSessions(prev => prev.filter(s => s.id !== row.id || s.isSeeded))
             return
           }
 

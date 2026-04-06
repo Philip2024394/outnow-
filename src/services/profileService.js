@@ -11,6 +11,7 @@ export async function saveProfile({
   photoOffsetX, photoOffsetY, photoZoom,
   tags,
   instagramHandle, tiktokHandle, facebookHandle, websiteUrl, youtubeHandle,
+  cuisineType, targetAudience,
 }) {
   if (!supabase || !userId) return
 
@@ -55,6 +56,8 @@ export async function saveProfile({
       facebook_handle:   facebookHandle || null,
       website_url:       websiteUrl || null,
       youtube_handle:    youtubeHandle || null,
+      cuisine_type:      cuisineType || null,
+      target_audience:   targetAudience?.length ? targetAudience : null,
       updated_at:        new Date().toISOString(),
     })
     .eq('id', userId)
