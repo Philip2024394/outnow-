@@ -12,6 +12,7 @@ import SafetySheet from '@/components/safety/SafetySheet'
 import { getSafetyContact } from '@/components/safety/SafetySheet'
 import SuggestPlaceSheet from './SuggestPlaceSheet'
 import VerifiedPage from './VerifiedPage'
+import ContactOptionsSheet from './ContactOptionsSheet'
 import VenueOwnerLanding from '@/screens/venue-owner/VenueOwnerLanding'
 import VenueOwnerSignup from '@/screens/venue-owner/VenueOwnerSignup'
 import VenueOwnerDashboard from '@/screens/venue-owner/VenueOwnerDashboard'
@@ -43,7 +44,7 @@ function Divider({ label }) {
   return <div className={styles.divider}>{label && <span className={styles.dividerLabel}>{label}</span>}</div>
 }
 
-export default function SettingsSheet({ open, onClose, onOpenLikes, onOpenMyLikes, onEditProfile, onOpenBlockList, onOpenWallet, onUpgrade, showToast, onSOS }) {
+export default function SettingsSheet({ open, onClose, onOpenLikes, onOpenMyLikes, onEditProfile, onOpenBlockList, onOpenWallet, onUpgrade, onMySpot, showToast, onSOS }) {
   const { permission, requestPermission } = usePushNotifications()
   const { userProfile } = useAuth()
   const { session: mySession } = useMySession()
@@ -53,8 +54,9 @@ export default function SettingsSheet({ open, onClose, onOpenLikes, onOpenMyLike
   const [privacyOpen, setPrivacyOpen] = useState(false)
   const [safetyOpen, setSafetyOpen] = useState(false)
   const [suggestOpen, setSuggestOpen] = useState(false)
-  const [verifiedOpen, setVerifiedOpen]         = useState(false)
-  const [venueOwnerScreen, setVenueOwnerScreen] = useState(null) // null | 'landing' | 'signup' | 'dashboard'
+  const [verifiedOpen, setVerifiedOpen]               = useState(false)
+  const [contactOptionsOpen, setContactOptionsOpen]   = useState(false)
+  const [venueOwnerScreen, setVenueOwnerScreen]       = useState(null) // null | 'landing' | 'signup' | 'dashboard'
   const [venueOwnerData, setVenueOwnerData] = useState(null)
   const safetyContact = getSafetyContact()
   const drawerRef = useRef(null)
@@ -138,6 +140,14 @@ export default function SettingsSheet({ open, onClose, onOpenLikes, onOpenMyLike
             />
           )}
 
+          {/* Contact options sub-page (maker users) */}
+          {contactOptionsOpen && (
+            <ContactOptionsSheet
+              onBack={() => setContactOptionsOpen(false)}
+              showToast={showToast}
+            />
+          )}
+
           {/* Header */}
           <div className={styles.header}>
             <div className={styles.headerUser}>
@@ -180,6 +190,16 @@ export default function SettingsSheet({ open, onClose, onOpenLikes, onOpenMyLike
               <span className={styles.upgradeArrow}>›</span>
             </button>
 
+            {/* My Map Spot */}
+            <button className={styles.upgradeRow} style={{ borderColor: 'rgba(232,137,12,0.3)' }} onClick={() => { onClose(); setTimeout(() => onMySpot?.(), 200) }}>
+              <span className={styles.upgradeIcon}>📍</span>
+              <div className={styles.upgradeText}>
+                <span className={styles.upgradeLabel} style={{ color: '#E8890C' }}>My Map Spot</span>
+                <span className={styles.upgradeSub}>Own your postcode — from $0.99/mo</span>
+              </div>
+              <span className={styles.upgradeArrow}>›</span>
+            </button>
+
             {/* Verified */}
             <button className={styles.verifiedRow} onClick={() => setVerifiedOpen(true)}>
               <svg width="14" height="14" viewBox="0 0 24 24" fill="#F5C518" stroke="#F5C518" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -196,6 +216,19 @@ export default function SettingsSheet({ open, onClose, onOpenLikes, onOpenMyLike
                 <polyline points="9 18 15 12 9 6" />
               </svg>
             </button>
+
+            {/* Business — contact options (maker users only) */}
+            {['handmade', 'craft_supplies', 'property', 'professional'].includes(userProfile?.lookingFor) && (
+              <>
+                <Divider label="Business" />
+                <Row
+                  icon="📲"
+                  label="Contact Options"
+                  sublabel="Set your direct number and messaging platform"
+                  onClick={() => setContactOptionsOpen(true)}
+                />
+              </>
+            )}
 
             {/* Activity */}
             <Divider label="Activity" />

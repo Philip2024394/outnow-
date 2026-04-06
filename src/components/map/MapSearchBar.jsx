@@ -1,7 +1,7 @@
 import { useRef } from 'react'
 import styles from './MapSearchBar.module.css'
 
-export default function MapSearchBar({ value, onChange, onFocus, onClear, onSubmit, filterFlag, onFilterTap }) {
+export default function MapSearchBar({ value, onChange, onFocus, onClear, onSubmit, filterFlag, onFilterTap, placeholder = 'Search activity, product, service…' }) {
   const inputRef = useRef(null)
 
   function handleKeyDown(e) {
@@ -21,7 +21,7 @@ export default function MapSearchBar({ value, onChange, onFocus, onClear, onSubm
         <input
           ref={inputRef}
           className={styles.input}
-          placeholder="Search activity, product, service…"
+          placeholder={placeholder}
           value={value}
           onChange={e => onChange(e.target.value)}
           onFocus={onFocus}

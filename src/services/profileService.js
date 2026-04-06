@@ -62,6 +62,24 @@ export async function saveProfile({
 }
 
 /**
+ * Save contact options for a business user.
+ * Stores the chosen messaging platform slug + contact number/handle + chat toggle.
+ */
+export async function saveContactOptions(userId, { contactPlatform, contactNumber, chatEnabled }) {
+  if (!supabase || !userId) return
+  const { error } = await supabase
+    .from('profiles')
+    .update({
+      contact_platform: contactPlatform ?? null,
+      contact_number:   contactNumber  ?? null,
+      chat_enabled:     chatEnabled    ?? true,
+      updated_at:       new Date().toISOString(),
+    })
+    .eq('id', userId)
+  if (error) throw new Error(error.message)
+}
+
+/**
  * Upload avatar file to Supabase Storage and save the public URL to profiles.
  * Returns the public URL.
  */

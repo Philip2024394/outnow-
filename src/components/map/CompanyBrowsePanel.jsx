@@ -60,7 +60,6 @@ export default function CompanyBrowsePanel({ open, sessions, query, city, countr
 
   return (
     <>
-    <div className={styles.mapDim} />
     <div className={styles.overlay}>
       <div ref={panelRef} className={styles.panel}>
         {/* Sticky header — query name left, city right */}

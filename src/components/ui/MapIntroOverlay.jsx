@@ -8,9 +8,8 @@ const STEPS = [
     title: 'This is your live map',
     body: 'Coloured pins show real people out in your city right now. Tap any pin or photo to view their profile and connect.',
     pills: [
-      { color: '#8DC63F', label: 'Out Now' },
-      { color: '#F5C518', label: 'Invite Out' },
-      { color: '#E8890C', label: 'Out Later' },
+      { color: '#8DC63F', label: 'Hanging Out' },
+      { color: '#F5C518', label: 'Want to Hang' },
     ],
   },
   {
@@ -18,14 +17,13 @@ const STEPS = [
     title: 'Filter by status',
     body: 'The coloured buttons on the right side open a list of profiles for that status. The footer buttons filter the map pins.',
     pills: [
-      { color: '#8DC63F', label: 'Green → Out Now' },
-      { color: '#F5C518', label: 'Yellow → Invite Out' },
-      { color: '#E8890C', label: 'Orange → Out Later' },
+      { color: '#8DC63F', label: 'Green → Hanging Out' },
+      { color: '#F5C518', label: 'Yellow → Want to Hang' },
     ],
   },
   {
     icon: '🚀',
-    title: 'Go live to be found',
+    title: 'Start hanging to be found',
     body: "Tap your profile photo at the bottom of the right panel to set your status. Once live, others can see you on the map and connect.",
     pills: null,
     cta: true,

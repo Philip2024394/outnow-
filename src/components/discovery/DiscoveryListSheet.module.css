@@ -127,6 +127,53 @@
 }
 
 
+/* ── Search bar ── */
+.searchWrap {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0 0 12px;
+  background: rgba(255,255,255,0.05);
+  border: 1.5px solid rgba(255,255,255,0.09);
+  border-radius: 12px;
+  padding: 10px 12px;
+}
+
+.searchIcon {
+  color: rgba(255,255,255,0.3);
+  flex-shrink: 0;
+}
+
+.searchInput {
+  flex: 1;
+  background: none;
+  border: none;
+  outline: none;
+  color: #fff;
+  font-size: 14px;
+  font-family: inherit;
+  caret-color: var(--theme-color, #8DC63F);
+}
+
+.searchInput::placeholder {
+  color: rgba(255,255,255,0.25);
+}
+
+.searchClear {
+  background: rgba(255,255,255,0.08);
+  border: none;
+  border-radius: 50%;
+  width: 20px;
+  height: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: rgba(255,255,255,0.4);
+  cursor: pointer;
+  flex-shrink: 0;
+  padding: 0;
+}
+
 /* Profile list */
 .list {
   display: flex;

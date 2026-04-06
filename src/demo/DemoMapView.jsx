@@ -1,4 +1,4 @@
-import { useEffect, useState, useCallback } from 'react'
+import { useEffect } from 'react'
 import { MapContainer, TileLayer, useMap, useMapEvents } from 'react-leaflet'
 import { divIcon, marker } from 'leaflet'
 import L from 'leaflet'
@@ -7,21 +7,23 @@ import { activityImage, ACTIVITY_TYPES } from '@/firebase/collections'
 
 const MAKER_CRAFT_IMG = 'https://ik.imagekit.io/nepgaxllc/UntitledsdfasdfdddfsdfsdzxcZXcxxx.png'
 const MAKER_CATEGORIES = ['handmade', 'craft_supplies', 'property', 'professional']
+
+const BUSINESS_BADGE = {
+  handmade:       { emoji: '🪡', label: 'Maker'     },
+  craft_supplies: { emoji: '🎨', label: 'Craft'     },
+  property:       { emoji: '🏠', label: 'Property'  },
+  professional:   { emoji: '💼', label: 'Service'   },
+  fashion:        { emoji: '👗', label: 'Fashion'   },
+  food:           { emoji: '🍜', label: 'Food'      },
+  beauty:         { emoji: '💅', label: 'Beauty'    },
+  tech:           { emoji: '💻', label: 'Tech'      },
+  fitness:        { emoji: '💪', label: 'Fitness'   },
+  default:        { emoji: '🏪', label: 'Business'  },
+}
 import { DEMO_CENTER } from './mockData'
 import { spreadMarkers } from '@/utils/spreadMarkers'
 import styles from './DemoMapView.module.css'
 
-function formatScheduledTime(ms) {
-  if (!ms) return ''
-  const d = new Date(ms)
-  const now = new Date()
-  const isToday = d.toDateString() === now.toDateString()
-  const isTomorrow = d.toDateString() === new Date(now.getTime() + 86400000).toDateString()
-  const timeStr = d.toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' })
-  if (isToday) return `Tonight ${timeStr}`
-  if (isTomorrow) return `Tomorrow ${timeStr}`
-  return d.toLocaleDateString([], { weekday: 'short' }) + ' ' + timeStr
-}
 
 // Fix default icon paths broken by Vite bundling
 delete L.Icon.Default.prototype._getIconUrl
@@ -31,7 +33,7 @@ L.Icon.Default.mergeOptions({
   shadowUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png',
 })
 
-function LiveMarkers({ sessions, onSelect }) {
+function LiveMarkers({ sessions, onSelect, homeMode = false }) {
   const map = useMap()
 
   useEffect(() => {
@@ -39,9 +41,6 @@ function LiveMarkers({ sessions, onSelect }) {
 
     spreadMarkers(sessions, 'lat', 'lng').forEach((session) => {
       const initial = (session.displayName ?? 'U')[0].toUpperCase()
-      const isScheduled  = session.status === 'scheduled'
-      const isInviteOut  = session.status === 'invite_out'
-      const scheduledLabel = isScheduled ? formatScheduledTime(session.scheduledFor) : ''
       const actImg = activityImage(session.activityType)
       const activityCategory = ACTIVITY_TYPES.find(a => a.id === session.activityType)?.category
       const isMaker = MAKER_CATEGORIES.includes(session.lookingFor) || activityCategory === 'handmade'
@@ -53,12 +52,34 @@ function LiveMarkers({ sessions, onSelect }) {
         ? `<img src="${actImg}" class="demo-marker__activity-img" alt="" />`
         : initial
       const isReplied = !!session.hasReplied
+      // Home mode forces all user (non-maker) pins to render as yellow regardless of real status
+      const isInviteOut = isMaker ? session.status === 'invite_out' : (homeMode || session.status === 'invite_out')
 
-      // Status dot — color by mode, pulsing, no dot for offline
+      // Business badge pin for maker sessions
+      if (isMaker) {
+        const badge     = BUSINESS_BADGE[session.lookingFor] ?? BUSINESS_BADGE[activityCategory] ?? BUSINESS_BADGE.default
+        const product   = session.productWord ?? null
+        const sellerType = session.sellerType ?? 'Maker'
+        const pinLabel  = product ? `${product} ${sellerType}` : badge.label
+        const badgeIcon = divIcon({
+          className: '',
+          html: `<div class="biz-badge${isInviteOut ? ' biz-badge--invite' : ''}">
+                   <span class="biz-badge__emoji">${badge.emoji}</span>
+                   <span class="biz-badge__label">${pinLabel}</span>
+                   <div class="biz-badge__tip"></div>
+                 </div>`,
+          iconSize: [130, 44],
+          iconAnchor: [65, 44],
+        })
+        const m = marker([session.lat, session.lng], { icon: badgeIcon })
+        m.on('click', () => onSelect(session))
+        cluster.addLayer(m)
+        return
+      }
+
+      // Status dot — color by mode
       const dotClass = isInviteOut
         ? 'demo-marker__status-dot demo-marker__status-dot--invite'
-        : isScheduled
-        ? 'demo-marker__status-dot demo-marker__status-dot--later'
         : 'demo-marker__status-dot demo-marker__status-dot--now'
       const statusDot = `<div class="${dotClass}"></div>`
 
@@ -70,13 +91,6 @@ function LiveMarkers({ sessions, onSelect }) {
                <div class="demo-marker__pulse demo-marker__pulse--slow"></div>
                <div class="demo-marker__avatar">${avatarInner}</div>
                ${statusDot}
-             </div>`
-          : isScheduled
-          ? `<div class="demo-marker demo-marker--scheduled">
-               <div class="demo-marker__clock">🕐</div>
-               <div class="demo-marker__avatar demo-marker__avatar--scheduled">${avatarInner}</div>
-               ${statusDot}
-               <div class="demo-marker__time-label">${scheduledLabel}</div>
              </div>`
           : isInviteOut
           ? `<div class="demo-marker demo-marker--invite">
@@ -137,7 +151,7 @@ function MapEventsHandler({ onMapMove, flyTarget }) {
 
   useEffect(() => {
     if (!flyTarget) return
-    map.flyTo([flyTarget.lat, flyTarget.lng], 14, { duration: 1.2 })
+    map.flyTo([flyTarget.lat, flyTarget.lng], flyTarget.zoom ?? 14, { duration: 1.2 })
   }, [flyTarget, map])
 
   return null
@@ -176,63 +190,26 @@ function VenueMarkers({ venues, onSelectVenue }) {
   return null
 }
 
-const MIN_ZOOM = 5   // below this you'd see blank polar/edge tiles
+const MIN_ZOOM = 3
 const HOME_ZOOM = 14
-
-function ZoomPanWatcher({ onDrift }) {
-  const map = useMapEvents({
-    zoomend: () => check(),
-    moveend: () => check(),
-  })
-
-  function check() {
-    const zoom = map.getZoom()
-    const center = map.getCenter()
-    const dLat = Math.abs(center.lat - DEMO_CENTER.lat)
-    const dLng = Math.abs(center.lng - DEMO_CENTER.lng)
-    const drifted = zoom < 10 || dLat > 1.5 || dLng > 1.5
-    onDrift(drifted)
-  }
-
-  return null
-}
 
 function EmptyMapState() {
   return (
     <div className={styles.emptyState}>
       <span className={styles.emptyIcon}>📍</span>
       <p className={styles.emptyTitle}>Nobody out yet</p>
-      <p className={styles.emptySub}>Be the first — tap I'M OUT NOW and get discovered</p>
+      <p className={styles.emptySub}>Be the first — tap Hanging Out and get discovered</p>
     </div>
   )
 }
 
-export default function DemoMapView({ sessions, onSelectUser, allVenues = [], activeVenues = [], onSelectVenue, venuesOn = false, onMapMove, flyTarget }) {
-  const [drifted, setDrifted] = useState(false)
-  const [homeFly, setHomeFly] = useState(null)
-
-  const handleReturnHome = useCallback(() => {
-    setHomeFly({ lat: DEMO_CENTER.lat, lng: DEMO_CENTER.lng, zoom: HOME_ZOOM, ts: Date.now() })
-    setDrifted(false)
-  }, [])
-
+export default function DemoMapView({ sessions, onSelectUser, allVenues = [], activeVenues = [], onSelectVenue, venuesOn = false, onMapMove, flyTarget, homeMode = false, initialZoom = HOME_ZOOM }) {
   return (
     <div className={styles.wrapper}>
       {!venuesOn && sessions.length === 0 && <EmptyMapState />}
-
-      {drifted && (
-        <button className={styles.returnBtn} onClick={handleReturnHome}>
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-            <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>
-            <polyline points="9 22 9 12 15 12 15 22"/>
-          </svg>
-          My area
-        </button>
-      )}
-
       <MapContainer
         center={[DEMO_CENTER.lat, DEMO_CENTER.lng]}
-        zoom={HOME_ZOOM}
+        zoom={initialZoom}
         minZoom={MIN_ZOOM}
         zoomControl={false}
         attributionControl={true}
@@ -248,8 +225,7 @@ export default function DemoMapView({ sessions, onSelectUser, allVenues = [], ac
           updateWhenIdle={false}
           updateWhenZooming={false}
         />
-        <MapEventsHandler onMapMove={onMapMove} flyTarget={homeFly ?? flyTarget} />
-        <ZoomPanWatcher onDrift={setDrifted} />
+        <MapEventsHandler onMapMove={onMapMove} flyTarget={flyTarget} />
         <MyDot />
         {venuesOn
           ? <VenueMarkers
@@ -259,7 +235,7 @@ export default function DemoMapView({ sessions, onSelectUser, allVenues = [], ac
               }))}
               onSelectVenue={onSelectVenue ?? (() => {})}
             />
-          : <LiveMarkers sessions={sessions} onSelect={onSelectUser} />
+          : <LiveMarkers sessions={sessions} onSelect={onSelectUser} homeMode={homeMode} />
         }
       </MapContainer>
     </div>

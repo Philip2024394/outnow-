@@ -1,0 +1,299 @@
+.screen {
+  position: fixed;
+  inset: 0;
+  background: #080808;
+  z-index: var(--z-sheet);
+  display: flex;
+  flex-direction: column;
+  overflow-y: auto;
+  scrollbar-width: none;
+}
+.screen::-webkit-scrollbar { display: none; }
+
+/* ── Top bar ── */
+.topBar {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: calc(env(safe-area-inset-top, 0px) + 16px) 16px 12px;
+}
+
+.backBtn {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: rgba(255,255,255,0.06);
+  border: none;
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  flex-shrink: 0;
+}
+
+.topTitle {
+  font-size: 17px;
+  font-weight: 800;
+  color: #fff;
+  flex: 1;
+}
+
+/* ── Hero — map preview ── */
+.mapPreview {
+  position: relative;
+  margin: 0 16px 16px;
+  height: 200px;
+  border-radius: 20px;
+  overflow: hidden;
+  background: #111;
+  border: 1.5px solid rgba(232,137,12,0.3);
+}
+
+.mapPlaceholder {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  gap: 8px;
+  background: radial-gradient(ellipse at center, rgba(232,137,12,0.08) 0%, transparent 70%),
+              linear-gradient(135deg, #0a0a0a 0%, #111 100%);
+}
+
+.mapGrid {
+  position: absolute;
+  inset: 0;
+  opacity: 0.06;
+  background-image:
+    linear-gradient(rgba(255,255,255,0.5) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255,255,255,0.5) 1px, transparent 1px);
+  background-size: 28px 28px;
+}
+
+.mapPin {
+  font-size: 40px;
+  position: relative;
+  z-index: 1;
+  filter: drop-shadow(0 0 12px rgba(232,137,12,0.7));
+  animation: pin-pulse 2.5s ease-in-out infinite;
+}
+
+@keyframes pin-pulse {
+  0%, 100% { transform: translateY(0); filter: drop-shadow(0 0 12px rgba(232,137,12,0.7)); }
+  50%       { transform: translateY(-4px); filter: drop-shadow(0 0 18px rgba(232,137,12,0.9)); }
+}
+
+.mapPostcode {
+  font-size: 15px;
+  font-weight: 900;
+  color: #E8890C;
+  letter-spacing: 0.1em;
+  position: relative;
+  z-index: 1;
+}
+
+.mapLabel {
+  font-size: 11px;
+  color: rgba(255,255,255,0.4);
+  position: relative;
+  z-index: 1;
+}
+
+/* ── Status badge on map ── */
+.statusBadge {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 10px;
+  border-radius: 100px;
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.statusActive {
+  background: rgba(141,198,63,0.15);
+  border: 1.5px solid #8DC63F;
+  color: #8DC63F;
+}
+
+.statusPending {
+  background: rgba(245,197,24,0.15);
+  border: 1.5px solid #F5C518;
+  color: #F5C518;
+}
+
+.statusDot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: currentColor;
+  animation: dot-blink 1.4s ease-in-out infinite;
+}
+
+@keyframes dot-blink {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0.3; }
+}
+
+/* ── Info cards ── */
+.infoRow {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  padding: 0 16px;
+  margin-bottom: 16px;
+}
+
+.infoCard {
+  background: rgba(255,255,255,0.04);
+  border: 1px solid rgba(255,255,255,0.07);
+  border-radius: 16px;
+  padding: 14px;
+}
+
+.infoLabel {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: rgba(255,255,255,0.35);
+  margin-bottom: 6px;
+}
+
+.infoValue {
+  font-size: 20px;
+  font-weight: 900;
+  color: #fff;
+  line-height: 1;
+}
+
+.infoSub {
+  font-size: 10px;
+  color: rgba(255,255,255,0.35);
+  margin-top: 3px;
+}
+
+/* ── Details section ── */
+.section {
+  padding: 0 16px;
+  margin-bottom: 16px;
+}
+
+.sectionTitle {
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: rgba(255,255,255,0.3);
+  margin-bottom: 10px;
+}
+
+.detailCard {
+  background: rgba(255,255,255,0.04);
+  border: 1px solid rgba(255,255,255,0.07);
+  border-radius: 16px;
+  overflow: hidden;
+}
+
+.detailRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 16px;
+  border-bottom: 1px solid rgba(255,255,255,0.05);
+}
+
+.detailRow:last-child { border-bottom: none; }
+
+.detailKey {
+  font-size: 13px;
+  color: rgba(255,255,255,0.5);
+}
+
+.detailVal {
+  font-size: 13px;
+  font-weight: 700;
+  color: #fff;
+}
+
+.detailValOrange { color: #E8890C; }
+
+/* ── Pending notice ── */
+.pendingNotice {
+  margin: 0 16px 16px;
+  padding: 14px 16px;
+  background: rgba(245,197,24,0.07);
+  border: 1.5px solid rgba(245,197,24,0.25);
+  border-radius: 16px;
+}
+
+.pendingNoticeTitle {
+  font-size: 13px;
+  font-weight: 800;
+  color: #F5C518;
+  margin: 0 0 4px;
+}
+
+.pendingNoticeSub {
+  font-size: 12px;
+  color: rgba(255,255,255,0.45);
+  margin: 0;
+  line-height: 1.5;
+}
+
+/* ── Claim prompt (no spot yet) ── */
+.claimPrompt {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 40px 32px;
+  text-align: center;
+  gap: 12px;
+}
+
+.claimIcon { font-size: 52px; }
+
+.claimTitle {
+  font-size: 22px;
+  font-weight: 900;
+  color: #fff;
+  margin: 0;
+  letter-spacing: -0.02em;
+}
+
+.claimSub {
+  font-size: 14px;
+  color: rgba(255,255,255,0.4);
+  margin: 0;
+  line-height: 1.5;
+}
+
+.claimBtn {
+  margin-top: 8px;
+  background: #E8890C;
+  color: #fff;
+  border: none;
+  border-radius: 14px;
+  padding: 14px 28px;
+  font-size: 15px;
+  font-weight: 800;
+  cursor: pointer;
+  font-family: inherit;
+  transition: opacity 0.15s;
+}
+.claimBtn:active { opacity: 0.8; }
+
+.priceNote {
+  font-size: 12px;
+  color: rgba(255,255,255,0.3);
+  margin: 0;
+}

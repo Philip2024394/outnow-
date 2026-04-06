@@ -90,6 +90,13 @@
 
 /* Connect button */
 .actions { padding: 8px 4px 0; }
+.lockedBadge { display: flex; align-items: center; gap: 10px; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); border-radius: 12px; padding: 10px 12px; cursor: pointer; margin-bottom: 8px; }
+.lockedBadge:active { background: rgba(255,255,255,0.09); }
+.lockedIcon { width: 34px; height: 34px; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 10px; font-weight: 800; letter-spacing: -0.5px; flex-shrink: 0; }
+.lockedInfo { flex: 1; display: flex; flex-direction: column; gap: 1px; }
+.lockedPlatform { font-size: 11px; color: rgba(255,255,255,0.4); }
+.lockedNumber { font-size: 14px; color: rgba(255,255,255,0.25); letter-spacing: 2px; filter: blur(3px); user-select: none; }
+.padlock { color: rgba(255,255,255,0.3); flex-shrink: 0; }
 .unlockBtn { width: 100%; padding: 14px; border-radius: 14px; background: #8DC63F; border: none; color: #000; font-size: 16px; font-weight: 800; font-family: inherit; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; -webkit-tap-highlight-color: transparent; transition: opacity 0.15s; }
 .unlockBtn:active { opacity: 0.85; }
 .unlockBtnInactive { width: 100%; padding: 14px; border-radius: 14px; background: rgba(255,255,255,0.06); border: 1.5px solid rgba(255,255,255,0.12); color: rgba(255,255,255,0.35); font-size: 15px; font-weight: 700; font-family: inherit; cursor: default; display: flex; align-items: center; justify-content: center; gap: 8px; }

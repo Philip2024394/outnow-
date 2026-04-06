@@ -125,7 +125,7 @@ const MAKER_SUBSCRIPTIONS = [
 
 const MAKER_CATEGORIES = ['handmade', 'craft_supplies', 'property', 'professional']
 
-export default function UpgradeSheet({ open, onClose, showToast, lookingFor }) {
+export default function UpgradeSheet({ open, onClose, showToast, lookingFor, onClaimSpot }) {
   const { user } = useAuth()
   const isMaker = MAKER_CATEGORIES.includes(lookingFor)
   const [makerView, setMakerView]       = useState('subscribe')
@@ -292,6 +292,15 @@ export default function UpgradeSheet({ open, onClose, showToast, lookingFor }) {
             </>
           )}
 
+          <button className={styles.spotBanner} onClick={() => { onClose(); onClaimSpot?.() }}>
+            <span className={styles.spotBannerIcon}>📍</span>
+            <div className={styles.spotBannerBody}>
+              <p className={styles.spotBannerTitle}>Own your map spot</p>
+              <p className={styles.spotBannerSub}>Claim your postcode — first come, first served</p>
+            </div>
+            <span className={styles.spotBannerPrice}>$1.99/mo · $19.99/yr</span>
+          </button>
+
         </div>
       </div>
     )
@@ -362,6 +371,16 @@ export default function UpgradeSheet({ open, onClose, showToast, lookingFor }) {
           </div>
           <span className={styles.lifetimePrice}>{SOCIAL_LIFETIME.price}</span>
         </button>
+
+        <button className={styles.spotBanner} onClick={() => { onClose(); onClaimSpot?.() }}>
+          <span className={styles.spotBannerIcon}>📍</span>
+          <div className={styles.spotBannerBody}>
+            <p className={styles.spotBannerTitle}>Own your map spot</p>
+            <p className={styles.spotBannerSub}>Claim your postcode — first come, first served</p>
+          </div>
+          <span className={styles.spotBannerPrice}>$1.99/mo · $19.99/yr</span>
+        </button>
+
       </div>
     </div>
   )

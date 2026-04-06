@@ -6,7 +6,6 @@ DROP VIEW IF EXISTS sessions_with_profiles;
 CREATE VIEW sessions_with_profiles AS
 SELECT
   s.*,
-  s.international,
   p.display_name,
   p.photo_url,
   p.age,

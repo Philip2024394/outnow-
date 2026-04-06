@@ -3,6 +3,11 @@
 -- Adds: full view columns, pg_cron jobs, extendSession RPC, momentum fn
 -- ═══════════════════════════════════════════════════════════════════════════
 
+-- ── 0. Add missing profile columns ────────────────────────────────────────
+ALTER TABLE profiles ADD COLUMN IF NOT EXISTS tier        text;
+ALTER TABLE profiles ADD COLUMN IF NOT EXISTS is_banned   boolean NOT NULL DEFAULT false;
+ALTER TABLE profiles ADD COLUMN IF NOT EXISTS whatsapp    text;
+
 -- ── 1. Rebuild sessions_with_profiles to expose tier + all profile fields ──
 --    Previous version only joined display_name, photo_url, age, looking_for,
 --    city, is_verified, is_banned. useLiveUsers.mapRow() already expects tier,
@@ -47,40 +52,36 @@ CREATE VIEW sessions_with_profiles AS
 GRANT SELECT ON sessions_with_profiles TO authenticated, anon;
 
 
--- ── 2. pg_cron: activate scheduled sessions when their time arrives ─────────
---    Runs every 5 minutes. Converts status='scheduled' → 'active' when
---    scheduled_for has passed and the session window hasn't expired yet.
+-- ── 2 & 3. pg_cron jobs (skipped if pg_cron extension not enabled) ──────────
+--    Enable pg_cron in Supabase Dashboard → Database → Extensions → pg_cron
+--    Then re-run these two statements manually:
+--
+--    SELECT cron.schedule('activate-scheduled-sessions','*/5 * * * *',
+--      $$ UPDATE sessions SET status='active', needs_check_in=false
+--         WHERE status='scheduled' AND scheduled_for<=now() AND expires_at>now(); $$);
+--
+--    SELECT cron.schedule('expire-active-sessions','*/5 * * * *',
+--      $$ UPDATE sessions SET status='expired'
+--         WHERE status='active' AND expires_at IS NOT NULL AND expires_at<now(); $$);
 
-SELECT cron.schedule(
-  'activate-scheduled-sessions',
-  '*/5 * * * *',
-  $$
-    UPDATE sessions
-    SET
-      status         = 'active',
-      needs_check_in = false
-    WHERE status       = 'scheduled'
-      AND scheduled_for <= now()
-      AND expires_at    >  now();
-  $$
-);
-
-
--- ── 3. pg_cron: expire active sessions past their window ───────────────────
---    Cleans up sessions that are still 'active' but their 90-minute window
---    has passed. Runs every 5 minutes alongside the activation cron.
-
-SELECT cron.schedule(
-  'expire-active-sessions',
-  '*/5 * * * *',
-  $$
-    UPDATE sessions
-    SET status = 'expired'
-    WHERE status      = 'active'
-      AND expires_at  IS NOT NULL
-      AND expires_at  <  now();
-  $$
-);
+DO $$
+BEGIN
+  IF EXISTS (SELECT 1 FROM pg_extension WHERE extname = 'pg_cron') THEN
+    PERFORM cron.schedule(
+      'activate-scheduled-sessions', '*/5 * * * *',
+      'UPDATE sessions SET status=''active'', needs_check_in=false
+       WHERE status=''scheduled'' AND scheduled_for<=now() AND expires_at>now()'
+    );
+    PERFORM cron.schedule(
+      'expire-active-sessions', '*/5 * * * *',
+      'UPDATE sessions SET status=''expired''
+       WHERE status=''active'' AND expires_at IS NOT NULL AND expires_at<now()'
+    );
+  ELSE
+    RAISE NOTICE 'pg_cron not enabled — skipping scheduled job registration. Enable it in Supabase Dashboard → Extensions.';
+  END IF;
+END;
+$$;
 
 
 -- ── 4. extend_session RPC ──────────────────────────────────────────────────

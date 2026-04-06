@@ -40,7 +40,7 @@ const TABS = [
   },
 ]
 
-export default function BottomNav({ activeTab = 'map', onChange, unreadChats = 0, onOpenVenues, activeVenueCount = 0, userPhotoURL, userName, isLive = false, isInviteOut = false, onProfileTap, onDiscoverInvite, onDiscoverNow, outNowCount = 0, inviteOutCount = 0, newNowCount = 0, newInviteCount = 0 }) {
+export default function BottomNav({ activeTab = 'map', onChange, unreadChats = 0, onOpenVenues, activeVenueCount = 0, userPhotoURL, userName, isLive = false, isInviteOut = false, onProfileTap, onDiscoverInvite, onDiscoverNow, outNowCount = 0, inviteOutCount = 0, newNowCount = 0, newInviteCount = 0, onHanggle, businessCount = 0, hanggleActive = false }) {
   const select = (id, extra) => { onChange?.(id); extra?.() }
 
   return (
@@ -52,8 +52,8 @@ export default function BottomNav({ activeTab = 'map', onChange, unreadChats = 0
 
         if (id === 'match') {
           return (
-            <button key={id} className={styles.venueRoundBtn} onClick={onOpenVenues} aria-label="Venues">
-              <span className={styles.colorBtnCount}>{activeVenueCount > 0 ? activeVenueCount : '🏛'}</span>
+            <button key={id} className={`${styles.hanggleBtn} ${hanggleActive ? styles.hanggleBtnActive : ''}`} onClick={onHanggle} aria-label="Hanggle">
+              <span className={styles.hanggleBtnCount}>{businessCount}</span>
             </button>
           )
         }

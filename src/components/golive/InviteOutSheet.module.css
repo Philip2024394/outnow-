@@ -330,6 +330,79 @@
 .textarea:focus { border-color: rgba(245,197,24,0.35); }
 .textarea::placeholder { color: rgba(255,255,255,0.18); }
 
+/* ── Product word (maker pin label) ── */
+.productRow {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.productInput {
+  flex: 1;
+  background: #161616;
+  border: 1.5px solid rgba(255,255,255,0.08);
+  border-radius: 12px;
+  color: #fff;
+  font-size: 15px;
+  font-weight: 700;
+  padding: 11px 14px;
+  outline: none;
+  font-family: inherit;
+  text-transform: capitalize;
+  transition: border-color 0.15s;
+}
+.productInput:focus { border-color: rgba(232,137,12,0.5); }
+.productInput::placeholder { color: rgba(255,255,255,0.2); font-weight: 400; text-transform: none; }
+
+.sellerToggle {
+  display: flex;
+  background: rgba(255,255,255,0.05);
+  border-radius: 10px;
+  padding: 3px;
+  gap: 3px;
+  flex-shrink: 0;
+}
+
+.sellerBtn {
+  padding: 7px 12px;
+  border-radius: 8px;
+  border: none;
+  background: transparent;
+  color: rgba(255,255,255,0.4);
+  font-size: 12px;
+  font-weight: 700;
+  font-family: inherit;
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s;
+}
+
+.sellerBtnActive {
+  background: #E8890C;
+  color: #fff;
+}
+
+.pinPreview {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 2px;
+}
+
+.pinPreviewLabel {
+  font-size: 11px;
+  color: rgba(255,255,255,0.3);
+}
+
+.pinPreviewPill {
+  font-size: 12px;
+  font-weight: 800;
+  color: #E8890C;
+  background: rgba(232,137,12,0.1);
+  border: 1px solid rgba(232,137,12,0.3);
+  border-radius: 100px;
+  padding: 3px 10px;
+}
+
 /* ── Confirm button ── */
 .confirmBtn {
   width: 100%;

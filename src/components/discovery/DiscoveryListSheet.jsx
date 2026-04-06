@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import Avatar from '@/components/ui/Avatar'
 import { ACTIVITY_TYPES } from '@/firebase/collections'
 import { lookingForText } from '@/utils/lookingForLabels'
@@ -7,15 +7,19 @@ import ActivityIcon from '@/components/ui/ActivityIcon'
 import styles from './DiscoveryListSheet.module.css'
 
 const CONFIG = {
-  now:    { label: 'Out Now',    strip: styles.stripNow,    badge: styles.badgeNow,    empty: 'No one is out right now nearby.' },
-  invite: { label: 'Invite Out', strip: styles.stripInvite, badge: styles.badgeInvite, empty: 'No one is looking to go out right now.' },
-  later:  { label: 'Out Later',  strip: styles.stripLater,  badge: styles.badgeLater,  empty: 'No one has scheduled a session yet.' },
+  now:    { label: 'Hanging Out',   badge: styles.badgeNow,    empty: 'Nobody is hanging out nearby right now.' },
+  invite: { label: 'Want to Hang',  badge: styles.badgeInvite, empty: 'Nobody is looking to hang out right now.' },
 }
 
 export default function DiscoveryListSheet({ open, filter = 'now', sessions = [], onClose, onSelect }) {
   const sheetRef    = useRef(null)
   const startYRef   = useRef(null)
   const currentYRef = useRef(0)
+  const [query, setQuery] = useState('')
+
+  useEffect(() => {
+    if (!open) setQuery('')
+  }, [open])
 
   useEffect(() => {
     const sheet = sheetRef.current
@@ -50,19 +54,30 @@ export default function DiscoveryListSheet({ open, filter = 'now', sessions = []
   if (!open) return null
 
   const cfg = CONFIG[filter] ?? CONFIG.now
+  const themeColor = filter === 'invite' ? '#F5C518' : '#8DC63F'
 
-  const filtered = sessions.filter(s => {
+  const byFilter = sessions.filter(s => {
     if (filter === 'now')    return s.status !== 'scheduled' && s.status !== 'invite_out'
     if (filter === 'invite') return s.status === 'invite_out'
-    if (filter === 'later')  return s.status === 'scheduled'
     return false
+  })
+
+  const q = query.trim().toLowerCase()
+  const filtered = q.length < 2 ? byFilter : byFilter.filter(s => {
+    const name       = (s.displayName ?? '').toLowerCase()
+    const area       = (s.city ?? s.area ?? '').toLowerCase()
+    const seeking    = lookingForText(s.lookingFor ?? '').toLowerCase()
+    const activities = (s.activities ?? [s.activityType])
+      .map(id => ACTIVITY_TYPES.find(x => x.id === id)?.label ?? '')
+      .join(' ').toLowerCase()
+    return name.includes(q) || area.includes(q) || activities.includes(q) || seeking.includes(q)
   })
 
   return (
     <>
     <div className={styles.wrapper}>
       <div className={styles.backdrop} onClick={onClose} />
-      <div ref={sheetRef} className={styles.sheet} style={{ '--theme-color': filter === 'invite' ? '#F5C518' : filter === 'later' ? '#E8890C' : '#8DC63F' }}>
+      <div ref={sheetRef} className={styles.sheet} style={{ '--theme-color': themeColor }}>
 
         <div className={styles.handle} onClick={onClose} />
 
@@ -71,40 +86,52 @@ export default function DiscoveryListSheet({ open, filter = 'now', sessions = []
           {/* Header */}
           <div className={styles.header}>
             <div className={styles.headerLeft}>
-              {filter === 'invite' ? (
-                <div className={styles.inviteHeader}>
-                  <span className={styles.inviteTitle}>Invite Out</span>
-                  <span className={styles.inviteSub}>Connect And Organise The Place</span>
-                </div>
-              ) : filter === 'now' ? (
-                <div className={styles.inviteHeader}>
-                  <span className={styles.inviteTitle}>Out Now</span>
-                  <span className={styles.inviteSub}>Connect with people out near you</span>
-                </div>
-              ) : filter === 'later' ? (
-                <div className={styles.inviteHeader}>
-                  <span className={styles.inviteTitle}>Out Later</span>
-                  <span className={styles.inviteSub}>Plan ahead — see who's going out soon</span>
-                </div>
-              ) : (
-                <span className={`${styles.badge} ${cfg.badge}`}>{cfg.label}</span>
-              )}
+              <div className={styles.inviteHeader}>
+                <span className={styles.inviteTitle}>
+                  {filter === 'invite' ? 'Want to Hang' : 'Hanging Out'}
+                </span>
+                <span className={styles.inviteSub}>
+                  {filter === 'invite'
+                    ? 'Connect and organise where to meet'
+                    : 'People hanging out near you right now'}
+                </span>
+              </div>
             </div>
             <span className={styles.count}>
               {filtered.length} {filtered.length === 1 ? 'person' : 'people'}
             </span>
           </div>
 
+          {/* Search bar */}
+          <div className={styles.searchWrap}>
+            <svg className={styles.searchIcon} width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+              <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+            </svg>
+            <input
+              className={styles.searchInput}
+              placeholder="Search by name, activity, area…"
+              value={query}
+              onChange={e => setQuery(e.target.value)}
+            />
+            {query.length > 0 && (
+              <button className={styles.searchClear} onClick={() => setQuery('')} aria-label="Clear">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                  <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+                </svg>
+              </button>
+            )}
+          </div>
+
           {/* Profile cards */}
           {filtered.length === 0 ? (
-            <div className={styles.empty}>{cfg.empty}</div>
+            <div className={styles.empty}>
+              {q.length >= 2 ? `No results for "${query}"` : cfg.empty}
+            </div>
           ) : (
             <div className={styles.list}>
               {filtered.map(s => {
-                const isInviteOut  = s.status === 'invite_out'
-                const isScheduled  = s.status === 'scheduled'
-
-                const activities = (s.activities ?? [s.activityType]).slice(0, 1)
+                const isInviteOut = s.status === 'invite_out'
+                const activities  = (s.activities ?? [s.activityType]).slice(0, 1)
 
                 return (
                   <button
@@ -116,8 +143,7 @@ export default function DiscoveryListSheet({ open, filter = 'now', sessions = []
                       src={s.photoURL ?? s.photos?.[0] ?? null}
                       name={s.displayName}
                       size={52}
-                      live={!isScheduled && !isInviteOut}
-                      scheduled={isScheduled}
+                      live={!isInviteOut}
                       inviteOut={isInviteOut}
                     />
                     <div className={styles.cardInfo}>
@@ -137,11 +163,6 @@ export default function DiscoveryListSheet({ open, filter = 'now', sessions = []
                       </div>
                     </div>
                     <div className={styles.cardRight}>
-                      {isScheduled && s.scheduledFor && (
-                        <span className={styles.cardTime}>
-                          {new Date(s.scheduledFor).toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' })}
-                        </span>
-                      )}
                       <div className={styles.cardActivities}>
                         {activities.map(id => {
                           const a = ACTIVITY_TYPES.find(x => x.id === id)
@@ -163,7 +184,6 @@ export default function DiscoveryListSheet({ open, filter = 'now', sessions = []
         </div>
       </div>
     </div>
-
-</>
+    </>
   )
 }

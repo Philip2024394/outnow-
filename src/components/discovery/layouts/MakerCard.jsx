@@ -6,6 +6,7 @@ import { useOverlay } from '@/contexts/OverlayContext'
 import CountdownTimer from '@/components/ui/CountdownTimer'
 import { ACTIVITY_TYPES } from '@/firebase/collections'
 import { lookingForText, LANGUAGE_FLAGS } from '@/utils/lookingForLabels'
+import { getPlatform } from '@/constants/messagingPlatforms'
 import styles from './MakerCard.module.css'
 import MicroShop from '@/components/ui/MicroShop'
 
@@ -246,7 +247,24 @@ export default function MakerCard({ open, session, onClose, showToast, onGuestAc
             {/* Unlock Contact (maker) or Let's Connect (social) */}
             <div className={styles.actions}>
               {onUnlockContact ? (
-                <button className={styles.unlockBtn} onClick={() => onUnlockContact(session)}>
+                <>
+                  {/* Locked contact badge — visible teaser for cross-border viewers */}
+                  {session.contactPlatform && (buyerCountry ?? '').toLowerCase() !== (session?.country ?? '').toLowerCase() && (() => {
+                    const p = getPlatform(session.contactPlatform)
+                    return p ? (
+                      <div className={styles.lockedBadge} onClick={() => onUnlockContact(session)}>
+                        <span className={styles.lockedIcon} style={{ background: p.color, color: p.textColor }}>{p.abbr}</span>
+                        <div className={styles.lockedInfo}>
+                          <span className={styles.lockedPlatform}>{p.label}</span>
+                          <span className={styles.lockedNumber}>•••• ••••</span>
+                        </div>
+                        <svg className={styles.padlock} width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                          <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+                        </svg>
+                      </div>
+                    ) : null
+                  })()}
+                  <button className={styles.unlockBtn} onClick={() => onUnlockContact(session)}>
                   {(buyerCountry ?? '').toLowerCase() === (session?.country ?? '').toLowerCase() ? (
                     isOutNow    ? <>I'm Out — Free To Chat</> :
                     isInviteOut ? <>Invite Out — Send Message</> :
@@ -256,10 +274,11 @@ export default function MakerCard({ open, session, onClose, showToast, onGuestAc
                       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
                         <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/>
                       </svg>
-                      Unlock Contact
+                      Unlock Contact — {getPlatform(session.contactPlatform)?.label ?? 'Direct'}
                     </>
                   )}
                 </button>
+                </>
               ) : (
                 <button
                   className={`${styles.connectBtn} ${meetSent || hasInterest ? styles.connectBtnSent : ''}`}

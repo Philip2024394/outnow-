@@ -2,7 +2,7 @@
 .screen {
   position: fixed;
   inset: 0;
-  background: #080808;
+  background: #080808 url('https://ik.imagekit.io/nepgaxllc/the%20best%20image.png') center center / cover no-repeat;
   z-index: 9999;
   display: flex;
   flex-direction: column;
@@ -27,15 +27,17 @@
   to   { opacity: 0; transform: scale(1.04); }
 }
 
-/* Background radial glow */
+/* Dark overlay over background image */
 .glow {
   position: absolute;
-  top: -100px;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 500px;
-  height: 500px;
-  background: radial-gradient(circle, rgba(141,198,63,0.12) 0%, transparent 70%);
+  inset: 0;
+  background: linear-gradient(
+    to bottom,
+    rgba(8,8,8,0.55) 0%,
+    rgba(8,8,8,0.35) 40%,
+    rgba(8,8,8,0.75) 80%,
+    rgba(8,8,8,0.95) 100%
+  );
   pointer-events: none;
 }
 
@@ -50,13 +52,12 @@
   justify-content: center;
 }
 
-/* IMOUTNOW wordmark */
+/* Hangger logo */
 .wordmark {
-  font-size: 13px;
-  font-weight: 900;
-  letter-spacing: 0.22em;
-  color: #8DC63F;
-  text-transform: uppercase;
+  height: 56px;
+  width: auto;
+  object-fit: contain;
+  pointer-events: none;
 }
 
 /* Slide */

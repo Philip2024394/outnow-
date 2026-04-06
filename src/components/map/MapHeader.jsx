@@ -1,7 +1,7 @@
 import { useMySession } from '@/hooks/useMySession'
 import styles from './MapHeader.module.css'
 
-const LOGO_URL = 'https://ik.imagekit.io/nepgaxllc/Untitledxczxc-removebg-preview.png'
+const LOGO_URL = 'https://ik.imagekit.io/nepgaxllc/Untitleddsfsdf-removebg-preview.png'
 
 
 export default function MapHeader({
@@ -17,7 +17,7 @@ export default function MapHeader({
     <div className={styles.header}>
       {/* Logo — left side */}
       <div className={styles.logoArea}>
-        <img src={LOGO_URL} alt="IMOUTNOW" className={styles.logo} />
+        <img src={LOGO_URL} alt="Hangger" className={styles.logo} />
       </div>
 
       <div className={styles.right}>

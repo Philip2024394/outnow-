@@ -81,6 +81,42 @@
   box-shadow: 0 0 6px rgba(239,68,68,0.6);
 }
 
+/* Orange Hanggle button */
+.hanggleBtn {
+  position: relative;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: #E8890C;
+  border: none;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  transition: transform 0.12s, box-shadow 0.12s;
+  box-shadow: 0 2px 10px rgba(232,137,12,0.5);
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.hanggleBtn:active {
+  transform: scale(0.88);
+  box-shadow: 0 1px 5px rgba(232,137,12,0.4);
+}
+.hanggleBtnActive {
+  outline: 3px solid #fff;
+  outline-offset: 2px;
+  box-shadow: 0 2px 14px rgba(232,137,12,0.7);
+}
+
+.hanggleBtnCount {
+  font-size: 13px;
+  font-weight: 900;
+  color: #fff;
+  line-height: 1;
+  text-shadow: 0 1px 3px rgba(0,0,0,0.3);
+  pointer-events: none;
+}
+
 /* Blue venues button */
 .venueRoundBtn {
   position: relative;
@@ -152,8 +188,8 @@
 }
 
 .colorBtnCountNew {
-  color: #ff3b30;
-  text-shadow: 0 0 8px rgba(255,59,48,0.7);
+  color: #fff;
+  text-shadow: 0 0 8px rgba(255,255,255,0.6);
   animation: count-pulse 1.4s ease-in-out infinite;
 }
 

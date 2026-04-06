@@ -18,6 +18,12 @@ const PRICE_IDS = {
   // Maker contact unlock packs (one-time)
   maker_pack3:       import.meta.env.VITE_STRIPE_PRICE_MAKER_PACK3,
   maker_pack8:       import.meta.env.VITE_STRIPE_PRICE_MAKER_PACK8,
+  // Map spot subscriptions — postcode territory ownership
+  // Monthly: $1.99/mo  |  Annual: $19.99/yr (includes 10 profile boosts)
+  spot_user_monthly:     import.meta.env.VITE_STRIPE_PRICE_SPOT_USER_MONTHLY,
+  spot_user_annual:      import.meta.env.VITE_STRIPE_PRICE_SPOT_USER_ANNUAL,
+  spot_business_monthly: import.meta.env.VITE_STRIPE_PRICE_SPOT_BUSINESS_MONTHLY,
+  spot_business_annual:  import.meta.env.VITE_STRIPE_PRICE_SPOT_BUSINESS_ANNUAL,
 }
 
 /**

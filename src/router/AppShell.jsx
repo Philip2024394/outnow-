@@ -79,6 +79,8 @@ import VenueSheet from '@/components/map/VenueSheet'
 import VenueListSheet from '@/components/map/VenueListSheet'
 import VenuePartnerSheet from '@/components/venue/VenuePartnerSheet'
 import UpgradeSheet from '@/components/premium/UpgradeSheet'
+import SpotClaimSheet from '@/components/spots/SpotClaimSheet'
+import MySpotScreen from '@/screens/MySpotScreen'
 import { PARTNER_VENUES } from '@/demo/mockPartnerVenues'
 import ProximityBanner from '@/components/map/ProximityBanner'
 import { useVenueProximity } from '@/hooks/useVenueProximity'
@@ -170,13 +172,15 @@ export default function AppShell({ returnParams, triggerGoLive }) {
   const [sosOpen, setSosOpen] = useState(false)
   const [walletOpen, setWalletOpen] = useState(false)
   const [upgradeOpen, setUpgradeOpen] = useState(false)
+  const [spotClaimOpen, setSpotClaimOpen] = useState(false)
+  const [mySpotOpen, setMySpotOpen] = useState(false)
   const [contactUnlockSession, setContactUnlockSession] = useState(null)
   const [inviteOutSheetOpen, setInviteOutSheetOpen] = useState(false)
   const { inviteOut, post: postInviteOut, goingLive, revertToInviteOut } = useInviteOut()
   const { earn: earnCoins, spend: spendCoins } = useCoins()
   const allMoments = moments
   const [boostToast, setBoostToast] = useState(null)
-  const [mapFilter,           setMapFilter]           = useState('invite')
+  const [mapFilter,           setMapFilter]           = useState('home')
   const [discoveryListFilter, setDiscoveryListFilter] = useState('now')
   const [discoveryListOpen,   setDiscoveryListOpen]   = useState(false)
   const [newNowCount,    setNewNowCount]    = useState(0)
@@ -187,6 +191,15 @@ export default function AppShell({ returnParams, triggerGoLive }) {
   const [flyTarget,    setFlyTarget]    = useState(null)
   const [vibeCheckOpen, setVibeCheckOpen]   = useState(false)
   const [vibeBanner, setVibeBanner]         = useState(null) // { status: 'active'|'invite_out'|'scheduled' }
+
+  // Auto-fly to user's GPS location on first fix — zooms in from country level
+  const hasFlownToLocationRef = useRef(false)
+  useEffect(() => {
+    if (viewerCoords && !hasFlownToLocationRef.current) {
+      hasFlownToLocationRef.current = true
+      setFlyTarget({ lat: viewerCoords.lat, lng: viewerCoords.lng, zoom: 14, ts: Date.now() })
+    }
+  }, [viewerCoords]) // eslint-disable-line
 
   const handleMapMove = ({ lat, lng }) => {
     setMapCenter({ lat, lng })
@@ -298,17 +311,20 @@ export default function AppShell({ returnParams, triggerGoLive }) {
     return result
   }, [visibleSessions, mapCategory, cityFilter])
 
-  // Drawer shows makers; map shows everyone including makers (pins update with city/search)
+  // Drawer shows makers always when open (city filter optional)
   const companySessions = useMemo(() =>
-    companyPanelOpen ? categorySessions.filter(isMakerSession) : []
-  , [companyPanelOpen, categorySessions])
+    companyPanelOpen ? visibleSessions.filter(isMakerSession) : []
+  , [companyPanelOpen, visibleSessions])
 
   const mapSessions = useMemo(() => {
     let base = categorySessions
+    if (companyPanelOpen)       base = base.filter(isMakerSession)
+    // 'home' mode shows everything — no status filter applied
     if (mapFilter === 'now')    base = base.filter(s => s.status !== 'invite_out')
     if (mapFilter === 'invite') base = base.filter(s => s.status === 'invite_out')
 
-    const q = searchQuery.toLowerCase().trim()
+    // Active search query (search bar) or company drawer query both filter the map
+    const q = (companyPanelOpen ? companyQuery : searchQuery).toLowerCase().trim()
     if (q.length >= 2) {
       base = base.filter(s => {
         const actLabel = ACTIVITY_TYPES.find(a => a.id === s.activityType)?.label?.toLowerCase() ?? ''
@@ -325,26 +341,35 @@ export default function AppShell({ returnParams, triggerGoLive }) {
     }
 
     return base
-  }, [categorySessions, mapFilter, searchQuery])
+  }, [categorySessions, mapFilter, searchQuery, companyQuery, companyPanelOpen])
 
   // acceptedMeetSession — banner shown, chat opened only when user taps it
 
   // Cap visible sessions at 50 nearest to map center.
+  // Home mode: enforce 85% user pins / 15% business pins so map looks lively but not cluttered.
   // The current user's own session is always included regardless of distance.
   const cappedSessions = useMemo(() => {
     const MAX = 50
-    if (mapSessions.length <= MAX) return mapSessions
     const myUserId = user?.uid ?? null
-    const mine   = myUserId ? mapSessions.filter(s => s.userId === myUserId) : []
-    const others  = mapSessions.filter(s => s.userId !== myUserId)
+    const mine = myUserId ? mapSessions.filter(s => s.userId === myUserId) : []
+    const others = mapSessions.filter(s => s.userId !== myUserId)
     const { lat: cLat, lng: cLng } = mapCenter
     const sorted = [...others].sort((a, b) => {
       const da = (a.lat - cLat) ** 2 + (a.lng - cLng) ** 2
       const db = (b.lat - cLat) ** 2 + (b.lng - cLng) ** 2
       return da - db
     })
+    if (mapFilter === 'home' && sorted.length > MAX - mine.length) {
+      const budget = MAX - mine.length
+      const maxMakers = Math.max(1, Math.round(budget * 0.15))
+      const maxUsers  = budget - maxMakers
+      const makers = sorted.filter(isMakerSession).slice(0, maxMakers)
+      const users  = sorted.filter(s => !isMakerSession(s)).slice(0, maxUsers)
+      return [...mine, ...users, ...makers]
+    }
+    if (mapSessions.length <= MAX) return mapSessions
     return [...mine, ...sorted.slice(0, MAX - mine.length)]
-  }, [mapSessions, mapCenter, user])
+  }, [mapSessions, mapCenter, user, mapFilter])
 
   // Update "new since last seen" badge counts when sessions change
   useEffect(() => {
@@ -361,8 +386,8 @@ export default function AppShell({ returnParams, triggerGoLive }) {
 
   return (
     <div className={styles.shell}>
-      {/* Map fills full screen — blurred when company drawer is open */}
-      <div className={`${styles.mapWrap} ${companyPanelOpen ? styles.mapWrapBlurred : ''}`}>
+      {/* Map fills full screen */}
+      <div className={styles.mapWrap}>
         {HAS_MAPS_KEY
           ? <GoogleMapsWrapper sessions={cappedSessions} onSelectUser={(s) => openDiscovery(s)} />
           : <DemoMapView
@@ -374,6 +399,8 @@ export default function AppShell({ returnParams, triggerGoLive }) {
               venuesOn={venuesOn}
               onMapMove={handleMapMove}
               flyTarget={flyTarget}
+              homeMode={mapFilter === 'home'}
+              initialZoom={viewerCoords ? 14 : 5}
             />
         }
       </div>
@@ -407,6 +434,7 @@ export default function AppShell({ returnParams, triggerGoLive }) {
           onSubmit={() => { if (searchQuery.trim()) setCityResultsOpen(true) }}
           filterFlag={filterFlag}
           onFilterTap={() => setCountrySearchOpen(true)}
+          placeholder={companyPanelOpen ? 'Find businesses near you…' : 'Search activity, product, service…'}
           cityFilter={cityFilter}
           onClearCity={() => setCityFilter(null)}
         />
@@ -557,20 +585,35 @@ export default function AppShell({ returnParams, triggerGoLive }) {
         />
       )}
 
-      {/* Profile strip — hidden when company drawer is open */}
-      {activeTab === 'map' && !companyPanelOpen && (
+      {/* Profile strip */}
+      {activeTab === 'map' && (
         <ProfileStrip
           outNowCount={categorySessions.filter(s => s.status !== 'invite_out').length}
           inviteOutCount={categorySessions.filter(s => s.status === 'invite_out').length}
+          businessCount={visibleSessions.filter(isMakerSession).length}
           newNowCount={newNowCount}
           newInviteCount={newInviteCount}
           mapCategory={mapCategory}
           onCategoryChange={setMapCategory}
           activeFilter={mapFilter}
-          onSelectFilter={(filter) => setMapFilter(filter)}
+          onSelectFilter={(filter) => { setMapFilter(filter); setCompanyPanelOpen(false) }}
           onBoost={(filter) => {
             setMapFilter(filter)
             setBoostToast(filter)
+          }}
+          hanggleActive={companyPanelOpen}
+          onHanggle={() => {
+            if (companyPanelOpen) {
+              setCompanyPanelOpen(false)
+              setMapCategory('all')
+              setCityFilter(null)
+              setCompanyQuery('')
+            } else {
+              setMapCategory('maker')
+              setCompanyQuery('')
+              setCityFilter(null)
+              setCompanyPanelOpen(true)
+            }
           }}
         />
       )}
@@ -579,7 +622,16 @@ export default function AppShell({ returnParams, triggerGoLive }) {
       {activeTab === 'map' && (
         <BottomNav
           activeTab={activeTab}
-          onChange={(tab) => { if (isGuest && tab !== 'map') { triggerGate(); return } setActiveTab(tab); if (tab === 'map') { setVenuesOn(false); setCompanyPanelOpen(false) } }}
+          onChange={(tab) => {
+            if (isGuest && tab !== 'map') { triggerGate(); return }
+            setActiveTab(tab)
+            if (tab === 'map') {
+              setVenuesOn(false)
+              setCompanyPanelOpen(false)
+              setMapFilter('home')
+              setFlyTarget({ lat: DEMO_CENTER.lat, lng: DEMO_CENTER.lng, zoom: 14, ts: Date.now() })
+            }
+          }}
           unreadChats={0}
           onOpenVenues={() => setVenueListOpen(true)}
           activeVenueCount={activeVenues.length}
@@ -596,6 +648,21 @@ export default function AppShell({ returnParams, triggerGoLive }) {
           inviteOutCount={categorySessions.filter(s => s.status === 'invite_out').length}
           newNowCount={newNowCount}
           newInviteCount={newInviteCount}
+          businessCount={visibleSessions.filter(isMakerSession).length}
+          hanggleActive={companyPanelOpen}
+          onHanggle={() => {
+            if (companyPanelOpen) {
+              setCompanyPanelOpen(false)
+              setMapCategory('all')
+              setCityFilter(null)
+              setCompanyQuery('')
+            } else {
+              setMapCategory('maker')
+              setCompanyQuery('')
+              setCityFilter(null)
+              setCompanyPanelOpen(true)
+            }
+          }}
         />
       )}
 
@@ -608,7 +675,7 @@ export default function AppShell({ returnParams, triggerGoLive }) {
       {activeTab === 'map' && !mySession && !inviteOut && !isGuest && (
         <button className={styles.goLiveNudge} onClick={() => setInviteOutSheetOpen(true)}>
           <span className={styles.goLiveNudgeDot} />
-          You're invisible — tap to go live 🚀
+          You're invisible — tap to hang 🚀
         </button>
       )}
 
@@ -734,6 +801,19 @@ export default function AppShell({ returnParams, triggerGoLive }) {
         onClose={() => setUpgradeOpen(false)}
         showToast={showToast}
         lookingFor={userProfile?.lookingFor}
+        onClaimSpot={() => setSpotClaimOpen(true)}
+      />
+
+      <SpotClaimSheet
+        open={spotClaimOpen}
+        onClose={() => setSpotClaimOpen(false)}
+        showToast={showToast}
+      />
+
+      <MySpotScreen
+        open={mySpotOpen}
+        onClose={() => setMySpotOpen(false)}
+        onClaimSpot={() => { setMySpotOpen(false); setSpotClaimOpen(true) }}
       />
 
       {createPortal(
@@ -746,6 +826,7 @@ export default function AppShell({ returnParams, triggerGoLive }) {
           onOpenBlockList={() => { setSettingsOpen(false); setTimeout(() => setBlockListOpen(true), 200) }}
           onOpenWallet={() => setWalletOpen(true)}
           onUpgrade={() => { setSettingsOpen(false); setTimeout(() => setUpgradeOpen(true), 200) }}
+          onMySpot={() => { setSettingsOpen(false); setTimeout(() => setMySpotOpen(true), 200) }}
           showToast={showToast}
           onSOS={() => setSosOpen(true)}
         />,
@@ -795,12 +876,13 @@ export default function AppShell({ returnParams, triggerGoLive }) {
       <InviteOutSheet
         open={inviteOutSheetOpen}
         onClose={() => setInviteOutSheetOpen(false)}
-        onPost={async (activity, message) => {
+        isMaker={isMakerSession({ lookingFor: userProfile?.lookingFor })}
+        onPost={async (activity, message, makerMeta) => {
           if (mySession) { try { await endSession(mySession.id) } catch {} }
-          postInviteOut({ activityType: activity, message, tier: userProfile?.tier ?? null })
+          postInviteOut({ activityType: activity, message, tier: userProfile?.tier ?? null, ...makerMeta })
           earnCoins('FIRST_INVITE_OUT')
         }}
-        onGoLive={() => { goingLive(); openGoLive() }}
+        onGoLive={(makerMeta) => { goingLive(); openGoLive(makerMeta) }}
         currentStatus={!!mySession ? 'live' : !!inviteOut ? 'invite' : null}
       />
 

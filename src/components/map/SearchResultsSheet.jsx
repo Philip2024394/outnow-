@@ -54,8 +54,8 @@ function mapGlobalRow(row) {
 }
 
 function statusLabel(status) {
-  if (status === 'invite_out') return { text: 'Invite Out', color: '#F5C518' }
-  return                              { text: 'Out Now',    color: '#8DC63F' }
+  if (status === 'invite_out') return { text: 'Want to Hang', color: '#F5C518' }
+  return                              { text: 'Hanging Out',  color: '#8DC63F' }
 }
 
 export default function SearchResultsSheet({ open, query, sessions, mapCategory = 'all', userCity = null, onSelect, onClose }) {

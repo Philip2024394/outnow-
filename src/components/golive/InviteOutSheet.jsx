@@ -15,7 +15,7 @@ const STATUS_OPTIONS = [
   {
     id: 'live',
     emoji: '🟢',
-    label: "I'm Out Now",
+    label: "Hanging Out",
     sub: 'Go live — appear on the map right now',
     color: '#8DC63F',
     bg: 'rgba(141,198,63,0.1)',
@@ -24,8 +24,8 @@ const STATUS_OPTIONS = [
   {
     id: 'invite',
     emoji: '🟡',
-    label: 'Invite Out',
-    sub: "Looking for plans — let others invite you",
+    label: 'Want to Hang',
+    sub: "Looking for plans — let others find you",
     color: '#F5C518',
     bg: 'rgba(245,197,24,0.1)',
     border: 'rgba(245,197,24,0.4)',
@@ -33,7 +33,7 @@ const STATUS_OPTIONS = [
 ]
 
 // currentStatus: 'invite' | 'live' | null
-export default function InviteOutSheet({ open, onClose, onPost, onGoLive, currentStatus = null }) {
+export default function InviteOutSheet({ open, onClose, onPost, onGoLive, currentStatus = null, isMaker = false }) {
   const [step,             setStep]             = useState(0)   // 0 = status pick, 1 = activity/details
   const [chosenStatus,     setChosenStatus]     = useState(null)
   const [selectedCategory, setSelectedCategory] = useState(null)
@@ -41,11 +41,13 @@ export default function InviteOutSheet({ open, onClose, onPost, onGoLive, curren
   const [message,          setMessage]          = useState('')
   const [vibe,             setVibe]             = useState(null)
   const [loading,          setLoading]          = useState(false)
+  const [productWord,      setProductWord]      = useState('')
+  const [sellerType,       setSellerType]       = useState('Maker')
 
   function reset() {
     setStep(0); setChosenStatus(null); setSelectedCategory(null)
     setActivity(null); setMessage(''); setVibe(null)
-    setLoading(false)
+    setLoading(false); setProductWord(''); setSellerType('Maker')
   }
 
   function handleClose() { reset(); onClose() }
@@ -66,9 +68,9 @@ export default function InviteOutSheet({ open, onClose, onPost, onGoLive, curren
     setLoading(true)
     try {
       if (chosenStatus === 'invite') {
-        await onPost?.(activity, message)
+        await onPost?.(activity, message, { productWord: productWord.trim() || null, sellerType })
       } else {
-        onGoLive?.()
+        onGoLive?.({ productWord: productWord.trim() || null, sellerType })
       }
       reset()
       onClose()
@@ -96,10 +98,10 @@ export default function InviteOutSheet({ open, onClose, onPost, onGoLive, curren
           <div className={styles.scrollContent}>
             <div className={styles.header}>
               <div className={styles.yellowDot} />
-              <h2 className={styles.title}>Want to go out?</h2>
+              <h2 className={styles.title}>Ready to hang?</h2>
             </div>
             <p className={styles.sub}>
-              Let people nearby know your plans. Pick how you want to appear on the map.
+              Let people nearby know you're around. Pick how you want to appear on the map.
             </p>
 
             <div className={styles.statusCards}>
@@ -218,6 +220,40 @@ export default function InviteOutSheet({ open, onClose, onPost, onGoLive, curren
               />
             </div>
 
+            {/* Product word — makers only */}
+            {isMaker && (
+              <div className={styles.section}>
+                <span className={styles.label}>Your product — 1 word shown on your map pin</span>
+                <div className={styles.productRow}>
+                  <input
+                    className={styles.productInput}
+                    placeholder="e.g. Handbag, Shoes, Dress…"
+                    value={productWord}
+                    onChange={e => setProductWord(e.target.value.replace(/\s/g, ''))}
+                    maxLength={12}
+                  />
+                  <div className={styles.sellerToggle}>
+                    {['Maker', 'Seller'].map(t => (
+                      <button
+                        key={t}
+                        type="button"
+                        className={`${styles.sellerBtn} ${sellerType === t ? styles.sellerBtnActive : ''}`}
+                        onClick={() => setSellerType(t)}
+                      >
+                        {t}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+                {productWord.trim() && (
+                  <div className={styles.pinPreview}>
+                    <span className={styles.pinPreviewLabel}>Pin preview:</span>
+                    <span className={styles.pinPreviewPill}>🏪 {productWord.trim()} {sellerType}</span>
+                  </div>
+                )}
+              </div>
+            )}
+
             {/* Confirm */}
             <button
               className={styles.confirmBtn}
@@ -228,8 +264,8 @@ export default function InviteOutSheet({ open, onClose, onPost, onGoLive, curren
               {loading
                 ? 'Setting up…'
                 : chosenStatus === 'invite'
-                ? '📍 Post Invite Out'
-                : '🚀 Go Live Now'}
+                ? '📍 Want to Hang'
+                : '🚀 Hanging Out Now'}
             </button>
 
             <button className={styles.skipBtn} onClick={handleClose}>

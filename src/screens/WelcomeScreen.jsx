@@ -1,11 +1,13 @@
 import { useEffect, useState } from 'react'
 import styles from './WelcomeScreen.module.css'
 
+const LOGO_URL = 'https://ik.imagekit.io/nepgaxllc/Untitleddsfsdf-removebg-preview.png'
+
 const SLIDES = [
   {
     emoji: '📍',
     title: 'People Are Out\nNear You Right Now',
-    sub: 'IMOUTNOW shows you who is actually out — in your city, tonight.',
+    sub: 'Hangger shows you who is actually out — in your city, tonight.',
   },
   {
     emoji: '🤝',
@@ -73,7 +75,7 @@ export default function WelcomeScreen({ onDone }) {
       {!showPath ? (
         <>
           <div className={styles.body}>
-            <div className={styles.wordmark}>IMOUTNOW</div>
+            <img src={LOGO_URL} alt="Hangger" className={styles.wordmark} />
 
             <div className={styles.slide} key={slide}>
               <div className={styles.emoji}>{current.emoji}</div>
@@ -101,7 +103,7 @@ export default function WelcomeScreen({ onDone }) {
       ) : (
         <>
           <div className={styles.body}>
-            <div className={styles.wordmark}>IMOUTNOW</div>
+            <img src={LOGO_URL} alt="Hangger" className={styles.wordmark} />
             <div className={styles.slide}>
               <div className={styles.emoji}>👋</div>
               <h1 className={styles.title}>What brings\nyou here?</h1>

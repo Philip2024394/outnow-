@@ -1,11 +1,3 @@
-/* Full-screen map dim — sits above map (0) but below all controls (800) */
-.mapDim {
-  position: fixed;
-  inset: 0;
-  z-index: 50;
-  background: rgba(0, 0, 0, 0.55);
-  pointer-events: none;
-}
 
 .overlay {
   position: fixed;
@@ -29,7 +21,8 @@
   width: 280px;
   height: 600px;
   margin-top: calc(var(--safe-top) + var(--space-3) + 36px + 28px + var(--space-3) + 6px - 40px + 64px);
-  background: transparent;
+  background: #0a0a0a;
+  border-radius: 0 16px 16px 0;
   pointer-events: all;
   animation: slide-in 0.45s cubic-bezier(0.16, 1, 0.3, 1) forwards;
   overflow-x: hidden;

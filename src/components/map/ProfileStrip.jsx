@@ -5,8 +5,8 @@ const HOLD_MS = 3000
 const CIRCUMFERENCE = 2 * Math.PI * 22 // radius 22
 
 const BUTTONS = [
-  { filter: 'now',    label: 'Out Now',    color: '#8DC63F' },
-  { filter: 'invite', label: 'Invite Out', color: '#F5C518' },
+  { filter: 'now',    label: 'Hanging',     color: '#8DC63F' },
+  { filter: 'invite', label: 'Want to Hang', color: '#F5C518' },
 ]
 
 // Read / write daily boost usage from localStorage
@@ -21,13 +21,16 @@ function markBoostUsed(filter) {
 }
 
 export default function ProfileStrip({
-  outNowCount    = 0,
-  inviteOutCount = 0,
-  newNowCount    = 0,
-  newInviteCount = 0,
-  onBoost,          // onBoost(filter) — parent handles go-live + boost logic
-  onSelectFilter,   // onSelectFilter(filter|null) — tap to pin-filter the map
+  outNowCount      = 0,
+  inviteOutCount   = 0,
+  businessCount    = 0,
+  newNowCount      = 0,
+  newInviteCount   = 0,
+  onBoost,
+  onSelectFilter,
   activeFilter = null,
+  onHanggle,
+  hanggleActive = false,
 }) {
   const counts    = { now: outNowCount, invite: inviteOutCount }
   const newCounts = { now: newNowCount, invite: newInviteCount }
@@ -92,6 +95,7 @@ export default function ProfileStrip({
   return (
     <div className={styles.strip}>
       <div className={styles.discRow}>
+
         {BUTTONS.map(({ filter, label, color }) => {
           const isHolding = holding === filter
           const isFired   = fired === filter
@@ -138,6 +142,17 @@ export default function ProfileStrip({
             </button>
           )
         })}
+
+        {/* Hanggle — business listings button, right side */}
+        <button
+          className={`${styles.colorBtn} ${hanggleActive ? styles.colorBtnActive : ''}`}
+          style={{ background: '#E8890C' }}
+          onClick={onHanggle}
+        >
+          <span className={styles.colorBtnCount}>{businessCount}</span>
+          <span className={styles.colorBtnLabel}>Hanggle</span>
+        </button>
+
       </div>
     </div>
   )
