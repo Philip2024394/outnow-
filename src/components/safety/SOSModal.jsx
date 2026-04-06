@@ -24,7 +24,7 @@ export default function SOSModal({ open, onClose, session }) {
 
   const venueName = session?.placeName ?? 'a nearby venue'
   const area      = session?.area ?? 'my current location'
-  const message   = `🆘 I need help! I'm at ${venueName}, ${area}. Please check on me immediately. I'm using IMOUTNOW.`
+  const message   = `🆘 I need help! I'm at ${venueName}, ${area}. Please check on me immediately. I'm using Hangger.`
 
   const handleSend = (useSms = false) => {
     if (!contact) return

@@ -1,7 +1,7 @@
 // Tracks how many times a no-photo profile has been viewed by others.
 // Stored in localStorage — backed by Supabase in a real deployment.
 
-const KEY = 'imoutnow_photo_views_v1'
+const KEY = 'hangger_photo_views_v1'
 
 function _read() {
   try { return JSON.parse(localStorage.getItem(KEY) ?? '{}') } catch { return {} }

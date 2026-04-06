@@ -2,7 +2,7 @@ import { useState } from 'react'
 import AdminLogin from './AdminLogin'
 import AdminDashboard from './AdminDashboard'
 
-const ADMIN_KEY = 'imoutnow_admin_v1'
+const ADMIN_KEY = 'hangger_admin_v1'
 
 export default function AdminApp() {
   const [authed, setAuthed] = useState(() => !!sessionStorage.getItem(ADMIN_KEY))

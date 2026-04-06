@@ -1,5 +1,5 @@
 // ─────────────────────────────────────────────────────────────────────────────
-// IMOUTNOW — Category / Sub-category directory
+// Hangger — Category / Sub-category directory
 // Every main category → specific positions → auto search keywords
 // ─────────────────────────────────────────────────────────────────────────────
 

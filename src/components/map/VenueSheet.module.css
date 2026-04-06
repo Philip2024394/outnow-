@@ -72,7 +72,7 @@
 
 .content::-webkit-scrollbar { display: none; }
 
-/* IMOUTNOW discount banner */
+/* Hangger discount banner */
 .discountBanner {
   display: flex;
   flex-direction: column;

@@ -234,7 +234,7 @@ const helpStyles = {
 // ── Required field validation ─────────────────────────────────────────────────
 function validateProfile({ name, dobDay, dobMonth, dobYear, country, city }) {
   if (!name.trim())                          return 'Please enter your display name so others can find you.'
-  if (!dobDay || !dobMonth || !dobYear)      return 'Please complete your date of birth — you must be 18 or over to use IMOUTNOW.'
+  if (!dobDay || !dobMonth || !dobYear)      return 'Please complete your date of birth — you must be 18 or over to use Hangger.'
   if (!country)                              return 'Please select your country so we can show you to the right people.'
   if (!city.trim())                          return 'Please add your city or area — without it you won\'t appear in map searches near you.'
   return null
@@ -639,7 +639,7 @@ export default function ProfileScreen({ onClose, onboarding = false }) {
           
           {/* Support Section */}
           <button onClick={() => { showToast('Help & Support page coming soon'); setDrawerOpen(false); }} style={{width: '100%', padding: '14px 16px', background: '#1a1a1a', color: '#fff', border: '1px solid #2a2a2a', borderRadius: 12, fontSize: 15, fontWeight: 600, marginBottom: 8, cursor: 'pointer', textAlign: 'left', transition: 'all 0.2s ease', boxShadow: '0 2px 8px rgba(0,0,0,0.3)'}} onMouseEnter={(e) => {e.target.style.background = '#252525'; e.target.style.borderColor = '#353535'; e.target.style.boxShadow = '0 4px 16px rgba(141,198,63,0.15)';}} onMouseLeave={(e) => {e.target.style.background = '#1a1a1a'; e.target.style.borderColor = '#2a2a2a'; e.target.style.boxShadow = '0 2px 8px rgba(0,0,0,0.3)';}}><span style={{display: 'inline-block', marginRight: 10}}>❓</span>Help & Support</button>
-          <button onClick={() => { showToast('IMOUTNOW v0.1.0 — your city is out, are you?'); setDrawerOpen(false); }} style={{width: '100%', padding: '14px 16px', background: '#1a1a1a', color: '#fff', border: '1px solid #2a2a2a', borderRadius: 12, fontSize: 15, fontWeight: 600, marginBottom: 12, cursor: 'pointer', textAlign: 'left', transition: 'all 0.2s ease', boxShadow: '0 2px 8px rgba(0,0,0,0.3)'}} onMouseEnter={(e) => {e.target.style.background = '#252525'; e.target.style.borderColor = '#353535'; e.target.style.boxShadow = '0 4px 16px rgba(141,198,63,0.15)';}} onMouseLeave={(e) => {e.target.style.background = '#1a1a1a'; e.target.style.borderColor = '#2a2a2a'; e.target.style.boxShadow = '0 2px 8px rgba(0,0,0,0.3)';}}><span style={{display: 'inline-block', marginRight: 10}}>ℹ️</span>About IMOUTNOW</button>
+          <button onClick={() => { showToast('Hangger v0.1.0 — who's hanging near you?'); setDrawerOpen(false); }} style={{width: '100%', padding: '14px 16px', background: '#1a1a1a', color: '#fff', border: '1px solid #2a2a2a', borderRadius: 12, fontSize: 15, fontWeight: 600, marginBottom: 12, cursor: 'pointer', textAlign: 'left', transition: 'all 0.2s ease', boxShadow: '0 2px 8px rgba(0,0,0,0.3)'}} onMouseEnter={(e) => {e.target.style.background = '#252525'; e.target.style.borderColor = '#353535'; e.target.style.boxShadow = '0 4px 16px rgba(141,198,63,0.15)';}} onMouseLeave={(e) => {e.target.style.background = '#1a1a1a'; e.target.style.borderColor = '#2a2a2a'; e.target.style.boxShadow = '0 2px 8px rgba(0,0,0,0.3)';}}><span style={{display: 'inline-block', marginRight: 10}}>ℹ️</span>About Hangger</button>
           
           <hr style={{border: 0, borderTop: '1px solid rgba(141,198,63,0.15)', margin: '12px 0'}} />
           
@@ -1334,7 +1334,7 @@ export default function ProfileScreen({ onClose, onboarding = false }) {
             <div className={styles.vHero}>
               <span className={styles.vHeroTitle}>0% Commission</span>
               <p className={styles.vHeroSub}>
-                imoutnow.com never takes a cut — no commission on sales, no fee when contact changes hands.
+                hangger.app never takes a cut — no commission on sales, no fee when contact changes hands.
                 Get verified and your account is fully live, open for business, and completely yours.
               </p>
             </div>
@@ -1344,7 +1344,7 @@ export default function ProfileScreen({ onClose, onboarding = false }) {
               {[
                 'Verified badge on your profile',
                 'Social media links shown to all buyers',
-                'Higher listing on imoutnow.com',
+                'Higher listing on hangger.app',
                 'Local buyers message you free — no unlock fee',
                 'No commission, ever',
               ].map(b => (
@@ -1569,10 +1569,10 @@ export default function ProfileScreen({ onClose, onboarding = false }) {
               </button>
 
               {/* About */}
-              <button className={styles.drawerRow} onClick={() => setToast({ message: 'IMOUTNOW v0.1.0 — your city is out, are you?', type: 'error' })}>
+              <button className={styles.drawerRow} onClick={() => setToast({ message: 'Hangger v0.1.0 — who's hanging near you?', type: 'error' })}>
                 <span className={styles.drawerRowIcon}>ℹ️</span>
                 <div className={styles.drawerRowText}>
-                  <span className={styles.drawerRowLabel}>About IMOUTNOW</span>
+                  <span className={styles.drawerRowLabel}>About Hangger</span>
                   <span className={styles.drawerRowSub}>Version 0.1.0</span>
                 </div>
               </button>

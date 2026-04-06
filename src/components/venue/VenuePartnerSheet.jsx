@@ -194,7 +194,7 @@ export default function VenuePartnerSheet({ open, venue, venues = [], onSelectVe
                 <img src={images[imgIdx]} alt={venue.name} className={styles.galleryImg} />
                 {venue.featured
                   ? <div className={styles.partnerBadgeFeatured}>⭐ FEATURED PARTNER</div>
-                  : <div className={styles.partnerBadge}>⭐ IMOUTNOW Partner</div>
+                  : <div className={styles.partnerBadge}>⭐ Hangger Partner</div>
                 }
                 <div className={styles.discountBadge}>{venue.minDiscount}%+ off</div>
                 {images.length > 1 && (
@@ -262,7 +262,7 @@ export default function VenuePartnerSheet({ open, venue, venues = [], onSelectVe
 
               <div className={styles.divider} />
               <h3 className={styles.sectionTitle}>🎁 Exclusive Offers</h3>
-              <p className={styles.sectionSub}>Show your IMOUTNOW profile to claim</p>
+              <p className={styles.sectionSub}>Show your Hangger profile to claim</p>
               {offers.map(offer => (
                 <div key={offer.id} className={styles.offerCard}>
                   <div className={styles.offerTop}>
@@ -279,7 +279,7 @@ export default function VenuePartnerSheet({ open, venue, venues = [], onSelectVe
                   </div>
                 </div>
               ))}
-              <p className={styles.partnerSince}>⭐ IMOUTNOW Partner since {venue.partnerSince}</p>
+              <p className={styles.partnerSince}>⭐ Hangger Partner since {venue.partnerSince}</p>
             </div>
           </>
         )}

@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react'
 import { usePushNotifications } from './usePushNotifications'
 import { DEMO_LIKED_USERS } from '@/demo/mockData'
 
-const DIGEST_SEEN_KEY = 'imoutnow_digest_seen_week'
+const DIGEST_SEEN_KEY = 'hangger_digest_seen_week'
 
 function getWeekKey() {
   const d = new Date()

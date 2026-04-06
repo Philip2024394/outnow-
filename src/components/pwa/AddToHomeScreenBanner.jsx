@@ -12,7 +12,7 @@ export default function AddToHomeScreenBanner() {
     <div className={styles.overlay}>
       <div className={styles.card}>
         {/* Logo */}
-        <img src={LOGO_URL} alt="IMOUTNOW" className={styles.logo} />
+        <img src={LOGO_URL} alt="Hangger" className={styles.logo} />
 
         {/* Title */}
         <h2 className={styles.title}>Add to Home Screen</h2>
@@ -21,7 +21,7 @@ export default function AddToHomeScreenBanner() {
         <p className={styles.desc}>
           {isIOS
             ? 'Tap the Share button below then select "Add to Home Screen" to get instant notifications when someone you like goes out.'
-            : 'Install IMOUTNOW for instant push notifications the moment someone you liked goes out nearby.'}
+            : 'Install Hangger for instant push notifications the moment someone you liked goes out nearby.'}
         </p>
 
         {/* iOS instruction visual */}

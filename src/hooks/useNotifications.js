@@ -56,7 +56,7 @@ export function useNotifications() {
       // Fire push for any new unread notifications that arrived via real-time
       if (isRealtime) {
         mapped.filter(n => !n.read && !knownIdsRef.current.has(n.id)).forEach(n => {
-          notify(n.title || 'IMOUTNOW', { body: n.body || '', tag: n.id })
+          notify(n.title || 'Hangger', { body: n.body || '', tag: n.id })
         })
       }
       mapped.forEach(n => knownIdsRef.current.add(n.id))

@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react'
 import styles from './CookieBanner.module.css'
 
-const STORAGE_KEY = 'imoutnow_cookie_consent'
+const STORAGE_KEY = 'hangger_cookie_consent'
 
 export default function CookieBanner() {
   const [visible, setVisible] = useState(false)

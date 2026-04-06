@@ -422,14 +422,14 @@ const DEMO_ADMIN_VENUES = [
     reviews:[
       { id:'rv1', reviewerId:'r1', reviewerName:'Sophie',    reviewerPhoto:'https://ik.imagekit.io/nepgaxllc/uk1.png',  rating:5, text:'Absolutely love this place! The craft beers are incredible and the vibe is unmatched. Staff are super friendly too. My go-to spot in Soho.',       date:'2026-03-28' },
       { id:'rv2', reviewerId:'r6', reviewerName:'James',     reviewerPhoto:'https://ik.imagekit.io/nepgaxllc/uk8.png',  rating:4, text:'Great selection of beers and the happy hour deal is brilliant. Pool table keeps things lively. Gets busy on weekends — arrive early.',           date:'2026-03-30' },
-      { id:'rv3', reviewerId:'r2', reviewerName:'Emma',      reviewerPhoto:'https://ik.imagekit.io/nepgaxllc/uk3.png',  rating:5, text:'Came here through IMOUTNOW and met the nicest group of people. The 15% discount worked perfectly on the cocktails. Will be back!',             date:'2026-04-01' },
+      { id:'rv3', reviewerId:'r2', reviewerName:'Emma',      reviewerPhoto:'https://ik.imagekit.io/nepgaxllc/uk3.png',  rating:5, text:'Came here through Hangger and met the nicest group of people. The 15% discount worked perfectly on the cocktails. Will be back!',             date:'2026-04-01' },
     ]
   },
   { id:'av2', name:'Soho Wine Cellar',    emoji:'🍷', type:'Wine Bar',      country:'United Kingdom',      city:'London',   address:'8 Frith Street',       postcode:'W1D 3JN', lat:51.5138, lng:-0.1269, openTime:'16:00', closeTime:'00:00', description:'Intimate wine bar with 200+ labels and expert sommeliers.',      drinks:['Wine','Cocktails'],          food:['Fine Dining','Snacks & Sharing'], amenities:['Free WiFi','Private Hire'], deals:[], discountPercent:'', discountType:'', email:'info@sohocellar.com', phone:'', instagram:'@sohocellar', website:'', tier:'basic',    billingStatus:'none',   nextBillingAt:'',           claimStatus:'unclaimed', ownerEmail:'',                  status:'active', reviews:[] },
   { id:'av3', name:'La Cantina',          emoji:'🍹', type:'Cocktail Bar',  country:'United States',       city:'New York', address:'245 W 52nd St',        postcode:'NY 10019',lat:40.7614, lng:-73.985, openTime:'18:00', closeTime:'02:00', description:'Upscale cocktail bar with Latin-inspired drinks menu.',          drinks:['Cocktails','Spirits','Wine'], food:['Snacks & Sharing'], amenities:['Live Music','Outdoor Seating'], deals:['Happy Hour'], discountPercent:10, discountType:'Cocktails', email:'hello@lacantina.com', phone:'+1 212 555 0192', instagram:'@lacantinanyc', website:'https://lacantina.com', tier:'premium', billingStatus:'active', nextBillingAt:'2026-05-01', claimStatus:'claimed', ownerEmail:'maria@lacantina.com', status:'active',
     reviews:[
       { id:'rv4', reviewerId:'r4', reviewerName:'Mia',    reviewerPhoto:'https://ik.imagekit.io/nepgaxllc/uk5.png', rating:5, text:'Best cocktails in NYC — the passion fruit margarita is life changing. Lively atmosphere and the outdoor seating is perfect for summer evenings.', date:'2026-03-22' },
-      { id:'rv5', reviewerId:'r9', reviewerName:'Isla',   reviewerPhoto:'https://ik.imagekit.io/nepgaxllc/uk2.png', rating:4, text:'Discovered this through IMOUTNOW and it did not disappoint. Great happy hour deals and the music is always on point. Staff are brilliant.', date:'2026-03-25' },
+      { id:'rv5', reviewerId:'r9', reviewerName:'Isla',   reviewerPhoto:'https://ik.imagekit.io/nepgaxllc/uk2.png', rating:4, text:'Discovered this through Hangger and it did not disappoint. Great happy hour deals and the music is always on point. Staff are brilliant.', date:'2026-03-25' },
     ]
   },
   { id:'av4', name:'The Fitzroy',         emoji:'🍺', type:'Pub',           country:'United Kingdom',      city:'London',   address:'16 Charlotte Street',  postcode:'W1T 2LY', lat:51.5196, lng:-0.1357, openTime:'11:00', closeTime:'23:00', description:'Classic British pub with rotating guest ales and hearty food.',  drinks:['Beer','Wine','Spirits'],     food:['Full Menu','Snacks & Sharing'], amenities:['Sports TV','Dart Board','Accessible'], deals:['Buy 1 Get 1 Free','Student Discount'], discountPercent:'', discountType:'', email:'', phone:'', instagram:'', website:'', tier:'basic', billingStatus:'none', nextBillingAt:'', claimStatus:'unclaimed', ownerEmail:'', status:'active', reviews:[] },
@@ -717,7 +717,7 @@ function VenueFormPanel({ initial, onSave, onClose }) {
 
           {/* Discount */}
           <div className={styles.panelSection}>
-            <p className={styles.panelSectionTitle}>IMOUTNOW Exclusive Discount (5% – 30%)</p>
+            <p className={styles.panelSectionTitle}>Hangger Exclusive Discount (5% – 30%)</p>
             <div className={styles.formGrid2}>
               <div className={styles.formField}>
                 <label className={styles.formLabel}>Discount %</label>
@@ -842,7 +842,7 @@ function VenueFormPanel({ initial, onSave, onClose }) {
                 <div className={styles.mockOwnerInfo}>
                   <span className={styles.mockOwnerName}>{form.mockOwnerName}</span>
                   <span className={styles.mockOwnerRole}>Venue Owner · Mock Account</span>
-                  <span className={styles.mockOwnerEmail}>{form.mockOwnerName?.toLowerCase()}@imoutnow-demo.com</span>
+                  <span className={styles.mockOwnerEmail}>{form.mockOwnerName?.toLowerCase()}@hangger-demo.app</span>
                 </div>
                 <div className={styles.mockOwnerAccess}>
                   <span className={styles.mockAccessPill}>✓ Dashboard Access</span>
@@ -855,7 +855,7 @@ function VenueFormPanel({ initial, onSave, onClose }) {
               <div className={styles.formField}>
                 <label className={styles.formLabel}>Mock Login Email</label>
                 <input className={styles.formInput} readOnly
-                  value={form.mockOwnerName ? `${form.mockOwnerName.toLowerCase()}@imoutnow-demo.com` : '—'}
+                  value={form.mockOwnerName ? `${form.mockOwnerName.toLowerCase()}@hangger-demo.app` : '—'}
                 />
               </div>
               <div className={styles.formField}>
@@ -1426,7 +1426,7 @@ export default function AdminDashboard({ onLogout }) {
       {/* Sidebar */}
       <aside className={styles.sidebar}>
         <div className={styles.sidebarTop}>
-          <img src={LOGO_URL} alt="IMOUTNOW" className={styles.sidebarLogo} />
+          <img src={LOGO_URL} alt="Hangger" className={styles.sidebarLogo} />
           <span className={styles.sidebarTitle}>Admin</span>
         </div>
         <nav className={styles.nav}>
@@ -1460,7 +1460,7 @@ export default function AdminDashboard({ onLogout }) {
               {TABS.find(t => t.id === activeTab)?.icon}{' '}
               {TABS.find(t => t.id === activeTab)?.label}
             </h1>
-            <p className={styles.headerSub}>IMOUTNOW — Admin Dashboard · {new Date().toLocaleDateString('en-GB', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })}</p>
+            <p className={styles.headerSub}>Hangger — Admin Dashboard · {new Date().toLocaleDateString('en-GB', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })}</p>
           </div>
           <div className={styles.headerLive}>
             <span className={styles.livePulse} />

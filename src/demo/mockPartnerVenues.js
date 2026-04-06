@@ -1,4 +1,4 @@
-// Partner venues — businesses registered with IMOUTNOW
+// Partner venues — businesses registered with Hangger
 // Each venue has: type, offers[], images[], contact details
 
 export const OFFER_TYPES = {
@@ -64,7 +64,7 @@ export const PARTNER_VENUES = [
         id: 'o2',
         type: OFFER_TYPES.PERCENT_OFF,
         title: '15% off total bill',
-        detail: 'Show your IMOUTNOW profile at the bar',
+        detail: 'Show your Hangger profile at the bar',
         validTimes: 'All week',
         emoji: '💸',
       },
@@ -146,7 +146,7 @@ export const PARTNER_VENUES = [
         id: 'o3',
         type: OFFER_TYPES.LOYALTY,
         title: '5th coffee free',
-        detail: 'Stamp collected on your IMOUTNOW profile',
+        detail: 'Stamp collected on your Hangger profile',
         validTimes: 'Ongoing',
         emoji: '🎟️',
       },
@@ -183,7 +183,7 @@ export const PARTNER_VENUES = [
         id: 'o2',
         type: OFFER_TYPES.PERCENT_OFF,
         title: '10% off food menu',
-        detail: 'Show IMOUTNOW at the bar when ordering food',
+        detail: 'Show Hangger at the bar when ordering food',
         validTimes: 'All week',
         emoji: '🍽️',
       },
@@ -213,7 +213,7 @@ export const PARTNER_VENUES = [
         id: 'o1',
         type: OFFER_TYPES.FREE_ENTRY,
         title: 'Free entry before 10pm',
-        detail: 'Show IMOUTNOW at the door — no guest list needed',
+        detail: 'Show Hangger at the door — no guest list needed',
         validTimes: 'Fri & Sat',
         emoji: '🎟️',
       },
@@ -229,7 +229,7 @@ export const PARTNER_VENUES = [
         id: 'o3',
         type: OFFER_TYPES.PERCENT_OFF,
         title: '20% off cocktail pitchers',
-        detail: 'Groups of 3+ only — show IMOUTNOW',
+        detail: 'Groups of 3+ only — show Hangger',
         validTimes: 'All week',
         emoji: '💸',
       },

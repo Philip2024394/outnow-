@@ -44,7 +44,7 @@ export default function VenueOwnerLanding({ onClose, onGetStarted }) {
         </button>
         <img
           src="https://ik.imagekit.io/nepgaxllc/Untitledxczxc-removebg-preview.png?updatedAt=1775162044064"
-          alt="IMOUTNOW"
+          alt="Hangger"
           className={styles.headerLogo}
         />
         <div className={styles.headerPill}>For Venues</div>

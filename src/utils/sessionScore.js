@@ -1,5 +1,5 @@
 /**
- * imoutnow Phase 1 Algorithm
+ * Hangger Phase 1 Algorithm
  *
  * Scores each session so the discovery list surfaces the most
  * relevant people first. No ML — pure signal weighting.

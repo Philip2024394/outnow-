@@ -1,7 +1,7 @@
 import { useState, useCallback } from 'react'
 import { postInviteOut as postInviteOutService, cancelInviteOut as cancelInviteOutService } from '@/services/inviteOutService'
 
-const STORAGE_KEY = 'imoutnow_invite_out'
+const STORAGE_KEY = 'hangger_invite_out'
 
 function loadStored() {
   try {

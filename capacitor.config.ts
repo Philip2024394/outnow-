@@ -1,8 +1,8 @@
 import type { CapacitorConfig } from '@capacitor/cli'
 
 const config: CapacitorConfig = {
-  appId: 'com.imoutnow.app',
-  appName: 'imoutnow',
+  appId: 'com.hangger.app',
+  appName: 'Hangger',
   webDir: 'dist',
   server: {
     androidScheme: 'https',
@@ -17,7 +17,7 @@ const config: CapacitorConfig = {
     },
     BackgroundGeolocation: {
       backgroundMessage: 'Checking for hot venues nearby…',
-      backgroundTitle: 'imoutnow is watching for nearby spots',
+      backgroundTitle: 'Hangger is watching for nearby spots',
     },
   },
 }

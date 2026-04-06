@@ -44,7 +44,7 @@ module.exports = functions.https.onCall(async (data, context) => {
       price_data: {
         currency: 'usd',
         product_data: {
-          name: 'IMOUTNOW — Unlock Location',
+          name: 'Hangger — Unlock Location',
           description: `Meet ${sessionData.displayName ?? 'someone'} at ${sessionData.placeName ?? 'a nearby spot'}`,
         },
         unit_amount: priceInCents,

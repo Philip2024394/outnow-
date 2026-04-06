@@ -183,7 +183,7 @@ export default function VenueSheet({ open, venue, onClose, onOpenChat }) {
                 <div className={styles.discountRight}>
                   <img
                     src="https://ik.imagekit.io/nepgaxllc/Untitledxczxc-removebg-preview.png?updatedAt=1775162044064"
-                    alt="IMOUTNOW"
+                    alt="Hangger"
                     className={styles.discountLogo}
                   />
                   <span className={styles.discountClaim}>Show this screen to claim</span>

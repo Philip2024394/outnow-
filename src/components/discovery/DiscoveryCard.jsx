@@ -205,7 +205,7 @@ export default function DiscoveryCard({ open, session, mySession, onClose, showT
                 <div className={styles.noPhotoInner}>
                   <img
                     src="https://ik.imagekit.io/nepgaxllc/Untitledxczxc-removebg-preview.png?updatedAt=1775162044064"
-                    alt="imoutnow"
+                    alt="Hangger"
                     className={styles.noPhotoLogo}
                   />
                   <span className={styles.noPhotoQuote}>

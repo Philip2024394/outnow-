@@ -42,7 +42,7 @@ export default function VenueOwnerDashboard({ venue, onClose, onEditListing }) {
         </div>
         <img
           src="https://ik.imagekit.io/nepgaxllc/Untitledxczxc-removebg-preview.png?updatedAt=1775162044064"
-          alt="IMOUTNOW"
+          alt="Hangger"
           className={styles.headerLogo}
         />
       </div>

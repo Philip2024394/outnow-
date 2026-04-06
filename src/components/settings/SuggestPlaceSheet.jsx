@@ -178,7 +178,7 @@ export default function SuggestPlaceSheet({ open, onClose, showToast }) {
                   onClick={() => setOffersDiscount(v => !v)}
                 >
                   <div className={styles.discountToggleText}>
-                    <span className={styles.discountToggleTitle}>🏷️ Offer an IMOUTNOW discount?</span>
+                    <span className={styles.discountToggleTitle}>🏷️ Offer a Hangger discount?</span>
                     <span className={styles.discountToggleSub}>
                       Venues with a discount get highlighted on the map
                     </span>

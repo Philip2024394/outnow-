@@ -1,6 +1,6 @@
 import { useState, useCallback } from 'react'
 
-const KEY = 'imoutnow_liked_profiles'
+const KEY = 'hangger_liked_profiles'
 
 function load() {
   try { return JSON.parse(localStorage.getItem(KEY) ?? '[]') } catch { return [] }

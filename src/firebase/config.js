@@ -23,6 +23,6 @@ if (apiKey) {
     db = getFirestore(app)
     functions = getFunctions(app)
   } catch (e) {
-    console.warn('[IMOUTNOW] Firebase init failed — running in demo mode.', e.message)
+    console.warn('[HANGGER] Firebase init failed — running in demo mode.', e.message)
   }
 }

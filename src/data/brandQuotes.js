@@ -1,4 +1,4 @@
-// imoutnow brand quotes — shown on no-photo profile cards
+// Hangger brand quotes — shown on no-photo profile cards
 // Social outing focused — not dating
 
 export const BRAND_QUOTES = [

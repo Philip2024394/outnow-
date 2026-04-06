@@ -17,7 +17,7 @@ const LOGO_URL = 'https://ik.imagekit.io/dateme/Logo%20with%20green%20map%20pin%
 
 // Route /admin path to the admin dashboard
 if (window.location.pathname.startsWith('/admin')) {
-  document.title = 'IMOUTNOW Admin'
+  document.title = 'Hangger Admin'
 }
 
 export default function App() {
@@ -83,7 +83,7 @@ export default function App() {
   if (loading) {
     return (
       <div className={styles.splash}>
-        <img src={LOGO_URL} alt="IMOUTNOW" className={styles.splashLogo} />
+        <img src={LOGO_URL} alt="Hangger" className={styles.splashLogo} />
         <Spinner size={28} color="var(--color-live)" />
       </div>
     )

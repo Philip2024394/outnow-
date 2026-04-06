@@ -1,4 +1,4 @@
-const CACHE = 'imoutnow-v1'
+const CACHE = 'hangger-v1'
 const SHELL = ['/', '/src/main.jsx']
 
 self.addEventListener('install', (e) => {
@@ -16,12 +16,12 @@ self.addEventListener('activate', (e) => {
 // Push notification handler
 self.addEventListener('push', (e) => {
   const data = e.data?.json() ?? {}
-  const title = data.title ?? 'IMOUTNOW'
+  const title = data.title ?? 'Hangger'
   const options = {
     body: data.body ?? "Someone you liked is out now — go meet them!",
     icon: 'https://ik.imagekit.io/dateme/Logo%20with%20green%20map%20pin%20element.png',
     badge: 'https://ik.imagekit.io/dateme/Logo%20with%20green%20map%20pin%20element.png',
-    tag: data.tag ?? 'imoutnow-general',
+    tag: data.tag ?? 'hangger-general',
     renotify: true,
     vibrate: [200, 100, 200],
     data: { url: data.url ?? '/' },

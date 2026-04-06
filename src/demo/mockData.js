@@ -34,7 +34,7 @@ export const DEMO_USER = {
   displayName: 'You',
   photoURL: null,
   phoneNumber: null,
-  email: 'demo@imoutnow.app',
+  email: 'demo@hangger.app',
 }
 
 const _ACTIVE_SESSIONS = [

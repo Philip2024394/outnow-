@@ -176,7 +176,7 @@ export async function deleteAccount(userId) {
   const { error } = await supabase.functions.invoke('delete-account', {
     body: { userId },
   })
-  if (error) throw new Error('Account deletion failed — please contact support@imoutnow.com')
+  if (error) throw new Error('Account deletion failed — please contact support@hangger.app')
 }
 
 /**
@@ -194,7 +194,7 @@ export async function exportMyData(userId) {
 
   const payload = {
     _exported_at: new Date().toISOString(),
-    _note: 'Your personal data export from IMOUTNOW. Contact privacy@imoutnow.com to request changes.',
+    _note: 'Your personal data export from Hangger. Contact privacy@hangger.app to request changes.',
     profile:  profileRes.data  ?? null,
     sessions: sessionsRes.data ?? [],
     messages: messagesRes.data ?? [],
@@ -204,7 +204,7 @@ export async function exportMyData(userId) {
   const url  = URL.createObjectURL(blob)
   const a    = document.createElement('a')
   a.href     = url
-  a.download = `imoutnow-my-data-${new Date().toISOString().split('T')[0]}.json`
+  a.download = `hangger-my-data-${new Date().toISOString().split('T')[0]}.json`
   document.body.appendChild(a)
   a.click()
   document.body.removeChild(a)

@@ -5,7 +5,7 @@ const LOGO_URL = 'https://ik.imagekit.io/dateme/Logo%20with%20green%20map%20pin%
 
 // Set VITE_ADMIN_USER and VITE_ADMIN_PASSWORD in your .env file
 const ADMIN_USER = import.meta.env.VITE_ADMIN_USER     ?? 'admin'
-const ADMIN_PASS = import.meta.env.VITE_ADMIN_PASSWORD ?? 'imoutnow@2025'
+const ADMIN_PASS = import.meta.env.VITE_ADMIN_PASSWORD ?? 'hangger@2025'
 
 export default function AdminLogin({ onLogin }) {
   const [username, setUsername] = useState('')
@@ -31,7 +31,7 @@ export default function AdminLogin({ onLogin }) {
   return (
     <div className={styles.page}>
       <div className={styles.card}>
-        <img src={LOGO_URL} alt="IMOUTNOW" className={styles.logo} />
+        <img src={LOGO_URL} alt="Hangger" className={styles.logo} />
         <h1 className={styles.title}>Admin Dashboard</h1>
         <p className={styles.sub}>Sign in with your admin credentials</p>
 

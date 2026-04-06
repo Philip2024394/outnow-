@@ -85,7 +85,7 @@ export class VenueNotificationService {
       this._bgWatcher = await BackgroundGeolocation.addWatcher(
         {
           backgroundMessage: 'Watching for hot venues nearby…',
-          backgroundTitle:   'imoutnow',
+          backgroundTitle:   'Hangger',
           requestPermissions: true,
           stale: false,
           distanceFilter: DISTANCE_FILTER,

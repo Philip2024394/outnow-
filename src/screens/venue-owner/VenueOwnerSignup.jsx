@@ -165,7 +165,7 @@ export default function VenueOwnerSignup({ onClose, onSubmit, plan = 'premium' }
               <MultiSelect options={FOOD_DEALS} selected={form.deals} onChange={v => set('deals', v)} />
             </Section>
 
-            <Section title="IMOUTNOW Exclusive Discount (Optional)">
+            <Section title="Hangger Exclusive Discount (Optional)">
               <p className={styles.fieldHint}>Shown on your venue profile to every user who opens it — drives visits.</p>
               <div className={styles.row2}>
                 <Field label="Discount %">
