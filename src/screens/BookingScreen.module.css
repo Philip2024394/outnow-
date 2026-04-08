@@ -338,63 +338,209 @@
 .searchingText { font-size: 14px; color: #666; margin: 0; }
 
 /* ── Choose driver ── */
-.chooseTitle { font-size: 16px; font-weight: 800; color: #fff; margin: 0; }
+.chooseTitle    { font-size: 16px; font-weight: 800; color: #fff; margin: 0; }
+.chooseSubtitle { font-size: 12px; font-weight: 700; color: #444; text-transform: uppercase; letter-spacing: 0.06em; margin: 0; }
 
-/* Grid layout — 2 or 3 cards per row */
-.driverGrid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
-  gap: 10px;
+/* ── Featured banner ── */
+.featuredBanner {
+  position: relative;
+  width: 100%;
+  display: flex;
+  align-items: stretch;
+  background: rgba(0,0,0,0.72);
+  backdrop-filter: blur(18px) saturate(1.6);
+  -webkit-backdrop-filter: blur(18px) saturate(1.6);
+  border: 1.5px solid rgba(141,198,63,0.25);
+  border-radius: 18px;
+  overflow: hidden;
+  cursor: pointer;
+  font-family: inherit;
+  text-align: left;
+  transition: border-color 0.15s, transform 0.12s;
+  -webkit-tap-highlight-color: transparent;
+  min-height: 160px;
 }
+.featuredBanner:active { transform: scale(0.98); border-color: rgba(141,198,63,0.5); }
+.featuredBannerVisible { opacity: 1; transition: opacity 0.25s ease; }
+.featuredBannerHidden  { opacity: 0; transition: opacity 0.25s ease; }
 
-.driverGridCard {
+.featuredLeft {
+  flex: 1;
   display: flex;
   flex-direction: column;
-  align-items: center;
   gap: 6px;
+  padding: 14px 0 14px 14px;
+  z-index: 1;
+}
+.featuredTopBadge {
+  font-size: 10px;
+  font-weight: 800;
+  color: #8DC63F;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+.featuredProfileRow {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.featuredAvatarWrap {
+  width: 52px;
+  height: 52px;
+  border-radius: 10px;
+  background: rgba(255,255,255,0.06);
+  border: 1px solid rgba(255,255,255,0.1);
+  overflow: hidden;
+  flex-shrink: 0;
+}
+.featuredAvatarImg {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  padding: 4px;
+  box-sizing: border-box;
+}
+.featuredMeta { display: flex; flex-direction: column; gap: 1px; }
+.featuredName { font-size: 15px; font-weight: 800; color: #fff; margin: 0; }
+.featuredAge  { font-size: 11px; color: #555; margin: 0; }
+.featuredStars {
+  font-size: 11px;
+  color: #F5C518;
+  display: flex;
+  align-items: center;
+}
+.featuredRatingNum { font-size: 10px; font-weight: 700; color: #F5C518; }
+
+.featuredStats {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 11px;
+  color: #666;
+}
+.featuredStat    { font-weight: 600; }
+.featuredStatDot { color: #333; }
+
+.featuredVehicle {
+  font-size: 11px;
+  color: #888;
+  font-weight: 600;
+}
+.featuredPlate {
+  font-size: 11px;
+  color: #555;
+  font-family: monospace;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+}
+.featuredPrice {
+  font-size: 17px;
+  font-weight: 900;
+  color: #8DC63F;
+  margin-top: 2px;
+}
+
+.featuredRight {
+  width: 130px;
+  flex-shrink: 0;
+  position: relative;
+  overflow: hidden;
+}
+.featuredBikeImg {
+  position: absolute;
+  bottom: -10px;
+  right: -10px;
+  width: 160px;
+  height: 160px;
+  object-fit: contain;
+  filter: drop-shadow(0 4px 16px rgba(0,0,0,0.6));
+}
+
+/* ── Driver list ── */
+.driverList {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.driverListCard {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
   background: rgba(0,0,0,0.55);
   backdrop-filter: blur(10px);
   -webkit-backdrop-filter: blur(10px);
-  border: 1px solid rgba(255,255,255,0.08);
+  border: 1px solid rgba(255,255,255,0.07);
   border-radius: 14px;
-  padding: 12px 10px 14px;
+  padding: 12px 14px;
   cursor: pointer;
   font-family: inherit;
+  text-align: left;
   transition: background 0.12s, border-color 0.12s, transform 0.1s;
   -webkit-tap-highlight-color: transparent;
 }
-.driverGridCard:hover  { background: rgba(0,0,0,0.7); border-color: rgba(255,255,255,0.14); }
-.driverGridCard:active { transform: scale(0.96); }
+.driverListCard:hover  { background: rgba(0,0,0,0.7); border-color: rgba(255,255,255,0.12); }
+.driverListCard:active { transform: scale(0.98); }
 
-/* Square profile image */
-.driverAvatar {
-  width: 80px;
-  height: 80px;
-  border-radius: 12px;
-  background: rgba(0,0,0,0.4);
-  border: 1px solid rgba(255,255,255,0.1);
+.driverListAvatar {
+  width: 52px;
+  height: 52px;
+  border-radius: 10px;
+  background: rgba(255,255,255,0.05);
+  border: 1px solid rgba(255,255,255,0.08);
   overflow: hidden;
+  flex-shrink: 0;
   display: flex;
   align-items: center;
   justify-content: center;
 }
+
+/* Shared avatar img (used in grid + list) */
 .driverAvatarImg {
   width: 100%;
   height: 100%;
   object-fit: contain;
-  padding: 6px;
+  padding: 5px;
   box-sizing: border-box;
 }
 
-.driverGridName {
-  font-size: 13px;
-  font-weight: 700;
-  color: #fff;
-  text-align: center;
-  line-height: 1.2;
+.driverListInfo  { flex: 1; display: flex; flex-direction: column; gap: 3px; min-width: 0; }
+.driverListTopRow {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 8px;
+}
+.driverListName  { font-size: 14px; font-weight: 800; color: #fff; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.driverListPrice { font-size: 14px; font-weight: 900; color: #8DC63F; flex-shrink: 0; }
+.driverListStars {
+  font-size: 11px;
+  color: #F5C518;
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 1px;
+}
+.driverRatingNum  { font-size: 10px; font-weight: 700; color: #F5C518; }
+.driverListTrips  { font-size: 10px; color: #555; font-weight: 500; }
+.driverListDist   { font-size: 10px; color: #555; font-weight: 500; }
+.driverListVehicle {
+  font-size: 10px;
+  color: #555;
+  font-weight: 600;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.driverListArrow {
+  font-size: 22px;
+  color: #333;
+  font-weight: 300;
+  flex-shrink: 0;
+  line-height: 1;
 }
 
-/* Yellow star rating */
+/* Yellow star rating (shared) */
 .driverStars {
   font-size: 12px;
   color: #F5C518;
@@ -403,18 +549,7 @@
   gap: 2px;
   line-height: 1;
 }
-.driverRatingNum {
-  font-size: 11px;
-  font-weight: 700;
-  color: #F5C518;
-}
-
-/* Distance only */
-.driverDist {
-  font-size: 11px;
-  color: #555;
-  font-weight: 500;
-}
+.driverDist { font-size: 11px; color: #555; font-weight: 500; }
 
 .driverEmojiImg  { width: 28px; height: 28px; object-fit: contain; flex-shrink: 0; }
 .waitingEmojiImg { width: 36px; height: 36px; object-fit: contain; flex-shrink: 0; }
@@ -455,6 +590,8 @@
   min-width: 48px;
   text-align: right;
 }
+.waitingVehicle { font-size: 11px; color: #888; margin: 2px 0 0; font-weight: 600; }
+.waitingPlate   { font-size: 11px; color: #8DC63F; margin: 1px 0 0; font-weight: 700; font-family: monospace; letter-spacing: 0.04em; }
 .waitingNote { font-size: 12px; color: #555; margin: 0; line-height: 1.5; }
 .waitingActions { display: flex; gap: 10px; }
 .startedBtn {

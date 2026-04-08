@@ -190,6 +190,11 @@ export default function BookingScreen({ onClose }) {
   // Cancel state
   const [cancelReason, setCancelReason] = useState('')
 
+  // Featured driver banner rotation
+  const [featuredIdx,  setFeaturedIdx]  = useState(0)
+  const [bannerFade,   setBannerFade]   = useState(true)
+  const bannerRef = useRef(null)
+
   // Auto-fill pickup when GPS coords arrive (only if not already manually set)
   useEffect(() => {
     if (gpsCoords && !pickup) {
@@ -367,6 +372,22 @@ export default function BookingScreen({ onClose }) {
 
   useEffect(() => () => clearInterval(countdownRef.current), [])
 
+  // Rotate featured driver banner every 3s when on choose phase
+  useEffect(() => {
+    if (phase !== 'choose' || drivers.length < 2) return
+    bannerRef.current = setInterval(() => {
+      setBannerFade(false)
+      setTimeout(() => {
+        setFeaturedIdx(i => {
+          const next = Math.floor(Math.random() * drivers.length)
+          return next === i ? (i + 1) % drivers.length : next
+        })
+        setBannerFade(true)
+      }, 250)
+    }, 3000)
+    return () => clearInterval(bannerRef.current)
+  }, [phase, drivers.length]) // eslint-disable-line
+
   // ── Render phases ──────────────────────────────────────────────────────────
   const renderSelect = () => (
     <div className={styles.body}>
@@ -458,32 +479,93 @@ export default function BookingScreen({ onClose }) {
     </div>
   )
 
-  const renderChoose = () => (
-    <div className={styles.body}>
-      <DriverMap userCoords={pickupCoords} driverType={vehicleType} selectedDriverId={null} />
-      <h3 className={styles.chooseTitle}>Choose a Driver</h3>
-      <div className={styles.driverGrid}>
-        {drivers.map(d => (
-          <button key={d.id} className={styles.driverGridCard} onClick={() => handleSelectDriver(d)}>
-            {/* Square profile image area */}
-            <div className={styles.driverAvatar}>
-              <img src={d.driver_type === 'car_taxi' ? CAR_IMG : BIKE_IMG} alt={d.driver_type} className={styles.driverAvatarImg} />
+  const BANNER_BIKE = 'https://ik.imagekit.io/nepgaxllc/Untitlediuooiuoi-removebg-preview.png'
+
+  const renderChoose = () => {
+    const featured = drivers[featuredIdx] ?? drivers[0]
+    return (
+      <div className={styles.body}>
+
+        {/* ── Featured driver banner ── */}
+        {featured && (
+          <button
+            className={`${styles.featuredBanner} ${bannerFade ? styles.featuredBannerVisible : styles.featuredBannerHidden}`}
+            onClick={() => handleSelectDriver(featured)}
+          >
+            {/* Left: profile + details */}
+            <div className={styles.featuredLeft}>
+              <div className={styles.featuredTopBadge}>⭐ Top Rated Near You</div>
+              <div className={styles.featuredProfileRow}>
+                <div className={styles.featuredAvatarWrap}>
+                  <img
+                    src={featured.driver_type === 'car_taxi' ? CAR_IMG : BIKE_IMG}
+                    alt={featured.display_name}
+                    className={styles.featuredAvatarImg}
+                  />
+                </div>
+                <div className={styles.featuredMeta}>
+                  <p className={styles.featuredName}>{featured.display_name}</p>
+                  <p className={styles.featuredAge}>Age {featured.driver_age ?? '—'}</p>
+                  <div className={styles.featuredStars}>
+                    {'★'.repeat(Math.floor(featured.rating ?? 4.8))}
+                    <span className={styles.featuredRatingNum}> {featured.rating ?? '4.8'}</span>
+                  </div>
+                </div>
+              </div>
+              <div className={styles.featuredStats}>
+                <span className={styles.featuredStat}>{featured.total_trips ?? 0} trips</span>
+                <span className={styles.featuredStatDot}>·</span>
+                <span className={styles.featuredStat}>{formatDist(featured.distKm)} away</span>
+              </div>
+              <div className={styles.featuredVehicle}>
+                {featured.vehicle_model} {featured.vehicle_year} · {featured.vehicle_color}
+              </div>
+              <div className={styles.featuredPlate}>Plate: {featured.plate_prefix ?? '—'} ••</div>
+              <div className={styles.featuredPrice}>{formatRp(fare)}</div>
             </div>
-            {/* Name */}
-            <span className={styles.driverGridName}>{d.display_name.split(' ')[0]}</span>
-            {/* Star rating in yellow */}
-            <div className={styles.driverStars}>
-              {'★'.repeat(Math.floor(d.rating ?? 4.8))}
-              <span className={styles.driverRatingNum}> {d.rating ?? '4.8'}</span>
+
+            {/* Right: bike image */}
+            <div className={styles.featuredRight}>
+              <img src={BANNER_BIKE} alt="bike" className={styles.featuredBikeImg} />
             </div>
-            {/* Distance only */}
-            <span className={styles.driverDist}>{formatDist(d.distKm)} away</span>
           </button>
-        ))}
+        )}
+
+        {/* ── All drivers list ── */}
+        <p className={styles.chooseSubtitle}>All available drivers</p>
+        <div className={styles.driverList}>
+          {drivers.map(d => (
+            <button key={d.id} className={styles.driverListCard} onClick={() => handleSelectDriver(d)}>
+              {/* Avatar */}
+              <div className={styles.driverListAvatar}>
+                <img src={d.driver_type === 'car_taxi' ? CAR_IMG : BIKE_IMG} alt={d.driver_type} className={styles.driverAvatarImg} />
+              </div>
+              {/* Info */}
+              <div className={styles.driverListInfo}>
+                <div className={styles.driverListTopRow}>
+                  <span className={styles.driverListName}>{d.display_name}</span>
+                  <span className={styles.driverListPrice}>{formatRp(fare)}</span>
+                </div>
+                <div className={styles.driverListStars}>
+                  {'★'.repeat(Math.floor(d.rating ?? 4.8))}
+                  <span className={styles.driverRatingNum}> {d.rating ?? '4.8'}</span>
+                  <span className={styles.driverListTrips}> · {d.total_trips ?? 0} trips</span>
+                  <span className={styles.driverListDist}> · {formatDist(d.distKm)}</span>
+                </div>
+                <div className={styles.driverListVehicle}>
+                  {d.vehicle_model} {d.vehicle_year} · {d.vehicle_color} · {d.plate_prefix ?? '—'} ••
+                </div>
+              </div>
+              {/* Book arrow */}
+              <span className={styles.driverListArrow}>›</span>
+            </button>
+          ))}
+        </div>
+
+        <button className={styles.cancelBtn} onClick={() => setPhase('select')}>Cancel</button>
       </div>
-      <button className={styles.cancelBtn} onClick={() => setPhase('select')}>Cancel</button>
-    </div>
-  )
+    )
+  }
 
   const renderWaiting = () => (
     <div className={styles.body}>
@@ -491,9 +573,17 @@ export default function BookingScreen({ onClose }) {
       <div className={styles.waitingCard}>
         <div className={styles.waitingRow}>
           <img src={selectedDriver?.driver_type === 'car_taxi' ? CAR_IMG : BIKE_IMG} alt="vehicle" className={styles.waitingEmojiImg} />
-          <div>
+          <div style={{ flex: 1 }}>
             <p className={styles.waitingName}>{selectedDriver?.display_name}</p>
             <p className={styles.waitingMeta}>Booking sent via WhatsApp</p>
+            {selectedDriver?.vehicle_model && (
+              <p className={styles.waitingVehicle}>
+                {selectedDriver.vehicle_color} {selectedDriver.vehicle_model} {selectedDriver.vehicle_year}
+              </p>
+            )}
+            {selectedDriver?.plate_prefix && (
+              <p className={styles.waitingPlate}>Plate: {selectedDriver.plate_prefix} ••</p>
+            )}
           </div>
           <div className={styles.countdown}>{countdown}s</div>
         </div>
