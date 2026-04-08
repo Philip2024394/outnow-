@@ -39,6 +39,7 @@ export default function RestaurantDashboard({ userId, onClose }) {
   const [description,  setDescription]  = useState('')
   const [openingHours, setOpeningHours] = useState('')
   const [isOpen,       setIsOpen]       = useState(false)
+  const [dineInDiscount, setDineInDiscount] = useState('')
 
   // Menu management
   const [menuItems,    setMenuItems]    = useState([])
@@ -68,6 +69,7 @@ export default function RestaurantDashboard({ userId, onClose }) {
       setDescription(data.description ?? '')
       setOpeningHours(data.opening_hours ?? '')
       setIsOpen(data.is_open ?? false)
+      setDineInDiscount(data.dine_in_discount ? String(data.dine_in_discount) : '')
       setMenuItems(data.menu_items ?? [])
     }
     setLoading(false)
@@ -95,6 +97,7 @@ export default function RestaurantDashboard({ userId, onClose }) {
     const payload = {
       owner_id: userId, name, cuisine_type: cuisine, address, phone,
       description, opening_hours: openingHours, is_open: isOpen,
+      dine_in_discount: dineInDiscount ? Number(dineInDiscount) : null,
       updated_at: new Date().toISOString(),
     }
     if (restaurant?.id) {
@@ -220,6 +223,7 @@ export default function RestaurantDashboard({ userId, onClose }) {
             <Field label="Full Address *"    value={address}      onChange={setAddress}      placeholder="Jl. Malioboro 45, Yogyakarta" />
             <Field label="WhatsApp Number *" value={phone}        onChange={setPhone}        placeholder="628xxx — no + or spaces" type="tel" />
             <Field label="Opening Hours"     value={openingHours} onChange={setOpeningHours} placeholder="e.g. 07:00–22:00" />
+            <Field label="Dine-In Discount % (optional)" value={dineInDiscount} onChange={setDineInDiscount} placeholder="e.g. 10 — shows 🪑 Dine With Us badge" type="number" />
             <div className={styles.fieldGroup}>
               <label className={styles.label}>Short Description</label>
               <textarea

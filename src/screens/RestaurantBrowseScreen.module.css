@@ -99,12 +99,13 @@
 .statusClosed { color: rgba(255,255,255,0.4); }
 .statusClosed .statusDot { background: rgba(255,255,255,0.3); border-radius: 50%; }
 
-.distBadge {
+.dineBadge {
   font-size: 11px; font-weight: 800;
-  padding: 5px 11px; border-radius: 100px;
-  background: rgba(0,0,0,0.5);
+  padding: 5px 12px; border-radius: 100px;
+  background: rgba(245,197,24,0.12);
+  border: 1px solid rgba(245,197,24,0.35);
+  color: #F5C518;
   backdrop-filter: blur(8px);
-  border: 1px solid rgba(255,255,255,0.08);
 }
 
 /* ── Hero dish ───────────────────────────────────────────────────────────────── */

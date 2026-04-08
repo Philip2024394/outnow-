@@ -21,3 +21,4 @@ CREATE POLICY "restaurant_admin_all" ON restaurants FOR ALL
       WHERE p.id = auth.uid() AND p.role = 'admin'
     )
   );
+ALTER TABLE restaurants ADD COLUMN IF NOT EXISTS dine_in_discount int;

@@ -29,7 +29,7 @@ const DEMO_RESTAURANTS = [
     price_from: 5000, price_to: 28000, min_order: 20000,
     catering_available: true, seating_capacity: 40,
     event_features: ['birthday_setup', 'private_room'],
-    featured_this_week: true,
+    featured_this_week: true, dine_in_discount: 10,
     menu_items: [
       { id: 1,  name: 'Nasi Gudeg Komplit',  price: 28000, prep_time_min: 10, category: 'Main',   description: 'Jackfruit curry, egg, chicken, krecek on white rice', photo_url: null, is_available: true },
       { id: 2,  name: 'Nasi Gudeg Telur',    price: 18000, prep_time_min: 8,  category: 'Main',   description: 'Jackfruit curry with egg — the classic', photo_url: null, is_available: true },
@@ -53,7 +53,7 @@ const DEMO_RESTAURANTS = [
     price_from: 15000, price_to: 35000, min_order: 15000,
     catering_available: false, seating_capacity: 20,
     event_features: [],
-    featured_this_week: false,
+    featured_this_week: false, dine_in_discount: 15,
     menu_items: [
       { id: 20, name: 'Nasi Goreng Istimewa', price: 28000, prep_time_min: 12, category: 'Main',   description: 'Charcoal wok, egg, chicken, vegetables, shrimp paste', photo_url: null, is_available: true },
       { id: 21, name: 'Nasi Goreng Seafood',  price: 35000, prep_time_min: 15, category: 'Main',   description: 'Prawns, squid, crab meat — full seafood loaded', photo_url: null, is_available: true },
@@ -153,11 +153,6 @@ const DEMO_RESTAURANTS = [
   },
 ]
 
-function distanceColor(km) {
-  if (km <= 3) return '#8DC63F'
-  if (km <= 8) return '#F5C518'
-  return '#ff8c42'
-}
 
 function Stars({ rating }) {
   const full = Math.floor(rating ?? 0)
@@ -311,7 +306,7 @@ export default function RestaurantBrowseScreen({ onClose, onBackToCategories, ca
 
 // ── Restaurant card ───────────────────────────────────────────────────────────
 function RestaurantCard({ restaurant: r, onOpenMenu }) {
-  const distColor = r.distKm != null ? distanceColor(r.distKm) : '#8DC63F'
+  const [openTime, closeTime] = (r.opening_hours ?? '').split('–')
 
   return (
     <div className={styles.card}>
@@ -329,16 +324,21 @@ function RestaurantCard({ restaurant: r, onOpenMenu }) {
       />
       <div className={styles.cardOverlay} />
 
-      {/* Top badges — minimal, one each side */}
+      {/* Top badges */}
       <div className={styles.topBadges}>
+        {/* Hours badge */}
         <span className={`${styles.statusBadge} ${r.is_open ? styles.statusOpen : styles.statusClosed}`}>
           <span className={styles.statusDot} />
-          {r.is_open ? 'Open' : 'Closed'}
+          {r.is_open
+            ? closeTime ? `Open · until ${closeTime}` : 'Open Now'
+            : openTime  ? `Opens ${openTime}` : 'Closed'
+          }
         </span>
 
-        {r.distKm != null && (
-          <span className={styles.distBadge} style={{ color: distColor }}>
-            🛵 {r.distKm} km
+        {/* Dine-in discount — only if set */}
+        {r.dine_in_discount > 0 && (
+          <span className={styles.dineBadge}>
+            🪑 Dine With Us · {r.dine_in_discount}% off
           </span>
         )}
       </div>
