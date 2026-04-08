@@ -226,7 +226,7 @@ export default function RestaurantBrowseScreen({ onClose, onBackToCategories, ca
   }, [scrollToId, enriched.length])
 
   // Category header info
-  const catLabel  = category ? category.label : 'Food & Delivery'
+  const catLabel  = category ? category.label : 'MAKAN'
   const catEmoji  = category ? category.emoji  : '🍽'
   const catColor  = category ? category.color  : '#8DC63F'
 
@@ -234,7 +234,7 @@ export default function RestaurantBrowseScreen({ onClose, onBackToCategories, ca
     <div className={styles.screen}>
       <div className={styles.loadingWrap}>
         <div className={styles.loadingSpinner} style={{ borderTopColor: catColor }} />
-        <p className={styles.loadingText}>Finding {catLabel.toLowerCase()} near you…</p>
+        <p className={styles.loadingText}>MAKAN — finding {catLabel.toLowerCase()} near you…</p>
       </div>
     </div>
   )
@@ -364,7 +364,7 @@ function RestaurantCard({ restaurant: r, onOpenMenu }) {
 
         <div className={styles.cardFooter}>
           <span className={styles.footerDot} />
-          <span>Hangger Food</span>
+          <span>MAKAN by Hangger</span>
           <span className={styles.footerDot} />
         </div>
       </div>

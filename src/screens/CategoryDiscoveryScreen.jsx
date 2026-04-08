@@ -9,7 +9,7 @@ import styles from './CategoryDiscoveryScreen.module.css'
 export const FOOD_CATEGORIES = [
   {
     id: 'all',
-    label: 'All Food',
+    label: 'All MAKAN',
     emoji: '🍽',
     tagline: 'Everything near you',
     color: '#F5C518',
@@ -224,7 +224,7 @@ export default function CategoryDiscoveryScreen({ onClose, onSelectCategory }) {
           <input
             ref={searchRef}
             className={styles.searchInput}
-            placeholder="Search food, restaurant, cuisine…"
+            placeholder="Search MAKAN — restaurant, dish, cuisine…"
             value={search}
             onChange={e => setSearch(e.target.value)}
             onFocus={() => setSearchFocused(true)}
