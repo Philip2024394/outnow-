@@ -335,17 +335,19 @@ function RestaurantCard({ restaurant: r, onOpenMenu }) {
           }
         </span>
 
-        {/* Dine-in discount — only if set */}
-        {r.dine_in_discount > 0 && (
-          <span className={styles.dineBadge}>
-            🪑 Dine With Us · {r.dine_in_discount}% off
-          </span>
-        )}
       </div>
 
       {/* Bottom info — clean and sparse */}
       <div className={styles.cardBottom}>
         <span className={styles.cuisinePill}>{r.cuisine_type}</span>
+
+        {r.dine_in_discount > 0 && (
+          <div className={styles.dineBlock}>
+            <span className={styles.dinePct}>{r.dine_in_discount}% Off</span>
+            <span className={styles.dineLabel}>Come Dine With Us</span>
+          </div>
+        )}
+
         <h2 className={styles.restaurantName}>{r.name}</h2>
 
         <div className={styles.ratingRow}>
