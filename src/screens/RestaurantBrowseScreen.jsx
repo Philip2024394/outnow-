@@ -263,11 +263,7 @@ export default function RestaurantBrowseScreen({ onClose, onBackToCategories, ca
           </span>
         </div>
 
-        <div className={styles.headerRight}>
-          {enriched.filter(r => r.featured_this_week).length > 0 && (
-            <span className={styles.featuredTag}>⭐ Featured</span>
-          )}
-        </div>
+        <div className={styles.headerRight} />
       </div>
 
       {/* Scroll dots */}
