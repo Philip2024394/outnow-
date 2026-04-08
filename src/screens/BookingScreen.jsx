@@ -379,8 +379,8 @@ export default function BookingScreen({ onClose }) {
           return next === i ? (i + 1) % drivers.length : next
         })
         setBannerFade(true)
-      }, 250)
-    }, 3000)
+      }, 500)
+    }, 4000)
     return () => clearInterval(bannerRef.current)
   }, [phase, drivers.length]) // eslint-disable-line
 

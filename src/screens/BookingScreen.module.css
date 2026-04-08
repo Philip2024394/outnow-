@@ -361,8 +361,8 @@
   min-height: 160px;
 }
 .featuredBanner:active { transform: scale(0.98); border-color: rgba(141,198,63,0.5); }
-.featuredBannerVisible { opacity: 1; transition: opacity 0.25s ease; }
-.featuredBannerHidden  { opacity: 0; transition: opacity 0.25s ease; }
+.featuredBannerVisible { opacity: 1; transition: opacity 0.5s ease; }
+.featuredBannerHidden  { opacity: 0; transition: opacity 0.5s ease; }
 
 .featuredLeft {
   flex: 1;
@@ -441,10 +441,10 @@
 }
 .featuredPriceBadge {
   position: absolute;
-  top: 12px;
+  bottom: 14px;
   right: 10px;
   z-index: 2;
-  background: rgba(0,0,0,0.72);
+  background: rgba(0,0,0,0.78);
   backdrop-filter: blur(10px);
   -webkit-backdrop-filter: blur(10px);
   border: 1.5px solid rgba(141,198,63,0.5);
