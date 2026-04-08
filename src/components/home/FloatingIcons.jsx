@@ -22,11 +22,16 @@ const ICONS = [
 // Each icon gets a unique slow-bob animation offset so they don't all move in sync
 const OFFSETS = [0, 0.4, 0.8, 1.2, 1.6, 2.0, 0.2, 0.6, 1.0, 1.4, 1.8, 2.2]
 
-export default function FloatingIcons({ sessions = [], onSelectSession }) {
+export default function FloatingIcons({ sessions = [], onSelectSession, onFoodClick }) {
   const [activeActivity, setActiveActivity] = useState(null)
 
   const left  = ICONS.slice(0, 6)
   const right = ICONS.slice(6, 12)
+
+  const handleIconClick = (icon) => {
+    if (icon.id === 'food' && onFoodClick) { onFoodClick(); return }
+    setActiveActivity(icon)
+  }
 
   return (
     <>
@@ -39,7 +44,7 @@ export default function FloatingIcons({ sessions = [], onSelectSession }) {
               icon={icon}
               delay={OFFSETS[i]}
               count={sessions.filter(s => s.activityType === icon.id || (s.activities ?? []).includes(icon.id)).length}
-              onClick={() => setActiveActivity(icon)}
+              onClick={() => handleIconClick(icon)}
             />
           ))}
         </div>
@@ -52,7 +57,7 @@ export default function FloatingIcons({ sessions = [], onSelectSession }) {
               icon={icon}
               delay={OFFSETS[i + 6]}
               count={sessions.filter(s => s.activityType === icon.id || (s.activities ?? []).includes(icon.id)).length}
-              onClick={() => setActiveActivity(icon)}
+              onClick={() => handleIconClick(icon)}
             />
           ))}
         </div>

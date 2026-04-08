@@ -92,6 +92,7 @@ import TimeBackground from '@/components/ui/TimeBackground'
 import FloatingIcons from '@/components/home/FloatingIcons'
 import ActivityProfileGrid from '@/components/home/ActivityProfileGrid'
 import BookingScreen from '@/screens/BookingScreen'
+import RestaurantBrowseScreen from '@/screens/RestaurantBrowseScreen'
 
 import '@/styles/map.css'
 import styles from './AppShell.module.css'
@@ -127,6 +128,7 @@ export default function AppShell({ returnParams, triggerGoLive }) {
   const [mapCategory, setMapCategory] = useState('all') // 'all' | 'maker'
   const [datingGridOpen, setDatingGridOpen] = useState(false)
   const [rideOpen,       setRideOpen]       = useState(false)
+  const [foodOpen,       setFoodOpen]       = useState(false)
   const { incomingInvite: dateInvite, clearInvite: clearDateInvite } = useDateInvites(user?.id ?? null)
 
   // Effective country: explicit browse selection → IP detection → profile country
@@ -361,6 +363,7 @@ export default function AppShell({ returnParams, triggerGoLive }) {
         <FloatingIcons
           sessions={visibleSessions}
           onSelectSession={(s) => handleOpenDiscovery(s)}
+          onFoodClick={() => setFoodOpen(true)}
         />
       )}
 
@@ -623,6 +626,7 @@ export default function AppShell({ returnParams, triggerGoLive }) {
       )}
 
       {rideOpen && <BookingScreen onClose={() => setRideOpen(false)} />}
+      {foodOpen && <RestaurantBrowseScreen onClose={() => setFoodOpen(false)} />}
 
       {/* First-use map intro — shown once, walks user through the UI */}
       {activeTab === 'map' && (
