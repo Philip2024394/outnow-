@@ -186,6 +186,11 @@ export default function BookingScreen({ onClose }) {
   // Cancel state
   const [cancelReason, setCancelReason] = useState('')
 
+  // Driver detail sheet
+  const [sheetDriver,  setSheetDriver]  = useState(null)   // driver obj or null
+  const [sheetService, setSheetService] = useState('ride') // 'ride' | 'delivery'
+  const [packageNote,  setPackageNote]  = useState('')
+
   // Featured driver banner rotation
   const [featuredIdx,  setFeaturedIdx]  = useState(0)
   const [bannerFade,   setBannerFade]   = useState(true)
@@ -257,7 +262,8 @@ export default function BookingScreen({ onClose }) {
   }, [pickupCoords, vehicleType, triedIds])
 
   // ── Select driver → WhatsApp ───────────────────────────────────────────────
-  const handleSelectDriver = useCallback(async (driver) => {
+  const handleSelectDriver = useCallback(async (driver, serviceType = 'ride', pkgNote = '') => {
+    setSheetDriver(null)
     setSelectedDriver(driver)
     const book = await createBooking({
       userId:          user?.id ?? user?.uid ?? 'guest',
@@ -272,21 +278,37 @@ export default function BookingScreen({ onClose }) {
     })
     setBooking(book)
 
-    const msg = [
-      `Hi ${driver.display_name},`,
-      ``,
-      `I need a ride via Hangger App:`,
-      ``,
-      `📍 Pickup: ${pickup?.address ?? 'My current location'}`,
-      `📍 Destination: ${destination?.address ?? 'To be confirmed'}`,
-      `${vehicleType === 'car_taxi' ? '🚗 Car Taxi' : '🛵 Bike Ride'}`,
-      `💰 Fare: ${formatRp(fare)}`,
-      `📏 Distance: ${distanceKm} km`,
-      ``,
-      `Can you pick me up?`,
-      ``,
-      `Booking ID: ${book.id}`,
-    ].join('\n')
+    const vehicle = vehicleType === 'car_taxi' ? '🚗 Car Taxi' : '🛵 Bike Ride'
+    const msg = serviceType === 'delivery'
+      ? [
+          `Hi ${driver.display_name},`,
+          ``,
+          `I need a package delivery via Hangger App:`,
+          ``,
+          `📦 Collect from: ${pickup?.address ?? 'My current location'}`,
+          `📍 Deliver to: ${destination?.address ?? 'To be confirmed'}`,
+          `${vehicle}`,
+          `💰 Fare: ${formatRp(fare)}`,
+          pkgNote ? `📝 Package: ${pkgNote}` : '',
+          ``,
+          `Can you deliver this package?`,
+          ``,
+          `Booking ID: ${book.id}`,
+        ].filter(Boolean).join('\n')
+      : [
+          `Hi ${driver.display_name},`,
+          ``,
+          `I need a ride via Hangger App:`,
+          ``,
+          `📍 Pickup: ${pickup?.address ?? 'My current location'}`,
+          `📍 Destination: ${destination?.address ?? 'To be confirmed'}`,
+          `${vehicle}`,
+          `💰 Fare: ${formatRp(fare)}`,
+          ``,
+          `Can you pick me up?`,
+          ``,
+          `Booking ID: ${book.id}`,
+        ].join('\n')
 
     const win = window.open(`https://wa.me/${driver.phone ?? ''}?text=${encodeURIComponent(msg)}`, '_blank')
     if (!win) alert('WhatsApp could not open. Please contact the driver via in-app chat.')
@@ -482,7 +504,7 @@ export default function BookingScreen({ onClose }) {
         {featured && (
           <button
             className={`${styles.featuredBanner} ${bannerFade ? styles.featuredBannerVisible : styles.featuredBannerHidden}`}
-            onClick={() => handleSelectDriver(featured)}
+            onClick={() => { setSheetDriver(featured); setSheetService('ride'); setPackageNote('') }}
           >
             {/* Left: profile + details */}
             <div className={styles.featuredLeft}>
@@ -512,6 +534,11 @@ export default function BookingScreen({ onClose }) {
               <div className={styles.featuredVehicle}>
                 {featured.vehicle_model} {featured.vehicle_year}
               </div>
+              {/* Service icons */}
+              <div className={styles.featuredServiceIcons}>
+                {featured.accepts_rides    !== false && <span className={styles.serviceIcon}>👤 Ride</span>}
+                {featured.accepts_packages === true  && <span className={styles.serviceIcon}>📦 Delivery</span>}
+              </div>
             </div>
 
             {/* Right: bike image + price badge */}
@@ -526,7 +553,11 @@ export default function BookingScreen({ onClose }) {
         <p className={styles.chooseSubtitle}>All available drivers</p>
         <div className={styles.driverList}>
           {drivers.map(d => (
-            <button key={d.id} className={styles.driverListCard} onClick={() => handleSelectDriver(d)}>
+            <button
+              key={d.id}
+              className={styles.driverListCard}
+              onClick={() => { setSheetDriver(d); setSheetService('ride'); setPackageNote('') }}
+            >
               {/* Avatar */}
               <div className={styles.driverListAvatar}>
                 <img src={d.driver_type === 'car_taxi' ? CAR_IMG : BIKE_IMG} alt={d.driver_type} className={styles.driverAvatarImg} />
@@ -542,17 +573,120 @@ export default function BookingScreen({ onClose }) {
                   <span className={styles.driverRatingNum}> {d.rating ?? '4.8'}</span>
                   <span className={styles.driverListTrips}> · {d.total_trips ?? 0} trips</span>
                 </div>
-                <div className={styles.driverListVehicle}>
-                  {d.vehicle_model} {d.vehicle_year}
+                <div className={styles.driverListBottom}>
+                  <span className={styles.driverListVehicle}>{d.vehicle_model} {d.vehicle_year}</span>
+                  <div className={styles.driverListServiceIcons}>
+                    {d.accepts_rides    !== false && <span className={styles.serviceIconSm}>👤</span>}
+                    {d.accepts_packages === true  && <span className={styles.serviceIconSm}>📦</span>}
+                  </div>
                 </div>
               </div>
-              {/* Book arrow */}
               <span className={styles.driverListArrow}>›</span>
             </button>
           ))}
         </div>
 
         <button className={styles.cancelBtn} onClick={() => setPhase('select')}>Cancel</button>
+      </div>
+    )
+  }
+
+  const renderDriverSheet = () => {
+    if (!sheetDriver) return null
+    const d = sheetDriver
+    const vehicleImg = d.driver_type === 'car_taxi' ? CAR_IMG : BIKE_IMG
+    const canRide     = d.accepts_rides    !== false
+    const canDeliver  = d.accepts_packages === true
+
+    return (
+      <div className={styles.sheetOverlay} onClick={() => setSheetDriver(null)}>
+        <div className={styles.sheetPanel} onClick={e => e.stopPropagation()}>
+          {/* Handle */}
+          <div className={styles.sheetHandle} />
+
+          {/* Driver hero */}
+          <div className={styles.sheetHero}>
+            <div className={styles.sheetVehicleWrap}>
+              <img src={vehicleImg} alt={d.display_name} className={styles.sheetVehicleImg} />
+            </div>
+            <div className={styles.sheetDriverInfo}>
+              <p className={styles.sheetDriverName}>{d.display_name}</p>
+              <p className={styles.sheetDriverAge}>Age {d.driver_age ?? '—'}</p>
+              <div className={styles.sheetStars}>
+                {'★'.repeat(Math.floor(d.rating ?? 4.8))}
+                <span className={styles.sheetRatingNum}> {d.rating ?? '4.8'}</span>
+                <span className={styles.sheetTrips}> · {d.total_trips ?? 0} trips</span>
+              </div>
+            </div>
+          </div>
+
+          {/* Vehicle specs */}
+          <div className={styles.sheetSpecsCard}>
+            <div className={styles.sheetSpecRow}>
+              <span className={styles.sheetSpecLabel}>Vehicle</span>
+              <span className={styles.sheetSpecValue}>{d.vehicle_model} {d.vehicle_year}</span>
+            </div>
+            <div className={styles.sheetSpecRow}>
+              <span className={styles.sheetSpecLabel}>Color</span>
+              <span className={styles.sheetSpecValue}>{d.vehicle_color ?? '—'}</span>
+            </div>
+            <div className={styles.sheetSpecRow}>
+              <span className={styles.sheetSpecLabel}>Plate</span>
+              <span className={styles.sheetSpecValue}>{d.plate_prefix ?? '—'} ••</span>
+            </div>
+            <div className={styles.sheetSpecRow}>
+              <span className={styles.sheetSpecLabel}>Fare</span>
+              <span className={`${styles.sheetSpecValue} ${styles.sheetSpecFare}`}>{formatRp(fare)}</span>
+            </div>
+          </div>
+
+          {/* Services available */}
+          <p className={styles.sheetServicesLabel}>Available for</p>
+          <div className={styles.sheetServiceBtns}>
+            <button
+              className={`${styles.sheetServiceBtn} ${sheetService === 'ride' ? styles.sheetServiceBtnActive : ''} ${!canRide ? styles.sheetServiceBtnDisabled : ''}`}
+              onClick={() => canRide && setSheetService('ride')}
+              disabled={!canRide}
+            >
+              <span className={styles.sheetServiceIcon}>👤</span>
+              <span className={styles.sheetServiceBtnLabel}>Personal Ride</span>
+              {!canRide && <span className={styles.sheetServiceUnavail}>Unavailable</span>}
+            </button>
+            <button
+              className={`${styles.sheetServiceBtn} ${sheetService === 'delivery' ? styles.sheetServiceBtnActive : ''} ${!canDeliver ? styles.sheetServiceBtnDisabled : ''}`}
+              onClick={() => canDeliver && setSheetService('delivery')}
+              disabled={!canDeliver}
+            >
+              <span className={styles.sheetServiceIcon}>📦</span>
+              <span className={styles.sheetServiceBtnLabel}>Package Delivery</span>
+              {!canDeliver && <span className={styles.sheetServiceUnavail}>Unavailable</span>}
+            </button>
+          </div>
+
+          {/* Package note — only for delivery */}
+          {sheetService === 'delivery' && (
+            <textarea
+              className={styles.sheetPackageNote}
+              value={packageNote}
+              onChange={e => setPackageNote(e.target.value)}
+              placeholder="Describe your package (e.g. small box, fragile, documents)…"
+              rows={2}
+              maxLength={200}
+            />
+          )}
+
+          {/* Book button */}
+          <button
+            className={styles.sheetBookBtn}
+            onClick={() => handleSelectDriver(d, sheetService, packageNote)}
+          >
+            {sheetService === 'delivery' ? '📦 Book Package Delivery' : '👤 Book Personal Ride'}
+            <span className={styles.sheetBookArrow}> via WhatsApp →</span>
+          </button>
+          <button className={styles.sheetCancelBtn} onClick={() => setSheetDriver(null)}>
+            Back to drivers
+          </button>
+        </div>
       </div>
     )
   }
@@ -795,6 +929,7 @@ export default function BookingScreen({ onClose }) {
           {phase === 'select'     && renderSelect()}
           {phase === 'searching'  && renderSearching()}
           {phase === 'choose'     && renderChoose()}
+          {renderDriverSheet()}
           {phase === 'waiting'    && renderWaiting()}
           {phase === 'expired'    && renderExpired()}
           {phase === 'active'     && renderActiveRide()}

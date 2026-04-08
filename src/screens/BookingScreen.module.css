@@ -729,6 +729,202 @@
   font-family: inherit;
 }
 
+/* ── Driver detail sheet ── */
+.sheetOverlay {
+  position: absolute;
+  inset: 0;
+  background: rgba(0,0,0,0.6);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+  z-index: 200;
+  display: flex;
+  align-items: flex-end;
+}
+.sheetPanel {
+  width: 100%;
+  background: #0f0f0f;
+  border-top: 1px solid rgba(255,255,255,0.1);
+  border-radius: 22px 22px 0 0;
+  padding: 10px 20px 36px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  animation: sheetSlideUp 0.28s cubic-bezier(0.32,0.72,0,1);
+  max-height: 92vh;
+  overflow-y: auto;
+}
+@keyframes sheetSlideUp {
+  from { transform: translateY(100%); }
+  to   { transform: translateY(0); }
+}
+.sheetHandle {
+  width: 40px; height: 4px;
+  border-radius: 2px;
+  background: rgba(255,255,255,0.15);
+  align-self: center;
+  margin-bottom: 4px;
+  flex-shrink: 0;
+}
+
+/* Hero row */
+.sheetHero {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+.sheetVehicleWrap {
+  width: 72px; height: 72px;
+  border-radius: 14px;
+  background: rgba(255,255,255,0.05);
+  border: 1px solid rgba(255,255,255,0.1);
+  overflow: hidden;
+  flex-shrink: 0;
+}
+.sheetVehicleImg {
+  width: 100%; height: 100%;
+  object-fit: contain;
+  padding: 6px;
+  box-sizing: border-box;
+}
+.sheetDriverInfo  { display: flex; flex-direction: column; gap: 3px; }
+.sheetDriverName  { font-size: 18px; font-weight: 900; color: #fff; margin: 0; }
+.sheetDriverAge   { font-size: 12px; color: #555; margin: 0; }
+.sheetStars       { font-size: 13px; color: #F5C518; display: flex; align-items: center; gap: 2px; }
+.sheetRatingNum   { font-size: 12px; font-weight: 700; color: #F5C518; }
+.sheetTrips       { font-size: 11px; color: #555; font-weight: 500; }
+
+/* Specs card */
+.sheetSpecsCard {
+  background: rgba(255,255,255,0.04);
+  border: 1px solid rgba(255,255,255,0.07);
+  border-radius: 12px;
+  padding: 12px 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.sheetSpecRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+}
+.sheetSpecLabel { font-size: 11px; font-weight: 700; color: #444; text-transform: uppercase; letter-spacing: 0.05em; }
+.sheetSpecValue { font-size: 13px; font-weight: 600; color: #bbb; }
+.sheetSpecFare  { color: #8DC63F; font-size: 15px; font-weight: 900; }
+
+/* Service selector */
+.sheetServicesLabel {
+  font-size: 11px;
+  font-weight: 700;
+  color: #444;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  margin: 0;
+}
+.sheetServiceBtns {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+.sheetServiceBtn {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  padding: 14px 10px;
+  background: rgba(255,255,255,0.04);
+  border: 1.5px solid rgba(255,255,255,0.08);
+  border-radius: 14px;
+  cursor: pointer;
+  font-family: inherit;
+  transition: all 0.15s;
+}
+.sheetServiceBtnActive {
+  background: rgba(141,198,63,0.12);
+  border-color: rgba(141,198,63,0.5);
+}
+.sheetServiceBtnDisabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+}
+.sheetServiceIcon     { font-size: 24px; line-height: 1; }
+.sheetServiceBtnLabel { font-size: 12px; font-weight: 700; color: #ddd; }
+.sheetServiceUnavail  { font-size: 10px; color: #ef4444; font-weight: 600; }
+
+/* Package note */
+.sheetPackageNote {
+  width: 100%;
+  box-sizing: border-box;
+  background: rgba(255,255,255,0.04);
+  border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 12px;
+  color: #fff;
+  font-size: 13px;
+  font-family: inherit;
+  padding: 12px 14px;
+  outline: none;
+  resize: none;
+}
+.sheetPackageNote:focus { border-color: #8DC63F; }
+.sheetPackageNote::placeholder { color: #444; }
+
+/* Book button */
+.sheetBookBtn {
+  padding: 15px;
+  background: #8DC63F;
+  color: #000;
+  border: none;
+  border-radius: 14px;
+  font-size: 15px;
+  font-weight: 800;
+  cursor: pointer;
+  font-family: inherit;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+}
+.sheetBookArrow { font-weight: 600; font-size: 13px; opacity: 0.7; }
+.sheetCancelBtn {
+  background: none;
+  border: none;
+  color: #444;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  font-family: inherit;
+  text-align: center;
+  padding: 4px;
+}
+
+/* Service icons on banner + list */
+.featuredServiceIcons {
+  display: flex;
+  gap: 6px;
+  margin-top: 2px;
+}
+.serviceIcon {
+  font-size: 10px;
+  font-weight: 700;
+  color: rgba(255,255,255,0.55);
+  background: rgba(255,255,255,0.07);
+  border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 100px;
+  padding: 3px 8px;
+}
+.driverListBottom {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 6px;
+}
+.driverListServiceIcons { display: flex; gap: 4px; }
+.serviceIconSm {
+  font-size: 13px;
+  line-height: 1;
+  opacity: 0.6;
+}
+
 /* ── Active ride ── */
 .activeRideCard {
   background: rgba(0,0,0,0.6);
