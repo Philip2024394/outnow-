@@ -154,6 +154,16 @@ export default function PricingTab() {
             />
           </label>
           <label className={styles.settingLabel}>
+            Maximum Fare (Rp)
+            <input
+              className={styles.settingInput}
+              type="number"
+              step="1000"
+              value={settings.max_fare ?? 100000}
+              onChange={e => setSettings(s => ({ ...s, max_fare: Number(e.target.value) }))}
+            />
+          </label>
+          <label className={styles.settingLabel}>
             Max Distance (km)
             <input
               className={styles.settingInput}

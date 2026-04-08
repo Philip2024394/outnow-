@@ -11,7 +11,7 @@ export const DEFAULT_ZONES = [
   { id: 99,city_name: 'Other Cities',     zone_id: 99, car_base_fare: 5000, car_per_km: 2500, bike_base_fare: 4000, bike_per_km: 2000, is_active: true },
 ]
 
-export const DEFAULT_SETTINGS = { minimum_fare: 10000, max_distance_km: 50, driver_timeout_seconds: 60 }
+export const DEFAULT_SETTINGS = { minimum_fare: 10000, max_fare: 100000, max_distance_km: 50, driver_timeout_seconds: 60 }
 
 export async function fetchPricingZones() {
   if (!supabase) return DEFAULT_ZONES
@@ -58,7 +58,8 @@ export function estimateFare(driverType, cityName, distanceKm, zones, settings) 
   const base    = driverType === 'car_taxi' ? zone.car_base_fare : zone.bike_base_fare
   const perKm   = driverType === 'car_taxi' ? zone.car_per_km   : zone.bike_per_km
   const minFare = settings?.minimum_fare ?? 10000
-  return Math.max(base + Math.round(distanceKm * perKm), minFare)
+  const maxFare = settings?.max_fare     ?? 100000
+  return Math.min(Math.max(base + Math.round(distanceKm * perKm), minFare), maxFare)
 }
 
 export function formatRp(amount) {
