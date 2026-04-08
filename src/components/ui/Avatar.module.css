@@ -37,6 +37,11 @@
   box-shadow: 0 0 0 2px var(--color-bg), 0 0 14px rgba(245,197,24,0.45);
 }
 
+.dating {
+  border-color: #F472B6;
+  box-shadow: 0 0 0 2px var(--color-bg), 0 0 14px rgba(244,114,182,0.5);
+}
+
 /* ── No-photo brand card ── */
 .brandCard {
   background: linear-gradient(160deg, #0d1a0d 0%, #0e0e0e 100%);

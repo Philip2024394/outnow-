@@ -9,6 +9,7 @@ import styles from './DiscoveryListSheet.module.css'
 const CONFIG = {
   now:    { label: 'Hanging Out',   badge: styles.badgeNow,    empty: 'Nobody is hanging out nearby right now.' },
   invite: { label: 'Want to Hang',  badge: styles.badgeInvite, empty: 'Nobody is looking to hang out right now.' },
+  dating: { label: 'Dating & Romance', badge: styles.badgeDating, empty: 'No dating profiles nearby right now.' },
 }
 
 export default function DiscoveryListSheet({ open, filter = 'now', sessions = [], onClose, onSelect }) {
@@ -54,11 +55,13 @@ export default function DiscoveryListSheet({ open, filter = 'now', sessions = []
   if (!open) return null
 
   const cfg = CONFIG[filter] ?? CONFIG.now
-  const themeColor = filter === 'invite' ? '#F5C518' : '#8DC63F'
+  const themeColor = filter === 'invite' ? '#F5C518' : filter === 'dating' ? '#F472B6' : '#8DC63F'
 
   const byFilter = sessions.filter(s => {
+    if (filter !== 'dating' && s.lookingFor === 'dating') return false
     if (filter === 'now')    return s.status !== 'scheduled' && s.status !== 'invite_out'
     if (filter === 'invite') return s.status === 'invite_out'
+    if (filter === 'dating') return s.lookingFor === 'dating'
     return false
   })
 
@@ -88,11 +91,13 @@ export default function DiscoveryListSheet({ open, filter = 'now', sessions = []
             <div className={styles.headerLeft}>
               <div className={styles.inviteHeader}>
                 <span className={styles.inviteTitle}>
-                  {filter === 'invite' ? 'Want to Hang' : 'Hanging Out'}
+                  {filter === 'invite' ? 'Want to Hang' : filter === 'dating' ? 'Dating & Romance' : 'Hanging Out'}
                 </span>
                 <span className={styles.inviteSub}>
                   {filter === 'invite'
                     ? 'Connect and organise where to meet'
+                    : filter === 'dating'
+                    ? 'People nearby open to dating right now'
                     : 'People hanging out near you right now'}
                 </span>
               </div>
@@ -143,8 +148,9 @@ export default function DiscoveryListSheet({ open, filter = 'now', sessions = []
                       src={s.photoURL ?? s.photos?.[0] ?? null}
                       name={s.displayName}
                       size={52}
-                      live={!isInviteOut}
-                      inviteOut={isInviteOut}
+                      live={filter !== 'dating' && !isInviteOut}
+                      inviteOut={filter !== 'dating' && isInviteOut}
+                      dating={filter === 'dating'}
                     />
                     <div className={styles.cardInfo}>
                       <div className={styles.cardName}>

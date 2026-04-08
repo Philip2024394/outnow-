@@ -32,7 +32,9 @@
   pointer-events: all;
   animation: slide-up 0.32s cubic-bezier(0.32,0.72,0,1) forwards;
   will-change: transform;
-  background: #0e0e0e;
+  background: rgba(8, 8, 14, 0.72);
+  backdrop-filter: blur(24px) saturate(1.5);
+  -webkit-backdrop-filter: blur(24px) saturate(1.5);
 }
 
 
@@ -67,6 +69,7 @@
   gap: 12px;
   position: relative;
   z-index: 2;
+  background: transparent;
 }
 
 .scrollContent::-webkit-scrollbar { display: none; }
@@ -119,6 +122,7 @@
 .badgeNow    { color: #8DC63F; background: rgba(141,198,63,0.1);  border-color: rgba(141,198,63,0.3);  }
 .badgeInvite { color: #F5C518; background: rgba(245,197,24,0.1); border-color: rgba(245,197,24,0.3); }
 .badgeLater  { color: #E8890C; background: rgba(232,137,12,0.1);  border-color: rgba(232,137,12,0.3);  }
+.badgeDating { color: #F5C518; background: rgba(245,197,24,0.1); border-color: rgba(245,197,24,0.3); }
 
 .count {
   font-size: 13px;
@@ -133,10 +137,13 @@
   align-items: center;
   gap: 8px;
   margin: 0 0 12px;
-  background: rgba(255,255,255,0.05);
-  border: 1.5px solid rgba(255,255,255,0.09);
+  background: rgba(8, 8, 14, 0.45);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1.5px solid rgba(255,255,255,0.14);
   border-radius: 12px;
   padding: 10px 12px;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.08);
 }
 
 .searchIcon {
@@ -187,11 +194,13 @@
   align-items: center;
   gap: 14px;
   padding: 12px 14px;
-  background: rgba(255,255,255,0.07);
-  backdrop-filter: blur(20px) saturate(1.6);
-  -webkit-backdrop-filter: blur(20px) saturate(1.6);
-  border: 1px solid rgba(255,255,255,0.14);
-  box-shadow: inset 0 1px 0 rgba(255,255,255,0.12), 0 2px 16px rgba(0,0,0,0.4);
+  background: rgba(8, 8, 14, 0.45);
+  backdrop-filter: blur(24px) saturate(1.8);
+  -webkit-backdrop-filter: blur(24px) saturate(1.8);
+  border: 1px solid rgba(255,255,255,0.16);
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,0.14),
+    0 4px 20px rgba(0,0,0,0.45);
   border-radius: 16px;
   cursor: pointer;
   font-family: inherit;
@@ -202,8 +211,8 @@
 }
 
 .card:active {
-  background: rgba(255,255,255,0.13);
-  border-color: rgba(255,255,255,0.22);
+  background: rgba(255,255,255,0.1);
+  border-color: rgba(255,255,255,0.28);
 }
 
 .cardInfo {

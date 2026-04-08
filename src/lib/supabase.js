@@ -2,11 +2,14 @@ import { createClient } from '@supabase/supabase-js'
 
 const supabaseUrl = import.meta.env.VITE_SUPABASE_URL
 const supabaseKey = import.meta.env.VITE_SUPABASE_ANON_KEY
+const demoMode    = import.meta.env.VITE_DEMO_MODE === 'true'
 
 /**
- * Supabase client — null when env vars are absent (demo/dev mode).
+ * Supabase client — null when env vars are absent OR VITE_DEMO_MODE=true.
+ * Nulling it in demo mode lets every hook fall into its local fallback path
+ * instead of firing real queries with undefined user IDs.
  */
-export const supabase = (supabaseUrl && supabaseKey)
+export const supabase = (!demoMode && supabaseUrl && supabaseKey)
   ? createClient(supabaseUrl, supabaseKey)
   : null
 

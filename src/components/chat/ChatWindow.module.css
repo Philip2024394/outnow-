@@ -29,6 +29,26 @@
   flex-shrink: 0;
 }
 
+.idCheckBtn {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  background: rgba(96, 165, 250, 0.08);
+  border: 1px solid rgba(96, 165, 250, 0.25);
+  border-radius: 20px;
+  padding: 6px 11px;
+  color: #60A5FA;
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+  font-family: var(--font-sans, sans-serif);
+  transition: background 0.15s;
+  -webkit-tap-highlight-color: transparent;
+  white-space: nowrap;
+}
+
+.idCheckBtn:active { background: rgba(96, 165, 250, 0.16); }
+
 .shareBtn {
   display: flex;
   align-items: center;

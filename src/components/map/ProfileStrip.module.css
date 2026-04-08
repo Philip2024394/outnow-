@@ -1,120 +1,90 @@
-.strip {
+/* ── Frosted glass footer bar ── */
+.bar {
   position: absolute;
   bottom: 0;
   left: 0;
   right: 0;
   z-index: var(--z-map-controls);
-  padding: 10px 24px calc(var(--safe-bottom) + 14px) 24px;
-  background: linear-gradient(to top, rgba(8,8,8,0.96) 0%, rgba(8,8,8,0.6) 70%, transparent 100%);
+  display: flex;
+  justify-content: center;
+  padding: 12px 20px calc(env(safe-area-inset-bottom, 0px) + 16px);
+  /* soft fade so bar blends into the background image */
+  background: linear-gradient(to top, rgba(0,0,0,0.55) 0%, transparent 100%);
   pointer-events: none;
+}
+
+/* Single glass pill that holds all three buttons */
+.pill {
   display: flex;
-  flex-direction: column;
   align-items: center;
-}
-
-/* ── Category toggle ── */
-.categoryToggle {
-  display: flex;
-  gap: 6px;
-  margin-bottom: 10px;
+  gap: 0;
+  background: rgba(12, 12, 16, 0.55);
+  backdrop-filter: blur(20px) saturate(1.4);
+  -webkit-backdrop-filter: blur(20px) saturate(1.4);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 28px;
+  padding: 6px 6px;
   pointer-events: all;
+  box-shadow:
+    0 4px 32px rgba(0, 0, 0, 0.45),
+    inset 0 1px 0 rgba(255,255,255,0.07);
 }
 
-.catBtn {
-  font-size: 11px;
-  font-weight: 700;
-  letter-spacing: 0.04em;
-  padding: 5px 14px;
-  border-radius: 100px;
-  border: 1.5px solid rgba(255,255,255,0.15);
-  background: rgba(255,255,255,0.06);
-  color: rgba(255,255,255,0.45);
-  cursor: pointer;
-  font-family: inherit;
-  transition: all 0.15s;
-  -webkit-tap-highlight-color: transparent;
-}
-
-.catBtnActive {
-  background: rgba(255,255,255,0.12);
-  border-color: rgba(255,255,255,0.35);
-  color: #fff;
-}
-
-.catBtnMaker {
-  background: rgba(141,198,63,0.15);
-  border-color: #8DC63F;
-  color: #8DC63F;
-}
-
-/* ── 3 coloured filter buttons ── */
-.discRow {
-  display: flex;
-  gap: 14px;
-  pointer-events: all;
-  align-items: center;
-}
-
-.colorBtn {
+/* Each category button */
+.btn {
   position: relative;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  width: 80px;
-  height: 52px;
-  border-radius: 16px;
+  gap: 3px;
+  flex: 1;
+  min-width: 88px;
+  padding: 10px 12px;
+  border-radius: 22px;
   border: none;
+  background: transparent;
   cursor: pointer;
   font-family: inherit;
   -webkit-tap-highlight-color: transparent;
-  transition: transform 0.12s, box-shadow 0.12s;
-  gap: 2px;
-  box-shadow: 0 3px 12px rgba(0,0,0,0.4);
+  transition: background 0.18s ease, box-shadow 0.18s ease, transform 0.12s ease;
+  overflow: hidden;
 }
 
-.colorBtn:active { transform: scale(0.93); box-shadow: 0 1px 6px rgba(0,0,0,0.3); }
-.colorBtnActive  { outline: 3px solid #fff; outline-offset: 2px; }
-
-.colorBtnFired {
-  animation: btn-flash 0.8s ease-out forwards;
+.btn:active {
+  transform: scale(0.93);
 }
 
-@keyframes btn-flash {
-  0%   { transform: scale(1); }
-  30%  { transform: scale(1.12); }
-  60%  { transform: scale(0.96); }
-  100% { transform: scale(1); }
+/* Active state — filled with the button's brand colour */
+.btnActive {
+  background: var(--btn-color);
+  box-shadow: 0 0 18px var(--btn-glow);
 }
 
-.colorBtnCount {
-  font-size: 20px;
-  font-weight: 900;
-  color: #fff;
-  line-height: 1;
-  text-shadow: 0 1px 3px rgba(0,0,0,0.3);
-  letter-spacing: -0.02em;
-}
-
-.colorBtnLabel {
-  font-size: 9px;
-  font-weight: 700;
-  color: rgba(255,255,255,0.9);
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-  line-height: 1;
-  white-space: nowrap;
-}
-
-/* ── Boost ring SVG overlay ── */
-.ringsvg {
+/* Separator line between buttons */
+.btn + .btn::before {
+  content: '';
   position: absolute;
-  inset: 0;
-  width: 100%;
-  height: 100%;
+  left: 0;
+  top: 20%;
+  height: 60%;
+  width: 1px;
+  background: rgba(255,255,255,0.08);
+}
+
+.btnActive + .btn::before,
+.btn + .btnActive::before {
+  opacity: 0;
+}
+
+/* Boost charge ring — fills whole button */
+.ring {
+  position: absolute;
+  inset: 4px;
+  width: calc(100% - 8px);
+  height: calc(100% - 8px);
   pointer-events: none;
   z-index: 3;
-  border-radius: 16px;
 }
 
 .ringFired {
@@ -123,59 +93,66 @@
 
 @keyframes ring-flash {
   0%   { opacity: 1; }
-  50%  { opacity: 0.3; }
+  50%  { opacity: 0.25; }
   100% { opacity: 1; }
 }
 
-/* Flash the whole circle on fire */
-.circleFired .circleBubble {
-  animation: bubble-flash 0.8s ease-out forwards;
+/* Fired flash animation */
+.btnFired {
+  animation: btn-flash 0.75s ease-out forwards;
 }
 
-@keyframes bubble-flash {
-  0%   { transform: scale(1);    opacity: 1; }
-  30%  { transform: scale(1.18); opacity: 0.9; }
-  60%  { transform: scale(0.95); opacity: 1; }
-  100% { transform: scale(1);    opacity: 1; }
+@keyframes btn-flash {
+  0%   { transform: scale(1); }
+  30%  { transform: scale(1.08); }
+  65%  { transform: scale(0.97); }
+  100% { transform: scale(1); }
 }
 
-/* Small dot showing boost already used today */
-.boostUsedDot {
-  position: absolute;
-  bottom: 50px;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 6px;
-  height: 6px;
-  border-radius: 50%;
-  opacity: 0.6;
-  z-index: 3;
-}
-
-/* Red notification badge */
-.notifBadge {
-  position: absolute;
-  top: -6px;
-  right: -6px;
-  min-width: 20px;
-  height: 20px;
-  background: #FF3B30;
+/* Count — large number */
+.count {
+  font-size: 22px;
+  font-weight: 900;
   color: #fff;
-  font-size: 10px;
-  font-weight: 800;
-  border-radius: 100px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 0 5px;
-  border: 2px solid #080808;
-  box-shadow: 0 0 10px rgba(255,59,48,0.7);
+  line-height: 1;
+  letter-spacing: -0.03em;
+  text-shadow: 0 1px 4px rgba(0,0,0,0.35);
+  transition: color 0.15s;
   pointer-events: none;
-  z-index: 2;
-  animation: badge-pop 0.3s cubic-bezier(0.34,1.56,0.64,1) forwards;
 }
 
-@keyframes badge-pop {
-  from { transform: scale(0); opacity: 0; }
-  to   { transform: scale(1); opacity: 1; }
+/* Label — small caps below the count */
+.label {
+  font-size: 9px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+  color: rgba(255,255,255,0.55);
+  line-height: 1;
+  white-space: nowrap;
+  pointer-events: none;
+  transition: color 0.15s;
+}
+
+.btnActive .label {
+  color: rgba(255,255,255,0.9);
+}
+
+/* New-activity pulsing dot — top-right of button */
+.pulse {
+  position: absolute;
+  top: 8px;
+  right: 10px;
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--btn-color);
+  box-shadow: 0 0 6px var(--btn-glow);
+  animation: pulse-ring 1.6s ease-in-out infinite;
+  z-index: 2;
+}
+
+@keyframes pulse-ring {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50%       { opacity: 0.3; transform: scale(0.65); }
 }

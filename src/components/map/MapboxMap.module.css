@@ -1,0 +1,22 @@
+.wrap {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+}
+
+.map {
+  width: 100%;
+  height: 100%;
+  background: #0a0a0a;
+}
+
+/* Hide Leaflet default focus outline */
+.map :global(.leaflet-container) {
+  background: #0a0a0a;
+  font-family: inherit;
+}
+
+/* Remove tile seams on dark style */
+.map :global(.leaflet-tile) {
+  border: none !important;
+}

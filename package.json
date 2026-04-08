@@ -9,7 +9,6 @@
     "preview": "vite preview"
   },
   "dependencies": {
-    "@react-google-maps/api": "^2.19.3",
     "@stripe/stripe-js": "^4.1.0",
     "@supabase/supabase-js": "^2.101.1",
     "firebase": "^10.12.0",

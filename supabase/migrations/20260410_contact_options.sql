@@ -1,15 +1,19 @@
 -- ─────────────────────────────────────────────────────────────────────────────
 -- Contact Options for Business Users
 -- Adds: contact_platform, contact_number, chat_enabled to profiles
+-- Also adds: cuisine_type, target_audience, shop_type (maker category fields)
 -- ─────────────────────────────────────────────────────────────────────────────
 
 -- Platform slug (e.g. 'whatsapp', 'telegram', 'instagram') — kept as text for
 -- flexibility; validated on the client rather than as a DB enum so new platforms
 -- can be added without a schema migration.
 ALTER TABLE profiles
-  ADD COLUMN IF NOT EXISTS contact_platform text,
-  ADD COLUMN IF NOT EXISTS contact_number   text,
-  ADD COLUMN IF NOT EXISTS chat_enabled     boolean NOT NULL DEFAULT true;
+  ADD COLUMN IF NOT EXISTS contact_platform  text,
+  ADD COLUMN IF NOT EXISTS contact_number    text,
+  ADD COLUMN IF NOT EXISTS chat_enabled      boolean NOT NULL DEFAULT true,
+  ADD COLUMN IF NOT EXISTS cuisine_type      text,
+  ADD COLUMN IF NOT EXISTS target_audience   jsonb,
+  ADD COLUMN IF NOT EXISTS shop_type         text;
 
 -- Index for quick lookup of profiles that have a contact method set
 CREATE INDEX IF NOT EXISTS profiles_contact_platform_idx
@@ -24,20 +28,22 @@ CREATE INDEX IF NOT EXISTS profiles_contact_platform_idx
 
 -- Expose contact_platform (not the number) in sessions_with_profiles view so
 -- MakerCard can show the platform badge without revealing the actual number.
--- Rebuild view to include the new column.
-CREATE OR REPLACE VIEW sessions_with_profiles AS
+-- Must DROP first — CREATE OR REPLACE cannot reorder or rename existing columns.
+DROP VIEW IF EXISTS sessions_with_profiles;
+
+CREATE VIEW sessions_with_profiles AS
 SELECT
   s.*,
   p.display_name,
   p.photo_url,
   p.age,
-  p.bio,
   p.looking_for,
-  p.city,
+  p.city              AS profile_city,
   p.country,
+  p.bio,
   p.is_verified,
-  p.tier,
   p.is_banned,
+  p.tier,
   p.market,
   p.price_min,
   p.price_max,
@@ -55,16 +61,20 @@ SELECT
   p.relationship_goal,
   p.star_sign,
   p.height,
+  p.created_at        AS profile_created_at,
   -- contact_platform exposed (not contact_number — that stays server-side only)
   p.contact_platform,
   p.chat_enabled,
   p.photo_offset_x,
   p.photo_offset_y,
   p.photo_zoom,
-  p.whatsapp,
-  p.phone
+  p.cuisine_type,
+  p.target_audience,
+  p.shop_type
 FROM sessions s
-JOIN profiles p ON p.id = s.user_id;
+LEFT JOIN profiles p ON p.id = s.user_id;
+
+GRANT SELECT ON sessions_with_profiles TO authenticated, anon;
 
 -- ─── Backend gate note ───────────────────────────────────────────────────────
 -- The contact reveal endpoint must:

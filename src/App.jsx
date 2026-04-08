@@ -4,6 +4,7 @@ import AuthScreen from '@/screens/AuthScreen'
 import AppShell from '@/router/AppShell'
 import WelcomeScreen from '@/screens/WelcomeScreen'
 import ProfileScreen from '@/screens/ProfileScreen'
+import LocationGateScreen from '@/screens/LocationGateScreen'
 import Spinner from '@/components/ui/Spinner'
 import AdminApp from '@/admin/AdminApp'
 import { GuestGateProvider } from '@/contexts/GuestGateContext'
@@ -47,10 +48,18 @@ export default function App() {
     }
     if (resolvedRef.current === user.uid) return  // already resolved for this user
     resolvedRef.current = user.uid
+    // Demo / preview mode — skip all onboarding gates
+    if (import.meta.env.VITE_DEMO_MODE === 'true') {
+      setOnboardStep('done')
+      return
+    }
     // New user = no lookingFor set yet → show welcome → profile setup
     // Returning user → go straight to map
+    const locationConfirmed = localStorage.getItem('locationConfirmed') === 'true'
     if (!userProfile?.lookingFor) {
       setOnboardStep('welcome')
+    } else if (!locationConfirmed) {
+      setOnboardStep('location')
     } else {
       setOnboardStep('done')
     }
@@ -66,7 +75,11 @@ export default function App() {
 
   // New-user onboarding handlers
   const handleWelcomeDone = () => setOnboardStep('profile')
-  const handleProfileDone = () => setOnboardStep('done')
+  const handleProfileDone = () => {
+    const locationConfirmed = localStorage.getItem('locationConfirmed') === 'true'
+    setOnboardStep(locationConfirmed ? 'done' : 'location')
+  }
+  const handleLocationConfirmed = () => setOnboardStep('done')
 
   // Handle return from Stripe Checkout
   useEffect(() => {
@@ -114,6 +127,11 @@ export default function App() {
       {/* ── New user: profile setup (required before map) ── */}
       {onboardStep === 'profile' && (
         <ProfileScreen onClose={handleProfileDone} onboarding />
+      )}
+
+      {/* ── Location confirmation gate ── */}
+      {onboardStep === 'location' && (
+        <LocationGateScreen onConfirmed={handleLocationConfirmed} />
       )}
 
       {/* ── Returning user or after onboarding complete ── */}

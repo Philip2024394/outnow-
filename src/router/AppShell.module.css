@@ -116,6 +116,66 @@
   pointer-events: all;
 }
 
+/* ── Right-side Dating quick-filter ── */
+.rightPanel {
+  position: absolute;
+  right: 14px;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: var(--z-map-controls);
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  pointer-events: none;
+}
+
+.datingFab {
+  pointer-events: all;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  background: rgba(244, 114, 182, 0.18);
+  border: 1.5px solid rgba(244, 114, 182, 0.5);
+  box-shadow: 0 4px 20px rgba(244, 114, 182, 0.3), 0 2px 8px rgba(0,0,0,0.5);
+  cursor: pointer;
+  gap: 2px;
+  -webkit-tap-highlight-color: transparent;
+  transition: transform 0.12s, box-shadow 0.12s, background 0.15s;
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+}
+
+.datingFab:active {
+  transform: scale(0.92);
+  box-shadow: 0 2px 8px rgba(244, 114, 182, 0.2);
+}
+
+.datingFabActive {
+  background: rgba(244, 114, 182, 0.85);
+  border-color: #F472B6;
+  box-shadow: 0 4px 24px rgba(244, 114, 182, 0.55), 0 2px 8px rgba(0,0,0,0.5);
+}
+
+.datingFabIcon {
+  font-size: 22px;
+  line-height: 1;
+}
+
+.datingFabLabel {
+  font-size: 8px;
+  font-weight: 800;
+  color: #F472B6;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  line-height: 1;
+  font-family: var(--font-sans, sans-serif);
+}
+
+
 .statusBtn {
   position: relative;
   display: flex;

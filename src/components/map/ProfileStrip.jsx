@@ -2,53 +2,45 @@ import { useRef, useState, useCallback, useEffect } from 'react'
 import styles from './ProfileStrip.module.css'
 
 const HOLD_MS = 3000
-const CIRCUMFERENCE = 2 * Math.PI * 22 // radius 22
+const CIRCUMFERENCE = 2 * Math.PI * 22
 
 const BUTTONS = [
-  { filter: 'now',    label: 'Hanging',     color: '#8DC63F' },
-  { filter: 'invite', label: 'Want to Hang', color: '#F5C518' },
+  { filter: 'now',    label: 'Hangger', color: '#8DC63F', glow: 'rgba(141,198,63,0.45)' },
+  { filter: 'invite', label: 'Hanging', color: '#F5C518', glow: 'rgba(245,197,24,0.45)' },
+  { filter: 'haggle', label: 'Haggling', color: '#E8890C', glow: 'rgba(232,137,12,0.45)' },
 ]
 
-// Read / write daily boost usage from localStorage
-function getTodayKey(filter) {
-  return `boost_${filter}_${new Date().toDateString()}`
-}
-function hasUsedBoost(filter) {
-  return !!localStorage.getItem(getTodayKey(filter))
-}
-function markBoostUsed(filter) {
-  localStorage.setItem(getTodayKey(filter), '1')
-}
+function getTodayKey(filter) { return `boost_${filter}_${new Date().toDateString()}` }
+function hasUsedBoost(filter) { return !!localStorage.getItem(getTodayKey(filter)) }
+function markBoostUsed(filter) { localStorage.setItem(getTodayKey(filter), '1') }
 
 export default function ProfileStrip({
-  outNowCount      = 0,
-  inviteOutCount   = 0,
-  businessCount    = 0,
-  newNowCount      = 0,
-  newInviteCount   = 0,
+  outNowCount    = 0,
+  inviteOutCount = 0,
+  businessCount  = 0,
+  newNowCount    = 0,
+  newInviteCount = 0,
   onBoost,
   onSelectFilter,
   activeFilter = null,
   onHanggle,
   hanggleActive = false,
 }) {
-  const counts    = { now: outNowCount, invite: inviteOutCount }
-  const newCounts = { now: newNowCount, invite: newInviteCount }
+  const counts    = { now: outNowCount, invite: inviteOutCount, haggle: businessCount }
+  const newCounts = { now: newNowCount, invite: newInviteCount, haggle: 0 }
 
-  const [holding, setHolding]     = useState(null)   // filter key being held
-  const [progress, setProgress]   = useState(0)      // 0–1
-  const [fired, setFired]         = useState(null)   // filter that just fired (flash)
+  const [holding, setHolding]     = useState(null)
+  const [progress, setProgress]   = useState(0)
+  const [fired, setFired]         = useState(null)
   const [boostUsed, setBoostUsed] = useState({
-    now: hasUsedBoost('now'), invite: hasUsedBoost('invite'),
+    now: hasUsedBoost('now'), invite: hasUsedBoost('invite'), haggle: false,
   })
 
-  const holdTimer   = useRef(null)
   const rafRef      = useRef(null)
   const startRef    = useRef(null)
   const holdingRef  = useRef(null)
 
   const cancelHold = useCallback(() => {
-    clearTimeout(holdTimer.current)
     cancelAnimationFrame(rafRef.current)
     setHolding(null)
     setProgress(0)
@@ -60,16 +52,13 @@ export default function ProfileStrip({
     holdingRef.current = filter
     setHolding(filter)
     startRef.current = performance.now()
-
     const tick = (now) => {
       if (!holdingRef.current) return
-      const elapsed = now - startRef.current
-      const p = Math.min(elapsed / HOLD_MS, 1)
+      const p = Math.min((now - startRef.current) / HOLD_MS, 1)
       setProgress(p)
       if (p < 1) {
         rafRef.current = requestAnimationFrame(tick)
       } else {
-        // Fired!
         const f = holdingRef.current
         markBoostUsed(f)
         setBoostUsed(prev => ({ ...prev, [f]: true }))
@@ -84,42 +73,50 @@ export default function ProfileStrip({
     rafRef.current = requestAnimationFrame(tick)
   }, [boostUsed, onBoost])
 
-  // Clean up on unmount
-  useEffect(() => () => {
-    cancelAnimationFrame(rafRef.current)
-    clearTimeout(holdTimer.current)
-  }, [])
+  useEffect(() => () => cancelAnimationFrame(rafRef.current), [])
 
   const strokeOffset = CIRCUMFERENCE * (1 - progress)
 
-  return (
-    <div className={styles.strip}>
-      <div className={styles.discRow}>
+  const handleTap = (filter) => {
+    if (filter === 'haggle') { onHanggle?.(); return }
+    onSelectFilter?.(activeFilter === filter ? null : filter)
+  }
 
-        {BUTTONS.map(({ filter, label, color }) => {
+  const isActive = (filter) =>
+    filter === 'haggle' ? hanggleActive : activeFilter === filter
+
+  return (
+    <div className={styles.bar}>
+      <div className={styles.pill}>
+        {BUTTONS.map(({ filter, label, color, glow }) => {
+          const active    = isActive(filter)
           const isHolding = holding === filter
           const isFired   = fired === filter
-          const used      = boostUsed[filter]
+          const hasNew    = newCounts[filter] > 0
 
           return (
             <button
               key={filter}
-              className={`${styles.colorBtn} ${isFired ? styles.colorBtnFired : ''} ${activeFilter === filter ? styles.colorBtnActive : ''}`}
-              style={{ background: color }}
-              onClick={() => { if (!isHolding) onSelectFilter?.(activeFilter === filter ? null : filter) }}
+              className={`${styles.btn} ${active ? styles.btnActive : ''} ${isFired ? styles.btnFired : ''}`}
+              style={{
+                '--btn-color': color,
+                '--btn-glow':  glow,
+              }}
+              onClick={() => { if (!isHolding) handleTap(filter) }}
               onPointerDown={() => startHold(filter)}
               onPointerUp={cancelHold}
               onPointerLeave={cancelHold}
               onPointerCancel={cancelHold}
+              aria-label={label}
             >
-              {/* Charging ring SVG */}
+              {/* Boost charge ring */}
               {(isHolding || isFired) && (
-                <svg className={styles.ringsvg} viewBox="0 0 48 48">
+                <svg className={styles.ring} viewBox="0 0 48 48">
                   <circle
                     cx="24" cy="24" r="22"
                     fill="none"
-                    stroke="rgba(255,255,255,0.8)"
-                    strokeWidth="3"
+                    stroke="rgba(255,255,255,0.85)"
+                    strokeWidth="2.5"
                     strokeDasharray={CIRCUMFERENCE}
                     strokeDashoffset={isFired ? 0 : strokeOffset}
                     strokeLinecap="round"
@@ -129,30 +126,16 @@ export default function ProfileStrip({
                 </svg>
               )}
 
-              {used && !isHolding && !isFired && (
-                <span className={styles.boostUsedDot} style={{ background: 'rgba(255,255,255,0.6)' }} />
+              {/* New-activity pulse dot */}
+              {hasNew && !isHolding && (
+                <span className={styles.pulse} />
               )}
 
-              {newCounts[filter] > 0 && (
-                <span className={styles.notifBadge}>{newCounts[filter] > 9 ? '9+' : newCounts[filter]}</span>
-              )}
-
-              <span className={styles.colorBtnCount}>{counts[filter]}</span>
-              <span className={styles.colorBtnLabel}>{label}</span>
+              <span className={styles.count}>{counts[filter]}</span>
+              <span className={styles.label}>{label}</span>
             </button>
           )
         })}
-
-        {/* Hanggle — business listings button, right side */}
-        <button
-          className={`${styles.colorBtn} ${hanggleActive ? styles.colorBtnActive : ''}`}
-          style={{ background: '#E8890C' }}
-          onClick={onHanggle}
-        >
-          <span className={styles.colorBtnCount}>{businessCount}</span>
-          <span className={styles.colorBtnLabel}>Hanggle</span>
-        </button>
-
       </div>
     </div>
   )

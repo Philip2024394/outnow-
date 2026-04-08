@@ -116,6 +116,27 @@
   max-width: 100%;
 }
 
+/* Ambient mode */
+.barAmbient .row {
+  padding-top: 4px;
+}
+
+.barAmbient .card,
+.barAmbient .addCard {
+  height: 76px;
+}
+
+.ambientLabel {
+  margin: 0;
+  padding: 6px 16px 2px;
+  font-size: 11px;
+  font-weight: 600;
+  color: rgba(255,255,255,0.55);
+  letter-spacing: 0.03em;
+  text-align: left;
+  pointer-events: none;
+}
+
 /* Rotation dots */
 .dots {
   position: absolute;

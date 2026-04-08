@@ -16,18 +16,26 @@ function timeAgo(ms) {
 
 // Notification type → emoji
 const NOTIF_EMOJI = {
-  connect: '🤝',
-  match:   '🤝', // legacy
-  like:    '👋',
-  wave:    '👋',
-  gift:    '🎁',
-  system:  '🛡️',
-  digest:  '📅',
+  connect:       '🤝',
+  match:         '🤝', // legacy
+  like:          '💚',
+  wave:          '👋',
+  gift:          '🎁',
+  system:        '🛡️',
+  digest:        '📅',
+  date_invite:   '💕',
+  date_accepted: '🎉',
+  message:       '💬',
+  ride:          '🏍️',
+  ride_accepted: '✅',
 }
+
+// Types that open chat when tapped
+const CHAT_TYPES = new Set(['date_invite', 'date_accepted', 'message', 'connect', 'match', 'wave'])
 
 export const DEMO_UNREAD_COUNT = 2
 
-export default function NotificationsScreen({ onClose }) {
+export default function NotificationsScreen({ onClose, onOpenChat }) {
   const { notifications, profileViews, unreadCount, markAllRead } = useNotifications()
 
   // Use real notifications if available, otherwise show demo placeholders
@@ -113,7 +121,7 @@ export default function NotificationsScreen({ onClose }) {
               <span className={styles.sectionCount}>{unread.length}</span>
             </div>
             {unread.map(n => (
-              <NotifRow key={n.id} notif={n} />
+              <NotifRow key={n.id} notif={n} onOpenChat={onOpenChat} />
             ))}
           </>
         )}
@@ -126,7 +134,7 @@ export default function NotificationsScreen({ onClose }) {
               <span className={styles.sectionTitle}>Earlier</span>
             </div>
             {earlier.map(n => (
-              <NotifRow key={n.id} notif={n} />
+              <NotifRow key={n.id} notif={n} onOpenChat={onOpenChat} />
             ))}
           </>
         )}
@@ -205,9 +213,18 @@ function ViewerCard({ viewer }) {
 }
 
 /* ── Notification row (real Supabase data) ── */
-function NotifRow({ notif }) {
+function NotifRow({ notif, onOpenChat }) {
+  const tappable = CHAT_TYPES.has(notif.type) && !!onOpenChat
+  const handleTap = () => {
+    if (!tappable) return
+    onOpenChat({ fromUserId: notif.fromUserId, displayName: notif.fromName, photoURL: notif.fromPhoto })
+  }
   return (
-    <div className={`${styles.row} ${!notif.read ? styles.rowUnread : ''}`}>
+    <div
+      className={`${styles.row} ${!notif.read ? styles.rowUnread : ''} ${tappable ? styles.rowTappable : ''}`}
+      onClick={tappable ? handleTap : undefined}
+      role={tappable ? 'button' : undefined}
+    >
       <div className={`${styles.rowEmoji} ${!notif.read ? styles.rowEmojiUnread : ''}`}>
         {NOTIF_EMOJI[notif.type] ?? '🔔'}
       </div>
@@ -216,7 +233,10 @@ function NotifRow({ notif }) {
         {notif.body && <span className={styles.rowBody}>{notif.body}</span>}
         <span className={styles.rowTime}>{timeAgo(notif.createdAt)}</span>
       </div>
-      {!notif.read && <span className={styles.dot} />}
+      <div className={styles.rowRight}>
+        {tappable && <span className={styles.rowChevron}>›</span>}
+        {!notif.read && <span className={styles.dot} />}
+      </div>
     </div>
   )
 }

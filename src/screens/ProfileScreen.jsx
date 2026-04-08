@@ -8,6 +8,10 @@ import { LOOKING_FOR_OPTIONS, LANGUAGE_FLAGS, subCategoryText, getSearchKeywords
 import LookingForSheet from '@/components/ui/LookingForSheet'
 import CuisineSheet, { WORLD_CUISINES } from '@/components/ui/CuisineSheet'
 import TradeRoleSheet, { TRADE_ROLE_GROUPS } from '@/components/ui/TradeRoleSheet'
+import ShopTypeSheet, { SHOP_TYPE_OPTIONS } from '@/components/ui/ShopTypeSheet'
+import DatingPickerSheet from '@/components/ui/DatingPickerSheet'
+import LanguagePickerSheet from '@/components/ui/LanguagePickerSheet'
+import { getCategoryCopy } from '@/constants/categoryCopy'
 import Toast from '@/components/ui/Toast'
 import { saveProfile, uploadAvatar, uploadGalleryPhoto, deleteAccount, exportMyData } from '@/services/profileService'
 import { signOut, sendPasswordReset } from '@/services/authService'
@@ -19,6 +23,8 @@ import { useIpCountry } from '@/hooks/useIpCountry'
 import { usePushNotifications } from '@/hooks/usePushNotifications'
 import styles from './ProfileScreen.module.css'
 
+import DriverDocumentUpload from '@/components/driver/DriverDocumentUpload'
+import OnlineToggle from '@/components/driver/OnlineToggle'
 import SideDrawer from '@/components/ui/SideDrawer'
 import MicroShop from '@/components/ui/MicroShop'
 import MicroShopEditor from '@/components/ui/MicroShopEditor'
@@ -293,6 +299,11 @@ export default function ProfileScreen({ onClose, onboarding = false }) {
   const [lookingFor,     setLookingFor]     = useState(userProfile?.lookingFor ?? '')
   const [subCategory,   setSubCategory]   = useState(userProfile?.subCategory ?? null)
   const [bio,            setBio]            = useState(userProfile?.bio ?? '')
+  const [relationshipGoal, setRelationshipGoal] = useState(userProfile?.relationshipGoal ?? '')
+  const [starSign,         setStarSign]         = useState(userProfile?.starSign ?? '')
+  const [starSignOpen,     setStarSignOpen]     = useState(false)
+  const [relGoalOpen,      setRelGoalOpen]      = useState(false)
+  const [langPickerOpen,   setLangPickerOpen]   = useState(false)
   const [speakingNative, setSpeakingNative] = useState(userProfile?.speakingNative ?? (userProfile?.country ? (COUNTRY_NATIVE_LANGUAGE[userProfile.country] ?? '') : ''))
   const [speakingSecond, setSpeakingSecond] = useState(userProfile?.speakingSecond ?? '')
   const [priceMin,      setPriceMin]      = useState(userProfile?.priceMin ?? '')
@@ -311,6 +322,8 @@ export default function ProfileScreen({ onClose, onboarding = false }) {
   const [cuisineType,   setCuisineType]   = useState(userProfile?.cuisineType ?? null)
   const [cuisineOpen,   setCuisineOpen]   = useState(false)
   const [tradeRoleOpen, setTradeRoleOpen] = useState(false)
+  const [shopType,      setShopType]      = useState(userProfile?.shopType ?? null)
+  const [shopTypeOpen,  setShopTypeOpen]  = useState(false)
   const [targetAudience, setTargetAudience] = useState(userProfile?.targetAudience ?? [])
   const [instagramHandle, setInstagramHandle] = useState(userProfile?.instagram ?? '')
   const [tiktokHandle,    setTiktokHandle]    = useState(userProfile?.tiktok ?? '')
@@ -420,6 +433,7 @@ export default function ProfileScreen({ onClose, onboarding = false }) {
     setBrandName(userProfile.brandName ?? '')
     setTradeRole(userProfile.tradeRole ?? '')
     setCuisineType(userProfile.cuisineType ?? null)
+    setShopType(userProfile.shopType ?? null)
     setTargetAudience(userProfile.targetAudience ?? [])
     setBusinessHours(userProfile.businessHours ?? Object.fromEntries(DAYS.map(d => [d, { ...DEFAULT_HOURS }])))
     setTags(userProfile.tags ?? [])
@@ -493,7 +507,9 @@ export default function ProfileScreen({ onClose, onboarding = false }) {
     // Food, Hospitality & Events
     'catering', 'restaurant', 'hotel_accom', 'tourism_guide', 'event_planning', 'bar_nightclub',
     // Creative & Media
-    'creative', 'content_creator', 'music_perform', 'writing', 'fashion_design', 'art_craft',
+    'creative', 'content_creator', 'music_perform', 'music', 'photography', 'writing', 'fashion_design', 'art_craft',
+    // Retail (additional)
+    'handmade', 'craft_supplies', 'vintage', 'hardware', 'wellness',
     // Professional & Business
     'business', 'technology', 'legal', 'engineering', 'sales_leads', 'consulting',
     'real_estate', 'marketing', 'media_pro',
@@ -501,6 +517,28 @@ export default function ProfileScreen({ onClose, onboarding = false }) {
     'hiring', 'freelance', 'domestic_work', 'agri_work', 'manufacturing', 'mining',
     // Education
     'education', 'coaching',
+  ]
+
+  const DATING_REL_GOAL_OPTIONS = [
+    { value: 'casual',  emoji: '😊', label: 'Casual & Fun',        sub: 'Keeping it light and fun' },
+    { value: 'serious', emoji: '💍', label: 'Something Serious',   sub: 'Looking for a real connection' },
+    { value: 'open',    emoji: '🌻', label: 'Open to Everything',  sub: 'Not sure yet — just seeing what happens' },
+    { value: 'friends', emoji: '👋', label: 'Friends First',       sub: 'Start as friends and see where it goes' },
+  ]
+
+  const DATING_STAR_SIGNS = [
+    { value: 'Aries',       emoji: '♈', label: 'Aries',       sub: '21 Mar – 19 Apr' },
+    { value: 'Taurus',      emoji: '♉', label: 'Taurus',      sub: '20 Apr – 20 May' },
+    { value: 'Gemini',      emoji: '♊', label: 'Gemini',      sub: '21 May – 20 Jun' },
+    { value: 'Cancer',      emoji: '♋', label: 'Cancer',      sub: '21 Jun – 22 Jul' },
+    { value: 'Leo',         emoji: '♌', label: 'Leo',         sub: '23 Jul – 22 Aug' },
+    { value: 'Virgo',       emoji: '♍', label: 'Virgo',       sub: '23 Aug – 22 Sep' },
+    { value: 'Libra',       emoji: '♎', label: 'Libra',       sub: '23 Sep – 22 Oct' },
+    { value: 'Scorpio',     emoji: '♏', label: 'Scorpio',     sub: '23 Oct – 21 Nov' },
+    { value: 'Sagittarius', emoji: '♐', label: 'Sagittarius', sub: '22 Nov – 21 Dec' },
+    { value: 'Capricorn',   emoji: '♑', label: 'Capricorn',   sub: '22 Dec – 19 Jan' },
+    { value: 'Aquarius',    emoji: '♒', label: 'Aquarius',    sub: '20 Jan – 18 Feb' },
+    { value: 'Pisces',      emoji: '♓', label: 'Pisces',      sub: '19 Feb – 20 Mar' },
   ]
 
   function handleStatusClick(status) {
@@ -572,6 +610,7 @@ export default function ProfileScreen({ onClose, onboarding = false }) {
         market,
         brandName,
         tradeRole,
+        shopType,
         cuisineType,
         targetAudience,
         businessHours,
@@ -585,6 +624,8 @@ export default function ProfileScreen({ onClose, onboarding = false }) {
         photoOffsetX,
         photoOffsetY,
         photoZoom,
+        relationshipGoal: lookingFor === 'dating' ? relationshipGoal : undefined,
+        starSign:         lookingFor === 'dating' ? starSign         : undefined,
       })
       if (bio.trim().length > 0)       earn('BIO_WRITTEN')
       if (selectedActivity)            earn('ACTIVITIES_SET')
@@ -1001,23 +1042,93 @@ export default function ProfileScreen({ onClose, onboarding = false }) {
                 <span className={styles.speakingNativeLabel}>Native</span>
                 <span className={styles.speakingNativeValue}>{speakingNative ? `${LANGUAGE_FLAGS[speakingNative] ?? ''} ${speakingNative}` : '—'}</span>
               </div>
-              <div className={styles.selectWrap} style={{ flex: 1 }}>
-                <select
-                  className={styles.fieldSelect}
-                  value={speakingSecond}
-                  onChange={e => setSpeakingSecond(e.target.value)}
-                >
-                  <option value="">+ Add second language</option>
-                  {LANGUAGES.filter(l => l !== speakingNative).map(l => (
-                    <option key={l} value={l}>{LANGUAGE_FLAGS[l] ?? ''} {l}</option>
-                  ))}
-                </select>
-                <svg className={styles.selectArrow} width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+              <button
+                type="button"
+                className={styles.lookingForTrigger}
+                style={{ flex: 1 }}
+                onClick={() => setLangPickerOpen(true)}
+              >
+                {speakingSecond
+                  ? <span>{LANGUAGE_FLAGS[speakingSecond] ?? '🌐'} {speakingSecond}</span>
+                  : <span className={styles.lookingForPlaceholder}>+ Add second language</span>
+                }
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
                   <polyline points="6 9 12 15 18 9" />
                 </svg>
-              </div>
+              </button>
             </div>
           </div>
+
+          {/* Driver document upload + online toggle — car or bike service */}
+          {(lookingFor === 'car_taxi' || lookingFor === 'bike_ride') && (
+            <>
+              <DriverDocumentUpload
+                userId={user?.uid ?? user?.id}
+                driverType={lookingFor}
+              />
+              {userProfile?.is_driver && (
+                <div style={{ display: 'flex', justifyContent: 'center', marginTop: 12 }}>
+                  <OnlineToggle userId={user?.uid ?? user?.id} />
+                </div>
+              )}
+            </>
+          )}
+
+          {/* Dating profile fields — only shown for dating category */}
+          {lookingFor === 'dating' && (
+            <>
+              {/* Relationship goal */}
+              <div className={styles.fieldRow}>
+                <div className={styles.fieldLabelRow}>
+                  <label className={styles.fieldLabel}>Looking for</label>
+                  <HelpTip text="What kind of connection are you hoping to make? Be honest — it helps everyone find the right match." />
+                </div>
+                <button
+                  type="button"
+                  className={styles.lookingForTrigger}
+                  onClick={() => setRelGoalOpen(true)}
+                >
+                  {relationshipGoal
+                    ? (() => {
+                        const opt = DATING_REL_GOAL_OPTIONS.find(o => o.value === relationshipGoal)
+                        return opt ? <span>{opt.emoji} {opt.label}</span> : <span>{relationshipGoal}</span>
+                      })()
+                    : <span className={styles.lookingForPlaceholder}>Tap to choose…</span>
+                  }
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                    <polyline points="6 9 12 15 18 9" />
+                  </svg>
+                </button>
+              </div>
+
+              {/* Star sign */}
+              <div className={styles.fieldRow}>
+                <div className={styles.fieldLabelRow}>
+                  <label className={styles.fieldLabel}>Star Sign</label>
+                  <HelpTip text="Your star sign is shown on your dating profile — optional but adds a personal touch." />
+                </div>
+                <button
+                  type="button"
+                  className={styles.lookingForTrigger}
+                  onClick={() => setStarSignOpen(true)}
+                >
+                  {starSign
+                    ? (() => {
+                        const s = DATING_STAR_SIGNS.find(o => o.value === starSign)
+                        return s ? <span>{s.emoji} {s.label}</span> : <span>{starSign}</span>
+                      })()
+                    : <span className={styles.lookingForPlaceholder}>Tap to choose…</span>
+                  }
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                    <polyline points="6 9 12 15 18 9" />
+                  </svg>
+                </button>
+                {starSign && (
+                  <button type="button" className={styles.brandQuickBtn} onClick={() => setStarSign('')}>✕ Clear</button>
+                )}
+              </div>
+            </>
+          )}
 
           {/* Maker / Craft profile fields — only shown for relevant categories */}
           {MAKER_CATEGORIES.includes(lookingFor) && (
@@ -1046,6 +1157,39 @@ export default function ProfileScreen({ onClose, onboarding = false }) {
                   </svg>
                 </button>
               </div>
+              {/* ── Page / Tab Type — categories that support shop/services/menu ── */}
+              {getCategoryCopy(lookingFor).pageType !== null && (
+                <div className={styles.fieldRow}>
+                  <div className={styles.fieldLabelRow}>
+                    <label className={styles.fieldLabel}>Profile Tab Type</label>
+                    <HelpTip text="Choose what your profile tab shows visitors — your products, services, or a menu." />
+                  </div>
+                  <button
+                    type="button"
+                    className={styles.lookingForTrigger}
+                    onClick={() => setShopTypeOpen(true)}
+                  >
+                    {(() => {
+                      const effective = shopType ?? getCategoryCopy(lookingFor).pageType
+                      const opt = SHOP_TYPE_OPTIONS.find(o => o.value === effective)
+                      return opt
+                        ? <span>{opt.emoji} {opt.label}</span>
+                        : <span className={styles.lookingForPlaceholder}>Tap to choose…</span>
+                    })()}
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                      <polyline points="6 9 12 15 18 9" />
+                    </svg>
+                  </button>
+                  {shopType && (
+                    <button
+                      type="button"
+                      className={styles.brandQuickBtn}
+                      onClick={() => setShopType(null)}
+                    >↩ Reset to default</button>
+                  )}
+                </div>
+              )}
+
               {/* ── Cuisine Type — food & hospitality categories ── */}
               {['restaurant','catering','bar_nightclub','hotel_accom','fresh_produce','food_drink'].includes(lookingFor) && (
                 <div className={styles.fieldRow}>
@@ -1084,28 +1228,28 @@ export default function ProfileScreen({ onClose, onboarding = false }) {
                 <div className={styles.fieldRow}>
                   <div className={styles.fieldLabelRow}>
                     <label className={styles.fieldLabel}>Target Audience</label>
-                    <HelpTip text="Who are your products made for? Select all that apply." />
+                    <HelpTip text="Who are your products made for?" />
                   </div>
-                  <div className={styles.brandQuickRow}>
-                    {[
-                      { value: 'women',    label: '👩 Women'   },
-                      { value: 'men',      label: '👨 Men'     },
-                      { value: 'children', label: '👧 Children'},
-                      { value: 'gifts',    label: '🎁 Gifts'   },
-                      { value: 'all',      label: '🌍 All'     },
-                    ].map(opt => {
-                      const active = targetAudience.includes(opt.value)
-                      return (
-                        <button
-                          key={opt.value}
-                          type="button"
-                          className={`${styles.brandQuickBtn} ${active ? styles.brandQuickBtnActive : ''}`}
-                          onClick={() => setTargetAudience(prev =>
-                            active ? prev.filter(v => v !== opt.value) : [...prev, opt.value]
-                          )}
-                        >{opt.label}</button>
-                      )
-                    })}
+                  <div className={styles.selectWrap}>
+                    <select
+                      className={styles.fieldSelect}
+                      value={Array.isArray(targetAudience) ? (targetAudience[0] ?? '') : (targetAudience ?? '')}
+                      onChange={e => setTargetAudience(e.target.value ? [e.target.value] : [])}
+                    >
+                      <option value="">Select audience…</option>
+                      <option value="all">All Ages</option>
+                      <option value="women">Women</option>
+                      <option value="men">Men</option>
+                      <option value="children">Children</option>
+                      <option value="gifts">Gifts</option>
+                      <option value="teens">Teens</option>
+                      <option value="babies">Babies &amp; Toddlers</option>
+                      <option value="elderly">Elderly</option>
+                      <option value="unisex">Unisex</option>
+                    </select>
+                    <svg className={styles.selectArrow} width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                      <polyline points="6 9 12 15 18 9" />
+                    </svg>
                   </div>
                 </div>
               )}
@@ -1561,6 +1705,14 @@ export default function ProfileScreen({ onClose, onboarding = false }) {
         lookingFor={lookingFor}
       />
 
+      {/* ── Shop / page type sheet ── */}
+      <ShopTypeSheet
+        open={shopTypeOpen}
+        value={shopType ?? getCategoryCopy(lookingFor).pageType}
+        onChange={setShopType}
+        onClose={() => setShopTypeOpen(false)}
+      />
+
       {/* ── Trade role sheet ── */}
       <TradeRoleSheet
         open={tradeRoleOpen}
@@ -1575,6 +1727,37 @@ export default function ProfileScreen({ onClose, onboarding = false }) {
         value={cuisineType}
         onChange={setCuisineType}
         onClose={() => setCuisineOpen(false)}
+      />
+
+      {/* ── Language picker sheet ── */}
+      <LanguagePickerSheet
+        open={langPickerOpen}
+        value={speakingSecond}
+        exclude={speakingNative}
+        onChange={setSpeakingSecond}
+        onClose={() => setLangPickerOpen(false)}
+      />
+
+      {/* ── Dating: relationship goal sheet ── */}
+      <DatingPickerSheet
+        open={relGoalOpen}
+        title="Looking for…"
+        subtitle="What kind of connection are you hoping to make?"
+        options={DATING_REL_GOAL_OPTIONS}
+        value={relationshipGoal}
+        onChange={setRelationshipGoal}
+        onClose={() => setRelGoalOpen(false)}
+      />
+
+      {/* ── Dating: star sign sheet ── */}
+      <DatingPickerSheet
+        open={starSignOpen}
+        title="Star Sign"
+        subtitle="Choose your zodiac sign"
+        options={DATING_STAR_SIGNS}
+        value={starSign}
+        onChange={setStarSign}
+        onClose={() => setStarSignOpen(false)}
       />
 
       {/* ── Looking For sheet ── */}

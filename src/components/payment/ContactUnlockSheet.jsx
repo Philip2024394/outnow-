@@ -6,6 +6,8 @@ import { useAuth } from '@/hooks/useAuth'
 import { getPlatform, getPlatformLink } from '@/constants/messagingPlatforms'
 import styles from './ContactUnlockSheet.module.css'
 
+const DEMO_MODE = import.meta.env.VITE_DEMO_MODE === 'true'
+
 const DEMO_CONTACT = {
   whatsapp: '+62 812 3456 7890',
   phone: '+62 812 3456 7890',
@@ -43,14 +45,19 @@ export default function ContactUnlockSheet({ open, session, buyerUserId, buyerCo
     if (isSameCountry && sellerActivated) {
       getContactUnlock(buyerUserId, session.userId).then(result => {
         if (result.unlocked) {
-          setContact({ whatsapp: result.whatsapp, phone: result.phone })
-        } else {
+          setContact({ contactNumber: result.contactNumber, contactPlatform: result.contactPlatform })
+          setStep('revealed')
+        } else if (DEMO_MODE) {
           setContact(DEMO_CONTACT)
+          setStep('revealed')
         }
-        setStep('revealed')
+        // else: production — no unlock record yet, stay on confirm
       }).catch(() => {
-        setContact(DEMO_CONTACT)
-        setStep('revealed')
+        if (DEMO_MODE) {
+          setContact(DEMO_CONTACT)
+          setStep('revealed')
+        }
+        // else: production — RPC error, stay on confirm
       })
       return
     }
@@ -61,14 +68,15 @@ export default function ContactUnlockSheet({ open, session, buyerUserId, buyerCo
     // Different country — check if already paid
     getContactUnlock(buyerUserId, session.userId).then(result => {
       if (result.unlocked) {
-        setContact({ whatsapp: result.whatsapp, phone: result.phone })
+        setContact({ contactNumber: result.contactNumber, contactPlatform: result.contactPlatform })
         setStep('revealed')
       }
     })
   }, [open, session, buyerUserId, isSameCountry, sellerActivated])
 
-  // Demo payment success event
+  // Demo payment success event — only active in demo mode
   useEffect(() => {
+    if (!DEMO_MODE) return
     const handler = (e) => {
       if (e.detail?.sellerUserId === session?.userId) {
         setContact(DEMO_CONTACT)
@@ -110,7 +118,7 @@ export default function ContactUnlockSheet({ open, session, buyerUserId, buyerCo
   // Resolve platform — prefer new contact_platform field, fall back to 'whatsapp'
   const platformId = contact?.contactPlatform ?? 'whatsapp'
   const platform   = getPlatform(platformId)
-  const number     = contact?.contactNumber ?? contact?.whatsapp ?? contact?.phone ?? ''
+  const number     = contact?.contactNumber ?? ''
   const deepLink   = getPlatformLink(platformId, number)
 
   return (
@@ -152,7 +160,7 @@ export default function ContactUnlockSheet({ open, session, buyerUserId, buyerCo
                   <div className={styles.includeRow}><span>💬</span><span>Chat and buy direct, no commission</span></div>
                   <div className={styles.includeRow}><span>🌍</span><span>Support local sellers in your area</span></div>
                 </div>
-                <button className={styles.payBtn} onClick={sellerActivated ? () => { setContact(DEMO_CONTACT); setStep('revealed') } : handleAutoMessage}>
+                <button className={styles.payBtn} onClick={sellerActivated ? () => { if (DEMO_MODE) { setContact(DEMO_CONTACT); setStep('revealed') } } : handleAutoMessage}>
                   Connect Now — Free
                 </button>
                 <button className={styles.cancelBtn} onClick={onClose}>Cancel</button>

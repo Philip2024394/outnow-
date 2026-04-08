@@ -1,0 +1,140 @@
+.root {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 32px 28px;
+  background: radial-gradient(ellipse at 50% 30%, #0d1a0d 0%, #050a05 100%);
+  gap: 0;
+}
+
+/* ── Round map visual ── */
+.mapCircle {
+  position: relative;
+  width: 220px;
+  height: 220px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 40% 40%, #0b2510, #050d05);
+  border: 2px solid rgba(141, 198, 63, 0.3);
+  box-shadow:
+    0 0 60px rgba(141, 198, 63, 0.15),
+    inset 0 0 40px rgba(0, 0, 0, 0.6);
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  margin-bottom: 36px;
+}
+
+/* Latitude / longitude grid lines */
+.grid {
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  background-image:
+    repeating-linear-gradient(0deg,   transparent, transparent 29px, rgba(141,198,63,0.07) 30px),
+    repeating-linear-gradient(90deg,  transparent, transparent 29px, rgba(141,198,63,0.07) 30px),
+    repeating-linear-gradient(45deg,  transparent, transparent 39px, rgba(141,198,63,0.04) 40px),
+    repeating-linear-gradient(-45deg, transparent, transparent 39px, rgba(141,198,63,0.04) 40px);
+}
+
+/* Equator / prime meridian ring */
+.ring {
+  position: absolute;
+  width: 150px;
+  height: 150px;
+  border-radius: 50%;
+  border: 1px solid rgba(141, 198, 63, 0.18);
+}
+
+/* Location pin */
+.pin {
+  position: relative;
+  z-index: 2;
+  filter: drop-shadow(0 4px 16px rgba(141, 198, 63, 0.5));
+}
+
+/* Pulsing ring beneath pin */
+.pulse {
+  position: absolute;
+  bottom: 44px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  border: 2px solid rgba(141, 198, 63, 0.5);
+  animation: pulse 2s ease-out infinite;
+  z-index: 1;
+}
+
+@keyframes pulse {
+  0%   { transform: translateX(-50%) scale(0.6); opacity: 0.8; }
+  100% { transform: translateX(-50%) scale(1.8); opacity: 0; }
+}
+
+/* ── Text ── */
+.title {
+  font-size: 26px;
+  font-weight: 900;
+  color: #fff;
+  text-align: center;
+  margin: 0 0 14px;
+  letter-spacing: -0.3px;
+  line-height: 1.15;
+}
+
+.message {
+  font-size: 14px;
+  font-weight: 500;
+  color: rgba(255, 255, 255, 0.55);
+  text-align: center;
+  line-height: 1.65;
+  max-width: 300px;
+  margin: 0 0 28px;
+}
+
+/* ── Error states ── */
+.error {
+  font-size: 13px;
+  color: #ff6b6b;
+  text-align: center;
+  max-width: 300px;
+  line-height: 1.5;
+  margin: -12px 0 20px;
+}
+
+/* ── CTA button ── */
+.btn {
+  width: 100%;
+  max-width: 300px;
+  padding: 16px;
+  border-radius: 16px;
+  background: #8DC63F;
+  color: #000;
+  font-size: 15px;
+  font-weight: 800;
+  letter-spacing: 0.02em;
+  border: none;
+  cursor: pointer;
+  transition: transform 0.12s, opacity 0.12s;
+  -webkit-tap-highlight-color: transparent;
+  box-shadow: 0 4px 24px rgba(141, 198, 63, 0.4);
+}
+
+.btn:active   { transform: scale(0.97); }
+.btn:disabled { opacity: 0.55; cursor: default; }
+
+/* ── Privacy note ── */
+.note {
+  margin-top: 16px;
+  font-size: 11px;
+  color: rgba(255, 255, 255, 0.2);
+  text-align: center;
+  max-width: 280px;
+  line-height: 1.5;
+}

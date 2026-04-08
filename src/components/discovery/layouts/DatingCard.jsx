@@ -8,6 +8,7 @@ import CountdownTimer from '@/components/ui/CountdownTimer'
 import { ACTIVITY_TYPES } from '@/firebase/collections'
 import { LANGUAGE_FLAGS } from '@/utils/lookingForLabels'
 import styles from './DatingCard.module.css'
+import DateIdeasSheet from '@/components/dating/DateIdeasSheet'
 
 const RELATIONSHIP_GOAL_LABELS = {
   casual:   '😊 Casual & Fun',
@@ -30,6 +31,7 @@ export default function DatingCard({ open, session, mySession, onClose, showToas
   const [hearts,      setHearts]      = useState([])
   const [photoIdx,    setPhotoIdx]    = useState(0)
   const [bioOpen,     setBioOpen]     = useState(false)
+  const [cardPage,    setCardPage]    = useState(0)   // 0 = profile, 1 = date ideas
   const sheetRef   = useRef(null)
   const startYRef  = useRef(null)
   const currentYRef = useRef(0)
@@ -64,13 +66,17 @@ export default function DatingCard({ open, session, mySession, onClose, showToas
   const isScheduled = session.status === 'scheduled'
   const isInviteOut = session.status === 'invite_out'
   const isOutNow    = !isScheduled && !isInviteOut
-  const statusColor = isInviteOut ? '#F5C518' : isScheduled ? '#E8890C' : '#E8458C'
+  const statusColor = isInviteOut ? '#F5C518' : isScheduled ? '#E8890C' : '#8DC63F'
 
   const photos      = session.photos?.length ? session.photos : session.photoURL ? [session.photoURL] : []
   const isMutual    = mutualSessions.has(session.id)
   const hasInterest = myInterests.has(session.id)
 
   const profileStars = 3 + (session.id.split('').reduce((acc, c) => acc + c.charCodeAt(0), 0) % 3)
+
+  // Match % — deterministic base from session ID, boosted by mutual interest
+  const matchBase = 55 + (session.id.split('').reduce((acc, c) => acc + c.charCodeAt(0), 0) % 36)
+  const matchPercent = Math.min(99, matchBase + (isMutual ? 8 : 0) + (hasInterest ? 4 : 0))
 
   const joinedLabel = (() => {
     if (!session.userJoinedAt) return 'Joined'
@@ -133,6 +139,10 @@ export default function DatingCard({ open, session, mySession, onClose, showToas
                 <span className={styles.datingLabel}>Dating &amp; Romance</span>
                 <span className={styles.datingSlogan}>Looking to meet someone special</span>
               </div>
+              <div className={styles.matchBadge}>
+                <span className={styles.matchNum}>{matchPercent}%</span>
+                <span className={styles.matchSub}>Match</span>
+              </div>
             </div>
 
             {/* Photo */}
@@ -151,7 +161,7 @@ export default function DatingCard({ open, session, mySession, onClose, showToas
                   <span className={styles.photoBannerName}>
                     {session.displayName ?? 'Someone'}
                     {session.age ? <span className={styles.photoBannerAge}>, {session.age}</span> : null}
-                    <span className={`${styles.liveDot} ${isInviteOut ? styles.liveDotInvite : isScheduled ? styles.liveDotLater : ''}`} />
+                    {isOutNow && <span className={styles.liveDot} />}
                   </span>
                   {(session.city || session.area) && (
                     <span className={styles.photoBannerCity}>📍 {session.city ?? session.area}</span>
@@ -163,8 +173,14 @@ export default function DatingCard({ open, session, mySession, onClose, showToas
                     {formatDistance(session.distanceKm)}
                   </div>
                 )}
+                {/* Date ideas button — same position as mini shop in MakerCard */}
+                <button
+                  className={`${styles.dateIdeasBtn} ${cardPage === 1 ? styles.dateIdeasBtnActive : ''}`}
+                  onClick={() => setCardPage(p => p === 1 ? 0 : 1)}
+                  aria-label="Date ideas"
+                >💕</button>
                 <button className={styles.fingerprintBtn} onClick={() => setBioOpen(true)} aria-label="View profile">
-                  <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round">
+                  <svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round">
                     <path d="M2 12a10 10 0 0 1 18-6"/><path d="M2 16h.01"/><path d="M21.8 16c.2-2 .13-5.35 0-6"/>
                     <path d="M5 19.5C5.5 18 6 15 6 12a6 6 0 0 1 .34-2"/><path d="M8.65 22c.21-.66.45-1.32.57-2"/>
                     <path d="M9 6.8a6 6 0 0 1 9 5.2v2"/><path d="M12 10a2 2 0 0 0-2 2c0 1.02-.1 2.51-.26 4"/>
@@ -249,6 +265,16 @@ export default function DatingCard({ open, session, mySession, onClose, showToas
           </div>
         </div>
 
+        {/* ── Date ideas page (page 1) ── */}
+        {cardPage === 1 && (
+          <div className={styles.dateIdeasOverlay}>
+            <DateIdeasSheet
+              targetSession={session}
+              onClose={() => setCardPage(0)}
+            />
+          </div>
+        )}
+
         {/* ── Dating bio overlay (page 2) ── */}
         {bioOpen && (
           <div className={styles.bioOverlay}>
@@ -256,53 +282,23 @@ export default function DatingCard({ open, session, mySession, onClose, showToas
             <div className={styles.bioFullImg}>
               <img src={photos[photoIdx]} alt={session.displayName} className={styles.bioFullImgEl} />
               <div className={styles.bioImgGradient} />
-              <button className={styles.bioBackBtn} onClick={() => setBioOpen(false)} aria-label="Back">
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                  <polyline points="15 18 9 12 15 6"/>
-                </svg>
-              </button>
+              {session.starSign && (
+                <div className={styles.starSignBadge}>
+                  <span className={styles.starSignEmoji}>{SIGN_EMOJIS[session.starSign] ?? '✨'}</span>
+                  <span className={styles.starSignName}>{session.starSign}</span>
+                </div>
+              )}
             </div>
             <div className={styles.bioBody}>
               <p className={styles.bioBodyText}>{session.bio ?? `${session.displayName} is looking for someone special.`}</p>
 
               {photos.length > 1 && (
-                <div className={styles.bioThumbStrip}>
-                  <button className={styles.bioThumbArrow} onClick={() => setPhotoIdx(i => Math.max(0, i - 1))} disabled={photoIdx === 0}>
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
-                  </button>
-                  <div className={styles.thumbList}>
-                    {photos.map((url, i) => (
-                      <button key={i} className={`${styles.thumb} ${i === photoIdx ? styles.thumbActive : ''}`} onClick={() => setPhotoIdx(i)}>
-                        <img src={url} alt="" className={styles.thumbImg} />
-                      </button>
-                    ))}
-                  </div>
-                  <button className={styles.bioThumbArrow} onClick={() => setPhotoIdx(i => Math.min(photos.length - 1, i + 1))} disabled={photoIdx === photos.length - 1}>
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
-                  </button>
-                </div>
-              )}
-
-              {/* Dating-specific meta */}
-              {session.relationshipGoal && (
-                <div className={styles.bioMeta}>
-                  <span className={styles.bioMetaLabel}>Looking for</span>
-                  <span className={styles.bioMetaDot}>·</span>
-                  <span className={styles.bioMetaValue}>{RELATIONSHIP_GOAL_LABELS[session.relationshipGoal] ?? session.relationshipGoal}</span>
-                </div>
-              )}
-              {session.starSign && (
-                <div className={styles.bioMeta}>
-                  <span className={styles.bioMetaLabel}>Star Sign</span>
-                  <span className={styles.bioMetaDot}>·</span>
-                  <span className={styles.bioMetaValue}>{SIGN_EMOJIS[session.starSign] ?? ''} {session.starSign}</span>
-                </div>
-              )}
-              {session.height && (
-                <div className={styles.bioMeta}>
-                  <span className={styles.bioMetaLabel}>Height</span>
-                  <span className={styles.bioMetaDot}>·</span>
-                  <span className={styles.bioMetaValue}>📏 {session.height}</span>
+                <div className={styles.thumbGrid}>
+                  {photos.map((url, i) => (
+                    <button key={i} className={`${styles.thumb} ${i === photoIdx ? styles.thumbActive : ''}`} onClick={() => setPhotoIdx(i)}>
+                      <img src={url} alt="" className={styles.thumbImg} />
+                    </button>
+                  ))}
                 </div>
               )}
 

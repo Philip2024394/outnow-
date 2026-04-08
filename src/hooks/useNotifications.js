@@ -54,10 +54,33 @@ export function useNotifications() {
       const mapped = (notifs ?? []).map(mapNotif)
 
       // Fire push for any new unread notifications that arrived via real-time
+      // Suppressed if the user is outside their typical active time window (P6)
       if (isRealtime) {
-        mapped.filter(n => !n.read && !knownIdsRef.current.has(n.id)).forEach(n => {
-          notify(n.title || 'Hangger', { body: n.body || '', tag: n.id })
-        })
+        const newNotifs = mapped.filter(n => !n.read && !knownIdsRef.current.has(n.id))
+        if (newNotifs.length > 0) {
+          // Read own bucket — owner-only RLS, safe to query client-side
+          const { data: bucketRow } = await supabase
+            .from('user_behaviour_buckets')
+            .select('bucket')
+            .eq('user_id', user.id)
+            .maybeSingle()
+
+          let suppress = false
+          if (bucketRow?.bucket) {
+            const hour = new Date().getHours()
+            const dow  = new Date().getDay()
+            const b    = bucketRow.bucket
+            suppress =
+              (b === 'late_night'         && !(hour >= 0 && hour < 3))                              ||
+              (b === 'evening_socialiser' && !(hour >= 17))                                         ||
+              (b === 'weekend_only'       && !(dow === 0 || dow === 6))                             ||
+              (b === 'business_hours'     && !(hour >= 9 && hour <= 17 && dow >= 1 && dow <= 5))
+          }
+
+          if (!suppress) {
+            newNotifs.forEach(n => notify(n.title || 'Hangger', { body: n.body || '', tag: n.id }))
+          }
+        }
       }
       mapped.forEach(n => knownIdsRef.current.add(n.id))
 

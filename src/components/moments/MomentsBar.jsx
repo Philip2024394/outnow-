@@ -4,7 +4,7 @@ import styles from './MomentsBar.module.css'
 const VISIBLE = 3
 const ROTATE_MS = 4000
 
-export default function MomentsBar({ moments = [], isLive, onAdd, onView }) {
+export default function MomentsBar({ moments = [], isLive, ambient, onAdd, onView }) {
   const [offset, setOffset] = useState(0)
 
   // Rotate visible moments every 4s when there are more than 3
@@ -16,7 +16,7 @@ export default function MomentsBar({ moments = [], isLive, onAdd, onView }) {
     return () => clearInterval(id)
   }, [moments.length])
 
-  if (moments.length === 0 && !isLive) return null
+  if (moments.length === 0 && !isLive && !ambient) return null
 
   // Pick 3 with wrap-around
   const visible = moments.length > 0
@@ -27,7 +27,10 @@ export default function MomentsBar({ moments = [], isLive, onAdd, onView }) {
     : []
 
   return (
-    <div className={styles.bar}>
+    <div className={`${styles.bar} ${ambient ? styles.barAmbient : ''}`}>
+      {ambient && (
+        <p className={styles.ambientLabel}>Quiet out there — be the first out tonight</p>
+      )}
       <div className={styles.row}>
         {/* Add square — only when live */}
         {isLive && (

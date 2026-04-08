@@ -1,17 +1,16 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { createPortal } from 'react-dom'
-import { useJsApiLoader } from '@react-google-maps/api'
 import { useOverlay, OVERLAY } from '@/contexts/OverlayContext'
 import { useMySession } from '@/hooks/useMySession'
 import { useVenueUnlock } from '@/hooks/useVenueUnlock'
 import { useInterests } from '@/hooks/useInterests'
-import { sortByRelevance } from '@/utils/sessionScore'
+import { sortByRelevance, recordImpression, resetImpressions } from '@/utils/sessionScore'
 import { isMakerSession } from '@/utils/sessionCategory'
-import { ACTIVITY_TYPES } from '@/firebase/collections'
 import { useLiveUsers } from '@/hooks/useLiveUsers'
 import { useGeolocation } from '@/hooks/useGeolocation'
 import { haversineKm } from '@/utils/distance'
 import { useMeetRequests } from '@/hooks/useMeetRequests'
+import { supabase } from '@/lib/supabase'
 
 import { useInviteOut } from '@/hooks/useInviteOut'
 import { useCoins } from '@/hooks/useCoins'
@@ -31,10 +30,10 @@ import ActiveSessionBar from '@/components/session/ActiveSessionBar'
 import StillHerePrompt from '@/components/session/StillHerePrompt'
 import DiscoveryCard from '@/components/discovery/DiscoveryCard'
 import DiscoveryListSheet from '@/components/discovery/DiscoveryListSheet'
-import MeetRequestBanner from '@/components/meet/MeetRequestBanner'
+import WaveBanner from '@/components/meet/WaveBanner'
+import DateInvitePopup from '@/components/dating/DateInvitePopup'
+import { useDateInvites } from '@/hooks/useDateInvites'
 import MeetAcceptedBanner from '@/components/meet/MeetAcceptedBanner'
-import { createMeetConversation } from '@/services/meetService'
-import { sendMessage } from '@/services/conversationService'
 import PaymentGate from '@/components/payment/PaymentGate'
 import VenueReveal from '@/components/payment/VenueReveal'
 import ReportSheet from '@/components/moderation/ReportSheet'
@@ -61,7 +60,7 @@ import WalletScreen from '@/screens/WalletScreen'
 import ChatScreen from '@/screens/ChatScreen'
 import MatchScreen from '@/screens/MatchScreen'
 import VenueGroupChat from '@/components/venue/VenueGroupChat'
-import { DEMO_VENUE_MESSAGES, DEMO_CENTER } from '@/demo/mockData'
+import { DEMO_VENUE_MESSAGES } from '@/demo/mockData'
 import MomentsBar from '@/components/moments/MomentsBar'
 import MomentViewer from '@/components/moments/MomentViewer'
 import AddMomentSheet from '@/components/moments/AddMomentSheet'
@@ -73,7 +72,7 @@ import { useGuestGate } from '@/contexts/GuestGateContext'
 import AddToHomeScreenBanner from '@/components/pwa/AddToHomeScreenBanner'
 import BottomSheet from '@/components/ui/BottomSheet'
 import Toast from '@/components/ui/Toast'
-import DemoMapView from '@/demo/DemoMapView'
+// DemoMapView removed — replaced by TimeBackground
 import { DEMO_VENUES, getActiveVenues } from '@/demo/mockVenues'
 import VenueSheet from '@/components/map/VenueSheet'
 import VenueListSheet from '@/components/map/VenueListSheet'
@@ -84,26 +83,18 @@ import MySpotScreen from '@/screens/MySpotScreen'
 import { PARTNER_VENUES } from '@/demo/mockPartnerVenues'
 import ProximityBanner from '@/components/map/ProximityBanner'
 import { useVenueProximity } from '@/hooks/useVenueProximity'
-import MapView from '@/components/map/MapView'
 import VibeCheckSheet  from '@/components/vibecheck/VibeCheckSheet'
 import VibeCheckBanner from '@/components/vibecheck/VibeCheckBanner'
 
 import MapIntroOverlay from '@/components/ui/MapIntroOverlay'
+import TimeBackground from '@/components/ui/TimeBackground'
+import FloatingIcons from '@/components/home/FloatingIcons'
+import ActivityProfileGrid from '@/components/home/ActivityProfileGrid'
+import BookingScreen from '@/screens/BookingScreen'
 
 import '@/styles/map.css'
 import styles from './AppShell.module.css'
 
-const GOOGLE_MAPS_LIBRARIES = ['places']
-const HAS_MAPS_KEY = !!import.meta.env.VITE_GOOGLE_MAPS_API_KEY
-
-function GoogleMapsWrapper({ sessions, onSelectUser }) {
-  const { isLoaded, loadError } = useJsApiLoader({
-    googleMapsApiKey: import.meta.env.VITE_GOOGLE_MAPS_API_KEY,
-    libraries: GOOGLE_MAPS_LIBRARIES,
-  })
-  if (loadError || !isLoaded) return null
-  return <MapView sessions={sessions} onSelectUser={onSelectUser} />
-}
 
 const DEMO_UNLOCK = {
   venueName: 'The Blue Anchor',
@@ -114,7 +105,7 @@ const DEMO_UNLOCK = {
 }
 
 export default function AppShell({ returnParams, triggerGoLive }) {
-  const { overlay, closeOverlay, openGoLive, openVenueReveal, openDiscovery } = useOverlay()
+  const { overlay, closeOverlay, openGoLive, openVenueReveal, openDiscovery, openPayment } = useOverlay()
   const { userProfile, user } = useAuth()
   const { triggerGate } = useGuestGate()
   const isGuest = !user
@@ -123,7 +114,7 @@ export default function AppShell({ returnParams, triggerGoLive }) {
   const { incomingInterests, mutualSessions } = useInterests()
   const { incomingMeetRequest, acceptedMeetSession, simulateAcceptance, clearAccepted, clearIncoming } = useMeetRequests()
   const [pendingConv, setPendingConv] = useState(null)
-  const [declinedUserIds, setDeclinedUserIds] = useState(new Set())
+  const [declinedUserIds] = useState(new Set())
   const ipCountry = useIpCountry()
   const [countrySearchOpen, setCountrySearchOpen] = useState(false)
   const [browseCountry, setBrowseCountry] = useState(null)
@@ -133,6 +124,9 @@ export default function AppShell({ returnParams, triggerGoLive }) {
   const [companyPanelOpen, setCompanyPanelOpen] = useState(false)
   const [companyQuery, setCompanyQuery] = useState('')
   const [mapCategory, setMapCategory] = useState('all') // 'all' | 'maker'
+  const [datingGridOpen, setDatingGridOpen] = useState(false)
+  const [rideOpen,       setRideOpen]       = useState(false)
+  const { incomingInvite: dateInvite, clearInvite: clearDateInvite } = useDateInvites(user?.id ?? null)
 
   // Effective country: explicit browse selection → IP detection → profile country
   const effectiveCountry = browseCountry ?? ipCountry ?? userProfile?.country ?? null
@@ -187,23 +181,8 @@ export default function AppShell({ returnParams, triggerGoLive }) {
   const [newInviteCount, setNewInviteCount] = useState(0)
   const seenNowRef    = useRef(-1)
   const seenInviteRef = useRef(-1)
-  const [mapCenter,    setMapCenter]    = useState({ lat: DEMO_CENTER.lat, lng: DEMO_CENTER.lng })
-  const [flyTarget,    setFlyTarget]    = useState(null)
   const [vibeCheckOpen, setVibeCheckOpen]   = useState(false)
   const [vibeBanner, setVibeBanner]         = useState(null) // { status: 'active'|'invite_out'|'scheduled' }
-
-  // Auto-fly to user's GPS location on first fix — zooms in from country level
-  const hasFlownToLocationRef = useRef(false)
-  useEffect(() => {
-    if (viewerCoords && !hasFlownToLocationRef.current) {
-      hasFlownToLocationRef.current = true
-      setFlyTarget({ lat: viewerCoords.lat, lng: viewerCoords.lng, zoom: 14, ts: Date.now() })
-    }
-  }, [viewerCoords]) // eslint-disable-line
-
-  const handleMapMove = ({ lat, lng }) => {
-    setMapCenter({ lat, lng })
-  }
 
   const openDiscoveryList = (filter) => {
     if (filter === 'now') {
@@ -213,7 +192,6 @@ export default function AppShell({ returnParams, triggerGoLive }) {
       seenInviteRef.current = categorySessions.filter(s => s.status === 'invite_out').length
       setNewInviteCount(0)
     }
-    setFlyTarget({ lat: DEMO_CENTER.lat, lng: DEMO_CENTER.lng })
     setDiscoveryListFilter(filter)
     setDiscoveryListOpen(true)
     setMapFilter(filter)
@@ -275,6 +253,7 @@ export default function AppShell({ returnParams, triggerGoLive }) {
 
 
   // Safety check-in — notify when session goes live
+  // Also records the time-of-day bucket for notification suppression (P6)
   const prevSessionRef = useRef(null)
   useEffect(() => {
     const wasLive = !!prevSessionRef.current
@@ -282,9 +261,15 @@ export default function AppShell({ returnParams, triggerGoLive }) {
     if (!wasLive && isLive) {
       const contact = getSafetyContact()
       if (contact) showToast(`🛡️ Check-in sent to ${contact.name}`, 'success')
+      // Fire-and-forget: record which time window this user goes live in
+      if (supabase && user?.id) {
+        supabase.rpc('upsert_behaviour_bucket', { p_user_id: user.id })
+      }
     }
     prevSessionRef.current = mySession
   }, [mySession]) // eslint-disable-line
+
+  const isMakerUser = isMakerSession({ lookingFor: userProfile?.lookingFor })
 
   const visibleSessions = useMemo(() => {
     const filtered = sessions.filter(s => {
@@ -298,9 +283,37 @@ export default function AppShell({ returnParams, triggerGoLive }) {
     return sortByRelevance(filtered, mySession, mutualSessions)
   }, [sessions, declinedUserIds, mapFilters, mySession, mutualSessions]) // eslint-disable-line
 
+  // Anti-fatigue: record an impression each time the visible feed changes.
+  // Seeded profiles are exempt. Scores will apply the penalty on next recompute.
+  useEffect(() => {
+    visibleSessions.forEach(s => { if (!s.isSeeded) recordImpression(s.id) })
+  }, [visibleSessions])
+
+  // Wrap openDiscovery so opening a profile resets its fatigue counter
+  // and increments category affinity for the viewed session's category.
+  const handleOpenDiscovery = (s) => {
+    resetImpressions(s.id)
+    if (supabase && user?.id && s.lookingFor) {
+      supabase.rpc('increment_category_affinity', { p_user_id: user.id, p_category: s.lookingFor })
+    }
+    openDiscovery(s)
+  }
+
+  // Ambient mode: fewer than 3 real (non-seeded) active users visible.
+  // Used to promote MomentsBar and planned sessions when the map is quiet.
+  const isAmbientMode = useMemo(() =>
+    visibleSessions.filter(s => !s.isSeeded && s.status === 'active').length < 3
+  , [visibleSessions])
+
   // Category + city filtered sessions for the map and ProfileStrip counts
   const categorySessions = useMemo(() => {
-    let result = mapCategory === 'maker' ? visibleSessions.filter(isMakerSession) : visibleSessions
+    // Dating profiles are hidden from the general map — only visible when dating mode is active
+    const nonDating = visibleSessions.filter(s => s.lookingFor !== 'dating')
+    let result = mapCategory === 'maker'
+      ? nonDating.filter(isMakerSession)
+      : mapCategory === 'dating'
+      ? visibleSessions.filter(s => s.lookingFor === 'dating')
+      : nonDating
     if (cityFilter) {
       const cl = cityFilter.toLowerCase()
       result = result.filter(s =>
@@ -316,60 +329,12 @@ export default function AppShell({ returnParams, triggerGoLive }) {
     companyPanelOpen ? visibleSessions.filter(isMakerSession) : []
   , [companyPanelOpen, visibleSessions])
 
-  const mapSessions = useMemo(() => {
-    let base = categorySessions
-    if (companyPanelOpen)       base = base.filter(isMakerSession)
-    // 'home' mode shows everything — no status filter applied
-    if (mapFilter === 'now')    base = base.filter(s => s.status !== 'invite_out')
-    if (mapFilter === 'invite') base = base.filter(s => s.status === 'invite_out')
-
-    // Active search query (search bar) or company drawer query both filter the map
-    const q = (companyPanelOpen ? companyQuery : searchQuery).toLowerCase().trim()
-    if (q.length >= 2) {
-      base = base.filter(s => {
-        const actLabel = ACTIVITY_TYPES.find(a => a.id === s.activityType)?.label?.toLowerCase() ?? ''
-        return (
-          actLabel.includes(q) ||
-          s.displayName?.toLowerCase().includes(q) ||
-          s.brandName?.toLowerCase().includes(q) ||
-          s.lookingFor?.toLowerCase().includes(q) ||
-          s.area?.toLowerCase().includes(q) ||
-          s.city?.toLowerCase().includes(q) ||
-          (s.tags ?? []).some(t => t.toLowerCase().includes(q))
-        )
-      })
-    }
-
-    return base
-  }, [categorySessions, mapFilter, searchQuery, companyQuery, companyPanelOpen])
 
   // acceptedMeetSession — banner shown, chat opened only when user taps it
+  const handleUnlockVenue = (session) => {
+    openPayment({ id: session.id, sessionId: session.sessionId })
+  }
 
-  // Cap visible sessions at 50 nearest to map center.
-  // Home mode: enforce 85% user pins / 15% business pins so map looks lively but not cluttered.
-  // The current user's own session is always included regardless of distance.
-  const cappedSessions = useMemo(() => {
-    const MAX = 50
-    const myUserId = user?.uid ?? null
-    const mine = myUserId ? mapSessions.filter(s => s.userId === myUserId) : []
-    const others = mapSessions.filter(s => s.userId !== myUserId)
-    const { lat: cLat, lng: cLng } = mapCenter
-    const sorted = [...others].sort((a, b) => {
-      const da = (a.lat - cLat) ** 2 + (a.lng - cLng) ** 2
-      const db = (b.lat - cLat) ** 2 + (b.lng - cLng) ** 2
-      return da - db
-    })
-    if (mapFilter === 'home' && sorted.length > MAX - mine.length) {
-      const budget = MAX - mine.length
-      const maxMakers = Math.max(1, Math.round(budget * 0.15))
-      const maxUsers  = budget - maxMakers
-      const makers = sorted.filter(isMakerSession).slice(0, maxMakers)
-      const users  = sorted.filter(s => !isMakerSession(s)).slice(0, maxUsers)
-      return [...mine, ...users, ...makers]
-    }
-    if (mapSessions.length <= MAX) return mapSessions
-    return [...mine, ...sorted.slice(0, MAX - mine.length)]
-  }, [mapSessions, mapCenter, user, mapFilter])
 
   // Update "new since last seen" badge counts when sessions change
   useEffect(() => {
@@ -386,24 +351,25 @@ export default function AppShell({ returnParams, triggerGoLive }) {
 
   return (
     <div className={styles.shell}>
-      {/* Map fills full screen */}
-      <div className={styles.mapWrap}>
-        {HAS_MAPS_KEY
-          ? <GoogleMapsWrapper sessions={cappedSessions} onSelectUser={(s) => openDiscovery(s)} />
-          : <DemoMapView
-              sessions={cappedSessions}
-              onSelectUser={(s) => openDiscovery(s)}
-              allVenues={DEMO_VENUES}
-              activeVenues={activeVenues}
-              onSelectVenue={(v) => { setSelectedVenue(v); setVenueSheetOpen(true) }}
-              venuesOn={venuesOn}
-              onMapMove={handleMapMove}
-              flyTarget={flyTarget}
-              homeMode={mapFilter === 'home'}
-              initialZoom={viewerCoords ? 14 : 5}
-            />
-        }
-      </div>
+      {/* Time-based background fills full screen */}
+      <TimeBackground />
+
+      {/* Floating activity icons — home screen only */}
+      {activeTab === 'map' && (
+        <FloatingIcons
+          sessions={visibleSessions}
+          onSelectSession={(s) => handleOpenDiscovery(s)}
+        />
+      )}
+
+      {/* Dating profiles grid — opened from side nav dating button */}
+      <ActivityProfileGrid
+        open={datingGridOpen}
+        activity={{ emoji: '💕', label: 'Dating' }}
+        sessions={visibleSessions.filter(s => s.lookingFor === 'dating')}
+        onClose={() => setDatingGridOpen(false)}
+        onSelectSession={(s) => { setDatingGridOpen(false); handleOpenDiscovery(s) }}
+      />
 
       {/* Full-screen tab screens */}
       {activeTab === 'match'   && <MatchScreen   onClose={() => setActiveTab('map')} />}
@@ -446,7 +412,7 @@ export default function AppShell({ returnParams, triggerGoLive }) {
         sessions={categorySessions}
         mapCategory={mapCategory}
         userCity={userProfile?.city ?? null}
-        onSelect={(s) => { setSearchQuery(''); openDiscovery(s) }}
+        onSelect={(s) => { setSearchQuery(''); handleOpenDiscovery(s) }}
         onClose={() => setSearchQuery('')}
       />
 
@@ -454,7 +420,8 @@ export default function AppShell({ returnParams, triggerGoLive }) {
       {activeTab === 'map' && (
         <MomentsBar
           moments={allMoments}
-          isLive={!!mySession}
+          isLive={!!mySession || isMakerUser}
+          ambient={isAmbientMode}
           onAdd={() => { if (isGuest) { triggerGate(); return } setAddMomentOpen(true) }}
           onView={(i) => setMomentViewerIndex(i)}
         />
@@ -470,10 +437,11 @@ export default function AppShell({ returnParams, triggerGoLive }) {
       <MapOverlay isLive={!!mySession} sessionTimeLeft={sessionTimeLeft} />
 
 
-      {/* User B: incoming meet request — accept/decline */}
+      {/* User B: incoming wave — slides in from right, auto-dismisses after 5s */}
       {incomingMeetRequest && (
-        <MeetRequestBanner
+        <WaveBanner
           request={incomingMeetRequest}
+          onDismiss={clearIncoming}
           onViewProfile={() => {
             const session = sessions.find(s => s.id === incomingMeetRequest.sessionId) ?? {
               id: incomingMeetRequest.sessionId ?? incomingMeetRequest.id,
@@ -483,56 +451,8 @@ export default function AppShell({ returnParams, triggerGoLive }) {
               photos: incomingMeetRequest.fromPhotoURL ? [incomingMeetRequest.fromPhotoURL] : [],
               status: 'active',
             }
-            openDiscovery(session)
-          }}
-          onAccepted={async (req, greeting) => {
             clearIncoming()
-            const _reqSrc = sessions.find(s => s.id === req.sessionId)
-            const myUserId = user?.uid ?? user?.id ?? null
-
-            // Try to create a persisted conversation in Supabase
-            let convId = `meet-${req.sessionId ?? req.id}`
-            try {
-              const realId = await createMeetConversation(req.fromUserId, req.sessionId ?? null)
-              if (realId) convId = realId
-            } catch { /* fallback to local meet- id */ }
-
-            // For real Supabase convs, save greeting to DB so it survives refresh
-            const isRealConv = !convId.startsWith('meet-')
-            const firstMsg = []
-            if (greeting) {
-              if (isRealConv && myUserId) {
-                try { await sendMessage(convId, myUserId, greeting) } catch {}
-              } else {
-                firstMsg.push({ id: `greeting-${Date.now()}`, fromMe: true, text: greeting, time: Date.now() })
-              }
-            }
-
-            const conv = {
-              id: convId,
-              userId: req.fromUserId ?? 'unknown',
-              displayName: req.fromDisplayName ?? 'New Match',
-              photoURL: req.fromPhotoURL ?? null,
-              age: _reqSrc?.age ?? null,
-              area: _reqSrc?.area ?? _reqSrc?.city ?? null,
-              emoji: '💌',
-              online: true,
-              status: 'free',
-              openedAt: Date.now(),
-              lastMessage: greeting || null,
-              lastMessageTime: Date.now(),
-              unread: 0,
-              messages: firstMsg,
-              waitingForReply: !!greeting,
-            }
-            setPendingConv(conv)
-            setActiveTab('chat')
-          }}
-          onDeclined={() => {
-            clearIncoming()
-            if (incomingMeetRequest?.fromUserId) {
-              setDeclinedUserIds(prev => new Set([...prev, incomingMeetRequest.fromUserId]))
-            }
+            handleOpenDiscovery(session)
           }}
         />
       )}
@@ -563,6 +483,34 @@ export default function AppShell({ returnParams, triggerGoLive }) {
             clearAccepted()
           }}
           onDismiss={clearAccepted}
+          onUnlockVenue={handleUnlockVenue}
+        />
+      )}
+
+      {dateInvite && (
+        <DateInvitePopup
+          invite={dateInvite}
+          onAccept={(inv) => {
+            clearDateInvite()
+            setPendingConv({
+              id: `date-${inv.from_user_id}`,
+              userId: inv.from_user_id,
+              displayName: inv.profiles?.display_name ?? 'New Match',
+              photoURL: inv.profiles?.photo_url ?? null,
+              age: inv.profiles?.age ?? null,
+              area: inv.profiles?.city ?? null,
+              emoji: '💕',
+              online: true,
+              status: 'free',
+              openedAt: Date.now(),
+              lastMessage: null,
+              lastMessageTime: Date.now(),
+              unread: 0,
+              messages: [],
+            })
+            setActiveTab('chat')
+          }}
+          onDismiss={clearDateInvite}
         />
       )}
 
@@ -629,7 +577,6 @@ export default function AppShell({ returnParams, triggerGoLive }) {
               setVenuesOn(false)
               setCompanyPanelOpen(false)
               setMapFilter('home')
-              setFlyTarget({ lat: DEMO_CENTER.lat, lng: DEMO_CENTER.lng, zoom: 14, ts: Date.now() })
             }
           }}
           unreadChats={0}
@@ -663,8 +610,17 @@ export default function AppShell({ returnParams, triggerGoLive }) {
               setCompanyPanelOpen(true)
             }
           }}
+          datingActive={mapCategory === 'dating'}
+          onDatingMode={() => {
+            setDatingGridOpen(true)
+            setCompanyPanelOpen(false)
+          }}
+          rideActive={rideOpen}
+          onRide={() => { if (isGuest) { triggerGate(); return } setRideOpen(true) }}
         />
       )}
+
+      {rideOpen && <BookingScreen onClose={() => setRideOpen(false)} />}
 
       {/* First-use map intro — shown once, walks user through the UI */}
       {activeTab === 'map' && (
@@ -706,10 +662,14 @@ export default function AppShell({ returnParams, triggerGoLive }) {
         onClose={closeOverlay}
         showToast={showToast}
         onGuestAction={isGuest ? triggerGate : null}
-        onMeetSent={(session) => simulateAcceptance(session)}
+        onMeetSent={(session) => {
+          if (supabase && user?.id && session.lookingFor) {
+            supabase.rpc('increment_category_affinity', { p_user_id: user.id, p_category: session.lookingFor })
+          }
+          simulateAcceptance(session)
+        }}
         onLike={saveLike}
         onUnlockContact={isMakerSession(overlay.data ?? {}) ? (s) => setContactUnlockSession(s) : null}
-        buyerCountry={effectiveCountry}
       />
       <ContactUnlockSheet
         open={!!contactUnlockSession}
@@ -722,7 +682,7 @@ export default function AppShell({ returnParams, triggerGoLive }) {
         open={venueSheetOpen}
         venue={selectedVenue}
         onClose={() => setVenueSheetOpen(false)}
-        onSelectSession={(s) => { setVenueSheetOpen(false); setTimeout(() => openDiscovery(s), 250) }}
+        onSelectSession={(s) => { setVenueSheetOpen(false); setTimeout(() => handleOpenDiscovery(s), 250) }}
         onOpenChat={() => setVenueChatVenue(selectedVenue)}
         userTier={userProfile?.tier ?? null}
         onSpendCoins={(cost) => spendCoins(cost, 'Venue unlock')}
@@ -753,7 +713,29 @@ export default function AppShell({ returnParams, triggerGoLive }) {
       <VenueReveal open={overlay.type === OVERLAY.VENUE_REVEAL} unlock={overlay.data} onClose={closeOverlay} />
       <ReportSheet open={overlay.type === OVERLAY.REPORT} session={overlay.data} onClose={closeOverlay} showToast={showToast} />
       {likedMeOpen && <LikedMeScreen onClose={() => setLikedMeOpen(false)} />}
-      {notifOpen && <NotificationsScreen onClose={() => setNotifOpen(false)} />}
+      {notifOpen && (
+        <NotificationsScreen
+          onClose={() => setNotifOpen(false)}
+          onOpenChat={(sender) => {
+            setNotifOpen(false)
+            setPendingConv({
+              id:              `notif-${sender.fromUserId ?? Date.now()}`,
+              userId:          sender.fromUserId ?? null,
+              displayName:     sender.displayName ?? 'New Message',
+              photoURL:        sender.photoURL ?? null,
+              emoji:           '💬',
+              online:          true,
+              status:          'free',
+              openedAt:        Date.now(),
+              lastMessage:     null,
+              lastMessageTime: Date.now(),
+              unread:          0,
+              messages:        [],
+            })
+            setActiveTab('chat')
+          }}
+        />
+      )}
       {blockListOpen && <BlockedUsersScreen onClose={() => setBlockListOpen(false)} />}
 
       <CountrySearchSheet
@@ -782,7 +764,7 @@ export default function AppShell({ returnParams, triggerGoLive }) {
         city={cityFilter}
         viewerCountry={effectiveCountry}
         countryFlag={filterFlag}
-        onSelect={s => { setCompanyPanelOpen(false); openDiscovery(s) }}
+        onSelect={s => { setCompanyPanelOpen(false); handleOpenDiscovery(s) }}
         onClose={() => setCompanyPanelOpen(false)}
       />
 
@@ -871,7 +853,7 @@ export default function AppShell({ returnParams, triggerGoLive }) {
         filter={discoveryListFilter}
         sessions={visibleSessions}
         onClose={() => setDiscoveryListOpen(false)}
-        onSelect={(s) => { setDiscoveryListOpen(false); setTimeout(() => openDiscovery(s), 200) }}
+        onSelect={(s) => { setDiscoveryListOpen(false); setTimeout(() => handleOpenDiscovery(s), 200) }}
       />
       <InviteOutSheet
         open={inviteOutSheetOpen}

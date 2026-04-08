@@ -95,27 +95,25 @@ export default function VenueReveal({ open, unlock, onClose }) {
   )
 }
 
-async function getEtaMinutes(destLat, destLng) {
+// Estimate walking time using straight-line Haversine distance
+// Average walking speed ~5 km/h, multiply by 1.3 for real-world routing factor
+function getEtaMinutes(destLat, destLng) {
   return new Promise((resolve) => {
-    if (!window.google?.maps) return resolve(null)
-
-    navigator.geolocation.getCurrentPosition((pos) => {
-      const origin = new window.google.maps.LatLng(pos.coords.latitude, pos.coords.longitude)
-      const destination = new window.google.maps.LatLng(destLat, destLng)
-      const service = new window.google.maps.DistanceMatrixService()
-
-      service.getDistanceMatrix({
-        origins: [origin],
-        destinations: [destination],
-        travelMode: 'WALKING',
-      }, (result, status) => {
-        if (status === 'OK') {
-          const minutes = Math.ceil(result.rows[0].elements[0].duration.value / 60)
-          resolve(minutes)
-        } else {
-          resolve(null)
-        }
-      })
-    }, () => resolve(null))
+    if (!navigator.geolocation) return resolve(null)
+    navigator.geolocation.getCurrentPosition(
+      ({ coords }) => {
+        const R    = 6371
+        const dLat = (destLat - coords.latitude)  * Math.PI / 180
+        const dLng = (destLng - coords.longitude) * Math.PI / 180
+        const a    = Math.sin(dLat/2)**2 +
+                     Math.cos(coords.latitude * Math.PI/180) *
+                     Math.cos(destLat * Math.PI/180) *
+                     Math.sin(dLng/2)**2
+        const km   = R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a))
+        const mins = Math.ceil((km * 1.3) / 5 * 60)
+        resolve(mins > 0 ? mins : null)
+      },
+      () => resolve(null)
+    )
   })
 }

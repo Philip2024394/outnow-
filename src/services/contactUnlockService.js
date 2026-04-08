@@ -33,28 +33,42 @@ export async function initiateContactUnlock({ buyerUserId, sellerUserId, session
 }
 
 /**
- * Checks if the buyer has already unlocked a seller's contact.
- * Returns { unlocked: bool, whatsapp, phone }
+ * Checks if the buyer has already unlocked a seller's contact and returns
+ * the contact details if so.
+ *
+ * Calls get_contact_number RPC which enforces the contact_unlocks gate
+ * server-side — contact_number is never read from profiles directly.
+ * Returns { unlocked: bool, contactNumber, contactPlatform }.
  */
 export async function getContactUnlock(buyerUserId, sellerUserId) {
   if (!supabase) return { unlocked: false }
 
-  const { data, error } = await supabase
-    .from('contact_unlocks')
-    .select('id')
-    .eq('buyer_id', buyerUserId)
-    .eq('seller_id', sellerUserId)
+  const { data, error } = await supabase.rpc('get_contact_number', {
+    p_buyer_user_id:  buyerUserId,
+    p_seller_user_id: sellerUserId,
+  })
+
+  // Any error — including the 'not_unlocked' exception — means not yet unlocked
+  if (error) return { unlocked: false }
+
+  return {
+    unlocked:        true,
+    contactNumber:   data?.contactNumber   ?? null,
+    contactPlatform: data?.contactPlatform ?? null,
+  }
+}
+
+/**
+ * Reads the current user's own contact number from private_contacts.
+ * Owner-only RLS allows this; no unlock row required for self-read.
+ * Used by ContactOptionsSheet to pre-populate the number field.
+ */
+export async function getMyContactNumber(userId) {
+  if (!supabase || !userId) return null
+  const { data } = await supabase
+    .from('private_contacts')
+    .select('contact_number')
+    .eq('user_id', userId)
     .maybeSingle()
-
-  // 404 = table doesn't exist yet (migration pending) — treat as not unlocked
-  if (error || !data) return { unlocked: false }
-
-  // Fetch seller contact details
-  const { data: profile } = await supabase
-    .from('profiles')
-    .select('whatsapp, phone')
-    .eq('id', sellerUserId)
-    .single()
-
-  return { unlocked: true, whatsapp: profile?.whatsapp ?? null, phone: profile?.phone ?? null }
+  return data?.contact_number ?? null
 }

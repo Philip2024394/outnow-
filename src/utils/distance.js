@@ -24,18 +24,18 @@ export function haversineKm(lat1, lng1, lat2, lng2) {
  * Venue names and coordinates are also stripped before reaching the client.
  */
 
-const FLOOR_KM = 2
+const FLOOR_KM = 5
 
 /**
  * Format a distance value for display.
- * Anything under 2 km is shown as "< 2 km" regardless of true distance.
+ * Anything under 5 km shows "Nearby" — prevents location triangulation.
  *
  * @param {number|null|undefined} km - raw distance in kilometres
  * @returns {string|null} display string, or null if no distance data
  */
 export function formatDistance(km) {
   if (km == null) return null
-  if (km < FLOOR_KM) return '< 2 km'
+  if (km < FLOOR_KM) return 'Nearby'
   if (km < 10)       return `${km.toFixed(1)} km`
   return `${Math.round(km)} km`
 }

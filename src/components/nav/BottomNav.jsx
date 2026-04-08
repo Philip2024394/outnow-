@@ -40,7 +40,7 @@ const TABS = [
   },
 ]
 
-export default function BottomNav({ activeTab = 'map', onChange, unreadChats = 0, onOpenVenues, activeVenueCount = 0, userPhotoURL, userName, isLive = false, isInviteOut = false, onProfileTap, onDiscoverInvite, onDiscoverNow, outNowCount = 0, inviteOutCount = 0, newNowCount = 0, newInviteCount = 0, onHanggle, businessCount = 0, hanggleActive = false }) {
+export default function BottomNav({ activeTab = 'map', onChange, unreadChats = 0, onOpenVenues, activeVenueCount = 0, userPhotoURL, userName, isLive = false, isInviteOut = false, onProfileTap, onDiscoverInvite, onDiscoverNow, outNowCount = 0, inviteOutCount = 0, newNowCount = 0, newInviteCount = 0, datingActive = false, onDatingMode, onRide, rideActive = false }) {
   const select = (id, extra) => { onChange?.(id); extra?.() }
 
   return (
@@ -51,11 +51,24 @@ export default function BottomNav({ activeTab = 'map', onChange, unreadChats = 0
         const badge = id === 'chat' ? unreadChats : id === 'venues' ? activeVenueCount : 0
 
         if (id === 'match') {
-          return (
-            <button key={id} className={`${styles.hanggleBtn} ${hanggleActive ? styles.hanggleBtnActive : ''}`} onClick={onHanggle} aria-label="Hanggle">
-              <span className={styles.hanggleBtnCount}>{businessCount}</span>
-            </button>
-          )
+          return [
+            <button
+              key="ride"
+              className={`${styles.rideBtn} ${rideActive ? styles.rideBtnActive : ''}`}
+              onClick={onRide}
+              aria-label="Find a ride"
+            >
+              <img src="https://ik.imagekit.io/nepgaxllc/Sleek%20green%20and%20black%20scooter%20setup.png" alt="Ride" className={styles.rideBtnImg} />
+            </button>,
+            <button
+              key="dating"
+              className={`${styles.datingBtn} ${datingActive ? styles.datingBtnActive : ''}`}
+              onClick={onDatingMode}
+              aria-label="Dating & Romance"
+            >
+              <img src="https://ik.imagekit.io/nepgaxllc/Untitledasdasdasaaaaaaa-removebg-preview.png" alt="Dating" className={styles.datingBtnImg} />
+            </button>,
+          ]
         }
 
         if (id === 'chat') {

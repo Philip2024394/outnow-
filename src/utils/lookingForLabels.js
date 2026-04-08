@@ -15,6 +15,7 @@ export const LOOKING_FOR_GROUPS = [
   { key: 'work',        label: 'Work & Employment' },
   { key: 'education',   label: 'Education & Learning' },
   { key: 'community',   label: 'Community & Causes' },
+  { key: 'transport',   label: 'Driver Services' },
   { key: 'other',       label: 'Other' },
 ]
 
@@ -129,6 +130,10 @@ export const LOOKING_FOR_OPTIONS = [
   { value: 'environment',    emoji: '🌱', label: 'Environmental & Eco',         group: 'community' },
   { value: 'civic',          emoji: '🗳️', label: 'Civic & Political',           group: 'community' },
   { value: 'disability',     emoji: '♿', label: 'Disability & Accessibility',   group: 'community' },
+
+  // ── Driver Services ─────────────────────────────────────────
+  { value: 'car_taxi',       emoji: '🚗', label: 'Car Taxi Service',             group: 'transport' },
+  { value: 'bike_ride',      emoji: '🛵', label: 'Bike Ride Service',            group: 'transport' },
 
   // ── Other ────────────────────────────────────────────────────
   { value: 'browsing',       emoji: '👀', label: 'Just Browsing',               group: 'other' },

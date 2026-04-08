@@ -274,7 +274,11 @@ alter publication supabase_realtime add table interests;
 create or replace function check_mutual_interest()
 returns trigger language plpgsql security definer set search_path = public as $$
 declare
-  reverse_row interests%rowtype;
+  reverse_row   interests%rowtype;
+  name_a        text;   -- display name of new.from_user_id (the liker)
+  name_b        text;   -- display name of new.to_user_id   (the liked)
+  hour_now      int;
+  time_copy     text;
 begin
   select * into reverse_row
     from interests
@@ -295,10 +299,21 @@ begin
       greatest(user_a_id::text, user_b_id::text)
     ) do nothing;
 
+    -- Contextual copy: sender name + time-of-day bucket
+    select coalesce(display_name, 'Someone') into name_a from profiles where id = new.from_user_id;
+    select coalesce(display_name, 'Someone') into name_b from profiles where id = new.to_user_id;
+    hour_now := extract(hour from now())::int;
+    time_copy := case
+      when hour_now >= 6  and hour_now < 12 then 'Good morning — say hi while you''re both out!'
+      when hour_now >= 12 and hour_now < 17 then 'Say hi before the afternoon flies by!'
+      when hour_now >= 17 and hour_now < 21 then 'Perfect timing for an evening meetup!'
+      else 'Night owl energy — don''t wait, say hi!'
+    end;
+
     insert into notifications (user_id, type, title, body, from_user_id)
     values
-      (new.from_user_id, 'match', 'You matched! 🔥', 'You both liked each other — say hi!', new.to_user_id),
-      (new.to_user_id,   'match', 'You matched! 🔥', 'You both liked each other — say hi!', new.from_user_id)
+      (new.from_user_id, 'match', name_b    || ' liked you back! 🔥', time_copy, new.to_user_id),
+      (new.to_user_id,   'match', name_a    || ' liked you back! 🔥', time_copy, new.from_user_id)
     on conflict do nothing;
   end if;
 
@@ -752,6 +767,7 @@ returns int language plpgsql security definer set search_path = public as $$
 declare
   current_coins int;
   new_balance   int;
+  sender_name   text;
 begin
   select coins into current_coins from profiles where id = auth.uid();
   if current_coins < p_cost then
@@ -771,8 +787,11 @@ begin
   on conflict (from_user_id, session_id)
     do update set gift = p_gift, message = p_message;
 
+  select coalesce(display_name, 'Someone') into sender_name from profiles where id = auth.uid();
+
   insert into notifications (user_id, type, title, body, from_user_id, session_id)
-  values (p_to_user_id, 'gift', 'You got a gift! 🎁', 'Someone sent you a ' || p_gift, auth.uid(), p_session_id)
+  values (p_to_user_id, 'gift', sender_name || ' sent you a gift! 🎁',
+          sender_name || ' gifted you a ' || p_gift || ' — check it out!', auth.uid(), p_session_id)
   on conflict do nothing;
 
   return new_balance;
@@ -782,12 +801,25 @@ $$;
 -- send_wave_notify: record wave + notify recipient
 create or replace function send_wave_notify(p_to_user_id uuid, p_session_id uuid)
 returns void language plpgsql security definer set search_path = public as $$
+declare
+  sender_name text;
+  hour_now    int;
+  wave_body   text;
 begin
+  select coalesce(display_name, 'Someone') into sender_name from profiles where id = auth.uid();
+  hour_now := extract(hour from now())::int;
+  wave_body := case
+    when hour_now >= 17 then sender_name || ' is out tonight and spotted you 👀'
+    when hour_now >= 12 then sender_name || ' spotted you this afternoon 👋'
+    when hour_now >= 6  then sender_name || ' said good morning 👋'
+    else sender_name || ' is up late and waved hello 🌙'
+  end;
+
   insert into waves (from_user_id, to_user_id, session_id)
   values (auth.uid(), p_to_user_id, p_session_id);
 
   insert into notifications (user_id, type, title, body, from_user_id, session_id)
-  values (p_to_user_id, 'wave', 'Someone waved 👋', 'Tap to see who', auth.uid(), p_session_id)
+  values (p_to_user_id, 'wave', sender_name || ' waved 👋', wave_body, auth.uid(), p_session_id)
   on conflict do nothing;
 end;
 $$;

@@ -5,8 +5,10 @@ import { usePushNotifications } from '@/hooks/usePushNotifications'
 import { useMessages } from '@/hooks/useMessages'
 import { sendMessage, sendImageMessage, sendContactMessage, unlockConversation, likeMessage, markConversationRead } from '@/services/conversationService'
 import { supabase } from '@/lib/supabase'
-import { UNLOCK_PRICE } from '@/utils/pricing' // used in ContactShareSheet via prop
 import ContactShareSheet from './ContactShareSheet'
+import VideoCheckBubble from './VideoCheckBubble'
+import VideoCheckWindow from './VideoCheckWindow'
+import { useVideoCheck } from '@/hooks/useVideoCheck'
 import styles from './ChatWindow.module.css'
 
 const IS_DEMO = import.meta.env.VITE_DEMO_MODE === 'true'
@@ -25,7 +27,6 @@ export default function ChatWindow({ conversation: conv, onBack, onConvUpdate })
   const { messages, setMessages } = useMessages(conv.id, conv.messages ?? [])
 
   const [text, setText]                     = useState('')
-  const [unlockingContact, setUnlockingContact] = useState(false)
   const [blockedMsg, setBlockedMsg]         = useState(null)
   const [shareOpen, setShareOpen]           = useState(false)
   const [isTyping, setIsTyping]             = useState(false)
@@ -68,6 +69,19 @@ export default function ChatWindow({ conversation: conv, onBack, onConvUpdate })
 
   const contactUnlocked = conv.status === 'unlocked'
 
+  const {
+    phase:          videoPhase,
+    localStream,
+    remoteStream,
+    countdown,
+    error:          videoError,
+    isAvailable:    videoAvailable,
+    sendRequest:    sendVideoRequest,
+    acceptRequest:  acceptVideoRequest,
+    declineRequest: declineVideoRequest,
+    endCall:        endVideoCall,
+  } = useVideoCheck(conv.id)
+
   const handleSend = useCallback(async () => {
     const trimmed = text.trim()
     if (!trimmed) return
@@ -85,14 +99,11 @@ export default function ChatWindow({ conversation: conv, onBack, onConvUpdate })
     onConvUpdate?.({ lastMessage: trimmed, lastMessageTime: Date.now() })
   }, [text, conv.id, user, onConvUpdate]) // eslint-disable-line
 
+  // Contact sharing in social chat is intentionally free — payment only applies to
+  // business contact number reveal via ContactUnlockSheet
   const handleUnlockContact = async () => {
-    setUnlockingContact(true)
-    try {
-      await unlockConversation(conv.id)
-      onConvUpdate?.({ status: 'unlocked', unlockedAt: Date.now(), unread: 0 })
-    } finally {
-      setUnlockingContact(false)
-    }
+    await unlockConversation(conv.id)
+    onConvUpdate?.({ status: 'unlocked', unlockedAt: Date.now(), unread: 0 })
   }
 
   const handleImageSelect = async (e) => {
@@ -152,6 +163,20 @@ export default function ChatWindow({ conversation: conv, onBack, onConvUpdate })
         </div>
 
         <div className={styles.headerRight}>
+          {/* ID Check button — always visible when available */}
+          {videoAvailable && videoPhase === 'idle' && (
+            <button
+              className={styles.idCheckBtn}
+              onClick={sendVideoRequest}
+              aria-label="Request live ID check"
+            >
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+              </svg>
+              <span>ID Check</span>
+            </button>
+          )}
+
           {/* Share contact button — always visible */}
           <button
             className={styles.shareBtn}
@@ -324,6 +349,21 @@ export default function ChatWindow({ conversation: conv, onBack, onConvUpdate })
         <div className={styles.blockedHint}><span>🚫</span> {blockedMsg}</div>
       )}
 
+      {/* ── Video check bubble (request / incoming) ── */}
+      {(videoPhase === 'requesting' || videoPhase === 'incoming') && (
+        <VideoCheckBubble
+          phase={videoPhase}
+          displayName={conv.displayName}
+          onAccept={acceptVideoRequest}
+          onDecline={declineVideoRequest}
+        />
+      )}
+
+      {/* ── Video check error ── */}
+      {videoError && (
+        <div className={styles.blockedHint}><span>📷</span> {videoError}</div>
+      )}
+
       {/* ── Input bar — always visible ── */}
       <div className={styles.inputBar}>
         <button className={styles.flagBtn} aria-label="Report">
@@ -378,13 +418,21 @@ export default function ChatWindow({ conversation: conv, onBack, onConvUpdate })
         open={shareOpen}
         onClose={() => setShareOpen(false)}
         contactUnlocked={contactUnlocked}
-        unlockPrice={UNLOCK_PRICE}
-        unlockingContact={unlockingContact}
         onUnlockContact={handleUnlockContact}
         onSend={(contact) => {
           setShareOpen(false)
           handleShareContact(contact)
         }}
+      />
+
+      {/* ── Live video window — floats above input bar ── */}
+      <VideoCheckWindow
+        phase={videoPhase}
+        localStream={localStream}
+        remoteStream={remoteStream}
+        countdown={countdown}
+        displayName={conv.displayName}
+        onEnd={endVideoCall}
       />
     </div>
   )

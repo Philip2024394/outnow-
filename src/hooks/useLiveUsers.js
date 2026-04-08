@@ -77,6 +77,10 @@ function mapRow(row) {
     tier: row.tier ?? null,
     cuisineType: row.cuisine_type ?? null,
     targetAudience: row.target_audience ?? [],
+    shopType: row.shop_type ?? null,
+    // contact_platform is public (badge display) — contact_number is never in the view
+    contactPlatform: row.contact_platform ?? null,
+    presenceStreak: row.presence_streak ?? 0,
   }
 }
 
@@ -121,17 +125,48 @@ export function useLiveUsers({ browseCountry } = {}) {
         query = query.or(`country.eq.${myCountry},international.eq.true`)
       }
 
-      const { data, error } = await query
+      const now = new Date()
+      const [{ data, error }, { data: affinities }, { data: predicted }] = await Promise.all([
+        query,
+        supabase.from('user_category_affinity').select('category, weight').eq('user_id', user.id),
+        supabase.rpc('get_predicted_active_users', {
+          p_day_of_week: now.getUTCDay(),
+          p_hour_of_day: now.getUTCHours(),
+        }),
+      ])
 
       if (!mounted) return
       if (error) { setLoading(false); return }
 
+      const affinityMap = Object.fromEntries((affinities ?? []).map(a => [a.category, a.weight]))
+
       const filtered = (data ?? [])
         .filter(row => !blockedIds.has(row.user_id))
-        .map(mapRow)
+        .map(row => ({ ...mapRow(row), affinityWeight: affinityMap[row.looking_for] ?? 1.0 }))
+
+      // Predicted sessions: users historically active at this hour — shown as greyed pins
+      const activeIds = new Set(filtered.map(s => s.userId))
+      const predictedSessions = (predicted ?? [])
+        .filter(p => !blockedIds.has(p.user_id) && !activeIds.has(p.user_id))
+        .map(p => {
+          const { fuzzedLat, fuzzedLng } = fuzzCoord(p.last_lat, p.last_lng)
+          return {
+            id:          `predicted-${p.user_id}`,
+            userId:      p.user_id,
+            status:      'predicted',
+            displayName: p.display_name ?? 'Someone',
+            photoURL:    p.photo_url ?? null,
+            lat:         p.last_lat,
+            lng:         p.last_lng,
+            fuzzedLat,
+            fuzzedLng,
+            lookingFor:  p.looking_for ?? null,
+            isSeeded:    false,
+          }
+        })
 
       // Always show category showcase profiles globally (isSeeded — not real users)
-      setSessions([...filtered, ...DEMO_CATEGORY_SESSIONS])
+      setSessions([...filtered, ...predictedSessions, ...DEMO_CATEGORY_SESSIONS])
       setLoading(false)
     }
 

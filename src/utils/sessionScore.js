@@ -14,7 +14,51 @@
  *   5. Profile quality (photo + bio)             0–25
  *   6. Has photo                                 +15
  *   7. Recent activity (started session recently)+10
+ *   8. Anti-fatigue  (×0.6 after 3 views, 6h window)
  */
+
+// ─── Impression tracking (anti-fatigue) ───────────────────────────────────────
+// Tracks how many times a session card has been shown within a 6-hour window.
+// After FATIGUE_THRESHOLD views with no interaction the score is multiplied by
+// FATIGUE_PENALTY so the same face stops dominating the feed.
+
+const IMPRESSION_TTL_MS  = 6 * 60 * 60 * 1000  // 6 hours
+const FATIGUE_THRESHOLD  = 3
+const FATIGUE_PENALTY    = 0.6
+
+function _impressionKey(sessionId) { return `imp_${sessionId}` }
+
+function _getImpressionCount(sessionId) {
+  if (!sessionId) return 0
+  try {
+    const raw = localStorage.getItem(_impressionKey(sessionId))
+    if (!raw) return 0
+    const { count, firstSeen } = JSON.parse(raw)
+    return Date.now() - firstSeen > IMPRESSION_TTL_MS ? 0 : count
+  } catch { return 0 }
+}
+
+/** Call this each time a session appears in the visible feed. */
+export function recordImpression(sessionId) {
+  if (!sessionId) return
+  try {
+    const key = _impressionKey(sessionId)
+    const raw = localStorage.getItem(key)
+    const now = Date.now()
+    const prev = raw ? JSON.parse(raw) : { count: 0, firstSeen: now }
+    if (now - prev.firstSeen > IMPRESSION_TTL_MS) {
+      localStorage.setItem(key, JSON.stringify({ count: 1, firstSeen: now }))
+    } else {
+      localStorage.setItem(key, JSON.stringify({ count: prev.count + 1, firstSeen: prev.firstSeen }))
+    }
+  } catch {}
+}
+
+/** Call this when the user interacts (opens profile, sends interest, etc.). */
+export function resetImpressions(sessionId) {
+  if (!sessionId) return
+  try { localStorage.removeItem(_impressionKey(sessionId)) } catch {}
+}
 
 // ─── Status score ────────────────────────────────────────────────────────────
 function statusScore(session) {
@@ -72,6 +116,35 @@ function recencyScore(session) {
   return 0
 }
 
+// ─── Category affinity score ─────────────────────────────────────────────────
+// Built-in affinity pairs: interactions with one category lift related ones.
+// These are static defaults — DB weights layer on top as a multiplier.
+const AFFINITY_PAIRS = {
+  handmade:        ['art_craft'],
+  restaurant:      ['catering'],
+  fitness_pt:      ['healthcare', 'alt_medicine'],
+  content_creator: ['creative', 'music_perform', 'photography'],
+  creative:        ['events', 'event_planning'],
+  music_perform:   ['bar_nightclub'],
+  buy_sell:        ['fashion', 'retail'],
+}
+
+function categoryAffinityScore(session, mySession) {
+  const weight = session.affinityWeight ?? 1.0
+  // Weight is 1.0 (neutral) → 5.0 (strong affinity).
+  // Map to a 0–30 bonus so it nudges without overriding primary signals.
+  let score = Math.round((weight - 1.0) / 4.0 * 30)
+
+  // Static pair boost: if this session's category is a known affinity match for
+  // the user's own session category, add a 5-point base even before DB weight exists.
+  if (weight === 1.0 && mySession?.lookingFor && session.lookingFor) {
+    const pairs = AFFINITY_PAIRS[mySession.lookingFor] ?? []
+    if (pairs.includes(session.lookingFor)) score += 5
+  }
+
+  return score
+}
+
 // ─── Main scorer ─────────────────────────────────────────────────────────────
 /**
  * @param {object} session     — the profile to score
@@ -86,8 +159,17 @@ export function scoreSession(session, mySession, mutualSet = new Set()) {
   const activity = activityScore(session, mySession)
   const profile  = profileScore(session)
   const recency  = recencyScore(session)
+  const affinity = categoryAffinityScore(session, mySession)
 
-  return mutual + status + distance + activity + profile + recency
+  let total = mutual + status + distance + activity + profile + recency + affinity
+
+  // Anti-fatigue: penalise sessions shown 3+ times with no interaction in 6h window.
+  // Seeded/demo profiles are exempt — they are always shown when needed.
+  if (!session.isSeeded && _getImpressionCount(session.id) >= FATIGUE_THRESHOLD) {
+    total *= FATIGUE_PENALTY
+  }
+
+  return total
 }
 
 /**
@@ -113,6 +195,9 @@ export function explainScore(session, mySession, mutualSet = new Set()) {
     activity:    activityScore(session, mySession),
     profile:     profileScore(session),
     recency:     recencyScore(session),
+    affinity:    categoryAffinityScore(session, mySession),
+    impressions: _getImpressionCount(session.id),
+    fatigued:    !session.isSeeded && _getImpressionCount(session.id) >= FATIGUE_THRESHOLD,
     total:       scoreSession(session, mySession, mutualSet),
   }
 }

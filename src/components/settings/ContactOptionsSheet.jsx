@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import { useAuth } from '@/hooks/useAuth'
 import { saveContactOptions } from '@/services/profileService'
+import { getMyContactNumber } from '@/services/contactUnlockService'
 import { getPlatform } from '@/constants/messagingPlatforms'
 import PlatformPicker from '@/components/ui/PlatformPicker'
 import styles from './ContactOptionsSheet.module.css'
@@ -17,18 +18,24 @@ export default function ContactOptionsSheet({ onBack, showToast }) {
   const isPaid = MAKER_TIERS.includes(userProfile?.tier?.toLowerCase())
 
   // Load saved values from profile
-  const [chatEnabled,    setChatEnabled]    = useState(userProfile?.chatEnabled ?? true)
+  const [chatEnabled,     setChatEnabled]     = useState(userProfile?.chatEnabled ?? true)
   const [contactPlatform, setContactPlatform] = useState(userProfile?.contactPlatform ?? '')
-  const [contactNumber,   setContactNumber]   = useState(userProfile?.contactNumber  ?? '')
+  // contact_number lives in private_contacts — fetched separately on open
+  const [contactNumber,   setContactNumber]   = useState('')
   const [saving, setSaving] = useState(false)
-  const [dirty,      setDirty]      = useState(false)
+  const [dirty,  setDirty]  = useState(false)
 
   useEffect(() => {
     setChatEnabled(userProfile?.chatEnabled ?? true)
     setContactPlatform(userProfile?.contactPlatform ?? '')
-    setContactNumber(userProfile?.contactNumber  ?? '')
     setDirty(false)
   }, [userProfile])
+
+  // Fetch user's own contact number from private_contacts on open
+  useEffect(() => {
+    if (!user?.id) return
+    getMyContactNumber(user.id).then(num => setContactNumber(num ?? ''))
+  }, [user?.id])
 
   const selectedPlatform = getPlatform(contactPlatform)
 
@@ -85,7 +92,7 @@ export default function ContactOptionsSheet({ onBack, showToast }) {
     setSaving(false)
   }
 
-  const hasContact = !!(userProfile?.contactNumber || contactNumber.trim())
+  const hasContact = !!contactNumber.trim()
 
   return (
     <div className={styles.page}>

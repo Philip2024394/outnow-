@@ -11,7 +11,7 @@ export async function saveProfile({
   photoOffsetX, photoOffsetY, photoZoom,
   tags,
   instagramHandle, tiktokHandle, facebookHandle, websiteUrl, youtubeHandle,
-  cuisineType, targetAudience,
+  cuisineType, targetAudience, shopType,
 }) {
   if (!supabase || !userId) return
 
@@ -58,6 +58,7 @@ export async function saveProfile({
       youtube_handle:    youtubeHandle || null,
       cuisine_type:      cuisineType || null,
       target_audience:   targetAudience?.length ? targetAudience : null,
+      shop_type:         shopType || null,
       updated_at:        new Date().toISOString(),
     })
     .eq('id', userId)
@@ -66,20 +67,36 @@ export async function saveProfile({
 
 /**
  * Save contact options for a business user.
- * Stores the chosen messaging platform slug + contact number/handle + chat toggle.
+ *
+ * contact_platform and chat_enabled are public — written to profiles.
+ * contact_number is private — written to private_contacts (separate table,
+ * owner-only RLS, never exposed in sessions_with_profiles view).
+ * Buyers reach contact_number only via the get_contact_number RPC after payment.
  */
 export async function saveContactOptions(userId, { contactPlatform, contactNumber, chatEnabled }) {
   if (!supabase || !userId) return
+
+  // Public fields stay on profiles
   const { error } = await supabase
     .from('profiles')
     .update({
       contact_platform: contactPlatform ?? null,
-      contact_number:   contactNumber  ?? null,
       chat_enabled:     chatEnabled    ?? true,
       updated_at:       new Date().toISOString(),
     })
     .eq('id', userId)
   if (error) throw new Error(error.message)
+
+  // Private field: upsert or delete from private_contacts
+  if (contactNumber) {
+    const { error: pcError } = await supabase
+      .from('private_contacts')
+      .upsert({ user_id: userId, contact_number: contactNumber, updated_at: new Date().toISOString() })
+    if (pcError) throw new Error(pcError.message)
+  } else {
+    // Null means seller is clearing their contact number
+    await supabase.from('private_contacts').delete().eq('user_id', userId)
+  }
 }
 
 /**

@@ -9,10 +9,18 @@ export function AuthProvider({ children }) {
   const [userProfile, setUserProfile] = useState(null)
 
   useEffect(() => {
-    if (!supabase) {
-      // Demo mode — no Supabase configured
+    const demoMode = import.meta.env.VITE_DEMO_MODE === 'true'
+    if (!supabase || demoMode) {
+      // Demo mode — no Supabase configured, or VITE_DEMO_MODE=true
       setUser(DEMO_USER)
-      setUserProfile({ displayName: DEMO_USER.displayName, photoURL: null })
+      setUserProfile({
+        displayName: 'Admin Preview',
+        photoURL: null,
+        lookingFor: '',
+        is_driver: true,
+        city: 'Yogyakarta',
+        country: 'Indonesia',
+      })
       return
     }
 

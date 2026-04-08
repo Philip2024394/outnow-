@@ -24,11 +24,11 @@ const MAKER_CATEGORIES = [
   'trades', 'auto_repair', 'cleaning', 'garden', 'security', 'laundry', 'tailoring',
   'childcare', 'eldercare', 'pet_care', 'transport',
   // Health & Wellness
-  'healthcare', 'beauty', 'fitness_pt', 'mental_health', 'alt_medicine', 'veterinary', 'pharmacy',
+  'healthcare', 'beauty', 'fitness_pt', 'mental_health', 'alt_medicine', 'veterinary', 'pharmacy', 'wellness',
   // Food & Hospitality
   'catering', 'restaurant', 'hotel_accom', 'tourism_guide', 'event_planning', 'bar_nightclub', 'food_drink',
   // Creative & Media
-  'creative', 'content_creator', 'music_perform', 'writing', 'fashion_design',
+  'creative', 'content_creator', 'music_perform', 'music', 'photography', 'writing', 'fashion_design',
   // Professional Services
   'business', 'technology', 'legal', 'engineering', 'sales_leads', 'consulting',
   'real_estate', 'marketing', 'media_pro', 'professional',
@@ -60,7 +60,7 @@ function fmtScheduledFull(ms) {
   return d.toLocaleDateString([], { weekday: 'long' }) + ' at ' + timeStr
 }
 
-export default function DiscoveryCard({ open, session, mySession, onClose, showToast, onGuestAction, onMeetSent, onLike, onUnlockContact, buyerCountry }) {
+export default function DiscoveryCard({ open, session, mySession, onClose, showToast, onGuestAction, onMeetSent, onLike, onUnlockContact }) {
   useOverlay()
   const { user } = useAuth()
   const { myInterests, mutualSessions } = useInterests()
@@ -122,7 +122,7 @@ export default function DiscoveryCard({ open, session, mySession, onClose, showT
   if (session.lookingFor === 'dating')
     return <DatingCard open={open} session={session} mySession={mySession} onClose={onClose} showToast={showToast} onGuestAction={onGuestAction} onMeetSent={onMeetSent} onLike={onLike} />
   if (MAKER_CATEGORIES.includes(session.lookingFor))
-    return <MakerCard open={open} session={session} mySession={mySession} onClose={onClose} showToast={showToast} onGuestAction={onGuestAction} onMeetSent={onMeetSent} onLike={onLike} onUnlockContact={onUnlockContact} buyerCountry={buyerCountry} />
+    return <MakerCard open={open} session={session} mySession={mySession} onClose={onClose} showToast={showToast} onGuestAction={onGuestAction} onMeetSent={onMeetSent} onLike={onLike} onUnlockContact={onUnlockContact} />
   const isScheduled = session.status === 'scheduled'
   const isInviteOut = session.status === 'invite_out'
   const isOutNow    = !isScheduled && !isInviteOut
@@ -285,7 +285,7 @@ export default function DiscoveryCard({ open, session, mySession, onClose, showT
                   onClick={() => setBioOpen(true)}
                   aria-label="View bio"
                 >
-                  <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round">
+                  <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round">
                     <path d="M2 12a10 10 0 0 1 18-6"/>
                     <path d="M2 16h.01"/>
                     <path d="M21.8 16c.2-2 .13-5.35 0-6"/>

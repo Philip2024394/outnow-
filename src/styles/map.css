@@ -189,6 +189,64 @@
   animation: none;
 }
 
+/* ── Predicted pin — user historically active at this hour but not live yet ── */
+.live-marker--predicted {
+  opacity: 0.45;
+  pointer-events: auto;
+}
+
+.live-marker--predicted .live-marker__avatar {
+  border-color: rgba(255, 255, 255, 0.25);
+  filter: grayscale(0.7);
+}
+
+.live-marker__predicted-label {
+  position: absolute;
+  bottom: -18px;
+  left: 50%;
+  transform: translateX(-50%);
+  white-space: nowrap;
+  font-size: 9px;
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.65);
+  background: rgba(0, 0, 0, 0.55);
+  border-radius: 6px;
+  padding: 2px 5px;
+  pointer-events: none;
+  letter-spacing: 0.01em;
+}
+
+/* ── Dating & Romance pin — rose pink ring ── */
+.live-marker--dating .live-marker__avatar {
+  border-color: #F472B6;
+  box-shadow: 0 0 0 2px var(--color-bg), 0 0 20px rgba(244, 114, 182, 0.45);
+}
+
+.live-marker--dating .live-marker__pulse {
+  border-color: #F472B6;
+}
+
+.live-marker--dating .live-marker__pulse-slow {
+  border-color: rgba(244, 114, 182, 0.4);
+}
+
+/* ── Presence streak ≥ 7 days — Verified Active pin ── */
+.live-marker--streak .live-marker__avatar {
+  border-color: #34D399;
+  border-width: 3px;
+  box-shadow: 0 0 0 2px var(--color-bg), 0 0 22px rgba(52, 211, 153, 0.5);
+}
+
+.live-marker--streak .live-marker__pulse {
+  border-color: #34D399;
+  animation-duration: 1.2s;
+}
+
+.live-marker--streak .live-marker__pulse-slow {
+  border-color: rgba(52, 211, 153, 0.4);
+  animation-duration: 2s;
+}
+
 /* Vibe colour accent on the activity badge */
 .live-marker__vibe {
   position: absolute;

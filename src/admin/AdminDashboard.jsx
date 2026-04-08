@@ -1,5 +1,8 @@
 import { useState } from 'react'
 import styles from './AdminDashboard.module.css'
+import DriversTab from './DriversTab'
+import PricingTab from './PricingTab'
+import NotificationsTab from './NotificationsTab'
 
 const LOGO_URL = 'https://ik.imagekit.io/dateme/Logo%20with%20green%20map%20pin%20element.png'
 
@@ -84,7 +87,6 @@ function StatusPill({ status }) {
 // ── Tabs ─────────────────────────────────────────────────────────────────────
 
 function OverviewTab() {
-  const activeUsers  = DEMO_USERS.filter(u => u.status === 'active').length
   const revenueToday = DEMO_TRANSACTIONS.filter(t => t.date.startsWith('2026-04-01') && t.status === 'paid')
     .reduce((s, t) => s + t.amount, 0)
   const revenueMonth = DEMO_TRANSACTIONS.filter(t => t.status === 'paid')
@@ -1416,6 +1418,9 @@ const TABS = [
   { id: 'traffic',    icon: '📈', label: 'Traffic'     },
   { id: 'venues',     icon: '📍', label: 'Venues'      },
   { id: 'businesses', icon: '🏪', label: 'Businesses'  },
+  { id: 'drivers',       icon: '🚗', label: 'Drivers'        },
+  { id: 'pricing',       icon: '💰', label: 'Pricing'        },
+  { id: 'notifications', icon: '🔔', label: 'Notifications'  },
 ]
 
 export default function AdminDashboard({ onLogout }) {
@@ -1475,6 +1480,9 @@ export default function AdminDashboard({ onLogout }) {
           {activeTab === 'traffic'     && <TrafficTab />}
           {activeTab === 'venues'      && <VenuesTab />}
           {activeTab === 'businesses'  && <BusinessesTab />}
+          {activeTab === 'drivers'       && <DriversTab />}
+          {activeTab === 'pricing'       && <PricingTab />}
+          {activeTab === 'notifications' && <NotificationsTab />}
         </div>
       </main>
     </div>
