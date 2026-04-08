@@ -153,24 +153,10 @@ const DEMO_RESTAURANTS = [
   },
 ]
 
-function fmtRp(n)     { return `Rp ${Number(n).toLocaleString('id-ID')}` }
-function fmtRpShort(n) {
-  if (n >= 1000000) return `Rp ${(n / 1000000).toFixed(1).replace('.0','') }jt`
-  if (n >= 1000)    return `Rp ${Math.round(n / 1000)}k`
-  return `Rp ${n}`
-}
 function distanceColor(km) {
   if (km <= 3) return '#8DC63F'
   if (km <= 8) return '#F5C518'
   return '#ff8c42'
-}
-
-const EVENT_LABELS = {
-  live_music:    '🎵 Live music',
-  birthday_setup:'🎂 Birthday setup',
-  private_room:  '🚪 Private room',
-  sound_system:  '🎤 Sound system',
-  party_package: '🥂 Party packages',
 }
 
 function Stars({ rating }) {
@@ -326,10 +312,6 @@ export default function RestaurantBrowseScreen({ onClose, onBackToCategories, ca
 // ── Restaurant card ───────────────────────────────────────────────────────────
 function RestaurantCard({ restaurant: r, onOpenMenu }) {
   const distColor = r.distKm != null ? distanceColor(r.distKm) : '#8DC63F'
-  const hasEvents = r.event_features?.length > 0
-  const priceRange = r.price_from && r.price_to
-    ? `${fmtRpShort(r.price_from)} – ${fmtRpShort(r.price_to)}`
-    : null
 
   return (
     <div className={styles.card}>
@@ -340,120 +322,52 @@ function RestaurantCard({ restaurant: r, onOpenMenu }) {
         style={{
           backgroundImage: r.cover_url
             ? `url("${r.cover_url}")`
-            : `linear-gradient(135deg, #151515 0%, #0d0d0d 100%)`,
+            : `linear-gradient(160deg, #1a1200 0%, #0d0d0d 100%)`,
         }}
       />
       <div className={styles.cardOverlay} />
 
-      {/* Featured badge */}
-      {r.featured_this_week && (
-        <div className={styles.featuredBadge}>⭐ Restaurant of the Week</div>
-      )}
+      {/* Top badges — minimal, one each side */}
+      <div className={styles.topBadges}>
+        <span className={`${styles.statusBadge} ${r.is_open ? styles.statusOpen : styles.statusClosed}`}>
+          <span className={styles.statusDot} />
+          {r.is_open ? 'Open' : 'Closed'}
+        </span>
 
-      {/* Open/closed badge */}
-      <div className={`${styles.statusBadge} ${r.is_open ? styles.statusOpen : styles.statusClosed}`}>
-        {r.is_open ? '● Open Now' : '● Closed'}
-        {r.is_open && r.opening_hours && (
-          <span className={styles.hoursText}> · Closes {r.opening_hours.split('–')[1]}</span>
+        {r.distKm != null && (
+          <span className={styles.distBadge} style={{ color: distColor }}>
+            🛵 {r.distKm} km
+          </span>
         )}
       </div>
 
-      {/* Delivery cost badge */}
-      {r.distKm != null && (
-        <div className={styles.deliveryBadge} style={{ color: distColor, borderColor: distColor + '55' }}>
-          🛵 {r.distKm} km · {r.deliveryFare ? `~${fmtRp(r.deliveryFare)}` : '—'}
+      {/* Hero dish image — only when a real photo is available */}
+      {r.hero_dish_url && (
+        <div className={styles.heroDishArea}>
+          <img src={r.hero_dish_url} alt={r.hero_dish_name} className={styles.heroDishImg} />
         </div>
       )}
 
-      {/* Hero dish */}
-      <div className={styles.heroDishArea}>
-        {r.hero_dish_url
-          ? <img src={r.hero_dish_url} alt={r.hero_dish_name} className={styles.heroDishImg} />
-          : (
-            <div className={styles.heroDishPlaceholder}>
-              <span className={styles.heroDishEmoji}>🍽</span>
-              {r.hero_dish_name && <span className={styles.heroDishName}>{r.hero_dish_name}</span>}
-            </div>
-          )
-        }
-      </div>
-
-      {/* Bottom info */}
+      {/* Bottom info — clean and sparse */}
       <div className={styles.cardBottom}>
-        <div className={styles.cardMain}>
+        <span className={styles.cuisinePill}>{r.cuisine_type}</span>
+        <h2 className={styles.restaurantName}>{r.name}</h2>
 
-          {/* Cuisine + price range row */}
-          <div className={styles.topPills}>
-            <div className={styles.cuisinePill}>{r.cuisine_type}</div>
-            {priceRange && (
-              <div className={styles.pricePill}>{priceRange}</div>
-            )}
-          </div>
-
-          <h2 className={styles.restaurantName}>{r.name}</h2>
-
-          {/* Rating row */}
-          <div className={styles.ratingRow}>
-            <Stars rating={r.rating} />
-            <span className={styles.ratingNum}>{r.rating ?? '—'}</span>
-            <span className={styles.ratingCount}>({r.review_count} reviews)</span>
-            {r.min_order && (
-              <span className={styles.minOrder}>· Min {fmtRpShort(r.min_order)}</span>
-            )}
-          </div>
-
-          <p className={styles.description}>{r.description}</p>
-          <p className={styles.address}>📍 {r.address}</p>
-
-          {/* Seating + catering row */}
-          {(r.seating_capacity || r.catering_available) && (
-            <div className={styles.venueRow}>
-              {r.seating_capacity && (
-                <span className={styles.venuePill}>🪑 Seats {r.seating_capacity}</span>
-              )}
-              {r.catering_available && (
-                <span className={styles.venuePill}>🍽 Catering available</span>
-              )}
-            </div>
-          )}
-
-          {/* Event features */}
-          {hasEvents && (
-            <div className={styles.eventRow}>
-              {r.event_features.slice(0, 3).map(f => (
-                <span key={f} className={styles.eventPill}>
-                  {EVENT_LABELS[f] ?? f}
-                </span>
-              ))}
-              {r.event_features.length > 3 && (
-                <span className={styles.eventPill}>+{r.event_features.length - 3} more</span>
-              )}
-            </div>
-          )}
+        <div className={styles.ratingRow}>
+          <Stars rating={r.rating} />
+          <span className={styles.ratingNum}>{r.rating ?? '—'}</span>
+          <span className={styles.ratingCount}>· {r.review_count} reviews</span>
         </div>
 
-        {/* Menu preview pills */}
-        {r.menu_items?.length > 0 && (
-          <div className={styles.menuPreview}>
-            {r.menu_items.slice(0, 3).map(item => (
-              <div key={item.id} className={styles.menuPill}>
-                <span className={styles.menuPillName}>{item.name}</span>
-                <span className={styles.menuPillPrice}>{fmtRp(item.price)}</span>
-              </div>
-            ))}
-          </div>
-        )}
+        <p className={styles.description}>{r.description}</p>
 
-        {/* CTA */}
         <button
           className={`${styles.menuBtn} ${!r.is_open ? styles.menuBtnClosed : ''}`}
           onClick={onOpenMenu}
           disabled={!r.is_open}
         >
-          {r.is_open ? '🍽 View Menu & Order' : '⏰ Currently Closed'}
+          {r.is_open ? 'View Menu & Order' : '⏰ Closed'}
         </button>
-
-        <div className={styles.swipeHint}>swipe up for next ↑</div>
       </div>
     </div>
   )
