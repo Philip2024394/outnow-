@@ -285,11 +285,6 @@ export default function CategoryDiscoveryScreen({ onClose, onSelectCategory }) {
         ))}
       </div>
 
-      {/* ── Swipe hint ───────────────────────────────────────────────────────── */}
-      <div className={styles.swipeHint}>
-        <div className={styles.swipeArrow}>↕</div>
-        <span>Swipe to explore categories</span>
-      </div>
     </div>
   )
 }
@@ -341,13 +336,6 @@ function CategoryCard({ cat, isActive, videoRef, onClick }) {
         style={{ background: `linear-gradient(to bottom, ${cat.color}22 0%, transparent 40%)` }}
       />
 
-      {/* Center emoji — scales up when active */}
-      <div className={styles.cardCenter}>
-        <div className={`${styles.emojiWrap} ${isActive ? styles.emojiActive : ''}`}>
-          <span className={styles.emoji}>{cat.emoji}</span>
-        </div>
-      </div>
-
       {/* Bottom: tagline + name + CTA */}
       <div className={styles.cardBottom}>
         <span className={styles.tagline}>{cat.tagline}</span>
@@ -363,8 +351,6 @@ function CategoryCard({ cat, isActive, videoRef, onClick }) {
             <path d="M5 12h14M12 5l7 7-7 7"/>
           </svg>
         </button>
-
-        <div className={styles.tapHint}>Tap to browse restaurants →</div>
       </div>
 
       {/* Bottom strip — glows active color when this card is visible */}
