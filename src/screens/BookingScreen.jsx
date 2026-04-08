@@ -4,6 +4,7 @@ import { useAuth } from '@/hooks/useAuth'
 import { useGuestGate } from '@/contexts/GuestGateContext'
 import {
   fetchNearbyDrivers, createBooking, expireBooking, markBookingStarted,
+  completeBooking, cancelBooking, submitDriverReview,
 } from '@/services/bookingService'
 import {
   estimateFare, formatRp, DEFAULT_ZONES, DEFAULT_SETTINGS, fetchPricingZones, fetchGlobalSettings,
@@ -177,7 +178,17 @@ export default function BookingScreen({ onClose }) {
   const [booking,        setBooking]        = useState(null)
   const [countdown,      setCountdown]      = useState(0)
   const [triedIds,       setTriedIds]       = useState([])
+  const [rideStartedAt,  setRideStartedAt]  = useState(null)
   const countdownRef = useRef(null)
+
+  // Review state
+  const [reviewStars,       setReviewStars]       = useState(0)
+  const [reviewHover,       setReviewHover]       = useState(0)
+  const [reviewComment,     setReviewComment]     = useState('')
+  const [reviewSubmitting,  setReviewSubmitting]  = useState(false)
+
+  // Cancel state
+  const [cancelReason, setCancelReason] = useState('')
 
   // Auto-fill pickup when GPS coords arrive (only if not already manually set)
   useEffect(() => {
@@ -327,7 +338,31 @@ export default function BookingScreen({ onClose }) {
   const handleRideStarted = async () => {
     clearInterval(countdownRef.current)
     if (booking) await markBookingStarted(booking.id)
-    setPhase('started')
+    setRideStartedAt(new Date())
+    setPhase('active')
+  }
+
+  const handleJourneyComplete = async () => {
+    if (booking) await completeBooking(booking.id)
+    setPhase('review')
+  }
+
+  const handleCancelRide = async (reason) => {
+    if (booking) await cancelBooking(booking.id, reason)
+    setPhase('cancelled')
+  }
+
+  const handleSubmitReview = async () => {
+    setReviewSubmitting(true)
+    await submitDriverReview({
+      bookingId: booking?.id,
+      driverId:  selectedDriver?.id,
+      userId:    user?.id ?? user?.uid,
+      stars:     reviewStars,
+      comment:   reviewComment,
+    })
+    setReviewSubmitting(false)
+    onClose()
   }
 
   useEffect(() => () => clearInterval(countdownRef.current), [])
@@ -360,24 +395,6 @@ export default function BookingScreen({ onClose }) {
       {/* Location fields */}
       <div className={styles.fieldGroup}>
         <LocationField
-          label="Pickup Location"
-          query={pickupQuery}
-          setQuery={setPickupQuery}
-          value={pickup}
-          setValue={setPickup}
-          showSuggest={showPickupSuggest}
-          setShowSuggest={setShowPickupSuggest}
-          placeholder="Enter pickup address or use GPS"
-          isPickup={true}
-          gpsLoading={gpsLoading}
-          gpsError={gpsError}
-          onGps={handleGps}
-        />
-
-        {/* Connector dot */}
-        <div className={styles.fieldConnector} />
-
-        <LocationField
           label="Destination"
           query={destQuery}
           setQuery={setDestQuery}
@@ -390,6 +407,24 @@ export default function BookingScreen({ onClose }) {
           gpsLoading={false}
           gpsError=""
           onGps={null}
+        />
+
+        {/* Connector dot */}
+        <div className={styles.fieldConnector} />
+
+        <LocationField
+          label="Pickup Location"
+          query={pickupQuery}
+          setQuery={setPickupQuery}
+          value={pickup}
+          setValue={setPickup}
+          showSuggest={showPickupSuggest}
+          setShowSuggest={setShowPickupSuggest}
+          placeholder="Enter pickup or use GPS ⊕"
+          isPickup={true}
+          gpsLoading={gpsLoading}
+          gpsError={gpsError}
+          onGps={handleGps}
         />
       </div>
 
@@ -483,15 +518,186 @@ export default function BookingScreen({ onClose }) {
     </div>
   )
 
-  const renderStarted = () => (
+  const CANCEL_REASONS = ['Driver didn\'t show', 'Wrong vehicle', 'Changed my mind', 'Safety concern', 'Other']
+  const STAR_LABELS    = ['', 'Poor', 'Below average', 'OK', 'Good', 'Excellent']
+
+  const renderActiveRide = () => (
+    <div className={styles.body}>
+      {/* Active ride card */}
+      <div className={styles.activeRideCard}>
+        <div className={styles.activeRideBadge}>Ride Active</div>
+        <div className={styles.activeRideDriver}>
+          <img
+            src={selectedDriver?.driver_type === 'car_taxi' ? CAR_IMG : BIKE_IMG}
+            alt="vehicle"
+            className={styles.activeRideVehicleImg}
+          />
+          <div className={styles.activeRideInfo}>
+            <p className={styles.activeRideName}>{selectedDriver?.display_name}</p>
+            <p className={styles.activeRideType}>{selectedDriver?.driver_type === 'car_taxi' ? '🚗 Car Taxi' : '🛵 Bike Ride'}</p>
+            <div className={styles.activeRideStars}>
+              {'★'.repeat(Math.floor(selectedDriver?.rating ?? 4.8))}
+              <span className={styles.activeRideRatingNum}> {selectedDriver?.rating ?? '4.8'}</span>
+            </div>
+          </div>
+        </div>
+
+        {/* Trip summary */}
+        <div className={styles.activeRideTripCard}>
+          <div className={styles.activeRideTripRow}>
+            <span className={`${styles.locationDot} ${styles.locationDotGreen}`} />
+            <span className={styles.activeRideTripText}>{pickup?.address ?? 'Pickup location'}</span>
+          </div>
+          <div className={styles.activeRideTripConnector} />
+          <div className={styles.activeRideTripRow}>
+            <span className={`${styles.locationDot} ${styles.locationDotRed}`} />
+            <span className={styles.activeRideTripText}>{destination?.address ?? 'Destination'}</span>
+          </div>
+          <div className={styles.activeRideTripMeta}>
+            <span>{formatRp(fare)}</span>
+            <span>{distanceKm} km</span>
+          </div>
+        </div>
+      </div>
+
+      {/* WhatsApp re-open */}
+      <a
+        className={styles.whatsappBtn}
+        href={`https://wa.me/${selectedDriver?.phone ?? ''}?text=${encodeURIComponent(`Hi ${selectedDriver?.display_name}, I'm on my way!`)}`}
+        target="_blank"
+        rel="noreferrer"
+      >
+        💬 Open WhatsApp
+      </a>
+
+      {/* Actions */}
+      <button className={styles.completeBtn} onClick={handleJourneyComplete}>
+        ✓ Journey Completed
+      </button>
+      <button className={styles.cancelRideBtn} onClick={() => setPhase('cancelling')}>
+        Cancel Ride
+      </button>
+    </div>
+  )
+
+  const renderCancelling = () => (
     <div className={styles.centered}>
-      <span className={styles.successIcon}>✅</span>
-      <p className={styles.successTitle}>Ride Started!</p>
-      <p className={styles.successSub}>Your driver {selectedDriver?.display_name} is on the way. Enjoy your ride!</p>
-      <p className={styles.bookingId}>Booking: {booking?.id}</p>
+      <span className={styles.cancelIcon}>✕</span>
+      <p className={styles.cancelTitle}>Cancel ride?</p>
+      <p className={styles.cancelSub}>Let us know why — takes 2 seconds</p>
+      <div className={styles.cancelReasonGrid}>
+        {CANCEL_REASONS.map(r => (
+          <button
+            key={r}
+            className={`${styles.cancelReason} ${cancelReason === r ? styles.cancelReasonActive : ''}`}
+            onClick={() => setCancelReason(r)}
+          >{r}</button>
+        ))}
+      </div>
+      <button
+        className={styles.confirmCancelBtn}
+        onClick={() => handleCancelRide(cancelReason)}
+      >
+        Confirm Cancel
+      </button>
+      <button className={styles.backToSelectBtn} onClick={() => setPhase('active')}>
+        Keep my ride
+      </button>
+    </div>
+  )
+
+  const renderCancelled = () => (
+    <div className={styles.centered}>
+      <span className={styles.cancelIcon}>✕</span>
+      <p className={styles.cancelTitle}>Ride Cancelled</p>
+      <p className={styles.cancelSub}>Sorry it didn't work out. Try booking again anytime.</p>
       <button className={styles.doneBtn} onClick={onClose}>Done</button>
     </div>
   )
+
+  const renderReview = () => {
+    const activeStars = reviewHover || reviewStars
+    return (
+      <div className={styles.body}>
+        <div className={styles.reviewCard}>
+          {/* Driver */}
+          <div className={styles.reviewDriver}>
+            <img
+              src={selectedDriver?.driver_type === 'car_taxi' ? CAR_IMG : BIKE_IMG}
+              alt="driver"
+              className={styles.reviewDriverImg}
+            />
+            <div>
+              <p className={styles.reviewDriverName}>{selectedDriver?.display_name}</p>
+              <p className={styles.reviewDriverType}>{selectedDriver?.driver_type === 'car_taxi' ? '🚗 Car Taxi' : '🛵 Bike Ride'}</p>
+            </div>
+          </div>
+
+          {/* Trip receipt */}
+          <div className={styles.reviewReceipt}>
+            <div className={styles.reviewReceiptRow}>
+              <span className={styles.reviewReceiptLabel}>From</span>
+              <span className={styles.reviewReceiptValue}>{pickup?.label ?? 'Pickup'}</span>
+            </div>
+            <div className={styles.reviewReceiptRow}>
+              <span className={styles.reviewReceiptLabel}>To</span>
+              <span className={styles.reviewReceiptValue}>{destination?.label ?? 'Destination'}</span>
+            </div>
+            <div className={styles.reviewReceiptRow}>
+              <span className={styles.reviewReceiptLabel}>Fare</span>
+              <span className={styles.reviewReceiptValue}>{formatRp(fare)}</span>
+            </div>
+            <div className={styles.reviewReceiptRow}>
+              <span className={styles.reviewReceiptLabel}>Distance</span>
+              <span className={styles.reviewReceiptValue}>{distanceKm} km</span>
+            </div>
+          </div>
+        </div>
+
+        {/* Stars */}
+        <div className={styles.reviewStarsCard}>
+          <p className={styles.reviewAsk}>Rate your driver</p>
+          <div className={styles.reviewStarsRow}>
+            {[1,2,3,4,5].map(n => (
+              <button
+                key={n}
+                className={`${styles.reviewStar} ${n <= activeStars ? styles.reviewStarActive : ''}`}
+                onClick={() => setReviewStars(n)}
+                onMouseEnter={() => setReviewHover(n)}
+                onMouseLeave={() => setReviewHover(0)}
+              >★</button>
+            ))}
+          </div>
+          {activeStars > 0 && (
+            <p className={styles.reviewStarLabel}>{STAR_LABELS[activeStars]}</p>
+          )}
+        </div>
+
+        {/* Comment — show after star selected */}
+        {reviewStars > 0 && (
+          <textarea
+            className={styles.reviewComment}
+            value={reviewComment}
+            onChange={e => setReviewComment(e.target.value)}
+            placeholder="Add a comment (optional)…"
+            rows={3}
+            maxLength={300}
+          />
+        )}
+
+        <button
+          className={styles.submitReviewBtn}
+          onClick={handleSubmitReview}
+          disabled={!reviewStars || reviewSubmitting}
+        >
+          {reviewSubmitting ? 'Saving…' : 'Submit Review'}
+        </button>
+        <button className={styles.skipReviewBtn} onClick={onClose}>
+          Skip — close
+        </button>
+      </div>
+    )
+  }
 
   return (
     <div className={styles.screen}>
@@ -511,12 +717,15 @@ export default function BookingScreen({ onClose }) {
         <AuthWall onClose={onClose} onSignUp={openSignUp} />
       ) : (
         <>
-          {phase === 'select'    && renderSelect()}
-          {phase === 'searching' && renderSearching()}
-          {phase === 'choose'    && renderChoose()}
-          {phase === 'waiting'   && renderWaiting()}
-          {phase === 'expired'   && renderExpired()}
-          {phase === 'started'   && renderStarted()}
+          {phase === 'select'     && renderSelect()}
+          {phase === 'searching'  && renderSearching()}
+          {phase === 'choose'     && renderChoose()}
+          {phase === 'waiting'    && renderWaiting()}
+          {phase === 'expired'    && renderExpired()}
+          {phase === 'active'     && renderActiveRide()}
+          {phase === 'cancelling' && renderCancelling()}
+          {phase === 'cancelled'  && renderCancelled()}
+          {phase === 'review'     && renderReview()}
         </>
       )}
     </div>

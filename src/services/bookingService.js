@@ -104,6 +104,43 @@ export async function expireBooking(bookingId) {
 export async function markBookingStarted(bookingId) {
   if (!supabase) return
   await supabase.from('bookings')
-    .update({ status: 'accepted', completed_at: new Date().toISOString() })
+    .update({ status: 'accepted', started_at: new Date().toISOString() })
     .eq('id', bookingId)
+}
+
+export async function completeBooking(bookingId) {
+  if (!supabase) return
+  await supabase.from('bookings')
+    .update({ status: 'completed', completed_at: new Date().toISOString() })
+    .eq('id', bookingId)
+}
+
+export async function cancelBooking(bookingId, reason = '') {
+  if (!supabase) return
+  await supabase.from('bookings')
+    .update({ status: 'cancelled', cancel_reason: reason, completed_at: new Date().toISOString() })
+    .eq('id', bookingId)
+}
+
+export async function submitDriverReview({ bookingId, driverId, userId, stars, comment = '' }) {
+  if (!supabase) return
+  await supabase.from('driver_reviews').insert({
+    booking_id:  bookingId,
+    driver_id:   driverId,
+    user_id:     userId,
+    stars,
+    comment,
+    created_at:  new Date().toISOString(),
+  })
+  // Recalculate driver's average rating
+  const { data } = await supabase
+    .from('driver_reviews')
+    .select('stars')
+    .eq('driver_id', driverId)
+  if (data?.length) {
+    const avg = data.reduce((s, r) => s + r.stars, 0) / data.length
+    await supabase.from('profiles')
+      .update({ rating: Math.round(avg * 10) / 10 })
+      .eq('id', driverId)
+  }
 }
