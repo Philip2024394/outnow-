@@ -9,7 +9,7 @@ import styles from './CategoryDiscoveryScreen.module.css'
 export const FOOD_CATEGORIES = [
   {
     id: 'all',
-    label: 'All MAKAN',
+    label: 'MAKAN',
     emoji: '🍽',
     tagline: 'Everything near you',
     color: '#F5C518',
