@@ -79,12 +79,14 @@ export default function RestaurantDashboard({ userId, onClose }) {
   const [eventFeatures,setEventFeatures] = useState([])
 
   // ── Business / payment fields ──
-  const [bankName,    setBankName]    = useState('')
-  const [bankAccount, setBankAccount] = useState('')
-  const [bankHolder,  setBankHolder]  = useState('')
-  const [instagram,   setInstagram]   = useState('')
-  const [tiktok,      setTiktok]      = useState('')
-  const [facebook,    setFacebook]    = useState('')
+  const [bankName,            setBankName]            = useState('')
+  const [bankAccount,         setBankAccount]         = useState('')
+  const [bankHolder,          setBankHolder]          = useState('')
+  const [instagram,           setInstagram]           = useState('')
+  const [tiktok,              setTiktok]              = useState('')
+  const [facebook,            setFacebook]            = useState('')
+  const [repeatDiscount,      setRepeatDiscount]      = useState('')
+  const [repeatWindowDays,    setRepeatWindowDays]    = useState('3')
 
   // ── Menu fields ──
   const [menuItems,    setMenuItems]    = useState([])
@@ -132,6 +134,8 @@ export default function RestaurantDashboard({ userId, onClose }) {
       setInstagram(data.instagram ?? '')
       setTiktok(data.tiktok ?? '')
       setFacebook(data.facebook ?? '')
+      setRepeatDiscount(data.repeat_discount_percent ? String(data.repeat_discount_percent) : '')
+      setRepeatWindowDays(data.repeat_discount_days ? String(data.repeat_discount_days) : '3')
       setMenuItems(data.menu_items ?? [])
     }
     setLoading(false)
@@ -212,12 +216,14 @@ export default function RestaurantDashboard({ userId, onClose }) {
     if (!supabase || !restaurant?.id) return showToast('Save profile first')
     setSaving(true)
     await supabase.from('restaurants').update({
-      bank_name:           bankName   || null,
-      bank_account_number: bankAccount || null,
-      bank_account_holder: bankHolder  || null,
-      instagram: instagram || null,
-      tiktok:    tiktok    || null,
-      facebook:  facebook  || null,
+      bank_name:              bankName    || null,
+      bank_account_number:    bankAccount || null,
+      bank_account_holder:    bankHolder  || null,
+      instagram:              instagram   || null,
+      tiktok:                 tiktok      || null,
+      facebook:               facebook    || null,
+      repeat_discount_percent: repeatDiscount    ? Number(repeatDiscount)    : null,
+      repeat_discount_days:    repeatWindowDays  ? Number(repeatWindowDays)  : null,
       updated_at: new Date().toISOString(),
     }).eq('id', restaurant.id)
     showToast('Business details saved ✓')
@@ -471,6 +477,18 @@ export default function RestaurantDashboard({ userId, onClose }) {
                     <span className={styles.bankPreviewBank}>{bankName}</span>
                     <span className={styles.bankPreviewNum}>{bankAccount}</span>
                     <span className={styles.bankPreviewHolder}>{bankHolder}</span>
+                  </div>
+                )}
+              </Section>
+
+              <Section title="Repeat Order Discount" hint="Shown on your listing — rewards customers who return within the window">
+                <div className={styles.row2}>
+                  <Field label="Discount %" value={repeatDiscount} onChange={setRepeatDiscount} placeholder="e.g. 10" type="number" />
+                  <Field label="Within (days)" value={repeatWindowDays} onChange={setRepeatWindowDays} placeholder="3" type="number" />
+                </div>
+                {repeatDiscount && (
+                  <div className={styles.repeatPreview}>
+                    🔁 Order again within {repeatWindowDays || 3} days — get {repeatDiscount}% off
                   </div>
                 )}
               </Section>

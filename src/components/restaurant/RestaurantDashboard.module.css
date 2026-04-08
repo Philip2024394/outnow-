@@ -310,3 +310,9 @@
 .bankPreviewBank   { font-size: 13px; font-weight: 900; color: #fff; letter-spacing: 0.04em; }
 .bankPreviewNum    { font-size: 18px; font-weight: 700; color: #fff; letter-spacing: 0.1em; font-variant-numeric: tabular-nums; }
 .bankPreviewHolder { font-size: 12px; font-weight: 800; color: rgba(255,255,255,0.7); }
+
+.repeatPreview {
+  font-size: 12px; font-weight: 800; color: #8DC63F;
+  background: rgba(141,198,63,0.08); border: 1px solid rgba(141,198,63,0.2);
+  border-radius: 10px; padding: 10px 12px;
+}

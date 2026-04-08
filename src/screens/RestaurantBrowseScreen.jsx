@@ -160,6 +160,57 @@ const DEMO_RESTAURANTS = [
 ]
 
 
+// ── Countdown helpers ─────────────────────────────────────────────────────────
+function parseOpenTime(openingHours) {
+  const part = (openingHours ?? '').split('–')[0].trim()
+  const [h, m] = part.split(':').map(Number)
+  return isNaN(h) ? null : { h, m }
+}
+
+function secsUntilOpen(openingHours) {
+  const t = parseOpenTime(openingHours)
+  if (!t) return null
+  const now    = new Date()
+  const target = new Date(now)
+  target.setHours(t.h, t.m, 0, 0)
+  if (target <= now) target.setDate(target.getDate() + 1)
+  return Math.max(0, Math.floor((target - now) / 1000))
+}
+
+function fmtCountdown(secs) {
+  if (secs == null) return null
+  const h = Math.floor(secs / 3600)
+  const m = Math.floor((secs % 3600) / 60)
+  return `${h} hr ${String(m).padStart(2,'0')} min`
+}
+
+// ── Sales algorithm — scores each restaurant ──────────────────────────────────
+// Higher score = shown earlier in the snap-scroll list
+function scoreRestaurant(r, hour) {
+  let s = 0
+  if (r.is_open)            s += 10000          // open always beats closed
+  if (r.featured_this_week) s += 500
+  s += (r.rating ?? 0) * 60                     // 4.9 = +294
+
+  // Time-of-day affinity — match category to meal period
+  const cat = r.category
+  if (hour >= 5  && hour < 11 && cat === 'breakfast') s += 800
+  if (hour >= 10 && hour < 15 && (cat === 'rice' || cat === 'noodles')) s += 400
+  if (hour >= 11 && hour < 16 && cat === 'grilled')   s += 300
+  if (hour >= 14 && hour < 17 && cat === 'snacks')    s += 350
+  if (hour >= 17 && hour < 23 && (cat === 'seafood' || cat === 'grilled')) s += 400
+  if ((hour >= 20 || hour < 2) && cat === 'drinks')   s += 300
+  if (hour >= 9  && hour < 21 && cat === 'burgers')   s += 200
+
+  // Proximity bonus (max 200pts for <1 km)
+  if (r.distKm != null) s += Math.max(0, 200 - r.distKm * 40)
+
+  // Repeat-order discount set = restaurant is actively incentivising returns
+  if (r.repeat_discount_percent > 0) s += 150
+
+  return s
+}
+
 function Stars({ rating }) {
   const full = Math.floor(rating ?? 0)
   const half = (rating ?? 0) - full >= 0.5
@@ -176,8 +227,15 @@ export default function RestaurantBrowseScreen({ onClose, onBackToCategories, ca
   const [loading,        setLoading]        = useState(true)
   const [activeIndex,    setActiveIndex]    = useState(0)
   const [menuRestaurant, setMenuRestaurant] = useState(null)
+  const [tick,           setTick]           = useState(0)
   const containerRef = useRef(null)
   const { coords }   = useGeolocation()
+
+  // Tick every 30s so countdown timers stay live
+  useEffect(() => {
+    const id = setInterval(() => setTick(t => t + 1), 30000)
+    return () => clearInterval(id)
+  }, [])
 
   useEffect(() => {
     const load = async () => {
@@ -204,7 +262,10 @@ export default function RestaurantBrowseScreen({ onClose, onBackToCategories, ca
     load()
   }, [category])
 
-  // Enrich with distance + delivery fare, sort nearest first
+  // Enrich with distance + delivery fare, then score and sort
+  // open restaurants first, within each group sorted by algorithm score
+  const hour = new Date().getHours()
+  void tick // consumed here so countdown interval triggers re-score
   const enriched = restaurants
     .map(r => {
       const distKm = coords && r.lat && r.lng
@@ -212,7 +273,7 @@ export default function RestaurantBrowseScreen({ onClose, onBackToCategories, ca
         : null
       return { ...r, distKm, deliveryFare: calcDeliveryFare(distKm) }
     })
-    .sort((a, b) => (a.distKm ?? 99) - (b.distKm ?? 99))
+    .sort((a, b) => scoreRestaurant(b, hour) - scoreRestaurant(a, hour))
 
   // Track visible card on scroll
   const handleScroll = () => {
@@ -309,6 +370,7 @@ export default function RestaurantBrowseScreen({ onClose, onBackToCategories, ca
 // ── Restaurant card ───────────────────────────────────────────────────────────
 function RestaurantCard({ restaurant: r, onOpenMenu }) {
   const [openTime, closeTime] = (r.opening_hours ?? '').split('–')
+  const countdown = !r.is_open ? fmtCountdown(secsUntilOpen(r.opening_hours)) : null
 
   return (
     <div className={styles.card}>
@@ -359,6 +421,19 @@ function RestaurantCard({ restaurant: r, onOpenMenu }) {
         </div>
 
         <p className={styles.description}>{r.description}</p>
+
+        {r.repeat_discount_percent > 0 && r.is_open && (
+          <div className={styles.repeatBadge}>
+            🔁 Order again within {r.repeat_discount_days ?? 3} days — {r.repeat_discount_percent}% off
+          </div>
+        )}
+
+        {!r.is_open && countdown && (
+          <div className={styles.countdown}>
+            <span className={styles.countdownLabel}>Opening in</span>
+            <span className={styles.countdownTime}>{countdown}</span>
+          </div>
+        )}
 
         <button
           className={`${styles.menuBtn} ${!r.is_open ? styles.menuBtnClosed : ''}`}

@@ -84,6 +84,20 @@ export default function RestaurantMenuSheet({ restaurant, onClose }) {
   const itemRefs    = useRef([])
   const collapseRef = useRef(null)
 
+  // ── Cart persistence — restore on mount, save on change, auto-clear 24 h ──
+  const CART_KEY = `makan_cart_${restaurant.id}`
+  const CART_TTL = 24 * 60 * 60 * 1000
+  useEffect(() => {
+    try {
+      const saved = JSON.parse(localStorage.getItem(CART_KEY))
+      if (saved && Date.now() - saved.ts < CART_TTL) setCart(saved.cart)
+    } catch {}
+  }, []) // eslint-disable-line react-hooks/exhaustive-deps
+  useEffect(() => {
+    if (cart.length > 0) localStorage.setItem(CART_KEY, JSON.stringify({ cart, ts: Date.now() }))
+    else localStorage.removeItem(CART_KEY)
+  }, [cart]) // eslint-disable-line react-hooks/exhaustive-deps
+
   // Filter items by active category
   const visibleItems = activeCategory
     ? items.filter(i => i.category === activeCategory)
@@ -163,6 +177,22 @@ export default function RestaurantMenuSheet({ restaurant, onClose }) {
     if (!showAddrInput) { setShowAddrInput(true); return }
     const { msg, ref } = buildWhatsAppMessage(restaurant, cart, address, deliveryFare, maxPrepMin)
     window.open(`https://wa.me/${restaurant.phone}?text=${encodeURIComponent(msg)}`, '_blank')
+    // Record pending review — 1 per restaurant per 24 h
+    const reviewKey = `makan_review_${restaurant.id}`
+    const lastReview = JSON.parse(localStorage.getItem(reviewKey) || 'null')
+    if (!lastReview || Date.now() - lastReview.ts > 24 * 60 * 60 * 1000) {
+      localStorage.setItem(reviewKey, JSON.stringify({
+        restaurantId:   restaurant.id,
+        restaurantName: restaurant.name,
+        orderRef:       ref,
+        ts:             Date.now(),
+        reviewed:       false,
+      }))
+      window.dispatchEvent(new CustomEvent('makan:review-pending', {
+        detail: { restaurantId: restaurant.id, restaurantName: restaurant.name, orderRef: ref }
+      }))
+    }
+
     const hasBank = restaurant.bank_name && restaurant.bank_account_number && restaurant.bank_account_holder
     if (hasBank) {
       setPaymentData({ total: grandTotal, orderRef: ref })

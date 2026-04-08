@@ -166,6 +166,27 @@
   margin-top: 4px;
 }
 .menuBtn:active:not(:disabled) { transform: scale(0.98); opacity: 0.9; }
+/* ── Repeat order discount badge ─────────────────────────────────────────────── */
+.repeatBadge {
+  font-size: 11px; font-weight: 800; color: #8DC63F;
+  background: rgba(141,198,63,0.1); border: 1px solid rgba(141,198,63,0.25);
+  border-radius: 100px; padding: 6px 12px; width: fit-content;
+}
+
+/* ── Closed countdown ────────────────────────────────────────────────────────── */
+.countdown {
+  display: flex; flex-direction: column; align-items: center; gap: 2px;
+  padding: 10px 0 4px;
+}
+.countdownLabel {
+  font-size: 11px; font-weight: 700; color: rgba(255,255,255,0.3);
+  text-transform: uppercase; letter-spacing: 0.08em;
+}
+.countdownTime {
+  font-size: 24px; font-weight: 900; color: #fff;
+  letter-spacing: -0.03em; font-variant-numeric: tabular-nums;
+}
+
 .menuBtnClosed {
   background: rgba(255,255,255,0.07);
   color: rgba(255,255,255,0.25);
