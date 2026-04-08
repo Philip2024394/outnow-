@@ -3,6 +3,7 @@ import styles from './AdminDashboard.module.css'
 import DriversTab from './DriversTab'
 import PricingTab from './PricingTab'
 import NotificationsTab from './NotificationsTab'
+import BookingsTab from './BookingsTab'
 
 const LOGO_URL = 'https://ik.imagekit.io/dateme/Logo%20with%20green%20map%20pin%20element.png'
 
@@ -1419,6 +1420,7 @@ const TABS = [
   { id: 'venues',     icon: '📍', label: 'Venues'      },
   { id: 'businesses', icon: '🏪', label: 'Businesses'  },
   { id: 'drivers',       icon: '🚗', label: 'Drivers'        },
+  { id: 'bookings',      icon: '📋', label: 'Bookings'       },
   { id: 'pricing',       icon: '💰', label: 'Pricing'        },
   { id: 'notifications', icon: '🔔', label: 'Notifications'  },
 ]
@@ -1481,6 +1483,7 @@ export default function AdminDashboard({ onLogout }) {
           {activeTab === 'venues'      && <VenuesTab />}
           {activeTab === 'businesses'  && <BusinessesTab />}
           {activeTab === 'drivers'       && <DriversTab />}
+          {activeTab === 'bookings'      && <BookingsTab />}
           {activeTab === 'pricing'       && <PricingTab />}
           {activeTab === 'notifications' && <NotificationsTab />}
         </div>

@@ -28,6 +28,7 @@ export default function DriverDocumentUpload({ userId, driverType }) {
   const [uploadErrors, setUploadErrors] = useState({})      // docKey → message
   const [submitting,   setSubmitting]   = useState(false)
   const [submitError,  setSubmitError]  = useState(null)
+  const [termsAccepted, setTermsAccepted] = useState(false)
   const inputRefs = useRef({})
 
   // Load existing application on mount
@@ -40,7 +41,7 @@ export default function DriverDocumentUpload({ userId, driverType }) {
   }, [userId])
 
   const allUploaded = DOCS.every(d => !!urls[d.key])
-  const canSubmit   = allUploaded && !submitting
+  const canSubmit   = allUploaded && termsAccepted && !submitting
 
   const handleFileChange = async (docKey, file) => {
     if (!file) return
@@ -178,6 +179,183 @@ export default function DriverDocumentUpload({ userId, driverType }) {
         })}
       </div>
 
+      {/* ── Driver Terms & Conditions ── */}
+      <div className={styles.termsWrap}>
+        <div className={styles.termsHeader}>
+          <span className={styles.termsHeaderIcon}>📋</span>
+          <span className={styles.termsHeaderTitle}>Driver Terms &amp; Conditions</span>
+          <span className={styles.termsHeaderSub}>PT Hammerex Products Indonesia — trading as Hangger</span>
+        </div>
+
+        <div className={styles.termsScroll}>
+          <p className={styles.termsPreamble}>
+            These Terms and Conditions (&ldquo;Agreement&rdquo;) govern your registration and use of the Hangger
+            platform as a driver partner. This Agreement is entered into between you (&ldquo;Driver Partner&rdquo;)
+            and <strong>PT Hammerex Products Indonesia</strong>, a company duly incorporated under the laws of the
+            Republic of Indonesia, operating the Hangger ride-hailing application
+            (&ldquo;Hangger&rdquo; / &ldquo;the Platform&rdquo;). By submitting this application you confirm you
+            have read, understood, and agree to be legally bound by every clause below.
+          </p>
+
+          <div className={styles.termsSection}>
+            <h4 className={styles.termsSectionTitle}>1. Platform Nature — Technology Service Only</h4>
+            <p>
+              Hangger is a technology platform that connects passengers and senders with independent driver
+              partners. <strong>PT Hammerex Products Indonesia does not provide transportation or logistics
+              services and is not a transport operator.</strong> Hangger acts solely as an intermediary
+              technology provider. All transportation services are provided exclusively by you, the Driver
+              Partner, in your own capacity.
+            </p>
+          </div>
+
+          <div className={styles.termsSection}>
+            <h4 className={styles.termsSectionTitle}>2. Independent Contractor Status</h4>
+            <p>
+              You acknowledge and agree that your relationship with PT Hammerex Products Indonesia is that
+              of an <strong>independent contractor (mitra pengemudi)</strong>, not an employee, agent, joint
+              venture partner, or representative of the company. Nothing in this Agreement shall be construed
+              to create any employment, agency, partnership, or franchise relationship. Hangger has no
+              obligation to provide minimum earnings, guaranteed hours, benefits, pension contributions,
+              health insurance, severance pay, or any other employment entitlement under Indonesian Manpower
+              Law (Undang-Undang Ketenagakerjaan) or any applicable regulation.
+            </p>
+          </div>
+
+          <div className={styles.termsSection}>
+            <h4 className={styles.termsSectionTitle}>3. Tax &amp; Government Obligations (Indonesian Law)</h4>
+            <p>
+              As an independent contractor operating in the Republic of Indonesia, <strong>you are solely and
+              fully responsible</strong> for all tax obligations arising from your activities on the platform,
+              including but not limited to:
+            </p>
+            <ul className={styles.termsList}>
+              <li>Income tax (Pajak Penghasilan / PPh) on all earnings received through the platform, in
+                accordance with the Indonesian Income Tax Law (UU No. 7 Tahun 1983 and its amendments).</li>
+              <li>Registration with the Indonesian tax authority (Direktorat Jenderal Pajak) and obtaining a
+                Tax Identification Number (NPWP) where required by law.</li>
+              <li>Any social security contributions (BPJS Ketenagakerjaan / BPJS Kesehatan) as required for
+                self-employed individuals under Indonesian law.</li>
+              <li>Any other government fees, levies, or regulatory charges applicable to your ride-hailing
+                activities.</li>
+            </ul>
+            <p>
+              <strong>PT Hammerex Products Indonesia bears no liability whatsoever for your personal tax
+              obligations.</strong> Hangger will not withhold, file, or remit taxes on your behalf unless
+              required to do so by applicable Indonesian law.
+            </p>
+          </div>
+
+          <div className={styles.termsSection}>
+            <h4 className={styles.termsSectionTitle}>4. Account Exclusivity — No Account Sharing</h4>
+            <p>
+              Your Hangger Driver account is strictly personal and non-transferable. <strong>You must not
+              allow any other individual to access, operate, or use your Hangger driver account under any
+              circumstances</strong>, including but not limited to allowing another person to accept rides,
+              go online, or communicate with passengers using your account. Any such sharing constitutes a
+              material breach of this Agreement and will result in immediate permanent suspension without
+              appeal. Any exception requires prior written authorisation from Hangger admin, which may be
+              granted or refused at Hangger&apos;s sole discretion. You accept full legal liability for all
+              activity conducted through your account.
+            </p>
+          </div>
+
+          <div className={styles.termsSection}>
+            <h4 className={styles.termsSectionTitle}>5. Vehicle Roadworthiness &amp; Safety</h4>
+            <p>
+              You warrant and represent that your vehicle:
+            </p>
+            <ul className={styles.termsList}>
+              <li>Is currently roadworthy and meets all Indonesian road-safety standards (SNI) at all times
+                while on the platform.</li>
+              <li>Holds a valid STNK (Surat Tanda Nomor Kendaraan) and passes all applicable KIR (Uji Berkala
+                Kendaraan) inspections where required.</li>
+              <li>Is free from any mechanical malfunction, defect, or condition that could endanger the
+                safety of passengers, cargo, or other road users.</li>
+              <li>Is adequately insured as required under Indonesian law.</li>
+            </ul>
+            <p>
+              You agree to immediately cease operations on the Hangger platform if your vehicle becomes
+              unroadworthy or unsafe for any reason. <strong>PT Hammerex Products Indonesia accepts no
+              liability for accidents, injuries, losses, or claims arising from the mechanical condition
+              or roadworthiness of your vehicle.</strong>
+            </p>
+          </div>
+
+          <div className={styles.termsSection}>
+            <h4 className={styles.termsSectionTitle}>6. Compliance with Indonesian Law</h4>
+            <p>
+              You agree to comply with all applicable Indonesian laws and regulations at all times while
+              using the Hangger platform, including traffic laws, ride-hailing regulations (Permenhub),
+              passenger data privacy obligations (UU PDP), and consumer protection regulations (UU
+              Perlindungan Konsumen). Any violation of applicable law is your sole responsibility.
+            </p>
+          </div>
+
+          <div className={styles.termsSection}>
+            <h4 className={styles.termsSectionTitle}>7. Limitation of Liability</h4>
+            <p>
+              To the maximum extent permitted by applicable Indonesian law, <strong>PT Hammerex Products
+              Indonesia, its directors, officers, employees, and affiliates shall not be liable</strong> for
+              any direct, indirect, incidental, special, consequential, or punitive damages arising out of
+              or in connection with your use of the Hangger platform, including but not limited to loss of
+              income, loss of data, personal injury, property damage, or third-party claims.
+            </p>
+          </div>
+
+          <div className={styles.termsSection}>
+            <h4 className={styles.termsSectionTitle}>8. Platform Suspension &amp; Termination</h4>
+            <p>
+              PT Hammerex Products Indonesia reserves the right to suspend or permanently terminate your
+              Driver account at any time, with or without notice, if you breach any term of this Agreement,
+              receive sustained low ratings, engage in fraudulent or abusive conduct, or for any other reason
+              at Hangger&apos;s sole discretion. No compensation is owed for suspension or termination.
+            </p>
+          </div>
+
+          <div className={styles.termsSection}>
+            <h4 className={styles.termsSectionTitle}>9. Governing Law &amp; Dispute Resolution</h4>
+            <p>
+              This Agreement shall be governed by and construed in accordance with the laws of the Republic
+              of Indonesia. Any dispute arising out of or in connection with this Agreement shall be subject
+              to the exclusive jurisdiction of the competent courts of Indonesia. PT Hammerex Products
+              Indonesia reserves the right to seek injunctive or other equitable relief in any court of
+              competent jurisdiction.
+            </p>
+          </div>
+
+          <div className={styles.termsSection}>
+            <h4 className={styles.termsSectionTitle}>10. Amendments</h4>
+            <p>
+              PT Hammerex Products Indonesia may amend these Terms at any time. Continued use of the Hangger
+              platform after notification of amendments constitutes your acceptance of the revised terms.
+            </p>
+          </div>
+
+          <p className={styles.termsFooter}>
+            <strong>PT Hammerex Products Indonesia</strong> — Registered company in the Republic of Indonesia.
+            Trading as <strong>Hangger</strong>. All rights reserved.
+          </p>
+        </div>
+
+        {/* Acceptance checkbox */}
+        <label className={styles.termsCheck}>
+          <input
+            type="checkbox"
+            className={styles.termsCheckInput}
+            checked={termsAccepted}
+            onChange={e => setTermsAccepted(e.target.checked)}
+          />
+          <span className={styles.termsCheckBox} aria-hidden="true">
+            {termsAccepted ? '✓' : ''}
+          </span>
+          <span className={styles.termsCheckLabel}>
+            I have read and fully agree to the Hangger Driver Terms &amp; Conditions. I understand I am an
+            independent contractor, solely responsible for my tax obligations, and that PT Hammerex Products
+            Indonesia does not employ me.
+          </span>
+        </label>
+      </div>
+
       {submitError && <p className={styles.submitError}>{submitError}</p>}
 
       <button
@@ -185,7 +363,7 @@ export default function DriverDocumentUpload({ userId, driverType }) {
         onClick={handleSubmit}
         disabled={!canSubmit}
       >
-        {submitting ? 'Submitting…' : `Submit Application (${Object.keys(urls).length}/5 uploaded)`}
+        {submitting ? 'Submitting…' : allUploaded && !termsAccepted ? 'Accept Terms to Submit' : `Submit Application (${Object.keys(urls).length}/5 uploaded)`}
       </button>
     </div>
   )

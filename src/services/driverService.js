@@ -49,6 +49,39 @@ export async function submitDriverApplication(userId, driverType, documentUrls) 
 }
 
 /**
+ * Upload a go-online selfie to Supabase Storage, log it, and update the profile.
+ * Returns the public URL. Falls back gracefully if Supabase is not configured.
+ */
+export async function uploadGoOnlineSelfie(userId, blob) {
+  if (!supabase) return null
+  const path = `${userId}/${Date.now()}.jpg`
+
+  const { error: uploadErr } = await supabase.storage
+    .from('driver-selfies')
+    .upload(path, blob, { contentType: 'image/jpeg', upsert: false })
+
+  if (uploadErr) throw new Error(uploadErr.message)
+
+  const { data: { publicUrl } } = supabase.storage
+    .from('driver-selfies')
+    .getPublicUrl(path)
+
+  // Store on profile for quick admin access
+  await supabase.from('profiles').update({
+    last_selfie_url: publicUrl,
+    last_selfie_at:  new Date().toISOString(),
+  }).eq('id', userId)
+
+  // Audit log
+  await supabase.from('driver_selfie_logs').insert({
+    driver_id:  userId,
+    selfie_url: publicUrl,
+  })
+
+  return publicUrl
+}
+
+/**
  * Fetch the current driver application for a user (null if none).
  */
 export async function getDriverApplication(userId) {

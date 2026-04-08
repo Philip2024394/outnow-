@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback } from 'react'
 import { supabase } from '@/lib/supabase'
+import { ZONE_INFO, formatRp } from '@/services/pricingService'
 import styles from './DriversTab.module.css'
 
 const DOC_LABELS = {
@@ -57,7 +58,7 @@ export default function DriversTab() {
     }
     const { data, error } = await supabase
       .from('driver_applications')
-      .select(`*, profile:profiles(display_name, city, photo_url)`)
+      .select(`*, profile:profiles(display_name, city, photo_url, last_selfie_url, last_selfie_at)`)
       .order('created_at', { ascending: false })
 
     if (error) {
@@ -108,6 +109,39 @@ export default function DriversTab() {
 
   const handleResubmit = (app) => updateStatus(app.id, app.user_id, 'pending', 'Resubmission requested by admin')
 
+  const handleDeactivate = async (app) => {
+    setActionLoading(app.id)
+    try {
+      if (supabase) {
+        await supabase.from('profiles')
+          .update({ is_driver: false, driver_online: false, driver_deactivated: true })
+          .eq('id', app.user_id)
+        await supabase.from('driver_applications')
+          .update({ status: 'rejected', admin_notes: 'Account deactivated by admin', updated_at: new Date().toISOString() })
+          .eq('id', app.id)
+      }
+      setApplications(prev => prev.map(a =>
+        a.id === app.id ? { ...a, status: 'rejected', admin_notes: 'Account deactivated by admin' } : a
+      ))
+    } catch (err) { alert('Deactivate failed: ' + err.message) }
+    finally { setActionLoading(null) }
+  }
+
+  const handleSetProfileStatus = async (app, profileStatus) => {
+    setActionLoading(app.id + '_ps')
+    try {
+      if (supabase) {
+        await supabase.from('driver_applications')
+          .update({ profile_status: profileStatus, updated_at: new Date().toISOString() })
+          .eq('id', app.id)
+      }
+      setApplications(prev => prev.map(a =>
+        a.id === app.id ? { ...a, profile_status: profileStatus } : a
+      ))
+    } catch (err) { alert('Failed: ' + err.message) }
+    finally { setActionLoading(null) }
+  }
+
   const visible = filter === 'all' ? applications : applications.filter(a => a.status === filter)
 
   const countFor = (s) => applications.filter(a => a.status === s).length
@@ -116,6 +150,29 @@ export default function DriversTab() {
 
   return (
     <div className={styles.root}>
+
+      {/* ── Government fare rates reference card ── */}
+      <div className={styles.rateCard}>
+        <div className={styles.rateCardHeader}>
+          <span>🔒 Government Regulated Fare Rates</span>
+          <span className={styles.rateCardSub}>Kemenhub Permenhub — legal tariffs across Indonesia</span>
+        </div>
+        <div className={styles.rateZones}>
+          {[1, 2, 3].map(n => {
+            const info = ZONE_INFO[n]
+            return (
+              <div key={n} className={styles.rateZone}>
+                <span className={styles.rateZoneLabel}>Zone {n}</span>
+                <span className={styles.rateZoneName}>{info.label}</span>
+                <div className={styles.rateZoneRates}>
+                  <span>🛵 {formatRp(info.bike_per_km)}<span className={styles.rateUnit}>/km</span></span>
+                  <span>🚗 {formatRp(info.car_per_km)}<span className={styles.rateUnit}>/km</span></span>
+                </div>
+              </div>
+            )
+          })}
+        </div>
+      </div>
 
       {/* Summary stats */}
       <div className={styles.stats}>
@@ -177,6 +234,29 @@ export default function DriversTab() {
                 {/* Expanded documents */}
                 {isExpanded && (
                   <div className={styles.docSection}>
+
+                    {/* Latest go-online selfie */}
+                    {app.profile?.last_selfie_url && (
+                      <div className={styles.selfieRow}>
+                        <button
+                          className={styles.selfieThumb}
+                          onClick={() => setLightbox(app.profile.last_selfie_url)}
+                          title="View latest go-online selfie"
+                        >
+                          <img src={app.profile.last_selfie_url} alt="Latest selfie" className={styles.selfieImg} />
+                        </button>
+                        <div className={styles.selfieInfo}>
+                          <span className={styles.selfieLabel}>🪪 Latest Identity Check</span>
+                          <span className={styles.selfieMeta}>
+                            {app.profile.last_selfie_at
+                              ? new Date(app.profile.last_selfie_at).toLocaleString('en-GB', { day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' })
+                              : 'Unknown time'}
+                          </span>
+                          <span className={styles.selfieNote}>Taken when driver last went online</span>
+                        </div>
+                      </div>
+                    )}
+
                     <div className={styles.docGrid}>
                       {Object.entries(DOC_LABELS).map(([key, label]) => {
                         const url = docUrls[key]
@@ -199,8 +279,8 @@ export default function DriversTab() {
                     </div>
 
                     {/* Actions */}
-                    {app.status !== 'approved' && (
-                      <div className={styles.actions}>
+                    <div className={styles.actions}>
+                      {app.status !== 'approved' && (<>
                         <button
                           className={`${styles.btn} ${styles.btnApprove}`}
                           onClick={() => handleApprove(app)}
@@ -224,8 +304,31 @@ export default function DriversTab() {
                             ↩ Request Resubmission
                           </button>
                         )}
-                      </div>
-                    )}
+                      </>)}
+
+                      {/* Profile status toggle */}
+                      <button
+                        className={`${styles.btn} ${app.profile_status === 'complete' ? styles.btnProfileComplete : styles.btnProfileWaiting}`}
+                        onClick={() => handleSetProfileStatus(app, app.profile_status === 'complete' ? 'waiting_details' : 'complete')}
+                        disabled={actionLoading === app.id + '_ps'}
+                        title="Toggle whether the driver's profile details are complete"
+                      >
+                        {actionLoading === app.id + '_ps' ? '…' : app.profile_status === 'complete' ? '✓ Profile Complete' : '⏳ Waiting Details'}
+                      </button>
+
+                      {/* Deactivate — only for approved drivers */}
+                      {app.status === 'approved' && (
+                        <button
+                          className={`${styles.btn} ${styles.btnDeactivate}`}
+                          onClick={() => handleDeactivate(app)}
+                          disabled={isBusy}
+                          title="Deactivate this driver — removes online access immediately"
+                        >
+                          {isBusy ? '…' : '⛔ Deactivate Driver'}
+                        </button>
+                      )}
+                    </div>
+
                     {app.status === 'approved' && (
                       <div className={styles.approvedNote}>
                         ✅ Driver approved — they can now go online and receive ride requests.

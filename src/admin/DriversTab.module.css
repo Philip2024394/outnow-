@@ -2,6 +2,26 @@
 .loading { color: #555; font-size: 14px; padding: 40px; text-align: center; }
 .empty   { color: #444; font-size: 14px; padding: 40px; text-align: center; background: #0f0f0f; border-radius: 12px; }
 
+/* Government fare rate card */
+.rateCard {
+  background: #0f0f0f; border: 1px solid rgba(141,198,63,0.2);
+  border-radius: 14px; padding: 16px 18px; display: flex; flex-direction: column; gap: 12px;
+}
+.rateCardHeader {
+  display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap;
+  font-size: 13px; font-weight: 800; color: #8DC63F;
+}
+.rateCardSub { font-size: 11px; color: #444; font-weight: 600; }
+.rateZones { display: flex; gap: 10px; flex-wrap: wrap; }
+.rateZone {
+  flex: 1; min-width: 180px; background: #111; border: 1px solid #1a1a1a;
+  border-radius: 10px; padding: 10px 14px; display: flex; flex-direction: column; gap: 4px;
+}
+.rateZoneLabel { font-size: 10px; font-weight: 800; color: #8DC63F; text-transform: uppercase; letter-spacing: 0.08em; }
+.rateZoneName  { font-size: 11px; color: #555; line-height: 1.3; }
+.rateZoneRates { display: flex; gap: 14px; margin-top: 4px; font-size: 13px; font-weight: 700; color: #ccc; }
+.rateUnit      { font-size: 10px; color: #444; font-weight: 600; margin-left: 2px; }
+
 /* Stats */
 .stats { display: flex; gap: 12px; }
 .stat  { flex: 1; background: #0f0f0f; border: 1px solid #1a1a1a; border-radius: 12px; padding: 16px; display: flex; flex-direction: column; gap: 4px; align-items: center; }
@@ -58,6 +78,23 @@
 
 .chevron { font-size: 10px; color: #444; margin-left: 4px; }
 
+/* Latest selfie */
+.selfieRow {
+  display: flex; align-items: center; gap: 14px;
+  padding: 12px 0; border-bottom: 1px solid #1a1a1a; margin-bottom: 4px;
+}
+.selfieThumb {
+  width: 64px; height: 64px; border-radius: 10px; overflow: hidden;
+  flex-shrink: 0; border: none; padding: 0; cursor: pointer;
+  background: #111; border: 1px solid #222;
+}
+.selfieImg     { width: 100%; height: 100%; object-fit: cover; display: block; transition: opacity 0.15s; }
+.selfieImg:hover { opacity: 0.8; }
+.selfieInfo    { display: flex; flex-direction: column; gap: 2px; }
+.selfieLabel   { font-size: 12px; font-weight: 700; color: #fff; }
+.selfieMeta    { font-size: 11px; color: #8DC63F; }
+.selfieNote    { font-size: 10px; color: #444; }
+
 /* Documents */
 .docSection { padding: 0 16px 16px; border-top: 1px solid #1a1a1a; }
 .docGrid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 10px; padding: 14px 0 16px; }
@@ -74,10 +111,13 @@
 .actions { display: flex; gap: 8px; flex-wrap: wrap; }
 .btn { padding: 8px 16px; border-radius: 8px; font-size: 13px; font-weight: 700; border: none; cursor: pointer; font-family: inherit; transition: opacity 0.15s; }
 .btn:disabled { opacity: 0.4; cursor: default; }
-.btnApprove  { background: #8DC63F; color: #000; }
-.btnReject   { background: rgba(255,107,107,0.15); color: #ff6b6b; border: 1px solid rgba(255,107,107,0.3); }
-.btnResubmit { background: rgba(245,197,24,0.1); color: #F5C518; border: 1px solid rgba(245,197,24,0.25); }
-.btnCancel   { background: #1a1a1a; color: #666; }
+.btnApprove         { background: #8DC63F; color: #000; }
+.btnReject          { background: rgba(255,107,107,0.15); color: #ff6b6b; border: 1px solid rgba(255,107,107,0.3); }
+.btnResubmit        { background: rgba(245,197,24,0.1); color: #F5C518; border: 1px solid rgba(245,197,24,0.25); }
+.btnCancel          { background: #1a1a1a; color: #666; }
+.btnProfileComplete { background: rgba(141,198,63,0.1); color: #8DC63F; border: 1px solid rgba(141,198,63,0.3); }
+.btnProfileWaiting  { background: rgba(245,197,24,0.08); color: #F5C518; border: 1px solid rgba(245,197,24,0.2); }
+.btnDeactivate      { background: rgba(255,107,107,0.08); color: #ff6b6b; border: 1px solid rgba(255,107,107,0.25); margin-left: auto; }
 .approvedNote { font-size: 12px; color: #8DC63F; padding: 4px 0; }
 
 /* Reject modal */

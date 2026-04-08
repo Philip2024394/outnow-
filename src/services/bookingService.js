@@ -3,12 +3,26 @@ import { haversineKm } from '@/utils/distance'
 
 // ── Demo fallback drivers ─────────────────────────────────────────────────────
 export const DEMO_DRIVERS = [
-  { id: 'd1', display_name: 'Budi Santoso', driver_age: 28, driver_type: 'bike_ride', driver_online: true, rating: 4.9, total_trips: 342, phone: '6281234567890', vehicle_model: 'Honda Vario 125', vehicle_year: 2022, vehicle_color: 'Black',  plate_prefix: 'AB12', accepts_rides: true,  accepts_packages: true,  driver_last_location: { lat: -7.797, lng: 110.370 } },
-  { id: 'd2', display_name: 'Ani Rahayu',   driver_age: 24, driver_type: 'bike_ride', driver_online: true, rating: 4.7, total_trips: 178, phone: '6281234567891', vehicle_model: 'Yamaha NMAX',     vehicle_year: 2021, vehicle_color: 'Blue',   plate_prefix: 'AB34', accepts_rides: true,  accepts_packages: false, driver_last_location: { lat: -7.801, lng: 110.365 } },
-  { id: 'd3', display_name: 'Citra Dewi',   driver_age: 31, driver_type: 'car_taxi',  driver_online: true, rating: 4.8, total_trips: 521, phone: '6281234567892', vehicle_model: 'Toyota Avanza',   vehicle_year: 2020, vehicle_color: 'White',  plate_prefix: 'AB56', accepts_rides: true,  accepts_packages: true,  driver_last_location: { lat: -7.793, lng: 110.375 } },
-  { id: 'd4', display_name: 'Hendra Putra', driver_age: 35, driver_type: 'bike_ride', driver_online: true, rating: 4.6, total_trips: 89,  phone: '6281234567893', vehicle_model: 'Honda Beat',      vehicle_year: 2023, vehicle_color: 'Red',    plate_prefix: 'AB78', accepts_rides: false, accepts_packages: true,  driver_last_location: { lat: -7.805, lng: 110.358 } },
-  { id: 'd5', display_name: 'Sari Wulan',   driver_age: 27, driver_type: 'car_taxi',  driver_online: true, rating: 4.9, total_trips: 634, phone: '6281234567894', vehicle_model: 'Daihatsu Xenia',  vehicle_year: 2021, vehicle_color: 'Silver', plate_prefix: 'AB90', accepts_rides: true,  accepts_packages: true,  driver_last_location: { lat: -7.789, lng: 110.381 } },
+  { id: 'd1', display_name: 'Budi Santoso', driver_age: 28, driver_type: 'bike_ride', driver_online: true, driver_busy: false, rating: 4.9, total_trips: 342, phone: '6281234567890', vehicle_model: 'Honda Vario 125', vehicle_year: 2022, vehicle_color: 'Black',  plate_prefix: 'AB12', accepts_rides: true,  accepts_packages: true,  driver_last_location: { lat: -7.797, lng: 110.370 } },
+  { id: 'd2', display_name: 'Ani Rahayu',   driver_age: 24, driver_type: 'bike_ride', driver_online: true, driver_busy: false, rating: 4.7, total_trips: 178, phone: '6281234567891', vehicle_model: 'Yamaha NMAX',     vehicle_year: 2021, vehicle_color: 'Blue',   plate_prefix: 'AB34', accepts_rides: true,  accepts_packages: false, driver_last_location: { lat: -7.801, lng: 110.365 } },
+  { id: 'd3', display_name: 'Citra Dewi',   driver_age: 31, driver_type: 'car_taxi',  driver_online: true, driver_busy: false, rating: 4.8, total_trips: 521, phone: '6281234567892', vehicle_model: 'Toyota Avanza',   vehicle_year: 2020, vehicle_color: 'White',  plate_prefix: 'AB56', accepts_rides: true,  accepts_packages: true,  driver_last_location: { lat: -7.793, lng: 110.375 } },
+  { id: 'd4', display_name: 'Hendra Putra', driver_age: 35, driver_type: 'bike_ride', driver_online: true, driver_busy: false, rating: 4.6, total_trips: 89,  phone: '6281234567893', vehicle_model: 'Honda Beat',      vehicle_year: 2023, vehicle_color: 'Red',    plate_prefix: 'AB78', accepts_rides: false, accepts_packages: true,  driver_last_location: { lat: -7.805, lng: 110.358 } },
+  { id: 'd5', display_name: 'Sari Wulan',   driver_age: 27, driver_type: 'car_taxi',  driver_online: true, driver_busy: false, rating: 4.9, total_trips: 634, phone: '6281234567894', vehicle_model: 'Daihatsu Xenia',  vehicle_year: 2021, vehicle_color: 'Silver', plate_prefix: 'AB90', accepts_rides: true,  accepts_packages: true,  driver_last_location: { lat: -7.789, lng: 110.381 } },
 ]
+
+// ── Set driver busy state (explicit booking or auto speed detection) ──────────
+export async function setDriverBusy(driverId, busy, source = 'booking') {
+  if (!supabase) return
+  await supabase.from('profiles').update({
+    driver_busy:      busy,
+    driver_auto_busy: source === 'auto' ? busy : false,
+  }).eq('id', driverId)
+}
+
+export async function setDriverSpeedKmh(driverId, speedKmh) {
+  if (!supabase) return
+  await supabase.from('profiles').update({ driver_speed_kmh: Math.round(speedKmh) }).eq('id', driverId)
+}
 
 // ── Nearby drivers ────────────────────────────────────────────────────────────
 export async function fetchNearbyDrivers(userLat, userLng, driverType, excludeIds = []) {
@@ -17,12 +31,12 @@ export async function fetchNearbyDrivers(userLat, userLng, driverType, excludeId
   if (supabase) {
     const { data } = await supabase
       .from('profiles')
-      .select('id, display_name, driver_type, driver_online, driver_last_location, phone, rating')
+      .select('id, display_name, driver_age, driver_type, driver_online, driver_busy, driver_auto_busy, driver_speed_kmh, driver_last_location, phone, rating, total_trips, vehicle_model, vehicle_year, vehicle_color, plate_prefix')
       .eq('is_driver', true)
       .eq('driver_online', true)
       .eq('driver_type', driverType)
       .not('id', 'in', excludeIds.length ? `(${excludeIds.join(',')})` : '()')
-      .limit(10)
+      .limit(12)
     if (data?.length) drivers = data
   }
 
@@ -36,8 +50,12 @@ export async function fetchNearbyDrivers(userLat, userLng, driverType, excludeId
       const etaMin = Math.max(1, Math.round((distKm / 18) * 60))
       return { ...d, distKm: Math.round(distKm * 10) / 10, etaMin }
     })
-    .sort((a, b) => a.distKm - b.distKm)
-    .slice(0, 5)
+    // Available drivers first (sorted by distance), busy drivers last (sorted by distance)
+    .sort((a, b) => {
+      if (a.driver_busy !== b.driver_busy) return a.driver_busy ? 1 : -1
+      return a.distKm - b.distKm
+    })
+    .slice(0, 8)
 }
 
 // ── Driver online/offline ─────────────────────────────────────────────────────
@@ -92,6 +110,8 @@ export async function createBooking({ userId, driverId, pickupAddress, dropoffAd
   if (supabase) {
     const { error } = await supabase.from('bookings').insert(booking)
     if (error) console.warn('Booking insert error:', error.message)
+    // Mark driver as explicitly busy
+    await supabase.from('profiles').update({ driver_busy: true, driver_auto_busy: false }).eq('id', driverId)
   }
   return booking
 }
@@ -113,18 +133,24 @@ export async function incrementDriverTrips(driverId) {
   await supabase.rpc('increment_driver_trips', { p_driver_id: driverId })
 }
 
-export async function completeBooking(bookingId) {
+export async function completeBooking(bookingId, driverId = null) {
   if (!supabase) return
   await supabase.from('bookings')
     .update({ status: 'completed', completed_at: new Date().toISOString() })
     .eq('id', bookingId)
+  if (driverId) {
+    await supabase.from('profiles').update({ driver_busy: false, driver_auto_busy: false }).eq('id', driverId)
+  }
 }
 
-export async function cancelBooking(bookingId, reason = '') {
+export async function cancelBooking(bookingId, reason = '', driverId = null) {
   if (!supabase) return
   await supabase.from('bookings')
     .update({ status: 'cancelled', cancel_reason: reason, completed_at: new Date().toISOString() })
     .eq('id', bookingId)
+  if (driverId) {
+    await supabase.from('profiles').update({ driver_busy: false, driver_auto_busy: false }).eq('id', driverId)
+  }
 }
 
 export async function submitDriverReview({ bookingId, driverId, userId, stars, comment = '' }) {

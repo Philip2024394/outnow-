@@ -129,7 +129,7 @@
   display: block;
   font-size: 13px;
   font-weight: 700;
-  color: #8DC63F;
+  color: #fff;
   line-height: 1;
   transition: color 0.2s ease;
 }
@@ -491,6 +491,39 @@
 .driverListCard:hover  { background: rgba(0,0,0,0.7); border-color: rgba(255,255,255,0.12); }
 .driverListCard:active { transform: scale(0.98); }
 
+/* Busy driver card — orange tint */
+.driverListCardBusy {
+  border-color: rgba(245,140,0,0.25);
+  background: rgba(245,140,0,0.04);
+  opacity: 0.8;
+}
+.driverListCardBusy:hover { background: rgba(245,140,0,0.08); border-color: rgba(245,140,0,0.35); }
+
+.driverAvatarBusy { filter: saturate(0.4) brightness(0.7); }
+
+.busyBadge {
+  font-size: 10px; font-weight: 800; color: #F5A623;
+  background: rgba(245,140,0,0.12); border: 1px solid rgba(245,140,0,0.25);
+  border-radius: 100px; padding: 2px 8px; white-space: nowrap;
+}
+
+/* Busy section header */
+.busySubtitle {
+  font-size: 11px; font-weight: 700; color: #F5A623;
+  text-transform: uppercase; letter-spacing: 0.07em;
+  margin: 4px 0 6px; opacity: 0.8;
+}
+
+/* Driver sheet — busy notice */
+.sheetBusyNotice {
+  display: flex; align-items: flex-start; gap: 12px;
+  background: rgba(245,140,0,0.08); border: 1px solid rgba(245,140,0,0.25);
+  border-radius: 14px; padding: 14px;
+}
+.sheetBusyIcon  { font-size: 22px; flex-shrink: 0; }
+.sheetBusyTitle { font-size: 14px; font-weight: 800; color: #F5A623; margin: 0 0 4px; }
+.sheetBusyHint  { font-size: 12px; color: rgba(255,255,255,0.4); margin: 0; line-height: 1.5; }
+
 .driverListAvatar {
   width: 52px;
   height: 52px;
@@ -826,36 +859,65 @@
   grid-template-columns: 1fr 1fr;
   gap: 10px;
 }
+/* Service selector buttons — matches vehicleTab style */
 .sheetServiceBtn {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 6px;
-  padding: 14px 10px;
-  background: rgba(255,255,255,0.04);
-  border: 1.5px solid rgba(255,255,255,0.08);
-  border-radius: 14px;
-  cursor: pointer;
+  position: relative;
+  padding: 12px 14px;
+  border-radius: 12px;
+  background: rgba(0,0,0,0.82);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+  border: 1.5px solid rgba(255,255,255,0.06);
+  color: rgba(255,255,255,0.55);
   font-family: inherit;
-  transition: all 0.15s;
+  overflow: hidden;
+  text-align: left;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  min-height: 72px;
+  -webkit-tap-highlight-color: transparent;
 }
 .sheetServiceBtnActive {
-  background: rgba(141,198,63,0.12);
-  border-color: rgba(141,198,63,0.5);
+  background: rgba(255,255,255,0.12);
+  backdrop-filter: blur(20px) saturate(1.8);
+  -webkit-backdrop-filter: blur(20px) saturate(1.8);
+  border-color: rgba(255,255,255,0.25);
+  color: #fff;
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,0.2),
+    0 4px 20px rgba(0,0,0,0.3);
 }
-.sheetServiceBtnDisabled {
-  opacity: 0.35;
-  cursor: not-allowed;
+.sheetServiceBtnDisabled { opacity: 0.35; cursor: not-allowed; }
+.sheetServiceBtnLabel {
+  display: block;
+  font-size: 13px;
+  font-weight: 800;
+  line-height: 1.2;
+  color: inherit;
 }
-.sheetServiceIcon     { font-size: 24px; line-height: 1; }
-.sheetServiceBtnLabel { font-size: 12px; font-weight: 700; color: #ddd; }
+/* Ride image — absolute bottom-right, 10% smaller than vehicleTabImg (90px → 81px) */
+.sheetServiceImg {
+  position: absolute;
+  right: 6px;
+  bottom: 1px;
+  width: 63px;
+  height: 63px;
+  object-fit: contain;
+  opacity: 0.9;
+  pointer-events: none;
+}
+.sheetServiceImgRide {
+  width: 99px;
+  height: 99px;
+  bottom: -14px;
+}
 .sheetServiceUnavail  { font-size: 10px; color: #ef4444; font-weight: 600; }
 
 /* Package fields */
 .sheetPackageFields {
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 10px;
 }
 .sheetPackageTitle {
   font-size: 12px;
@@ -865,36 +927,108 @@
   letter-spacing: 0.06em;
   margin: 0;
 }
-.sheetPackageLabel {
-  font-size: 11px;
+
+/* Package field rows with icon */
+.pkgFieldGroup {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  background: rgba(255,255,255,0.03);
+  border: 1px solid rgba(255,255,255,0.07);
+  border-radius: 12px;
+  padding: 12px;
+}
+.pkgFieldIcon {
+  font-size: 22px;
+  line-height: 1;
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+.pkgFieldBody {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.pkgFieldLabel {
+  font-size: 10px;
+  font-weight: 800;
+  color: #555;
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+}
+
+/* Weight input */
+.pkgInputRow {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.pkgInput {
+  width: 100px;
+  background: rgba(255,255,255,0.06);
+  border: 1px solid rgba(255,255,255,0.12);
+  border-radius: 8px;
+  color: #fff;
+  font-size: 18px;
+  font-weight: 700;
+  font-family: inherit;
+  padding: 6px 10px;
+  outline: none;
+  -moz-appearance: textfield;
+}
+.pkgInput::-webkit-outer-spin-button,
+.pkgInput::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+.pkgInput:focus { border-color: #8DC63F; }
+.pkgUnit {
+  font-size: 13px;
+  font-weight: 700;
+  color: #555;
+}
+
+/* Dimension inputs: L × W × H */
+.pkgDimsRow {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.pkgDimWrap {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 3px;
+  flex: 1;
+}
+.pkgDimInput {
+  width: 100%;
+  background: rgba(255,255,255,0.06);
+  border: 1px solid rgba(255,255,255,0.12);
+  border-radius: 8px;
+  color: #fff;
+  font-size: 16px;
+  font-weight: 700;
+  font-family: inherit;
+  padding: 6px 8px;
+  outline: none;
+  text-align: center;
+  -moz-appearance: textfield;
+}
+.pkgDimInput::-webkit-outer-spin-button,
+.pkgDimInput::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+.pkgDimInput:focus { border-color: #8DC63F; }
+.pkgDimLabel {
+  font-size: 9px;
   font-weight: 700;
   color: #444;
   text-transform: uppercase;
-  letter-spacing: 0.05em;
-  margin: 0;
+  letter-spacing: 0.06em;
 }
-.sheetOptionRow {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 6px;
-}
-.sheetOptionBtn {
-  padding: 7px 12px;
-  background: rgba(255,255,255,0.04);
-  border: 1px solid rgba(255,255,255,0.1);
-  border-radius: 100px;
-  color: #888;
-  font-size: 12px;
-  font-weight: 600;
-  cursor: pointer;
-  font-family: inherit;
-  transition: all 0.12s;
-  white-space: nowrap;
-}
-.sheetOptionBtnActive {
-  background: rgba(141,198,63,0.12);
-  border-color: rgba(141,198,63,0.45);
-  color: #8DC63F;
+.pkgDimSep {
+  font-size: 16px;
+  color: #333;
+  font-weight: 700;
+  flex-shrink: 0;
+  padding-bottom: 16px;
 }
 .sheetBookHint {
   font-size: 11px;

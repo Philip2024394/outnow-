@@ -306,6 +306,12 @@ export default function ProfileScreen({ onClose, onboarding = false }) {
   const [langPickerOpen,   setLangPickerOpen]   = useState(false)
   const [speakingNative, setSpeakingNative] = useState(userProfile?.speakingNative ?? (userProfile?.country ? (COUNTRY_NATIVE_LANGUAGE[userProfile.country] ?? '') : ''))
   const [speakingSecond, setSpeakingSecond] = useState(userProfile?.speakingSecond ?? '')
+  // Driver vehicle details
+  const [driverAge,     setDriverAge]     = useState(userProfile?.driver_age     ?? '')
+  const [vehicleModel,  setVehicleModel]  = useState(userProfile?.vehicle_model  ?? '')
+  const [vehicleYear,   setVehicleYear]   = useState(userProfile?.vehicle_year   ?? '')
+  const [vehicleColor,  setVehicleColor]  = useState(userProfile?.vehicle_color  ?? '')
+  const [platePrefix,   setPlatePrefix]   = useState(userProfile?.plate_prefix   ?? '')
   const [priceMin,      setPriceMin]      = useState(userProfile?.priceMin ?? '')
   const [priceMax,      setPriceMax]      = useState(userProfile?.priceMax ?? '')
   const [market,        setMarket]        = useState(userProfile?.market ?? '')
@@ -626,6 +632,11 @@ export default function ProfileScreen({ onClose, onboarding = false }) {
         photoZoom,
         relationshipGoal: lookingFor === 'dating' ? relationshipGoal : undefined,
         starSign:         lookingFor === 'dating' ? starSign         : undefined,
+        driver_age:    (lookingFor === 'car_taxi' || lookingFor === 'bike_ride') ? (Number(driverAge) || null)  : undefined,
+        vehicle_model: (lookingFor === 'car_taxi' || lookingFor === 'bike_ride') ? (vehicleModel.trim() || null) : undefined,
+        vehicle_year:  (lookingFor === 'car_taxi' || lookingFor === 'bike_ride') ? (Number(vehicleYear) || null) : undefined,
+        vehicle_color: (lookingFor === 'car_taxi' || lookingFor === 'bike_ride') ? (vehicleColor.trim() || null) : undefined,
+        plate_prefix:  (lookingFor === 'car_taxi' || lookingFor === 'bike_ride') ? (platePrefix.trim().toUpperCase() || null) : undefined,
       })
       if (bio.trim().length > 0)       earn('BIO_WRITTEN')
       if (selectedActivity)            earn('ACTIVITIES_SET')
@@ -1058,6 +1069,33 @@ export default function ProfileScreen({ onClose, onboarding = false }) {
               </button>
             </div>
           </div>
+
+          {/* ── Driver vehicle details ── */}
+          {(lookingFor === 'car_taxi' || lookingFor === 'bike_ride') && (
+            <div className={styles.driverVehicleSection}>
+              <p className={styles.driverVehicleTitle}>
+                {lookingFor === 'car_taxi' ? '🚗' : '🛵'} Your Vehicle Details
+              </p>
+              <div className={styles.driverVehicleGrid}>
+                <label className={styles.driverVehicleLabel}>Your Age
+                  <input className={styles.driverVehicleInput} type="number" min="18" max="70" value={driverAge} onChange={e => setDriverAge(e.target.value)} placeholder="e.g. 28" />
+                </label>
+                <label className={styles.driverVehicleLabel}>{lookingFor === 'car_taxi' ? 'Car' : 'Bike'} Make & Model
+                  <input className={styles.driverVehicleInput} type="text" value={vehicleModel} onChange={e => setVehicleModel(e.target.value)} placeholder={lookingFor === 'car_taxi' ? 'e.g. Toyota Avanza' : 'e.g. Honda Vario 125'} />
+                </label>
+                <label className={styles.driverVehicleLabel}>Year
+                  <input className={styles.driverVehicleInput} type="number" min="2000" max={new Date().getFullYear()} value={vehicleYear} onChange={e => setVehicleYear(e.target.value)} placeholder="e.g. 2022" />
+                </label>
+                <label className={styles.driverVehicleLabel}>Colour
+                  <input className={styles.driverVehicleInput} type="text" value={vehicleColor} onChange={e => setVehicleColor(e.target.value)} placeholder="e.g. Black" />
+                </label>
+                <label className={`${styles.driverVehicleLabel} ${styles.driverVehicleLabelFull}`}>Plate Number (first 4–6 characters)
+                  <input className={styles.driverVehicleInput} type="text" maxLength={8} value={platePrefix} onChange={e => setPlatePrefix(e.target.value.toUpperCase())} placeholder="e.g. AB 1234" />
+                </label>
+              </div>
+              <p className={styles.driverVehicleNote}>These details are shown to passengers after booking. Save your profile to update.</p>
+            </div>
+          )}
 
           {/* Driver document upload + online toggle — car or bike service */}
           {(lookingFor === 'car_taxi' || lookingFor === 'bike_ride') && (

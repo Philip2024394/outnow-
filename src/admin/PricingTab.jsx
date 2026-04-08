@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react'
 import {
   fetchPricingZones, upsertPricingZone, deletePricingZone,
   fetchGlobalSettings, saveGlobalSettings,
-  estimateFare, formatRp, DEFAULT_ZONES, DEFAULT_SETTINGS,
+  estimateFare, formatRp, DEFAULT_ZONES, DEFAULT_SETTINGS, ZONE_INFO,
 } from '@/services/pricingService'
 import styles from './PricingTab.module.css'
 
@@ -10,14 +10,15 @@ const BLANK_ZONE = { city_name: '', zone_id: '', car_base_fare: 6000, car_per_km
 
 function ZoneRow({ zone, onEdit, onDelete }) {
   const [confirming, setConfirming] = useState(false)
+  const lock = zone.govt_rate ? <span className={styles.lockIcon} title="Government regulated rate">🔒</span> : null
   return (
     <tr className={styles.row}>
       <td className={styles.td}>{zone.city_name}</td>
       <td className={styles.td}>{zone.zone_id}</td>
-      <td className={styles.td}>{formatRp(zone.car_base_fare)}</td>
-      <td className={styles.td}>{formatRp(zone.car_per_km)}</td>
-      <td className={styles.td}>{formatRp(zone.bike_base_fare)}</td>
-      <td className={styles.td}>{formatRp(zone.bike_per_km)}</td>
+      <td className={styles.td}>{formatRp(zone.car_base_fare)}{lock}</td>
+      <td className={styles.td}>{formatRp(zone.car_per_km)}{lock}</td>
+      <td className={styles.td}>{formatRp(zone.bike_base_fare)}{lock}</td>
+      <td className={styles.td}>{formatRp(zone.bike_per_km)}{lock}</td>
       <td className={styles.tdActions}>
         <button className={styles.editBtn} onClick={() => onEdit(zone)}>Edit</button>
         {confirming
@@ -218,6 +219,17 @@ export default function PricingTab() {
           <h2 className={styles.sectionTitle}>City Pricing Zones</h2>
           <button className={styles.addBtn} onClick={() => setModal({})}>+ Add City</button>
         </div>
+
+        {/* Government rate notice */}
+        <div className={styles.govtBanner}>
+          <span className={styles.govtBannerIcon}>🔒</span>
+          <div>
+            <strong>Kemenhub Regulated Fares</strong> — Rates marked with 🔒 are set by Indonesia&apos;s Ministry of Transportation
+            (Permenhub No. PM 12/2019 &amp; revisions). These are the official legal minimum/maximum tariffs for ride-hailing services
+            across Indonesia.
+          </div>
+        </div>
+
         <div className={styles.tableWrap}>
           <table className={styles.table}>
             <thead>
@@ -232,7 +244,23 @@ export default function PricingTab() {
               </tr>
             </thead>
             <tbody>
-              {zones.map(z => (
+              {[1, 2, 3].map(zoneNum => {
+                const info  = ZONE_INFO[zoneNum]
+                const group = zones.filter(z => z.zone_number === zoneNum)
+                if (!group.length) return null
+                return [
+                  <tr key={`group-${zoneNum}`} className={styles.zoneGroupRow}>
+                    <td colSpan={7} className={styles.zoneGroupCell}>
+                      🔒 Zone {zoneNum} — {info?.label ?? `Zone ${zoneNum}`}
+                    </td>
+                  </tr>,
+                  ...group.map(z => (
+                    <ZoneRow key={z.id} zone={z} onEdit={(z) => setModal(z)} onDelete={handleDeleteZone} />
+                  )),
+                ]
+              })}
+              {/* Other/fallback zones not in 1-3 */}
+              {zones.filter(z => ![1, 2, 3].includes(z.zone_number)).map(z => (
                 <ZoneRow key={z.id} zone={z} onEdit={(z) => setModal(z)} onDelete={handleDeleteZone} />
               ))}
             </tbody>

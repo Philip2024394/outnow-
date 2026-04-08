@@ -154,7 +154,8 @@ export default function BookingScreen({ onClose }) {
   }, [])
 
   // ── Form state ─────────────────────────────────────────────────────────────
-  const [vehicleType, setVehicleType] = useState(null)
+  const [vehicleType,     setVehicleType]     = useState(null)
+  const [hasPickedVehicle, setHasPickedVehicle] = useState(false)
 
   // Pickup
   const [pickupQuery,        setPickupQuery]        = useState('')
@@ -190,8 +191,10 @@ export default function BookingScreen({ onClose }) {
   const [sheetDriver,   setSheetDriver]   = useState(null)
   const [sheetService,  setSheetService]  = useState('ride') // 'ride' | 'delivery'
   const [packageNote,   setPackageNote]   = useState('')
-  const [packageWeight, setPackageWeight] = useState('')
-  const [packageSize,   setPackageSize]   = useState('')
+  const [packageWeight, setPackageWeight] = useState('')   // grams, string
+  const [pkgLength,     setPkgLength]     = useState('')   // cm
+  const [pkgWidth,      setPkgWidth]      = useState('')   // cm
+  const [pkgHeight,     setPkgHeight]     = useState('')   // cm
 
   // Featured driver banner rotation
   const [featuredIdx,  setFeaturedIdx]  = useState(0)
@@ -370,12 +373,12 @@ export default function BookingScreen({ onClose }) {
   }
 
   const handleJourneyComplete = async () => {
-    if (booking) await completeBooking(booking.id)
+    if (booking) await completeBooking(booking.id, selectedDriver?.id)
     setPhase('review')
   }
 
   const handleCancelRide = async (reason) => {
-    if (booking) await cancelBooking(booking.id, reason)
+    if (booking) await cancelBooking(booking.id, reason, selectedDriver?.id)
     setPhase('cancelled')
   }
 
@@ -419,7 +422,7 @@ export default function BookingScreen({ onClose }) {
       <div className={styles.vehicleTabs}>
         <button
           className={`${styles.vehicleTab} ${vehicleType === 'bike_ride' ? styles.vehicleTabActive : ''}`}
-          onClick={() => setVehicleType('bike_ride')}
+          onClick={() => { setVehicleType('bike_ride'); setHasPickedVehicle(true) }}
         >
           <span className={styles.vehicleTabLabel}>Bike Ride</span>
           <span className={styles.vehicleTabPrice}>{formatRp(estimateFare('bike_ride', 'Yogyakarta', distanceKm, zones, settings))}</span>
@@ -427,7 +430,7 @@ export default function BookingScreen({ onClose }) {
         </button>
         <button
           className={`${styles.vehicleTab} ${vehicleType === 'car_taxi' ? styles.vehicleTabActive : ''}`}
-          onClick={() => setVehicleType('car_taxi')}
+          onClick={() => { setVehicleType('car_taxi'); setHasPickedVehicle(true) }}
         >
           <span className={styles.vehicleTabLabel}>Car Taxi</span>
           <span className={styles.vehicleTabPrice}>{formatRp(estimateFare('car_taxi', 'Yogyakarta', distanceKm, zones, settings))}</span>
@@ -498,9 +501,12 @@ export default function BookingScreen({ onClose }) {
   )
 
   const BANNER_BIKE = 'https://ik.imagekit.io/nepgaxllc/Untitlediuooiuoi-removebg-preview.png'
+  const BANNER_CAR  = 'https://ik.imagekit.io/nepgaxllc/Untitlediuooiuoifsdfsdfdasdadasd-removebg-preview.png'
 
   const renderChoose = () => {
-    const featured = drivers[featuredIdx] ?? drivers[0]
+    const availableDrivers = drivers.filter(d => !d.driver_busy)
+    const busyDrivers      = drivers.filter(d => d.driver_busy)
+    const featured = availableDrivers[featuredIdx % Math.max(availableDrivers.length, 1)] ?? availableDrivers[0]
     return (
       <div className={styles.body}>
 
@@ -547,25 +553,23 @@ export default function BookingScreen({ onClose }) {
             {/* Right: bike image + price badge */}
             <div className={styles.featuredRight}>
               <div className={styles.featuredPriceBadge}>{formatRp(fare)}</div>
-              <img src={BANNER_BIKE} alt="bike" className={styles.featuredBikeImg} />
+              <img src={featured.driver_type === 'car_taxi' ? BANNER_CAR : BANNER_BIKE} alt="vehicle" className={styles.featuredBikeImg} />
             </div>
           </button>
         )}
 
-        {/* ── All drivers list ── */}
-        <p className={styles.chooseSubtitle}>All available drivers</p>
+        {/* ── Available drivers ── */}
+        <p className={styles.chooseSubtitle}>Available drivers</p>
         <div className={styles.driverList}>
-          {drivers.map(d => (
+          {availableDrivers.map(d => (
             <button
               key={d.id}
               className={styles.driverListCard}
               onClick={() => { setSheetDriver(d); setSheetService('ride'); setPackageNote('') }}
             >
-              {/* Avatar */}
               <div className={styles.driverListAvatar}>
                 <img src={d.driver_type === 'car_taxi' ? CAR_IMG : BIKE_IMG} alt={d.driver_type} className={styles.driverAvatarImg} />
               </div>
-              {/* Info */}
               <div className={styles.driverListInfo}>
                 <div className={styles.driverListTopRow}>
                   <span className={styles.driverListName}>{d.display_name}</span>
@@ -589,13 +593,45 @@ export default function BookingScreen({ onClose }) {
           ))}
         </div>
 
+        {/* ── Busy drivers ── */}
+        {busyDrivers.length > 0 && (
+          <>
+            <p className={styles.busySubtitle}>🟠 On a trip — available soon</p>
+            <div className={styles.driverList}>
+              {busyDrivers.map(d => (
+                <button
+                  key={d.id}
+                  className={`${styles.driverListCard} ${styles.driverListCardBusy}`}
+                  onClick={() => { setSheetDriver(d); setSheetService('ride'); setPackageNote('') }}
+                >
+                  <div className={styles.driverListAvatar}>
+                    <img src={d.driver_type === 'car_taxi' ? CAR_IMG : BIKE_IMG} alt={d.driver_type} className={`${styles.driverAvatarImg} ${styles.driverAvatarBusy}`} />
+                  </div>
+                  <div className={styles.driverListInfo}>
+                    <div className={styles.driverListTopRow}>
+                      <span className={styles.driverListName}>{d.display_name}</span>
+                      <span className={styles.busyBadge}>On a trip</span>
+                    </div>
+                    <div className={styles.driverListStars}>
+                      {'★'.repeat(Math.floor(d.rating ?? 4.8))}
+                      <span className={styles.driverRatingNum}> {d.rating ?? '4.8'}</span>
+                      <span className={styles.driverListTrips}> · {d.total_trips ?? 0} trips</span>
+                    </div>
+                    <div className={styles.driverListBottom}>
+                      <span className={styles.driverListVehicle}>{d.vehicle_model} {d.vehicle_year}</span>
+                    </div>
+                  </div>
+                  <span className={styles.driverListArrow}>›</span>
+                </button>
+              ))}
+            </div>
+          </>
+        )}
+
         <button className={styles.cancelBtn} onClick={() => setPhase('select')}>Cancel</button>
       </div>
     )
   }
-
-  const PACKAGE_WEIGHTS = ['Light  < 1 kg', 'Medium  1 – 5 kg', 'Heavy  5 – 15 kg', 'Very Heavy  15 kg+']
-  const PACKAGE_SIZES   = ['Small — envelope / bag', 'Medium — shoebox', 'Large — suitcase', 'Extra Large']
 
   const renderDriverSheet = () => {
     if (!sheetDriver) return null
@@ -649,15 +685,23 @@ export default function BookingScreen({ onClose }) {
               className={`${styles.sheetServiceBtn} ${sheetService === 'ride' ? styles.sheetServiceBtnActive : ''}`}
               onClick={() => setSheetService('ride')}
             >
-              <span className={styles.sheetServiceIcon}>👤</span>
-              <span className={styles.sheetServiceBtnLabel}>Personal Ride</span>
+              <span className={styles.sheetServiceBtnLabel}>Ride</span>
+              <img
+                src="https://ik.imagekit.io/nepgaxllc/Riders%20on%20a%20sleek%20scooter.png"
+                alt="Ride"
+                className={`${styles.sheetServiceImg} ${styles.sheetServiceImgRide}`}
+              />
             </button>
             <button
               className={`${styles.sheetServiceBtn} ${sheetService === 'delivery' ? styles.sheetServiceBtnActive : ''}`}
               onClick={() => setSheetService('delivery')}
             >
-              <span className={styles.sheetServiceIcon}>📦</span>
-              <span className={styles.sheetServiceBtnLabel}>Package Delivery</span>
+              <span className={styles.sheetServiceBtnLabel}>Package</span>
+              <img
+                src="https://ik.imagekit.io/nepgaxllc/Untitlediuooiuoifsdfsdf-removebg-preview.png"
+                alt="Package"
+                className={styles.sheetServiceImg}
+              />
             </button>
           </div>
 
@@ -666,26 +710,69 @@ export default function BookingScreen({ onClose }) {
             <div className={styles.sheetPackageFields}>
               <p className={styles.sheetPackageTitle}>Package details</p>
 
-              <p className={styles.sheetPackageLabel}>Approx. weight</p>
-              <div className={styles.sheetOptionRow}>
-                {PACKAGE_WEIGHTS.map(w => (
-                  <button
-                    key={w}
-                    className={`${styles.sheetOptionBtn} ${packageWeight === w ? styles.sheetOptionBtnActive : ''}`}
-                    onClick={() => setPackageWeight(w)}
-                  >{w}</button>
-                ))}
+              {/* Weight in grams */}
+              <div className={styles.pkgFieldGroup}>
+                <div className={styles.pkgFieldIcon}>⚖️</div>
+                <div className={styles.pkgFieldBody}>
+                  <label className={styles.pkgFieldLabel}>Weight</label>
+                  <div className={styles.pkgInputRow}>
+                    <input
+                      className={styles.pkgInput}
+                      type="number"
+                      min="1"
+                      step="1"
+                      value={packageWeight}
+                      onChange={e => setPackageWeight(e.target.value)}
+                      placeholder="0"
+                    />
+                    <span className={styles.pkgUnit}>grams</span>
+                  </div>
+                </div>
               </div>
 
-              <p className={styles.sheetPackageLabel}>Approx. size</p>
-              <div className={styles.sheetOptionRow}>
-                {PACKAGE_SIZES.map(s => (
-                  <button
-                    key={s}
-                    className={`${styles.sheetOptionBtn} ${packageSize === s ? styles.sheetOptionBtnActive : ''}`}
-                    onClick={() => setPackageSize(s)}
-                  >{s}</button>
-                ))}
+              {/* Dimensions: L × W × H */}
+              <div className={styles.pkgFieldGroup}>
+                <div className={styles.pkgFieldIcon}>📐</div>
+                <div className={styles.pkgFieldBody}>
+                  <label className={styles.pkgFieldLabel}>Size (cm)</label>
+                  <div className={styles.pkgDimsRow}>
+                    <div className={styles.pkgDimWrap}>
+                      <input
+                        className={styles.pkgDimInput}
+                        type="number"
+                        min="1"
+                        value={pkgLength}
+                        onChange={e => setPkgLength(e.target.value)}
+                        placeholder="0"
+                      />
+                      <span className={styles.pkgDimLabel}>Length</span>
+                    </div>
+                    <span className={styles.pkgDimSep}>×</span>
+                    <div className={styles.pkgDimWrap}>
+                      <input
+                        className={styles.pkgDimInput}
+                        type="number"
+                        min="1"
+                        value={pkgWidth}
+                        onChange={e => setPkgWidth(e.target.value)}
+                        placeholder="0"
+                      />
+                      <span className={styles.pkgDimLabel}>Width</span>
+                    </div>
+                    <span className={styles.pkgDimSep}>×</span>
+                    <div className={styles.pkgDimWrap}>
+                      <input
+                        className={styles.pkgDimInput}
+                        type="number"
+                        min="1"
+                        value={pkgHeight}
+                        onChange={e => setPkgHeight(e.target.value)}
+                        placeholder="0"
+                      />
+                      <span className={styles.pkgDimLabel}>Height</span>
+                    </div>
+                  </div>
+                </div>
               </div>
 
               <textarea
@@ -699,17 +786,37 @@ export default function BookingScreen({ onClose }) {
             </div>
           )}
 
-          {/* Book */}
-          <button
-            className={styles.sheetBookBtn}
-            disabled={sheetService === 'delivery' && (!packageWeight || !packageSize)}
-            onClick={() => handleSelectDriver(d, sheetService, packageNote, packageWeight, packageSize)}
-          >
-            {sheetService === 'delivery' ? '📦 Book Package Delivery' : '👤 Book Personal Ride'}
-            <span className={styles.sheetBookArrow}> via WhatsApp →</span>
-          </button>
-          {sheetService === 'delivery' && (!packageWeight || !packageSize) && (
-            <p className={styles.sheetBookHint}>Select weight and size to continue</p>
+          {/* Book — disabled with notice if driver is busy */}
+          {d.driver_busy ? (
+            <div className={styles.sheetBusyNotice}>
+              <span className={styles.sheetBusyIcon}>🟠</span>
+              <div>
+                <p className={styles.sheetBusyTitle}>Driver is currently on a trip</p>
+                <p className={styles.sheetBusyHint}>They will become available once they finish. Go back and choose an available driver or wait.</p>
+              </div>
+            </div>
+          ) : (
+            <>
+              {(() => {
+                const pkgSize        = pkgLength && pkgWidth && pkgHeight ? `${pkgLength} × ${pkgWidth} × ${pkgHeight} cm` : ''
+                const deliveryReady  = packageWeight && pkgLength && pkgWidth && pkgHeight
+                return (
+                  <>
+                    <button
+                      className={styles.sheetBookBtn}
+                      disabled={sheetService === 'delivery' && !deliveryReady}
+                      onClick={() => handleSelectDriver(d, sheetService, packageNote, packageWeight ? `${packageWeight}g` : '', pkgSize)}
+                    >
+                      Book Now
+                      <span className={styles.sheetBookArrow}> via WhatsApp →</span>
+                    </button>
+                    {sheetService === 'delivery' && !deliveryReady && (
+                      <p className={styles.sheetBookHint}>Enter weight and all dimensions to continue</p>
+                    )}
+                  </>
+                )
+              })()}
+            </>
           )}
           <button className={styles.sheetCancelBtn} onClick={() => setSheetDriver(null)}>Back to drivers</button>
         </div>
@@ -935,7 +1042,28 @@ export default function BookingScreen({ onClose }) {
   }
 
   return (
-    <div className={styles.screen}>
+    <div
+      className={styles.screen}
+      style={{
+        backgroundImage: (() => {
+          const h = new Date().getHours()
+          const isNight = h >= 18 || h < 6
+          if (!hasPickedVehicle) {
+            return isNight
+              ? 'url("https://ik.imagekit.io/nepgaxllc/Untitledddddddddddsfsdfadsfasdfsdfs.png")'
+              : 'url("https://ik.imagekit.io/nepgaxllc/Untitledddddddddddsfsdfadsfasdf.png")'
+          }
+          if (vehicleType === 'car_taxi') {
+            return isNight
+              ? 'url("https://ik.imagekit.io/nepgaxllc/Untitledddddddddddsfsdf.png")'
+              : 'url("https://ik.imagekit.io/nepgaxllc/Untitledddddddddd.png")'
+          }
+          return isNight
+            ? 'url("https://ik.imagekit.io/nepgaxllc/Untitleddfsadfasdfdasdasdasdsdfasd.png")'
+            : 'url("https://ik.imagekit.io/nepgaxllc/Untitledddddddddddsfsdfadsfasdf.png")'
+        })()
+      }}
+    >
       <div className={styles.header}>
         <div className={styles.headerBrand}>
           <img

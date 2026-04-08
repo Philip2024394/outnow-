@@ -2254,3 +2254,59 @@
   -webkit-tap-highlight-color: transparent;
 }
 .drawerDeleteConfirmBtn:active { opacity: 0.85; }
+
+
+/* ── Driver vehicle details section ── */
+.driverVehicleSection {
+  background: rgba(141,198,63,0.05);
+  border: 1px solid rgba(141,198,63,0.18);
+  border-radius: 16px;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.driverVehicleTitle {
+  font-size: 13px;
+  font-weight: 800;
+  color: #8DC63F;
+  margin: 0;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+.driverVehicleGrid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+.driverVehicleLabel {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  font-size: 11px;
+  font-weight: 700;
+  color: #555;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+.driverVehicleLabelFull {
+  grid-column: 1 / -1;
+}
+.driverVehicleInput {
+  background: rgba(255,255,255,0.05);
+  border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 10px;
+  color: #fff;
+  font-size: 14px;
+  font-family: inherit;
+  padding: 9px 12px;
+  outline: none;
+  transition: border-color 0.15s;
+}
+.driverVehicleInput:focus { border-color: #8DC63F; }
+.driverVehicleNote {
+  font-size: 11px;
+  color: #444;
+  margin: 0;
+  line-height: 1.5;
+}
