@@ -93,6 +93,7 @@ import FloatingIcons from '@/components/home/FloatingIcons'
 import ActivityProfileGrid from '@/components/home/ActivityProfileGrid'
 import BookingScreen from '@/screens/BookingScreen'
 import RestaurantBrowseScreen from '@/screens/RestaurantBrowseScreen'
+import CategoryDiscoveryScreen from '@/screens/CategoryDiscoveryScreen'
 
 import '@/styles/map.css'
 import styles from './AppShell.module.css'
@@ -129,6 +130,9 @@ export default function AppShell({ returnParams, triggerGoLive }) {
   const [datingGridOpen, setDatingGridOpen] = useState(false)
   const [rideOpen,       setRideOpen]       = useState(false)
   const [foodOpen,       setFoodOpen]       = useState(false)
+  const [foodCategory,   setFoodCategory]   = useState(null)
+  const [foodBrowseOpen, setFoodBrowseOpen] = useState(false)
+  const [foodScrollToId, setFoodScrollToId] = useState(null)
   const { incomingInvite: dateInvite, clearInvite: clearDateInvite } = useDateInvites(user?.id ?? null)
 
   // Effective country: explicit browse selection → IP detection → profile country
@@ -626,7 +630,25 @@ export default function AppShell({ returnParams, triggerGoLive }) {
       )}
 
       {rideOpen && <BookingScreen onClose={() => setRideOpen(false)} />}
-      {foodOpen && <RestaurantBrowseScreen onClose={() => setFoodOpen(false)} />}
+
+      {foodOpen && (
+        <CategoryDiscoveryScreen
+          onClose={() => setFoodOpen(false)}
+          onSelectCategory={(cat, restaurantId) => {
+            setFoodCategory(cat)
+            setFoodScrollToId(restaurantId ?? null)
+            setFoodBrowseOpen(true)
+          }}
+        />
+      )}
+      {foodBrowseOpen && (
+        <RestaurantBrowseScreen
+          category={foodCategory}
+          scrollToId={foodScrollToId}
+          onBackToCategories={() => setFoodBrowseOpen(false)}
+          onClose={() => { setFoodBrowseOpen(false); setFoodOpen(false) }}
+        />
+      )}
 
       {/* First-use map intro — shown once, walks user through the UI */}
       {activeTab === 'map' && (

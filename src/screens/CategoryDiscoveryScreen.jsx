@@ -1,0 +1,306 @@
+import { useState, useRef, useEffect, useCallback } from 'react'
+import { supabase } from '@/lib/supabase'
+import styles from './CategoryDiscoveryScreen.module.css'
+
+// ── Categories — swap imageUrl with your supplied ImageKit URLs ───────────────
+export const FOOD_CATEGORIES = [
+  {
+    id: 'all',
+    label: 'All Food',
+    emoji: '🍽',
+    tagline: 'Everything near you',
+    color: '#F5C518',
+    imageUrl: null,
+    gradient: 'linear-gradient(160deg, #1a1200 0%, #2d2000 50%, #0d0d0d 100%)',
+  },
+  {
+    id: 'rice',
+    label: 'Rice Dishes',
+    emoji: '🍚',
+    tagline: 'Comfort in every grain',
+    color: '#F5C518',
+    imageUrl: null,
+    gradient: 'linear-gradient(160deg, #1a1500 0%, #2a2100 50%, #0d0d0d 100%)',
+  },
+  {
+    id: 'noodles',
+    label: 'Noodles',
+    emoji: '🍜',
+    tagline: 'Slurp-worthy every time',
+    color: '#ff8c42',
+    imageUrl: null,
+    gradient: 'linear-gradient(160deg, #1a0d00 0%, #2d1800 50%, #0d0d0d 100%)',
+  },
+  {
+    id: 'grilled',
+    label: 'Grilled',
+    emoji: '🔥',
+    tagline: 'Charred. Bold. Perfect.',
+    color: '#ff6b35',
+    imageUrl: null,
+    gradient: 'linear-gradient(160deg, #1a0800 0%, #2d1000 50%, #0d0d0d 100%)',
+  },
+  {
+    id: 'burgers',
+    label: 'Burgers',
+    emoji: '🍔',
+    tagline: 'Stack it high',
+    color: '#8DC63F',
+    imageUrl: null,
+    gradient: 'linear-gradient(160deg, #071a00 0%, #0f2800 50%, #0d0d0d 100%)',
+  },
+  {
+    id: 'seafood',
+    label: 'Seafood',
+    emoji: '🦐',
+    tagline: 'Fresh from the ocean',
+    color: '#38bdf8',
+    imageUrl: null,
+    gradient: 'linear-gradient(160deg, #001520 0%, #002030 50%, #0d0d0d 100%)',
+  },
+  {
+    id: 'desserts',
+    label: 'Desserts',
+    emoji: '🧁',
+    tagline: 'Life is short. Eat dessert first.',
+    color: '#f472b6',
+    imageUrl: null,
+    gradient: 'linear-gradient(160deg, #1a0015 0%, #280020 50%, #0d0d0d 100%)',
+  },
+  {
+    id: 'drinks',
+    label: 'Drinks & Juice',
+    emoji: '🥤',
+    tagline: 'Refresh your world',
+    color: '#a78bfa',
+    imageUrl: null,
+    gradient: 'linear-gradient(160deg, #0d0020 0%, #150030 50%, #0d0d0d 100%)',
+  },
+  {
+    id: 'breakfast',
+    label: 'Breakfast',
+    emoji: '🌅',
+    tagline: 'Start the day right',
+    color: '#fb923c',
+    imageUrl: null,
+    gradient: 'linear-gradient(160deg, #1a0c00 0%, #2d1a00 50%, #0d0d0d 100%)',
+  },
+  {
+    id: 'snacks',
+    label: 'Snacks',
+    emoji: '🍿',
+    tagline: 'Always hungry for more',
+    color: '#4ade80',
+    imageUrl: null,
+    gradient: 'linear-gradient(160deg, #001a0a 0%, #002810 50%, #0d0d0d 100%)',
+  },
+  {
+    id: 'vegetarian',
+    label: 'Vegetarian',
+    emoji: '🥗',
+    tagline: 'Clean. Green. Delicious.',
+    color: '#22c55e',
+    imageUrl: null,
+    gradient: 'linear-gradient(160deg, #001508 0%, #002210 50%, #0d0d0d 100%)',
+  },
+]
+
+const DEMO_SEARCH = [
+  { id: 1, name: 'Warung Bu Sari',       category: 'rice',      cuisine_type: 'Javanese',   rating: 4.8, is_open: true  },
+  { id: 2, name: 'Bakso Pak Budi',       category: 'noodles',   cuisine_type: 'Indonesian', rating: 4.6, is_open: true  },
+  { id: 3, name: 'Ayam Geprek Mbak Rina',category: 'grilled',   cuisine_type: 'Indonesian', rating: 4.9, is_open: false },
+  { id: 4, name: 'Es Teler 77',          category: 'drinks',    cuisine_type: 'Indonesian', rating: 4.5, is_open: true  },
+  { id: 5, name: 'Pisang Goreng Mbok Tum',category: 'snacks',   cuisine_type: 'Javanese',   rating: 4.7, is_open: true  },
+]
+
+export default function CategoryDiscoveryScreen({ onClose, onSelectCategory }) {
+  const [activeIndex,    setActiveIndex]    = useState(0)
+  const [search,         setSearch]         = useState('')
+  const [searchFocused,  setSearchFocused]  = useState(false)
+  const [searchResults,  setSearchResults]  = useState([])
+  const [allRestaurants, setAllRestaurants] = useState(DEMO_SEARCH)
+  const containerRef = useRef(null)
+  const searchRef    = useRef(null)
+
+  // Load restaurant names for search
+  useEffect(() => {
+    if (!supabase) return
+    supabase
+      .from('restaurants')
+      .select('id, name, category, cuisine_type, rating, is_open')
+      .eq('status', 'approved')
+      .then(({ data }) => { if (data?.length) setAllRestaurants(data) })
+  }, [])
+
+  // Filter search results
+  useEffect(() => {
+    if (!search.trim()) { setSearchResults([]); return }
+    const q = search.toLowerCase()
+    setSearchResults(
+      allRestaurants.filter(r =>
+        r.name.toLowerCase().includes(q) ||
+        r.cuisine_type?.toLowerCase().includes(q) ||
+        r.category?.toLowerCase().includes(q)
+      ).slice(0, 8)
+    )
+  }, [search, allRestaurants])
+
+  const handleScroll = useCallback(() => {
+    const el = containerRef.current
+    if (!el) return
+    const idx = Math.round(el.scrollTop / el.clientHeight)
+    setActiveIndex(idx)
+  }, [])
+
+  const handleCategoryTap = (cat) => {
+    setSearch('')
+    setSearchFocused(false)
+    onSelectCategory(cat)
+  }
+
+  const handleSearchSelect = (restaurant) => {
+    setSearch('')
+    setSearchFocused(false)
+    // Find the category for this restaurant and open filtered to it
+    const cat = FOOD_CATEGORIES.find(c => c.id === restaurant.category) || FOOD_CATEGORIES[0]
+    onSelectCategory(cat, restaurant.id)
+  }
+
+  const showSearchOverlay = searchFocused && search.trim().length > 0
+
+  return (
+    <div className={styles.screen}>
+
+      {/* ── Search bar (always pinned top) ── */}
+      <div className={styles.searchBar}>
+        <button className={styles.backBtn} onClick={onClose} aria-label="Back">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M19 12H5M12 5l-7 7 7 7"/>
+          </svg>
+        </button>
+
+        <div className={styles.searchInputWrap}>
+          <svg className={styles.searchIcon} width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+            <circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/>
+          </svg>
+          <input
+            ref={searchRef}
+            className={styles.searchInput}
+            placeholder="Search food, restaurant, cuisine…"
+            value={search}
+            onChange={e => setSearch(e.target.value)}
+            onFocus={() => setSearchFocused(true)}
+            onBlur={() => setTimeout(() => setSearchFocused(false), 180)}
+          />
+          {search && (
+            <button className={styles.searchClear} onClick={() => { setSearch(''); searchRef.current?.focus() }}>
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round">
+                <path d="M18 6L6 18M6 6l12 12"/>
+              </svg>
+            </button>
+          )}
+        </div>
+      </div>
+
+      {/* ── Search results overlay ── */}
+      {showSearchOverlay && (
+        <div className={styles.searchOverlay}>
+          {searchResults.length === 0 ? (
+            <div className={styles.searchEmpty}>No results for "{search}"</div>
+          ) : searchResults.map(r => (
+            <button key={r.id} className={styles.searchResult} onClick={() => handleSearchSelect(r)}>
+              <span className={styles.searchResultEmoji}>
+                {FOOD_CATEGORIES.find(c => c.id === r.category)?.emoji ?? '🍽'}
+              </span>
+              <span className={styles.searchResultInfo}>
+                <span className={styles.searchResultName}>{r.name}</span>
+                <span className={styles.searchResultSub}>{r.cuisine_type} · {r.is_open ? 'Open now' : 'Closed'}</span>
+              </span>
+              {r.rating && <span className={styles.searchResultRating}>⭐ {r.rating}</span>}
+            </button>
+          ))}
+        </div>
+      )}
+
+      {/* ── Scroll dots (right side) ── */}
+      <div className={styles.dots}>
+        {FOOD_CATEGORIES.map((_, i) => (
+          <div key={i} className={`${styles.dot} ${i === activeIndex ? styles.dotActive : ''}`}
+            style={i === activeIndex ? { background: FOOD_CATEGORIES[i].color } : {}} />
+        ))}
+      </div>
+
+      {/* ── Category cards — full-height snap scroll ── */}
+      <div className={styles.cardContainer} ref={containerRef} onScroll={handleScroll}>
+        {FOOD_CATEGORIES.map((cat, i) => (
+          <CategoryCard
+            key={cat.id}
+            cat={cat}
+            isActive={i === activeIndex}
+            onClick={() => handleCategoryTap(cat)}
+          />
+        ))}
+      </div>
+
+      {/* ── Bottom swipe hint ── */}
+      <div className={styles.swipeHint}>
+        <div className={styles.swipeArrow}>↕</div>
+        <span>Swipe to explore categories</span>
+      </div>
+    </div>
+  )
+}
+
+function CategoryCard({ cat, isActive, onClick }) {
+  return (
+    <div className={styles.card} onClick={onClick}>
+
+      {/* Background image or gradient */}
+      <div
+        className={styles.cardBg}
+        style={{
+          backgroundImage: cat.imageUrl
+            ? `url("${cat.imageUrl}")`
+            : cat.gradient,
+          backgroundSize: 'cover',
+          backgroundPosition: 'center',
+        }}
+      />
+
+      {/* Cinematic overlay — heavy at bottom, light at top */}
+      <div className={styles.cardOverlay} />
+
+      {/* Subtle top edge glow matching category color */}
+      <div className={styles.cardTopGlow} style={{ background: `linear-gradient(to bottom, ${cat.color}18 0%, transparent 40%)` }} />
+
+      {/* Center: category emoji */}
+      <div className={styles.cardCenter}>
+        <div className={`${styles.emojiWrap} ${isActive ? styles.emojiActive : ''}`}>
+          <span className={styles.emoji}>{cat.emoji}</span>
+        </div>
+      </div>
+
+      {/* Bottom: name + tagline + tap hint */}
+      <div className={styles.cardBottom}>
+        <span className={styles.tagline}>{cat.tagline}</span>
+        <h2 className={styles.categoryName} style={{ color: '#fff' }}>{cat.label}</h2>
+
+        <button
+          className={styles.explorBtn}
+          style={{ background: cat.color, color: cat.id === 'drinks' || cat.id === 'desserts' ? '#000' : '#000' }}
+          onClick={onClick}
+        >
+          <span>Explore {cat.label}</span>
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M5 12h14M12 5l7 7-7 7"/>
+          </svg>
+        </button>
+
+        <div className={styles.tapHint}>Tap to browse restaurants →</div>
+      </div>
+
+      {/* Active indicator strip at bottom */}
+      <div className={styles.activeStrip} style={{ background: cat.color, opacity: isActive ? 1 : 0 }} />
+    </div>
+  )
+}
