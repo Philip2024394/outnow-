@@ -6,7 +6,7 @@
 -- Selfie audit log
 CREATE TABLE IF NOT EXISTS driver_selfie_logs (
   id          bigserial    PRIMARY KEY,
-  driver_id   text         NOT NULL REFERENCES profiles(id) ON DELETE CASCADE,
+  driver_id   uuid         NOT NULL REFERENCES profiles(id) ON DELETE CASCADE,
   selfie_url  text         NOT NULL,
   created_at  timestamptz  NOT NULL DEFAULT now()
 );
@@ -24,7 +24,7 @@ ALTER TABLE driver_selfie_logs ENABLE ROW LEVEL SECURITY;
 -- Driver can only insert their own selfies
 CREATE POLICY "driver_insert_own_selfie"
   ON driver_selfie_logs FOR INSERT
-  WITH CHECK (auth.uid()::text = driver_id);
+  WITH CHECK (auth.uid() = driver_id);
 
 -- Admin / service role can read all
 CREATE POLICY "admin_read_selfies"

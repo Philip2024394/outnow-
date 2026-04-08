@@ -153,6 +153,79 @@ export async function cancelBooking(bookingId, reason = '', driverId = null) {
   }
 }
 
+// ── Driver-side booking actions ───────────────────────────────────────────────
+export async function acceptBooking(bookingId, driverId) {
+  if (!supabase) return
+  await supabase.from('bookings')
+    .update({ status: 'accepted', accepted_at: new Date().toISOString() })
+    .eq('id', bookingId)
+  await supabase.from('profiles')
+    .update({ driver_busy: true, driver_auto_busy: false })
+    .eq('id', driverId)
+}
+
+export async function declineBooking(bookingId, driverId) {
+  if (!supabase) return
+  await supabase.from('bookings')
+    .update({ status: 'cancelled', cancel_reason: 'Driver declined' })
+    .eq('id', bookingId)
+  await supabase.from('profiles')
+    .update({ driver_busy: false, driver_auto_busy: false })
+    .eq('id', driverId)
+}
+
+export async function driverMarkArrived(bookingId) {
+  if (!supabase) return
+  await supabase.from('bookings')
+    .update({ driver_arrived_at: new Date().toISOString() })
+    .eq('id', bookingId)
+}
+
+export async function driverStartRide(bookingId) {
+  if (!supabase) return
+  await supabase.from('bookings')
+    .update({ status: 'in_progress', started_at: new Date().toISOString() })
+    .eq('id', bookingId)
+}
+
+export async function driverCompleteRide(bookingId, driverId) {
+  if (!supabase) return
+  await supabase.from('bookings')
+    .update({ status: 'completed', completed_at: new Date().toISOString() })
+    .eq('id', bookingId)
+  await supabase.from('profiles')
+    .update({ driver_busy: false, driver_auto_busy: false })
+    .eq('id', driverId)
+  await supabase.rpc('increment_driver_trips', { p_driver_id: driverId }).catch(() => {})
+}
+
+// Poll for new pending booking assigned to this driver
+export async function fetchDriverPendingBooking(driverId) {
+  if (!supabase) return null
+  const { data } = await supabase
+    .from('bookings')
+    .select('id, pickup_location, dropoff_location, fare, distance_km, user_id, created_at, expires_at, status, pickup_coords, dropoff_coords, passenger:profiles!user_id(display_name, photo_url, rating)')
+    .eq('driver_id', driverId)
+    .in('status', ['pending', 'accepted', 'in_progress'])
+    .order('created_at', { ascending: false })
+    .limit(1)
+    .maybeSingle()
+  return data ?? null
+}
+
+// Driver trip history + earnings
+export async function fetchDriverTripHistory(driverId, limit = 20) {
+  if (!supabase) return []
+  const { data } = await supabase
+    .from('bookings')
+    .select('id, created_at, pickup_location, dropoff_location, fare, status, service_type, passenger:profiles!user_id(display_name)')
+    .eq('driver_id', driverId)
+    .in('status', ['completed', 'cancelled'])
+    .order('created_at', { ascending: false })
+    .limit(limit)
+  return data ?? []
+}
+
 export async function submitDriverReview({ bookingId, driverId, userId, stars, comment = '' }) {
   if (!supabase) return
   await supabase.from('driver_reviews').insert({

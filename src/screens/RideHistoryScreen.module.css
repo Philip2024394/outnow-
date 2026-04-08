@@ -1,0 +1,134 @@
+.screen {
+  position: absolute;
+  inset: 0;
+  background: var(--color-bg);
+  z-index: calc(var(--z-header) + 1);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+/* Header */
+.header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: calc(var(--safe-top) + 12px) 16px 12px;
+  border-bottom: 1px solid var(--color-border);
+  flex-shrink: 0;
+}
+.backBtn {
+  width: 38px; height: 38px;
+  border-radius: 50%;
+  background: var(--color-surface-2);
+  border: 1.5px solid var(--color-border);
+  display: flex; align-items: center; justify-content: center;
+  color: var(--color-text); cursor: pointer;
+}
+.title {
+  font-size: 20px; font-weight: 900;
+  color: var(--color-text); letter-spacing: -0.02em;
+}
+
+/* Stats */
+.stats {
+  display: flex; align-items: center;
+  padding: 14px 16px; gap: 0;
+  border-bottom: 1px solid var(--color-border);
+  flex-shrink: 0;
+}
+.stat {
+  flex: 1; display: flex; flex-direction: column;
+  align-items: center; gap: 2px;
+}
+.statNum {
+  font-size: 16px; font-weight: 900; color: #F5C518; line-height: 1;
+}
+.statLbl {
+  font-size: 10px; color: #555; font-weight: 600;
+  text-transform: uppercase; letter-spacing: 0.06em;
+}
+.statDivider {
+  width: 1px; height: 32px; background: var(--color-border); flex-shrink: 0;
+}
+
+/* Filter tabs */
+.filterRow {
+  display: flex; gap: 8px; padding: 12px 16px;
+  border-bottom: 1px solid var(--color-border); flex-shrink: 0;
+}
+.filterBtn {
+  padding: 6px 14px; border-radius: 100px;
+  background: var(--color-surface-2); border: 1px solid var(--color-border);
+  color: #666; font-size: 12px; font-weight: 700; cursor: pointer;
+  font-family: inherit; transition: all 0.15s;
+}
+.filterBtnActive {
+  background: rgba(141,198,63,0.1); border-color: rgba(141,198,63,0.4);
+  color: #8DC63F;
+}
+
+/* List */
+.list {
+  flex: 1; overflow-y: auto; padding: 12px 16px; display: flex; flex-direction: column; gap: 10px;
+}
+.empty {
+  text-align: center; padding: 60px 20px;
+  color: #444; font-size: 14px;
+}
+
+/* Card */
+.card {
+  background: #0f0f0f; border: 1px solid #1a1a1a;
+  border-radius: 14px; padding: 14px 16px;
+  display: flex; flex-direction: column; gap: 10px;
+}
+.cardTop {
+  display: flex; align-items: flex-start; gap: 10px;
+}
+.vehicleIcon {
+  font-size: 22px; line-height: 1; flex-shrink: 0; margin-top: 1px;
+}
+.cardMeta {
+  flex: 1; display: flex; flex-direction: column; gap: 2px;
+}
+.cardDate {
+  font-size: 12px; color: #ccc; font-weight: 600;
+}
+.cardDriver {
+  font-size: 11px; color: #555;
+}
+
+/* Status pill */
+.statusPill {
+  font-size: 10px; font-weight: 800; text-transform: uppercase;
+  letter-spacing: 0.06em; padding: 3px 9px; border-radius: 100px;
+  border: 1px solid; flex-shrink: 0;
+}
+.pill_completed { color: #8DC63F; border-color: rgba(141,198,63,0.3); background: rgba(141,198,63,0.08); }
+.pill_cancelled { color: #ff6b6b; border-color: rgba(255,107,107,0.3); background: rgba(255,107,107,0.08); }
+.pill_pending   { color: #F5C518; border-color: rgba(245,197,24,0.3);  background: rgba(245,197,24,0.08); }
+
+/* Route */
+.cardRoute {
+  display: flex; flex-direction: column; gap: 0; padding-left: 4px;
+}
+.routeRow {
+  display: flex; align-items: center; gap: 10px;
+}
+.routeDot {
+  width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0;
+}
+.routeText {
+  font-size: 12px; color: #aaa; line-height: 1.4;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.routeLine {
+  width: 1px; height: 10px; background: #222; margin-left: 3px;
+}
+
+/* Fare */
+.cardFare {
+  font-size: 15px; font-weight: 900; color: #8DC63F;
+  text-align: right;
+}

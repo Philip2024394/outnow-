@@ -25,6 +25,10 @@ import styles from './ProfileScreen.module.css'
 
 import DriverDocumentUpload from '@/components/driver/DriverDocumentUpload'
 import OnlineToggle from '@/components/driver/OnlineToggle'
+import DriverIncomingBooking from '@/components/driver/DriverIncomingBooking'
+import DriverTripScreen from '@/components/driver/DriverTripScreen'
+import DriverEarningsScreen from '@/components/driver/DriverEarningsScreen'
+import { fetchDriverPendingBooking } from '@/services/bookingService'
 import SideDrawer from '@/components/ui/SideDrawer'
 import MicroShop from '@/components/ui/MicroShop'
 import MicroShopEditor from '@/components/ui/MicroShopEditor'
@@ -307,6 +311,29 @@ export default function ProfileScreen({ onClose, onboarding = false }) {
   const [speakingNative, setSpeakingNative] = useState(userProfile?.speakingNative ?? (userProfile?.country ? (COUNTRY_NATIVE_LANGUAGE[userProfile.country] ?? '') : ''))
   const [speakingSecond, setSpeakingSecond] = useState(userProfile?.speakingSecond ?? '')
   // Driver vehicle details
+  // ── Driver booking state ────────────────────────────────────────────────────
+  const [incomingBooking,  setIncomingBooking]  = useState(null)   // pending booking object
+  const [activeTrip,       setActiveTrip]       = useState(null)   // accepted booking object
+  const [earningsOpen,     setEarningsOpen]     = useState(false)
+  const driverId = user?.uid ?? user?.id
+
+  // Poll for incoming/active booking every 5s when driver is approved
+  useEffect(() => {
+    if (!userProfile?.is_driver) return
+    const poll = async () => {
+      const booking = await fetchDriverPendingBooking(driverId)
+      if (!booking) return
+      if (booking.status === 'pending')     setIncomingBooking(prev => prev?.id === booking.id ? prev : booking)
+      if (booking.status === 'accepted' || booking.status === 'in_progress') {
+        setIncomingBooking(null)
+        setActiveTrip(prev => prev?.id === booking.id ? prev : booking)
+      }
+    }
+    poll()
+    const id = setInterval(poll, 5000)
+    return () => clearInterval(id)
+  }, [userProfile?.is_driver, driverId])
+
   const [driverAge,     setDriverAge]     = useState(userProfile?.driver_age     ?? '')
   const [vehicleModel,  setVehicleModel]  = useState(userProfile?.vehicle_model  ?? '')
   const [vehicleYear,   setVehicleYear]   = useState(userProfile?.vehicle_year   ?? '')
@@ -655,6 +682,7 @@ export default function ProfileScreen({ onClose, onboarding = false }) {
 
 
   return (
+    <>
     <div className={styles.screen}>
 
       {/* ── Header ── */}
@@ -1105,8 +1133,19 @@ export default function ProfileScreen({ onClose, onboarding = false }) {
                 driverType={lookingFor}
               />
               {userProfile?.is_driver && (
-                <div style={{ display: 'flex', justifyContent: 'center', marginTop: 12 }}>
-                  <OnlineToggle userId={user?.uid ?? user?.id} />
+                <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 12, marginTop: 12 }}>
+                  <OnlineToggle userId={driverId} />
+                  <button
+                    onClick={() => setEarningsOpen(true)}
+                    style={{
+                      padding: '10px 24px', borderRadius: 12,
+                      background: 'rgba(141,198,63,0.1)', border: '1px solid rgba(141,198,63,0.3)',
+                      color: '#8DC63F', fontSize: 14, fontWeight: 800,
+                      cursor: 'pointer', fontFamily: 'inherit',
+                    }}
+                  >
+                    💰 My Earnings & Trips
+                  </button>
                 </div>
               )}
             </>
@@ -2072,5 +2111,35 @@ export default function ProfileScreen({ onClose, onboarding = false }) {
         </div>
       )}
     </div>
+
+      {/* ── Driver: incoming booking modal ── */}
+      {incomingBooking && !activeTrip && (
+        <DriverIncomingBooking
+          booking={incomingBooking}
+          driverId={driverId}
+          onAccepted={(booking) => { setIncomingBooking(null); setActiveTrip(booking) }}
+          onDeclined={() => setIncomingBooking(null)}
+        />
+      )}
+
+      {/* ── Driver: active trip screen ── */}
+      {activeTrip && (
+        <DriverTripScreen
+          booking={activeTrip}
+          driverId={driverId}
+          onCompleted={() => setActiveTrip(null)}
+          onClose={() => setActiveTrip(null)}
+        />
+      )}
+
+      {/* ── Driver: earnings screen ── */}
+      {earningsOpen && (
+        <DriverEarningsScreen
+          driverId={driverId}
+          profile={userProfile}
+          onClose={() => setEarningsOpen(false)}
+        />
+      )}
+    </>
   )
 }

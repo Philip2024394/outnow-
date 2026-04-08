@@ -1,8 +1,39 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useNotifications } from '@/hooks/useNotifications'
 import { activityEmoji } from '@/firebase/collections'
 import { DEMO_LIKED_USERS } from '@/demo/mockData'
+import { supabase } from '@/lib/supabase'
 import styles from './NotificationsScreen.module.css'
+
+const DEMO_RECENT_RIDES = [
+  { id: 'BOOK_001', created_at: '2026-04-08T09:12:00Z', dropoff_location: 'Bandara Adisucipto', driver_name: 'Budi Santoso', driver_type: 'bike_ride', fare: 28000, status: 'completed' },
+  { id: 'BOOK_002', created_at: '2026-04-08T10:45:00Z', dropoff_location: 'Prambanan Temple',    driver_name: 'Ani Rahayu',   driver_type: 'car_taxi',  fare: 45000, status: 'completed' },
+  { id: 'BOOK_003', created_at: '2026-04-08T11:30:00Z', dropoff_location: 'Jl. Solo No. 8',      driver_name: 'Hendra Putra', driver_type: 'bike_ride', fare: null,  status: 'cancelled' },
+]
+
+function fmtRp(n) { return `Rp ${Number(n).toLocaleString('id-ID')}` }
+
+function useRecentRides(userId) {
+  const [rides, setRides] = useState([])
+  useEffect(() => {
+    if (!supabase || !userId) { setRides(DEMO_RECENT_RIDES); return }
+    supabase
+      .from('bookings')
+      .select('id, created_at, dropoff_location, fare, status, service_type, driver:profiles!driver_id(display_name, driver_type)')
+      .eq('user_id', userId)
+      .order('created_at', { ascending: false })
+      .limit(3)
+      .then(({ data }) => {
+        setRides((data ?? []).map(b => ({
+          ...b,
+          driver_name: b.driver?.display_name ?? '—',
+          driver_type: b.driver?.driver_type  ?? 'bike_ride',
+        })))
+      })
+      .catch(() => setRides(DEMO_RECENT_RIDES))
+  }, [userId])
+  return rides
+}
 
 function timeAgo(ms) {
   if (!ms) return ''
@@ -35,8 +66,9 @@ const CHAT_TYPES = new Set(['date_invite', 'date_accepted', 'message', 'connect'
 
 export const DEMO_UNREAD_COUNT = 2
 
-export default function NotificationsScreen({ onClose, onOpenChat }) {
+export default function NotificationsScreen({ onClose, onOpenChat, userId, onOpenRideHistory }) {
   const { notifications, profileViews, unreadCount, markAllRead } = useNotifications()
+  const recentRides = useRecentRides(userId)
 
   // Use real notifications if available, otherwise show demo placeholders
   const hasRealNotifs = notifications.length > 0
@@ -135,6 +167,38 @@ export default function NotificationsScreen({ onClose, onOpenChat }) {
             </div>
             {earlier.map(n => (
               <NotifRow key={n.id} notif={n} onOpenChat={onOpenChat} />
+            ))}
+          </>
+        )}
+
+        {/* ── RIDE HISTORY ── */}
+        {recentRides.length > 0 && (
+          <>
+            <div className={styles.sectionHeader}>
+              <span className={styles.sectionIcon}>🏍️</span>
+              <span className={styles.sectionTitle}>Your Recent Rides</span>
+              {onOpenRideHistory && (
+                <button className={styles.viewAllBtn} onClick={onOpenRideHistory}>View All →</button>
+              )}
+            </div>
+            {recentRides.map(ride => (
+              <div key={ride.id} className={styles.rideRow}>
+                <span className={styles.rideIcon}>
+                  {ride.driver_type === 'car_taxi' ? '🚗' : ride.status === 'cancelled' ? '📦' : '🛵'}
+                </span>
+                <div className={styles.rideBody}>
+                  <span className={styles.rideDest}>{ride.dropoff_location ?? '—'}</span>
+                  <span className={styles.rideMeta}>
+                    {ride.driver_name} · {new Date(ride.created_at).toLocaleDateString('en-GB', { day: 'numeric', month: 'short' })}
+                  </span>
+                </div>
+                <div className={styles.rideRight}>
+                  {ride.status === 'completed' && ride.fare != null
+                    ? <span className={styles.rideFare}>{fmtRp(ride.fare)}</span>
+                    : <span className={styles.rideCancelled}>Cancelled</span>
+                  }
+                </div>
+              </div>
             ))}
           </>
         )}

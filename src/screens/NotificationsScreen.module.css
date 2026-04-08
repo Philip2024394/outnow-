@@ -357,3 +357,26 @@
   flex-shrink: 0;
   margin-top: 6px;
 }
+
+/* ── Ride history rows ── */
+.viewAllBtn {
+  font-size: 11px; font-weight: 700; color: #8DC63F;
+  background: none; border: none; cursor: pointer;
+  font-family: inherit; padding: 0; margin-left: auto;
+}
+
+.rideRow {
+  display: flex; align-items: center; gap: 12px;
+  padding: 12px 16px;
+  border-bottom: 1px solid var(--color-border);
+}
+.rideIcon { font-size: 20px; flex-shrink: 0; }
+.rideBody { flex: 1; display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+.rideDest {
+  font-size: 13px; font-weight: 700; color: var(--color-text);
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.rideMeta { font-size: 11px; color: #555; }
+.rideRight { flex-shrink: 0; text-align: right; }
+.rideFare { font-size: 13px; font-weight: 800; color: #8DC63F; }
+.rideCancelled { font-size: 11px; font-weight: 700; color: #ff6b6b; }

@@ -54,6 +54,7 @@ import LikedMeScreen from '@/screens/LikedMeScreen'
 import LikedProfilesScreen from '@/screens/LikedProfilesScreen'
 import { useLikedProfiles } from '@/hooks/useLikedProfiles'
 import NotificationsScreen from '@/screens/NotificationsScreen'
+import RideHistoryScreen from '@/screens/RideHistoryScreen'
 import BlockedUsersScreen from '@/screens/BlockedUsersScreen'
 import ProfileScreen from '@/screens/ProfileScreen'
 import WalletScreen from '@/screens/WalletScreen'
@@ -150,7 +151,8 @@ export default function AppShell({ returnParams, triggerGoLive }) {
   const [likedProfilesOpen, setLikedProfilesOpen] = useState(false)
   const { likedProfiles, saveLike, removeLike } = useLikedProfiles()
   const [settingsOpen, setSettingsOpen] = useState(false)
-  const [notifOpen, setNotifOpen] = useState(false)
+  const [notifOpen,       setNotifOpen]       = useState(false)
+  const [rideHistoryOpen, setRideHistoryOpen] = useState(false)
   const [blockListOpen, setBlockListOpen] = useState(false)
   const [ratingOpen, setRatingOpen] = useState(false)
   const [reviewsOpen, setReviewsOpen] = useState(false)
@@ -716,6 +718,8 @@ export default function AppShell({ returnParams, triggerGoLive }) {
       {notifOpen && (
         <NotificationsScreen
           onClose={() => setNotifOpen(false)}
+          userId={user?.id}
+          onOpenRideHistory={() => { setNotifOpen(false); setRideHistoryOpen(true) }}
           onOpenChat={(sender) => {
             setNotifOpen(false)
             setPendingConv({
@@ -735,6 +739,9 @@ export default function AppShell({ returnParams, triggerGoLive }) {
             setActiveTab('chat')
           }}
         />
+      )}
+      {rideHistoryOpen && (
+        <RideHistoryScreen userId={user?.id} onClose={() => setRideHistoryOpen(false)} />
       )}
       {blockListOpen && <BlockedUsersScreen onClose={() => setBlockListOpen(false)} />}
 
