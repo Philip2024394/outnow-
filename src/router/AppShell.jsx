@@ -93,7 +93,8 @@ import FloatingIcons from '@/components/home/FloatingIcons'
 import ActivityProfileGrid from '@/components/home/ActivityProfileGrid'
 import BookingScreen from '@/screens/BookingScreen'
 import RestaurantBrowseScreen from '@/screens/RestaurantBrowseScreen'
-import CategoryDiscoveryScreen from '@/screens/CategoryDiscoveryScreen'
+import CategoryDiscoveryScreen, { FOOD_CATEGORIES } from '@/screens/CategoryDiscoveryScreen'
+import { preloadVideos } from '@/utils/videoPreloader'
 
 import '@/styles/map.css'
 import styles from './AppShell.module.css'
@@ -211,6 +212,12 @@ export default function AppShell({ returnParams, triggerGoLive }) {
   const [activeTab, setActiveTab] = useState('map')
 
   // Send new users (no display name yet) straight to profile setup
+  // Preload all category videos on app mount — silent background fetch.
+  // By the time the user taps the food icon, videos are already cached.
+  useEffect(() => {
+    preloadVideos(FOOD_CATEGORIES.map(c => c.videoUrl))
+  }, [])
+
   useEffect(() => {
     if (userProfile !== null && !userProfile.displayName) {
       setActiveTab('profile')

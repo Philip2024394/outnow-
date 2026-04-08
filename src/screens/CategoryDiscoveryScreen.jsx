@@ -2,7 +2,10 @@ import { useState, useRef, useEffect, useCallback } from 'react'
 import { supabase } from '@/lib/supabase'
 import styles from './CategoryDiscoveryScreen.module.css'
 
-// ── Categories — swap imageUrl with your supplied ImageKit URLs ───────────────
+// ── Category definitions ──────────────────────────────────────────────────────
+// videoUrl  → short looping clip (WebM or H.264, ≤1 MB, no audio needed)
+// posterUrl → static frame shown before video loads / on slow connections
+// gradient  → fallback when neither image nor video supplied yet
 export const FOOD_CATEGORIES = [
   {
     id: 'all',
@@ -10,7 +13,8 @@ export const FOOD_CATEGORIES = [
     emoji: '🍽',
     tagline: 'Everything near you',
     color: '#F5C518',
-    imageUrl: null,
+    videoUrl:  null,
+    posterUrl: null,
     gradient: 'linear-gradient(160deg, #1a1200 0%, #2d2000 50%, #0d0d0d 100%)',
   },
   {
@@ -19,7 +23,8 @@ export const FOOD_CATEGORIES = [
     emoji: '🍚',
     tagline: 'Comfort in every grain',
     color: '#F5C518',
-    imageUrl: null,
+    videoUrl:  null,  // e.g. 'https://ik.imagekit.io/nepgaxllc/cat_rice.mp4'
+    posterUrl: null,  // e.g. 'https://ik.imagekit.io/nepgaxllc/cat_rice_poster.jpg'
     gradient: 'linear-gradient(160deg, #1a1500 0%, #2a2100 50%, #0d0d0d 100%)',
   },
   {
@@ -28,7 +33,8 @@ export const FOOD_CATEGORIES = [
     emoji: '🍜',
     tagline: 'Slurp-worthy every time',
     color: '#ff8c42',
-    imageUrl: null,
+    videoUrl:  null,
+    posterUrl: null,
     gradient: 'linear-gradient(160deg, #1a0d00 0%, #2d1800 50%, #0d0d0d 100%)',
   },
   {
@@ -37,7 +43,8 @@ export const FOOD_CATEGORIES = [
     emoji: '🔥',
     tagline: 'Charred. Bold. Perfect.',
     color: '#ff6b35',
-    imageUrl: null,
+    videoUrl:  null,
+    posterUrl: null,
     gradient: 'linear-gradient(160deg, #1a0800 0%, #2d1000 50%, #0d0d0d 100%)',
   },
   {
@@ -46,7 +53,8 @@ export const FOOD_CATEGORIES = [
     emoji: '🍔',
     tagline: 'Stack it high',
     color: '#8DC63F',
-    imageUrl: null,
+    videoUrl:  null,
+    posterUrl: null,
     gradient: 'linear-gradient(160deg, #071a00 0%, #0f2800 50%, #0d0d0d 100%)',
   },
   {
@@ -55,7 +63,8 @@ export const FOOD_CATEGORIES = [
     emoji: '🦐',
     tagline: 'Fresh from the ocean',
     color: '#38bdf8',
-    imageUrl: null,
+    videoUrl:  null,
+    posterUrl: null,
     gradient: 'linear-gradient(160deg, #001520 0%, #002030 50%, #0d0d0d 100%)',
   },
   {
@@ -64,7 +73,8 @@ export const FOOD_CATEGORIES = [
     emoji: '🧁',
     tagline: 'Life is short. Eat dessert first.',
     color: '#f472b6',
-    imageUrl: null,
+    videoUrl:  null,
+    posterUrl: null,
     gradient: 'linear-gradient(160deg, #1a0015 0%, #280020 50%, #0d0d0d 100%)',
   },
   {
@@ -73,7 +83,8 @@ export const FOOD_CATEGORIES = [
     emoji: '🥤',
     tagline: 'Refresh your world',
     color: '#a78bfa',
-    imageUrl: null,
+    videoUrl:  null,
+    posterUrl: null,
     gradient: 'linear-gradient(160deg, #0d0020 0%, #150030 50%, #0d0d0d 100%)',
   },
   {
@@ -82,7 +93,8 @@ export const FOOD_CATEGORIES = [
     emoji: '🌅',
     tagline: 'Start the day right',
     color: '#fb923c',
-    imageUrl: null,
+    videoUrl:  null,
+    posterUrl: null,
     gradient: 'linear-gradient(160deg, #1a0c00 0%, #2d1a00 50%, #0d0d0d 100%)',
   },
   {
@@ -91,7 +103,8 @@ export const FOOD_CATEGORIES = [
     emoji: '🍿',
     tagline: 'Always hungry for more',
     color: '#4ade80',
-    imageUrl: null,
+    videoUrl:  null,
+    posterUrl: null,
     gradient: 'linear-gradient(160deg, #001a0a 0%, #002810 50%, #0d0d0d 100%)',
   },
   {
@@ -100,29 +113,35 @@ export const FOOD_CATEGORIES = [
     emoji: '🥗',
     tagline: 'Clean. Green. Delicious.',
     color: '#22c55e',
-    imageUrl: null,
+    videoUrl:  null,
+    posterUrl: null,
     gradient: 'linear-gradient(160deg, #001508 0%, #002210 50%, #0d0d0d 100%)',
   },
 ]
 
+// ── Search demo data (replaced by Supabase when live) ────────────────────────
 const DEMO_SEARCH = [
-  { id: 1, name: 'Warung Bu Sari',       category: 'rice',      cuisine_type: 'Javanese',   rating: 4.8, is_open: true  },
-  { id: 2, name: 'Bakso Pak Budi',       category: 'noodles',   cuisine_type: 'Indonesian', rating: 4.6, is_open: true  },
-  { id: 3, name: 'Ayam Geprek Mbak Rina',category: 'grilled',   cuisine_type: 'Indonesian', rating: 4.9, is_open: false },
-  { id: 4, name: 'Es Teler 77',          category: 'drinks',    cuisine_type: 'Indonesian', rating: 4.5, is_open: true  },
-  { id: 5, name: 'Pisang Goreng Mbok Tum',category: 'snacks',   cuisine_type: 'Javanese',   rating: 4.7, is_open: true  },
+  { id: 1, name: 'Warung Bu Sari',        category: 'rice',      cuisine_type: 'Javanese',   rating: 4.8, is_open: true  },
+  { id: 2, name: 'Bakso Pak Budi',        category: 'noodles',   cuisine_type: 'Indonesian', rating: 4.6, is_open: true  },
+  { id: 3, name: 'Ayam Geprek Mbak Rina', category: 'grilled',   cuisine_type: 'Indonesian', rating: 4.9, is_open: false },
+  { id: 4, name: 'Es Teler 77',           category: 'drinks',    cuisine_type: 'Indonesian', rating: 4.5, is_open: true  },
+  { id: 5, name: 'Pisang Goreng Mbok Tum',category: 'snacks',    cuisine_type: 'Javanese',   rating: 4.7, is_open: true  },
 ]
 
+// ── Main component ────────────────────────────────────────────────────────────
 export default function CategoryDiscoveryScreen({ onClose, onSelectCategory }) {
   const [activeIndex,    setActiveIndex]    = useState(0)
   const [search,         setSearch]         = useState('')
   const [searchFocused,  setSearchFocused]  = useState(false)
   const [searchResults,  setSearchResults]  = useState([])
   const [allRestaurants, setAllRestaurants] = useState(DEMO_SEARCH)
+
   const containerRef = useRef(null)
   const searchRef    = useRef(null)
+  // One ref per category video element
+  const videoRefs    = useRef(FOOD_CATEGORIES.map(() => null))
 
-  // Load restaurant names for search
+  // ── Load restaurant list for search ──
   useEffect(() => {
     if (!supabase) return
     supabase
@@ -132,7 +151,7 @@ export default function CategoryDiscoveryScreen({ onClose, onSelectCategory }) {
       .then(({ data }) => { if (data?.length) setAllRestaurants(data) })
   }, [])
 
-  // Filter search results
+  // ── Live search filter ──
   useEffect(() => {
     if (!search.trim()) { setSearchResults([]); return }
     const q = search.toLowerCase()
@@ -145,13 +164,33 @@ export default function CategoryDiscoveryScreen({ onClose, onSelectCategory }) {
     )
   }, [search, allRestaurants])
 
+  // ── Active-only video playback ────────────────────────────────────────────
+  // When the active card changes, pause ALL videos then play only the active one.
+  // This keeps battery usage low and prevents audio bleed (even muted, helps perf).
+  useEffect(() => {
+    videoRefs.current.forEach((v, i) => {
+      if (!v) return
+      if (i === activeIndex) {
+        // Only play if video has a src
+        if (v.src) {
+          v.currentTime = 0
+          v.play().catch(() => {}) // catch DOMException on some browsers
+        }
+      } else {
+        v.pause()
+      }
+    })
+  }, [activeIndex])
+
+  // ── Scroll tracking ──
   const handleScroll = useCallback(() => {
     const el = containerRef.current
     if (!el) return
     const idx = Math.round(el.scrollTop / el.clientHeight)
-    setActiveIndex(idx)
-  }, [])
+    if (idx !== activeIndex) setActiveIndex(idx)
+  }, [activeIndex])
 
+  // ── Handlers ──
   const handleCategoryTap = (cat) => {
     setSearch('')
     setSearchFocused(false)
@@ -161,7 +200,6 @@ export default function CategoryDiscoveryScreen({ onClose, onSelectCategory }) {
   const handleSearchSelect = (restaurant) => {
     setSearch('')
     setSearchFocused(false)
-    // Find the category for this restaurant and open filtered to it
     const cat = FOOD_CATEGORIES.find(c => c.id === restaurant.category) || FOOD_CATEGORIES[0]
     onSelectCategory(cat, restaurant.id)
   }
@@ -171,7 +209,7 @@ export default function CategoryDiscoveryScreen({ onClose, onSelectCategory }) {
   return (
     <div className={styles.screen}>
 
-      {/* ── Search bar (always pinned top) ── */}
+      {/* ── Pinned search bar ────────────────────────────────────────────────── */}
       <div className={styles.searchBar}>
         <button className={styles.backBtn} onClick={onClose} aria-label="Back">
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
@@ -202,47 +240,52 @@ export default function CategoryDiscoveryScreen({ onClose, onSelectCategory }) {
         </div>
       </div>
 
-      {/* ── Search results overlay ── */}
+      {/* ── Search overlay ───────────────────────────────────────────────────── */}
       {showSearchOverlay && (
         <div className={styles.searchOverlay}>
-          {searchResults.length === 0 ? (
-            <div className={styles.searchEmpty}>No results for "{search}"</div>
-          ) : searchResults.map(r => (
-            <button key={r.id} className={styles.searchResult} onClick={() => handleSearchSelect(r)}>
-              <span className={styles.searchResultEmoji}>
-                {FOOD_CATEGORIES.find(c => c.id === r.category)?.emoji ?? '🍽'}
-              </span>
-              <span className={styles.searchResultInfo}>
-                <span className={styles.searchResultName}>{r.name}</span>
-                <span className={styles.searchResultSub}>{r.cuisine_type} · {r.is_open ? 'Open now' : 'Closed'}</span>
-              </span>
-              {r.rating && <span className={styles.searchResultRating}>⭐ {r.rating}</span>}
-            </button>
-          ))}
+          {searchResults.length === 0
+            ? <div className={styles.searchEmpty}>No results for "{search}"</div>
+            : searchResults.map(r => (
+              <button key={r.id} className={styles.searchResult} onClick={() => handleSearchSelect(r)}>
+                <span className={styles.searchResultEmoji}>
+                  {FOOD_CATEGORIES.find(c => c.id === r.category)?.emoji ?? '🍽'}
+                </span>
+                <span className={styles.searchResultInfo}>
+                  <span className={styles.searchResultName}>{r.name}</span>
+                  <span className={styles.searchResultSub}>{r.cuisine_type} · {r.is_open ? 'Open now' : 'Closed'}</span>
+                </span>
+                {r.rating && <span className={styles.searchResultRating}>⭐ {r.rating}</span>}
+              </button>
+            ))
+          }
         </div>
       )}
 
-      {/* ── Scroll dots (right side) ── */}
+      {/* ── Right-side scroll dots ───────────────────────────────────────────── */}
       <div className={styles.dots}>
-        {FOOD_CATEGORIES.map((_, i) => (
-          <div key={i} className={`${styles.dot} ${i === activeIndex ? styles.dotActive : ''}`}
-            style={i === activeIndex ? { background: FOOD_CATEGORIES[i].color } : {}} />
+        {FOOD_CATEGORIES.map((cat, i) => (
+          <div
+            key={cat.id}
+            className={`${styles.dot} ${i === activeIndex ? styles.dotActive : ''}`}
+            style={i === activeIndex ? { background: cat.color } : {}}
+          />
         ))}
       </div>
 
-      {/* ── Category cards — full-height snap scroll ── */}
+      {/* ── Full-screen snap-scroll cards ────────────────────────────────────── */}
       <div className={styles.cardContainer} ref={containerRef} onScroll={handleScroll}>
         {FOOD_CATEGORIES.map((cat, i) => (
           <CategoryCard
             key={cat.id}
             cat={cat}
             isActive={i === activeIndex}
+            videoRef={el => { videoRefs.current[i] = el }}
             onClick={() => handleCategoryTap(cat)}
           />
         ))}
       </div>
 
-      {/* ── Bottom swipe hint ── */}
+      {/* ── Swipe hint ───────────────────────────────────────────────────────── */}
       <div className={styles.swipeHint}>
         <div className={styles.swipeArrow}>↕</div>
         <span>Swipe to explore categories</span>
@@ -251,43 +294,68 @@ export default function CategoryDiscoveryScreen({ onClose, onSelectCategory }) {
   )
 }
 
-function CategoryCard({ cat, isActive, onClick }) {
+// ── Category card ─────────────────────────────────────────────────────────────
+function CategoryCard({ cat, isActive, videoRef, onClick }) {
+  const hasVideo = Boolean(cat.videoUrl)
+
   return (
     <div className={styles.card} onClick={onClick}>
 
-      {/* Background image or gradient */}
-      <div
-        className={styles.cardBg}
-        style={{
-          backgroundImage: cat.imageUrl
-            ? `url("${cat.imageUrl}")`
-            : cat.gradient,
-          backgroundSize: 'cover',
-          backgroundPosition: 'center',
-        }}
-      />
+      {/* ── Background: video (if supplied) or gradient ── */}
+      {hasVideo ? (
+        <>
+          <video
+            ref={videoRef}
+            className={styles.cardVideo}
+            src={cat.videoUrl}
+            poster={cat.posterUrl ?? undefined}
+            muted
+            loop
+            playsInline
+            preload="auto"
+            aria-hidden="true"
+          />
+          {/* Darken the video so text stays readable */}
+          <div className={styles.videoScrim} />
+        </>
+      ) : (
+        <>
+          {/* Poster / static image fallback */}
+          {cat.posterUrl && (
+            <div
+              className={styles.cardBg}
+              style={{ backgroundImage: `url("${cat.posterUrl}")` }}
+            />
+          )}
+          {/* Gradient fill (always rendered, covers poster or stands alone) */}
+          <div className={styles.cardBg} style={{ backgroundImage: cat.gradient }} />
+        </>
+      )}
 
-      {/* Cinematic overlay — heavy at bottom, light at top */}
+      {/* Cinematic overlay — heavy bottom, light top */}
       <div className={styles.cardOverlay} />
 
-      {/* Subtle top edge glow matching category color */}
-      <div className={styles.cardTopGlow} style={{ background: `linear-gradient(to bottom, ${cat.color}18 0%, transparent 40%)` }} />
+      {/* Subtle color glow at top matching category accent */}
+      <div
+        className={styles.cardTopGlow}
+        style={{ background: `linear-gradient(to bottom, ${cat.color}22 0%, transparent 40%)` }}
+      />
 
-      {/* Center: category emoji */}
+      {/* Center emoji — scales up when active */}
       <div className={styles.cardCenter}>
         <div className={`${styles.emojiWrap} ${isActive ? styles.emojiActive : ''}`}>
           <span className={styles.emoji}>{cat.emoji}</span>
         </div>
       </div>
 
-      {/* Bottom: name + tagline + tap hint */}
+      {/* Bottom: tagline + name + CTA */}
       <div className={styles.cardBottom}>
         <span className={styles.tagline}>{cat.tagline}</span>
-        <h2 className={styles.categoryName} style={{ color: '#fff' }}>{cat.label}</h2>
+        <h2 className={styles.categoryName}>{cat.label}</h2>
 
         <button
           className={styles.explorBtn}
-          style={{ background: cat.color, color: cat.id === 'drinks' || cat.id === 'desserts' ? '#000' : '#000' }}
+          style={{ background: cat.color }}
           onClick={onClick}
         >
           <span>Explore {cat.label}</span>
@@ -299,8 +367,11 @@ function CategoryCard({ cat, isActive, onClick }) {
         <div className={styles.tapHint}>Tap to browse restaurants →</div>
       </div>
 
-      {/* Active indicator strip at bottom */}
-      <div className={styles.activeStrip} style={{ background: cat.color, opacity: isActive ? 1 : 0 }} />
+      {/* Bottom strip — glows active color when this card is visible */}
+      <div
+        className={styles.activeStrip}
+        style={{ background: cat.color, opacity: isActive ? 1 : 0 }}
+      />
     </div>
   )
 }
