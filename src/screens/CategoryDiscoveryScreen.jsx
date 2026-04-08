@@ -23,8 +23,8 @@ export const FOOD_CATEGORIES = [
     emoji: '🍚',
     tagline: 'Comfort in every grain',
     color: '#F5C518',
-    videoUrl:  null,  // e.g. 'https://ik.imagekit.io/nepgaxllc/cat_rice.mp4'
-    posterUrl: null,  // e.g. 'https://ik.imagekit.io/nepgaxllc/cat_rice_poster.jpg'
+    videoUrl:  'https://fjvafjkzvygkhiwjuvla.supabase.co/storage/v1/object/sign/category-videos/cool%20rice.mp4?token=eyJraWQiOiJzdG9yYWdlLXVybC1zaWduaW5nLWtleV9mN2EwYjVlOC05MWUxLTRkMTAtYmU3ZC1kMzcyM2FhY2ZjZTIiLCJhbGciOiJIUzI1NiJ9.eyJ1cmwiOiJjYXRlZ29yeS12aWRlb3MvY29vbCByaWNlLm1wNCIsImlhdCI6MTc3NTY3MjExMSwiZXhwIjoyMDkxMDMyMTExfQ.Ny19MR2SrVB9aNEGGzh2p_8A863OagwOSLSoENM_A_4',
+    posterUrl: null,
     gradient: 'linear-gradient(160deg, #1a1500 0%, #2a2100 50%, #0d0d0d 100%)',
   },
   {
