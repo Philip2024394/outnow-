@@ -153,7 +153,7 @@
 /* ── CTA ─────────────────────────────────────────────────────────────────────── */
 .menuBtn {
   width: 100%; padding: 17px; border-radius: 16px;
-  background: #fff; color: #000;
+  background: #8DC63F; color: #000;
   border: none; font-size: 16px; font-weight: 900;
   cursor: pointer; font-family: inherit;
   transition: opacity 0.15s, transform 0.1s;
