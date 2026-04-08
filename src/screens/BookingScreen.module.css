@@ -851,6 +851,58 @@
 .sheetServiceBtnLabel { font-size: 12px; font-weight: 700; color: #ddd; }
 .sheetServiceUnavail  { font-size: 10px; color: #ef4444; font-weight: 600; }
 
+/* Package fields */
+.sheetPackageFields {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.sheetPackageTitle {
+  font-size: 12px;
+  font-weight: 800;
+  color: #8DC63F;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  margin: 0;
+}
+.sheetPackageLabel {
+  font-size: 11px;
+  font-weight: 700;
+  color: #444;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin: 0;
+}
+.sheetOptionRow {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+.sheetOptionBtn {
+  padding: 7px 12px;
+  background: rgba(255,255,255,0.04);
+  border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 100px;
+  color: #888;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  font-family: inherit;
+  transition: all 0.12s;
+  white-space: nowrap;
+}
+.sheetOptionBtnActive {
+  background: rgba(141,198,63,0.12);
+  border-color: rgba(141,198,63,0.45);
+  color: #8DC63F;
+}
+.sheetBookHint {
+  font-size: 11px;
+  color: #555;
+  text-align: center;
+  margin: -8px 0 0;
+}
+
 /* Package note */
 .sheetPackageNote {
   width: 100%;

@@ -187,9 +187,11 @@ export default function BookingScreen({ onClose }) {
   const [cancelReason, setCancelReason] = useState('')
 
   // Driver detail sheet
-  const [sheetDriver,  setSheetDriver]  = useState(null)   // driver obj or null
-  const [sheetService, setSheetService] = useState('ride') // 'ride' | 'delivery'
-  const [packageNote,  setPackageNote]  = useState('')
+  const [sheetDriver,   setSheetDriver]   = useState(null)
+  const [sheetService,  setSheetService]  = useState('ride') // 'ride' | 'delivery'
+  const [packageNote,   setPackageNote]   = useState('')
+  const [packageWeight, setPackageWeight] = useState('')
+  const [packageSize,   setPackageSize]   = useState('')
 
   // Featured driver banner rotation
   const [featuredIdx,  setFeaturedIdx]  = useState(0)
@@ -262,7 +264,7 @@ export default function BookingScreen({ onClose }) {
   }, [pickupCoords, vehicleType, triedIds])
 
   // ── Select driver → WhatsApp ───────────────────────────────────────────────
-  const handleSelectDriver = useCallback(async (driver, serviceType = 'ride', pkgNote = '') => {
+  const handleSelectDriver = useCallback(async (driver, serviceType = 'ride', pkgNote = '', pkgWeight = '', pkgSize = '') => {
     setSheetDriver(null)
     setSelectedDriver(driver)
     const book = await createBooking({
@@ -289,7 +291,9 @@ export default function BookingScreen({ onClose }) {
           `📍 Deliver to: ${destination?.address ?? 'To be confirmed'}`,
           `${vehicle}`,
           `💰 Fare: ${formatRp(fare)}`,
-          pkgNote ? `📝 Package: ${pkgNote}` : '',
+          pkgWeight ? `⚖️ Weight: ${pkgWeight}` : '',
+          pkgSize   ? `📐 Size: ${pkgSize}`     : '',
+          pkgNote   ? `📝 Notes: ${pkgNote}`    : '',
           ``,
           `Can you deliver this package?`,
           ``,
@@ -534,10 +538,9 @@ export default function BookingScreen({ onClose }) {
               <div className={styles.featuredVehicle}>
                 {featured.vehicle_model} {featured.vehicle_year}
               </div>
-              {/* Service icons */}
               <div className={styles.featuredServiceIcons}>
-                {featured.accepts_rides    !== false && <span className={styles.serviceIcon}>👤 Ride</span>}
-                {featured.accepts_packages === true  && <span className={styles.serviceIcon}>📦 Delivery</span>}
+                <span className={styles.serviceIcon}>👤 Ride</span>
+                <span className={styles.serviceIcon}>📦 Delivery</span>
               </div>
             </div>
 
@@ -576,8 +579,8 @@ export default function BookingScreen({ onClose }) {
                 <div className={styles.driverListBottom}>
                   <span className={styles.driverListVehicle}>{d.vehicle_model} {d.vehicle_year}</span>
                   <div className={styles.driverListServiceIcons}>
-                    {d.accepts_rides    !== false && <span className={styles.serviceIconSm}>👤</span>}
-                    {d.accepts_packages === true  && <span className={styles.serviceIconSm}>📦</span>}
+                    <span className={styles.serviceIconSm}>👤</span>
+                    <span className={styles.serviceIconSm}>📦</span>
                   </div>
                 </div>
               </div>
@@ -591,23 +594,22 @@ export default function BookingScreen({ onClose }) {
     )
   }
 
+  const PACKAGE_WEIGHTS = ['Light  < 1 kg', 'Medium  1 – 5 kg', 'Heavy  5 – 15 kg', 'Very Heavy  15 kg+']
+  const PACKAGE_SIZES   = ['Small — envelope / bag', 'Medium — shoebox', 'Large — suitcase', 'Extra Large']
+
   const renderDriverSheet = () => {
     if (!sheetDriver) return null
     const d = sheetDriver
-    const vehicleImg = d.driver_type === 'car_taxi' ? CAR_IMG : BIKE_IMG
-    const canRide     = d.accepts_rides    !== false
-    const canDeliver  = d.accepts_packages === true
 
     return (
       <div className={styles.sheetOverlay} onClick={() => setSheetDriver(null)}>
         <div className={styles.sheetPanel} onClick={e => e.stopPropagation()}>
-          {/* Handle */}
           <div className={styles.sheetHandle} />
 
           {/* Driver hero */}
           <div className={styles.sheetHero}>
             <div className={styles.sheetVehicleWrap}>
-              <img src={vehicleImg} alt={d.display_name} className={styles.sheetVehicleImg} />
+              <img src={d.driver_type === 'car_taxi' ? CAR_IMG : BIKE_IMG} alt={d.display_name} className={styles.sheetVehicleImg} />
             </div>
             <div className={styles.sheetDriverInfo}>
               <p className={styles.sheetDriverName}>{d.display_name}</p>
@@ -640,52 +642,76 @@ export default function BookingScreen({ onClose }) {
             </div>
           </div>
 
-          {/* Services available */}
-          <p className={styles.sheetServicesLabel}>Available for</p>
+          {/* Service selector — both always available */}
+          <p className={styles.sheetServicesLabel}>Select service</p>
           <div className={styles.sheetServiceBtns}>
             <button
-              className={`${styles.sheetServiceBtn} ${sheetService === 'ride' ? styles.sheetServiceBtnActive : ''} ${!canRide ? styles.sheetServiceBtnDisabled : ''}`}
-              onClick={() => canRide && setSheetService('ride')}
-              disabled={!canRide}
+              className={`${styles.sheetServiceBtn} ${sheetService === 'ride' ? styles.sheetServiceBtnActive : ''}`}
+              onClick={() => setSheetService('ride')}
             >
               <span className={styles.sheetServiceIcon}>👤</span>
               <span className={styles.sheetServiceBtnLabel}>Personal Ride</span>
-              {!canRide && <span className={styles.sheetServiceUnavail}>Unavailable</span>}
             </button>
             <button
-              className={`${styles.sheetServiceBtn} ${sheetService === 'delivery' ? styles.sheetServiceBtnActive : ''} ${!canDeliver ? styles.sheetServiceBtnDisabled : ''}`}
-              onClick={() => canDeliver && setSheetService('delivery')}
-              disabled={!canDeliver}
+              className={`${styles.sheetServiceBtn} ${sheetService === 'delivery' ? styles.sheetServiceBtnActive : ''}`}
+              onClick={() => setSheetService('delivery')}
             >
               <span className={styles.sheetServiceIcon}>📦</span>
               <span className={styles.sheetServiceBtnLabel}>Package Delivery</span>
-              {!canDeliver && <span className={styles.sheetServiceUnavail}>Unavailable</span>}
             </button>
           </div>
 
-          {/* Package note — only for delivery */}
+          {/* Package details — delivery only */}
           {sheetService === 'delivery' && (
-            <textarea
-              className={styles.sheetPackageNote}
-              value={packageNote}
-              onChange={e => setPackageNote(e.target.value)}
-              placeholder="Describe your package (e.g. small box, fragile, documents)…"
-              rows={2}
-              maxLength={200}
-            />
+            <div className={styles.sheetPackageFields}>
+              <p className={styles.sheetPackageTitle}>Package details</p>
+
+              <p className={styles.sheetPackageLabel}>Approx. weight</p>
+              <div className={styles.sheetOptionRow}>
+                {PACKAGE_WEIGHTS.map(w => (
+                  <button
+                    key={w}
+                    className={`${styles.sheetOptionBtn} ${packageWeight === w ? styles.sheetOptionBtnActive : ''}`}
+                    onClick={() => setPackageWeight(w)}
+                  >{w}</button>
+                ))}
+              </div>
+
+              <p className={styles.sheetPackageLabel}>Approx. size</p>
+              <div className={styles.sheetOptionRow}>
+                {PACKAGE_SIZES.map(s => (
+                  <button
+                    key={s}
+                    className={`${styles.sheetOptionBtn} ${packageSize === s ? styles.sheetOptionBtnActive : ''}`}
+                    onClick={() => setPackageSize(s)}
+                  >{s}</button>
+                ))}
+              </div>
+
+              <textarea
+                className={styles.sheetPackageNote}
+                value={packageNote}
+                onChange={e => setPackageNote(e.target.value)}
+                placeholder="Any extra details? (fragile, keep upright, urgent…)"
+                rows={2}
+                maxLength={200}
+              />
+            </div>
           )}
 
-          {/* Book button */}
+          {/* Book */}
           <button
             className={styles.sheetBookBtn}
-            onClick={() => handleSelectDriver(d, sheetService, packageNote)}
+            disabled={sheetService === 'delivery' && (!packageWeight || !packageSize)}
+            onClick={() => handleSelectDriver(d, sheetService, packageNote, packageWeight, packageSize)}
           >
             {sheetService === 'delivery' ? '📦 Book Package Delivery' : '👤 Book Personal Ride'}
             <span className={styles.sheetBookArrow}> via WhatsApp →</span>
           </button>
-          <button className={styles.sheetCancelBtn} onClick={() => setSheetDriver(null)}>
-            Back to drivers
-          </button>
+          {sheetService === 'delivery' && (!packageWeight || !packageSize) && (
+            <p className={styles.sheetBookHint}>Select weight and size to continue</p>
+          )}
+          <button className={styles.sheetCancelBtn} onClick={() => setSheetDriver(null)}>Back to drivers</button>
         </div>
       </div>
     )
