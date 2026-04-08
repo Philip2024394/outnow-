@@ -46,7 +46,7 @@ const DEMO_RESTAURANTS = [
   {
     id: 4, name: 'Nasi Goreng Pak Harto', cuisine_type: 'Indonesian', category: 'rice',
     address: 'Jl. Kaliurang Km 3, Yogyakarta', lat: -7.7745, lng: 110.3802,
-    phone: '6281234567894', cover_url: null, hero_dish_url: null,
+    phone: '6281234567894', cover_url: null, hero_dish_url: 'https://ik.imagekit.io/nepgaxllc/Untitledddddddddddsfsdfadsfasdfsdfsasdassdasd.png',
     hero_dish_name: 'Nasi Goreng Istimewa',
     description: 'Wok-fired fried rice cooked over charcoal. High heat, smoky flavour, zero shortcuts.',
     opening_hours: '10:00–23:00', is_open: true, rating: 4.7, review_count: 208,

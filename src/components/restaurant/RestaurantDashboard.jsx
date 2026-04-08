@@ -2,17 +2,34 @@ import { useState, useEffect, useCallback } from 'react'
 import { supabase } from '@/lib/supabase'
 import styles from './RestaurantDashboard.module.css'
 
-const CUISINES = ['Javanese','Indonesian','Chinese','Western','Japanese','Korean','Indian','Italian','Seafood','Vegetarian','Other']
+const CUISINES   = ['Javanese','Indonesian','Chinese','Western','Japanese','Korean','Indian','Italian','Seafood','Vegetarian','Other']
 const CATEGORIES = ['Main','Snacks','Drinks','Desserts','Sides']
 
 function fmtRp(n) { return `Rp ${Number(n).toLocaleString('id-ID')}` }
+
+// ── Demo stock photos — replace image_url with real Supabase uploads ──────────
+// Style tags give owners a feel for the mood before buying
+const DEMO_STOCK_PHOTOS = [
+  { id: 1,  image_url: null, style_tag: 'Modern & Clean',    price: 100000, restaurant_id: null },
+  { id: 2,  image_url: null, style_tag: 'Rustic Warung',     price: 100000, restaurant_id: null },
+  { id: 3,  image_url: null, style_tag: 'Night Atmosphere',  price: 100000, restaurant_id: null },
+  { id: 4,  image_url: null, style_tag: 'Street Food Energy',price: 100000, restaurant_id: null },
+  { id: 5,  image_url: null, style_tag: 'Elegant Dining',    price: 100000, restaurant_id: null },
+  { id: 6,  image_url: null, style_tag: 'Garden Setting',    price: 100000, restaurant_id: null },
+  { id: 7,  image_url: null, style_tag: 'Bold & Colourful',  price: 100000, restaurant_id: null },
+  { id: 8,  image_url: null, style_tag: 'Minimal & Dark',    price: 100000, restaurant_id: null },
+  { id: 9,  image_url: null, style_tag: 'Family Kitchen',    price: 100000, restaurant_id: null },
+  { id: 10, image_url: null, style_tag: 'Open Air',          price: 100000, restaurant_id: null },
+]
 
 export default function RestaurantDashboard({ userId, onClose }) {
   const [restaurant, setRestaurant] = useState(null)
   const [loading,    setLoading]    = useState(true)
   const [saving,     setSaving]     = useState(false)
-  const [tab,        setTab]        = useState('profile') // profile | menu
+  const [tab,        setTab]        = useState('profile') // profile | menu | photos
   const [toast,      setToast]      = useState(null)
+  const [stockPhotos,setStockPhotos] = useState(DEMO_STOCK_PHOTOS)
+  const [buyingPhoto,setBuyingPhoto] = useState(null) // photo being purchased
 
   // Profile fields
   const [name,         setName]         = useState('')
@@ -57,6 +74,20 @@ export default function RestaurantDashboard({ userId, onClose }) {
   }, [userId])
 
   useEffect(() => { load() }, [load])
+
+  // Load stock photos from Supabase (falls back to demo)
+  useEffect(() => {
+    if (!supabase) return
+    supabase.from('stock_photos').select('*').order('created_at', { ascending: true })
+      .then(({ data }) => { if (data?.length) setStockPhotos(data) })
+  }, [])
+
+  const handleBuyPhoto = (photo) => {
+    if (!restaurant?.id) { showToast('Save your profile first'); return }
+    const msg = `Hi, I'd like to purchase the cover photo "${photo.style_tag}" (ID: ${photo.id}) for my restaurant *${name || 'my restaurant'}* on Hangger.\n\nPayment: Rp 100,000`
+    window.open(`https://wa.me/62XXXXXXXXXX?text=${encodeURIComponent(msg)}`, '_blank')
+    setBuyingPhoto(photo.id)
+  }
 
   const saveProfile = async () => {
     if (!supabase) return showToast('Not connected')
@@ -170,6 +201,7 @@ export default function RestaurantDashboard({ userId, onClose }) {
       <div className={styles.tabs}>
         <button className={`${styles.tabBtn} ${tab === 'profile' ? styles.tabActive : ''}`} onClick={() => setTab('profile')}>🏪 Profile</button>
         <button className={`${styles.tabBtn} ${tab === 'menu'    ? styles.tabActive : ''}`} onClick={() => setTab('menu')}>🍽 Menu</button>
+        <button className={`${styles.tabBtn} ${tab === 'photos'  ? styles.tabActive : ''}`} onClick={() => setTab('photos')}>📸 Cover Photo</button>
       </div>
 
       <div className={styles.scroll}>
@@ -202,6 +234,96 @@ export default function RestaurantDashboard({ userId, onClose }) {
             <button className={styles.saveBtn} onClick={saveProfile} disabled={saving || !name.trim() || !phone.trim()}>
               {saving ? 'Saving…' : restaurant?.id ? '💾 Save Changes' : '📝 Submit for Approval'}
             </button>
+          </div>
+        )}
+
+        {/* ── Cover Photos tab ── */}
+        {tab === 'photos' && (
+          <div className={styles.photosSection}>
+
+            {/* Current cover */}
+            <div className={styles.currentCover}>
+              {restaurant?.cover_url
+                ? <img src={restaurant.cover_url} alt="Current cover" className={styles.currentCoverImg} />
+                : <div className={styles.currentCoverEmpty}>
+                    <span>No cover photo yet</span>
+                    <span className={styles.currentCoverSub}>Your restaurant listing uses a plain background</span>
+                  </div>
+              }
+            </div>
+
+            {/* Pitch */}
+            <div className={styles.photosPitch}>
+              <p className={styles.photosPitchTitle}>Stand out with a professional cover</p>
+              <p className={styles.photosPitchSub}>
+                Each photo is exclusive — once you buy it, no other restaurant can use it.
+                Pay once, yours forever. We update the library regularly with new styles.
+              </p>
+            </div>
+
+            {/* Price callout */}
+            <div className={styles.priceCallout}>
+              <span className={styles.priceCalloutAmount}>Rp 100.000</span>
+              <span className={styles.priceCalloutLabel}>per photo · one-time · exclusive ownership</span>
+            </div>
+
+            {/* Photo grid */}
+            <div className={styles.photoGrid}>
+              {stockPhotos.map(photo => {
+                const isMine    = photo.restaurant_id === restaurant?.id
+                const isTaken   = photo.restaurant_id && !isMine
+                const isPending = buyingPhoto === photo.id
+
+                return (
+                  <div
+                    key={photo.id}
+                    className={`${styles.photoCard} ${isTaken ? styles.photoCardTaken : ''} ${isMine ? styles.photoCardMine : ''}`}
+                  >
+                    {/* Image or placeholder */}
+                    <div className={styles.photoThumb}>
+                      {photo.image_url
+                        ? <img src={photo.image_url} alt={photo.style_tag} className={styles.photoThumbImg} />
+                        : <div className={styles.photoThumbPlaceholder}>
+                            <span className={styles.photoThumbIcon}>🖼</span>
+                          </div>
+                      }
+
+                      {/* Sold overlay */}
+                      {isTaken && (
+                        <div className={styles.soldOverlay}>
+                          <span className={styles.soldText}>Sold</span>
+                        </div>
+                      )}
+
+                      {/* Mine badge */}
+                      {isMine && (
+                        <div className={styles.mineBadge}>✓ Your Photo</div>
+                      )}
+                    </div>
+
+                    {/* Style tag + action */}
+                    <div className={styles.photoInfo}>
+                      <span className={styles.photoStyle}>{photo.style_tag}</span>
+                      {!isTaken && !isMine && (
+                        <button
+                          className={`${styles.buyBtn} ${isPending ? styles.buyBtnPending : ''}`}
+                          onClick={() => handleBuyPhoto(photo)}
+                        >
+                          {isPending ? 'Request sent ✓' : 'Buy — Rp 100k'}
+                        </button>
+                      )}
+                      {isMine && (
+                        <span className={styles.ownedLabel}>Active on your listing</span>
+                      )}
+                    </div>
+                  </div>
+                )
+              })}
+            </div>
+
+            <p className={styles.photosNote}>
+              Tap Buy → sends a WhatsApp request to our team → we confirm payment and activate your photo within 24 hours.
+            </p>
           </div>
         )}
 
