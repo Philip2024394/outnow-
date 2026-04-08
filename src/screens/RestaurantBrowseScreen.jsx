@@ -363,6 +363,12 @@ function RestaurantCard({ restaurant: r, onOpenMenu }) {
         >
           {r.is_open ? 'View Menu & Order' : '⏰ Closed'}
         </button>
+
+        <div className={styles.cardFooter}>
+          <span className={styles.footerDot} />
+          <span>Hangger Food</span>
+          <span className={styles.footerDot} />
+        </div>
       </div>
     </div>
   )
