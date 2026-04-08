@@ -316,13 +316,15 @@ function RestaurantCard({ restaurant: r, onOpenMenu }) {
   return (
     <div className={styles.card}>
 
-      {/* Background */}
+      {/* Background — cover > hero dish > gradient */}
       <div
         className={styles.cardBg}
         style={{
           backgroundImage: r.cover_url
             ? `url("${r.cover_url}")`
-            : `linear-gradient(160deg, #1a1200 0%, #0d0d0d 100%)`,
+            : r.hero_dish_url
+              ? `url("${r.hero_dish_url}")`
+              : `linear-gradient(160deg, #1a1200 0%, #0d0d0d 100%)`,
         }}
       />
       <div className={styles.cardOverlay} />
@@ -340,13 +342,6 @@ function RestaurantCard({ restaurant: r, onOpenMenu }) {
           </span>
         )}
       </div>
-
-      {/* Hero dish image — only when a real photo is available */}
-      {r.hero_dish_url && (
-        <div className={styles.heroDishArea}>
-          <img src={r.hero_dish_url} alt={r.hero_dish_name} className={styles.heroDishImg} />
-        </div>
-      )}
 
       {/* Bottom info — clean and sparse */}
       <div className={styles.cardBottom}>
