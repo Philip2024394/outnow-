@@ -28,6 +28,7 @@ import OnlineToggle from '@/components/driver/OnlineToggle'
 import DriverIncomingBooking from '@/components/driver/DriverIncomingBooking'
 import DriverTripScreen from '@/components/driver/DriverTripScreen'
 import DriverEarningsScreen from '@/components/driver/DriverEarningsScreen'
+import RestaurantDashboard from '@/components/restaurant/RestaurantDashboard'
 import { fetchDriverPendingBooking } from '@/services/bookingService'
 import SideDrawer from '@/components/ui/SideDrawer'
 import MicroShop from '@/components/ui/MicroShop'
@@ -314,7 +315,8 @@ export default function ProfileScreen({ onClose, onboarding = false }) {
   // ── Driver booking state ────────────────────────────────────────────────────
   const [incomingBooking,  setIncomingBooking]  = useState(null)   // pending booking object
   const [activeTrip,       setActiveTrip]       = useState(null)   // accepted booking object
-  const [earningsOpen,     setEarningsOpen]     = useState(false)
+  const [earningsOpen,        setEarningsOpen]        = useState(false)
+  const [restaurantDashOpen,  setRestaurantDashOpen]  = useState(false)
   const driverId = user?.uid ?? user?.id
 
   // Poll for incoming/active booking every 5s when driver is approved
@@ -1149,6 +1151,26 @@ export default function ProfileScreen({ onClose, onboarding = false }) {
                 </div>
               )}
             </>
+          )}
+
+          {/* Restaurant owner section */}
+          {lookingFor === 'restaurant_owner' && (
+            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 12, marginTop: 8 }}>
+              <p style={{ color: '#555', fontSize: 13, textAlign: 'center', margin: 0 }}>
+                List your restaurant, manage your menu, and receive orders via WhatsApp.
+              </p>
+              <button
+                onClick={() => setRestaurantDashOpen(true)}
+                style={{
+                  width: '100%', padding: '16px', borderRadius: 14,
+                  background: 'rgba(245,197,24,0.08)', border: '1px solid rgba(245,197,24,0.3)',
+                  color: '#F5C518', fontSize: 15, fontWeight: 900,
+                  cursor: 'pointer', fontFamily: 'inherit',
+                }}
+              >
+                🍴 Open Restaurant Dashboard
+              </button>
+            </div>
           )}
 
           {/* Dating profile fields — only shown for dating category */}
@@ -2138,6 +2160,14 @@ export default function ProfileScreen({ onClose, onboarding = false }) {
           driverId={driverId}
           profile={userProfile}
           onClose={() => setEarningsOpen(false)}
+        />
+      )}
+
+      {/* ── Restaurant dashboard ── */}
+      {restaurantDashOpen && (
+        <RestaurantDashboard
+          userId={driverId}
+          onClose={() => setRestaurantDashOpen(false)}
         />
       )}
     </>

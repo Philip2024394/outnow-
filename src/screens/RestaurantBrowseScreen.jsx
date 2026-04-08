@@ -2,7 +2,15 @@ import { useState, useEffect, useRef } from 'react'
 import { supabase } from '@/lib/supabase'
 import { useGeolocation } from '@/hooks/useGeolocation'
 import { haversineKm } from '@/utils/distance'
-import { estimateFare, ZONE_INFO } from '@/services/pricingService'
+// Kemenhub Zone 1 (Java/Bali) bike delivery rates
+const BIKE_BASE = 9250
+const BIKE_PER_KM = 1850
+const MIN_FARE = 10000
+const MAX_FARE = 80000
+function calcDeliveryFare(distKm) {
+  if (distKm == null) return null
+  return Math.min(Math.max(BIKE_BASE + Math.round(distKm * BIKE_PER_KM), MIN_FARE), MAX_FARE)
+}
 import RestaurantMenuSheet from '@/components/restaurant/RestaurantMenuSheet'
 import styles from './RestaurantBrowseScreen.module.css'
 
@@ -100,9 +108,7 @@ export default function RestaurantBrowseScreen({ onClose }) {
     const distKm = coords && r.lat && r.lng
       ? Math.round(haversineKm(coords.lat, coords.lng, r.lat, r.lng) * 10) / 10
       : null
-    const deliveryFare = distKm != null
-      ? estimateFare('bike_ride', 'Yogyakarta', distKm, [{ zone: 1, start_km: 0, end_km: 999 }], {})
-      : null
+    const deliveryFare = calcDeliveryFare(distKm)
     return { ...r, distKm, deliveryFare }
   }).sort((a, b) => (a.distKm ?? 99) - (b.distKm ?? 99))
 
@@ -172,7 +178,7 @@ export default function RestaurantBrowseScreen({ onClose }) {
   )
 }
 
-function RestaurantCard({ restaurant: r, isActive, onOpenMenu }) {
+function RestaurantCard({ restaurant: r, onOpenMenu }) {
   const color = r.distKm != null ? distanceColor(r.distKm) : '#8DC63F'
 
   return (

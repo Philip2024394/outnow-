@@ -12,7 +12,8 @@ CREATE TABLE IF NOT EXISTS restaurants (
   hero_dish_url   text,                        -- signature dish photo
   hero_dish_name  text,
   description     text,
-  opening_hours   text,                        -- e.g. "08:00–22:00"
+  opening_hours   text,
+  admin_notes     text,                        -- e.g. "08:00–22:00"
   is_open         boolean       NOT NULL DEFAULT false,
   status          text          NOT NULL DEFAULT 'pending'
                   CHECK (status IN ('pending','approved','rejected')),
