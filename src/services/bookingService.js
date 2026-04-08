@@ -108,6 +108,11 @@ export async function markBookingStarted(bookingId) {
     .eq('id', bookingId)
 }
 
+export async function incrementDriverTrips(driverId) {
+  if (!supabase) return
+  await supabase.rpc('increment_driver_trips', { p_driver_id: driverId })
+}
+
 export async function completeBooking(bookingId) {
   if (!supabase) return
   await supabase.from('bookings')

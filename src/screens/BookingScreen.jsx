@@ -4,7 +4,7 @@ import { useAuth } from '@/hooks/useAuth'
 import { useGuestGate } from '@/contexts/GuestGateContext'
 import {
   fetchNearbyDrivers, createBooking, expireBooking, markBookingStarted,
-  completeBooking, cancelBooking, submitDriverReview,
+  completeBooking, cancelBooking, submitDriverReview, incrementDriverTrips,
 } from '@/services/bookingService'
 import {
   estimateFare, formatRp, DEFAULT_ZONES, DEFAULT_SETTINGS, fetchPricingZones, fetchGlobalSettings,
@@ -175,7 +175,6 @@ export default function BookingScreen({ onClose }) {
   const [booking,        setBooking]        = useState(null)
   const [countdown,      setCountdown]      = useState(0)
   const [triedIds,       setTriedIds]       = useState([])
-  const [rideStartedAt,  setRideStartedAt]  = useState(null)
   const countdownRef = useRef(null)
 
   // Review state
@@ -291,6 +290,7 @@ export default function BookingScreen({ onClose }) {
 
     const win = window.open(`https://wa.me/${driver.phone ?? ''}?text=${encodeURIComponent(msg)}`, '_blank')
     if (!win) alert('WhatsApp could not open. Please contact the driver via in-app chat.')
+    incrementDriverTrips(driver.id)
 
     const secs = settings.driver_timeout_seconds ?? 45
     setCountdown(secs)
@@ -340,7 +340,6 @@ export default function BookingScreen({ onClose }) {
   const handleRideStarted = async () => {
     clearInterval(countdownRef.current)
     if (booking) await markBookingStarted(booking.id)
-    setRideStartedAt(new Date())
     setPhase('active')
   }
 
@@ -511,9 +510,8 @@ export default function BookingScreen({ onClose }) {
                 <span className={styles.featuredStat}>{featured.distKm} km away</span>
               </div>
               <div className={styles.featuredVehicle}>
-                {featured.vehicle_model} {featured.vehicle_year} · {featured.vehicle_color}
+                {featured.vehicle_model} {featured.vehicle_year}
               </div>
-              <div className={styles.featuredPlate}>Plate: {featured.plate_prefix ?? '—'} ••</div>
             </div>
 
             {/* Right: bike image + price badge */}
@@ -545,7 +543,7 @@ export default function BookingScreen({ onClose }) {
                   <span className={styles.driverListTrips}> · {d.total_trips ?? 0} trips</span>
                 </div>
                 <div className={styles.driverListVehicle}>
-                  {d.vehicle_model} {d.vehicle_year} · {d.vehicle_color} · {d.plate_prefix ?? '—'} ••
+                  {d.vehicle_model} {d.vehicle_year}
                 </div>
               </div>
               {/* Book arrow */}
