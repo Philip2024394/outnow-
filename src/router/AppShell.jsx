@@ -94,6 +94,7 @@ import ActivityProfileGrid from '@/components/home/ActivityProfileGrid'
 import BookingScreen from '@/screens/BookingScreen'
 import RestaurantBrowseScreen from '@/screens/RestaurantBrowseScreen'
 import CategoryDiscoveryScreen, { FOOD_CATEGORIES } from '@/screens/CategoryDiscoveryScreen'
+import ReviewPrompt from '@/components/restaurant/ReviewPrompt'
 import { preloadVideos } from '@/utils/videoPreloader'
 
 import '@/styles/map.css'
@@ -656,6 +657,9 @@ export default function AppShell({ returnParams, triggerGoLive }) {
           onClose={() => { setFoodBrowseOpen(false); setFoodOpen(false) }}
         />
       )}
+
+      {/* Review prompt — floats globally, fires after any MAKAN WhatsApp order */}
+      <ReviewPrompt userId={user?.id} />
 
       {/* First-use map intro — shown once, walks user through the UI */}
       {activeTab === 'map' && (

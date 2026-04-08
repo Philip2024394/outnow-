@@ -497,7 +497,7 @@ export default function RestaurantMenuSheet({ restaurant, onClose }) {
       )}
 
       {/* ── Weekly promos sheet ── */}
-      {promosOpen && <WeeklyPromoSheet onClose={() => setPromosOpen(false)} />}
+      {promosOpen && <WeeklyPromoSheet onClose={() => setPromosOpen(false)} restaurant={restaurant} />}
 
       {/* ── Payment card ── */}
       {paymentData && (

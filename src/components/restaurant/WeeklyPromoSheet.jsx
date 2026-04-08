@@ -70,10 +70,46 @@ function getPromoStatus(promo) {
 
 const DAY_NAMES = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat']
 
+// ── Day accent colours (fallback palette) ────────────────────────────────────
+const DAY_COLORS = ['#a78bfa','#38bdf8','#f472b6','#F5C518','#fb923c','#ff6b35','#8DC63F']
+
+function normalisePromo(row, restaurantName) {
+  return {
+    id:         row.id,
+    restaurant: restaurantName ?? row.restaurant ?? '—',
+    day:        row.day_of_week ?? row.day,
+    start:      (row.start_time ?? row.start ?? '').slice(0, 5),
+    end:        (row.end_time   ?? row.end   ?? '').slice(0, 5),
+    offer:      row.title ?? (`${row.offer_type ?? ''} ${row.offer_value ?? ''}`.trim() || row.offer),
+    detail:     row.detail ?? '',
+    color:      DAY_COLORS[row.day_of_week ?? row.day] ?? '#F5C518',
+  }
+}
+
 // ── Main component ────────────────────────────────────────────────────────────
-export default function WeeklyPromoSheet({ onClose }) {
+export default function WeeklyPromoSheet({ onClose, restaurant }) {
+  const [promos,    setPromos]    = useState([])
   const [claimed,   setClaimed]   = useState(new Set())
   const [tick,      setTick]      = useState(0)   // forces re-render every second
+
+  // Load promos from Supabase (or fall back to demo)
+  useEffect(() => {
+    async function load() {
+      if (supabase && restaurant?.id) {
+        const { data } = await supabase
+          .from('promos')
+          .select('*')
+          .eq('restaurant_id', restaurant.id)
+          .eq('is_active', true)
+        if (data?.length) {
+          setPromos(data.map(r => normalisePromo(r, restaurant.name)))
+          return
+        }
+      }
+      setPromos(DEMO_PROMOS)
+    }
+    load()
+  }, [restaurant?.id, restaurant?.name])
 
   // Tick every second so countdowns stay live
   useEffect(() => {
@@ -96,7 +132,7 @@ export default function WeeklyPromoSheet({ onClose }) {
 
   // Sort: active first, then soon, then upcoming by day, then expired
   const ORDER = { active: 0, soon: 1, upcoming: 2, expired: 3 }
-  const sorted = [...DEMO_PROMOS].sort((a, b) => {
+  const sorted = [...promos].sort((a, b) => {
     const sa = ORDER[getPromoStatus(a)]
     const sb = ORDER[getPromoStatus(b)]
     if (sa !== sb) return sa - sb

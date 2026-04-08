@@ -58,7 +58,12 @@
 .btnApprove  { background: #8DC63F; color: #000; }
 .btnReject   { background: rgba(255,107,107,0.15); color: #ff6b6b; border: 1px solid rgba(255,107,107,0.3); }
 .btnResubmit { background: rgba(245,197,24,0.1);  color: #F5C518;  border: 1px solid rgba(245,197,24,0.25); }
-.btnCancel   { background: #1a1a1a; color: #666; }
+.btnCancel    { background: #1a1a1a; color: #666; }
+.btnSuspend   { background: rgba(255,160,0,0.12);  color: #ffa000;  border: 1px solid rgba(255,160,0,0.3); }
+.btnClose     { background: rgba(255,107,107,0.1); color: #ff6b6b;  border: 1px solid rgba(255,107,107,0.25); }
+.btnOpen      { background: rgba(141,198,63,0.1);  color: #8DC63F;  border: 1px solid rgba(141,198,63,0.25); }
+.btnFeature   { background: rgba(245,197,24,0.1);  color: #F5C518;  border: 1px solid rgba(245,197,24,0.25); }
+.btnUnfeature { background: rgba(255,255,255,0.05); color: #666;    border: 1px solid #222; }
 
 .modalBackdrop { position: fixed; inset: 0; z-index: 9999; background: rgba(0,0,0,0.7); display: flex; align-items: center; justify-content: center; padding: 20px; }
 .modal { background: #111; border-radius: 18px; padding: 24px; width: 100%; max-width: 440px; display: flex; flex-direction: column; gap: 14px; }

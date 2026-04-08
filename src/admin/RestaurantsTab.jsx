@@ -51,11 +51,41 @@ export default function RestaurantsTab() {
     setActionLoading(null)
   }
 
-  const handleApprove = (id) => updateStatus(id, 'approved')
-  const handleReject  = async () => {
+  const handleApprove  = (id) => updateStatus(id, 'approved')
+  const handleReject   = async () => {
     if (!rejectModal) return
     await updateStatus(rejectModal, 'rejected', rejectNote.trim() || null)
     setRejectModal(null); setRejectNote('')
+  }
+
+  const handleSuspend = async (id) => {
+    setActionLoading(id)
+    if (supabase) {
+      await supabase.from('restaurants')
+        .update({ status: 'pending', admin_notes: '⚠️ Suspended by admin — contact support to reinstate', updated_at: new Date().toISOString() })
+        .eq('id', id)
+    }
+    setRestaurants(prev => prev.map(r => r.id === id
+      ? { ...r, status: 'pending', admin_notes: '⚠️ Suspended by admin — contact support to reinstate' } : r))
+    setActionLoading(null)
+  }
+
+  const handleForceClose = async (id, currentlyOpen) => {
+    setActionLoading(id)
+    if (supabase) {
+      await supabase.from('restaurants').update({ is_open: !currentlyOpen, updated_at: new Date().toISOString() }).eq('id', id)
+    }
+    setRestaurants(prev => prev.map(r => r.id === id ? { ...r, is_open: !currentlyOpen } : r))
+    setActionLoading(null)
+  }
+
+  const handleToggleFeatured = async (id, currentlyFeatured) => {
+    setActionLoading(id)
+    if (supabase) {
+      await supabase.from('restaurants').update({ featured_this_week: !currentlyFeatured, updated_at: new Date().toISOString() }).eq('id', id)
+    }
+    setRestaurants(prev => prev.map(r => r.id === id ? { ...r, featured_this_week: !currentlyFeatured } : r))
+    setActionLoading(null)
   }
 
   const visible   = filter === 'all' ? restaurants : restaurants.filter(r => r.status === filter)
@@ -139,6 +169,21 @@ export default function RestaurantsTab() {
                       {r.status === 'rejected' && (
                         <button className={`${styles.btn} ${styles.btnResubmit}`} onClick={() => updateStatus(r.id, 'pending', 'Resubmission requested')} disabled={isBusy}>
                           ↩ Move to Pending
+                        </button>
+                      )}
+                      {r.status === 'approved' && (
+                        <button className={`${styles.btn} ${styles.btnSuspend}`} onClick={() => handleSuspend(r.id)} disabled={isBusy}>
+                          ⚠ Suspend
+                        </button>
+                      )}
+                      {r.status === 'approved' && (
+                        <button className={`${styles.btn} ${r.is_open ? styles.btnClose : styles.btnOpen}`} onClick={() => handleForceClose(r.id, r.is_open)} disabled={isBusy}>
+                          {r.is_open ? '🔒 Force Close' : '🔓 Force Open'}
+                        </button>
+                      )}
+                      {r.status === 'approved' && (
+                        <button className={`${styles.btn} ${r.featured_this_week ? styles.btnUnfeature : styles.btnFeature}`} onClick={() => handleToggleFeatured(r.id, r.featured_this_week)} disabled={isBusy}>
+                          {r.featured_this_week ? '★ Unfeature' : '☆ Feature'}
                         </button>
                       )}
                     </div>
