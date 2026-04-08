@@ -521,11 +521,11 @@ export default function BookingScreen({ onClose }) {
                 {featured.vehicle_model} {featured.vehicle_year} · {featured.vehicle_color}
               </div>
               <div className={styles.featuredPlate}>Plate: {featured.plate_prefix ?? '—'} ••</div>
-              <div className={styles.featuredPrice}>{formatRp(fare)}</div>
             </div>
 
-            {/* Right: bike image */}
+            {/* Right: bike image + price badge */}
             <div className={styles.featuredRight}>
+              <div className={styles.featuredPriceBadge}>{formatRp(fare)}</div>
               <img src={BANNER_BIKE} alt="bike" className={styles.featuredBikeImg} />
             </div>
           </button>

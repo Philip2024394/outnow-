@@ -433,18 +433,27 @@
   font-weight: 700;
   letter-spacing: 0.04em;
 }
-.featuredPrice {
-  font-size: 17px;
-  font-weight: 900;
-  color: #8DC63F;
-  margin-top: 2px;
-}
-
 .featuredRight {
   width: 130px;
   flex-shrink: 0;
   position: relative;
   overflow: hidden;
+}
+.featuredPriceBadge {
+  position: absolute;
+  top: 12px;
+  right: 10px;
+  z-index: 2;
+  background: rgba(0,0,0,0.72);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border: 1.5px solid rgba(141,198,63,0.5);
+  border-radius: 100px;
+  padding: 5px 10px;
+  font-size: 13px;
+  font-weight: 900;
+  color: #8DC63F;
+  white-space: nowrap;
 }
 .featuredBikeImg {
   position: absolute;
