@@ -30,6 +30,7 @@ const DEMO_RESTAURANTS = [
     catering_available: true, seating_capacity: 40,
     event_features: ['birthday_setup', 'private_room'],
     featured_this_week: true, dine_in_discount: 10,
+    bank: { name: 'BCA', account_number: '1234 5678 90', account_holder: 'Sari Warung Jogja' },
     menu_items: [
       { id: 1,  name: 'Nasi Gudeg Komplit',  price: 28000, prep_time_min: 10, category: 'Main',   description: 'Jackfruit curry, egg, chicken, krecek on white rice', photo_url: null, is_available: true },
       { id: 2,  name: 'Nasi Gudeg Telur',    price: 18000, prep_time_min: 8,  category: 'Main',   description: 'Jackfruit curry with egg — the classic', photo_url: null, is_available: true },
@@ -54,6 +55,7 @@ const DEMO_RESTAURANTS = [
     catering_available: false, seating_capacity: 20,
     event_features: [],
     featured_this_week: false, dine_in_discount: 15,
+    bank: { name: 'Mandiri', account_number: '1100 0987 6543', account_holder: 'Harto Wijaya' },
     menu_items: [
       { id: 20, name: 'Nasi Goreng Istimewa', price: 28000, prep_time_min: 12, category: 'Main',   description: 'Charcoal wok, egg, chicken, vegetables, shrimp paste', photo_url: null, is_available: true },
       { id: 21, name: 'Nasi Goreng Seafood',  price: 35000, prep_time_min: 15, category: 'Main',   description: 'Prawns, squid, crab meat — full seafood loaded', photo_url: null, is_available: true },
@@ -77,6 +79,7 @@ const DEMO_RESTAURANTS = [
     catering_available: true, seating_capacity: 60,
     event_features: ['birthday_setup'],
     featured_this_week: false,
+    bank: { name: 'BRI', account_number: '0096 0100 2233 5566', account_holder: 'Iyem Sukarti' },
     menu_items: [
       { id: 30, name: 'Bubur Ayam Komplit',   price: 22000, prep_time_min: 8,  category: 'Main',   description: 'Rice porridge, shredded chicken, century egg, crispy shallots, ginger broth', photo_url: null, is_available: true },
       { id: 31, name: 'Bubur Ayam Polos',     price: 14000, prep_time_min: 6,  category: 'Main',   description: 'Plain rice porridge with chicken, soy sauce, crackers', photo_url: null, is_available: true },
@@ -98,6 +101,7 @@ const DEMO_RESTAURANTS = [
     catering_available: true, seating_capacity: 100,
     event_features: ['birthday_setup', 'private_room', 'party_package'],
     featured_this_week: false,
+    bank: { name: 'BNI', account_number: '0441 2233 4455', account_holder: 'Sari Rasa Padang' },
     menu_items: [
       { id: 40, name: 'Rendang Daging Sapi',  price: 45000, prep_time_min: 5,  category: 'Main',   description: 'Dry-cooked beef in coconut milk & spices — 4 hrs slow cooked', photo_url: null, is_available: true },
       { id: 41, name: 'Ayam Pop',             price: 30000, prep_time_min: 5,  category: 'Main',   description: 'White coconut milk poached chicken, sambal hijau', photo_url: null, is_available: true },
@@ -124,6 +128,7 @@ const DEMO_RESTAURANTS = [
     catering_available: false, seating_capacity: 25,
     event_features: [],
     featured_this_week: false,
+    bank: { name: 'BCA', account_number: '7788 9900 1122', account_holder: 'Budi Santoso' },
     menu_items: [
       { id: 6,  name: 'Bakso Spesial',  price: 22000, prep_time_min: 8,  category: 'Main',   description: 'Giant meatball, noodles, broth', photo_url: null, is_available: true },
       { id: 7,  name: 'Bakso Biasa',    price: 15000, prep_time_min: 7,  category: 'Main',   description: 'Regular meatball soup', photo_url: null, is_available: true },
@@ -144,6 +149,7 @@ const DEMO_RESTAURANTS = [
     catering_available: true, seating_capacity: 80,
     event_features: ['live_music', 'birthday_setup', 'sound_system', 'private_room'],
     featured_this_week: true,
+    bank: { name: 'Mandiri', account_number: '1420 0055 6677', account_holder: 'Rina Ayam Geprek' },
     menu_items: [
       { id: 10, name: 'Ayam Geprek L5',  price: 25000, prep_time_min: 12, category: 'Main',   description: 'Medium spicy + rice', photo_url: null, is_available: true },
       { id: 11, name: 'Ayam Geprek L10', price: 25000, prep_time_min: 12, category: 'Main',   description: 'Max heat — challenge!', photo_url: null, is_available: true },

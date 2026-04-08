@@ -2,56 +2,102 @@ import { useState, useEffect, useCallback } from 'react'
 import { supabase } from '@/lib/supabase'
 import styles from './RestaurantDashboard.module.css'
 
-const CUISINES   = ['Javanese','Indonesian','Chinese','Western','Japanese','Korean','Indian','Italian','Seafood','Vegetarian','Other']
-const CATEGORIES = ['Main','Snacks','Drinks','Desserts','Sides']
+const CUISINES = ['Javanese','Indonesian','Chinese','Western','Japanese','Korean','Indian','Italian','Seafood','Vegetarian','Other']
+
+const FOOD_CATEGORIES = [
+  { id: 'rice',       label: '🍚 Rice Dishes'  },
+  { id: 'noodles',    label: '🍜 Noodles'      },
+  { id: 'grilled',    label: '🔥 Grilled'       },
+  { id: 'burgers',    label: '🍔 Burgers'       },
+  { id: 'seafood',    label: '🦐 Seafood'       },
+  { id: 'desserts',   label: '🧁 Desserts'      },
+  { id: 'drinks',     label: '🥤 Drinks & Juice'},
+  { id: 'breakfast',  label: '🌅 Breakfast'     },
+  { id: 'snacks',     label: '🍿 Snacks'        },
+  { id: 'vegetarian', label: '🥗 Vegetarian'    },
+]
+
+const MENU_CATEGORIES = ['Main','Sides','Drinks','Snacks','Desserts']
+
+const EVENT_OPTIONS = [
+  { id: 'live_music',     label: '🎵 Live Music'      },
+  { id: 'birthday_setup', label: '🎂 Birthday Setup'  },
+  { id: 'private_room',   label: '🚪 Private Room'    },
+  { id: 'sound_system',   label: '🎤 Sound System'    },
+  { id: 'party_package',  label: '🥂 Party Packages'  },
+  { id: 'wedding',        label: '💍 Weddings'        },
+]
+
+const BANKS = ['BCA','BRI','BNI','Mandiri','BSI','CIMB','Danamon','Permata','Other']
 
 function fmtRp(n) { return `Rp ${Number(n).toLocaleString('id-ID')}` }
 
-// ── Demo stock photos — replace image_url with real Supabase uploads ──────────
-// Style tags give owners a feel for the mood before buying
+// ── Demo stock photos ─────────────────────────────────────────────────────────
 const DEMO_STOCK_PHOTOS = [
-  { id: 1,  image_url: null, style_tag: 'Modern & Clean',    price: 100000, restaurant_id: null },
-  { id: 2,  image_url: null, style_tag: 'Rustic Warung',     price: 100000, restaurant_id: null },
-  { id: 3,  image_url: null, style_tag: 'Night Atmosphere',  price: 100000, restaurant_id: null },
-  { id: 4,  image_url: null, style_tag: 'Street Food Energy',price: 100000, restaurant_id: null },
-  { id: 5,  image_url: null, style_tag: 'Elegant Dining',    price: 100000, restaurant_id: null },
-  { id: 6,  image_url: null, style_tag: 'Garden Setting',    price: 100000, restaurant_id: null },
-  { id: 7,  image_url: null, style_tag: 'Bold & Colourful',  price: 100000, restaurant_id: null },
-  { id: 8,  image_url: null, style_tag: 'Minimal & Dark',    price: 100000, restaurant_id: null },
-  { id: 9,  image_url: null, style_tag: 'Family Kitchen',    price: 100000, restaurant_id: null },
-  { id: 10, image_url: null, style_tag: 'Open Air',          price: 100000, restaurant_id: null },
+  { id: 1,  image_url: null, style_tag: 'Modern & Clean',     price: 100000, restaurant_id: null },
+  { id: 2,  image_url: null, style_tag: 'Rustic Warung',      price: 100000, restaurant_id: null },
+  { id: 3,  image_url: null, style_tag: 'Night Atmosphere',   price: 100000, restaurant_id: null },
+  { id: 4,  image_url: null, style_tag: 'Street Food Energy', price: 100000, restaurant_id: null },
+  { id: 5,  image_url: null, style_tag: 'Elegant Dining',     price: 100000, restaurant_id: null },
+  { id: 6,  image_url: null, style_tag: 'Garden Setting',     price: 100000, restaurant_id: null },
+  { id: 7,  image_url: null, style_tag: 'Bold & Colourful',   price: 100000, restaurant_id: null },
+  { id: 8,  image_url: null, style_tag: 'Minimal & Dark',     price: 100000, restaurant_id: null },
+  { id: 9,  image_url: null, style_tag: 'Family Kitchen',     price: 100000, restaurant_id: null },
+  { id: 10, image_url: null, style_tag: 'Open Air',           price: 100000, restaurant_id: null },
 ]
 
+// ── Main component ────────────────────────────────────────────────────────────
 export default function RestaurantDashboard({ userId, onClose }) {
-  const [restaurant, setRestaurant] = useState(null)
-  const [loading,    setLoading]    = useState(true)
-  const [saving,     setSaving]     = useState(false)
-  const [tab,        setTab]        = useState('profile') // profile | menu | photos
-  const [toast,      setToast]      = useState(null)
-  const [stockPhotos,setStockPhotos] = useState(DEMO_STOCK_PHOTOS)
-  const [buyingPhoto,setBuyingPhoto] = useState(null) // photo being purchased
+  const [restaurant,   setRestaurant]   = useState(null)
+  const [loading,      setLoading]      = useState(true)
+  const [saving,       setSaving]       = useState(false)
+  const [geocoding,    setGeocoding]    = useState(false)
+  const [tab,          setTab]          = useState('profile')
+  const [toast,        setToast]        = useState(null)
+  const [stockPhotos,  setStockPhotos]  = useState(DEMO_STOCK_PHOTOS)
+  const [buyingPhoto,  setBuyingPhoto]  = useState(null)
 
-  // Profile fields
-  const [name,         setName]         = useState('')
-  const [cuisine,      setCuisine]      = useState('')
-  const [address,      setAddress]      = useState('')
-  const [phone,        setPhone]        = useState('')
-  const [description,  setDescription]  = useState('')
-  const [openingHours, setOpeningHours] = useState('')
-  const [isOpen,       setIsOpen]       = useState(false)
+  // ── Profile fields ──
+  const [name,           setName]           = useState('')
+  const [cuisine,        setCuisine]        = useState('')
+  const [category,       setCategory]       = useState('')
+  const [address,        setAddress]        = useState('')
+  const [phone,          setPhone]          = useState('')
+  const [openingHours,   setOpeningHours]   = useState('')
+  const [isOpen,         setIsOpen]         = useState(false)
   const [dineInDiscount, setDineInDiscount] = useState('')
+  const [description,    setDescription]    = useState('')
+  const [heroDishUrl,    setHeroDishUrl]    = useState('')
+  const [heroDishName,   setHeroDishName]   = useState('')
 
-  // Menu management
+  // ── Venue fields ──
+  const [priceFrom,    setPriceFrom]    = useState('')
+  const [priceTo,      setPriceTo]      = useState('')
+  const [minOrder,     setMinOrder]     = useState('')
+  const [seating,      setSeating]      = useState('')
+  const [catering,     setCatering]     = useState(false)
+  const [eventFeatures,setEventFeatures] = useState([])
+
+  // ── Business / payment fields ──
+  const [bankName,    setBankName]    = useState('')
+  const [bankAccount, setBankAccount] = useState('')
+  const [bankHolder,  setBankHolder]  = useState('')
+  const [instagram,   setInstagram]   = useState('')
+  const [tiktok,      setTiktok]      = useState('')
+  const [facebook,    setFacebook]    = useState('')
+
+  // ── Menu fields ──
   const [menuItems,    setMenuItems]    = useState([])
-  const [editingItem,  setEditingItem]  = useState(null) // null | {} | { id }
+  const [editingItem,  setEditingItem]  = useState(null)
   const [itemName,     setItemName]     = useState('')
   const [itemDesc,     setItemDesc]     = useState('')
   const [itemPrice,    setItemPrice]    = useState('')
   const [itemPrep,     setItemPrep]     = useState('')
   const [itemCategory, setItemCategory] = useState('Main')
 
-  const showToast = (msg) => { setToast(msg); setTimeout(() => setToast(null), 2500) }
+  const showToast = (msg) => { setToast(msg); setTimeout(() => setToast(null), 2800) }
 
+  // ── Load ──────────────────────────────────────────────────────────────────
   const load = useCallback(async () => {
     setLoading(true)
     if (!supabase) { setLoading(false); return }
@@ -60,16 +106,32 @@ export default function RestaurantDashboard({ userId, onClose }) {
       .select('*, menu_items(*)')
       .eq('owner_id', userId)
       .maybeSingle()
+
     if (data) {
       setRestaurant(data)
       setName(data.name ?? '')
       setCuisine(data.cuisine_type ?? '')
+      setCategory(data.category ?? '')
       setAddress(data.address ?? '')
       setPhone(data.phone ?? '')
-      setDescription(data.description ?? '')
       setOpeningHours(data.opening_hours ?? '')
       setIsOpen(data.is_open ?? false)
       setDineInDiscount(data.dine_in_discount ? String(data.dine_in_discount) : '')
+      setDescription(data.description ?? '')
+      setHeroDishUrl(data.hero_dish_url ?? '')
+      setHeroDishName(data.hero_dish_name ?? '')
+      setPriceFrom(data.price_from ? String(data.price_from) : '')
+      setPriceTo(data.price_to ? String(data.price_to) : '')
+      setMinOrder(data.min_order ? String(data.min_order) : '')
+      setSeating(data.seating_capacity ? String(data.seating_capacity) : '')
+      setCatering(data.catering_available ?? false)
+      setEventFeatures(data.event_features ?? [])
+      setBankName(data.bank_name ?? '')
+      setBankAccount(data.bank_account_number ?? '')
+      setBankHolder(data.bank_account_holder ?? '')
+      setInstagram(data.instagram ?? '')
+      setTiktok(data.tiktok ?? '')
+      setFacebook(data.facebook ?? '')
       setMenuItems(data.menu_items ?? [])
     }
     setLoading(false)
@@ -77,39 +139,92 @@ export default function RestaurantDashboard({ userId, onClose }) {
 
   useEffect(() => { load() }, [load])
 
-  // Load stock photos from Supabase (falls back to demo)
   useEffect(() => {
     if (!supabase) return
     supabase.from('stock_photos').select('*').order('created_at', { ascending: true })
       .then(({ data }) => { if (data?.length) setStockPhotos(data) })
   }, [])
 
-  const handleBuyPhoto = (photo) => {
-    if (!restaurant?.id) { showToast('Save your profile first'); return }
-    const msg = `Hi, I'd like to purchase the cover photo "${photo.style_tag}" (ID: ${photo.id}) for my restaurant *${name || 'my restaurant'}* on Hangger.\n\nPayment: Rp 100,000`
-    window.open(`https://wa.me/62XXXXXXXXXX?text=${encodeURIComponent(msg)}`, '_blank')
-    setBuyingPhoto(photo.id)
+  // ── Auto-geocode address → lat/lng ────────────────────────────────────────
+  const geocodeAddress = async (addr, restaurantId) => {
+    if (!addr.trim() || !restaurantId) return
+    setGeocoding(true)
+    try {
+      const res  = await fetch(`https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(addr)}&format=json&limit=1`)
+      const data = await res.json()
+      if (data?.[0]) {
+        const { lat, lon } = data[0]
+        await supabase.from('restaurants')
+          .update({ lat: parseFloat(lat), lng: parseFloat(lon) })
+          .eq('id', restaurantId)
+      }
+    } catch { /* silent — lat/lng optional */ }
+    setGeocoding(false)
   }
 
+  // ── Save profile ──────────────────────────────────────────────────────────
   const saveProfile = async () => {
     if (!supabase) return showToast('Not connected')
     setSaving(true)
     const payload = {
-      owner_id: userId, name, cuisine_type: cuisine, address, phone,
-      description, opening_hours: openingHours, is_open: isOpen,
+      owner_id: userId,
+      name, cuisine_type: cuisine, category: category || null,
+      address, phone, opening_hours: openingHours,
+      is_open: isOpen,
       dine_in_discount: dineInDiscount ? Number(dineInDiscount) : null,
+      description,
+      hero_dish_url: heroDishUrl || null,
+      hero_dish_name: heroDishName || null,
       updated_at: new Date().toISOString(),
     }
-    if (restaurant?.id) {
-      await supabase.from('restaurants').update(payload).eq('id', restaurant.id)
+    let id = restaurant?.id
+    if (id) {
+      await supabase.from('restaurants').update(payload).eq('id', id)
     } else {
       const { data } = await supabase.from('restaurants').insert({ ...payload, status: 'pending' }).select().single()
       setRestaurant(data)
+      id = data?.id
     }
-    showToast(restaurant?.id ? 'Saved ✓' : 'Application submitted — pending admin approval')
+    geocodeAddress(address, id)
+    showToast(restaurant?.id ? 'Profile saved ✓' : 'Application submitted — pending admin approval')
     setSaving(false)
   }
 
+  // ── Save venue ────────────────────────────────────────────────────────────
+  const saveVenue = async () => {
+    if (!supabase || !restaurant?.id) return showToast('Save profile first')
+    setSaving(true)
+    await supabase.from('restaurants').update({
+      price_from:        priceFrom ? Number(priceFrom) : null,
+      price_to:          priceTo   ? Number(priceTo)   : null,
+      min_order:         minOrder  ? Number(minOrder)  : null,
+      seating_capacity:  seating   ? Number(seating)   : null,
+      catering_available: catering,
+      event_features:    eventFeatures,
+      updated_at:        new Date().toISOString(),
+    }).eq('id', restaurant.id)
+    showToast('Venue details saved ✓')
+    setSaving(false)
+  }
+
+  // ── Save business ─────────────────────────────────────────────────────────
+  const saveBusiness = async () => {
+    if (!supabase || !restaurant?.id) return showToast('Save profile first')
+    setSaving(true)
+    await supabase.from('restaurants').update({
+      bank_name:           bankName   || null,
+      bank_account_number: bankAccount || null,
+      bank_account_holder: bankHolder  || null,
+      instagram: instagram || null,
+      tiktok:    tiktok    || null,
+      facebook:  facebook  || null,
+      updated_at: new Date().toISOString(),
+    }).eq('id', restaurant.id)
+    showToast('Business details saved ✓')
+    setSaving(false)
+  }
+
+  // ── Open/closed toggle ────────────────────────────────────────────────────
   const toggleOpen = async () => {
     const next = !isOpen
     setIsOpen(next)
@@ -118,6 +233,7 @@ export default function RestaurantDashboard({ userId, onClose }) {
     }
   }
 
+  // ── Menu helpers ──────────────────────────────────────────────────────────
   const openItemEditor = (item = null) => {
     setEditingItem(item ?? {})
     setItemName(item?.name ?? '')
@@ -129,14 +245,15 @@ export default function RestaurantDashboard({ userId, onClose }) {
 
   const saveItem = async () => {
     if (!itemName.trim() || !itemPrice) return
-    if (!supabase || !restaurant?.id) { showToast('Save restaurant profile first'); return }
+    if (!supabase || !restaurant?.id) return showToast('Save profile first')
     const payload = {
       restaurant_id: restaurant.id,
-      name: itemName.trim(),
-      description: itemDesc.trim() || null,
-      price: Number(itemPrice),
-      prep_time_min: Number(itemPrep) || null,
-      category: itemCategory,
+      name:          itemName.trim(),
+      description:   itemDesc.trim() || null,
+      price:         Number(itemPrice),
+      prep_time_min: itemPrep ? Number(itemPrep) : null,
+      category:      itemCategory,
+      is_available:  true,
     }
     if (editingItem?.id) {
       await supabase.from('menu_items').update(payload).eq('id', editingItem.id)
@@ -146,7 +263,7 @@ export default function RestaurantDashboard({ userId, onClose }) {
       if (data) setMenuItems(prev => [...prev, data])
     }
     setEditingItem(null)
-    showToast('Menu item saved ✓')
+    showToast('Dish saved ✓')
   }
 
   const deleteItem = async (id) => {
@@ -161,6 +278,18 @@ export default function RestaurantDashboard({ userId, onClose }) {
     setMenuItems(prev => prev.map(i => i.id === item.id ? { ...i, is_available: next } : i))
   }
 
+  const toggleEventFeature = (id) => {
+    setEventFeatures(prev => prev.includes(id) ? prev.filter(x => x !== id) : [...prev, id])
+  }
+
+  // ── Stock photo purchase ──────────────────────────────────────────────────
+  const handleBuyPhoto = (photo) => {
+    if (!restaurant?.id) return showToast('Save your profile first')
+    const msg = `Hi, I'd like to purchase the cover photo "${photo.style_tag}" (ID: ${photo.id}) for *${name || 'my restaurant'}* on MAKAN by Hangger.\n\nPayment: Rp 100,000`
+    window.open(`https://wa.me/${phone.replace(/\D/g,'')}?text=${encodeURIComponent(msg)}`, '_blank')
+    setBuyingPhoto(photo.id)
+  }
+
   const statusColor = { pending: '#F5C518', approved: '#8DC63F', rejected: '#ff6b6b' }
 
   if (loading) return <div className={styles.screen}><div className={styles.loading}>Loading…</div></div>
@@ -168,7 +297,7 @@ export default function RestaurantDashboard({ userId, onClose }) {
   return (
     <div className={styles.screen}>
 
-      {/* Header */}
+      {/* ── Header ── */}
       <div className={styles.header}>
         <button className={styles.backBtn} onClick={onClose}>
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
@@ -185,34 +314,43 @@ export default function RestaurantDashboard({ userId, onClose }) {
         </div>
       </div>
 
-      {/* Open/closed toggle — only for approved */}
+      {/* ── Open/closed toggle ── */}
       {restaurant?.status === 'approved' && (
         <button className={`${styles.openToggle} ${isOpen ? styles.openToggleOn : styles.openToggleOff}`} onClick={toggleOpen}>
           <span className={styles.openToggleDot} />
-          {isOpen ? '🟢 You are OPEN — accepting orders' : '🔴 You are CLOSED'}
+          {isOpen ? '🟢 Open — accepting orders' : '🔴 Closed'}
         </button>
       )}
 
-      {/* Pending notice */}
       {restaurant?.status === 'pending' && (
-        <div className={styles.pendingNotice}>
-          ⏳ Your application is under review. We'll notify you when approved.
-        </div>
+        <div className={styles.pendingNotice}>⏳ Under review — we'll notify you when approved.</div>
       )}
 
-      {/* Tabs */}
+      {/* ── Tabs ── */}
       <div className={styles.tabs}>
-        <button className={`${styles.tabBtn} ${tab === 'profile' ? styles.tabActive : ''}`} onClick={() => setTab('profile')}>🏪 Profile</button>
-        <button className={`${styles.tabBtn} ${tab === 'menu'    ? styles.tabActive : ''}`} onClick={() => setTab('menu')}>🍽 Menu</button>
-        <button className={`${styles.tabBtn} ${tab === 'photos'  ? styles.tabActive : ''}`} onClick={() => setTab('photos')}>📸 Cover Photo</button>
+        {[
+          { id: 'profile',  label: '🏪 Profile'  },
+          { id: 'venue',    label: '🏛 Venue'    },
+          { id: 'business', label: '💳 Business' },
+          { id: 'menu',     label: '🍽 Menu'     },
+          { id: 'photos',   label: '📸 Cover'    },
+        ].map(t => (
+          <button key={t.id}
+            className={`${styles.tabBtn} ${tab === t.id ? styles.tabActive : ''}`}
+            onClick={() => setTab(t.id)}
+          >{t.label}</button>
+        ))}
       </div>
 
       <div className={styles.scroll}>
 
-        {/* ── Profile tab ── */}
+        {/* ══════════════════════════════════════════════════════════════════════
+            PROFILE TAB
+        ══════════════════════════════════════════════════════════════════════ */}
         {tab === 'profile' && (
           <div className={styles.form}>
             <Field label="Restaurant Name *" value={name} onChange={setName} placeholder="e.g. Warung Bu Sari" />
+
             <div className={styles.fieldGroup}>
               <label className={styles.label}>Cuisine Type</label>
               <select className={styles.select} value={cuisine} onChange={e => setCuisine(e.target.value)}>
@@ -220,92 +358,218 @@ export default function RestaurantDashboard({ userId, onClose }) {
                 {CUISINES.map(c => <option key={c} value={c}>{c}</option>)}
               </select>
             </div>
-            <Field label="Full Address *"    value={address}      onChange={setAddress}      placeholder="Jl. Malioboro 45, Yogyakarta" />
-            <Field label="WhatsApp Number *" value={phone}        onChange={setPhone}        placeholder="628xxx — no + or spaces" type="tel" />
+
+            <div className={styles.fieldGroup}>
+              <label className={styles.label}>Food Category (for browse filtering)</label>
+              <select className={styles.select} value={category} onChange={e => setCategory(e.target.value)}>
+                <option value="">Select category…</option>
+                {FOOD_CATEGORIES.map(c => <option key={c.id} value={c.id}>{c.label}</option>)}
+              </select>
+            </div>
+
+            <div className={styles.fieldGroup}>
+              <label className={styles.label}>Full Address * <span className={styles.labelHint}>(used to calculate delivery distance)</span></label>
+              <input
+                className={styles.input}
+                value={address}
+                onChange={e => setAddress(e.target.value)}
+                placeholder="Jl. Malioboro 45, Yogyakarta"
+              />
+              {geocoding && <span className={styles.geocodingNote}>📍 Detecting location…</span>}
+            </div>
+
+            <Field label="WhatsApp Number *" value={phone} onChange={setPhone} placeholder="628xxx — include country code, no spaces" type="tel" />
             <Field label="Opening Hours"     value={openingHours} onChange={setOpeningHours} placeholder="e.g. 07:00–22:00" />
-            <Field label="Dine-In Discount % (optional)" value={dineInDiscount} onChange={setDineInDiscount} placeholder="e.g. 10 — shows 🪑 Dine With Us badge" type="number" />
+            <Field label="Dine-In Discount %" value={dineInDiscount} onChange={setDineInDiscount} placeholder="e.g. 15 — shows on listing card" type="number" />
+
             <div className={styles.fieldGroup}>
               <label className={styles.label}>Short Description</label>
               <textarea
                 className={styles.textarea}
                 value={description}
                 onChange={e => setDescription(e.target.value)}
-                placeholder="What makes your restaurant special?"
+                placeholder="What makes your restaurant special? (shown on listing card)"
                 rows={3}
               />
             </div>
 
+            <Section title="Hero Dish" hint="The main image shown on your listing card">
+              <Field label="Hero Dish Photo URL" value={heroDishUrl} onChange={setHeroDishUrl} placeholder="https://… (link to your dish photo)" />
+              <Field label="Hero Dish Name"      value={heroDishName} onChange={setHeroDishName} placeholder="e.g. Nasi Gudeg Komplit" />
+            </Section>
+
             <button className={styles.saveBtn} onClick={saveProfile} disabled={saving || !name.trim() || !phone.trim()}>
-              {saving ? 'Saving…' : restaurant?.id ? '💾 Save Changes' : '📝 Submit for Approval'}
+              {saving ? 'Saving…' : restaurant?.id ? '💾 Save Profile' : '📝 Submit for Approval'}
             </button>
           </div>
         )}
 
-        {/* ── Cover Photos tab ── */}
+        {/* ══════════════════════════════════════════════════════════════════════
+            VENUE TAB
+        ══════════════════════════════════════════════════════════════════════ */}
+        {tab === 'venue' && (
+          <div className={styles.form}>
+            {!restaurant?.id && <div className={styles.menuLock}>Save your profile first to set venue details.</div>}
+            {restaurant?.id && (<>
+
+              <Section title="Pricing">
+                <div className={styles.row2}>
+                  <Field label="Price From (Rp)" value={priceFrom} onChange={setPriceFrom} placeholder="5000" type="number" />
+                  <Field label="Price To (Rp)"   value={priceTo}   onChange={setPriceTo}   placeholder="45000" type="number" />
+                </div>
+                <Field label="Minimum Order (Rp)" value={minOrder} onChange={setMinOrder} placeholder="20000" type="number" />
+              </Section>
+
+              <Section title="Seating & Catering">
+                <Field label="Seating Capacity (guests)" value={seating} onChange={setSeating} placeholder="e.g. 40" type="number" />
+                <Toggle label="Catering available for external events" value={catering} onChange={setCatering} />
+              </Section>
+
+              <Section title="Events & Features" hint="Tick everything your venue offers">
+                <div className={styles.checkGrid}>
+                  {EVENT_OPTIONS.map(opt => (
+                    <button
+                      key={opt.id}
+                      className={`${styles.checkPill} ${eventFeatures.includes(opt.id) ? styles.checkPillOn : ''}`}
+                      onClick={() => toggleEventFeature(opt.id)}
+                    >
+                      {opt.label}
+                    </button>
+                  ))}
+                </div>
+              </Section>
+
+              <button className={styles.saveBtn} onClick={saveVenue} disabled={saving}>
+                {saving ? 'Saving…' : '💾 Save Venue Details'}
+              </button>
+            </>)}
+          </div>
+        )}
+
+        {/* ══════════════════════════════════════════════════════════════════════
+            BUSINESS TAB — Bank + Socials
+        ══════════════════════════════════════════════════════════════════════ */}
+        {tab === 'business' && (
+          <div className={styles.form}>
+            {!restaurant?.id && <div className={styles.menuLock}>Save your profile first to add payment details.</div>}
+            {restaurant?.id && (<>
+
+              <Section title="Bank Transfer Details" hint="Shown to customers after they place an order">
+                <div className={styles.fieldGroup}>
+                  <label className={styles.label}>Bank Name</label>
+                  <select className={styles.select} value={bankName} onChange={e => setBankName(e.target.value)}>
+                    <option value="">Select bank…</option>
+                    {BANKS.map(b => <option key={b} value={b}>{b}</option>)}
+                  </select>
+                </div>
+                <Field label="Account Number" value={bankAccount} onChange={setBankAccount} placeholder="e.g. 1234 5678 90" />
+                <Field label="Account Holder Name" value={bankHolder} onChange={setBankHolder} placeholder="Name exactly as registered" />
+
+                {bankName && bankAccount && bankHolder && (
+                  <div className={styles.bankPreview}>
+                    <span className={styles.bankPreviewLabel}>Preview</span>
+                    <span className={styles.bankPreviewBank}>{bankName}</span>
+                    <span className={styles.bankPreviewNum}>{bankAccount}</span>
+                    <span className={styles.bankPreviewHolder}>{bankHolder}</span>
+                  </div>
+                )}
+              </Section>
+
+              <Section title="Social Media" hint="Shown in the Follow Us panel on your menu page">
+                <Field label="Instagram username" value={instagram} onChange={setInstagram} placeholder="e.g. warungbusari (no @)" />
+                <Field label="TikTok username"    value={tiktok}   onChange={setTiktok}   placeholder="e.g. warungbusari (no @)" />
+                <Field label="Facebook page"      value={facebook}  onChange={setFacebook}  placeholder="e.g. warungbusari" />
+              </Section>
+
+              <button className={styles.saveBtn} onClick={saveBusiness} disabled={saving}>
+                {saving ? 'Saving…' : '💾 Save Business Details'}
+              </button>
+            </>)}
+          </div>
+        )}
+
+        {/* ══════════════════════════════════════════════════════════════════════
+            MENU TAB
+        ══════════════════════════════════════════════════════════════════════ */}
+        {tab === 'menu' && (
+          <div className={styles.menuSection}>
+            {!restaurant?.id
+              ? <div className={styles.menuLock}>Save your profile first to manage menu items.</div>
+              : (<>
+                  <button className={styles.addItemBtn} onClick={() => openItemEditor(null)}>+ Add Dish</button>
+
+                  {menuItems.length === 0 && (
+                    <div className={styles.menuEmpty}>No dishes yet — add your first item above.</div>
+                  )}
+
+                  {menuItems.map(item => (
+                    <div key={item.id} className={`${styles.menuItemRow} ${!item.is_available ? styles.menuItemRowOff : ''}`}>
+                      <div className={styles.menuItemInfo}>
+                        <span className={styles.menuItemName}>{item.name}</span>
+                        <span className={styles.menuItemMeta}>
+                          {fmtRp(item.price)}
+                          {item.prep_time_min ? ` · ⏱ ${item.prep_time_min} min` : ''}
+                          {item.category ? ` · ${item.category}` : ''}
+                        </span>
+                        {item.description && <span className={styles.menuItemDesc}>{item.description}</span>}
+                      </div>
+                      <div className={styles.menuItemActions}>
+                        <button
+                          className={`${styles.availBtn} ${item.is_available ? styles.availBtnOn : styles.availBtnOff}`}
+                          onClick={() => toggleItemAvailable(item)}
+                        >
+                          {item.is_available ? 'Available' : 'Sold Out'}
+                        </button>
+                        <button className={styles.editBtn}   onClick={() => openItemEditor(item)}>Edit</button>
+                        <button className={styles.deleteBtn} onClick={() => deleteItem(item.id)}>✕</button>
+                      </div>
+                    </div>
+                  ))}
+                </>)
+            }
+          </div>
+        )}
+
+        {/* ══════════════════════════════════════════════════════════════════════
+            COVER PHOTOS TAB
+        ══════════════════════════════════════════════════════════════════════ */}
         {tab === 'photos' && (
           <div className={styles.photosSection}>
-
-            {/* Current cover */}
             <div className={styles.currentCover}>
               {restaurant?.cover_url
                 ? <img src={restaurant.cover_url} alt="Current cover" className={styles.currentCoverImg} />
                 : <div className={styles.currentCoverEmpty}>
                     <span>No cover photo yet</span>
-                    <span className={styles.currentCoverSub}>Your restaurant listing uses a plain background</span>
+                    <span className={styles.currentCoverSub}>Your listing uses a plain background</span>
                   </div>
               }
             </div>
 
-            {/* Pitch */}
             <div className={styles.photosPitch}>
               <p className={styles.photosPitchTitle}>Stand out with a professional cover</p>
-              <p className={styles.photosPitchSub}>
-                Each photo is exclusive — once you buy it, no other restaurant can use it.
-                Pay once, yours forever. We update the library regularly with new styles.
-              </p>
+              <p className={styles.photosPitchSub}>Each photo is exclusive — once you buy it, no other restaurant can use it. Pay once, yours forever.</p>
             </div>
 
-            {/* Price callout */}
             <div className={styles.priceCallout}>
               <span className={styles.priceCalloutAmount}>Rp 100.000</span>
-              <span className={styles.priceCalloutLabel}>per photo · one-time · exclusive ownership</span>
+              <span className={styles.priceCalloutLabel}>per photo · one-time · exclusive</span>
             </div>
 
-            {/* Photo grid */}
             <div className={styles.photoGrid}>
               {stockPhotos.map(photo => {
                 const isMine    = photo.restaurant_id === restaurant?.id
                 const isTaken   = photo.restaurant_id && !isMine
                 const isPending = buyingPhoto === photo.id
-
                 return (
-                  <div
-                    key={photo.id}
-                    className={`${styles.photoCard} ${isTaken ? styles.photoCardTaken : ''} ${isMine ? styles.photoCardMine : ''}`}
-                  >
-                    {/* Image or placeholder */}
+                  <div key={photo.id} className={`${styles.photoCard} ${isTaken ? styles.photoCardTaken : ''} ${isMine ? styles.photoCardMine : ''}`}>
                     <div className={styles.photoThumb}>
                       {photo.image_url
                         ? <img src={photo.image_url} alt={photo.style_tag} className={styles.photoThumbImg} />
-                        : <div className={styles.photoThumbPlaceholder}>
-                            <span className={styles.photoThumbIcon}>🖼</span>
-                          </div>
+                        : <div className={styles.photoThumbPlaceholder}><span className={styles.photoThumbIcon}>🖼</span></div>
                       }
-
-                      {/* Sold overlay */}
-                      {isTaken && (
-                        <div className={styles.soldOverlay}>
-                          <span className={styles.soldText}>Sold</span>
-                        </div>
-                      )}
-
-                      {/* Mine badge */}
-                      {isMine && (
-                        <div className={styles.mineBadge}>✓ Your Photo</div>
-                      )}
+                      {isTaken && <div className={styles.soldOverlay}><span className={styles.soldText}>Sold</span></div>}
+                      {isMine  && <div className={styles.mineBadge}>✓ Your Photo</div>}
                     </div>
-
-                    {/* Style tag + action */}
                     <div className={styles.photoInfo}>
                       <span className={styles.photoStyle}>{photo.style_tag}</span>
                       {!isTaken && !isMine && (
@@ -316,9 +580,7 @@ export default function RestaurantDashboard({ userId, onClose }) {
                           {isPending ? 'Request sent ✓' : 'Buy — Rp 100k'}
                         </button>
                       )}
-                      {isMine && (
-                        <span className={styles.ownedLabel}>Active on your listing</span>
-                      )}
+                      {isMine && <span className={styles.ownedLabel}>Active on your listing</span>}
                     </div>
                   </div>
                 )
@@ -326,96 +588,75 @@ export default function RestaurantDashboard({ userId, onClose }) {
             </div>
 
             <p className={styles.photosNote}>
-              Tap Buy → sends a WhatsApp request to our team → we confirm payment and activate your photo within 24 hours.
+              Tap Buy → WhatsApp request sent to our team → we confirm payment and activate within 24 hours.
             </p>
           </div>
         )}
 
-        {/* ── Menu tab ── */}
-        {tab === 'menu' && (
-          <div className={styles.menuSection}>
-            {!restaurant?.id && (
-              <div className={styles.menuLock}>Save your profile first to manage menu items.</div>
-            )}
-
-            {restaurant?.id && (
-              <>
-                <button className={styles.addItemBtn} onClick={() => openItemEditor(null)}>+ Add Dish</button>
-
-                {menuItems.length === 0 && (
-                  <div className={styles.menuEmpty}>No dishes yet — add your first item above.</div>
-                )}
-
-                {menuItems.map(item => (
-                  <div key={item.id} className={`${styles.menuItemRow} ${!item.is_available ? styles.menuItemRowOff : ''}`}>
-                    <div className={styles.menuItemInfo}>
-                      <span className={styles.menuItemName}>{item.name}</span>
-                      <span className={styles.menuItemMeta}>
-                        {fmtRp(item.price)}
-                        {item.prep_time_min ? ` · ⏱ ${item.prep_time_min} min` : ''}
-                        {item.category ? ` · ${item.category}` : ''}
-                      </span>
-                      {item.description && <span className={styles.menuItemDesc}>{item.description}</span>}
-                    </div>
-                    <div className={styles.menuItemActions}>
-                      <button
-                        className={`${styles.availBtn} ${item.is_available ? styles.availBtnOn : styles.availBtnOff}`}
-                        onClick={() => toggleItemAvailable(item)}
-                        title={item.is_available ? 'Mark as sold out' : 'Mark as available'}
-                      >
-                        {item.is_available ? 'Available' : 'Sold Out'}
-                      </button>
-                      <button className={styles.editBtn} onClick={() => openItemEditor(item)}>Edit</button>
-                      <button className={styles.deleteBtn} onClick={() => deleteItem(item.id)}>✕</button>
-                    </div>
-                  </div>
-                ))}
-              </>
-            )}
-          </div>
-        )}
       </div>
 
-      {/* Item editor modal */}
+      {/* ── Dish editor modal ── */}
       {editingItem !== null && (
         <div className={styles.modalBackdrop} onClick={() => setEditingItem(null)}>
           <div className={styles.modal} onClick={e => e.stopPropagation()}>
             <h3 className={styles.modalTitle}>{editingItem?.id ? 'Edit Dish' : 'New Dish'}</h3>
-            <Field label="Dish Name *"    value={itemName}  onChange={setItemName}  placeholder="e.g. Nasi Gudeg Komplit" />
-            <Field label="Description"    value={itemDesc}  onChange={setItemDesc}  placeholder="Brief description of the dish" />
-            <Field label="Price (Rp) *"   value={itemPrice} onChange={setItemPrice} placeholder="25000" type="number" />
-            <Field label="Prep Time (min)" value={itemPrep}  onChange={setItemPrep}  placeholder="15" type="number" />
+            <Field label="Dish Name *"     value={itemName}  onChange={setItemName}  placeholder="e.g. Nasi Gudeg Komplit" />
+            <Field label="Description"     value={itemDesc}  onChange={setItemDesc}  placeholder="Short description of the dish" />
+            <Field label="Price (Rp) *"    value={itemPrice} onChange={setItemPrice} placeholder="25000" type="number" />
+            <Field label="Prep Time (min)" value={itemPrep}  onChange={setItemPrep}  placeholder="e.g. 15" type="number" />
             <div className={styles.fieldGroup}>
               <label className={styles.label}>Category</label>
               <select className={styles.select} value={itemCategory} onChange={e => setItemCategory(e.target.value)}>
-                {CATEGORIES.map(c => <option key={c} value={c}>{c}</option>)}
+                {MENU_CATEGORIES.map(c => <option key={c} value={c}>{c}</option>)}
               </select>
             </div>
             <div className={styles.modalActions}>
-              <button className={styles.saveBtn} onClick={saveItem} disabled={!itemName.trim() || !itemPrice}>Save Dish</button>
+              <button className={styles.saveBtn}   onClick={saveItem} disabled={!itemName.trim() || !itemPrice}>Save Dish</button>
               <button className={styles.cancelBtn} onClick={() => setEditingItem(null)}>Cancel</button>
             </div>
           </div>
         </div>
       )}
 
-      {/* Toast */}
+      {/* ── Toast ── */}
       {toast && <div className={styles.toast}>{toast}</div>}
     </div>
   )
 }
 
+// ── Reusable components ───────────────────────────────────────────────────────
 function Field({ label, value, onChange, placeholder, type = 'text' }) {
   return (
     <div className={styles.fieldGroup}>
       <label className={styles.label}>{label}</label>
-      <input
-        className={styles.input}
-        type={type}
-        value={value}
-        onChange={e => onChange(e.target.value)}
-        placeholder={placeholder}
-      />
+      <input className={styles.input} type={type} value={value}
+        onChange={e => onChange(e.target.value)} placeholder={placeholder} />
+    </div>
+  )
+}
+
+function Section({ title, hint, children }) {
+  return (
+    <div className={styles.section}>
+      <div className={styles.sectionHeader}>
+        <span className={styles.sectionTitle}>{title}</span>
+        {hint && <span className={styles.sectionHint}>{hint}</span>}
+      </div>
+      {children}
+    </div>
+  )
+}
+
+function Toggle({ label, value, onChange }) {
+  return (
+    <div className={styles.toggleRow}>
+      <span className={styles.toggleLabel}>{label}</span>
+      <button
+        className={`${styles.toggle} ${value ? styles.toggleOn : ''}`}
+        onClick={() => onChange(!value)}
+      >
+        <span className={styles.toggleThumb} />
+      </button>
     </div>
   )
 }

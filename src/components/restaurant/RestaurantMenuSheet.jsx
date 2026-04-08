@@ -1,5 +1,7 @@
 import { useState, useRef, useEffect, useCallback } from 'react'
 import styles from './RestaurantMenuSheet.module.css'
+import WeeklyPromoSheet from './WeeklyPromoSheet'
+import PaymentCard from './PaymentCard'
 
 function fmtRp(n) { return `Rp ${Number(n).toLocaleString('id-ID')}` }
 
@@ -12,6 +14,21 @@ const EVENT_LABELS = {
   wedding:       '💍 Weddings',
 }
 
+const CATEGORY_EMOJIS = {
+  'Main':     '🍽',
+  'Drinks':   '🥤',
+  'Snacks':   '🍿',
+  'Sides':    '🥗',
+  'Desserts': '🧁',
+  'Rice':     '🍚',
+  'Noodles':  '🍜',
+  'Grilled':  '🔥',
+  'Seafood':  '🦐',
+  'Breakfast':'🌅',
+  'Soup':     '🍲',
+  'Salad':    '🥗',
+}
+
 const CATEGORY_GRADIENTS = {
   'Main':     'linear-gradient(160deg, #1a0d00 0%, #0d0d0d 100%)',
   'Drinks':   'linear-gradient(160deg, #000d1a 0%, #0d0d0d 100%)',
@@ -20,19 +37,26 @@ const CATEGORY_GRADIENTS = {
   'Desserts': 'linear-gradient(160deg, #1a0015 0%, #0d0d0d 100%)',
 }
 
-function buildWhatsAppMessage(restaurant, cart, address) {
-  const lines    = cart.map(i => `• ${i.name} × ${i.qty} — ${fmtRp(i.price * i.qty)}`)
-  const foodTotal = cart.reduce((s, i) => s + i.price * i.qty, 0)
-  const ref      = `#MAKAN_${Date.now().toString().slice(-8)}`
+function buildWhatsAppMessage(restaurant, cart, address, deliveryFare, maxPrepMin) {
+  const lines = cart.map(i => {
+    let line = `• ${i.name} × ${i.qty} — ${fmtRp(i.price * i.qty)}`
+    if (i.prep_time_min) line += ` (${i.prep_time_min} min prep)`
+    if (i.note?.trim())  line += `\n   📝 ${i.note.trim()}`
+    return line
+  })
+  const foodTotal  = cart.reduce((s, i) => s + i.price * i.qty, 0)
+  const grandTotal = foodTotal + (deliveryFare ?? 0)
+  const ref        = `#MAKAN_${Date.now().toString().slice(-8)}`
   const msg = [
     `🍽 *Order from ${restaurant.name}*`,
     `MAKAN by Hangger — ${ref}`,
     '———————————————',
     ...lines,
     '———————————————',
+    maxPrepMin > 0 ? `⏱ Est. prep time: ${maxPrepMin} min` : '',
     `🍴 Food total: ${fmtRp(foodTotal)}`,
-    restaurant.deliveryFare ? `🛵 Est. delivery: ~${fmtRp(restaurant.deliveryFare)}` : '',
-    `💰 *Est. total: ~${fmtRp(foodTotal + (restaurant.deliveryFare ?? 0))}*`,
+    deliveryFare != null ? `🛵 Est. delivery: ~${fmtRp(deliveryFare)}` : '🛵 Delivery: calculating',
+    `💰 *Est. total: ~${fmtRp(grandTotal)}*`,
     address ? `📍 Deliver to: ${address}` : '',
   ].filter(Boolean).join('\n')
   return { msg, ref }
@@ -51,6 +75,10 @@ export default function RestaurantMenuSheet({ restaurant, onClose }) {
   const [socialsOpen,    setSocialsOpen]    = useState(false)
   const [address,        setAddress]        = useState('')
   const [showAddrInput,  setShowAddrInput]  = useState(false)
+  const [editingNoteId,  setEditingNoteId]  = useState(null)
+  const [promosOpen,     setPromosOpen]     = useState(false)
+  const [locating,       setLocating]       = useState(false)
+  const [paymentData,    setPaymentData]    = useState(null)  // { total, orderRef }
 
   const feedRef     = useRef(null)
   const itemRefs    = useRef([])
@@ -84,9 +112,18 @@ export default function RestaurantMenuSheet({ restaurant, onClose }) {
     })
   }
 
-  const cartCount = cart.reduce((s, i) => s + i.qty, 0)
-  const cartTotal = cart.reduce((s, i) => s + i.price * i.qty, 0)
-  const qtyFor    = (id) => cart.find(c => c.id === id)?.qty ?? 0
+  const updateNote = (id, note) => {
+    setCart(prev => prev.map(c => c.id === id ? { ...c, note } : c))
+  }
+
+  const cartCount   = cart.reduce((s, i) => s + i.qty, 0)
+  const cartTotal   = cart.reduce((s, i) => s + i.price * i.qty, 0)
+  const deliveryFare = restaurant.deliveryFare ?? null
+  const grandTotal  = cartTotal + (deliveryFare ?? 0)
+  const maxPrepMin  = cart.length > 0
+    ? Math.max(...cart.map(i => i.prep_time_min ?? 0))
+    : 0
+  const qtyFor = (id) => cart.find(c => c.id === id)?.qty ?? 0
 
   // ── Jump to category in feed ──
   const jumpToCategory = useCallback((cat) => {
@@ -98,11 +135,39 @@ export default function RestaurantMenuSheet({ restaurant, onClose }) {
     }, 60)
   }, [])
 
+  // ── GPS location → address ──
+  const handleUseLocation = () => {
+    if (!navigator.geolocation) return
+    setLocating(true)
+    navigator.geolocation.getCurrentPosition(
+      async ({ coords }) => {
+        try {
+          const res  = await fetch(
+            `https://nominatim.openstreetmap.org/reverse?lat=${coords.latitude}&lon=${coords.longitude}&format=json`
+          )
+          const data = await res.json()
+          setAddress(data.display_name ?? `${coords.latitude}, ${coords.longitude}`)
+        } catch {
+          setAddress(`${coords.latitude.toFixed(5)}, ${coords.longitude.toFixed(5)}`)
+        } finally {
+          setLocating(false)
+        }
+      },
+      () => setLocating(false),
+      { timeout: 8000 }
+    )
+  }
+
   // ── WhatsApp order ──
   const handleOrder = () => {
     if (!showAddrInput) { setShowAddrInput(true); return }
-    const { msg } = buildWhatsAppMessage(restaurant, cart, address)
+    const { msg, ref } = buildWhatsAppMessage(restaurant, cart, address, deliveryFare, maxPrepMin)
     window.open(`https://wa.me/${restaurant.phone}?text=${encodeURIComponent(msg)}`, '_blank')
+    const hasBank = restaurant.bank_name && restaurant.bank_account_number && restaurant.bank_account_holder
+    if (hasBank) {
+      setPaymentData({ total: grandTotal, orderRef: ref })
+      setCartExpanded(false)
+    }
   }
 
   useEffect(() => () => clearTimeout(collapseRef.current), [])
@@ -148,30 +213,93 @@ export default function RestaurantMenuSheet({ restaurant, onClose }) {
         {cartExpanded && cart.length > 0 && (
           <div className={styles.cartDropdown} onClick={e => e.stopPropagation()}>
             {cart.slice(-3).map(item => (
-              <div key={item.id} className={styles.cartRow}>
-                <span className={styles.cartQty}>{item.qty}×</span>
-                <span className={styles.cartName}>{item.name}</span>
-                <span className={styles.cartPrice}>{fmtRp(item.price * item.qty)}</span>
+              <div key={item.id} className={styles.cartRowWrap}>
+                <div className={styles.cartRow}>
+                  <span className={styles.cartQty}>{item.qty}×</span>
+                  <span className={styles.cartName}>{item.name}</span>
+                  <span className={styles.cartPrice}>{fmtRp(item.price * item.qty)}</span>
+                  <button
+                    className={`${styles.cartEditBtn} ${editingNoteId === item.id ? styles.cartEditBtnActive : ''}`}
+                    onClick={() => setEditingNoteId(editingNoteId === item.id ? null : item.id)}
+                    title="Customise"
+                  >✏</button>
+                </div>
+
+                {/* Existing note preview */}
+                {item.note?.trim() && editingNoteId !== item.id && (
+                  <span className={styles.cartNotePreview}>📝 {item.note}</span>
+                )}
+
+                {/* Inline note editor */}
+                {editingNoteId === item.id && (
+                  <div className={styles.cartNoteWrap}>
+                    <input
+                      className={styles.cartNoteInput}
+                      placeholder="e.g. no chili, extra sauce, less rice…"
+                      value={item.note ?? ''}
+                      onChange={e => updateNote(item.id, e.target.value)}
+                      onClick={e => e.stopPropagation()}
+                      autoFocus
+                      maxLength={120}
+                    />
+                    <button
+                      className={styles.cartNoteDone}
+                      onClick={() => setEditingNoteId(null)}
+                    >Done</button>
+                  </div>
+                )}
               </div>
             ))}
             {cart.length > 3 && (
               <span className={styles.cartMore}>+{cart.length - 3} more items</span>
             )}
             <div className={styles.cartDivider} />
+
+            {/* Prep time */}
+            {maxPrepMin > 0 && (
+              <div className={styles.cartMeta}>
+                <span className={styles.cartMetaIcon}>⏱</span>
+                <span className={styles.cartMetaLabel}>Est. prep time</span>
+                <span className={styles.cartMetaValue}>{maxPrepMin} min</span>
+              </div>
+            )}
+
+            {/* Delivery fare — always shown */}
+            <div className={styles.cartMeta}>
+              <span className={styles.cartMetaIcon}>🛵</span>
+              <span className={styles.cartMetaLabel}>Delivery</span>
+              <span className={styles.cartMetaValue}>
+                {deliveryFare !== null ? fmtRp(deliveryFare) : 'Calculating…'}
+              </span>
+            </div>
+
+            <div className={styles.cartDivider} />
+
             <div className={styles.cartTotal}>
-              <span>Total</span>
-              <span style={{ color: '#8DC63F' }}>{fmtRp(cartTotal)}</span>
+              <span>Total est.</span>
+              <span style={{ color: '#8DC63F' }}>
+                {deliveryFare !== null ? fmtRp(grandTotal) : `${fmtRp(cartTotal)} + delivery`}
+              </span>
             </div>
 
             {showAddrInput && (
-              <input
-                className={styles.addrInput}
-                placeholder="📍 Your delivery address"
-                value={address}
-                onChange={e => setAddress(e.target.value)}
-                onClick={e => e.stopPropagation()}
-                autoFocus
-              />
+              <div className={styles.addrWrap} onClick={e => e.stopPropagation()}>
+                <input
+                  className={styles.addrInput}
+                  placeholder="📍 Your delivery address"
+                  value={address}
+                  onChange={e => setAddress(e.target.value)}
+                  autoFocus
+                />
+                <button
+                  className={styles.locateBtn}
+                  onClick={handleUseLocation}
+                  disabled={locating}
+                  title="Use my location"
+                >
+                  {locating ? '…' : '🎯'}
+                </button>
+              </div>
             )}
 
             <button className={styles.orderBtn} onClick={handleOrder}>
@@ -187,6 +315,19 @@ export default function RestaurantMenuSheet({ restaurant, onClose }) {
 
       {/* ── Right floating panel ── */}
       <div className={styles.floatingPanel}>
+        {/* Promos */}
+        <button
+          className={styles.panelBtn}
+          onClick={() => setPromosOpen(true)}
+          title="Weekly deals"
+        >
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"/>
+            <line x1="7" y1="7" x2="7.01" y2="7"/>
+          </svg>
+          <span className={styles.panelLabel}>Deals</span>
+        </button>
+
         {/* Categories */}
         <button
           className={styles.panelBtn}
@@ -247,21 +388,17 @@ export default function RestaurantMenuSheet({ restaurant, onClose }) {
         )}
       </div>
 
-      {/* ── Category drawer (right, 60% width) ── */}
+      {/* ── Category floating grid (left side) ── */}
       {drawerOpen && (
         <div className={styles.drawerBackdrop} onClick={() => setDrawerOpen(false)}>
-          <div className={styles.drawer} onClick={e => e.stopPropagation()}>
-            <div className={styles.drawerHeader}>
-              <span className={styles.drawerTitle}>Categories</span>
-              <button className={styles.drawerClose} onClick={() => setDrawerOpen(false)}>✕</button>
-            </div>
-
-            {/* All items option */}
+          <div className={styles.drawerGrid} onClick={e => e.stopPropagation()}>
+            {/* All items */}
             <button
               className={`${styles.drawerCat} ${!activeCategory ? styles.drawerCatActive : ''}`}
               onClick={() => jumpToCategory(null)}
             >
-              <span className={styles.drawerCatName}>All Dishes</span>
+              <span className={styles.drawerCatEmoji}>🍽</span>
+              <span className={styles.drawerCatName}>All</span>
               <span className={styles.drawerCatCount}>{items.length}</span>
             </button>
 
@@ -271,21 +408,19 @@ export default function RestaurantMenuSheet({ restaurant, onClose }) {
                 className={`${styles.drawerCat} ${activeCategory === cat ? styles.drawerCatActive : ''}`}
                 onClick={() => jumpToCategory(cat)}
               >
+                <span className={styles.drawerCatEmoji}>{CATEGORY_EMOJIS[cat] ?? '🍽'}</span>
                 <span className={styles.drawerCatName}>{cat}</span>
-                <span className={styles.drawerCatCount}>
-                  {items.filter(i => i.category === cat).length}
-                </span>
+                <span className={styles.drawerCatCount}>{items.filter(i => i.category === cat).length}</span>
               </button>
             ))}
           </div>
         </div>
       )}
 
-      {/* ── Events panel ── */}
+      {/* ── Events / venue left drawer ── */}
       {eventsOpen && (
         <div className={styles.panelBackdrop} onClick={() => setEventsOpen(false)}>
           <div className={styles.infoPanel} onClick={e => e.stopPropagation()}>
-            <div className={styles.infoPanelHandle} />
             <h3 className={styles.infoPanelTitle}>Events & Venue</h3>
             <p className={styles.infoPanelSub}>{restaurant.name}</p>
 
@@ -331,11 +466,23 @@ export default function RestaurantMenuSheet({ restaurant, onClose }) {
         </div>
       )}
 
-      {/* ── Socials panel ── */}
+      {/* ── Weekly promos sheet ── */}
+      {promosOpen && <WeeklyPromoSheet onClose={() => setPromosOpen(false)} />}
+
+      {/* ── Payment card ── */}
+      {paymentData && (
+        <PaymentCard
+          restaurant={restaurant}
+          total={paymentData.total}
+          orderRef={paymentData.orderRef}
+          onDone={() => setPaymentData(null)}
+        />
+      )}
+
+      {/* ── Socials left drawer ── */}
       {socialsOpen && (
         <div className={styles.panelBackdrop} onClick={() => setSocialsOpen(false)}>
           <div className={styles.infoPanel} onClick={e => e.stopPropagation()}>
-            <div className={styles.infoPanelHandle} />
             <h3 className={styles.infoPanelTitle}>Follow Us</h3>
             <p className={styles.infoPanelSub}>{restaurant.name}</p>
 

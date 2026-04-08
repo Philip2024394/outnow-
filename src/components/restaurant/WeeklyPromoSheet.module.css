@@ -1,0 +1,169 @@
+/* ── Backdrop ────────────────────────────────────────────────────────────────── */
+.backdrop {
+  position: fixed; inset: 0; z-index: 50;
+  background: rgba(0,0,0,0.4);
+  animation: backdropIn 0.55s ease forwards;
+}
+@keyframes backdropIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+/* ── Sheet — left side, 50% width, floating ──────────────────────────────────── */
+.sheet {
+  position: absolute;
+  top: 70px; bottom: 70px;
+  left: 0;
+  width: 50%;
+  max-width: 320px;
+  background: #0a0a0a;
+  border-radius: 0 20px 20px 0;
+  border-right:  1px solid rgba(255,255,255,0.07);
+  border-top:    1px solid rgba(255,255,255,0.05);
+  border-bottom: 1px solid rgba(255,255,255,0.05);
+  display: flex; flex-direction: column;
+  overflow: hidden;
+  box-shadow: 10px 0 50px rgba(0,0,0,0.6);
+  animation: sheetSlide 0.72s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+@keyframes sheetSlide {
+  from { transform: translateX(-100%); opacity: 0.5; }
+  to   { transform: translateX(0);     opacity: 1; }
+}
+
+/* ── Header ──────────────────────────────────────────────────────────────────── */
+.header {
+  padding: 20px 16px 14px;
+  border-bottom: 1px solid rgba(255,255,255,0.05);
+  flex-shrink: 0;
+}
+.headerTop {
+  display: flex; align-items: center; justify-content: space-between;
+  margin-bottom: 10px;
+}
+.logo {
+  font-size: 11px; font-weight: 900; color: #F5C518;
+  letter-spacing: 0.12em;
+  background: rgba(245,197,24,0.1); border: 1px solid rgba(245,197,24,0.25);
+  border-radius: 100px; padding: 3px 10px;
+}
+.closeBtn {
+  background: none; border: none; color: rgba(255,255,255,0.3);
+  font-size: 15px; cursor: pointer; padding: 4px; line-height: 1;
+}
+.title {
+  font-size: 18px; font-weight: 900; color: #fff;
+  letter-spacing: -0.03em; margin: 0 0 3px;
+}
+.sub { font-size: 11px; color: #444; margin: 0; font-weight: 600; }
+
+/* ── Scrollable list ─────────────────────────────────────────────────────────── */
+.list {
+  flex: 1; overflow-y: auto; padding: 12px 10px;
+  display: flex; flex-direction: column; gap: 10px;
+}
+.list::-webkit-scrollbar { display: none; }
+
+/* ── Promo card ──────────────────────────────────────────────────────────────── */
+.card {
+  position: relative;
+  background: rgba(255,255,255,0.03);
+  border: 1px solid rgba(255,255,255,0.07);
+  border-radius: 16px;
+  padding: 14px 12px 12px;
+  display: flex; flex-direction: column; gap: 10px;
+  overflow: hidden;
+  transition: border-color 0.2s;
+}
+.cardGlow {
+  position: absolute; inset: 0; pointer-events: none;
+}
+.cardActive {
+  border-color: rgba(var(--accent-rgb, 141,198,63), 0.3);
+  box-shadow: 0 0 20px rgba(0,0,0,0.3);
+}
+.cardExpired { opacity: 0.4; }
+.cardClaimed {
+  border-color: rgba(141,198,63,0.4);
+  background: rgba(141,198,63,0.04);
+}
+
+/* ── Card top row ─────────────────────────────────────────────────────────────── */
+.cardTop {
+  display: flex; align-items: flex-start; gap: 8px; position: relative; z-index: 1;
+}
+.dealDayEmoji { font-size: 20px; flex-shrink: 0; line-height: 1.2; }
+.dealDayInfo  { flex: 1; display: flex; flex-direction: column; gap: 1px; }
+.dealDayName  { font-size: 12px; font-weight: 900; letter-spacing: -0.01em; line-height: 1; }
+.dealDaySub   { font-size: 9px; color: #444; font-weight: 600; line-height: 1.2; }
+.dayTag {
+  font-size: 9px; font-weight: 800; color: rgba(255,255,255,0.25);
+  background: rgba(255,255,255,0.05); border-radius: 6px;
+  padding: 2px 6px; flex-shrink: 0; align-self: flex-start;
+  letter-spacing: 0.04em; text-transform: uppercase;
+}
+
+/* ── Offer ───────────────────────────────────────────────────────────────────── */
+.offerWrap  { position: relative; z-index: 1; display: flex; flex-direction: column; gap: 2px; }
+.offerText  { font-size: 26px; font-weight: 900; letter-spacing: -0.04em; line-height: 1; }
+.offerDetail { font-size: 10px; color: #555; font-weight: 700; }
+
+/* ── Meta ────────────────────────────────────────────────────────────────────── */
+.meta {
+  position: relative; z-index: 1;
+  display: flex; flex-direction: column; gap: 2px;
+  padding-top: 6px;
+  border-top: 1px solid rgba(255,255,255,0.05);
+}
+.restaurant { font-size: 11px; font-weight: 800; color: rgba(255,255,255,0.6); }
+.timeWindow { font-size: 10px; color: #444; font-weight: 700; }
+
+/* ── Card footer ─────────────────────────────────────────────────────────────── */
+.cardFooter { position: relative; z-index: 1; }
+
+.claimBtn {
+  width: 100%; padding: 10px; border-radius: 10px;
+  border: none; font-size: 13px; font-weight: 900;
+  color: #000; cursor: pointer; font-family: inherit;
+  letter-spacing: -0.01em;
+  transition: opacity 0.15s, transform 0.1s;
+}
+.claimBtn:active { transform: scale(0.97); opacity: 0.85; }
+
+.claimedBadge {
+  width: 100%; padding: 10px; border-radius: 10px;
+  background: rgba(141,198,63,0.12); border: 1px solid rgba(141,198,63,0.3);
+  color: #8DC63F; font-size: 12px; font-weight: 800;
+  text-align: center; letter-spacing: -0.01em;
+}
+
+.lockedRow {
+  display: flex; align-items: center; gap: 6px;
+  padding: 8px 10px; border-radius: 10px;
+  background: rgba(255,255,255,0.03);
+  border: 1px solid rgba(255,255,255,0.06);
+}
+.lockIcon      { font-size: 12px; flex-shrink: 0; }
+.countdownText { font-size: 11px; font-weight: 800; color: rgba(255,255,255,0.35); font-variant-numeric: tabular-nums; }
+
+.expiredLabel {
+  font-size: 10px; font-weight: 800; color: #333;
+  text-align: center; letter-spacing: 0.06em; text-transform: uppercase;
+  padding: 6px;
+}
+
+/* ── Lock overlay — subtle dimming on locked cards ───────────────────────────── */
+.lockOverlay {
+  position: absolute; inset: 0;
+  background: rgba(0,0,0,0.18);
+  border-radius: 16px;
+  pointer-events: none;
+}
+
+/* ── Footer ──────────────────────────────────────────────────────────────────── */
+.footer {
+  font-size: 9px; font-weight: 700; color: rgba(255,255,255,0.1);
+  text-align: center; padding: 10px;
+  letter-spacing: 0.06em; text-transform: uppercase;
+  flex-shrink: 0;
+}

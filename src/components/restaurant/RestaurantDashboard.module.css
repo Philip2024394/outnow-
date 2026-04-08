@@ -246,3 +246,67 @@
   font-size: 11px; color: #333; line-height: 1.5; margin: 0;
   text-align: center; padding: 0 8px;
 }
+
+/* ── Section grouping ─────────────────────────────────────────────────────── */
+.section {
+  display: flex; flex-direction: column; gap: 10px;
+  background: rgba(255,255,255,0.02); border: 1px solid #1a1a1a;
+  border-radius: 16px; padding: 14px;
+}
+.sectionHeader { display: flex; flex-direction: column; gap: 2px; margin-bottom: 2px; }
+.sectionTitle  { font-size: 13px; font-weight: 900; color: #aaa; }
+.sectionHint   { font-size: 10px; color: #444; font-weight: 600; }
+
+/* Label hint */
+.labelHint { font-size: 10px; color: #333; font-weight: 600; margin-left: 4px; }
+
+/* Geocoding note */
+.geocodingNote { font-size: 11px; color: #555; font-style: italic; margin-top: 2px; }
+
+/* Two-column row */
+.row2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+
+/* Event feature pills */
+.checkGrid { display: flex; flex-wrap: wrap; gap: 8px; }
+.checkPill {
+  padding: 7px 12px; border-radius: 100px;
+  background: #111; border: 1px solid #222;
+  color: #555; font-size: 12px; font-weight: 700;
+  cursor: pointer; font-family: inherit; transition: all 0.15s;
+}
+.checkPillOn {
+  background: rgba(141,198,63,0.1);
+  border-color: rgba(141,198,63,0.35);
+  color: #8DC63F;
+}
+
+/* Toggle switch */
+.toggleRow {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 2px 0;
+}
+.toggleLabel { font-size: 13px; color: #aaa; font-weight: 600; flex: 1; }
+.toggle {
+  width: 44px; height: 26px; border-radius: 13px;
+  background: #1a1a1a; border: 1px solid #222;
+  position: relative; cursor: pointer; flex-shrink: 0;
+  transition: background 0.2s, border-color 0.2s;
+}
+.toggleOn { background: rgba(141,198,63,0.2); border-color: rgba(141,198,63,0.4); }
+.toggleThumb {
+  position: absolute; top: 3px; left: 3px;
+  width: 18px; height: 18px; border-radius: 50%;
+  background: #444; transition: transform 0.2s, background 0.2s;
+}
+.toggleOn .toggleThumb { transform: translateX(18px); background: #8DC63F; }
+
+/* Bank preview card */
+.bankPreview {
+  background: linear-gradient(135deg, #005baa 0%, #1a7dd8 100%);
+  border-radius: 14px; padding: 16px;
+  display: flex; flex-direction: column; gap: 4px;
+}
+.bankPreviewLabel  { font-size: 9px; color: rgba(255,255,255,0.4); font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; }
+.bankPreviewBank   { font-size: 13px; font-weight: 900; color: #fff; letter-spacing: 0.04em; }
+.bankPreviewNum    { font-size: 18px; font-weight: 700; color: #fff; letter-spacing: 0.1em; font-variant-numeric: tabular-nums; }
+.bankPreviewHolder { font-size: 12px; font-weight: 800; color: rgba(255,255,255,0.7); }
