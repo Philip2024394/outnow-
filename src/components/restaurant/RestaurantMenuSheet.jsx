@@ -1,225 +1,428 @@
-import { useState } from 'react'
+import { useState, useRef, useEffect, useCallback } from 'react'
 import styles from './RestaurantMenuSheet.module.css'
 
 function fmtRp(n) { return `Rp ${Number(n).toLocaleString('id-ID')}` }
 
-function buildWhatsAppMessage(restaurant, cart, deliveryAddress) {
-  const lines = cart.map(item => `• ${item.name} × ${item.qty} — ${fmtRp(item.price * item.qty)}`)
-  const foodTotal = cart.reduce((s, i) => s + i.price * i.qty, 0)
-  const bookingRef = `#HDL_${Date.now().toString().slice(-8)}`
-  const deliveryNote = restaurant.deliveryFare
-    ? `🛵 Estimated delivery: ~${fmtRp(restaurant.deliveryFare)}`
-    : '🛵 Delivery cost to be confirmed'
+const EVENT_LABELS = {
+  live_music:    '🎵 Live Music',
+  birthday_setup:'🎂 Birthday Setup',
+  private_room:  '🚪 Private Room',
+  sound_system:  '🎤 Sound System',
+  party_package: '🥂 Party Packages',
+  wedding:       '💍 Weddings',
+}
 
+const CATEGORY_GRADIENTS = {
+  'Main':     'linear-gradient(160deg, #1a0d00 0%, #0d0d0d 100%)',
+  'Drinks':   'linear-gradient(160deg, #000d1a 0%, #0d0d0d 100%)',
+  'Snacks':   'linear-gradient(160deg, #0d1a00 0%, #0d0d0d 100%)',
+  'Sides':    'linear-gradient(160deg, #1a1500 0%, #0d0d0d 100%)',
+  'Desserts': 'linear-gradient(160deg, #1a0015 0%, #0d0d0d 100%)',
+}
+
+function buildWhatsAppMessage(restaurant, cart, address) {
+  const lines    = cart.map(i => `• ${i.name} × ${i.qty} — ${fmtRp(i.price * i.qty)}`)
+  const foodTotal = cart.reduce((s, i) => s + i.price * i.qty, 0)
+  const ref      = `#MAKAN_${Date.now().toString().slice(-8)}`
   const msg = [
     `🍽 *Order from ${restaurant.name}*`,
+    `MAKAN by Hangger — ${ref}`,
     '———————————————',
     ...lines,
     '———————————————',
     `🍴 Food total: ${fmtRp(foodTotal)}`,
-    deliveryNote,
-    `💰 *Estimated total: ~${fmtRp(foodTotal + (restaurant.deliveryFare ?? 0))}*`,
-    deliveryAddress ? `📍 Deliver to: ${deliveryAddress}` : '',
-    `⏱ Prep time: ~${Math.max(...cart.map(i => i.prep_time_min ?? 15))} min`,
-    '',
-    `Hangger Booking Ref: ${bookingRef}`,
-    `(Restaurant will book Hangger driver after payment)`,
+    restaurant.deliveryFare ? `🛵 Est. delivery: ~${fmtRp(restaurant.deliveryFare)}` : '',
+    `💰 *Est. total: ~${fmtRp(foodTotal + (restaurant.deliveryFare ?? 0))}*`,
+    address ? `📍 Deliver to: ${address}` : '',
   ].filter(Boolean).join('\n')
-
-  return { msg, bookingRef }
+  return { msg, ref }
 }
 
+// ── Main component ────────────────────────────────────────────────────────────
 export default function RestaurantMenuSheet({ restaurant, onClose }) {
-  const [cart,          setCart]          = useState([])  // [{ ...item, qty }]
-  const [activeCategory,setActiveCategory] = useState('all')
-  const [deliveryAddr,  setDeliveryAddr]  = useState('')
-  const [showOrder,     setShowOrder]     = useState(false)
+  const items      = restaurant.menu_items ?? []
+  const categories = [...new Set(items.map(i => i.category).filter(Boolean))]
 
-  const items    = restaurant.menu_items ?? []
-  const categories = ['all', ...new Set(items.map(i => i.category).filter(Boolean))]
+  const [cart,           setCart]           = useState([])
+  const [activeCategory, setActiveCategory] = useState(null)
+  const [cartExpanded,   setCartExpanded]   = useState(false)
+  const [drawerOpen,     setDrawerOpen]     = useState(false)
+  const [eventsOpen,     setEventsOpen]     = useState(false)
+  const [socialsOpen,    setSocialsOpen]    = useState(false)
+  const [address,        setAddress]        = useState('')
+  const [showAddrInput,  setShowAddrInput]  = useState(false)
 
-  const visible = activeCategory === 'all'
-    ? items
-    : items.filter(i => i.category === activeCategory)
+  const feedRef     = useRef(null)
+  const itemRefs    = useRef([])
+  const collapseRef = useRef(null)
 
+  // Filter items by active category
+  const visibleItems = activeCategory
+    ? items.filter(i => i.category === activeCategory)
+    : items
+
+  // ── Cart helpers ──
   const addToCart = (item) => {
     setCart(prev => {
-      const existing = prev.find(c => c.id === item.id)
-      if (existing) return prev.map(c => c.id === item.id ? { ...c, qty: c.qty + 1 } : c)
-      return [...prev, { ...item, qty: 1 }]
+      const ex = prev.find(c => c.id === item.id)
+      return ex
+        ? prev.map(c => c.id === item.id ? { ...c, qty: c.qty + 1 } : c)
+        : [...prev, { ...item, qty: 1 }]
     })
+    // Spring open + auto-collapse after 2.5s
+    setCartExpanded(true)
+    clearTimeout(collapseRef.current)
+    collapseRef.current = setTimeout(() => setCartExpanded(false), 2500)
   }
 
-  const removeFromCart = (itemId) => {
+  const removeFromCart = (id) => {
     setCart(prev => {
-      const existing = prev.find(c => c.id === itemId)
-      if (!existing || existing.qty <= 1) return prev.filter(c => c.id !== itemId)
-      return prev.map(c => c.id === itemId ? { ...c, qty: c.qty - 1 } : c)
+      const ex = prev.find(c => c.id === id)
+      return ex?.qty <= 1
+        ? prev.filter(c => c.id !== id)
+        : prev.map(c => c.id === id ? { ...c, qty: c.qty - 1 } : c)
     })
   }
 
-  const cartQty  = cart.reduce((s, i) => s + i.qty, 0)
+  const cartCount = cart.reduce((s, i) => s + i.qty, 0)
   const cartTotal = cart.reduce((s, i) => s + i.price * i.qty, 0)
-  const qtyFor   = (id) => cart.find(c => c.id === id)?.qty ?? 0
+  const qtyFor    = (id) => cart.find(c => c.id === id)?.qty ?? 0
 
-  const handleWhatsApp = () => {
-    const { msg } = buildWhatsAppMessage(restaurant, cart, deliveryAddr)
-    const url = `https://wa.me/${restaurant.phone}?text=${encodeURIComponent(msg)}`
-    window.open(url, '_blank')
+  // ── Jump to category in feed ──
+  const jumpToCategory = useCallback((cat) => {
+    setActiveCategory(cat)
+    setDrawerOpen(false)
+    // Small delay so filtered items render before scroll
+    setTimeout(() => {
+      if (feedRef.current) feedRef.current.scrollTop = 0
+    }, 60)
+  }, [])
+
+  // ── WhatsApp order ──
+  const handleOrder = () => {
+    if (!showAddrInput) { setShowAddrInput(true); return }
+    const { msg } = buildWhatsAppMessage(restaurant, cart, address)
+    window.open(`https://wa.me/${restaurant.phone}?text=${encodeURIComponent(msg)}`, '_blank')
   }
+
+  useEffect(() => () => clearTimeout(collapseRef.current), [])
 
   return (
-    <div className={styles.overlay} onClick={onClose}>
-      <div className={styles.sheet} onClick={e => e.stopPropagation()}>
+    <div className={styles.screen}>
 
-        {/* Handle */}
-        <div className={styles.handle} />
-
-        {/* Restaurant header */}
-        <div className={styles.restaurantHeader}>
-          <div className={styles.restaurantInfo}>
-            <span className={styles.restaurantName}>{restaurant.name}</span>
-            <span className={styles.restaurantMeta}>
-              ⭐ {restaurant.rating ?? '—'} · {restaurant.cuisine_type}
-            </span>
-          </div>
-          <button className={styles.closeBtn} onClick={onClose}>✕</button>
-        </div>
-
-        {/* Delivery estimate strip */}
-        {restaurant.distKm != null && (
-          <div className={styles.deliveryStrip}>
-            <span>🛵 {restaurant.distKm} km away</span>
-            {restaurant.deliveryFare && (
-              <span className={styles.deliveryFare}>~{fmtRp(restaurant.deliveryFare)} delivery</span>
-            )}
-            <span className={styles.deliveryNote}>Driver booked by restaurant after payment</span>
-          </div>
-        )}
-
-        {/* Category filter */}
-        <div className={styles.categoryRow}>
-          {categories.map(cat => (
-            <button
-              key={cat}
-              className={`${styles.catBtn} ${activeCategory === cat ? styles.catBtnActive : ''}`}
-              onClick={() => setActiveCategory(cat)}
-            >
-              {cat === 'all' ? 'All' : cat}
+      {/* ── Header ── */}
+      <div className={styles.header}>
+        <button className={styles.backBtn} onClick={onClose} aria-label="Close">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M19 12H5M12 5l-7 7 7 7"/>
+          </svg>
+        </button>
+        <div className={styles.headerInfo}>
+          <span className={styles.headerName}>{restaurant.name}</span>
+          {activeCategory && (
+            <button className={styles.clearCat} onClick={() => setActiveCategory(null)}>
+              {activeCategory} · All items ×
             </button>
-          ))}
+          )}
+        </div>
+      </div>
+
+      {/* ── Growing cart badge (top-right) ── */}
+      <div
+        className={`${styles.cartBadge} ${cartExpanded ? styles.cartBadgeOpen : ''}`}
+        onClick={() => {
+          setCartExpanded(e => !e)
+          clearTimeout(collapseRef.current)
+        }}
+      >
+        {/* Icon row */}
+        <div className={styles.cartBadgeTop}>
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+            <circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/>
+            <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/>
+          </svg>
+          {cartCount > 0 && <span className={styles.cartCount}>{cartCount}</span>}
         </div>
 
-        {/* Menu items */}
-        <div className={styles.menuList}>
-          {visible.map(item => (
-            <div key={item.id} className={`${styles.menuItem} ${!item.is_available ? styles.menuItemUnavailable : ''}`}>
-              {/* Photo */}
-              <div className={styles.itemPhoto}>
-                {item.photo_url
-                  ? <img src={item.photo_url} alt={item.name} className={styles.itemImg} />
-                  : <span className={styles.itemPhotoEmoji}>🍽</span>
-                }
+        {/* Expanded: last 3 items + total + order */}
+        {cartExpanded && cart.length > 0 && (
+          <div className={styles.cartDropdown} onClick={e => e.stopPropagation()}>
+            {cart.slice(-3).map(item => (
+              <div key={item.id} className={styles.cartRow}>
+                <span className={styles.cartQty}>{item.qty}×</span>
+                <span className={styles.cartName}>{item.name}</span>
+                <span className={styles.cartPrice}>{fmtRp(item.price * item.qty)}</span>
               </div>
-
-              {/* Info */}
-              <div className={styles.itemInfo}>
-                <span className={styles.itemName}>{item.name}</span>
-                {item.description && <span className={styles.itemDesc}>{item.description}</span>}
-                <div className={styles.itemMeta}>
-                  <span className={styles.itemPrice}>{fmtRp(item.price)}</span>
-                  {item.prep_time_min && (
-                    <span className={styles.itemPrep}>⏱ {item.prep_time_min} min</span>
-                  )}
-                </div>
-              </div>
-
-              {/* Qty control */}
-              {item.is_available !== false && (
-                <div className={styles.qtyControl}>
-                  {qtyFor(item.id) > 0 ? (
-                    <>
-                      <button className={styles.qtyBtn} onClick={() => removeFromCart(item.id)}>−</button>
-                      <span className={styles.qtyNum}>{qtyFor(item.id)}</span>
-                      <button className={styles.qtyBtn} onClick={() => addToCart(item)}>+</button>
-                    </>
-                  ) : (
-                    <button className={styles.addBtn} onClick={() => addToCart(item)}>+ Add</button>
-                  )}
-                </div>
-              )}
-              {item.is_available === false && (
-                <span className={styles.unavailableTag}>Sold out</span>
-              )}
-            </div>
-          ))}
-        </div>
-
-        {/* Cart bar */}
-        {cartQty > 0 && (
-          <div className={styles.cartBar}>
-            {!showOrder ? (
-              <button className={styles.cartBtn} onClick={() => setShowOrder(true)}>
-                <span className={styles.cartBadge}>{cartQty}</span>
-                <span>View Order</span>
-                <span className={styles.cartTotal}>{fmtRp(cartTotal)}</span>
-              </button>
-            ) : (
-              <div className={styles.orderPanel}>
-                <div className={styles.orderHeader}>
-                  <span className={styles.orderTitle}>Your Order</span>
-                  <button className={styles.orderBack} onClick={() => setShowOrder(false)}>← Menu</button>
-                </div>
-
-                {cart.map(item => (
-                  <div key={item.id} className={styles.orderRow}>
-                    <span className={styles.orderQty}>{item.qty}×</span>
-                    <span className={styles.orderName}>{item.name}</span>
-                    <span className={styles.orderPrice}>{fmtRp(item.price * item.qty)}</span>
-                  </div>
-                ))}
-
-                <div className={styles.orderDivider} />
-                <div className={styles.orderRow}>
-                  <span className={styles.orderName} style={{ fontWeight: 800 }}>Food Total</span>
-                  <span className={styles.orderPrice} style={{ color: '#8DC63F' }}>{fmtRp(cartTotal)}</span>
-                </div>
-                {restaurant.deliveryFare && (
-                  <div className={styles.orderRow}>
-                    <span className={styles.orderName}>🛵 Est. Delivery</span>
-                    <span className={styles.orderPrice}>~{fmtRp(restaurant.deliveryFare)}</span>
-                  </div>
-                )}
-                {restaurant.deliveryFare && (
-                  <div className={styles.orderRow}>
-                    <span className={styles.orderName} style={{ fontWeight: 900 }}>Est. Total</span>
-                    <span className={styles.orderPrice} style={{ color: '#8DC63F', fontWeight: 900 }}>
-                      ~{fmtRp(cartTotal + restaurant.deliveryFare)}
-                    </span>
-                  </div>
-                )}
-
-                <input
-                  className={styles.addressInput}
-                  placeholder="📍 Your delivery address"
-                  value={deliveryAddr}
-                  onChange={e => setDeliveryAddr(e.target.value)}
-                />
-
-                <button className={styles.whatsappBtn} onClick={handleWhatsApp}>
-                  <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
-                    <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/>
-                    <path d="M12 0C5.373 0 0 5.373 0 12c0 2.123.554 4.118 1.528 5.848L.057 23.571l5.894-1.545A11.945 11.945 0 0012 24c6.627 0 12-5.373 12-12S18.627 0 12 0zm0 21.818a9.818 9.818 0 01-5.007-1.374l-.36-.214-3.5.918.934-3.408-.235-.372A9.818 9.818 0 0112 2.182c5.428 0 9.818 4.39 9.818 9.818 0 5.428-4.39 9.818-9.818 9.818z"/>
-                  </svg>
-                  Order via WhatsApp
-                </button>
-                <p className={styles.whatsappNote}>
-                  Pay restaurant directly · They will book a Hangger driver for delivery
-                </p>
-              </div>
+            ))}
+            {cart.length > 3 && (
+              <span className={styles.cartMore}>+{cart.length - 3} more items</span>
             )}
+            <div className={styles.cartDivider} />
+            <div className={styles.cartTotal}>
+              <span>Total</span>
+              <span style={{ color: '#8DC63F' }}>{fmtRp(cartTotal)}</span>
+            </div>
+
+            {showAddrInput && (
+              <input
+                className={styles.addrInput}
+                placeholder="📍 Your delivery address"
+                value={address}
+                onChange={e => setAddress(e.target.value)}
+                onClick={e => e.stopPropagation()}
+                autoFocus
+              />
+            )}
+
+            <button className={styles.orderBtn} onClick={handleOrder}>
+              {showAddrInput ? '📲 Send Order via WhatsApp' : 'Order Now →'}
+            </button>
           </div>
         )}
+
+        {cartExpanded && cart.length === 0 && (
+          <div className={styles.cartEmpty}>Cart is empty</div>
+        )}
+      </div>
+
+      {/* ── Right floating panel ── */}
+      <div className={styles.floatingPanel}>
+        {/* Categories */}
+        <button
+          className={styles.panelBtn}
+          onClick={() => setDrawerOpen(true)}
+          title="Browse categories"
+        >
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round">
+            <line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/>
+          </svg>
+          <span className={styles.panelLabel}>Menu</span>
+        </button>
+
+        {/* Events */}
+        {(restaurant.seating_capacity || restaurant.catering_available || restaurant.event_features?.length > 0) && (
+          <button
+            className={styles.panelBtn}
+            onClick={() => setEventsOpen(true)}
+            title="Events & venue"
+          >
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round">
+              <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/>
+            </svg>
+            <span className={styles.panelLabel}>Events</span>
+          </button>
+        )}
+
+        {/* Socials */}
+        {(restaurant.instagram || restaurant.tiktok || restaurant.facebook) && (
+          <button
+            className={styles.panelBtn}
+            onClick={() => setSocialsOpen(true)}
+            title="Social media"
+          >
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round">
+              <circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/>
+              <line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/>
+            </svg>
+            <span className={styles.panelLabel}>Follow</span>
+          </button>
+        )}
+      </div>
+
+      {/* ── Full-screen snap-scroll menu feed ── */}
+      <div className={styles.feed} ref={feedRef}>
+        {visibleItems.length === 0 ? (
+          <div className={styles.emptyFeed}>No items in this category</div>
+        ) : (
+          visibleItems.map((item, i) => (
+            <MenuItemCard
+              key={item.id}
+              item={item}
+              qty={qtyFor(item.id)}
+              onAdd={() => addToCart(item)}
+              onRemove={() => removeFromCart(item.id)}
+              itemRef={el => { itemRefs.current[i] = el }}
+            />
+          ))
+        )}
+      </div>
+
+      {/* ── Category drawer (right, 60% width) ── */}
+      {drawerOpen && (
+        <div className={styles.drawerBackdrop} onClick={() => setDrawerOpen(false)}>
+          <div className={styles.drawer} onClick={e => e.stopPropagation()}>
+            <div className={styles.drawerHeader}>
+              <span className={styles.drawerTitle}>Categories</span>
+              <button className={styles.drawerClose} onClick={() => setDrawerOpen(false)}>✕</button>
+            </div>
+
+            {/* All items option */}
+            <button
+              className={`${styles.drawerCat} ${!activeCategory ? styles.drawerCatActive : ''}`}
+              onClick={() => jumpToCategory(null)}
+            >
+              <span className={styles.drawerCatName}>All Dishes</span>
+              <span className={styles.drawerCatCount}>{items.length}</span>
+            </button>
+
+            {categories.map(cat => (
+              <button
+                key={cat}
+                className={`${styles.drawerCat} ${activeCategory === cat ? styles.drawerCatActive : ''}`}
+                onClick={() => jumpToCategory(cat)}
+              >
+                <span className={styles.drawerCatName}>{cat}</span>
+                <span className={styles.drawerCatCount}>
+                  {items.filter(i => i.category === cat).length}
+                </span>
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* ── Events panel ── */}
+      {eventsOpen && (
+        <div className={styles.panelBackdrop} onClick={() => setEventsOpen(false)}>
+          <div className={styles.infoPanel} onClick={e => e.stopPropagation()}>
+            <div className={styles.infoPanelHandle} />
+            <h3 className={styles.infoPanelTitle}>Events & Venue</h3>
+            <p className={styles.infoPanelSub}>{restaurant.name}</p>
+
+            {restaurant.seating_capacity && (
+              <div className={styles.infoRow}>
+                <span className={styles.infoIcon}>🪑</span>
+                <div className={styles.infoText}>
+                  <span className={styles.infoLabel}>Seating Capacity</span>
+                  <span className={styles.infoValue}>Up to {restaurant.seating_capacity} guests</span>
+                </div>
+              </div>
+            )}
+
+            {restaurant.catering_available && (
+              <div className={styles.infoRow}>
+                <span className={styles.infoIcon}>🍽</span>
+                <div className={styles.infoText}>
+                  <span className={styles.infoLabel}>Catering</span>
+                  <span className={styles.infoValue}>Available for external events</span>
+                </div>
+              </div>
+            )}
+
+            {restaurant.event_features?.map(f => (
+              <div key={f} className={styles.infoRow}>
+                <span className={styles.infoIcon}>{EVENT_LABELS[f]?.split(' ')[0] ?? '✓'}</span>
+                <div className={styles.infoText}>
+                  <span className={styles.infoValue}>{EVENT_LABELS[f]?.split(' ').slice(1).join(' ') ?? f}</span>
+                </div>
+              </div>
+            ))}
+
+            <button
+              className={styles.eventEnquiryBtn}
+              onClick={() => {
+                const msg = `Hi ${restaurant.name}, I'd like to enquire about hosting an event at your venue. Please send me details about availability and packages.`
+                window.open(`https://wa.me/${restaurant.phone}?text=${encodeURIComponent(msg)}`, '_blank')
+              }}
+            >
+              📲 Enquire via WhatsApp
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* ── Socials panel ── */}
+      {socialsOpen && (
+        <div className={styles.panelBackdrop} onClick={() => setSocialsOpen(false)}>
+          <div className={styles.infoPanel} onClick={e => e.stopPropagation()}>
+            <div className={styles.infoPanelHandle} />
+            <h3 className={styles.infoPanelTitle}>Follow Us</h3>
+            <p className={styles.infoPanelSub}>{restaurant.name}</p>
+
+            {restaurant.instagram && (
+              <a className={styles.socialLink} href={`https://instagram.com/${restaurant.instagram}`} target="_blank" rel="noreferrer">
+                <span className={styles.socialIcon}>📸</span>
+                <span className={styles.socialName}>Instagram</span>
+                <span className={styles.socialHandle}>@{restaurant.instagram}</span>
+              </a>
+            )}
+            {restaurant.tiktok && (
+              <a className={styles.socialLink} href={`https://tiktok.com/@${restaurant.tiktok}`} target="_blank" rel="noreferrer">
+                <span className={styles.socialIcon}>🎵</span>
+                <span className={styles.socialName}>TikTok</span>
+                <span className={styles.socialHandle}>@{restaurant.tiktok}</span>
+              </a>
+            )}
+            {restaurant.facebook && (
+              <a className={styles.socialLink} href={`https://facebook.com/${restaurant.facebook}`} target="_blank" rel="noreferrer">
+                <span className={styles.socialIcon}>👥</span>
+                <span className={styles.socialName}>Facebook</span>
+                <span className={styles.socialHandle}>{restaurant.facebook}</span>
+              </a>
+            )}
+
+            {!restaurant.instagram && !restaurant.tiktok && !restaurant.facebook && (
+              <p className={styles.noSocials}>No social links added yet.</p>
+            )}
+          </div>
+        </div>
+      )}
+    </div>
+  )
+}
+
+// ── Menu item card — full-screen ──────────────────────────────────────────────
+function MenuItemCard({ item, qty, onAdd, onRemove, itemRef }) {
+  const bg = item.photo_url
+    ? `url("${item.photo_url}")`
+    : CATEGORY_GRADIENTS[item.category] ?? 'linear-gradient(160deg, #1a1200 0%, #0d0d0d 100%)'
+
+  return (
+    <div className={styles.itemCard} ref={itemRef}>
+      {/* Background */}
+      <div className={styles.itemBg} style={{ backgroundImage: bg }} />
+      <div className={styles.itemOverlay} />
+
+      {/* Category pill top-left */}
+      {item.category && (
+        <div className={styles.itemCatPill}>{item.category}</div>
+      )}
+
+      {/* Prep time top-right */}
+      {item.prep_time_min && (
+        <div className={styles.itemPrep}>⏱ {item.prep_time_min} min</div>
+      )}
+
+      {/* Sold out overlay */}
+      {item.is_available === false && (
+        <div className={styles.soldOutOverlay}>
+          <span className={styles.soldOutText}>Sold Out</span>
+        </div>
+      )}
+
+      {/* Bottom content */}
+      <div className={styles.itemBottom}>
+        <h2 className={styles.itemName}>{item.name}</h2>
+        {item.description && (
+          <p className={styles.itemDesc}>{item.description}</p>
+        )}
+        <div className={styles.itemFooter}>
+          <span className={styles.itemPrice}>{fmtRp(item.price)}</span>
+
+          {item.is_available !== false && (
+            qty > 0 ? (
+              <div className={styles.qtyControl}>
+                <button className={styles.qtyBtn} onClick={onRemove}>−</button>
+                <span className={styles.qtyNum}>{qty}</span>
+                <button className={styles.qtyBtn} onClick={onAdd}>+</button>
+              </div>
+            ) : (
+              <button className={styles.addBtn} onClick={onAdd}>
+                + Add
+              </button>
+            )
+          )}
+        </div>
       </div>
     </div>
   )
