@@ -638,7 +638,7 @@ export default function AppShell({ returnParams, triggerGoLive }) {
 
       {rideOpen && <BookingScreen onClose={() => setRideOpen(false)} />}
 
-      {foodOpen && (
+      {foodOpen && !foodBrowseOpen && (
         <CategoryDiscoveryScreen
           onClose={() => setFoodOpen(false)}
           onSelectCategory={(cat, restaurantId) => {
@@ -648,7 +648,7 @@ export default function AppShell({ returnParams, triggerGoLive }) {
           }}
         />
       )}
-      {foodBrowseOpen && (
+      {foodOpen && foodBrowseOpen && (
         <RestaurantBrowseScreen
           category={foodCategory}
           scrollToId={foodScrollToId}
