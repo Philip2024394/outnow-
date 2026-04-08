@@ -45,9 +45,6 @@ function filterPlaces(query) {
   ).slice(0, 8)
 }
 
-function formatDist(km) {
-  return km < 1 ? `${Math.round(km * 1000)} m` : `${km.toFixed(1)} km`
-}
 
 // ── Auth wall ─────────────────────────────────────────────────────────────────
 function AuthWall({ onClose, onSignUp }) {
@@ -455,10 +452,6 @@ export default function BookingScreen({ onClose }) {
           <span className={styles.fareItemLabel}>Estimated Fare</span>
           <span className={styles.fareItemValue}>{formatRp(fare)}</span>
         </div>
-        <div className={styles.fareItem}>
-          <span className={styles.fareItemLabel}>Distance</span>
-          <span className={styles.fareItemValue}>{distanceKm} km</span>
-        </div>
       </div>
 
       <button
@@ -515,7 +508,7 @@ export default function BookingScreen({ onClose }) {
               <div className={styles.featuredStats}>
                 <span className={styles.featuredStat}>{featured.total_trips ?? 0} trips</span>
                 <span className={styles.featuredStatDot}>·</span>
-                <span className={styles.featuredStat}>{formatDist(featured.distKm)} away</span>
+                <span className={styles.featuredStat}>{featured.distKm} km away</span>
               </div>
               <div className={styles.featuredVehicle}>
                 {featured.vehicle_model} {featured.vehicle_year} · {featured.vehicle_color}
@@ -550,7 +543,6 @@ export default function BookingScreen({ onClose }) {
                   {'★'.repeat(Math.floor(d.rating ?? 4.8))}
                   <span className={styles.driverRatingNum}> {d.rating ?? '4.8'}</span>
                   <span className={styles.driverListTrips}> · {d.total_trips ?? 0} trips</span>
-                  <span className={styles.driverListDist}> · {formatDist(d.distKm)}</span>
                 </div>
                 <div className={styles.driverListVehicle}>
                   {d.vehicle_model} {d.vehicle_year} · {d.vehicle_color} · {d.plate_prefix ?? '—'} ••
@@ -645,7 +637,6 @@ export default function BookingScreen({ onClose }) {
           </div>
           <div className={styles.activeRideTripMeta}>
             <span>{formatRp(fare)}</span>
-            <span>{distanceKm} km</span>
           </div>
         </div>
       </div>
@@ -736,10 +727,6 @@ export default function BookingScreen({ onClose }) {
             <div className={styles.reviewReceiptRow}>
               <span className={styles.reviewReceiptLabel}>Fare</span>
               <span className={styles.reviewReceiptValue}>{formatRp(fare)}</span>
-            </div>
-            <div className={styles.reviewReceiptRow}>
-              <span className={styles.reviewReceiptLabel}>Distance</span>
-              <span className={styles.reviewReceiptValue}>{distanceKm} km</span>
             </div>
           </div>
         </div>
