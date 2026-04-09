@@ -778,13 +778,51 @@ export default function ProfileScreen({ onClose, onboarding = false }) {
 
       <div className={styles.scroll} style={(profileTab === 'verified' || profileTab === 'shop') ? { display: 'none' } : {}}>
 
+        {/* ── Joined the app for — first field ── */}
+        <div className={styles.section} style={{ paddingBottom: 0 }}>
+          <div className={styles.fieldRow}>
+            <div className={styles.fieldLabelRow}>
+              <label className={styles.fieldLabel}>Joined the app for</label>
+              <HelpTip text="Helps people understand your vibe before they connect with you. No wrong answer — you can change this any time." />
+            </div>
+            <button
+              type="button"
+              className={styles.lookingForTrigger}
+              onClick={() => setLookingForOpen(true)}
+            >
+              {lookingFor
+                ? (() => {
+                    const opt = LOOKING_FOR_OPTIONS.find(o => o.value === lookingFor)
+                    if (!opt) return 'I\'m here for…'
+                    const subLabel = subCategory ? subCategoryText(lookingFor, subCategory) : null
+                    return (
+                      <span style={{ display: 'flex', flexDirection: 'column', gap: 2, textAlign: 'left' }}>
+                        <span style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                          <span>{opt.emoji}</span>
+                          <span style={{ fontWeight: 700 }}>{opt.label}</span>
+                        </span>
+                        {subLabel && (
+                          <span style={{ fontSize: 12, color: '#8DC63F', paddingLeft: 28 }}>{subLabel}</span>
+                        )}
+                      </span>
+                    )
+                  })()
+                : <span className={styles.lookingForPlaceholder}>I'm here for… tap to choose</span>
+              }
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{ marginLeft: 'auto', flexShrink: 0, opacity: 0.5 }}>
+                <polyline points="6 9 12 15 18 9"/>
+              </svg>
+            </button>
+          </div>
+        </div>
+
         {/* ── Photo grid ── */}
         <div className={styles.photoSection}>
 
           <div className={styles.photoSectionHeader}>
             <div className={styles.photoSectionLeft}>
               <div className={styles.photoSectionTitleRow}>
-                <span className={styles.photoSectionTitle}>Profile Photos</span>
+                <span className={styles.photoSectionTitle}>Create Profile</span>
                 <HelpTip text="Your main photo appears on the map — make it clear and friendly. Add up to 4 extra photos so matches can get a better sense of who you are. Accepted: JPG, PNG, WEBP. Max 5MB each." />
               </div>
               <span className={styles.photoSectionSub}>Let's Get Your Profile Setup</span>
@@ -977,41 +1015,6 @@ export default function ProfileScreen({ onClose, onboarding = false }) {
             </div>
           </div>
 
-          {/* What I'm here for */}
-          <div className={styles.fieldRow}>
-            <div className={styles.fieldLabelRow}>
-              <label className={styles.fieldLabel}>Joined the app for</label>
-              <HelpTip text="Helps people understand your vibe before they connect with you. No wrong answer — you can change this any time." />
-            </div>
-            <button
-              type="button"
-              className={styles.lookingForTrigger}
-              onClick={() => setLookingForOpen(true)}
-            >
-              {lookingFor
-                ? (() => {
-                    const opt = LOOKING_FOR_OPTIONS.find(o => o.value === lookingFor)
-                    if (!opt) return 'I\'m here for…'
-                    const subLabel = subCategory ? subCategoryText(lookingFor, subCategory) : null
-                    return (
-                      <span style={{ display: 'flex', flexDirection: 'column', gap: 2, textAlign: 'left' }}>
-                        <span style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                          <span>{opt.emoji}</span>
-                          <span style={{ fontWeight: 700 }}>{opt.label}</span>
-                        </span>
-                        {subLabel && (
-                          <span style={{ fontSize: 12, color: '#8DC63F', paddingLeft: 28 }}>{subLabel}</span>
-                        )}
-                      </span>
-                    )
-                  })()
-                : <span className={styles.lookingForPlaceholder}>I'm here for… tap to choose</span>
-              }
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{ marginLeft: 'auto', flexShrink: 0, opacity: 0.5 }}>
-                <polyline points="6 9 12 15 18 9"/>
-              </svg>
-            </button>
-          </div>
           {/* Search Tags */}
           <div className={styles.fieldRow}>
             <div className={styles.fieldLabelRow}>
@@ -1476,7 +1479,7 @@ export default function ProfileScreen({ onClose, onboarding = false }) {
         </div>
 
         {/* ── Let's Meet With — accordion ── */}
-        {lookingFor && !MAKER_CATEGORIES.includes(lookingFor) && <div className={styles.section}>
+        {lookingFor && !MAKER_CATEGORIES.includes(lookingFor) && lookingFor !== 'car_taxi' && lookingFor !== 'bike_ride' && <div className={styles.section}>
           <div className={styles.sectionLabelRow}>
             <span className={styles.sectionLabel}>Let's Meet With</span>
             <HelpTip text="Pick what best describes your plans. People with matching interests will find you on the map." />

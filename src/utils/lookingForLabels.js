@@ -4,6 +4,7 @@
 // ─────────────────────────────────────────────────────────────────────────────
 
 export const LOOKING_FOR_GROUPS = [
+  { key: 'featured',    label: 'Most Popular' },
   { key: 'commerce',    label: 'Buying & Selling' },
   { key: 'social',      label: 'Social & Personal' },
   { key: 'activities',  label: 'Activities & Going Out' },
@@ -20,6 +21,11 @@ export const LOOKING_FOR_GROUPS = [
 ]
 
 export const LOOKING_FOR_OPTIONS = [
+  // ── Most Popular ─────────────────────────────────────────────
+  { value: 'bike_ride',      emoji: '🛵', label: 'Bike Ride Service',            group: 'featured' },
+  { value: 'car_taxi',       emoji: '🚗', label: 'Car Taxi Service',             group: 'featured' },
+  { value: 'restaurant',     emoji: '🍴', label: 'Restaurant Owner',             group: 'featured' },
+
   // ── Buying & Selling ─────────────────────────────────────────
   { value: 'buy_sell',       emoji: '🛒', label: 'Buy & Sell — General',        group: 'commerce' },
   { value: 'fresh_produce',  emoji: '🌾', label: 'Fresh Produce & Market',      group: 'commerce' },
