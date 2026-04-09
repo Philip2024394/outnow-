@@ -803,10 +803,9 @@ export default function ProfileScreen({ onClose, onboarding = false }) {
           <div className={styles.photoSectionHeader}>
             <div className={styles.photoSectionLeft}>
               <div className={styles.photoSectionTitleRow}>
-                <span className={styles.photoSectionTitle}>Create Profile</span>
-                <HelpTip text="Your main photo appears on the map — make it clear and friendly. Add up to 4 extra photos so matches can get a better sense of who you are. Accepted: JPG, PNG, WEBP. Max 5MB each." />
+                <span className={styles.photoSectionTitle}>Upload</span>
               </div>
-              <span className={styles.photoSectionSub}>Let's Get Your Profile Setup</span>
+              <span className={styles.photoSectionSub}>Guide lines apply</span>
             </div>
           </div>
 
