@@ -33,7 +33,7 @@ export const FOOD_CATEGORIES = [
     emoji: '🍜',
     tagline: 'Slurp-worthy every time',
     color: '#ff8c42',
-    videoUrl:  'https://fjvafjkzvygkhiwjuvla.supabase.co/storage/v1/object/sign/category-videos/rice%20dish.mp4?token=eyJraWQiOiJzdG9yYWdlLXVybC1zaWduaW5nLWtleV9mN2EwYjVlOC05MWUxLTRkMTAtYmU3ZC1kMzcyM2FhY2ZjZTIiLCJhbGciOiJIUzI1NiJ9.eyJ1cmwiOiJjYXRlZ29yeS12aWRlb3MvcmljZSBkaXNoLm1wNCIsImlhdCI6MTc3NTcxNDUwOCwiZXhwIjoyMDkxMDc0NTA4fQ.xuLriusILjToIvgW6aUI8TEQJHk0iX3erCrXY4kbkGA',
+    videoUrl:  'https://fjvafjkzvygkhiwjuvla.supabase.co/storage/v1/object/sign/category-videos/noodle.mp4?token=eyJraWQiOiJzdG9yYWdlLXVybC1zaWduaW5nLWtleV9mN2EwYjVlOC05MWUxLTRkMTAtYmU3ZC1kMzcyM2FhY2ZjZTIiLCJhbGciOiJIUzI1NiJ9.eyJ1cmwiOiJjYXRlZ29yeS12aWRlb3Mvbm9vZGxlLm1wNCIsImlhdCI6MTc3NTcxNDc3MiwiZXhwIjoyMDkxMDc0NzcyfQ.QcNPpQVXoxZZRDn_UvaGPanhD9yaXmhQA8YUs3oP3_Y',
     posterUrl: null,
     gradient: 'linear-gradient(160deg, #1a0d00 0%, #2d1800 50%, #0d0d0d 100%)',
   },
