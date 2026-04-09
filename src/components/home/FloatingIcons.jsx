@@ -4,7 +4,7 @@ import styles from './FloatingIcons.module.css'
 
 const ICONS = [
   // Left column (top → bottom)
-  { id: 'bike_ride', label: 'Bike Ride', img: 'https://ik.imagekit.io/nepgaxllc/Sleek%20green%20and%20black%20scooter%20setup.png?updatedAt=1775634845237', bare: true, vehicle: true },
+  { id: 'bike_ride', label: 'Bike Ride', img: 'https://ik.imagekit.io/nepgaxllc/Untitledsadasdasd-removebg-preview.png', bare: true, vehicle: true, noContainer: true },
   { id: 'food',      label: 'Food',      img: 'https://ik.imagekit.io/nepgaxllc/Untitledfsasdfsdf-removebg-preview.png', bare: true },
   { id: 'coffee',    label: 'Coffee',    img: 'https://ik.imagekit.io/nepgaxllc/Untitleddfsds-removebg-preview.png', bare: true },
   // Right column (top → bottom)
@@ -76,6 +76,23 @@ export default function FloatingIcons({ sessions = [], onSelectSession, onFoodCl
 
 function IconBubble({ icon, delay, count, onClick }) {
   if (icon.bare) {
+    if (icon.noContainer) {
+      return (
+        <button
+          className={styles.rawBtn}
+          style={{ animationDelay: `${delay}s` }}
+          onClick={onClick}
+          aria-label={icon.label}
+        >
+          {icon.img
+            ? <img src={icon.img} alt={icon.label} className={styles.iconImgVehicle} />
+            : <span className={styles.emojiBare}>{icon.emoji}</span>
+          }
+          <span className={styles.bareLabel}>{icon.label}</span>
+          {count > 0 && <span className={styles.badge}>{count}</span>}
+        </button>
+      )
+    }
     return (
       <button
         className={styles.bareBubble}

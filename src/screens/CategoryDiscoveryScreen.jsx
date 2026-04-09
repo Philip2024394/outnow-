@@ -83,7 +83,7 @@ export const FOOD_CATEGORIES = [
     emoji: '🥤',
     tagline: 'Refresh your world',
     color: '#a78bfa',
-    videoUrl:  null,
+    videoUrl:  'https://fjvafjkzvygkhiwjuvla.supabase.co/storage/v1/object/sign/category-videos/drinks.mp4?token=eyJraWQiOiJzdG9yYWdlLXVybC1zaWduaW5nLWtleV9mN2EwYjVlOC05MWUxLTRkMTAtYmU3ZC1kMzcyM2FhY2ZjZTIiLCJhbGciOiJIUzI1NiJ9.eyJ1cmwiOiJjYXRlZ29yeS12aWRlb3MvZHJpbmtzLm1wNCIsImlhdCI6MTc3NTc1Nzc0NiwiZXhwIjoyMDkxMTE3NzQ2fQ.tXm_IMzicZrQoJ-ceVifxowRDiHe0Uy7pvJqyg2T6hw',
     posterUrl: null,
     gradient: 'linear-gradient(160deg, #0d0020 0%, #150030 50%, #0d0d0d 100%)',
   },

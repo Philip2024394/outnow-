@@ -94,6 +94,16 @@
   color: rgba(255,255,255,0.6);
 }
 
+/* ── Hangger Market logo ──────────────────────────────────────────────────── */
+.hanggerLogo {
+  width: 110px;
+  height: 28px;
+  background: url('https://ik.imagekit.io/nepgaxllc/Hangger%20Market%20logo%20design.png')
+    no-repeat center / 260%;
+  mix-blend-mode: screen;
+  flex-shrink: 0;
+}
+
 .headerCatalogBtn {
   background: rgba(245,158,11,0.12);
   border: 1px solid rgba(245,158,11,0.3);

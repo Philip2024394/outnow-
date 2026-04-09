@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react'
+import { useState, useEffect } from 'react'
 import {
   getMyProducts,
   addProduct,
@@ -6,35 +6,97 @@ import {
   deleteProduct,
   uploadProductImage,
 } from '@/services/productService'
+import ProductImageEditor from '@/components/commerce/ProductImageEditor'
+import { CATEGORY_SPECS, ALL_CATEGORIES } from '@/data/categorySpecs'
 import styles from './MicroShopEditor.module.css'
 
 const PREMIUM_LIMIT = 6
-const CURRENCIES = ['GBP', 'USD', 'EUR']
+const CURRENCIES = ['IDR', 'GBP', 'USD', 'EUR']
 
-function formatPrice(price, currency = 'GBP') {
+function formatPrice(price, currency = 'IDR') {
+  if (currency === 'IDR') {
+    const n = parseFloat(price) || 0
+    if (n >= 1_000_000) return `${(n / 1_000_000).toFixed(n % 1_000_000 === 0 ? 0 : 1)}jt`
+    if (n >= 1_000) return `${n.toLocaleString('id-ID')}rp`
+    return `${n}rp`
+  }
   const symbols = { GBP: '£', USD: '$', EUR: '€' }
   return `${symbols[currency] ?? currency}${parseFloat(price).toFixed(2)}`
 }
 
+// ── Dynamic spec fields based on category ────────────────────────────────────
+function SpecsSection({ category, specs, onChange }) {
+  const fields = CATEGORY_SPECS[category] ?? []
+  if (!fields.length) return null
+
+  return (
+    <div className={styles.specsSection}>
+      <div className={styles.specsSectionTitle}>
+        Specifications
+        <span className={styles.specsSectionSub}> — {category}</span>
+      </div>
+      {fields.map(field => (
+        <div key={field.key} className={styles.specRow}>
+          <label className={styles.specLabel}>{field.key}</label>
+          {field.type === 'select' ? (
+            <select
+              className={styles.specSelect}
+              value={specs[field.key] ?? ''}
+              onChange={e => onChange(field.key, e.target.value)}
+            >
+              <option value="">— select —</option>
+              {field.options.map(opt => (
+                <option key={opt} value={opt}>{opt}</option>
+              ))}
+            </select>
+          ) : (
+            <input
+              className={styles.specInput}
+              type="text"
+              placeholder={field.placeholder ?? ''}
+              value={specs[field.key] ?? ''}
+              onChange={e => onChange(field.key, e.target.value)}
+            />
+          )}
+        </div>
+      ))}
+    </div>
+  )
+}
+
 function ProductFormSheet({ product, userId, tier, onSaved, onClose }) {
   const isEdit = !!product
-  const [name,     setName]     = useState(product?.name ?? '')
-  const [price,    setPrice]    = useState(product?.price != null ? String(product.price) : '')
-  const [currency, setCurrency] = useState(product?.currency ?? 'GBP')
-  const [desc,     setDesc]     = useState(product?.description ?? '')
-  const [imageUrl, setImageUrl] = useState(product?.image_url ?? '')
-  const [saving,   setSaving]   = useState(false)
-  const [uploading,setUploading]= useState(false)
-  const [error,    setError]    = useState('')
-  const fileRef = useRef()
+  const [name,       setName]       = useState(product?.name ?? '')
+  const [price,      setPrice]      = useState(product?.price != null ? String(product.price) : '')
+  const [currency,   setCurrency]   = useState(product?.currency ?? 'IDR')
+  const [category,   setCategory]   = useState(product?.category ?? '')
+  const [desc,       setDesc]       = useState(product?.description ?? '')
+  const [specs,      setSpecs]      = useState(product?.specs ?? {})
+  const [imageUrl,   setImageUrl]   = useState(product?.image_url ?? product?.image ?? '')
+  const [saving,     setSaving]     = useState(false)
+  const [uploading,  setUploading]  = useState(false)
+  const [error,      setError]      = useState('')
+  const [showEditor, setShowEditor] = useState(false)
 
-  async function handleImagePick(e) {
-    const file = e.target.files?.[0]
-    if (!file) return
+  // Reset specs when category changes
+  function handleCategoryChange(val) {
+    setCategory(val)
+    setSpecs({})
+  }
+
+  function handleSpecChange(key, val) {
+    setSpecs(prev => ({ ...prev, [key]: val }))
+  }
+
+  async function handleEditorConfirm(blob, previewUrl) {
+    setShowEditor(false)
+    if (!blob && !previewUrl) return
+    if (!blob) { setImageUrl(previewUrl); return }
     setUploading(true)
     setError('')
     try {
-      const url = await uploadProductImage(userId, file)
+      const file = new File([blob], 'product.jpg', { type: 'image/jpeg' })
+      const url  = await uploadProductImage(userId, file)
       setImageUrl(url)
     } catch (err) {
       setError(err.message)
@@ -43,26 +105,31 @@ function ProductFormSheet({ product, userId, tier, onSaved, onClose }) {
     }
   }
 
+  // Strip empty spec values before saving
+  function cleanSpecs(raw) {
+    const out = {}
+    Object.entries(raw).forEach(([k, v]) => { if (v && v.trim()) out[k] = v.trim() })
+    return Object.keys(out).length ? out : null
+  }
+
   async function handleSave() {
-    if (!name.trim())         return setError('Product name is required.')
+    if (!name.trim()) return setError('Product name is required.')
     if (!price || isNaN(parseFloat(price)) || parseFloat(price) < 0)
-                              return setError('Enter a valid price (0 or more).')
+      return setError('Enter a valid price (0 or more).')
     setSaving(true)
     setError('')
+    const payload = {
+      name, price, currency,
+      category: category || null,
+      imageUrl: imageUrl || null,
+      description: desc || null,
+      specs: cleanSpecs(specs),
+    }
     try {
       if (isEdit) {
-        await updateProduct(product.id, {
-          name, price, currency,
-          imageUrl: imageUrl || null,
-          description: desc || null,
-        })
+        await updateProduct(product.id, payload)
       } else {
-        await addProduct({
-          userId, tier,
-          name, price, currency,
-          imageUrl: imageUrl || null,
-          description: desc || null,
-        })
+        await addProduct({ userId, tier, ...payload })
       }
       onSaved()
     } catch (err) {
@@ -84,7 +151,7 @@ function ProductFormSheet({ product, userId, tier, onSaved, onClose }) {
         </div>
 
         {/* Image picker */}
-        <div className={styles.imagePicker} onClick={() => fileRef.current?.click()}>
+        <div className={styles.imagePicker} onClick={() => !uploading && setShowEditor(true)}>
           {imageUrl
             ? <img src={imageUrl} alt="Product" className={styles.imagePreview} />
             : <div className={styles.imagePlaceholderBtn}>
@@ -93,28 +160,40 @@ function ProductFormSheet({ product, userId, tier, onSaved, onClose }) {
               </div>
           }
           {imageUrl && !uploading && (
-            <div className={styles.imageOverlay}>
-              <span>📷 Change</span>
-            </div>
+            <div className={styles.imageOverlay}><span>📷 Edit</span></div>
           )}
         </div>
-        <input
-          ref={fileRef}
-          type="file"
-          accept="image/jpeg,image/png,image/webp,image/avif"
-          style={{ display: 'none' }}
-          onChange={handleImagePick}
-        />
+
+        {showEditor && (
+          <ProductImageEditor
+            initialUrl={imageUrl || null}
+            onConfirm={handleEditorConfirm}
+            onCancel={() => setShowEditor(false)}
+          />
+        )}
 
         <div className={styles.fields}>
           <label className={styles.fieldLabel}>Product name *</label>
           <input
             className={styles.input}
-            placeholder="e.g. Handmade Candle"
+            placeholder="e.g. Leather Crossbody Bag"
             value={name}
             onChange={e => setName(e.target.value)}
             maxLength={80}
           />
+
+          {/* Category — drives the spec fields below */}
+          <label className={styles.fieldLabel}>Category</label>
+          <input
+            className={styles.input}
+            list="category-list"
+            placeholder="Select or type a category…"
+            value={category}
+            onChange={e => handleCategoryChange(e.target.value)}
+          />
+          <datalist id="category-list">
+            {ALL_CATEGORIES.map(c => <option key={c} value={c} />)}
+          </datalist>
 
           <label className={styles.fieldLabel}>Price *</label>
           <div className={styles.priceRow}>
@@ -129,14 +208,16 @@ function ProductFormSheet({ product, userId, tier, onSaved, onClose }) {
               className={`${styles.input} ${styles.priceInput}`}
               type="number"
               min="0"
-              step="0.01"
-              placeholder="0.00"
+              step="1"
+              placeholder="0"
               value={price}
               onChange={e => setPrice(e.target.value)}
             />
           </div>
 
-          <label className={styles.fieldLabel}>Description <span className={styles.optional}>(optional)</span></label>
+          <label className={styles.fieldLabel}>
+            Description <span className={styles.optional}>(optional)</span>
+          </label>
           <textarea
             className={styles.textarea}
             placeholder="Short description…"
@@ -148,26 +229,26 @@ function ProductFormSheet({ product, userId, tier, onSaved, onClose }) {
 
           {error && <p className={styles.error}>{error}</p>}
         </div>
+
+        {/* Dynamic spec fields — shown when a known category is selected */}
+        <SpecsSection
+          category={category}
+          specs={specs}
+          onChange={handleSpecChange}
+        />
       </div>
     </div>
   )
 }
 
-/**
- * Owner-facing shop editor shown inside ProfileScreen's Shop tab.
- * Props:
- *  userId   — the authenticated user's ID
- *  tier     — 'premium' | 'business' (already gated upstream)
- *  visible  — tab visibility (avoids loading when hidden)
- */
 export default function MicroShopEditor({ userId, tier, visible = true }) {
   const [products, setProducts] = useState([])
   const [loading,  setLoading]  = useState(true)
   const [showForm, setShowForm] = useState(false)
-  const [editing,  setEditing]  = useState(null) // product object | null
-  const [deleting, setDeleting] = useState(null) // product id | null
+  const [editing,  setEditing]  = useState(null)
+  const [deleting, setDeleting] = useState(null)
 
-  const limit = tier === 'business' ? Infinity : PREMIUM_LIMIT
+  const limit   = tier === 'business' ? Infinity : PREMIUM_LIMIT
   const atLimit = products.length >= limit
 
   async function load() {
@@ -204,9 +285,7 @@ export default function MicroShopEditor({ userId, tier, visible = true }) {
       </header>
 
       {!atLimit && (
-        <button className={styles.addBtn} onClick={openAdd}>
-          + Add product
-        </button>
+        <button className={styles.addBtn} onClick={openAdd}>+ Add product</button>
       )}
       {atLimit && tier !== 'business' && (
         <p className={styles.limitNote}>Upgrade to Business for unlimited products.</p>
@@ -234,6 +313,7 @@ export default function MicroShopEditor({ userId, tier, visible = true }) {
               <div className={styles.rowInfo}>
                 <p className={styles.rowName}>{p.name}</p>
                 <p className={styles.rowPrice}>{formatPrice(p.price, p.currency)}</p>
+                {p.category && <p className={styles.rowCategory}>{p.category}</p>}
               </div>
               <div className={styles.rowActions}>
                 <button className={styles.editBtn} onClick={() => openEdit(p)}>Edit</button>

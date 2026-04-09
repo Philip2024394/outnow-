@@ -4,12 +4,15 @@ import styles from './MapHeader.module.css'
 const LOGO_URL = 'https://ik.imagekit.io/nepgaxllc/Untitleddsfsdf-removebg-preview.png'
 
 
+const MARKET_BTN_URL = 'https://ik.imagekit.io/nepgaxllc/Untitledasdasdaaa.png'
+
 export default function MapHeader({
   onOpenNotifications,
   notifCount = 0,
   onOpenSettings,
   onOpenFilter,
   hasActiveFilter = false,
+  onOpenMarket,
 }) {
   const { isLive } = useMySession()
 
@@ -21,6 +24,11 @@ export default function MapHeader({
       </div>
 
       <div className={styles.right}>
+        {/* Hangger Market button */}
+        <button className={styles.marketBtn} onClick={onOpenMarket} aria-label="Hangger Market">
+          <img src={MARKET_BTN_URL} alt="Market" className={styles.marketBtnImg} />
+        </button>
+
         {isLive && (
           <div className={styles.liveBadge}>
             <span className={styles.liveDot} />

@@ -13,9 +13,6 @@ import { getSafetyContact } from '@/components/safety/SafetySheet'
 import SuggestPlaceSheet from './SuggestPlaceSheet'
 import VerifiedPage from './VerifiedPage'
 import ContactOptionsSheet from './ContactOptionsSheet'
-import VenueOwnerLanding from '@/screens/venue-owner/VenueOwnerLanding'
-import VenueOwnerSignup from '@/screens/venue-owner/VenueOwnerSignup'
-import VenueOwnerDashboard from '@/screens/venue-owner/VenueOwnerDashboard'
 import styles from './SettingsSheet.module.css'
 
 function Row({ icon, label, sublabel, value, onClick, danger, toggle, toggled }) {
@@ -56,8 +53,6 @@ export default function SettingsSheet({ open, onClose, onOpenLikes, onOpenMyLike
   const [suggestOpen, setSuggestOpen] = useState(false)
   const [verifiedOpen, setVerifiedOpen]               = useState(false)
   const [contactOptionsOpen, setContactOptionsOpen]   = useState(false)
-  const [venueOwnerScreen, setVenueOwnerScreen]       = useState(null) // null | 'landing' | 'signup' | 'dashboard'
-  const [venueOwnerData, setVenueOwnerData] = useState(null)
   const safetyContact = getSafetyContact()
   const drawerRef = useRef(null)
   const startXRef = useRef(null)
@@ -305,13 +300,6 @@ export default function SettingsSheet({ open, onClose, onOpenLikes, onOpenMyLike
               sublabel="Know a great spot? Submit it to the map"
               onClick={() => setSuggestOpen(true)}
             />
-            <Row
-              icon="🏪"
-              label="List Your Venue"
-              sublabel="Get your bar, pub or restaurant on the map"
-              onClick={() => setVenueOwnerScreen('landing')}
-            />
-
             {/* Account */}
             <Divider label="Account" />
             <Row
@@ -340,26 +328,6 @@ export default function SettingsSheet({ open, onClose, onOpenLikes, onOpenMyLike
       <SafetySheet open={safetyOpen} onClose={() => setSafetyOpen(false)} onSave={() => earn('SAFETY_CONTACT')} />
       <SuggestPlaceSheet open={suggestOpen} onClose={() => setSuggestOpen(false)} showToast={showToast} />
 
-      {venueOwnerScreen === 'landing' && (
-        <VenueOwnerLanding
-          onClose={() => setVenueOwnerScreen(null)}
-          onGetStarted={(plan) => { setVenueOwnerData(d => ({ ...d, plan })); setVenueOwnerScreen('signup') }}
-        />
-      )}
-      {venueOwnerScreen === 'signup' && (
-        <VenueOwnerSignup
-          onClose={() => setVenueOwnerScreen('landing')}
-          plan={venueOwnerData?.plan ?? 'premium'}
-          onSubmit={(data) => { setVenueOwnerData(data); setVenueOwnerScreen('dashboard') }}
-        />
-      )}
-      {venueOwnerScreen === 'dashboard' && (
-        <VenueOwnerDashboard
-          venue={venueOwnerData}
-          onClose={() => setVenueOwnerScreen(null)}
-          onEditListing={() => setVenueOwnerScreen('signup')}
-        />
-      )}
     </>
   )
 }

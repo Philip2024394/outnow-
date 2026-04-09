@@ -77,16 +77,33 @@
   backdrop-filter: blur(6px);
 }
 
-.onlinePill {
-  font-size: 10px;
-  font-weight: 800;
-  color: #34D399;
-  background: rgba(0,0,0,0.55);
-  border: 1px solid rgba(52,211,153,0.4);
-  border-radius: 20px;
-  padding: 5px 10px;
-  backdrop-filter: blur(6px);
+/* Clipping wrapper crops the whitespace padding in the source image */
+.hanggerLogoWrap {
+  width: 200px;
+  height: 66px;
+  overflow: hidden;
+  position: relative;
+  flex-shrink: 0;
+  margin-top: -10px;
+  margin-left: -13px;
 }
+
+.hanggerLogoImg {
+  position: absolute;
+  width: 220%;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  display: block;
+}
+
+.locationText {
+  font-size: 12px;
+  font-weight: 600;
+  color: rgba(255,255,255,0.45);
+  margin: 0 0 4px;
+}
+
 
 /* ── Floating right side panel ───────────────────────────────────────────── */
 .sidePanel {
@@ -251,38 +268,167 @@
   overflow: hidden;
 }
 
-/* WhatsApp button */
-.waBtn {
-  display: inline-flex;
+/* ── Contact & Socials row button ────────────────────────────────────────── */
+.contactRowBtn {
+  display: flex;
   align-items: center;
-  gap: 7px;
-  padding: 13px 22px;
-  background: rgba(245,158,11,0.18);
-  border: 1.5px solid rgba(245,158,11,0.5);
+  gap: 9px;
+  width: 100%;
+  padding: 13px 16px;
+  background: rgba(245,158,11,0.12);
+  border: 1.5px solid rgba(245,158,11,0.35);
   border-radius: 14px;
   color: #F59E0B;
   font-size: 14px;
   font-weight: 800;
-  text-decoration: none;
+  cursor: pointer;
   font-family: inherit;
+  margin-top: 10px;
   backdrop-filter: blur(8px);
-  margin-top: 8px;
-  align-self: flex-start;
   transition: background 0.15s;
 }
 
-.waBtn:hover { background: rgba(245,158,11,0.3); }
+.contactRowBtn:hover {
+  background: rgba(245,158,11,0.2);
+}
 
-.waBtnDisabled {
-  display: inline-flex;
-  padding: 13px 22px;
-  background: rgba(255,255,255,0.05);
-  border: 1px dashed rgba(255,255,255,0.12);
+/* ── Contact slide-up sheet ──────────────────────────────────────────────── */
+.contactBackdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.55);
+  z-index: 200;
+  display: flex;
+  align-items: flex-end;
+}
+
+.contactSheet {
+  width: 100%;
+  background: #0d0d0d;
+  border: 1px solid rgba(245,158,11,0.25);
+  border-radius: 22px 22px 0 0;
+  padding: 0 0 32px;
+  display: flex;
+  flex-direction: column;
+}
+
+.contactHandle {
+  width: 36px;
+  height: 4px;
+  background: rgba(255,255,255,0.15);
+  border-radius: 2px;
+  margin: 14px auto 0;
+}
+
+.contactTitle {
+  font-size: 17px;
+  font-weight: 900;
+  color: #fff;
+  padding: 16px 20px 2px;
+  text-align: center;
+}
+
+.contactSub {
+  font-size: 12px;
+  color: rgba(255,255,255,0.35);
+  text-align: center;
+  padding: 0 20px 16px;
+}
+
+.contactList {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 0 16px;
+}
+
+/* Gold WhatsApp CTA button */
+.contactItemWa {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 15px 14px;
+  background: #F59E0B;
+  border: none;
   border-radius: 14px;
-  color: rgba(255,255,255,0.2);
-  font-size: 13px;
-  font-weight: 700;
-  font-family: inherit;
+  text-decoration: none;
+  cursor: pointer;
+  transition: background 0.15s;
+  box-shadow: 0 4px 16px rgba(245,158,11,0.4);
+}
+
+.contactItemWa:hover {
+  background: #FBBF24;
+}
+
+.contactItem {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 13px 14px;
+  background: rgba(255,255,255,0.04);
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 14px;
+  text-decoration: none;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+
+.contactItem:hover {
+  background: rgba(255,255,255,0.08);
+}
+
+.contactItemDisabled {
+  opacity: 0.4;
   cursor: default;
-  margin-top: 8px;
+}
+
+.contactItemDisabled:hover {
+  background: rgba(255,255,255,0.04);
+}
+
+.contactIcon {
+  width: 42px;
+  height: 42px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.contactItemText {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  flex: 1;
+}
+
+.contactItemLabel {
+  font-size: 14px;
+  font-weight: 700;
+  color: rgba(255,255,255,0.9);
+}
+
+.contactItemSub {
+  font-size: 11px;
+  color: rgba(255,255,255,0.35);
+}
+
+.contactDismiss {
+  margin: 16px 16px 0;
+  padding: 13px;
+  background: rgba(255,255,255,0.06);
+  border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 14px;
+  color: rgba(255,255,255,0.5);
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+  font-family: inherit;
+  transition: background 0.15s;
+}
+
+.contactDismiss:hover {
+  background: rgba(255,255,255,0.1);
 }

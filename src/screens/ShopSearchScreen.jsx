@@ -101,6 +101,7 @@ export default function ShopSearchScreen({ onClose, userCity, userCountry }) {
         .from('profiles')
         .select('id,displayName,brandName,lookingFor,city,country,photoURL,bio,tags,productCondition,isOnline,bizWhatsapp')
         .not('lookingFor', 'is', null)
+        .ilike('country', 'indonesia')
         .limit(60)
       if (cat.lookingFor?.length) dbQ = dbQ.in('lookingFor', cat.lookingFor)
       if (q.trim()) dbQ = dbQ.or(`displayName.ilike.%${q}%,brandName.ilike.%${q}%,bio.ilike.%${q}%,city.ilike.%${q}%`)

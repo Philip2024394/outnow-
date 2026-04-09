@@ -1,8 +1,14 @@
 import { useState } from 'react'
 import { useAuth } from '@/hooks/useAuth'
-import { submitVenueSuggestion } from '@/services/suggestVenueService'
+import { supabase } from '@/lib/supabase'
 import { ACTIVITY_TYPES } from '@/firebase/collections'
 import styles from './SuggestPlaceSheet.module.css'
+
+async function submitVenueSuggestion(payload) {
+  try {
+    await supabase.from('venue_suggestions').insert(payload)
+  } catch { /* noop — suggestion saved best-effort */ }
+}
 
 
 export default function SuggestPlaceSheet({ open, onClose, showToast }) {

@@ -2,7 +2,6 @@ import { useEffect, useMemo, useRef, useState } from 'react'
 import { createPortal } from 'react-dom'
 import { useOverlay, OVERLAY } from '@/contexts/OverlayContext'
 import { useMySession } from '@/hooks/useMySession'
-import { useVenueUnlock } from '@/hooks/useVenueUnlock'
 import { useInterests } from '@/hooks/useInterests'
 import { sortByRelevance, recordImpression, resetImpressions } from '@/utils/sessionScore'
 import { isMakerSession } from '@/utils/sessionCategory'
@@ -35,7 +34,6 @@ import DateInvitePopup from '@/components/dating/DateInvitePopup'
 import { useDateInvites } from '@/hooks/useDateInvites'
 import MeetAcceptedBanner from '@/components/meet/MeetAcceptedBanner'
 import PaymentGate from '@/components/payment/PaymentGate'
-import VenueReveal from '@/components/payment/VenueReveal'
 import ReportSheet from '@/components/moderation/ReportSheet'
 import SettingsSheet from '@/components/settings/SettingsSheet'
 import MapFilterSheet, { DEFAULT_MAP_FILTERS } from '@/components/map/MapFilterSheet'
@@ -60,12 +58,7 @@ import ProfileScreen from '@/screens/ProfileScreen'
 import WalletScreen from '@/screens/WalletScreen'
 import ChatScreen from '@/screens/ChatScreen'
 import MatchScreen from '@/screens/MatchScreen'
-import VenueGroupChat from '@/components/venue/VenueGroupChat'
-import { DEMO_VENUE_MESSAGES, DEMO_DATING_BUBBLES } from '@/demo/mockData'
-import MomentsBar from '@/components/moments/MomentsBar'
-import MomentViewer from '@/components/moments/MomentViewer'
-import AddMomentSheet from '@/components/moments/AddMomentSheet'
-import { useMoments } from '@/hooks/useMoments'
+import { DEMO_DATING_BUBBLES } from '@/demo/mockData'
 import { useNotifications } from '@/hooks/useNotifications'
 import { useAuth } from '@/hooks/useAuth'
 import { useGuestGate } from '@/contexts/GuestGateContext'
@@ -74,16 +67,9 @@ import AddToHomeScreenBanner from '@/components/pwa/AddToHomeScreenBanner'
 import BottomSheet from '@/components/ui/BottomSheet'
 import Toast from '@/components/ui/Toast'
 // DemoMapView removed — replaced by TimeBackground
-import { DEMO_VENUES, getActiveVenues } from '@/demo/mockVenues'
-import VenueSheet from '@/components/map/VenueSheet'
-import VenueListSheet from '@/components/map/VenueListSheet'
-import VenuePartnerSheet from '@/components/venue/VenuePartnerSheet'
 import UpgradeSheet from '@/components/premium/UpgradeSheet'
 import SpotClaimSheet from '@/components/spots/SpotClaimSheet'
 import MySpotScreen from '@/screens/MySpotScreen'
-import { PARTNER_VENUES } from '@/demo/mockPartnerVenues'
-import ProximityBanner from '@/components/map/ProximityBanner'
-import { useVenueProximity } from '@/hooks/useVenueProximity'
 import VibeCheckSheet  from '@/components/vibecheck/VibeCheckSheet'
 import VibeCheckBanner from '@/components/vibecheck/VibeCheckBanner'
 
@@ -103,16 +89,8 @@ import '@/styles/map.css'
 import styles from './AppShell.module.css'
 
 
-const DEMO_UNLOCK = {
-  venueName: 'The Blue Anchor',
-  venueAddress: '13 Lower Mall, London W6 9DJ',
-  venueLat: 51.489,
-  venueLng: -0.232,
-  unlockedAt: new Date(),
-}
-
 export default function AppShell({ returnParams, triggerGoLive }) {
-  const { overlay, closeOverlay, openGoLive, openVenueReveal, openDiscovery, openPayment } = useOverlay()
+  const { overlay, closeOverlay, openGoLive, openDiscovery } = useOverlay()
   const { userProfile, user } = useAuth()
   const { triggerGate } = useGuestGate()
   const isGuest = !user
@@ -124,7 +102,7 @@ export default function AppShell({ returnParams, triggerGoLive }) {
   const [declinedUserIds] = useState(new Set())
   const ipCountry = useIpCountry()
   const [countrySearchOpen, setCountrySearchOpen] = useState(false)
-  const [browseCountry, setBrowseCountry] = useState(null)
+  const [browseCountry, setBrowseCountry] = useState('Indonesia')
   const [searchQuery, setSearchQuery] = useState('')
   const [cityResultsOpen, setCityResultsOpen] = useState(false)
   const [cityFilter, setCityFilter] = useState(null)
@@ -156,7 +134,6 @@ export default function AppShell({ returnParams, triggerGoLive }) {
         : s.distanceKm ?? null,
     })),
   [rawSessions, viewerCoords])
-  const { moments, addMoment } = useMoments()
   useNotifications()
   const [toast, setToast] = useState(null)
   const [likedMeOpen, setLikedMeOpen] = useState(false)
@@ -168,15 +145,7 @@ export default function AppShell({ returnParams, triggerGoLive }) {
   const [blockListOpen, setBlockListOpen] = useState(false)
   const [ratingOpen, setRatingOpen] = useState(false)
   const [reviewsOpen, setReviewsOpen] = useState(false)
-  const [venueSheetOpen, setVenueSheetOpen] = useState(false)
-  const [selectedVenue, setSelectedVenue] = useState(null)
-  const [venueListOpen, setVenueListOpen] = useState(false)
-  const [venueChatVenue, setVenueChatVenue] = useState(null)
-  const [partnerSheetOpen, setPartnerSheetOpen] = useState(false)
-  const [selectedPartner, setSelectedPartner]   = useState(null)
-  const [venuesOn, setVenuesOn] = useState(false)
-  const [momentViewerIndex, setMomentViewerIndex] = useState(null)
-  const [addMomentOpen, setAddMomentOpen] = useState(false)
+
   const [sosOpen, setSosOpen] = useState(false)
   const [walletOpen, setWalletOpen] = useState(false)
   const [upgradeOpen, setUpgradeOpen] = useState(false)
@@ -185,8 +154,7 @@ export default function AppShell({ returnParams, triggerGoLive }) {
   const [contactUnlockSession, setContactUnlockSession] = useState(null)
   const [inviteOutSheetOpen, setInviteOutSheetOpen] = useState(false)
   const { inviteOut, post: postInviteOut, goingLive, revertToInviteOut } = useInviteOut()
-  const { earn: earnCoins, spend: spendCoins } = useCoins()
-  const allMoments = moments
+  const { earn: earnCoins } = useCoins()
   const [boostToast, setBoostToast] = useState(null)
   const [mapFilter,           setMapFilter]           = useState('home')
   const [discoveryListFilter, setDiscoveryListFilter] = useState('now')
@@ -229,9 +197,6 @@ export default function AppShell({ returnParams, triggerGoLive }) {
     }
   }, [userProfile])
 
-  const watchSessionId = returnParams?.sessionId ?? null
-  const { unlock } = useVenueUnlock(watchSessionId)
-
   // Time left on session in ms
   const sessionTimeLeft = mySession ? Math.max(0, mySession.expiresAtMs - Date.now()) : null
 
@@ -252,19 +217,6 @@ export default function AppShell({ returnParams, triggerGoLive }) {
     if (returnParams.unlockStatus === 'success') showToast('Payment successful! Fetching location…', 'success')
     else if (returnParams.unlockStatus === 'cancelled') showToast('Payment cancelled.')
   }, [returnParams]) // eslint-disable-line
-
-  useEffect(() => {
-    const handler = () => {
-      closeOverlay()
-      setTimeout(() => openVenueReveal(DEMO_UNLOCK), 350)
-    }
-    window.addEventListener('demo:payment-success', handler)
-    return () => window.removeEventListener('demo:payment-success', handler)
-  }, []) // eslint-disable-line
-
-  useEffect(() => {
-    if (unlock) openVenueReveal(unlock)
-  }, [unlock]) // eslint-disable-line
 
   // Open Go Live sheet immediately if nudged from onboarding
   useEffect(() => {
@@ -289,7 +241,6 @@ export default function AppShell({ returnParams, triggerGoLive }) {
     prevSessionRef.current = mySession
   }, [mySession]) // eslint-disable-line
 
-  const isMakerUser = isMakerSession({ lookingFor: userProfile?.lookingFor })
 
   const visibleSessions = useMemo(() => {
     const filtered = sessions.filter(s => {
@@ -319,11 +270,6 @@ export default function AppShell({ returnParams, triggerGoLive }) {
     openDiscovery(s)
   }
 
-  // Ambient mode: fewer than 3 real (non-seeded) active users visible.
-  // Used to promote MomentsBar and planned sessions when the map is quiet.
-  const isAmbientMode = useMemo(() =>
-    visibleSessions.filter(s => !s.isSeeded && s.status === 'active').length < 3
-  , [visibleSessions])
 
   // Category + city filtered sessions for the map and ProfileStrip counts
   const categorySessions = useMemo(() => {
@@ -350,12 +296,6 @@ export default function AppShell({ returnParams, triggerGoLive }) {
   , [companyPanelOpen, visibleSessions])
 
 
-  // acceptedMeetSession — banner shown, chat opened only when user taps it
-  const handleUnlockVenue = (session) => {
-    openPayment({ id: session.id, sessionId: session.sessionId })
-  }
-
-
   // Update "new since last seen" badge counts when sessions change
   useEffect(() => {
     const nowCount    = categorySessions.filter(s => s.status !== 'invite_out').length
@@ -363,9 +303,6 @@ export default function AppShell({ returnParams, triggerGoLive }) {
     setNewNowCount(Math.max(0, nowCount - seenNowRef.current))
     setNewInviteCount(Math.max(0, inviteCount - seenInviteRef.current))
   }, [categorySessions])
-
-  const activeVenues = getActiveVenues(visibleSessions, DEMO_VENUES)
-  const { proximityAlert, dismissAlert } = useVenueProximity(activeVenues)
 
   const showToast = (message, type = 'info') => setToast({ message, type })
 
@@ -434,6 +371,7 @@ export default function AppShell({ returnParams, triggerGoLive }) {
           onOpenSettings={() => setSettingsOpen(true)}
           onOpenFilter={() => setMapFilterOpen(true)}
           hasActiveFilter={hasActiveMapFilter}
+          onOpenMarket={() => setActiveTab('shopping')}
         />
       )}
 
@@ -463,16 +401,6 @@ export default function AppShell({ returnParams, triggerGoLive }) {
         onClose={() => setSearchQuery('')}
       />
 
-      {/* Moments bar — map tab, below header */}
-      {activeTab === 'map' && (
-        <MomentsBar
-          moments={allMoments}
-          isLive={!!mySession || isMakerUser}
-          ambient={isAmbientMode}
-          onAdd={() => { if (isGuest) { triggerGate(); return } setAddMomentOpen(true) }}
-          onView={(i) => setMomentViewerIndex(i)}
-        />
-      )}
 
       {mySession && (
         <ActiveSessionBar
@@ -530,7 +458,6 @@ export default function AppShell({ returnParams, triggerGoLive }) {
             clearAccepted()
           }}
           onDismiss={clearAccepted}
-          onUnlockVenue={handleUnlockVenue}
         />
       )}
 
@@ -621,16 +548,11 @@ export default function AppShell({ returnParams, triggerGoLive }) {
             if (isGuest && tab !== 'map') { triggerGate(); return }
             setActiveTab(tab)
             if (tab === 'map') {
-              setVenuesOn(false)
               setCompanyPanelOpen(false)
               setMapFilter('home')
             }
           }}
           unreadChats={0}
-          onOpenVenues={() => setVenueListOpen(true)}
-          activeVenueCount={activeVenues.length}
-          venuesOn={venuesOn}
-          onToggleVenues={() => setVenuesOn(v => !v)}
           userPhotoURL={userProfile?.photoURL ?? null}
           userName={userProfile?.displayName ?? 'You'}
           isLive={!!mySession}
@@ -747,39 +669,8 @@ export default function AppShell({ returnParams, triggerGoLive }) {
         buyerCountry={effectiveCountry}
         onClose={() => setContactUnlockSession(null)}
       />
-      <VenueSheet
-        open={venueSheetOpen}
-        venue={selectedVenue}
-        onClose={() => setVenueSheetOpen(false)}
-        onSelectSession={(s) => { setVenueSheetOpen(false); setTimeout(() => handleOpenDiscovery(s), 250) }}
-        onOpenChat={() => setVenueChatVenue(selectedVenue)}
-        userTier={userProfile?.tier ?? null}
-        onSpendCoins={(cost) => spendCoins(cost, 'Venue unlock')}
-      />
-      {venueChatVenue && (
-        <VenueGroupChat
-          venue={venueChatVenue}
-          initialMessages={DEMO_VENUE_MESSAGES[venueChatVenue.id] ?? []}
-          onClose={() => setVenueChatVenue(null)}
-        />
-      )}
-      <VenueListSheet
-        open={venueListOpen}
-        venues={activeVenues}
-        onClose={() => setVenueListOpen(false)}
-        onSelectVenue={(v) => { setSelectedVenue(v); setVenueSheetOpen(true) }}
-      />
-      <VenuePartnerSheet
-        open={partnerSheetOpen}
-        venue={selectedPartner}
-        venues={PARTNER_VENUES}
-        onSelectVenue={(v) => setSelectedPartner(v)}
-        onClose={() => { if (selectedPartner) { setSelectedPartner(null) } else { setPartnerSheetOpen(false) } }}
-        sessions={visibleSessions}
-      />
-      <GoLiveSheet open={overlay.type === OVERLAY.GO_LIVE} onClose={closeOverlay} showToast={showToast} activeVenues={activeVenues} />
+      <GoLiveSheet open={overlay.type === OVERLAY.GO_LIVE} onClose={closeOverlay} showToast={showToast} />
       <PaymentGate open={overlay.type === OVERLAY.PAYMENT_GATE} request={overlay.data} onClose={closeOverlay} showToast={showToast} />
-      <VenueReveal open={overlay.type === OVERLAY.VENUE_REVEAL} unlock={overlay.data} onClose={closeOverlay} />
       <ReportSheet open={overlay.type === OVERLAY.REPORT} session={overlay.data} onClose={closeOverlay} showToast={showToast} />
       {likedMeOpen && <LikedMeScreen onClose={() => setLikedMeOpen(false)} />}
       {notifOpen && (
@@ -946,24 +837,6 @@ export default function AppShell({ returnParams, triggerGoLive }) {
         <ReviewsSection />
       </BottomSheet>
 
-      <ProximityBanner
-        alert={proximityAlert}
-        onDismiss={dismissAlert}
-        onTap={(v) => { setSelectedVenue(v); setVenueSheetOpen(true) }}
-      />
-
-      {momentViewerIndex !== null && (
-        <MomentViewer
-          moments={allMoments}
-          startIndex={momentViewerIndex}
-          onClose={() => setMomentViewerIndex(null)}
-        />
-      )}
-      <AddMomentSheet
-        open={addMomentOpen}
-        onClose={() => setAddMomentOpen(false)}
-        onAdd={(m) => addMoment({ ...m, sessionId: mySession?.id })}
-      />
 
       <VibeCheckSheet
         open={vibeCheckOpen}

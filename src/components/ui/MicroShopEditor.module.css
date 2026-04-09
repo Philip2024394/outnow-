@@ -295,3 +295,79 @@
   margin: 4px 0 0;
   font-weight: 600;
 }
+
+/* ── Category row in product list ── */
+.rowCategory {
+  font-size: 10px;
+  color: rgba(255,255,255,0.3);
+  font-weight: 600;
+  margin: 1px 0 0;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+/* ── Per-category specifications section ── */
+.specsSection {
+  margin: 0 16px 28px;
+  border: 1px solid rgba(245,158,11,0.2);
+  border-radius: 14px;
+  overflow: hidden;
+}
+
+.specsSectionTitle {
+  padding: 11px 14px 10px;
+  font-size: 11px;
+  font-weight: 800;
+  color: #F59E0B;
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+  background: rgba(245,158,11,0.07);
+  border-bottom: 1px solid rgba(245,158,11,0.15);
+}
+
+.specsSectionSub {
+  color: rgba(245,158,11,0.55);
+  font-weight: 600;
+  text-transform: none;
+  letter-spacing: 0;
+}
+
+.specRow {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 9px 14px;
+  border-bottom: 1px solid rgba(255,255,255,0.04);
+}
+
+.specRow:last-child { border-bottom: none; }
+
+.specLabel {
+  font-size: 12px;
+  font-weight: 600;
+  color: rgba(255,255,255,0.4);
+  width: 110px;
+  flex-shrink: 0;
+}
+
+.specInput,
+.specSelect {
+  flex: 1;
+  background: rgba(255,255,255,0.05);
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 8px;
+  padding: 7px 10px;
+  color: #fff;
+  font-size: 13px;
+  font-family: inherit;
+  min-width: 0;
+}
+
+.specInput:focus,
+.specSelect:focus {
+  outline: none;
+  border-color: rgba(245,158,11,0.35);
+}
+
+.specInput::placeholder { color: rgba(255,255,255,0.2); }
+.specSelect option { background: #1a1a1a; }

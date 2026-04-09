@@ -1,0 +1,611 @@
+/* ── Full-screen page ────────────────────────────────────────────────────── */
+.page {
+  position: fixed;
+  inset: 0;
+  z-index: 320;
+  overflow: hidden;
+}
+
+/* ── Background image ────────────────────────────────────────────────────── */
+.bgImg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center top;
+  display: block;
+  z-index: 0;
+  transition: opacity 0.3s ease;
+}
+
+.bgFallback {
+  position: absolute;
+  inset: 0;
+  background: #0d0d0d;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 0;
+}
+
+.bgEmoji {
+  font-size: 80px;
+  opacity: 0.15;
+}
+
+/* Heavy bottom gradient so text reads clearly — hidden when overlay is off */
+.bgGrad {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    to top,
+    rgba(0,0,0,0.97) 0%,
+    rgba(0,0,0,0.80) 30%,
+    rgba(0,0,0,0.25) 60%,
+    transparent 100%
+  );
+  z-index: 1;
+  transition: opacity 0.25s ease;
+}
+
+.bgGradHidden {
+  opacity: 0;
+}
+
+/* ── Watermark stamp ─────────────────────────────────────────────────────── */
+.watermarkOverlay {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none;
+  overflow: hidden;
+}
+
+.watermarkText {
+  display: block;
+  transform: rotate(-60deg);
+  font-size: clamp(18px, 6vw, 42px);
+  font-weight: 900;
+  color: rgba(255,255,255,0.13);
+  text-shadow: 0 1px 6px rgba(0,0,0,0.3);
+  letter-spacing: 0.14em;
+  white-space: nowrap;
+  user-select: none;
+}
+
+/* ── Back button ─────────────────────────────────────────────────────────── */
+.backBtn {
+  position: absolute;
+  top: 16px;
+  left: 16px;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  padding: 6px 13px 6px 9px;
+  background: rgba(0,0,0,0.5);
+  border: 1px solid rgba(255,255,255,0.18);
+  border-radius: 20px;
+  color: rgba(255,255,255,0.9);
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+  font-family: inherit;
+  backdrop-filter: blur(6px);
+  z-index: 10;
+}
+
+/* ── Floating side panel (top-right) ─────────────────────────────────────── */
+.sidePanel {
+  position: absolute;
+  top: 80px;
+  right: 14px;
+  z-index: 10;
+  background: #0a0a0a;
+  border: 1.5px solid rgba(245,158,11,0.4);
+  border-radius: 28px;
+  padding: 6px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  backdrop-filter: blur(8px);
+}
+
+.sidePanelBtn {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: #111;
+  border: 1.5px solid rgba(255,255,255,0.12);
+  color: rgba(255,255,255,0.4);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: border-color 0.15s, color 0.15s, background 0.15s;
+}
+
+.sidePanelBtnActive {
+  border-color: #F59E0B;
+  color: #F59E0B;
+  background: rgba(245,158,11,0.12);
+}
+
+.sidePanelCartBtn {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: #F59E0B;
+  border: none;
+  color: #000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  position: relative;
+  box-shadow: 0 2px 10px rgba(245,158,11,0.5);
+  transition: background 0.15s;
+}
+
+.sidePanelCartBtn:hover { background: #FBBF24; }
+
+.sidePanelCartCount {
+  position: absolute;
+  top: -4px;
+  right: -4px;
+  min-width: 16px;
+  height: 16px;
+  border-radius: 8px;
+  background: #fff;
+  color: #000;
+  font-size: 8px;
+  font-weight: 900;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 3px;
+}
+
+/* ── CTA row (WA button + compact qty stepper) ───────────────────────────── */
+.ctaRow {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.ctaRow > a,
+.ctaRow > button {
+  flex: 1;
+  min-width: 0;
+}
+
+/* ── Compact qty stepper ─────────────────────────────────────────────────── */
+.qtyCompact {
+  display: flex;
+  align-items: center;
+  background: rgba(245,158,11,0.12);
+  border: 1.5px solid #F59E0B;
+  border-radius: 10px;
+  overflow: hidden;
+  flex-shrink: 0;
+}
+
+.qtyCompactBtn {
+  width: 32px;
+  height: 44px;
+  background: none;
+  border: none;
+  color: #F59E0B;
+  font-size: 18px;
+  font-weight: 300;
+  cursor: pointer;
+  font-family: inherit;
+  line-height: 1;
+  transition: background 0.12s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.qtyCompactBtn:hover { background: rgba(245,158,11,0.15); }
+
+.qtyCompactNum {
+  min-width: 28px;
+  text-align: center;
+  font-size: 14px;
+  font-weight: 900;
+  color: #fff;
+  border-left: 1px solid rgba(245,158,11,0.3);
+  border-right: 1px solid rgba(245,158,11,0.3);
+  padding: 0 4px;
+  height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* ── Bottom overlay ──────────────────────────────────────────────────────── */
+.overlay {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  padding: 0 20px 36px;
+  z-index: 10;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  max-height: 70vh;
+  overflow-y: auto;
+  transition: opacity 0.22s, transform 0.22s;
+}
+
+.overlayHidden {
+  opacity: 0;
+  pointer-events: none;
+  transform: translateY(14px);
+}
+
+.overlay::-webkit-scrollbar { width: 0; }
+
+/* ── Badge row (NEW + category — now inside overlay) ─────────────────────── */
+.badgeRow {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.newBadge {
+  background: #FFE500;
+  color: #000;
+  font-size: 9px;
+  font-weight: 900;
+  letter-spacing: 0.08em;
+  padding: 3px 10px;
+  border-radius: 20px;
+  box-shadow: 0 0 10px rgba(255,229,0,0.85), 0 0 22px rgba(255,229,0,0.4);
+}
+
+.category {
+  font-size: 11px;
+  font-weight: 700;
+  color: #F59E0B;
+  background: rgba(245,158,11,0.12);
+  border: 1px solid rgba(245,158,11,0.3);
+  border-radius: 20px;
+  padding: 3px 10px;
+}
+
+.name {
+  font-size: 26px;
+  font-weight: 900;
+  color: #fff;
+  line-height: 1.15;
+  margin: 0;
+  text-shadow: 0 2px 16px rgba(0,0,0,0.6);
+}
+
+.price {
+  font-size: 26px;
+  font-weight: 900;
+  color: #F59E0B;
+  margin-top: -4px;
+}
+
+.description {
+  font-size: 13px;
+  color: rgba(255,255,255,0.55);
+  line-height: 1.6;
+  margin: 0;
+}
+
+/* ── Variants ────────────────────────────────────────────────────────────── */
+.variantGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.variantLabel {
+  font-size: 11px;
+  font-weight: 700;
+  color: rgba(255,255,255,0.4);
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+}
+
+.variantSelected {
+  color: #F59E0B;
+  text-transform: none;
+  font-weight: 800;
+}
+
+.variantOptions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.variantBtn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 7px 16px;
+  background: rgba(255,255,255,0.07);
+  border: 1.5px solid rgba(255,255,255,0.12);
+  border-radius: 20px;
+  color: rgba(255,255,255,0.7);
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  font-family: inherit;
+  backdrop-filter: blur(4px);
+  transition: all 0.15s;
+}
+
+.variantBtnActive {
+  background: rgba(245,158,11,0.18);
+  border-color: #F59E0B;
+  color: #F59E0B;
+}
+
+/* ── Color swatch button ─────────────────────────────────────────────────── */
+.swatchBtn {
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  background: transparent;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.swatchDot {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background-size: cover;
+  background-position: center;
+  border: 2px solid rgba(255,255,255,0.18);
+  transition: transform 0.15s, box-shadow 0.15s, border-color 0.15s;
+}
+
+.swatchDotActive {
+  border-color: #F59E0B;
+  transform: scale(1.15);
+  box-shadow: 0 0 0 3px rgba(245,158,11,0.4);
+}
+
+/* ── Stock ───────────────────────────────────────────────────────────────── */
+.stockRow {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+}
+
+.stockDot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.stockText {
+  font-size: 12px;
+  font-weight: 600;
+  color: rgba(255,255,255,0.4);
+}
+
+/* ── Specifications view ─────────────────────────────────────────────────── */
+.specsHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-bottom: 10px;
+  border-bottom: 1px solid rgba(255,255,255,0.08);
+}
+
+.specsTitle {
+  font-size: 15px;
+  font-weight: 800;
+  color: #F59E0B;
+  letter-spacing: 0.02em;
+}
+
+.specsBackBtn {
+  background: none;
+  border: none;
+  color: rgba(255,255,255,0.4);
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  font-family: inherit;
+  padding: 0;
+}
+
+.specsList {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+.specRow {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 9px 0;
+  border-bottom: 1px solid rgba(255,255,255,0.05);
+}
+
+.specRow:last-child { border-bottom: none; }
+
+.specKey {
+  font-size: 11px;
+  font-weight: 700;
+  color: rgba(255,255,255,0.35);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  flex-shrink: 0;
+}
+
+.specVal {
+  font-size: 13px;
+  font-weight: 600;
+  color: rgba(255,255,255,0.85);
+  text-align: right;
+}
+
+.noSpecs {
+  font-size: 13px;
+  color: rgba(255,255,255,0.25);
+  margin: 8px 0 4px;
+}
+
+/* ── Add to Cart button ──────────────────────────────────────────────────── */
+.addCartBtn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  width: 100%;
+  padding: 15px 14px;
+  background: #F59E0B;
+  border: none;
+  border-radius: 14px;
+  color: #000;
+  font-size: 15px;
+  font-weight: 900;
+  font-family: inherit;
+  cursor: pointer;
+  box-shadow: 0 4px 16px rgba(245,158,11,0.4);
+  transition: background 0.15s;
+  margin-top: 4px;
+}
+
+.addCartBtn:hover { background: #FBBF24; }
+
+.addCartBtn:disabled {
+  background: rgba(255,255,255,0.06);
+  color: rgba(255,255,255,0.2);
+  box-shadow: none;
+  cursor: default;
+}
+
+.addCartBtnInCart {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  width: 100%;
+  padding: 15px 14px;
+  background: rgba(245,158,11,0.18);
+  border: 1.5px solid #F59E0B;
+  border-radius: 14px;
+  color: #F59E0B;
+  font-size: 14px;
+  font-weight: 900;
+  font-family: inherit;
+  cursor: pointer;
+  transition: background 0.15s;
+  margin-top: 4px;
+}
+
+.addCartBtnInCart:hover { background: rgba(245,158,11,0.26); }
+
+/* Small inline "Add Cart" button — sits right of WhatsApp in ctaRow */
+.addCartSmall {
+  height: 44px;
+  padding: 0 14px;
+  background: rgba(245, 158, 11, 0.12);
+  border: 1.5px solid #F59E0B;
+  border-radius: 10px;
+  color: #F59E0B;
+  font-size: 11px;
+  font-weight: 900;
+  cursor: pointer;
+  font-family: inherit;
+  white-space: nowrap;
+  flex-shrink: 0;
+  transition: background 0.12s;
+}
+
+.addCartSmall:hover { background: rgba(245, 158, 11, 0.22); }
+
+.addCartSmall:disabled {
+  border-color: rgba(255, 255, 255, 0.1);
+  color: rgba(255, 255, 255, 0.2);
+  background: transparent;
+  cursor: default;
+}
+
+/* Secondary WA button — used when cart button is also shown */
+.orderBtnSecondary {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  width: 100%;
+  padding: 12px 14px;
+  background: rgba(255,255,255,0.05);
+  border: 1px solid rgba(255,255,255,0.12);
+  border-radius: 14px;
+  color: rgba(255,255,255,0.5);
+  font-size: 13px;
+  font-weight: 700;
+  text-decoration: none;
+  font-family: inherit;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+
+.orderBtnSecondary:hover { background: rgba(255,255,255,0.09); }
+
+/* ── Order button ────────────────────────────────────────────────────────── */
+.orderBtn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 9px;
+  width: 100%;
+  padding: 15px 14px;
+  background: #F59E0B;
+  border: none;
+  border-radius: 14px;
+  color: #000;
+  font-size: 15px;
+  font-weight: 900;
+  text-decoration: none;
+  font-family: inherit;
+  cursor: pointer;
+  box-shadow: 0 4px 16px rgba(245,158,11,0.4);
+  transition: background 0.15s;
+  margin-top: 4px;
+}
+
+.orderBtn:hover { background: #FBBF24; }
+
+.orderBtnDisabled {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  padding: 16px;
+  background: rgba(255,255,255,0.05);
+  border: 1px dashed rgba(255,255,255,0.12);
+  border-radius: 14px;
+  color: rgba(255,255,255,0.25);
+  font-size: 13px;
+  font-weight: 700;
+  font-family: inherit;
+  cursor: default;
+  margin-top: 4px;
+  box-sizing: border-box;
+}

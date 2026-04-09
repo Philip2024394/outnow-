@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from 'react'
 import {
-  fetchBusiness, fetchProducts, fetchOrders, fetchStats,
+  fetchProducts, fetchOrders, fetchStats,
   updateOrderStatus, toggleProductActive, DEMO_STATS,
 } from '@/services/commerceService'
 import ProductCatalogSlider from './ProductCatalogSlider'

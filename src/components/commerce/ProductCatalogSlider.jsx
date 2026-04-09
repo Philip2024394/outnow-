@@ -1,238 +1,242 @@
-import { useState, useRef } from 'react'
-import { saveProduct, deleteProduct, DEMO_PRODUCTS } from '@/services/commerceService'
+import { useState, useEffect, useCallback } from 'react'
+import { createPortal } from 'react-dom'
+import { DEMO_PRODUCTS } from '@/services/commerceService'
+import ProductDetailSheet from './ProductDetailSheet'
+import HanggerCartPanel from './HanggerCartPanel'
+import HanggerCartSheet from './HanggerCartSheet'
 import styles from './ProductCatalogSlider.module.css'
 
-// ─────────────────────────────────────────────────────────────────────────────
-// ProductCatalogSlider — slides from LEFT, 50% screen width
-// Displays product grid + inline add/edit form
-// ─────────────────────────────────────────────────────────────────────────────
-
-const EMPTY_PRODUCT = {
-  name: '', price: '', currency: 'USD', category: '', stock: '',
-  description: '', image: '', active: true, condition: 'new',
+// ── IDR price formatter ───────────────────────────────────────────────────────
+function formatIDR(val) {
+  const n = parseFloat(val) || 0
+  if (n === 0) return '—'
+  if (n >= 1_000_000) {
+    const jt = n / 1_000_000
+    return Number.isInteger(jt) ? `${jt}jt` : `${jt.toFixed(1).replace('.', ',')}jt`
+  }
+  if (n >= 1_000) return `${n.toLocaleString('id-ID')}rp`
+  return `${n}rp`
 }
 
-const CATEGORIES = [
-  'Electronics', 'Fashion', 'Beauty', 'Wellness', 'Handmade',
-  'Home', 'Food & Drink', 'Art & Craft', 'Vintage', 'Other',
-]
+// Group products by category, preserving order of first appearance
+function groupByCategory(items) {
+  const map = new Map()
+  items.forEach(p => {
+    const key = p.category?.trim() || 'Other'
+    if (!map.has(key)) map.set(key, [])
+    map.get(key).push(p)
+  })
+  return map
+}
 
-export default function ProductCatalogSlider({ open, onClose, userId, products = DEMO_PRODUCTS, onProductsChange }) {
-  const [editing, setEditing]     = useState(null)   // null | product obj
-  const [form, setForm]           = useState(EMPTY_PRODUCT)
-  const [saving, setSaving]       = useState(false)
-  const [deleting, setDeleting]   = useState(null)
-  const imgInputRef               = useRef(null)
+// ── Cart persistence ──────────────────────────────────────────────────────────
+const CART_TTL = 24 * 60 * 60 * 1000 // 24 hours
 
-  function openNew() {
-    setForm({ ...EMPTY_PRODUCT })
-    setEditing('new')
-  }
+function loadCart(key) {
+  try {
+    const raw = localStorage.getItem(key)
+    if (!raw) return []
+    const { items, ts } = JSON.parse(raw)
+    if (Date.now() - ts > CART_TTL) { localStorage.removeItem(key); return [] }
+    return items ?? []
+  } catch { return [] }
+}
 
-  function openEdit(p) {
-    setForm({ ...p })
-    setEditing(p)
-  }
+function saveCart(key, items) {
+  try { localStorage.setItem(key, JSON.stringify({ items, ts: Date.now() })) } catch { /* noop */ }
+}
 
-  function closeForm() {
-    setEditing(null)
-    setForm(EMPTY_PRODUCT)
-  }
+export default function ProductCatalogSlider({
+  open, onClose,
+  products = DEMO_PRODUCTS,
+  sellerWa, sellerName = 'Products',
+}) {
+  const cartKey = `hangger_cart_${sellerWa || sellerName || 'default'}`
 
-  function patch(field, val) {
-    setForm(prev => ({ ...prev, [field]: val }))
-  }
+  const [detailProduct, setDetailProduct] = useState(null)
+  const [query,         setQuery]         = useState('')
+  const [cart,          setCart]          = useState(() => loadCart(cartKey))
+  const [cartModalOpen, setCartModalOpen] = useState(false)
 
-  async function handleSave() {
-    if (!form.name.trim() || !form.price) return
-    setSaving(true)
-    const saved = await saveProduct(userId, { ...form, price: parseFloat(form.price), stock: parseInt(form.stock) || 0 })
-    const result = saved ?? { ...form, id: `local-${Date.now()}` }
-    if (editing === 'new') {
-      onProductsChange?.([result, ...products])
-    } else {
-      onProductsChange?.(products.map(p => p.id === result.id ? result : p))
-    }
-    setSaving(false)
-    closeForm()
-  }
+  // Persist cart on every change
+  useEffect(() => { saveCart(cartKey, cart) }, [cart, cartKey])
 
-  async function handleDelete(productId) {
-    setDeleting(productId)
-    await deleteProduct(productId)
-    onProductsChange?.(products.filter(p => p.id !== productId))
-    setDeleting(null)
-    if (editing?.id === productId) closeForm()
-  }
+  const totalQty = cart.reduce((s, i) => s + i.qty, 0)
 
-  return (
+  const addToCart = useCallback((product, variantStr) => {
+    setCart(prev => {
+      const existing = prev.find(i => i.id === product.id && i.variant === variantStr)
+      if (existing) {
+        return prev.map(i =>
+          i.id === product.id && i.variant === variantStr
+            ? { ...i, qty: i.qty + 1 }
+            : i
+        )
+      }
+      return [...prev, {
+        id:      product.id,
+        name:    product.name,
+        price:   product.price,
+        image:   product.image ?? null,
+        variant: variantStr || null,
+        qty:     1,
+      }]
+    })
+  }, [])
+
+  const updateQty = useCallback((id, variant, qty) => {
+    setCart(prev =>
+      qty <= 0
+        ? prev.filter(i => !(i.id === id && i.variant === variant))
+        : prev.map(i => i.id === id && i.variant === variant ? { ...i, qty } : i)
+    )
+  }, [])
+
+  const removeFromCart = useCallback((id, variantStr) => {
+    setCart(prev => {
+      const item = prev.find(i => i.id === id && i.variant === variantStr)
+      if (!item) return prev
+      return item.qty <= 1
+        ? prev.filter(i => !(i.id === id && i.variant === variantStr))
+        : prev.map(i => i.id === id && i.variant === variantStr ? { ...i, qty: i.qty - 1 } : i)
+    })
+  }, [])
+
+  const clearCart = useCallback(() => setCart([]), [])
+
+  const getCartQty = useCallback((id, variantStr) => {
+    const item = cart.find(i => i.id === id && i.variant === variantStr)
+    return item?.qty ?? 0
+  }, [cart])
+
+  const filtered = query.trim()
+    ? products.filter(p =>
+        p.name?.toLowerCase().includes(query.toLowerCase()) ||
+        p.category?.toLowerCase().includes(query.toLowerCase()) ||
+        p.description?.toLowerCase().includes(query.toLowerCase())
+      )
+    : products
+
+  const grouped = groupByCategory(filtered)
+
+  return createPortal(
     <>
       {/* Backdrop */}
       {open && <div className={styles.backdrop} onClick={onClose} />}
 
-      {/* Slider panel — 50vw from left */}
+      {/* Slider panel */}
       <div className={[styles.slider, open ? styles.sliderOpen : ''].join(' ')}>
+
         {/* Header */}
         <div className={styles.header}>
           <div className={styles.headerTitle}>
-            <span className={styles.echo}>ECHO</span>
-            <span className={styles.catalog}>Product Catalog</span>
+            <span className={styles.echo}>Hangger Market</span>
+            <span className={styles.catalog}>{sellerName}</span>
           </div>
-          <button className={styles.closeBtn} onClick={onClose}>✕</button>
-        </div>
 
-        <div className={styles.body}>
-          {/* Add new button */}
-          {!editing && (
-            <button className={styles.addBtn} onClick={openNew}>
-              + Add New Product
+          {totalQty > 0 && (
+            <button className={styles.cartBtn} onClick={() => setCartModalOpen(true)} aria-label="View cart">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.3" strokeLinecap="round" strokeLinejoin="round">
+                <circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/>
+                <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/>
+              </svg>
+              <span className={styles.cartCount}>{totalQty}</span>
             </button>
           )}
 
-          {/* ── Inline form ── */}
-          {editing && (
-            <div className={styles.form}>
-              <div className={styles.formTitle}>
-                {editing === 'new' ? 'New Product' : 'Edit Product'}
-              </div>
+          <button className={styles.closeBtn} onClick={onClose}>✕</button>
+        </div>
 
-              {/* Product image */}
-              <div className={styles.formImgArea} onClick={() => imgInputRef.current?.click()}>
-                {form.image
-                  ? <img src={form.image} alt="Product" className={styles.formImg} />
-                  : <span className={styles.formImgPlaceholder}>📷 Tap to add image</span>
-                }
-                <input
-                  ref={imgInputRef}
-                  type="file"
-                  accept="image/*"
-                  style={{ display: 'none' }}
-                  onChange={e => {
-                    const file = e.target.files?.[0]
-                    if (file) patch('image', URL.createObjectURL(file))
-                  }}
-                />
-              </div>
+        {/* Search bar */}
+        <div className={styles.searchWrap}>
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.35)" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+            <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+          </svg>
+          <input
+            className={styles.searchInput}
+            value={query}
+            onChange={e => setQuery(e.target.value)}
+            placeholder="Search products…"
+          />
+          {query && (
+            <button className={styles.searchClear} onClick={() => setQuery('')}>✕</button>
+          )}
+        </div>
 
-              <div className={styles.formRow}>
-                <label className={styles.formLabel}>Product Name *</label>
-                <input className={styles.formInput} value={form.name} onChange={e => patch('name', e.target.value)} placeholder="e.g. Wireless Earbuds Pro" />
-              </div>
-
-              <div className={styles.formRow2}>
-                <div className={styles.formRow}>
-                  <label className={styles.formLabel}>Price *</label>
-                  <input className={styles.formInput} type="number" min="0" step="0.01" value={form.price} onChange={e => patch('price', e.target.value)} placeholder="0.00" />
-                </div>
-                <div className={styles.formRow}>
-                  <label className={styles.formLabel}>Currency</label>
-                  <select className={styles.formSelect} value={form.currency} onChange={e => patch('currency', e.target.value)}>
-                    {['USD','GBP','EUR','AUD','NGN','KES','ZAR','INR'].map(c => <option key={c}>{c}</option>)}
-                  </select>
-                </div>
-              </div>
-
-              <div className={styles.formRow2}>
-                <div className={styles.formRow}>
-                  <label className={styles.formLabel}>Category</label>
-                  <select className={styles.formSelect} value={form.category} onChange={e => patch('category', e.target.value)}>
-                    <option value="">Select…</option>
-                    {CATEGORIES.map(c => <option key={c}>{c}</option>)}
-                  </select>
-                </div>
-                <div className={styles.formRow}>
-                  <label className={styles.formLabel}>Stock</label>
-                  <input className={styles.formInput} type="number" min="0" value={form.stock} onChange={e => patch('stock', e.target.value)} placeholder="0" />
-                </div>
-              </div>
-
-              {/* Condition: New or Used */}
-              <div className={styles.formRow}>
-                <label className={styles.formLabel}>Condition</label>
-                <div className={styles.conditionRow}>
-                  {['new', 'used', 'refurbished'].map(c => (
-                    <button
-                      key={c}
-                      type="button"
-                      className={[styles.conditionBtn, form.condition === c ? styles.conditionBtnActive : ''].join(' ')}
-                      onClick={() => patch('condition', c)}
+        <div className={styles.body}>
+          {/* Product groups */}
+          {filtered.length === 0 ? (
+            <div className={styles.emptyGrid}>
+              {query ? `No results for "${query}"` : 'No products listed yet.'}
+            </div>
+          ) : (
+            [...grouped.entries()].map(([category, items]) => (
+              <div key={category} className={styles.categoryGroup}>
+                <div className={styles.categoryHeader}>{category}</div>
+                <div className={styles.grid}>
+                  {items.map(p => (
+                    <div
+                      key={p.id}
+                      className={[styles.card, !p.active ? styles.cardInactive : ''].join(' ')}
+                      onClick={() => setDetailProduct(p)}
                     >
-                      {c === 'new' ? '✨ New' : c === 'used' ? '♻️ Used' : '🔧 Refurbished'}
-                    </button>
+                      <div className={styles.cardImgWrap}>
+                        {p.image
+                          ? <img src={p.image} alt={p.name} className={styles.cardImg} />
+                          : <div className={styles.cardImgPlaceholder}>📦</div>
+                        }
+                        {p.isNew && <span className={styles.newBadge}>NEW</span>}
+                      </div>
+                      <div className={styles.cardInfo}>
+                        <div className={styles.cardName}>{p.name}</div>
+                        <div className={styles.cardMeta}>
+                          <span className={styles.cardPrice}>{formatIDR(p.price)}</span>
+                          {p.condition && p.condition !== 'new' && (
+                            <span className={styles.cardCondition}>{p.condition}</span>
+                          )}
+                        </div>
+                      </div>
+                    </div>
                   ))}
                 </div>
               </div>
-
-              <div className={styles.formRow}>
-                <label className={styles.formLabel}>Description</label>
-                <textarea
-                  className={styles.formTextarea}
-                  value={form.description}
-                  onChange={e => patch('description', e.target.value)}
-                  placeholder="Brief product description…"
-                  rows={3}
-                />
-              </div>
-
-              {/* Active toggle */}
-              <label className={styles.activeToggle}>
-                <input type="checkbox" checked={form.active} onChange={e => patch('active', e.target.checked)} />
-                <span>List product publicly</span>
-              </label>
-
-              <div className={styles.formActions}>
-                <button className={styles.cancelBtn} onClick={closeForm} disabled={saving}>Cancel</button>
-                {editing !== 'new' && (
-                  <button
-                    className={styles.deleteBtn}
-                    onClick={() => handleDelete(editing.id)}
-                    disabled={deleting === editing.id}
-                  >
-                    {deleting === editing.id ? 'Deleting…' : 'Delete'}
-                  </button>
-                )}
-                <button className={styles.saveBtn} onClick={handleSave} disabled={saving || !form.name.trim() || !form.price}>
-                  {saving ? 'Saving…' : 'Save Product'}
-                </button>
-              </div>
-            </div>
-          )}
-
-          {/* ── Product grid ── */}
-          {!editing && (
-            <div className={styles.grid}>
-              {products.map(p => (
-                <div
-                  key={p.id}
-                  className={[styles.card, !p.active ? styles.cardInactive : ''].join(' ')}
-                  onClick={() => openEdit(p)}
-                >
-                  {p.image
-                    ? <img src={p.image} alt={p.name} className={styles.cardImg} />
-                    : <div className={styles.cardImgPlaceholder}>📦</div>
-                  }
-                  <div className={styles.cardInfo}>
-                    <div className={styles.cardName}>{p.name}</div>
-                    <div className={styles.cardMeta}>
-                      <span className={styles.cardPrice}>${(parseFloat(p.price) || 0).toFixed(2)}</span>
-                      {p.condition && p.condition !== 'new' && (
-                        <span className={styles.cardCondition}>{p.condition}</span>
-                      )}
-                      {!p.active && <span className={styles.cardOff}>Hidden</span>}
-                    </div>
-                    <div className={styles.cardStock}>Stock: {p.stock ?? '–'}</div>
-                  </div>
-                </div>
-              ))}
-              {products.length === 0 && (
-                <div className={styles.emptyGrid}>
-                  No products yet. Add your first product above.
-                </div>
-              )}
-            </div>
+            ))
           )}
         </div>
+
       </div>
-    </>
+
+      {/* Cart panel — fixed top-right corner of the screen */}
+      <HanggerCartPanel
+        cart={cart}
+        onUpdateQty={updateQty}
+        onClearCart={clearCart}
+        sellerName={sellerName}
+        sellerWa={sellerWa}
+      />
+
+      <ProductDetailSheet
+        product={detailProduct}
+        onClose={() => setDetailProduct(null)}
+        sellerWa={sellerWa}
+        sellerName={sellerName}
+        onAddToCart={addToCart}
+        onRemoveFromCart={removeFromCart}
+        getCartQty={getCartQty}
+        totalCartQty={totalQty}
+        onOpenCart={() => { setDetailProduct(null); setCartModalOpen(true) }}
+      />
+
+      <HanggerCartSheet
+        open={cartModalOpen && totalQty > 0}
+        onClose={() => setCartModalOpen(false)}
+        cart={cart}
+        onUpdateQty={updateQty}
+        onClearCart={clearCart}
+        sellerName={sellerName}
+        sellerWa={sellerWa}
+      />
+    </>,
+    document.body
   )
 }

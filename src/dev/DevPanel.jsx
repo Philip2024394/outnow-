@@ -12,7 +12,6 @@ import Toast from '@/components/ui/Toast'
 // ── Banners ─────────────────────────────────────────────────────────
 import MeetRequestBanner   from '@/components/meet/MeetRequestBanner'
 import MeetAcceptedBanner  from '@/components/meet/MeetAcceptedBanner'
-import ProximityBanner     from '@/components/map/ProximityBanner'
 
 // ── Vibe Check ───────────────────────────────────────────────────────
 import VibeCheckSheet  from '@/components/vibecheck/VibeCheckSheet'
@@ -23,10 +22,6 @@ import DiscoveryCard from '@/components/discovery/DiscoveryCard'
 
 // ── List sheets ──────────────────────────────────────────────────────
 import DiscoveryListSheet from '@/components/discovery/DiscoveryListSheet'
-import VenueListSheet     from '@/components/map/VenueListSheet'
-
-// ── Venue ────────────────────────────────────────────────────────────
-import VenueSheet from '@/components/map/VenueSheet'
 
 // ── Go Live / Session ────────────────────────────────────────────────
 import GoLiveSheet    from '@/components/golive/GoLiveSheet'
@@ -105,18 +100,6 @@ const MOCK_SESSION_LATER = {
   lat: 51.5196, lng: -0.1357,
 }
 
-const MOCK_VENUE = {
-  id: 'dev-venue-1', name: 'The Neon Tap', emoji: '🍺', type: 'Bar',
-  address: '23 Old Compton St, Soho', lat: 51.5133, lng: -0.1320,
-  deal: { emoji: '🍺', title: 'First drink £4', description: 'Show this screen at the bar', validUntil: '11pm tonight' },
-  discount: { percent: 15, type: 'drinks', confirmed: true },
-}
-
-const MOCK_VENUES = [MOCK_VENUE, {
-  id: 'dev-venue-2', name: 'Monmouth Coffee', emoji: '☕', type: 'Café',
-  address: '27 Monmouth St, Covent Garden', lat: 51.5138, lng: -0.1269,
-}]
-
 const MOCK_MEET_REQUEST = {
   id: 'dev-meet-req-1', fromUserId: 'dev-u1',
   fromDisplayName: 'Sophie',
@@ -130,10 +113,6 @@ const MOCK_MEET_ACCEPTED = {
   fromDisplayName: 'Sophie',
   fromPhotoURL: 'https://ik.imagekit.io/nepgaxllc/uk1.png',
   status: 'accepted',
-}
-
-const MOCK_PROXIMITY_ALERT = {
-  venue: MOCK_VENUE, distanceM: 85,
 }
 
 const ALL_SESSIONS = [MOCK_SESSION_NOW, MOCK_SESSION_INVITE, MOCK_SESSION_LATER,
@@ -150,7 +129,6 @@ const GROUPS = [
     items: [
       { id: 'meetRequest',  label: '💌 Meet Request (User B)' },
       { id: 'meetAccepted', label: '✅ Meet Accepted (User A)' },
-      { id: 'proximity',    label: '📍 Venue Proximity' },
     ],
   },
   {
@@ -179,14 +157,6 @@ const GROUPS = [
       { id: 'listNow',    label: '🟢 Out Now List' },
       { id: 'listInvite', label: '💛 Invite Out List' },
       { id: 'listLater',  label: '🟠 Later Out List' },
-      { id: 'venueList',  label: '🏠 Venue List' },
-    ],
-  },
-  {
-    label: 'VENUE',
-    color: '#E8890C',
-    items: [
-      { id: 'venueSheet', label: '🏠 Venue Sheet' },
     ],
   },
   {
@@ -384,16 +354,6 @@ export default function DevPanel() {
       )}
 
 
-      {active === 'proximity' && (
-        <div className={styles.bannerWrap}>
-          <ProximityBanner
-            alert={MOCK_PROXIMITY_ALERT}
-            onDismiss={close}
-            onTap={close}
-          />
-        </div>
-      )}
-
       {/* PROFILE SLIDERS */}
       <DiscoveryCard
         open={active === 'profileNow'}
@@ -446,30 +406,11 @@ export default function DevPanel() {
         onClose={close}
         onSelect={(s) => { close(); showToast(`Selected: ${s.displayName}`, 'info') }}
       />
-      <VenueListSheet
-        open={active === 'venueList'}
-        venues={MOCK_VENUES}
-        onClose={close}
-        onSelectVenue={(v) => { close(); showToast(`Selected: ${v.name}`, 'info') }}
-      />
-
-      {/* VENUE */}
-      <VenueSheet
-        open={active === 'venueSheet'}
-        venue={MOCK_VENUE}
-        onClose={close}
-        onSelectSession={(s) => { close(); showToast(`Session: ${s.displayName}`, 'info') }}
-        onOpenChat={close}
-        userTier="pro"
-        onSpendCoins={(cost) => showToast(`Spent ${cost} coins`, 'success')}
-      />
-
       {/* SESSION / GO LIVE */}
       <GoLiveSheet
         open={active === 'goLive'}
         onClose={close}
         showToast={showToast}
-        activeVenues={MOCK_VENUES}
       />
       <InviteOutSheet
         open={active === 'inviteOut'}

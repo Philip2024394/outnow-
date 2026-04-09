@@ -152,6 +152,32 @@
   50%       { opacity: 0.3; }
 }
 
+/* Hangger Market image button */
+.marketBtn {
+  background: none;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  -webkit-tap-highlight-color: transparent;
+  transition: transform 0.12s ease, opacity 0.12s ease;
+}
+
+.marketBtn:active {
+  transform: scale(0.92);
+  opacity: 0.8;
+}
+
+.marketBtnImg {
+  height: 36px;
+  width: auto;
+  object-fit: contain;
+  display: block;
+}
+
 /* Settings / people button */
 .settingsBtn {
   position: relative;

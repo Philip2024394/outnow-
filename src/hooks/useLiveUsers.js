@@ -119,11 +119,8 @@ export function useLiveUsers({ browseCountry } = {}) {
         .in('status', ACTIVE_STATUSES)
         .neq('user_id', user.id)
 
-      // Country filter: show same country OR international sessions
-      // If myCountry is empty (profile not set), show all to avoid empty map
-      if (myCountry) {
-        query = query.or(`country.eq.${myCountry},international.eq.true`)
-      }
+      // Country filter: Indonesia only
+      query = query.or(`country.eq.indonesia,international.eq.true`)
 
       const now = new Date()
       const [{ data, error }, { data: affinities }, { data: predicted }] = await Promise.all([
