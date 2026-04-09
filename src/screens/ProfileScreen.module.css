@@ -910,6 +910,21 @@
   letter-spacing: 0.03em;
 }
 
+.driverPhotoNotice {
+  display: flex; align-items: flex-start; gap: 8px;
+  background: rgba(245,197,24,0.08);
+  border: 1px solid rgba(245,197,24,0.25);
+  border-radius: 10px;
+  padding: 10px 12px;
+  margin-top: 2px;
+}
+.driverPhotoNoticeIcon { font-size: 14px; flex-shrink: 0; margin-top: 1px; }
+.driverPhotoNoticeText {
+  font-size: 12px; font-weight: 600;
+  color: rgba(245,197,24,0.85);
+  line-height: 1.5;
+}
+
 .adjustBtn {
   align-self: center;
   font-size: 12px;

@@ -858,24 +858,36 @@ export default function ProfileScreen({ onClose, onboarding = false }) {
             <input ref={mainInputRef} type="file" accept=".jpg,.jpeg,.png,.webp" style={{ display: 'none' }} onChange={handleMainPhoto} />
           </div>
 
-          {/* 4 thumbnail slots */}
-          <div className={styles.thumbsRow}>
-            {[0, 1, 2, 3].map(i => (
-              <div key={i} className={styles.thumbSlot} onClick={() => extraInputRefs[i].current?.click()}>
-                {extraPhotos[i]
-                  ? <img src={extraPhotos[i]} alt={`Photo ${i + 2}`} className={styles.thumbImg} />
-                  : <span className={styles.thumbPlus}>+</span>
-                }
-                <input
-                  ref={extraInputRefs[i]}
-                  type="file"
-                  accept=".jpg,.jpeg,.png,.webp"
-                  style={{ display: 'none' }}
-                  onChange={e => handleExtraPhoto(i, e)}
-                />
-              </div>
-            ))}
-          </div>
+          {/* Driver photo requirement notice */}
+          {(lookingFor === 'bike_ride' || lookingFor === 'car_taxi') && (
+            <div className={styles.driverPhotoNotice}>
+              <span className={styles.driverPhotoNoticeIcon}>⚠️</span>
+              <span className={styles.driverPhotoNoticeText}>
+                Clear front-facing photo required — no hat, no sunglasses, full face visible. This is your driver ID photo seen by customers.
+              </span>
+            </div>
+          )}
+
+          {/* 4 thumbnail slots — hidden for drivers */}
+          {lookingFor !== 'bike_ride' && lookingFor !== 'car_taxi' && (
+            <div className={styles.thumbsRow}>
+              {[0, 1, 2, 3].map(i => (
+                <div key={i} className={styles.thumbSlot} onClick={() => extraInputRefs[i].current?.click()}>
+                  {extraPhotos[i]
+                    ? <img src={extraPhotos[i]} alt={`Photo ${i + 2}`} className={styles.thumbImg} />
+                    : <span className={styles.thumbPlus}>+</span>
+                  }
+                  <input
+                    ref={extraInputRefs[i]}
+                    type="file"
+                    accept=".jpg,.jpeg,.png,.webp"
+                    style={{ display: 'none' }}
+                    onChange={e => handleExtraPhoto(i, e)}
+                  />
+                </div>
+              ))}
+            </div>
+          )}
 
           {/* File format hint */}
           <p className={styles.fileHint}>
