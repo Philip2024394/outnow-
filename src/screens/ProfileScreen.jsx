@@ -671,7 +671,7 @@ export default function ProfileScreen({ onClose, onboarding = false }) {
       if (selectedActivity)            earn('ACTIVITIES_SET')
       // After successful save, open the go-out setup if user selected a status
       if (pendingStatus) setShowGoOutSetup(true)
-      else if (isFirstSave) setProfileTab('verified')
+      // isFirstSave: stay on profile tab
     } catch { /* silent */ }
     setSaving(false)
     setPhotoFile(null)
@@ -694,7 +694,7 @@ export default function ProfileScreen({ onClose, onboarding = false }) {
             <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/>
             <circle cx="12" cy="13" r="4"/>
           </svg>
-          <span className={styles.headerTitle}>{profileTab === 'verified' ? 'Verified Listing' : 'Profile Details'}</span>
+          <span className={styles.headerTitle}>Profile Details</span>
         </div>
         <div className={styles.headerRight}>
             <button className={styles.settingsBtn} onClick={() => setDrawerOpen(true)} aria-label="Dashboard">
@@ -748,35 +748,10 @@ export default function ProfileScreen({ onClose, onboarding = false }) {
         duration={4500}
       />
 
-      {/* ── Tab Switcher ── */}
-      {(profileTab === 'profile' || profileTab === 'shop') && (
-        <div className={styles.tabRow}>
-          <button
-            className={`${styles.tabBtn} ${styles.tabBtnActiveGold}`}
-            onClick={() => setProfileTab('verified')}
-          >
-            Get Verified
-            <span className={styles.tabVerifiedBadge}>{pricing.display}</span>
-          </button>
-          {hasShop ? (
-            <button
-              className={`${styles.tabBtn} ${profileTab === 'shop' ? styles.tabBtnShopActive : styles.tabBtnShop}`}
-              onClick={() => setProfileTab(profileTab === 'shop' ? 'profile' : 'shop')}
-            >
-              🛍️ My Shop
-            </button>
-          ) : (
-            <button
-              className={`${styles.tabBtn} ${styles.tabBtnShop}`}
-              onClick={() => setShowUpgrade(true)}
-            >
-              🛍️ Shop <span className={styles.tabShopLock}>Premium</span>
-            </button>
-          )}
-        </div>
-      )}
+      {/* ── Create Profile subheading ── */}
+      <div className={styles.createProfileHeading}>Create Profile</div>
 
-      <div className={styles.scroll} style={(profileTab === 'verified' || profileTab === 'shop') ? { display: 'none' } : {}}>
+      <div className={styles.scroll}>
 
         {/* ── Joined the app for — first field ── */}
         <div className={styles.section} style={{ paddingBottom: 0 }}>
