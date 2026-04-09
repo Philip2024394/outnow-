@@ -66,7 +66,8 @@ export default function BottomNav({ activeTab = 'map', onChange, unreadChats = 0
               onClick={onDatingMode}
               aria-label="Dating & Romance"
             >
-              <img src="https://ik.imagekit.io/nepgaxllc/Untitledasdasdasaaaaaaa-removebg-preview.png" alt="Dating" className={styles.datingBtnImg} />
+              <img src="https://ik.imagekit.io/nepgaxllc/Untitledasdasdasaaaaaaa-removebg-preview.png?updatedAt=1775627388475" alt="Dating" className={styles.datingBtnImg} />
+              <span className={styles.datingBtnLabel}>Dating</span>
             </button>,
           ]
         }

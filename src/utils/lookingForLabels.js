@@ -41,7 +41,7 @@ export const LOOKING_FOR_OPTIONS = [
 
   // ── Social & Personal ────────────────────────────────────────
   { value: 'meet_new',       emoji: '👋', label: 'Meet New People',             group: 'social' },
-  { value: 'dating',         emoji: '❤️', label: 'Dating / Romance',            group: 'social' },
+  { value: 'dating',         img: 'https://ik.imagekit.io/nepgaxllc/Untitledasdasdasaaaaaaa-removebg-preview.png?updatedAt=1775627388475', label: 'Dating / Romance', group: 'social' },
   { value: 'friendship',     emoji: '🤝', label: 'Friendship / Social',         group: 'social' },
   { value: 'travel',         emoji: '✈️', label: 'Travel & Explore',            group: 'social' },
   { value: 'expats',         emoji: '🌍', label: 'Expats & International',       group: 'social' },
