@@ -22,9 +22,9 @@ export const LOOKING_FOR_GROUPS = [
 
 export const LOOKING_FOR_OPTIONS = [
   // ── Most Popular ─────────────────────────────────────────────
-  { value: 'bike_ride',      emoji: '🛵', label: 'Bike Ride Service',            group: 'featured' },
-  { value: 'car_taxi',       emoji: '🚗', label: 'Car Taxi Service',             group: 'featured' },
-  { value: 'restaurant',     emoji: '🍴', label: 'Restaurant Owner',             group: 'featured' },
+  { value: 'bike_ride',  emoji: '🛵', label: 'Bike Ride Service',  group: 'featured', img: 'https://ik.imagekit.io/nepgaxllc/Sleek%20green%20and%20black%20scooter%20setup.png?updatedAt=1775634845237' },
+  { value: 'car_taxi',   emoji: '🚗', label: 'Car Taxi Service',   group: 'featured', img: 'https://ik.imagekit.io/nepgaxllc/Sporty%20green%20and%20black%20hatchback.png?updatedAt=1775634925566' },
+  { value: 'restaurant', emoji: '🍴', label: 'Restaurant Owner',   group: 'featured' },
 
   // ── Buying & Selling ─────────────────────────────────────────
   { value: 'buy_sell',       emoji: '🛒', label: 'Buy & Sell — General',        group: 'commerce' },

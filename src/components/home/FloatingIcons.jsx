@@ -4,29 +4,23 @@ import styles from './FloatingIcons.module.css'
 
 const ICONS = [
   // Left column (top → bottom)
-  { id: 'drinks',       emoji: '🍺', label: 'Drinks'   },
-  { id: 'food',         emoji: '🍕', label: 'Food',    img: 'https://ik.imagekit.io/nepgaxllc/Untitledfsasdfsdf-removebg-preview.png', bare: true },
-  { id: 'coffee',       emoji: '☕', label: 'Coffee',  img: 'https://ik.imagekit.io/nepgaxllc/Untitleddfsds-removebg-preview.png', bare: true },
-  { id: 'gym',          emoji: '🏋️', label: 'Gym',    img: 'https://ik.imagekit.io/nepgaxllc/Untitleddfgsdfgd-removebg-preview.png', bare: true },
-  { id: 'walk',         emoji: '🚶', label: 'Walk'     },
-  { id: 'karaoke',      emoji: '🎤', label: 'Karaoke'  },
+  { id: 'bike_ride', label: 'Bike Ride', img: 'https://ik.imagekit.io/nepgaxllc/Sleek%20green%20and%20black%20scooter%20setup.png?updatedAt=1775634845237', bare: true },
+  { id: 'food',      label: 'Food',      img: 'https://ik.imagekit.io/nepgaxllc/Untitledfsasdfsdf-removebg-preview.png', bare: true },
+  { id: 'coffee',    label: 'Coffee',    img: 'https://ik.imagekit.io/nepgaxllc/Untitleddfsds-removebg-preview.png', bare: true },
   // Right column (top → bottom)
-  { id: 'brunch',       emoji: '🥂', label: 'Brunch'   },
-  { id: 'cycling',      emoji: '🚴', label: 'Cycling'  },
-  { id: 'beach',        emoji: '🏖️', label: 'Beach'   },
-  { id: 'gaming_night', emoji: '🎮', label: 'Gaming',  img: 'https://ik.imagekit.io/nepgaxllc/Untitledfsdfsd-removebg-preview.png', bare: true },
-  { id: 'yoga',         emoji: '🧘', label: 'Yoga'     },
-  { id: 'travel',       emoji: '✈️', label: 'Travel'  },
+  { id: 'car_taxi',  label: 'Car Taxi',  img: 'https://ik.imagekit.io/nepgaxllc/Sporty%20green%20and%20black%20hatchback.png?updatedAt=1775634925566', bare: true },
+  { id: 'gym',       label: 'Gym',       img: 'https://ik.imagekit.io/nepgaxllc/Untitleddfgsdfgd-removebg-preview.png', bare: true },
+  { id: 'gaming_night', label: 'Gaming', img: 'https://ik.imagekit.io/nepgaxllc/Untitledfsdfsd-removebg-preview.png', bare: true },
 ]
 
-// Each icon gets a unique slow-bob animation offset so they don't all move in sync
-const OFFSETS = [0, 0.4, 0.8, 1.2, 1.6, 2.0, 0.2, 0.6, 1.0, 1.4, 1.8, 2.2]
+// Each icon gets a unique slow-bob animation offset
+const OFFSETS = [0, 0.4, 0.8, 0.2, 0.6, 1.0]
 
 export default function FloatingIcons({ sessions = [], onSelectSession, onFoodClick }) {
   const [activeActivity, setActiveActivity] = useState(null)
 
-  const left  = ICONS.slice(0, 6)
-  const right = ICONS.slice(6, 12)
+  const left  = ICONS.slice(0, 3)
+  const right = ICONS.slice(3, 6)
 
   const handleIconClick = (icon) => {
     if (icon.id === 'food' && onFoodClick) { onFoodClick(); return }
@@ -55,7 +49,7 @@ export default function FloatingIcons({ sessions = [], onSelectSession, onFoodCl
             <IconBubble
               key={icon.id}
               icon={icon}
-              delay={OFFSETS[i + 6]}
+              delay={OFFSETS[i + 3]}
               count={sessions.filter(s => s.activityType === icon.id || (s.activities ?? []).includes(icon.id)).length}
               onClick={() => handleIconClick(icon)}
             />

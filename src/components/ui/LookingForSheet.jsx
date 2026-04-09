@@ -172,7 +172,10 @@ export default function LookingForSheet({ open, value, subValue, onChange, onClo
                       className={`${styles.option} ${selected ? styles.optionSelected : ''} ${isFirstHint ? styles.optionHint : ''}`}
                       onClick={() => handleMainSelect(opt.value)}
                     >
-                      <span className={styles.optionEmoji}>{opt.emoji}</span>
+                      {opt.img
+                        ? <img src={opt.img} alt={opt.label} className={styles.optionImg} />
+                        : <span className={styles.optionEmoji}>{opt.emoji}</span>
+                      }
                       <span className={styles.optionLabel}>{opt.label}</span>
                       {hasSubs && (
                         <span className={styles.optionArrow}>

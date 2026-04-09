@@ -179,6 +179,13 @@
   text-align: center;
 }
 
+.optionImg {
+  width: 38px;
+  height: 28px;
+  object-fit: contain;
+  flex-shrink: 0;
+}
+
 .optionLabel {
   flex: 1;
   font-size: 15px;
