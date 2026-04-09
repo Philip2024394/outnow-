@@ -43,7 +43,7 @@ export const FOOD_CATEGORIES = [
     emoji: '🔥',
     tagline: 'Charred. Bold. Perfect.',
     color: '#ff6b35',
-    videoUrl:  null,
+    videoUrl:  'https://fjvafjkzvygkhiwjuvla.supabase.co/storage/v1/object/sign/category-videos/steak.mp4?token=eyJraWQiOiJzdG9yYWdlLXVybC1zaWduaW5nLWtleV9mN2EwYjVlOC05MWUxLTRkMTAtYmU3ZC1kMzcyM2FhY2ZjZTIiLCJhbGciOiJIUzI1NiJ9.eyJ1cmwiOiJjYXRlZ29yeS12aWRlb3Mvc3RlYWsubXA0IiwiaWF0IjoxNzc1NzE1MjQ0LCJleHAiOjIwOTEwNzUyNDR9.FqAaGz_mVChVkIkjLYT442Th6EX_Cw0gITFtVrLE1gc',
     posterUrl: null,
     gradient: 'linear-gradient(160deg, #1a0800 0%, #2d1000 50%, #0d0d0d 100%)',
   },

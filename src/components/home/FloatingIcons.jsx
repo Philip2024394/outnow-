@@ -4,11 +4,11 @@ import styles from './FloatingIcons.module.css'
 
 const ICONS = [
   // Left column (top → bottom)
-  { id: 'bike_ride', label: 'Bike Ride', img: 'https://ik.imagekit.io/nepgaxllc/Sleek%20green%20and%20black%20scooter%20setup.png?updatedAt=1775634845237', bare: true },
+  { id: 'bike_ride', label: 'Bike Ride', img: 'https://ik.imagekit.io/nepgaxllc/Sleek%20green%20and%20black%20scooter%20setup.png?updatedAt=1775634845237', bare: true, vehicle: true },
   { id: 'food',      label: 'Food',      img: 'https://ik.imagekit.io/nepgaxllc/Untitledfsasdfsdf-removebg-preview.png', bare: true },
   { id: 'coffee',    label: 'Coffee',    img: 'https://ik.imagekit.io/nepgaxllc/Untitleddfsds-removebg-preview.png', bare: true },
   // Right column (top → bottom)
-  { id: 'car_taxi',  label: 'Car Taxi',  img: 'https://ik.imagekit.io/nepgaxllc/Sporty%20green%20and%20black%20hatchback.png?updatedAt=1775634925566', bare: true },
+  { id: 'car_taxi',  label: 'Car Taxi',  img: 'https://ik.imagekit.io/nepgaxllc/Sporty%20green%20and%20black%20hatchback.png?updatedAt=1775634925566', bare: true, vehicle: true },
   { id: 'gym',       label: 'Gym',       img: 'https://ik.imagekit.io/nepgaxllc/Untitleddfgsdfgd-removebg-preview.png', bare: true },
   { id: 'gaming_night', label: 'Gaming', img: 'https://ik.imagekit.io/nepgaxllc/Untitledfsdfsd-removebg-preview.png', bare: true },
 ]
@@ -82,7 +82,7 @@ function IconBubble({ icon, delay, count, onClick }) {
         aria-label={icon.label}
       >
         {icon.img
-          ? <img src={icon.img} alt={icon.label} className={styles.iconImgBare} />
+          ? <img src={icon.img} alt={icon.label} className={icon.vehicle ? styles.iconImgVehicle : styles.iconImgBare} />
           : <span className={styles.emojiBare}>{icon.emoji}</span>
         }
         <span className={styles.bareLabel}>{icon.label}</span>
