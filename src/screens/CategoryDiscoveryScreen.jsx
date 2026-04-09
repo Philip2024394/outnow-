@@ -63,7 +63,7 @@ export const FOOD_CATEGORIES = [
     emoji: '🦐',
     tagline: 'Fresh from the ocean',
     color: '#38bdf8',
-    videoUrl:  null,
+    videoUrl:  'https://fjvafjkzvygkhiwjuvla.supabase.co/storage/v1/object/sign/category-videos/fish.mp4?token=eyJraWQiOiJzdG9yYWdlLXVybC1zaWduaW5nLWtleV9mN2EwYjVlOC05MWUxLTRkMTAtYmU3ZC1kMzcyM2FhY2ZjZTIiLCJhbGciOiJIUzI1NiJ9.eyJ1cmwiOiJjYXRlZ29yeS12aWRlb3MvZmlzaC5tcDQiLCJpYXQiOjE3NzU3MTc2MDcsImV4cCI6MjA5MTA3NzYwN30.ZpiEWK8_6r65DGtkOlN5x4kcMUrMPS7uLXW4axQ169o',
     posterUrl: null,
     gradient: 'linear-gradient(160deg, #001520 0%, #002030 50%, #0d0d0d 100%)',
   },
