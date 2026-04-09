@@ -1,20 +1,20 @@
 import { useMySession } from '@/hooks/useMySession'
+import { useAuth } from '@/hooks/useAuth'
+import { useLanguage } from '@/i18n'
 import styles from './MapHeader.module.css'
 
 const LOGO_URL = 'https://ik.imagekit.io/nepgaxllc/Untitleddsfsdf-removebg-preview.png'
 
-
-const MARKET_BTN_URL = 'https://ik.imagekit.io/nepgaxllc/Untitledasdasdaaa.png'
-
 export default function MapHeader({
   onOpenNotifications,
   notifCount = 0,
-  onOpenSettings,
-  onOpenFilter,
-  hasActiveFilter = false,
-  onOpenMarket,
+  onAccountClick,
 }) {
   const { isLive } = useMySession()
+  const { user } = useAuth()
+  const { t } = useLanguage()
+  const photoURL = user?.photoURL ?? user?.user_metadata?.avatar_url ?? null
+  const displayName = user?.displayName ?? user?.user_metadata?.full_name ?? null
 
   return (
     <div className={styles.header}>
@@ -24,11 +24,6 @@ export default function MapHeader({
       </div>
 
       <div className={styles.right}>
-        {/* Hangger Market button */}
-        <button className={styles.marketBtn} onClick={onOpenMarket} aria-label="Hangger Market">
-          <img src={MARKET_BTN_URL} alt="Market" className={styles.marketBtnImg} />
-        </button>
-
         {isLive && (
           <div className={styles.liveBadge}>
             <span className={styles.liveDot} />
@@ -47,23 +42,19 @@ export default function MapHeader({
           )}
         </button>
 
-        {/* Filter */}
-        <button className={`${styles.settingsBtn} ${hasActiveFilter ? styles.settingsBtnActive : ''}`} onClick={onOpenFilter} aria-label="Filter map">
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
-            <line x1="4" y1="6" x2="20" y2="6" />
-            <line x1="8" y1="12" x2="16" y2="12" />
-            <line x1="11" y1="18" x2="13" y2="18" />
-          </svg>
-          {hasActiveFilter && <span className={styles.filterDot} />}
-        </button>
-
-        {/* Settings */}
-        <button className={styles.settingsBtn} onClick={onOpenSettings} aria-label="Settings">
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-            <circle cx="12" cy="12" r="3" />
-            <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z" />
-          </svg>
-        </button>
+        {/* Account — shows avatar if logged in, Sign In button if guest */}
+        {user ? (
+          <button className={styles.avatarBtn} onClick={onAccountClick} aria-label="My account">
+            {photoURL
+              ? <img src={photoURL} alt={displayName ?? 'Me'} className={styles.avatarImg} />
+              : <span className={styles.avatarInitial}>{(displayName?.[0] ?? '?').toUpperCase()}</span>
+            }
+          </button>
+        ) : (
+          <button className={styles.signInBtn} onClick={onAccountClick} aria-label="Sign in">
+            {t('header.signIn')}
+          </button>
+        )}
       </div>
     </div>
   )

@@ -9,6 +9,9 @@ import ContactShareSheet from './ContactShareSheet'
 import VideoCheckBubble from './VideoCheckBubble'
 import VideoCheckWindow from './VideoCheckWindow'
 import { useVideoCheck } from '@/hooks/useVideoCheck'
+import { useUnlocks } from '@/hooks/useUnlocks'
+import ChatCountdownTimer from './ChatCountdownTimer'
+import UnlockGate from './UnlockGate'
 import styles from './ChatWindow.module.css'
 
 const IS_DEMO = import.meta.env.VITE_DEMO_MODE === 'true'
@@ -68,6 +71,26 @@ export default function ChatWindow({ conversation: conv, onBack, onConvUpdate })
   }, [blockedMsg])
 
   const contactUnlocked = conv.status === 'unlocked'
+
+  // ── 20-min free chat + unlock system ─────────────────────────────────────
+  const [unlockGateOpen, setUnlockGateOpen] = useState(false)
+  const {
+    timeLeftMs,
+    isUnlocked:       chatUnlocked,
+    showUnlockPrompt,
+    unlockBalance,
+    unlockWithCredit,
+    unlockWithSubscription,
+    dismissPrompt,
+  } = useUnlocks(conv.id)
+
+  // Auto-open gate when prompt fires or time expires
+  useEffect(() => {
+    if (showUnlockPrompt) setUnlockGateOpen(true)
+  }, [showUnlockPrompt])
+
+  // Block sending when time is up and not unlocked
+  const chatBlocked = !chatUnlocked && timeLeftMs !== null && timeLeftMs <= 0
 
   const {
     phase:          videoPhase,
@@ -163,6 +186,13 @@ export default function ChatWindow({ conversation: conv, onBack, onConvUpdate })
         </div>
 
         <div className={styles.headerRight}>
+          {/* Countdown timer pill — hides once unlocked */}
+          <ChatCountdownTimer
+            timeLeftMs={timeLeftMs}
+            isUnlocked={chatUnlocked}
+            onUnlockClick={() => setUnlockGateOpen(true)}
+          />
+
           {/* ID Check button — always visible when available */}
           {videoAvailable && videoPhase === 'idle' && (
             <button
@@ -201,9 +231,14 @@ export default function ChatWindow({ conversation: conv, onBack, onConvUpdate })
       </div>
 
       {/* ── Status bar ── */}
-      <div className={styles.windowNotice}>
-        💬 Chat is free · tap Share to exchange contact details whenever you're ready
-      </div>
+      {!chatBlocked && (
+        <div className={styles.windowNotice}>
+          {chatUnlocked
+            ? '✅ Chat unlocked · share contact anytime'
+            : '💬 20 min free chat · tap timer to unlock unlimited'
+          }
+        </div>
+      )}
 
 
       {/* ── Messages ── */}
@@ -364,6 +399,15 @@ export default function ChatWindow({ conversation: conv, onBack, onConvUpdate })
         <div className={styles.blockedHint}><span>📷</span> {videoError}</div>
       )}
 
+      {/* ── Blocked banner ── */}
+      {chatBlocked && (
+        <button className={styles.blockedBanner} onClick={() => setUnlockGateOpen(true)}>
+          <span>🔒</span>
+          <span>Free chat time ended — tap to unlock and continue</span>
+          <span className={styles.blockedBannerArrow}>›</span>
+        </button>
+      )}
+
       {/* ── Input bar — always visible ── */}
       <div className={styles.inputBar}>
         <button className={styles.flagBtn} aria-label="Report">
@@ -397,15 +441,16 @@ export default function ChatWindow({ conversation: conv, onBack, onConvUpdate })
           className={styles.input}
           value={text}
           onChange={e => setText(e.target.value)}
-          onKeyDown={e => e.key === 'Enter' && handleSend()}
-          placeholder="Message…"
+          onKeyDown={e => e.key === 'Enter' && !chatBlocked && handleSend()}
+          placeholder={chatBlocked ? 'Unlock to continue chatting…' : 'Message…'}
+          disabled={chatBlocked}
           autoComplete="off"
         />
 
         <button
-          className={`${styles.sendBtn} ${text.trim() ? styles.sendBtnActive : ''}`}
+          className={`${styles.sendBtn} ${text.trim() && !chatBlocked ? styles.sendBtnActive : ''}`}
           onClick={handleSend}
-          disabled={!text.trim()}
+          disabled={!text.trim() || chatBlocked}
           aria-label="Send"
         >
           <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
@@ -424,6 +469,17 @@ export default function ChatWindow({ conversation: conv, onBack, onConvUpdate })
           handleShareContact(contact)
         }}
       />
+
+      {/* ── Unlock gate modal ── */}
+      {unlockGateOpen && (
+        <UnlockGate
+          unlockBalance={unlockBalance}
+          onUnlockWithCredit={async () => { await unlockWithCredit(); setUnlockGateOpen(false) }}
+          onUnlockWithPlan={(plan) => { unlockWithSubscription(plan); setUnlockGateOpen(false) }}
+          onDismiss={() => { dismissPrompt(); setUnlockGateOpen(false) }}
+          expired={timeLeftMs !== null && timeLeftMs <= 0}
+        />
+      )}
 
       {/* ── Live video window — floats above input bar ── */}
       <VideoCheckWindow

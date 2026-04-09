@@ -50,27 +50,7 @@ export default function BottomNav({ activeTab = 'map', onChange, unreadChats = 0
         const active = activeTab === id
         const badge = id === 'chat' ? unreadChats : id === 'venues' ? activeVenueCount : 0
 
-        if (id === 'match') {
-          return [
-            <button
-              key="ride"
-              className={`${styles.rideBtn} ${rideActive ? styles.rideBtnActive : ''}`}
-              onClick={onRide}
-              aria-label="Find a ride"
-            >
-              <img src="https://ik.imagekit.io/nepgaxllc/Sleek%20green%20and%20black%20scooter%20setup.png" alt="Ride" className={styles.rideBtnImg} />
-            </button>,
-            <button
-              key="dating"
-              className={`${styles.datingBtn} ${datingActive ? styles.datingBtnActive : ''}`}
-              onClick={onDatingMode}
-              aria-label="Dating & Romance"
-            >
-              <img src="https://ik.imagekit.io/nepgaxllc/Untitledasdasdasaaaaaaa-removebg-preview.png?updatedAt=1775627388475" alt="Dating" className={styles.datingBtnImg} />
-              <span className={styles.datingBtnLabel}>Dating</span>
-            </button>,
-          ]
-        }
+        if (id === 'match') return null
 
         if (id === 'chat') {
           return (
@@ -103,22 +83,6 @@ export default function BottomNav({ activeTab = 'map', onChange, unreadChats = 0
           </button>
         )
       })}
-
-      {/* Shopping */}
-      <button
-        className={[styles.tab, activeTab === 'shopping' ? styles.tabActive : '', styles.shopTab].filter(Boolean).join(' ')}
-        onClick={() => select('shopping')}
-        aria-label="Shop"
-      >
-        <span className={styles.iconWrap}>
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-            <path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/>
-            <line x1="3" y1="6" x2="21" y2="6"/>
-            <path d="M16 10a4 4 0 0 1-8 0"/>
-          </svg>
-        </span>
-        {activeTab === 'shopping' && <span className={styles.tabLabel}>Shop</span>}
-      </button>
 
       {/* Profile */}
       <button

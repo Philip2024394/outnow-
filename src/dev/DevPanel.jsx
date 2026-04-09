@@ -8,6 +8,11 @@ import { useState, useEffect } from 'react'
 
 // ── UI ──────────────────────────────────────────────────────────────
 import Toast from '@/components/ui/Toast'
+import LanguageToast from '@/components/ui/LanguageToast'
+
+// ── Onboarding ───────────────────────────────────────────────────────
+import LandingScreen from '@/screens/LandingScreen'
+import JoinSheet from '@/screens/onboarding/JoinSheet'
 
 // ── Banners ─────────────────────────────────────────────────────────
 import MeetRequestBanner   from '@/components/meet/MeetRequestBanner'
@@ -33,15 +38,18 @@ import StillHerePrompt from '@/components/session/StillHerePrompt'
 import SOSModal    from '@/components/safety/SOSModal'
 import ReportSheet from '@/components/moderation/ReportSheet'
 import UpgradeSheet from '@/components/premium/UpgradeSheet'
-import MapFilterSheet, { DEFAULT_MAP_FILTERS } from '@/components/map/MapFilterSheet'
+import UnlockGate  from '@/components/chat/UnlockGate'
 
 // ── Screens ──────────────────────────────────────────────────────────
-import ChatScreen          from '@/screens/ChatScreen'
-import MatchScreen         from '@/screens/MatchScreen'
-import NotificationsScreen from '@/screens/NotificationsScreen'
-import LikedMeScreen       from '@/screens/LikedMeScreen'
-import WalletScreen        from '@/screens/WalletScreen'
-import ProfileScreen       from '@/screens/ProfileScreen'
+import ChatScreen              from '@/screens/ChatScreen'
+import MatchScreen             from '@/screens/MatchScreen'
+import NotificationsScreen     from '@/screens/NotificationsScreen'
+import LikedMeScreen           from '@/screens/LikedMeScreen'
+import WalletScreen            from '@/screens/WalletScreen'
+import ProfileScreen           from '@/screens/ProfileScreen'
+import BookingScreen           from '@/screens/BookingScreen'
+import ShopSearchScreen        from '@/screens/ShopSearchScreen'
+import CategoryDiscoveryScreen from '@/screens/CategoryDiscoveryScreen'
 
 import styles from './DevPanel.module.css'
 
@@ -55,12 +63,12 @@ const MOCK_SESSION_NOW = {
   displayName: 'Sophie', age: 27,
   photoURL: 'https://ik.imagekit.io/nepgaxllc/uk1.png',
   photos: ['https://ik.imagekit.io/nepgaxllc/uk1.png','https://ik.imagekit.io/nepgaxllc/uk3.png','https://ik.imagekit.io/nepgaxllc/uk5.png'],
-  bio: 'Love a good cocktail bar and terrible karaoke 🎤 Always up for spontaneous plans and meeting new people.',
+  bio: 'Love a good cocktail bar and terrible karaoke 🎤 Always up for spontaneous plans.',
   activityType: 'drinks', activities: ['drinks','food','hangout'],
-  lookingFor: 'Dating', area: 'Soho', city: 'London',
+  lookingFor: 'Dating', area: 'Bali', city: 'Denpasar',
   status: 'active', distanceKm: 0.3, tier: 'vip',
   expiresAtMs: now + 45 * 60 * 1000, startedAtMs: now - 15 * 60 * 1000,
-  lat: 51.5135, lng: -0.1322,
+  lat: -8.6705, lng: 115.2126,
 }
 
 const MOCK_SESSION_INVITE = {
@@ -68,23 +76,23 @@ const MOCK_SESSION_INVITE = {
   displayName: 'Zara', age: 24,
   photoURL: 'https://ik.imagekit.io/nepgaxllc/uk2.png',
   photos: ['https://ik.imagekit.io/nepgaxllc/uk2.png','https://ik.imagekit.io/nepgaxllc/uk4.png'],
-  bio: 'Coffee snob ☕ and gallery hopper. Open to meeting someone interesting.',
+  bio: 'Coffee snob ☕ Open to meeting someone interesting.',
   activityType: 'coffee', activities: ['coffee','culture'],
-  lookingFor: 'Friendship', area: 'Shoreditch', city: 'London',
+  lookingFor: 'Friendship', area: 'Seminyak', city: 'Badung',
   status: 'invite_out', distanceKm: 0.5, tier: 'pro',
-  lat: 51.522, lng: -0.076,
+  lat: -8.6915, lng: 115.1673,
 }
 
 const MOCK_SESSION_NO_PHOTO = {
   id: 'dev-nophoto-1', userId: 'dev-u9',
   displayName: 'Alex', age: 26,
   photoURL: null, photos: [],
-  bio: 'Haven\'t added a photo yet — but I\'m out here!',
+  bio: "Haven't added a photo yet — but I'm out here!",
   activityType: 'drinks', activities: ['drinks','hangout'],
-  lookingFor: 'Dating', area: 'Soho', city: 'London',
+  lookingFor: 'Dating', area: 'Kuta', city: 'Badung',
   status: 'active', distanceKm: 0.4, tier: null,
   expiresAtMs: now + 45 * 60 * 1000, startedAtMs: now - 10 * 60 * 1000,
-  lat: 51.513, lng: -0.132,
+  lat: -8.7180, lng: 115.1685,
 }
 
 const MOCK_SESSION_LATER = {
@@ -92,12 +100,12 @@ const MOCK_SESSION_LATER = {
   displayName: 'Grace', age: 29,
   photoURL: 'https://ik.imagekit.io/nepgaxllc/uk6.png',
   photos: ['https://ik.imagekit.io/nepgaxllc/uk6.png','https://ik.imagekit.io/nepgaxllc/uk8.png'],
-  bio: 'Foodie and part-time art gallery wanderer 🍷 Looking for genuine connection.',
+  bio: 'Foodie and part-time art gallery wanderer 🍷',
   activityType: 'food', activities: ['food','drinks','culture'],
-  lookingFor: 'Dating', area: 'Fitzrovia', city: 'London',
+  lookingFor: 'Dating', area: 'Ubud', city: 'Gianyar',
   status: 'scheduled', distanceKm: 1.4, tier: null,
   scheduledFor: now + 4 * 60 * 60 * 1000,
-  lat: 51.5196, lng: -0.1357,
+  lat: -8.5069, lng: 115.2625,
 }
 
 const MOCK_MEET_REQUEST = {
@@ -123,6 +131,17 @@ const ALL_SESSIONS = [MOCK_SESSION_NOW, MOCK_SESSION_INVITE, MOCK_SESSION_LATER,
 // GROUPS — the panel menu
 // ─────────────────────────────────────────────────────────────────────
 const GROUPS = [
+  {
+    label: 'ONBOARDING',
+    color: '#8DC63F',
+    items: [
+      { id: 'landing',        label: '🏠 Landing Screen' },
+      { id: 'joinPhone',      label: '📱 Join — Phone Step' },
+      { id: 'joinOtp',        label: '🔐 Join — OTP Step' },
+      { id: 'joinProfile',    label: '👤 Join — Profile Step' },
+      { id: 'langToast',      label: '🌐 Language Toast' },
+    ],
+  },
   {
     label: 'BANNERS',
     color: '#F5C518',
@@ -163,20 +182,20 @@ const GROUPS = [
     label: 'SESSION / GO LIVE',
     color: '#FF6B6B',
     items: [
-      { id: 'goLive',        label: '🔴 Go Live Sheet' },
-      { id: 'inviteOut',     label: '💌 Invite Out Sheet' },
-      { id: 'rating',        label: '⭐ Rating Sheet' },
-      { id: 'stillHere',     label: '⏰ Still Here Prompt' },
-      { id: 'mapFilter',     label: '🔍 Map Filter Sheet' },
+      { id: 'goLive',    label: '🔴 Go Live Sheet' },
+      { id: 'inviteOut', label: '💌 Invite Out Sheet' },
+      { id: 'rating',    label: '⭐ Rating Sheet' },
+      { id: 'stillHere', label: '⏰ Still Here Prompt' },
     ],
   },
   {
     label: 'MODALS',
     color: '#FF6B6B',
     items: [
-      { id: 'sos',           label: '🆘 SOS Modal' },
-      { id: 'report',        label: '🚩 Report Sheet' },
-      { id: 'upgrade',       label: '⭐ Upgrade Sheet' },
+      { id: 'sos',        label: '🆘 SOS Modal' },
+      { id: 'report',     label: '🚩 Report Sheet' },
+      { id: 'upgrade',    label: '⭐ Upgrade Sheet' },
+      { id: 'unlockGate', label: '🔒 Chat Unlock Gate' },
     ],
   },
   {
@@ -193,12 +212,15 @@ const GROUPS = [
     label: 'SCREENS',
     color: '#A78BFA',
     items: [
-      { id: 'chat',          label: '💬 Chat Screen' },
-      { id: 'match',         label: '❤️ Match Screen' },
-      { id: 'notifications', label: '🔔 Notifications Screen' },
-      { id: 'likedMe',       label: '👀 Liked Me Screen' },
-      { id: 'wallet',        label: '💰 Wallet Screen' },
-      { id: 'profile',       label: '👤 Profile Screen' },
+      { id: 'categoryDiscovery', label: '🍜 The Street (Food)' },
+      { id: 'booking',           label: '🏍 Booking (Rides)' },
+      { id: 'shop',              label: '🛍 Shop Search' },
+      { id: 'chat',              label: '💬 Chat Screen' },
+      { id: 'match',             label: '❤️ Match / Dating Screen' },
+      { id: 'notifications',     label: '🔔 Notifications Screen' },
+      { id: 'likedMe',           label: '👀 Liked Me Screen' },
+      { id: 'wallet',            label: '💰 Wallet Screen' },
+      { id: 'profile',           label: '👤 Profile Screen' },
     ],
   },
 ]
@@ -215,7 +237,9 @@ export default function DevPanel() {
   const [active, setActive]                 = useState(null)
   const [toast, setToast]                   = useState(null)
   const [profileSession, setProfileSession] = useState(null)
-  const [devPendingConv, setDevPendingConv] = useState(null) // chat opened by accepting
+  const [devPendingConv, setDevPendingConv] = useState(null)
+  // Force-show the language toast in dev mode
+  const [showLangToast, setShowLangToast]   = useState(false)
 
   useEffect(() => {
     document.documentElement.style.setProperty('--dev-panel-width', panelOpen ? '260px' : '0px')
@@ -223,13 +247,14 @@ export default function DevPanel() {
   }, [panelOpen])
 
   const open  = (id) => { setActive(id); setPanelOpen(false) }
-  const close = ()   => { setActive(null); setProfileSession(null) }
+  const close = ()   => { setActive(null); setProfileSession(null); setShowLangToast(false) }
   const showToast = (message, type = 'info') => setToast({ message, type })
 
   const trigger = (id) => {
     if (id === 'toastSuccess') { setActive(null); showToast('Session posted successfully!', 'success'); return }
     if (id === 'toastError')   { setActive(null); showToast('Something went wrong. Try again.', 'error');   return }
     if (id === 'toastInfo')    { setActive(null); showToast('Feature available for Pro members.', 'info');   return }
+    if (id === 'langToast')    { setShowLangToast(true); setPanelOpen(false); return }
     open(id)
   }
 
@@ -276,7 +301,43 @@ export default function DevPanel() {
           PREVIEWS — rendered above everything
       ───────────────────────────────────────── */}
 
-      {/* BANNERS */}
+      {/* ── ONBOARDING ── */}
+      {active === 'landing' && (
+        <div className={styles.screenOverlay}>
+          <LandingScreen
+            onGetStarted={() => { close(); showToast('→ Get Started tapped', 'info') }}
+            onSignIn={() => { close(); showToast('→ Sign In tapped', 'info') }}
+            onBrowse={close}
+          />
+          <button className={styles.devClose} onClick={close}>CLOSE</button>
+        </div>
+      )}
+
+      <JoinSheet
+        open={active === 'joinPhone'}
+        initialStep="phone"
+        onClose={close}
+      />
+      <JoinSheet
+        open={active === 'joinOtp'}
+        initialStep="otp"
+        onClose={close}
+      />
+      <JoinSheet
+        open={active === 'joinProfile'}
+        initialStep="profile"
+        onClose={close}
+      />
+
+      {/* Language toast — forced visible in dev (bypasses first-visit check) */}
+      {showLangToast && (
+        <>
+          <LanguageToast _forceVisible />
+          <button className={styles.devClose} style={{ top: 'auto', bottom: 120 }} onClick={close}>CLOSE</button>
+        </>
+      )}
+
+      {/* ── BANNERS ── */}
       {active === 'meetRequest' && (
         <div className={styles.bannerWrap}>
           <MeetRequestBanner
@@ -309,10 +370,7 @@ export default function DevPanel() {
 
       {devPendingConv && (
         <div className={styles.screenOverlay}>
-          <ChatScreen
-            onClose={() => setDevPendingConv(null)}
-            pendingConv={devPendingConv}
-          />
+          <ChatScreen onClose={() => setDevPendingConv(null)} pendingConv={devPendingConv} />
         </div>
       )}
 
@@ -353,69 +411,23 @@ export default function DevPanel() {
         </div>
       )}
 
+      {/* ── PROFILE SLIDERS ── */}
+      <DiscoveryCard open={active === 'profileNow'}     session={MOCK_SESSION_NOW}     mySession={null} onClose={close} showToast={showToast} />
+      <DiscoveryCard open={active === 'profileInvite'}  session={MOCK_SESSION_INVITE}  mySession={null} onClose={close} showToast={showToast} />
+      <DiscoveryCard open={active === 'profileLater'}   session={MOCK_SESSION_LATER}   mySession={null} onClose={close} showToast={showToast} />
+      <DiscoveryCard open={active === 'profileNoPhoto'} session={MOCK_SESSION_NO_PHOTO} mySession={null} onClose={close} showToast={showToast} />
 
-      {/* PROFILE SLIDERS */}
-      <DiscoveryCard
-        open={active === 'profileNow'}
-        session={MOCK_SESSION_NOW}
-        mySession={null}
-        onClose={close}
-        showToast={showToast}
-      />
-      <DiscoveryCard
-        open={active === 'profileInvite'}
-        session={MOCK_SESSION_INVITE}
-        mySession={null}
-        onClose={close}
-        showToast={showToast}
-      />
-      <DiscoveryCard
-        open={active === 'profileLater'}
-        session={MOCK_SESSION_LATER}
-        mySession={null}
-        onClose={close}
-        showToast={showToast}
-      />
-      <DiscoveryCard
-        open={active === 'profileNoPhoto'}
-        session={MOCK_SESSION_NO_PHOTO}
-        mySession={null}
-        onClose={close}
-        showToast={showToast}
-      />
+      {/* ── LIST SHEETS ── */}
+      <DiscoveryListSheet open={active === 'listNow'}    filter="now"    sessions={ALL_SESSIONS} onClose={close} onSelect={(s) => { close(); showToast(`Selected: ${s.displayName}`, 'info') }} />
+      <DiscoveryListSheet open={active === 'listInvite'} filter="invite" sessions={ALL_SESSIONS} onClose={close} onSelect={(s) => { close(); showToast(`Selected: ${s.displayName}`, 'info') }} />
+      <DiscoveryListSheet open={active === 'listLater'}  filter="later"  sessions={ALL_SESSIONS} onClose={close} onSelect={(s) => { close(); showToast(`Selected: ${s.displayName}`, 'info') }} />
 
-      {/* LIST SHEETS */}
-      <DiscoveryListSheet
-        open={active === 'listNow'}
-        filter="now"
-        sessions={ALL_SESSIONS}
-        onClose={close}
-        onSelect={(s) => { close(); showToast(`Selected: ${s.displayName}`, 'info') }}
-      />
-      <DiscoveryListSheet
-        open={active === 'listInvite'}
-        filter="invite"
-        sessions={ALL_SESSIONS}
-        onClose={close}
-        onSelect={(s) => { close(); showToast(`Selected: ${s.displayName}`, 'info') }}
-      />
-      <DiscoveryListSheet
-        open={active === 'listLater'}
-        filter="later"
-        sessions={ALL_SESSIONS}
-        onClose={close}
-        onSelect={(s) => { close(); showToast(`Selected: ${s.displayName}`, 'info') }}
-      />
-      {/* SESSION / GO LIVE */}
-      <GoLiveSheet
-        open={active === 'goLive'}
-        onClose={close}
-        showToast={showToast}
-      />
+      {/* ── SESSION / GO LIVE ── */}
+      <GoLiveSheet open={active === 'goLive'} onClose={close} showToast={showToast} />
       <InviteOutSheet
         open={active === 'inviteOut'}
         onClose={close}
-        onPost={(activity) => { close(); showToast(`Posted: ${activity}`, 'success') }}
+        onPost={(a) => { close(); showToast(`Posted: ${a}`, 'success') }}
         onGoLive={close}
         onGoLater={close}
         currentStatus={null}
@@ -426,14 +438,6 @@ export default function DevPanel() {
         onSubmit={() => { close(); showToast('Rating submitted!', 'success') }}
         onSkip={close}
       />
-      <MapFilterSheet
-        open={active === 'mapFilter'}
-        onClose={close}
-        filters={DEFAULT_MAP_FILTERS}
-        onChange={() => {}}
-        onReset={() => {}}
-      />
-
       {active === 'stillHere' && (
         <div className={styles.fullOverlay}>
           <StillHerePrompt open sessionId={MOCK_SESSION_NOW.id} />
@@ -441,26 +445,70 @@ export default function DevPanel() {
         </div>
       )}
 
-      {/* MODALS */}
-      <SOSModal
-        open={active === 'sos'}
-        onClose={close}
-        session={MOCK_SESSION_NOW}
-      />
-      <ReportSheet
-        open={active === 'report'}
-        session={MOCK_SESSION_NOW}
-        onClose={close}
-        showToast={showToast}
-      />
+      {/* ── MODALS ── */}
+      <SOSModal    open={active === 'sos'}    onClose={close} session={MOCK_SESSION_NOW} />
+      <ReportSheet open={active === 'report'} session={MOCK_SESSION_NOW} onClose={close} showToast={showToast} />
       <UpgradeSheet
         open={active === 'upgrade'}
         onClose={close}
         showToast={showToast}
         lookingFor="handmade"
       />
+      {active === 'unlockGate' && (
+        <div className={styles.fullOverlay}>
+          <UnlockGate
+            unlockBalance={2}
+            onUnlockWithCredit={() => { close(); showToast('Unlocked with credit!', 'success') }}
+            onUnlockWithPlan={(plan) => { close(); showToast(`Subscribed: ${plan}`, 'success') }}
+            onDismiss={close}
+            expired={false}
+          />
+          <button className={styles.devClose} onClick={close}>CLOSE</button>
+        </div>
+      )}
 
-      {/* SCREENS — full screen overlays */}
+      {/* ── VIBE CHECK ── */}
+      <VibeCheckSheet
+        open={active === 'vibeCheckSheet'}
+        sessions={ALL_SESSIONS}
+        onClose={close}
+        onVibeYes={(s) => showToast(`Vibe sent to ${s.displayName} 💚`, 'success')}
+      />
+      {active === 'vibeBannerNow' && (
+        <div className={styles.bannerWrap}>
+          <VibeCheckBanner banner={{ status: 'active' }} onDismiss={close} onView={() => { close(); showToast('Anonymous until they connect back 💚', 'info') }} />
+        </div>
+      )}
+      {active === 'vibeBannerInvite' && (
+        <div className={styles.bannerWrap}>
+          <VibeCheckBanner banner={{ status: 'invite_out' }} onDismiss={close} onView={() => { close(); showToast('Anonymous until they connect back ✨', 'info') }} />
+        </div>
+      )}
+      {active === 'vibeBannerLater' && (
+        <div className={styles.bannerWrap}>
+          <VibeCheckBanner banner={{ status: 'scheduled' }} onDismiss={close} onView={() => { close(); showToast('Anonymous until they connect back 🕐', 'info') }} />
+        </div>
+      )}
+
+      {/* ── SCREENS ── */}
+      {active === 'categoryDiscovery' && (
+        <div className={styles.screenOverlay}>
+          <CategoryDiscoveryScreen
+            onClose={close}
+            onSelectCategory={(cat) => { close(); showToast(`Category: ${cat.label}`, 'info') }}
+          />
+        </div>
+      )}
+      {active === 'booking' && (
+        <div className={styles.screenOverlay}>
+          <BookingScreen onClose={close} />
+        </div>
+      )}
+      {active === 'shop' && (
+        <div className={styles.screenOverlay}>
+          <ShopSearchScreen onClose={close} userCity="Denpasar" userCountry="Indonesia" />
+        </div>
+      )}
       {active === 'chat' && (
         <div className={styles.screenOverlay}>
           <ChatScreen onClose={close} />
@@ -489,42 +537,6 @@ export default function DevPanel() {
       {active === 'profile' && (
         <div className={styles.screenOverlay}>
           <ProfileScreen onClose={close} />
-        </div>
-      )}
-
-      {/* VIBE CHECK */}
-      <VibeCheckSheet
-        open={active === 'vibeCheckSheet'}
-        sessions={ALL_SESSIONS}
-        onClose={close}
-        onVibeYes={(s) => showToast(`Vibe sent to ${s.displayName} 💚`, 'success')}
-      />
-
-      {active === 'vibeBannerNow' && (
-        <div className={styles.bannerWrap}>
-          <VibeCheckBanner
-            banner={{ status: 'active' }}
-            onDismiss={close}
-            onView={() => { close(); showToast('Anonymous until they connect back 💚', 'info') }}
-          />
-        </div>
-      )}
-      {active === 'vibeBannerInvite' && (
-        <div className={styles.bannerWrap}>
-          <VibeCheckBanner
-            banner={{ status: 'invite_out' }}
-            onDismiss={close}
-            onView={() => { close(); showToast('Anonymous until they connect back ✨', 'info') }}
-          />
-        </div>
-      )}
-      {active === 'vibeBannerLater' && (
-        <div className={styles.bannerWrap}>
-          <VibeCheckBanner
-            banner={{ status: 'scheduled' }}
-            onDismiss={close}
-            onView={() => { close(); showToast('Anonymous until they connect back 🕐', 'info') }}
-          />
         </div>
       )}
 

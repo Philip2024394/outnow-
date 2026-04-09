@@ -1,7 +1,7 @@
 {
   "name": "Hangger",
   "short_name": "Hangger",
-  "description": "See who's hanging near you right now.",
+  "description": "Food, rides, dating & more — hangger.app",
   "start_url": "/",
   "display": "standalone",
   "background_color": "#080808",

@@ -9,13 +9,23 @@ import styles from './CategoryDiscoveryScreen.module.css'
 export const FOOD_CATEGORIES = [
   {
     id: 'all',
-    label: 'MAKAN',
+    label: 'IN THE STREET',
     emoji: '🍽',
     tagline: 'Everything near you',
     color: '#F59E0B',
-    videoUrl:  null,
+    videoUrl:  'https://fjvafjkzvygkhiwjuvla.supabase.co/storage/v1/object/sign/category-videos/makan.mp4?token=eyJraWQiOiJzdG9yYWdlLXVybC1zaWduaW5nLWtleV9mN2EwYjVlOC05MWUxLTRkMTAtYmU3ZC1kMzcyM2FhY2ZjZTIiLCJhbGciOiJIUzI1NiJ9.eyJ1cmwiOiJjYXRlZ29yeS12aWRlb3MvbWFrYW4ubXA0IiwiaWF0IjoxNzc1NzYwNDUxLCJleHAiOjIwOTExMjA0NTF9.m8BVMh8JqQ_BQCeRXgV_ND8IORN4bhqkiGgrRDgu5wE',
     posterUrl: null,
     gradient: 'linear-gradient(160deg, #1a1200 0%, #2d2000 50%, #0d0d0d 100%)',
+  },
+  {
+    id: 'street_food',
+    label: 'Street Food',
+    emoji: '🛺',
+    tagline: 'Warung, sate, gorengan & more',
+    color: '#F59E0B',
+    videoUrl:  null,
+    posterUrl: null,
+    gradient: 'linear-gradient(160deg, #1a0d00 0%, #2d1800 50%, #0d0d0d 100%)',
   },
   {
     id: 'rice',
@@ -73,7 +83,7 @@ export const FOOD_CATEGORIES = [
     emoji: '🧁',
     tagline: 'Life is short. Eat dessert first.',
     color: '#f472b6',
-    videoUrl:  'https://fjvafjkzvygkhiwjuvla.supabase.co/storage/v1/object/sign/category-videos/steak.mp4?token=eyJraWQiOiJzdG9yYWdlLXVybC1zaWduaW5nLWtleV9mN2EwYjVlOC05MWUxLTRkMTAtYmU3ZC1kMzcyM2FhY2ZjZTIiLCJhbGciOiJIUzI1NiJ9.eyJ1cmwiOiJjYXRlZ29yeS12aWRlb3Mvc3RlYWsubXA0IiwiaWF0IjoxNzc1NzE2NzM1LCJleHAiOjIwOTEwNzY3MzV9.ImT5fFzSkF86maWeJFcwlinK343XGSqVdixbNbBa6vE',
+    videoUrl:  'https://fjvafjkzvygkhiwjuvla.supabase.co/storage/v1/object/sign/category-videos/desert.mp4?token=eyJraWQiOiJzdG9yYWdlLXVybC1zaWduaW5nLWtleV9mN2EwYjVlOC05MWUxLTRkMTAtYmU3ZC1kMzcyM2FhY2ZjZTIiLCJhbGciOiJIUzI1NiJ9.eyJ1cmwiOiJjYXRlZ29yeS12aWRlb3MvZGVzZXJ0Lm1wNCIsImlhdCI6MTc3NTc2MjAyNywiZXhwIjoyMDkxMTIyMDI3fQ.831NMRUM3WnBwYXCRAD91pw2ZkiPQgpoT8XnPgDko80',
     posterUrl: null,
     gradient: 'linear-gradient(160deg, #1a0015 0%, #280020 50%, #0d0d0d 100%)',
   },
@@ -93,7 +103,7 @@ export const FOOD_CATEGORIES = [
     emoji: '🌅',
     tagline: 'Start the day right',
     color: '#fb923c',
-    videoUrl:  null,
+    videoUrl:  'https://fjvafjkzvygkhiwjuvla.supabase.co/storage/v1/object/sign/category-videos/breakft%20indonisea.mp4?token=eyJraWQiOiJzdG9yYWdlLXVybC1zaWduaW5nLWtleV9mN2EwYjVlOC05MWUxLTRkMTAtYmU3ZC1kMzcyM2FhY2ZjZTIiLCJhbGciOiJIUzI1NiJ9.eyJ1cmwiOiJjYXRlZ29yeS12aWRlb3MvYnJlYWtmdCBpbmRvbmlzZWEubXA0IiwiaWF0IjoxNzc1NzYxNTY5LCJleHAiOjIwOTExMjE1Njl9.3cAy4fm8DAZvuzfntSGY2GJ_KgW1H_MObvKIDwlzj48',
     posterUrl: null,
     gradient: 'linear-gradient(160deg, #1a0c00 0%, #2d1a00 50%, #0d0d0d 100%)',
   },
@@ -103,7 +113,7 @@ export const FOOD_CATEGORIES = [
     emoji: '🍿',
     tagline: 'Always hungry for more',
     color: '#4ade80',
-    videoUrl:  null,
+    videoUrl:  'https://fjvafjkzvygkhiwjuvla.supabase.co/storage/v1/object/sign/category-videos/snacks.mp4?token=eyJraWQiOiJzdG9yYWdlLXVybC1zaWduaW5nLWtleV9mN2EwYjVlOC05MWUxLTRkMTAtYmU3ZC1kMzcyM2FhY2ZjZTIiLCJhbGciOiJIUzI1NiJ9.eyJ1cmwiOiJjYXRlZ29yeS12aWRlb3Mvc25hY2tzLm1wNCIsImlhdCI6MTc3NTc2MTY2NiwiZXhwIjoyMDkxMTIxNjY2fQ.z6jnpz-tsYsPKYzwoa0iw4fUWD6i1IZpi3wONrvy6iM',
     posterUrl: null,
     gradient: 'linear-gradient(160deg, #001a0a 0%, #002810 50%, #0d0d0d 100%)',
   },
@@ -113,7 +123,7 @@ export const FOOD_CATEGORIES = [
     emoji: '🥗',
     tagline: 'Clean. Green. Delicious.',
     color: '#22c55e',
-    videoUrl:  null,
+    videoUrl:  'https://fjvafjkzvygkhiwjuvla.supabase.co/storage/v1/object/sign/category-videos/vegi.mp4?token=eyJraWQiOiJzdG9yYWdlLXVybC1zaWduaW5nLWtleV9mN2EwYjVlOC05MWUxLTRkMTAtYmU3ZC1kMzcyM2FhY2ZjZTIiLCJhbGciOiJIUzI1NiJ9.eyJ1cmwiOiJjYXRlZ29yeS12aWRlb3MvdmVnaS5tcDQiLCJpYXQiOjE3NzU3NjIyMDksImV4cCI6MjA5MTEyMjIwOX0.G53NKNh8-KqMGoDKZHXUqkLfRaAZHQ_maXpfkMfIAE8',
     posterUrl: null,
     gradient: 'linear-gradient(160deg, #001508 0%, #002210 50%, #0d0d0d 100%)',
   },
@@ -308,7 +318,7 @@ export default function CategoryDiscoveryScreen({ onClose, onSelectCategory }) {
           <input
             ref={searchRef}
             className={styles.searchInput}
-            placeholder="Search MAKAN — restaurant, dish, cuisine…"
+            placeholder="Search In The Street — warung, dish, cuisine…"
             value={search}
             onChange={e => setSearch(e.target.value)}
             onFocus={() => setSearchFocused(true)}

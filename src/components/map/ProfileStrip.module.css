@@ -1,4 +1,4 @@
-/* ── Frosted glass footer bar ── */
+/* ── Bottom nav bar ── */
 .bar {
   position: absolute;
   bottom: 0;
@@ -7,152 +7,106 @@
   z-index: var(--z-map-controls);
   display: flex;
   justify-content: center;
-  padding: 12px 20px calc(env(safe-area-inset-bottom, 0px) + 16px);
-  /* soft fade so bar blends into the background image */
-  background: linear-gradient(to top, rgba(0,0,0,0.55) 0%, transparent 100%);
+  padding: 10px 16px calc(env(safe-area-inset-bottom, 0px) + 12px);
+  background: linear-gradient(to top, rgba(0,0,0,0.7) 0%, transparent 100%);
   pointer-events: none;
 }
 
-/* Single glass pill that holds all three buttons */
 .pill {
   display: flex;
   align-items: center;
-  gap: 0;
-  background: rgba(12, 12, 16, 0.55);
-  backdrop-filter: blur(20px) saturate(1.4);
-  -webkit-backdrop-filter: blur(20px) saturate(1.4);
+  width: 100%;
+  max-width: 400px;
+  background: rgba(10, 10, 14, 0.82);
+  backdrop-filter: blur(24px) saturate(1.6);
+  -webkit-backdrop-filter: blur(24px) saturate(1.6);
   border: 1px solid rgba(255, 255, 255, 0.1);
   border-radius: 28px;
-  padding: 6px 6px;
+  padding: 6px 4px;
   pointer-events: all;
   box-shadow:
-    0 4px 32px rgba(0, 0, 0, 0.45),
-    inset 0 1px 0 rgba(255,255,255,0.07);
+    inset 0 1px 0 rgba(255,255,255,0.07),
+    0 8px 32px rgba(0,0,0,0.5);
 }
 
-/* Each category button */
+/* Each tab button */
 .btn {
-  position: relative;
+  flex: 1;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
   gap: 3px;
-  flex: 1;
-  min-width: 88px;
-  padding: 10px 12px;
+  padding: 8px 4px 6px;
   border-radius: 22px;
   border: none;
   background: transparent;
   cursor: pointer;
   font-family: inherit;
   -webkit-tap-highlight-color: transparent;
-  transition: background 0.18s ease, box-shadow 0.18s ease, transform 0.12s ease;
-  overflow: hidden;
+  transition: background 0.18s ease, transform 0.12s ease;
+  color: rgba(255, 255, 255, 0.4);
 }
 
 .btn:active {
-  transform: scale(0.93);
+  transform: scale(0.92);
 }
 
-/* Active state — filled with the button's brand colour */
 .btnActive {
-  background: var(--btn-color);
-  box-shadow: 0 0 18px var(--btn-glow);
+  background: rgba(141, 198, 63, 0.12);
+  color: #8DC63F;
 }
 
-/* Separator line between buttons */
-.btn + .btn::before {
-  content: '';
+/* Icon wrapper — holds svg + badge */
+.iconWrap {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 26px;
+  height: 26px;
+}
+
+/* Profile photo avatar */
+.avatar {
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 1.5px solid rgba(255,255,255,0.2);
+}
+
+.btnActive .avatar {
+  border-color: #8DC63F;
+}
+
+/* Notification / unread badge */
+.badge {
   position: absolute;
-  left: 0;
-  top: 20%;
-  height: 60%;
-  width: 1px;
-  background: rgba(255,255,255,0.08);
-}
-
-.btnActive + .btn::before,
-.btn + .btnActive::before {
-  opacity: 0;
-}
-
-/* Boost charge ring — fills whole button */
-.ring {
-  position: absolute;
-  inset: 4px;
-  width: calc(100% - 8px);
-  height: calc(100% - 8px);
-  pointer-events: none;
-  z-index: 3;
-}
-
-.ringFired {
-  animation: ring-flash 0.6s ease-out forwards;
-}
-
-@keyframes ring-flash {
-  0%   { opacity: 1; }
-  50%  { opacity: 0.25; }
-  100% { opacity: 1; }
-}
-
-/* Fired flash animation */
-.btnFired {
-  animation: btn-flash 0.75s ease-out forwards;
-}
-
-@keyframes btn-flash {
-  0%   { transform: scale(1); }
-  30%  { transform: scale(1.08); }
-  65%  { transform: scale(0.97); }
-  100% { transform: scale(1); }
-}
-
-/* Count — large number */
-.count {
-  font-size: 22px;
-  font-weight: 900;
+  top: -4px;
+  right: -6px;
+  min-width: 16px;
+  height: 16px;
+  background: #EF4444;
   color: #fff;
-  line-height: 1;
-  letter-spacing: -0.03em;
-  text-shadow: 0 1px 4px rgba(0,0,0,0.35);
-  transition: color 0.15s;
+  font-size: 8px;
+  font-weight: 900;
+  border-radius: 100px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 3px;
+  border: 1.5px solid rgba(0,0,0,0.6);
   pointer-events: none;
 }
 
-/* Label — small caps below the count */
+/* Tab label */
 .label {
   font-size: 9px;
-  font-weight: 800;
+  font-weight: 700;
   text-transform: uppercase;
-  letter-spacing: 0.07em;
-  color: rgba(255,255,255,0.55);
+  letter-spacing: 0.05em;
   line-height: 1;
-  white-space: nowrap;
   pointer-events: none;
   transition: color 0.15s;
-}
-
-.btnActive .label {
-  color: rgba(255,255,255,0.9);
-}
-
-/* New-activity pulsing dot — top-right of button */
-.pulse {
-  position: absolute;
-  top: 8px;
-  right: 10px;
-  width: 7px;
-  height: 7px;
-  border-radius: 50%;
-  background: var(--btn-color);
-  box-shadow: 0 0 6px var(--btn-glow);
-  animation: pulse-ring 1.6s ease-in-out infinite;
-  z-index: 2;
-}
-
-@keyframes pulse-ring {
-  0%, 100% { opacity: 1; transform: scale(1); }
-  50%       { opacity: 0.3; transform: scale(0.65); }
 }

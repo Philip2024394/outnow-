@@ -153,17 +153,18 @@
   position: absolute; inset: 0;
   background: linear-gradient(
     to bottom,
-    rgba(0,0,0,0.05) 0%,
-    rgba(0,0,0,0.1) 25%,
-    rgba(0,0,0,0.55) 55%,
-    rgba(0,0,0,0.92) 80%,
-    rgba(0,0,0,0.98) 100%
+    rgba(30,15,0,0.15) 0%,
+    rgba(20,10,0,0.2) 25%,
+    rgba(15,8,0,0.6) 55%,
+    rgba(10,5,0,0.92) 80%,
+    rgba(5,2,0,0.98) 100%
   );
 }
 
 .cardTopGlow {
   position: absolute; inset: 0;
   pointer-events: none;
+  background: radial-gradient(ellipse 80% 30% at 50% 0%, rgba(245,158,11,0.12) 0%, transparent 70%);
 }
 
 /* ── Center emoji ────────────────────────────────────────────────────────────── */
@@ -198,17 +199,18 @@
 }
 
 .tagline {
-  font-size: 12px; font-weight: 600;
-  color: rgba(255,255,255,0.45);
-  letter-spacing: 0.04em;
+  font-size: 12px; font-weight: 700;
+  color: #F59E0B;
+  letter-spacing: 0.06em;
   text-transform: uppercase;
+  text-shadow: 0 0 20px rgba(245,158,11,0.5);
 }
 
 .categoryName {
   font-size: 38px; font-weight: 900;
   letter-spacing: -0.04em; line-height: 1.05;
   margin: 0; color: #fff;
-  text-shadow: 0 2px 20px rgba(0,0,0,0.5);
+  text-shadow: 0 2px 20px rgba(0,0,0,0.5), 0 0 40px rgba(245,158,11,0.15);
 }
 
 .explorBtn {
@@ -217,15 +219,19 @@
   border-radius: 20px; border: none;
   cursor: pointer; font-family: inherit;
   transition: transform 0.15s, opacity 0.15s;
+  background: rgba(245,158,11,0.15);
+  border: 1px solid rgba(245,158,11,0.3);
+  box-shadow: 0 0 24px rgba(245,158,11,0.2);
 }
 .explorBtn:active { transform: scale(0.97); opacity: 0.9; }
 .explorBtn span:last-child {
   display: flex; align-items: center; justify-content: center; gap: 8px;
   width: 100%; padding: 14px 24px;
   border-radius: 15px;
-  background: #000;
+  background: #F59E0B;
   font-size: 17px; font-weight: 900; letter-spacing: -0.02em;
-  color: #fff;
+  color: #000;
+  box-shadow: 0 4px 20px rgba(245,158,11,0.45);
 }
 
 .tapHint {

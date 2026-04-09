@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
 import { useAuth } from '@/hooks/useAuth'
-import AuthScreen from '@/screens/AuthScreen'
+import LandingScreen from '@/screens/LandingScreen'
+import JoinSheet from '@/screens/onboarding/JoinSheet'
 import AppShell from '@/router/AppShell'
 import WelcomeScreen from '@/screens/WelcomeScreen'
 import ProfileScreen from '@/screens/ProfileScreen'
@@ -8,6 +9,8 @@ import LocationGateScreen from '@/screens/LocationGateScreen'
 import Spinner from '@/components/ui/Spinner'
 import AdminApp from '@/admin/AdminApp'
 import { GuestGateProvider } from '@/contexts/GuestGateContext'
+import { LanguageProvider } from '@/i18n'
+import LanguageToast from '@/components/ui/LanguageToast'
 import DevPanel from '@/dev/DevPanel'
 import CookieBanner from '@/components/ui/CookieBanner'
 import styles from './App.module.css'
@@ -27,9 +30,9 @@ export default function App() {
     return <AdminApp />
   }
   const { user, userProfile, loading } = useAuth()
-  const [adminPass, setAdminPass] = useState(false)
   const [guestMode, setGuestMode] = useState(false)
   const [returnParams, setReturnParams] = useState(null)
+  const [joinOpen, setJoinOpen] = useState(false)
 
   // Onboarding step:
   //  'checking'  — waiting for auth + profile to load
@@ -43,7 +46,7 @@ export default function App() {
   const resolvedRef = useRef(null)
   useEffect(() => {
     if (!user) {
-      if (!adminPass) { setOnboardStep('checking'); resolvedRef.current = null }
+      setOnboardStep('checking'); resolvedRef.current = null
       return
     }
     if (resolvedRef.current === user.uid) return  // already resolved for this user
@@ -63,15 +66,8 @@ export default function App() {
     } else {
       setOnboardStep('done')
     }
-  }, [user, userProfile, adminPass])
+  }, [user, userProfile])
 
-  // Admin dev: bypass auth + skip onboarding → straight to app
-  // Gated to development builds only — never exposed in production
-  const handleAdminDev = () => {
-    if (!import.meta.env.DEV) return
-    setAdminPass(true)
-    setOnboardStep('done')
-  }
 
   // New-user onboarding handlers
   const handleWelcomeDone = () => setOnboardStep('profile')
@@ -95,50 +91,58 @@ export default function App() {
 
   if (loading) {
     return (
-      <div className={styles.splash}>
-        <img src={LOGO_URL} alt="Hangger" className={styles.splashLogo} />
-        <Spinner size={28} color="var(--color-live)" />
-      </div>
+      <LanguageProvider>
+        <div className={styles.splash}>
+          <img src={LOGO_URL} alt="Hangger" className={styles.splashLogo} />
+          <Spinner size={28} color="var(--color-live)" />
+        </div>
+      </LanguageProvider>
     )
   }
 
-  // Show auth screen until they sign in OR choose to browse as guest
-  if (!user && !adminPass && !guestMode) {
+  // Show landing page until they sign in OR choose to browse as guest
+  if (!user && !guestMode) {
     return (
-      <AuthScreen
-        onGuest={() => setGuestMode(true)}
-        onAdminDev={handleAdminDev}
-      />
+      <LanguageProvider>
+        <LandingScreen
+          onGetStarted={() => setJoinOpen(true)}
+          onSignIn={() => setJoinOpen(true)}
+          onBrowse={() => setGuestMode(true)}
+        />
+        <JoinSheet open={joinOpen} onClose={() => setJoinOpen(false)} />
+        <LanguageToast />
+      </LanguageProvider>
     )
   }
 
   return (
-    <GuestGateProvider>
-      <CookieBanner />
-      <DevPanel />
+    <LanguageProvider>
+      <GuestGateProvider>
+        <CookieBanner />
+        <DevPanel />
+        <LanguageToast />
 
-      {/* Category Selector Sample Demo removed */}
+        {/* ── New user: welcome slides ── */}
+        {onboardStep === 'welcome' && (
+          <WelcomeScreen onDone={handleWelcomeDone} />
+        )}
 
-      {/* ── New user: welcome slides ── */}
-      {onboardStep === 'welcome' && (
-        <WelcomeScreen onDone={handleWelcomeDone} />
-      )}
+        {/* ── New user: profile setup (required before map) ── */}
+        {onboardStep === 'profile' && (
+          <ProfileScreen onClose={handleProfileDone} onboarding />
+        )}
 
-      {/* ── New user: profile setup (required before map) ── */}
-      {onboardStep === 'profile' && (
-        <ProfileScreen onClose={handleProfileDone} onboarding />
-      )}
+        {/* ── Location confirmation gate ── */}
+        {onboardStep === 'location' && (
+          <LocationGateScreen onConfirmed={handleLocationConfirmed} />
+        )}
 
-      {/* ── Location confirmation gate ── */}
-      {onboardStep === 'location' && (
-        <LocationGateScreen onConfirmed={handleLocationConfirmed} />
-      )}
+        {/* ── Returning user or after onboarding complete ── */}
+        {(guestMode || onboardStep === 'done') && (
+          <AppShell returnParams={returnParams} triggerGoLive={triggerGoLive} />
+        )}
 
-      {/* ── Returning user or after onboarding complete ── */}
-      {(guestMode || onboardStep === 'done') && (
-        <AppShell returnParams={returnParams} triggerGoLive={triggerGoLive} />
-      )}
-
-    </GuestGateProvider>
+      </GuestGateProvider>
+    </LanguageProvider>
   )
 }

@@ -1067,7 +1067,7 @@ export default function BookingScreen({ onClose }) {
       <div className={styles.header}>
         <div className={styles.headerBrand}>
           <img
-            src="https://ik.imagekit.io/nepgaxllc/Untitleddsfsdf-removebg-preview.png?updatedAt=1775450555245"
+            src="https://ik.imagekit.io/nepgaxllc/Untitleddsfsdf-removebg-preview.png"
             alt="Hangger"
             className={styles.headerLogo}
           />

@@ -1,138 +1,68 @@
-import { useRef, useState, useCallback, useEffect } from 'react'
+import { useLanguage } from '@/i18n'
 import styles from './ProfileStrip.module.css'
 
-const HOLD_MS = 3000
-const CIRCUMFERENCE = 2 * Math.PI * 22
+const TAB_ICONS = {
+  map: (
+    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>
+      <polyline points="9 22 9 12 15 12 15 22"/>
+    </svg>
+  ),
+  notifications: (
+    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/>
+      <path d="M13.73 21a2 2 0 0 1-3.46 0"/>
+    </svg>
+  ),
+  chat: (
+    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+    </svg>
+  ),
+  profile: (
+    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+      <circle cx="12" cy="7" r="4"/>
+    </svg>
+  ),
+}
 
-const BUTTONS = [
-  { filter: 'now',    label: 'Hangger', color: '#8DC63F', glow: 'rgba(141,198,63,0.45)' },
-  { filter: 'invite', label: 'Hanging', color: '#F5C518', glow: 'rgba(245,197,24,0.45)' },
-  { filter: 'haggle', label: 'Haggling', color: '#E8890C', glow: 'rgba(232,137,12,0.45)' },
-]
+export default function ProfileStrip({ activeTab = 'map', onTabChange, notifCount = 0, unreadCount = 0, userPhoto = null }) {
+  const { t } = useLanguage()
 
-function getTodayKey(filter) { return `boost_${filter}_${new Date().toDateString()}` }
-function hasUsedBoost(filter) { return !!localStorage.getItem(getTodayKey(filter)) }
-function markBoostUsed(filter) { localStorage.setItem(getTodayKey(filter), '1') }
-
-export default function ProfileStrip({
-  outNowCount    = 0,
-  inviteOutCount = 0,
-  businessCount  = 0,
-  newNowCount    = 0,
-  newInviteCount = 0,
-  onBoost,
-  onSelectFilter,
-  activeFilter = null,
-  onHanggle,
-  hanggleActive = false,
-}) {
-  const counts    = { now: outNowCount, invite: inviteOutCount, haggle: businessCount }
-  const newCounts = { now: newNowCount, invite: newInviteCount, haggle: 0 }
-
-  const [holding, setHolding]     = useState(null)
-  const [progress, setProgress]   = useState(0)
-  const [fired, setFired]         = useState(null)
-  const [boostUsed, setBoostUsed] = useState({
-    now: hasUsedBoost('now'), invite: hasUsedBoost('invite'), haggle: false,
-  })
-
-  const rafRef      = useRef(null)
-  const startRef    = useRef(null)
-  const holdingRef  = useRef(null)
-
-  const cancelHold = useCallback(() => {
-    cancelAnimationFrame(rafRef.current)
-    setHolding(null)
-    setProgress(0)
-    holdingRef.current = null
-  }, [])
-
-  const startHold = useCallback((filter) => {
-    if (boostUsed[filter]) return
-    holdingRef.current = filter
-    setHolding(filter)
-    startRef.current = performance.now()
-    const tick = (now) => {
-      if (!holdingRef.current) return
-      const p = Math.min((now - startRef.current) / HOLD_MS, 1)
-      setProgress(p)
-      if (p < 1) {
-        rafRef.current = requestAnimationFrame(tick)
-      } else {
-        const f = holdingRef.current
-        markBoostUsed(f)
-        setBoostUsed(prev => ({ ...prev, [f]: true }))
-        setFired(f)
-        setHolding(null)
-        setProgress(0)
-        holdingRef.current = null
-        onBoost?.(f)
-        setTimeout(() => setFired(null), 1200)
-      }
-    }
-    rafRef.current = requestAnimationFrame(tick)
-  }, [boostUsed, onBoost])
-
-  useEffect(() => () => cancelAnimationFrame(rafRef.current), [])
-
-  const strokeOffset = CIRCUMFERENCE * (1 - progress)
-
-  const handleTap = (filter) => {
-    if (filter === 'haggle') { onHanggle?.(); return }
-    onSelectFilter?.(activeFilter === filter ? null : filter)
-  }
-
-  const isActive = (filter) =>
-    filter === 'haggle' ? hanggleActive : activeFilter === filter
+  const TABS = [
+    { id: 'map',           labelKey: 'nav.home'    },
+    { id: 'notifications', labelKey: 'nav.alerts'  },
+    { id: 'chat',          labelKey: 'nav.chat'    },
+    { id: 'profile',       labelKey: 'nav.profile' },
+  ]
 
   return (
     <div className={styles.bar}>
       <div className={styles.pill}>
-        {BUTTONS.map(({ filter, label, color, glow }) => {
-          const active    = isActive(filter)
-          const isHolding = holding === filter
-          const isFired   = fired === filter
-          const hasNew    = newCounts[filter] > 0
+        {TABS.map(tab => {
+          const isActive = activeTab === tab.id
+          const badge = tab.id === 'notifications' ? notifCount
+                      : tab.id === 'chat'          ? unreadCount
+                      : 0
 
           return (
             <button
-              key={filter}
-              className={`${styles.btn} ${active ? styles.btnActive : ''} ${isFired ? styles.btnFired : ''}`}
-              style={{
-                '--btn-color': color,
-                '--btn-glow':  glow,
-              }}
-              onClick={() => { if (!isHolding) handleTap(filter) }}
-              onPointerDown={() => startHold(filter)}
-              onPointerUp={cancelHold}
-              onPointerLeave={cancelHold}
-              onPointerCancel={cancelHold}
-              aria-label={label}
+              key={tab.id}
+              className={`${styles.btn} ${isActive ? styles.btnActive : ''}`}
+              onClick={() => onTabChange?.(tab.id)}
+              aria-label={t(tab.labelKey)}
             >
-              {/* Boost charge ring */}
-              {(isHolding || isFired) && (
-                <svg className={styles.ring} viewBox="0 0 48 48">
-                  <circle
-                    cx="24" cy="24" r="22"
-                    fill="none"
-                    stroke="rgba(255,255,255,0.85)"
-                    strokeWidth="2.5"
-                    strokeDasharray={CIRCUMFERENCE}
-                    strokeDashoffset={isFired ? 0 : strokeOffset}
-                    strokeLinecap="round"
-                    transform="rotate(-90 24 24)"
-                    className={isFired ? styles.ringFired : ''}
-                  />
-                </svg>
-              )}
-
-              {/* New-activity pulse dot */}
-              {hasNew && !isHolding && (
-                <span className={styles.pulse} />
-              )}
-
-              <span className={styles.count}>{counts[filter]}</span>
-              <span className={styles.label}>{label}</span>
+              <div className={styles.iconWrap}>
+                {tab.id === 'profile' && userPhoto
+                  ? <img src={userPhoto} alt="Profile" className={styles.avatar} />
+                  : TAB_ICONS[tab.id]
+                }
+                {badge > 0 && (
+                  <span className={styles.badge}>{badge > 9 ? '9+' : badge}</span>
+                )}
+              </div>
+              <span className={styles.label}>{t(tab.labelKey)}</span>
             </button>
           )
         })}

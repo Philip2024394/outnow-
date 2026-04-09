@@ -1,65 +1,59 @@
 import { useState } from 'react'
 import ActivityProfileGrid from './ActivityProfileGrid'
+import { useLanguage } from '@/i18n'
 import styles from './FloatingIcons.module.css'
 
 const ICONS = [
-  // Left column (top → bottom)
-  { id: 'bike_ride', label: 'Bike Ride', img: 'https://ik.imagekit.io/nepgaxllc/Untitledsadasdasd-removebg-preview.png', bare: true, vehicle: true, noContainer: true },
-  { id: 'food',      label: 'Food',      img: 'https://ik.imagekit.io/nepgaxllc/Untitledfsasdfsdf-removebg-preview.png', bare: true },
-  { id: 'coffee',    label: 'Coffee',    img: 'https://ik.imagekit.io/nepgaxllc/Untitleddfsds-removebg-preview.png', bare: true },
-  // Right column (top → bottom)
-  { id: 'car_taxi',  label: 'Car Taxi',  img: 'https://ik.imagekit.io/nepgaxllc/Sporty%20green%20and%20black%20hatchback.png?updatedAt=1775634925566', bare: true, vehicle: true },
-  { id: 'shopping',  label: 'Shopping',  img: 'https://ik.imagekit.io/nepgaxllc/Untitleddasdasdasdasss-removebg-preview.png', bare: true },
-  { id: 'gaming_night', label: 'Gaming', img: 'https://ik.imagekit.io/nepgaxllc/Untitledfsdfsd-removebg-preview.png', bare: true },
+  { id: 'bike_ride',  labelKey: 'icons.ride',    img: 'https://ik.imagekit.io/nepgaxllc/Untitledsadasdasd-removebg-preview.png',                  vehicle: true },
+  { id: 'food',       labelKey: 'icons.street',  img: 'https://ik.imagekit.io/nepgaxllc/Untitledsadasdasdasdasddfssdf-removebg-preview.png',        vehicle: false },
+  { id: 'dating',     labelKey: 'icons.dating',  img: 'https://ik.imagekit.io/nepgaxllc/Untitledsadasdasdasdasddfssdfasdasdfsasdf-removebg-preview.png', vehicle: false },
+  { id: 'car_taxi',   labelKey: 'icons.car',     img: 'https://ik.imagekit.io/nepgaxllc/Untitledsadasdasdasdasd-removebg-preview.png',              vehicle: true },
+  { id: 'shopping',   labelKey: 'icons.shop',    img: 'https://ik.imagekit.io/nepgaxllc/Untitledsadasdasdasdasddfssdfasdasd-removebg-preview.png',  vehicle: false },
+  { id: 'massage',    labelKey: 'icons.massage', img: 'https://ik.imagekit.io/nepgaxllc/Untitledsadasdasdasdasddfssdfasdasdfsasdfsdffasdf-removebg-preview.png', vehicle: false },
 ]
 
-// Each icon gets a unique slow-bob animation offset
-const OFFSETS = [0, 0.4, 0.8, 0.2, 0.6, 1.0]
-
-export default function FloatingIcons({ sessions = [], onSelectSession, onFoodClick, onRideClick, onShoppingClick }) {
+export default function FloatingIcons({ sessions = [], onSelectSession, onFoodClick, onRideClick, onShoppingClick, onDatingClick, onMassageClick }) {
+  const { t } = useLanguage()
   const [activeActivity, setActiveActivity] = useState(null)
-
-  const left  = ICONS.slice(0, 3)
-  const right = ICONS.slice(3, 6)
 
   const handleIconClick = (icon) => {
     if (icon.id === 'food' && onFoodClick)                                    { onFoodClick();     return }
     if ((icon.id === 'bike_ride' || icon.id === 'car_taxi') && onRideClick)   { onRideClick();     return }
     if (icon.id === 'shopping' && onShoppingClick)                            { onShoppingClick(); return }
+    if (icon.id === 'dating' && onDatingClick)                                { onDatingClick();   return }
+    if (icon.id === 'massage' && onMassageClick)                              { onMassageClick();  return }
     setActiveActivity(icon)
   }
 
   return (
     <>
-      <div className={styles.root}>
-        {/* Left column */}
-        <div className={styles.column}>
-          {left.map((icon, i) => (
-            <IconBubble
-              key={icon.id}
-              icon={icon}
-              delay={OFFSETS[i]}
-              count={sessions.filter(s => s.activityType === icon.id || (s.activities ?? []).includes(icon.id)).length}
-              onClick={() => handleIconClick(icon)}
-            />
-          ))}
-        </div>
+      <div className={styles.dock}>
+        <div className={styles.dockInner}>
+          {ICONS.map(icon => {
+            const count = sessions.filter(s =>
+              s.activityType === icon.id || (s.activities ?? []).includes(icon.id)
+            ).length
 
-        {/* Right column */}
-        <div className={styles.column}>
-          {right.map((icon, i) => (
-            <IconBubble
-              key={icon.id}
-              icon={icon}
-              delay={OFFSETS[i + 3]}
-              count={sessions.filter(s => s.activityType === icon.id || (s.activities ?? []).includes(icon.id)).length}
-              onClick={() => handleIconClick(icon)}
-            />
-          ))}
+            return (
+              <button
+                key={icon.id}
+                className={styles.dockBtn}
+                onClick={() => handleIconClick(icon)}
+                aria-label={icon.label}
+              >
+                <img
+                  src={icon.img}
+                  alt={icon.label}
+                  className={icon.vehicle ? styles.dockImgVehicle : styles.dockImgSquare}
+                />
+                <span className={styles.dockLabel}>{t(icon.labelKey)}</span>
+                {count > 0 && <span className={styles.badge}>{count}</span>}
+              </button>
+            )
+          })}
         </div>
       </div>
 
-      {/* Profile grid sheet */}
       <ActivityProfileGrid
         open={!!activeActivity}
         activity={activeActivity}
@@ -71,58 +65,5 @@ export default function FloatingIcons({ sessions = [], onSelectSession, onFoodCl
         onSelectSession={(s) => { setActiveActivity(null); onSelectSession?.(s) }}
       />
     </>
-  )
-}
-
-function IconBubble({ icon, delay, count, onClick }) {
-  if (icon.bare) {
-    if (icon.noContainer) {
-      return (
-        <button
-          className={styles.rawBtn}
-          style={{ animationDelay: `${delay}s` }}
-          onClick={onClick}
-          aria-label={icon.label}
-        >
-          {icon.img
-            ? <img src={icon.img} alt={icon.label} className={styles.iconImgVehicle} />
-            : <span className={styles.emojiBare}>{icon.emoji}</span>
-          }
-          <span className={styles.bareLabel}>{icon.label}</span>
-          {count > 0 && <span className={styles.badge}>{count}</span>}
-        </button>
-      )
-    }
-    return (
-      <button
-        className={styles.bareBubble}
-        style={{ animationDelay: `${delay}s` }}
-        onClick={onClick}
-        aria-label={icon.label}
-      >
-        {icon.img
-          ? <img src={icon.img} alt={icon.label} className={icon.vehicle ? styles.iconImgVehicle : styles.iconImgBare} />
-          : <span className={styles.emojiBare}>{icon.emoji}</span>
-        }
-        <span className={styles.bareLabel}>{icon.label}</span>
-        {count > 0 && <span className={styles.badge}>{count}</span>}
-      </button>
-    )
-  }
-
-  return (
-    <button
-      className={styles.bubble}
-      style={{ animationDelay: `${delay}s` }}
-      onClick={onClick}
-      aria-label={icon.label}
-    >
-      {icon.img
-        ? <img src={icon.img} alt={icon.label} className={styles.iconImg} />
-        : <span className={styles.emoji}>{icon.emoji}</span>
-      }
-      <span className={styles.label}>{icon.label}</span>
-      {count > 0 && <span className={styles.badge}>{count}</span>}
-    </button>
   )
 }

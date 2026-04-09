@@ -108,7 +108,7 @@ export default function AppShell({ returnParams, triggerGoLive }) {
   const [cityFilter, setCityFilter] = useState(null)
   const [companyPanelOpen, setCompanyPanelOpen] = useState(false)
   const [companyQuery, setCompanyQuery] = useState('')
-  const [mapCategory, setMapCategory] = useState('all') // 'all' | 'maker'
+  const [mapCategory] = useState('all') // 'all' | 'maker'
   const [datingIntentOpen, setDatingIntentOpen] = useState(false)
   const [datingIntent,     setDatingIntent]     = useState(null)
   const [datingGridOpen,   setDatingGridOpen]   = useState(false)
@@ -156,7 +156,6 @@ export default function AppShell({ returnParams, triggerGoLive }) {
   const { inviteOut, post: postInviteOut, goingLive, revertToInviteOut } = useInviteOut()
   const { earn: earnCoins } = useCoins()
   const [boostToast, setBoostToast] = useState(null)
-  const [mapFilter,           setMapFilter]           = useState('home')
   const [discoveryListFilter, setDiscoveryListFilter] = useState('now')
   const [discoveryListOpen,   setDiscoveryListOpen]   = useState(false)
   const [newNowCount,    setNewNowCount]    = useState(0)
@@ -176,12 +175,10 @@ export default function AppShell({ returnParams, triggerGoLive }) {
     }
     setDiscoveryListFilter(filter)
     setDiscoveryListOpen(true)
-    setMapFilter(filter)
   }
   // Full map filter sheet
   const [mapFilterOpen, setMapFilterOpen] = useState(false)
   const [mapFilters, setMapFilters] = useState(DEFAULT_MAP_FILTERS)
-  const hasActiveMapFilter = Object.entries(mapFilters).some(([k, v]) => v !== DEFAULT_MAP_FILTERS[k])
   const [activeTab, setActiveTab] = useState('map')
 
   // Send new users (no display name yet) straight to profile setup
@@ -319,6 +316,8 @@ export default function AppShell({ returnParams, triggerGoLive }) {
           onFoodClick={() => setFoodOpen(true)}
           onRideClick={() => { if (isGuest) { triggerGate(); return } setRideOpen(true) }}
           onShoppingClick={() => { if (isGuest) { triggerGate(); return } setActiveTab('shopping') }}
+          onDatingClick={() => setDatingIntentOpen(true)}
+          onMassageClick={() => { if (isGuest) { triggerGate(); return } setActiveTab('shopping') }}
         />
       )}
 
@@ -366,12 +365,12 @@ export default function AppShell({ returnParams, triggerGoLive }) {
       {/* Header: logo + notifications + likes + settings — map tab only */}
       {activeTab === 'map' && (
         <MapHeader
-          onOpenNotifications={() => setActiveTab('chat')}
+          onOpenNotifications={() => setNotifOpen(true)}
           notifCount={0}
-          onOpenSettings={() => setSettingsOpen(true)}
-          onOpenFilter={() => setMapFilterOpen(true)}
-          hasActiveFilter={hasActiveMapFilter}
-          onOpenMarket={() => setActiveTab('shopping')}
+          onAccountClick={() => {
+            if (isGuest) { triggerGate(); return }
+            setActiveTab('profile')
+          }}
         />
       )}
 
@@ -507,36 +506,19 @@ export default function AppShell({ returnParams, triggerGoLive }) {
         />
       )}
 
-      {/* Profile strip */}
+      {/* Bottom nav bar — always visible on map tab */}
       {activeTab === 'map' && (
         <ProfileStrip
-          outNowCount={categorySessions.filter(s => s.status !== 'invite_out').length}
-          inviteOutCount={categorySessions.filter(s => s.status === 'invite_out').length}
-          businessCount={visibleSessions.filter(isMakerSession).length}
-          newNowCount={newNowCount}
-          newInviteCount={newInviteCount}
-          mapCategory={mapCategory}
-          onCategoryChange={setMapCategory}
-          activeFilter={mapFilter}
-          onSelectFilter={(filter) => { setMapFilter(filter); setCompanyPanelOpen(false) }}
-          onBoost={(filter) => {
-            setMapFilter(filter)
-            setBoostToast(filter)
+          activeTab={activeTab}
+          onTabChange={(tab) => {
+            if (tab === 'chat')          setActiveTab('chat')
+            else if (tab === 'profile') setActiveTab('profile')
+            else if (tab === 'notifications') setNotifOpen(true)
+            else setActiveTab('map')
           }}
-          hanggleActive={companyPanelOpen}
-          onHanggle={() => {
-            if (companyPanelOpen) {
-              setCompanyPanelOpen(false)
-              setMapCategory('all')
-              setCityFilter(null)
-              setCompanyQuery('')
-            } else {
-              setMapCategory('maker')
-              setCompanyQuery('')
-              setCityFilter(null)
-              setCompanyPanelOpen(true)
-            }
-          }}
+          notifCount={0}
+          unreadCount={0}
+          userPhoto={userProfile?.photoURL ?? user?.photoURL ?? null}
         />
       )}
 
@@ -549,7 +531,6 @@ export default function AppShell({ returnParams, triggerGoLive }) {
             setActiveTab(tab)
             if (tab === 'map') {
               setCompanyPanelOpen(false)
-              setMapFilter('home')
             }
           }}
           unreadChats={0}
@@ -557,35 +538,13 @@ export default function AppShell({ returnParams, triggerGoLive }) {
           userName={userProfile?.displayName ?? 'You'}
           isLive={!!mySession}
           isInviteOut={!mySession && !!inviteOut}
-          onProfileTap={() => { if (isGuest) { triggerGate(); return } setInviteOutSheetOpen(true) }}
+          onProfileTap={() => { if (isGuest) { triggerGate(); return } setActiveTab('profile') }}
           onDiscoverNow={()    => openDiscoveryList('now')}
           onDiscoverInvite={() => openDiscoveryList('invite')}
           outNowCount={categorySessions.filter(s => s.status !== 'invite_out').length}
           inviteOutCount={categorySessions.filter(s => s.status === 'invite_out').length}
           newNowCount={newNowCount}
           newInviteCount={newInviteCount}
-          businessCount={visibleSessions.filter(isMakerSession).length}
-          hanggleActive={companyPanelOpen}
-          onHanggle={() => {
-            if (companyPanelOpen) {
-              setCompanyPanelOpen(false)
-              setMapCategory('all')
-              setCityFilter(null)
-              setCompanyQuery('')
-            } else {
-              setMapCategory('maker')
-              setCompanyQuery('')
-              setCityFilter(null)
-              setCompanyPanelOpen(true)
-            }
-          }}
-          datingActive={mapCategory === 'dating'}
-          onDatingMode={() => {
-            setDatingIntentOpen(true)
-            setCompanyPanelOpen(false)
-          }}
-          rideActive={rideOpen}
-          onRide={() => { if (isGuest) { triggerGate(); return } setRideOpen(true) }}
         />
       )}
 
