@@ -343,7 +343,7 @@ function CategoryCard({ cat, isActive, videoRef, onClick }) {
 
         <button
           className={styles.explorBtn}
-          style={{ background: cat.color }}
+          style={{ background: '#8DC63F' }}
           onClick={onClick}
         >
           <span>Explore {cat.label}</span>
@@ -356,7 +356,7 @@ function CategoryCard({ cat, isActive, videoRef, onClick }) {
       {/* Bottom strip — glows active color when this card is visible */}
       <div
         className={styles.activeStrip}
-        style={{ background: cat.color, opacity: isActive ? 1 : 0 }}
+        style={{ background: '#8DC63F', opacity: isActive ? 1 : 0 }}
       />
     </div>
   )
