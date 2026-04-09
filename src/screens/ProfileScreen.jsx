@@ -6,6 +6,7 @@ import { useCoins } from '@/hooks/useCoins'
 import { ACTIVITY_TYPES, ACTIVITY_CATEGORIES } from '@/firebase/collections'
 import { LOOKING_FOR_OPTIONS, LANGUAGE_FLAGS, subCategoryText, getSearchKeywords } from '@/utils/lookingForLabels'
 import LookingForSheet from '@/components/ui/LookingForSheet'
+import IntentGrid from '@/components/ui/IntentGrid'
 import CuisineSheet, { WORLD_CUISINES } from '@/components/ui/CuisineSheet'
 import TradeRoleSheet, { TRADE_ROLE_GROUPS } from '@/components/ui/TradeRoleSheet'
 import ShopTypeSheet, { SHOP_TYPE_OPTIONS } from '@/components/ui/ShopTypeSheet'
@@ -395,7 +396,8 @@ export default function ProfileScreen({ onClose, onboarding = false }) {
   const hasShop = tier === 'premium' || tier === 'business'
   // Per-link confirm state (link opened in new tab = confirmed)
   const [confirmedLinks, setConfirmedLinks] = useState({})
-  // Looking-for sheet
+  // Looking-for sheet + intent grid
+  const [intentGridOpen, setIntentGridOpen] = useState(false)
   const [lookingForOpen, setLookingForOpen] = useState(false)
   // Self-contained account drawer
   const [drawerOpen, setDrawerOpen] = useState(false)
@@ -761,7 +763,7 @@ export default function ProfileScreen({ onClose, onboarding = false }) {
           <button
             type="button"
             className={styles.lookingForTrigger}
-            onClick={() => setLookingForOpen(true)}
+            onClick={() => setIntentGridOpen(true)}
           >
             {lookingFor
               ? (() => {
@@ -771,7 +773,10 @@ export default function ProfileScreen({ onClose, onboarding = false }) {
                   return (
                     <span style={{ display: 'flex', flexDirection: 'column', gap: 2, textAlign: 'left' }}>
                       <span style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                        <span>{opt.emoji}</span>
+                        {opt.img
+                          ? <img src={opt.img} alt={opt.label} style={{ width: 20, height: 20, objectFit: 'contain' }} />
+                          : <span>{opt.emoji}</span>
+                        }
                         <span style={{ fontWeight: 700 }}>{opt.label}</span>
                       </span>
                       {subLabel && (
@@ -1246,7 +1251,7 @@ export default function ProfileScreen({ onClose, onboarding = false }) {
                   className={styles.fieldInput}
                   value={height}
                   onChange={e => setHeight(e.target.value)}
-                  placeholder="e.g. 172 cm or 5'7\""
+                  placeholder="e.g. 172 cm or 5ft 7"
                 />
               </div>
 
@@ -1321,7 +1326,7 @@ export default function ProfileScreen({ onClose, onboarding = false }) {
                       stream.getTracks().forEach(t => t.stop())
                       const blob = new Blob(chunks, { type: 'audio/webm' })
                       // Upload to Supabase Storage
-                      const { supabase } = await import('../lib/supabaseClient')
+                      const { supabase } = await import('../lib/supabase')
                       const path = `voice-intros/${user?.id ?? 'anon'}.webm`
                       const { error } = await supabase.storage.from('avatars').upload(path, blob, { upsert: true, contentType: 'audio/webm' })
                       if (!error) {
@@ -2025,7 +2030,20 @@ export default function ProfileScreen({ onClose, onboarding = false }) {
         onClose={() => setStarSignOpen(false)}
       />
 
-      {/* ── Looking For sheet ── */}
+      {/* ── Intent Grid (popular tile picker) ── */}
+      <IntentGrid
+        open={intentGridOpen}
+        value={lookingFor}
+        city={city}
+        onChange={(val) => {
+          setLookingFor(val)
+          setSubCategory(null)
+          setIntentGridOpen(false)
+        }}
+        onBrowseAll={() => { setIntentGridOpen(false); setLookingForOpen(true) }}
+      />
+
+      {/* ── Looking For sheet (full directory, fallback) ── */}
       <LookingForSheet
         open={lookingForOpen}
         value={lookingFor}
