@@ -73,7 +73,7 @@ export const FOOD_CATEGORIES = [
     emoji: '🧁',
     tagline: 'Life is short. Eat dessert first.',
     color: '#f472b6',
-    videoUrl:  null,
+    videoUrl:  'https://fjvafjkzvygkhiwjuvla.supabase.co/storage/v1/object/sign/category-videos/steak.mp4?token=eyJraWQiOiJzdG9yYWdlLXVybC1zaWduaW5nLWtleV9mN2EwYjVlOC05MWUxLTRkMTAtYmU3ZC1kMzcyM2FhY2ZjZTIiLCJhbGciOiJIUzI1NiJ9.eyJ1cmwiOiJjYXRlZ29yeS12aWRlb3Mvc3RlYWsubXA0IiwiaWF0IjoxNzc1NzE2NzM1LCJleHAiOjIwOTEwNzY3MzV9.ImT5fFzSkF86maWeJFcwlinK343XGSqVdixbNbBa6vE',
     posterUrl: null,
     gradient: 'linear-gradient(160deg, #1a0015 0%, #280020 50%, #0d0d0d 100%)',
   },
