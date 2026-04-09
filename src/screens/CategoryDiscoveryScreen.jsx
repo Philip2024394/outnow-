@@ -53,7 +53,7 @@ export const FOOD_CATEGORIES = [
     emoji: '🍔',
     tagline: 'Stack it high',
     color: '#8DC63F',
-    videoUrl:  null,
+    videoUrl:  'https://fjvafjkzvygkhiwjuvla.supabase.co/storage/v1/object/sign/category-videos/steak.mp4?token=eyJraWQiOiJzdG9yYWdlLXVybC1zaWduaW5nLWtleV9mN2EwYjVlOC05MWUxLTRkMTAtYmU3ZC1kMzcyM2FhY2ZjZTIiLCJhbGciOiJIUzI1NiJ9.eyJ1cmwiOiJjYXRlZ29yeS12aWRlb3Mvc3RlYWsubXA0IiwiaWF0IjoxNzc1NzE2MTI0LCJleHAiOjIwOTEwNzYxMjR9.O1FpUDGALv08rpfAO6vxW-SOxamVmV_zQa_jc5a9d04',
     posterUrl: null,
     gradient: 'linear-gradient(160deg, #071a00 0%, #0f2800 50%, #0d0d0d 100%)',
   },
