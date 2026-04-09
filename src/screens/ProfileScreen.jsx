@@ -827,10 +827,6 @@ export default function ProfileScreen({ onClose, onboarding = false }) {
               </div>
               <span className={styles.photoSectionSub}>Let's Get Your Profile Setup</span>
             </div>
-            <div className={`${styles.statusBadge} ${styles[status.cls]}`}>
-              <span className={`${styles.statusDot} ${styles[status.dot]}`} />
-              <span className={styles.statusBadgeLabel}>{status.label}</span>
-            </div>
           </div>
 
           {/* Main photo slot */}
