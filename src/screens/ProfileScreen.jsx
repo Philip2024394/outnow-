@@ -732,32 +732,8 @@ export default function ProfileScreen({ onClose, onboarding = false }) {
           <span className={styles.uploadHeadingTitle}>UPLOAD Profile</span>
           <span className={styles.uploadHeadingSub}>Please view images terms and conditions</span>
         </div>
-        <button className={styles.photoTipsBtn} onClick={() => setPhotoTipsOpen(true)} aria-label="Photo guidelines">
-          ?
-        </button>
       </div>
 
-      {/* ── Photo tips modal ── */}
-      {photoTipsOpen && (
-        <div className={styles.photoTipsBackdrop} onClick={() => setPhotoTipsOpen(false)}>
-          <div className={styles.photoTipsModal} onClick={e => e.stopPropagation()}>
-            <div className={styles.photoTipsHeader}>
-              <span className={styles.photoTipsTitle}>Image Guidelines</span>
-              <button className={styles.photoTipsClose} onClick={() => setPhotoTipsOpen(false)}>✕</button>
-            </div>
-            <ul className={styles.photoTipsList}>
-              <li>No cap or hat — your full head must be visible</li>
-              <li>No sunglasses — eyes must be clearly visible</li>
-              <li>Direct front-facing view — look straight at the camera</li>
-              <li>Clear, plain background — no bright sunlight or sun rays behind you</li>
-              <li>No other people in the image — solo photo only</li>
-              <li>Well-lit, sharp image — blurry or dark photos will be rejected</li>
-            </ul>
-            <p className={styles.photoTipsNote}>Profiles that do not meet these requirements may be removed or suspended by our team.</p>
-            <button className={styles.photoTipsDone} onClick={() => setPhotoTipsOpen(false)}>Got it</button>
-          </div>
-        </div>
-      )}
 
       <div className={styles.scroll}>
 
@@ -795,7 +771,34 @@ export default function ProfileScreen({ onClose, onboarding = false }) {
         </div>
 
         {/* ── Photo grid ── */}
-        <div className={styles.photoSection}>
+        <div className={styles.photoSection} style={{ position: 'relative' }}>
+
+          {/* Photo tips help button — top right of container */}
+          <button className={styles.photoTipsBtn} onClick={() => setPhotoTipsOpen(true)} aria-label="Photo guidelines">
+            ?
+          </button>
+
+          {/* Photo tips centered modal */}
+          {photoTipsOpen && (
+            <div className={styles.photoTipsBackdrop} onClick={() => setPhotoTipsOpen(false)}>
+              <div className={styles.photoTipsModal} onClick={e => e.stopPropagation()}>
+                <div className={styles.photoTipsHeader}>
+                  <span className={styles.photoTipsTitle}>Image Guidelines</span>
+                  <button className={styles.photoTipsClose} onClick={() => setPhotoTipsOpen(false)}>✕</button>
+                </div>
+                <ul className={styles.photoTipsList}>
+                  <li>No cap or hat — your full head must be visible</li>
+                  <li>No sunglasses — eyes must be clearly visible</li>
+                  <li>Direct front-facing view — look straight at the camera</li>
+                  <li>Clear, plain background — no bright sunlight or sun rays behind you</li>
+                  <li>No other people in the image — solo photo only</li>
+                  <li>Well-lit, sharp image — blurry or dark photos will be rejected</li>
+                </ul>
+                <p className={styles.photoTipsNote}>Profiles that do not meet these requirements may be removed or suspended by our team.</p>
+                <button className={styles.photoTipsDone} onClick={() => setPhotoTipsOpen(false)}>Got it</button>
+              </div>
+            </div>
+          )}
 
           <div className={styles.photoSectionHeader}>
             <div className={styles.photoSectionLeft}>

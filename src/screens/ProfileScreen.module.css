@@ -75,39 +75,41 @@
   letter-spacing: 0.01em;
 }
 .photoTipsBtn {
-  width: 32px; height: 32px;
+  position: absolute;
+  top: 14px; right: 14px;
+  width: 30px; height: 30px;
   border-radius: 50%;
-  background: rgba(0,0,0,0.5);
+  background: rgba(0,0,0,0.55);
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
-  border: 1px solid rgba(255,255,255,0.15);
-  color: rgba(255,255,255,0.7);
-  font-size: 15px;
-  font-weight: 800;
+  border: 1px solid rgba(255,255,255,0.18);
+  color: rgba(255,255,255,0.8);
+  font-size: 14px;
+  font-weight: 900;
   cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
-  flex-shrink: 0;
+  z-index: 2;
   font-family: inherit;
 }
-.photoTipsBtn:active { background: rgba(255,255,255,0.1); }
+.photoTipsBtn:active { background: rgba(255,255,255,0.12); }
 
-/* ── Photo tips modal ── */
+/* ── Photo tips modal — centered ── */
 .photoTipsBackdrop {
   position: fixed; inset: 0; z-index: 9999;
-  background: rgba(0,0,0,0.7);
-  display: flex; align-items: flex-end; justify-content: center;
-  padding: 0 0 env(safe-area-inset-bottom, 0px);
+  background: rgba(0,0,0,0.72);
+  display: flex; align-items: center; justify-content: center;
+  padding: 24px;
 }
 .photoTipsModal {
-  width: 100%; max-width: 480px;
-  background: rgba(12,12,12,0.96);
+  width: 100%; max-width: 360px;
+  background: rgba(14,14,14,0.97);
   backdrop-filter: blur(24px);
   -webkit-backdrop-filter: blur(24px);
-  border: 1px solid rgba(255,255,255,0.08);
-  border-radius: 24px 24px 0 0;
-  padding: 20px 24px 32px;
+  border: 1px solid rgba(255,255,255,0.09);
+  border-radius: 20px;
+  padding: 20px 22px 24px;
   display: flex; flex-direction: column; gap: 14px;
 }
 .photoTipsHeader {
