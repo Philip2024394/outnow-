@@ -49,6 +49,20 @@
   padding: 10px 20px 0;
 }
 
+.joinedWrap {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 16px 16px 0;
+}
+.joinedHeading {
+  font-size: 13px;
+  font-weight: 700;
+  color: rgba(255,255,255,0.5);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
 .headerRight {
   display: flex;
   align-items: center;
