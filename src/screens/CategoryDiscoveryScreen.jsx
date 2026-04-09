@@ -132,6 +132,43 @@ const DEMO_AVATARS = [
   { id: 'd9', photo_url: 'https://ik.imagekit.io/nepgaxllc/av9.jpg', name: 'Fajar' },
 ]
 
+// ── Time-of-day viewer count — Yogyakarta activity curve ─────────────────────
+// Based on: Jogja pop 3.72M, 175K+ students, GoFood peak data
+// Breakfast 06–08 | Lunch rush 11:30–13:30 | Dinner 18–21 | Late night 21–23
+const HOUR_RANGES = {
+  //  hour  : [min, max]
+  0:  [7,  12],   // early morning — night owls, students
+  1:  [7,  10],   // very quiet
+  2:  [7,   9],
+  3:  [7,   8],
+  4:  [7,   9],
+  5:  [7,  14],   // pre-dawn, early risers
+  6:  [12, 28],   // breakfast rush begins
+  7:  [18, 35],   // peak breakfast
+  8:  [15, 28],   // post-breakfast
+  9:  [10, 20],   // mid-morning lull
+  10: [12, 24],   // pre-lunch browsing
+  11: [28, 48],   // lunch rush building
+  12: [38, 60],   // PEAK LUNCH
+  13: [32, 55],   // peak lunch continues
+  14: [20, 35],   // post-lunch
+  15: [14, 25],   // afternoon dip
+  16: [15, 28],   // after school/campus
+  17: [22, 40],   // early dinner browsing
+  18: [35, 58],   // PEAK DINNER
+  19: [38, 60],   // peak dinner
+  20: [32, 55],   // dinner continues
+  21: [25, 48],   // late night — student heavy
+  22: [20, 38],   // late night
+  23: [12, 22],   // winding down
+}
+
+function getViewerCount() {
+  const hour = new Date().getHours()
+  const [min, max] = HOUR_RANGES[hour] ?? [7, 20]
+  return Math.floor(Math.random() * (max - min + 1)) + min
+}
+
 // ── Search demo data (replaced by Supabase when live) ────────────────────────
 const DEMO_SEARCH = [
   { id: 1, name: 'Warung Bu Sari',        category: 'rice',      cuisine_type: 'Javanese',   rating: 4.8, is_open: true  },
@@ -323,19 +360,19 @@ function NowInKitchen({ categoryId }) {
       }
       if (!users.length) users = DEMO_AVATARS
       setViewers(users)
-      setTotal(users.length)
+      setTotal(getViewerCount())
       setVisibleSet(users.slice(0, 5))
     }
     load()
   }, [categoryId])
 
-  // Cycle visible avatars every 5s with fade
+  // Cycle visible avatars every 5s with fade + refresh count every 60s
   useEffect(() => {
-    if (viewers.length <= 5) return
-    const id = setInterval(() => {
+    const avatarId = setInterval(() => {
       setFade(false)
       setTimeout(() => {
         setVisibleSet(prev => {
+          if (viewers.length <= 5) return viewers.slice(0, 5)
           const pool = viewers.filter(u => !prev.find(p => p.id === u.id))
           if (!pool.length) return viewers.slice(0, 5)
           const swap = Math.floor(Math.random() * Math.min(prev.length, pool.length))
@@ -346,7 +383,13 @@ function NowInKitchen({ categoryId }) {
         setFade(true)
       }, 300)
     }, 5000)
-    return () => clearInterval(id)
+
+    // Drift the count up/down slightly every 60s to feel alive
+    const countId = setInterval(() => {
+      setTotal(getViewerCount())
+    }, 60000)
+
+    return () => { clearInterval(avatarId); clearInterval(countId) }
   }, [viewers])
 
   if (!visibleSet.length) return null
