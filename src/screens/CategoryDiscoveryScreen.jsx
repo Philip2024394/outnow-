@@ -121,15 +121,15 @@ export const FOOD_CATEGORIES = [
 
 // ── Demo avatars — replaced by real users when live ──────────────────────────
 const DEMO_AVATARS = [
-  { id: 'd1', photo_url: 'https://ik.imagekit.io/nepgaxllc/av1.jpg', name: 'Sari' },
-  { id: 'd2', photo_url: 'https://ik.imagekit.io/nepgaxllc/av2.jpg', name: 'Budi' },
-  { id: 'd3', photo_url: 'https://ik.imagekit.io/nepgaxllc/av3.jpg', name: 'Rina' },
-  { id: 'd4', photo_url: 'https://ik.imagekit.io/nepgaxllc/av4.jpg', name: 'Dian' },
-  { id: 'd5', photo_url: 'https://ik.imagekit.io/nepgaxllc/av5.jpg', name: 'Agus' },
-  { id: 'd6', photo_url: 'https://ik.imagekit.io/nepgaxllc/av6.jpg', name: 'Tini' },
-  { id: 'd7', photo_url: 'https://ik.imagekit.io/nepgaxllc/av7.jpg', name: 'Wahyu' },
-  { id: 'd8', photo_url: 'https://ik.imagekit.io/nepgaxllc/av8.jpg', name: 'Dewi' },
-  { id: 'd9', photo_url: 'https://ik.imagekit.io/nepgaxllc/av9.jpg', name: 'Fajar' },
+  { id: 'd1', photo_url: 'https://i.pravatar.cc/100?img=1',  name: 'Sari' },
+  { id: 'd2', photo_url: 'https://i.pravatar.cc/100?img=5',  name: 'Budi' },
+  { id: 'd3', photo_url: 'https://i.pravatar.cc/100?img=9',  name: 'Rina' },
+  { id: 'd4', photo_url: 'https://i.pravatar.cc/100?img=14', name: 'Dian' },
+  { id: 'd5', photo_url: 'https://i.pravatar.cc/100?img=20', name: 'Agus' },
+  { id: 'd6', photo_url: 'https://i.pravatar.cc/100?img=25', name: 'Tini' },
+  { id: 'd7', photo_url: 'https://i.pravatar.cc/100?img=33', name: 'Wahyu' },
+  { id: 'd8', photo_url: 'https://i.pravatar.cc/100?img=44', name: 'Dewi' },
+  { id: 'd9', photo_url: 'https://i.pravatar.cc/100?img=52', name: 'Fajar' },
 ]
 
 // ── Time-of-day viewer count — Yogyakarta activity curve ─────────────────────
@@ -163,10 +163,35 @@ const HOUR_RANGES = {
   23: [12, 22],   // winding down
 }
 
-function getViewerCount() {
+// Generate N unique viewer counts spread across 1–90.
+// Time-of-day biases the density band but counts never repeat
+// and are always at least MIN_GAP apart so no two cards look the same.
+const MIN_GAP = 7
+
+function generateSpreadCounts(n) {
   const hour = new Date().getHours()
-  const [min, max] = HOUR_RANGES[hour] ?? [7, 20]
-  return Math.floor(Math.random() * (max - min + 1)) + min
+  const [bandMin, bandMax] = HOUR_RANGES[hour] ?? [7, 30]
+  // Scale band to 1–90 with some spread outside it for variety
+  const lo = Math.max(1,  bandMin - 5)
+  const hi = Math.min(90, bandMax + 10)
+
+  const counts = new Set()
+  let attempts = 0
+  while (counts.size < n && attempts < 500) {
+    attempts++
+    const v = Math.floor(Math.random() * (hi - lo + 1)) + lo
+    // Ensure no existing count is within MIN_GAP
+    const tooClose = [...counts].some(c => Math.abs(c - v) < MIN_GAP)
+    if (!tooClose) counts.add(v)
+  }
+  // If we ran out of room in the band, fill remaining from full 1–90
+  while (counts.size < n) {
+    const v = Math.floor(Math.random() * 90) + 1
+    const tooClose = [...counts].some(c => Math.abs(c - v) < MIN_GAP)
+    if (!tooClose) counts.add(v)
+  }
+  // Shuffle so high/low numbers aren't always in the same card slot
+  return [...counts].sort(() => Math.random() - 0.5)
 }
 
 // ── Search demo data (replaced by Supabase when live) ────────────────────────
@@ -185,6 +210,15 @@ export default function CategoryDiscoveryScreen({ onClose, onSelectCategory }) {
   const [searchFocused,  setSearchFocused]  = useState(false)
   const [searchResults,  setSearchResults]  = useState([])
   const [allRestaurants, setAllRestaurants] = useState(DEMO_SEARCH)
+
+  // One unique spread count per category — regenerated every 60s
+  const catCount = FOOD_CATEGORIES.filter(c => c.id !== 'all').length
+  const [viewerCounts, setViewerCounts] = useState(() => generateSpreadCounts(catCount))
+
+  useEffect(() => {
+    const id = setInterval(() => setViewerCounts(generateSpreadCounts(catCount)), 60000)
+    return () => clearInterval(id)
+  }, [catCount])
 
   const containerRef = useRef(null)
   const searchRef    = useRef(null)
@@ -324,15 +358,19 @@ export default function CategoryDiscoveryScreen({ onClose, onSelectCategory }) {
 
       {/* ── Full-screen snap-scroll cards ────────────────────────────────────── */}
       <div className={styles.cardContainer} ref={containerRef} onScroll={handleScroll}>
-        {FOOD_CATEGORIES.map((cat, i) => (
-          <CategoryCard
-            key={cat.id}
-            cat={cat}
-            isActive={i === activeIndex}
-            videoRef={el => { videoRefs.current[i] = el }}
-            onClick={() => handleCategoryTap(cat)}
-          />
-        ))}
+        {FOOD_CATEGORIES.map((cat, i) => {
+          const nonAllIndex = FOOD_CATEGORIES.filter(c => c.id !== 'all').findIndex(c => c.id === cat.id)
+          return (
+            <CategoryCard
+              key={cat.id}
+              cat={cat}
+              isActive={i === activeIndex}
+              videoRef={el => { videoRefs.current[i] = el }}
+              onClick={() => handleCategoryTap(cat)}
+              viewerCount={nonAllIndex >= 0 ? viewerCounts[nonAllIndex] : null}
+            />
+          )
+        })}
       </div>
 
     </div>
@@ -340,9 +378,8 @@ export default function CategoryDiscoveryScreen({ onClose, onSelectCategory }) {
 }
 
 // ── Now In Kitchen widget ─────────────────────────────────────────────────────
-function NowInKitchen({ categoryId }) {
+function NowInKitchen({ categoryId, viewerCount }) {
   const [viewers,    setViewers]    = useState([])
-  const [total,      setTotal]      = useState(0)
   const [visibleSet, setVisibleSet] = useState([])
   const [fade,       setFade]       = useState(true)
 
@@ -360,13 +397,12 @@ function NowInKitchen({ categoryId }) {
       }
       if (!users.length) users = DEMO_AVATARS
       setViewers(users)
-      setTotal(getViewerCount())
       setVisibleSet(users.slice(0, 5))
     }
     load()
   }, [categoryId])
 
-  // Cycle visible avatars every 5s with fade + refresh count every 60s
+  // Cycle visible avatars every 5s with a fade crossfade
   useEffect(() => {
     const avatarId = setInterval(() => {
       setFade(false)
@@ -384,17 +420,12 @@ function NowInKitchen({ categoryId }) {
       }, 300)
     }, 5000)
 
-    // Drift the count up/down slightly every 60s to feel alive
-    const countId = setInterval(() => {
-      setTotal(getViewerCount())
-    }, 60000)
-
-    return () => { clearInterval(avatarId); clearInterval(countId) }
+    return () => clearInterval(avatarId)
   }, [viewers])
 
-  if (!visibleSet.length) return null
+  if (!visibleSet.length || viewerCount == null) return null
 
-  const extra = Math.max(0, total - 5)
+  const extra = Math.max(0, viewerCount - 5)
 
   return (
     <div className={styles.kitchenWrap}>
@@ -419,7 +450,7 @@ function NowInKitchen({ categoryId }) {
 }
 
 // ── Category card ─────────────────────────────────────────────────────────────
-function CategoryCard({ cat, isActive, videoRef, onClick }) {
+function CategoryCard({ cat, isActive, videoRef, onClick, viewerCount }) {
   const hasVideo = Boolean(cat.videoUrl)
 
   return (
@@ -466,7 +497,7 @@ function CategoryCard({ cat, isActive, videoRef, onClick }) {
       />
 
       {/* Now in the Kitchen — top of card */}
-      {cat.id !== 'all' && <NowInKitchen categoryId={cat.id} />}
+      {cat.id !== 'all' && <NowInKitchen categoryId={cat.id} viewerCount={viewerCount} />}
 
       {/* Bottom: tagline + name + CTA */}
       <div className={styles.cardBottom}>
