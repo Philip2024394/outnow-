@@ -1,0 +1,100 @@
+.bar {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 14px;
+  background: rgba(0,0,0,0.5);
+  border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 14px;
+  backdrop-filter: blur(12px);
+  cursor: pointer;
+  transition: background 0.15s;
+  position: relative;
+  overflow: hidden;
+}
+.bar:active { background: rgba(255,255,255,0.08); }
+
+/* Waveform */
+.waveIcon {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  flex-shrink: 0;
+}
+.waveLine {
+  display: block;
+  width: 3px;
+  height: 14px;
+  background: rgba(255,255,255,0.3);
+  border-radius: 2px;
+  transform-origin: center;
+}
+.waveIconPlaying .waveLine {
+  animation: wavePulse 0.8s ease-in-out infinite alternate;
+  background: #8DC63F;
+}
+.waveLine:nth-child(1) { height: 8px;  }
+.waveLine:nth-child(2) { height: 14px; }
+.waveLine:nth-child(3) { height: 18px; }
+.waveLine:nth-child(4) { height: 12px; }
+.waveLine:nth-child(5) { height: 7px;  }
+@keyframes wavePulse {
+  from { transform: scaleY(0.5); }
+  to   { transform: scaleY(1.0); }
+}
+
+/* Info */
+.info {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  min-width: 0;
+}
+.label {
+  font-size: 12px;
+  font-weight: 700;
+  color: rgba(255,255,255,0.7);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.progressTrack {
+  height: 2px;
+  background: rgba(255,255,255,0.1);
+  border-radius: 2px;
+  overflow: hidden;
+}
+.progressFill {
+  height: 100%;
+  background: #8DC63F;
+  border-radius: 2px;
+  transition: width 0.1s linear;
+}
+
+/* Play button */
+.playBtn {
+  width: 28px; height: 28px;
+  border-radius: 50%;
+  background: rgba(255,255,255,0.1);
+  display: flex; align-items: center; justify-content: center;
+  color: #fff;
+  flex-shrink: 0;
+}
+
+/* Muted badge */
+.mutedBadge {
+  position: absolute;
+  right: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  background: rgba(0,0,0,0.7);
+  border: 1px solid rgba(255,255,255,0.15);
+  border-radius: 100px;
+  padding: 3px 10px;
+  font-size: 10px;
+  font-weight: 700;
+  color: rgba(255,255,255,0.6);
+  cursor: pointer;
+  backdrop-filter: blur(8px);
+}

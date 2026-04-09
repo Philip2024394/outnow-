@@ -1,0 +1,145 @@
+.overlay {
+  position: absolute;
+  inset: 0;
+  z-index: 30;
+  display: flex;
+  align-items: flex-end;
+  background: rgba(0,0,0,0.6);
+  backdrop-filter: blur(4px);
+}
+.sheet {
+  width: 100%;
+  background: rgba(12,12,16,0.97);
+  border-top-left-radius: 24px;
+  border-top-right-radius: 24px;
+  border: 1px solid rgba(255,255,255,0.08);
+  padding: 20px 20px 32px;
+  max-height: 80vh;
+  overflow-y: auto;
+}
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 8px;
+}
+.title { font-size: 17px; font-weight: 900; color: #fff; }
+.closeBtn {
+  background: rgba(255,255,255,0.08);
+  border: 1px solid rgba(255,255,255,0.12);
+  color: rgba(255,255,255,0.6);
+  border-radius: 50%;
+  width: 30px; height: 30px;
+  display: flex; align-items: center; justify-content: center;
+  cursor: pointer; font-size: 12px;
+}
+.sub {
+  font-size: 12px;
+  color: rgba(255,255,255,0.45);
+  margin: 0 0 16px;
+  line-height: 1.5;
+}
+.sub em { color: rgba(255,255,255,0.7); font-style: italic; }
+
+.targetCard {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 14px;
+  background: rgba(141,198,63,0.08);
+  border: 1px solid rgba(141,198,63,0.2);
+  border-radius: 16px;
+  margin-bottom: 18px;
+}
+.targetPhoto {
+  width: 44px; height: 44px;
+  border-radius: 50%;
+  object-fit: cover;
+  flex-shrink: 0;
+}
+.targetName { display: block; font-size: 14px; font-weight: 800; color: #fff; }
+.targetCity { display: block; font-size: 11px; color: rgba(255,255,255,0.4); margin-top: 2px; }
+
+.friendsLabel {
+  font-size: 11px;
+  font-weight: 700;
+  color: rgba(255,255,255,0.35);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin: 0 0 10px;
+}
+.loadingRow { display: flex; flex-direction: column; gap: 10px; }
+.skeleton {
+  height: 52px;
+  border-radius: 14px;
+  background: rgba(255,255,255,0.05);
+  animation: shimmer 1.4s infinite;
+}
+@keyframes shimmer {
+  0%,100% { opacity: 0.4; }
+  50%      { opacity: 0.7; }
+}
+
+.friendsList { display: flex; flex-direction: column; gap: 8px; margin-bottom: 16px; }
+.friendRow {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 12px;
+  background: rgba(255,255,255,0.04);
+  border: 1.5px solid rgba(255,255,255,0.08);
+  border-radius: 14px;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+.friendRowSelected {
+  background: rgba(141,198,63,0.1);
+  border-color: rgba(141,198,63,0.4);
+}
+.friendAvatar {
+  width: 36px; height: 36px;
+  border-radius: 50%;
+  overflow: hidden;
+  flex-shrink: 0;
+  background: rgba(255,255,255,0.1);
+  display: flex; align-items: center; justify-content: center;
+}
+.friendAvatarImg { width: 100%; height: 100%; object-fit: cover; }
+.friendAvatarFallback { font-size: 16px; font-weight: 900; color: #fff; }
+.friendName { flex: 1; font-size: 14px; font-weight: 700; color: #fff; text-align: left; }
+.checkMark { font-size: 16px; color: #8DC63F; font-weight: 900; }
+
+.sendBtn {
+  width: 100%;
+  padding: 14px;
+  border-radius: 16px;
+  background: #8DC63F;
+  border: none;
+  color: #000;
+  font-size: 15px;
+  font-weight: 900;
+  cursor: pointer;
+}
+.sendBtnDisabled { opacity: 0.4; cursor: not-allowed; }
+
+.sentWrap {
+  text-align: center;
+  padding: 20px 0 8px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 14px;
+}
+.sentEmoji { font-size: 48px; }
+.sentText { font-size: 14px; color: rgba(255,255,255,0.7); line-height: 1.5; max-width: 260px; }
+.sentText strong { color: #fff; }
+.doneBtn {
+  padding: 12px 32px;
+  border-radius: 14px;
+  background: rgba(255,255,255,0.08);
+  border: 1px solid rgba(255,255,255,0.12);
+  color: #fff;
+  font-size: 14px;
+  font-weight: 800;
+  cursor: pointer;
+}

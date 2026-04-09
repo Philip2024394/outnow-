@@ -366,6 +366,20 @@ export default function ProfileScreen({ onClose, onboarding = false }) {
   const [websiteUrl,      setWebsiteUrl]      = useState(userProfile?.website ?? '')
   const [youtubeHandle,   setYoutubeHandle]   = useState(userProfile?.youtube ?? '')
   const [tags,          setTags]          = useState(userProfile?.tags ?? [])
+
+  // ── Voice Intro ──────────────────────────────────────────────────────────────
+  const [voiceIntroUrl,  setVoiceIntroUrl]  = useState(userProfile?.voice_intro_url ?? null)
+  const [voiceRecording, setVoiceRecording] = useState(false)
+  const [voiceProgress,  setVoiceProgress]  = useState(0) // seconds elapsed 0–7
+  const voiceMediaRef  = useRef(null)
+  const voiceTimerRef  = useRef(null)
+
+  // ── Mood Light ───────────────────────────────────────────────────────────────
+  const [moodLight, setMoodLight] = useState(userProfile?.moodLight ?? '')
+
+  // ── Dating extra fields ──────────────────────────────────────────────────────
+  const [height,       setHeight]       = useState(userProfile?.height ?? '')
+  const [dealBreakers, setDealBreakers] = useState(userProfile?.dealBreakers ?? '')
   const [tagInput,      setTagInput]      = useState('')
 
   // Status buttons
@@ -662,6 +676,10 @@ export default function ProfileScreen({ onClose, onboarding = false }) {
         photoZoom,
         relationshipGoal: lookingFor === 'dating' ? relationshipGoal : undefined,
         starSign:         lookingFor === 'dating' ? starSign         : undefined,
+        height:           lookingFor === 'dating' ? (height.trim() || null) : undefined,
+        dealBreakers:     lookingFor === 'dating' ? (dealBreakers.trim() || null) : undefined,
+        voice_intro_url:  voiceIntroUrl ?? null,
+        moodLight:        moodLight || null,
         driver_age:    (lookingFor === 'car_taxi' || lookingFor === 'bike_ride') ? (Number(driverAge) || null)  : undefined,
         vehicle_model: (lookingFor === 'car_taxi' || lookingFor === 'bike_ride') ? (vehicleModel.trim() || null) : undefined,
         vehicle_year:  (lookingFor === 'car_taxi' || lookingFor === 'bike_ride') ? (Number(vehicleYear) || null) : undefined,
@@ -1217,8 +1235,165 @@ export default function ProfileScreen({ onClose, onboarding = false }) {
                   <button type="button" className={styles.brandQuickBtn} onClick={() => setStarSign('')}>✕ Clear</button>
                 )}
               </div>
+
+              {/* Height */}
+              <div className={styles.fieldRow}>
+                <div className={styles.fieldLabelRow}>
+                  <label className={styles.fieldLabel}>Height</label>
+                  <HelpTip text="Your height is shown as a chip on your dating card — optional." />
+                </div>
+                <input
+                  className={styles.fieldInput}
+                  value={height}
+                  onChange={e => setHeight(e.target.value)}
+                  placeholder="e.g. 172 cm or 5'7\""
+                />
+              </div>
+
+              {/* Deal Breakers */}
+              <div className={styles.fieldRow}>
+                <div className={styles.fieldLabelRow}>
+                  <label className={styles.fieldLabel}>Deal Breakers</label>
+                  <HelpTip text="Be upfront about what you can't compromise on — it saves everyone time." />
+                </div>
+                <textarea
+                  className={styles.fieldInput}
+                  value={dealBreakers}
+                  onChange={e => setDealBreakers(e.target.value.slice(0, 200))}
+                  placeholder="e.g. No smokers, must love dogs…"
+                  rows={3}
+                  style={{ resize: 'none', lineHeight: 1.5 }}
+                />
+                <span style={{ fontSize: 11, color: 'rgba(255,255,255,0.3)', marginTop: 4 }}>{dealBreakers.length}/200</span>
+              </div>
             </>
           )}
+
+          {/* ── Voice Intro — shown for all profiles ─────────────────────────── */}
+          <div className={styles.fieldRow}>
+            <div className={styles.fieldLabelRow}>
+              <label className={styles.fieldLabel}>Voice Intro</label>
+              <HelpTip text="Record a 7-second voice note. It plays automatically (muted) on your profile card — visitors tap to unmute. A great way to stand out." />
+            </div>
+            {voiceIntroUrl && !voiceRecording && (
+              <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 8 }}>
+                <audio src={voiceIntroUrl} controls style={{ flex: 1, height: 34, borderRadius: 8 }} />
+                <button
+                  type="button"
+                  onClick={() => setVoiceIntroUrl(null)}
+                  style={{ background: 'none', border: 'none', color: 'rgba(255,255,255,0.4)', fontSize: 18, cursor: 'pointer', lineHeight: 1 }}
+                  aria-label="Remove voice intro"
+                >×</button>
+              </div>
+            )}
+            {voiceRecording && (
+              <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 8, background: 'rgba(232,69,140,0.1)', border: '1px solid rgba(232,69,140,0.3)', borderRadius: 12, padding: '10px 14px' }}>
+                <span style={{ color: '#E8458C', fontSize: 20, lineHeight: 1, animation: 'livePulse 1.5s ease-in-out infinite' }}>🎙️</span>
+                <div style={{ flex: 1 }}>
+                  <div style={{ fontSize: 12, fontWeight: 700, color: '#fff', marginBottom: 4 }}>Recording… {voiceProgress}s / 7s</div>
+                  <div style={{ height: 4, borderRadius: 2, background: 'rgba(255,255,255,0.12)', overflow: 'hidden' }}>
+                    <div style={{ height: '100%', width: `${(voiceProgress / 7) * 100}%`, background: '#E8458C', transition: 'width 1s linear', borderRadius: 2 }} />
+                  </div>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => {
+                    voiceMediaRef.current?.stop()
+                    clearInterval(voiceTimerRef.current)
+                    setVoiceRecording(false)
+                    setVoiceProgress(0)
+                  }}
+                  style={{ background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.15)', borderRadius: 8, color: '#fff', fontSize: 12, fontWeight: 700, padding: '6px 12px', cursor: 'pointer', fontFamily: 'inherit' }}
+                >Stop</button>
+              </div>
+            )}
+            {!voiceRecording && (
+              <button
+                type="button"
+                className={styles.adjustBtn}
+                onClick={async () => {
+                  try {
+                    const stream = await navigator.mediaDevices.getUserMedia({ audio: true })
+                    const recorder = new MediaRecorder(stream)
+                    const chunks = []
+                    recorder.ondataavailable = e => chunks.push(e.data)
+                    recorder.onstop = async () => {
+                      stream.getTracks().forEach(t => t.stop())
+                      const blob = new Blob(chunks, { type: 'audio/webm' })
+                      // Upload to Supabase Storage
+                      const { supabase } = await import('../lib/supabaseClient')
+                      const path = `voice-intros/${user?.id ?? 'anon'}.webm`
+                      const { error } = await supabase.storage.from('avatars').upload(path, blob, { upsert: true, contentType: 'audio/webm' })
+                      if (!error) {
+                        const { data: { publicUrl } } = supabase.storage.from('avatars').getPublicUrl(path)
+                        setVoiceIntroUrl(publicUrl)
+                      }
+                      setVoiceRecording(false)
+                      setVoiceProgress(0)
+                    }
+                    voiceMediaRef.current = recorder
+                    recorder.start()
+                    setVoiceRecording(true)
+                    setVoiceProgress(0)
+                    let elapsed = 0
+                    voiceTimerRef.current = setInterval(() => {
+                      elapsed++
+                      setVoiceProgress(elapsed)
+                      if (elapsed >= 7) {
+                        recorder.stop()
+                        clearInterval(voiceTimerRef.current)
+                      }
+                    }, 1000)
+                  } catch {
+                    showToast('Microphone access is required to record a voice intro.')
+                  }
+                }}
+              >
+                🎙️ {voiceIntroUrl ? 'Re-record' : 'Record 7-second intro'}
+              </button>
+            )}
+          </div>
+
+          {/* ── Mood Light — shown for all profiles ───────────────────────────── */}
+          <div className={styles.fieldRow}>
+            <div className={styles.fieldLabelRow}>
+              <label className={styles.fieldLabel}>Mood Light</label>
+              <HelpTip text="A coloured glow ring around your profile card that signals your current energy. Visitors see it when they open your card." />
+            </div>
+            <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap' }}>
+              {[
+                { value: 'warm', emoji: '🧡', label: 'Warm',  color: '#F97316' },
+                { value: 'cool', emoji: '💙', label: 'Cool',  color: '#38BDF8' },
+                { value: 'pink', emoji: '🩷', label: 'Pink',  color: '#F472B6' },
+              ].map(opt => (
+                <button
+                  key={opt.value}
+                  type="button"
+                  onClick={() => setMoodLight(moodLight === opt.value ? '' : opt.value)}
+                  style={{
+                    display: 'flex', alignItems: 'center', gap: 6,
+                    padding: '8px 16px', borderRadius: 100,
+                    background: moodLight === opt.value ? `${opt.color}22` : 'rgba(255,255,255,0.05)',
+                    border: `1.5px solid ${moodLight === opt.value ? opt.color : 'rgba(255,255,255,0.1)'}`,
+                    color: moodLight === opt.value ? opt.color : 'rgba(255,255,255,0.55)',
+                    fontSize: 13, fontWeight: 800, cursor: 'pointer', fontFamily: 'inherit',
+                    transition: 'all 0.15s',
+                  }}
+                >
+                  {opt.emoji} {opt.label}
+                  {moodLight === opt.value && <span style={{ fontSize: 11 }}>✓</span>}
+                </button>
+              ))}
+            </div>
+            {moodLight && (
+              <button
+                type="button"
+                className={styles.brandQuickBtn}
+                onClick={() => setMoodLight('')}
+                style={{ marginTop: 6 }}
+              >✕ Clear mood light</button>
+            )}
+          </div>
 
           {/* Maker / Craft profile fields — only shown for relevant categories */}
           {MAKER_CATEGORIES.includes(lookingFor) && (

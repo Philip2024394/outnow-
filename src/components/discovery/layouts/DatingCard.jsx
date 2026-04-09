@@ -5,37 +5,60 @@ import { sendMeetRequest } from '@/services/meetService'
 import { useAuth } from '@/hooks/useAuth'
 import { useOverlay } from '@/contexts/OverlayContext'
 import CountdownTimer from '@/components/ui/CountdownTimer'
-import { ACTIVITY_TYPES } from '@/firebase/collections'
 import { LANGUAGE_FLAGS } from '@/utils/lookingForLabels'
 import styles from './DatingCard.module.css'
 import DateIdeasSheet from '@/components/dating/DateIdeasSheet'
+import VibeCheckSheet from '../panels/VibeCheckSheet'
+import WingmanSheet from '../panels/WingmanSheet'
+import EchoFeedbackModal from '../panels/EchoFeedbackModal'
+import QuickReplyBar from '../panels/QuickReplyBar'
+import VoiceIntroBar from '../panels/VoiceIntroBar'
 
 const RELATIONSHIP_GOAL_LABELS = {
-  casual:   '😊 Casual & Fun',
-  serious:  '💍 Something Serious',
-  open:     '🌻 Open to Everything',
-  friends:  '👋 Friends First',
+  casual:  '😊 Casual & Fun',
+  serious: '💍 Something Serious',
+  open:    '🌻 Open to Everything',
+  friends: '👋 Friends First',
+}
+const SIGN_EMOJIS = { Aries:'♈', Taurus:'♉', Gemini:'♊', Cancer:'♋', Leo:'♌', Virgo:'♍', Libra:'♎', Scorpio:'♏', Sagittarius:'♐', Capricorn:'♑', Aquarius:'♒', Pisces:'♓' }
+const MOOD_COLORS = { warm: '#F97316', cool: '#38BDF8', pink: '#F472B6' }
+
+function SidePanelBtn({ emoji, label, onClick, active, pulse, color }) {
+  return (
+    <button
+      className={`${styles.sideBtn} ${active ? styles.sideBtnActive : ''} ${pulse ? styles.sideBtnPulse : ''}`}
+      style={active && color ? { background: `${color}25`, borderColor: color } : {}}
+      onClick={onClick}
+      aria-label={label}
+    >
+      <span className={styles.sideBtnEmoji}>{emoji}</span>
+      <span className={styles.sideBtnLabel}>{label}</span>
+    </button>
+  )
 }
 
-const STAR_SIGNS = ['Aries','Taurus','Gemini','Cancer','Leo','Virgo','Libra','Scorpio','Sagittarius','Capricorn','Aquarius','Pisces']
-const SIGN_EMOJIS = { Aries:'♈', Taurus:'♉', Gemini:'♊', Cancer:'♋', Leo:'♌', Virgo:'♍', Libra:'♎', Scorpio:'♏', Sagittarius:'♐', Capricorn:'♑', Aquarius:'♒', Pisces:'♓' }
-
-/** Profile layout for Dating & Romance */
+/** Full-screen profile layout for Dating & Romance */
 export default function DatingCard({ open, session, mySession, onClose, showToast, onGuestAction, onMeetSent, onLike }) {
   useOverlay()
   const { user }  = useAuth()
   const { myInterests, mutualSessions } = useInterests()
+
   const [meetLoading, setMeetLoading] = useState(false)
   const [meetSent,    setMeetSent]    = useState(false)
   const [liked,       setLiked]       = useState(false)
   const [hearts,      setHearts]      = useState([])
   const [photoIdx,    setPhotoIdx]    = useState(0)
-  const [bioOpen,     setBioOpen]     = useState(false)
-  const [cardPage,    setCardPage]    = useState(0)   // 0 = profile, 1 = date ideas
-  const sheetRef   = useRef(null)
-  const startYRef  = useRef(null)
+
+  // Panel state
+  const [panel,     setPanel]     = useState(null) // 'dateIdeas' | 'vibeCheck' | 'wingman' | 'bio'
+  const [moodOpen,  setMoodOpen]  = useState(false)
+  const [echoOpen,  setEchoOpen]  = useState(false)
+
+  const sheetRef    = useRef(null)
+  const startYRef   = useRef(null)
   const currentYRef = useRef(0)
 
+  // Swipe-down dismiss
   useEffect(() => {
     const sheet = sheetRef.current
     if (!sheet) return
@@ -43,11 +66,11 @@ export default function DatingCard({ open, session, mySession, onClose, showToas
     const onTouchMove  = (e) => {
       if (startYRef.current === null) return
       const delta = e.touches[0].clientY - startYRef.current
-      if (delta > 0) { currentYRef.current = delta; sheet.style.transform = `translateY(${delta}px)`; sheet.style.transition = 'none' }
+      if (delta > 0) { currentYRef.current = delta; sheet.style.transform = `translateY(${Math.min(delta * 0.4, 80)}px)`; sheet.style.transition = 'none' }
     }
     const onTouchEnd = () => {
-      sheet.style.transition = ''
-      if (currentYRef.current > 120) onClose()
+      sheet.style.transition = 'transform 0.3s ease'
+      if (currentYRef.current > 100) onClose()
       else sheet.style.transform = ''
       startYRef.current = null; currentYRef.current = 0
     }
@@ -61,40 +84,29 @@ export default function DatingCard({ open, session, mySession, onClose, showToas
     }
   }, [onClose])
 
+  // Reset panels on open
+  useEffect(() => { if (open) { setPanel(null); setPhotoIdx(0); setMeetSent(false); setLiked(false) } }, [open])
+
   if (!open || !session) return null
 
   const isScheduled = session.status === 'scheduled'
   const isInviteOut = session.status === 'invite_out'
   const isOutNow    = !isScheduled && !isInviteOut
-  const statusColor = isInviteOut ? '#F5C518' : isScheduled ? '#E8890C' : '#8DC63F'
+  const statusColor = isInviteOut ? '#F5C518' : isScheduled ? '#E8890C' : '#E8458C'
+  const moodColor   = MOOD_COLORS[session.moodLight] ?? null
 
   const photos      = session.photos?.length ? session.photos : session.photoURL ? [session.photoURL] : []
   const isMutual    = mutualSessions.has(session.id)
   const hasInterest = myInterests.has(session.id)
 
-  const profileStars = 3 + (session.id.split('').reduce((acc, c) => acc + c.charCodeAt(0), 0) % 3)
-
-  // Match % — deterministic base from session ID, boosted by mutual interest
-  const matchBase = 55 + (session.id.split('').reduce((acc, c) => acc + c.charCodeAt(0), 0) % 36)
+  const matchBase    = 55 + (session.id.split('').reduce((acc, c) => acc + c.charCodeAt(0), 0) % 36)
   const matchPercent = Math.min(99, matchBase + (isMutual ? 8 : 0) + (hasInterest ? 4 : 0))
-
-  const joinedLabel = (() => {
-    if (!session.userJoinedAt) return 'Joined'
-    const d = new Date(session.userJoinedAt)
-    const dd = String(d.getDate()).padStart(2, '0')
-    const mm = String(d.getMonth() + 1).padStart(2, '0')
-    const yyyy = d.getFullYear()
-    return `Joined ${dd}/${mm}/${yyyy}`
-  })()
-
-  const timerLabel = isScheduled ? '🕐 Scheduled' : isInviteOut ? joinedLabel : null
 
   const handleLetsMeet = async () => {
     if (onGuestAction) { onGuestAction(); return }
     if (meetSent) return
     if (session.isSeeded) {
-      setMeetSent(true)
-      showToast?.(`💌 Invite sent to ${session.displayName}!`, 'success')
+      setMeetSent(true); showToast?.(`💌 Invite sent to ${session.displayName}!`, 'success')
       onMeetSent?.(session); return
     }
     setMeetLoading(true)
@@ -113,7 +125,12 @@ export default function DatingCard({ open, session, mySession, onClose, showToas
   const handleLike = () => {
     if (liked) return
     setLiked(true); onLike?.(session)
-    const batch = Array.from({ length: 6 }, (_, i) => ({ id: Date.now() + i, left: 38 + (Math.random() * 40 - 20), delay: i * 0.12, size: 14 + Math.random() * 10 }))
+    const batch = Array.from({ length: 6 }, (_, i) => ({
+      id: Date.now() + i,
+      left: 30 + (Math.random() * 40 - 20),
+      delay: i * 0.12,
+      size: 14 + Math.random() * 10,
+    }))
     setHearts(batch)
     setTimeout(() => setHearts([]), 2000)
     if (isMutual) {
@@ -124,176 +141,198 @@ export default function DatingCard({ open, session, mySession, onClose, showToas
     }
   }
 
+  const togglePanel = (name) => setPanel(p => p === name ? null : name)
+
   return (
     <div className={styles.wrapper}>
       <div className={styles.backdrop} onClick={onClose} />
-      <div ref={sheetRef} className={styles.sheet} style={{ '--status-color': statusColor }}>
-        <div className={styles.handle} onClick={onClose} />
-        <div className={styles.scrollContent}>
-          <div className={styles.card}>
 
-            {/* Dating header */}
-            <div className={styles.datingHeader}>
-              <span className={styles.datingEmoji}>💕</span>
-              <div>
-                <span className={styles.datingLabel}>Dating &amp; Romance</span>
-                <span className={styles.datingSlogan}>Looking to meet someone special</span>
-              </div>
-              <div className={styles.matchBadge}>
-                <span className={styles.matchNum}>{matchPercent}%</span>
-                <span className={styles.matchSub}>Match</span>
-              </div>
-            </div>
+      <div ref={sheetRef} className={styles.card} style={moodColor ? { '--mood-color': moodColor } : {}}>
 
-            {/* Photo */}
-            {photos.length > 0 && (
-              <div className={styles.photoBanner}>
-                <img key={photoIdx} src={photos[photoIdx]} alt={session.displayName} className={styles.photoBannerImg} />
-                <div className={styles.photoBannerMeta}>
-                  {session.isVerified && (
-                    <div className={styles.verifiedBadge}>
-                      <svg width="11" height="11" viewBox="0 0 24 24" fill="#E8458C" stroke="#E8458C" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                        <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/>
-                      </svg>
-                      <span className={styles.verifiedText}>Verified</span>
-                    </div>
-                  )}
-                  <span className={styles.photoBannerName}>
-                    {session.displayName ?? 'Someone'}
-                    {session.age ? <span className={styles.photoBannerAge}>, {session.age}</span> : null}
-                    {isOutNow && <span className={styles.liveDot} />}
-                  </span>
-                  {(session.city || session.area) && (
-                    <span className={styles.photoBannerCity}>📍 {session.city ?? session.area}</span>
-                  )}
-                </div>
-                {formatDistance(session.distanceKm) != null && (
-                  <div className={styles.photoBannerDist}>
-                    {walkMinutes(session.distanceKm) != null && <>🚶 {walkMinutes(session.distanceKm)} min · </>}
-                    {formatDistance(session.distanceKm)}
-                  </div>
-                )}
-                {/* Date ideas button — same position as mini shop in MakerCard */}
-                <button
-                  className={`${styles.dateIdeasBtn} ${cardPage === 1 ? styles.dateIdeasBtnActive : ''}`}
-                  onClick={() => setCardPage(p => p === 1 ? 0 : 1)}
-                  aria-label="Date ideas"
-                >💕</button>
-                <button className={styles.fingerprintBtn} onClick={() => setBioOpen(true)} aria-label="View profile">
-                  <svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round">
-                    <path d="M2 12a10 10 0 0 1 18-6"/><path d="M2 16h.01"/><path d="M21.8 16c.2-2 .13-5.35 0-6"/>
-                    <path d="M5 19.5C5.5 18 6 15 6 12a6 6 0 0 1 .34-2"/><path d="M8.65 22c.21-.66.45-1.32.57-2"/>
-                    <path d="M9 6.8a6 6 0 0 1 9 5.2v2"/><path d="M12 10a2 2 0 0 0-2 2c0 1.02-.1 2.51-.26 4"/>
-                    <path d="M14 13.12c0 2.38 0 6.38-1 8.88"/><path d="M17.29 21.02c.12-.6.43-2.3.5-3.02"/>
-                  </svg>
-                </button>
-                <button className={`${styles.likeBtn} ${liked ? styles.likeBtnActive : ''}`} onClick={handleLike} aria-label="Like">
-                  <svg width="18" height="18" viewBox="0 0 24 24" fill={liked ? '#fff' : 'none'} stroke="#fff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                    <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
-                  </svg>
-                </button>
-                {hearts.map(h => (
-                  <span key={h.id} className={styles.floatingHeart} style={{ right: `${h.left}px`, fontSize: `${h.size}px`, animationDelay: `${h.delay}s` }}>💕</span>
-                ))}
-              </div>
-            )}
-
-            {/* Dating-specific info rows */}
-            {session.relationshipGoal && (
-              <div className={styles.infoRow}>
-                <span className={styles.infoLabel}>Looking for</span>
-                <span className={styles.infoValue}>{RELATIONSHIP_GOAL_LABELS[session.relationshipGoal] ?? session.relationshipGoal}</span>
-              </div>
-            )}
-            {session.height && (
-              <div className={styles.infoRow}>
-                <span className={styles.infoLabel}>Height</span>
-                <span className={styles.infoValue}>📏 {session.height}</span>
-              </div>
-            )}
-            {(session.speakingNative || session.speakingSecond) && (
-              <div className={styles.infoRow}>
-                <span className={styles.infoLabel}>Speaking</span>
-                <span className={styles.infoValue}>
-                  {[session.speakingNative, session.speakingSecond].filter(Boolean).map((lang, i, arr) => (
-                    <span key={lang}>{LANGUAGE_FLAGS[lang] ?? ''} {lang}{i < arr.length - 1 ? ' · ' : ''}</span>
-                  ))}
-                </span>
-              </div>
-            )}
-
-            {/* Bio snippet */}
-            {session.bio && (() => {
-              const clean = session.bio.replace(/[\p{Emoji_Presentation}\p{Extended_Pictographic}]/gu, '').trim()
-              return (
-                <button className={styles.bioSnippet} onClick={() => setBioOpen(true)}>
-                  <span className={styles.bioSnippetText}>{clean.slice(0, 160)}...</span>
-                </button>
-              )
-            })()}
-
-            {/* Timer + stars */}
-            <div className={styles.timerRow}>
-              {timerLabel
-                ? <span className={styles.scheduledBadge}>{timerLabel}</span>
-                : <CountdownTimer expiresAtMs={session.expiresAtMs} />
-              }
-              <div className={styles.profileStars}>
-                {'★'.repeat(profileStars)}{'☆'.repeat(5 - profileStars)}
-                <span className={styles.profileStarsLabel}>Account Health</span>
-              </div>
-            </div>
-
-            {/* Connect button */}
-            <div className={styles.actions}>
-              <button
-                className={`${styles.connectBtn} ${meetSent || hasInterest ? styles.connectBtnSent : ''}`}
-                disabled={meetSent || hasInterest || meetLoading}
-                onClick={handleLetsMeet}
-              >
-                <span>{meetLoading ? '…' : meetSent || hasInterest ? '✓ Connected' : "Let's Connect"}</span>
-                {!meetSent && !hasInterest && !meetLoading && (
-                  <>
-                    {isOutNow    && <span className={styles.btnFlash}>I'm Out Now</span>}
-                    {isInviteOut && <span className={styles.btnFlash}>Invite Out</span>}
-                    {isScheduled && <span className={styles.btnFlash}>Out Later</span>}
-                  </>
-                )}
-              </button>
-            </div>
-
-          </div>
-        </div>
-
-        {/* ── Date ideas page (page 1) ── */}
-        {cardPage === 1 && (
-          <div className={styles.dateIdeasOverlay}>
-            <DateIdeasSheet
-              targetSession={session}
-              onClose={() => setCardPage(0)}
-            />
+        {/* ── Background photo ── */}
+        {photos.length > 0 ? (
+          <img key={photoIdx} src={photos[photoIdx]} alt={session.displayName} className={styles.bgPhoto} />
+        ) : (
+          <div className={styles.noPhotoBg}>
+            <span className={styles.noPhotoEmoji}>💕</span>
+            <span className={styles.noPhotoName}>{session.displayName ?? 'Someone special'}</span>
           </div>
         )}
 
-        {/* ── Dating bio overlay (page 2) ── */}
-        {bioOpen && (
+        {/* Mood ring */}
+        {moodColor && <div className={styles.moodRing} />}
+
+        {/* Gradient overlay */}
+        <div className={styles.photoOverlay} />
+
+        {/* Photo dots */}
+        {photos.length > 1 && (
+          <div className={styles.photoDots}>
+            {photos.map((_, i) => (
+              <button key={i} className={`${styles.photoDot} ${i === photoIdx ? styles.photoDotActive : ''}`} onClick={() => setPhotoIdx(i)} />
+            ))}
+          </div>
+        )}
+
+        {/* ── Top bar ── */}
+        <div className={styles.topBar}>
+          <button className={styles.closeBtn} onClick={onClose} aria-label="Close">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"><path d="M19 12H5M12 5l-7 7 7 7"/></svg>
+          </button>
+          <div className={styles.topBadges}>
+            <div className={styles.datingBadge}>💕 Dating &amp; Romance</div>
+            {session.isVerified && (
+              <div className={styles.verifiedBadge}>
+                <svg width="10" height="10" viewBox="0 0 24 24" fill="#E8458C" stroke="#E8458C" strokeWidth="2.5"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+                <span>Verified</span>
+              </div>
+            )}
+            {moodColor && (
+              <div className={styles.moodBadge} style={{ background: `${moodColor}22`, borderColor: `${moodColor}55`, color: moodColor }}>
+                {session.moodLight === 'warm' ? '🧡 Open' : session.moodLight === 'cool' ? '💙 Busy' : '🩷 On a date'}
+              </div>
+            )}
+          </div>
+          <button className={styles.reportBtn} onClick={() => showToast?.('Report submitted — we review within 24h.', 'success')}>🛡️</button>
+        </div>
+
+        {/* ── Right side panel ── */}
+        <div className={styles.sidePanel}>
+          <SidePanelBtn emoji={liked ? '❤️' : '🤍'} label="Like"   active={liked}              color="#E8458C" onClick={handleLike} />
+          <SidePanelBtn emoji="💡"                    label="Ideas"  active={panel === 'dateIdeas'}              onClick={() => togglePanel('dateIdeas')} />
+          <SidePanelBtn emoji="🎭"                    label="Vibe"   active={panel === 'vibeCheck'}             onClick={() => togglePanel('vibeCheck')} />
+          <SidePanelBtn emoji="🌈"                    label="Mood"   active={moodOpen}                          onClick={() => setMoodOpen(m => !m)} />
+          <SidePanelBtn emoji="🦅"                    label="Wing"   active={panel === 'wingman'}               onClick={() => togglePanel('wingman')} />
+          {session.lastSeenDaysAgo >= 7 && (
+            <SidePanelBtn emoji="🔁" label="Reset" pulse onClick={() => showToast?.('🔁 Second Chance sent — they\'ll see a purple ring.', 'success')} />
+          )}
+        </div>
+
+        {/* Floating hearts */}
+        {hearts.map(h => (
+          <span key={h.id} className={styles.floatingHeart} style={{ right: `${h.left + 60}px`, bottom: '40%', fontSize: `${h.size}px`, animationDelay: `${h.delay}s` }}>💕</span>
+        ))}
+
+        {/* ── Bottom overlay ── */}
+        <div className={styles.bottomOverlay}>
+
+          {/* Voice intro */}
+          {session.voiceIntroUrl && (
+            <VoiceIntroBar voiceIntroUrl={session.voiceIntroUrl} displayName={session.displayName} />
+          )}
+
+          {/* Name + age */}
+          <div className={styles.nameRow}>
+            <span className={styles.name}>{session.displayName ?? 'Someone'}</span>
+            {session.age && <span className={styles.age}>, {session.age}</span>}
+            {isOutNow && <span className={styles.liveDot} />}
+            {session.starSign && (
+              <span className={styles.starSign}>{SIGN_EMOJIS[session.starSign] ?? '✨'} {session.starSign}</span>
+            )}
+          </div>
+
+          {/* Location + match */}
+          <div className={styles.metaRow}>
+            {(session.city || session.area) && <span className={styles.city}>📍 {session.city ?? session.area}</span>}
+            {formatDistance(session.distanceKm) != null && (
+              <span className={styles.distance}>
+                {walkMinutes(session.distanceKm) != null ? `🚶 ${walkMinutes(session.distanceKm)} min` : formatDistance(session.distanceKm)}
+              </span>
+            )}
+            <span className={styles.matchBadge}>{matchPercent}% Match</span>
+          </div>
+
+          {/* Dating-specific info chips */}
+          <div className={styles.infoChips}>
+            {session.relationshipGoal && (
+              <span className={styles.chip}>{RELATIONSHIP_GOAL_LABELS[session.relationshipGoal] ?? session.relationshipGoal}</span>
+            )}
+            {session.height && <span className={styles.chip}>📏 {session.height}</span>}
+            {(session.speakingNative || session.speakingSecond) && (
+              <span className={styles.chip}>
+                {[session.speakingNative, session.speakingSecond].filter(Boolean)
+                  .map(l => `${LANGUAGE_FLAGS[l] ?? ''} ${l}`).join(' · ')}
+              </span>
+            )}
+          </div>
+
+          {/* Timer */}
+          <div className={styles.statusRow}>
+            {isScheduled || isInviteOut
+              ? <span className={styles.statusBadge} style={{ borderColor: statusColor, color: statusColor }}>
+                  {isScheduled ? '🕐 Scheduled' : 'Joined'}
+                </span>
+              : <CountdownTimer expiresAtMs={session.expiresAtMs} />
+            }
+          </div>
+
+          {/* Bio snippet */}
+          {session.bio && (
+            <button className={styles.bioSnippet} onClick={() => togglePanel('bio')}>
+              <span className={styles.bioText}>
+                {session.bio.replace(/[\p{Emoji_Presentation}\p{Extended_Pictographic}]/gu, '').trim().slice(0, 120)}…
+              </span>
+            </button>
+          )}
+
+          {/* Quick replies */}
+          <QuickReplyBar targetSession={session} showToast={showToast} onGuestAction={onGuestAction} />
+
+          {/* Connect */}
+          <button
+            className={`${styles.connectBtn} ${meetSent || hasInterest ? styles.connectBtnSent : ''}`}
+            disabled={meetSent || hasInterest || meetLoading}
+            onClick={handleLetsMeet}
+          >
+            {meetLoading ? '…' : meetSent || hasInterest ? '✓ Connected' : "Let's Connect"}
+            {!meetSent && !hasInterest && !meetLoading && (
+              <span className={styles.connectTag} style={{ background: statusColor }}>
+                {isOutNow ? 'Out Now' : isInviteOut ? 'Invite' : 'Later'}
+              </span>
+            )}
+          </button>
+        </div>
+
+        {/* ── Mood info popup ── */}
+        {moodOpen && (
+          <div className={styles.moodPopup}>
+            <button className={styles.moodPopupClose} onClick={() => setMoodOpen(false)}>✕</button>
+            <p className={styles.moodPopupTitle}>🌈 Mood Light</p>
+            {[
+              { key: 'warm', label: '🧡 Open to chat', color: '#F97316' },
+              { key: 'cool', label: '💙 Working, slow reply', color: '#38BDF8' },
+              { key: 'pink', label: '🩷 Already on a date', color: '#F472B6' },
+            ].map(m => (
+              <div key={m.key} className={styles.moodRow}>
+                <div className={styles.moodDot} style={{ background: m.color }} />
+                <span className={styles.moodLabel}>{m.label}</span>
+              </div>
+            ))}
+          </div>
+        )}
+
+        {/* ── Sliding panels ── */}
+
+        {/* Bio */}
+        {panel === 'bio' && (
           <div className={styles.bioOverlay}>
-            <div className={styles.bioHandle} onClick={() => setBioOpen(false)} />
-            <div className={styles.bioFullImg}>
-              <img src={photos[photoIdx]} alt={session.displayName} className={styles.bioFullImgEl} />
-              <div className={styles.bioImgGradient} />
-              {session.starSign && (
-                <div className={styles.starSignBadge}>
-                  <span className={styles.starSignEmoji}>{SIGN_EMOJIS[session.starSign] ?? '✨'}</span>
-                  <span className={styles.starSignName}>{session.starSign}</span>
-                </div>
-              )}
-            </div>
+            <div className={styles.bioHandle} onClick={() => setPanel(null)} />
+            {photos.length > 0 && (
+              <div className={styles.bioImgWrap}>
+                <img src={photos[photoIdx]} alt={session.displayName} className={styles.bioImgEl} />
+                <div className={styles.bioImgGrad} />
+                {session.starSign && (
+                  <div className={styles.starSignBadge}>
+                    <span>{SIGN_EMOJIS[session.starSign] ?? '✨'}</span>
+                    <span>{session.starSign}</span>
+                  </div>
+                )}
+              </div>
+            )}
             <div className={styles.bioBody}>
               <p className={styles.bioBodyText}>{session.bio ?? `${session.displayName} is looking for someone special.`}</p>
-
               {photos.length > 1 && (
-                <div className={styles.thumbGrid}>
+                <div className={styles.thumbRow}>
                   {photos.map((url, i) => (
                     <button key={i} className={`${styles.thumb} ${i === photoIdx ? styles.thumbActive : ''}`} onClick={() => setPhotoIdx(i)}>
                       <img src={url} alt="" className={styles.thumbImg} />
@@ -301,14 +340,38 @@ export default function DatingCard({ open, session, mySession, onClose, showToas
                   ))}
                 </div>
               )}
-
-              <div className={styles.bioNavRow}>
-                <button className={styles.bioNavBtn} onClick={() => setPhotoIdx(i => Math.max(0, i - 1))} disabled={photoIdx === 0 || photos.length <= 1}>← Previous</button>
-                <button className={styles.bioNavBtn} onClick={() => setPhotoIdx(i => Math.min(photos.length - 1, i + 1))} disabled={photoIdx === photos.length - 1 || photos.length <= 1}>Next →</button>
-              </div>
             </div>
           </div>
         )}
+
+        {/* Date Ideas */}
+        {panel === 'dateIdeas' && (
+          <DateIdeasSheet targetSession={session} onClose={() => setPanel(null)} />
+        )}
+
+        {/* Vibe Check */}
+        <VibeCheckSheet
+          open={panel === 'vibeCheck'}
+          targetSession={session}
+          onClose={() => setPanel(null)}
+          showToast={showToast}
+        />
+
+        {/* Wingman */}
+        <WingmanSheet
+          open={panel === 'wingman'}
+          targetSession={session}
+          onClose={() => setPanel(null)}
+          showToast={showToast}
+        />
+
+        {/* Echo Feedback */}
+        <EchoFeedbackModal
+          open={echoOpen}
+          targetSession={session}
+          onClose={() => setEchoOpen(false)}
+          showToast={showToast}
+        />
       </div>
     </div>
   )

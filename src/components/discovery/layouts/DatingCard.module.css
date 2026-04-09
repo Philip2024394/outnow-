@@ -1,181 +1,167 @@
-/* ── DatingCard — Dating & Romance layout ── */
-.wrapper { position: fixed; inset: 0; z-index: var(--z-sheet); pointer-events: none; }
-.backdrop { position: absolute; inset: 0; background: rgba(0,0,0,0.5); pointer-events: all; animation: fade-in 0.2s forwards; }
-@keyframes fade-in { from { opacity: 0; } to { opacity: 1; } }
+/* DatingCard — full-screen layout, shared base with DiscoveryCard */
+.wrapper { position: fixed; inset: 0; z-index: 9000; display: flex; align-items: flex-end; }
+.backdrop { position: absolute; inset: 0; background: rgba(0,0,0,0.6); }
 
-.sheet {
-  position: absolute; bottom: 0; left: 0; right: 0;
-  border-radius: 20px 20px 0 0;
-  border-top: 3px solid #8DC63F;
-  max-height: 88dvh; display: flex; flex-direction: column;
-  overflow: hidden; pointer-events: all;
-  animation: slide-up 0.32s cubic-bezier(0.32,0.72,0,1) forwards;
-  background:
-    linear-gradient(rgba(0,0,0,0.68), rgba(0,0,0,0.68)),
-    #0a0a0a url('https://ik.imagekit.io/nepgaxllc/Untitleddfsadfasdf.png') center top / cover no-repeat;
+.card {
+  position: relative;
+  width: 100%; height: 100dvh;
+  overflow: hidden; background: #000;
+  animation: slideUp 0.38s cubic-bezier(0.34,1.2,0.64,1);
 }
-@keyframes slide-up { from { transform: translateY(100%); } to { transform: translateY(0); } }
+@keyframes slideUp { from { transform: translateY(100%); opacity: 0.6; } to { transform: none; opacity: 1; } }
 
-.handle { width: 36px; height: 4px; background: #8DC63F; border-radius: 100px; margin: 12px auto 0; flex-shrink: 0; cursor: pointer; }
-
-.scrollContent {
-  flex: 1; overflow-y: auto; -webkit-overflow-scrolling: touch;
-  overscroll-behavior: contain;
-  padding: 4px 20px calc(env(safe-area-inset-bottom, 0px) + 20px);
-  scrollbar-width: none;
+.bgPhoto { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; user-select: none; }
+.noPhotoBg {
+  position: absolute; inset: 0;
+  background: linear-gradient(160deg, #1a0015 0%, #280020 100%);
+  display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 12px;
 }
-.scrollContent::-webkit-scrollbar { display: none; }
-.card { display: flex; flex-direction: column; gap: 8px; padding-bottom: 16px; }
+.noPhotoEmoji { font-size: 56px; }
+.noPhotoName  { font-size: 22px; font-weight: 900; color: rgba(255,255,255,0.7); }
 
-/* Dating header */
-.datingHeader { display: flex; align-items: center; gap: 10px; padding: 8px 4px 2px; }
-.datingEmoji { font-size: 26px; line-height: 1; }
-.datingLabel { display: block; font-size: 17px; font-weight: 800; color: #8DC63F; line-height: 1.1; }
-.datingSlogan { display: block; font-size: 11px; color: rgba(255,255,255,0.45); font-weight: 500; margin-top: 1px; }
+.moodRing { position: absolute; inset: 0; border: 4px solid var(--mood-color, transparent); pointer-events: none; z-index: 2; animation: moodPulse 2.5s ease-in-out infinite; }
+@keyframes moodPulse { 0%,100% { opacity: 0.8; } 50% { opacity: 0.4; } }
 
-/* Match % badge */
-.matchBadge {
-  margin-left: auto;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  background: rgba(141,198,63,0.12);
-  border: 1.5px solid rgba(141,198,63,0.4);
-  border-radius: 14px;
-  padding: 6px 12px;
-  min-width: 58px;
-}
-.matchNum {
-  font-size: 20px;
-  font-weight: 900;
-  color: #8DC63F;
-  line-height: 1;
-  letter-spacing: -0.02em;
-}
-.matchSub {
-  font-size: 9px;
-  font-weight: 700;
-  color: rgba(141,198,63,0.7);
-  text-transform: uppercase;
-  letter-spacing: 0.08em;
-  margin-top: 2px;
+.photoOverlay {
+  position: absolute; inset: 0; pointer-events: none;
+  background: linear-gradient(to bottom, rgba(0,0,0,0.25) 0%, transparent 28%, transparent 45%, rgba(0,0,0,0.65) 68%, rgba(0,0,0,0.92) 85%, rgba(0,0,0,0.98) 100%);
 }
 
-/* Photo banner */
-.photoBanner { position: relative; width: calc(100% - 16px); margin: 4px auto 0; height: 200px; border-radius: 14px; overflow: hidden; flex-shrink: 0; border: 2px solid #8DC63F; box-shadow: 0 0 16px rgba(141,198,63,0.25); }
-.photoBannerImg { width: 100%; height: 100%; object-fit: cover; object-position: center top; display: block; animation: photo-fade 0.25s ease; }
-@keyframes photo-fade { from { opacity: 0.5; transform: scale(1.03); } to { opacity: 1; transform: scale(1); } }
-.photoBanner::after { content: ''; position: absolute; inset: 0; background: linear-gradient(to bottom, transparent 45%, rgba(0,0,0,0.75) 100%); pointer-events: none; }
-.photoBannerMeta { position: absolute; bottom: 10px; left: 12px; z-index: 2; display: flex; flex-direction: column; align-items: flex-start; gap: 2px; }
-.verifiedBadge { display: flex; align-items: center; gap: 4px; background: rgba(0,0,0,0.45); backdrop-filter: blur(6px); border: 1px solid rgba(141,198,63,0.5); border-radius: 100px; padding: 3px 8px 3px 6px; margin-bottom: 2px; }
-.verifiedText { font-size: 10px; font-weight: 800; color: #8DC63F; letter-spacing: 0.06em; }
-.photoBannerName { font-size: 18px; font-weight: 800; color: #fff; line-height: 1.1; text-shadow: 0 1px 4px rgba(0,0,0,0.8); display: flex; align-items: center; gap: 2px; }
-.photoBannerAge { font-weight: 600; }
-.photoBannerCity { font-size: 12px; color: rgba(255,255,255,0.75); font-weight: 500; text-shadow: 0 1px 3px rgba(0,0,0,0.7); }
-.photoBannerDist { position: absolute; top: 10px; left: 10px; z-index: 2; background: rgba(0,0,0,0.55); backdrop-filter: blur(6px); border-radius: 100px; padding: 4px 10px; font-size: 12px; font-weight: 600; color: #fff; }
+/* Photo dots */
+.photoDots { position: absolute; top: calc(env(safe-area-inset-top,0px) + 60px); left: 50%; transform: translateX(-50%); display: flex; gap: 5px; z-index: 5; }
+.photoDot  { width: 5px; height: 5px; border-radius: 50%; background: rgba(255,255,255,0.3); border: none; cursor: pointer; transition: all 0.2s; padding: 0; }
+.photoDotActive { background: #fff; width: 16px; border-radius: 3px; }
 
-/* Live dot */
-.liveDot { display: inline-block; width: 8px; height: 8px; background: #8DC63F; border-radius: 50%; margin-left: 6px; box-shadow: 0 0 6px #8DC63F; vertical-align: middle; animation: live-dot-flash 1.4s ease-in-out infinite; flex-shrink: 0; }
-.liveDotInvite { background: #F5C518; box-shadow: 0 0 6px #F5C518; }
-.liveDotLater  { background: #E8890C; box-shadow: 0 0 6px #E8890C; }
-@keyframes live-dot-flash { 0%,100% { opacity:1; transform:scale(1); } 50% { opacity:0.35; transform:scale(0.7); } }
-
-/* Date ideas button — sits above fingerprint */
-.dateIdeasBtn { position: absolute; bottom: 82px; right: 10px; z-index: 3; width: 40px; height: 40px; border-radius: 50%; background: rgba(0,0,0,0.45); backdrop-filter: blur(6px); border: 1.5px solid rgba(141,198,63,0.35); font-size: 18px; display: flex; align-items: center; justify-content: center; cursor: pointer; -webkit-tap-highlight-color: transparent; transition: background 0.15s, border-color 0.15s; }
-.dateIdeasBtnActive { background: rgba(141,198,63,0.2); border-color: #8DC63F; box-shadow: 0 0 12px rgba(141,198,63,0.4); }
-
-/* Date ideas full overlay — slides over the sheet */
-.dateIdeasOverlay { position: absolute; inset: 0; z-index: 20; background: #0a0a0a; border-radius: inherit; display: flex; flex-direction: column; overflow: hidden; }
-
-/* Buttons on photo */
-.fingerprintBtn { position: absolute; bottom: 10px; right: 10px; z-index: 3; width: 64px; height: 64px; border-radius: 50%; background: rgba(0,0,0,0.4); backdrop-filter: blur(6px); border: 1.5px solid rgba(255,255,255,0.18); display: flex; align-items: center; justify-content: center; cursor: pointer; -webkit-tap-highlight-color: transparent; }
-.likeBtn { position: absolute; top: 10px; right: 10px; z-index: 3; width: 36px; height: 36px; border-radius: 50%; background: rgba(0,0,0,0.4); backdrop-filter: blur(6px); border: 1.5px solid rgba(255,255,255,0.18); display: flex; align-items: center; justify-content: center; cursor: pointer; transition: background 0.15s; -webkit-tap-highlight-color: transparent; }
-.likeBtnActive { background: #e0314b; border-color: #e0314b; }
-.floatingHeart { position: absolute; z-index: 10; animation: float-up 1.8s ease-out forwards; pointer-events: none; }
-@keyframes float-up { 0% { transform: translateY(0) scale(1); opacity: 1; } 100% { transform: translateY(-90px) scale(1.4); opacity: 0; } }
-
-/* Info rows */
-.infoRow { display: flex; align-items: center; gap: 8px; padding: 4px 4px; border-bottom: 1px solid rgba(255,255,255,0.05); }
-.infoLabel { font-size: 12px; font-weight: 600; color: rgba(255,255,255,0.4); min-width: 76px; flex-shrink: 0; }
-.infoValue { font-size: 13px; font-weight: 600; color: #fff; }
-
-/* Bio snippet */
-.bioSnippet { background: none; border: none; text-align: left; cursor: pointer; padding: 6px 4px; width: 100%; -webkit-tap-highlight-color: transparent; }
-.bioSnippetText { font-size: 13px; color: rgba(255,255,255,0.65); line-height: 1.55; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; word-break: break-word; min-height: calc(13px * 1.55 * 2); }
-
-/* Timer + stars */
-.timerRow { display: flex; align-items: center; justify-content: space-between; padding: 4px 4px 0; }
-.scheduledBadge { font-size: 13px; font-weight: 600; color: rgba(255,255,255,0.6); }
-.profileStars { display: flex; flex-direction: column; align-items: center; font-size: 14px; color: #8DC63F; letter-spacing: 2px; line-height: 1.2; }
-.profileStarsLabel { font-size: 9px; font-weight: 700; color: rgba(255,255,255,0.4); letter-spacing: 0.08em; text-transform: uppercase; margin-top: 2px; }
-
-/* Connect button — status-color theme */
-.actions { padding: 8px 4px 0; }
-.connectBtn { width: 100%; padding: 14px; border-radius: 14px; background: #8DC63F; border: none; color: #000; font-size: 16px; font-weight: 800; font-family: inherit; cursor: pointer; display: flex; flex-direction: column; align-items: center; gap: 2px; transition: opacity 0.15s; -webkit-tap-highlight-color: transparent; }
-.connectBtn:disabled { opacity: 0.5; cursor: default; }
-.connectBtnSent { background: #1a1a1a; border: 1.5px solid rgba(255,255,255,0.12); color: #fff; }
-.btnFlash { font-size: 10px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: rgba(0,0,0,0.75); animation: flash-badge 1.2s ease-in-out infinite; }
-@keyframes flash-badge { 0%,100% { opacity:1; } 50% { opacity:0.3; } }
-
-/* ── Dating bio overlay (page 2) ── */
-.bioOverlay { position: absolute; inset: 0; z-index: 20; display: flex; flex-direction: column; background: #0e0e0e; }
-.bioHandle { position: absolute; top: 10px; left: 50%; transform: translateX(-50%); width: 40px; height: 4px; border-radius: 100px; background: rgba(255,255,255,0.35); z-index: 30; cursor: pointer; -webkit-tap-highlight-color: transparent; }
-.bioFullImg { position: absolute; inset: 0; z-index: 1; }
-.bioFullImgEl { width: 100%; height: 100%; object-fit: cover; object-position: center top; display: block; }
-.bioImgGradient { position: absolute; bottom: 0; left: 0; right: 0; height: 78%; background: linear-gradient(to bottom, transparent, rgba(0,0,0,0.99)); pointer-events: none; }
-.bioBackBtn { position: absolute; top: 14px; left: 14px; z-index: 2; width: 34px; height: 34px; border-radius: 50%; background: rgba(0,0,0,0.4); backdrop-filter: blur(6px); border: 1.5px solid rgba(255,255,255,0.2); display: flex; align-items: center; justify-content: center; color: #fff; cursor: pointer; -webkit-tap-highlight-color: transparent; }
-
-/* Star sign badge */
-.starSignBadge {
-  position: absolute;
-  top: 14px;
-  right: 14px;
-  z-index: 2;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 2px;
-  background: rgba(0,0,0,0.45);
+/* Top bar */
+.topBar { position: absolute; top: calc(env(safe-area-inset-top,0px) + 12px); left: 14px; right: 14px; z-index: 10; display: flex; align-items: center; gap: 10px; }
+.closeBtn {
+  width: 38px; height: 38px; border-radius: 50%;
+  background: rgba(0,0,0,0.45); border: 1px solid rgba(255,255,255,0.12);
+  backdrop-filter: blur(12px); display: flex; align-items: center; justify-content: center;
+  color: #fff; cursor: pointer; flex-shrink: 0;
+}
+.topBadges { flex: 1; display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.datingBadge {
+  background: rgba(232,69,140,0.2); border: 1px solid rgba(232,69,140,0.45);
+  border-radius: 100px; padding: 4px 10px; font-size: 10px; font-weight: 800; color: #E8458C;
   backdrop-filter: blur(8px);
-  border: 1px solid rgba(141,198,63,0.35);
-  border-radius: 12px;
-  padding: 6px 10px;
 }
-.starSignEmoji { font-size: 18px; line-height: 1; }
-.starSignName { font-size: 10px; font-weight: 700; color: #8DC63F; letter-spacing: 0.04em; }
-
-.bioBody { position: absolute; bottom: 0; left: 0; right: 0; z-index: 2; padding: 16px 18px calc(env(safe-area-inset-bottom,0px) + 18px); display: flex; flex-direction: column; gap: 14px; }
-.bioBodyText { font-size: 13px; color: rgba(255,255,255,0.88); line-height: 1.6; margin: 0; }
-
-/* Thumbnail grid */
-.thumbGrid {
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 6px;
-  width: 100%;
+.verifiedBadge {
+  display: flex; align-items: center; gap: 5px;
+  background: rgba(0,0,0,0.5); border: 1px solid rgba(232,69,140,0.4);
+  border-radius: 100px; padding: 4px 10px; font-size: 10px; font-weight: 800; color: #E8458C;
+  backdrop-filter: blur(8px);
 }
-.thumb {
-  aspect-ratio: 1;
-  border-radius: 10px;
-  overflow: hidden;
-  border: 2px solid rgba(255,255,255,0.12);
-  padding: 0;
-  cursor: pointer;
-  background: #1a1a1a;
+.moodBadge { border: 1px solid; border-radius: 100px; padding: 4px 10px; font-size: 10px; font-weight: 800; backdrop-filter: blur(8px); }
+.reportBtn {
+  width: 38px; height: 38px; border-radius: 50%;
+  background: rgba(0,0,0,0.45); border: 1px solid rgba(255,255,255,0.12);
+  backdrop-filter: blur(12px); display: flex; align-items: center; justify-content: center;
+  font-size: 16px; cursor: pointer; flex-shrink: 0;
+}
+
+/* Side panel */
+.sidePanel { position: absolute; right: 14px; top: 50%; transform: translateY(-60%); display: flex; flex-direction: column; gap: 10px; z-index: 10; }
+.sideBtn {
+  display: flex; flex-direction: column; align-items: center; gap: 3px;
+  width: 56px; padding: 10px 6px 8px;
+  background: rgba(0,0,0,0.52); border: 1px solid rgba(255,255,255,0.14); border-radius: 18px;
+  cursor: pointer; backdrop-filter: blur(16px) saturate(1.6);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.1), 0 4px 16px rgba(0,0,0,0.5);
+  transition: transform 0.15s, background 0.15s;
   -webkit-tap-highlight-color: transparent;
-  transition: border-color 0.15s;
 }
-.thumbActive { border-color: #8DC63F; box-shadow: 0 0 8px rgba(141,198,63,0.4); }
-.thumbImg { width: 100%; height: 100%; object-fit: cover; display: block; }
+.sideBtn:active { transform: scale(0.88); }
+.sideBtnActive  { background: rgba(232,69,140,0.18); border-color: rgba(232,69,140,0.45); }
+.sideBtnPulse   { animation: sidePulse 2s ease-in-out infinite; }
+@keyframes sidePulse { 0%,100% { box-shadow: inset 0 1px 0 rgba(255,255,255,0.1), 0 0 0 0 rgba(232,69,140,0.4); } 50% { box-shadow: inset 0 1px 0 rgba(255,255,255,0.1), 0 0 0 8px rgba(232,69,140,0); } }
+.sideBtnEmoji { font-size: 22px; line-height: 1; }
+.sideBtnLabel { font-size: 8px; font-weight: 800; color: rgba(255,255,255,0.65); text-transform: uppercase; letter-spacing: 0.04em; line-height: 1; }
 
-/* Meta rows */
-.bioMeta { display: flex; align-items: center; gap: 6px; }
-.bioMetaLabel { font-size: 12px; font-weight: 700; color: rgba(255,255,255,0.5); text-transform: uppercase; letter-spacing: 0.06em; }
-.bioMetaDot { color: rgba(255,255,255,0.3); }
-.bioMetaValue { font-size: 14px; font-weight: 700; color: #8DC63F; }
+/* Floating hearts */
+.floatingHeart { position: absolute; animation: heartFloat 1.8s ease-out forwards; pointer-events: none; z-index: 20; }
+@keyframes heartFloat { 0% { opacity: 1; transform: translateY(0) scale(1); } 100% { opacity: 0; transform: translateY(-120px) scale(0.5); } }
 
-/* Nav buttons */
-.bioNavRow { display: flex; gap: 10px; }
-.bioNavBtn { flex: 1; padding: 12px; background: #8DC63F; border: none; border-radius: 100px; color: #000; font-size: 14px; font-weight: 800; font-family: inherit; cursor: pointer; transition: opacity 0.15s; -webkit-tap-highlight-color: transparent; }
-.bioNavBtn:disabled { opacity: 0.25; cursor: default; }
+/* Bottom overlay */
+.bottomOverlay {
+  position: absolute; bottom: 0; left: 0; right: 0;
+  padding: 16px 16px calc(env(safe-area-inset-bottom,0px) + 20px);
+  display: flex; flex-direction: column; gap: 8px; z-index: 8;
+}
+
+.nameRow { display: flex; align-items: baseline; gap: 4px; flex-wrap: wrap; }
+.name { font-size: 30px; font-weight: 900; color: #fff; letter-spacing: -0.04em; text-shadow: 0 2px 12px rgba(0,0,0,0.5); }
+.age  { font-size: 24px; font-weight: 700; color: rgba(255,255,255,0.8); text-shadow: 0 2px 12px rgba(0,0,0,0.5); }
+.liveDot {
+  width: 9px; height: 9px; border-radius: 50%; background: #E8458C;
+  display: inline-block; margin-left: 6px; margin-bottom: 2px;
+  box-shadow: 0 0 6px #E8458C; animation: livePulse 1.5s ease-in-out infinite;
+}
+@keyframes livePulse { 0%,100% { transform: scale(1); } 50% { transform: scale(1.35); } }
+.starSign { font-size: 11px; color: rgba(255,255,255,0.5); font-weight: 700; margin-left: 6px; }
+
+.metaRow { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+.city, .distance { font-size: 12px; color: rgba(255,255,255,0.65); font-weight: 600; }
+.matchBadge {
+  margin-left: auto; background: rgba(232,69,140,0.18); border: 1px solid rgba(232,69,140,0.45);
+  border-radius: 100px; padding: 3px 10px; font-size: 11px; font-weight: 900; color: #E8458C;
+}
+
+.infoChips { display: flex; flex-wrap: wrap; gap: 6px; }
+.chip {
+  font-size: 11px; font-weight: 700; color: rgba(255,255,255,0.6);
+  background: rgba(255,255,255,0.07); border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 100px; padding: 4px 10px;
+}
+
+.statusRow { display: flex; align-items: center; gap: 8px; }
+.statusBadge { font-size: 11px; font-weight: 700; border: 1px solid; border-radius: 100px; padding: 3px 10px; background: rgba(0,0,0,0.3); }
+
+.bioSnippet { background: none; border: none; text-align: left; cursor: pointer; padding: 0; }
+.bioText { font-size: 13px; color: rgba(255,255,255,0.6); line-height: 1.5; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+
+.connectBtn {
+  display: flex; align-items: center; justify-content: center; gap: 10px;
+  width: 100%; padding: 15px 24px; border-radius: 18px;
+  background: #E8458C; border: none; color: #fff;
+  font-size: 16px; font-weight: 900; letter-spacing: -0.02em; cursor: pointer;
+  transition: transform 0.12s, opacity 0.12s;
+}
+.connectBtn:active { transform: scale(0.97); opacity: 0.9; }
+.connectBtnSent { background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.12); color: rgba(255,255,255,0.5); }
+.connectTag { font-size: 10px; font-weight: 900; color: #fff; border-radius: 100px; padding: 3px 8px; text-transform: uppercase; letter-spacing: 0.04em; opacity: 0.8; }
+
+/* Mood popup */
+.moodPopup {
+  position: absolute; right: 76px; top: 50%; transform: translateY(-50%);
+  width: 200px; background: rgba(12,12,18,0.96); border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 18px; padding: 16px 14px 12px; z-index: 20; backdrop-filter: blur(20px);
+  animation: moodPop 0.2s ease;
+}
+@keyframes moodPop { from { opacity: 0; transform: translateY(-45%) scale(0.95); } to { opacity: 1; transform: translateY(-50%); } }
+.moodPopupClose { position: absolute; top: 8px; right: 10px; background: none; border: none; color: rgba(255,255,255,0.4); font-size: 11px; cursor: pointer; }
+.moodPopupTitle { font-size: 13px; font-weight: 900; color: #fff; margin: 0 0 10px; }
+.moodRow { display: flex; align-items: center; gap: 8px; padding: 5px 0; }
+.moodDot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
+.moodLabel { font-size: 11px; color: rgba(255,255,255,0.7); }
+
+/* Bio overlay */
+.bioOverlay { position: absolute; inset: 0; z-index: 22; background: rgba(0,0,0,0.92); display: flex; flex-direction: column; overflow: hidden; animation: bioSlide 0.3s ease; }
+@keyframes bioSlide { from { transform: translateY(100%); } to { transform: none; } }
+.bioHandle { width: 40px; height: 4px; background: rgba(255,255,255,0.2); border-radius: 2px; margin: 10px auto 0; cursor: pointer; }
+.bioImgWrap { position: relative; height: 38vh; flex-shrink: 0; }
+.bioImgEl   { width: 100%; height: 100%; object-fit: cover; }
+.bioImgGrad { position: absolute; inset: 0; background: linear-gradient(to bottom, transparent 50%, rgba(0,0,0,0.95) 100%); }
+.starSignBadge {
+  position: absolute; bottom: 14px; left: 14px;
+  display: flex; align-items: center; gap: 6px;
+  background: rgba(0,0,0,0.6); border: 1px solid rgba(232,69,140,0.4);
+  border-radius: 100px; padding: 5px 12px; font-size: 12px; font-weight: 800; color: #E8458C;
+  backdrop-filter: blur(8px);
+}
+.bioBody { flex: 1; overflow-y: auto; padding: 20px 20px 32px; }
+.bioBodyText { font-size: 15px; color: rgba(255,255,255,0.8); line-height: 1.7; margin: 0 0 16px; }
+.thumbRow { display: flex; gap: 8px; overflow-x: auto; padding-bottom: 4px; }
+.thumb { width: 64px; height: 64px; border-radius: 10px; overflow: hidden; flex-shrink: 0; border: 2px solid transparent; cursor: pointer; padding: 0; }
+.thumbActive { border-color: #E8458C; }
+.thumbImg { width: 100%; height: 100%; object-fit: cover; }
