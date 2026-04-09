@@ -9,22 +9,23 @@ const ICONS = [
   { id: 'coffee',    label: 'Coffee',    img: 'https://ik.imagekit.io/nepgaxllc/Untitleddfsds-removebg-preview.png', bare: true },
   // Right column (top → bottom)
   { id: 'car_taxi',  label: 'Car Taxi',  img: 'https://ik.imagekit.io/nepgaxllc/Sporty%20green%20and%20black%20hatchback.png?updatedAt=1775634925566', bare: true, vehicle: true },
-  { id: 'gym',       label: 'Gym',       img: 'https://ik.imagekit.io/nepgaxllc/Untitleddfgsdfgd-removebg-preview.png', bare: true },
+  { id: 'shopping',  label: 'Shopping',  img: 'https://ik.imagekit.io/nepgaxllc/Untitleddasdasdasdasss-removebg-preview.png', bare: true },
   { id: 'gaming_night', label: 'Gaming', img: 'https://ik.imagekit.io/nepgaxllc/Untitledfsdfsd-removebg-preview.png', bare: true },
 ]
 
 // Each icon gets a unique slow-bob animation offset
 const OFFSETS = [0, 0.4, 0.8, 0.2, 0.6, 1.0]
 
-export default function FloatingIcons({ sessions = [], onSelectSession, onFoodClick, onRideClick }) {
+export default function FloatingIcons({ sessions = [], onSelectSession, onFoodClick, onRideClick, onShoppingClick }) {
   const [activeActivity, setActiveActivity] = useState(null)
 
   const left  = ICONS.slice(0, 3)
   const right = ICONS.slice(3, 6)
 
   const handleIconClick = (icon) => {
-    if (icon.id === 'food' && onFoodClick) { onFoodClick(); return }
-    if ((icon.id === 'bike_ride' || icon.id === 'car_taxi') && onRideClick) { onRideClick(); return }
+    if (icon.id === 'food' && onFoodClick)                                    { onFoodClick();     return }
+    if ((icon.id === 'bike_ride' || icon.id === 'car_taxi') && onRideClick)   { onRideClick();     return }
+    if (icon.id === 'shopping' && onShoppingClick)                            { onShoppingClick(); return }
     setActiveActivity(icon)
   }
 

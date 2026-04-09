@@ -7,16 +7,16 @@ export const DEAL_DAYS = {
   0: { name: 'Sunday Blues',     emoji: '😌', color: '#a78bfa', sub: 'Comfort food & chill vibes' },
   1: { name: 'Monday Rush',      emoji: '⚡', color: '#38bdf8', sub: 'Beat the week with a deal'  },
   2: { name: 'Tuesday Twos',     emoji: '2️⃣', color: '#f472b6', sub: 'Two for one, all day long'  },
-  3: { name: 'Wednesday Win',    emoji: '🏆', color: '#F5C518', sub: 'Midweek treat, you earned it'},
+  3: { name: 'Wednesday Win',    emoji: '🏆', color: '#F59E0B', sub: 'Midweek treat, you earned it'},
   4: { name: 'Thirsty Thursday', emoji: '🥤', color: '#fb923c', sub: 'Drinks deals & happy hours'  },
   5: { name: 'Crunchy Friday',   emoji: '🔥', color: '#ff6b35', sub: 'Fried, grilled & bold'       },
-  6: { name: 'Saturday Live',    emoji: '🎵', color: '#8DC63F', sub: 'Live music & great food'     },
+  6: { name: 'Saturday Live',    emoji: '🎵', color: '#F59E0B', sub: 'Live music & great food'     },
 }
 
 // ── Demo promos (replaced by Supabase when live) ──────────────────────────────
 const DEMO_PROMOS = [
-  { id: 1, restaurant: 'Nasi Goreng Pak Nasio', day: 1, start: '14:00', end: '17:00', offer: '20% Off',   detail: 'All rice dishes',       color: '#F5C518' },
-  { id: 2, restaurant: 'Ayam Geprek Bu Tini',   day: 2, start: '11:00', end: '14:00', offer: 'Free Drink',detail: 'With any main order',   color: '#8DC63F' },
+  { id: 1, restaurant: 'Nasi Goreng Pak Nasio', day: 1, start: '14:00', end: '17:00', offer: '20% Off',   detail: 'All rice dishes',       color: '#F59E0B' },
+  { id: 2, restaurant: 'Ayam Geprek Bu Tini',   day: 2, start: '11:00', end: '14:00', offer: 'Free Drink',detail: 'With any main order',   color: '#F59E0B' },
   { id: 3, restaurant: 'Bakso Pak Budi',        day: 3, start: '17:00', end: '21:00', offer: '2 for 1',   detail: 'Select noodle bowls',   color: '#38bdf8' },
   { id: 4, restaurant: 'Warung Seafood Mbak Sri',day: 4, start: '12:00', end: '15:00', offer: '15% Off',  detail: 'Seafood platters',       color: '#fb923c' },
   { id: 5, restaurant: 'Geprek Corner',         day: 5, start: '17:00', end: '22:00', offer: '2 for 1',   detail: 'Ayam geprek, all levels',color: '#ff6b35' },
@@ -71,7 +71,7 @@ function getPromoStatus(promo) {
 const DAY_NAMES = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat']
 
 // ── Day accent colours (fallback palette) ────────────────────────────────────
-const DAY_COLORS = ['#a78bfa','#38bdf8','#f472b6','#F5C518','#fb923c','#ff6b35','#8DC63F']
+const DAY_COLORS = ['#a78bfa','#38bdf8','#f472b6','#F59E0B','#fb923c','#ff6b35','#F59E0B']
 
 function normalisePromo(row, restaurantName) {
   return {
@@ -82,7 +82,7 @@ function normalisePromo(row, restaurantName) {
     end:        (row.end_time   ?? row.end   ?? '').slice(0, 5),
     offer:      row.title ?? (`${row.offer_type ?? ''} ${row.offer_value ?? ''}`.trim() || row.offer),
     detail:     row.detail ?? '',
-    color:      DAY_COLORS[row.day_of_week ?? row.day] ?? '#F5C518',
+    color:      DAY_COLORS[row.day_of_week ?? row.day] ?? '#F59E0B',
   }
 }
 

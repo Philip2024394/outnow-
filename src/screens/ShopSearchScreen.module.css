@@ -1,0 +1,335 @@
+/* ── Screen ──────────────────────────────────────────────────────────────── */
+.screen {
+  position: fixed;
+  inset: 0;
+  background: #080808;
+  z-index: 120;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+/* ── Header ─────────────────────────────────────────────────────────────── */
+.header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 14px;
+  border-bottom: 1px solid rgba(255,255,255,0.06);
+  flex-shrink: 0;
+}
+
+.backBtn {
+  width: 34px;
+  height: 34px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(255,255,255,0.06);
+  border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 50%;
+  color: rgba(255,255,255,0.6);
+  cursor: pointer;
+  flex-shrink: 0;
+}
+
+/* Search bar */
+.searchWrap {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: rgba(255,255,255,0.06);
+  border: 1.5px solid rgba(245,158,11,0.3);
+  border-radius: 10px;
+  padding: 0 11px;
+  height: 38px;
+  transition: border-color 0.18s, box-shadow 0.18s;
+}
+
+.searchWrap:focus-within {
+  border-color: #F59E0B;
+  box-shadow: 0 0 0 3px rgba(245,158,11,0.1);
+}
+
+.searchIcon {
+  color: #F59E0B;
+  display: flex;
+  align-items: center;
+  flex-shrink: 0;
+}
+
+.searchInput {
+  flex: 1;
+  background: none;
+  border: none;
+  outline: none;
+  color: #fff;
+  font-size: 13px;
+  font-family: inherit;
+}
+
+.searchInput::placeholder { color: rgba(255,255,255,0.22); }
+
+.clearBtn {
+  background: none;
+  border: none;
+  color: rgba(255,255,255,0.3);
+  font-size: 12px;
+  cursor: pointer;
+  font-family: inherit;
+  padding: 0;
+  flex-shrink: 0;
+}
+
+/* Wordmark */
+.wordmark {
+  display: flex;
+  align-items: baseline;
+  gap: 3px;
+  flex-shrink: 0;
+}
+
+.echo {
+  font-size: 13px;
+  font-weight: 900;
+  color: #F59E0B;
+  letter-spacing: 0.1em;
+}
+
+.shop {
+  font-size: 11px;
+  font-weight: 700;
+  color: rgba(255,255,255,0.3);
+}
+
+/* ── Category chips ─────────────────────────────────────────────────────── */
+.chips {
+  display: flex;
+  gap: 7px;
+  padding: 10px 14px 8px;
+  overflow-x: auto;
+  flex-shrink: 0;
+  scrollbar-width: none;
+}
+
+.chips::-webkit-scrollbar { display: none; }
+
+.chip {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 6px 11px;
+  background: rgba(255,255,255,0.05);
+  border: 1px solid rgba(255,255,255,0.09);
+  border-radius: 30px;
+  color: rgba(255,255,255,0.5);
+  font-size: 11px;
+  font-weight: 700;
+  white-space: nowrap;
+  cursor: pointer;
+  font-family: inherit;
+  transition: all 0.15s;
+  flex-shrink: 0;
+}
+
+.chipActive {
+  background: rgba(245,158,11,0.16);
+  border-color: rgba(245,158,11,0.45);
+  color: #F59E0B;
+}
+
+/* ── Results bar ─────────────────────────────────────────────────────────── */
+.resultsBar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 14px 8px;
+  flex-shrink: 0;
+}
+
+.resultsCount {
+  font-size: 11px;
+  color: rgba(255,255,255,0.3);
+  font-weight: 600;
+}
+
+.localBadge {
+  font-size: 10px;
+  font-weight: 700;
+  color: #F59E0B;
+  background: rgba(245,158,11,0.1);
+  border: 1px solid rgba(245,158,11,0.22);
+  border-radius: 20px;
+  padding: 2px 7px;
+}
+
+/* ── Grid ────────────────────────────────────────────────────────────────── */
+.grid {
+  flex: 1;
+  overflow-y: auto;
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 8px;
+  padding: 0 10px 32px;
+  align-content: start;
+}
+
+.grid::-webkit-scrollbar { width: 3px; }
+.grid::-webkit-scrollbar-track { background: transparent; }
+.grid::-webkit-scrollbar-thumb { background: rgba(245,158,11,0.2); border-radius: 2px; }
+
+/* ── Seller card ─────────────────────────────────────────────────────────── */
+.card {
+  background: rgba(255,255,255,0.04);
+  border: 1px solid rgba(255,255,255,0.07);
+  border-radius: 13px;
+  overflow: hidden;
+  cursor: pointer;
+  text-align: left;
+  font-family: inherit;
+  display: flex;
+  flex-direction: column;
+  transition: border-color 0.18s, transform 0.18s, box-shadow 0.18s;
+}
+
+.card:hover,
+.card:active {
+  border-color: rgba(245,158,11,0.4);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 18px rgba(245,158,11,0.1);
+}
+
+.cardImgWrap {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 1 / 1;
+  background: rgba(255,255,255,0.04);
+  overflow: hidden;
+}
+
+.cardImg {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.cardImgFallback {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 26px;
+  font-weight: 900;
+  color: #F59E0B;
+  background: rgba(245,158,11,0.07);
+}
+
+.onlineDot {
+  position: absolute;
+  top: 6px;
+  right: 6px;
+  width: 8px;
+  height: 8px;
+  background: #34D399;
+  border-radius: 50%;
+  border: 2px solid #080808;
+  box-shadow: 0 0 5px rgba(52,211,153,0.7);
+}
+
+.conditionBadge {
+  position: absolute;
+  bottom: 5px;
+  left: 5px;
+  font-size: 8px;
+  font-weight: 800;
+  padding: 2px 5px;
+  border-radius: 20px;
+  background: rgba(245,158,11,0.85);
+  color: #000;
+  text-transform: capitalize;
+}
+
+.cardBody {
+  padding: 7px 8px 9px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.cardName {
+  font-size: 11px;
+  font-weight: 800;
+  color: rgba(255,255,255,0.9);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.cardCat {
+  font-size: 10px;
+  color: #F59E0B;
+  font-weight: 700;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.cardCity {
+  font-size: 9px;
+  color: rgba(255,255,255,0.28);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* ── Skeleton ────────────────────────────────────────────────────────────── */
+.skeletonCard {
+  background: rgba(255,255,255,0.03);
+  border: 1px solid rgba(255,255,255,0.05);
+  border-radius: 13px;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding-bottom: 10px;
+}
+
+.skeletonImg {
+  width: 100%;
+  aspect-ratio: 1 / 1;
+  background: rgba(255,255,255,0.06);
+  animation: shimmer 1.4s ease-in-out infinite;
+}
+
+.skeletonLine {
+  height: 9px;
+  background: rgba(255,255,255,0.05);
+  border-radius: 4px;
+  margin: 0 8px;
+  animation: shimmer 1.4s ease-in-out infinite;
+}
+
+@keyframes shimmer {
+  0%, 100% { opacity: 0.4; }
+  50%       { opacity: 0.9; }
+}
+
+/* ── Empty ───────────────────────────────────────────────────────────────── */
+.empty {
+  grid-column: 1 / -1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 60px 20px;
+  gap: 8px;
+  font-size: 13px;
+  font-weight: 700;
+  color: rgba(255,255,255,0.4);
+}
+
+.empty span { font-size: 36px; }
+.emptySub   { font-size: 12px; color: rgba(255,255,255,0.2); }

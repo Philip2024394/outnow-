@@ -305,3 +305,13 @@
 /* Status glow around the avatar image */
 .avatarLive   { filter: drop-shadow(0 0 5px rgba(141,198,63,0.8));  }
 .avatarInvite { filter: drop-shadow(0 0 5px rgba(245,197,24,0.8)); }
+
+/* Shopping tab — gold active state */
+.shopTab.tabActive {
+  background: rgba(245,158,11,0.12);
+  color: #F59E0B;
+}
+
+.shopTab.tabActive svg {
+  stroke: #F59E0B;
+}

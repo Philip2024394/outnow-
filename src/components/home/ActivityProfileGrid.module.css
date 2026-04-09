@@ -1,102 +1,48 @@
-.overlay {
+/* ActivityProfileGrid — full-screen browse page */
+
+.page {
   position: fixed;
   inset: 0;
-  z-index: 9000;
+  z-index: 9100;
+  background: #08080f;
   display: flex;
   flex-direction: column;
-  justify-content: flex-end;
-  pointer-events: none;
+  animation: pageIn 0.3s cubic-bezier(0.32, 0.72, 0, 1);
 }
 
-.backdrop {
-  position: absolute;
-  inset: 0;
-  background: rgba(0,0,0,0.5);
-  pointer-events: all;
-  animation: fadeIn 0.2s ease forwards;
+@keyframes pageIn {
+  from { transform: translateX(100%); opacity: 0.7; }
+  to   { transform: none;             opacity: 1;   }
 }
 
-@keyframes fadeIn {
-  from { opacity: 0; }
-  to   { opacity: 1; }
-}
-
-.sheet {
-  position: relative;
-  z-index: 1;
-  border-radius: 24px 24px 0 0;
-  border-top: 3px solid #8DC63F;
-  max-height: 94dvh;
-  display: flex;
-  flex-direction: column;
-  pointer-events: all;
-  overflow: hidden;
-  background-position: center top;
-  background-size: cover;
-  background-repeat: no-repeat;
-  background-color: #0a0a10;
-  animation: slideUp 0.32s cubic-bezier(0.32,0.72,0,1) forwards;
-}
-
-@keyframes slideUp {
-  from { transform: translateY(100%); }
-  to   { transform: translateY(0); }
-}
-
-/* Time-of-day background layers */
-.bgLayer {
-  position: absolute;
-  inset: 0;
-  background-position: center top;
-  background-size: cover;
-  background-repeat: no-repeat;
-  transition: opacity 4s ease;
-  pointer-events: none;
-  z-index: 0;
-}
-
-.bgDark {
-  position: absolute;
-  inset: 0;
-  background: #070710;
-  transition: opacity 4s ease;
-  pointer-events: none;
-  z-index: 0;
-}
-
-.handle {
-  position: relative;
-  z-index: 1;
-  width: 40px;
-  height: 4px;
-  border-radius: 100px;
-  background: rgba(255,255,255,0.25);
-  margin: 12px auto 0;
-  flex-shrink: 0;
-  cursor: pointer;
-}
-
-/* Header row */
+/* ── Header ────────────────────────────────────────────────────────────────── */
 .header {
-  position: relative;
-  z-index: 1;
   display: flex;
   align-items: center;
   gap: 12px;
-  padding: 14px 20px 14px;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  padding: calc(env(safe-area-inset-top, 0px) + 12px) 16px 12px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.07);
   flex-shrink: 0;
-  background: transparent;
 }
 
-.headerEmoji {
-  font-size: 32px;
-  line-height: 1;
+.backBtn {
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.07);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
   flex-shrink: 0;
+  -webkit-tap-highlight-color: transparent;
+  transition: transform 0.12s;
 }
+.backBtn:active { transform: scale(0.88); }
 
 .headerText {
-  flex: 1;
   display: flex;
   flex-direction: column;
   gap: 2px;
@@ -104,32 +50,19 @@
 
 .headerTitle {
   font-size: 18px;
-  font-weight: 800;
-  color: #000;
-  line-height: 1.1;
+  font-weight: 900;
+  letter-spacing: -0.03em;
+  line-height: 1;
 }
 
 .headerSub {
   font-size: 12px;
-  color: rgba(255,255,255,0.4);
-  font-weight: 500;
+  color: rgba(255, 255, 255, 0.38);
+  font-weight: 600;
 }
 
-.closeBtn {
-  background: none;
-  border: none;
-  color: rgba(255,255,255,0.4);
-  cursor: pointer;
-  padding: 4px;
-  line-height: 1;
-  flex-shrink: 0;
-  -webkit-tap-highlight-color: transparent;
-}
-
-/* Avatar grid — 3 per row */
+/* ── Grid — 3 columns, scrollable ─────────────────────────────────────────── */
 .grid {
-  position: relative;
-  z-index: 1;
   flex: 1;
   overflow-y: auto;
   -webkit-overflow-scrolling: touch;
@@ -137,208 +70,168 @@
   scrollbar-width: none;
   display: grid;
   grid-template-columns: repeat(3, 1fr);
-  gap: 10px;
-  padding: 16px 10px calc(env(safe-area-inset-bottom, 0px) + 20px);
+  gap: 8px;
+  padding: 10px 10px calc(env(safe-area-inset-bottom, 0px) + 16px);
 }
 
 .grid::-webkit-scrollbar { display: none; }
 
-/* Individual profile card */
+/* ── Card ──────────────────────────────────────────────────────────────────── */
 .card {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 6px;
-}
-
-/* Wrapper — relative so wave button can sit on the rim */
-.avatarWrap {
   position: relative;
-  display: inline-flex;
-  flex-direction: column;
-  align-items: center;
-}
-
-/* Avatar circle — always green ring */
-.avatarBtn {
-  position: relative;
-  width: 96px;
-  height: 96px;
-  border-radius: 50%;
-  border: 3px solid #8DC63F;
-  box-shadow: 0 0 10px rgba(141,198,63,0.45);
-  background: rgba(255,255,255,0.08);
-  overflow: hidden;
-  cursor: pointer;
+  background: none;
+  border: none;
   padding: 0;
+  cursor: pointer;
   -webkit-tap-highlight-color: transparent;
-  transition: transform 0.12s;
-  flex-shrink: 0;
-}
-
-/* Name pinned to bottom of the circle */
-.nameOverlay {
-  position: absolute;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  border-radius: 0 0 50px 50px;
-  background: linear-gradient(to bottom, rgba(0,0,0,0) 0%, rgba(0,0,0,0.65) 100%);
-  color: #fff;
-  font-size: 10px;
-  font-weight: 700;
-  text-align: center;
-  padding: 10px 4px 5px;
-  white-space: nowrap;
+  border-radius: 14px;
   overflow: hidden;
-  text-overflow: ellipsis;
-  pointer-events: none;
+  transition: transform 0.12s;
 }
 
-.avatarBtn:active {
-  transform: scale(0.92);
+.card:active { transform: scale(0.94); }
+
+/* Photo wrapper — fixed aspect ratio */
+.photoWrap {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 3 / 4;
+  border-radius: 14px;
+  overflow: hidden;
+  background: rgba(255, 255, 255, 0.06);
 }
 
-.avatarImg {
-  width: 96px;
-  height: 96px;
-  border-radius: 50%;
+.photo {
+  width: 100%;
+  height: 100%;
   object-fit: cover;
   object-position: center top;
   display: block;
 }
 
-.avatarInitial {
-  width: 96px;
-  height: 96px;
-  border-radius: 50%;
+.photoPlaceholder {
+  width: 100%;
+  height: 100%;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 34px;
-  font-weight: 800;
-  color: rgba(255,255,255,0.6);
+  background: rgba(255, 255, 255, 0.05);
+  font-size: 32px;
+  font-weight: 900;
+  color: rgba(255, 255, 255, 0.3);
 }
 
-/* Status dot — bottom right of avatar */
-.statusDot {
+/* Gradient overlay at bottom */
+.photoGrad {
   position: absolute;
-  bottom: 2px;
-  right: 2px;
-  width: 13px;
-  height: 13px;
-  border-radius: 50%;
-  border: 2px solid rgba(0,0,0,0.7);
-  animation: dotPulse 1.6s ease-in-out infinite;
+  inset: 0;
+  background: linear-gradient(
+    to bottom,
+    transparent 40%,
+    rgba(0, 0, 0, 0.75) 100%
+  );
+  pointer-events: none;
 }
 
-@keyframes dotPulse {
-  0%, 100% { opacity: 1; transform: scale(1); }
-  50%       { opacity: 0.4; transform: scale(0.7); }
+/* Name + age pinned to bottom of photo */
+.cardInfo {
+  position: absolute;
+  bottom: 8px;
+  left: 8px;
+  right: 8px;
+  display: flex;
+  align-items: baseline;
+  gap: 4px;
+  pointer-events: none;
 }
 
-/* Status pill — colour comes from inline style, flashes to draw the eye */
-.statusPill {
-  font-size: 9px;
-  font-weight: 800;
-  text-transform: uppercase;
-  letter-spacing: 0.07em;
-  padding: 3px 9px;
-  border-radius: 100px;
-  border: 1px solid;
-  line-height: 1.4;
-  white-space: nowrap;
-  animation: pillFlash 1.6s ease-in-out infinite;
-}
-
-@keyframes pillFlash {
-  0%, 100% { opacity: 1; }
-  50%       { opacity: 0.45; }
-}
-
-/* Name */
-.name {
+.cardName {
   font-size: 12px;
-  font-weight: 700;
+  font-weight: 800;
   color: #fff;
-  text-align: center;
-  line-height: 1.2;
-  max-width: 96px;
+  white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-  white-space: nowrap;
+  text-shadow: 0 1px 4px rgba(0, 0, 0, 0.6);
 }
 
-/* Distance */
-.dist {
-  font-size: 10px;
+.cardAge {
+  font-size: 11px;
   font-weight: 600;
-  color: rgba(255,255,255,0.4);
-  text-align: center;
+  color: rgba(255, 255, 255, 0.7);
+  flex-shrink: 0;
+  text-shadow: 0 1px 4px rgba(0, 0, 0, 0.6);
 }
 
-/* Quick-hello handshake button — sits on the top-right rim of the avatar */
+/* Handshake / wave button — top right corner */
 .waveBtn {
   position: absolute;
-  top: -4px;
-  right: -4px;
+  top: 7px;
+  right: 7px;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: rgba(0, 0, 0, 0.55);
+  backdrop-filter: blur(10px);
+  border: 1.5px solid rgba(255, 255, 255, 0.2);
+  color: rgba(255, 255, 255, 0.85);
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 30px;
-  height: 30px;
-  border-radius: 50%;
-  background: rgba(8,8,14,0.7);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-  border: 1.5px solid rgba(255,255,255,0.25);
-  color: rgba(255,255,255,0.85);
   cursor: pointer;
-  transition: background 0.15s, border-color 0.15s, transform 0.1s;
+  transition: transform 0.1s, background 0.15s, border-color 0.15s;
   -webkit-tap-highlight-color: transparent;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.1);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.5);
 }
 
-.waveBtn:active {
-  transform: scale(0.9);
-}
-
-.waveBtnSent {
-  background: rgba(141,198,63,0.15);
-  border-color: rgba(141,198,63,0.5);
-  color: #8DC63F;
-  cursor: default;
-}
+.waveBtn:active { transform: scale(0.88); }
 
 .waveDots {
-  font-size: 14px;
-  color: rgba(255,255,255,0.4);
+  font-size: 12px;
+  color: rgba(255, 255, 255, 0.4);
   letter-spacing: 1px;
   line-height: 1;
 }
 
-/* Empty state */
+/* Live dot — top left */
+.liveDot {
+  position: absolute;
+  top: 8px;
+  left: 8px;
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  border: 1.5px solid rgba(0, 0, 0, 0.6);
+  animation: livePulse 1.5s ease-in-out infinite;
+}
+
+@keyframes livePulse {
+  0%, 100% { transform: scale(1);    opacity: 1;   }
+  50%       { transform: scale(1.4); opacity: 0.7; }
+}
+
+/* ── Empty state ───────────────────────────────────────────────────────────── */
 .empty {
   grid-column: 1 / -1;
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 10px;
-  padding: 40px 20px;
+  gap: 12px;
+  padding: 60px 24px;
   text-align: center;
-  color: rgba(255,255,255,0.4);
+  color: rgba(255, 255, 255, 0.4);
   font-size: 14px;
   line-height: 1.6;
 }
 
 .emptyEmoji {
-  font-size: 48px;
+  font-size: 52px;
   line-height: 1;
   opacity: 0.5;
 }
 
 .emptySub {
   font-size: 12px;
-  color: rgba(255,255,255,0.25);
+  color: rgba(255, 255, 255, 0.22);
   margin: 0;
 }

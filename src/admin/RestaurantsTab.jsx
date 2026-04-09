@@ -10,8 +10,8 @@ const DEMO = [
 ]
 
 const FILTER_TABS = [
-  { id: 'pending',  label: 'Pending',  color: '#F5C518' },
-  { id: 'approved', label: 'Approved', color: '#8DC63F' },
+  { id: 'pending',  label: 'Pending',  color: '#F59E0B' },
+  { id: 'approved', label: 'Approved', color: '#F59E0B' },
   { id: 'rejected', label: 'Rejected', color: '#ff6b6b' },
   { id: 'all',      label: 'All',      color: '#888' },
 ]
@@ -99,7 +99,7 @@ export default function RestaurantsTab() {
       {/* Stats */}
       <div className={styles.stats}>
         <div className={styles.stat}><span className={styles.statNum}>{countFor('pending')}</span><span className={styles.statLbl}>Pending</span></div>
-        <div className={styles.stat}><span className={styles.statNum} style={{ color: '#8DC63F' }}>{countFor('approved')}</span><span className={styles.statLbl}>Approved</span></div>
+        <div className={styles.stat}><span className={styles.statNum} style={{ color: '#F59E0B' }}>{countFor('approved')}</span><span className={styles.statLbl}>Approved</span></div>
         <div className={styles.stat}><span className={styles.statNum} style={{ color: '#ff6b6b' }}>{countFor('rejected')}</span><span className={styles.statLbl}>Rejected</span></div>
         <div className={styles.stat}><span className={styles.statNum}>{restaurants.length}</span><span className={styles.statLbl}>Total</span></div>
       </div>

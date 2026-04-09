@@ -31,7 +31,7 @@
   display: flex; align-items: center; gap: 10px;
   flex-shrink: 0; transition: opacity 0.15s;
 }
-.openToggleOn  { background: rgba(141,198,63,0.12); color: #8DC63F; border: 1px solid rgba(141,198,63,0.3); }
+.openToggleOn  { background: rgba(141,198,63,0.12); color: #F59E0B; border: 1px solid rgba(141,198,63,0.3); }
 .openToggleOff { background: rgba(255,107,107,0.08); color: #ff6b6b; border: 1px solid rgba(255,107,107,0.2); }
 .openToggleDot {
   width: 10px; height: 10px; border-radius: 50%;
@@ -41,7 +41,7 @@
 .pendingNotice {
   margin: 12px 20px 0; padding: 12px 16px; border-radius: 12px;
   background: rgba(245,197,24,0.08); border: 1px solid rgba(245,197,24,0.2);
-  color: #F5C518; font-size: 13px; font-weight: 600; flex-shrink: 0;
+  color: #F59E0B; font-size: 13px; font-weight: 600; flex-shrink: 0;
 }
 
 /* Tabs */
@@ -56,7 +56,7 @@
   cursor: pointer; font-family: inherit; transition: all 0.15s;
 }
 .tabActive {
-  background: rgba(141,198,63,0.1); border-color: rgba(141,198,63,0.35); color: #8DC63F;
+  background: rgba(141,198,63,0.1); border-color: rgba(141,198,63,0.35); color: #F59E0B;
 }
 
 /* Scroll area */
@@ -82,7 +82,7 @@
 
 .saveBtn {
   width: 100%; padding: 15px; border-radius: 14px;
-  background: #8DC63F; color: #000; border: none;
+  background: #F59E0B; color: #000; border: none;
   font-size: 15px; font-weight: 900; cursor: pointer; font-family: inherit;
   transition: opacity 0.15s; margin-top: 4px;
 }
@@ -95,7 +95,7 @@
 .addItemBtn {
   width: 100%; padding: 12px; border-radius: 12px;
   background: rgba(141,198,63,0.08); border: 1px dashed rgba(141,198,63,0.3);
-  color: #8DC63F; font-size: 14px; font-weight: 800;
+  color: #F59E0B; font-size: 14px; font-weight: 800;
   cursor: pointer; font-family: inherit;
 }
 
@@ -106,7 +106,7 @@
 .menuItemRowOff { opacity: 0.5; }
 .menuItemInfo { flex: 1; display: flex; flex-direction: column; gap: 3px; min-width: 0; }
 .menuItemName { font-size: 14px; font-weight: 800; color: #eee; }
-.menuItemMeta { font-size: 11px; color: #8DC63F; font-weight: 700; }
+.menuItemMeta { font-size: 11px; color: #F59E0B; font-weight: 700; }
 .menuItemDesc { font-size: 11px; color: #555; }
 .menuItemActions { display: flex; align-items: center; gap: 6px; flex-shrink: 0; }
 
@@ -114,7 +114,7 @@
   padding: 4px 10px; border-radius: 100px; font-size: 10px; font-weight: 800;
   cursor: pointer; font-family: inherit; border: 1px solid; white-space: nowrap;
 }
-.availBtnOn  { color: #8DC63F; border-color: rgba(141,198,63,0.3); background: rgba(141,198,63,0.08); }
+.availBtnOn  { color: #F59E0B; border-color: rgba(141,198,63,0.3); background: rgba(141,198,63,0.08); }
 .availBtnOff { color: #ff6b6b; border-color: rgba(255,107,107,0.3); background: rgba(255,107,107,0.08); }
 .editBtn {
   padding: 4px 10px; border-radius: 8px; font-size: 11px; font-weight: 700;
@@ -149,7 +149,7 @@
 /* Toast */
 .toast {
   position: fixed; bottom: 80px; left: 50%; transform: translateX(-50%);
-  background: #1a1a1a; color: #8DC63F; border: 1px solid rgba(141,198,63,0.3);
+  background: #1a1a1a; color: #F59E0B; border: 1px solid rgba(141,198,63,0.3);
   padding: 10px 20px; border-radius: 100px; font-size: 13px; font-weight: 700;
   z-index: 101000; white-space: nowrap;
 }
@@ -175,7 +175,7 @@
   background: rgba(141,198,63,0.06); border: 1px solid rgba(141,198,63,0.2);
   border-radius: 14px; padding: 14px 16px;
 }
-.priceCalloutAmount { font-size: 22px; font-weight: 900; color: #8DC63F; letter-spacing: -0.03em; }
+.priceCalloutAmount { font-size: 22px; font-weight: 900; color: #F59E0B; letter-spacing: -0.03em; }
 .priceCalloutLabel  { font-size: 11px; color: #555; font-weight: 700; line-height: 1.4; }
 
 /* 2-column grid */
@@ -217,7 +217,7 @@
 
 .mineBadge {
   position: absolute; top: 8px; left: 8px;
-  font-size: 10px; font-weight: 800; color: #8DC63F;
+  font-size: 10px; font-weight: 800; color: #F59E0B;
   background: rgba(0,0,0,0.75); border: 1px solid rgba(141,198,63,0.4);
   border-radius: 100px; padding: 3px 10px;
   backdrop-filter: blur(6px);
@@ -230,7 +230,7 @@
 
 .buyBtn {
   width: 100%; padding: 9px; border-radius: 10px;
-  background: #8DC63F; color: #000;
+  background: #F59E0B; color: #000;
   border: none; font-size: 12px; font-weight: 900;
   cursor: pointer; font-family: inherit;
   transition: opacity 0.15s, transform 0.1s;
@@ -238,9 +238,9 @@
 .buyBtn:active { transform: scale(0.97); }
 .buyBtnPending {
   background: rgba(141,198,63,0.15);
-  color: #8DC63F; border: 1px solid rgba(141,198,63,0.3);
+  color: #F59E0B; border: 1px solid rgba(141,198,63,0.3);
 }
-.ownedLabel { font-size: 11px; color: #8DC63F; font-weight: 700; text-align: center; }
+.ownedLabel { font-size: 11px; color: #F59E0B; font-weight: 700; text-align: center; }
 
 .photosNote {
   font-size: 11px; color: #333; line-height: 1.5; margin: 0;
@@ -277,7 +277,7 @@
 .checkPillOn {
   background: rgba(141,198,63,0.1);
   border-color: rgba(141,198,63,0.35);
-  color: #8DC63F;
+  color: #F59E0B;
 }
 
 /* Toggle switch */
@@ -298,7 +298,7 @@
   width: 18px; height: 18px; border-radius: 50%;
   background: #444; transition: transform 0.2s, background 0.2s;
 }
-.toggleOn .toggleThumb { transform: translateX(18px); background: #8DC63F; }
+.toggleOn .toggleThumb { transform: translateX(18px); background: #F59E0B; }
 
 /* Bank preview card */
 .bankPreview {
@@ -312,7 +312,7 @@
 .bankPreviewHolder { font-size: 12px; font-weight: 800; color: rgba(255,255,255,0.7); }
 
 .repeatPreview {
-  font-size: 12px; font-weight: 800; color: #8DC63F;
+  font-size: 12px; font-weight: 800; color: #F59E0B;
   background: rgba(141,198,63,0.08); border: 1px solid rgba(141,198,63,0.2);
   border-radius: 10px; padding: 10px 12px;
 }

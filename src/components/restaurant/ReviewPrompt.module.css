@@ -17,7 +17,7 @@
 }
 .badgeDot {
   width: 28px; height: 28px; border-radius: 50%; flex-shrink: 0;
-  background: #F5C518; color: #000;
+  background: #F59E0B; color: #000;
   font-size: 13px; font-weight: 900;
   display: flex; align-items: center; justify-content: center;
 }
@@ -50,7 +50,7 @@
   width: 36px; height: 4px; border-radius: 2px;
   background: rgba(255,255,255,0.1); align-self: center; margin-bottom: 4px;
 }
-.modalOrderRef { font-size: 10px; color: #8DC63F; font-weight: 800; letter-spacing: 0.06em; margin: 0; }
+.modalOrderRef { font-size: 10px; color: #F59E0B; font-weight: 800; letter-spacing: 0.06em; margin: 0; }
 .modalTitle    { font-size: 22px; font-weight: 900; color: #fff; margin: 0; letter-spacing: -0.03em; }
 .modalSub      { font-size: 13px; color: #444; margin: -8px 0 0; }
 
@@ -64,7 +64,7 @@
   padding: 0; line-height: 1;
 }
 .starBtn:active { transform: scale(1.2); }
-.starOn { color: #F5C518; }
+.starOn { color: #F59E0B; }
 
 .starLabels {
   display: flex; justify-content: space-between;
@@ -83,7 +83,7 @@
 
 .submitBtn {
   width: 100%; padding: 16px; border-radius: 14px;
-  background: #F5C518; color: #000; border: none;
+  background: #F59E0B; color: #000; border: none;
   font-size: 15px; font-weight: 900; cursor: pointer; font-family: inherit;
   transition: opacity 0.15s;
 }

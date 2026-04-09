@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { createPortal } from 'react-dom'
 import { supabase } from '@/lib/supabase'
 import styles from './IntentGrid.module.css'
@@ -12,7 +12,7 @@ const TILES = [
   {
     value: 'marriage',
     label: 'Marriage',
-    emoji: '💍',
+    img: 'https://ik.imagekit.io/nepgaxllc/Untitleddsadasdasd.png',
     description: 'I want forever',
     bg:     'rgba(244,114,182,0.15)',
     bgSel:  'rgba(244,114,182,0.28)',
@@ -23,7 +23,7 @@ const TILES = [
   {
     value: 'dating',
     label: 'Relationship',
-    img: 'https://ik.imagekit.io/nepgaxllc/Untitledasdasdasaaaaaaa-removebg-preview.png?updatedAt=1775627388475',
+    img: 'https://ik.imagekit.io/nepgaxllc/Romantic%20sunset%20lakeside%20embrace.png',
     description: 'Real dating',
     bg:     'rgba(232,69,140,0.15)',
     bgSel:  'rgba(232,69,140,0.28)',
@@ -34,35 +34,35 @@ const TILES = [
   {
     value: 'friendship',
     label: 'Friendship',
-    emoji: '👯',
+    img: 'https://ik.imagekit.io/nepgaxllc/UntitledDASDASDASDF.png',
     description: 'Platonic only',
     bg:     'rgba(141,198,63,0.12)',
     bgSel:  'rgba(141,198,63,0.24)',
     border: 'rgba(141,198,63,0.3)',
-    active: '#8DC63F',
-    glow:   'rgba(141,198,63,0.4)',
-  },
-  {
-    value: 'travel',
-    label: 'Travel Partner',
-    emoji: '✈️',
-    description: 'Explore together',
-    bg:     'rgba(56,189,248,0.12)',
-    bgSel:  'rgba(56,189,248,0.24)',
-    border: 'rgba(56,189,248,0.3)',
-    active: '#38BDF8',
-    glow:   'rgba(56,189,248,0.4)',
+    active: '#F472B6',
+    glow:   'rgba(244,114,182,0.4)',
   },
   {
     value: 'date_night',
     label: 'Date Night',
-    emoji: '🍽️',
+    img: 'https://ik.imagekit.io/nepgaxllc/Untitleddsadasdasdsdasdaasdasd.png',
     description: 'Casual fun',
-    bg:     'rgba(249,115,22,0.12)',
-    bgSel:  'rgba(249,115,22,0.24)',
-    border: 'rgba(249,115,22,0.3)',
-    active: '#F97316',
-    glow:   'rgba(249,115,22,0.4)',
+    bg:     'rgba(244,114,182,0.12)',
+    bgSel:  'rgba(244,114,182,0.24)',
+    border: 'rgba(244,114,182,0.3)',
+    active: '#F472B6',
+    glow:   'rgba(244,114,182,0.4)',
+  },
+  {
+    value: 'travel',
+    label: 'Travel Partner',
+    img: 'https://ik.imagekit.io/nepgaxllc/Untitleddsadasdasdsdasdaasdasdasdasd.png',
+    description: 'Explore together',
+    bg:     'rgba(244,114,182,0.12)',
+    bgSel:  'rgba(244,114,182,0.24)',
+    border: 'rgba(244,114,182,0.3)',
+    active: '#F472B6',
+    glow:   'rgba(244,114,182,0.4)',
   },
   {
     value: 'business',
@@ -99,25 +99,61 @@ const TILES = [
   },
 ]
 
+// Dating-only subset — no business / coaching / pen_pal
+const DATING_TILE_VALUES = ['marriage', 'dating', 'date_night', 'friendship', 'travel', 'meet_new']
+
+// Add meet_new tile if not in the main list
+const MEET_NEW_TILE = {
+  value: 'meet_new',
+  label: 'Free Tonight',
+  img:   'https://ik.imagekit.io/nepgaxllc/UntitledxcvzcvzxcvzxcASDASD.png',
+  description: 'Just socialising',
+  bg:     'rgba(99,102,241,0.15)',
+  bgSel:  'rgba(99,102,241,0.28)',
+  border: 'rgba(99,102,241,0.3)',
+  active: '#F472B6',
+  glow:   'rgba(99,102,241,0.4)',
+}
+
+const ALL_TILES = [...TILES, MEET_NEW_TILE]
+
 // Fallback demo popularities (sum ~100)
 const DEMO_POP = {
   marriage: 35, dating: 28, friendship: 16, travel: 8,
-  date_night: 5, business: 4, coaching: 3, pen_pal: 1,
+  date_night: 5, business: 4, coaching: 3, pen_pal: 1, meet_new: 6,
 }
 
-// Rank → grid span
-function getColSpan(rank) { return rank <= 3 ? 2 : 1 }
-function getRowSpan(rank) { return rank <= 1 ? 2 : 1 }
+// Rank → grid span — for 6 tiles all cols span 2; for 8 tiles bottom 4 span 1
+function getColSpan(rank, total) { return total <= 6 ? 2 : (rank <= 3 ? 2 : 1) }
+function getRowSpan(rank)        { return rank <= 1 ? 2 : 1 }
 
-export default function IntentGrid({ open, value, city, onChange, onBrowseAll }) {
-  const [pops, setPops]           = useState(DEMO_POP)
-  const [selected, setSelected]   = useState(null)
-  const [visible, setVisible]     = useState(false)
-  const [statsOn, setStatsOn]     = useState(false)
+// ── Particle seed (stable per open) ──────────────────────────────────────────
+const SHAPES  = ['♡', '♡', '♡', '✦', '·', '·']
+function seedParticles() {
+  return Array.from({ length: 18 }, (_, i) => ({
+    id:      i,
+    shape:   SHAPES[i % SHAPES.length],
+    left:    `${5 + (i * 5.3) % 90}%`,
+    size:    8 + (i * 3.7) % 14,           // 8–22px
+    dur:     `${7 + (i * 1.3) % 6}s`,      // 7–13s
+    delay:   `${-(i * 0.9) % 8}s`,         // staggered, some already mid-flight
+    driftX:  `${-14 + (i * 5) % 28}px`,    // –14 to +14px lateral sway
+    opacity: 0.12 + (i * 0.04) % 0.22,     // 0.12–0.34
+    blur:    i % 3 === 0 ? '1px' : '0px',  // every 3rd is slightly blurred (depth)
+  }))
+}
+
+export default function IntentGrid({ open, value, city, onChange, onBrowseAll, mode = 'all' }) {
+  const tileSet = mode === 'dating'
+    ? ALL_TILES.filter(t => DATING_TILE_VALUES.includes(t.value))
+    : ALL_TILES.filter(t => t.value !== 'meet_new') // original 8
+  const [pops, setPops]       = useState(DEMO_POP)
+  const [visible, setVisible] = useState(false)
+  const [statsOn, setStatsOn] = useState(false)
+  const particles = useMemo(() => seedParticles(), [])
 
   useEffect(() => {
     if (!open) { setVisible(false); setStatsOn(false); return }
-    setSelected(value ?? null)
     setVisible(false)
     setStatsOn(false)
 
@@ -147,114 +183,117 @@ export default function IntentGrid({ open, value, city, onChange, onBrowseAll })
   if (!open) return null
 
   // Sort by popularity to assign ranks (rank 0 = most popular)
-  const sorted = [...TILES].sort((a, b) => (pops[b.value] ?? 0) - (pops[a.value] ?? 0))
+  const sorted = [...tileSet].sort((a, b) => (pops[b.value] ?? 0) - (pops[a.value] ?? 0))
 
-  const handleConfirm = () => {
-    if (!selected) return
-    onChange(selected)
-  }
-
-  const selectedTile = TILES.find(t => t.value === selected)
 
   return createPortal(
     <div className={styles.overlay}>
-      <div className={styles.backdrop} />
 
       <div className={styles.sheet}>
-        <div className={styles.handle} />
+
+        {/* Particle layer — hearts + sparks drifting up */}
+        <div className={styles.particles} aria-hidden="true">
+          {particles.map(p => (
+            <span
+              key={p.id}
+              className={styles.particle}
+              style={{
+                left:            p.left,
+                fontSize:        p.size,
+                animationDelay:  p.delay,
+                '--dur':         p.dur,
+                '--drift-x':     p.driftX,
+                '--peak':        p.opacity,
+                filter:          p.blur !== '0px' ? `blur(${p.blur})` : undefined,
+                color:           p.shape === '♡' ? '#F472B6' : 'rgba(255,255,255,0.55)',
+              }}
+            >{p.shape}</span>
+          ))}
+        </div>
 
         {/* Header */}
         <div className={styles.header}>
           <div>
-            <div className={styles.title}>I joined the app for</div>
+            <div className={styles.title}>
+              {mode === 'dating' ? 'I am searching for' : 'I joined the app for'}
+            </div>
             <div className={styles.sub}>
-              {city ? `Sized by what people want in ${city}` : 'Sized by local popularity'}
+              {mode === 'dating'
+                ? 'love awaits who wishes to find'
+                : city ? `Sized by what people want in ${city}` : 'Sized by local popularity'
+              }
             </div>
           </div>
+          {onBrowseAll && (
+            <button
+              onClick={onBrowseAll}
+              style={{ background: 'none', border: 'none', color: 'rgba(255,255,255,0.4)', fontSize: 13, fontWeight: 700, cursor: 'pointer', fontFamily: 'inherit', padding: '6px 0 6px 12px' }}
+            >
+              ✕
+            </button>
+          )}
         </div>
 
         {/* Grid */}
         <div className={styles.grid}>
           {sorted.map((tile, rank) => {
             const pct      = pops[tile.value] ?? 0
-            const colSpan  = getColSpan(rank)
+            const colSpan  = getColSpan(rank, sorted.length)
             const rowSpan  = getRowSpan(rank)
-            const isSel    = selected === tile.value
             const isBig    = rowSpan === 2
             const delay    = `${rank * 55}ms`
 
             return (
               <button
                 key={tile.value}
-                className={[
-                  styles.tile,
-                  visible  ? styles.tileIn  : '',
-                  isSel    ? styles.tileSel : '',
-                ].join(' ')}
+                className={[styles.tile, visible ? styles.tileIn : ''].join(' ')}
                 style={{
-                  gridColumn:       `span ${colSpan}`,
-                  gridRow:          `span ${rowSpan}`,
-                  background:       isSel ? tile.bgSel : tile.bg,
-                  borderColor:      isSel ? tile.active : tile.border,
-                  boxShadow:        isSel ? `0 0 0 2px ${tile.active}, 0 4px 24px ${tile.glow}` : 'none',
-                  animationDelay:   delay,
-                  transitionDelay:  visible ? delay : '0ms',
+                  gridColumn:      `span ${colSpan}`,
+                  gridRow:         `span ${rowSpan}`,
+                  background:      tile.img ? '#000' : tile.bg,
+                  borderColor:     tile.border,
+                  padding:         0,
+                  animationDelay:  delay,
+                  transitionDelay: visible ? delay : '0ms',
                 }}
-                onClick={() => setSelected(isSel ? null : tile.value)}
+                onClick={() => onChange(tile.value)}
               >
-                {/* Icon */}
-                {tile.img
-                  ? <img src={tile.img} alt={tile.label} className={styles.tileImg} style={{ width: isBig ? 52 : 32, height: isBig ? 52 : 32 }} />
-                  : <span className={styles.tileEmoji} style={{ fontSize: isBig ? 44 : 26 }}>{tile.emoji}</span>
-                }
-
-                {/* Label */}
-                <span className={styles.tileLabel} style={{ fontSize: isBig ? 16 : 12, color: isSel ? tile.active : '#fff' }}>
-                  {tile.label}
-                </span>
-
-                {/* Description — only on 2×2 tiles */}
-                {isBig && (
-                  <span className={styles.tileDesc}>{tile.description}</span>
-                )}
-
-                {/* City stat */}
-                {pct > 0 && (
-                  <span
-                    className={[styles.tileStat, statsOn ? styles.tileStatOn : ''].join(' ')}
-                    style={{ color: tile.active }}
-                  >
-                    {pct}%{city ? ` in ${city}` : ''}
-                  </span>
-                )}
-
-                {/* Check mark */}
-                {isSel && (
-                  <span className={styles.tileCheck} style={{ background: tile.active }}>
-                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="3.5" strokeLinecap="round" strokeLinejoin="round">
-                      <polyline points="20 6 9 17 4 12"/>
-                    </svg>
-                  </span>
+                {tile.img ? (
+                  /* Full-cover image with gradient overlay + text */
+                  <>
+                    <img src={tile.img} alt={tile.label} className={styles.tileBgImg} />
+                    <div className={styles.tileBgGrad} />
+                    <div className={styles.tileOverlayText}>
+                      <span className={styles.tileLabel} style={{ fontSize: isBig ? 17 : 12, color: '#fff' }}>{tile.label}</span>
+                      {isBig && <span className={styles.tileDesc} style={{ color: '#F472B6' }}>{tile.description}</span>}
+                      {pct > 0 && (
+                        <span className={[styles.tileStat, statsOn ? styles.tileStatOn : ''].join(' ')} style={{ color: tile.active, position: 'static', opacity: statsOn ? 0.9 : 0, transform: 'none' }}>
+                          {pct}%{city ? ` in ${city}` : ''}
+                        </span>
+                      )}
+                    </div>
+                  </>
+                ) : (
+                  /* Emoji + text layout */
+                  <>
+                    <span className={styles.tileEmoji} style={{ fontSize: isBig ? 40 : 22 }}>{tile.emoji}</span>
+                    <span className={styles.tileLabel} style={{ fontSize: isBig ? 15 : 11 }}>{tile.label}</span>
+                    {isBig && <span className={styles.tileDesc}>{tile.description}</span>}
+                    {pct > 0 && (
+                      <span
+                        className={[styles.tileStat, statsOn ? styles.tileStatOn : ''].join(' ')}
+                        style={{ color: tile.active }}
+                      >
+                        {pct}%{city ? ` in ${city}` : ''}
+                      </span>
+                    )}
+                  </>
                 )}
               </button>
             )
           })}
         </div>
 
-        {/* Footer */}
-        <div className={styles.footer}>
-          <button
-            className={[styles.ctaBtn, selected ? styles.ctaBtnOn : ''].join(' ')}
-            style={selected ? { background: selectedTile?.active, boxShadow: `0 4px 20px ${selectedTile?.glow}` } : {}}
-            onClick={handleConfirm}
-            disabled={!selected}
-          >
-            {selected ? `Continue with ${selectedTile?.label}` : 'Tap a tile to continue'}
-          </button>
-          <button className={styles.browseAllBtn} onClick={onBrowseAll}>
-            Browse all 80+ categories →
-          </button>
-        </div>
       </div>
     </div>,
     document.body

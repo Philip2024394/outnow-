@@ -34,6 +34,7 @@ import { fetchDriverPendingBooking } from '@/services/bookingService'
 import SideDrawer from '@/components/ui/SideDrawer'
 import MicroShop from '@/components/ui/MicroShop'
 import MicroShopEditor from '@/components/ui/MicroShopEditor'
+import EchoCommercePanel from '@/components/commerce/EchoCommercePanel'
 
 const EU_COUNTRIES = new Set([
   'Austria','Belgium','Bulgaria','Croatia','Cyprus','Czech Republic','Denmark',
@@ -378,6 +379,12 @@ export default function ProfileScreen({ onClose, onboarding = false }) {
   // ── Mood Light ───────────────────────────────────────────────────────────────
   const [moodLight, setMoodLight] = useState(userProfile?.moodLight ?? '')
 
+  // ── ECHO Commerce (business intent) ─────────────────────────────────────────
+  const [echoPanelOpen,   setEchoPanelOpen]   = useState(false)
+  const [bizWhatsapp,     setBizWhatsapp]      = useState(userProfile?.bizWhatsapp ?? '')
+  const [bizCategory,     setBizCategory]      = useState(userProfile?.bizCategory ?? '')
+  const [productCondition, setProductCondition] = useState(userProfile?.productCondition ?? 'new')
+
   // ── Dating extra fields ──────────────────────────────────────────────────────
   const [height,       setHeight]       = useState(userProfile?.height ?? '')
   const [dealBreakers, setDealBreakers] = useState(userProfile?.dealBreakers ?? '')
@@ -687,6 +694,8 @@ export default function ProfileScreen({ onClose, onboarding = false }) {
         vehicle_year:  (lookingFor === 'car_taxi' || lookingFor === 'bike_ride') ? (Number(vehicleYear) || null) : undefined,
         vehicle_color: (lookingFor === 'car_taxi' || lookingFor === 'bike_ride') ? (vehicleColor.trim() || null) : undefined,
         plate_prefix:  (lookingFor === 'car_taxi' || lookingFor === 'bike_ride') ? (platePrefix.trim().toUpperCase() || null) : undefined,
+        bizWhatsapp:      lookingFor === 'business' ? (bizWhatsapp.trim() || null) : undefined,
+        productCondition: lookingFor === 'business' ? (productCondition || null)   : undefined,
       })
       if (bio.trim().length > 0)       earn('BIO_WRITTEN')
       if (selectedActivity)            earn('ACTIVITIES_SET')
@@ -1184,6 +1193,88 @@ export default function ProfileScreen({ onClose, onboarding = false }) {
               >
                 🍴 Open Restaurant Dashboard
               </button>
+            </div>
+          )}
+
+          {/* ECHO Commerce — business intent section */}
+          {lookingFor === 'business' && (
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 12, marginTop: 8 }}>
+              <div style={{ background: 'rgba(245,158,11,0.08)', border: '1px solid rgba(245,158,11,0.2)', borderRadius: 14, padding: '14px 16px' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 10 }}>
+                  <span style={{ fontSize: 15, fontWeight: 900, color: '#F59E0B', letterSpacing: '0.08em' }}>ECHO</span>
+                  <span style={{ fontSize: 13, fontWeight: 700, color: 'rgba(255,255,255,0.5)' }}>Commerce Setup</span>
+                </div>
+
+                {/* Brand name */}
+                <div className={styles.fieldRow} style={{ marginBottom: 10 }}>
+                  <label className={styles.fieldLabel}>Brand / Business Name</label>
+                  <input
+                    className={styles.fieldInput}
+                    value={brandName}
+                    onChange={e => setBrandName(e.target.value)}
+                    placeholder="e.g. My Store, ABC Supplies…"
+                  />
+                </div>
+
+                {/* WhatsApp number */}
+                <div className={styles.fieldRow} style={{ marginBottom: 10 }}>
+                  <label className={styles.fieldLabel}>WhatsApp Number</label>
+                  <input
+                    className={styles.fieldInput}
+                    value={bizWhatsapp}
+                    onChange={e => setBizWhatsapp(e.target.value)}
+                    placeholder="+1 555 000 0000"
+                    type="tel"
+                  />
+                </div>
+
+                {/* Product condition: new or used */}
+                <div className={styles.fieldRow} style={{ marginBottom: 10 }}>
+                  <label className={styles.fieldLabel}>Products are</label>
+                  <div style={{ display: 'flex', gap: 8 }}>
+                    {[
+                      { value: 'new',         label: '✨ New' },
+                      { value: 'used',        label: '♻️ Used' },
+                      { value: 'both',        label: '🔀 Both' },
+                      { value: 'refurbished', label: '🔧 Refurbished' },
+                    ].map(opt => (
+                      <button
+                        key={opt.value}
+                        type="button"
+                        onClick={() => setProductCondition(opt.value)}
+                        style={{
+                          flex: 1,
+                          padding: '7px 4px',
+                          background: productCondition === opt.value ? 'rgba(245,158,11,0.2)' : 'rgba(255,255,255,0.05)',
+                          border: `1px solid ${productCondition === opt.value ? 'rgba(245,158,11,0.45)' : 'rgba(255,255,255,0.1)'}`,
+                          borderRadius: 9,
+                          color: productCondition === opt.value ? '#F59E0B' : 'rgba(255,255,255,0.45)',
+                          fontSize: 10,
+                          fontWeight: 700,
+                          cursor: 'pointer',
+                          fontFamily: 'inherit',
+                        }}
+                      >
+                        {opt.label}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Open seller panel */}
+                <button
+                  type="button"
+                  onClick={() => setEchoPanelOpen(true)}
+                  style={{
+                    width: '100%', padding: '14px', borderRadius: 12,
+                    background: 'rgba(245,158,11,0.15)', border: '1px solid rgba(245,158,11,0.35)',
+                    color: '#F59E0B', fontSize: 14, fontWeight: 900,
+                    cursor: 'pointer', fontFamily: 'inherit',
+                  }}
+                >
+                  💼 Open Seller Dashboard
+                </button>
+              </div>
             </div>
           )}
 
@@ -2051,6 +2142,16 @@ export default function ProfileScreen({ onClose, onboarding = false }) {
         onChange={(main, sub) => { setLookingFor(main); setSubCategory(sub ?? null) }}
         onClose={() => setLookingForOpen(false)}
       />
+
+      {/* ── ECHO Commerce panel (business intent only) ── */}
+      {lookingFor === 'business' && (
+        <EchoCommercePanel
+          open={echoPanelOpen}
+          onToggle={setEchoPanelOpen}
+          userId={user?.uid ?? user?.id}
+          businessName={brandName}
+        />
+      )}
 
       {/* ── Account Drawer (self-contained portal) ── */}
       {drawerOpen && createPortal(

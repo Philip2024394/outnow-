@@ -12,7 +12,7 @@ export const FOOD_CATEGORIES = [
     label: 'MAKAN',
     emoji: '🍽',
     tagline: 'Everything near you',
-    color: '#F5C518',
+    color: '#F59E0B',
     videoUrl:  null,
     posterUrl: null,
     gradient: 'linear-gradient(160deg, #1a1200 0%, #2d2000 50%, #0d0d0d 100%)',
@@ -22,7 +22,7 @@ export const FOOD_CATEGORIES = [
     label: 'Rice Dishes',
     emoji: '🍚',
     tagline: 'Comfort in every grain',
-    color: '#F5C518',
+    color: '#F59E0B',
     videoUrl:  'https://fjvafjkzvygkhiwjuvla.supabase.co/storage/v1/object/sign/category-videos/cool%20rice.mp4?token=eyJraWQiOiJzdG9yYWdlLXVybC1zaWduaW5nLWtleV9mN2EwYjVlOC05MWUxLTRkMTAtYmU3ZC1kMzcyM2FhY2ZjZTIiLCJhbGciOiJIUzI1NiJ9.eyJ1cmwiOiJjYXRlZ29yeS12aWRlb3MvY29vbCByaWNlLm1wNCIsImlhdCI6MTc3NTY3MjExMSwiZXhwIjoyMDkxMDMyMTExfQ.Ny19MR2SrVB9aNEGGzh2p_8A863OagwOSLSoENM_A_4',
     posterUrl: null,
     gradient: 'linear-gradient(160deg, #1a1500 0%, #2a2100 50%, #0d0d0d 100%)',
@@ -52,7 +52,7 @@ export const FOOD_CATEGORIES = [
     label: 'Burgers',
     emoji: '🍔',
     tagline: 'Stack it high',
-    color: '#8DC63F',
+    color: '#F59E0B',
     videoUrl:  'https://fjvafjkzvygkhiwjuvla.supabase.co/storage/v1/object/sign/category-videos/burger.mp4?token=eyJraWQiOiJzdG9yYWdlLXVybC1zaWduaW5nLWtleV9mN2EwYjVlOC05MWUxLTRkMTAtYmU3ZC1kMzcyM2FhY2ZjZTIiLCJhbGciOiJIUzI1NiJ9.eyJ1cmwiOiJjYXRlZ29yeS12aWRlb3MvYnVyZ2VyLm1wNCIsImlhdCI6MTc3NTcxNjgzMSwiZXhwIjoyMDkxMDc2ODMxfQ.sC5ZQtgp0mgFVdFgn-xIHo2d9AGsTN_NXK5aCqh2Dlc',
     posterUrl: null,
     gradient: 'linear-gradient(160deg, #071a00 0%, #0f2800 50%, #0d0d0d 100%)',
@@ -506,7 +506,7 @@ function CategoryCard({ cat, isActive, videoRef, onClick, viewerCount }) {
 
         <button
           className={styles.explorBtn}
-          style={{ background: '#8DC63F' }}
+          style={{ background: '#F59E0B' }}
           onClick={onClick}
         >
           <span>
@@ -521,7 +521,7 @@ function CategoryCard({ cat, isActive, videoRef, onClick, viewerCount }) {
       {/* Bottom strip — glows active color when this card is visible */}
       <div
         className={styles.activeStrip}
-        style={{ background: '#8DC63F', opacity: isActive ? 1 : 0 }}
+        style={{ background: '#F59E0B', opacity: isActive ? 1 : 0 }}
       />
     </div>
   )

@@ -61,7 +61,7 @@ import WalletScreen from '@/screens/WalletScreen'
 import ChatScreen from '@/screens/ChatScreen'
 import MatchScreen from '@/screens/MatchScreen'
 import VenueGroupChat from '@/components/venue/VenueGroupChat'
-import { DEMO_VENUE_MESSAGES } from '@/demo/mockData'
+import { DEMO_VENUE_MESSAGES, DEMO_DATING_BUBBLES } from '@/demo/mockData'
 import MomentsBar from '@/components/moments/MomentsBar'
 import MomentViewer from '@/components/moments/MomentViewer'
 import AddMomentSheet from '@/components/moments/AddMomentSheet'
@@ -90,12 +90,14 @@ import VibeCheckBanner from '@/components/vibecheck/VibeCheckBanner'
 import MapIntroOverlay from '@/components/ui/MapIntroOverlay'
 import TimeBackground from '@/components/ui/TimeBackground'
 import FloatingIcons from '@/components/home/FloatingIcons'
-import ActivityProfileGrid from '@/components/home/ActivityProfileGrid'
+import IntentGrid from '@/components/ui/IntentGrid'
+import DatingBubbleScreen from '@/components/dating/DatingBubbleScreen'
 import BookingScreen from '@/screens/BookingScreen'
 import RestaurantBrowseScreen from '@/screens/RestaurantBrowseScreen'
 import CategoryDiscoveryScreen, { FOOD_CATEGORIES } from '@/screens/CategoryDiscoveryScreen'
 import ReviewPrompt from '@/components/restaurant/ReviewPrompt'
 import { preloadVideos } from '@/utils/videoPreloader'
+import ShopSearchScreen from '@/screens/ShopSearchScreen'
 
 import '@/styles/map.css'
 import styles from './AppShell.module.css'
@@ -129,7 +131,9 @@ export default function AppShell({ returnParams, triggerGoLive }) {
   const [companyPanelOpen, setCompanyPanelOpen] = useState(false)
   const [companyQuery, setCompanyQuery] = useState('')
   const [mapCategory, setMapCategory] = useState('all') // 'all' | 'maker'
-  const [datingGridOpen, setDatingGridOpen] = useState(false)
+  const [datingIntentOpen, setDatingIntentOpen] = useState(false)
+  const [datingIntent,     setDatingIntent]     = useState(null)
+  const [datingGridOpen,   setDatingGridOpen]   = useState(false)
   const [rideOpen,       setRideOpen]       = useState(false)
   const [foodOpen,       setFoodOpen]       = useState(false)
   const [foodCategory,   setFoodCategory]   = useState(null)
@@ -377,14 +381,38 @@ export default function AppShell({ returnParams, triggerGoLive }) {
           onSelectSession={(s) => handleOpenDiscovery(s)}
           onFoodClick={() => setFoodOpen(true)}
           onRideClick={() => { if (isGuest) { triggerGate(); return } setRideOpen(true) }}
+          onShoppingClick={() => { if (isGuest) { triggerGate(); return } setActiveTab('shopping') }}
         />
       )}
 
-      {/* Dating profiles grid — opened from side nav dating button */}
-      <ActivityProfileGrid
+      {/* Step 1 — Intent picker: what kind of connection? */}
+      <IntentGrid
+        open={datingIntentOpen}
+        value={datingIntent}
+        city={mySession?.city ?? userProfile?.city ?? null}
+        mode="dating"
+        onChange={(intent) => {
+          setDatingIntent(intent)
+          setDatingIntentOpen(false)
+          setDatingGridOpen(true)
+        }}
+        onBrowseAll={() => setDatingIntentOpen(false)}
+      />
+
+      {/* Step 2 — Floating bubble profiles matching that intent */}
+      <DatingBubbleScreen
         open={datingGridOpen}
-        activity={{ emoji: '💕', label: 'Dating' }}
-        sessions={visibleSessions.filter(s => s.lookingFor === 'dating')}
+        activity={{ emoji: '💕', label: datingIntent ? datingIntent.charAt(0).toUpperCase() + datingIntent.slice(1).replace(/_/g, ' ') : 'Dating' }}
+        sessions={[
+          ...visibleSessions.filter(s =>
+            datingIntent ? s.lookingFor === datingIntent : ['dating','marriage','date_night','friendship','travel','pen_pal'].includes(s.lookingFor)
+          ),
+          ...DEMO_DATING_BUBBLES.filter(s =>
+            datingIntent ? s.lookingFor === datingIntent : true
+          ),
+        ]}
+        mutualSessions={mutualSessions}
+        myProfile={userProfile}
         onClose={() => setDatingGridOpen(false)}
         onSelectSession={(s) => { setDatingGridOpen(false); handleOpenDiscovery(s) }}
       />
@@ -393,6 +421,7 @@ export default function AppShell({ returnParams, triggerGoLive }) {
       {activeTab === 'match'   && <MatchScreen   onClose={() => setActiveTab('map')} />}
       {activeTab === 'chat'    && <ChatScreen key={pendingConv?.id ?? 'chat'} onClose={() => setActiveTab('map')} pendingConv={pendingConv} />}
       {activeTab === 'profile' && <ProfileScreen onClose={() => setActiveTab('map')} onOpenSettings={() => setSettingsOpen(true)} />}
+      {activeTab === 'shopping' && <ShopSearchScreen onClose={() => setActiveTab('map')} userCity={userProfile?.city} userCountry={userProfile?.country} />}
 
       <div className="map-top-fade" />
       <div className="map-bottom-fade" />
@@ -630,7 +659,7 @@ export default function AppShell({ returnParams, triggerGoLive }) {
           }}
           datingActive={mapCategory === 'dating'}
           onDatingMode={() => {
-            setDatingGridOpen(true)
+            setDatingIntentOpen(true)
             setCompanyPanelOpen(false)
           }}
           rideActive={rideOpen}

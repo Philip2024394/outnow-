@@ -1,0 +1,288 @@
+/* ── Full-screen page ─────────────────────────────────────────────────────── */
+.page {
+  position: fixed;
+  inset: 0;
+  z-index: 130;
+  overflow: hidden;
+}
+
+/* ── Full-height background image ────────────────────────────────────────── */
+.bgImg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center top;
+  display: block;
+  z-index: 0;
+}
+
+.bgFallback {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(160deg, rgba(245,158,11,0.2) 0%, #080808 60%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 0;
+}
+
+.bgInitial {
+  font-size: 120px;
+  font-weight: 900;
+  color: rgba(245,158,11,0.2);
+}
+
+/* Bottom-heavy gradient so text reads over image */
+.bgGrad {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    to top,
+    rgba(0,0,0,0.96) 0%,
+    rgba(0,0,0,0.65) 28%,
+    rgba(0,0,0,0.15) 60%,
+    transparent 100%
+  );
+  z-index: 1;
+}
+
+/* ── Top bar ─────────────────────────────────────────────────────────────── */
+.topBar {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px;
+  z-index: 10;
+}
+
+.backBtn {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  padding: 6px 13px 6px 9px;
+  background: rgba(0,0,0,0.5);
+  border: 1px solid rgba(255,255,255,0.18);
+  border-radius: 20px;
+  color: rgba(255,255,255,0.9);
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+  font-family: inherit;
+  backdrop-filter: blur(6px);
+}
+
+.onlinePill {
+  font-size: 10px;
+  font-weight: 800;
+  color: #34D399;
+  background: rgba(0,0,0,0.55);
+  border: 1px solid rgba(52,211,153,0.4);
+  border-radius: 20px;
+  padding: 5px 10px;
+  backdrop-filter: blur(6px);
+}
+
+/* ── Floating right side panel ───────────────────────────────────────────── */
+.sidePanel {
+  position: absolute;
+  right: 14px;
+  top: 50%;
+  transform: translateY(-50%);
+  background: #0a0a0a;
+  border: 1.5px solid rgba(245,158,11,0.4);
+  border-radius: 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 10px 8px;
+  gap: 8px;
+  z-index: 10;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.7), 0 0 20px rgba(245,158,11,0.12);
+}
+
+.sidePanelBtn {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: #111;
+  border: 1.5px solid rgba(245,158,11,0.35);
+  color: #F59E0B;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  font-family: inherit;
+  flex-shrink: 0;
+  transition: background 0.15s, border-color 0.15s, transform 0.12s;
+  text-decoration: none;
+}
+
+.sidePanelBtn:hover {
+  background: rgba(245,158,11,0.12);
+  border-color: rgba(245,158,11,0.65);
+  transform: scale(1.08);
+}
+
+.sidePanelBtnActive {
+  background: rgba(245,158,11,0.18);
+  border-color: #F59E0B;
+}
+
+.sidePanelBtnDim {
+  border-color: rgba(255,255,255,0.1);
+  color: rgba(255,255,255,0.2);
+  cursor: default;
+}
+
+.sidePanelBtnDim:hover {
+  background: #111;
+  border-color: rgba(255,255,255,0.1);
+  transform: none;
+}
+
+/* ── Opening hours card ──────────────────────────────────────────────────── */
+.hoursCard {
+  position: absolute;
+  right: 70px;
+  top: 50%;
+  transform: translateY(-50%);
+  background: #0a0a0a;
+  border: 1.5px solid rgba(245,158,11,0.4);
+  border-radius: 14px;
+  padding: 12px 16px;
+  z-index: 10;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.6);
+  white-space: nowrap;
+}
+
+.hoursTitle {
+  font-size: 10px;
+  font-weight: 700;
+  color: rgba(255,255,255,0.4);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.hoursTime {
+  font-size: 14px;
+  font-weight: 800;
+  color: #F59E0B;
+}
+
+/* ── Bottom overlay ──────────────────────────────────────────────────────── */
+.bottomOverlay {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  padding: 0 20px 40px;
+  z-index: 10;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.brandName {
+  font-size: 28px;
+  font-weight: 900;
+  color: #fff;
+  line-height: 1.1;
+  text-shadow: 0 2px 20px rgba(0,0,0,0.7);
+}
+
+.ownerName {
+  font-size: 13px;
+  color: rgba(255,255,255,0.45);
+  margin-top: -2px;
+}
+
+.metaRow {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 7px;
+  margin-top: 2px;
+}
+
+.categoryChip,
+.cityChip,
+.conditionChip {
+  font-size: 11px;
+  font-weight: 700;
+  padding: 4px 10px;
+  border-radius: 20px;
+  backdrop-filter: blur(6px);
+}
+
+.categoryChip {
+  background: rgba(245,158,11,0.2);
+  border: 1px solid rgba(245,158,11,0.4);
+  color: #F59E0B;
+}
+
+.cityChip {
+  background: rgba(255,255,255,0.1);
+  border: 1px solid rgba(255,255,255,0.15);
+  color: rgba(255,255,255,0.75);
+}
+
+.conditionChip {
+  background: rgba(255,255,255,0.1);
+  border: 1px solid rgba(255,255,255,0.15);
+  color: rgba(255,255,255,0.6);
+}
+
+.bio {
+  font-size: 13px;
+  color: rgba(255,255,255,0.6);
+  line-height: 1.55;
+  margin: 4px 0 0;
+  display: -webkit-box;
+  -webkit-line-clamp: 4;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+/* WhatsApp button */
+.waBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 13px 22px;
+  background: rgba(245,158,11,0.18);
+  border: 1.5px solid rgba(245,158,11,0.5);
+  border-radius: 14px;
+  color: #F59E0B;
+  font-size: 14px;
+  font-weight: 800;
+  text-decoration: none;
+  font-family: inherit;
+  backdrop-filter: blur(8px);
+  margin-top: 8px;
+  align-self: flex-start;
+  transition: background 0.15s;
+}
+
+.waBtn:hover { background: rgba(245,158,11,0.3); }
+
+.waBtnDisabled {
+  display: inline-flex;
+  padding: 13px 22px;
+  background: rgba(255,255,255,0.05);
+  border: 1px dashed rgba(255,255,255,0.12);
+  border-radius: 14px;
+  color: rgba(255,255,255,0.2);
+  font-size: 13px;
+  font-weight: 700;
+  font-family: inherit;
+  cursor: default;
+  margin-top: 8px;
+}

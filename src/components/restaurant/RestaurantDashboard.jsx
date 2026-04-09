@@ -296,7 +296,7 @@ export default function RestaurantDashboard({ userId, onClose }) {
     setBuyingPhoto(photo.id)
   }
 
-  const statusColor = { pending: '#F5C518', approved: '#8DC63F', rejected: '#ff6b6b' }
+  const statusColor = { pending: '#F59E0B', approved: '#F59E0B', rejected: '#ff6b6b' }
 
   if (loading) return <div className={styles.screen}><div className={styles.loading}>Loading…</div></div>
 

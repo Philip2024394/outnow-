@@ -307,7 +307,7 @@ export default function RestaurantMenuSheet({ restaurant, onClose }) {
 
             <div className={styles.cartTotal}>
               <span>Total est.</span>
-              <span style={{ color: '#8DC63F' }}>
+              <span style={{ color: '#F59E0B' }}>
                 {deliveryFare !== null ? fmtRp(grandTotal) : `${fmtRp(cartTotal)} + delivery`}
               </span>
             </div>
