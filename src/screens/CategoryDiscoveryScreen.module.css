@@ -213,14 +213,20 @@
 
 .explorBtn {
   display: flex; align-items: center; justify-content: center; gap: 8px;
-  width: 100%; padding: 17px 24px; margin-top: 4px;
-  border-radius: 18px; border: none;
-  font-size: 17px; font-weight: 900; cursor: pointer;
-  font-family: inherit; letter-spacing: -0.02em;
+  width: 100%; padding: 5px; margin-top: 4px;
+  border-radius: 20px; border: none;
+  cursor: pointer; font-family: inherit;
   transition: transform 0.15s, opacity 0.15s;
-  color: #000;
 }
 .explorBtn:active { transform: scale(0.97); opacity: 0.9; }
+.explorBtn span:last-child {
+  display: flex; align-items: center; justify-content: center; gap: 8px;
+  width: 100%; padding: 14px 24px;
+  border-radius: 15px;
+  background: #000;
+  font-size: 17px; font-weight: 900; letter-spacing: -0.02em;
+  color: #fff;
+}
 
 .tapHint {
   text-align: center;

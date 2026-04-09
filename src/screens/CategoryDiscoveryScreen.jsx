@@ -346,10 +346,12 @@ function CategoryCard({ cat, isActive, videoRef, onClick }) {
           style={{ background: '#8DC63F' }}
           onClick={onClick}
         >
-          <span>Explore {cat.label}</span>
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-            <path d="M5 12h14M12 5l7 7-7 7"/>
-          </svg>
+          <span>
+            <span>Explore {cat.label}</span>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M5 12h14M12 5l7 7-7 7"/>
+            </svg>
+          </span>
         </button>
       </div>
 
