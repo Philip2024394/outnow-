@@ -119,6 +119,19 @@ export const FOOD_CATEGORIES = [
   },
 ]
 
+// ── Demo avatars — replaced by real users when live ──────────────────────────
+const DEMO_AVATARS = [
+  { id: 'd1', photo_url: 'https://ik.imagekit.io/nepgaxllc/av1.jpg', name: 'Sari' },
+  { id: 'd2', photo_url: 'https://ik.imagekit.io/nepgaxllc/av2.jpg', name: 'Budi' },
+  { id: 'd3', photo_url: 'https://ik.imagekit.io/nepgaxllc/av3.jpg', name: 'Rina' },
+  { id: 'd4', photo_url: 'https://ik.imagekit.io/nepgaxllc/av4.jpg', name: 'Dian' },
+  { id: 'd5', photo_url: 'https://ik.imagekit.io/nepgaxllc/av5.jpg', name: 'Agus' },
+  { id: 'd6', photo_url: 'https://ik.imagekit.io/nepgaxllc/av6.jpg', name: 'Tini' },
+  { id: 'd7', photo_url: 'https://ik.imagekit.io/nepgaxllc/av7.jpg', name: 'Wahyu' },
+  { id: 'd8', photo_url: 'https://ik.imagekit.io/nepgaxllc/av8.jpg', name: 'Dewi' },
+  { id: 'd9', photo_url: 'https://ik.imagekit.io/nepgaxllc/av9.jpg', name: 'Fajar' },
+]
+
 // ── Search demo data (replaced by Supabase when live) ────────────────────────
 const DEMO_SEARCH = [
   { id: 1, name: 'Warung Bu Sari',        category: 'rice',      cuisine_type: 'Javanese',   rating: 4.8, is_open: true  },
@@ -289,6 +302,79 @@ export default function CategoryDiscoveryScreen({ onClose, onSelectCategory }) {
   )
 }
 
+// ── Now In Kitchen widget ─────────────────────────────────────────────────────
+function NowInKitchen({ categoryId }) {
+  const [viewers,    setViewers]    = useState([])
+  const [total,      setTotal]      = useState(0)
+  const [visibleSet, setVisibleSet] = useState([])
+  const [fade,       setFade]       = useState(true)
+
+  // Load real users browsing this category, fall back to demo avatars
+  useEffect(() => {
+    async function load() {
+      let users = []
+      if (supabase) {
+        const { data } = await supabase
+          .from('profiles')
+          .select('id, photo_url, name')
+          .eq('browsing_category', categoryId)
+          .limit(20)
+        if (data?.length) users = data
+      }
+      if (!users.length) users = DEMO_AVATARS
+      setViewers(users)
+      setTotal(users.length)
+      setVisibleSet(users.slice(0, 5))
+    }
+    load()
+  }, [categoryId])
+
+  // Cycle visible avatars every 5s with fade
+  useEffect(() => {
+    if (viewers.length <= 5) return
+    const id = setInterval(() => {
+      setFade(false)
+      setTimeout(() => {
+        setVisibleSet(prev => {
+          const pool = viewers.filter(u => !prev.find(p => p.id === u.id))
+          if (!pool.length) return viewers.slice(0, 5)
+          const swap = Math.floor(Math.random() * Math.min(prev.length, pool.length))
+          const next = [...prev]
+          next[swap] = pool[Math.floor(Math.random() * pool.length)]
+          return next
+        })
+        setFade(true)
+      }, 300)
+    }, 5000)
+    return () => clearInterval(id)
+  }, [viewers])
+
+  if (!visibleSet.length) return null
+
+  const extra = Math.max(0, total - 5)
+
+  return (
+    <div className={styles.kitchenWrap}>
+      <div className={styles.kitchenAvatars} style={{ opacity: fade ? 1 : 0, transition: 'opacity 0.3s ease' }}>
+        {visibleSet.map(u => (
+          <div key={u.id} className={styles.kitchenAvatar}>
+            <img
+              src={u.photo_url || 'https://ik.imagekit.io/nepgaxllc/sdfasdfasdf.png'}
+              alt={u.name}
+              className={styles.kitchenAvatarImg}
+              onError={e => { e.target.src = 'https://ik.imagekit.io/nepgaxllc/sdfasdfasdf.png' }}
+            />
+          </div>
+        ))}
+        {extra > 0 && (
+          <div className={styles.kitchenExtra}>+{extra}</div>
+        )}
+      </div>
+      <span className={styles.kitchenLabel}>Now in the Kitchen</span>
+    </div>
+  )
+}
+
 // ── Category card ─────────────────────────────────────────────────────────────
 function CategoryCard({ cat, isActive, videoRef, onClick }) {
   const hasVideo = Boolean(cat.videoUrl)
@@ -335,6 +421,9 @@ function CategoryCard({ cat, isActive, videoRef, onClick }) {
         className={styles.cardTopGlow}
         style={{ background: `linear-gradient(to bottom, ${cat.color}22 0%, transparent 40%)` }}
       />
+
+      {/* Now in the Kitchen — top of card */}
+      {cat.id !== 'all' && <NowInKitchen categoryId={cat.id} />}
 
       {/* Bottom: tagline + name + CTA */}
       <div className={styles.cardBottom}>
