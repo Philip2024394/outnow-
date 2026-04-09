@@ -376,6 +376,7 @@ export default function AppShell({ returnParams, triggerGoLive }) {
           sessions={visibleSessions}
           onSelectSession={(s) => handleOpenDiscovery(s)}
           onFoodClick={() => setFoodOpen(true)}
+          onRideClick={() => { if (isGuest) { triggerGate(); return } setRideOpen(true) }}
         />
       )}
 
