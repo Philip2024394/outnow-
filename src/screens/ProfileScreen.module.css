@@ -50,12 +50,100 @@
   letter-spacing: -0.01em;
 }
 
-.createProfileHeading {
+.uploadHeadingRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 18px 20px 4px;
+  gap: 12px;
+}
+.uploadHeadingText {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+.uploadHeadingTitle {
   font-size: 22px;
   font-weight: 900;
   color: #fff;
-  letter-spacing: -0.03em;
-  padding: 10px 20px 0;
+  letter-spacing: -0.02em;
+}
+.uploadHeadingSub {
+  font-size: 11px;
+  font-weight: 500;
+  color: rgba(255,255,255,0.4);
+  letter-spacing: 0.01em;
+}
+.photoTipsBtn {
+  width: 32px; height: 32px;
+  border-radius: 50%;
+  background: rgba(0,0,0,0.5);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255,255,255,0.15);
+  color: rgba(255,255,255,0.7);
+  font-size: 15px;
+  font-weight: 800;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  font-family: inherit;
+}
+.photoTipsBtn:active { background: rgba(255,255,255,0.1); }
+
+/* ── Photo tips modal ── */
+.photoTipsBackdrop {
+  position: fixed; inset: 0; z-index: 9999;
+  background: rgba(0,0,0,0.7);
+  display: flex; align-items: flex-end; justify-content: center;
+  padding: 0 0 env(safe-area-inset-bottom, 0px);
+}
+.photoTipsModal {
+  width: 100%; max-width: 480px;
+  background: rgba(12,12,12,0.96);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 24px 24px 0 0;
+  padding: 20px 24px 32px;
+  display: flex; flex-direction: column; gap: 14px;
+}
+.photoTipsHeader {
+  display: flex; align-items: center; justify-content: space-between;
+}
+.photoTipsTitle {
+  font-size: 17px; font-weight: 900; color: #fff;
+  letter-spacing: -0.02em;
+}
+.photoTipsClose {
+  width: 30px; height: 30px; border-radius: 50%;
+  background: rgba(255,255,255,0.07);
+  border: none; color: #aaa; font-size: 13px;
+  cursor: pointer; display: flex; align-items: center; justify-content: center;
+  font-family: inherit;
+}
+.photoTipsList {
+  margin: 0; padding: 0 0 0 18px;
+  display: flex; flex-direction: column; gap: 10px;
+}
+.photoTipsList li {
+  font-size: 14px; color: rgba(255,255,255,0.75);
+  line-height: 1.4; font-weight: 500;
+}
+.photoTipsNote {
+  font-size: 11px; color: rgba(255,107,107,0.7);
+  margin: 0; line-height: 1.5;
+  border-top: 1px solid rgba(255,255,255,0.06);
+  padding-top: 12px;
+}
+.photoTipsDone {
+  width: 100%; padding: 14px;
+  background: #fff; color: #000;
+  border: none; border-radius: 14px;
+  font-size: 15px; font-weight: 800;
+  cursor: pointer; font-family: inherit;
 }
 
 .joinedWrap {
