@@ -81,6 +81,89 @@
   box-shadow: 0 0 6px rgba(239,68,68,0.6);
 }
 
+/* ── SOS button — red, top of nav ── */
+.sosBtn {
+  position: relative;
+  width: 42px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 3px;
+  padding: 8px 4px 6px;
+  border-radius: 14px;
+  background: rgba(239, 68, 68, 0.15);
+  border: 1.5px solid rgba(239, 68, 68, 0.5);
+  color: #EF4444;
+  cursor: pointer;
+  font-family: inherit;
+  -webkit-tap-highlight-color: transparent;
+  transition: transform 0.12s, background 0.15s, box-shadow 0.15s;
+  box-shadow: 0 0 10px rgba(239, 68, 68, 0.25);
+  animation: sosPulse 2.5s ease-in-out infinite;
+}
+
+.sosBtn:active {
+  transform: scale(0.88);
+  background: rgba(239, 68, 68, 0.28);
+}
+
+@keyframes sosPulse {
+  0%, 100% { box-shadow: 0 0 8px rgba(239, 68, 68, 0.25); }
+  50%       { box-shadow: 0 0 16px rgba(239, 68, 68, 0.55); }
+}
+
+.sosBtnLabel {
+  font-size: 8px;
+  font-weight: 900;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  line-height: 1;
+  color: #EF4444;
+  pointer-events: none;
+}
+
+/* ── Vibe broadcast button ── */
+.vibeBtn {
+  position: relative;
+  width: 42px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 3px;
+  padding: 8px 4px 6px;
+  border-radius: 14px;
+  background: rgba(167, 139, 250, 0.1);
+  border: 1.5px solid rgba(167, 139, 250, 0.35);
+  color: rgba(167, 139, 250, 0.8);
+  cursor: pointer;
+  font-family: inherit;
+  -webkit-tap-highlight-color: transparent;
+  transition: transform 0.12s, background 0.15s, border-color 0.15s, color 0.15s;
+}
+
+.vibeBtn:active {
+  transform: scale(0.88);
+}
+
+.vibeBtnActive {
+  background: rgba(167, 139, 250, 0.2);
+  border-color: #A78BFA;
+  color: #A78BFA;
+  box-shadow: 0 0 14px rgba(167, 139, 250, 0.4);
+}
+
+.vibeBtnLabel {
+  font-size: 8px;
+  font-weight: 800;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  line-height: 1;
+  color: inherit;
+  pointer-events: none;
+}
+
 /* Ride button — bare image, no circle */
 .rideBtn {
   position: relative;
@@ -275,6 +358,45 @@
   50%       { opacity: 0.55; }
 }
 
+/* ── Hangger News button ── */
+.newsBtn {
+  position: relative;
+  width: 42px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 3px;
+  padding: 8px 4px 6px;
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1.5px solid rgba(255, 255, 255, 0.1);
+  color: rgba(255, 255, 255, 0.4);
+  cursor: pointer;
+  font-family: inherit;
+  -webkit-tap-highlight-color: transparent;
+  transition: transform 0.12s, background 0.15s, border-color 0.15s, color 0.15s;
+}
+
+.newsBtn:active { transform: scale(0.88); }
+
+.newsBtnActive {
+  background: rgba(245, 158, 11, 0.15);
+  border-color: #F59E0B;
+  color: #F59E0B;
+  box-shadow: 0 0 12px rgba(245, 158, 11, 0.3);
+}
+
+.newsBtnLabel {
+  font-size: 8px;
+  font-weight: 800;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  line-height: 1;
+  color: inherit;
+  pointer-events: none;
+}
+
 /* Profile avatar button */
 .avatarTab {
   width: 42px;
@@ -305,6 +427,72 @@
 /* Status glow around the avatar image */
 .avatarLive   { filter: drop-shadow(0 0 5px rgba(141,198,63,0.8));  }
 .avatarInvite { filter: drop-shadow(0 0 5px rgba(245,197,24,0.8)); }
+
+/* Driver online = green pulse ring, offline = red pulse ring */
+.avatarDriverOnline {
+  filter: drop-shadow(0 0 6px rgba(141,198,63,0.9));
+  animation: driverOnlinePulse 2.5s ease-in-out infinite;
+}
+.avatarDriverOffline {
+  filter: drop-shadow(0 0 6px rgba(239,68,68,0.85));
+  animation: driverOfflinePulse 2.5s ease-in-out infinite;
+}
+
+@keyframes driverOnlinePulse {
+  0%, 100% { filter: drop-shadow(0 0 4px rgba(141,198,63,0.7)); }
+  50%       { filter: drop-shadow(0 0 10px rgba(141,198,63,1)); }
+}
+@keyframes driverOfflinePulse {
+  0%, 100% { filter: drop-shadow(0 0 4px rgba(239,68,68,0.65)); }
+  50%       { filter: drop-shadow(0 0 10px rgba(239,68,68,0.95)); }
+}
+
+/* Flash when hold completes */
+.avatarToggled {
+  animation: toggleFlash 0.8s ease;
+}
+@keyframes toggleFlash {
+  0%, 100% { background: transparent; }
+  30%       { background: rgba(141,198,63,0.25); border-radius: 14px; }
+}
+
+/* Hold progress ring — absolute, sits on top of avatar */
+.holdRing {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -55%);
+  pointer-events: none;
+  z-index: 1;
+  transition: stroke-dashoffset 0.05s linear;
+}
+
+/* Driver status dot — bottom-right of avatar */
+.driverDot {
+  position: absolute;
+  bottom: 18px;
+  right: 3px;
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  border: 1.5px solid #0e0e0e;
+  pointer-events: none;
+  z-index: 2;
+}
+.driverDotOnline  { background: #8DC63F; box-shadow: 0 0 5px rgba(141,198,63,0.8); }
+.driverDotOffline { background: #555; }
+
+/* Label shown while holding */
+.holdLabel {
+  font-size: 8px;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  line-height: 1;
+  color: rgba(255,255,255,0.6);
+  pointer-events: none;
+  margin-top: 2px;
+}
 
 /* Shopping tab — gold active state */
 .shopTab.tabActive {

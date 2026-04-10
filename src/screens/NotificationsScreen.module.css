@@ -2,10 +2,28 @@
 .screen {
   position: absolute;
   inset: 0;
-  background: var(--color-bg);
+  background-color: #000;
+  background-image: url('https://ik.imagekit.io/nepgaxllc/Untitledfsdfdfdf33.png?updatedAt=1775555797749');
+  background-size: cover;
+  background-position: center top;
+  background-repeat: no-repeat;
+  background-attachment: local;
   z-index: var(--z-header);
   display: flex;
   flex-direction: column;
+  isolation: isolate;
+}
+
+/* Single glass overlay — sits between image and all content */
+.screen::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.55);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  z-index: 0;
+  pointer-events: none;
 }
 
 /* ── Header ── */
@@ -14,7 +32,16 @@
   align-items: center;
   gap: 10px;
   padding: calc(var(--safe-top) + 12px) 16px 12px;
-  border-bottom: 1px solid var(--color-border);
+  background: transparent;
+  position: relative;
+  z-index: 1;
+  flex-shrink: 0;
+}
+
+.headerIcon {
+  width: 72px;
+  height: 72px;
+  object-fit: contain;
   flex-shrink: 0;
 }
 
@@ -64,8 +91,9 @@
   display: flex;
   align-items: center;
   padding: 12px 20px;
-  background: rgba(255,255,255,0.02);
-  border-bottom: 1px solid var(--color-border);
+  background: transparent;
+  position: relative;
+  z-index: 1;
   flex-shrink: 0;
 }
 
@@ -107,7 +135,10 @@
   overflow-y: auto;
   -webkit-overflow-scrolling: touch;
   overscroll-behavior: contain;
-  padding-bottom: calc(80px + var(--safe-bottom));
+  padding-bottom: calc(100px + var(--safe-bottom));
+  background: transparent;
+  position: relative;
+  z-index: 1;
 }
 
 /* ── Section headers ── */
@@ -115,12 +146,28 @@
   display: flex;
   align-items: center;
   gap: 8px;
-  padding: 18px 16px 8px;
+  padding: 12px 16px 8px;
   position: sticky;
   top: 0;
-  background: var(--color-bg);
-  z-index: 1;
-  border-bottom: 1px solid var(--color-border);
+  background: rgba(0, 0, 0, 0.6);
+  z-index: 2;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.07);
+}
+
+.sectionDating  { border-color: rgba(255, 107, 163, 0.4); }
+.sectionDating  .sectionTitle { color: #FF6BA3; }
+.sectionMarket  { border-color: rgba(245, 197, 24, 0.4); }
+.sectionMarket  .sectionTitle { color: #F5C518; }
+.sectionFood    { border-color: rgba(249, 115, 22, 0.4); }
+.sectionFood    .sectionTitle { color: #F97316; }
+.sectionRide    { border-color: rgba(141, 198, 63, 0.4); }
+.sectionRide    .sectionTitle { color: #8DC63F; }
+
+.sectionImgIcon {
+  width: 56px;
+  height: 56px;
+  object-fit: contain;
+  flex-shrink: 0;
 }
 
 .sectionIcon {
@@ -152,12 +199,13 @@
   align-items: center;
   gap: 14px;
   padding: 14px 16px;
-  border-bottom: 1px solid var(--color-border);
+  background: transparent;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
   transition: background 0.1s;
 }
 
 .viewerCard:active {
-  background: var(--color-surface-2);
+  background: rgba(255, 255, 255, 0.04);
 }
 
 .viewerAvatar {
@@ -284,15 +332,16 @@
   align-items: flex-start;
   gap: 14px;
   padding: 14px 16px;
-  border-bottom: 1px solid var(--color-border);
+  background: transparent;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
   transition: background 0.1s;
   position: relative;
 }
 
-.rowUnread { background: rgba(255,59,48,0.03); }
+.rowUnread { background: rgba(255, 59, 48, 0.04); }
 
 .rowUnread:active,
-.row:active { background: var(--color-surface-2); }
+.row:active { background: rgba(255, 255, 255, 0.04); }
 
 .rowEmoji {
   width: 44px;
@@ -368,9 +417,11 @@
 .rideRow {
   display: flex; align-items: center; gap: 12px;
   padding: 12px 16px;
-  border-bottom: 1px solid var(--color-border);
+  background: transparent;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
 }
-.rideIcon { font-size: 20px; flex-shrink: 0; }
+.rideIcon { font-size: 40px; flex-shrink: 0; display: flex; align-items: center; }
+.rideIconImg { width: 72px; height: 72px; object-fit: contain; }
 .rideBody { flex: 1; display: flex; flex-direction: column; gap: 2px; min-width: 0; }
 .rideDest {
   font-size: 13px; font-weight: 700; color: var(--color-text);
@@ -379,4 +430,9 @@
 .rideMeta { font-size: 11px; color: #555; }
 .rideRight { flex-shrink: 0; text-align: right; }
 .rideFare { font-size: 13px; font-weight: 800; color: #8DC63F; }
-.rideCancelled { font-size: 11px; font-weight: 700; color: #ff6b6b; }
+.warningBadge {
+  height: 72px;
+  width: auto;
+  object-fit: contain;
+  flex-shrink: 0;
+}

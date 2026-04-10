@@ -12,7 +12,6 @@ import { useMeetRequests } from '@/hooks/useMeetRequests'
 import { supabase } from '@/lib/supabase'
 
 import { useInviteOut } from '@/hooks/useInviteOut'
-import { useCoins } from '@/hooks/useCoins'
 import InviteOutSheet from '@/components/golive/InviteOutSheet'
 import MapHeader from '@/components/map/MapHeader'
 import MapOverlay from '@/components/map/MapOverlay'
@@ -30,7 +29,8 @@ import StillHerePrompt from '@/components/session/StillHerePrompt'
 import DiscoveryCard from '@/components/discovery/DiscoveryCard'
 import DiscoveryListSheet from '@/components/discovery/DiscoveryListSheet'
 import WaveBanner from '@/components/meet/WaveBanner'
-import DateInvitePopup from '@/components/dating/DateInvitePopup'
+import DateInvitePopup  from '@/components/dating/DateInvitePopup'
+import DateIdeasSheet   from '@/components/dating/DateIdeasSheet'
 import { useDateInvites } from '@/hooks/useDateInvites'
 import MeetAcceptedBanner from '@/components/meet/MeetAcceptedBanner'
 import PaymentGate from '@/components/payment/PaymentGate'
@@ -39,7 +39,7 @@ import SettingsSheet from '@/components/settings/SettingsSheet'
 import MapFilterSheet, { DEFAULT_MAP_FILTERS } from '@/components/map/MapFilterSheet'
 import CountrySearchSheet, { COUNTRIES } from '@/components/map/CountrySearchSheet'
 import MapSearchBar from '@/components/map/MapSearchBar'
-import SearchResultsSheet from '@/components/map/SearchResultsSheet'
+import GlobalSearchSuggest from '@/components/search/GlobalSearchSuggest'
 import CityResultsSheet from '@/components/map/CityResultsSheet'
 import CompanyBrowsePanel from '@/components/map/CompanyBrowsePanel'
 import ContactUnlockSheet from '@/components/payment/ContactUnlockSheet'
@@ -55,7 +55,6 @@ import NotificationsScreen from '@/screens/NotificationsScreen'
 import RideHistoryScreen from '@/screens/RideHistoryScreen'
 import BlockedUsersScreen from '@/screens/BlockedUsersScreen'
 import ProfileScreen from '@/screens/ProfileScreen'
-import WalletScreen from '@/screens/WalletScreen'
 import ChatScreen from '@/screens/ChatScreen'
 import MatchScreen from '@/screens/MatchScreen'
 import { DEMO_DATING_BUBBLES } from '@/demo/mockData'
@@ -70,10 +69,11 @@ import Toast from '@/components/ui/Toast'
 import UpgradeSheet from '@/components/premium/UpgradeSheet'
 import SpotClaimSheet from '@/components/spots/SpotClaimSheet'
 import MySpotScreen from '@/screens/MySpotScreen'
-import VibeCheckSheet  from '@/components/vibecheck/VibeCheckSheet'
-import VibeCheckBanner from '@/components/vibecheck/VibeCheckBanner'
+import VibeCheckSheet      from '@/components/vibecheck/VibeCheckSheet'
+import VibeCheckBanner     from '@/components/vibecheck/VibeCheckBanner'
+import VibeBroadcastSheet  from '@/components/vibecheck/VibeBroadcastSheet'
+import HanggerNewsSheet    from '@/components/news/HanggerNewsSheet'
 
-import MapIntroOverlay from '@/components/ui/MapIntroOverlay'
 import TimeBackground from '@/components/ui/TimeBackground'
 import FloatingIcons from '@/components/home/FloatingIcons'
 import IntentGrid from '@/components/ui/IntentGrid'
@@ -109,6 +109,8 @@ export default function AppShell({ returnParams, triggerGoLive }) {
   const [companyPanelOpen, setCompanyPanelOpen] = useState(false)
   const [companyQuery, setCompanyQuery] = useState('')
   const [mapCategory] = useState('all') // 'all' | 'maker'
+  const [dateIdeasOpen,    setDateIdeasOpen]    = useState(false)
+  const [dateIdeasTarget,  setDateIdeasTarget]  = useState(null)
   const [datingIntentOpen, setDatingIntentOpen] = useState(false)
   const [datingIntent,     setDatingIntent]     = useState(null)
   const [datingGridOpen,   setDatingGridOpen]   = useState(false)
@@ -134,7 +136,7 @@ export default function AppShell({ returnParams, triggerGoLive }) {
         : s.distanceKm ?? null,
     })),
   [rawSessions, viewerCoords])
-  useNotifications()
+  const { unreadCount: notifUnreadCount, serviceUnreadCounts } = useNotifications()
   const [toast, setToast] = useState(null)
   const [likedMeOpen, setLikedMeOpen] = useState(false)
   const [likedProfilesOpen, setLikedProfilesOpen] = useState(false)
@@ -147,14 +149,12 @@ export default function AppShell({ returnParams, triggerGoLive }) {
   const [reviewsOpen, setReviewsOpen] = useState(false)
 
   const [sosOpen, setSosOpen] = useState(false)
-  const [walletOpen, setWalletOpen] = useState(false)
   const [upgradeOpen, setUpgradeOpen] = useState(false)
   const [spotClaimOpen, setSpotClaimOpen] = useState(false)
   const [mySpotOpen, setMySpotOpen] = useState(false)
   const [contactUnlockSession, setContactUnlockSession] = useState(null)
   const [inviteOutSheetOpen, setInviteOutSheetOpen] = useState(false)
   const { inviteOut, post: postInviteOut, goingLive, revertToInviteOut } = useInviteOut()
-  const { earn: earnCoins } = useCoins()
   const [boostToast, setBoostToast] = useState(null)
   const [discoveryListFilter, setDiscoveryListFilter] = useState('now')
   const [discoveryListOpen,   setDiscoveryListOpen]   = useState(false)
@@ -162,7 +162,19 @@ export default function AppShell({ returnParams, triggerGoLive }) {
   const [newInviteCount, setNewInviteCount] = useState(0)
   const seenNowRef    = useRef(-1)
   const seenInviteRef = useRef(-1)
-  const [vibeCheckOpen, setVibeCheckOpen]   = useState(false)
+  const [vibeCheckOpen, setVibeCheckOpen]         = useState(false)
+  const [vibeBroadcastOpen, setVibeBroadcastOpen] = useState(false)
+  const [newsOpen, setNewsOpen]                   = useState(false)
+  // Driver online/offline — null means not a bike/car service account
+  const isDriverAccount = userProfile?.isDriver === true &&
+    (userProfile?.driverType === 'bike_ride' || userProfile?.driverType === 'car_taxi')
+  const [driverOnline, setDriverOnline] = useState(null)
+  useEffect(() => {
+    if (!isDriverAccount) { setDriverOnline(null); return }
+    // Prefer localStorage (reflects last toggle) then fall back to DB value
+    const stored = localStorage.getItem('hangger_driver_online')
+    setDriverOnline(stored !== null ? stored === 'true' : (userProfile?.driverOnline ?? false))
+  }, [isDriverAccount, userProfile?.driverOnline])
   const [vibeBanner, setVibeBanner]         = useState(null) // { status: 'active'|'invite_out'|'scheduled' }
 
   const openDiscoveryList = (filter) => {
@@ -312,6 +324,7 @@ export default function AppShell({ returnParams, triggerGoLive }) {
       {activeTab === 'map' && (
         <FloatingIcons
           sessions={visibleSessions}
+          serviceCounts={serviceUnreadCounts}
           onSelectSession={(s) => handleOpenDiscovery(s)}
           onFoodClick={() => setFoodOpen(true)}
           onRideClick={() => { if (isGuest) { triggerGate(); return } setRideOpen(true) }}
@@ -320,6 +333,13 @@ export default function AppShell({ returnParams, triggerGoLive }) {
           onMassageClick={() => { if (isGuest) { triggerGate(); return } setActiveTab('shopping') }}
         />
       )}
+
+      {/* Date Ideas side drawer */}
+      <DateIdeasSheet
+        open={dateIdeasOpen}
+        targetSession={dateIdeasTarget}
+        onClose={() => { setDateIdeasOpen(false); setDateIdeasTarget(null) }}
+      />
 
       {/* Step 1 — Intent picker: what kind of connection? */}
       <IntentGrid
@@ -350,7 +370,8 @@ export default function AppShell({ returnParams, triggerGoLive }) {
         mutualSessions={mutualSessions}
         myProfile={userProfile}
         onClose={() => setDatingGridOpen(false)}
-        onSelectSession={(s) => { setDatingGridOpen(false); handleOpenDiscovery(s) }}
+        onSelectSession={(s) => { handleOpenDiscovery(s) }}
+        onOpenDateIdeas={(s) => { setDatingGridOpen(false); setDateIdeasTarget(s); setDateIdeasOpen(true) }}
       />
 
       {/* Full-screen tab screens */}
@@ -366,7 +387,7 @@ export default function AppShell({ returnParams, triggerGoLive }) {
       {activeTab === 'map' && (
         <MapHeader
           onOpenNotifications={() => setNotifOpen(true)}
-          notifCount={0}
+          notifCount={notifUnreadCount}
           onAccountClick={() => {
             if (isGuest) { triggerGate(); return }
             setActiveTab('profile')
@@ -374,7 +395,7 @@ export default function AppShell({ returnParams, triggerGoLive }) {
         />
       )}
 
-      {/* Search bar — map tab only */}
+      {/* Search bar + inline auto-suggest — map tab only */}
       {activeTab === 'map' && (
         <MapSearchBar
           value={searchQuery}
@@ -384,21 +405,35 @@ export default function AppShell({ returnParams, triggerGoLive }) {
           onSubmit={() => { if (searchQuery.trim()) setCityResultsOpen(true) }}
           filterFlag={filterFlag}
           onFilterTap={() => setCountrySearchOpen(true)}
-          placeholder={companyPanelOpen ? 'Find businesses near you…' : 'Search activity, product, service…'}
-          cityFilter={cityFilter}
-          onClearCity={() => setCityFilter(null)}
-        />
+          placeholder={companyPanelOpen ? 'Find businesses near you…' : 'Search people, food, market, rides…'}
+        >
+          <GlobalSearchSuggest
+            query={searchQuery}
+            sessions={categorySessions}
+            onClose={() => setSearchQuery('')}
+            onNavigate={(cat, item, type) => {
+              setSearchQuery('')
+              // Session / person — open discovery card
+              if (type === 'session' && item) { handleOpenDiscovery(item); return }
+              // Product — open shopping tab (product deep-link future)
+              if (type === 'product' || cat === 'product') { setActiveTab('shopping'); return }
+              // Seller — open shopping tab
+              if (type === 'seller' && cat === 'shopping') { setActiveTab('shopping'); return }
+              if (type === 'seller' && cat === 'food')     { setFoodOpen(true); return }
+              if (type === 'seller' && cat === 'massage')  { setActiveTab('shopping'); return }
+              // Category shortcuts
+              if (cat === 'food')     { setFoodOpen(true); return }
+              if (cat === 'ride')     { if (isGuest) { triggerGate(); return } setRideOpen(true); return }
+              if (cat === 'taxi')     { if (isGuest) { triggerGate(); return } setRideOpen(true); return }
+              if (cat === 'dating')   { setDatingIntentOpen(true); return }
+              if (cat === 'shopping') { setActiveTab('shopping'); return }
+              if (cat === 'massage')  { setActiveTab('shopping'); return }
+              // People fallback — open discovery if item present
+              if (item) handleOpenDiscovery(item)
+            }}
+          />
+        </MapSearchBar>
       )}
-
-      <SearchResultsSheet
-        open={searchQuery.trim().length >= 2 && !cityResultsOpen}
-        query={searchQuery}
-        sessions={categorySessions}
-        mapCategory={mapCategory}
-        userCity={userProfile?.city ?? null}
-        onSelect={(s) => { setSearchQuery(''); handleOpenDiscovery(s) }}
-        onClose={() => setSearchQuery('')}
-      />
 
 
       {mySession && (
@@ -437,6 +472,8 @@ export default function AppShell({ returnParams, triggerGoLive }) {
           session={acceptedMeetSession}
           onTapToChat={() => {
             const _src = sessions.find(s => s.id === acceptedMeetSession.sessionId)
+            closeOverlay()
+            setDatingGridOpen(false)
             setPendingConv({
               id: `meet-${acceptedMeetSession.sessionId ?? acceptedMeetSession.id}`,
               userId: acceptedMeetSession.fromUserId ?? 'unknown',
@@ -516,8 +553,8 @@ export default function AppShell({ returnParams, triggerGoLive }) {
             else if (tab === 'notifications') setNotifOpen(true)
             else setActiveTab('map')
           }}
-          notifCount={0}
-          unreadCount={0}
+          notifCount={notifUnreadCount}
+          unreadCount={notifUnreadCount}
           userPhoto={userProfile?.photoURL ?? user?.photoURL ?? null}
         />
       )}
@@ -545,6 +582,28 @@ export default function AppShell({ returnParams, triggerGoLive }) {
           inviteOutCount={categorySessions.filter(s => s.status === 'invite_out').length}
           newNowCount={newNowCount}
           newInviteCount={newInviteCount}
+          onDateIdeas={() => setDateIdeasOpen(true)}
+          dateIdeasActive={dateIdeasOpen}
+          onSOS={() => setSosOpen(true)}
+          onVibeBroadcast={() => setVibeBroadcastOpen(true)}
+          vibeBroadcastActive={vibeBroadcastOpen}
+          onNews={() => setNewsOpen(true)}
+          newsActive={newsOpen}
+          driverOnline={driverOnline}
+          onToggleDriverStatus={() => {
+            if (driverOnline === null) return
+            const next = !driverOnline
+            setDriverOnline(next)
+            localStorage.setItem('hangger_driver_online', String(next))
+            // Persist to Supabase if available
+            if (supabase && (user?.id ?? user?.uid)) {
+              supabase
+                .from('profiles')
+                .update({ driver_online: next })
+                .eq('id', user.id ?? user.uid)
+                .then(() => {})
+            }
+          }}
         />
       )}
 
@@ -572,10 +631,6 @@ export default function AppShell({ returnParams, triggerGoLive }) {
       {/* Review prompt — floats globally, fires after any MAKAN WhatsApp order */}
       <ReviewPrompt userId={user?.id} />
 
-      {/* First-use map intro — shown once, walks user through the UI */}
-      {activeTab === 'map' && (
-        <MapIntroOverlay onGoLive={() => setInviteOutSheetOpen(true)} />
-      )}
 
       {/* Go-live nudge — visible when user has no active session */}
       {activeTab === 'map' && !mySession && !inviteOut && !isGuest && (
@@ -618,6 +673,48 @@ export default function AppShell({ returnParams, triggerGoLive }) {
           }
           simulateAcceptance(session)
         }}
+        onConnect={(session) => {
+          closeOverlay()
+          setDatingGridOpen(false)
+          const myName    = userProfile?.displayName ?? user?.displayName ?? 'Someone'
+          const myAge     = userProfile?.age ?? null
+          const myCountry = userProfile?.country ?? null
+          const myFor     = userProfile?.lookingFor ?? session.lookingFor ?? null
+          const lookingForLabel = myFor
+            ? myFor.replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase())
+            : null
+          const introParts = [
+            `Hi! I'm ${myName}`,
+            myAge     ? `${myAge} years old` : null,
+            myCountry ? `from ${myCountry}`  : null,
+            lookingForLabel ? `looking for ${lookingForLabel}` : null,
+          ].filter(Boolean)
+          const introText = introParts.join(', ') + ' 👋'
+          const introMsg = {
+            id:       `intro-${Date.now()}`,
+            senderId: user?.id ?? 'me',
+            text:     introText,
+            time:     Date.now(),
+            isMe:     true,
+          }
+          setPendingConv({
+            id: `dating-${session.userId ?? session.id}`,
+            userId: session.userId ?? session.id,
+            displayName: session.displayName ?? 'New Match',
+            photoURL: session.photoURL ?? null,
+            age: session.age ?? null,
+            area: session.area ?? session.city ?? null,
+            emoji: '💕',
+            online: true,
+            status: 'free',
+            openedAt: Date.now(),
+            lastMessage: introText,
+            lastMessageTime: Date.now(),
+            unread: 0,
+            messages: [introMsg],
+          })
+          setActiveTab('chat')
+        }}
         onLike={saveLike}
         onUnlockContact={isMakerSession(overlay.data ?? {}) ? (s) => setContactUnlockSession(s) : null}
       />
@@ -655,10 +752,37 @@ export default function AppShell({ returnParams, triggerGoLive }) {
             })
             setActiveTab('chat')
           }}
+          stripProps={{
+            activeTab: 'notifications',
+            onTabChange: (tab) => {
+              if (tab === 'map')          { setNotifOpen(false) }
+              else if (tab === 'chat')    { setNotifOpen(false); setActiveTab('chat') }
+              else if (tab === 'profile') { setNotifOpen(false); setActiveTab('profile') }
+            },
+            notifCount: 0,
+            unreadCount: 0,
+            userPhoto: userProfile?.photoURL ?? user?.photoURL ?? null,
+          }}
         />
       )}
       {rideHistoryOpen && (
-        <RideHistoryScreen userId={user?.id} onClose={() => setRideHistoryOpen(false)} />
+        <RideHistoryScreen
+          userId={user?.id}
+          userName={user?.displayName ?? userProfile?.display_name}
+          onClose={() => setRideHistoryOpen(false)}
+          stripProps={{
+            activeTab: 'notifications',
+            onTabChange: (tab) => {
+              if (tab === 'map')          { setRideHistoryOpen(false) }
+              else if (tab === 'chat')    { setRideHistoryOpen(false); setActiveTab('chat') }
+              else if (tab === 'profile') { setRideHistoryOpen(false); setActiveTab('profile') }
+              else if (tab === 'notifications') { setRideHistoryOpen(false); setNotifOpen(true) }
+            },
+            notifCount: 0,
+            unreadCount: 0,
+            userPhoto: userProfile?.photoURL ?? user?.photoURL ?? null,
+          }}
+        />
       )}
       {blockListOpen && <BlockedUsersScreen onClose={() => setBlockListOpen(false)} />}
 
@@ -700,7 +824,6 @@ export default function AppShell({ returnParams, triggerGoLive }) {
         onReset={() => setMapFilters(DEFAULT_MAP_FILTERS)}
       />
 
-      {walletOpen && <WalletScreen onClose={() => setWalletOpen(false)} />}
 
       <UpgradeSheet
         open={upgradeOpen}
@@ -730,7 +853,6 @@ export default function AppShell({ returnParams, triggerGoLive }) {
           onOpenMyLikes={() => { setSettingsOpen(false); setTimeout(() => setLikedProfilesOpen(true), 200) }}
           onEditProfile={() => { setSettingsOpen(false); setTimeout(() => setActiveTab('profile'), 200) }}
           onOpenBlockList={() => { setSettingsOpen(false); setTimeout(() => setBlockListOpen(true), 200) }}
-          onOpenWallet={() => setWalletOpen(true)}
           onUpgrade={() => { setSettingsOpen(false); setTimeout(() => setUpgradeOpen(true), 200) }}
           onMySpot={() => { setSettingsOpen(false); setTimeout(() => setMySpotOpen(true), 200) }}
           showToast={showToast}
@@ -751,6 +873,18 @@ export default function AppShell({ returnParams, triggerGoLive }) {
         open={sosOpen}
         onClose={() => setSosOpen(false)}
         session={mySession}
+      />
+
+      <VibeBroadcastSheet
+        open={vibeBroadcastOpen}
+        onClose={() => setVibeBroadcastOpen(false)}
+        userId={user?.id ?? user?.uid}
+        city={userProfile?.city ?? null}
+      />
+
+      <HanggerNewsSheet
+        open={newsOpen}
+        onClose={() => setNewsOpen(false)}
       />
 
       <RatingSheet
@@ -786,7 +920,6 @@ export default function AppShell({ returnParams, triggerGoLive }) {
         onPost={async (activity, message, makerMeta) => {
           if (mySession) { try { await endSession(mySession.id) } catch {} }
           postInviteOut({ activityType: activity, message, tier: userProfile?.tier ?? null, ...makerMeta })
-          earnCoins('FIRST_INVITE_OUT')
         }}
         onGoLive={(makerMeta) => { goingLive(); openGoLive(makerMeta) }}
         currentStatus={!!mySession ? 'live' : !!inviteOut ? 'invite' : null}

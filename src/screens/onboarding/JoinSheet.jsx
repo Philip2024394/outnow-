@@ -1,10 +1,36 @@
-import { useRef, useState } from 'react'
+import { useRef, useState, useEffect } from 'react'
 import { saveProfile, uploadAvatar } from '@/services/profileService'
 import { useAuth } from '@/hooks/useAuth'
-import { COUNTRIES } from '@/screens/PhoneAuthScreen'
-import { sendPhoneOTP, verifyOTP, signInWithGoogle } from '@/services/authService'
+import { sendPhoneOTP, verifyOTP } from '@/services/authService'
 import { useLanguage } from '@/i18n'
 import styles from './JoinSheet.module.css'
+
+// ── Same time-based background as home & location screens ──
+const BG_IMAGES = {
+  sunrise: 'https://ik.imagekit.io/nepgaxllc/Untitledfsdfdfdf33dsdsd.png?updatedAt=1775555858291',
+  day:     'https://ik.imagekit.io/nepgaxllc/Untitledfsdfdfdf33dsdsd.png?updatedAt=1775555858291',
+  night:   'https://ik.imagekit.io/nepgaxllc/Untitledfsdf.png?updatedAt=1775555383465',
+}
+
+function getWIBHour() {
+  const now = new Date()
+  const utcMs = now.getTime() + now.getTimezoneOffset() * 60_000
+  const wibMs = utcMs + 7 * 3_600_000
+  const wib   = new Date(wibMs)
+  return wib.getHours() + wib.getMinutes() / 60
+}
+
+function getBGPhase(h) {
+  if (h >= 5   && h < 7.5)  return 'sunrise'
+  if (h >= 7.5 && h < 17.5) return 'day'
+  if (h >= 17.5 && h < 19.5) return 'sunset'
+  return 'night'
+}
+
+function getSunsetProgress(h) {
+  if (h < 17.5 || h >= 19.5) return 0
+  return (h - 17.5) / 2
+}
 
 // Steps: phone → otp → profile
 export default function JoinSheet({ open, onClose, initialStep = 'phone' }) {
@@ -12,8 +38,7 @@ export default function JoinSheet({ open, onClose, initialStep = 'phone' }) {
   const { t } = useLanguage()
   const fileRef = useRef()
 
-  const [step, setStep]           = useState(initialStep) // 'phone' | 'otp' | 'profile' | 'signin'
-  const [dialCode, setDialCode]   = useState('+62')       // Indonesia default
+  const [step, setStep]   = useState(initialStep)
   const [localNum, setLocalNum]   = useState('')
   const [otp, setOtp]             = useState('')
   const [confirmation, setConfirmation] = useState(null)
@@ -23,15 +48,31 @@ export default function JoinSheet({ open, onClose, initialStep = 'phone' }) {
   const [loading, setLoading]     = useState(false)
   const [error, setError]         = useState(null)
 
-  // Sign-in mode (returning users)
-  const [googleLoading, setGoogleLoading] = useState(false)
+  // ── Time-based background ──
+  const [hour, setHour]           = useState(getWIBHour)
+  const [imgLoaded, setImgLoaded] = useState({})
 
-  const selectedCountry = COUNTRIES.find(c => c.dial === dialCode) ?? COUNTRIES[0]
-  const fullPhone = dialCode + localNum.replace(/^\s*0+/, '').replace(/\D/g, '')
+  useEffect(() => {
+    const id = setInterval(() => setHour(getWIBHour()), 60_000)
+    return () => clearInterval(id)
+  }, [])
+
+  const bgPhase    = getBGPhase(hour)
+  const bgProgress = getSunsetProgress(hour)
+  const bgIsSunset = bgPhase === 'sunset'
+  const bgIsNight  = bgPhase === 'night'
+  const bgIsDay    = bgPhase === 'day'
+  const bgSrc      = bgIsDay ? BG_IMAGES.day : bgIsNight ? BG_IMAGES.night : BG_IMAGES.sunrise
+  const bgNightFade    = bgIsSunset ? bgProgress : 0
+  const bgOverlayOpacity = bgIsSunset ? Math.sin(bgProgress * Math.PI) * 0.45 : 0
+  const markBgLoaded = (key) => setImgLoaded(prev => ({ ...prev, [key]: true }))
+
+  const DIAL_CODE = '+62'
+  const fullPhone = DIAL_CODE + localNum.replace(/^\s*0+/, '').replace(/\D/g, '')
 
   const reset = () => {
     setStep(initialStep)
-    setDialCode('+62'); setLocalNum(''); setOtp('')
+    setLocalNum(''); setOtp('')
     setConfirmation(null); setName('')
     setPhotoFile(null); setPhotoPreview(null)
     setLoading(false); setError(null)
@@ -86,18 +127,6 @@ export default function JoinSheet({ open, onClose, initialStep = 'phone' }) {
     setLoading(false)
   }
 
-  // ── Google sign-in (sign-in tab) ──
-  const handleGoogle = async () => {
-    setGoogleLoading(true)
-    setError(null)
-    try {
-      await signInWithGoogle()
-      setStep('profile')
-    } catch {
-      setError('Google sign-in failed. Try again.')
-      setGoogleLoading(false)
-    }
-  }
 
   const handlePhotoChange = (e) => {
     const file = e.target.files?.[0]
@@ -110,36 +139,54 @@ export default function JoinSheet({ open, onClose, initialStep = 'phone' }) {
 
   return (
     <div className={styles.backdrop} onClick={(e) => e.target === e.currentTarget && handleClose()}>
+
+      {/* ── Time-based background images ── */}
+      <img
+        key={bgSrc}
+        src={bgSrc}
+        alt=""
+        className={`${styles.bgLayer} ${imgLoaded[bgSrc] ? styles.bgLayerVisible : ''}`}
+        onLoad={() => markBgLoaded(bgSrc)}
+        draggable={false}
+      />
+      {bgIsSunset && (
+        <img
+          src={BG_IMAGES.night}
+          alt=""
+          className={styles.bgLayer}
+          style={{ opacity: bgNightFade, transition: 'opacity 4s ease' }}
+          draggable={false}
+        />
+      )}
+      {bgOverlayOpacity > 0 && (
+        <div className={styles.bgSunsetOverlay} style={{ opacity: bgOverlayOpacity }} />
+      )}
+      <div className={styles.cityShimmer} />
+
+      {/* Logo — top-left, same position as home screen */}
+      <img
+        src="https://ik.imagekit.io/nepgaxllc/Untitleddsfsdf-removebg-preview.png"
+        alt="Hangger"
+        className={styles.headerLogo}
+        draggable={false}
+      />
+
       <div className={styles.sheet}>
         <div className={styles.handle} onClick={handleClose} />
 
         {/* ── STEP: phone number ── */}
         {step === 'phone' && (
           <div className={styles.content}>
-            <div className={styles.emoji}>📱</div>
-            <h2 className={styles.title}>{t('join.phone.title')}</h2>
+            <h2 className={`${styles.title} ${styles.titleShine}`}>{t('join.phone.title')}</h2>
             <p className={styles.sub}>{t('join.phone.sub')}</p>
 
             {error && <p className={styles.error}>{error}</p>}
 
             <form className={styles.form} onSubmit={handleSendOTP}>
               <div className={styles.phoneRow}>
-                <div className={styles.dialWrapper}>
-                  <span className={styles.dialFlag}>{selectedCountry.flag}</span>
-                  <select
-                    className={styles.dialSelect}
-                    value={dialCode}
-                    onChange={e => setDialCode(e.target.value)}
-                    aria-label="Country code"
-                  >
-                    {COUNTRIES.map(c => (
-                      <option key={c.name} value={c.dial}>
-                        {c.flag} {c.name} ({c.dial})
-                      </option>
-                    ))}
-                  </select>
-                  <span className={styles.dialCode}>{dialCode}</span>
-                  <span className={styles.dialChevron}>▾</span>
+                <div className={styles.dialBadge}>
+                  <span>🇮🇩</span>
+                  <span>{DIAL_CODE}</span>
                 </div>
                 <input
                   className={styles.phoneInput}
@@ -160,25 +207,6 @@ export default function JoinSheet({ open, onClose, initialStep = 'phone' }) {
               </button>
             </form>
 
-            <div className={styles.divider}>
-              <span className={styles.dividerLine} />
-              <span className={styles.dividerText}>{t('common.or')}</span>
-              <span className={styles.dividerLine} />
-            </div>
-
-            <button
-              className={styles.googleBtn}
-              onClick={handleGoogle}
-              disabled={googleLoading}
-            >
-              <svg width="18" height="18" viewBox="0 0 20 20" fill="none">
-                <path d="M19.6 10.23c0-.68-.06-1.34-.16-1.98H10v3.74h5.39a4.6 4.6 0 01-2 3.02v2.51h3.24C18.34 15.88 19.6 13.27 19.6 10.23z" fill="#4285F4"/>
-                <path d="M10 20c2.7 0 4.96-.9 6.62-2.42l-3.24-2.51c-.9.6-2.04.95-3.38.95-2.6 0-4.8-1.76-5.59-4.13H1.09v2.6A10 10 0 0010 20z" fill="#34A853"/>
-                <path d="M4.41 11.89A6.03 6.03 0 014.1 10c0-.66.11-1.3.31-1.89V5.51H1.09A10 10 0 000 10c0 1.62.39 3.14 1.09 4.49l3.32-2.6z" fill="#FBBC05"/>
-                <path d="M10 3.98c1.46 0 2.78.5 3.81 1.49l2.86-2.86A9.97 9.97 0 0010 0 10 10 0 001.09 5.51l3.32 2.6C5.2 5.73 7.4 3.98 10 3.98z" fill="#EA4335"/>
-              </svg>
-              {googleLoading ? t('join.google.loading') : t('join.google')}
-            </button>
           </div>
         )}
 
@@ -226,8 +254,15 @@ export default function JoinSheet({ open, onClose, initialStep = 'phone' }) {
         {/* ── STEP: profile ── */}
         {step === 'profile' && (
           <div className={styles.content}>
-            <div className={styles.emoji}>👤</div>
-            <h2 className={styles.title}>{t('join.profile.title')}</h2>
+            {/* Right-side decorative image */}
+            <img
+              src="https://ik.imagekit.io/nepgaxllc/Untitlediuooiuoifsdfsdfdasdadasd-removebg-preview.png?updatedAt=1775663126206"
+              alt=""
+              className={styles.profileStepImg}
+              aria-hidden="true"
+            />
+
+            <h2 className={`${styles.title} ${styles.titleShine}`}>{t('join.profile.title')}</h2>
             <p className={styles.sub}>{t('join.profile.sub')}</p>
 
             {error && <p className={styles.error}>{error}</p>}
@@ -240,7 +275,12 @@ export default function JoinSheet({ open, onClose, initialStep = 'phone' }) {
               >
                 {photoPreview
                   ? <img src={photoPreview} alt="Preview" className={styles.photoImg} />
-                  : <span className={styles.photoPlus}>+</span>
+                  : <span className={styles.cameraIcon}>
+                      <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round">
+                        <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/>
+                        <circle cx="12" cy="13" r="4"/>
+                      </svg>
+                    </span>
                 }
               </button>
               <input

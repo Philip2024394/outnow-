@@ -5,6 +5,7 @@ import PricingTab from './PricingTab'
 import NotificationsTab from './NotificationsTab'
 import BookingsTab from './BookingsTab'
 import RestaurantsTab from './RestaurantsTab'
+import HanggerNewsTab from './HanggerNewsTab'
 
 const LOGO_URL = 'https://ik.imagekit.io/dateme/Logo%20with%20green%20map%20pin%20element.png'
 
@@ -1425,6 +1426,7 @@ const TABS = [
   { id: 'restaurants',   icon: '🍽', label: 'Restaurants'    },
   { id: 'pricing',       icon: '💰', label: 'Pricing'        },
   { id: 'notifications', icon: '🔔', label: 'Notifications'  },
+  { id: 'news',          icon: '📰', label: 'Hangger News'   },
 ]
 
 export default function AdminDashboard({ onLogout }) {
@@ -1489,6 +1491,7 @@ export default function AdminDashboard({ onLogout }) {
           {activeTab === 'restaurants'   && <RestaurantsTab />}
           {activeTab === 'pricing'       && <PricingTab />}
           {activeTab === 'notifications' && <NotificationsTab />}
+          {activeTab === 'news'          && <HanggerNewsTab />}
         </div>
       </main>
     </div>

@@ -17,7 +17,9 @@ export function AuthProvider({ children }) {
         displayName: 'Admin Preview',
         photoURL: null,
         lookingFor: '',
-        is_driver: true,
+        isDriver:    true,
+        driverType:  'bike_ride',
+        driverOnline: false,
         city: 'Yogyakarta',
         country: 'Indonesia',
       })
@@ -64,11 +66,12 @@ export function AuthProvider({ children }) {
         .from('profiles')
         .select(`
           display_name, photo_url, age, dob, bio, city, country,
-          activities, looking_for, coins, tier, extra_photos,
+          activities, looking_for, tier, extra_photos,
           speaking_native, speaking_second,
           price_min, price_max, brand_name, trade_role, market,
           relationship_goal, star_sign, height,
-          photo_offset_x, photo_offset_y, photo_zoom
+          photo_offset_x, photo_offset_y, photo_zoom,
+          is_driver, driver_type, driver_online
         `)
         .eq('id', authUser.id)
         .single()
@@ -84,7 +87,6 @@ export function AuthProvider({ children }) {
           country:          data.country ?? '',
           activities:       data.activities ?? [],
           lookingFor:       data.looking_for ?? '',
-          coins:            data.coins ?? 0,
           tier:             data.tier ?? null,
           extraPhotos:      data.extra_photos ?? [],
           speakingNative:   data.speaking_native ?? '',
@@ -100,6 +102,9 @@ export function AuthProvider({ children }) {
           photoOffsetX:     data.photo_offset_x ?? 50,
           photoOffsetY:     data.photo_offset_y ?? 50,
           photoZoom:        data.photo_zoom ?? 1,
+          isDriver:         data.is_driver ?? false,
+          driverType:       data.driver_type ?? null,   // 'bike_ride' | 'car_taxi'
+          driverOnline:     data.driver_online ?? false,
         })
       }
     } catch {

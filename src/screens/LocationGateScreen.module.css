@@ -1,140 +1,288 @@
-.root {
+/* ── Full-screen overlay ── */
+.overlay {
   position: fixed;
   inset: 0;
   z-index: 9999;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  padding: 32px 28px;
-  background: radial-gradient(ellipse at 50% 30%, #0d1a0d 0%, #050a05 100%);
-  gap: 0;
-}
-
-/* ── Round map visual ── */
-.mapCircle {
-  position: relative;
-  width: 220px;
-  height: 220px;
-  border-radius: 50%;
-  background: radial-gradient(circle at 40% 40%, #0b2510, #050d05);
-  border: 2px solid rgba(141, 198, 63, 0.3);
-  box-shadow:
-    0 0 60px rgba(141, 198, 63, 0.15),
-    inset 0 0 40px rgba(0, 0, 0, 0.6);
+  background: #0a0a12;
   overflow: hidden;
   display: flex;
   align-items: center;
   justify-content: center;
-  flex-shrink: 0;
-  margin-bottom: 36px;
+  padding: 24px;
 }
 
-/* Latitude / longitude grid lines */
-.grid {
+/* ── Time-based background image layers ── */
+.bgLayer {
   position: absolute;
   inset: 0;
-  border-radius: 50%;
-  background-image:
-    repeating-linear-gradient(0deg,   transparent, transparent 29px, rgba(141,198,63,0.07) 30px),
-    repeating-linear-gradient(90deg,  transparent, transparent 29px, rgba(141,198,63,0.07) 30px),
-    repeating-linear-gradient(45deg,  transparent, transparent 39px, rgba(141,198,63,0.04) 40px),
-    repeating-linear-gradient(-45deg, transparent, transparent 39px, rgba(141,198,63,0.04) 40px);
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center center;
+  opacity: 0;
+  transition: opacity 2.5s ease;
+  pointer-events: none;
+  user-select: none;
 }
 
-/* Equator / prime meridian ring */
-.ring {
+.bgLayerVisible {
+  opacity: 1;
+  animation: kenBurns 36s ease-in-out infinite alternate;
+}
+
+@keyframes kenBurns {
+  0%   { transform: scale(1.0)  translate(0%,    0%);   }
+  33%  { transform: scale(1.05) translate(-0.8%, 0.4%); }
+  66%  { transform: scale(1.04) translate(0.6%,  -0.5%);}
+  100% { transform: scale(1.07) translate(-0.4%, 0.6%); }
+}
+
+.sunsetOverlay {
   position: absolute;
-  width: 150px;
-  height: 150px;
-  border-radius: 50%;
-  border: 1px solid rgba(141, 198, 63, 0.18);
+  inset: 0;
+  background: #070710;
+  pointer-events: none;
+  transition: opacity 4s ease;
 }
 
-/* Location pin */
-.pin {
-  position: relative;
-  z-index: 2;
-  filter: drop-shadow(0 4px 16px rgba(141, 198, 63, 0.5));
-}
-
-/* Pulsing ring beneath pin */
-.pulse {
+.baseDim {
   position: absolute;
-  bottom: 44px;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 60px;
-  height: 60px;
-  border-radius: 50%;
-  border: 2px solid rgba(141, 198, 63, 0.5);
-  animation: pulse 2s ease-out infinite;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.38);
+  pointer-events: none;
+}
+
+/* ── City light shimmer ── */
+.cityShimmer {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
   z-index: 1;
+  background:
+    radial-gradient(ellipse 55% 32% at 18% 78%, rgba(255, 168, 48, 0.16) 0%, transparent 100%),
+    radial-gradient(ellipse 65% 38% at 56% 86%, rgba(255, 205, 72, 0.13) 0%, transparent 100%),
+    radial-gradient(ellipse 42% 26% at 84% 70%, rgba(255, 148, 38, 0.11) 0%, transparent 100%);
+  animation: cityBreath 9s ease-in-out infinite alternate;
 }
 
-@keyframes pulse {
-  0%   { transform: translateX(-50%) scale(0.6); opacity: 0.8; }
-  100% { transform: translateX(-50%) scale(1.8); opacity: 0; }
+.cityShimmer::before {
+  content: '';
+  position: absolute;
+  width: 24%;
+  height: 20%;
+  left: 10%;
+  bottom: 18%;
+  border-radius: 50%;
+  background: radial-gradient(ellipse at center, rgba(255, 188, 58, 0.28) 0%, transparent 70%);
+  filter: blur(10px);
+  animation: flicker1 3.4s ease-in-out infinite alternate;
+}
+
+.cityShimmer::after {
+  content: '';
+  position: absolute;
+  width: 20%;
+  height: 16%;
+  right: 12%;
+  bottom: 22%;
+  border-radius: 50%;
+  background: radial-gradient(ellipse at center, rgba(255, 218, 88, 0.22) 0%, transparent 70%);
+  filter: blur(8px);
+  animation: flicker2 5.1s ease-in-out infinite alternate;
+}
+
+@keyframes cityBreath {
+  from { opacity: 0.45; }
+  to   { opacity: 1.0;  }
+}
+
+@keyframes flicker1 {
+  0%   { opacity: 0.35; transform: scale(0.94); }
+  35%  { opacity: 1.0;  transform: scale(1.06); }
+  68%  { opacity: 0.55; transform: scale(0.98); }
+  100% { opacity: 0.85; transform: scale(1.03); }
+}
+
+@keyframes flicker2 {
+  0%   { opacity: 0.7;  transform: scale(1.0);  }
+  28%  { opacity: 0.25; transform: scale(0.91); }
+  62%  { opacity: 0.9;  transform: scale(1.05); }
+  100% { opacity: 0.45; transform: scale(0.95); }
+}
+
+/* ── Card ── */
+.card {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  max-width: 340px;
+  background: rgba(14, 14, 20, 0.78);
+  border: 1px solid rgba(255, 255, 255, 0.07);
+  border-radius: 32px;
+  padding: 36px 24px 28px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0;
+  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.65);
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
+}
+
+/* ══════════════════════════════════════
+   FINGERPRINT CIRCLE BUTTON
+   ══════════════════════════════════════ */
+.fpCircle {
+  position: relative;
+  width: 148px;
+  height: 148px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  margin-bottom: 20px;
+  cursor: pointer;
+  overflow: hidden;          /* clips scan line to circle */
+  padding: 0;
+  outline: none;
+  -webkit-tap-highlight-color: transparent;
+  /* transition for all state changes */
+  transition:
+    color 0.4s ease,
+    background 0.4s ease,
+    border-color 0.4s ease,
+    box-shadow 0.4s ease;
+}
+
+/* ── IDLE: white + heartbeat glow ── */
+.fpIdle {
+  color: rgba(255, 255, 255, 0.88);
+  background: rgba(255, 255, 255, 0.04);
+  border: 2px solid rgba(255, 255, 255, 0.22);
+  animation: heartbeatRing 2.2s ease-in-out infinite;
+}
+
+@keyframes heartbeatRing {
+  0%   { box-shadow: 0 0 0 0   rgba(255,255,255,0),    0 0 16px rgba(255,255,255,0.06); }
+  12%  { box-shadow: 0 0 0 10px rgba(255,255,255,0.12), 0 0 28px rgba(255,255,255,0.18); }
+  24%  { box-shadow: 0 0 0 2px  rgba(255,255,255,0.04), 0 0 16px rgba(255,255,255,0.06); }
+  38%  { box-shadow: 0 0 0 7px  rgba(255,255,255,0.08), 0 0 22px rgba(255,255,255,0.12); }
+  60%  { box-shadow: 0 0 0 0   rgba(255,255,255,0),    0 0 16px rgba(255,255,255,0.06); }
+  100% { box-shadow: 0 0 0 0   rgba(255,255,255,0),    0 0 16px rgba(255,255,255,0.06); }
+}
+
+/* ── SCANNING: green + steady glow ── */
+.fpScanning {
+  color: #8DC63F;
+  background: rgba(141, 198, 63, 0.07);
+  border: 2px solid rgba(141, 198, 63, 0.5);
+  box-shadow:
+    0 0 0 8px rgba(141, 198, 63, 0.08),
+    0 0 32px rgba(141, 198, 63, 0.3);
+  cursor: default;
+}
+
+/* ── DENIED: red + shake ── */
+.fpDenied {
+  color: #ff4d4d;
+  background: rgba(255, 77, 77, 0.07);
+  border: 2px solid rgba(255, 77, 77, 0.45);
+  box-shadow:
+    0 0 0 8px rgba(255, 77, 77, 0.08),
+    0 0 28px rgba(255, 77, 77, 0.25);
+  animation: shake 0.55s cubic-bezier(0.36, 0.07, 0.19, 0.97) both;
+}
+
+@keyframes shake {
+  0%, 100% { transform: translateX(0); }
+  15%       { transform: translateX(-9px); }
+  30%       { transform: translateX(9px); }
+  45%       { transform: translateX(-6px); }
+  60%       { transform: translateX(6px); }
+  75%       { transform: translateX(-3px); }
+  90%       { transform: translateX(3px); }
+}
+
+/* ── Fingerprint SVG ── */
+.fpSvg {
+  width: 78px;
+  height: 78px;
+  flex-shrink: 0;
+}
+
+/* ── Scan line (sweeps top→bottom inside circle while scanning) ── */
+.scanLine {
+  position: absolute;
+  left: 6%;
+  width: 88%;
+  height: 2.5px;
+  border-radius: 2px;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(141, 198, 63, 0.7) 20%,
+    rgba(200, 255, 120, 1)  50%,
+    rgba(141, 198, 63, 0.7) 80%,
+    transparent 100%
+  );
+  box-shadow:
+    0 0 6px rgba(141, 198, 63, 0.9),
+    0 0 14px rgba(141, 198, 63, 0.5);
+  animation: scanSweep 1.1s ease-in-out infinite;
+  pointer-events: none;
+}
+
+@keyframes scanSweep {
+  0%   { top: 8%;  opacity: 0; }
+  8%   { opacity: 1; }
+  92%  { opacity: 1; }
+  100% { top: 86%; opacity: 0; }
+}
+
+/* ── Location alert (under circle, before title) ── */
+.locationAlert {
+  font-size: 13px;
+  font-weight: 700;
+  color: #ff4d4d;
+  text-align: center;
+  margin: 0 0 10px;
+  letter-spacing: 0.01em;
+  animation: fadeSlideIn 0.35s ease;
+}
+
+@keyframes fadeSlideIn {
+  from { opacity: 0; transform: translateY(-6px); }
+  to   { opacity: 1; transform: translateY(0); }
 }
 
 /* ── Text ── */
 .title {
-  font-size: 26px;
-  font-weight: 900;
+  font-size: 20px;
+  font-weight: 800;
   color: #fff;
   text-align: center;
-  margin: 0 0 14px;
-  letter-spacing: -0.3px;
-  line-height: 1.15;
+  margin: 0 0 8px;
+  letter-spacing: -0.2px;
+  line-height: 1.2;
 }
 
 .message {
-  font-size: 14px;
-  font-weight: 500;
-  color: rgba(255, 255, 255, 0.55);
-  text-align: center;
-  line-height: 1.65;
-  max-width: 300px;
-  margin: 0 0 28px;
-}
-
-/* ── Error states ── */
-.error {
   font-size: 13px;
-  color: #ff6b6b;
+  font-weight: 500;
+  color: rgba(255, 255, 255, 0.45);
   text-align: center;
-  max-width: 300px;
-  line-height: 1.5;
-  margin: -12px 0 20px;
+  line-height: 1.6;
+  max-width: 270px;
+  margin: 0;
 }
-
-/* ── CTA button ── */
-.btn {
-  width: 100%;
-  max-width: 300px;
-  padding: 16px;
-  border-radius: 16px;
-  background: #8DC63F;
-  color: #000;
-  font-size: 15px;
-  font-weight: 800;
-  letter-spacing: 0.02em;
-  border: none;
-  cursor: pointer;
-  transition: transform 0.12s, opacity 0.12s;
-  -webkit-tap-highlight-color: transparent;
-  box-shadow: 0 4px 24px rgba(141, 198, 63, 0.4);
-}
-
-.btn:active   { transform: scale(0.97); }
-.btn:disabled { opacity: 0.55; cursor: default; }
 
 /* ── Privacy note ── */
 .note {
-  margin-top: 16px;
+  margin-top: 18px;
   font-size: 11px;
-  color: rgba(255, 255, 255, 0.2);
+  color: rgba(255, 255, 255, 0.18);
   text-align: center;
-  max-width: 280px;
+  max-width: 260px;
   line-height: 1.5;
 }
