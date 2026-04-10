@@ -1,7 +1,7 @@
 /**
  * DEV PANEL — Admin design tool
  * Floating overlay button that opens a panel to preview every popup,
- * banner, sheet, and notification in the app with mock data.
+ * banner, sheet, and screen in the app with mock data.
  * Only mounts when import.meta.env.DEV === true (or localStorage dev_panel='1').
  */
 import { useState, useEffect } from 'react'
@@ -11,28 +11,10 @@ import Toast from '@/components/ui/Toast'
 import LanguageToast from '@/components/ui/LanguageToast'
 
 // ── Onboarding ───────────────────────────────────────────────────────
-import LandingScreen from '@/screens/LandingScreen'
-import JoinSheet from '@/screens/onboarding/JoinSheet'
-
-// ── Banners ─────────────────────────────────────────────────────────
-import MeetRequestBanner   from '@/components/meet/MeetRequestBanner'
-import MeetAcceptedBanner  from '@/components/meet/MeetAcceptedBanner'
-
-// ── Vibe Check ───────────────────────────────────────────────────────
-import VibeCheckSheet  from '@/components/vibecheck/VibeCheckSheet'
-import VibeCheckBanner from '@/components/vibecheck/VibeCheckBanner'
-
-// ── Profile sliders ──────────────────────────────────────────────────
-import DiscoveryCard from '@/components/discovery/DiscoveryCard'
-
-// ── List sheets ──────────────────────────────────────────────────────
-import DiscoveryListSheet from '@/components/discovery/DiscoveryListSheet'
-
-// ── Go Live / Session ────────────────────────────────────────────────
-import GoLiveSheet    from '@/components/golive/GoLiveSheet'
-import InviteOutSheet from '@/components/golive/InviteOutSheet'
-import RatingSheet    from '@/components/session/RatingSheet'
-import StillHerePrompt from '@/components/session/StillHerePrompt'
+import LandingScreen         from '@/screens/LandingScreen'
+import JoinSheet             from '@/screens/onboarding/JoinSheet'
+import AddToHomeScreenBanner from '@/components/pwa/AddToHomeScreenBanner'
+import DateIdeasSheet        from '@/components/dating/DateIdeasSheet'
 
 // ── Modals / Gates ───────────────────────────────────────────────────
 import SOSModal    from '@/components/safety/SOSModal'
@@ -40,114 +22,75 @@ import ReportSheet from '@/components/moderation/ReportSheet'
 import UpgradeSheet from '@/components/premium/UpgradeSheet'
 import UnlockGate  from '@/components/chat/UnlockGate'
 
+// ── Membership ───────────────────────────────────────────────────────
+import MembershipScreen    from '@/components/membership/MembershipScreen'
+
 // ── Screens ──────────────────────────────────────────────────────────
-import ChatScreen              from '@/screens/ChatScreen'
-import MatchScreen             from '@/screens/MatchScreen'
-import NotificationsScreen     from '@/screens/NotificationsScreen'
-import LikedMeScreen           from '@/screens/LikedMeScreen'
-import WalletScreen            from '@/screens/WalletScreen'
-import ProfileScreen           from '@/screens/ProfileScreen'
-import BookingScreen           from '@/screens/BookingScreen'
-import ShopSearchScreen        from '@/screens/ShopSearchScreen'
-import CategoryDiscoveryScreen from '@/screens/CategoryDiscoveryScreen'
+import ChatScreen          from '@/screens/ChatScreen'
+import ChatWindow          from '@/components/chat/ChatWindow'
+import MatchScreen         from '@/screens/MatchScreen'
+import NotificationsScreen from '@/screens/NotificationsScreen'
+import LikedMeScreen       from '@/screens/LikedMeScreen'
+import ProfileScreen       from '@/screens/ProfileScreen'
+import LocationGateScreen  from '@/screens/LocationGateScreen'
 
 import styles from './DevPanel.module.css'
 
 // ─────────────────────────────────────────────────────────────────────
 // MOCK DATA
 // ─────────────────────────────────────────────────────────────────────
-const now = Date.now()
-
-const MOCK_SESSION_NOW = {
-  id: 'dev-now-1', userId: 'dev-u1',
-  displayName: 'Sophie', age: 27,
+const MOCK_USER = {
+  id: 'dev-u1',
+  displayName: 'Sophie',
+  age: 27,
   photoURL: 'https://ik.imagekit.io/nepgaxllc/uk1.png',
-  photos: ['https://ik.imagekit.io/nepgaxllc/uk1.png','https://ik.imagekit.io/nepgaxllc/uk3.png','https://ik.imagekit.io/nepgaxllc/uk5.png'],
-  bio: 'Love a good cocktail bar and terrible karaoke 🎤 Always up for spontaneous plans.',
-  activityType: 'drinks', activities: ['drinks','food','hangout'],
-  lookingFor: 'Dating', area: 'Bali', city: 'Denpasar',
-  status: 'active', distanceKm: 0.3, tier: 'vip',
-  expiresAtMs: now + 45 * 60 * 1000, startedAtMs: now - 15 * 60 * 1000,
-  lat: -8.6705, lng: 115.2126,
+  bio: 'Love a good cocktail bar and terrible karaoke 🎤',
+  area: 'Bali',
+  city: 'Denpasar',
 }
 
-const MOCK_SESSION_INVITE = {
-  id: 'dev-invite-1', userId: 'dev-u2',
-  displayName: 'Zara', age: 24,
-  photoURL: 'https://ik.imagekit.io/nepgaxllc/uk2.png',
-  photos: ['https://ik.imagekit.io/nepgaxllc/uk2.png','https://ik.imagekit.io/nepgaxllc/uk4.png'],
-  bio: 'Coffee snob ☕ Open to meeting someone interesting.',
-  activityType: 'coffee', activities: ['coffee','culture'],
-  lookingFor: 'Friendship', area: 'Seminyak', city: 'Badung',
-  status: 'invite_out', distanceKm: 0.5, tier: 'pro',
-  lat: -8.6915, lng: 115.1673,
+const MOCK_CONV_BASE = {
+  id: 'dev-conv-1',
+  status: 'active',
+  unread: 0,
+  isUserA: true,
+  messages: [
+    { id: 'm1', fromMe: false, text: 'Hey! How are you?', time: Date.now() - 60000 },
+    { id: 'm2', fromMe: true,  text: 'Doing great, thanks! You?', time: Date.now() - 30000, read: true },
+    { id: 'm3', fromMe: false, text: 'Amazing! Want to meet up?', time: Date.now() - 10000 },
+  ],
 }
 
-const MOCK_SESSION_NO_PHOTO = {
-  id: 'dev-nophoto-1', userId: 'dev-u9',
-  displayName: 'Alex', age: 26,
-  photoURL: null, photos: [],
-  bio: "Haven't added a photo yet — but I'm out here!",
-  activityType: 'drinks', activities: ['drinks','hangout'],
-  lookingFor: 'Dating', area: 'Kuta', city: 'Badung',
-  status: 'active', distanceKm: 0.4, tier: null,
-  expiresAtMs: now + 45 * 60 * 1000, startedAtMs: now - 10 * 60 * 1000,
-  lat: -8.7180, lng: 115.1685,
+const MOCK_CONVS = {
+  dating: { ...MOCK_CONV_BASE, id: 'dev-conv-dating', displayName: 'Sophie', age: 26, area: 'Bali', emoji: '💕', photoURL: 'https://ik.imagekit.io/nepgaxllc/uk1.png' },
+  market: { ...MOCK_CONV_BASE, id: 'dev-conv-market', displayName: 'Bali Crafts Co.', area: 'Ubud', emoji: '🛍️', photoURL: null },
+  food:   { ...MOCK_CONV_BASE, id: 'dev-conv-food',   displayName: 'Warung Sari', area: 'Seminyak', emoji: '🍽️', photoURL: null },
 }
-
-const MOCK_SESSION_LATER = {
-  id: 'dev-later-1', userId: 'dev-u3',
-  displayName: 'Grace', age: 29,
-  photoURL: 'https://ik.imagekit.io/nepgaxllc/uk6.png',
-  photos: ['https://ik.imagekit.io/nepgaxllc/uk6.png','https://ik.imagekit.io/nepgaxllc/uk8.png'],
-  bio: 'Foodie and part-time art gallery wanderer 🍷',
-  activityType: 'food', activities: ['food','drinks','culture'],
-  lookingFor: 'Dating', area: 'Ubud', city: 'Gianyar',
-  status: 'scheduled', distanceKm: 1.4, tier: null,
-  scheduledFor: now + 4 * 60 * 60 * 1000,
-  lat: -8.5069, lng: 115.2625,
-}
-
-const MOCK_MEET_REQUEST = {
-  id: 'dev-meet-req-1', fromUserId: 'dev-u1',
-  fromDisplayName: 'Sophie',
-  fromPhotoURL: 'https://ik.imagekit.io/nepgaxllc/uk1.png',
-  sessionId: 'dev-now-1', status: 'pending',
-}
-
-const MOCK_MEET_ACCEPTED = {
-  id: 'dev-meet-acc-1', sessionId: 'dev-now-1',
-  fromUserId: 'dev-u1',
-  fromDisplayName: 'Sophie',
-  fromPhotoURL: 'https://ik.imagekit.io/nepgaxllc/uk1.png',
-  status: 'accepted',
-}
-
-const ALL_SESSIONS = [MOCK_SESSION_NOW, MOCK_SESSION_INVITE, MOCK_SESSION_LATER,
-  { ...MOCK_SESSION_NOW, id: 'dev-now-2', displayName: 'Emma', age: 25, photoURL: 'https://ik.imagekit.io/nepgaxllc/uk3.png', distanceKm: 0.6 },
-]
 
 // ─────────────────────────────────────────────────────────────────────
 // GROUPS — the panel menu
 // ─────────────────────────────────────────────────────────────────────
 const GROUPS = [
   {
-    label: 'ONBOARDING',
-    color: '#8DC63F',
+    label: '⚡ QUICK LINKS',
+    color: '#F59E0B',
     items: [
-      { id: 'landing',        label: '🏠 Landing Screen' },
-      { id: 'joinPhone',      label: '📱 Join — Phone Step' },
-      { id: 'joinOtp',        label: '🔐 Join — OTP Step' },
-      { id: 'joinProfile',    label: '👤 Join — Profile Step' },
-      { id: 'langToast',      label: '🌐 Language Toast' },
+      { id: 'joinPhone',    label: '🔑 Sign In' },
+      { id: 'joinProfile',  label: '✏️ Create Account' },
+      { id: 'setLocation',  label: '📍 Set Location' },
     ],
   },
   {
-    label: 'BANNERS',
-    color: '#F5C518',
+    label: 'ONBOARDING',
+    color: '#8DC63F',
     items: [
-      { id: 'meetRequest',  label: '💌 Meet Request (User B)' },
-      { id: 'meetAccepted', label: '✅ Meet Accepted (User A)' },
+      { id: 'landing',     label: '🏠 Landing Screen' },
+      { id: 'joinPhone',   label: '📱 Join — Phone Step' },
+      { id: 'joinOtp',     label: '🔐 Join — OTP Step' },
+      { id: 'joinProfile', label: '👤 Join — Profile Step' },
+      { id: 'langToast',   label: '🌐 Language Toast' },
+      { id: 'pwa',         label: '📲 Add to Home Screen' },
+      { id: 'dateIdeas',   label: '💕 Date Ideas Drawer' },
     ],
   },
   {
@@ -157,35 +100,6 @@ const GROUPS = [
       { id: 'toastSuccess', label: '✅ Toast — Success' },
       { id: 'toastError',   label: '❌ Toast — Error' },
       { id: 'toastInfo',    label: 'ℹ️ Toast — Info' },
-    ],
-  },
-  {
-    label: 'PROFILE SLIDERS',
-    color: '#8DC63F',
-    items: [
-      { id: 'profileNow',     label: '🟢 Out Now Profile' },
-      { id: 'profileInvite',  label: '💛 Invite Out Profile' },
-      { id: 'profileLater',   label: '🟠 Later Out Profile' },
-      { id: 'profileNoPhoto', label: '📷 No Photo Profile' },
-    ],
-  },
-  {
-    label: 'LIST SHEETS',
-    color: '#E8890C',
-    items: [
-      { id: 'listNow',    label: '🟢 Out Now List' },
-      { id: 'listInvite', label: '💛 Invite Out List' },
-      { id: 'listLater',  label: '🟠 Later Out List' },
-    ],
-  },
-  {
-    label: 'SESSION / GO LIVE',
-    color: '#FF6B6B',
-    items: [
-      { id: 'goLive',    label: '🔴 Go Live Sheet' },
-      { id: 'inviteOut', label: '💌 Invite Out Sheet' },
-      { id: 'rating',    label: '⭐ Rating Sheet' },
-      { id: 'stillHere', label: '⏰ Still Here Prompt' },
     ],
   },
   {
@@ -199,28 +113,28 @@ const GROUPS = [
     ],
   },
   {
-    label: 'VIBE CHECK',
-    color: '#8DC63F',
-    items: [
-      { id: 'vibeCheckSheet',   label: '✨ Vibe Check Sheet' },
-      { id: 'vibeBannerNow',    label: '💚 Vibe Banner – Out Now' },
-      { id: 'vibeBannerInvite', label: '✨ Vibe Banner – Invite Out' },
-      { id: 'vibeBannerLater',  label: '🕐 Vibe Banner – Out Later' },
-    ],
-  },
-  {
     label: 'SCREENS',
     color: '#A78BFA',
     items: [
-      { id: 'categoryDiscovery', label: '🍜 The Street (Food)' },
-      { id: 'booking',           label: '🏍 Booking (Rides)' },
-      { id: 'shop',              label: '🛍 Shop Search' },
-      { id: 'chat',              label: '💬 Chat Screen' },
-      { id: 'match',             label: '❤️ Match / Dating Screen' },
-      { id: 'notifications',     label: '🔔 Notifications Screen' },
-      { id: 'likedMe',           label: '👀 Liked Me Screen' },
-      { id: 'wallet',            label: '💰 Wallet Screen' },
-      { id: 'profile',           label: '👤 Profile Screen' },
+      { id: 'chat',          label: '💬 Chat Screen' },
+      { id: 'chat_dating',   label: '💕 Chat — Dating' },
+      { id: 'chat_market',   label: '🛍️ Chat — Market' },
+      { id: 'chat_food',     label: '🍽️ Chat — Food' },
+      { id: 'match',         label: '❤️ Dating / Match Screen' },
+      { id: 'notifications', label: '🔔 Notifications Screen' },
+      { id: 'likedMe',       label: '👀 Liked Me Screen' },
+      { id: 'profile',       label: '👤 Profile Screen' },
+    ],
+  },
+  {
+    label: 'MEMBERSHIP',
+    color: '#FF6BA3',
+    items: [
+      { id: 'membership_dating',     label: '💕 Dating Membership' },
+      { id: 'membership_market',     label: '🛍️ Market Membership' },
+      { id: 'membership_bike_ride',  label: '🛵 Bike Ride Membership' },
+      { id: 'membership_car_ride',   label: '🚗 Car Ride Membership' },
+      { id: 'membership_restaurant', label: '🍽️ Restaurant Membership' },
     ],
   },
 ]
@@ -233,13 +147,12 @@ const IS_ENABLED = import.meta.env.DEV || localStorage.getItem('dev_panel') === 
 export default function DevPanel() {
   if (!IS_ENABLED) return null
 
-  const [panelOpen, setPanelOpen]           = useState(false)
-  const [active, setActive]                 = useState(null)
-  const [toast, setToast]                   = useState(null)
-  const [profileSession, setProfileSession] = useState(null)
-  const [devPendingConv, setDevPendingConv] = useState(null)
-  // Force-show the language toast in dev mode
-  const [showLangToast, setShowLangToast]   = useState(false)
+  const [panelOpen, setPanelOpen]         = useState(false)
+  const [active, setActive]               = useState(null)
+  const [toast, setToast]                 = useState(null)
+  const [showLangToast, setShowLangToast] = useState(false)
+  const [showPWA,      setShowPWA]        = useState(false)
+  const [showDateIdeas, setShowDateIdeas] = useState(false)
 
   useEffect(() => {
     document.documentElement.style.setProperty('--dev-panel-width', panelOpen ? '260px' : '0px')
@@ -247,14 +160,17 @@ export default function DevPanel() {
   }, [panelOpen])
 
   const open  = (id) => { setActive(id); setPanelOpen(false) }
-  const close = ()   => { setActive(null); setProfileSession(null); setShowLangToast(false) }
+  const close = ()   => { setActive(null); setShowLangToast(false); setShowPWA(false); setShowDateIdeas(false) }
   const showToast = (message, type = 'info') => setToast({ message, type })
 
   const trigger = (id) => {
-    if (id === 'toastSuccess') { setActive(null); showToast('Session posted successfully!', 'success'); return }
-    if (id === 'toastError')   { setActive(null); showToast('Something went wrong. Try again.', 'error');   return }
-    if (id === 'toastInfo')    { setActive(null); showToast('Feature available for Pro members.', 'info');   return }
-    if (id === 'langToast')    { setShowLangToast(true); setPanelOpen(false); return }
+    if (id === 'toastSuccess') { setActive(null); showToast('Saved successfully!', 'success'); return }
+    if (id === 'toastError')   { setActive(null); showToast('Something went wrong. Try again.', 'error'); return }
+    if (id === 'toastInfo')    { setActive(null); showToast('Feature available for Pro members.', 'info'); return }
+    if (id === 'langToast')   { setShowLangToast(true);  setPanelOpen(false); return }
+    if (id === 'pwa')         { setShowPWA(true);        setPanelOpen(false); return }
+    if (id === 'dateIdeas')   { setShowDateIdeas(true);  setPanelOpen(false); return }
+    if (id === 'setLocation') { open('setLocation');     return }
     open(id)
   }
 
@@ -285,7 +201,11 @@ export default function DevPanel() {
                 {group.items.map(item => (
                   <button
                     key={item.id}
-                    className={`${styles.item} ${active === item.id ? styles.itemActive : ''}`}
+                    className={
+                      group.label.includes('QUICK')
+                        ? `${styles.quickItem} ${active === item.id ? styles.itemActive : ''}`
+                        : `${styles.item} ${active === item.id ? styles.itemActive : ''}`
+                    }
                     onClick={() => trigger(item.id)}
                   >
                     {item.label}
@@ -313,23 +233,10 @@ export default function DevPanel() {
         </div>
       )}
 
-      <JoinSheet
-        open={active === 'joinPhone'}
-        initialStep="phone"
-        onClose={close}
-      />
-      <JoinSheet
-        open={active === 'joinOtp'}
-        initialStep="otp"
-        onClose={close}
-      />
-      <JoinSheet
-        open={active === 'joinProfile'}
-        initialStep="profile"
-        onClose={close}
-      />
+      <JoinSheet open={active === 'joinPhone'}   initialStep="phone"   onClose={close} />
+      <JoinSheet open={active === 'joinOtp'}     initialStep="otp"     onClose={close} />
+      <JoinSheet open={active === 'joinProfile'} initialStep="profile" onClose={close} />
 
-      {/* Language toast — forced visible in dev (bypasses first-visit check) */}
       {showLangToast && (
         <>
           <LanguageToast _forceVisible />
@@ -337,122 +244,27 @@ export default function DevPanel() {
         </>
       )}
 
-      {/* ── BANNERS ── */}
-      {active === 'meetRequest' && (
-        <div className={styles.bannerWrap}>
-          <MeetRequestBanner
-            request={MOCK_MEET_REQUEST}
-            onAccepted={() => {
-              close()
-              setDevPendingConv({
-                id: `meet-${MOCK_MEET_REQUEST.sessionId}`,
-                userId: MOCK_MEET_REQUEST.fromUserId,
-                displayName: MOCK_MEET_REQUEST.fromDisplayName,
-                photoURL: MOCK_MEET_REQUEST.fromPhotoURL,
-                age: MOCK_SESSION_NOW.age,
-                area: MOCK_SESSION_NOW.area,
-                emoji: '💌',
-                online: true,
-                status: 'free',
-                openedAt: Date.now(),
-                lastMessage: null,
-                lastMessageTime: Date.now(),
-                unread: 0,
-                messages: [],
-              })
-            }}
-            onDeclined={close}
-            onViewProfile={() => setProfileSession(MOCK_SESSION_NOW)}
-          />
-          <button className={styles.devClose} onClick={close}>CLOSE</button>
-        </div>
-      )}
-
-      {devPendingConv && (
-        <div className={styles.screenOverlay}>
-          <ChatScreen onClose={() => setDevPendingConv(null)} pendingConv={devPendingConv} />
-        </div>
-      )}
-
-      {/* Profile opened by tapping banner avatar */}
-      <DiscoveryCard
-        open={!!profileSession}
-        session={profileSession ?? MOCK_SESSION_NOW}
-        mySession={null}
-        onClose={() => setProfileSession(null)}
-        showToast={showToast}
-      />
-
-      {active === 'meetAccepted' && (
-        <div className={styles.bannerWrap}>
-          <MeetAcceptedBanner
-            session={MOCK_MEET_ACCEPTED}
-            onTapToChat={() => {
-              close()
-              setDevPendingConv({
-                id: `meet-${MOCK_MEET_ACCEPTED.sessionId}`,
-                userId: MOCK_MEET_ACCEPTED.fromUserId,
-                displayName: MOCK_MEET_ACCEPTED.fromDisplayName,
-                photoURL: MOCK_MEET_ACCEPTED.fromPhotoURL,
-                age: MOCK_SESSION_NOW.age,
-                area: MOCK_SESSION_NOW.area,
-                emoji: '💌',
-                online: true,
-                status: 'free',
-                openedAt: Date.now(),
-                lastMessage: null,
-                lastMessageTime: Date.now(),
-                unread: 0,
-                messages: [],
-              })
-            }}
-            onDismiss={close}
-          />
-        </div>
-      )}
-
-      {/* ── PROFILE SLIDERS ── */}
-      <DiscoveryCard open={active === 'profileNow'}     session={MOCK_SESSION_NOW}     mySession={null} onClose={close} showToast={showToast} />
-      <DiscoveryCard open={active === 'profileInvite'}  session={MOCK_SESSION_INVITE}  mySession={null} onClose={close} showToast={showToast} />
-      <DiscoveryCard open={active === 'profileLater'}   session={MOCK_SESSION_LATER}   mySession={null} onClose={close} showToast={showToast} />
-      <DiscoveryCard open={active === 'profileNoPhoto'} session={MOCK_SESSION_NO_PHOTO} mySession={null} onClose={close} showToast={showToast} />
-
-      {/* ── LIST SHEETS ── */}
-      <DiscoveryListSheet open={active === 'listNow'}    filter="now"    sessions={ALL_SESSIONS} onClose={close} onSelect={(s) => { close(); showToast(`Selected: ${s.displayName}`, 'info') }} />
-      <DiscoveryListSheet open={active === 'listInvite'} filter="invite" sessions={ALL_SESSIONS} onClose={close} onSelect={(s) => { close(); showToast(`Selected: ${s.displayName}`, 'info') }} />
-      <DiscoveryListSheet open={active === 'listLater'}  filter="later"  sessions={ALL_SESSIONS} onClose={close} onSelect={(s) => { close(); showToast(`Selected: ${s.displayName}`, 'info') }} />
-
-      {/* ── SESSION / GO LIVE ── */}
-      <GoLiveSheet open={active === 'goLive'} onClose={close} showToast={showToast} />
-      <InviteOutSheet
-        open={active === 'inviteOut'}
-        onClose={close}
-        onPost={(a) => { close(); showToast(`Posted: ${a}`, 'success') }}
-        onGoLive={close}
-        onGoLater={close}
-        currentStatus={null}
-      />
-      <RatingSheet
-        open={active === 'rating'}
-        session={MOCK_SESSION_NOW}
-        onSubmit={() => { close(); showToast('Rating submitted!', 'success') }}
-        onSkip={close}
-      />
-      {active === 'stillHere' && (
+      {showPWA && (
         <div className={styles.fullOverlay}>
-          <StillHerePrompt open sessionId={MOCK_SESSION_NOW.id} />
-          <button className={styles.devClose} onClick={close}>CLOSE</button>
+          <AddToHomeScreenBanner _forceVisible />
+          <button className={styles.devClose} onClick={() => { setShowPWA(false); close() }}>CLOSE</button>
         </div>
       )}
+
+      <DateIdeasSheet
+        open={false}
+        _forceOpen={showDateIdeas}
+        onClose={() => { setShowDateIdeas(false); close() }}
+      />
 
       {/* ── MODALS ── */}
-      <SOSModal    open={active === 'sos'}    onClose={close} session={MOCK_SESSION_NOW} />
-      <ReportSheet open={active === 'report'} session={MOCK_SESSION_NOW} onClose={close} showToast={showToast} />
+      <SOSModal    open={active === 'sos'}    onClose={close} session={MOCK_USER} />
+      <ReportSheet open={active === 'report'} session={MOCK_USER} onClose={close} showToast={showToast} />
       <UpgradeSheet
         open={active === 'upgrade'}
         onClose={close}
         showToast={showToast}
-        lookingFor="handmade"
+        lookingFor="dating"
       />
       {active === 'unlockGate' && (
         <div className={styles.fullOverlay}>
@@ -467,51 +279,25 @@ export default function DevPanel() {
         </div>
       )}
 
-      {/* ── VIBE CHECK ── */}
-      <VibeCheckSheet
-        open={active === 'vibeCheckSheet'}
-        sessions={ALL_SESSIONS}
-        onClose={close}
-        onVibeYes={(s) => showToast(`Vibe sent to ${s.displayName} 💚`, 'success')}
-      />
-      {active === 'vibeBannerNow' && (
-        <div className={styles.bannerWrap}>
-          <VibeCheckBanner banner={{ status: 'active' }} onDismiss={close} onView={() => { close(); showToast('Anonymous until they connect back 💚', 'info') }} />
-        </div>
-      )}
-      {active === 'vibeBannerInvite' && (
-        <div className={styles.bannerWrap}>
-          <VibeCheckBanner banner={{ status: 'invite_out' }} onDismiss={close} onView={() => { close(); showToast('Anonymous until they connect back ✨', 'info') }} />
-        </div>
-      )}
-      {active === 'vibeBannerLater' && (
-        <div className={styles.bannerWrap}>
-          <VibeCheckBanner banner={{ status: 'scheduled' }} onDismiss={close} onView={() => { close(); showToast('Anonymous until they connect back 🕐', 'info') }} />
-        </div>
-      )}
-
       {/* ── SCREENS ── */}
-      {active === 'categoryDiscovery' && (
-        <div className={styles.screenOverlay}>
-          <CategoryDiscoveryScreen
-            onClose={close}
-            onSelectCategory={(cat) => { close(); showToast(`Category: ${cat.label}`, 'info') }}
-          />
-        </div>
-      )}
-      {active === 'booking' && (
-        <div className={styles.screenOverlay}>
-          <BookingScreen onClose={close} />
-        </div>
-      )}
-      {active === 'shop' && (
-        <div className={styles.screenOverlay}>
-          <ShopSearchScreen onClose={close} userCity="Denpasar" userCountry="Indonesia" />
-        </div>
-      )}
       {active === 'chat' && (
         <div className={styles.screenOverlay}>
           <ChatScreen onClose={close} />
+        </div>
+      )}
+      {active === 'chat_dating' && (
+        <div className={styles.screenOverlay}>
+          <ChatWindow conversation={MOCK_CONVS.dating} chatTheme="dating" onBack={close} />
+        </div>
+      )}
+      {active === 'chat_market' && (
+        <div className={styles.screenOverlay}>
+          <ChatWindow conversation={MOCK_CONVS.market} chatTheme="market" onBack={close} />
+        </div>
+      )}
+      {active === 'chat_food' && (
+        <div className={styles.screenOverlay}>
+          <ChatWindow conversation={MOCK_CONVS.food} chatTheme="food" onBack={close} />
         </div>
       )}
       {active === 'match' && (
@@ -529,9 +315,10 @@ export default function DevPanel() {
           <LikedMeScreen onClose={close} />
         </div>
       )}
-      {active === 'wallet' && (
+      {active === 'setLocation' && (
         <div className={styles.screenOverlay}>
-          <WalletScreen onClose={close} />
+          <LocationGateScreen onConfirmed={() => { close(); showToast('✅ Location confirmed!', 'success') }} />
+          <button className={styles.devClose} onClick={close}>CLOSE</button>
         </div>
       )}
       {active === 'profile' && (
@@ -539,6 +326,16 @@ export default function DevPanel() {
           <ProfileScreen onClose={close} />
         </div>
       )}
+
+      {/* ── MEMBERSHIP ── */}
+      {['dating', 'market', 'bike_ride', 'car_ride', 'restaurant'].map(cat => (
+        <MembershipScreen
+          key={cat}
+          category={cat}
+          open={active === `membership_${cat}`}
+          onClose={close}
+        />
+      ))}
 
       {/* Toast */}
       <Toast message={toast?.message} type={toast?.type} onDismiss={() => setToast(null)} />

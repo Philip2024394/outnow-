@@ -3,13 +3,31 @@
   width: 100%;
   height: 100%;
   overflow: hidden;
-  background: var(--color-bg);
+  background-color: #000;
+  background-image: url('https://ik.imagekit.io/nepgaxllc/Commerce,%20cuisine,%20and%20connection%20in%20harmony.png');
+  background-size: cover;
+  background-position: center top;
+  background-repeat: no-repeat;
+  isolation: isolate;
+}
+
+/* Single full-page glass overlay — same as NotificationsScreen */
+.shell::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.55);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  z-index: 0;
+  pointer-events: none;
 }
 
 .mapWrap {
   position: absolute;
   inset: 0;
   transition: filter 0.3s ease;
+  z-index: 1;
 }
 .mapWrapBlurred {
   filter: blur(12px) saturate(0.4);

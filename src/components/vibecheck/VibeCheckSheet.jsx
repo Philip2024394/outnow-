@@ -1,12 +1,9 @@
 import { useState, useEffect } from 'react'
-import { useCoins } from '@/hooks/useCoins'
 import { formatDistance } from '@/utils/distance'
 import { activityEmoji } from '@/firebase/collections'
 import { lookingForText } from '@/utils/lookingForLabels'
 import styles from './VibeCheckSheet.module.css'
 
-const COINS_PER_VOTE     = 2
-const COINS_COMPLETE     = 5
 const PROFILES_PER_ROUND = 6
 
 function statusLabel(status) {
@@ -16,16 +13,14 @@ function statusLabel(status) {
 }
 
 export default function VibeCheckSheet({ open, sessions = [], onClose, onVibeYes }) {
-  const { earnRepeat } = useCoins()
   const [idx, setIdx]           = useState(0)
-  const [coinsEarned, setCoins] = useState(0)
   const [yesCount, setYesCount] = useState(0)
   const [done, setDone]         = useState(false)
   const [flash, setFlash]       = useState(null) // 'yes' | 'pass'
 
   // Reset when opened
   useEffect(() => {
-    if (open) { setIdx(0); setCoins(0); setYesCount(0); setDone(false); setFlash(null) }
+    if (open) { setIdx(0); setYesCount(0); setDone(false); setFlash(null) }
   }, [open])
 
   if (!open) return null
@@ -37,8 +32,6 @@ export default function VibeCheckSheet({ open, sessions = [], onClose, onVibeYes
 
   const advance = () => {
     if (idx + 1 >= total) {
-      earnRepeat('VIBE_CHECK_COMPLETE')
-      setCoins(c => c + COINS_COMPLETE)
       setDone(true)
     } else {
       setIdx(i => i + 1)
@@ -50,8 +43,6 @@ export default function VibeCheckSheet({ open, sessions = [], onClose, onVibeYes
     setFlash(yes ? 'yes' : 'pass')
     if (yes) {
       setYesCount(c => c + 1)
-      setCoins(c => c + COINS_PER_VOTE)
-      earnRepeat('VIBE_CHECK_VOTE')
       onVibeYes?.(current)
     }
     setTimeout(advance, 320)
@@ -85,10 +76,6 @@ export default function VibeCheckSheet({ open, sessions = [], onClose, onVibeYes
             You sent vibes to <strong>{yesCount}</strong> {yesCount === 1 ? 'person' : 'people'} —
             they'll get a heads-up that someone nearby is interested.
           </p>
-          <div className={styles.coinsEarned}>
-            <span className={styles.coinIcon}>🪙</span>
-            <span className={styles.coinAmt}>+{coinsEarned} coins earned</span>
-          </div>
           <p className={styles.completionNote}>
             Their identity stays anonymous until they respond with interest
           </p>
@@ -113,10 +100,6 @@ export default function VibeCheckSheet({ open, sessions = [], onClose, onVibeYes
           <div className={styles.headerLeft}>
             <span className={styles.headerTitle}>✨ Vibe Check</span>
             <span className={styles.headerSub}>Who would you meet tonight?</span>
-          </div>
-          <div className={styles.coinPill}>
-            <span>🪙</span>
-            <span>+{coinsEarned}</span>
           </div>
         </div>
 
@@ -203,7 +186,7 @@ export default function VibeCheckSheet({ open, sessions = [], onClose, onVibeYes
           </button>
         </div>
 
-        <p className={styles.hint}>+{COINS_PER_VOTE} coins per vote · anonymous until mutual</p>
+        <p className={styles.hint}>anonymous until mutual</p>
       </div>
     </div>
   )

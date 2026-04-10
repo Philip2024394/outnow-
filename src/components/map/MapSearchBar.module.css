@@ -1,6 +1,7 @@
 .wrap {
   position: absolute;
-  top: calc(var(--safe-top) + var(--space-3) + 36px + 28px + var(--space-3) + 6px - 40px);
+  isolation: isolate; /* stacking context so dropdown z-index is relative to wrap */
+  top: calc(var(--safe-top) + var(--space-3) + 36px + 28px + var(--space-3) + 6px - 40px + 16px);
   left: 16px;
   right: 16px;
   z-index: var(--z-header);

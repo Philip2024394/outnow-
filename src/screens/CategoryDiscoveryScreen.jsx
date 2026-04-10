@@ -1,133 +1,7 @@
 import { useState, useRef, useEffect, useCallback } from 'react'
 import { supabase } from '@/lib/supabase'
 import styles from './CategoryDiscoveryScreen.module.css'
-
-// ── Category definitions ──────────────────────────────────────────────────────
-// videoUrl  → short looping clip (WebM or H.264, ≤1 MB, no audio needed)
-// posterUrl → static frame shown before video loads / on slow connections
-// gradient  → fallback when neither image nor video supplied yet
-export const FOOD_CATEGORIES = [
-  {
-    id: 'all',
-    label: 'IN THE STREET',
-    emoji: '🍽',
-    tagline: 'Everything near you',
-    color: '#F59E0B',
-    videoUrl:  'https://fjvafjkzvygkhiwjuvla.supabase.co/storage/v1/object/sign/category-videos/makan.mp4?token=eyJraWQiOiJzdG9yYWdlLXVybC1zaWduaW5nLWtleV9mN2EwYjVlOC05MWUxLTRkMTAtYmU3ZC1kMzcyM2FhY2ZjZTIiLCJhbGciOiJIUzI1NiJ9.eyJ1cmwiOiJjYXRlZ29yeS12aWRlb3MvbWFrYW4ubXA0IiwiaWF0IjoxNzc1NzYwNDUxLCJleHAiOjIwOTExMjA0NTF9.m8BVMh8JqQ_BQCeRXgV_ND8IORN4bhqkiGgrRDgu5wE',
-    posterUrl: null,
-    gradient: 'linear-gradient(160deg, #1a1200 0%, #2d2000 50%, #0d0d0d 100%)',
-  },
-  {
-    id: 'street_food',
-    label: 'Street Food',
-    emoji: '🛺',
-    tagline: 'Warung, sate, gorengan & more',
-    color: '#F59E0B',
-    videoUrl:  null,
-    posterUrl: null,
-    gradient: 'linear-gradient(160deg, #1a0d00 0%, #2d1800 50%, #0d0d0d 100%)',
-  },
-  {
-    id: 'rice',
-    label: 'Rice Dishes',
-    emoji: '🍚',
-    tagline: 'Comfort in every grain',
-    color: '#F59E0B',
-    videoUrl:  'https://fjvafjkzvygkhiwjuvla.supabase.co/storage/v1/object/sign/category-videos/cool%20rice.mp4?token=eyJraWQiOiJzdG9yYWdlLXVybC1zaWduaW5nLWtleV9mN2EwYjVlOC05MWUxLTRkMTAtYmU3ZC1kMzcyM2FhY2ZjZTIiLCJhbGciOiJIUzI1NiJ9.eyJ1cmwiOiJjYXRlZ29yeS12aWRlb3MvY29vbCByaWNlLm1wNCIsImlhdCI6MTc3NTY3MjExMSwiZXhwIjoyMDkxMDMyMTExfQ.Ny19MR2SrVB9aNEGGzh2p_8A863OagwOSLSoENM_A_4',
-    posterUrl: null,
-    gradient: 'linear-gradient(160deg, #1a1500 0%, #2a2100 50%, #0d0d0d 100%)',
-  },
-  {
-    id: 'noodles',
-    label: 'Noodles',
-    emoji: '🍜',
-    tagline: 'Slurp-worthy every time',
-    color: '#ff8c42',
-    videoUrl:  'https://fjvafjkzvygkhiwjuvla.supabase.co/storage/v1/object/sign/category-videos/noodle.mp4?token=eyJraWQiOiJzdG9yYWdlLXVybC1zaWduaW5nLWtleV9mN2EwYjVlOC05MWUxLTRkMTAtYmU3ZC1kMzcyM2FhY2ZjZTIiLCJhbGciOiJIUzI1NiJ9.eyJ1cmwiOiJjYXRlZ29yeS12aWRlb3Mvbm9vZGxlLm1wNCIsImlhdCI6MTc3NTcxNDc3MiwiZXhwIjoyMDkxMDc0NzcyfQ.QcNPpQVXoxZZRDn_UvaGPanhD9yaXmhQA8YUs3oP3_Y',
-    posterUrl: null,
-    gradient: 'linear-gradient(160deg, #1a0d00 0%, #2d1800 50%, #0d0d0d 100%)',
-  },
-  {
-    id: 'grilled',
-    label: 'Grilled',
-    emoji: '🔥',
-    tagline: 'Charred. Bold. Perfect.',
-    color: '#ff6b35',
-    videoUrl:  'https://fjvafjkzvygkhiwjuvla.supabase.co/storage/v1/object/sign/category-videos/steak.mp4?token=eyJraWQiOiJzdG9yYWdlLXVybC1zaWduaW5nLWtleV9mN2EwYjVlOC05MWUxLTRkMTAtYmU3ZC1kMzcyM2FhY2ZjZTIiLCJhbGciOiJIUzI1NiJ9.eyJ1cmwiOiJjYXRlZ29yeS12aWRlb3Mvc3RlYWsubXA0IiwiaWF0IjoxNzc1NzE1MjQ0LCJleHAiOjIwOTEwNzUyNDR9.FqAaGz_mVChVkIkjLYT442Th6EX_Cw0gITFtVrLE1gc',
-    posterUrl: null,
-    gradient: 'linear-gradient(160deg, #1a0800 0%, #2d1000 50%, #0d0d0d 100%)',
-  },
-  {
-    id: 'burgers',
-    label: 'Burgers',
-    emoji: '🍔',
-    tagline: 'Stack it high',
-    color: '#F59E0B',
-    videoUrl:  'https://fjvafjkzvygkhiwjuvla.supabase.co/storage/v1/object/sign/category-videos/burger.mp4?token=eyJraWQiOiJzdG9yYWdlLXVybC1zaWduaW5nLWtleV9mN2EwYjVlOC05MWUxLTRkMTAtYmU3ZC1kMzcyM2FhY2ZjZTIiLCJhbGciOiJIUzI1NiJ9.eyJ1cmwiOiJjYXRlZ29yeS12aWRlb3MvYnVyZ2VyLm1wNCIsImlhdCI6MTc3NTcxNjgzMSwiZXhwIjoyMDkxMDc2ODMxfQ.sC5ZQtgp0mgFVdFgn-xIHo2d9AGsTN_NXK5aCqh2Dlc',
-    posterUrl: null,
-    gradient: 'linear-gradient(160deg, #071a00 0%, #0f2800 50%, #0d0d0d 100%)',
-  },
-  {
-    id: 'seafood',
-    label: 'Seafood',
-    emoji: '🦐',
-    tagline: 'Fresh from the ocean',
-    color: '#38bdf8',
-    videoUrl:  'https://fjvafjkzvygkhiwjuvla.supabase.co/storage/v1/object/sign/category-videos/fish.mp4?token=eyJraWQiOiJzdG9yYWdlLXVybC1zaWduaW5nLWtleV9mN2EwYjVlOC05MWUxLTRkMTAtYmU3ZC1kMzcyM2FhY2ZjZTIiLCJhbGciOiJIUzI1NiJ9.eyJ1cmwiOiJjYXRlZ29yeS12aWRlb3MvZmlzaC5tcDQiLCJpYXQiOjE3NzU3MTc2MDcsImV4cCI6MjA5MTA3NzYwN30.ZpiEWK8_6r65DGtkOlN5x4kcMUrMPS7uLXW4axQ169o',
-    posterUrl: null,
-    gradient: 'linear-gradient(160deg, #001520 0%, #002030 50%, #0d0d0d 100%)',
-  },
-  {
-    id: 'desserts',
-    label: 'Desserts',
-    emoji: '🧁',
-    tagline: 'Life is short. Eat dessert first.',
-    color: '#f472b6',
-    videoUrl:  'https://fjvafjkzvygkhiwjuvla.supabase.co/storage/v1/object/sign/category-videos/desert.mp4?token=eyJraWQiOiJzdG9yYWdlLXVybC1zaWduaW5nLWtleV9mN2EwYjVlOC05MWUxLTRkMTAtYmU3ZC1kMzcyM2FhY2ZjZTIiLCJhbGciOiJIUzI1NiJ9.eyJ1cmwiOiJjYXRlZ29yeS12aWRlb3MvZGVzZXJ0Lm1wNCIsImlhdCI6MTc3NTc2MjAyNywiZXhwIjoyMDkxMTIyMDI3fQ.831NMRUM3WnBwYXCRAD91pw2ZkiPQgpoT8XnPgDko80',
-    posterUrl: null,
-    gradient: 'linear-gradient(160deg, #1a0015 0%, #280020 50%, #0d0d0d 100%)',
-  },
-  {
-    id: 'drinks',
-    label: 'Drinks & Juice',
-    emoji: '🥤',
-    tagline: 'Refresh your world',
-    color: '#a78bfa',
-    videoUrl:  'https://fjvafjkzvygkhiwjuvla.supabase.co/storage/v1/object/sign/category-videos/drinks.mp4?token=eyJraWQiOiJzdG9yYWdlLXVybC1zaWduaW5nLWtleV9mN2EwYjVlOC05MWUxLTRkMTAtYmU3ZC1kMzcyM2FhY2ZjZTIiLCJhbGciOiJIUzI1NiJ9.eyJ1cmwiOiJjYXRlZ29yeS12aWRlb3MvZHJpbmtzLm1wNCIsImlhdCI6MTc3NTc1Nzc0NiwiZXhwIjoyMDkxMTE3NzQ2fQ.tXm_IMzicZrQoJ-ceVifxowRDiHe0Uy7pvJqyg2T6hw',
-    posterUrl: null,
-    gradient: 'linear-gradient(160deg, #0d0020 0%, #150030 50%, #0d0d0d 100%)',
-  },
-  {
-    id: 'breakfast',
-    label: 'Breakfast',
-    emoji: '🌅',
-    tagline: 'Start the day right',
-    color: '#fb923c',
-    videoUrl:  'https://fjvafjkzvygkhiwjuvla.supabase.co/storage/v1/object/sign/category-videos/breakft%20indonisea.mp4?token=eyJraWQiOiJzdG9yYWdlLXVybC1zaWduaW5nLWtleV9mN2EwYjVlOC05MWUxLTRkMTAtYmU3ZC1kMzcyM2FhY2ZjZTIiLCJhbGciOiJIUzI1NiJ9.eyJ1cmwiOiJjYXRlZ29yeS12aWRlb3MvYnJlYWtmdCBpbmRvbmlzZWEubXA0IiwiaWF0IjoxNzc1NzYxNTY5LCJleHAiOjIwOTExMjE1Njl9.3cAy4fm8DAZvuzfntSGY2GJ_KgW1H_MObvKIDwlzj48',
-    posterUrl: null,
-    gradient: 'linear-gradient(160deg, #1a0c00 0%, #2d1a00 50%, #0d0d0d 100%)',
-  },
-  {
-    id: 'snacks',
-    label: 'Snacks',
-    emoji: '🍿',
-    tagline: 'Always hungry for more',
-    color: '#4ade80',
-    videoUrl:  'https://fjvafjkzvygkhiwjuvla.supabase.co/storage/v1/object/sign/category-videos/snacks.mp4?token=eyJraWQiOiJzdG9yYWdlLXVybC1zaWduaW5nLWtleV9mN2EwYjVlOC05MWUxLTRkMTAtYmU3ZC1kMzcyM2FhY2ZjZTIiLCJhbGciOiJIUzI1NiJ9.eyJ1cmwiOiJjYXRlZ29yeS12aWRlb3Mvc25hY2tzLm1wNCIsImlhdCI6MTc3NTc2MTY2NiwiZXhwIjoyMDkxMTIxNjY2fQ.z6jnpz-tsYsPKYzwoa0iw4fUWD6i1IZpi3wONrvy6iM',
-    posterUrl: null,
-    gradient: 'linear-gradient(160deg, #001a0a 0%, #002810 50%, #0d0d0d 100%)',
-  },
-  {
-    id: 'vegetarian',
-    label: 'Vegetarian',
-    emoji: '🥗',
-    tagline: 'Clean. Green. Delicious.',
-    color: '#22c55e',
-    videoUrl:  'https://fjvafjkzvygkhiwjuvla.supabase.co/storage/v1/object/sign/category-videos/vegi.mp4?token=eyJraWQiOiJzdG9yYWdlLXVybC1zaWduaW5nLWtleV9mN2EwYjVlOC05MWUxLTRkMTAtYmU3ZC1kMzcyM2FhY2ZjZTIiLCJhbGciOiJIUzI1NiJ9.eyJ1cmwiOiJjYXRlZ29yeS12aWRlb3MvdmVnaS5tcDQiLCJpYXQiOjE3NzU3NjIyMDksImV4cCI6MjA5MTEyMjIwOX0.G53NKNh8-KqMGoDKZHXUqkLfRaAZHQ_maXpfkMfIAE8',
-    posterUrl: null,
-    gradient: 'linear-gradient(160deg, #001508 0%, #002210 50%, #0d0d0d 100%)',
-  },
-]
+import { FOOD_CATEGORIES } from './foodCategories'
 
 // ── Demo avatars — replaced by real users when live ──────────────────────────
 const DEMO_AVATARS = [
@@ -258,23 +132,8 @@ export default function CategoryDiscoveryScreen({ onClose, onSelectCategory }) {
     )
   }, [search, allRestaurants])
 
-  // ── Active-only video playback ────────────────────────────────────────────
-  // When the active card changes, pause ALL videos then play only the active one.
-  // This keeps battery usage low and prevents audio bleed (even muted, helps perf).
-  useEffect(() => {
-    videoRefs.current.forEach((v, i) => {
-      if (!v) return
-      if (i === activeIndex) {
-        // Only play if video has a src
-        if (v.src) {
-          v.currentTime = 0
-          v.play().catch(() => {}) // catch DOMException on some browsers
-        }
-      } else {
-        v.pause()
-      }
-    })
-  }, [activeIndex])
+  // Video src lifecycle is now fully managed inside each CategoryCard.
+  // The parent no longer needs to call play/pause — cards self-manage on isActive.
 
   // ── Scroll tracking ──
   const handleScroll = useCallback(() => {
@@ -317,12 +176,15 @@ export default function CategoryDiscoveryScreen({ onClose, onSelectCategory }) {
           </svg>
           <input
             ref={searchRef}
+            id="food-search"
+            name="food-search"
             className={styles.searchInput}
             placeholder="Search In The Street — warung, dish, cuisine…"
             value={search}
             onChange={e => setSearch(e.target.value)}
             onFocus={() => setSearchFocused(true)}
             onBlur={() => setTimeout(() => setSearchFocused(false), 180)}
+            autoComplete="off"
           />
           {search && (
             <button className={styles.searchClear} onClick={() => { setSearch(''); searchRef.current?.focus() }}>
@@ -388,29 +250,9 @@ export default function CategoryDiscoveryScreen({ onClose, onSelectCategory }) {
 }
 
 // ── Now In Kitchen widget ─────────────────────────────────────────────────────
-function NowInKitchen({ categoryId, viewerCount }) {
-  const [viewers,    setViewers]    = useState([])
-  const [visibleSet, setVisibleSet] = useState([])
+function NowInKitchen({ viewerCount }) {
+  const [visibleSet, setVisibleSet] = useState(() => DEMO_AVATARS.slice(0, 5))
   const [fade,       setFade]       = useState(true)
-
-  // Load real users browsing this category, fall back to demo avatars
-  useEffect(() => {
-    async function load() {
-      let users = []
-      if (supabase) {
-        const { data } = await supabase
-          .from('profiles')
-          .select('id, photo_url, name')
-          .eq('browsing_category', categoryId)
-          .limit(20)
-        if (data?.length) users = data
-      }
-      if (!users.length) users = DEMO_AVATARS
-      setViewers(users)
-      setVisibleSet(users.slice(0, 5))
-    }
-    load()
-  }, [categoryId])
 
   // Cycle visible avatars every 5s with a fade crossfade
   useEffect(() => {
@@ -418,10 +260,9 @@ function NowInKitchen({ categoryId, viewerCount }) {
       setFade(false)
       setTimeout(() => {
         setVisibleSet(prev => {
-          if (viewers.length <= 5) return viewers.slice(0, 5)
-          const pool = viewers.filter(u => !prev.find(p => p.id === u.id))
-          if (!pool.length) return viewers.slice(0, 5)
-          const swap = Math.floor(Math.random() * Math.min(prev.length, pool.length))
+          const pool = DEMO_AVATARS.filter(u => !prev.find(p => p.id === u.id))
+          if (!pool.length) return DEMO_AVATARS.slice(0, 5)
+          const swap = Math.floor(Math.random() * prev.length)
           const next = [...prev]
           next[swap] = pool[Math.floor(Math.random() * pool.length)]
           return next
@@ -431,7 +272,7 @@ function NowInKitchen({ categoryId, viewerCount }) {
     }, 5000)
 
     return () => clearInterval(avatarId)
-  }, [viewers])
+  }, [])
 
   if (!visibleSet.length || viewerCount == null) return null
 
@@ -460,8 +301,70 @@ function NowInKitchen({ categoryId, viewerCount }) {
 }
 
 // ── Category card ─────────────────────────────────────────────────────────────
-function CategoryCard({ cat, isActive, videoRef, onClick, viewerCount }) {
-  const hasVideo = Boolean(cat.videoUrl)
+function CategoryCard({ cat, isActive, videoRef: videoRefCallback, onClick, viewerCount }) {
+  const everActivatedRef = useRef(false)
+  const localRef = useRef(null)
+  const [soundOn, setSoundOn] = useState(false)
+  const hasVideo = cat.videoUrl
+
+  // Stable local ref — forwards to parent callback without recreating
+  const callbackRef = useRef(videoRefCallback)
+  callbackRef.current = videoRefCallback
+
+  const setRefs = useCallback((el) => {
+    localRef.current = el
+    callbackRef.current?.(el)
+  }, [])
+
+  // ── Effect 1: ACTIVATION
+  useEffect(() => {
+    if (!isActive || !hasVideo) return
+    everActivatedRef.current = true
+    let cancelled = false
+    const el = localRef.current
+    if (!el) return
+    const timer = setTimeout(() => {
+      if (cancelled || !localRef.current) return
+      localRef.current.src = cat.videoUrl
+      localRef.current.load()
+      const handleLoaded = () => {
+        requestAnimationFrame(() => {
+          if (cancelled || !localRef.current) return
+          if (cat.withSound) { localRef.current.muted = false; setSoundOn(true) }
+          localRef.current.play().catch(() => {})
+        })
+      }
+      localRef.current.addEventListener('loadeddata', handleLoaded, { once: true })
+      if (localRef.current.readyState >= 2) handleLoaded()
+    }, 50)
+    return () => { cancelled = true; clearTimeout(timer) }
+  }, [isActive, hasVideo, cat.videoUrl, cat.withSound])
+
+  // ── Effect 2: DEACTIVATION
+  useEffect(() => {
+    if (!everActivatedRef.current) return
+    if (isActive) return
+    const v = localRef.current
+    if (!v) return
+    v.pause(); v.src = ''; v.load(); setSoundOn(false)
+  }, [isActive])
+
+  // ── Effect 3: UNMOUNT CLEANUP
+  useEffect(() => {
+    return () => {
+      const v = localRef.current
+      if (v) { v.pause(); v.src = ''; v.load() }
+    }
+  }, [])
+
+  function toggleSound(e) {
+    e.stopPropagation()
+    const v = localRef.current
+    if (!v) return
+    const next = !soundOn
+    v.muted = !next
+    setSoundOn(next)
+  }
 
   return (
     <div className={styles.card} onClick={onClick}>
@@ -469,56 +372,55 @@ function CategoryCard({ cat, isActive, videoRef, onClick, viewerCount }) {
       {/* ── Background: video (if supplied) or gradient ── */}
       {hasVideo ? (
         <>
+          {/* No src in JSX — managed imperatively by the effect above */}
           <video
-            ref={videoRef}
+            ref={setRefs}
             className={styles.cardVideo}
-            src={cat.videoUrl}
             poster={cat.posterUrl ?? undefined}
             muted
             loop
             playsInline
-            preload="auto"
+            preload="none"
             aria-hidden="true"
           />
-          {/* Darken the video so text stays readable */}
           <div className={styles.videoScrim} />
+          {cat.withSound && isActive && (
+            <button className={styles.soundBtn} onClick={toggleSound} aria-label={soundOn ? 'Mute' : 'Unmute'}>
+              {soundOn ? (
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+                  <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/>
+                  <path d="M19.07 4.93a10 10 0 0 1 0 14.14"/>
+                  <path d="M15.54 8.46a5 5 0 0 1 0 7.07"/>
+                </svg>
+              ) : (
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+                  <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/>
+                  <line x1="23" y1="9" x2="17" y2="15"/>
+                  <line x1="17" y1="9" x2="23" y2="15"/>
+                </svg>
+              )}
+            </button>
+          )}
         </>
       ) : (
         <>
-          {/* Poster / static image fallback */}
           {cat.posterUrl && (
-            <div
-              className={styles.cardBg}
-              style={{ backgroundImage: `url("${cat.posterUrl}")` }}
-            />
+            <div className={styles.cardBg} style={{ backgroundImage: `url("${cat.posterUrl}")` }} />
           )}
-          {/* Gradient fill (always rendered, covers poster or stands alone) */}
           <div className={styles.cardBg} style={{ backgroundImage: cat.gradient }} />
         </>
       )}
 
-      {/* Cinematic overlay — heavy bottom, light top */}
       <div className={styles.cardOverlay} />
+      <div className={styles.cardTopGlow} style={{ background: `linear-gradient(to bottom, ${cat.color}22 0%, transparent 40%)` }} />
 
-      {/* Subtle color glow at top matching category accent */}
-      <div
-        className={styles.cardTopGlow}
-        style={{ background: `linear-gradient(to bottom, ${cat.color}22 0%, transparent 40%)` }}
-      />
+      {/* Now in the Kitchen — only mount for active card */}
+      {cat.id !== 'all' && isActive && <NowInKitchen viewerCount={viewerCount} />}
 
-      {/* Now in the Kitchen — top of card */}
-      {cat.id !== 'all' && <NowInKitchen categoryId={cat.id} viewerCount={viewerCount} />}
-
-      {/* Bottom: tagline + name + CTA */}
       <div className={styles.cardBottom}>
         <span className={styles.tagline}>{cat.tagline}</span>
         <h2 className={styles.categoryName}>{cat.label}</h2>
-
-        <button
-          className={styles.explorBtn}
-          style={{ background: '#F59E0B' }}
-          onClick={onClick}
-        >
+        <button className={styles.explorBtn} style={{ background: '#F59E0B' }} onClick={onClick}>
           <span>
             <span>Explore {cat.label}</span>
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
@@ -528,11 +430,7 @@ function CategoryCard({ cat, isActive, videoRef, onClick, viewerCount }) {
         </button>
       </div>
 
-      {/* Bottom strip — glows active color when this card is visible */}
-      <div
-        className={styles.activeStrip}
-        style={{ background: '#F59E0B', opacity: isActive ? 1 : 0 }}
-      />
+      <div className={styles.activeStrip} style={{ background: '#F59E0B', opacity: isActive ? 1 : 0 }} />
     </div>
   )
 }

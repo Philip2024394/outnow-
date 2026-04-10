@@ -91,6 +91,41 @@ export async function unlockConversation(conversationId) {
   if (error) throw error;
 }
 
+/**
+ * Post a system-generated contact reveal card into the conversation.
+ * Called automatically when a buyer completes their unlock payment.
+ * sellerDetails = { displayName, phone, instagram, tiktok, facebook, youtube, website }
+ */
+export async function postSellerContactReveal(conversationId, senderId, sellerDetails) {
+  const localMsg = {
+    id:              `m-reveal-${Date.now()}`,
+    fromMe:          true,
+    isContactReveal: true,
+    sellerDetails,
+    time:            Date.now(),
+  }
+
+  if (isDemo(conversationId)) {
+    await new Promise(r => setTimeout(r, 80))
+    return localMsg
+  }
+
+  const { data, error } = await supabase
+    .from('messages')
+    .insert({
+      conversation_id: conversationId,
+      sender_id:       senderId,
+      text:            null,
+      contact_type:    'reveal',
+      contact_value:   JSON.stringify(sellerDetails),
+    })
+    .select()
+    .single()
+
+  if (error) throw error
+  return { ...localMsg, id: data.id }
+}
+
 export async function likeMessage(messageId, liked) {
   if (isDemo(messageId)) return;
 

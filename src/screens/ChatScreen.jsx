@@ -43,8 +43,11 @@ export default function ChatScreen({ onClose, pendingConv, openConvId }) {
     if (conv) return (
       <ChatWindow
         conversation={conv}
-        onBack={() => setOpenConv(null)}
+        allConversations={allConvs}
+        onBack={() => { if (pendingConv && openConv === pendingConv.id) onClose(); else setOpenConv(null) }}
+        onSwitchConv={(id) => setOpenConv(id)}
         onConvUpdate={(updates) => updateConversation(conv.id, updates)}
+        isDating={conv.emoji === '💕' || conv.type === 'dating'}
       />
     )
   }

@@ -25,7 +25,9 @@ export function useMessages(conversationId, demoMessages = []) {
     if (!supabase || !conversationId ||
         conversationId.startsWith('demo-') ||
         conversationId.startsWith('conv-') ||
-        conversationId.startsWith('meet-')) {
+        conversationId.startsWith('meet-') ||
+        conversationId.startsWith('dating-') ||
+        conversationId.startsWith('notif-')) {
       setMessages(demoMessages)
       return
     }

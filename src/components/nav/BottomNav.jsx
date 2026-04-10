@@ -6,47 +6,7 @@ const RING_R    = 20          // SVG circle radius
 const RING_CIRC = 2 * Math.PI * RING_R  // ≈ 125.7
 const HOLD_MS   = 3000
 
-const TABS = [
-  {
-    id: 'map',
-    label: 'Map',
-    icon: () => (
-      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-        <polygon points="3 6 9 3 15 6 21 3 21 18 15 21 9 18 3 21" />
-        <line x1="9" y1="3" x2="9" y2="18" />
-        <line x1="15" y1="6" x2="15" y2="21" />
-      </svg>
-    ),
-  },
-  {
-    id: 'match',
-    label: 'Discover',
-    icon: () => null,
-  },
-  {
-    id: 'chat',
-    label: 'Chat',
-    icon: () => (
-      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-        <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
-      </svg>
-    ),
-  },
-  {
-    id: 'venues',
-    label: 'Venues',
-    icon: () => (
-      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-        <line x1="3" y1="6" x2="21" y2="6"/>
-        <line x1="3" y1="12" x2="21" y2="12"/>
-        <line x1="3" y1="18" x2="21" y2="18"/>
-      </svg>
-    ),
-  },
-]
-
-export default function BottomNav({ activeTab = 'map', onChange, unreadChats = 0, onOpenVenues, activeVenueCount = 0, userPhotoURL, userName, isLive = false, isInviteOut = false, onProfileTap, onDiscoverInvite, inviteOutCount = 0, newInviteCount = 0, onDateIdeas, dateIdeasActive = false, onSOS, onVibeBroadcast, vibeBroadcastActive = false, onNews, newsActive = false, driverOnline = null, onToggleDriverStatus }) {
-  const select       = (id, extra) => { onChange?.(id); extra?.() }
+export default function BottomNav({ activeTab = 'map', userPhotoURL, userName, isLive = false, isInviteOut = false, onProfileTap, onSOS, onVibeBroadcast, vibeBroadcastActive = false, onNews, newsActive = false, driverOnline = null, onToggleDriverStatus }) {
   const holdRef      = useRef(null)
   const frameRef     = useRef(null)
   const startRef     = useRef(null)
@@ -111,47 +71,7 @@ export default function BottomNav({ activeTab = 'map', onChange, unreadChats = 0
         <span className={styles.vibeBtnLabel}>Vibe</span>
       </button>
 
-      {TABS.map(({ id, label, icon }) => {
-        const active = activeTab === id
-        const badge = id === 'chat' ? unreadChats : id === 'venues' ? activeVenueCount : 0
-
-        if (id === 'match') return (
-          <button
-            key={id}
-            className={`${styles.datingBtn} ${dateIdeasActive ? styles.datingBtnActive : ''}`}
-            onClick={onDateIdeas}
-            aria-label="Date Ideas"
-          >
-            <span className={styles.datingBtnIcon}>💕</span>
-            <span className={styles.datingBtnLabel}>Ideas</span>
-          </button>
-        )
-
-        if (id === 'chat') {
-          return (
-            <button key={id} className={styles.chatBtn} onClick={onDiscoverInvite} aria-label="Invite Out profiles">
-              <span className={`${styles.colorBtnCount} ${newInviteCount > 0 ? styles.colorBtnCountNew : ''}`}>{inviteOutCount}</span>
-            </button>
-          )
-        }
-
-        if (id === 'venues') return null
-
-        return (
-          <button
-            key={id}
-            className={`${styles.tab} ${active ? styles.tabActive : ''}`}
-            onClick={() => select(id, id === 'venues' ? onOpenVenues : undefined)}
-            aria-label={label}
-          >
-            <span className={styles.iconWrap}>
-              {icon(active)}
-              {badge > 0 && <span className={styles.badge}>{badge > 9 ? '9+' : badge}</span>}
-            </span>
-            {active && <span className={styles.tabLabel}>{label}</span>}
-          </button>
-        )
-      })}
+      {/* placeholder — TABS array kept for future use */}
 
       {/* Hangger News */}
       <button
@@ -182,7 +102,7 @@ export default function BottomNav({ activeTab = 'map', onChange, unreadChats = 0
           isInviteOut            ? styles.avatarInvite        : '',
           toggled     ? styles.avatarToggled : '',
         ].filter(Boolean).join(' ')}
-        onClick={() => !holding && select('profile', onProfileTap)}
+        onClick={() => { if (!holding) onProfileTap?.() }}
         onPointerDown={startHold}
         onPointerUp={cancelHold}
         onPointerLeave={cancelHold}

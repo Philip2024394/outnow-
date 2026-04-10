@@ -3,10 +3,10 @@ import styles from './AddToHomeScreenBanner.module.css'
 
 const LOGO_URL = 'https://ik.imagekit.io/dateme/Logo%20with%20green%20map%20pin%20element.png'
 
-export default function AddToHomeScreenBanner() {
+export default function AddToHomeScreenBanner({ _forceVisible = false }) {
   const { canShowBanner, isIOS, install, dismiss } = usePWA()
 
-  if (!canShowBanner) return null
+  if (!canShowBanner && !_forceVisible) return null
 
   return (
     <div className={styles.overlay}>

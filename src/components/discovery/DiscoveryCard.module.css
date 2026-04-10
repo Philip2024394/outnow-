@@ -2,14 +2,14 @@
 .wrapper {
   position: fixed;
   inset: 0;
-  z-index: 9000;
+  z-index: 9300;
   display: flex;
   align-items: flex-end;
 }
 .backdrop {
   position: absolute;
   inset: 0;
-  background: rgba(0,0,0,0.6);
+  background: #000;
 }
 
 /* ── Full-screen card ────────────────────────────────────────────────────────── */

@@ -24,6 +24,7 @@ export function useMeetRequests() {
   const incomingRef = useRef(null)
   const outgoingRef = useRef(null)
   const demoTimerRef = useRef(null)
+  const clearedIdsRef = useRef(new Set())
 
   // Listen for interests directed at me (User B side)
   useEffect(() => {
@@ -74,7 +75,7 @@ export function useMeetRequests() {
         .order('created_at', { ascending: false })
         .limit(1)
         .maybeSingle()
-      if (mounted && data) setAcceptedMeetSession(mapRow(data))
+      if (mounted && data && !clearedIdsRef.current.has(data.id)) setAcceptedMeetSession(mapRow(data))
     }
 
     fetchAccepted()
@@ -113,7 +114,12 @@ export function useMeetRequests() {
     }, 5000)
   }
 
-  const clearAccepted = () => setAcceptedMeetSession(null)
+  const clearAccepted = () => {
+    setAcceptedMeetSession(prev => {
+      if (prev?.id) clearedIdsRef.current.add(prev.id)
+      return null
+    })
+  }
   const clearIncoming = () => setIncomingMeetRequest(null)
 
   // Clean up demo timer on unmount

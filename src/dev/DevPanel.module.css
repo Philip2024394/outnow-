@@ -125,6 +125,27 @@
   color: #F5C518 !important;
 }
 
+/* ── Quick-link items (amber highlight) ─────────────────────────── */
+.quickItem {
+  display: block;
+  width: 100%;
+  text-align: left;
+  background: rgba(245,197,24,0.08);
+  border: 1.5px solid rgba(245,197,24,0.35);
+  border-radius: 8px;
+  padding: 11px 12px;
+  margin-bottom: 6px;
+  font-size: 13px;
+  font-weight: 700;
+  color: #F5C518;
+  cursor: pointer;
+  font-family: var(--font-sans, sans-serif);
+  transition: background 0.1s;
+}
+
+.quickItem:hover  { background: rgba(245,197,24,0.15); }
+.quickItem:active { background: rgba(245,197,24,0.22); }
+
 /* ── Banner wrapper (positions banners at top like real app) ─────── */
 .bannerWrap {
   position: fixed;

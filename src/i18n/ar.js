@@ -2,7 +2,7 @@ export default {
   // Landing
   'landing.tagline':     '🇮🇩 إندونيسيا',
   'landing.headline':    'طعام. رحلات.\nمواعدة وأكثر.',
-  'landing.sub':         'كل ما تحتاجه — تطبيق واحد، الآن.',
+  'landing.sub':         'كل ما تحتاجه — في متناول يدك.',
   'landing.getStarted':  'ابدأ — مجاناً',
   'landing.signIn':      'لديك حساب؟ سجّل دخولك',
   'landing.browse':      '← استكشف أولاً، بدون حساب',

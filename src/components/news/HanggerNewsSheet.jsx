@@ -2,10 +2,36 @@ import { useState, useEffect } from 'react'
 import { supabase } from '@/lib/supabase'
 import styles from './HanggerNewsSheet.module.css'
 
+const LOGO_URL = 'https://ik.imagekit.io/nepgaxllc/Untitleddsfsdf-removebg-preview.png'
+
+// ── Same time-based backgrounds as location / onboarding screens ──
+const BG_IMAGES = {
+  sunrise: 'https://ik.imagekit.io/nepgaxllc/Untitledfsdfdfdf33dsdsd.png?updatedAt=1775555858291',
+  day:     'https://ik.imagekit.io/nepgaxllc/Untitledfsdfdfdf33dsdsd.png?updatedAt=1775555858291',
+  sunset:  'https://ik.imagekit.io/nepgaxllc/Untitledfsdfdfdf33dsdsd.png?updatedAt=1775555858291',
+  night:   'https://ik.imagekit.io/nepgaxllc/Untitledfsdf.png?updatedAt=1775555383465',
+}
+
+function getWIBHour() {
+  const now = new Date()
+  const utcMs = now.getTime() + now.getTimezoneOffset() * 60_000
+  return new Date(utcMs + 7 * 3_600_000).getHours() + new Date(utcMs + 7 * 3_600_000).getMinutes() / 60
+}
+function getBGPhase(h) {
+  if (h >= 5   && h < 7.5)  return 'sunrise'
+  if (h >= 7.5 && h < 17.5) return 'day'
+  if (h >= 17.5 && h < 19.5) return 'sunset'
+  return 'night'
+}
+function getSunsetProgress(h) {
+  if (h < 17.5 || h >= 19.5) return 0
+  return (h - 17.5) / 2
+}
+
 const SECTIONS = {
   weekly:       { label: 'Weekly Recap',  color: '#8DC63F', bg: 'rgba(141,198,63,0.08)'  },
   marketplace:  { label: 'Marketplace',   color: '#F59E0B', bg: 'rgba(245,158,11,0.08)'  },
-  street:       { label: 'Street Food',   color: '#EF4444', bg: 'rgba(239,68,68,0.08)'   },
+  street:       { label: 'Street Food',   color: '#EAB308', bg: 'rgba(234,179,8,0.08)'   },
   dating:       { label: 'Dating',        color: '#F472B6', bg: 'rgba(244,114,182,0.08)' },
   announcement: { label: 'From Hangger',  color: '#A78BFA', bg: 'rgba(167,139,250,0.08)' },
 }
@@ -19,7 +45,6 @@ function timeAgo(dateStr) {
   return `${days} days ago`
 }
 
-// Demo posts shown when Supabase is unavailable
 const DEMO_POSTS = [
   {
     id: 'd1', section: 'weekly', emoji: '📰',
@@ -66,6 +91,13 @@ const DEMO_POSTS = [
 export default function HanggerNewsSheet({ open, onClose }) {
   const [posts, setPosts]     = useState([])
   const [loading, setLoading] = useState(true)
+  const [hour, setHour]       = useState(getWIBHour)
+  const [imgLoaded, setImgLoaded] = useState({})
+
+  useEffect(() => {
+    const id = setInterval(() => setHour(getWIBHour()), 60_000)
+    return () => clearInterval(id)
+  }, [])
 
   useEffect(() => {
     if (!open) return
@@ -88,87 +120,97 @@ export default function HanggerNewsSheet({ open, onClose }) {
 
   if (!open) return null
 
+  const bgPhase   = getBGPhase(hour)
+  const bgUrl     = BG_IMAGES[bgPhase]
+  const isNight   = bgPhase === 'night'
+  const sunsetPct = getSunsetProgress(hour)
   const latestUpdate = posts[0]?.updated_at ?? posts[0]?.created_at
 
   return (
-    <div className={styles.overlay} onClick={(e) => e.target === e.currentTarget && onClose()}>
-      <div className={styles.sheet}>
+    <div className={styles.page}>
 
-        {/* ── Header ── */}
-        <div className={styles.masthead}>
-          <div className={styles.mastheadTop}>
-            <button className={styles.closeBtn} onClick={onClose} aria-label="Close">✕</button>
+      {/* Time-based background layers */}
+      <div className={styles.bgBase} />
+      <div
+        className={`${styles.bgLayer} ${imgLoaded[bgUrl] ? styles.bgLayerVisible : ''}`}
+        style={{ backgroundImage: `url(${bgUrl})` }}
+      />
+      {!isNight && (
+        <img src={bgUrl} alt="" style={{ display: 'none' }}
+          onLoad={() => setImgLoaded(p => ({ ...p, [bgUrl]: true }))} />
+      )}
+      {sunsetPct > 0 && (
+        <div className={styles.bgSunsetOverlay} style={{ opacity: sunsetPct * 0.55 }} />
+      )}
+      <div className={styles.baseDim} />
+      <div className={styles.cityShimmer} />
+
+      {/* ── Header ── */}
+      <header className={styles.header}>
+        <div className={styles.headerInner}>
+          <div className={styles.headerBrand}>
+            <img src={LOGO_URL} alt="Hangger" className={styles.headerLogo} draggable={false} />
+            <span className={styles.headerNews}>news</span>
           </div>
-          <div className={styles.mastheadTitle}>
-            <span className={styles.mastheadFlag}>HANGGER</span>
-            <span className={styles.mastheadNews}>NEWS</span>
-          </div>
-          <div className={styles.mastheadMeta}>
-            {latestUpdate && `Last updated ${timeAgo(latestUpdate)}`}
-            {' · '}
-            Indonesia Edition
-          </div>
-          <div className={styles.mastheadRule} />
+          <button className={styles.closeBtn} onClick={onClose} aria-label="Close">✕</button>
         </div>
+        <div className={styles.headerMeta}>
+          {latestUpdate && `Last updated ${timeAgo(latestUpdate)}`}
+          {' · '}Indonesia Edition
+        </div>
+        <div className={styles.headerRule} />
+      </header>
 
-        {/* ── Content ── */}
-        <div className={styles.content}>
-          {loading ? (
-            <div className={styles.loadingState}>
-              <div className={styles.loadingDot} />
-              <div className={styles.loadingDot} />
-              <div className={styles.loadingDot} />
-            </div>
-          ) : posts.length === 0 ? (
-            <div className={styles.empty}>
-              <span>📰</span>
-              <p>No news yet — check back soon.</p>
-            </div>
-          ) : (
-            posts.map(post => {
-              const sec = SECTIONS[post.section] ?? SECTIONS.weekly
-              return (
-                <article
-                  key={post.id}
-                  className={styles.card}
-                  style={{ '--sec-color': sec.color, '--sec-bg': sec.bg }}
-                >
-                  {/* Section badge */}
-                  <div className={styles.cardSection}>
-                    <span className={styles.cardEmoji}>{post.emoji}</span>
-                    <span className={styles.cardSectionLabel}>{sec.label}</span>
-                    <span className={styles.cardAge}>{timeAgo(post.updated_at ?? post.created_at)}</span>
+      {/* ── Content ── */}
+      <div className={styles.content}>
+        {loading ? (
+          <div className={styles.loadingState}>
+            <div className={styles.loadingDot} />
+            <div className={styles.loadingDot} />
+            <div className={styles.loadingDot} />
+          </div>
+        ) : posts.length === 0 ? (
+          <div className={styles.empty}>
+            <span>📰</span>
+            <p>No news yet — check back soon.</p>
+          </div>
+        ) : (
+          posts.map(post => {
+            const sec = SECTIONS[post.section] ?? SECTIONS.weekly
+            return (
+              <article
+                key={post.id}
+                className={styles.card}
+                style={{ '--sec-color': sec.color, '--sec-bg': sec.bg }}
+              >
+                <div className={styles.cardSection}>
+                  <span className={styles.cardEmoji}>{post.emoji}</span>
+                  <span className={styles.cardSectionLabel}>{sec.label}</span>
+                  <span className={styles.cardAge}>{timeAgo(post.updated_at ?? post.created_at)}</span>
+                </div>
+
+                <h3 className={styles.cardTitle}>{post.title}</h3>
+
+                {post.stat_label && post.stat_value && (
+                  <div className={styles.statPill}>
+                    <span className={styles.statValue}>{post.stat_value}</span>
+                    <span className={styles.statLabel}>{post.stat_label}</span>
                   </div>
+                )}
 
-                  {/* Title */}
-                  <h3 className={styles.cardTitle}>{post.title}</h3>
+                <p className={styles.cardBody}>{post.body}</p>
 
-                  {/* Stat pill */}
-                  {post.stat_label && post.stat_value && (
-                    <div className={styles.statPill}>
-                      <span className={styles.statValue}>{post.stat_value}</span>
-                      <span className={styles.statLabel}>{post.stat_label}</span>
-                    </div>
-                  )}
+                {post.highlight && (
+                  <div className={styles.highlight}>{post.highlight}</div>
+                )}
+              </article>
+            )
+          })
+        )}
 
-                  {/* Body */}
-                  <p className={styles.cardBody}>{post.body}</p>
-
-                  {/* Highlight callout */}
-                  {post.highlight && (
-                    <div className={styles.highlight}>
-                      {post.highlight}
-                    </div>
-                  )}
-                </article>
-              )
-            })
-          )}
-
-          <p className={styles.footer}>
-            Hangger News is updated by the Hangger team every few days.
-          </p>
-        </div>
+        <p className={styles.footer}>
+          Hangger News is updated by the Hangger team every few days.
+        </p>
       </div>
     </div>
   )

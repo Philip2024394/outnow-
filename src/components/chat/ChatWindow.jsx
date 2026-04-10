@@ -3,14 +3,15 @@ import { filterMessage, BLOCK_MESSAGES } from '@/utils/contentFilter'
 import { useAuth } from '@/hooks/useAuth'
 import { usePushNotifications } from '@/hooks/usePushNotifications'
 import { useMessages } from '@/hooks/useMessages'
-import { sendMessage, sendImageMessage, sendContactMessage, unlockConversation, likeMessage, markConversationRead } from '@/services/conversationService'
+import { sendMessage, sendImageMessage, sendContactMessage, unlockConversation, likeMessage, markConversationRead, postSellerContactReveal } from '@/services/conversationService'
+import { getSellerContactDetails } from '@/services/unlockService'
 import { supabase } from '@/lib/supabase'
+import { useChatPresence } from '@/hooks/useChatPresence'
 import ContactShareSheet from './ContactShareSheet'
 import VideoCheckBubble from './VideoCheckBubble'
 import VideoCheckWindow from './VideoCheckWindow'
 import { useVideoCheck } from '@/hooks/useVideoCheck'
 import { useUnlocks } from '@/hooks/useUnlocks'
-import ChatCountdownTimer from './ChatCountdownTimer'
 import UnlockGate from './UnlockGate'
 import styles from './ChatWindow.module.css'
 
@@ -22,9 +23,46 @@ function formatTime(ms) {
   return new Date(ms).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
 }
 
-export default function ChatWindow({ conversation: conv, onBack, onConvUpdate }) {
+function formatCountdown(ms) {
+  if (ms == null || ms < 0) return '0:00'
+  const totalSec = Math.ceil(ms / 1000)
+  const min = Math.floor(totalSec / 60)
+  const sec = totalSec % 60
+  return `${min}:${sec.toString().padStart(2, '0')}`
+}
+
+const THEME_CONFIG = {
+  dating: {
+    windowClass: 'windowDating',
+    headerClass: 'headerDating',
+    icon: 'https://ik.imagekit.io/nepgaxllc/chat_pink-removebg-preview.png',
+  },
+  market: {
+    windowClass: 'windowMarket',
+    headerClass: 'headerMarket',
+    icon: 'https://ik.imagekit.io/nepgaxllc/chat_market_place-removebg-preview.png',
+  },
+  food: {
+    windowClass: 'windowFood',
+    headerClass: 'headerFood',
+    icon: 'https://ik.imagekit.io/nepgaxllc/chat_chef-removebg-preview.png',
+  },
+}
+
+export default function ChatWindow({ conversation: conv, allConversations = [], onBack, onSwitchConv, onConvUpdate, isDating = false, chatTheme = null, role = null, sellerUserId = null }) {
+  // Support legacy isDating prop
+  const theme = chatTheme ?? (isDating ? 'dating' : null)
+  const themeConfig = THEME_CONFIG[theme] ?? null
   const { user } = useAuth()
   const { notify } = usePushNotifications()
+
+  // Online/offline presence for the other person
+  const otherUserId = conv.otherUserId ?? conv.userId ?? null
+  const { isOnline } = useChatPresence(otherUserId)
+
+  // Chat switcher panel
+  const [switcherOpen, setSwitcherOpen] = useState(false)
+  const otherConvs = allConversations.filter(c => c.id !== conv.id)
 
   // Real-time messages — falls back to conv.messages in demo
   const { messages, setMessages } = useMessages(conv.id, conv.messages ?? [])
@@ -74,6 +112,7 @@ export default function ChatWindow({ conversation: conv, onBack, onConvUpdate })
 
   // ── 20-min free chat + unlock system ─────────────────────────────────────
   const [unlockGateOpen, setUnlockGateOpen] = useState(false)
+  const isBuyer = role === 'buyer'
   const {
     timeLeftMs,
     isUnlocked:       chatUnlocked,
@@ -82,7 +121,21 @@ export default function ChatWindow({ conversation: conv, onBack, onConvUpdate })
     unlockWithCredit,
     unlockWithSubscription,
     dismissPrompt,
-  } = useUnlocks(conv.id)
+  } = useUnlocks(conv.id, role)
+
+  // After buyer pays, auto-post seller's contact details into the conversation
+  const handleBuyerUnlockComplete = useCallback(async () => {
+    await unlockWithCredit()
+    const sellerId = sellerUserId ?? conv.otherUserId ?? null
+    if (!sellerId) return
+    try {
+      const details = await getSellerContactDetails(sellerId, user?.uid ?? user?.id)
+      const msg     = await postSellerContactReveal(conv.id, user?.uid ?? user?.id, details)
+      setMessages(prev => [...prev, msg])
+    } catch (e) {
+      console.warn('contact reveal failed', e)
+    }
+  }, [unlockWithCredit, sellerUserId, conv.otherUserId, conv.id, user]) // eslint-disable-line
 
   // Auto-open gate when prompt fires or time expires
   useEffect(() => {
@@ -158,42 +211,47 @@ export default function ChatWindow({ conversation: conv, onBack, onConvUpdate })
   const themInitial = conv.displayName?.[0]?.toUpperCase() ?? '?'
 
   return (
-    <div className={styles.window}>
+    <div className={`${styles.window} ${themeConfig ? styles[themeConfig.windowClass] : ''}`}>
 
       {/* ── Header ── */}
-      <div className={styles.header}>
-        {/* Left: avatar + name + sub */}
+      <div className={`${styles.header} ${themeConfig ? styles[themeConfig.headerClass] : ''}`}>
+        {/* Left: avatar + name + online status */}
         <div className={styles.headerUser}>
           <div className={styles.headerAvatar}>
             {conv.photoURL
               ? <img src={conv.photoURL} alt={conv.displayName} className={styles.headerAvatarImg} />
               : <span className={styles.headerAvatarEmoji}>{conv.emoji}</span>
             }
-            {conv.sessionStatus && (
-              <span className={[
-                styles.headerOnlineDot,
-                conv.sessionStatus === 'active' || conv.sessionStatus === 'live' ? styles.dotLive :
-                conv.sessionStatus === 'invite_out' ? styles.dotInvite : styles.dotLater
-              ].join(' ')} />
-            )}
+            {/* Presence dot — green online, red offline */}
+            <span className={`${styles.presenceDot} ${isOnline ? styles.presenceDotOnline : styles.presenceDotOffline}`} />
           </div>
           <div className={styles.headerInfo}>
             <span className={styles.headerName}>{conv.displayName}</span>
-            <span className={styles.headerSub}>
-              {[conv.age, conv.area ?? conv.city].filter(Boolean).join(' · ')}
+            {/* Online / Offline label */}
+            <span className={`${styles.presenceLabel} ${isOnline ? styles.presenceLabelOnline : styles.presenceLabelOffline}`}>
+              {isOnline ? 'Online' : 'Offline'}
             </span>
           </div>
         </div>
 
         <div className={styles.headerRight}>
-          {/* Countdown timer pill — hides once unlocked */}
-          <ChatCountdownTimer
-            timeLeftMs={timeLeftMs}
-            isUnlocked={chatUnlocked}
-            onUnlockClick={() => setUnlockGateOpen(true)}
-          />
 
-          {/* ID Check button — always visible when available */}
+          {/* Chat switcher — only if there are other convs */}
+          {otherConvs.length > 0 && (
+            <button
+              className={`${styles.switcherBtn} ${switcherOpen ? styles.switcherBtnActive : ''}`}
+              onClick={() => setSwitcherOpen(v => !v)}
+              aria-label="Switch chat"
+            >
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+              </svg>
+              <span>{otherConvs.length}</span>
+              {otherConvs.some(c => c.unread > 0) && <span className={styles.switcherBadge} />}
+            </button>
+          )}
+
+          {/* ID Check button */}
           {videoAvailable && videoPhase === 'idle' && (
             <button
               className={styles.idCheckBtn}
@@ -207,19 +265,19 @@ export default function ChatWindow({ conversation: conv, onBack, onConvUpdate })
             </button>
           )}
 
-          {/* Share contact button — always visible */}
+          {/* Share contact button */}
           <button
             className={styles.shareBtn}
             onClick={() => setShareOpen(true)}
             aria-label="Share contact"
           >
-              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
-                <circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/>
-                <line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/>
-                <line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/>
-              </svg>
-              <span>Share</span>
-            </button>
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+              <circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/>
+              <line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/>
+              <line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/>
+            </svg>
+            <span>Share</span>
+          </button>
 
           {/* Back button */}
           <button className={styles.backBtn} onClick={onBack} aria-label="Back">
@@ -228,17 +286,46 @@ export default function ChatWindow({ conversation: conv, onBack, onConvUpdate })
             </svg>
           </button>
         </div>
+
+        {/* Full-width notice row */}
+        {!chatBlocked && (
+          <div className={styles.headerNoticeRow}>
+            {chatUnlocked
+              ? '✅ Chat unlocked · share contact anytime'
+              : <>💬 20 min free chat&nbsp;&nbsp;{timeLeftMs != null && <span className={styles.headerNoticeTimer}>{formatCountdown(timeLeftMs)}</span>}</>
+            }
+          </div>
+        )}
       </div>
 
-      {/* ── Status bar ── */}
-      {!chatBlocked && (
-        <div className={styles.windowNotice}>
-          {chatUnlocked
-            ? '✅ Chat unlocked · share contact anytime'
-            : '💬 20 min free chat · tap timer to unlock unlimited'
-          }
+      {/* ── Chat switcher slide-out panel ── */}
+      {switcherOpen && (
+        <div className={styles.switcherPanel}>
+          <div className={styles.switcherPanelTitle}>Switch Chat</div>
+          {otherConvs.map(c => (
+            <button
+              key={c.id}
+              className={styles.switcherRow}
+              onClick={() => { setSwitcherOpen(false); onSwitchConv?.(c.id) }}
+            >
+              <div className={styles.switcherAvatar}>
+                {c.photoURL
+                  ? <img src={c.photoURL} alt={c.displayName} className={styles.switcherAvatarImg} />
+                  : <span className={styles.switcherAvatarInitial}>{c.displayName?.[0]?.toUpperCase() ?? '?'}</span>
+                }
+              </div>
+              <div className={styles.switcherInfo}>
+                <span className={styles.switcherName}>{c.displayName}</span>
+                <span className={styles.switcherLast}>{c.lastMessage ?? 'No messages yet'}</span>
+              </div>
+              {c.unread > 0 && (
+                <span className={styles.switcherUnread}>{c.unread > 9 ? '9+' : c.unread}</span>
+              )}
+            </button>
+          ))}
         </div>
       )}
+
 
 
       {/* ── Messages ── */}
@@ -285,8 +372,40 @@ export default function ChatWindow({ conversation: conv, onBack, onConvUpdate })
             )}
 
             <div className={styles.bubbleWrap}>
-              {/* Contact card message */}
-              {msg.contactType ? (
+              {/* Seller contact reveal — auto-posted on buyer unlock */}
+              {msg.isContactReveal ? (
+                <div className={styles.revealCard}>
+                  <div className={styles.revealHeader}>
+                    <span className={styles.revealIcon}>🔓</span>
+                    <span className={styles.revealTitle}>
+                      {msg.sellerDetails?.displayName
+                        ? `${msg.sellerDetails.displayName}'s contact details`
+                        : 'Seller contact details'}
+                    </span>
+                  </div>
+                  <div className={styles.revealRows}>
+                    {msg.sellerDetails?.phone && (
+                      <div className={styles.revealRow}><span>📱</span><span>{msg.sellerDetails.phone}</span></div>
+                    )}
+                    {msg.sellerDetails?.instagram && (
+                      <div className={styles.revealRow}><span>📸</span><span>@{msg.sellerDetails.instagram}</span></div>
+                    )}
+                    {msg.sellerDetails?.tiktok && (
+                      <div className={styles.revealRow}><span>🎵</span><span>@{msg.sellerDetails.tiktok}</span></div>
+                    )}
+                    {msg.sellerDetails?.facebook && (
+                      <div className={styles.revealRow}><span>📘</span><span>{msg.sellerDetails.facebook}</span></div>
+                    )}
+                    {msg.sellerDetails?.youtube && (
+                      <div className={styles.revealRow}><span>▶️</span><span>{msg.sellerDetails.youtube}</span></div>
+                    )}
+                    {msg.sellerDetails?.website && (
+                      <div className={styles.revealRow}><span>🌐</span><span>{msg.sellerDetails.website}</span></div>
+                    )}
+                  </div>
+                  <p className={styles.revealNote}>Chat unlocked · 30 days</p>
+                </div>
+              ) : msg.contactType ? (
                 <div className={styles.contactCard}>
                   <span className={styles.contactCardIcon}>
                     {{ phone:'📱', instagram:'📸', snapchat:'👻', tiktok:'🎵', facebook:'📘' }[msg.contactType] ?? '📋'}
@@ -305,7 +424,14 @@ export default function ChatWindow({ conversation: conv, onBack, onConvUpdate })
                     ? <img src={msg.imageURL} alt="attachment" className={styles.attachmentImg} />
                     : <span className={styles.bubbleText}>{msg.text}</span>
                   }
-                  <span className={styles.bubbleTime}>{formatTime(msg.time)}</span>
+                  <span className={styles.bubbleTime}>
+                    {formatTime(msg.time)}
+                    {msg.fromMe && (
+                      <span className={`${styles.readTick} ${msg.read ? styles.readTickRead : styles.readTickDelivered}`}>
+                        {msg.read ? '✓✓' : '✓✓'}
+                      </span>
+                    )}
+                  </span>
                   {isLiked(msg) && (
                     <div className={styles.floatingHearts} aria-hidden="true">
                       {[...Array(5)].map((_, i) => (
@@ -315,7 +441,7 @@ export default function ChatWindow({ conversation: conv, onBack, onConvUpdate })
                   )}
                 </div>
               )}
-              {!msg.contactType && (
+              {!msg.isContactReveal && !msg.contactType && (
                 <button
                   className={`${styles.likeBtn} ${isLiked(msg) ? styles.likeBtnActive : ''}`}
                   onClick={() => toggleLike(msg)}
@@ -416,25 +542,38 @@ export default function ChatWindow({ conversation: conv, onBack, onConvUpdate })
           </svg>
         </button>
 
-        {/* Hidden file input */}
-        <input
-          ref={imageInputRef}
-          type="file"
-          accept="image/*"
-          style={{ display: 'none' }}
-          onChange={handleImageSelect}
-        />
+        {/* Hidden file input — only wired when unlocked */}
+        {chatUnlocked && (
+          <input
+            ref={imageInputRef}
+            type="file"
+            accept="image/*"
+            style={{ display: 'none' }}
+            onChange={handleImageSelect}
+          />
+        )}
 
-        {/* Camera button */}
+        {/* Camera button — locked until chat is unlocked */}
         <button
-          className={styles.cameraBtn}
-          onClick={() => imageInputRef.current?.click()}
-          aria-label="Attach image"
+          className={`${styles.cameraBtn} ${!chatUnlocked ? styles.cameraBtnLocked : ''}`}
+          onClick={() => chatUnlocked ? imageInputRef.current?.click() : setUnlockGateOpen(true)}
+          aria-label={chatUnlocked ? 'Attach image' : 'Unlock to send photos'}
+          title={chatUnlocked ? 'Attach image' : 'Upgrade or unlock chat to send photos'}
         >
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-            <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/>
-            <circle cx="12" cy="13" r="4"/>
-          </svg>
+          {chatUnlocked ? (
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/>
+              <circle cx="12" cy="13" r="4"/>
+            </svg>
+          ) : (
+            <>
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+                <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
+                <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+              </svg>
+              <span className={styles.cameraBtnLockedLabel}>Pro</span>
+            </>
+          )}
         </button>
 
         <input
@@ -474,10 +613,19 @@ export default function ChatWindow({ conversation: conv, onBack, onConvUpdate })
       {unlockGateOpen && (
         <UnlockGate
           unlockBalance={unlockBalance}
-          onUnlockWithCredit={async () => { await unlockWithCredit(); setUnlockGateOpen(false) }}
+          isBuyer={isBuyer}
+          onUnlockWithCredit={async () => {
+            if (isBuyer) {
+              await handleBuyerUnlockComplete()
+            } else {
+              await unlockWithCredit()
+            }
+            setUnlockGateOpen(false)
+          }}
           onUnlockWithPlan={(plan) => { unlockWithSubscription(plan); setUnlockGateOpen(false) }}
           onDismiss={() => { dismissPrompt(); setUnlockGateOpen(false) }}
           expired={timeLeftMs !== null && timeLeftMs <= 0}
+          theme={theme}
         />
       )}
 

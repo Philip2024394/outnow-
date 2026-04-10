@@ -1,9 +1,9 @@
 .banner {
-  position: absolute;
+  position: fixed;
   top: calc(var(--safe-top) + 68px);
   left: var(--space-4);
   right: var(--space-4);
-  z-index: var(--z-header);
+  z-index: 9900;
   background: var(--color-surface);
   border: 1.5px solid rgba(192,0,42,0.6);
   border-radius: var(--radius-lg);

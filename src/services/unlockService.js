@@ -14,7 +14,8 @@ export const PLAN_PRICES = {
   premium:  { idr: 79000, label: '79.000 rp/bln' },
 }
 
-export const UNLOCK_PACK = { credits: 2, usd: 1.99, label: '2 unlocks — $1.99' }
+export const UNLOCK_PACK  = { credits: 2, usd: 1.99, label: '2 unlocks — $1.99' }
+export const BUYER_UNLOCK = { days: 30,  usd: 1.99 }
 
 // ── Chat session ─────────────────────────────────────────────────────────────
 
@@ -164,8 +165,8 @@ export async function purchaseUnlockPack(userId, onSuccess) {
 /** Open Stripe Checkout for a monthly subscription.
  *  plan = 'standard' | 'premium' */
 export async function purchaseSubscription(userId, plan, onSuccess) {
+  void userId // used in backend call when Stripe is wired
   if (DEMO) {
-    // Demo: just update localStorage tier
     localStorage.setItem('demo_seller_plan', plan)
     onSuccess?.()
     return
@@ -178,6 +179,91 @@ export async function purchaseSubscription(userId, plan, onSuccess) {
 
   localStorage.setItem('demo_seller_plan', plan)
   onSuccess?.()
+}
+
+// ── Buyer account-wide unlock ($1.99 · 30 days · all sellers) ────────────────
+
+/** Check if buyer has an active account-wide unlock. */
+export async function getBuyerUnlockStatus(userId) {
+  if (DEMO) {
+    const raw = localStorage.getItem('demo_buyer_unlock_expiry')
+    if (!raw) return { active: false, expiresAt: null }
+    const expiresAt = parseInt(raw, 10)
+    return { active: Date.now() < expiresAt, expiresAt }
+  }
+
+  const { data } = await supabase
+    .from('chat_unlocks')
+    .select('expires_at')
+    .eq('user_id', userId)
+    .eq('unlock_type', 'buyer_account')
+    .gte('expires_at', new Date().toISOString())
+    .order('expires_at', { ascending: false })
+    .limit(1)
+    .maybeSingle()
+
+  return data
+    ? { active: true, expiresAt: new Date(data.expires_at).getTime() }
+    : { active: false, expiresAt: null }
+}
+
+/** Record a buyer account-wide unlock (30 days). Returns expiry timestamp. */
+export async function activateBuyerUnlock(userId) {
+  const expiresAt = Date.now() + BUYER_UNLOCK.days * 24 * 60 * 60 * 1000
+
+  if (DEMO) {
+    localStorage.setItem('demo_buyer_unlock_expiry', String(expiresAt))
+    return expiresAt
+  }
+
+  await supabase.from('chat_unlocks').insert({
+    user_id:       userId,
+    unlock_type:   'buyer_account',
+    credits_total: 0,
+    price_usd:     BUYER_UNLOCK.usd,
+    expires_at:    new Date(expiresAt).toISOString(),
+  })
+  return expiresAt
+}
+
+/**
+ * Fetch a seller's contact details for auto-posting after buyer unlocks.
+ * Returns phone (via gated RPC) + social links from profiles.
+ */
+export async function getSellerContactDetails(sellerId, buyerId) {
+  if (DEMO) {
+    return {
+      displayName: 'Demo Seller',
+      phone:       '+62 812 0000 0000',
+      instagram:   'demo_seller',
+      tiktok:      null,
+      facebook:    null,
+      youtube:     null,
+      website:     null,
+    }
+  }
+
+  const [profileResult, phoneResult] = await Promise.allSettled([
+    supabase
+      .from('profiles')
+      .select('display_name, instagram_handle, tiktok_handle, facebook_handle, youtube_handle, website_url')
+      .eq('id', sellerId)
+      .single(),
+    supabase.rpc('get_contact_number', { buyer_uuid: buyerId, seller_uuid: sellerId }),
+  ])
+
+  const profile = profileResult.status === 'fulfilled' ? profileResult.value.data : null
+  const phone   = phoneResult.status === 'fulfilled'   ? phoneResult.value.data  : null
+
+  return {
+    displayName: profile?.display_name        ?? null,
+    phone:       phone                         ?? null,
+    instagram:   profile?.instagram_handle     ?? null,
+    tiktok:      profile?.tiktok_handle        ?? null,
+    facebook:    profile?.facebook_handle      ?? null,
+    youtube:     profile?.youtube_handle       ?? null,
+    website:     profile?.website_url          ?? null,
+  }
 }
 
 /** Mark the monthly boost as used for this billing period. */

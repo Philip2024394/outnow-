@@ -3,6 +3,8 @@ import { supabase } from '@/lib/supabase'
 import { ZONE_INFO, formatRp } from '@/services/pricingService'
 import styles from './DriversTab.module.css'
 
+const DISPUTE_STATUS_COLORS = { pending: '#F5C518', cleared: '#8DC63F', confirmed: '#ff6b6b' }
+
 const DOC_LABELS = {
   sim:          'SIM — Driver\'s License',
   stnk:         'STNK — Vehicle Registration',
@@ -40,14 +42,16 @@ const DEMO_APPLICATIONS = [
 ]
 
 export default function DriversTab() {
-  const [applications, setApplications] = useState([])
-  const [loading,      setLoading]      = useState(true)
-  const [filter,       setFilter]       = useState('pending')
-  const [expanded,     setExpanded]     = useState(null)    // application id
-  const [rejectModal,  setRejectModal]  = useState(null)    // application id
-  const [rejectNote,   setRejectNote]   = useState('')
-  const [actionLoading,setActionLoading]= useState(null)
-  const [lightbox,     setLightbox]     = useState(null)    // image URL
+  const [applications,   setApplications]   = useState([])
+  const [flaggedDrivers, setFlaggedDrivers] = useState([])
+  const [disputes,       setDisputes]       = useState([])
+  const [loading,        setLoading]        = useState(true)
+  const [filter,         setFilter]         = useState('pending')
+  const [expanded,       setExpanded]       = useState(null)
+  const [rejectModal,    setRejectModal]    = useState(null)
+  const [rejectNote,     setRejectNote]     = useState('')
+  const [actionLoading,  setActionLoading]  = useState(null)
+  const [lightbox,       setLightbox]       = useState(null)
 
   const load = useCallback(async () => {
     setLoading(true)
@@ -67,6 +71,27 @@ export default function DriversTab() {
     } else {
       setApplications(data ?? [])
     }
+
+    // Fetch drivers with 1+ cancellations, ordered worst first
+    if (supabase) {
+      const { data: flagged } = await supabase
+        .from('profiles')
+        .select('id, display_name, city, driver_type, cancellation_count, photo_url')
+        .eq('is_driver', true)
+        .gt('cancellation_count', 0)
+        .order('cancellation_count', { ascending: false })
+        .limit(20)
+      setFlaggedDrivers(flagged ?? [])
+
+      // Fetch pending disputes
+      const { data: disp } = await supabase
+        .from('ride_disputes')
+        .select('*')
+        .order('created_at', { ascending: false })
+        .limit(50)
+      setDisputes(disp ?? [])
+    }
+
     setLoading(false)
   }, [])
 
@@ -150,6 +175,75 @@ export default function DriversTab() {
 
   return (
     <div className={styles.root}>
+
+      {/* ── Flagged drivers — cancellation warnings ── */}
+      {flaggedDrivers.length > 0 && (
+        <div className={styles.flaggedSection}>
+          <div className={styles.flaggedHeader}>
+            <span className={styles.flaggedIcon}>⚠️</span>
+            <span className={styles.flaggedTitle}>Drivers With Cancellation Warnings</span>
+            <span className={styles.flaggedCount}>{flaggedDrivers.length}</span>
+          </div>
+          {flaggedDrivers.map(d => (
+            <div key={d.id} className={`${styles.flaggedRow} ${d.cancellation_count >= 2 ? styles.flaggedRowCritical : ''}`}>
+              <div className={styles.flaggedInfo}>
+                <span className={styles.flaggedName}>{d.display_name}</span>
+                <span className={styles.flaggedMeta}>{d.driver_type === 'car_taxi' ? '🚗 Car' : '🛵 Bike'} · {d.city ?? '—'}</span>
+              </div>
+              <span className={styles.flaggedBadge}>
+                ⚠️ {d.cancellation_count} {d.cancellation_count === 1 ? 'WARNING' : 'WARNINGS'}
+              </span>
+            </div>
+          ))}
+        </div>
+      )}
+
+      {/* ── Disputes panel ── */}
+      {disputes.length > 0 && (
+        <div className={styles.disputesSection}>
+          <div className={styles.disputesHeader}>
+            <span>📋 Cancellation Disputes</span>
+            <span className={styles.flaggedCount}>{disputes.filter(d => d.status === 'pending').length} pending</span>
+          </div>
+          {disputes.map(d => (
+            <div key={d.id} className={styles.disputeRow}>
+              <div className={styles.disputeTop}>
+                <div className={styles.disputeInfo}>
+                  <span className={styles.disputeName}>{d.user_name ?? d.user_id}</span>
+                  <span className={styles.disputeMeta}>
+                    Driver: <strong>{d.driver_name}</strong> · {d.driver_type === 'car_taxi' ? '🚗 Car' : '🛵 Bike'} · {new Date(d.created_at).toLocaleDateString('en-GB', { day: 'numeric', month: 'short' })}
+                  </span>
+                  <span className={styles.disputeMeta}>📍 {d.pickup_location} → {d.dropoff_location}</span>
+                  <span className={styles.disputeMeta}>Booking: {d.booking_id}</span>
+                </div>
+                <span className={styles.disputeStatus} style={{ color: DISPUTE_STATUS_COLORS[d.status] ?? '#888' }}>
+                  {d.status}
+                </span>
+              </div>
+              <p className={styles.disputeExplanation}>"{d.explanation}"</p>
+              {d.status === 'pending' && supabase && (
+                <div className={styles.disputeActions}>
+                  <button
+                    className={styles.disputeClearBtn}
+                    onClick={async () => {
+                      await supabase.from('ride_disputes').update({ status: 'cleared' }).eq('id', d.id)
+                      await supabase.from('profiles').rpc('decrement_cancellation_count', { driver_name: d.driver_name })
+                      setDisputes(prev => prev.map(x => x.id === d.id ? { ...x, status: 'cleared' } : x))
+                    }}
+                  >✅ Clear Warning</button>
+                  <button
+                    className={styles.disputeConfirmBtn}
+                    onClick={async () => {
+                      await supabase.from('ride_disputes').update({ status: 'confirmed' }).eq('id', d.id)
+                      setDisputes(prev => prev.map(x => x.id === d.id ? { ...x, status: 'confirmed' } : x))
+                    }}
+                  >❌ Confirm Warning</button>
+                </div>
+              )}
+            </div>
+          ))}
+        </div>
+      )}
 
       {/* ── Government fare rates reference card ── */}
       <div className={styles.rateCard}>

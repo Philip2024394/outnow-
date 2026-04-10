@@ -1,116 +1,219 @@
-.overlay {
+/* ── Full-page overlay ── */
+.page {
   position: fixed;
   inset: 0;
   z-index: 9050;
-  background: rgba(0, 0, 0, 0.7);
-  backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
-  display: flex;
-  align-items: flex-end;
-}
-
-.sheet {
-  width: 100%;
-  max-height: 92dvh;
-  background: #0a0a0f;
-  border-radius: 28px 28px 0 0;
-  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  background: #07070c;
   display: flex;
   flex-direction: column;
   overflow: hidden;
-  animation: slideUp 0.32s cubic-bezier(0.32, 0.72, 0, 1);
+  animation: pageIn 0.28s cubic-bezier(0.32, 0.72, 0, 1);
 }
 
-@keyframes slideUp {
-  from { transform: translateY(100%); }
-  to   { transform: translateY(0); }
+@keyframes pageIn {
+  from { opacity: 0; transform: translateY(24px); }
+  to   { opacity: 1; transform: translateY(0); }
 }
 
-/* ── Masthead ── */
-.masthead {
+/* ── Time-based background layers (same as LocationGate / JoinSheet) ── */
+.bgBase {
+  position: absolute;
+  inset: 0;
+  background: #0a0a10;
+  z-index: 0;
+}
+
+.bgLayer {
+  position: absolute;
+  inset: 0;
+  background-size: cover;
+  background-position: center top;
+  opacity: 0;
+  transition: opacity 1.2s ease;
+  z-index: 1;
+}
+.bgLayerVisible {
+  opacity: 1;
+  animation: kenBurns 36s ease-in-out infinite alternate;
+}
+
+@keyframes kenBurns {
+  0%   { transform: scale(1)    translate(0,    0);    }
+  25%  { transform: scale(1.04) translate(-1%,  0.5%); }
+  50%  { transform: scale(1.07) translate(0.5%, -1%);  }
+  75%  { transform: scale(1.04) translate(1%,   0.5%); }
+  100% { transform: scale(1)    translate(0,    0);    }
+}
+
+.bgSunsetOverlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, rgba(255,120,40,0.35) 0%, rgba(180,60,20,0.18) 60%, transparent 100%);
+  z-index: 2;
+  pointer-events: none;
+}
+
+.baseDim {
+  position: absolute;
+  inset: 0;
+  background: rgba(0,0,0,0.55);
+  z-index: 3;
+  pointer-events: none;
+}
+
+/* City light shimmer blobs */
+.cityShimmer {
+  position: absolute;
+  inset: 0;
+  z-index: 4;
+  pointer-events: none;
+  background:
+    radial-gradient(ellipse 180px 80px at 18% 72%, rgba(255,180,60,0.07) 0%, transparent 70%),
+    radial-gradient(ellipse 120px 50px at 72% 80%, rgba(255,200,80,0.05) 0%, transparent 70%),
+    radial-gradient(ellipse 90px  40px at 45% 85%, rgba(255,160,40,0.06) 0%, transparent 70%);
+}
+.cityShimmer::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(ellipse 140px 60px at 30% 70%, rgba(255,190,70,0.06) 0%, transparent 70%),
+    radial-gradient(ellipse 100px 45px at 65% 78%, rgba(255,170,50,0.05) 0%, transparent 70%);
+  animation: flicker1 3.4s ease-in-out infinite;
+}
+.cityShimmer::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(ellipse 110px 50px at 55% 82%, rgba(255,200,90,0.05) 0%, transparent 70%),
+    radial-gradient(ellipse 80px  35px at 22% 76%, rgba(255,160,40,0.04) 0%, transparent 70%);
+  animation: flicker2 5.1s ease-in-out infinite;
+}
+
+@keyframes flicker1 {
+  0%, 100% { opacity: 0.7; }
+  45%       { opacity: 1;   }
+  70%       { opacity: 0.5; }
+}
+@keyframes flicker2 {
+  0%, 100% { opacity: 0.6; }
+  30%       { opacity: 1;   }
+  65%       { opacity: 0.4; }
+}
+
+/* ── Header ── */
+.header {
   flex-shrink: 0;
-  padding: 16px 20px 0;
-  background: #0a0a0f;
+  padding: 52px 20px 0;
+  background: linear-gradient(180deg, rgba(7,7,12,0.92) 70%, transparent 100%);
+  position: relative;
+  z-index: 10;
 }
 
-.mastheadTop {
+.headerInner {
   display: flex;
-  justify-content: flex-end;
-  margin-bottom: 12px;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 6px;
+}
+
+.headerBrand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.headerLogo {
+  height: 38px;
+  width: auto;
+  object-fit: contain;
+  pointer-events: none;
+  filter: brightness(1.1);
+}
+
+/* "news" — glowing green running shine */
+.headerNews {
+  font-size: 28px;
+  font-weight: 900;
+  letter-spacing: -0.5px;
+  line-height: 1;
+  text-transform: lowercase;
+  background: linear-gradient(
+    90deg,
+    #8DC63F 0%,
+    #8DC63F 30%,
+    #c8ff70 48%,
+    #ffffff 50%,
+    #c8ff70 52%,
+    #8DC63F 70%,
+    #8DC63F 100%
+  );
+  background-size: 220% 100%;
+  background-clip: text;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  animation: newsShine 3.5s linear infinite;
+  filter: drop-shadow(0 0 8px rgba(141,198,63,0.55));
+}
+
+@keyframes newsShine {
+  0%   { background-position: 140% center; }
+  100% { background-position: -80% center; }
 }
 
 .closeBtn {
   background: rgba(255,255,255,0.07);
   border: none;
   color: rgba(255,255,255,0.5);
-  width: 32px; height: 32px;
+  width: 34px;
+  height: 34px;
   border-radius: 50%;
   font-size: 13px;
   cursor: pointer;
-  display: flex; align-items: center; justify-content: center;
-  transition: background 0.15s;
-}
-.closeBtn:hover { background: rgba(255,255,255,0.12); }
-
-.mastheadTitle {
   display: flex;
-  align-items: baseline;
-  gap: 10px;
-  margin-bottom: 6px;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.15s;
+  flex-shrink: 0;
 }
+.closeBtn:hover { background: rgba(255,255,255,0.13); }
 
-.mastheadFlag {
+.headerMeta {
   font-size: 11px;
-  font-weight: 900;
-  letter-spacing: 0.18em;
-  color: #8DC63F;
-  text-transform: uppercase;
-  border: 1.5px solid #8DC63F;
-  padding: 2px 8px;
-  border-radius: 4px;
-}
-
-.mastheadNews {
-  font-size: 32px;
-  font-weight: 900;
-  color: #fff;
-  letter-spacing: -0.5px;
-  line-height: 1;
-}
-
-.mastheadMeta {
-  font-size: 11px;
-  color: rgba(255,255,255,0.3);
+  color: rgba(255,255,255,0.28);
   margin-bottom: 14px;
   letter-spacing: 0.02em;
 }
 
-.mastheadRule {
+.headerRule {
   height: 2px;
-  background: linear-gradient(90deg, #8DC63F 0%, rgba(141,198,63,0.2) 60%, transparent 100%);
-  margin-bottom: 0;
+  background: linear-gradient(90deg, #8DC63F 0%, rgba(141,198,63,0.15) 60%, transparent 100%);
 }
 
 /* ── Scrollable content ── */
 .content {
   flex: 1;
   overflow-y: auto;
-  padding: 18px 16px calc(env(safe-area-inset-bottom, 0px) + 24px);
+  padding: 18px 16px calc(env(safe-area-inset-bottom, 0px) + 32px);
   display: flex;
   flex-direction: column;
   gap: 12px;
+  position: relative;
+  z-index: 10;
 }
 
-/* ── News card ── */
+/* ── News card — no side rim ── */
 .card {
   background: var(--sec-bg, rgba(141,198,63,0.06));
-  border: 1px solid rgba(255,255,255,0.07);
-  border-left: 3px solid var(--sec-color, #8DC63F);
+  border: 1px solid rgba(255,255,255,0.09);
   border-radius: 18px;
   padding: 16px;
   display: flex;
   flex-direction: column;
   gap: 10px;
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
 }
 
 .cardSection {
@@ -193,11 +296,12 @@
   display: flex;
   justify-content: center;
   gap: 8px;
-  padding: 60px 0;
+  padding: 80px 0;
 }
 
 .loadingDot {
-  width: 8px; height: 8px;
+  width: 8px;
+  height: 8px;
   border-radius: 50%;
   background: #8DC63F;
   animation: dotPulse 1.2s ease-in-out infinite;
@@ -212,12 +316,16 @@
 
 /* ── Empty & footer ── */
 .empty {
-  display: flex; flex-direction: column;
-  align-items: center; gap: 10px;
-  padding: 60px 0; color: rgba(255,255,255,0.3);
-  font-size: 14px; text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  padding: 80px 0;
+  color: rgba(255,255,255,0.3);
+  font-size: 14px;
+  text-align: center;
 }
-.empty span { font-size: 36px; }
+.empty span { font-size: 40px; }
 
 .footer {
   font-size: 11px;

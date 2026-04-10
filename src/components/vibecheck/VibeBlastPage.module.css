@@ -1,0 +1,570 @@
+/* ── Full-screen page ───────────────────────────────────────────────────── */
+.page {
+  position: fixed;
+  inset: 0;
+  z-index: 9600;
+  background: #07070f;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+/* ── Header — no border ─────────────────────────────────────────────────── */
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: calc(var(--safe-top, 0px) + 16px) 20px 12px;
+  flex-shrink: 0;
+}
+
+.backBtn {
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  background: rgba(255,255,255,0.05);
+  border: none;
+  color: rgba(255,255,255,0.6);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  flex-shrink: 0;
+  transition: background 0.15s;
+}
+.backBtn:active { background: rgba(255,255,255,0.1); }
+
+.headerTitle {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  font-size: 17px;
+  font-weight: 800;
+  color: #fff;
+  letter-spacing: -0.2px;
+}
+
+.bolt {
+  font-size: 20px;
+  filter: drop-shadow(0 0 8px rgba(244,114,182,0.85));
+}
+
+.headerSpacer { width: 38px; flex-shrink: 0; }
+
+/* ── Scroll body ─────────────────────────────────────────────────────────── */
+.scroll {
+  flex: 1;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior: contain;
+}
+
+/* ── Price line ──────────────────────────────────────────────────────────── */
+.priceLine {
+  display: flex;
+  align-items: baseline;
+  flex-wrap: wrap;
+  gap: 6px;
+  padding: 8px 20px 16px;
+}
+
+.priceAmount {
+  font-size: 26px;
+  font-weight: 900;
+  color: #F472B6;
+  letter-spacing: -0.5px;
+  line-height: 1;
+}
+
+.priceDot {
+  font-size: 14px;
+  color: rgba(255,255,255,0.2);
+}
+
+.priceMeta {
+  font-size: 12px;
+  font-weight: 600;
+  color: rgba(255,255,255,0.4);
+}
+
+.priceWeekly {
+  color: #F472B6;
+  opacity: 0.75;
+}
+
+/* ── Divider ─────────────────────────────────────────────────────────────── */
+.divider {
+  height: 1px;
+  background: rgba(255,255,255,0.06);
+  margin: 0;
+}
+
+/* ── Checking ────────────────────────────────────────────────────────────── */
+.checking {
+  padding: 20px;
+  font-size: 13px;
+  color: rgba(255,255,255,0.25);
+}
+
+/* ── Live blast ──────────────────────────────────────────────────────────── */
+.liveRow {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 16px 20px 8px;
+}
+
+.liveDot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #F472B6;
+  box-shadow: 0 0 8px rgba(244,114,182,0.7);
+  animation: blink 1.4s ease-in-out infinite;
+  flex-shrink: 0;
+}
+
+@keyframes blink {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0.3; }
+}
+
+.liveLabel {
+  font-size: 15px;
+  font-weight: 700;
+  color: #fff;
+  flex: 1;
+}
+
+.liveTimer {
+  font-size: 13px;
+  font-weight: 600;
+  color: #F472B6;
+}
+
+.liveStats {
+  display: flex;
+  align-items: stretch;
+  padding: 0 20px 16px;
+  gap: 0;
+}
+
+.liveStat {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 3px;
+  padding: 12px 0;
+}
+
+.liveStatNum {
+  font-size: 22px;
+  font-weight: 900;
+  color: #F472B6;
+  line-height: 1;
+}
+
+.liveStatLabel {
+  font-size: 10px;
+  font-weight: 600;
+  color: rgba(255,255,255,0.3);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.liveStatDiv {
+  width: 1px;
+  background: rgba(255,255,255,0.07);
+  margin: 8px 0;
+  flex-shrink: 0;
+}
+
+.fullNotice {
+  padding: 0 20px 12px;
+  font-size: 12px;
+  color: rgba(244,114,182,0.7);
+  font-weight: 600;
+}
+
+.liveTarget {
+  padding: 0 20px 16px;
+  font-size: 12px;
+  color: rgba(255,255,255,0.35);
+  line-height: 1.5;
+}
+
+.cancelBtn {
+  display: block;
+  width: calc(100% - 40px);
+  margin: 12px 20px;
+  padding: 11px;
+  background: none;
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 10px;
+  color: rgba(255,255,255,0.3);
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  text-align: center;
+  transition: border-color 0.15s, color 0.15s;
+}
+.cancelBtn:active { border-color: rgba(239,68,68,0.3); color: #FCA5A5; }
+
+/* ── Cooldown ────────────────────────────────────────────────────────────── */
+.cooldownRow {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 16px 20px;
+}
+
+.cooldownIcon { font-size: 22px; flex-shrink: 0; margin-top: 1px; }
+
+.cooldownTitle {
+  font-size: 14px;
+  font-weight: 700;
+  color: #F5C518;
+  margin-bottom: 3px;
+}
+
+.cooldownSub {
+  font-size: 12px;
+  color: rgba(255,255,255,0.35);
+  line-height: 1.5;
+}
+
+/* ── Verify warning ──────────────────────────────────────────────────────── */
+.verifyRow {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 16px 20px;
+}
+
+.verifyIcon { font-size: 22px; flex-shrink: 0; margin-top: 1px; }
+
+.verifyTitle {
+  font-size: 14px;
+  font-weight: 700;
+  color: #FCA5A5;
+  margin-bottom: 4px;
+}
+
+.verifySub {
+  font-size: 12px;
+  color: rgba(255,255,255,0.35);
+  line-height: 1.55;
+}
+
+/* ── Form sections ───────────────────────────────────────────────────────── */
+.formSection {
+  padding: 18px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.formLabel {
+  font-size: 10px;
+  font-weight: 800;
+  color: rgba(255,255,255,0.28);
+  letter-spacing: 1.2px;
+  text-transform: uppercase;
+}
+
+/* ── Vibe select ─────────────────────────────────────────────────────────── */
+.selectWrap {
+  position: relative;
+}
+
+.vibeSelect {
+  width: 100%;
+  appearance: none;
+  -webkit-appearance: none;
+  background: rgba(255,255,255,0.04);
+  border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 12px;
+  padding: 13px 40px 13px 16px;
+  font-size: 14px;
+  font-weight: 600;
+  color: #fff;
+  cursor: pointer;
+  outline: none;
+  font-family: inherit;
+  transition: border-color 0.15s;
+}
+
+.vibeSelect:focus { border-color: rgba(244,114,182,0.5); }
+
+.selectChevron {
+  position: absolute;
+  right: 14px;
+  top: 50%;
+  transform: translateY(-50%);
+  pointer-events: none;
+  stroke: rgba(255,255,255,0.3);
+}
+
+/* ── Form rows ───────────────────────────────────────────────────────────── */
+.formRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.rowLabel {
+  font-size: 13px;
+  color: rgba(255,255,255,0.5);
+  flex-shrink: 0;
+}
+
+.rowValue {
+  font-size: 13px;
+  font-weight: 700;
+  color: #fff;
+}
+
+/* ── Segmented control ───────────────────────────────────────────────────── */
+.segmented {
+  display: flex;
+  background: rgba(255,255,255,0.04);
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 10px;
+  overflow: hidden;
+  flex-shrink: 0;
+}
+
+.seg {
+  flex: 1;
+  padding: 7px 10px;
+  font-size: 12px;
+  font-weight: 600;
+  color: rgba(255,255,255,0.4);
+  background: none;
+  border: none;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  transition: all 0.15s;
+  white-space: nowrap;
+  font-family: inherit;
+}
+
+.segActive {
+  background: rgba(244,114,182,0.18);
+  color: #F472B6;
+}
+
+/* ── Dual range ──────────────────────────────────────────────────────────── */
+.dualRange {
+  display: flex;
+  gap: 16px;
+  padding: 0 0 4px;
+}
+
+.rangeItem {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.rangeTag {
+  font-size: 10px;
+  font-weight: 600;
+  color: rgba(255,255,255,0.25);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.range {
+  width: 100%;
+  accent-color: #F472B6;
+  cursor: pointer;
+  height: 3px;
+}
+
+/* ── Distance pills ──────────────────────────────────────────────────────── */
+.distPills {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.distPill {
+  padding: 5px 12px;
+  border-radius: 100px;
+  background: rgba(255,255,255,0.04);
+  border: 1px solid rgba(255,255,255,0.08);
+  color: rgba(255,255,255,0.4);
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  font-family: inherit;
+  transition: all 0.13s;
+}
+
+.distPillActive {
+  background: rgba(244,114,182,0.12);
+  border-color: rgba(244,114,182,0.45);
+  color: #F472B6;
+}
+
+/* ── Safety rows ─────────────────────────────────────────────────────────── */
+.safeRow {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 12px 0;
+  background: none;
+  border: none;
+  cursor: pointer;
+  text-align: left;
+  width: 100%;
+  -webkit-tap-highlight-color: transparent;
+  border-bottom: 1px solid rgba(255,255,255,0.05);
+  font-family: inherit;
+}
+.safeRow:last-child { border-bottom: none; }
+
+.tick {
+  width: 20px;
+  height: 20px;
+  border-radius: 6px;
+  border: 1.5px solid rgba(255,255,255,0.18);
+  background: rgba(255,255,255,0.03);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  margin-top: 1px;
+  transition: all 0.15s;
+}
+
+.tickOn {
+  background: #F472B6;
+  border-color: #F472B6;
+  box-shadow: 0 0 8px rgba(244,114,182,0.35);
+}
+
+.safeTitle {
+  display: block;
+  font-size: 13px;
+  font-weight: 600;
+  color: rgba(255,255,255,0.8);
+  margin-bottom: 2px;
+}
+
+.safeSub {
+  display: block;
+  font-size: 11px;
+  color: rgba(255,255,255,0.3);
+  line-height: 1.4;
+}
+
+/* ── Pay section ─────────────────────────────────────────────────────────── */
+.paySection {
+  padding: 18px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.blastPreview {
+  font-size: 12px;
+  color: rgba(255,255,255,0.35);
+  line-height: 1.5;
+  text-align: center;
+}
+
+.errorMsg {
+  font-size: 12px;
+  color: #FCA5A5;
+  text-align: center;
+  padding: 9px 12px;
+  background: rgba(239,68,68,0.07);
+  border: 1px solid rgba(239,68,68,0.18);
+  border-radius: 9px;
+}
+
+.payBtn {
+  width: 100%;
+  padding: 16px;
+  border-radius: 14px;
+  background: linear-gradient(135deg, #F472B6 0%, #EC4899 100%);
+  color: #fff;
+  font-size: 16px;
+  font-weight: 900;
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  box-shadow: 0 4px 24px rgba(244,114,182,0.4);
+  -webkit-tap-highlight-color: transparent;
+  transition: opacity 0.15s, transform 0.12s;
+  font-family: inherit;
+  letter-spacing: -0.2px;
+}
+
+.payBtn:disabled {
+  opacity: 0.25;
+  cursor: default;
+  box-shadow: none;
+}
+
+.payBtn:not(:disabled):active { transform: scale(0.97); }
+
+.payBolt {
+  font-size: 18px;
+  filter: drop-shadow(0 0 5px rgba(255,255,255,0.5));
+}
+
+.payMeta {
+  font-size: 11px;
+  color: rgba(255,255,255,0.25);
+  text-align: center;
+  line-height: 1.5;
+}
+
+/* ── How it works ────────────────────────────────────────────────────────── */
+.howSection {
+  padding: 18px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.howRow {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+}
+
+.howNum {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  border: 1px solid rgba(244,114,182,0.25);
+  color: rgba(244,114,182,0.6);
+  font-size: 10px;
+  font-weight: 800;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  margin-top: 1px;
+}
+
+.howText {
+  font-size: 12px;
+  color: rgba(255,255,255,0.3);
+  line-height: 1.55;
+}
+
+.bottomPad { height: 48px; }

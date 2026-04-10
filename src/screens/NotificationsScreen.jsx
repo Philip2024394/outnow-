@@ -1,9 +1,66 @@
 import { useState, useEffect } from 'react'
 import { useNotifications } from '@/hooks/useNotifications'
-import { activityEmoji } from '@/firebase/collections'
-import { DEMO_LIKED_USERS } from '@/demo/mockData'
 import { supabase } from '@/lib/supabase'
+import ProfileStrip from '@/components/map/ProfileStrip'
 import styles from './NotificationsScreen.module.css'
+
+// ── Active vibe blasts targeting this user ────────────────────────────────
+function useVibeBlasts(userId, userCity, userAge, userGender) {
+  const [blasts, setBlasts] = useState([])
+
+  useEffect(() => {
+    if (!supabase || !userId || !userCity) return
+
+    const load = async () => {
+      const { data } = await supabase
+        .from('vibe_blasts')
+        .select('id, user_id, looking_for_gender, looking_for_age_min, looking_for_age_max, looking_for_distance_km, expires_at, seen_count, profiles:user_id(display_name, photo_url, age, city)')
+        .eq('is_active', true)
+        .eq('city', userCity)
+        .gt('expires_at', new Date().toISOString())
+        .neq('user_id', userId)
+        .order('created_at', { ascending: false })
+        .limit(5)
+
+      if (!data) return
+
+      // Filter: blast must target this user's gender and age
+      const filtered = data.filter(b => {
+        if (b.looking_for_gender !== 'both') {
+          if (userGender && b.looking_for_gender !== userGender) return false
+        }
+        if (userAge) {
+          if (userAge < b.looking_for_age_min || userAge > b.looking_for_age_max) return false
+        }
+        return true
+      })
+
+      // Record view for each visible blast (fire-and-forget, errors are non-fatal)
+      Promise.all(
+        filtered.map(b =>
+          supabase.from('vibe_blast_views').upsert(
+            { spotlight_id: b.id, viewer_id: userId },
+            { onConflict: 'spotlight_id,viewer_id' }
+          )
+        )
+      ).catch(() => {})
+
+      setBlasts(filtered)
+    }
+
+    load()
+  }, [userId, userCity, userAge, userGender])
+
+  return blasts
+}
+
+function timeLeftStr(expiresAt) {
+  const ms = new Date(expiresAt).getTime() - Date.now()
+  if (ms <= 0) return 'Expired'
+  const h = Math.floor(ms / 3600000)
+  const m = Math.floor((ms % 3600000) / 60000)
+  return h > 0 ? `${h}h ${m}m left` : `${m}m left`
+}
 
 const DEMO_RECENT_RIDES = [
   { id: 'BOOK_001', created_at: '2026-04-08T09:12:00Z', dropoff_location: 'Bandara Adisucipto', driver_name: 'Budi Santoso', driver_type: 'bike_ride', fare: 28000, status: 'completed' },
@@ -48,12 +105,8 @@ function timeAgo(ms) {
 // Notification type → emoji
 const NOTIF_EMOJI = {
   connect:       '🤝',
-  match:         '🤝', // legacy
   like:          '💚',
-  wave:          '👋',
-  gift:          '🎁',
   system:        '🛡️',
-  digest:        '📅',
   date_invite:   '💕',
   date_accepted: '🎉',
   message:       '💬',
@@ -62,26 +115,38 @@ const NOTIF_EMOJI = {
 }
 
 // Types that open chat when tapped
-const CHAT_TYPES = new Set(['date_invite', 'date_accepted', 'message', 'connect', 'match', 'wave'])
+const CHAT_TYPES = new Set(['date_invite', 'date_accepted', 'message', 'connect'])
 
 export const DEMO_UNREAD_COUNT = 2
 
-export default function NotificationsScreen({ onClose, onOpenChat, userId, onOpenRideHistory }) {
+export default function NotificationsScreen({ onClose, onOpenChat, userId, userProfile, onOpenRideHistory, stripProps }) {
   const { notifications, profileViews, unreadCount, markAllRead } = useNotifications()
   const recentRides = useRecentRides(userId)
+  const vibeBlasts  = useVibeBlasts(
+    userId,
+    userProfile?.city ?? null,
+    userProfile?.age  ?? null,
+    userProfile?.gender ?? null,
+  )
 
   // Use real notifications if available, otherwise show demo placeholders
   const hasRealNotifs = notifications.length > 0
-  const hasRealViews  = profileViews.length > 0
 
-  const unread  = (hasRealNotifs ? notifications : []).filter(n => !n.read)
-  const earlier = (hasRealNotifs ? notifications : []).filter(n => n.read)
+  // ── Categorise by app section ────────────────────────────────────────────
+  const datingNotifs      = notifications.filter(n => ['date_invite', 'date_accepted'].includes(n.type))
+  const socialNotifs      = notifications.filter(n => ['like', 'wave', 'connect'].includes(n.type))
+  const messageNotifs     = notifications.filter(n => n.type === 'message')
+  const rideNotifs        = notifications.filter(n => ['ride', 'ride_accepted'].includes(n.type))
+  const marketNotifs      = notifications.filter(n => n.type === 'marketplace')
+  const restaurantNotifs  = notifications.filter(n => n.type === 'restaurant')
+  const systemNotifs      = notifications.filter(n => n.type === 'system')
 
   return (
     <div className={styles.screen}>
 
       {/* ── Header ── */}
       <div className={styles.header}>
+        <img src="https://ik.imagekit.io/nepgaxllc/UntitledasdsSDdasdASDSFSD-removebg-preview.png" alt="" className={styles.headerIcon} aria-hidden="true" />
         <span className={styles.title}>Notifications</span>
         {unreadCount > 0 && (
           <span
@@ -113,25 +178,15 @@ export default function NotificationsScreen({ onClose, onOpenChat, userId, onOpe
         </div>
         <div className={styles.statDivider} />
         <div className={styles.statChip}>
-          <span className={styles.statNum}>{notifications.filter(n => n.type === 'connect' || n.type === 'match').length || '—'}</span>
+          <span className={styles.statNum}>{notifications.filter(n => n.type === 'connect').length || '—'}</span>
           <span className={styles.statMeta}>Connections</span>
         </div>
       </div>
 
       <div className={styles.scroll}>
 
-        {/* ── LIKED YOU — real interests/likes from Supabase (demo fallback) ── */}
-        <div className={styles.sectionHeader}>
-          <span className={styles.sectionIcon}>❤️</span>
-          <span className={styles.sectionTitle}>Liked You This Week</span>
-          <span className={styles.sectionCount}>{DEMO_LIKED_USERS.length}</span>
-        </div>
-        {DEMO_LIKED_USERS.map(u => (
-          <LikedCard key={u.id} user={u} />
-        ))}
-
         {/* ── WHO VIEWED YOUR PROFILE ── */}
-        {(hasRealViews ? profileViews : []).length > 0 && (
+        {profileViews.length > 0 && (
           <>
             <div className={styles.sectionHeader}>
               <span className={styles.sectionIcon}>👁️</span>
@@ -144,47 +199,104 @@ export default function NotificationsScreen({ onClose, onOpenChat, userId, onOpe
           </>
         )}
 
-        {/* ── NEW NOTIFICATIONS ── */}
-        {unread.length > 0 && (
+        {/* ── VIBE BLASTS ── */}
+        {vibeBlasts.length > 0 && (
           <>
-            <div className={styles.sectionHeader}>
-              <span className={styles.sectionIcon}>🔴</span>
-              <span className={styles.sectionTitle}>New</span>
-              <span className={styles.sectionCount}>{unread.length}</span>
+            <div className={`${styles.sectionHeader} ${styles.sectionVibe}`}>
+              <span className={styles.sectionIcon}>⚡</span>
+              <span className={styles.sectionTitle}>Vibe Blasting nearby</span>
+              <span className={styles.sectionCount}>{vibeBlasts.length}</span>
             </div>
-            {unread.map(n => (
+            {vibeBlasts.map(b => (
+              <div key={b.id} className={styles.vibeBlastRow}>
+                <div className={styles.vibeBlastAvatar}>
+                  {b.profiles?.photo_url
+                    ? <img src={b.profiles.photo_url} alt={b.profiles?.display_name} style={{ width: '100%', height: '100%', borderRadius: '50%', objectFit: 'cover' }} />
+                    : <span style={{ fontSize: 20 }}>⚡</span>
+                  }
+                </div>
+                <div className={styles.vibeBlastBody}>
+                  <div className={styles.vibeBlastName}>
+                    {b.profiles?.display_name ?? 'Someone nearby'}
+                    {b.profiles?.age ? `, ${b.profiles.age}` : ''}
+                  </div>
+                  <div className={styles.vibeBlastMeta}>
+                    Looking for {b.looking_for_gender === 'both' ? 'everyone' : b.looking_for_gender === 'male' ? 'men' : 'women'}
+                    {' · '}age {b.looking_for_age_min}–{b.looking_for_age_max}
+                    {' · '}within {b.looking_for_distance_km} km
+                  </div>
+                  <div className={styles.vibeBlastExpiry}>⏱ {timeLeftStr(b.expires_at)}</div>
+                </div>
+                <div className={styles.vibeBlastPink}>⚡</div>
+              </div>
+            ))}
+          </>
+        )}
+
+        {/* ── DATING ── */}
+        {datingNotifs.length > 0 && (
+          <>
+            <div className={`${styles.sectionHeader} ${styles.sectionDating}`}>
+              <span className={styles.sectionIcon}>💕</span>
+              <span className={styles.sectionTitle}>Dating</span>
+              <span className={styles.sectionCount}>{datingNotifs.length}</span>
+            </div>
+            {datingNotifs.map(n => (
               <NotifRow key={n.id} notif={n} onOpenChat={onOpenChat} />
             ))}
           </>
         )}
 
-        {/* ── EARLIER ── */}
-        {earlier.length > 0 && (
+        {/* ── MARKETPLACE ── */}
+        {marketNotifs.length > 0 && (
           <>
-            <div className={styles.sectionHeader}>
-              <span className={styles.sectionIcon}>🕐</span>
-              <span className={styles.sectionTitle}>Earlier</span>
+            <div className={`${styles.sectionHeader} ${styles.sectionMarket}`}>
+              <span className={styles.sectionIcon}>🛍️</span>
+              <span className={styles.sectionTitle}>Marketplace</span>
+              <span className={styles.sectionCount}>{marketNotifs.length}</span>
             </div>
-            {earlier.map(n => (
+            {marketNotifs.map(n => (
               <NotifRow key={n.id} notif={n} onOpenChat={onOpenChat} />
             ))}
           </>
         )}
 
-        {/* ── RIDE HISTORY ── */}
-        {recentRides.length > 0 && (
+        {/* ── RESTAURANT ── */}
+        {restaurantNotifs.length > 0 && (
           <>
-            <div className={styles.sectionHeader}>
-              <span className={styles.sectionIcon}>🏍️</span>
-              <span className={styles.sectionTitle}>Your Recent Rides</span>
+            <div className={`${styles.sectionHeader} ${styles.sectionFood}`}>
+              <span className={styles.sectionIcon}>🍽️</span>
+              <span className={styles.sectionTitle}>Restaurant</span>
+              <span className={styles.sectionCount}>{restaurantNotifs.length}</span>
+            </div>
+            {restaurantNotifs.map(n => (
+              <NotifRow key={n.id} notif={n} onOpenChat={onOpenChat} />
+            ))}
+          </>
+        )}
+
+        {/* ── RIDES ── */}
+        {(rideNotifs.length > 0 || recentRides.length > 0) && (
+          <>
+            <div className={`${styles.sectionHeader} ${styles.sectionRide}`}>
+              <img src="https://ik.imagekit.io/nepgaxllc/Green%20and%20black%20speed%20machines.png?updatedAt=1775635360641" alt="" className={styles.sectionImgIcon} aria-hidden="true" />
+              <span className={styles.sectionTitle}>Bike / Car Service</span>
               {onOpenRideHistory && (
                 <button className={styles.viewAllBtn} onClick={onOpenRideHistory}>View All →</button>
               )}
             </div>
+            {rideNotifs.map(n => (
+              <NotifRow key={n.id} notif={n} onOpenChat={onOpenChat} />
+            ))}
             {recentRides.map(ride => (
               <div key={ride.id} className={styles.rideRow}>
                 <span className={styles.rideIcon}>
-                  {ride.driver_type === 'car_taxi' ? '🚗' : ride.status === 'cancelled' ? '📦' : '🛵'}
+                  {ride.status === 'cancelled'
+                    ? '📦'
+                    : ride.driver_type === 'car_taxi'
+                      ? <img src="https://ik.imagekit.io/nepgaxllc/Sporty%20green%20and%20black%20hatchback.png?updatedAt=1775634925566" alt="car" className={styles.rideIconImg} />
+                      : <img src="https://ik.imagekit.io/nepgaxllc/Riders%20on%20a%20sleek%20scooter.png?updatedAt=1775657336879" alt="bike" className={styles.rideIconImg} />
+                  }
                 </span>
                 <div className={styles.rideBody}>
                   <span className={styles.rideDest}>{ride.dropoff_location ?? '—'}</span>
@@ -195,7 +307,13 @@ export default function NotificationsScreen({ onClose, onOpenChat, userId, onOpe
                 <div className={styles.rideRight}>
                   {ride.status === 'completed' && ride.fare != null
                     ? <span className={styles.rideFare}>{fmtRp(ride.fare)}</span>
-                    : <span className={styles.rideCancelled}>Cancelled</span>
+                    : (
+                      <img
+                        src="https://ik.imagekit.io/nepgaxllc/Order%20canceled%20warning%20banner.png"
+                        alt="Cancelled"
+                        className={styles.warningBadge}
+                      />
+                    )
                   }
                 </div>
               </div>
@@ -203,56 +321,62 @@ export default function NotificationsScreen({ onClose, onOpenChat, userId, onOpe
           </>
         )}
 
-        {/* Empty state when no Supabase data yet */}
+        {/* ── MESSAGES ── */}
+        {messageNotifs.length > 0 && (
+          <>
+            <div className={styles.sectionHeader}>
+              <span className={styles.sectionIcon}>💬</span>
+              <span className={styles.sectionTitle}>Messages</span>
+              <span className={styles.sectionCount}>{messageNotifs.length}</span>
+            </div>
+            {messageNotifs.map(n => (
+              <NotifRow key={n.id} notif={n} onOpenChat={onOpenChat} />
+            ))}
+          </>
+        )}
+
+        {/* ── SOCIAL ── */}
+        {socialNotifs.length > 0 && (
+          <>
+            <div className={styles.sectionHeader}>
+              <span className={styles.sectionIcon}>🤝</span>
+              <span className={styles.sectionTitle}>Social</span>
+              <span className={styles.sectionCount}>{socialNotifs.length}</span>
+            </div>
+            {socialNotifs.map(n => (
+              <NotifRow key={n.id} notif={n} onOpenChat={onOpenChat} />
+            ))}
+          </>
+        )}
+
+        {/* ── SYSTEM ── */}
+        {systemNotifs.length > 0 && (
+          <>
+            <div className={styles.sectionHeader}>
+              <span className={styles.sectionIcon}>🛡️</span>
+              <span className={styles.sectionTitle}>System</span>
+              <span className={styles.sectionCount}>{systemNotifs.length}</span>
+            </div>
+            {systemNotifs.map(n => (
+              <NotifRow key={n.id} notif={n} onOpenChat={onOpenChat} />
+            ))}
+          </>
+        )}
+
+        {/* Empty state */}
         {!hasRealNotifs && (
           <div className={styles.sectionHeader} style={{ opacity: 0.5, justifyContent: 'center' }}>
-            <span className={styles.sectionTitle}>No notifications yet — get out there! 🌆</span>
+            <span className={styles.sectionTitle}>No notifications yet — get out there!</span>
           </div>
         )}
 
       </div>
+
+      {stripProps && <ProfileStrip {...stripProps} />}
     </div>
   )
 }
 
-/* ── Liked card ── */
-function LikedCard({ user }) {
-  const [liked, setLiked] = useState(false)
-  return (
-    <div className={styles.viewerCard}>
-      <div className={styles.viewerAvatar}>
-        {user.photoURL
-          ? <img src={user.photoURL} alt={user.displayName} style={{ width: '100%', height: '100%', borderRadius: '50%', objectFit: 'cover' }} />
-          : (user.emoji ?? user.displayName?.[0]?.toUpperCase())
-        }
-        {user.online && <span className={styles.onlineDot} />}
-      </div>
-      <div className={styles.viewerBody}>
-        <div className={styles.viewerTop}>
-          <span className={styles.viewerName}>{user.displayName}</span>
-          <span className={styles.viewerAge}>{user.age}</span>
-          {user.online
-            ? <span className={styles.onlinePill}>● Online</span>
-            : <span className={styles.timePill}>{timeAgo(user.likedAt)}</span>
-          }
-        </div>
-        <span className={styles.viewerCity}>📍 {user.area}</span>
-        <span className={styles.viewerViews}>
-          {activityEmoji(user.activityType)} {user.tagline}
-        </span>
-      </div>
-      <button
-        className={`${styles.likeBtn} ${liked ? styles.likeBtnActive : ''}`}
-        onClick={() => setLiked(v => !v)}
-      >
-        <svg width="18" height="18" viewBox="0 0 24 24" fill={liked ? 'currentColor' : 'none'} stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-          <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
-        </svg>
-        {liked ? 'Liked' : 'Like'}
-      </button>
-    </div>
-  )
-}
 
 /* ── Profile viewer card (real data) ── */
 function ViewerCard({ viewer }) {

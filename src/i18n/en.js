@@ -2,7 +2,7 @@ export default {
   // Landing
   'landing.tagline':     '🇮🇩 Indonesia',
   'landing.headline':    'Food. Rides.\nDating & More.',
-  'landing.sub':         'Everything you need — one app, right now.',
+  'landing.sub':         'Everything you need — at your finger tips.',
   'landing.getStarted':  "Get Started — it's free",
   'landing.signIn':      'Already have an account? Sign in',
   'landing.browse':      'Explore first, no account needed →',

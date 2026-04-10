@@ -25,6 +25,7 @@ export function useNotifications() {
   const [notifications, setNotifications] = useState([])
   const [profileViews, setProfileViews] = useState([])
   const [unreadCount, setUnreadCount] = useState(0)
+  const [serviceUnreadCounts, setServiceUnreadCounts] = useState({})
   const channelRef = useRef(null)
   const knownIdsRef = useRef(new Set())
 
@@ -85,7 +86,34 @@ export function useNotifications() {
       mapped.forEach(n => knownIdsRef.current.add(n.id))
 
       setNotifications(mapped)
-      setUnreadCount(mapped.filter(n => !n.read).length)
+      const unread = mapped.filter(n => !n.read)
+      setUnreadCount(unread.length)
+
+      // Per-service unread counts — maps notification type → FloatingIcons icon ID
+      const SERVICE_MAP = {
+        ride_request:             ['bike_ride', 'car_taxi'],
+        ride_accepted:            ['bike_ride', 'car_taxi'],
+        ride_expired:             ['bike_ride', 'car_taxi'],
+        ride_cancelled:           ['bike_ride', 'car_taxi'],
+        date_invite:              ['dating'],
+        date_accepted:            ['dating'],
+        date_suggestion_accepted: ['dating'],
+        wave:                     ['dating'],
+        liked:                    ['dating'],
+        food_order:               ['food'],
+        food_ready:               ['food'],
+        market_message:           ['shopping'],
+        market_order:             ['shopping'],
+        market_review:            ['shopping'],
+        massage_booking:          ['massage'],
+        massage_confirmed:        ['massage'],
+      }
+      const svc = { bike_ride: 0, car_taxi: 0, food: 0, dating: 0, shopping: 0, massage: 0 }
+      unread.forEach(n => {
+        const targets = SERVICE_MAP[n.type] ?? []
+        targets.forEach(id => { svc[id] = (svc[id] ?? 0) + 1 })
+      })
+      setServiceUnreadCounts({ ...svc })
       setProfileViews((views ?? []).map(v => ({
         id:          v.id,
         viewerId:    v.viewer_id,
@@ -124,5 +152,5 @@ export function useNotifications() {
     setUnreadCount(0)
   }
 
-  return { notifications, profileViews, unreadCount, markAllRead }
+  return { notifications, profileViews, unreadCount, serviceUnreadCounts, markAllRead }
 }

@@ -2,7 +2,6 @@ import { useState, useRef, useEffect, useCallback } from 'react'
 import { createPortal } from 'react-dom'
 import { useAuth } from '@/hooks/useAuth'
 import { useMySession } from '@/hooks/useMySession'
-import { useCoins } from '@/hooks/useCoins'
 import { ACTIVITY_TYPES, ACTIVITY_CATEGORIES } from '@/firebase/collections'
 import { LOOKING_FOR_OPTIONS, LANGUAGE_FLAGS, subCategoryText, getSearchKeywords } from '@/utils/lookingForLabels'
 import LookingForSheet from '@/components/ui/LookingForSheet'
@@ -10,7 +9,7 @@ import IntentGrid from '@/components/ui/IntentGrid'
 import CuisineSheet, { WORLD_CUISINES } from '@/components/ui/CuisineSheet'
 import TradeRoleSheet, { TRADE_ROLE_GROUPS } from '@/components/ui/TradeRoleSheet'
 import ShopTypeSheet, { SHOP_TYPE_OPTIONS } from '@/components/ui/ShopTypeSheet'
-import DatingPickerSheet from '@/components/ui/DatingPickerSheet'
+import DatingPickerSheet from '@/components/dating/DatingPickerSheet'
 import LanguagePickerSheet from '@/components/ui/LanguagePickerSheet'
 import { getCategoryCopy } from '@/constants/categoryCopy'
 import Toast from '@/components/ui/Toast'
@@ -292,7 +291,6 @@ const STATUS_CONFIG = {
 export default function ProfileScreen({ onClose, onboarding = false }) {
   const { user, userProfile } = useAuth()
   const { session: mySession } = useMySession()
-  const { earn } = useCoins()
   const ipCountry = useIpCountry()
   const pricing = getRegionPricing(ipCountry)
 
@@ -632,7 +630,6 @@ export default function ProfileScreen({ onClose, onboarding = false }) {
       if (photoFile && user?.id) {
         const url = await uploadAvatar(user.id, photoFile)
         if (url) setPhotoURL(url)
-        earn('PROFILE_PHOTO')
       }
 
       const savedExtra = [...extraPhotos]
@@ -697,8 +694,6 @@ export default function ProfileScreen({ onClose, onboarding = false }) {
         bizWhatsapp:      lookingFor === 'business' ? (bizWhatsapp.trim() || null) : undefined,
         productCondition: lookingFor === 'business' ? (productCondition || null)   : undefined,
       })
-      if (bio.trim().length > 0)       earn('BIO_WRITTEN')
-      if (selectedActivity)            earn('ACTIVITIES_SET')
       // After successful save, open the go-out setup if user selected a status
       if (pendingStatus) setShowGoOutSetup(true)
       // isFirstSave: stay on profile tab

@@ -47,8 +47,8 @@
   align-items: center;
   gap: 6px;
   flex: 1;
-  background: rgba(255, 255, 255, 0.05);
-  border: 1.5px solid rgba(255, 255, 255, 0.08);
+  background: transparent;
+  border: 1.5px solid #8DC63F;
   border-radius: 16px;
   padding: 12px 6px 10px;
   cursor: pointer;
@@ -69,6 +69,12 @@
   font-size: 32px;
   line-height: 1;
   display: block;
+}
+
+.flagImg {
+  width: 32px;
+  height: 32px;
+  object-fit: contain;
 }
 
 .flagLabel {

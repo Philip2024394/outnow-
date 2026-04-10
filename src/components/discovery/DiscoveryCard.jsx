@@ -9,6 +9,7 @@ import { ACTIVITY_TYPES } from '@/firebase/collections'
 import { lookingForText, LANGUAGE_FLAGS } from '@/utils/lookingForLabels'
 import { quoteForUser } from '@/data/brandQuotes'
 import { recordPhotoView } from '@/services/photoNudgeService'
+import { recordProfileView } from '@/services/profileService'
 import { supabase } from '@/lib/supabase'
 import MakerCard from './layouts/MakerCard'
 import DatingCard from './layouts/DatingCard'
@@ -79,7 +80,7 @@ function SidePanelBtn({ emoji, label, onClick, active, pulse, color }) {
 }
 
 // ── Main component ─────────────────────────────────────────────────────────────
-export default function DiscoveryCard({ open, session, mySession, onClose, showToast, onGuestAction, onMeetSent, onLike, onUnlockContact }) {
+export default function DiscoveryCard({ open, session, mySession, onClose, showToast, onGuestAction, onMeetSent, onConnect, onLike, onUnlockContact }) {
   useOverlay()
   const { user } = useAuth()
   const { myInterests, mutualSessions } = useInterests()
@@ -140,14 +141,22 @@ export default function DiscoveryCard({ open, session, mySession, onClose, showT
     }
   }, [open, session?.userId]) // eslint-disable-line
 
+  useEffect(() => {
+    if (open && session?.userId && user?.id && session.userId !== user.id) {
+      recordProfileView(session.userId)
+    }
+  }, [open, session?.userId, user?.id]) // eslint-disable-line
+
   useEffect(() => { if (open) { setPanel(null); setPhotoIdx(0); setMeetSent(false); setLiked(false) } }, [open])
 
   if (!open || !session) return null
 
-  // Route to specialised layouts unchanged
-  if (session.lookingFor === 'dating')
-    return <DatingCard open={open} session={session} mySession={mySession} onClose={onClose} showToast={showToast} onGuestAction={onGuestAction} onMeetSent={onMeetSent} onLike={onLike} />
-  if (MAKER_CATEGORIES.includes(session.lookingFor))
+  // Route to specialised layouts — all relationship intents use the dating card
+  const DATING_INTENTS = ['dating', 'marriage', 'date_night', 'friendship', 'travel', 'pen_pal']
+  const lookingForNorm = (session.lookingFor ?? '').toLowerCase()
+  if (DATING_INTENTS.includes(lookingForNorm))
+    return <DatingCard open={open} session={session} mySession={mySession} onClose={onClose} showToast={showToast} onGuestAction={onGuestAction} onMeetSent={onMeetSent} onConnect={onConnect} onLike={onLike} />
+  if (MAKER_CATEGORIES.includes(lookingForNorm))
     return <MakerCard open={open} session={session} mySession={mySession} onClose={onClose} showToast={showToast} onGuestAction={onGuestAction} onMeetSent={onMeetSent} onLike={onLike} onUnlockContact={onUnlockContact} />
 
   const isScheduled = session.status === 'scheduled'
@@ -180,8 +189,9 @@ export default function DiscoveryCard({ open, session, mySession, onClose, showT
     if (meetSent) return
     if (session.isSeeded) {
       setMeetSent(true)
-      showToast?.(`💌 Invite sent to ${session.displayName ?? 'them'}!`, 'success')
-      onMeetSent?.(session); return
+      onMeetSent?.(session)
+      onConnect?.(session)
+      return
     }
     setMeetLoading(true)
     try {
@@ -190,8 +200,8 @@ export default function DiscoveryCard({ open, session, mySession, onClose, showT
         session.userId, session.id
       )
       setMeetSent(true)
-      showToast?.(`💬 Sent to ${session.displayName ?? 'them'}!`, 'success')
       onMeetSent?.(session)
+      onConnect?.(session)
     } catch { showToast?.('Could not send. Try again.', 'error') }
     setMeetLoading(false)
   }
@@ -532,6 +542,7 @@ export default function DiscoveryCard({ open, session, mySession, onClose, showT
         {/* Date Ideas */}
         {panel === 'dateIdeas' && (
           <DateIdeasSheet
+            open={true}
             targetSession={session}
             onClose={() => setPanel(null)}
           />

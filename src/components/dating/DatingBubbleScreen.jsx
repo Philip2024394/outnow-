@@ -16,10 +16,9 @@ const DAMP         = 0.96
 const MAX_BUBBLES  = 9           // 3 cols × 3 rows fits comfortably
 const LIFETIME_MIN = 7000
 const LIFETIME_MAX = 7000   // fixed 7s before exit begins
-const MINIMIZE_SPD = 0.065
 const HEADER_H     = 74
 
-const MOOD_COLORS  = { warm: '#F97316', cool: '#38BDF8', pink: '#F472B6' }
+const MOOD_COLORS  = { warm: '#FF4FA3', cool: '#FF4FA3', pink: '#F472B6' }
 const DEFAULT_GLOW = '#E8458C'
 
 const SHAPES    = ['♡','♡','♡','✦','·','·']
@@ -53,7 +52,7 @@ const BURST_PARTICLES = [
 ]
 
 const HOW_IT_WORKS = [
-  { icon: '👆', text: 'Tap a profile to save it to your tray' },
+  { icon: '👆', text: 'Tap any profile bubble or grid photo to open their full profile' },
   { icon: '♡',  text: 'Heart to like — it\'s a match if they like back' },
   { icon: '🔄', text: 'New profiles float in every few seconds' },
   { icon: '⊞',  text: 'Top right button switches between floating and grid view' },
@@ -94,13 +93,37 @@ export default function DatingBubbleScreen({
 
   const [likedIds,     setLikedIds]     = useState(new Set())
   const [burstIds,     setBurstIds]     = useState(new Set())
-  const [tray,         setTray]         = useState([])
-  const [viewerOpen,   setViewerOpen]   = useState(false)
-  const [viewerIdx,    setViewerIdx]    = useState(0)
   const [matchSession, setMatchSession] = useState(null)
   const [displaySlots, setDisplaySlots] = useState([])
   const [showTip,      setShowTip]      = useState(false)
   const [view,         setView]         = useState('float')  // 'float' | 'grid'
+  const [filterOpen,   setFilterOpen]   = useState(false)
+  const [filters,      setFilters]      = useState({ ageMin: 18, ageMax: 45, gender: null, lookingFor: null, city: '', onlineOnly: false, withPhoto: true })
+  const [priorityCard, setPriorityCard] = useState(null)
+
+  // Apply filters to sessions
+  const filteredSessions = sessions.filter(s => {
+    const age = calcAge(s.dob)
+    if (age !== null && (age < filters.ageMin || age > filters.ageMax)) return false
+    if (filters.gender && s.gender && s.gender !== filters.gender) return false
+    if (filters.lookingFor && s.lookingFor && s.lookingFor !== filters.lookingFor) return false
+    if (filters.city && !(s.city ?? s.area ?? '').toLowerCase().includes(filters.city.toLowerCase())) return false
+    if (filters.onlineOnly && s.status !== 'active' && s.status !== 'live') return false
+    if (filters.withPhoto && !s.photos?.[0] && !s.photoURL) return false
+    return true
+  })
+
+  // Priority card — cycle through new sessions every 20s
+  useEffect(() => {
+    if (!open || sessions.length === 0) return
+    const newSession = sessions.find(s => !likedIds.has(s.id))
+    if (newSession) setPriorityCard(newSession)
+    const t = setInterval(() => {
+      const next = sessions.find(s => !likedIds.has(s.id))
+      setPriorityCard(next ?? null)
+    }, 20000)
+    return () => clearInterval(t)
+  }, [open, sessions]) // eslint-disable-line
 
   const containerRef   = useRef(null)
   const bubbleRefs     = useRef([])
@@ -108,8 +131,6 @@ export default function DatingBubbleScreen({
   const rafId          = useRef(null)
   const size           = useRef({ w: 390, h: 700 })
   const nextIdx        = useRef(0)
-  const selectedIds    = useRef(new Set())
-  const minimizeTimers = useRef({})
   const shownMatches   = useRef(new Set())
 
   // Show how-it-works tip on first open — only closes via Understand button
@@ -151,16 +172,15 @@ export default function DatingBubbleScreen({
       const col = i % cols, row = Math.floor(i / cols)
       const jitter = () => (Math.random() - 0.5) * 20
       return {
-        x:                R + 16 + col * (MIN_D + 16) + jitter(),
-        y:                HEADER_H + R + 20 + row * (MIN_D + 30) + jitter(),
-        vx:               (Math.random() - 0.5) * MAX_SPD,
-        vy:               (Math.random() - 0.5) * MAX_SPD,
-        frozen:           false,
-        dying:            false,
-        entering:         true,
-        minimizeProgress: 0,
-        opacity:          1,
-        dieAt:            now + LIFETIME_MIN + (i * 1100) + Math.random() * 1200,
+        x:        R + 16 + col * (MIN_D + 16) + jitter(),
+        y:        HEADER_H + R + 20 + row * (MIN_D + 30) + jitter(),
+        vx:       (Math.random() - 0.5) * MAX_SPD,
+        vy:       (Math.random() - 0.5) * MAX_SPD,
+        frozen:   false,
+        dying:    false,
+        entering: true,
+        opacity:  1,
+        dieAt:    now + LIFETIME_MIN + (i * 1100) + Math.random() * 1200,
       }
     })
 
@@ -185,7 +205,7 @@ export default function DatingBubbleScreen({
       physics.current[i] = {
         ...entry,
         frozen: false, dying: false, entering: true,
-        minimizeProgress: 0, opacity: 1,
+        opacity: 1,
         dieAt: Date.now() + LIFETIME_MIN + Math.random() * (LIFETIME_MAX - LIFETIME_MIN),
       }
       setDisplaySlots([...slots])
@@ -209,18 +229,6 @@ export default function DatingBubbleScreen({
           if (b.x - R > 0 && b.x + R < W && b.y - R > HEADER_H && b.y + R < H - 28) {
             b.entering = false
             clampSpeed(b)
-          }
-          continue
-        }
-
-        // ── Minimize (shrink to tray) ──
-        if (b.minimizeProgress > 0) {
-          b.minimizeProgress = Math.min(1, b.minimizeProgress + MINIMIZE_SPD)
-          const s = 1 - b.minimizeProgress
-          el.style.opacity   = s
-          el.style.transform = `translate(${b.x - R}px, ${b.y - R}px) scale(${s})`
-          if (b.minimizeProgress >= 1) {
-            b.minimizeProgress = 0; b.frozen = false; swapSlot(i)
           }
           continue
         }
@@ -295,8 +303,6 @@ export default function DatingBubbleScreen({
     rafId.current = requestAnimationFrame(tick)
     return () => {
       if (rafId.current) cancelAnimationFrame(rafId.current)
-      Object.values(minimizeTimers.current).forEach(clearTimeout)
-      minimizeTimers.current = {}
     }
   }, [open, sessions])
 
@@ -306,28 +312,6 @@ export default function DatingBubbleScreen({
     obs.observe(containerRef.current)
     return () => obs.disconnect()
   }, [open])
-
-  // ── Select / deselect ────────────────────────────────────────────────────
-  const handleBubbleTap = (s, i) => {
-    if (selectedIds.current.has(s.id)) {
-      clearTimeout(minimizeTimers.current[s.id])
-      delete minimizeTimers.current[s.id]
-      selectedIds.current.delete(s.id)
-      if (physics.current[i]) physics.current[i].frozen = false
-      setTray(prev => prev.filter(x => x.id !== s.id))
-      return
-    }
-    selectedIds.current.add(s.id)
-    if (physics.current[i]) physics.current[i].frozen = true
-
-    minimizeTimers.current[s.id] = setTimeout(() => {
-      selectedIds.current.delete(s.id)
-      const idx = displaySlots.findIndex(x => x?.id === s.id)
-      if (idx !== -1 && physics.current[idx]) physics.current[idx].minimizeProgress = 0.01
-      setTray(prev => prev.some(x => x.id === s.id) ? prev : [...prev, s])
-      delete minimizeTimers.current[s.id]
-    }, 5000)
-  }
 
   // ── Heart like ───────────────────────────────────────────────────────────
   const handleHeart = async (e, s) => {
@@ -349,25 +333,7 @@ export default function DatingBubbleScreen({
     } catch {}
   }
 
-  const removeTrayItem = id => {
-    clearTimeout(minimizeTimers.current[id])
-    delete minimizeTimers.current[id]
-    setTray(prev => prev.filter(x => x.id !== id))
-  }
-
-  // ── Viewer swipe ─────────────────────────────────────────────────────────
-  const touchStartY = useRef(null)
-  const handleViewerTouchStart = e => { touchStartY.current = e.touches[0].clientY }
-  const handleViewerTouchEnd   = e => {
-    if (touchStartY.current === null) return
-    const delta = e.changedTouches[0].clientY - touchStartY.current
-    touchStartY.current = null
-    if (delta < -50 && viewerIdx < tray.length - 1) setViewerIdx(i => i + 1)
-    if (delta >  50 && viewerIdx > 0)               setViewerIdx(i => i - 1)
-  }
-
   if (!open || !activity) return null
-  const viewerSession = tray[viewerIdx] ?? null
   const myPhoto = myProfile?.photos?.[0] ?? myProfile?.photoURL ?? null
   const myName  = myProfile?.displayName ?? user?.displayName ?? 'You'
 
@@ -402,6 +368,20 @@ export default function DatingBubbleScreen({
           </span>
         </div>
 
+        {/* Filter button */}
+        <button
+          className={`${styles.filterBtn} ${filterOpen ? styles.filterBtnActive : ''}`}
+          onClick={() => { setFilterOpen(v => !v); setShowTip(false) }}
+          aria-label="Filters"
+        >
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+            <line x1="4" y1="6" x2="20" y2="6"/><line x1="8" y1="12" x2="16" y2="12"/><line x1="11" y1="18" x2="13" y2="18"/>
+          </svg>
+          {(filters.onlineOnly || filters.withPhoto || filters.ageMin > 18 || filters.ageMax < 45 || filters.gender || filters.lookingFor || filters.city) && (
+            <span className={styles.filterDot} />
+          )}
+        </button>
+
         {/* Single toggle — float ↔ grid */}
         <button
           className={styles.viewToggle}
@@ -421,16 +401,130 @@ export default function DatingBubbleScreen({
         </button>
       </div>
 
+      {/* ── Filter sheet ── */}
+      {filterOpen && (
+        <div className={styles.filterSheet}>
+
+          {/* Gender */}
+          <div className={styles.filterBlock}>
+            <span className={styles.filterLabel}>Show me</span>
+            <div className={styles.filterChips}>
+              {[{ v: null, l: 'Everyone' }, { v: 'male', l: '♂ Male' }, { v: 'female', l: '♀ Female' }].map(({ v, l }) => (
+                <button key={String(v)} className={`${styles.filterChip} ${filters.gender === v ? styles.filterChipOn : ''}`}
+                  onClick={() => setFilters(f => ({ ...f, gender: v }))}>
+                  {l}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {/* Looking for */}
+          <div className={styles.filterBlock}>
+            <span className={styles.filterLabel}>Looking for</span>
+            <select
+              className={styles.filterSelect}
+              value={filters.lookingFor ?? ''}
+              onChange={e => setFilters(f => ({ ...f, lookingFor: e.target.value || null }))}
+            >
+              <option value="">All</option>
+              <option value="marriage">Marriage</option>
+              <option value="dating">Dating</option>
+              <option value="date_night">Date Night</option>
+              <option value="friendship">Friendship</option>
+              <option value="travel">Travel Partner</option>
+              <option value="meet_new">Free Tonight</option>
+            </select>
+          </div>
+
+          {/* City */}
+          <div className={styles.filterBlock}>
+            <span className={styles.filterLabel}>City</span>
+            <input
+              type="text"
+              className={styles.filterCityInput}
+              placeholder="e.g. Bali, Jakarta…"
+              value={filters.city}
+              onChange={e => setFilters(f => ({ ...f, city: e.target.value }))}
+            />
+          </div>
+
+          {/* Age range */}
+          <div className={styles.filterBlock}>
+            <div className={styles.filterRow}>
+              <span className={styles.filterLabel}>Age</span>
+              <div className={styles.filterAgeInputs}>
+                <input type="number" className={styles.filterAgeInput} min={18} max={filters.ageMax}
+                  value={filters.ageMin} onChange={e => setFilters(f => ({ ...f, ageMin: +e.target.value }))} />
+                <span className={styles.filterAgeDash}>–</span>
+                <input type="number" className={styles.filterAgeInput} min={filters.ageMin} max={99}
+                  value={filters.ageMax} onChange={e => setFilters(f => ({ ...f, ageMax: +e.target.value }))} />
+              </div>
+            </div>
+          </div>
+
+          {/* Online + photo toggles */}
+          <div className={styles.filterBlock}>
+            <div className={styles.filterRow}>
+              <span className={styles.filterLabel}>Online only</span>
+              <button className={`${styles.filterToggle} ${filters.onlineOnly ? styles.filterToggleOn : ''}`}
+                onClick={() => setFilters(f => ({ ...f, onlineOnly: !f.onlineOnly }))}>
+                {filters.onlineOnly ? 'ON' : 'OFF'}
+              </button>
+            </div>
+            <div className={styles.filterRow}>
+              <span className={styles.filterLabel}>With photo only</span>
+              <button className={`${styles.filterToggle} ${filters.withPhoto ? styles.filterToggleOn : ''}`}
+                onClick={() => setFilters(f => ({ ...f, withPhoto: !f.withPhoto }))}>
+                {filters.withPhoto ? 'ON' : 'OFF'}
+              </button>
+            </div>
+          </div>
+
+          <div className={styles.filterActions}>
+            <button className={styles.filterReset}
+              onClick={() => setFilters({ ageMin: 18, ageMax: 45, gender: null, lookingFor: null, city: '', onlineOnly: false, withPhoto: true })}>
+              Reset
+            </button>
+            <button className={styles.filterUnderstand} onClick={() => setFilterOpen(false)}>
+              Understand
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* ── Priority card — floats from bottom-right ── */}
+      {priorityCard && !filterOpen && (
+        <div className={styles.priorityCard} onClick={() => { setPriorityCard(null); onSelectSession(priorityCard) }}>
+          <div className={styles.priorityAvatar}>
+            {(priorityCard.photos?.[0] ?? priorityCard.photoURL)
+              ? <img src={priorityCard.photos?.[0] ?? priorityCard.photoURL} alt={priorityCard.displayName} className={styles.priorityAvatarImg} />
+              : <span className={styles.priorityAvatarInit}>{(priorityCard.displayName ?? '?')[0].toUpperCase()}</span>
+            }
+          </div>
+          <div className={styles.priorityInfo}>
+            <span className={styles.priorityName}>
+              {priorityCard.displayName ?? 'Someone'}
+              {calcAge(priorityCard.dob) && <span className={styles.priorityAge}> · {calcAge(priorityCard.dob)}</span>}
+            </span>
+            <span className={styles.priorityJoin}>Join for Chat</span>
+          </div>
+          <div className={styles.priorityChatIcon}>
+            <img src="https://ik.imagekit.io/nepgaxllc/chat_pink-removebg-preview.png" alt="Chat" className={styles.priorityChatImg} />
+          </div>
+          <button className={styles.priorityClose} onClick={e => { e.stopPropagation(); setPriorityCard(null) }}>✕</button>
+        </div>
+      )}
+
       {/* Grid view */}
       {view === 'grid' && (
         <div className={styles.gridView}>
-          {sessions.length === 0 && (
+          {filteredSessions.length === 0 && (
             <div className={styles.empty}>
               <span className={styles.emptyEmoji}>{activity.emoji}</span>
               <p>Nobody nearby for {activity.label} yet.</p>
             </div>
           )}
-          {sessions.map(s => {
+          {filteredSessions.map(s => {
             const photo   = s.photos?.[0] ?? s.photoURL ?? null
             const age     = calcAge(s.dob)
             const liked   = likedIds.has(s.id) || isLiked(s.id)
@@ -507,13 +601,12 @@ export default function DatingBubbleScreen({
 
         {displaySlots.map((s, i) => {
           if (!s) return null
-          const photo    = s.photos?.[0] ?? s.photoURL ?? null
-          const age      = calcAge(s.dob)
-          const glow     = MOOD_COLORS[s.moodLight] ?? DEFAULT_GLOW
-          const liked    = likedIds.has(s.id) || isLiked(s.id)
-          const bursting = burstIds.has(s.id)
-          const isLive   = s.status === 'active'
-          const isSel    = selectedIds.current.has(s.id)
+          const photo     = s.photos?.[0] ?? s.photoURL ?? null
+          const age       = calcAge(s.dob)
+          const glow      = MOOD_COLORS[s.moodLight] ?? DEFAULT_GLOW
+          const liked     = likedIds.has(s.id) || isLiked(s.id)
+          const bursting  = burstIds.has(s.id)
+          const isLive    = s.status === 'active'
 
           return (
             <div
@@ -526,11 +619,9 @@ export default function DatingBubbleScreen({
                 className={styles.bubbleBtn}
                 style={{
                   width: R * 2, height: R * 2,
-                  boxShadow: isSel
-                    ? `0 0 0 3px #fff, 0 0 0 5px ${glow}, 0 0 28px ${glow}99`
-                    : `0 0 0 3px ${glow}, 0 0 22px ${glow}66`,
+                  boxShadow: `0 0 0 3px ${glow}, 0 0 22px ${glow}66`,
                 }}
-                onClick={() => handleBubbleTap(s, i)}
+                onClick={() => onSelectSession(s)}
                 aria-label={`View ${s.displayName}`}
               >
                 {photo
@@ -538,7 +629,6 @@ export default function DatingBubbleScreen({
                   : <span className={styles.bubbleInit}>{(s.displayName ?? '?')[0].toUpperCase()}</span>
                 }
                 {isLive && <span className={styles.liveDot} style={{ background: glow, boxShadow: `0 0 6px ${glow}` }} />}
-                {isSel  && <span className={styles.selBadge} style={{ background: glow }}>✓</span>}
               </button>
 
               {/* Heart */}
@@ -576,30 +666,6 @@ export default function DatingBubbleScreen({
           )
         })}
 
-        {/* Tray — no container, avatars float at bottom-left */}
-        <div className={styles.tray}>
-          {tray.map(s => {
-            const photo = s.photos?.[0] ?? s.photoURL ?? null
-            const glow  = MOOD_COLORS[s.moodLight] ?? DEFAULT_GLOW
-            return (
-              <div key={s.id} className={styles.trayItem} style={{ borderColor: glow }}>
-                <button className={styles.trayAvatarBtn} onClick={() => { setViewerIdx(tray.indexOf(s)); setViewerOpen(true) }}>
-                  {photo
-                    ? <img src={photo} alt={s.displayName} className={styles.trayAvatarImg} />
-                    : <span className={styles.trayAvatarInit}>{(s.displayName ?? '?')[0].toUpperCase()}</span>
-                  }
-                </button>
-                <button className={styles.trayRemove} onClick={() => removeTrayItem(s.id)} aria-label="Remove">×</button>
-              </div>
-            )
-          })}
-
-          {tray.length > 0 && (
-            <button className={styles.trayCta} onClick={() => { setViewerIdx(0); setViewerOpen(true) }}>
-              View {tray.length} {tray.length === 1 ? 'profile' : 'profiles'} →
-            </button>
-          )}
-        </div>
       </div>
 
       {/* ── How it works tip — shown on arrival, auto-dismiss 5s ─────────── */}
@@ -614,47 +680,6 @@ export default function DatingBubbleScreen({
           ))}
           <button className={styles.tipUnderstand} onClick={e => { e.stopPropagation(); setShowTip(false) }}>
             Understand
-          </button>
-        </div>
-      )}
-
-      {/* Stacked viewer */}
-      {viewerOpen && viewerSession && (
-        <div className={styles.viewer} onTouchStart={handleViewerTouchStart} onTouchEnd={handleViewerTouchEnd}>
-          <div className={styles.viewerPhoto}>
-            {(viewerSession.photos?.[0] ?? viewerSession.photoURL)
-              ? <img src={viewerSession.photos?.[0] ?? viewerSession.photoURL} alt={viewerSession.displayName} className={styles.viewerImg} />
-              : <div className={styles.viewerInitial}>{(viewerSession.displayName ?? '?')[0].toUpperCase()}</div>
-            }
-            <div className={styles.viewerGrad} />
-          </div>
-          <div className={styles.viewerInfo}>
-            <span className={styles.viewerName}>{viewerSession.displayName ?? 'Someone'}</span>
-            {calcAge(viewerSession.dob) && <span className={styles.viewerAge}>{calcAge(viewerSession.dob)}</span>}
-          </div>
-          <div className={styles.viewerDots}>
-            {tray.map((_, idx) => (
-              <span key={idx} className={[styles.viewerDot, idx === viewerIdx ? styles.viewerDotOn : ''].join(' ')} />
-            ))}
-          </div>
-          {tray.length > 1 && <p className={styles.viewerHint}>swipe up · down to navigate</p>}
-          {viewerIdx > 0 && (
-            <button className={styles.viewerNavUp} onClick={() => setViewerIdx(i => i - 1)} aria-label="Previous">
-              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="18 15 12 9 6 15"/></svg>
-            </button>
-          )}
-          {viewerIdx < tray.length - 1 && (
-            <button className={styles.viewerNavDown} onClick={() => setViewerIdx(i => i + 1)} aria-label="Next">
-              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
-            </button>
-          )}
-          <button className={styles.viewerClose} onClick={() => setViewerOpen(false)} aria-label="Close">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-              <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
-            </svg>
-          </button>
-          <button className={styles.viewerCta} onClick={() => { setViewerOpen(false); onSelectSession(viewerSession) }}>
-            Connect with {viewerSession.displayName?.split(' ')[0] ?? 'them'}
           </button>
         </div>
       )}
@@ -686,7 +711,7 @@ export default function DatingBubbleScreen({
                 }
               </div>
             </div>
-            <button className={styles.matchCta} onClick={() => { setMatchSession(null); onSelectSession(matchSession) }}>Start chatting</button>
+            <button className={styles.matchCta} onClick={() => { setMatchSession(null); onSelectSession(matchSession) }}>View Profile</button>
             <button className={styles.matchSkip} onClick={() => setMatchSession(null)}>Maybe later</button>
           </div>
         </div>

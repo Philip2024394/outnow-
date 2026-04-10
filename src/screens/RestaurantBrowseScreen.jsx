@@ -184,6 +184,18 @@ function fmtCountdown(secs) {
   return `${h} hr ${String(m).padStart(2,'0')} min`
 }
 
+// ── Option B: smart-sorted categories ────────────────────────────────────────
+// Street Food card → Indonesian street food types first, restaurants fill below
+// Restaurant card  → restaurant/western types first, street food fills below
+const STREET_FOOD_CATS = new Set(['rice', 'noodles', 'street_food', 'snacks', 'breakfast', 'vegetarian'])
+const RESTAURANT_CATS  = new Set(['burgers', 'seafood', 'grilled', 'desserts', 'drinks'])
+
+function primaryForCategory(restaurantCategory, selectedCategoryId) {
+  if (selectedCategoryId === 'street_food') return STREET_FOOD_CATS.has(restaurantCategory)
+  if (selectedCategoryId === 'all')         return RESTAURANT_CATS.has(restaurantCategory)
+  return true // unknown category id → treat everything as primary
+}
+
 // ── Sales algorithm — scores each restaurant ──────────────────────────────────
 // Higher score = shown earlier in the snap-scroll list
 function scoreRestaurant(r, hour) {
@@ -241,39 +253,51 @@ export default function RestaurantBrowseScreen({ onClose, onBackToCategories, ca
     const load = async () => {
       setLoading(true)
       if (!supabase) {
-        const filtered = category && category.id !== 'all'
-          ? DEMO_RESTAURANTS.filter(r => r.category === category.id)
-          : DEMO_RESTAURANTS
-        setRestaurants(filtered.length ? filtered : DEMO_RESTAURANTS)
+        // Always load all — Option B sorting happens client-side
+        setRestaurants(DEMO_RESTAURANTS)
         setLoading(false)
         return
       }
-      let q = supabase
+      // Always fetch all approved restaurants — Option B sorting is client-side
+      const { data } = await supabase
         .from('restaurants')
         .select('*, menu_items(*)')
         .eq('status', 'approved')
         .order('featured_this_week', { ascending: false })
         .order('rating', { ascending: false })
-      if (category && category.id !== 'all') q = q.eq('category', category.id)
-      const { data } = await q
       setRestaurants(data?.length ? data : DEMO_RESTAURANTS)
       setLoading(false)
     }
     load()
   }, [category])
 
-  // Enrich with distance + delivery fare, then score and sort
-  // open restaurants first, within each group sorted by algorithm score
+  // Enrich with distance + delivery fare, then apply Option B sort:
+  // primary group (matches selected category) first, secondary fills below,
+  // each group sorted by score. A divider sentinel separates the two groups.
   const hour = new Date().getHours()
   void tick // consumed here so countdown interval triggers re-score
-  const enriched = restaurants
-    .map(r => {
-      const distKm = coords && r.lat && r.lng
-        ? Math.round(haversineKm(coords.lat, coords.lng, r.lat, r.lng) * 10) / 10
-        : null
-      return { ...r, distKm, deliveryFare: calcDeliveryFare(distKm) }
-    })
-    .sort((a, b) => scoreRestaurant(b, hour) - scoreRestaurant(a, hour))
+  const catId = category?.id
+
+  const withMeta = restaurants.map(r => {
+    const distKm = coords && r.lat && r.lng
+      ? Math.round(haversineKm(coords.lat, coords.lng, r.lat, r.lng) * 10) / 10
+      : null
+    return { ...r, distKm, deliveryFare: calcDeliveryFare(distKm) }
+  })
+
+  const primary   = withMeta.filter(r =>  primaryForCategory(r.category, catId))
+                             .sort((a, b) => scoreRestaurant(b, hour) - scoreRestaurant(a, hour))
+  const secondary = withMeta.filter(r => !primaryForCategory(r.category, catId))
+                             .sort((a, b) => scoreRestaurant(b, hour) - scoreRestaurant(a, hour))
+
+  // Divider label depends on which card was tapped
+  const dividerLabel = catId === 'street_food' ? 'Also Nearby' : 'More Street Food'
+  const divider = { isDivider: true, label: dividerLabel }
+
+  // Flatten: primary → divider (only if secondary exists) → secondary
+  const enriched = secondary.length
+    ? [...primary, divider, ...secondary]
+    : primary
 
   // Track visible card on scroll
   const handleScroll = () => {
@@ -326,16 +350,16 @@ export default function RestaurantBrowseScreen({ onClose, onBackToCategories, ca
             {catEmoji} {catLabel}
           </span>
           <span className={styles.headerSub}>
-            {enriched.length} restaurant{enriched.length !== 1 ? 's' : ''} near you
+            {enriched.filter(r => !r.isDivider).length} restaurants near you
           </span>
         </div>
 
         <div className={styles.headerRight} />
       </div>
 
-      {/* Scroll dots */}
+      {/* Scroll dots — dividers don't get a dot */}
       <div className={styles.dots}>
-        {enriched.map((_, i) => (
+        {enriched.map((r, i) => r.isDivider ? null : (
           <div
             key={i}
             className={`${styles.dot} ${i === activeIndex ? styles.dotActive : ''}`}
@@ -346,14 +370,22 @@ export default function RestaurantBrowseScreen({ onClose, onBackToCategories, ca
 
       {/* Full-height swipeable cards */}
       <div className={styles.cardContainer} ref={containerRef} onScroll={handleScroll}>
-        {enriched.map((r, i) => (
-          <RestaurantCard
-            key={r.id}
-            restaurant={r}
-            isActive={i === activeIndex}
-            onOpenMenu={() => setMenuRestaurant(r)}
-          />
-        ))}
+        {enriched.map((r, i) => r.isDivider
+          ? (
+            <div key="divider" className={styles.dividerCard}>
+              <div className={styles.dividerLine} />
+              <span className={styles.dividerText}>{r.label}</span>
+              <div className={styles.dividerLine} />
+            </div>
+          ) : (
+            <RestaurantCard
+              key={r.id}
+              restaurant={r}
+              isActive={i === activeIndex}
+              onOpenMenu={() => setMenuRestaurant(r)}
+            />
+          )
+        )}
       </div>
 
       {/* Menu sheet */}

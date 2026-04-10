@@ -2,7 +2,7 @@ export default {
   // Landing
   'landing.tagline':     '🇮🇩 Indonesia',
   'landing.headline':    'Makanan. Ojek.\nKencan & Lainnya.',
-  'landing.sub':         'Semua yang kamu butuhkan — satu app, sekarang.',
+  'landing.sub':         'Semua yang kamu butuhkan — di ujung jarimu.',
   'landing.getStarted':  'Mulai — gratis!',
   'landing.signIn':      'Sudah punya akun? Masuk',
   'landing.browse':      'Jelajahi dulu, tanpa daftar →',

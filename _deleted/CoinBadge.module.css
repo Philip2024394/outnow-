@@ -1,0 +1,32 @@
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  background: rgba(245,197,24,0.1);
+  border: 1px solid rgba(245,197,24,0.3);
+  border-radius: 100px;
+  font-weight: 800;
+  color: #F5C518;
+  white-space: nowrap;
+}
+
+/* Sizes */
+.sm  { padding: 2px 8px;  font-size: 11px; }
+.sm .icon  { font-size: 12px; }
+
+.md  { padding: 4px 10px; font-size: 13px; }
+.md .icon  { font-size: 14px; }
+
+.lg  { padding: 6px 14px; font-size: 16px; }
+.lg .icon  { font-size: 18px; }
+
+.icon   { line-height: 1; }
+.amount { letter-spacing: -0.02em; }
+
+/* Flash animation when coins are earned */
+@keyframes coin-flash {
+  0%   { background: rgba(245,197,24,0.1); box-shadow: none; }
+  40%  { background: rgba(245,197,24,0.35); box-shadow: 0 0 14px rgba(245,197,24,0.6); }
+  100% { background: rgba(245,197,24,0.1); box-shadow: none; }
+}
+.flash { animation: coin-flash 0.8s ease-out forwards; }

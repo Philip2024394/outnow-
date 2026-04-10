@@ -7,7 +7,10 @@ export default function CookieBanner() {
   const [visible, setVisible] = useState(false)
 
   useEffect(() => {
-    if (!localStorage.getItem(STORAGE_KEY)) setVisible(true)
+    if (!localStorage.getItem(STORAGE_KEY)) {
+      const id = setTimeout(() => setVisible(true), 800)
+      return () => clearTimeout(id)
+    }
   }, [])
 
   function accept() {

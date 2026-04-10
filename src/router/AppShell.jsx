@@ -71,7 +71,7 @@ import SpotClaimSheet from '@/components/spots/SpotClaimSheet'
 import MySpotScreen from '@/screens/MySpotScreen'
 import VibeCheckSheet      from '@/components/vibecheck/VibeCheckSheet'
 import VibeCheckBanner     from '@/components/vibecheck/VibeCheckBanner'
-import VibeBroadcastSheet  from '@/components/vibecheck/VibeBroadcastSheet'
+import VibeBlastPage       from '@/components/vibecheck/VibeBlastPage'
 import HanggerNewsSheet    from '@/components/news/HanggerNewsSheet'
 
 import TimeBackground from '@/components/ui/TimeBackground'
@@ -80,9 +80,9 @@ import IntentGrid from '@/components/ui/IntentGrid'
 import DatingBubbleScreen from '@/components/dating/DatingBubbleScreen'
 import BookingScreen from '@/screens/BookingScreen'
 import RestaurantBrowseScreen from '@/screens/RestaurantBrowseScreen'
-import CategoryDiscoveryScreen, { FOOD_CATEGORIES } from '@/screens/CategoryDiscoveryScreen'
+import CategoryDiscoveryScreen from '@/screens/CategoryDiscoveryScreen'
 import ReviewPrompt from '@/components/restaurant/ReviewPrompt'
-import { preloadVideos } from '@/utils/videoPreloader'
+
 import ShopSearchScreen from '@/screens/ShopSearchScreen'
 
 import '@/styles/map.css'
@@ -194,11 +194,6 @@ export default function AppShell({ returnParams, triggerGoLive }) {
   const [activeTab, setActiveTab] = useState('map')
 
   // Send new users (no display name yet) straight to profile setup
-  // Preload all category videos on app mount — silent background fetch.
-  // By the time the user taps the food icon, videos are already cached.
-  useEffect(() => {
-    preloadVideos(FOOD_CATEGORIES.map(c => c.videoUrl))
-  }, [])
 
   useEffect(() => {
     if (userProfile !== null && !userProfile.displayName) {
@@ -372,6 +367,29 @@ export default function AppShell({ returnParams, triggerGoLive }) {
         onClose={() => setDatingGridOpen(false)}
         onSelectSession={(s) => { handleOpenDiscovery(s) }}
         onOpenDateIdeas={(s) => { setDatingGridOpen(false); setDateIdeasTarget(s); setDateIdeasOpen(true) }}
+        onConnect={(session) => {
+          closeOverlay()
+          setDatingGridOpen(false)
+          setFoodOpen(false)
+          setRideOpen(false)
+          setPendingConv({
+            id: `dating-${session.userId ?? session.id}`,
+            userId: session.userId ?? session.id,
+            displayName: session.displayName ?? 'New Match',
+            photoURL: session.photoURL ?? null,
+            age: session.age ?? null,
+            area: session.area ?? session.city ?? null,
+            emoji: '💕',
+            online: true,
+            status: 'free',
+            openedAt: Date.now(),
+            lastMessage: null,
+            lastMessageTime: Date.now(),
+            unread: 0,
+            messages: [],
+          })
+          setActiveTab('chat')
+        }}
       />
 
       {/* Full-screen tab screens */}
@@ -474,6 +492,8 @@ export default function AppShell({ returnParams, triggerGoLive }) {
             const _src = sessions.find(s => s.id === acceptedMeetSession.sessionId)
             closeOverlay()
             setDatingGridOpen(false)
+            setFoodOpen(false)
+            setRideOpen(false)
             setPendingConv({
               id: `meet-${acceptedMeetSession.sessionId ?? acceptedMeetSession.id}`,
               userId: acceptedMeetSession.fromUserId ?? 'unknown',
@@ -671,6 +691,7 @@ export default function AppShell({ returnParams, triggerGoLive }) {
           if (supabase && user?.id && session.lookingFor) {
             supabase.rpc('increment_category_affinity', { p_user_id: user.id, p_category: session.lookingFor })
           }
+          closeOverlay()   // close DiscoveryCard so banner (z-index 900) is not blocked by it (z-index 9300)
           simulateAcceptance(session)
         }}
         onConnect={(session) => {
@@ -733,6 +754,7 @@ export default function AppShell({ returnParams, triggerGoLive }) {
         <NotificationsScreen
           onClose={() => setNotifOpen(false)}
           userId={user?.id}
+          userProfile={userProfile}
           onOpenRideHistory={() => { setNotifOpen(false); setRideHistoryOpen(true) }}
           onOpenChat={(sender) => {
             setNotifOpen(false)
@@ -875,11 +897,11 @@ export default function AppShell({ returnParams, triggerGoLive }) {
         session={mySession}
       />
 
-      <VibeBroadcastSheet
+      <VibeBlastPage
         open={vibeBroadcastOpen}
         onClose={() => setVibeBroadcastOpen(false)}
         userId={user?.id ?? user?.uid}
-        city={userProfile?.city ?? null}
+        userProfile={userProfile}
       />
 
       <HanggerNewsSheet

@@ -53,10 +53,10 @@
   left: 8px;
   width: 8px;
   height: 8px;
-  background: #8DC63F;
+  background: #FF6BA3;
   border-radius: 50%;
   border: 1.5px solid rgba(0,0,0,0.6);
-  box-shadow: 0 0 6px #8DC63F;
+  box-shadow: 0 0 6px #FF6BA3;
   animation: pulse 1.8s ease-in-out infinite;
 }
 

@@ -38,7 +38,7 @@ function SidePanelBtn({ emoji, label, onClick, active, pulse, color }) {
 }
 
 /** Full-screen profile layout for Dating & Romance */
-export default function DatingCard({ open, session, mySession, onClose, showToast, onGuestAction, onMeetSent, onLike }) {
+export default function DatingCard({ open, session, mySession, onClose, showToast, onGuestAction, onMeetSent, onConnect, onLike }) {
   useOverlay()
   const { user }  = useAuth()
   const { myInterests, mutualSessions } = useInterests()
@@ -106,8 +106,9 @@ export default function DatingCard({ open, session, mySession, onClose, showToas
     if (onGuestAction) { onGuestAction(); return }
     if (meetSent) return
     if (session.isSeeded) {
-      setMeetSent(true); showToast?.(`💌 Invite sent to ${session.displayName}!`, 'success')
-      onMeetSent?.(session); return
+      setMeetSent(true)
+      onMeetSent?.(session)
+      return
     }
     setMeetLoading(true)
     try {
@@ -116,7 +117,6 @@ export default function DatingCard({ open, session, mySession, onClose, showToas
         session.userId, session.id
       )
       setMeetSent(true)
-      showToast?.(`💬 Message sent to ${session.displayName}!`, 'success')
       onMeetSent?.(session)
     } catch { showToast?.('Could not send. Try again.', 'error') }
     setMeetLoading(false)
@@ -346,7 +346,7 @@ export default function DatingCard({ open, session, mySession, onClose, showToas
 
         {/* Date Ideas */}
         {panel === 'dateIdeas' && (
-          <DateIdeasSheet targetSession={session} onClose={() => setPanel(null)} />
+          <DateIdeasSheet open={true} targetSession={session} onClose={() => setPanel(null)} />
         )}
 
         {/* Vibe Check */}

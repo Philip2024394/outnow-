@@ -5,6 +5,8 @@ import styles from './LanguageToast.module.css'
 export default function LanguageToast({ _forceVisible = false }) {
   const { lang, setLang, t, isFirstPick, dismissFirstPick } = useLanguage()
   const [visible, setVisible] = useState(_forceVisible)
+  // Float above cookie banner if it's also showing
+  const cookiePending = !localStorage.getItem('hangger_cookie_consent')
 
   // Slight delay so landing screen renders first
   useEffect(() => {
@@ -27,7 +29,7 @@ export default function LanguageToast({ _forceVisible = false }) {
   }
 
   return (
-    <div className={styles.wrap}>
+    <div className={styles.wrap} style={cookiePending ? { bottom: 'calc(env(safe-area-inset-bottom, 0px) + 130px)' } : undefined}>
       <div className={styles.toast}>
         <p className={styles.label}>{t('lang.choose')}</p>
         <div className={styles.flags}>
@@ -38,7 +40,10 @@ export default function LanguageToast({ _forceVisible = false }) {
               onClick={() => handleSelect(l.code)}
               aria-label={l.label}
             >
-              <span className={styles.flag}>{l.flag}</span>
+              {l.image
+                ? <img src={l.image} alt={l.label} className={styles.flagImg} />
+                : <span className={styles.flag}>{l.flag}</span>
+              }
               <span className={styles.flagLabel}>{l.label}</span>
             </button>
           ))}

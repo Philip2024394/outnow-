@@ -1,10 +1,26 @@
 .screen {
   position: absolute;
   inset: 0;
-  background: var(--color-bg);
-  z-index: var(--z-header);
+  background-color: #000;
+  background-image: url('https://ik.imagekit.io/nepgaxllc/Commerce,%20cuisine,%20and%20connection%20in%20harmony.png');
+  background-size: cover;
+  background-position: center top;
+  background-repeat: no-repeat;
+  z-index: 9800;
   display: flex;
   flex-direction: column;
+  isolation: isolate;
+}
+
+.screen::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.55);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  z-index: 0;
+  pointer-events: none;
 }
 
 .header {
@@ -12,8 +28,10 @@
   align-items: center;
   justify-content: space-between;
   padding: calc(var(--safe-top) + 14px) 20px 14px;
-  border-bottom: 1px solid var(--color-border);
+  border-bottom: 1px solid rgba(255,255,255,0.08);
   flex-shrink: 0;
+  position: relative;
+  z-index: 1;
 }
 
 .logo {
@@ -51,6 +69,8 @@
   -webkit-overflow-scrolling: touch;
   overscroll-behavior: contain;
   padding-bottom: calc(80px + var(--safe-bottom));
+  position: relative;
+  z-index: 1;
 }
 
 /* Empty state */

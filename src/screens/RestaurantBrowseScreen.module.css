@@ -206,6 +206,24 @@
   background: rgba(255,255,255,0.15); flex-shrink: 0;
 }
 
+/* ── Section divider ─────────────────────────────────────────────────────────── */
+.dividerCard {
+  height: 100dvh;
+  scroll-snap-align: start;
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  gap: 16px;
+  background: #0a0a0a;
+}
+.dividerLine {
+  width: 48px; height: 1px;
+  background: rgba(255,255,255,0.15);
+}
+.dividerText {
+  font-size: 11px; font-weight: 800; letter-spacing: 0.14em;
+  text-transform: uppercase; color: rgba(255,255,255,0.3);
+}
+
 /* ── Loading ─────────────────────────────────────────────────────────────────── */
 .loadingWrap {
   flex: 1; display: flex; flex-direction: column;

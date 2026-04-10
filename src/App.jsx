@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react'
+import { Component, useEffect, useRef, useState } from 'react'
 import { useAuth } from '@/hooks/useAuth'
 import LandingScreen from '@/screens/LandingScreen'
 import JoinSheet from '@/screens/onboarding/JoinSheet'
@@ -14,6 +14,58 @@ import LanguageToast from '@/components/ui/LanguageToast'
 import DevPanel from '@/dev/DevPanel'
 import CookieBanner from '@/components/ui/CookieBanner'
 import styles from './App.module.css'
+
+// ── Error Boundary — catches any render crash and shows a recovery screen ──
+class ErrorBoundary extends Component {
+  constructor(props) {
+    super(props)
+    this.state = { crashed: false, error: null }
+  }
+
+  static getDerivedStateFromError(error) {
+    return { crashed: true, error }
+  }
+
+  componentDidCatch(error, info) {
+    // Log to console in dev; wire to Sentry / Supabase log in prod
+    if (import.meta.env.DEV) {
+      console.error('[Hangger] Uncaught render error:', error, info)
+    }
+  }
+
+  render() {
+    if (this.state.crashed) {
+      return (
+        <div style={{
+          position: 'fixed', inset: 0,
+          background: '#07070f',
+          display: 'flex', flexDirection: 'column',
+          alignItems: 'center', justifyContent: 'center',
+          gap: 16, padding: 32, textAlign: 'center',
+        }}>
+          <span style={{ fontSize: 48 }}>⚡</span>
+          <p style={{ fontSize: 18, fontWeight: 800, color: '#fff', margin: 0 }}>
+            Something went wrong
+          </p>
+          <p style={{ fontSize: 13, color: 'rgba(255,255,255,0.4)', margin: 0, lineHeight: 1.6 }}>
+            {import.meta.env.DEV ? this.state.error?.message : 'Hangger hit an unexpected error.'}
+          </p>
+          <button
+            onClick={() => window.location.reload()}
+            style={{
+              marginTop: 8, padding: '12px 28px', borderRadius: 12,
+              background: '#F472B6', color: '#fff',
+              border: 'none', fontWeight: 800, fontSize: 14, cursor: 'pointer',
+            }}
+          >
+            Reload App
+          </button>
+        </div>
+      )
+    }
+    return this.props.children
+  }
+}
 
 // import CategorySelector from '@/components/ui/CategorySelector'
 
@@ -57,14 +109,11 @@ export default function App() {
       return
     }
     // New user = no lookingFor set yet → show welcome → profile setup
-    // Returning user → go straight to map
-    const locationConfirmed = localStorage.getItem('locationConfirmed') === 'true'
+    // Returning user → always confirm location each session
     if (!userProfile?.lookingFor) {
       setOnboardStep('welcome')
-    } else if (!locationConfirmed) {
-      setOnboardStep('location')
     } else {
-      setOnboardStep('done')
+      setOnboardStep('location')
     }
   }, [user, userProfile])
 
@@ -72,8 +121,7 @@ export default function App() {
   // New-user onboarding handlers
   const handleWelcomeDone = () => setOnboardStep('profile')
   const handleProfileDone = () => {
-    const locationConfirmed = localStorage.getItem('locationConfirmed') === 'true'
-    setOnboardStep(locationConfirmed ? 'done' : 'location')
+    setOnboardStep('location')
   }
   const handleLocationConfirmed = () => setOnboardStep('done')
 
@@ -91,58 +139,64 @@ export default function App() {
 
   if (loading) {
     return (
-      <LanguageProvider>
-        <div className={styles.splash}>
-          <img src={LOGO_URL} alt="Hangger" className={styles.splashLogo} />
-          <Spinner size={28} color="var(--color-live)" />
-        </div>
-      </LanguageProvider>
+      <ErrorBoundary>
+        <LanguageProvider>
+          <div className={styles.splash}>
+            <img src={LOGO_URL} alt="Hangger" className={styles.splashLogo} />
+            <Spinner size={28} color="var(--color-live)" />
+          </div>
+        </LanguageProvider>
+      </ErrorBoundary>
     )
   }
 
   // Show landing page until they sign in OR choose to browse as guest
   if (!user && !guestMode) {
     return (
-      <LanguageProvider>
-        <LandingScreen
-          onGetStarted={() => setJoinOpen(true)}
-          onSignIn={() => setJoinOpen(true)}
-          onBrowse={() => setGuestMode(true)}
-        />
-        <JoinSheet open={joinOpen} onClose={() => setJoinOpen(false)} />
-        <LanguageToast />
-      </LanguageProvider>
+      <ErrorBoundary>
+        <LanguageProvider>
+          <LandingScreen
+            onGetStarted={() => setJoinOpen(true)}
+            onSignIn={() => setJoinOpen(true)}
+            onBrowse={() => setGuestMode(true)}
+          />
+          <JoinSheet open={joinOpen} onClose={() => setJoinOpen(false)} />
+          <LanguageToast />
+        </LanguageProvider>
+      </ErrorBoundary>
     )
   }
 
   return (
-    <LanguageProvider>
-      <GuestGateProvider>
-        <CookieBanner />
-        <DevPanel />
-        <LanguageToast />
+    <ErrorBoundary>
+      <LanguageProvider>
+        <GuestGateProvider>
+          <CookieBanner />
+          <DevPanel />
+          <LanguageToast />
 
-        {/* ── New user: welcome slides ── */}
-        {onboardStep === 'welcome' && (
-          <WelcomeScreen onDone={handleWelcomeDone} />
-        )}
+          {/* ── New user: welcome slides ── */}
+          {onboardStep === 'welcome' && (
+            <WelcomeScreen onDone={handleWelcomeDone} />
+          )}
 
-        {/* ── New user: profile setup (required before map) ── */}
-        {onboardStep === 'profile' && (
-          <ProfileScreen onClose={handleProfileDone} onboarding />
-        )}
+          {/* ── New user: profile setup (required before map) ── */}
+          {onboardStep === 'profile' && (
+            <ProfileScreen onClose={handleProfileDone} onboarding />
+          )}
 
-        {/* ── Location confirmation gate ── */}
-        {onboardStep === 'location' && (
-          <LocationGateScreen onConfirmed={handleLocationConfirmed} />
-        )}
+          {/* ── Location confirmation gate ── */}
+          {onboardStep === 'location' && (
+            <LocationGateScreen onConfirmed={handleLocationConfirmed} />
+          )}
 
-        {/* ── Returning user or after onboarding complete ── */}
-        {(guestMode || onboardStep === 'done') && (
-          <AppShell returnParams={returnParams} triggerGoLive={triggerGoLive} />
-        )}
+          {/* ── Returning user or after onboarding complete ── */}
+          {(guestMode || onboardStep === 'done') && (
+            <AppShell returnParams={returnParams} triggerGoLive={triggerGoLive} />
+          )}
 
-      </GuestGateProvider>
-    </LanguageProvider>
+        </GuestGateProvider>
+      </LanguageProvider>
+    </ErrorBoundary>
   )
 }

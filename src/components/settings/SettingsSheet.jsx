@@ -4,9 +4,7 @@ import { endSession } from '@/services/sessionService'
 import { usePushNotifications } from '@/hooks/usePushNotifications'
 import { useAuth } from '@/hooks/useAuth'
 import { useMySession } from '@/hooks/useMySession'
-import { useCoins } from '@/hooks/useCoins'
 import Avatar from '@/components/ui/Avatar'
-import CoinBadge from '@/components/ui/CoinBadge'
 import PrivacySheet from './PrivacySheet'
 import SafetySheet from '@/components/safety/SafetySheet'
 import { getSafetyContact } from '@/components/safety/SafetySheet'
@@ -41,11 +39,10 @@ function Divider({ label }) {
   return <div className={styles.divider}>{label && <span className={styles.dividerLabel}>{label}</span>}</div>
 }
 
-export default function SettingsSheet({ open, onClose, onOpenLikes, onOpenMyLikes, onEditProfile, onOpenBlockList, onOpenWallet, onUpgrade, onMySpot, showToast, onSOS }) {
+export default function SettingsSheet({ open, onClose, onOpenLikes, onOpenMyLikes, onEditProfile, onOpenBlockList, onUpgrade, onMySpot, showToast, onSOS }) {
   const { permission, requestPermission } = usePushNotifications()
   const { userProfile } = useAuth()
   const { session: mySession } = useMySession()
-  const { balance, earn } = useCoins()
   const [notifOn, setNotifOn] = useState(permission === 'granted')
   const [signingOut, setSigningOut] = useState(false)
   const [privacyOpen, setPrivacyOpen] = useState(false)
@@ -153,7 +150,6 @@ export default function SettingsSheet({ open, onClose, onOpenLikes, onOpenMyLike
               />
               <div className={styles.headerMeta}>
                 <span className={styles.title}>{userProfile?.displayName ?? 'You'}</span>
-                <CoinBadge balance={balance} size="sm" />
               </div>
             </div>
             <button className={styles.closeBtn} onClick={onClose} aria-label="Close">
@@ -303,12 +299,6 @@ export default function SettingsSheet({ open, onClose, onOpenLikes, onOpenMyLike
             {/* Account */}
             <Divider label="Account" />
             <Row
-              icon="🪙"
-              label="Coin Wallet"
-              sublabel={`${balance} coins — top up or earn more`}
-              onClick={() => { onClose(); setTimeout(() => onOpenWallet?.(), 200) }}
-            />
-            <Row
               icon="ℹ️"
               label="About Hangger"
               sublabel="Version 0.1.0 — meet people out near you"
@@ -325,7 +315,7 @@ export default function SettingsSheet({ open, onClose, onOpenLikes, onOpenMyLike
       </div>
 
       <PrivacySheet open={privacyOpen} onClose={() => setPrivacyOpen(false)} />
-      <SafetySheet open={safetyOpen} onClose={() => setSafetyOpen(false)} onSave={() => earn('SAFETY_CONTACT')} />
+      <SafetySheet open={safetyOpen} onClose={() => setSafetyOpen(false)} />
       <SuggestPlaceSheet open={suggestOpen} onClose={() => setSuggestOpen(false)} showToast={showToast} />
 
     </>

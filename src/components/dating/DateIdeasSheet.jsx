@@ -1,281 +1,165 @@
 import { useState } from 'react'
 import { useAuth } from '@/hooks/useAuth'
-import { DATE_IDEAS, SECTION_LABELS, sendDateInvite, suggestDateIdea } from '@/services/dateInviteService'
+import { DATE_IDEAS, SECTION_LABELS, sendDateInvite } from '@/services/dateInviteService'
 import styles from './DateIdeasSheet.module.css'
 
 const SECTION_ORDER = ['culture', 'outdoor', 'social', 'dining']
 
-export default function DateIdeasSheet({ targetSession, onClose }) {
+function FingerprintIcon() {
+  return (
+    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M12 3a9 9 0 0 0-9 9" />
+      <path d="M12 3a9 9 0 0 1 9 9" />
+      <path d="M12 7a5 5 0 0 0-5 5" />
+      <path d="M12 7a5 5 0 0 1 5 5" />
+      <path d="M12 11a1 1 0 0 0-1 1v3" />
+      <path d="M12 11a1 1 0 0 1 1 1v3" />
+      <path d="M9 17a4 4 0 0 0 6 0" />
+      <path d="M7 14c0 3 2 5 5 6" />
+      <path d="M17 14c0 3-2 5-5 6" />
+    </svg>
+  )
+}
+
+export default function DateIdeasSheet({ open, _forceOpen = false, targetSession, onClose }) {
   const { user } = useAuth()
-  const [view,         setView]         = useState('grid')
-  const [selectedIdea, setSelectedIdea] = useState(null)
-  const [proposedDate, setProposedDate] = useState('')
-  const [proposedTime, setProposedTime] = useState('')
-  const [sending,      setSending]      = useState(false)
-  const [searchQuery,  setSearchQuery]  = useState('')
-  const [suggestTitle, setSuggestTitle] = useState('')
-  const [suggestDesc,  setSuggestDesc]  = useState('')
-  const [suggestSent,  setSuggestSent]  = useState(false)
-  const [suggesting,   setSuggesting]   = useState(false)
+  const [modalIdea, setModalIdea] = useState(null)
+  const [sending,   setSending]   = useState(false)
+  const [sent,      setSent]      = useState(false)
 
-  const query = searchQuery.trim().toLowerCase()
+  const openModal  = (idea) => { setModalIdea(idea); setSent(false) }
+  const closeModal = ()     => { setModalIdea(null); setSent(false); setSending(false) }
 
-  // ── Grid ──────────────────────────────────────────────────────────────────
-  const renderGrid = () => (
-    <div className={styles.body}>
-      {/* Search bar */}
-      <div className={styles.searchWrap}>
-        <span className={styles.searchIcon}>🔍</span>
-        <input
-          type="text"
-          className={styles.searchInput}
-          placeholder="Search ideas from library…"
-          value={searchQuery}
-          onChange={e => setSearchQuery(e.target.value)}
-        />
-        {searchQuery && (
-          <button className={styles.searchClear} onClick={() => setSearchQuery('')}>✕</button>
-        )}
-      </div>
-
-      {/* Sections */}
-      {SECTION_ORDER.map(sec => {
-        const ideas = DATE_IDEAS.filter(d =>
-          d.section === sec && (!query || d.title.toLowerCase().includes(query))
-        )
-        if (!ideas.length) return null
-        return (
-          <div key={sec}>
-            <div className={styles.sectionHeader}>{SECTION_LABELS[sec]}</div>
-            <div className={styles.grid}>
-              {ideas.map(idea => (
-                <div key={idea.id} className={styles.ideaCard}>
-                  <div className={styles.ideaImgWrap}>
-                    <img src={idea.image_url} alt={idea.title} className={styles.ideaImg} />
-                    <span className={styles.ideaName}>{idea.title}</span>
-                    <span className={styles.ideaStars}>
-                      {'★'.repeat(3 + (idea.id.split('').reduce((a, c) => a + c.charCodeAt(0), 0) % 3))}
-                    </span>
-                  </div>
-                  <button
-                    className={styles.viewBtn}
-                    onClick={() => { setSelectedIdea(idea); setView('detail') }}
-                  >
-                    View
-                  </button>
-                </div>
-              ))}
-            </div>
-          </div>
-        )
-      })}
-
-      {/* Suggest button */}
-      <button className={styles.suggestIdeasBtn} onClick={() => setView('suggest')}>
-        💡 Suggest a Date Idea
-      </button>
-    </div>
-  )
-
-  // ── Detail ────────────────────────────────────────────────────────────────
-  const renderDetail = () => {
-    if (!selectedIdea) return null
-    return (
-      <div className={styles.detailWrap}>
-        <button className={styles.detailBack} onClick={() => setView('grid')}>← Back</button>
-        <div className={styles.detailImgWrap}>
-          <img src={selectedIdea.image_url} alt={selectedIdea.title} className={styles.detailImg} />
-          <div className={styles.popularityBadge}>🔥 {selectedIdea.popularity} dates</div>
-        </div>
-        <div className={styles.detailBody}>
-          <div className={styles.detailMeta}>
-            <span className={styles.detailCat}>{SECTION_LABELS[selectedIdea.section]}</span>
-          </div>
-          <h3 className={styles.detailTitle}>{selectedIdea.title}</h3>
-          <p className={styles.detailDesc}>{selectedIdea.description}</p>
-          {targetSession && (
-            <div className={styles.inviteTarget}>
-              <div className={styles.inviteTargetAvatar}>
-                {targetSession.photoURL
-                  ? <img src={targetSession.photoURL} alt={targetSession.displayName} className={styles.inviteTargetImg} />
-                  : <span className={styles.inviteTargetInitial}>{(targetSession.displayName ?? '?')[0]}</span>
-                }
-              </div>
-              <div>
-                <span className={styles.inviteTargetLabel}>Inviting</span>
-                <span className={styles.inviteTargetName}>{targetSession.displayName ?? 'this person'}</span>
-              </div>
-            </div>
-          )}
-          <button className={styles.inviteBtn} onClick={() => setView('datetime')}>
-            💕 Invite to Date
-          </button>
-        </div>
-      </div>
-    )
-  }
-
-  // ── Date + time picker ────────────────────────────────────────────────────
-  const renderDatetime = () => (
-    <div className={styles.datetimeWrap}>
-      <button className={styles.detailBack} onClick={() => setView('detail')}>← Back</button>
-      <div className={styles.datetimeThumb}>
-        <img src={selectedIdea?.image_url} alt={selectedIdea?.title} className={styles.datetimeThumbImg} />
-        <div className={styles.datetimeThumbOverlay}>
-          <span className={styles.datetimeThumbTitle}>{selectedIdea?.title}</span>
-        </div>
-      </div>
-      <div className={styles.datetimeBody}>
-        <h3 className={styles.datetimeTitle}>Suggest a time</h3>
-        <p className={styles.datetimeSub}>
-          When would you like to go on this date with {targetSession?.displayName ?? 'them'}?
-          <br /><span className={styles.datetimeOptional}>(Optional — you can suggest it in chat instead)</span>
-        </p>
-        <label className={styles.dtLabel}>Date</label>
-        <input
-          type="date"
-          className={styles.dtInput}
-          value={proposedDate}
-          min={new Date().toISOString().split('T')[0]}
-          onChange={e => setProposedDate(e.target.value)}
-        />
-        <label className={styles.dtLabel}>Time</label>
-        <input
-          type="time"
-          className={styles.dtInput}
-          value={proposedTime}
-          onChange={e => setProposedTime(e.target.value)}
-        />
-        <button className={styles.sendInviteBtn} disabled={sending} onClick={handleSendInvite}>
-          {sending ? 'Sending…' : '💌 Send Date Invite'}
-        </button>
-        <button className={styles.skipTimeBtn} disabled={sending} onClick={handleSendInvite}>
-          Skip — suggest time in chat
-        </button>
-      </div>
-    </div>
-  )
-
-  // ── Sent confirmation ─────────────────────────────────────────────────────
-  const renderSent = () => (
-    <div className={styles.sentWrap}>
-      <span className={styles.sentIcon}>💌</span>
-      <h3 className={styles.sentTitle}>Invite Sent!</h3>
-      <p className={styles.sentSub}>
-        Your date invite for <strong>{selectedIdea?.title}</strong> has been sent to{' '}
-        <strong>{targetSession?.displayName ?? 'them'}</strong>.
-      </p>
-      {(proposedDate || proposedTime) && (
-        <div className={styles.sentDateTime}>
-          {proposedDate && <span>📅 {new Date(proposedDate).toLocaleDateString('en-GB', { weekday: 'long', day: 'numeric', month: 'long' })}</span>}
-          {proposedTime && <span>🕐 {proposedTime}</span>}
-        </div>
-      )}
-      <p className={styles.sentNote}>
-        You'll be notified when they accept. If they're offline the invite goes to their notifications. The invite expires in 24 hours.
-      </p>
-      <button className={styles.sentCloseBtn} onClick={onClose}>Done</button>
-    </div>
-  )
-
-  // ── Suggest a date idea ───────────────────────────────────────────────────
-  const renderSuggest = () => (
-    <div className={styles.datetimeWrap}>
-      <button className={styles.detailBack} onClick={() => { setView('grid'); setSuggestSent(false); setSuggestTitle(''); setSuggestDesc('') }}>
-        ← Back
-      </button>
-      {suggestSent ? (
-        <div className={styles.sentWrap}>
-          <span className={styles.sentIcon}>💡</span>
-          <h3 className={styles.sentTitle}>Idea Submitted!</h3>
-          <p className={styles.sentSub}>Thanks! If accepted, your idea will be live and ready for you to use within 48 hours.</p>
-          <button className={styles.sentCloseBtn} onClick={() => { setView('grid'); setSuggestSent(false); setSuggestTitle(''); setSuggestDesc('') }}>
-            Done
-          </button>
-        </div>
-      ) : (
-        <div className={styles.datetimeBody}>
-          <h3 className={styles.datetimeTitle}>Suggest a Date Idea</h3>
-          <p className={styles.datetimeSub}>Have a great idea for a first date? Submit it and if accepted it'll be live within 48 hours.</p>
-          <label className={styles.dtLabel}>Title *</label>
-          <input
-            type="text"
-            className={styles.dtInput}
-            placeholder="e.g. Sunrise Hike"
-            value={suggestTitle}
-            onChange={e => setSuggestTitle(e.target.value)}
-            maxLength={50}
-          />
-          <label className={styles.dtLabel}>Description <span className={styles.datetimeOptional}>(optional)</span></label>
-          <textarea
-            className={`${styles.dtInput} ${styles.dtTextarea}`}
-            placeholder="Describe why it makes a great date…"
-            value={suggestDesc}
-            onChange={e => setSuggestDesc(e.target.value)}
-            maxLength={300}
-            rows={4}
-          />
-          <button
-            className={styles.sendInviteBtn}
-            disabled={!suggestTitle.trim() || suggesting}
-            onClick={handleSuggest}
-          >
-            {suggesting ? 'Submitting…' : '💡 Submit Idea'}
-          </button>
-        </div>
-      )}
-    </div>
-  )
-
-  // ── Handlers ──────────────────────────────────────────────────────────────
-  const handleSendInvite = async () => {
+  const handleInvite = async () => {
     if (sending) return
     setSending(true)
     await sendDateInvite({
       fromUserId:   user?.id ?? user?.uid ?? 'demo',
       fromName:     user?.displayName ?? 'Someone',
       toUserId:     targetSession?.userId ?? targetSession?.id ?? 'unknown',
-      ideaId:       selectedIdea?.id,
-      proposedDate: proposedDate || null,
-      proposedTime: proposedTime || null,
+      ideaId:       modalIdea?.id,
+      proposedDate: null,
+      proposedTime: null,
     })
     setSending(false)
-    setView('sent')
+    setSent(true)
   }
 
-  const handleSuggest = async () => {
-    if (suggesting || !suggestTitle.trim()) return
-    setSuggesting(true)
-    await suggestDateIdea({
-      userId:      user?.id ?? user?.uid ?? 'demo',
-      title:       suggestTitle.trim(),
-      description: suggestDesc.trim(),
-    })
-    setSuggesting(false)
-    setSuggestSent(true)
-  }
+  if (!open && !_forceOpen) return null
 
   return (
-    <div className={styles.sheet}>
-      {/* Header */}
-      <div className={styles.header}>
-        <button className={styles.headerBack} onClick={view === 'grid' ? onClose : () => setView('grid')}>
-          {view === 'grid' ? '✕' : '←'}
-        </button>
-        <div className={styles.headerCenter}>
-          <span className={styles.headerTitle}>Date Ideas</span>
-          {targetSession && (
-            <span className={styles.headerSub}>for {targetSession.displayName}</span>
-          )}
+    <>
+      {/* ── LEFT DRAWER ── */}
+      <div
+        className={styles.drawerOverlay}
+        onClick={(e) => { if (e.target === e.currentTarget && !modalIdea) onClose() }}
+      >
+        <div className={styles.drawer}>
+          {/* Header */}
+          <div className={styles.drawerHeader}>
+            <div className={styles.drawerTitleWrap}>
+              <span className={styles.drawerTitle}>💕 Date Ideas</span>
+              <span className={styles.drawerSubtitle}>Simply select and invite</span>
+            </div>
+            <button className={styles.drawerClose} onClick={onClose} aria-label="Close">✕</button>
+          </div>
+
+          {/* Scrollable grid */}
+          <div className={styles.drawerBody}>
+            {SECTION_ORDER.map(sec => {
+              const ideas = DATE_IDEAS.filter(d => d.section === sec)
+              if (!ideas.length) return null
+              return (
+                <div key={sec}>
+                  <div className={styles.sectionLabel}>{SECTION_LABELS[sec]}</div>
+                  <div className={styles.grid}>
+                    {ideas.map(idea => (
+                      <div key={idea.id} className={styles.card} onClick={() => openModal(idea)}>
+                        <div className={styles.cardImgWrap}>
+                          <img src={idea.image_url} alt={idea.title} className={styles.cardImg} />
+                          <div className={styles.cardOverlay}>
+                            <div className={styles.cardNameWrap}>
+                              <span className={styles.cardName}>{idea.title}</span>
+                              <span className={styles.cardCount}>💕 {idea.popularity} dates planned</span>
+                            </div>
+                            <span className={styles.cardStars}>
+                              {'★'.repeat(Math.min(5, Math.max(3, Math.round(idea.popularity / 80))))}{'☆'.repeat(Math.max(0, 5 - Math.min(5, Math.max(3, Math.round(idea.popularity / 80)))))}
+                            </span>
+                          </div>
+                          <button
+                            className={styles.fingerprintBtn}
+                            onClick={(e) => { e.stopPropagation(); openModal(idea) }}
+                            aria-label={`Open ${idea.title}`}
+                          >
+                            <FingerprintIcon />
+                          </button>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )
+            })}
+          </div>
         </div>
-        <div style={{ width: 32 }} />
       </div>
 
-      {view === 'grid'     && renderGrid()}
-      {view === 'detail'   && renderDetail()}
-      {view === 'datetime' && renderDatetime()}
-      {view === 'sent'     && renderSent()}
-      {view === 'suggest'  && renderSuggest()}
-    </div>
+      {/* ── CENTER MODAL — idea detail + invite ── */}
+      {modalIdea && (
+        <div
+          className={styles.modalBackdrop}
+          onClick={(e) => e.target === e.currentTarget && closeModal()}
+        >
+          <div className={styles.modal}>
+            {sent ? (
+              /* ── Sent state ── */
+              <div className={styles.sentWrap}>
+                <span className={styles.sentIcon}>💌</span>
+                <p className={styles.sentTitle}>Invite Sent!</p>
+                <p className={styles.sentSub}>
+                  Your invite for <strong>{modalIdea.title}</strong> has been sent
+                  {targetSession ? ` to ${targetSession.displayName}` : ''}.
+                </p>
+                <button className={styles.inviteBtn} onClick={closeModal}>Done</button>
+              </div>
+            ) : (
+              /* ── Idea detail ── */
+              <>
+                <div className={styles.modalSpacer} />
+                <div className={styles.modalBody}>
+                  <div className={styles.modalHeader}>
+                    <span className={styles.modalHeaderIcon}>♥</span>
+                    <span className={styles.modalHeaderTitle}>Date Idea</span>
+                    <span className={styles.modalHeaderStars}>
+                      {'★'.repeat(Math.min(5, Math.max(3, Math.round(modalIdea.popularity / 80))))}{'☆'.repeat(Math.max(0, 5 - Math.min(5, Math.max(3, Math.round(modalIdea.popularity / 80)))))}
+                    </span>
+                  </div>
+                  <img src={modalIdea.image_url} alt={modalIdea.title} className={styles.modalIdeaImg} />
+                  <p className={styles.modalTitle}>{modalIdea.title}</p>
+                  <p className={styles.modalDesc}>{modalIdea.description}</p>
+                  <button
+                    className={styles.inviteBtn}
+                    disabled={sending}
+                    onClick={handleInvite}
+                  >
+                    {[...Array(10)].map((_, i) => (
+                      <span key={i} className={styles.floatHeart} style={{
+                        '--x':    `${5 + (i * 37 + i * i * 13) % 88}%`,
+                        '--d':    `${(i * 0.31 + (i % 3) * 0.18).toFixed(2)}s`,
+                        '--s':    `${0.7 + (i % 4) * 0.15}`,
+                        '--drift':`${-18 + (i * 29 + 7) % 36}px`,
+                        '--dur':  `${1.4 + (i % 3) * 0.35}s`,
+                      }}>♥</span>
+                    ))}
+                    {sending ? 'Sending…' : '💕 Invite Me'}
+                  </button>
+                  <button className={styles.cancelBtn} onClick={closeModal}>Cancel</button>
+                </div>
+              </>
+            )}
+          </div>
+        </div>
+      )}
+    </>
   )
 }

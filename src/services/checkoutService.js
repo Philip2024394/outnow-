@@ -18,6 +18,8 @@ const PRICE_IDS = {
   // Maker contact unlock packs (one-time)
   maker_pack3:       import.meta.env.VITE_STRIPE_PRICE_MAKER_PACK3,
   maker_pack8:       import.meta.env.VITE_STRIPE_PRICE_MAKER_PACK8,
+  // Vibe Blast — one-time broadcast (Rp 32.000 / $1.99 USD)
+  vibe_blast:            import.meta.env.VITE_STRIPE_PRICE_VIBE_BLAST,
   // Map spot subscriptions — postcode territory ownership
   // Monthly: $1.99/mo  |  Annual: $19.99/yr (includes 10 profile boosts)
   spot_user_monthly:     import.meta.env.VITE_STRIPE_PRICE_SPOT_USER_MONTHLY,

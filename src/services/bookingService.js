@@ -31,7 +31,7 @@ export async function fetchNearbyDrivers(userLat, userLng, driverType, excludeId
   if (supabase) {
     const { data } = await supabase
       .from('profiles')
-      .select('id, display_name, driver_age, driver_type, driver_online, driver_busy, driver_auto_busy, driver_speed_kmh, driver_last_location, phone, rating, total_trips, vehicle_model, vehicle_year, vehicle_color, plate_prefix')
+      .select('id, display_name, driver_age, driver_type, driver_online, driver_busy, driver_auto_busy, driver_speed_kmh, driver_last_location, phone, rating, total_trips, vehicle_model, vehicle_year, vehicle_color, plate_prefix, cancellation_count')
       .eq('is_driver', true)
       .eq('driver_online', true)
       .eq('driver_type', driverType)
@@ -50,9 +50,12 @@ export async function fetchNearbyDrivers(userLat, userLng, driverType, excludeId
       const etaMin = Math.max(1, Math.round((distKm / 18) * 60))
       return { ...d, distKm: Math.round(distKm * 10) / 10, etaMin }
     })
-    // Available drivers first (sorted by distance), busy drivers last (sorted by distance)
+    // Sort: available first, then fewest cancellations, then closest
     .sort((a, b) => {
       if (a.driver_busy !== b.driver_busy) return a.driver_busy ? 1 : -1
+      const aCancels = a.cancellation_count ?? 0
+      const bCancels = b.cancellation_count ?? 0
+      if (aCancels !== bCancels) return aCancels - bCancels
       return a.distKm - b.distKm
     })
     .slice(0, 8)

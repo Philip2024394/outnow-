@@ -12,7 +12,7 @@ const ICONS = [
   { id: 'massage',    labelKey: 'icons.massage', img: 'https://ik.imagekit.io/nepgaxllc/Untitledsadasdasdasdasddfssdfasdasdfsasdfsdffasdf-removebg-preview.png', vehicle: false },
 ]
 
-export default function FloatingIcons({ sessions = [], onSelectSession, onFoodClick, onRideClick, onShoppingClick, onDatingClick, onMassageClick }) {
+export default function FloatingIcons({ sessions = [], serviceCounts = {}, onSelectSession, onFoodClick, onRideClick, onShoppingClick, onDatingClick, onMassageClick }) {
   const { t } = useLanguage()
   const [activeActivity, setActiveActivity] = useState(null)
 
@@ -48,6 +48,9 @@ export default function FloatingIcons({ sessions = [], onSelectSession, onFoodCl
                 />
                 <span className={styles.dockLabel}>{t(icon.labelKey)}</span>
                 {count > 0 && <span className={styles.badge}>{count}</span>}
+                {(serviceCounts[icon.id] ?? 0) > 0 && (
+                  <span className={styles.notifBadge}>{serviceCounts[icon.id]}</span>
+                )}
               </button>
             )
           })}

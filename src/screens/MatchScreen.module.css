@@ -171,10 +171,10 @@
   right: 2px;
   width: 10px;
   height: 10px;
-  background: #8DC63F;
+  background: #FF6BA3;
   border-radius: 50%;
   border: 2px solid var(--color-bg);
-  box-shadow: 0 0 5px #8DC63F;
+  box-shadow: 0 0 5px #FF6BA3;
 }
 
 .likeName {

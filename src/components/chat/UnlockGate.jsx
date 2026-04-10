@@ -16,10 +16,12 @@ import styles from './UnlockGate.module.css'
  */
 export default function UnlockGate({
   unlockBalance = 0,
+  isBuyer = false,
   onUnlockWithCredit,
   onUnlockWithPlan,
   onDismiss,
   expired = false,
+  theme = null,
 }) {
   const { user } = useAuth()
   const userId = user?.uid ?? user?.id
@@ -42,9 +44,12 @@ export default function UnlockGate({
     setLoading(null)
   }
 
+  const isMarket = theme === 'market'
+  const buyerMode = isBuyer || isMarket
+
   return (
     <div className={styles.overlay}>
-      <div className={styles.sheet}>
+      <div className={`${styles.sheet} ${isMarket ? styles.sheetMarket : ''}`}>
 
         {/* Close */}
         {!expired && (
@@ -62,43 +67,50 @@ export default function UnlockGate({
 
         {/* Headline */}
         <h2 className={styles.title}>
-          {expired ? 'Free chat time ended' : '5 minutes left'}
+          {buyerMode
+            ? 'Unlock all sellers'
+            : expired ? 'Free chat time ended' : '5 minutes left'
+          }
         </h2>
         <p className={styles.sub}>
-          {expired
-            ? 'Your 20-minute free window is up. Unlock to keep chatting.'
-            : 'Your free 20-min chat is almost up. Unlock now to keep the conversation going.'
+          {buyerMode
+            ? 'Chat freely with any seller, share contacts & view social shop links — 30 days for $1.99.'
+            : expired
+              ? 'Your 20-minute free window is up. Unlock to keep chatting.'
+              : 'Your free 20-min chat is almost up. Unlock now to keep the conversation going.'
           }
         </p>
 
-        {/* Tab switcher */}
-        <div className={styles.tabs}>
-          <button
-            className={[styles.tab, tab === 'unlock' ? styles.tabActive : ''].join(' ')}
-            onClick={() => setTab('unlock')}
-          >
-            One-Time
-          </button>
-          <button
-            className={[styles.tab, tab === 'subscribe' ? styles.tabActive : ''].join(' ')}
-            onClick={() => setTab('subscribe')}
-          >
-            Monthly
-          </button>
-        </div>
+        {/* Tab switcher — hidden on market (shows all) */}
+        {!isMarket && (
+          <div className={styles.tabs}>
+            <button
+              className={[styles.tab, tab === 'unlock' ? styles.tabActive : ''].join(' ')}
+              onClick={() => setTab('unlock')}
+            >
+              One-Time
+            </button>
+            <button
+              className={[styles.tab, tab === 'subscribe' ? styles.tabActive : ''].join(' ')}
+              onClick={() => setTab('subscribe')}
+            >
+              Monthly
+            </button>
+          </div>
+        )}
 
-        {tab === 'unlock' ? (
-          /* ── One-time unlock tab ── */
+        {/* ── One-time unlock block ── */}
+        {(isMarket || tab === 'unlock') && (
           <div className={styles.optionBlock}>
+            {isMarket && <p className={styles.sectionLabel}>🔓 One-Time Unlock</p>}
             {unlockBalance > 0 ? (
-              /* Has credits — use one */
               <>
                 <div className={styles.creditBadge}>
                   <span className={styles.creditNum}>{unlockBalance}</span>
                   <span className={styles.creditLabel}>unlock{unlockBalance !== 1 ? 's' : ''} available</span>
                 </div>
                 <button
-                  className={styles.primaryBtn}
+                  className={`${styles.primaryBtn} ${isMarket ? styles.primaryBtnMarket : ''}`}
                   onClick={onUnlockWithCredit}
                   disabled={!!loading}
                 >
@@ -107,32 +119,46 @@ export default function UnlockGate({
                 <p className={styles.hint}>{unlockBalance - 1} credit{unlockBalance - 1 !== 1 ? 's' : ''} will remain after this</p>
               </>
             ) : (
-              /* No credits — buy pack */
               <>
                 <div className={styles.packCard}>
                   <div className={styles.packLeft}>
                     <span className={styles.packEmoji}>🔓</span>
                     <div>
-                      <div className={styles.packTitle}>2 Chat Unlocks</div>
-                      <div className={styles.packDesc}>Valid for 90 days · Use anytime</div>
+                      <div className={styles.packTitle}>
+                        {buyerMode ? 'All Sellers · 30 Days' : '2 Chat Unlocks'}
+                      </div>
+                      <div className={styles.packDesc}>
+                        {buyerMode
+                          ? 'Chat, share contacts & view shop links'
+                          : 'Valid for 90 days · Use anytime'}
+                      </div>
                     </div>
                   </div>
                   <span className={styles.packPrice}>${UNLOCK_PACK.usd}</span>
                 </div>
                 <button
-                  className={styles.primaryBtn}
+                  className={`${styles.primaryBtn} ${isMarket ? styles.primaryBtnMarket : ''}`}
                   onClick={handleBuyCredits}
                   disabled={!!loading}
                 >
-                  {loading === 'credits' ? 'Processing…' : `Buy 2 Unlocks — $${UNLOCK_PACK.usd}`}
+                  {loading === 'credits'
+                    ? 'Processing…'
+                    : buyerMode
+                      ? `Unlock All Sellers — $${UNLOCK_PACK.usd}`
+                      : `Buy 2 Unlocks — $${UNLOCK_PACK.usd}`}
                 </button>
-                <p className={styles.hint}>One-time payment · No subscription</p>
+                <p className={styles.hint}>
+                  {buyerMode ? '30-day access · All sellers · No subscription' : 'One-time payment · No subscription'}
+                </p>
               </>
             )}
           </div>
-        ) : (
-          /* ── Monthly subscription tab ── */
+        )}
+
+        {/* ── Monthly subscription block ── */}
+        {(isMarket || tab === 'subscribe') && (
           <div className={styles.plansBlock}>
+            {isMarket && <p className={styles.sectionLabel}>📦 Monthly Plans</p>}
 
             {/* Standard */}
             <div className={styles.planCard}>
@@ -147,7 +173,7 @@ export default function UnlockGate({
                 <li>✓ Order tracking</li>
               </ul>
               <button
-                className={styles.planBtn}
+                className={`${styles.planBtn} ${isMarket ? styles.planBtnMarket : ''}`}
                 onClick={() => handleSubscribe('standard')}
                 disabled={!!loading}
               >
@@ -181,8 +207,8 @@ export default function UnlockGate({
           </div>
         )}
 
-        {/* Math nudge — only on credits tab when no balance */}
-        {tab === 'unlock' && unlockBalance === 0 && (
+        {/* Math nudge — non-market only */}
+        {!isMarket && tab === 'unlock' && unlockBalance === 0 && (
           <p className={styles.nudge}>
             💡 2 unlocks = $3.98 · Monthly Standard = ~$2.50 · <button className={styles.nudgeBtn} onClick={() => setTab('subscribe')}>Save more →</button>
           </p>

@@ -1,7 +1,12 @@
 import { useRef } from 'react'
 import styles from './MapSearchBar.module.css'
 
-export default function MapSearchBar({ value, onChange, onFocus, onClear, onSubmit, filterFlag, onFilterTap, placeholder = 'Search activity, product, service…' }) {
+export default function MapSearchBar({
+  value, onChange, onFocus, onClear, onSubmit,
+  filterFlag, onFilterTap,
+  placeholder = 'Search activity, product, service…',
+  children,
+}) {
   const inputRef = useRef(null)
 
   function handleKeyDown(e) {
@@ -9,6 +14,10 @@ export default function MapSearchBar({ value, onChange, onFocus, onClear, onSubm
       e.preventDefault()
       inputRef.current?.blur()
       onSubmit?.()
+    }
+    if (e.key === 'Escape') {
+      onClear?.()
+      inputRef.current?.blur()
     }
   }
 
@@ -37,7 +46,6 @@ export default function MapSearchBar({ value, onChange, onFocus, onClear, onSubm
             </svg>
           </button>
         )}
-        {/* Country filter button */}
         <button className={styles.filterBtn} onClick={onFilterTap} aria-label="Filter by country">
           {filterFlag
             ? <span className={styles.filterFlag}>{filterFlag}</span>
@@ -50,6 +58,8 @@ export default function MapSearchBar({ value, onChange, onFocus, onClear, onSubm
         </button>
       </div>
 
+      {/* Suggest dropdown rendered as child — positioned relative to .wrap */}
+      {children}
     </div>
   )
 }

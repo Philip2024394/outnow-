@@ -134,12 +134,40 @@
   transform: scale(1.04);
   transition: transform 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94);
 }
+/* Street food — zoom out so more of the scene is visible */
+.cardVideoZoomOut {
+  object-fit: contain;
+  transform: scale(0.92);
+}
+.card:active .cardVideoZoomOut { transform: scale(0.95); }
+
 /* Darkening layer over video so overlays + text always read cleanly */
 .videoScrim {
   position: absolute; inset: 0;
   background: rgba(0, 0, 0, 0.38);
 }
 .card:active .cardVideo { transform: scale(1.07); }
+
+/* ── Sound toggle button ─────────────────────────────────────────────────────── */
+.soundBtn {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  z-index: 12;
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  background: rgba(0, 0, 0, 0.55);
+  border: 1.5px solid rgba(255, 255, 255, 0.25);
+  backdrop-filter: blur(8px);
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: background 0.15s, transform 0.12s;
+}
+.soundBtn:active { transform: scale(0.88); background: rgba(0,0,0,0.75); }
 
 /* ── Static / gradient background ───────────────────────────────────────────── */
 .cardBg {

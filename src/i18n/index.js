@@ -1,14 +1,14 @@
-import { createContext, useContext, useEffect, useState } from 'react'
+import { createElement, createContext, useContext, useEffect, useState } from 'react'
 import en from './en'
 import id from './id'
 import ar from './ar'
 import zh from './zh'
 
 export const LANGUAGES = [
-  { code: 'en', label: 'English',  flag: '🇬🇧', dir: 'ltr' },
-  { code: 'id', label: 'Bahasa',   flag: '🇮🇩', dir: 'ltr' },
-  { code: 'ar', label: 'عربي',     flag: '🇸🇦', dir: 'rtl' },
-  { code: 'zh', label: '中文',     flag: '🇨🇳', dir: 'ltr' },
+  { code: 'en', label: 'English',  flag: '🇬🇧', dir: 'ltr', image: 'https://ik.imagekit.io/nepgaxllc/Untitledsfasdfasd-removebg-preview.png' },
+  { code: 'id', label: 'Bahasa',   flag: '🇮🇩', dir: 'ltr', image: 'https://ik.imagekit.io/nepgaxllc/Untitledsfasdfasdasdasd-removebg-preview.png' },
+  { code: 'ar', label: 'عربي',     flag: '🇸🇦', dir: 'rtl', image: 'https://ik.imagekit.io/nepgaxllc/Generated%20Image%20April%2010,%202026%20-%202_48PM.png' },
+  { code: 'zh', label: '中文',     flag: '🇨🇳', dir: 'ltr', image: 'https://ik.imagekit.io/nepgaxllc/Glossy%20China%20flag%20button%20design.png' },
 ]
 
 const TRANSLATIONS = { en, id, ar, zh }
@@ -16,13 +16,7 @@ const STORAGE_KEY  = 'hangger_lang'
 
 /** Detect best default language from browser settings */
 function detectLang() {
-  const saved = localStorage.getItem(STORAGE_KEY)
-  if (saved && TRANSLATIONS[saved]) return saved
-
-  const browser = navigator.language?.slice(0, 2).toLowerCase()
-  if (browser === 'id') return 'id'
-  if (browser === 'ar') return 'ar'
-  if (browser === 'zh') return 'zh'
+  // Locked to English until go-live — restore browser detection after launch
   return 'en'
 }
 
@@ -68,10 +62,10 @@ export function LanguageProvider({ children }) {
     return dict[key] ?? TRANSLATIONS.en[key] ?? key
   }
 
-  return (
-    <LanguageContext.Provider value={{ lang, setLang, t, isFirstPick, dismissFirstPick }}>
-      {children}
-    </LanguageContext.Provider>
+  return createElement(
+    LanguageContext.Provider,
+    { value: { lang, setLang, t, isFirstPick, dismissFirstPick } },
+    children
   )
 }
 

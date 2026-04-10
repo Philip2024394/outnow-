@@ -1,0 +1,148 @@
+.backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 9900;
+  background: rgba(0, 0, 0, 0.75);
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  animation: fadeIn 0.2s ease;
+}
+@keyframes fadeIn { from { opacity: 0 } to { opacity: 1 } }
+
+.sheet {
+  width: 100%;
+  max-width: 480px;
+  background: #111;
+  border-radius: 24px 24px 0 0;
+  border-top: 1px solid rgba(255, 59, 48, 0.3);
+  box-shadow: 0 -8px 40px rgba(255, 59, 48, 0.15);
+  padding: 20px 20px calc(env(safe-area-inset-bottom, 0px) + 24px);
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  animation: slideUp 0.3s cubic-bezier(0.32, 0.72, 0, 1);
+  max-height: 90vh;
+  overflow-y: auto;
+}
+@keyframes slideUp { from { transform: translateY(100%) } to { transform: translateY(0) } }
+
+/* Header */
+.header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+}
+.headerLeft { display: flex; flex-direction: column; gap: 4px; }
+.title { font-size: 16px; font-weight: 900; color: #fff; }
+.countdown {
+  font-size: 11px; font-weight: 700;
+  color: #F5C518;
+  background: rgba(245, 197, 24, 0.1);
+  border: 1px solid rgba(245, 197, 24, 0.25);
+  border-radius: 6px;
+  padding: 3px 8px;
+  display: inline-block;
+}
+.expired {
+  font-size: 11px; font-weight: 700;
+  color: #ff6b6b;
+  background: rgba(255, 59, 48, 0.1);
+  border: 1px solid rgba(255, 59, 48, 0.25);
+  border-radius: 6px;
+  padding: 3px 8px;
+  display: inline-block;
+}
+.closeX {
+  width: 30px; height: 30px; border-radius: 50%;
+  background: rgba(255,255,255,0.07);
+  border: 1px solid rgba(255,255,255,0.1);
+  color: #888; font-size: 12px; cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0;
+}
+
+/* Auto-filled details card */
+.detailsCard {
+  background: rgba(255, 59, 48, 0.05);
+  border: 1px solid rgba(255, 59, 48, 0.2);
+  border-radius: 14px;
+  padding: 14px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.detailsLabel {
+  font-size: 10px; font-weight: 800; color: #ff6b6b;
+  text-transform: uppercase; letter-spacing: 0.08em;
+  margin-bottom: 2px;
+}
+.detailRow { display: flex; justify-content: space-between; gap: 12px; }
+.detailKey { font-size: 11px; color: #555; flex-shrink: 0; }
+.detailVal { font-size: 11px; font-weight: 700; color: #ccc; text-align: right; }
+
+/* Explanation form */
+.formSection { display: flex; flex-direction: column; gap: 6px; }
+.formLabel { font-size: 12px; font-weight: 700; color: #888; }
+.required { color: #ff6b6b; }
+.textarea {
+  width: 100%;
+  background: rgba(255,255,255,0.04);
+  border: 1.5px solid rgba(255,255,255,0.1);
+  border-radius: 12px;
+  padding: 12px 14px;
+  color: #fff;
+  font-size: 13px;
+  font-family: inherit;
+  resize: none;
+  outline: none;
+  transition: border-color 0.15s;
+  box-sizing: border-box;
+}
+.textarea:focus { border-color: rgba(255, 59, 48, 0.5); }
+.textarea:disabled { opacity: 0.4; }
+.charCount { font-size: 10px; color: #444; text-align: right; }
+
+/* Submit */
+.submitBtn {
+  width: 100%;
+  padding: 14px;
+  background: rgba(255, 59, 48, 0.85);
+  color: #fff;
+  border: none;
+  border-radius: 14px;
+  font-size: 15px;
+  font-weight: 800;
+  font-family: inherit;
+  cursor: pointer;
+  box-shadow: 0 4px 20px rgba(255, 59, 48, 0.4);
+  transition: opacity 0.15s, transform 0.1s;
+}
+.submitBtn:active   { transform: scale(0.98); opacity: 0.9; }
+.submitBtn:disabled { opacity: 0.35; cursor: default; transform: none; }
+
+.note {
+  font-size: 10px; color: #333;
+  text-align: center; line-height: 1.5; margin: 0;
+}
+
+/* Done state */
+.doneWrap {
+  padding: 20px 0;
+  display: flex; flex-direction: column;
+  align-items: center; gap: 12px; text-align: center;
+}
+.doneIcon  { font-size: 48px; }
+.doneTitle { font-size: 18px; font-weight: 900; color: #8DC63F; margin: 0; }
+.doneSub   { font-size: 13px; color: #666; line-height: 1.55; margin: 0; max-width: 280px; }
+.closeBtn {
+  margin-top: 4px;
+  padding: 12px 32px;
+  background: rgba(141,198,63,0.15);
+  border: 1.5px solid rgba(141,198,63,0.4);
+  border-radius: 12px;
+  color: #8DC63F;
+  font-size: 14px; font-weight: 800;
+  font-family: inherit; cursor: pointer;
+}
