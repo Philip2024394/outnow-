@@ -30,11 +30,32 @@
   box-shadow:
     0 -12px 60px rgba(141,198,63,0.14),
     inset 0 1px 0 rgba(255,255,255,0.08);
-  padding: calc(env(safe-area-inset-top, 0px) + 24px) 20px calc(env(safe-area-inset-bottom, 0px) + 32px);
+  padding: 0;
   display: flex; flex-direction: column; gap: 0;
   animation: slideUp 0.32s cubic-bezier(0.34,1.1,0.64,1);
+  overflow: hidden;
+}
+
+/* ── Scrollable body (content pushed down 50px) ── */
+.body {
+  flex: 1;
   overflow-y: auto;
   overflow-x: hidden;
+  padding: calc(env(safe-area-inset-top, 0px) + 74px) 20px 24px;
+  display: flex; flex-direction: column; gap: 0;
+}
+.body::-webkit-scrollbar { display: none; }
+
+/* ── Sticky footer — buttons always visible at bottom ── */
+.footer {
+  flex-shrink: 0;
+  padding: 16px 20px calc(env(safe-area-inset-bottom, 0px) + 20px);
+  background: linear-gradient(
+    to bottom,
+    rgba(0,0,0,0) 0%,
+    rgba(0,0,0,0.85) 30%
+  );
+  border-top: 1px solid rgba(255,255,255,0.06);
 }
 @keyframes slideUp { from { transform: translateY(100%); } to { transform: none; } }
 

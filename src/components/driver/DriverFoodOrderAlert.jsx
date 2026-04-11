@@ -91,49 +91,53 @@ export default function DriverFoodOrderAlert({ order, driverId, onDismiss }) {
         {/* ── INCOMING ── */}
         {phase === 'incoming' && (
           <>
-            <p className={styles.phaseLabel}>New Order</p>
-            <h2 className={styles.title}>New Food Order</h2>
+            <div className={styles.body}>
+              <p className={styles.phaseLabel}>New Order</p>
+              <h2 className={styles.title}>New Food Order</h2>
 
-            <div className={styles.timerBar}>
-              <div className={styles.timerFill} style={{
-                width: `${pct}%`,
-                background: barColor,
-              }} />
-            </div>
-            <p className={styles.countdown}>Accept within <strong>{secondsLeft}s</strong></p>
+              <div className={styles.timerBar}>
+                <div className={styles.timerFill} style={{
+                  width: `${pct}%`,
+                  background: barColor,
+                }} />
+              </div>
+              <p className={styles.countdown}>Accept within <strong>{secondsLeft}s</strong></p>
 
-            <div className={styles.section}>
-              <div className={styles.restaurantRow}>
-                <div className={styles.restaurantIconWrap}>🏪</div>
-                <div className={styles.restaurantInfo}>
-                  <span className={styles.restaurantName}>{order.restaurant_name}</span>
-                  <span className={styles.restaurantNote}>Pickup location</span>
+              <div className={styles.section}>
+                <div className={styles.restaurantRow}>
+                  <div className={styles.restaurantIconWrap}>🏪</div>
+                  <div className={styles.restaurantInfo}>
+                    <span className={styles.restaurantName}>{order.restaurant_name}</span>
+                    <span className={styles.restaurantNote}>Pickup location</span>
+                  </div>
+                </div>
+              </div>
+
+              <div className={styles.section}>
+                <p className={styles.sectionLabel}>Order items</p>
+                {items.map((item, i) => (
+                  <div key={i} className={styles.itemRow}>
+                    <span className={styles.itemQtyBadge}>{item.qty}×</span>
+                    <span className={styles.itemName}>{item.name}</span>
+                    <span className={styles.itemPrice}>{fmtRp(item.price * item.qty)}</span>
+                  </div>
+                ))}
+                <div className={styles.totalRow}>
+                  <span className={styles.totalLabel}>Delivery fee (collect from customer)</span>
+                  <span className={styles.totalAmt}>{fmtRp(order.delivery_fee)}</span>
                 </div>
               </div>
             </div>
 
-            <div className={styles.section}>
-              <p className={styles.sectionLabel}>Order items</p>
-              {items.map((item, i) => (
-                <div key={i} className={styles.itemRow}>
-                  <span className={styles.itemQtyBadge}>{item.qty}×</span>
-                  <span className={styles.itemName}>{item.name}</span>
-                  <span className={styles.itemPrice}>{fmtRp(item.price * item.qty)}</span>
-                </div>
-              ))}
-              <div className={styles.totalRow}>
-                <span className={styles.totalLabel}>Delivery fee (collect from customer)</span>
-                <span className={styles.totalAmt}>{fmtRp(order.delivery_fee)}</span>
+            <div className={styles.footer}>
+              <div className={styles.actions}>
+                <button className={styles.declineBtn} onClick={handleDecline} disabled={busy}>
+                  Decline
+                </button>
+                <button className={styles.acceptBtn} onClick={handleAccept} disabled={busy}>
+                  Accept Order
+                </button>
               </div>
-            </div>
-
-            <div className={styles.actions}>
-              <button className={styles.declineBtn} onClick={handleDecline} disabled={busy}>
-                Decline
-              </button>
-              <button className={styles.acceptBtn} onClick={handleAccept} disabled={busy}>
-                Accept Order
-              </button>
             </div>
           </>
         )}
@@ -141,98 +145,115 @@ export default function DriverFoodOrderAlert({ order, driverId, onDismiss }) {
         {/* ── ACTIVE — heading to restaurant ── */}
         {phase === 'active' && (
           <>
-            <p className={styles.phaseLabel}>On the way</p>
-            <h2 className={styles.title}>Head to Restaurant</h2>
+            <div className={styles.body}>
+              <p className={styles.phaseLabel}>On the way</p>
+              <h2 className={styles.title}>Head to Restaurant</h2>
 
-            <div className={styles.section}>
-              <div className={styles.restaurantRow}>
-                <div className={styles.restaurantIconWrap}>📍</div>
-                <div className={styles.restaurantInfo}>
-                  <span className={styles.restaurantName}>{order.restaurant_name}</span>
-                  <span className={styles.restaurantNote}>Show this order to restaurant staff</span>
+              <div className={styles.section}>
+                <div className={styles.restaurantRow}>
+                  <div className={styles.restaurantIconWrap}>📍</div>
+                  <div className={styles.restaurantInfo}>
+                    <span className={styles.restaurantName}>{order.restaurant_name}</span>
+                    <span className={styles.restaurantNote}>Show this order to restaurant staff</span>
+                  </div>
                 </div>
+              </div>
+
+              <div className={styles.section}>
+                <p className={styles.sectionLabel}>Items to collect</p>
+                {items.map((item, i) => (
+                  <div key={i} className={styles.itemRow}>
+                    <span className={styles.itemQtyBadge}>{item.qty}×</span>
+                    <span className={styles.itemName}>{item.name}</span>
+                  </div>
+                ))}
+              </div>
+
+              <div className={styles.cashNote}>
+                Pay restaurant <strong>{fmtRp(order.subtotal)}</strong> in cash when you collect
               </div>
             </div>
 
-            <div className={styles.section}>
-              <p className={styles.sectionLabel}>Items to collect</p>
-              {items.map((item, i) => (
-                <div key={i} className={styles.itemRow}>
-                  <span className={styles.itemQtyBadge}>{item.qty}×</span>
-                  <span className={styles.itemName}>{item.name}</span>
-                </div>
-              ))}
+            <div className={styles.footer}>
+              <button className={`${styles.acceptBtn} ${styles.acceptBtnStill}`} onClick={handleAtRestaurant}>
+                I'm at the Restaurant
+              </button>
             </div>
-
-            <div className={styles.cashNote}>
-              Pay restaurant <strong>{fmtRp(order.subtotal)}</strong> in cash when you collect
-            </div>
-
-            <button className={`${styles.acceptBtn} ${styles.acceptBtnStill}`} onClick={handleAtRestaurant}>
-              I'm at the Restaurant
-            </button>
           </>
         )}
 
         {/* ── PICKUP — enter restaurant code ── */}
         {phase === 'pickup' && (
           <>
-            <p className={styles.phaseLabel}>Pickup</p>
-            <h2 className={styles.title}>Enter Pickup Code</h2>
+            <div className={styles.body}>
+              <p className={styles.phaseLabel}>Pickup</p>
+              <h2 className={styles.title}>Enter Pickup Code</h2>
 
-            <p className={styles.instrText}>
-              Ask restaurant staff for the <strong>6-character pickup code</strong> to confirm collection.
-            </p>
+              <p className={styles.instrText}>
+                Ask restaurant staff for the <strong>6-character pickup code</strong> to confirm collection.
+              </p>
 
-            <input
-              className={`${styles.codeInput} ${codeError ? styles.codeInputError : ''}`}
-              value={pickupCode}
-              onChange={e => setPickupCode(e.target.value.toUpperCase().slice(0, 6))}
-              placeholder="AB3X7K"
-              maxLength={6}
-              autoFocus
-            />
-            {codeError && <p className={styles.codeError}>{codeError}</p>}
+              <input
+                className={`${styles.codeInput} ${codeError ? styles.codeInputError : ''}`}
+                value={pickupCode}
+                onChange={e => setPickupCode(e.target.value.toUpperCase().slice(0, 6))}
+                placeholder="AB3X7K"
+                maxLength={6}
+                autoFocus
+              />
+              {codeError && <p className={styles.codeError}>{codeError}</p>}
+            </div>
 
-            <button
-              className={`${styles.acceptBtn} ${styles.acceptBtnStill}`}
-              onClick={handleConfirmPickup}
-              disabled={busy || pickupCode.length < 6}
-            >
-              {busy ? 'Verifying…' : 'Confirm Pickup'}
-            </button>
+            <div className={styles.footer}>
+              <button
+                className={`${styles.acceptBtn} ${styles.acceptBtnStill}`}
+                onClick={handleConfirmPickup}
+                disabled={busy || pickupCode.length < 6}
+              >
+                {busy ? 'Verifying…' : 'Confirm Pickup'}
+              </button>
+            </div>
           </>
         )}
 
         {/* ── DELIVERING ── */}
         {phase === 'delivering' && (
           <>
-            <p className={styles.phaseLabel}>Delivering</p>
-            <h2 className={styles.title}>Deliver to Recipient</h2>
+            <div className={styles.body}>
+              <p className={styles.phaseLabel}>Delivering</p>
+              <h2 className={styles.title}>Deliver to Recipient</h2>
 
-            <p className={styles.instrText}>
-              Food collected ✓ — now deliver to <strong>{order.recipient_name ?? 'the recipient'}</strong>.
-            </p>
+              <p className={styles.instrText}>
+                Food collected ✓ — now deliver to <strong>{order.recipient_name ?? 'the recipient'}</strong>.
+              </p>
 
-            <div className={styles.cashNote}>
-              Collect <strong>{fmtRp(order.delivery_fee)}</strong> delivery fee in cash from customer
+              <div className={styles.cashNote}>
+                Collect <strong>{fmtRp(order.delivery_fee)}</strong> delivery fee in cash from customer
+              </div>
             </div>
 
-            <button className={`${styles.acceptBtn} ${styles.acceptBtnStill}`} onClick={handleDelivered} disabled={busy}>
-              {busy ? 'Updating…' : 'Mark as Delivered ✓'}
-            </button>
+            <div className={styles.footer}>
+              <button className={`${styles.acceptBtn} ${styles.acceptBtnStill}`} onClick={handleDelivered} disabled={busy}>
+                {busy ? 'Updating…' : 'Mark as Delivered ✓'}
+              </button>
+            </div>
           </>
         )}
 
         {/* ── DONE ── */}
         {phase === 'done' && (
           <>
-            <p className={styles.phaseLabel}>Complete</p>
-            <h2 className={styles.title}>Delivery Complete!</h2>
-            <p className={styles.instrText}>
-              Order <strong>{order.cash_ref}</strong> delivered successfully. Great work!
-            </p>
-            <button className={`${styles.acceptBtn} ${styles.acceptBtnStill}`} onClick={onDismiss}>Done</button>
+            <div className={styles.body}>
+              <p className={styles.phaseLabel}>Complete</p>
+              <h2 className={styles.title}>Delivery Complete!</h2>
+              <p className={styles.instrText}>
+                Order <strong>{order.cash_ref}</strong> delivered successfully. Great work!
+              </p>
+            </div>
+
+            <div className={styles.footer}>
+              <button className={`${styles.acceptBtn} ${styles.acceptBtnStill}`} onClick={onDismiss}>Done</button>
+            </div>
           </>
         )}
 
