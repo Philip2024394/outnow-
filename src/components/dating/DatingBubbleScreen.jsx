@@ -153,8 +153,6 @@ export default function DatingBubbleScreen({
   useEffect(() => {
     if (!open || sessions.length === 0) { setDisplaySlots([]); physics.current = []; return }
     if (rafId.current) cancelAnimationFrame(rafId.current)
-    selectedIds.current = new Set()
-    setTray([])
 
     if (containerRef.current) {
       const r = containerRef.current.getBoundingClientRect()

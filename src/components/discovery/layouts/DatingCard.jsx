@@ -108,6 +108,7 @@ export default function DatingCard({ open, session, mySession, onClose, showToas
     if (session.isSeeded) {
       setMeetSent(true)
       onMeetSent?.(session)
+      onConnect?.(session)
       return
     }
     setMeetLoading(true)
@@ -118,6 +119,7 @@ export default function DatingCard({ open, session, mySession, onClose, showToas
       )
       setMeetSent(true)
       onMeetSent?.(session)
+      onConnect?.(session)
     } catch { showToast?.('Could not send. Try again.', 'error') }
     setMeetLoading(false)
   }

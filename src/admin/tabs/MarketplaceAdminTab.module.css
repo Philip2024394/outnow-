@@ -1,0 +1,2 @@
+/* Marketplace uses DatingAdminTab.module.css for most styles — this file holds overrides */
+.filterBtnActive { background: rgba(168,85,247,0.1) !important; border-color: rgba(168,85,247,0.3) !important; color: #A855F7 !important; }

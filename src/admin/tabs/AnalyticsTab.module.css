@@ -1,0 +1,193 @@
+.page { padding: 24px 28px; display: flex; flex-direction: column; gap: 20px; }
+
+.toolbar { display: flex; align-items: center; justify-content: space-between; }
+.pageTitle { margin: 0; font-size: 18px; font-weight: 800; color: #fff; }
+
+.rangeBar { display: flex; gap: 6px; }
+.rangeBtn {
+  padding: 6px 16px;
+  background: rgba(255,255,255,0.04);
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 8px;
+  color: rgba(255,255,255,0.4);
+  font-size: 12px; font-weight: 600; cursor: pointer; font-family: inherit;
+  transition: all 0.15s;
+}
+.rangeBtn:hover { color: #fff; background: rgba(255,255,255,0.07); }
+.rangeBtnActive { background: rgba(0,229,255,0.1); border-color: rgba(0,229,255,0.3); color: #00E5FF; }
+
+/* ── Metrics grid ── */
+.metricsGrid {
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  gap: 12px;
+}
+
+.metricCard {
+  background: rgba(255,255,255,0.03);
+  border: 1px solid rgba(255,255,255,0.06);
+  border-radius: 14px;
+  padding: 18px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  position: relative;
+  overflow: hidden;
+  transition: border-color 0.2s;
+}
+.metricCard::after {
+  content: '';
+  position: absolute;
+  bottom: 0; left: 0; right: 0;
+  height: 2px;
+  background: var(--c);
+  opacity: 0.5;
+}
+.metricCard:hover { border-color: rgba(255,255,255,0.12); }
+
+.metricIcon { font-size: 18px; display: flex; align-items: center; }
+.metricVal {
+  font-size: 24px; font-weight: 900;
+  color: var(--c);
+  font-family: 'SF Mono', monospace;
+  line-height: 1;
+}
+.metricLabel { font-size: 12px; font-weight: 700; color: rgba(255,255,255,0.75); }
+.metricSub   { font-size: 10px; color: rgba(255,255,255,0.3); line-height: 1.4; }
+
+/* ── Charts ── */
+.chartsRow { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px; }
+
+.chartCard {
+  background: rgba(255,255,255,0.03);
+  border: 1px solid rgba(255,255,255,0.06);
+  border-radius: 14px;
+  padding: 18px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.chartHeader { display: flex; align-items: baseline; justify-content: space-between; }
+.chartTitle  { font-size: 13px; font-weight: 700; color: rgba(255,255,255,0.85); }
+.chartSub    { font-size: 10px; color: rgba(255,255,255,0.3); font-family: monospace; }
+
+/* Bar chart */
+.dayBars {
+  display: flex;
+  align-items: flex-end;
+  gap: 6px;
+  height: 120px;
+}
+
+.dayBar {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  height: 100%;
+}
+
+.dayVal { font-size: 9px; font-family: monospace; }
+
+.dayBarTrack {
+  flex: 1;
+  width: 100%;
+  background: rgba(255,255,255,0.05);
+  border-radius: 4px 4px 0 0;
+  display: flex;
+  align-items: flex-end;
+  overflow: hidden;
+}
+
+.dayBarFill {
+  width: 100%;
+  border-radius: 4px 4px 0 0;
+  height: 0;
+  animation: growUp 0.8s ease forwards;
+  animation-delay: var(--delay, 0s);
+  opacity: 0.8;
+}
+
+@keyframes growUp { to { height: var(--h, 100%); } }
+
+.dayLabel { font-size: 9px; color: rgba(255,255,255,0.3); font-family: monospace; }
+
+/* Funnel */
+.funnel { display: flex; flex-direction: column; gap: 8px; }
+
+.funnelStep {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.funnelBar {
+  height: 20px;
+  border-radius: 4px;
+  min-width: 4px;
+  transition: width 1s ease;
+}
+
+.funnelMeta {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.funnelLabel { font-size: 11px; color: rgba(255,255,255,0.5); }
+.funnelVal   { font-size: 11px; font-weight: 700; font-family: monospace; }
+
+/* ── Detail rows ── */
+.detailCard {
+  background: rgba(255,255,255,0.03);
+  border: 1px solid rgba(255,255,255,0.06);
+  border-radius: 14px;
+  padding: 18px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.statRows { display: flex; flex-direction: column; gap: 0; }
+
+.statRow {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 12px 0;
+  border-bottom: 1px solid rgba(255,255,255,0.04);
+}
+.statRow:last-child { border-bottom: none; }
+
+.rowIcon { font-size: 18px; width: 28px; text-align: center; flex-shrink: 0; }
+
+.rowBody { flex: 1; display: flex; flex-direction: column; gap: 4px; }
+
+.rowTop { display: flex; align-items: center; justify-content: space-between; }
+.rowLabel { font-size: 13px; font-weight: 600; color: rgba(255,255,255,0.8); }
+.rowValue { font-size: 18px; font-weight: 900; font-family: monospace; }
+
+.rowSub {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 11px;
+  color: rgba(255,255,255,0.3);
+}
+
+.rowTrend { font-weight: 700; font-family: monospace; }
+
+.miniBarTrack {
+  height: 3px;
+  background: rgba(255,255,255,0.06);
+  border-radius: 2px;
+  overflow: hidden;
+}
+
+.miniBarFill {
+  height: 100%;
+  border-radius: 2px;
+  transition: width 1.2s ease;
+}

@@ -1,0 +1,269 @@
+.page {
+  padding: 24px 28px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  min-height: 100%;
+}
+
+/* ── Stat cards ── */
+.statGrid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 16px;
+}
+
+.statCard {
+  background: rgba(255,255,255,0.03);
+  border: 1px solid rgba(255,255,255,0.06);
+  border-radius: 14px;
+  padding: 20px;
+  position: relative;
+  overflow: hidden;
+  transition: border-color 0.2s;
+}
+
+.statCard::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 2px;
+  background: var(--accent);
+  opacity: 0.7;
+}
+
+.statCard:hover { border-color: rgba(255,255,255,0.12); }
+
+.statTop {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 12px;
+}
+
+.statIcon { font-size: 18px; }
+
+.statTrend {
+  font-size: 11px;
+  font-weight: 700;
+  color: #00FF9D;
+  font-family: monospace;
+}
+
+.statValue {
+  font-size: 32px;
+  font-weight: 900;
+  color: #fff;
+  font-family: 'SF Mono', 'Roboto Mono', monospace;
+  line-height: 1;
+  margin-bottom: 6px;
+}
+
+.statLabel {
+  font-size: 12px;
+  color: rgba(255,255,255,0.4);
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+.statBar {
+  position: absolute;
+  bottom: 0; left: 0; right: 0;
+  height: 2px;
+  background: rgba(255,255,255,0.05);
+  overflow: hidden;
+}
+
+.statBarFill {
+  height: 100%;
+  width: 0;
+  animation: fillBar 2s ease forwards;
+  opacity: 0.5;
+}
+
+@keyframes fillBar {
+  to { width: 70%; }
+}
+
+/* ── Charts ── */
+.chartsRow {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 16px;
+}
+
+.bottomRow {
+  display: grid;
+  grid-template-columns: auto 1fr 1fr;
+  gap: 16px;
+}
+
+.chartCard {
+  background: rgba(255,255,255,0.03);
+  border: 1px solid rgba(255,255,255,0.06);
+  border-radius: 14px;
+  padding: 18px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.chartHeader {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+}
+
+.chartTitle {
+  font-size: 13px;
+  font-weight: 700;
+  color: rgba(255,255,255,0.85);
+}
+
+.chartSub {
+  font-size: 10px;
+  color: rgba(255,255,255,0.3);
+  font-family: monospace;
+}
+
+.liveDot {
+  color: #00FF9D !important;
+  animation: blink 1s infinite;
+}
+
+@keyframes blink { 0%,100%{opacity:1} 50%{opacity:0.3} }
+
+.lineChart {
+  width: 100%;
+  height: 80px;
+}
+
+.linePath {
+  stroke-dasharray: 1000;
+  stroke-dashoffset: 1000;
+  animation: drawLine 1.5s ease forwards;
+}
+
+@keyframes drawLine {
+  to { stroke-dashoffset: 0; }
+}
+
+.barChart {
+  width: 100%;
+  height: 120px;
+}
+
+.bar {
+  transform-origin: bottom;
+  transform: scaleY(0);
+  animation: growBar 0.8s ease forwards;
+  animation-delay: var(--delay, 0s);
+}
+
+@keyframes growBar {
+  to { transform: scaleY(1); }
+}
+
+.chartLabels {
+  display: flex;
+  justify-content: space-between;
+  padding: 0 4px;
+}
+
+.chartLabel {
+  font-size: 9px;
+  color: rgba(255,255,255,0.25);
+  font-family: monospace;
+}
+
+/* ── Ring chart ── */
+.ringCard {
+  background: rgba(255,255,255,0.03);
+  border: 1px solid rgba(255,255,255,0.06);
+  border-radius: 14px;
+  padding: 18px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  min-width: 280px;
+}
+
+.ringChart {
+  width: 112px;
+  height: 112px;
+  flex-shrink: 0;
+}
+
+.ringWrap {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+
+.ringLegend {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+}
+
+.legendRow {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.legendDot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.legendLabel {
+  font-size: 12px;
+  color: rgba(255,255,255,0.6);
+  flex: 1;
+}
+
+.legendVal {
+  font-size: 12px;
+  font-weight: 700;
+  font-family: monospace;
+}
+
+/* ── Feed ── */
+.feedCard {
+  background: rgba(255,255,255,0.03);
+  border: 1px solid rgba(255,255,255,0.06);
+  border-radius: 14px;
+  padding: 18px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.feedList {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  overflow: hidden;
+}
+
+.feedItem {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 0;
+  border-bottom: 1px solid rgba(255,255,255,0.04);
+  animation: slideIn 0.3s ease;
+}
+
+@keyframes slideIn {
+  from { transform: translateX(-10px); opacity: 0; }
+  to   { transform: translateX(0);     opacity: 1; }
+}
+
+.feedIcon { font-size: 14px; flex-shrink: 0; }
+.feedMsg  { flex: 1; font-size: 12px; color: rgba(255,255,255,0.65); }
+.feedTime { font-size: 10px; color: rgba(255,255,255,0.25); font-family: monospace; white-space: nowrap; }

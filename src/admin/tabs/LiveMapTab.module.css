@@ -1,0 +1,130 @@
+.page {
+  display: flex;
+  flex-direction: column;
+  height: calc(100vh - 52px);
+  overflow: hidden;
+}
+
+.filterBar {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 24px;
+  background: rgba(7,7,15,0.9);
+  border-bottom: 1px solid rgba(255,255,255,0.06);
+  flex-shrink: 0;
+  flex-wrap: wrap;
+}
+
+.filterTitle {
+  font-size: 13px;
+  font-weight: 700;
+  color: rgba(255,255,255,0.8);
+  white-space: nowrap;
+}
+
+.filters { display: flex; gap: 8px; flex-wrap: wrap; flex: 1; }
+
+.filterChip {
+  padding: 6px 14px;
+  background: rgba(255,255,255,0.04);
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 20px;
+  color: rgba(255,255,255,0.4);
+  font-size: 12px; font-weight: 600; cursor: pointer; font-family: inherit;
+  transition: all 0.15s;
+  display: flex; align-items: center; gap: 6px;
+}
+.filterChipOn { opacity: 1; }
+.filterChip:not(.filterChipOn) { opacity: 0.5; }
+
+.filterCount {
+  background: rgba(255,255,255,0.1);
+  padding: 1px 6px;
+  border-radius: 10px;
+  font-size: 10px;
+}
+
+.livePill {
+  display: flex; align-items: center; gap: 6px;
+  padding: 5px 12px; border-radius: 20px;
+  background: rgba(0,255,157,0.08); border: 1px solid rgba(0,255,157,0.2);
+  font-size: 10px; font-weight: 900; letter-spacing: 0.12em; color: #00FF9D;
+  margin-left: auto;
+}
+
+.liveDot {
+  width: 7px; height: 7px; border-radius: 50%; background: #00FF9D;
+  box-shadow: 0 0 8px #00FF9D;
+  animation: breathe 1.5s infinite;
+}
+
+@keyframes breathe { 0%,100%{opacity:1} 50%{opacity:0.3} }
+
+.mapWrap {
+  flex: 1;
+  position: relative;
+  background: #1a1a2e;
+}
+
+.map {
+  width: 100%;
+  height: 100%;
+}
+
+/* Override leaflet default bg */
+:global(.leaflet-container) {
+  background: #1a1a2e !important;
+  font-family: inherit;
+}
+
+.loadingOverlay {
+  position: absolute;
+  inset: 0;
+  background: rgba(3,3,10,0.8);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  z-index: 999;
+}
+
+.loadingSpinner {
+  width: 32px; height: 32px;
+  border: 2px solid rgba(0,229,255,0.2);
+  border-top-color: #00E5FF;
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+
+.loadingText { color: #00E5FF; font-size: 13px; font-family: monospace; }
+
+.legend {
+  display: flex;
+  gap: 16px;
+  padding: 10px 24px;
+  border-top: 1px solid rgba(255,255,255,0.06);
+  background: rgba(7,7,15,0.9);
+  flex-shrink: 0;
+  flex-wrap: wrap;
+}
+
+.legendItem { display: flex; align-items: center; gap: 6px; }
+.legendDot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+.legendLabel { font-size: 11px; color: rgba(255,255,255,0.4); }
+
+/* Error state */
+.errorState {
+  flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 12px;
+  padding: 40px;
+}
+.errorIcon  { font-size: 48px; }
+.errorTitle { margin: 0; font-size: 18px; font-weight: 800; color: rgba(255,255,255,0.7); }
+.errorDesc  { margin: 0; font-size: 13px; color: rgba(255,255,255,0.35); }
+.errorCode  {
+  font-family: monospace; font-size: 12px;
+  background: rgba(255,68,68,0.08); border: 1px solid rgba(255,68,68,0.2);
+  color: #FF6B6B; padding: 8px 16px; border-radius: 8px;
+}
