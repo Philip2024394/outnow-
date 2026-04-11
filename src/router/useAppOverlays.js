@@ -54,6 +54,10 @@ export function useAppOverlays() {
   // ── Map filter ──────────────────────────────────────────────────────────────
   const [mapFilterOpen, setMapFilterOpen] = useState(false)
 
+  // ── Order history / incoming gifts ──────────────────────────────────────────
+  const [orderHistoryOpen,   setOrderHistoryOpen]   = useState(false)
+  const [incomingGiftsOpen,  setIncomingGiftsOpen]  = useState(false)
+
   return {
     countrySearchOpen, setCountrySearchOpen,
     cityResultsOpen,   setCityResultsOpen,
@@ -82,5 +86,7 @@ export function useAppOverlays() {
     vibeBroadcastOpen,   setVibeBroadcastOpen,
     newsOpen,            setNewsOpen,
     mapFilterOpen,       setMapFilterOpen,
+    orderHistoryOpen,    setOrderHistoryOpen,
+    incomingGiftsOpen,   setIncomingGiftsOpen,
   }
 }

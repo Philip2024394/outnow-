@@ -48,6 +48,7 @@ export default function AnalyticsTab() {
 
   useEffect(() => {
     setLoading(true)
+    if (!supabase) { setLoading(false); return }
     // Try to pull from Supabase events table — falls back to realistic demo
     supabase.from('analytics_events')
       .select('event_type, count', { count: 'exact' })

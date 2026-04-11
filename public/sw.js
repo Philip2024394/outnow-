@@ -73,7 +73,9 @@ self.addEventListener('fetch', (e) => {
         if (cached) return cached
         return fetch(request).then(response => {
           if (response.ok) {
-            caches.open(STATIC_CACHE).then(cache => cache.put(request, response.clone()))
+            // Clone immediately — before the body is consumed by return
+            const toCache = response.clone()
+            caches.open(STATIC_CACHE).then(cache => cache.put(request, toCache))
           }
           return response
         })
@@ -89,7 +91,9 @@ self.addEventListener('fetch', (e) => {
         if (cached) return cached
         return fetch(request).then(response => {
           if (response.ok) {
-            caches.open(IMAGE_CACHE).then(cache => cache.put(request, response.clone()))
+            // Clone immediately — before the body is consumed by return
+            const toCache = response.clone()
+            caches.open(IMAGE_CACHE).then(cache => cache.put(request, toCache))
           }
           return response
         }).catch(() => Response.error())

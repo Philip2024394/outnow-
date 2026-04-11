@@ -13,6 +13,8 @@ import PricingTab     from './PricingTab'
 import BookingsTab    from './BookingsTab'
 import HanggerNewsTab from './HanggerNewsTab'
 import NotificationsTab from './NotificationsTab'
+import MessagesTab   from './tabs/MessagesTab'
+import MarketingTab  from './MarketingTab'
 
 const LOGO = 'https://ik.imagekit.io/dateme/Logo%20with%20green%20map%20pin%20element.png'
 
@@ -31,6 +33,8 @@ const NAV = [
   { id: 'news',         icon: '📰', label: 'News'         },
   { id: 'pricing',      icon: '💰', label: 'Pricing'      },
   { id: 'notify',       icon: '🔔', label: 'Notify'       },
+  { id: 'messages',     icon: '💬', label: 'Messages'     },
+  { id: 'marketing',    icon: '📢', label: 'Marketing'    },
 ]
 
 export default function AdminDashboard({ onLogout }) {
@@ -156,6 +160,8 @@ export default function AdminDashboard({ onLogout }) {
           {tab === 'news'        && <HanggerNewsTab />}
           {tab === 'pricing'     && <PricingTab />}
           {tab === 'notify'      && <NotificationsTab />}
+          {tab === 'messages'    && <MessagesTab />}
+          {tab === 'marketing'   && <MarketingTab />}
           {tab === 'users'       && <UsersTab />}
         </div>
       </div>

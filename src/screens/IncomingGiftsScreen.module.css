@@ -1,0 +1,76 @@
+.screen {
+  position: fixed; inset: 0; z-index: 9400;
+  background: #0a0a12; display: flex; flex-direction: column;
+  animation: fadeIn 0.25s ease;
+}
+@keyframes fadeIn { from { opacity: 0; transform: translateY(16px); } to { opacity: 1; transform: none; } }
+
+.header {
+  display: flex; align-items: center; gap: 10px;
+  padding: calc(env(safe-area-inset-top, 0px) + 14px) 16px 12px;
+  border-bottom: 1px solid rgba(255,255,255,0.07); flex-shrink: 0;
+}
+.backBtn {
+  width: 36px; height: 36px; border-radius: 50%;
+  background: rgba(255,255,255,0.07); border: 1px solid rgba(255,255,255,0.12);
+  color: #fff; display: flex; align-items: center; justify-content: center; cursor: pointer;
+}
+.title { font-size: 17px; font-weight: 800; color: #fff; flex: 1; }
+.badge {
+  background: #E8458C; color: #fff; font-size: 11px; font-weight: 800;
+  border-radius: 20px; padding: 2px 8px; min-width: 20px; text-align: center;
+}
+
+.tabs { display: flex; border-bottom: 1px solid rgba(255,255,255,0.07); flex-shrink: 0; }
+.tab {
+  flex: 1; padding: 12px 8px; font-size: 13px; font-weight: 700;
+  color: rgba(255,255,255,0.4); background: none; border: none;
+  border-bottom: 2px solid transparent; cursor: pointer; transition: all 0.15s;
+}
+.tabActive { color: #E8458C; border-bottom-color: #E8458C; }
+
+.loading { flex: 1; display: flex; align-items: center; justify-content: center; color: rgba(255,255,255,0.4); font-size: 14px; }
+
+.empty { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px; padding: 40px; }
+.emptyEmoji { font-size: 48px; }
+.empty p { font-size: 15px; font-weight: 700; color: rgba(255,255,255,0.5); margin: 0; text-align: center; }
+.emptySub { font-size: 12px !important; color: rgba(255,255,255,0.3) !important; }
+
+.list { flex: 1; overflow-y: auto; padding: 12px 16px; display: flex; flex-direction: column; gap: 10px; }
+
+.card {
+  display: flex; gap: 12px;
+  background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.07);
+  border-radius: 16px; padding: 12px;
+}
+.cardIcon {
+  width: 48px; height: 48px; border-radius: 12px; flex-shrink: 0;
+  background: rgba(232,69,140,0.1); display: flex; align-items: center;
+  justify-content: center; font-size: 22px;
+}
+.cardBody { flex: 1; display: flex; flex-direction: column; gap: 3px; }
+.cardName { font-size: 14px; font-weight: 800; color: #fff; }
+.cardDate { font-size: 11px; color: rgba(255,255,255,0.35); }
+.cardMsg  { font-size: 11px; color: rgba(255,255,255,0.5); font-style: italic; }
+.cardFooter { display: flex; align-items: center; justify-content: space-between; margin-top: 4px; }
+.cardPrice  { font-size: 13px; font-weight: 800; color: #E8458C; }
+.cardStatus {
+  font-size: 10px; font-weight: 700; padding: 2px 8px;
+  border-radius: 20px; border: 1px solid;
+}
+
+/* Delivery progress bar */
+.progressBar { display: flex; gap: 4px; margin-top: 8px; }
+.progressStep {
+  flex: 1; height: 4px; border-radius: 2px;
+  background: rgba(255,255,255,0.1); transition: background 0.3s;
+}
+.progressStepDone { background: #E8458C; }
+
+.rateBtn {
+  margin-top: 8px; padding: 6px 14px; border-radius: 20px;
+  background: rgba(245,197,24,0.12); border: 1px solid rgba(245,197,24,0.35);
+  color: #F5C518; font-size: 12px; font-weight: 700; cursor: pointer;
+  align-self: flex-start; transition: background 0.15s;
+}
+.rateBtn:active { background: rgba(245,197,24,0.22); }

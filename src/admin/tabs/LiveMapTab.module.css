@@ -5,6 +5,7 @@
   overflow: hidden;
 }
 
+/* ── Filter bar ── */
 .filterBar {
   display: flex;
   align-items: center;
@@ -15,16 +16,11 @@
   flex-shrink: 0;
   flex-wrap: wrap;
 }
-
 .filterTitle {
-  font-size: 13px;
-  font-weight: 700;
-  color: rgba(255,255,255,0.8);
-  white-space: nowrap;
+  font-size: 13px; font-weight: 700;
+  color: rgba(255,255,255,0.8); white-space: nowrap;
 }
-
 .filters { display: flex; gap: 8px; flex-wrap: wrap; flex: 1; }
-
 .filterChip {
   padding: 6px 14px;
   background: rgba(255,255,255,0.04);
@@ -37,14 +33,10 @@
 }
 .filterChipOn { opacity: 1; }
 .filterChip:not(.filterChipOn) { opacity: 0.5; }
-
 .filterCount {
   background: rgba(255,255,255,0.1);
-  padding: 1px 6px;
-  border-radius: 10px;
-  font-size: 10px;
+  padding: 1px 6px; border-radius: 10px; font-size: 10px;
 }
-
 .livePill {
   display: flex; align-items: center; gap: 6px;
   padding: 5px 12px; border-radius: 20px;
@@ -52,44 +44,39 @@
   font-size: 10px; font-weight: 900; letter-spacing: 0.12em; color: #00FF9D;
   margin-left: auto;
 }
-
 .liveDot {
   width: 7px; height: 7px; border-radius: 50%; background: #00FF9D;
   box-shadow: 0 0 8px #00FF9D;
   animation: breathe 1.5s infinite;
 }
-
 @keyframes breathe { 0%,100%{opacity:1} 50%{opacity:0.3} }
+
+/* ── Map + side panel row ── */
+.mapRow {
+  flex: 1;
+  display: flex;
+  overflow: hidden;
+}
 
 .mapWrap {
   flex: 1;
   position: relative;
   background: #1a1a2e;
+  min-width: 0;
 }
+.map { width: 100%; height: 100%; }
 
-.map {
-  width: 100%;
-  height: 100%;
-}
-
-/* Override leaflet default bg */
 :global(.leaflet-container) {
   background: #1a1a2e !important;
   font-family: inherit;
 }
 
 .loadingOverlay {
-  position: absolute;
-  inset: 0;
+  position: absolute; inset: 0;
   background: rgba(3,3,10,0.8);
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 12px;
-  z-index: 999;
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center; gap: 12px; z-index: 999;
 }
-
 .loadingSpinner {
   width: 32px; height: 32px;
   border: 2px solid rgba(0,229,255,0.2);
@@ -98,27 +85,145 @@
   animation: spin 0.8s linear infinite;
 }
 @keyframes spin { to { transform: rotate(360deg); } }
-
 .loadingText { color: #00E5FF; font-size: 13px; font-family: monospace; }
 
-.legend {
-  display: flex;
-  gap: 16px;
-  padding: 10px 24px;
-  border-top: 1px solid rgba(255,255,255,0.06);
-  background: rgba(7,7,15,0.9);
+/* ── Side panel ── */
+.sidePanel {
+  width: 300px;
   flex-shrink: 0;
-  flex-wrap: wrap;
+  background: #07070F;
+  border-left: 1px solid rgba(255,255,255,0.07);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+.sidePanelHeader {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 14px 16px;
+  border-bottom: 1px solid rgba(255,255,255,0.07);
+  flex-shrink: 0;
+}
+.sidePanelTitle {
+  font-size: 12px; font-weight: 800; letter-spacing: 0.06em;
+  color: rgba(255,255,255,0.7); text-transform: uppercase;
+}
+.sidePanelClose {
+  background: none; border: none; cursor: pointer; font-family: inherit;
+  color: rgba(255,255,255,0.35); font-size: 16px; line-height: 1;
+  padding: 2px 4px; transition: color 0.15s;
+}
+.sidePanelClose:hover { color: #fff; }
+
+/* ── Customer card (booking selected) ── */
+.customerCard {
+  padding: 20px 16px 16px;
+  display: flex; flex-direction: column; align-items: center; gap: 6px;
+  border-bottom: 1px solid rgba(255,255,255,0.07);
+  flex-shrink: 0;
+}
+.customerPhoto {
+  width: 64px; height: 64px; border-radius: 50%;
+  object-fit: cover; border: 3px solid #FF4444;
+  box-shadow: 0 0 20px rgba(255,68,68,0.4);
+}
+.customerName { font-size: 16px; font-weight: 800; color: #fff; margin-top: 4px; }
+.customerMeta { font-size: 12px; color: rgba(255,255,255,0.45); }
+.bookingBadge {
+  margin-top: 6px; padding: 4px 14px; border-radius: 20px;
+  border: 1px solid; font-size: 12px; font-weight: 700;
+}
+.bookingInfo {
+  padding: 14px 16px;
+  display: flex; flex-direction: column; gap: 10px;
+  border-bottom: 1px solid rgba(255,255,255,0.07);
+  flex-shrink: 0;
+}
+.infoRow { display: flex; justify-content: space-between; align-items: baseline; }
+.infoLabel { font-size: 11px; color: rgba(255,255,255,0.35); text-transform: uppercase; letter-spacing: 0.05em; }
+.infoVal { font-size: 13px; color: #fff; font-weight: 600; }
+.sidePanelActions {
+  padding: 14px 16px; display: flex; gap: 8px; flex-shrink: 0;
+}
+.actionGreen {
+  flex: 1; padding: 9px; border-radius: 8px; font-size: 12px; font-weight: 700;
+  background: rgba(0,255,157,0.12); border: 1px solid rgba(0,255,157,0.3);
+  color: #00FF9D; cursor: pointer; font-family: inherit; transition: background 0.15s;
+}
+.actionGreen:hover { background: rgba(0,255,157,0.2); }
+.actionRed {
+  flex: 1; padding: 9px; border-radius: 8px; font-size: 12px; font-weight: 700;
+  background: rgba(255,68,68,0.1); border: 1px solid rgba(255,68,68,0.3);
+  color: #FF4444; cursor: pointer; font-family: inherit; transition: background 0.15s;
+}
+.actionRed:hover { background: rgba(255,68,68,0.2); }
+
+/* ── Driver list ── */
+.driverList {
+  overflow-y: auto;
+  flex-shrink: 0;
+  max-height: 260px;
+  border-bottom: 1px solid rgba(255,255,255,0.07);
+}
+.driverRow {
+  display: flex; align-items: center; gap: 10px;
+  padding: 10px 16px;
+  border-bottom: 1px solid rgba(255,255,255,0.04);
+  cursor: pointer; transition: background 0.15s;
+}
+.driverRow:hover { background: rgba(255,255,255,0.04); }
+.driverTypeIcon { font-size: 18px; flex-shrink: 0; }
+.driverInfo { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px; }
+.driverName { font-size: 13px; font-weight: 700; color: #fff; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.driverSub { font-size: 11px; color: rgba(255,255,255,0.35); }
+.driverStatus {
+  font-size: 10px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.06em;
+  padding: 3px 8px; border-radius: 10px; border: 1px solid; flex-shrink: 0;
 }
 
+/* ── Booking list ── */
+.bookingHeader {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 12px 16px 8px;
+  flex-shrink: 0;
+}
+.bookingCountBadge {
+  background: rgba(255,68,68,0.15); border: 1px solid rgba(255,68,68,0.3);
+  color: #FF4444; font-size: 11px; font-weight: 800;
+  padding: 2px 8px; border-radius: 10px;
+}
+.bookingList {
+  overflow-y: auto; flex: 1;
+}
+.bookingRow {
+  display: flex; align-items: center; gap: 10px;
+  padding: 10px 16px;
+  border-bottom: 1px solid rgba(255,255,255,0.04);
+  cursor: pointer; transition: background 0.15s;
+}
+.bookingRow:hover { background: rgba(255,68,68,0.06); }
+.bookingAvatar {
+  width: 36px; height: 36px; border-radius: 50%;
+  object-fit: cover; border: 2px solid rgba(255,68,68,0.5); flex-shrink: 0;
+}
+.bookingInfo2 { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px; }
+.bookingName { font-size: 13px; font-weight: 700; color: #fff; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.bookingDest { font-size: 11px; color: rgba(255,255,255,0.4); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.bookingWait { font-size: 11px; font-weight: 800; color: #FF4444; flex-shrink: 0; }
+
+/* ── Legend ── */
+.legend {
+  display: flex; gap: 16px; padding: 10px 24px;
+  border-top: 1px solid rgba(255,255,255,0.06);
+  background: rgba(7,7,15,0.9); flex-shrink: 0; flex-wrap: wrap;
+}
 .legendItem { display: flex; align-items: center; gap: 6px; }
 .legendDot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
 .legendLabel { font-size: 11px; color: rgba(255,255,255,0.4); }
 
-/* Error state */
+/* ── Error state ── */
 .errorState {
-  flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 12px;
-  padding: 40px;
+  flex: 1; display: flex; flex-direction: column;
+  align-items: center; justify-content: center; gap: 12px; padding: 40px;
 }
 .errorIcon  { font-size: 48px; }
 .errorTitle { margin: 0; font-size: 18px; font-weight: 800; color: rgba(255,255,255,0.7); }

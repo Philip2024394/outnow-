@@ -65,9 +65,19 @@
   font-family: inherit;
   position: relative;
 }
-.driverRow:hover { background: rgba(255,255,255,0.03); }
+.driverRow:hover { background: rgba(255,255,255,0.03); cursor: pointer; }
 .driverRowActive { background: rgba(0,229,255,0.05); }
 .driverRowActive::before { content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: 2px; background: #00E5FF; }
+
+.editDriverBtn {
+  margin-left: auto; flex-shrink: 0;
+  width: 26px; height: 26px;
+  background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 6px; cursor: pointer; font-size: 12px; font-family: inherit;
+  display: flex; align-items: center; justify-content: center;
+  transition: background 0.15s;
+}
+.editDriverBtn:hover { background: rgba(0,229,255,0.15); border-color: rgba(0,229,255,0.3); }
 
 .driverAvatarWrap { position: relative; flex-shrink: 0; }
 .driverAvatar { width: 40px; height: 40px; border-radius: 50%; object-fit: cover; border: 1px solid rgba(255,255,255,0.1); }

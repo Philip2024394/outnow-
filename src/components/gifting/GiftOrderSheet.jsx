@@ -8,11 +8,16 @@
  * Privacy: the buyer never sees the recipient's address.
  * Distance comes from giftFor.distanceKm (already calculated when profile was viewed).
  */
-import { useState, useRef } from 'react'
+import { useState, useRef, useEffect } from 'react'
 import { useAuth } from '@/hooks/useAuth'
 import { placeGiftOrder, getDeliveryTier, DELIVERY_TIERS, formatIDR, hasGiftAddress } from '@/services/giftService'
 import { notifyGiftToSeller, notifyGiftToRecipient, notifyGiftAddressRequired } from '@/services/notificationService'
+import { payGiftOrder } from '@/services/paymentService'
+import { supabase } from '@/lib/supabase'
 import styles from './GiftOrderSheet.module.css'
+
+const ORDER_STEPS = ['pending', 'processing', 'delivering', 'delivered']
+const STEP_LABELS = { pending: '⏳ Preparing', processing: '🔄 Processing', delivering: '🛵 On the way', delivered: '✅ Delivered' }
 
 function formatProductPrice(price, currency) {
   if (!price) return '—'
@@ -23,9 +28,26 @@ function formatProductPrice(price, currency) {
 export default function GiftOrderSheet({ open, product, seller, giftFor, onClose, showToast }) {
   const { user } = useAuth()
 
-  const [message,    setMessage]    = useState('')
-  const [sending,    setSending]    = useState(false)
-  const [sent,       setSent]       = useState(false)
+  const [message,     setMessage]     = useState('')
+  const [sending,     setSending]     = useState(false)
+  const [sent,        setSent]        = useState(false)
+  const [placedId,    setPlacedId]    = useState(null)   // order id after placement
+  const [orderStatus, setOrderStatus] = useState('pending')
+
+  // Real-time status subscription — fires after order is placed
+  useEffect(() => {
+    if (!supabase || !placedId) return
+    const ch = supabase
+      .channel(`order-status-${placedId}`)
+      .on('postgres_changes', {
+        event: 'UPDATE', schema: 'public', table: 'gift_orders',
+        filter: `id=eq.${placedId}`,
+      }, (payload) => {
+        if (payload.new.status) setOrderStatus(payload.new.status)
+      })
+      .subscribe()
+    return () => supabase.removeChannel(ch)
+  }, [placedId])
   const [bubblePos,  setBubblePos]  = useState(() => ({
     x: typeof window !== 'undefined' ? window.innerWidth - 96 : 320,
     y: 72,
@@ -66,6 +88,24 @@ export default function GiftOrderSheet({ open, product, seller, giftFor, onClose
       const buyerUserId = user.uid ?? user.id
       const recipientId = giftFor.userId ?? giftFor.id
 
+      // ── Step 1: Midtrans payment ────────────────────────────────────────────
+      const payment = await payGiftOrder({
+        id:          `gift-${Date.now()}`,
+        productId:   product.id ?? product.name,
+        productName: product.name,
+        totalAmount: totalPrice,
+        buyerName:   user.displayName ?? 'Buyer',
+        buyerPhone:  user.phoneNumber ?? undefined,
+      })
+      if (payment.status === 'closed') { setSending(false); return }
+      if (payment.status === 'error') {
+        showToast?.('Payment failed — please try again.', 'error')
+        setSending(false)
+        return
+      }
+      // status === 'success' | 'pending' → proceed to create order
+
+      // ── Step 2: Record order in Supabase ───────────────────────────────────
       const { id: orderId, error } = await placeGiftOrder({
         recipientId,
         sellerId:    seller.id,
@@ -110,6 +150,7 @@ export default function GiftOrderSheet({ open, product, seller, giftFor, onClose
         })
       }
 
+      setPlacedId(orderId)
       setSent(true)
     } catch (e) {
       showToast?.(e.message ?? 'Something went wrong', 'error')
@@ -117,20 +158,30 @@ export default function GiftOrderSheet({ open, product, seller, giftFor, onClose
     setSending(false)
   }
 
-  // ── Success state ────────────────────────────────────────────────────────────
+  // ── Success state with live order tracking ───────────────────────────────────
   if (sent) {
+    const curStep = ORDER_STEPS.indexOf(orderStatus)
     return (
       <div className={styles.backdrop} onClick={onClose}>
         <div className={styles.sheet} onClick={e => e.stopPropagation()}>
           <div className={styles.successWrap}>
-            <div className={styles.successEmoji}>🎁</div>
+            <div className={styles.successEmoji}>{orderStatus === 'delivered' ? '✅' : '🎁'}</div>
             <h2 className={styles.successTitle}>Gift sent!</h2>
             <p className={styles.successSub}>
               Your anonymous gift is on its way to{' '}
-              <strong>{giftFor.displayName ?? 'them'}</strong>.{' '}
-              The seller has been notified and{' '}
-              {giftFor.displayName ?? 'they'} will receive a delivery notification.
+              <strong>{giftFor.displayName ?? 'them'}</strong>.
             </p>
+
+            {/* Live status */}
+            <div className={styles.trackStatus}>{STEP_LABELS[orderStatus] ?? STEP_LABELS.pending}</div>
+
+            {/* Progress bar */}
+            <div className={styles.trackBar}>
+              {ORDER_STEPS.map((s, i) => (
+                <div key={s} className={`${styles.trackStep} ${i <= curStep ? styles.trackStepDone : ''}`} />
+              ))}
+            </div>
+
             <p className={styles.successPrivacy}>
               🔒 Your identity is completely anonymous — they'll never know who sent it.
             </p>

@@ -98,9 +98,7 @@ export default function AlertsOverlay({ visible, onClose, onCountChange }) {
           </div>
           <div className={styles.headerRight}>
             <button className={styles.refreshBtn} onClick={refresh}>↻ Refresh</button>
-            {!hasCritical && (
-              <button className={styles.closeBtn} onClick={onClose}>✕</button>
-            )}
+            <button className={styles.closeBtn} onClick={onClose} title={hasCritical ? 'Close (critical issues remain)' : 'Close'}>✕</button>
           </div>
         </div>
 
@@ -170,9 +168,9 @@ export default function AlertsOverlay({ visible, onClose, onCountChange }) {
         {hasCritical && (
           <div className={styles.criticalFooter}>
             <span className={styles.criticalWarning}>
-              ⛔ CRITICAL issues must be resolved before dismissing this alert.
+              ⛔ CRITICAL issues detected — app features will not work until resolved.
             </span>
-            <span className={styles.criticalHint}>Fix all CRITICAL issues above, then refresh to re-check.</span>
+            <span className={styles.criticalHint}>Fix the issues above, then click ↻ Refresh to re-check.</span>
           </div>
         )}
       </div>

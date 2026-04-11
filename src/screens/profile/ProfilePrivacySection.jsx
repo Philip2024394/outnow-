@@ -7,9 +7,11 @@
  * and the restaurant dashboard overlay.
  */
 import { createPortal } from 'react-dom'
+import { useState as useLocalState } from 'react'
 import { deleteAccount, exportMyData } from '@/services/profileService'
 import { signOut, sendPasswordReset } from '@/services/authService'
 import { endSession } from '@/services/sessionService'
+import { supabase } from '@/lib/supabase'
 import DriverIncomingBooking from '@/components/driver/DriverIncomingBooking'
 import DriverTripScreen from '@/components/driver/DriverTripScreen'
 import DriverEarningsScreen from '@/components/driver/DriverEarningsScreen'
@@ -49,6 +51,38 @@ export default function ProfilePrivacySection({
   onClose,
   showToast,
 }) {
+  // ── Driver's licence upload ───────────────────────────────────────────────
+  const [licenseFile,     setLicenseFile]     = useLocalState(null)
+  const [licenseUploading, setLicenseUploading] = useLocalState(false)
+  const [licenseStatus,   setLicenseStatus]   = useLocalState(
+    userProfile?.licenseStatus ?? null   // 'pending' | 'approved' | 'rejected'
+  )
+
+  const handleLicenseUpload = async (e) => {
+    const file = e.target.files?.[0]
+    if (!file) return
+    setLicenseFile(file)
+    if (!supabase || !user?.id && !user?.uid) return
+    setLicenseUploading(true)
+    try {
+      const uid  = user.uid ?? user.id
+      const path = `driver-licenses/${uid}/${Date.now()}-${file.name}`
+      const { error: upErr } = await supabase.storage.from('documents').upload(path, file, { upsert: true })
+      if (upErr) throw upErr
+      const { data: urlData } = supabase.storage.from('documents').getPublicUrl(path)
+      await supabase.from('profiles').update({
+        driver_license_url:    urlData.publicUrl,
+        driver_license_status: 'pending',
+        updated_at:            new Date().toISOString(),
+      }).eq('id', uid)
+      setLicenseStatus('pending')
+      showToast?.('Licence submitted for review ✅')
+    } catch (err) {
+      showToast?.(err.message ?? 'Upload failed', 'error')
+    }
+    setLicenseUploading(false)
+  }
+
   async function handleDrawerSignOut() {
     setDrawerSigningOut(true)
     try {
@@ -210,6 +244,55 @@ export default function ProfilePrivacySection({
               {onboarding ? 'Continue to App →' : 'Pass Offer — Stay on Basic'}
             </button>
             <p className={styles.vFootnote}>No commission · No price increases · Cancel any time</p>
+          </div>
+
+          {/* ── Driver's licence upload ── */}
+          <div className={styles.vDivider} />
+          <div className={styles.licenseSection}>
+            <div className={styles.licenseTitleRow}>
+              <span className={styles.licenseTitleIcon}>🪪</span>
+              <div>
+                <div className={styles.licenseTitle}>Driver's Licence Verification</div>
+                <div className={styles.licenseSub}>Upload your licence to unlock driver features and display a verified badge.</div>
+              </div>
+            </div>
+
+            {licenseStatus === 'approved' && (
+              <div className={styles.licenseStatusBadge} style={{ background: 'rgba(74,222,128,0.12)', borderColor: 'rgba(74,222,128,0.3)', color: '#4ADE80' }}>
+                ✅ Verified — Licence approved
+              </div>
+            )}
+            {licenseStatus === 'pending' && (
+              <div className={styles.licenseStatusBadge} style={{ background: 'rgba(251,191,36,0.12)', borderColor: 'rgba(251,191,36,0.3)', color: '#FBBF24' }}>
+                ⏳ Under review — we'll notify you within 24h
+              </div>
+            )}
+            {licenseStatus === 'rejected' && (
+              <div className={styles.licenseStatusBadge} style={{ background: 'rgba(248,113,113,0.12)', borderColor: 'rgba(248,113,113,0.3)', color: '#F87171' }}>
+                ❌ Rejected — please re-upload a clear photo
+              </div>
+            )}
+
+            {licenseStatus !== 'approved' && (
+              <label className={styles.licenseUploadBtn}>
+                <input
+                  type="file"
+                  accept="image/*,.pdf"
+                  style={{ display: 'none' }}
+                  onChange={handleLicenseUpload}
+                  disabled={licenseUploading}
+                />
+                {licenseUploading
+                  ? '⏳ Uploading…'
+                  : licenseFile
+                  ? `📄 ${licenseFile.name} — tap to re-upload`
+                  : '📷 Upload Licence Photo or PDF'
+                }
+              </label>
+            )}
+            <p className={styles.licenseNote}>
+              Your licence is stored securely and only reviewed by Hangger staff. It is never shared with other users.
+            </p>
           </div>
         </div>
       )}

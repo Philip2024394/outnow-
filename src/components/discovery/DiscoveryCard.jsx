@@ -47,9 +47,9 @@ const ACTIVITY_SLOGANS = {
 
 // Mood light colors — set by the profile owner in their settings
 const MOOD_COLORS = {
-  warm:   '#F97316', // 🧡 Open to chat
-  cool:   '#38BDF8', // 💙 Busy
-  pink:   '#F472B6', // 🩷 On a date right now
+  warm:   '#E8458C', // 🩷 Online / open to chat
+  cool:   '#FBBF24', // 🟡 Busy
+  pink:   '#F472B6', // 💕 On a date right now
 }
 
 function fmtScheduledFull(ms) {
@@ -80,7 +80,7 @@ function SidePanelBtn({ emoji, label, onClick, active, pulse, color }) {
 }
 
 // ── Main component ─────────────────────────────────────────────────────────────
-export default function DiscoveryCard({ open, session, mySession, onClose, showToast, onGuestAction, onMeetSent, onConnect, onLike, onUnlockContact }) {
+export default function DiscoveryCard({ open, session, mySession, onClose, showToast, onGuestAction, onMeetSent, onConnect, onLike, onUnlockContact, onGift }) {
   useOverlay()
   const { user } = useAuth()
   const { myInterests, mutualSessions } = useInterests()
@@ -155,7 +155,7 @@ export default function DiscoveryCard({ open, session, mySession, onClose, showT
   const DATING_INTENTS = ['dating', 'marriage', 'date_night', 'friendship', 'travel', 'pen_pal']
   const lookingForNorm = (session.lookingFor ?? '').toLowerCase()
   if (DATING_INTENTS.includes(lookingForNorm))
-    return <DatingCard open={open} session={session} mySession={mySession} onClose={onClose} showToast={showToast} onGuestAction={onGuestAction} onMeetSent={onMeetSent} onConnect={onConnect} onLike={onLike} />
+    return <DatingCard open={open} session={session} mySession={mySession} onClose={onClose} showToast={showToast} onGuestAction={onGuestAction} onMeetSent={onMeetSent} onConnect={onConnect} onLike={onLike} onGift={onGift} />
   if (MAKER_CATEGORIES.includes(lookingForNorm))
     return <MakerCard open={open} session={session} mySession={mySession} onClose={onClose} showToast={showToast} onGuestAction={onGuestAction} onMeetSent={onMeetSent} onLike={onLike} onUnlockContact={onUnlockContact} />
 

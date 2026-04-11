@@ -40,7 +40,7 @@ function Divider({ label }) {
   return <div className={styles.divider}>{label && <span className={styles.dividerLabel}>{label}</span>}</div>
 }
 
-export default function SettingsSheet({ open, onClose, onOpenLikes, onOpenMyLikes, onEditProfile, onOpenBlockList, onUpgrade, onMySpot, showToast, onSOS }) {
+export default function SettingsSheet({ open, onClose, onOpenLikes, onOpenMyLikes, onEditProfile, onOpenBlockList, onUpgrade, onMySpot, showToast, onSOS, onOpenOrderHistory, onOpenIncomingGifts }) {
   const { permission, requestPermission } = usePushNotifications()
   const { userProfile } = useAuth()
   const { session: mySession } = useMySession()
@@ -282,6 +282,18 @@ export default function SettingsSheet({ open, onClose, onOpenLikes, onOpenMyLike
               sublabel={safetyContact ? `Set — notifying ${safetyContact.name}` : 'Add a trusted contact for when you go out'}
               value={safetyContact ? '✓' : null}
               onClick={() => setSafetyOpen(true)}
+            />
+            <Row
+              icon="🛍️"
+              label="My Gifts Sent"
+              sublabel="View gifts and food you've sent"
+              onClick={() => { onClose(); setTimeout(() => onOpenOrderHistory?.(), 200) }}
+            />
+            <Row
+              icon="🎁"
+              label="Incoming Gifts"
+              sublabel="Gifts and meals being sent to you"
+              onClick={() => { onClose(); setTimeout(() => onOpenIncomingGifts?.(), 200) }}
             />
             <Row
               icon="🚫"

@@ -12,6 +12,7 @@ import ProfileWishlistRow from '@/components/gifting/ProfileWishlistRow'
 import WishlistSheet from '@/components/gifting/WishlistSheet'
 import ProfileFoodRow from '@/components/gifting/ProfileFoodRow'
 import FoodWishlistSheet from '@/components/gifting/FoodWishlistSheet'
+import FoodBrowseSheet from '@/components/gifting/FoodBrowseSheet'
 import { getProfileWishlist } from '@/services/wishlistService'
 import DateIdeasSheet from '@/components/dating/DateIdeasSheet'
 import VibeCheckSheet from '../panels/VibeCheckSheet'
@@ -27,7 +28,8 @@ const RELATIONSHIP_GOAL_LABELS = {
   friends: '👋 Friends First',
 }
 const SIGN_EMOJIS = { Aries:'♈', Taurus:'♉', Gemini:'♊', Cancer:'♋', Leo:'♌', Virgo:'♍', Libra:'♎', Scorpio:'♏', Sagittarius:'♐', Capricorn:'♑', Aquarius:'♒', Pisces:'♓' }
-const MOOD_COLORS = { warm: '#F97316', cool: '#38BDF8', pink: '#F472B6' }
+// warm = online (hot pink), cool = busy (yellow), pink = on a date (light pink)
+const MOOD_COLORS = { warm: '#E8458C', cool: '#FBBF24', pink: '#F472B6' }
 
 function SidePanelBtn({ emoji, label, onClick, active, pulse, color }) {
   return (
@@ -62,7 +64,8 @@ export default function DatingCard({ open, session, mySession, onClose, showToas
   const [giftSetupOpen,  setGiftSetupOpen]  = useState(false)
   const [wishlistOpen,    setWishlistOpen]    = useState(false)
   const [profileWishlist, setProfileWishlist] = useState([])
-  const [foodOpen,        setFoodOpen]        = useState(false)
+  const [foodOpen,        setFoodOpen]        = useState(false)  // own profile: wishlist manager
+  const [foodBrowseOpen,  setFoodBrowseOpen]  = useState(false)  // others: restaurant picker
   const [profileFoodList, setProfileFoodList] = useState([])
 
   const isOwnProfile = !!(user && session && (user.uid === session.userId || user.id === session.userId))
@@ -225,13 +228,14 @@ export default function DatingCard({ open, session, mySession, onClose, showToas
 
         {/* ── Right side panel ── */}
         <div className={styles.sidePanel}>
-          <SidePanelBtn emoji={liked ? '❤️' : '🤍'} label="Like"   active={liked}              color="#E8458C" onClick={handleLike} />
-          <SidePanelBtn emoji="💡"                    label="Ideas"  active={panel === 'dateIdeas'}              onClick={() => togglePanel('dateIdeas')} />
-          <SidePanelBtn emoji="🎭"                    label="Vibe"   active={panel === 'vibeCheck'}             onClick={() => togglePanel('vibeCheck')} />
-          <SidePanelBtn emoji="🌈"                    label="Mood"   active={moodOpen}                          onClick={() => setMoodOpen(m => !m)} />
-          <SidePanelBtn emoji="🦅"                    label="Wing"   active={panel === 'wingman'}               onClick={() => togglePanel('wingman')} />
-          <SidePanelBtn emoji="🍔"                    label="Food"                                                  onClick={() => isOwnProfile ? setFoodOpen(true) : null} />
-          <SidePanelBtn emoji="🛍️"                   label="Gift"                                                  onClick={() => isOwnProfile ? setGiftSetupOpen(true) : onGift?.(session)} />
+          <SidePanelBtn emoji={liked ? '❤️' : '🤍'} label="Like"    active={liked}              color="#E8458C" onClick={handleLike} />
+          <SidePanelBtn emoji="💬"                    label="Message"                                            onClick={() => { if (onGuestAction) { onGuestAction(); return } onConnect?.(session) }} />
+          <SidePanelBtn emoji="💡"                    label="Ideas"   active={panel === 'dateIdeas'}             onClick={() => togglePanel('dateIdeas')} />
+          <SidePanelBtn emoji="🎭"                    label="Vibe"    active={panel === 'vibeCheck'}             onClick={() => togglePanel('vibeCheck')} />
+          <SidePanelBtn emoji="🌈"                    label="Mood"    active={moodOpen}                         onClick={() => setMoodOpen(m => !m)} />
+          <SidePanelBtn emoji="🦅"                    label="Wing"    active={panel === 'wingman'}               onClick={() => togglePanel('wingman')} />
+          <SidePanelBtn emoji="🍔"                    label="Food"                                               onClick={() => isOwnProfile ? setFoodOpen(true) : setFoodBrowseOpen(true)} />
+          <SidePanelBtn emoji="🛍️"                   label="Gift"                                               onClick={() => isOwnProfile ? setGiftSetupOpen(true) : onGift?.(session)} />
           {session.lastSeenDaysAgo >= 7 && (
             <SidePanelBtn emoji="🔁" label="Reset" pulse onClick={() => showToast?.('🔁 Second Chance sent — they\'ll see a purple ring.', 'success')} />
           )}
@@ -443,6 +447,15 @@ export default function DatingCard({ open, session, mySession, onClose, showToas
     <FoodWishlistSheet
       open={foodOpen}
       onClose={() => setFoodOpen(false)}
+      showToast={showToast}
+    />
+
+    {/* Restaurant picker — order food for someone else */}
+    <FoodBrowseSheet
+      open={foodBrowseOpen}
+      recipientCity={session.city ?? session.area ?? null}
+      giftFor={session}
+      onClose={() => setFoodBrowseOpen(false)}
       showToast={showToast}
     />
     </>

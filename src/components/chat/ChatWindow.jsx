@@ -108,6 +108,36 @@ export default function ChatWindow({ conversation: conv, allConversations = [], 
     return () => clearTimeout(id)
   }, [blockedMsg])
 
+  // ── Typing indicator via Supabase Realtime presence ───────────────────────
+  const typingChannelRef  = useRef(null)
+  const typingTimeoutRef  = useRef(null)
+  const myUserId = user?.uid ?? user?.id ?? null
+
+  useEffect(() => {
+    if (!supabase || !conv.id || !myUserId) return
+    const ch = supabase.channel(`typing:${conv.id}`, { config: { presence: { key: myUserId } } })
+    ch.on('presence', { event: 'sync' }, () => {
+      const state = ch.presenceState()
+      // Check if other user is typing (any presence key that isn't mine)
+      const otherTyping = Object.keys(state).some(k => k !== myUserId && state[k]?.[0]?.typing)
+      setIsTyping(otherTyping)
+    }).subscribe()
+    typingChannelRef.current = ch
+    return () => { supabase.removeChannel(ch); typingChannelRef.current = null }
+  }, [conv.id, myUserId]) // eslint-disable-line
+
+  const broadcastTyping = useCallback((isCurrentlyTyping) => {
+    if (!typingChannelRef.current) return
+    typingChannelRef.current.track({ typing: isCurrentlyTyping })
+  }, [])
+
+  const handleTextChange = useCallback((e) => {
+    setText(e.target.value)
+    broadcastTyping(true)
+    clearTimeout(typingTimeoutRef.current)
+    typingTimeoutRef.current = setTimeout(() => broadcastTyping(false), 2000)
+  }, [broadcastTyping])
+
   const contactUnlocked = conv.status === 'unlocked'
 
   // ── 20-min free chat + unlock system ─────────────────────────────────────
@@ -164,6 +194,8 @@ export default function ChatWindow({ conversation: conv, allConversations = [], 
     const { blocked, reason } = filterMessage(trimmed)
     if (blocked) { setBlockedMsg(BLOCK_MESSAGES[reason]); return }
     setText('')
+    broadcastTyping(false)
+    clearTimeout(typingTimeoutRef.current)
     const msg = await sendMessage(conv.id, user?.uid ?? user?.id, trimmed)
     if (!supabase || conv.id.startsWith('demo-') || conv.id.startsWith('conv-') || conv.id.startsWith('meet-')) {
       setMessages(prev => [...prev, { id: msg.id, fromMe: true, text: trimmed, time: Date.now() }])
@@ -579,7 +611,7 @@ export default function ChatWindow({ conversation: conv, allConversations = [], 
         <input
           className={styles.input}
           value={text}
-          onChange={e => setText(e.target.value)}
+          onChange={handleTextChange}
           onKeyDown={e => e.key === 'Enter' && !chatBlocked && handleSend()}
           placeholder={chatBlocked ? 'Unlock to continue chatting…' : 'Message…'}
           disabled={chatBlocked}

@@ -18,7 +18,8 @@ const LIFETIME_MIN = 7000
 const LIFETIME_MAX = 7000   // fixed 7s before exit begins
 const HEADER_H     = 74
 
-const MOOD_COLORS  = { warm: '#FF4FA3', cool: '#FF4FA3', pink: '#F472B6' }
+// warm = online (hot pink), cool = busy (yellow), pink = on a date (light pink)
+const MOOD_COLORS  = { warm: '#E8458C', cool: '#FBBF24', pink: '#F472B6' }
 const DEFAULT_GLOW = '#E8458C'
 
 const SHAPES    = ['♡','♡','♡','✦','·','·']

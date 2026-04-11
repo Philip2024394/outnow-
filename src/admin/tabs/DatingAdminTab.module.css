@@ -120,3 +120,61 @@
 }
 .actionBtn:hover { background: rgba(255,255,255,0.1); }
 .danger:hover { background: rgba(255,68,68,0.15); border-color: rgba(255,68,68,0.3); }
+
+/* ── Edit Modal ── */
+.modalBackdrop {
+  position: fixed; inset: 0; z-index: 1000;
+  background: rgba(0,0,0,0.7); backdrop-filter: blur(6px);
+  display: flex; align-items: center; justify-content: center; padding: 24px;
+}
+.modal {
+  background: #0d0d1a; border: 1px solid rgba(244,114,182,0.25);
+  border-radius: 16px; width: 100%; max-width: 680px;
+  max-height: 90vh; overflow-y: auto;
+  box-shadow: 0 24px 80px rgba(0,0,0,0.7);
+  animation: modalIn 0.2s ease;
+}
+@keyframes modalIn { from { opacity:0; transform: scale(0.96) translateY(12px); } }
+
+.modalHeader {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 20px 24px 0;
+}
+.modalTitle { font-size: 16px; font-weight: 800; color: #F472B6; margin: 0; }
+.modalClose {
+  background: none; border: none; cursor: pointer; font-family: inherit;
+  color: rgba(255,255,255,0.35); font-size: 18px; line-height: 1; padding: 4px;
+  transition: color 0.15s;
+}
+.modalClose:hover { color: #fff; }
+
+.photoPreviewRow {
+  display: flex; align-items: center; gap: 16px;
+  padding: 18px 24px 0;
+}
+.photoPreview {
+  width: 72px; height: 72px; border-radius: 50%;
+  object-fit: cover; border: 3px solid rgba(244,114,182,0.4);
+  box-shadow: 0 0 20px rgba(244,114,182,0.2);
+  flex-shrink: 0;
+}
+.photoUrlWrap { flex: 1; display: flex; flex-direction: column; gap: 6px; }
+
+.modalGrid { display: grid; grid-template-columns: repeat(4,1fr); gap: 14px; padding: 18px 24px 0; }
+.modalField { display: flex; flex-direction: column; gap: 6px; }
+.modalFieldFull { grid-column: 1 / -1; }
+.modalLabel { font-size: 11px; font-weight: 600; color: rgba(255,255,255,0.4); text-transform: uppercase; letter-spacing: 0.08em; }
+.modalInput, .modalSelect, .modalTextarea {
+  background: rgba(0,0,0,0.4); border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 8px; padding: 9px 12px; color: #fff;
+  font-size: 13px; font-family: inherit; outline: none;
+  transition: border-color 0.15s; resize: vertical;
+  width: 100%;
+}
+.modalInput:focus, .modalSelect:focus, .modalTextarea:focus { border-color: rgba(244,114,182,0.4); }
+.modalSelect option { background: #07070F; }
+
+.modalActions {
+  display: flex; gap: 10px; justify-content: flex-end;
+  padding: 18px 24px 24px;
+}

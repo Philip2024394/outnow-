@@ -124,7 +124,7 @@ export default function OverviewTab() {
   const ridesToday  = useCountUp(realStats?.rides   ?? 63)
 
   useEffect(() => {
-    // Pull real counts from Supabase
+    if (!supabase) return
     Promise.all([
       supabase.from('profiles').select('id', { count: 'exact', head: true }),
       supabase.from('profiles').select('id', { count: 'exact', head: true }).eq('status', 'active'),

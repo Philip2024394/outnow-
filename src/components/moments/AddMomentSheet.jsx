@@ -1,6 +1,7 @@
 import { useRef, useState } from 'react'
 import BottomSheet from '@/components/ui/BottomSheet'
 import FeatureIntro, { useFeatureIntro } from '@/components/ui/FeatureIntro'
+import { uploadImage } from '@/lib/uploadImage'
 import styles from './AddMomentSheet.module.css'
 
 const MOMENT_EMOJIS = ['🍸', '🍺', '🎶', '🎉', '🌙', '🔥', '💃', '🎯', '🍝', '☕', '🍷', '✨']
@@ -18,22 +19,34 @@ export default function AddMomentSheet({ open, onClose, onAdd }) {
   const { show: showIntro, dismiss: dismissIntro } = useFeatureIntro('moments')
   const fileInputRef = useRef(null)
 
-  const [photoURL,  setPhotoURL]  = useState(null)   // data URL from file input
-  const [emoji,     setEmoji]     = useState(MOMENT_EMOJIS[0])
-  const [gradient,  setGradient]  = useState(GRADIENTS[0])
-  const [caption,   setCaption]   = useState('')
+  const [photoURL,    setPhotoURL]    = useState(null)
+  const [uploading,   setUploading]   = useState(false)
+  const [uploadError, setUploadError] = useState(null)
+  const [emoji,       setEmoji]       = useState(MOMENT_EMOJIS[0])
+  const [gradient,    setGradient]    = useState(GRADIENTS[0])
+  const [caption,     setCaption]     = useState('')
 
-  const handleFileChange = (e) => {
+  const handleFileChange = async (e) => {
     const file = e.target.files?.[0]
     if (!file) return
-    const reader = new FileReader()
-    reader.onload = (ev) => setPhotoURL(ev.target.result)
-    reader.readAsDataURL(file)
-    // Reset input so the same file can be re-selected
     e.target.value = ''
+    setUploadError(null)
+    // Show instant local preview while uploading
+    const localUrl = URL.createObjectURL(file)
+    setPhotoURL(localUrl)
+    setUploading(true)
+    try {
+      const url = await uploadImage(file, 'moments')
+      setPhotoURL(url)
+    } catch (err) {
+      setUploadError(err.message)
+      setPhotoURL(null)
+    } finally {
+      setUploading(false)
+    }
   }
 
-  const handleRemovePhoto = () => setPhotoURL(null)
+  const handleRemovePhoto = () => { setPhotoURL(null); setUploadError(null) }
 
   const handleAdd = () => {
     if (!caption.trim()) return
@@ -89,7 +102,9 @@ export default function AddMomentSheet({ open, onClose, onAdd }) {
 
           {/* Photo controls overlay */}
           <div className={styles.photoOverlay}>
-            {photoURL ? (
+            {uploading ? (
+              <span style={{ fontSize:12, fontWeight:700, color:'#fff', background:'rgba(0,0,0,0.55)', padding:'6px 14px', borderRadius:20 }}>Uploading…</span>
+            ) : photoURL ? (
               <button className={styles.removePhotoBtn} onClick={handleRemovePhoto}>
                 ✕ Remove photo
               </button>
@@ -98,6 +113,9 @@ export default function AddMomentSheet({ open, onClose, onAdd }) {
                 <span className={styles.uploadIcon}>📷</span>
                 <span className={styles.uploadLabel}>Add Photo</span>
               </button>
+            )}
+            {uploadError && (
+              <span style={{ fontSize:11, color:'#FF4444', background:'rgba(0,0,0,0.7)', padding:'4px 10px', borderRadius:12, marginTop:4 }}>{uploadError}</span>
             )}
           </div>
         </div>

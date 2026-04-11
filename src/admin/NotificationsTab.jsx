@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import { supabase } from '@/lib/supabase'
-import styles from './AdminDashboard.module.css'
+import styles from './NotificationsTab.module.css'
 
 const TYPE_EMOJI = {
   date_invite:   '💕',

@@ -55,6 +55,8 @@ import { useLikedProfiles } from '@/hooks/useLikedProfiles'
 import NotificationsScreen from '@/screens/NotificationsScreen'
 import RideHistoryScreen from '@/screens/RideHistoryScreen'
 import BlockedUsersScreen from '@/screens/BlockedUsersScreen'
+import OrderHistoryScreen from '@/screens/OrderHistoryScreen'
+import IncomingGiftsScreen from '@/screens/IncomingGiftsScreen'
 import ProfileScreen from '@/screens/ProfileScreen'
 import ChatScreen from '@/screens/ChatScreen'
 import MatchScreen from '@/screens/MatchScreen'
@@ -142,6 +144,8 @@ export default function AppShell({ returnParams, triggerGoLive }) {
     vibeBroadcastOpen,   setVibeBroadcastOpen,
     newsOpen,            setNewsOpen,
     mapFilterOpen,       setMapFilterOpen,
+    orderHistoryOpen,    setOrderHistoryOpen,
+    incomingGiftsOpen,   setIncomingGiftsOpen,
   } = useAppOverlays()
 
   // Effective country: explicit browse selection → IP detection → profile country
@@ -812,7 +816,9 @@ export default function AppShell({ returnParams, triggerGoLive }) {
           }}
         />
       )}
-      {blockListOpen && <BlockedUsersScreen onClose={() => setBlockListOpen(false)} />}
+      {blockListOpen      && <BlockedUsersScreen  onClose={() => setBlockListOpen(false)} />}
+      {orderHistoryOpen   && <OrderHistoryScreen  onClose={() => setOrderHistoryOpen(false)} />}
+      {incomingGiftsOpen  && <IncomingGiftsScreen onClose={() => setIncomingGiftsOpen(false)} />}
 
       <CountrySearchSheet
         open={countrySearchOpen}
@@ -881,6 +887,8 @@ export default function AppShell({ returnParams, triggerGoLive }) {
           onOpenMyLikes={() => { setSettingsOpen(false); setTimeout(() => setLikedProfilesOpen(true), 200) }}
           onEditProfile={() => { setSettingsOpen(false); setTimeout(() => setActiveTab('profile'), 200) }}
           onOpenBlockList={() => { setSettingsOpen(false); setTimeout(() => setBlockListOpen(true), 200) }}
+          onOpenOrderHistory={() => { setSettingsOpen(false); setTimeout(() => setOrderHistoryOpen(true), 200) }}
+          onOpenIncomingGifts={() => { setSettingsOpen(false); setTimeout(() => setIncomingGiftsOpen(true), 200) }}
           onUpgrade={() => { setSettingsOpen(false); setTimeout(() => setUpgradeOpen(true), 200) }}
           onMySpot={() => { setSettingsOpen(false); setTimeout(() => setMySpotOpen(true), 200) }}
           showToast={showToast}
