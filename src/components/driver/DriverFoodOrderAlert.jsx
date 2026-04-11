@@ -77,7 +77,11 @@ export default function DriverFoodOrderAlert({ order, driverId, onDismiss }) {
   }
 
   const pct = (secondsLeft / ACCEPT_TIMEOUT) * 100
-  const barColor = pct > 60 ? '#8DC63F' : pct > 30 ? '#F59E0B' : '#EF4444'
+  // Interpolate green (#8DC63F) → dark red (#7F1D1D) as pct drops 100→0
+  const r = Math.round(141 + (127 - 141) * (1 - pct / 100))
+  const g = Math.round(198 + (29  - 198) * (1 - pct / 100))
+  const b = Math.round(63  + (29  - 63)  * (1 - pct / 100))
+  const barColor = `rgb(${r},${g},${b})`
 
   return (
     <div className={styles.overlay}>
@@ -164,7 +168,7 @@ export default function DriverFoodOrderAlert({ order, driverId, onDismiss }) {
               Pay restaurant <strong>{fmtRp(order.subtotal)}</strong> in cash when you collect
             </div>
 
-            <button className={styles.acceptBtn} onClick={handleAtRestaurant}>
+            <button className={`${styles.acceptBtn} ${styles.acceptBtnStill}`} onClick={handleAtRestaurant}>
               I'm at the Restaurant
             </button>
           </>
@@ -191,7 +195,7 @@ export default function DriverFoodOrderAlert({ order, driverId, onDismiss }) {
             {codeError && <p className={styles.codeError}>{codeError}</p>}
 
             <button
-              className={styles.acceptBtn}
+              className={`${styles.acceptBtn} ${styles.acceptBtnStill}`}
               onClick={handleConfirmPickup}
               disabled={busy || pickupCode.length < 6}
             >
@@ -214,7 +218,7 @@ export default function DriverFoodOrderAlert({ order, driverId, onDismiss }) {
               Collect <strong>{fmtRp(order.delivery_fee)}</strong> delivery fee in cash from customer
             </div>
 
-            <button className={styles.acceptBtn} onClick={handleDelivered} disabled={busy}>
+            <button className={`${styles.acceptBtn} ${styles.acceptBtnStill}`} onClick={handleDelivered} disabled={busy}>
               {busy ? 'Updating…' : 'Mark as Delivered ✓'}
             </button>
           </>
@@ -228,7 +232,7 @@ export default function DriverFoodOrderAlert({ order, driverId, onDismiss }) {
             <p className={styles.instrText}>
               Order <strong>{order.cash_ref}</strong> delivered successfully. Great work!
             </p>
-            <button className={styles.acceptBtn} onClick={onDismiss}>Done</button>
+            <button className={`${styles.acceptBtn} ${styles.acceptBtnStill}`} onClick={onDismiss}>Done</button>
           </>
         )}
 

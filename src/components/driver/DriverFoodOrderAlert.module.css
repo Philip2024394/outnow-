@@ -41,9 +41,21 @@
 
 /* ── Title ── */
 .title {
-  font-size: 26px; font-weight: 900; color: #fff;
+  font-size: 26px; font-weight: 900;
   letter-spacing: -0.02em; line-height: 1.1;
   margin: 0 0 20px;
+  background: linear-gradient(90deg,
+    #8DC63F 0%, #c8f060 30%, #8DC63F 50%, #ffffff 65%, #8DC63F 80%, #c8f060 100%
+  );
+  background-size: 250% auto;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  animation: shimmer 3s linear infinite;
+}
+@keyframes shimmer {
+  0%   { background-position: 200% center; }
+  100% { background-position: -200% center; }
 }
 
 /* ── Timer bar (incoming phase) ── */
@@ -172,9 +184,16 @@
   transition: opacity 0.15s, transform 0.12s;
   letter-spacing: -0.01em;
   margin-bottom: 0;
+  animation: btnPulse 1.6s ease-in-out infinite;
 }
-.acceptBtn:active   { transform: scale(0.97); opacity: 0.9; }
-.acceptBtn:disabled { opacity: 0.45; cursor: not-allowed; }
+@keyframes btnPulse {
+  0%, 100% { box-shadow: 0 6px 24px rgba(141,198,63,0.35), 0 0 0 0 rgba(141,198,63,0.55); }
+  50%       { box-shadow: 0 6px 32px rgba(141,198,63,0.6),  0 0 0 12px rgba(141,198,63,0); }
+}
+.acceptBtn:active   { transform: scale(0.97); opacity: 0.9; animation: none; }
+.acceptBtn:disabled { opacity: 0.45; cursor: not-allowed; animation: none; }
+/* Non-incoming phases — keep static glow, no pulse */
+.acceptBtnStill { animation: none; box-shadow: 0 6px 24px rgba(141,198,63,0.35); }
 
 .actions { display: flex; gap: 10px; margin-bottom: 0; }
 .declineBtn {
