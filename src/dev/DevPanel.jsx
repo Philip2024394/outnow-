@@ -34,6 +34,7 @@ import PaymentTransferScreen   from '@/components/orders/PaymentTransferScreen'
 
 // ── Ride bookings ─────────────────────────────────────────────────────
 import DriverIncomingBooking   from '@/components/driver/DriverIncomingBooking'
+import DriverWarningScreen     from '@/components/driver/DriverWarningScreen'
 
 // ── Screens ──────────────────────────────────────────────────────────
 import ChatScreen          from '@/screens/ChatScreen'
@@ -220,7 +221,9 @@ const GROUPS = [
       { id: 'paymentSubmitted',  label: '🧾 Payment Submitted (waiting)' },
       { id: 'driverAlert',       label: '🏍️ Driver Order Alert'          },
       { id: 'foodOrderStatus',   label: '📦 Order Status Card'           },
-      { id: 'driverRideIncoming', label: '🔔 Driver — Incoming Ride Request' },
+      { id: 'driverRideIncoming',  label: '🔔 Driver — Incoming Ride Request' },
+      { id: 'driverWarningMissed',  label: '⚠️ Driver Warning — Missed Booking'   },
+      { id: 'driverWarningDeclined', label: '⚠️ Driver Warning — Declined Booking' },
     ],
   },
   {
@@ -480,6 +483,20 @@ export default function DevPanel() {
           driverId="dev-driver-1"
           onAccepted={() => { close(); showToast('Ride accepted ✓', 'success') }}
           onDeclined={() => { close(); showToast('Ride declined', 'error') }}
+        />
+      )}
+
+      {active === 'driverWarningMissed' && (
+        <DriverWarningScreen
+          warningType="missed"
+          onDismiss={() => { close(); showToast('Warning dismissed', 'info') }}
+        />
+      )}
+
+      {active === 'driverWarningDeclined' && (
+        <DriverWarningScreen
+          warningType="declined"
+          onDismiss={() => { close(); showToast('Warning dismissed', 'info') }}
         />
       )}
 

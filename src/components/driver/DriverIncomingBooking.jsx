@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import { acceptBooking, declineBooking } from '@/services/bookingService'
+import DriverWarningScreen from './DriverWarningScreen'
 import styles from './DriverIncomingBooking.module.css'
 
 function fmtRp(n) { return `Rp ${Number(n).toLocaleString('id-ID')}` }
@@ -33,8 +34,9 @@ function startAlarm() {
 }
 
 export default function DriverIncomingBooking({ booking, driverId, onAccepted, onDeclined }) {
-  const [busy,     setBusy]     = useState(false)
+  const [busy,        setBusy]       = useState(false)
   const [secondsLeft, setSecondsLeft] = useState(null)
+  const [warningType, setWarningType] = useState(null)
   const stopAlarmRef = useRef(null)
 
   // Start alarm on mount, stop on unmount
@@ -49,12 +51,12 @@ export default function DriverIncomingBooking({ booking, driverId, onAccepted, o
     const tick = () => {
       const left = Math.max(0, Math.round((new Date(booking.expires_at) - Date.now()) / 1000))
       setSecondsLeft(left)
-      if (left === 0) onDeclined('expired')
+      if (left === 0) { stopAlarmRef.current?.(); setWarningType('missed') }
     }
     tick()
     const id = setInterval(tick, 1000)
     return () => clearInterval(id)
-  }, [booking?.expires_at, onDeclined])
+  }, [booking?.expires_at]) // eslint-disable-line
 
   const handleAccept = async () => {
     stopAlarmRef.current?.()
@@ -67,7 +69,16 @@ export default function DriverIncomingBooking({ booking, driverId, onAccepted, o
     stopAlarmRef.current?.()
     setBusy(true)
     await declineBooking(booking.id, driverId)
-    onDeclined('declined')
+    setWarningType('declined')
+  }
+
+  if (warningType) {
+    return (
+      <DriverWarningScreen
+        warningType={warningType}
+        onDismiss={() => onDeclined(warningType)}
+      />
+    )
   }
 
   const passenger = booking.passenger

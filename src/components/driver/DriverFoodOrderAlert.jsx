@@ -10,6 +10,7 @@
  */
 import { useState, useEffect } from 'react'
 import { updateFoodOrderStatus, confirmPickupWithCode, broadcastOrderToNextDriver } from '@/services/foodOrderService'
+import DriverWarningScreen from './DriverWarningScreen'
 import styles from './DriverFoodOrderAlert.module.css'
 
 const ACCEPT_TIMEOUT = 45
@@ -23,6 +24,7 @@ export default function DriverFoodOrderAlert({ order, driverId, onDismiss }) {
   const [codeError,   setCodeError]   = useState(null)
   const [busy,        setBusy]        = useState(false)
   const [declinedBy,  setDeclinedBy]  = useState(order?.declined_by ?? [])
+  const [warningType, setWarningType] = useState(null) // null | 'missed' | 'declined'
 
   const items = Array.isArray(order?.items) ? order.items : []
 
@@ -33,7 +35,7 @@ export default function DriverFoodOrderAlert({ order, driverId, onDismiss }) {
     if (phase !== 'incoming') return
     const id = setInterval(() => {
       setSecondsLeft(s => {
-        if (s <= 1) { clearInterval(id); handleBroadcast(); return 0 }
+        if (s <= 1) { clearInterval(id); handleBroadcast('missed'); return 0 }
         return s - 1
       })
     }, 1000)
@@ -47,7 +49,7 @@ export default function DriverFoodOrderAlert({ order, driverId, onDismiss }) {
     setBusy(false)
   }
 
-  async function handleBroadcast() {
+  async function handleBroadcast(type = 'declined') {
     const next = [...declinedBy, driverId]
     setDeclinedBy(next)
     await broadcastOrderToNextDriver(
@@ -56,10 +58,10 @@ export default function DriverFoodOrderAlert({ order, driverId, onDismiss }) {
       order.restaurant_lng,
       next,
     )
-    onDismiss?.()
+    setWarningType(type)
   }
 
-  const handleDecline = handleBroadcast
+  const handleDecline = () => handleBroadcast('declined')
 
   async function handleAtRestaurant() { setPhase('pickup') }
 
@@ -85,6 +87,15 @@ export default function DriverFoodOrderAlert({ order, driverId, onDismiss }) {
   const g = Math.round(198 + (29  - 198) * (1 - pct / 100))
   const b = Math.round(63  + (29  - 63)  * (1 - pct / 100))
   const barColor = `rgb(${r},${g},${b})`
+
+  if (warningType) {
+    return (
+      <DriverWarningScreen
+        warningType={warningType}
+        onDismiss={onDismiss}
+      />
+    )
+  }
 
   return (
     <div className={styles.overlay}>
