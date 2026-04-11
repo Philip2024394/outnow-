@@ -9,7 +9,7 @@
  *   4. Deliver and tap "Delivered".
  */
 import { useState, useEffect } from 'react'
-import { updateFoodOrderStatus, confirmPickupWithCode } from '@/services/foodOrderService'
+import { updateFoodOrderStatus, confirmPickupWithCode, broadcastOrderToNextDriver } from '@/services/foodOrderService'
 import styles from './DriverFoodOrderAlert.module.css'
 
 const ACCEPT_TIMEOUT = 45
@@ -22,6 +22,7 @@ export default function DriverFoodOrderAlert({ order, driverId, onDismiss }) {
   const [pickupCode,  setPickupCode]  = useState('')
   const [codeError,   setCodeError]   = useState(null)
   const [busy,        setBusy]        = useState(false)
+  const [declinedBy,  setDeclinedBy]  = useState(order?.declined_by ?? [])
 
   const items = Array.isArray(order?.items) ? order.items : []
 
@@ -29,7 +30,7 @@ export default function DriverFoodOrderAlert({ order, driverId, onDismiss }) {
     if (phase !== 'incoming') return
     const id = setInterval(() => {
       setSecondsLeft(s => {
-        if (s <= 1) { clearInterval(id); handleDecline(); return 0 }
+        if (s <= 1) { clearInterval(id); handleBroadcast(); return 0 }
         return s - 1
       })
     }, 1000)
@@ -43,10 +44,19 @@ export default function DriverFoodOrderAlert({ order, driverId, onDismiss }) {
     setBusy(false)
   }
 
-  async function handleDecline() {
-    await updateFoodOrderStatus(order.id, 'cancelled', driverId)
+  async function handleBroadcast() {
+    const next = [...declinedBy, driverId]
+    setDeclinedBy(next)
+    await broadcastOrderToNextDriver(
+      order.id,
+      order.restaurant_lat,
+      order.restaurant_lng,
+      next,
+    )
     onDismiss?.()
   }
+
+  const handleDecline = handleBroadcast
 
   async function handleAtRestaurant() { setPhase('pickup') }
 
@@ -67,6 +77,7 @@ export default function DriverFoodOrderAlert({ order, driverId, onDismiss }) {
   }
 
   const pct = (secondsLeft / ACCEPT_TIMEOUT) * 100
+  const barColor = pct > 60 ? '#8DC63F' : pct > 30 ? '#F59E0B' : '#EF4444'
 
   return (
     <div className={styles.overlay}>
@@ -82,7 +93,7 @@ export default function DriverFoodOrderAlert({ order, driverId, onDismiss }) {
             <div className={styles.timerBar}>
               <div className={styles.timerFill} style={{
                 width: `${pct}%`,
-                background: pct < 30 ? '#F87171' : '#8DC63F',
+                background: barColor,
               }} />
             </div>
             <p className={styles.countdown}>Accept within <strong>{secondsLeft}s</strong></p>
