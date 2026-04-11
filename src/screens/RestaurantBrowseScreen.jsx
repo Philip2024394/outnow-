@@ -21,7 +21,7 @@ const DEMO_RESTAURANTS = [
   // ── RICE ────────────────────────────────────────────────────────────────────
   {
     id: 1, name: 'Warung Bu Sari', cuisine_type: 'Javanese', category: 'rice',
-    address: 'Jl. Malioboro 45, Yogyakarta', lat: -7.7928, lng: 110.3657,
+    address: 'Jl. Malioboro 45, Yogyakarta', city: 'Yogyakarta', lat: -7.7928, lng: 110.3657,
     phone: '6281234567890', cover_url: null, hero_dish_url: null,
     hero_dish_name: 'Nasi Gudeg Komplit',
     description: 'Authentic Yogyakarta gudeg since 1985. Slow-cooked overnight jackfruit curry — you taste the difference.',
@@ -29,7 +29,7 @@ const DEMO_RESTAURANTS = [
     price_from: 5000, price_to: 28000, min_order: 20000,
     catering_available: true, seating_capacity: 40,
     event_features: ['birthday_setup', 'private_room'],
-    featured_this_week: true, dine_in_discount: 10,
+    featured_this_week: true, dine_in_discount: 10, status: 'approved',
     bank: { name: 'BCA', account_number: '1234 5678 90', account_holder: 'Sari Warung Jogja' },
     menu_items: [
       { id: 1,  name: 'Nasi Gudeg Komplit',  price: 28000, prep_time_min: 10, category: 'Main',   description: 'Jackfruit curry, egg, chicken, krecek on white rice', photo_url: null, is_available: true },
@@ -46,7 +46,7 @@ const DEMO_RESTAURANTS = [
   },
   {
     id: 4, name: 'Nasi Goreng Pak Harto', cuisine_type: 'Indonesian', category: 'rice',
-    address: 'Jl. Kaliurang Km 3, Yogyakarta', lat: -7.7745, lng: 110.3802,
+    address: 'Jl. Kaliurang Km 3, Yogyakarta', city: 'Yogyakarta', lat: -7.7745, lng: 110.3802,
     phone: '6281234567894', cover_url: null, hero_dish_url: 'https://ik.imagekit.io/nepgaxllc/Untitledddddddddddsfsdfadsfasdfsdfsasdassdasd.png',
     hero_dish_name: 'Nasi Goreng Istimewa',
     description: 'Wok-fired fried rice cooked over charcoal. High heat, smoky flavour, zero shortcuts.',
@@ -54,7 +54,7 @@ const DEMO_RESTAURANTS = [
     price_from: 15000, price_to: 35000, min_order: 15000,
     catering_available: false, seating_capacity: 20,
     event_features: [],
-    featured_this_week: false, dine_in_discount: 15,
+    featured_this_week: false, dine_in_discount: 15, status: 'approved',
     bank: { name: 'Mandiri', account_number: '1100 0987 6543', account_holder: 'Harto Wijaya' },
     menu_items: [
       { id: 20, name: 'Nasi Goreng Istimewa', price: 28000, prep_time_min: 12, category: 'Main',   description: 'Charcoal wok, egg, chicken, vegetables, shrimp paste', photo_url: null, is_available: true },
@@ -70,7 +70,7 @@ const DEMO_RESTAURANTS = [
   },
   {
     id: 5, name: 'Bubur Ayam Mbok Iyem', cuisine_type: 'Sundanese', category: 'rice',
-    address: 'Jl. Parangtritis 8, Yogyakarta', lat: -7.8012, lng: 110.3678,
+    address: 'Jl. Parangtritis 8, Yogyakarta', city: 'Yogyakarta', lat: -7.8012, lng: 110.3678,
     phone: '6281234567895', cover_url: null, hero_dish_url: null,
     hero_dish_name: 'Bubur Ayam Komplit',
     description: 'Morning institution since 1978. Silky rice porridge, shredded chicken, century egg. Queue forms before sunrise.',
@@ -78,7 +78,7 @@ const DEMO_RESTAURANTS = [
     price_from: 8000, price_to: 22000, min_order: 10000,
     catering_available: true, seating_capacity: 60,
     event_features: ['birthday_setup'],
-    featured_this_week: false,
+    featured_this_week: false, status: 'approved',
     bank: { name: 'BRI', account_number: '0096 0100 2233 5566', account_holder: 'Iyem Sukarti' },
     menu_items: [
       { id: 30, name: 'Bubur Ayam Komplit',   price: 22000, prep_time_min: 8,  category: 'Main',   description: 'Rice porridge, shredded chicken, century egg, crispy shallots, ginger broth', photo_url: null, is_available: true },
@@ -92,7 +92,7 @@ const DEMO_RESTAURANTS = [
   },
   {
     id: 6, name: 'Nasi Padang Sari Rasa', cuisine_type: 'Padang', category: 'rice',
-    address: 'Jl. Solo 12, Klaten', lat: -7.7065, lng: 110.6073,
+    address: 'Jl. Solo 12, Klaten', city: 'Yogyakarta', lat: -7.7065, lng: 110.6073,
     phone: '6281234567896', cover_url: null, hero_dish_url: null,
     hero_dish_name: 'Rendang Daging Sapi',
     description: 'Authentic West Sumatran food. 23 dishes cooked fresh every morning. Rendang slow-cooked 4 hours minimum.',
@@ -100,7 +100,7 @@ const DEMO_RESTAURANTS = [
     price_from: 5000, price_to: 45000, min_order: 25000,
     catering_available: true, seating_capacity: 100,
     event_features: ['birthday_setup', 'private_room', 'party_package'],
-    featured_this_week: false,
+    featured_this_week: false, status: 'approved',
     bank: { name: 'BNI', account_number: '0441 2233 4455', account_holder: 'Sari Rasa Padang' },
     menu_items: [
       { id: 40, name: 'Rendang Daging Sapi',  price: 45000, prep_time_min: 5,  category: 'Main',   description: 'Dry-cooked beef in coconut milk & spices — 4 hrs slow cooked', photo_url: null, is_available: true },
@@ -119,7 +119,7 @@ const DEMO_RESTAURANTS = [
   // ── NOODLES ─────────────────────────────────────────────────────────────────
   {
     id: 2, name: 'Bakso Pak Budi', cuisine_type: 'Indonesian', category: 'noodles',
-    address: 'Jl. Kaliurang Km 5, Sleman', lat: -7.7601, lng: 110.3831,
+    address: 'Jl. Kaliurang Km 5, Sleman', city: 'Yogyakarta', lat: -7.7601, lng: 110.3831,
     phone: '6281234567891', cover_url: null, hero_dish_url: null,
     hero_dish_name: 'Bakso Spesial',
     description: 'Famous meatball soup. Made fresh every morning from scratch.',
@@ -127,7 +127,7 @@ const DEMO_RESTAURANTS = [
     price_from: 8000, price_to: 25000, min_order: 15000,
     catering_available: false, seating_capacity: 25,
     event_features: [],
-    featured_this_week: false,
+    featured_this_week: false, status: 'approved',
     bank: { name: 'BCA', account_number: '7788 9900 1122', account_holder: 'Budi Santoso' },
     menu_items: [
       { id: 6,  name: 'Bakso Spesial',  price: 22000, prep_time_min: 8,  category: 'Main',   description: 'Giant meatball, noodles, broth', photo_url: null, is_available: true },
@@ -140,21 +140,125 @@ const DEMO_RESTAURANTS = [
   // ── GRILLED ─────────────────────────────────────────────────────────────────
   {
     id: 3, name: 'Ayam Geprek Mbak Rina', cuisine_type: 'Indonesian', category: 'grilled',
-    address: 'Jl. Parangtritis 22, Bantul', lat: -7.8347, lng: 110.3253,
+    address: 'Jl. Parangtritis 22, Bantul', city: 'Yogyakarta', lat: -7.8347, lng: 110.3253,
     phone: '6281234567892', cover_url: null, hero_dish_url: null,
     hero_dish_name: 'Ayam Geprek Level 10',
     description: 'Crispy smashed chicken. Choose your heat level 1–10. We dare you.',
-    opening_hours: '10:00–22:00', is_open: false, rating: 4.9, review_count: 312,
+    opening_hours: '10:00–22:00', is_open: true, rating: 4.9, review_count: 312,
     price_from: 7000, price_to: 30000, min_order: 20000,
     catering_available: true, seating_capacity: 80,
     event_features: ['live_music', 'birthday_setup', 'sound_system', 'private_room'],
-    featured_this_week: true,
+    featured_this_week: true, status: 'approved',
     bank: { name: 'Mandiri', account_number: '1420 0055 6677', account_holder: 'Rina Ayam Geprek' },
     menu_items: [
       { id: 10, name: 'Ayam Geprek L5',  price: 25000, prep_time_min: 12, category: 'Main',   description: 'Medium spicy + rice', photo_url: null, is_available: true },
       { id: 11, name: 'Ayam Geprek L10', price: 25000, prep_time_min: 12, category: 'Main',   description: 'Max heat — challenge!', photo_url: null, is_available: true },
       { id: 12, name: 'Tahu Tempe',      price: 8000,  prep_time_min: 5,  category: 'Sides',  description: 'Fried tofu & tempeh', photo_url: null, is_available: true },
       { id: 13, name: 'Es Teh Tarik',    price: 7000,  prep_time_min: 2,  category: 'Drinks', description: 'Pulled milk tea', photo_url: null, is_available: true },
+    ],
+  },
+
+  // ── SEAFOOD ──────────────────────────────────────────────────────────────────
+  {
+    id: 7, name: 'Seafood Pak Dhe Bejo', cuisine_type: 'Seafood', category: 'seafood',
+    address: 'Jl. Laksda Adisucipto 88, Yogyakarta', city: 'Yogyakarta', lat: -7.7822, lng: 110.4021,
+    phone: '6281234567897', cover_url: null, hero_dish_url: null,
+    hero_dish_name: 'Udang Bakar Madu',
+    description: 'Freshest seafood in Yogya — delivered from Samas beach every morning. Grilled over coconut shell charcoal.',
+    opening_hours: '11:00–22:00', is_open: true, rating: 4.7, review_count: 256,
+    price_from: 25000, price_to: 120000, min_order: 35000,
+    catering_available: true, seating_capacity: 120,
+    event_features: ['birthday_setup', 'private_room', 'party_package', 'sound_system'],
+    featured_this_week: true, dine_in_discount: 10, status: 'approved',
+    bank: { name: 'BCA', account_number: '3344 5566 7788', account_holder: 'Bejo Seafood Resto' },
+    menu_items: [
+      { id: 50, name: 'Udang Bakar Madu',    price: 85000, prep_time_min: 15, category: 'Main',   description: 'Honey-glazed grilled prawns, butter garlic sauce', photo_url: null, is_available: true },
+      { id: 51, name: 'Cumi Goreng Tepung',  price: 55000, prep_time_min: 12, category: 'Main',   description: 'Crispy battered squid rings, chilli mayo', photo_url: null, is_available: true },
+      { id: 52, name: 'Ikan Bakar Bumbu Bali', price: 75000, prep_time_min: 18, category: 'Main', description: 'Whole grilled snapper, Balinese spice paste', photo_url: null, is_available: true },
+      { id: 53, name: 'Kepiting Saus Tiram', price: 120000, prep_time_min: 20, category: 'Main',  description: 'Blue crab in oyster sauce, wok-fried to order', photo_url: null, is_available: true },
+      { id: 54, name: 'Nasi Putih',          price:   5000, prep_time_min: 2,  category: 'Sides', description: 'Steamed white rice', photo_url: null, is_available: true },
+      { id: 55, name: 'Kangkung Belacan',    price:  18000, prep_time_min: 8,  category: 'Sides', description: 'Stir-fried water spinach, shrimp paste', photo_url: null, is_available: true },
+      { id: 56, name: 'Sambal Matah',        price:   8000, prep_time_min: 2,  category: 'Sides', description: 'Raw Balinese shallot & lemongrass sambal', photo_url: null, is_available: true },
+      { id: 57, name: 'Es Kelapa Muda',      price:  15000, prep_time_min: 2,  category: 'Drinks', description: 'Young coconut served whole', photo_url: null, is_available: true },
+      { id: 58, name: 'Jus Alpukat Susu',    price:  18000, prep_time_min: 4,  category: 'Drinks', description: 'Creamy avocado blended with condensed milk', photo_url: null, is_available: true },
+      { id: 59, name: 'Es Teh Manis',        price:   5000, prep_time_min: 1,  category: 'Drinks', description: 'Sweet iced tea', photo_url: null, is_available: true },
+    ],
+  },
+
+  // ── BURGERS / WESTERN ────────────────────────────────────────────────────────
+  {
+    id: 8, name: 'Steak 48 Jogja', cuisine_type: 'Western', category: 'burgers',
+    address: 'Jl. Magelang Km 4.5, Yogyakarta', city: 'Yogyakarta', lat: -7.7615, lng: 110.3511,
+    phone: '6281234567898', cover_url: null, hero_dish_url: null,
+    hero_dish_name: 'Ribeye 200g',
+    description: 'Proper steaks grilled over open flame. Australian grain-fed beef. No shortcuts, no frozen imports.',
+    opening_hours: '11:00–23:00', is_open: true, rating: 4.5, review_count: 178,
+    price_from: 35000, price_to: 185000, min_order: 45000,
+    catering_available: false, seating_capacity: 60,
+    event_features: ['birthday_setup', 'private_room'],
+    featured_this_week: false, dine_in_discount: 0, status: 'approved',
+    bank: { name: 'BNI', account_number: '0812 3344 5566', account_holder: 'Steak 48 Jogja' },
+    menu_items: [
+      { id: 60, name: 'Ribeye 200g',         price: 185000, prep_time_min: 20, category: 'Main',   description: 'Australian grain-fed ribeye, choice of sauce & side', photo_url: null, is_available: true },
+      { id: 61, name: 'Sirloin 180g',        price: 155000, prep_time_min: 18, category: 'Main',   description: 'Lean, tender sirloin. Best medium-rare.', photo_url: null, is_available: true },
+      { id: 62, name: 'Beef Burger Komplit',  price:  65000, prep_time_min: 15, category: 'Main',   description: 'Double patty, cheddar, caramelised onion, house sauce', photo_url: null, is_available: true },
+      { id: 63, name: 'Chicken Cordon Bleu', price:  75000, prep_time_min: 18, category: 'Main',   description: 'Stuffed chicken, ham, Swiss cheese, brown sauce', photo_url: null, is_available: true },
+      { id: 64, name: 'Pasta Carbonara',     price:  55000, prep_time_min: 12, category: 'Main',   description: 'Spaghetti, guanciale, pecorino, egg yolk', photo_url: null, is_available: true },
+      { id: 65, name: 'Truffle Fries',       price:  35000, prep_time_min: 8,  category: 'Sides',  description: 'Crispy fries, truffle oil, parmesan, parsley', photo_url: null, is_available: true },
+      { id: 66, name: 'Garden Salad',        price:  28000, prep_time_min: 5,  category: 'Sides',  description: 'Mixed greens, cherry tomato, balsamic vinaigrette', photo_url: null, is_available: true },
+      { id: 67, name: 'Lemon Ice Tea',       price:  22000, prep_time_min: 3,  category: 'Drinks', description: 'Fresh lemon, mint, sparkling water', photo_url: null, is_available: true },
+      { id: 68, name: 'Chocolate Milkshake', price:  32000, prep_time_min: 5,  category: 'Drinks', description: 'Thick Belgian chocolate milkshake', photo_url: null, is_available: true },
+    ],
+  },
+
+  // ── DRINKS / CAFE ────────────────────────────────────────────────────────────
+  {
+    id: 9, name: 'Kopi Klotok Maguwo', cuisine_type: 'Cafe', category: 'drinks',
+    address: 'Jl. Maguwo 15, Sleman', city: 'Yogyakarta', lat: -7.7891, lng: 110.4234,
+    phone: '6281234567899', cover_url: null, hero_dish_url: null,
+    hero_dish_name: 'Kopi Joss',
+    description: 'Iconic Jogja coffeehouse. Famous for Kopi Joss — black coffee with a glowing red charcoal dropped in. Must try.',
+    opening_hours: '06:00–24:00', is_open: true, rating: 4.8, review_count: 521,
+    price_from: 7000, price_to: 45000, min_order: 15000,
+    catering_available: false, seating_capacity: 80,
+    event_features: ['live_music', 'birthday_setup'],
+    featured_this_week: true, dine_in_discount: 0, status: 'approved',
+    bank: { name: 'BCA', account_number: '5566 7788 9900', account_holder: 'Kopi Klotok Maguwo' },
+    menu_items: [
+      { id: 70, name: 'Kopi Joss',           price: 12000, prep_time_min: 5,  category: 'Drinks', description: 'Black coffee with charcoal — the legendary Jogja drink', photo_url: null, is_available: true },
+      { id: 71, name: 'Kopi Susu Gula Aren', price: 18000, prep_time_min: 5,  category: 'Drinks', description: 'Espresso, palm sugar syrup, fresh milk over ice', photo_url: null, is_available: true },
+      { id: 72, name: 'Matcha Latte',        price: 22000, prep_time_min: 4,  category: 'Drinks', description: 'Ceremonial matcha, oat milk, light sweetness', photo_url: null, is_available: true },
+      { id: 73, name: 'Teh Tarik Spesial',   price: 15000, prep_time_min: 4,  category: 'Drinks', description: 'Pulled milk tea, frothy, rich — two mugs minimum', photo_url: null, is_available: true },
+      { id: 74, name: 'Es Kopi Vietnam',     price: 20000, prep_time_min: 5,  category: 'Drinks', description: 'Drip coffee, condensed milk, crushed ice', photo_url: null, is_available: true },
+      { id: 75, name: 'Roti Bakar Keju',     price: 22000, prep_time_min: 8,  category: 'Food',   description: 'Toasted bread, butter, condensed milk, cheese', photo_url: null, is_available: true },
+      { id: 76, name: 'Pisang Goreng Keju',  price: 18000, prep_time_min: 8,  category: 'Food',   description: 'Crispy fried banana, melted cheese drizzle', photo_url: null, is_available: true },
+      { id: 77, name: 'Indomie Goreng',      price: 15000, prep_time_min: 8,  category: 'Food',   description: 'The classic — dressed with egg, shallots, chilli', photo_url: null, is_available: true },
+      { id: 78, name: 'Singkong Goreng',     price: 12000, prep_time_min: 10, category: 'Food',   description: 'Cassava chips, coconut sambal', photo_url: null, is_available: true },
+    ],
+  },
+
+  // ── STREET FOOD ──────────────────────────────────────────────────────────────
+  {
+    id: 10, name: 'Sate & Gule Pak Sabar', cuisine_type: 'Javanese', category: 'street_food',
+    address: 'Alun-Alun Selatan, Yogyakarta', city: 'Yogyakarta', lat: -7.8108, lng: 110.3642,
+    phone: '6281234567800', cover_url: null, hero_dish_url: null,
+    hero_dish_name: 'Sate Kambing 10pcs',
+    description: 'Street legend since 1971. Goat satay grilled to order over coconut charcoal. The smoke alone draws a crowd.',
+    opening_hours: '17:00–01:00', is_open: true, rating: 4.8, review_count: 634,
+    price_from: 3000, price_to: 55000, min_order: 20000,
+    catering_available: true, seating_capacity: 30,
+    event_features: ['birthday_setup', 'party_package'],
+    featured_this_week: false, dine_in_discount: 0, status: 'approved',
+    bank: { name: 'BRI', account_number: '0096 0100 7788 4321', account_holder: 'Sabar Supriyanto' },
+    menu_items: [
+      { id: 80, name: 'Sate Kambing 10pcs',  price: 55000, prep_time_min: 15, category: 'Main',   description: 'Goat satay, charcoal grilled, kecap manis, sambal', photo_url: null, is_available: true },
+      { id: 81, name: 'Sate Ayam 10pcs',     price: 35000, prep_time_min: 12, category: 'Main',   description: 'Chicken satay, peanut sauce, lontong', photo_url: null, is_available: true },
+      { id: 82, name: 'Gule Kambing',        price: 35000, prep_time_min: 5,  category: 'Main',   description: 'Spiced goat curry, warm & rich, eat with lontong', photo_url: null, is_available: true },
+      { id: 83, name: 'Tongseng Kambing',    price: 38000, prep_time_min: 8,  category: 'Main',   description: 'Goat in sweet spiced coconut broth, cabbage, tomato', photo_url: null, is_available: true },
+      { id: 84, name: 'Lontong',             price:  5000, prep_time_min: 1,  category: 'Sides',  description: 'Compressed rice cake — perfect with satay', photo_url: null, is_available: true },
+      { id: 85, name: 'Kerupuk',             price:  3000, prep_time_min: 1,  category: 'Sides',  description: 'Prawn crackers', photo_url: null, is_available: true },
+      { id: 86, name: 'Es Teh Manis',        price:  5000, prep_time_min: 1,  category: 'Drinks', description: 'Sweet iced tea', photo_url: null, is_available: true },
+      { id: 87, name: 'Jeruk Panas',         price:  7000, prep_time_min: 3,  category: 'Drinks', description: 'Hot fresh orange juice — great with goat dishes', photo_url: null, is_available: true },
     ],
   },
 ]
@@ -354,7 +458,14 @@ export default function RestaurantBrowseScreen({ onClose, onBackToCategories, ca
           </span>
         </div>
 
-        <div className={styles.headerRight} />
+        <div className={styles.headerRight}>
+          <img
+            src="https://ik.imagekit.io/nepgaxllc/Motorcyclist%20approaching%20motorcycle%20near%20Borobudur.png"
+            alt=""
+            className={styles.headerHeroImg}
+            aria-hidden="true"
+          />
+        </div>
       </div>
 
       {/* Scroll dots — dividers don't get a dot */}

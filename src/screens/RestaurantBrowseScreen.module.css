@@ -14,15 +14,23 @@
 }
 .backBtn {
   width: 40px; height: 40px; border-radius: 50%;
-  background: rgba(0,0,0,0.45); border: 1px solid rgba(255,255,255,0.1);
+  background: rgba(0,0,0,0.45); border: 1.5px solid #8DC63F;
   display: flex; align-items: center; justify-content: center;
   color: #fff; cursor: pointer; flex-shrink: 0;
   backdrop-filter: blur(8px);
 }
+.headerRight { flex-shrink: 0; position: relative; }
+.headerHeroImg {
+  height: 52px;
+  width: auto;
+  object-fit: contain;
+  object-position: bottom;
+  display: block;
+  filter: drop-shadow(0 4px 12px rgba(0,0,0,0.6));
+}
 .headerCenter { flex: 1; display: flex; flex-direction: column; gap: 1px; }
 .headerTitle  { font-size: 17px; font-weight: 900; color: #fff; letter-spacing: -0.02em; }
 .headerSub    { font-size: 11px; color: rgba(255,255,255,0.4); }
-.headerRight  { flex-shrink: 0; }
 .featuredTag  {
   font-size: 11px; font-weight: 800; color: #FACC15;
   background: rgba(250,204,21,0.12); border: 1px solid rgba(250,204,21,0.3);
@@ -121,8 +129,8 @@
 .heroDishImg {
   width: 200px; height: 200px; border-radius: 50%;
   object-fit: cover;
-  border: 2px solid rgba(255,255,255,0.1);
-  box-shadow: 0 20px 60px rgba(0,0,0,0.7);
+  border: 2px solid #8DC63F;
+  box-shadow: 0 20px 60px rgba(0,0,0,0.7), 0 0 0 1px rgba(141,198,63,0.15);
 }
 
 /* ── Bottom content ──────────────────────────────────────────────────────────── */
