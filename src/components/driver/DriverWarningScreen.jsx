@@ -39,11 +39,6 @@ export default function DriverWarningScreen({ warningType = 'missed', onDismiss 
         <>
           <div className={styles.overlayLight} />
           <div className={styles.lobbyContent}>
-            <div className={styles.badge}>
-              <span className={styles.badgeIcon}>⚠️</span>
-              {copy.badge}
-            </div>
-
             <div className={styles.lobbyBottom}>
               <p className={styles.lobbyHint}>A message is waiting for you inside</p>
               <button
