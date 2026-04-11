@@ -488,6 +488,7 @@ export default function DevPanel() {
 
       {active === 'driverWarningMissed' && (
         <DriverWarningScreen
+          driverId="d1"
           warningType="missed"
           onDismiss={() => { close(); showToast('Warning dismissed', 'info') }}
         />
@@ -495,6 +496,7 @@ export default function DevPanel() {
 
       {active === 'driverWarningDeclined' && (
         <DriverWarningScreen
+          driverId="d1"
           warningType="declined"
           onDismiss={() => { close(); showToast('Warning dismissed', 'info') }}
         />

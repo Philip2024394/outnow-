@@ -1,4 +1,4 @@
-/* DriverWarningScreen — two-phase full-page warning */
+/* DriverWarningScreen — 3-phase full-page warning */
 
 .screen {
   position: fixed; inset: 0; z-index: 9800;
@@ -6,7 +6,6 @@
   display: flex; flex-direction: column;
 }
 
-/* ── Background image (shared) ── */
 .bg {
   position: absolute; inset: 0;
   background:
@@ -14,29 +13,21 @@
     center center / cover no-repeat;
 }
 
-/* ── Phase 1 overlay — lighter so image is the hero ── */
 .overlayLight {
   position: absolute; inset: 0;
-  background: linear-gradient(
-    to bottom,
-    rgba(0,0,0,0.15) 0%,
-    rgba(0,0,0,0.20) 60%,
-    rgba(0,0,0,0.75) 100%
-  );
+  background: linear-gradient(to bottom,
+    rgba(0,0,0,0.15) 0%, rgba(0,0,0,0.20) 60%, rgba(0,0,0,0.75) 100%);
 }
 
-/* ── Phase 2 overlay — darker for readability ── */
 .overlayDark {
   position: absolute; inset: 0;
-  background: linear-gradient(
-    to bottom,
-    rgba(0,0,0,0.45) 0%,
-    rgba(0,0,0,0.72) 35%,
-    rgba(0,0,0,0.94) 100%
-  );
+  background: linear-gradient(to bottom,
+    rgba(0,0,0,0.55) 0%, rgba(0,0,0,0.80) 40%, rgba(0,0,0,0.96) 100%);
 }
 
-/* ── Phase 1: lobby layout ── */
+/* ─────────────────────────────────────────────
+   PHASE 1 — LOBBY
+───────────────────────────────────────────── */
 .lobbyContent {
   position: relative; z-index: 2;
   flex: 1;
@@ -45,135 +36,221 @@
   padding: calc(env(safe-area-inset-top, 0px) + 48px) 24px
            calc(env(safe-area-inset-bottom, 0px) + 36px);
 }
-
-.lobbyBottom {
-  display: flex; flex-direction: column; gap: 14px;
-}
-
+.lobbyBottom { display: flex; flex-direction: column; gap: 14px; }
 .lobbyHint {
   font-size: 13px; color: rgba(255,255,255,0.55);
-  text-align: center; margin: 0;
-  letter-spacing: 0.02em;
+  text-align: center; margin: 0; letter-spacing: 0.02em;
 }
-
 .enterBtn {
   width: 100%; padding: 20px;
   background: rgba(255,255,255,0.12);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-  border: 1.5px solid rgba(255,255,255,0.25);
-  border-radius: 20px;
+  backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
+  border: 1.5px solid rgba(255,255,255,0.25); border-radius: 20px;
   color: #fff; font-size: 18px; font-weight: 900;
-  cursor: pointer; font-family: inherit;
-  letter-spacing: -0.01em;
+  cursor: pointer; font-family: inherit; letter-spacing: -0.01em;
   transition: background 0.2s, transform 0.12s;
   box-shadow: 0 8px 32px rgba(0,0,0,0.4);
 }
 .enterBtn:active { transform: scale(0.97); background: rgba(255,255,255,0.18); }
 
-/* ── Phase 2: warning scrollable content ── */
+/* ─────────────────────────────────────────────
+   SHARED: scrollable content column
+───────────────────────────────────────────── */
 .content {
   position: relative; z-index: 2;
   flex: 1; overflow-y: auto;
-  display: flex; flex-direction: column; align-items: center;
-  padding: calc(env(safe-area-inset-top, 0px) + 52px) 24px
+  display: flex; flex-direction: column; align-items: stretch;
+  padding: calc(env(safe-area-inset-top, 0px) + 40px) 20px
            calc(env(safe-area-inset-bottom, 0px) + 32px);
-  gap: 18px;
-  animation: fadeIn 0.3s ease;
+  gap: 14px;
+  animation: fadeUp 0.32s ease;
 }
 .content::-webkit-scrollbar { display: none; }
-@keyframes fadeIn { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: none; } }
+@keyframes fadeUp { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: none; } }
 
-/* ── Warning badge (shared) ── */
+/* ─────────────────────────────────────────────
+   PHASE 2 — PERFORMANCE REVIEW
+───────────────────────────────────────────── */
+.reviewHeader { text-align: center; padding-bottom: 4px; }
+.reviewDate   { font-size: 11px; color: rgba(255,255,255,0.35); letter-spacing: 0.06em; margin: 0 0 4px; }
+.reviewTitle  { font-size: 28px; font-weight: 900; color: #fff; letter-spacing: -0.02em; margin: 0 0 4px; }
+.reviewSub    { font-size: 12px; color: rgba(255,255,255,0.35); margin: 0; }
+
+/* Profile card */
+.profileCard {
+  background: rgba(255,255,255,0.06);
+  border: 1px solid rgba(255,255,255,0.11);
+  border-radius: 20px; padding: 18px;
+  backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.07);
+  display: flex; flex-direction: column; gap: 12px;
+}
+.profileTop { display: flex; gap: 14px; align-items: center; }
+.avatarWrap {
+  width: 64px; height: 64px; border-radius: 50%; flex-shrink: 0;
+  background: rgba(141,198,63,0.15);
+  border: 2px solid rgba(141,198,63,0.4);
+  display: flex; align-items: center; justify-content: center;
+  overflow: hidden;
+}
+.avatarImg    { width: 100%; height: 100%; object-fit: cover; }
+.avatarInitial { font-size: 26px; font-weight: 900; color: #8DC63F; }
+.profileInfo  { flex: 1; display: flex; flex-direction: column; gap: 3px; }
+.profileName  { font-size: 18px; font-weight: 900; color: #fff; margin: 0; }
+.profileMeta  { font-size: 12px; color: rgba(255,255,255,0.45); margin: 0; }
+.profilePlate {
+  font-size: 11px; font-weight: 900; letter-spacing: 0.1em;
+  color: #8DC63F; background: rgba(141,198,63,0.1);
+  border: 1px solid rgba(141,198,63,0.25);
+  border-radius: 6px; padding: 2px 8px; width: fit-content; margin-top: 2px;
+}
+.profileRatingRow {
+  display: flex; align-items: center; gap: 8px;
+  padding-top: 10px; border-top: 1px solid rgba(255,255,255,0.07);
+}
+.stars         { letter-spacing: 2px; font-size: 15px; }
+.profileRatingNum { font-size: 16px; font-weight: 900; color: #fff; }
+.profileTotalTrips { font-size: 12px; color: rgba(255,255,255,0.35); margin-left: auto; }
+
+/* Stats grid */
+.statsGrid {
+  display: grid; grid-template-columns: 1fr 1fr; gap: 10px;
+}
+.statBox {
+  background: rgba(255,255,255,0.05);
+  border: 1px solid rgba(255,255,255,0.09);
+  border-radius: 16px; padding: 14px 16px;
+  display: flex; flex-direction: column; gap: 3px;
+}
+.statValue { font-size: 26px; font-weight: 900; color: #fff; letter-spacing: -0.02em; }
+.statLabel { font-size: 11px; color: rgba(255,255,255,0.4); text-transform: uppercase; letter-spacing: 0.06em; }
+.statSub   { font-size: 11px; color: rgba(255,255,255,0.25); }
+
+/* Rate bars */
+.ratesCard {
+  background: rgba(255,255,255,0.05);
+  border: 1px solid rgba(255,255,255,0.09);
+  border-radius: 18px; padding: 16px;
+  display: flex; flex-direction: column; gap: 14px;
+}
+.sectionLabel {
+  font-size: 10px; font-weight: 900; letter-spacing: 0.12em;
+  text-transform: uppercase; color: rgba(255,255,255,0.3);
+  margin: 0;
+}
+.rateRow  { display: flex; flex-direction: column; gap: 6px; }
+.rateTop  { display: flex; justify-content: space-between; align-items: center; }
+.rateLabel { font-size: 13px; color: rgba(255,255,255,0.6); font-weight: 600; }
+.rateVal   { font-size: 13px; font-weight: 900; }
+.rateTrack {
+  height: 5px; background: rgba(255,255,255,0.08);
+  border-radius: 3px; overflow: hidden;
+}
+.rateFill { height: 100%; border-radius: 3px; transition: width 0.6s ease; }
+
+/* Reviews */
+.reviewsCard {
+  background: rgba(255,255,255,0.05);
+  border: 1px solid rgba(255,255,255,0.09);
+  border-radius: 18px; padding: 16px;
+  display: flex; flex-direction: column; gap: 14px;
+}
+.reviewItem { display: flex; flex-direction: column; gap: 5px; }
+.reviewItem + .reviewItem {
+  padding-top: 14px;
+  border-top: 1px solid rgba(255,255,255,0.06);
+}
+.reviewTop    { display: flex; align-items: center; gap: 8px; }
+.reviewerName { font-size: 13px; font-weight: 700; color: #fff; flex: 1; }
+.reviewDate2  { font-size: 11px; color: rgba(255,255,255,0.3); }
+.reviewComment { font-size: 13px; color: rgba(255,255,255,0.55); line-height: 1.5; margin: 0; font-style: italic; }
+
+/* Management note */
+.mgmtCard {
+  background: rgba(251,191,36,0.06);
+  border: 1px solid rgba(251,191,36,0.2);
+  border-radius: 18px; padding: 18px;
+  display: flex; flex-direction: column; gap: 12px;
+}
+.mgmtLine { font-size: 14px; color: rgba(255,255,255,0.7); line-height: 1.65; margin: 0; }
+.mgmtSignature {
+  display: flex; align-items: center; gap: 12px;
+  padding-top: 12px; border-top: 1px solid rgba(255,255,255,0.08);
+}
+.mgmtSigIcon  { font-size: 24px; flex-shrink: 0; }
+.mgmtSigName  { font-size: 13px; font-weight: 800; color: #fff; margin: 0; }
+.mgmtSigTitle { font-size: 11px; color: rgba(255,255,255,0.35); margin: 2px 0 0; }
+
+.continueBtn {
+  width: 100%; padding: 18px;
+  background: rgba(255,255,255,0.09);
+  border: 1px solid rgba(255,255,255,0.18); border-radius: 18px;
+  color: #fff; font-size: 16px; font-weight: 800;
+  cursor: pointer; font-family: inherit;
+  transition: background 0.15s, transform 0.12s;
+  margin-top: 4px;
+}
+.continueBtn:active { transform: scale(0.97); background: rgba(255,255,255,0.14); }
+
+/* ─────────────────────────────────────────────
+   PHASE 3 — FORMAL WARNING
+───────────────────────────────────────────── */
 .badge {
   display: flex; align-items: center; gap: 8px;
   font-size: 11px; font-weight: 900; letter-spacing: 0.14em;
   text-transform: uppercase; color: #FBBF24;
-  background: rgba(251,191,36,0.12);
-  border: 1px solid rgba(251,191,36,0.35);
+  background: rgba(251,191,36,0.12); border: 1px solid rgba(251,191,36,0.35);
   border-radius: 100px; padding: 7px 16px;
   animation: badgePulse 2s ease-in-out infinite;
-  width: fit-content;
+  width: fit-content; align-self: center;
 }
 .badgeIcon { font-size: 14px; }
 @keyframes badgePulse {
   0%, 100% { box-shadow: 0 0 0 0 rgba(251,191,36,0.4); }
   50%       { box-shadow: 0 0 0 8px rgba(251,191,36,0); }
 }
-
-/* ── Headline ── */
 .headline {
   font-size: 42px; font-weight: 900; color: #fff;
   letter-spacing: -0.03em; line-height: 1;
   text-align: center; margin: 0;
 }
+.sub { font-size: 15px; color: rgba(255,255,255,0.5); text-align: center; margin: -6px 0 0; }
 
-.sub {
-  font-size: 15px; color: rgba(255,255,255,0.5);
-  text-align: center; margin: -6px 0 0;
-}
-
-/* ── Policy card (glass) ── */
 .policyCard {
-  width: 100%;
-  background: rgba(255,255,255,0.06);
-  border: 1px solid rgba(255,255,255,0.11);
-  border-radius: 20px;
-  padding: 20px;
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
+  background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.11);
+  border-radius: 20px; padding: 20px;
+  backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px);
   box-shadow: inset 0 1px 0 rgba(255,255,255,0.07), 0 4px 24px rgba(0,0,0,0.4);
   display: flex; flex-direction: column; gap: 14px;
 }
-
 .policyTitle {
   font-size: 11px; font-weight: 900; letter-spacing: 0.12em;
-  text-transform: uppercase; color: #FBBF24;
-  margin: 0;
+  text-transform: uppercase; color: #FBBF24; margin: 0;
 }
-
-.policyBody {
-  font-size: 14px; color: rgba(255,255,255,0.65);
-  line-height: 1.65; margin: 0;
-}
+.policyBody { font-size: 14px; color: rgba(255,255,255,0.65); line-height: 1.65; margin: 0; }
 .policyBody strong { color: #fff; font-weight: 800; }
+.divider { height: 1px; background: rgba(255,255,255,0.08); }
 
-.divider {
-  height: 1px;
-  background: rgba(255,255,255,0.08);
-}
-
-/* ── Signature ── */
 .signatureLine {
   display: flex; align-items: center; gap: 14px;
-  width: 100%;
-  background: rgba(255,255,255,0.04);
-  border: 1px solid rgba(255,255,255,0.08);
+  background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08);
   border-radius: 16px; padding: 14px 18px;
 }
 .signatureIcon { font-size: 28px; flex-shrink: 0; }
-.signatureName {
-  font-size: 14px; font-weight: 800; color: #fff; margin: 0;
-}
-.signatureTitle {
-  font-size: 11px; color: rgba(255,255,255,0.35); margin: 2px 0 0;
-}
+.signatureName { font-size: 14px; font-weight: 800; color: #fff; margin: 0; }
+.signatureTitle { font-size: 11px; color: rgba(255,255,255,0.35); margin: 2px 0 0; }
 
-/* ── Dismiss button ── */
 .dismissBtn {
   width: 100%; padding: 18px;
   background: linear-gradient(135deg, #FBBF24 0%, #D97706 100%);
   border: none; border-radius: 18px;
   color: #000; font-size: 16px; font-weight: 900;
-  cursor: pointer; font-family: inherit;
-  letter-spacing: -0.01em;
+  cursor: pointer; font-family: inherit; letter-spacing: -0.01em;
   box-shadow: 0 6px 24px rgba(251,191,36,0.35);
-  transition: opacity 0.15s, transform 0.12s;
-  margin-top: 4px;
+  transition: opacity 0.15s, transform 0.12s; margin-top: 4px;
 }
 .dismissBtn:active { transform: scale(0.97); opacity: 0.9; }
 
-/* ── Footer note ── */
 .footerNote {
   font-size: 11px; color: rgba(255,255,255,0.25);
   text-align: center; margin: 0;

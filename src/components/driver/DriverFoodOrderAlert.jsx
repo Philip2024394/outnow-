@@ -91,6 +91,7 @@ export default function DriverFoodOrderAlert({ order, driverId, onDismiss }) {
   if (warningType) {
     return (
       <DriverWarningScreen
+        driverId={driverId}
         warningType={warningType}
         onDismiss={onDismiss}
       />

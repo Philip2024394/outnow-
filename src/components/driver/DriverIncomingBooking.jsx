@@ -8,7 +8,9 @@ function fmtRp(n) { return `Rp ${Number(n).toLocaleString('id-ID')}` }
 // ── Web Audio alarm ───────────────────────────────────────────────────────────
 function startAlarm() {
   try {
-    const ctx  = new (window.AudioContext || window.webkitAudioContext)()
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const AudioCtx = window.AudioContext ?? (/** @type {any} */ (window)).webkitAudioContext
+    const ctx  = new AudioCtx()
     let active = true
 
     const beep = () => {
@@ -75,6 +77,7 @@ export default function DriverIncomingBooking({ booking, driverId, onAccepted, o
   if (warningType) {
     return (
       <DriverWarningScreen
+        driverId={driverId}
         warningType={warningType}
         onDismiss={() => onDeclined(warningType)}
       />
