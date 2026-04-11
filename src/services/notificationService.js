@@ -113,6 +113,61 @@ export function notifyRideExpired(toUserId, { bookingId }) {
   })
 }
 
+// ── Gift orders ───────────────────────────────────────────────────────────────
+
+/** Tell the seller they have an anonymous gift order. Buyer identity is NOT included. */
+export function notifyGiftToSeller(toUserId, { productName, orderId, fromUserId }) {
+  return send(toUserId, {
+    type:       'gift_order',
+    title:      `🎁 New anonymous gift order!`,
+    body:       `Someone sent "${productName}" as an anonymous gift. Open your orders to confirm and prepare.`,
+    fromUserId, // stored for internal reference, not shown to seller
+    data:       { action: 'open_gift_orders', orderId },
+  })
+}
+
+/** Tell the recipient a gift is on its way. Sender identity is NOT included. */
+export function notifyGiftToRecipient(toUserId, { sellerName, productName, orderId, fromUserId }) {
+  return send(toUserId, {
+    type:       'gift_received',
+    title:      `🎁 You have an anonymous gift!`,
+    body:       `Someone sent you "${productName}" from ${sellerName}. Set your delivery address to receive it.`,
+    fromUserId, // stored for internal reference, not shown to recipient
+    data:       { action: 'open_gift_address', orderId },
+  })
+}
+
+/** Tell recipient they have a gift waiting but need to set their delivery address first. */
+export function notifyGiftAddressRequired(toUserId, { sellerName, fromUserId, orderId }) {
+  return send(toUserId, {
+    type:       'gift_address_required',
+    title:      `🎁 You have a surprise gift waiting!`,
+    body:       `Someone sent you an anonymous gift from ${sellerName}. Add your delivery address in Settings → Gift Delivery Address to receive it.`,
+    fromUserId,
+    data:       { action: 'open_gift_address', orderId },
+  })
+}
+
+/** Tell buyer their gift order status changed. */
+export function notifyGiftStatusUpdate(toUserId, { status, productName, orderId }) {
+  const msgs = {
+    seller_acknowledged: { title: '✅ Gift acknowledged!',       body: `The seller confirmed your gift of "${productName}" and is preparing it.` },
+    preparing:           { title: '📦 Gift being prepared',      body: `Your gift of "${productName}" is being packed up.` },
+    out_for_delivery:    { title: '🏍️ Gift is on its way!',      body: `Your anonymous gift of "${productName}" is out for delivery!` },
+    delivered:           { title: '🎉 Gift delivered!',          body: `Your anonymous gift of "${productName}" has been delivered.` },
+    cancelled:           { title: '❌ Gift order cancelled',     body: `The gift order for "${productName}" was cancelled.` },
+  }
+  const msg = msgs[status]
+  if (!msg) return Promise.resolve()
+  return send(toUserId, {
+    type:       'gift_update',
+    title:      msg.title,
+    body:       msg.body,
+    fromUserId: null,
+    data:       { action: 'open_gift_orders', orderId },
+  })
+}
+
 // ── Date suggestions (admin) ──────────────────────────────────────────────────
 
 export function notifyDateSuggestionAccepted(toUserId, { ideaTitle }) {

@@ -50,6 +50,9 @@ export default function ProductCatalogSlider({
   open, onClose,
   products = DEMO_PRODUCTS,
   sellerWa, sellerName = 'Products',
+  onGiftSelect = null,    // gift mode — product tap opens GiftOrderSheet
+  giftRecipientName = null,
+  onWishlistAdd = null,   // wishlist mode — product tap pins to wishlist
 }) {
   const cartKey = `hangger_cart_${sellerWa || sellerName || 'default'}`
 
@@ -147,6 +150,18 @@ export default function ProductCatalogSlider({
           <button className={styles.closeBtn} onClick={onClose}>✕</button>
         </div>
 
+        {/* Mode banners */}
+        {onWishlistAdd && (
+          <div className={styles.wishlistModeBanner}>
+            📌 Tap a product to pin it to your wishlist
+          </div>
+        )}
+        {onGiftSelect && !onWishlistAdd && (
+          <div className={styles.giftModeBanner}>
+            🛍️ Select a product to gift to <strong>{giftRecipientName ?? 'them'}</strong>
+          </div>
+        )}
+
         {/* Search bar */}
         <div className={styles.searchWrap}>
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.35)" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
@@ -177,8 +192,8 @@ export default function ProductCatalogSlider({
                   {items.map(p => (
                     <div
                       key={p.id}
-                      className={[styles.card, !p.active ? styles.cardInactive : ''].join(' ')}
-                      onClick={() => setDetailProduct(p)}
+                      className={[styles.card, !p.active ? styles.cardInactive : '', onGiftSelect ? styles.cardGiftMode : ''].join(' ')}
+                      onClick={() => onWishlistAdd ? onWishlistAdd(p) : onGiftSelect ? onGiftSelect(p) : setDetailProduct(p)}
                     >
                       <div className={styles.cardImgWrap}>
                         {p.image

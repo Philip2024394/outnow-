@@ -4,6 +4,7 @@ import { getBuyerUnlockStatus } from '@/services/unlockService'
 import { fetchProducts, DEMO_PRODUCTS } from '@/services/commerceService'
 import ProductCatalogSlider from './ProductCatalogSlider'
 import UnlockGate from '@/components/chat/UnlockGate'
+import GiftOrderSheet from '@/components/gifting/GiftOrderSheet'
 import styles from './SellerProfileSheet.module.css'
 
 function ContactIcon({ type, color }) {
@@ -16,16 +17,17 @@ function ContactIcon({ type, color }) {
   return null
 }
 
-export default function SellerProfileSheet({ seller, onClose, onOpenChat }) {
+export default function SellerProfileSheet({ seller, onClose, onOpenChat, giftFor = null, wishlistMode = false, onWishlistAdd = null, showToast }) {
   const { user } = useAuth()
   const userId = user?.uid ?? user?.id ?? null
 
   const [products,       setProducts]       = useState(DEMO_PRODUCTS.slice(0, 9))
-  const [catalogOpen,    setCatalogOpen]    = useState(false)
+  const [catalogOpen,    setCatalogOpen]    = useState(wishlistMode) // auto-open in wishlist mode
   const [hoursOpen,      setHoursOpen]      = useState(false)
   const [contactOpen,    setContactOpen]    = useState(false)
   const [buyerUnlocked,  setBuyerUnlocked]  = useState(false)
   const [unlockGateOpen, setUnlockGateOpen] = useState(false)
+  const [giftProduct,    setGiftProduct]    = useState(null) // product chosen for gifting
 
   useEffect(() => {
     if (!userId) return
@@ -270,6 +272,18 @@ export default function SellerProfileSheet({ seller, onClose, onOpenChat }) {
         products={products}
         sellerWa={seller.bizWhatsapp}
         sellerName={seller.brandName || seller.displayName}
+        onWishlistAdd={wishlistMode ? (p) => { setCatalogOpen(false); onWishlistAdd?.(p) } : null}
+        onGiftSelect={giftFor && !wishlistMode ? (p) => { setCatalogOpen(false); setGiftProduct(p) } : null}
+        giftRecipientName={giftFor?.displayName ?? null}
+      />
+
+      <GiftOrderSheet
+        open={!!giftProduct && !!giftFor}
+        product={giftProduct}
+        seller={seller}
+        giftFor={giftFor}
+        onClose={() => setGiftProduct(null)}
+        showToast={showToast}
       />
     </div>
   )

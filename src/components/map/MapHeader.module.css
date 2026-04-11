@@ -276,21 +276,27 @@
 
 .notifBadge {
   position: absolute;
-  top: 4px;
-  right: 4px;
-  min-width: 17px;
-  height: 17px;
+  top: 3px;
+  right: 3px;
+  min-width: 18px;
+  height: 18px;
   border-radius: 100px;
   background: #FF3B30;
   color: #fff;
   font-size: 10px;
-  font-weight: 800;
+  font-weight: 900;
   display: flex;
   align-items: center;
   justify-content: center;
   padding: 0 4px;
-  border: 2px solid rgba(8, 8, 8, 0.9);
+  border: 2px solid #080808;
   pointer-events: none;
   line-height: 1;
-  box-shadow: 0 0 6px rgba(255,59,48,0.6);
+  box-shadow: 0 0 8px rgba(255,59,48,0.7), 0 2px 4px rgba(0,0,0,0.4);
+  animation: badgePop 0.3s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+}
+
+@keyframes badgePop {
+  from { transform: scale(0); opacity: 0; }
+  to   { transform: scale(1); opacity: 1; }
 }

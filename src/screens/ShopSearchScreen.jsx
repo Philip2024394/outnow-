@@ -76,12 +76,13 @@ function SellerCard({ seller, onClick }) {
 }
 
 // ── Main screen ───────────────────────────────────────────────────────────────
-export default function ShopSearchScreen({ onClose, userCity, userCountry }) {
-  const [query,          setQuery]          = useState('')
-  const [activeCategory, setActiveCategory] = useState('all')
-  const [sellers,        setSellers]        = useState(DEMO_SELLERS)
-  const [loading,        setLoading]        = useState(false)
-  const [selectedSeller, setSelectedSeller] = useState(null)
+export default function ShopSearchScreen({ onClose, userCity, userCountry, giftFor, onGiftDismiss, wishlistMode = false, onWishlistSelectSeller, showToast }) {
+  const [query,                  setQuery]                  = useState('')
+  const [activeCategory,         setActiveCategory]         = useState('all')
+  const [sellers,                setSellers]                = useState(DEMO_SELLERS)
+  const [loading,                setLoading]                = useState(false)
+  const [selectedSeller,         setSelectedSeller]         = useState(null)
+  const [wishlistBannerDismissed, setWishlistBannerDismissed] = useState(false)
   const inputRef = useRef(null)
 
   const activeCat = SEARCH_CATEGORIES.find(c => c.id === activeCategory) ?? SEARCH_CATEGORIES[0]
@@ -123,12 +124,46 @@ export default function ShopSearchScreen({ onClose, userCity, userCountry }) {
       <SellerProfileSheet
         seller={selectedSeller}
         onClose={() => setSelectedSeller(null)}
+        giftFor={giftFor ?? null}
+        showToast={showToast}
       />
     )
   }
 
+  const handleSellerClick = (seller) => {
+    if (wishlistMode) { onWishlistSelectSeller?.(seller) }
+    else { setSelectedSeller(seller) }
+  }
+
   return (
     <div className={styles.screen}>
+
+      {/* ── Gift context chip ── */}
+      {giftFor && (
+        <div className={styles.giftChip}>
+          {giftFor.photoURL
+            ? <img src={giftFor.photoURL} alt={giftFor.displayName} className={styles.giftChipAvatar} />
+            : <span className={styles.giftChipAvatarFallback}>💕</span>
+          }
+          <div className={styles.giftChipText}>
+            <span className={styles.giftChipLabel}>Shopping For</span>
+            <span className={styles.giftChipName}>{giftFor.displayName ?? 'Someone special'}</span>
+          </div>
+          <button className={styles.giftChipClose} onClick={onGiftDismiss} aria-label="Clear gift context">✕</button>
+        </div>
+      )}
+
+      {/* ── Wishlist discovery banner (normal browsing mode only) ── */}
+      {!giftFor && !wishlistMode && !wishlistBannerDismissed && (
+        <div className={styles.wishlistBanner}>
+          <span className={styles.wishlistBannerEmoji}>📌</span>
+          <div className={styles.wishlistBannerText}>
+            <strong>Pin items to your profile</strong>
+            <span>Admirers can buy them as anonymous gifts — a gesture of commitment before or after a date</span>
+          </div>
+          <button className={styles.wishlistBannerClose} onClick={() => setWishlistBannerDismissed(true)} aria-label="Dismiss">✕</button>
+        </div>
+      )}
 
       {/* ── Header with search bar ── */}
       <div className={styles.header}>
@@ -196,7 +231,7 @@ export default function ShopSearchScreen({ onClose, userCity, userCountry }) {
         ))}
 
         {!loading && filtered.map(seller => (
-          <SellerCard key={seller.id} seller={seller} onClick={setSelectedSeller} />
+          <SellerCard key={seller.id} seller={seller} onClick={handleSellerClick} />
         ))}
 
         {!loading && filtered.length === 0 && (

@@ -11,6 +11,7 @@ import { getSafetyContact } from '@/components/safety/SafetySheet'
 import SuggestPlaceSheet from './SuggestPlaceSheet'
 import VerifiedPage from './VerifiedPage'
 import ContactOptionsSheet from './ContactOptionsSheet'
+import GiftAddressSheet from '@/components/gifting/GiftAddressSheet'
 import styles from './SettingsSheet.module.css'
 
 function Row({ icon, label, sublabel, value, onClick, danger, toggle, toggled }) {
@@ -50,6 +51,7 @@ export default function SettingsSheet({ open, onClose, onOpenLikes, onOpenMyLike
   const [suggestOpen, setSuggestOpen] = useState(false)
   const [verifiedOpen, setVerifiedOpen]               = useState(false)
   const [contactOptionsOpen, setContactOptionsOpen]   = useState(false)
+  const [giftAddressOpen,    setGiftAddressOpen]      = useState(false)
   const safetyContact = getSafetyContact()
   const drawerRef = useRef(null)
   const startXRef = useRef(null)
@@ -263,6 +265,12 @@ export default function SettingsSheet({ open, onClose, onOpenLikes, onOpenMyLike
             {/* Privacy & Safety */}
             <Divider label="Privacy & Safety" />
             <Row
+              icon="🎁"
+              label="Gift Delivery Address"
+              sublabel="Private address for anonymous gifts — never shown to senders"
+              onClick={() => setGiftAddressOpen(true)}
+            />
+            <Row
               icon="🔒"
               label="Privacy Controls"
               sublabel="Manage what others can see about you"
@@ -317,6 +325,7 @@ export default function SettingsSheet({ open, onClose, onOpenLikes, onOpenMyLike
       <PrivacySheet open={privacyOpen} onClose={() => setPrivacyOpen(false)} />
       <SafetySheet open={safetyOpen} onClose={() => setSafetyOpen(false)} />
       <SuggestPlaceSheet open={suggestOpen} onClose={() => setSuggestOpen(false)} showToast={showToast} />
+      <GiftAddressSheet open={giftAddressOpen} onClose={() => setGiftAddressOpen(false)} showToast={showToast} />
 
     </>
   )

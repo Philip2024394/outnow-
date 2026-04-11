@@ -7,6 +7,12 @@ import { useOverlay } from '@/contexts/OverlayContext'
 import CountdownTimer from '@/components/ui/CountdownTimer'
 import { LANGUAGE_FLAGS } from '@/utils/lookingForLabels'
 import styles from './DatingCard.module.css'
+import GiftSetupPrompt from '@/components/gifting/GiftSetupPrompt'
+import ProfileWishlistRow from '@/components/gifting/ProfileWishlistRow'
+import WishlistSheet from '@/components/gifting/WishlistSheet'
+import ProfileFoodRow from '@/components/gifting/ProfileFoodRow'
+import FoodWishlistSheet from '@/components/gifting/FoodWishlistSheet'
+import { getProfileWishlist } from '@/services/wishlistService'
 import DateIdeasSheet from '@/components/dating/DateIdeasSheet'
 import VibeCheckSheet from '../panels/VibeCheckSheet'
 import WingmanSheet from '../panels/WingmanSheet'
@@ -38,7 +44,7 @@ function SidePanelBtn({ emoji, label, onClick, active, pulse, color }) {
 }
 
 /** Full-screen profile layout for Dating & Romance */
-export default function DatingCard({ open, session, mySession, onClose, showToast, onGuestAction, onMeetSent, onConnect, onLike }) {
+export default function DatingCard({ open, session, mySession, onClose, showToast, onGuestAction, onMeetSent, onConnect, onLike, onGift }) {
   useOverlay()
   const { user }  = useAuth()
   const { myInterests, mutualSessions } = useInterests()
@@ -50,9 +56,16 @@ export default function DatingCard({ open, session, mySession, onClose, showToas
   const [photoIdx,    setPhotoIdx]    = useState(0)
 
   // Panel state
-  const [panel,     setPanel]     = useState(null) // 'dateIdeas' | 'vibeCheck' | 'wingman' | 'bio'
-  const [moodOpen,  setMoodOpen]  = useState(false)
-  const [echoOpen,  setEchoOpen]  = useState(false)
+  const [panel,          setPanel]          = useState(null) // 'dateIdeas' | 'vibeCheck' | 'wingman' | 'bio'
+  const [moodOpen,       setMoodOpen]       = useState(false)
+  const [echoOpen,       setEchoOpen]       = useState(false)
+  const [giftSetupOpen,  setGiftSetupOpen]  = useState(false)
+  const [wishlistOpen,    setWishlistOpen]    = useState(false)
+  const [profileWishlist, setProfileWishlist] = useState([])
+  const [foodOpen,        setFoodOpen]        = useState(false)
+  const [profileFoodList, setProfileFoodList] = useState([])
+
+  const isOwnProfile = !!(user && session && (user.uid === session.userId || user.id === session.userId))
 
   const sheetRef    = useRef(null)
   const startYRef   = useRef(null)
@@ -86,6 +99,17 @@ export default function DatingCard({ open, session, mySession, onClose, showToas
 
   // Reset panels on open
   useEffect(() => { if (open) { setPanel(null); setPhotoIdx(0); setMeetSent(false); setLiked(false) } }, [open])
+
+  // Fetch other profile's public wishlists (products + food)
+  useEffect(() => {
+    if (!open || !session?.userId || isOwnProfile) {
+      setProfileWishlist([])
+      setProfileFoodList([])
+      return
+    }
+    getProfileWishlist(session.userId, 'product').then(setProfileWishlist)
+    getProfileWishlist(session.userId, 'food').then(setProfileFoodList)
+  }, [open, session?.userId, isOwnProfile])
 
   if (!open || !session) return null
 
@@ -146,6 +170,7 @@ export default function DatingCard({ open, session, mySession, onClose, showToas
   const togglePanel = (name) => setPanel(p => p === name ? null : name)
 
   return (
+    <>
     <div className={styles.wrapper}>
       <div className={styles.backdrop} onClick={onClose} />
 
@@ -205,6 +230,8 @@ export default function DatingCard({ open, session, mySession, onClose, showToas
           <SidePanelBtn emoji="🎭"                    label="Vibe"   active={panel === 'vibeCheck'}             onClick={() => togglePanel('vibeCheck')} />
           <SidePanelBtn emoji="🌈"                    label="Mood"   active={moodOpen}                          onClick={() => setMoodOpen(m => !m)} />
           <SidePanelBtn emoji="🦅"                    label="Wing"   active={panel === 'wingman'}               onClick={() => togglePanel('wingman')} />
+          <SidePanelBtn emoji="🍔"                    label="Food"                                                  onClick={() => isOwnProfile ? setFoodOpen(true) : null} />
+          <SidePanelBtn emoji="🛍️"                   label="Gift"                                                  onClick={() => isOwnProfile ? setGiftSetupOpen(true) : onGift?.(session)} />
           {session.lastSeenDaysAgo >= 7 && (
             <SidePanelBtn emoji="🔁" label="Reset" pulse onClick={() => showToast?.('🔁 Second Chance sent — they\'ll see a purple ring.', 'success')} />
           )}
@@ -275,6 +302,24 @@ export default function DatingCard({ open, session, mySession, onClose, showToas
                 {session.bio.replace(/[\p{Emoji_Presentation}\p{Extended_Pictographic}]/gu, '').trim().slice(0, 120)}…
               </span>
             </button>
+          )}
+
+          {/* Cravings strip — other profiles only */}
+          {!isOwnProfile && profileFoodList.length > 0 && (
+            <ProfileFoodRow
+              items={profileFoodList}
+              recipient={session}
+              showToast={showToast}
+            />
+          )}
+
+          {/* Wishlist strip — other profiles only */}
+          {!isOwnProfile && profileWishlist.length > 0 && (
+            <ProfileWishlistRow
+              items={profileWishlist}
+              recipient={session}
+              showToast={showToast}
+            />
           )}
 
           {/* Quick replies */}
@@ -374,7 +419,32 @@ export default function DatingCard({ open, session, mySession, onClose, showToas
           onClose={() => setEchoOpen(false)}
           showToast={showToast}
         />
+
       </div>
     </div>
+
+    {/* Gift setup prompt — own profile only */}
+    <GiftSetupPrompt
+      open={giftSetupOpen}
+      onClose={() => setGiftSetupOpen(false)}
+      onShop={() => { setGiftSetupOpen(false); onGift?.(session) }}
+      onWishlist={() => { setGiftSetupOpen(false); setWishlistOpen(true) }}
+      showToast={showToast}
+    />
+
+    {/* Wishlist manager — own profile only */}
+    <WishlistSheet
+      open={wishlistOpen}
+      onClose={() => setWishlistOpen(false)}
+      showToast={showToast}
+    />
+
+    {/* Food cravings manager — own profile only */}
+    <FoodWishlistSheet
+      open={foodOpen}
+      onClose={() => setFoodOpen(false)}
+      showToast={showToast}
+    />
+    </>
   )
 }

@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
+import { useAppOverlays } from './useAppOverlays'
 import { createPortal } from 'react-dom'
 import { useOverlay, OVERLAY } from '@/contexts/OverlayContext'
 import { useMySession } from '@/hooks/useMySession'
@@ -101,25 +102,47 @@ export default function AppShell({ returnParams, triggerGoLive }) {
   const [pendingConv, setPendingConv] = useState(null)
   const [declinedUserIds] = useState(new Set())
   const ipCountry = useIpCountry()
-  const [countrySearchOpen, setCountrySearchOpen] = useState(false)
   const [browseCountry, setBrowseCountry] = useState('Indonesia')
   const [searchQuery, setSearchQuery] = useState('')
-  const [cityResultsOpen, setCityResultsOpen] = useState(false)
   const [cityFilter, setCityFilter] = useState(null)
-  const [companyPanelOpen, setCompanyPanelOpen] = useState(false)
   const [companyQuery, setCompanyQuery] = useState('')
   const [mapCategory] = useState('all') // 'all' | 'maker'
-  const [dateIdeasOpen,    setDateIdeasOpen]    = useState(false)
   const [dateIdeasTarget,  setDateIdeasTarget]  = useState(null)
-  const [datingIntentOpen, setDatingIntentOpen] = useState(false)
   const [datingIntent,     setDatingIntent]     = useState(null)
-  const [datingGridOpen,   setDatingGridOpen]   = useState(false)
-  const [rideOpen,       setRideOpen]       = useState(false)
-  const [foodOpen,       setFoodOpen]       = useState(false)
   const [foodCategory,   setFoodCategory]   = useState(null)
-  const [foodBrowseOpen, setFoodBrowseOpen] = useState(false)
   const [foodScrollToId, setFoodScrollToId] = useState(null)
   const { incomingInvite: dateInvite, clearInvite: clearDateInvite } = useDateInvites(user?.id ?? null)
+
+  // ── Overlay / modal / sheet open states ─────────────────────────────────────
+  const {
+    countrySearchOpen, setCountrySearchOpen,
+    cityResultsOpen,   setCityResultsOpen,
+    companyPanelOpen,  setCompanyPanelOpen,
+    dateIdeasOpen,     setDateIdeasOpen,
+    datingIntentOpen,  setDatingIntentOpen,
+    datingGridOpen,    setDatingGridOpen,
+    rideOpen,          setRideOpen,
+    foodOpen,          setFoodOpen,
+    foodBrowseOpen,    setFoodBrowseOpen,
+    likedMeOpen,       setLikedMeOpen,
+    likedProfilesOpen, setLikedProfilesOpen,
+    settingsOpen,      setSettingsOpen,
+    notifOpen,         setNotifOpen,
+    rideHistoryOpen,   setRideHistoryOpen,
+    blockListOpen,     setBlockListOpen,
+    ratingOpen,        setRatingOpen,
+    reviewsOpen,       setReviewsOpen,
+    sosOpen,           setSosOpen,
+    upgradeOpen,       setUpgradeOpen,
+    spotClaimOpen,     setSpotClaimOpen,
+    mySpotOpen,        setMySpotOpen,
+    inviteOutSheetOpen,  setInviteOutSheetOpen,
+    discoveryListOpen,   setDiscoveryListOpen,
+    vibeCheckOpen,       setVibeCheckOpen,
+    vibeBroadcastOpen,   setVibeBroadcastOpen,
+    newsOpen,            setNewsOpen,
+    mapFilterOpen,       setMapFilterOpen,
+  } = useAppOverlays()
 
   // Effective country: explicit browse selection → IP detection → profile country
   const effectiveCountry = browseCountry ?? ipCountry ?? userProfile?.country ?? null
@@ -138,33 +161,15 @@ export default function AppShell({ returnParams, triggerGoLive }) {
   [rawSessions, viewerCoords])
   const { unreadCount: notifUnreadCount, serviceUnreadCounts } = useNotifications()
   const [toast, setToast] = useState(null)
-  const [likedMeOpen, setLikedMeOpen] = useState(false)
-  const [likedProfilesOpen, setLikedProfilesOpen] = useState(false)
   const { likedProfiles, saveLike, removeLike } = useLikedProfiles()
-  const [settingsOpen, setSettingsOpen] = useState(false)
-  const [notifOpen,       setNotifOpen]       = useState(false)
-  const [rideHistoryOpen, setRideHistoryOpen] = useState(false)
-  const [blockListOpen, setBlockListOpen] = useState(false)
-  const [ratingOpen, setRatingOpen] = useState(false)
-  const [reviewsOpen, setReviewsOpen] = useState(false)
-
-  const [sosOpen, setSosOpen] = useState(false)
-  const [upgradeOpen, setUpgradeOpen] = useState(false)
-  const [spotClaimOpen, setSpotClaimOpen] = useState(false)
-  const [mySpotOpen, setMySpotOpen] = useState(false)
   const [contactUnlockSession, setContactUnlockSession] = useState(null)
-  const [inviteOutSheetOpen, setInviteOutSheetOpen] = useState(false)
   const { inviteOut, post: postInviteOut, goingLive, revertToInviteOut } = useInviteOut()
   const [boostToast, setBoostToast] = useState(null)
   const [discoveryListFilter, setDiscoveryListFilter] = useState('now')
-  const [discoveryListOpen,   setDiscoveryListOpen]   = useState(false)
   const [newNowCount,    setNewNowCount]    = useState(0)
   const [newInviteCount, setNewInviteCount] = useState(0)
   const seenNowRef    = useRef(-1)
   const seenInviteRef = useRef(-1)
-  const [vibeCheckOpen, setVibeCheckOpen]         = useState(false)
-  const [vibeBroadcastOpen, setVibeBroadcastOpen] = useState(false)
-  const [newsOpen, setNewsOpen]                   = useState(false)
   // Driver online/offline — null means not a bike/car service account
   const isDriverAccount = userProfile?.isDriver === true &&
     (userProfile?.driverType === 'bike_ride' || userProfile?.driverType === 'car_taxi')
@@ -189,9 +194,9 @@ export default function AppShell({ returnParams, triggerGoLive }) {
     setDiscoveryListOpen(true)
   }
   // Full map filter sheet
-  const [mapFilterOpen, setMapFilterOpen] = useState(false)
   const [mapFilters, setMapFilters] = useState(DEFAULT_MAP_FILTERS)
   const [activeTab, setActiveTab] = useState('map')
+  const [giftForSession, setGiftForSession] = useState(null)
 
   // Send new users (no display name yet) straight to profile setup
 
@@ -396,7 +401,7 @@ export default function AppShell({ returnParams, triggerGoLive }) {
       {activeTab === 'match'   && <MatchScreen   onClose={() => setActiveTab('map')} />}
       {activeTab === 'chat'    && <ChatScreen key={pendingConv?.id ?? 'chat'} onClose={() => setActiveTab('map')} pendingConv={pendingConv} />}
       {activeTab === 'profile' && <ProfileScreen onClose={() => setActiveTab('map')} onOpenSettings={() => setSettingsOpen(true)} />}
-      {activeTab === 'shopping' && <ShopSearchScreen onClose={() => setActiveTab('map')} userCity={userProfile?.city} userCountry={userProfile?.country} />}
+      {activeTab === 'shopping' && <ShopSearchScreen onClose={() => { setActiveTab('map'); setGiftForSession(null) }} userCity={userProfile?.city} userCountry={userProfile?.country} giftFor={giftForSession} onGiftDismiss={() => setGiftForSession(null)} showToast={showToast} />}
 
       <div className="map-top-fade" />
       <div className="map-bottom-fade" />
@@ -738,6 +743,7 @@ export default function AppShell({ returnParams, triggerGoLive }) {
         }}
         onLike={saveLike}
         onUnlockContact={isMakerSession(overlay.data ?? {}) ? (s) => setContactUnlockSession(s) : null}
+        onGift={(session) => { closeOverlay(); setGiftForSession(session); setActiveTab('shopping') }}
       />
       <ContactUnlockSheet
         open={!!contactUnlockSession}
