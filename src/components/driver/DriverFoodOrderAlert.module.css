@@ -1,165 +1,190 @@
-/* DriverFoodOrderAlert — full-screen overlay, z-index 9700 */
+/* DriverFoodOrderAlert — full-screen overlay */
 .overlay {
   position: fixed; inset: 0; z-index: 9700;
-  background: rgba(0,0,0,0.75);
-  backdrop-filter: blur(6px);
+  background: rgba(0,0,0,0.8);
+  backdrop-filter: blur(8px);
   display: flex; align-items: flex-end; justify-content: center;
   padding-bottom: env(safe-area-inset-bottom, 0);
 }
 
 .modal {
   width: 100%; max-width: 480px;
-  background: #050d03;
+  background: #060e04;
   background-image:
-    linear-gradient(rgba(5,13,3,0.80), rgba(5,13,3,0.80)),
+    linear-gradient(rgba(6,14,4,0.82), rgba(6,14,4,0.82)),
     url("https://ik.imagekit.io/nepgaxllc/Motorcyclist%20approaching%20motorcycle%20near%20Borobudur.png");
   background-size: cover;
   background-position: center top;
   border-radius: 28px 28px 0 0;
-  border-top: 2px solid rgba(141,198,63,0.55);
-  box-shadow: 0 -8px 40px rgba(141,198,63,0.18);
-  padding: 0 22px 36px;
-  display: flex; flex-direction: column; gap: 14px;
-  animation: slideUp 0.3s cubic-bezier(0.34,1.1,0.64,1);
-  overflow-y: auto; max-height: 92dvh;
+  border-top: 2px solid rgba(141,198,63,0.6);
+  box-shadow: 0 -8px 48px rgba(141,198,63,0.18);
+  padding: 0 20px calc(env(safe-area-inset-bottom, 0px) + 32px);
+  display: flex; flex-direction: column; gap: 0;
+  animation: slideUp 0.32s cubic-bezier(0.34,1.1,0.64,1);
+  overflow-y: auto; max-height: 94dvh;
 }
-
 @keyframes slideUp { from { transform: translateY(100%); } to { transform: none; } }
 
-/* ── Timer bar (accept phase) ── */
+/* ── Handle pill ── */
+.handle {
+  width: 40px; height: 4px; border-radius: 2px;
+  background: rgba(141,198,63,0.35);
+  margin: 12px auto 20px; flex-shrink: 0;
+}
+
+/* ── Phase label ── */
+.phaseLabel {
+  font-size: 10px; font-weight: 800; letter-spacing: 0.14em;
+  text-transform: uppercase; color: #8DC63F;
+  margin-bottom: 4px;
+}
+
+/* ── Title ── */
+.title {
+  font-size: 26px; font-weight: 900; color: #fff;
+  letter-spacing: -0.02em; line-height: 1.1;
+  margin: 0 0 20px;
+}
+
+/* ── Timer bar (incoming phase) ── */
 .timerBar {
-  height: 4px;
+  height: 5px;
   background: rgba(255,255,255,0.08);
-  border-radius: 2px;
+  border-radius: 3px;
   overflow: hidden;
-  margin: 18px 0 4px;
+  margin-bottom: 20px;
   flex-shrink: 0;
 }
 .timerFill {
-  height: 100%;
-  border-radius: 2px;
+  height: 100%; border-radius: 3px;
   transition: width 0.9s linear, background 0.4s;
 }
-
-/* ── Pulse emoji — hidden ── */
-.pulse { display: none; }
-
-/* ── Titles ── */
-.title {
-  font-size: 20px; font-weight: 900; color: #fff;
-  text-align: center; margin: 0;
-}
 .countdown {
-  font-size: 13px; color: rgba(255,255,255,0.5);
-  text-align: center; margin: 0;
+  font-size: 13px; color: rgba(255,255,255,0.45);
+  margin: -12px 0 20px; font-variant-numeric: tabular-nums;
 }
 
-/* ── Restaurant card ── */
-.restaurantCard {
-  display: flex; align-items: center; gap: 12px;
+/* ── Section card ── */
+.section {
   background: rgba(255,255,255,0.05);
   border: 1px solid rgba(255,255,255,0.09);
-  border-radius: 14px; padding: 12px 14px;
+  border-radius: 18px;
+  padding: 16px;
+  margin-bottom: 12px;
 }
-.restaurantIcon { font-size: 22px; flex-shrink: 0; }
-.restaurantInfo { display: flex; flex-direction: column; gap: 2px; }
-.restaurantName { font-size: 14px; font-weight: 800; color: #fff; }
-.restaurantNote { font-size: 11px; color: rgba(255,255,255,0.4); }
+
+/* ── Restaurant row ── */
+.restaurantRow {
+  display: flex; align-items: center; gap: 14px;
+}
+.restaurantIconWrap {
+  width: 46px; height: 46px; border-radius: 14px;
+  background: rgba(141,198,63,0.12);
+  border: 1px solid rgba(141,198,63,0.25);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 22px; flex-shrink: 0;
+}
+.restaurantInfo { display: flex; flex-direction: column; gap: 3px; }
+.restaurantName { font-size: 16px; font-weight: 800; color: #fff; }
+.restaurantNote { font-size: 12px; color: rgba(255,255,255,0.4); }
 
 /* ── Items list ── */
-.itemsList {
-  display: flex; flex-direction: column; gap: 6px;
-  background: rgba(0,0,0,0.3);
-  border: 1px solid rgba(255,255,255,0.07);
-  border-radius: 14px; padding: 12px 14px;
+.sectionLabel {
+  font-size: 10px; font-weight: 800; letter-spacing: 0.1em;
+  text-transform: uppercase; color: rgba(255,255,255,0.3);
+  margin-bottom: 10px;
 }
 .itemRow {
-  display: flex; align-items: center; gap: 8px;
+  display: flex; align-items: center; gap: 10px;
+  padding: 10px 0;
+  border-bottom: 1px solid rgba(255,255,255,0.06);
 }
-.itemQty   { font-size: 12px; font-weight: 800; color: #E8458C; min-width: 24px; }
-.itemName  { font-size: 13px; color: rgba(255,255,255,0.85); flex: 1; }
-.itemPrice { font-size: 12px; font-weight: 700; color: rgba(255,255,255,0.55); }
+.itemRow:last-of-type { border-bottom: none; padding-bottom: 0; }
+.itemQtyBadge {
+  min-width: 28px; height: 28px; border-radius: 8px;
+  background: rgba(141,198,63,0.15);
+  border: 1px solid rgba(141,198,63,0.3);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 12px; font-weight: 900; color: #8DC63F;
+  flex-shrink: 0;
+}
+.itemName  { font-size: 14px; color: #fff; flex: 1; font-weight: 600; line-height: 1.3; }
+.itemPrice { font-size: 13px; font-weight: 700; color: rgba(255,255,255,0.5); }
 
-.itemTotal {
+/* ── Totals row ── */
+.totalRow {
   display: flex; justify-content: space-between; align-items: center;
+  padding-top: 12px; margin-top: 4px;
   border-top: 1px solid rgba(255,255,255,0.08);
-  padding-top: 8px; margin-top: 2px;
-  font-size: 12px; color: rgba(255,255,255,0.45);
 }
-.feeAmt { font-weight: 800; color: #8DC63F; }
+.totalLabel { font-size: 12px; color: rgba(255,255,255,0.4); }
+.totalAmt   { font-size: 15px; font-weight: 900; color: #8DC63F; }
 
 /* ── Cash note ── */
 .cashNote {
-  font-size: 12px; color: rgba(255,255,255,0.45);
-  background: rgba(141,198,63,0.07);
-  border: 1px solid rgba(141,198,63,0.18);
-  border-radius: 10px; padding: 10px 14px;
-  text-align: center; line-height: 1.5; margin: 0;
+  background: rgba(141,198,63,0.08);
+  border: 1px solid rgba(141,198,63,0.2);
+  border-radius: 14px; padding: 14px 16px;
+  font-size: 13px; color: rgba(255,255,255,0.55);
+  line-height: 1.55; margin-bottom: 12px;
+  text-align: center;
+}
+.cashNote strong { color: #8DC63F; }
+
+/* ── Instruction text ── */
+.instrText {
+  font-size: 14px; color: rgba(255,255,255,0.5);
+  line-height: 1.55; text-align: center;
+  margin-bottom: 12px;
 }
 
 /* ── Pickup code input ── */
-.pickupInstr {
-  font-size: 13px; color: rgba(255,255,255,0.55);
-  text-align: center; margin: 0; line-height: 1.5;
-}
 .codeInput {
   width: 100%; box-sizing: border-box;
   background: rgba(255,255,255,0.06);
-  border: 2px solid rgba(232,69,140,0.35);
-  border-radius: 14px;
-  padding: 16px 18px;
-  font-size: 28px; font-weight: 900; color: #fff;
+  border: 2px solid rgba(141,198,63,0.35);
+  border-radius: 16px;
+  padding: 18px;
+  font-size: 32px; font-weight: 900; color: #fff;
   letter-spacing: 0.35em; text-align: center;
-  font-family: inherit;
-  outline: none;
+  font-family: inherit; outline: none;
   transition: border-color 0.2s;
+  margin-bottom: 12px;
 }
-.codeInput:focus { border-color: rgba(232,69,140,0.8); }
+.codeInput:focus { border-color: rgba(141,198,63,0.8); }
 .codeInputError  { border-color: rgba(248,113,113,0.7) !important; }
 .codeError {
   font-size: 12px; color: #F87171;
-  background: rgba(248,113,113,0.1);
-  border: 1px solid rgba(248,113,113,0.25);
-  border-radius: 10px; padding: 9px 14px;
-  text-align: center; margin: 0;
+  background: rgba(248,113,113,0.08);
+  border: 1px solid rgba(248,113,113,0.2);
+  border-radius: 10px; padding: 10px 14px;
+  text-align: center; margin-bottom: 12px;
 }
 
-/* ── WhatsApp sender link ── */
-.waLink {
-  display: flex; align-items: center; justify-content: center; gap: 8px;
-  padding: 13px;
-  background: rgba(37,211,102,0.1);
-  border: 1px solid rgba(37,211,102,0.3);
-  border-radius: 14px;
-  color: #25D366; font-size: 13px; font-weight: 700;
-  text-decoration: none;
-  transition: background 0.15s;
+/* ── Buttons ── */
+.acceptBtn {
+  width: 100%; padding: 18px;
+  background: linear-gradient(135deg, #8DC63F 0%, #6aaa22 100%);
+  border: none; border-radius: 18px;
+  color: #000; font-size: 16px; font-weight: 900;
+  cursor: pointer; font-family: inherit;
+  box-shadow: 0 6px 24px rgba(141,198,63,0.35);
+  transition: opacity 0.15s, transform 0.12s;
+  letter-spacing: -0.01em;
+  margin-bottom: 0;
 }
-.waLink:active { background: rgba(37,211,102,0.2); }
+.acceptBtn:active   { transform: scale(0.97); opacity: 0.9; }
+.acceptBtn:disabled { opacity: 0.45; cursor: not-allowed; }
 
-/* ── Action buttons ── */
-.actions {
-  display: flex; gap: 10px;
-}
+.actions { display: flex; gap: 10px; margin-bottom: 0; }
 .declineBtn {
-  flex: 1; padding: 15px;
+  flex: 1; padding: 18px;
   background: rgba(255,255,255,0.06);
   border: 1px solid rgba(255,255,255,0.12);
-  border-radius: 16px;
-  color: rgba(255,255,255,0.6); font-size: 14px; font-weight: 700;
+  border-radius: 18px;
+  color: rgba(255,255,255,0.55); font-size: 15px; font-weight: 700;
   cursor: pointer; font-family: inherit;
   transition: background 0.15s;
 }
-.declineBtn:hover { background: rgba(255,255,255,0.1); }
-
-.acceptBtn {
-  flex: 2; padding: 15px;
-  background: linear-gradient(135deg, #E8458C 0%, #C0256A 100%);
-  border: none; border-radius: 16px;
-  color: #fff; font-size: 14px; font-weight: 800;
-  cursor: pointer; font-family: inherit;
-  box-shadow: 0 6px 20px rgba(232,69,140,0.4);
-  transition: opacity 0.15s, transform 0.12s;
-}
-.acceptBtn:active  { transform: scale(0.97); opacity: 0.9; }
-.acceptBtn:disabled { opacity: 0.55; cursor: not-allowed; }
+.declineBtn:active { background: rgba(255,255,255,0.1); }
+.actions .acceptBtn { flex: 2; }
