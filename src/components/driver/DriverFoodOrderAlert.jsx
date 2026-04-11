@@ -26,6 +26,9 @@ export default function DriverFoodOrderAlert({ order, driverId, onDismiss }) {
 
   const items = Array.isArray(order?.items) ? order.items : []
 
+  const totalKm = ((order?.driver_distance_km ?? 0) + (order?.delivery_distance_km ?? 0))
+  const journeyLabel = totalKm > 0 ? `${totalKm.toFixed(1)} km total journey` : null
+
   useEffect(() => {
     if (phase !== 'incoming') return
     const id = setInterval(() => {
@@ -108,7 +111,7 @@ export default function DriverFoodOrderAlert({ order, driverId, onDismiss }) {
                   <div className={styles.restaurantIconWrap}>🏪</div>
                   <div className={styles.restaurantInfo}>
                     <span className={styles.restaurantName}>{order.restaurant_name}</span>
-                    <span className={styles.restaurantNote}>Pickup location</span>
+                    <span className={styles.restaurantNote}>Pickup location{journeyLabel ? ` · ${journeyLabel}` : ''}</span>
                   </div>
                 </div>
               </div>
@@ -154,7 +157,7 @@ export default function DriverFoodOrderAlert({ order, driverId, onDismiss }) {
                   <div className={styles.restaurantIconWrap}>📍</div>
                   <div className={styles.restaurantInfo}>
                     <span className={styles.restaurantName}>{order.restaurant_name}</span>
-                    <span className={styles.restaurantNote}>Show this order to restaurant staff</span>
+                    <span className={styles.restaurantNote}>Show this order to restaurant staff{journeyLabel ? ` · ${journeyLabel}` : ''}</span>
                   </div>
                 </div>
               </div>

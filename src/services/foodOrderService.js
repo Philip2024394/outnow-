@@ -105,6 +105,8 @@ export async function createFoodOrder({
   driver,
   sender,
   deliveryFee,
+  deliveryDistanceKm,
+  driverDistanceKm,
   comment,
 }) {
   // ── Spam guard ──
@@ -135,7 +137,9 @@ export async function createFoodOrder({
     subtotal,
     delivery_fee:    deliveryFee,
     total,
-    comment:         comment?.trim() || null,
+    comment:               comment?.trim() || null,
+    delivery_distance_km:  deliveryDistanceKm ?? null,
+    driver_distance_km:    driverDistanceKm   ?? null,
     cash_ref:              cashRef,
     status:                'awaiting_payment',
     payment_deadline:      new Date(Date.now() + 10 * 60 * 1000).toISOString(),

@@ -20,6 +20,7 @@ export default function DriverSearchSheet({
   restaurant,
   items,
   deliveryFee,
+  deliveryDistanceKm,
   comment,
   onConfirmed,   // (order) => void
   onClose,
@@ -70,8 +71,10 @@ export default function DriverSearchSheet({
         restaurant,
         items,
         driver,
-        sender:      user,
-        deliveryFee: deliveryFee ?? 0,
+        sender:              user,
+        deliveryFee:         deliveryFee ?? 0,
+        deliveryDistanceKm:  deliveryDistanceKm ?? null,
+        driverDistanceKm:    driver.distKm ?? null,
         comment,
       })
       onConfirmed(order)
