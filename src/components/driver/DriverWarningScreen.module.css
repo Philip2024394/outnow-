@@ -1,4 +1,4 @@
-/* DriverWarningScreen — full-page formal warning */
+/* DriverWarningScreen — two-phase full-page warning */
 
 .screen {
   position: fixed; inset: 0; z-index: 9800;
@@ -6,7 +6,7 @@
   display: flex; flex-direction: column;
 }
 
-/* ── Background image ── */
+/* ── Background image (shared) ── */
 .bg {
   position: absolute; inset: 0;
   background:
@@ -14,18 +14,64 @@
     center center / cover no-repeat;
 }
 
-/* ── Dark gradient overlay ── */
-.overlay {
+/* ── Phase 1 overlay — lighter so image is the hero ── */
+.overlayLight {
+  position: absolute; inset: 0;
+  background: linear-gradient(
+    to bottom,
+    rgba(0,0,0,0.15) 0%,
+    rgba(0,0,0,0.20) 60%,
+    rgba(0,0,0,0.75) 100%
+  );
+}
+
+/* ── Phase 2 overlay — darker for readability ── */
+.overlayDark {
   position: absolute; inset: 0;
   background: linear-gradient(
     to bottom,
     rgba(0,0,0,0.45) 0%,
-    rgba(0,0,0,0.70) 35%,
-    rgba(0,0,0,0.92) 100%
+    rgba(0,0,0,0.72) 35%,
+    rgba(0,0,0,0.94) 100%
   );
 }
 
-/* ── Scrollable content ── */
+/* ── Phase 1: lobby layout ── */
+.lobbyContent {
+  position: relative; z-index: 2;
+  flex: 1;
+  display: flex; flex-direction: column;
+  justify-content: space-between;
+  padding: calc(env(safe-area-inset-top, 0px) + 48px) 24px
+           calc(env(safe-area-inset-bottom, 0px) + 36px);
+}
+
+.lobbyBottom {
+  display: flex; flex-direction: column; gap: 14px;
+}
+
+.lobbyHint {
+  font-size: 13px; color: rgba(255,255,255,0.55);
+  text-align: center; margin: 0;
+  letter-spacing: 0.02em;
+}
+
+.enterBtn {
+  width: 100%; padding: 20px;
+  background: rgba(255,255,255,0.12);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1.5px solid rgba(255,255,255,0.25);
+  border-radius: 20px;
+  color: #fff; font-size: 18px; font-weight: 900;
+  cursor: pointer; font-family: inherit;
+  letter-spacing: -0.01em;
+  transition: background 0.2s, transform 0.12s;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.4);
+}
+.enterBtn:active { transform: scale(0.97); background: rgba(255,255,255,0.18); }
+
+/* ── Phase 2: warning scrollable content ── */
 .content {
   position: relative; z-index: 2;
   flex: 1; overflow-y: auto;
@@ -33,10 +79,12 @@
   padding: calc(env(safe-area-inset-top, 0px) + 52px) 24px
            calc(env(safe-area-inset-bottom, 0px) + 32px);
   gap: 18px;
+  animation: fadeIn 0.3s ease;
 }
 .content::-webkit-scrollbar { display: none; }
+@keyframes fadeIn { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: none; } }
 
-/* ── Warning badge ── */
+/* ── Warning badge (shared) ── */
 .badge {
   display: flex; align-items: center; gap: 8px;
   font-size: 11px; font-weight: 900; letter-spacing: 0.14em;
@@ -45,6 +93,7 @@
   border: 1px solid rgba(251,191,36,0.35);
   border-radius: 100px; padding: 7px 16px;
   animation: badgePulse 2s ease-in-out infinite;
+  width: fit-content;
 }
 .badgeIcon { font-size: 14px; }
 @keyframes badgePulse {
