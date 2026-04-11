@@ -202,6 +202,21 @@ export async function driverCompleteRide(bookingId, driverId) {
   await supabase.rpc('increment_driver_trips', { p_driver_id: driverId }).catch(() => {})
 }
 
+// ── Realtime booking status subscription (passenger side) ────────────────────
+export function subscribeToBooking(bookingId, onChange) {
+  if (!supabase) return () => {}
+  const channel = supabase
+    .channel(`booking:${bookingId}`)
+    .on('postgres_changes', {
+      event:  'UPDATE',
+      schema: 'public',
+      table:  'bookings',
+      filter: `id=eq.${bookingId}`,
+    }, payload => onChange(payload.new))
+    .subscribe()
+  return () => supabase.removeChannel(channel)
+}
+
 // Poll for new pending booking assigned to this driver
 export async function fetchDriverPendingBooking(driverId) {
   if (!supabase) return null

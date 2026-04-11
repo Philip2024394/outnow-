@@ -1,12 +1,47 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { acceptBooking, declineBooking } from '@/services/bookingService'
 import styles from './DriverIncomingBooking.module.css'
 
 function fmtRp(n) { return `Rp ${Number(n).toLocaleString('id-ID')}` }
 
+// ── Web Audio alarm ───────────────────────────────────────────────────────────
+function startAlarm() {
+  try {
+    const ctx  = new (window.AudioContext || window.webkitAudioContext)()
+    let active = true
+
+    const beep = () => {
+      if (!active) return
+      const osc  = ctx.createOscillator()
+      const gain = ctx.createGain()
+      osc.connect(gain)
+      gain.connect(ctx.destination)
+      osc.type            = 'sine'
+      osc.frequency.value = 880
+      gain.gain.setValueAtTime(0.35, ctx.currentTime)
+      gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.25)
+      osc.start(ctx.currentTime)
+      osc.stop(ctx.currentTime + 0.25)
+      setTimeout(beep, 900)
+    }
+
+    beep()
+    return () => { active = false; ctx.close().catch(() => {}) }
+  } catch (_) {
+    return () => {}
+  }
+}
+
 export default function DriverIncomingBooking({ booking, driverId, onAccepted, onDeclined }) {
   const [busy,     setBusy]     = useState(false)
   const [secondsLeft, setSecondsLeft] = useState(null)
+  const stopAlarmRef = useRef(null)
+
+  // Start alarm on mount, stop on unmount
+  useEffect(() => {
+    stopAlarmRef.current = startAlarm()
+    return () => stopAlarmRef.current?.()
+  }, [])
 
   // Countdown from expires_at
   useEffect(() => {
@@ -22,12 +57,14 @@ export default function DriverIncomingBooking({ booking, driverId, onAccepted, o
   }, [booking?.expires_at, onDeclined])
 
   const handleAccept = async () => {
+    stopAlarmRef.current?.()
     setBusy(true)
     await acceptBooking(booking.id, driverId)
     onAccepted(booking)
   }
 
   const handleDecline = async () => {
+    stopAlarmRef.current?.()
     setBusy(true)
     await declineBooking(booking.id, driverId)
     onDeclined('declined')

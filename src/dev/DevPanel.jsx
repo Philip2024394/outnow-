@@ -25,10 +25,16 @@ import UnlockGate  from '@/components/chat/UnlockGate'
 // ── Membership ───────────────────────────────────────────────────────
 import MembershipScreen    from '@/components/membership/MembershipScreen'
 
+// ── Food delivery ─────────────────────────────────────────────────────
+import DriverSearchSheet      from '@/components/gifting/DriverSearchSheet'
+import RestaurantMenuSheet     from '@/components/gifting/RestaurantMenuSheet'
+import DriverFoodOrderAlert    from '@/components/driver/DriverFoodOrderAlert'
+import FoodOrderStatus         from '@/components/orders/FoodOrderStatus'
+import PaymentTransferScreen   from '@/components/orders/PaymentTransferScreen'
+
 // ── Screens ──────────────────────────────────────────────────────────
 import ChatScreen          from '@/screens/ChatScreen'
 import ChatWindow          from '@/components/chat/ChatWindow'
-import MatchScreen         from '@/screens/MatchScreen'
 import NotificationsScreen from '@/screens/NotificationsScreen'
 import LikedMeScreen       from '@/screens/LikedMeScreen'
 import ProfileScreen       from '@/screens/ProfileScreen'
@@ -65,6 +71,68 @@ const MOCK_CONVS = {
   dating: { ...MOCK_CONV_BASE, id: 'dev-conv-dating', displayName: 'Sophie', age: 26, area: 'Bali', emoji: '💕', photoURL: 'https://ik.imagekit.io/nepgaxllc/uk1.png' },
   market: { ...MOCK_CONV_BASE, id: 'dev-conv-market', displayName: 'Bali Crafts Co.', area: 'Ubud', emoji: '🛍️', photoURL: null },
   food:   { ...MOCK_CONV_BASE, id: 'dev-conv-food',   displayName: 'Warung Sari', area: 'Seminyak', emoji: '🍽️', photoURL: null },
+}
+
+const MOCK_RESTAURANT = {
+  id: 'dev-r1',
+  name: 'Warung Sari Rasa',
+  cuisine_type: 'Javanese',
+  rating: 4.8,
+  lat: -8.409518, lng: 115.188919,
+  menu_items: [
+    { id: 'mi1', name: 'Nasi Gudeg Komplit', price: 32000, is_available: true, image: 'https://ik.imagekit.io/nepgaxllc/Traditional%20Javanese%20feast%20on%20banana%20leaves.png' },
+    { id: 'mi2', name: 'Soto Ayam Kampung', price: 25000, is_available: true, image: null },
+    { id: 'mi3', name: 'Tempe Bacem',       price: 12000, is_available: true, image: null },
+    { id: 'mi4', name: 'Es Teh Manis',      price: 8000,  is_available: true, image: null },
+    { id: 'mi5', name: 'Bakmi Jawa Goreng', price: 28000, is_available: true, image: null },
+    { id: 'mi6', name: 'Klepon',            price: 15000, is_available: false, image: null },
+  ],
+}
+
+
+const MOCK_FOOD_ORDER = {
+  id: 'dev-order-1',
+  cash_ref: 'FD-7X2K',
+  status: 'driver_heading',
+  restaurant_name: 'Warung Sari Rasa',
+  restaurant_id: 'dev-r1',
+  restaurant_bank_name: 'BCA',
+  restaurant_bank_account: '1234567890',
+  restaurant_bank_holder: 'Warung Sari Rasa',
+  driver_name: 'Budi Santoso',
+  driver_vehicle: 'Honda Vario · Blue',
+  driver_plate: 'AB 1234 XY',
+  driver_phone: '+6281234567890',
+  recipient_name: 'Rina',
+  subtotal: 57000,
+  delivery_fee: 15000,
+  total: 72000,
+  payment_deadline: new Date(Date.now() + 8 * 60 * 1000).toISOString(), // 8 min from now
+  items: [
+    { name: 'Nasi Gudeg Komplit', qty: 1, price: 32000 },
+    { name: 'Soto Ayam Kampung',  qty: 1, price: 25000 },
+  ],
+}
+
+const MOCK_DRIVER_ORDER = {
+  ...MOCK_FOOD_ORDER,
+  pickup_code: 'AB3X7K',
+  items: MOCK_FOOD_ORDER.items,
+}
+
+const MOCK_DRIVER = {
+  id: 'dev-driver-1',
+  display_name: 'Budi Santoso',
+  vehicle_model: 'Honda Vario',
+  vehicle_color: 'Blue',
+  plate_prefix: 'AB 1234 XY',
+  rating: 4.9,
+  etaMin: 5,
+  total_trips: 1234,
+  years_experience: 3,
+  acceptance_rate: 98,
+  languages: ['id', 'en'],
+  photo_url: null,
 }
 
 // ─────────────────────────────────────────────────────────────────────
@@ -124,6 +192,19 @@ const GROUPS = [
       { id: 'notifications', label: '🔔 Notifications Screen' },
       { id: 'likedMe',       label: '👀 Liked Me Screen' },
       { id: 'profile',       label: '👤 Profile Screen' },
+    ],
+  },
+  {
+    label: 'FOOD DELIVERY',
+    color: '#E8458C',
+    items: [
+      { id: 'driverSearching',   label: '🔍 Finding Driver — Searching'  },
+      { id: 'driverFound',       label: '✅ Finding Driver — Found'      },
+      { id: 'restaurantMenu',    label: '🍽️ Restaurant Menu'             },
+      { id: 'paymentTransfer',   label: '💳 Payment Transfer Screen'     },
+      { id: 'paymentSubmitted',  label: '🧾 Payment Submitted (waiting)' },
+      { id: 'driverAlert',       label: '🏍️ Driver Order Alert'          },
+      { id: 'foodOrderStatus',   label: '📦 Order Status Card'           },
     ],
   },
   {
@@ -300,11 +381,6 @@ export default function DevPanel() {
           <ChatWindow conversation={MOCK_CONVS.food} chatTheme="food" onBack={close} />
         </div>
       )}
-      {active === 'match' && (
-        <div className={styles.screenOverlay}>
-          <MatchScreen onClose={close} />
-        </div>
-      )}
       {active === 'notifications' && (
         <div className={styles.screenOverlay}>
           <NotificationsScreen onClose={close} />
@@ -325,6 +401,61 @@ export default function DevPanel() {
         <div className={styles.screenOverlay}>
           <ProfileScreen onClose={close} />
         </div>
+      )}
+
+      {/* ── FOOD DELIVERY ── */}
+      <DriverSearchSheet
+        open={active === 'driverSearching'}
+        restaurant={MOCK_RESTAURANT}
+        items={[{ id: 'mi1', name: 'Nasi Gudeg Komplit', price: 32000, qty: 1 }]}
+        deliveryFee={15000}
+        comment=""
+        onConfirmed={() => { close(); showToast('Order placed! 🏍️', 'success') }}
+        onClose={close}
+      />
+      <DriverSearchSheet
+        open={active === 'driverFound'}
+        restaurant={MOCK_RESTAURANT}
+        items={[{ id: 'mi1', name: 'Nasi Gudeg Komplit', price: 32000, qty: 1 }, { id: 'mi2', name: 'Soto Ayam Kampung', price: 25000, qty: 2 }]}
+        deliveryFee={15000}
+        comment=""
+        _forcePhase="found"
+        _forceDriver={MOCK_DRIVER}
+        onConfirmed={() => { close(); showToast('Order placed! 🏍️', 'success') }}
+        onClose={close}
+      />
+      <RestaurantMenuSheet
+        open={active === 'restaurantMenu'}
+        restaurant={MOCK_RESTAURANT}
+        onClose={close}
+      />
+      {active === 'paymentTransfer' && (
+        <PaymentTransferScreen
+          order={MOCK_FOOD_ORDER}
+          onSubmitted={() => { showToast('Screenshot submitted ✓', 'success') }}
+          onExpired={() => { close(); showToast('Order expired — time ran out', 'error') }}
+        />
+      )}
+      {active === 'paymentSubmitted' && (
+        <PaymentTransferScreen
+          order={{ ...MOCK_FOOD_ORDER, status: 'payment_submitted', payment_deadline: new Date(Date.now() + 4 * 60 * 1000).toISOString() }}
+          onSubmitted={() => { showToast('Screenshot submitted ✓', 'success') }}
+          onExpired={() => { close(); showToast('Order expired — time ran out', 'error') }}
+        />
+      )}
+
+      {active === 'driverAlert' && (
+        <DriverFoodOrderAlert
+          order={MOCK_DRIVER_ORDER}
+          driverId="dev-driver-1"
+          onDismiss={close}
+        />
+      )}
+      {active === 'foodOrderStatus' && (
+        <FoodOrderStatus
+          order={MOCK_FOOD_ORDER}
+          onClose={close}
+        />
       )}
 
       {/* ── MEMBERSHIP ── */}

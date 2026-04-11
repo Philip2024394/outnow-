@@ -42,7 +42,7 @@ create policy "admin full access subscriptions"
   using (
     exists (
       select 1 from profiles
-      where profiles.id = auth.uid() and profiles.role = 'admin'
+      where profiles.id = auth.uid() and profiles.is_admin = true
     )
   );
 
@@ -56,7 +56,7 @@ create table if not exists chat_unlocks (
   price_usd       numeric(6,2) not null default 1.99,
   stripe_pi_id    text,                       -- Stripe PaymentIntent ID
   purchased_at    timestamptz not null default now(),
-  expires_at      timestamptz generated always as (purchased_at + interval '90 days') stored
+  expires_at      timestamptz not null default now() + interval '90 days'
 );
 
 create index if not exists chat_unlocks_user_idx on chat_unlocks(user_id);
@@ -164,6 +164,6 @@ create policy "admin update seller_plan"
   using (
     exists (
       select 1 from profiles p
-      where p.id = auth.uid() and p.role = 'admin'
+      where p.id = auth.uid() and p.is_admin = true
     )
   );

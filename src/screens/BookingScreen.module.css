@@ -162,6 +162,8 @@
   border-radius: 14px;
   padding: 12px 14px;
   box-shadow: inset 0 1px 0 rgba(255,255,255,0.06), 0 4px 20px rgba(0,0,0,0.3);
+  position: relative;
+  z-index: 50;
 }
 .fieldLabel {
   font-size: 11px;
@@ -775,16 +777,38 @@
 }
 .sheetPanel {
   width: 100%;
-  background: #0f0f0f;
-  border-top: 1px solid rgba(255,255,255,0.1);
-  border-radius: 22px 22px 0 0;
-  padding: 10px 20px 36px;
+  height: 100dvh;
+  background-color: #0a0a0a;
+  background-image: url("https://ik.imagekit.io/nepgaxllc/Untitledfsdfdfdf33.png?updatedAt=1775555797749");
+  background-size: cover;
+  background-position: center top;
+  background-repeat: no-repeat;
+  border-top: none;
+  border-radius: 0;
+  padding: calc(env(safe-area-inset-top, 0px) + 16px) 20px calc(env(safe-area-inset-bottom, 0px) + 32px);
   display: flex;
   flex-direction: column;
   gap: 14px;
   animation: sheetSlideUp 0.28s cubic-bezier(0.32,0.72,0,1);
-  max-height: 92vh;
   overflow-y: auto;
+  position: relative;
+  isolation: isolate;
+}
+
+.sheetPanel::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.55);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  z-index: 0;
+  pointer-events: none;
+}
+
+.sheetPanel > * {
+  position: relative;
+  z-index: 1;
 }
 @keyframes sheetSlideUp {
   from { transform: translateY(100%); }
@@ -819,12 +843,11 @@
   padding: 6px;
   box-sizing: border-box;
 }
-.sheetDriverInfo  { display: flex; flex-direction: column; gap: 3px; }
-.sheetDriverName  { font-size: 18px; font-weight: 900; color: #fff; margin: 0; }
-.sheetDriverAge   { font-size: 12px; color: #555; margin: 0; }
-.sheetStars       { font-size: 13px; color: #F5C518; display: flex; align-items: center; gap: 2px; }
-.sheetRatingNum   { font-size: 12px; font-weight: 700; color: #F5C518; }
-.sheetTrips       { font-size: 11px; color: #555; font-weight: 500; }
+.sheetDriverInfo  { display: flex; flex-direction: column; gap: 4px; }
+.sheetDriverName  { font-size: 20px; font-weight: 900; color: #fff; margin: 0; letter-spacing: -0.02em; }
+.sheetDriverAge   { font-size: 13px; color: rgba(255,255,255,0.4); margin: 0; }
+.sheetStars       { font-size: 15px; color: #F5C518; display: flex; align-items: center; gap: 3px; }
+.sheetRatingNum   { font-size: 14px; font-weight: 800; color: #F5C518; }
 
 /* Specs card */
 .sheetSpecsCard {
@@ -841,9 +864,23 @@
   justify-content: space-between;
   align-items: baseline;
 }
-.sheetSpecLabel { font-size: 11px; font-weight: 700; color: #444; text-transform: uppercase; letter-spacing: 0.05em; }
-.sheetSpecValue { font-size: 13px; font-weight: 600; color: #bbb; }
-.sheetSpecFare  { color: #8DC63F; font-size: 15px; font-weight: 900; }
+.sheetSpecLabel   { font-size: 12px; font-weight: 700; color: rgba(255,255,255,0.35); text-transform: uppercase; letter-spacing: 0.05em; }
+.sheetSpecValue   { font-size: 14px; font-weight: 600; color: rgba(255,255,255,0.85); }
+.sheetSpecFare    { color: #8DC63F; font-size: 16px; font-weight: 900; }
+.sheetSpecInsured { color: #8DC63F; font-size: 14px; font-weight: 700; }
+
+.sheetBadges {
+  display: flex; flex-wrap: wrap; gap: 8px;
+}
+.sheetBadge {
+  font-size: 12px; font-weight: 700;
+  color: rgba(255,255,255,0.75);
+  background: rgba(255,255,255,0.07);
+  border: 1px solid rgba(255,255,255,0.12);
+  border-radius: 20px;
+  padding: 5px 12px;
+  white-space: nowrap;
+}
 
 /* Service selector */
 .sheetServicesLabel {

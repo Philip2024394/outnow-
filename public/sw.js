@@ -109,13 +109,17 @@ self.addEventListener('fetch', (e) => {
 self.addEventListener('push', (e) => {
   const data = e.data?.json() ?? {}
   const title = data.title ?? 'Hangger'
+  const isRide = (data.tag ?? '').startsWith('booking-')
   const options = {
     body: data.body ?? "Someone you liked is out now — go meet them!",
     icon: 'https://ik.imagekit.io/dateme/Logo%20with%20green%20map%20pin%20element.png',
     badge: 'https://ik.imagekit.io/dateme/Logo%20with%20green%20map%20pin%20element.png',
     tag: data.tag ?? 'hangger-general',
     renotify: true,
-    vibrate: [200, 100, 200],
+    // Ride requests use a more urgent vibration pattern
+    vibrate: isRide ? [300, 100, 300, 100, 300] : [200, 100, 200],
+    silent: false,          // ensure system plays default notification sound
+    requireInteraction: isRide,  // ride alerts stay on screen until dismissed
     data: { url: data.url ?? '/' },
     actions: data.actions ?? [],
   }

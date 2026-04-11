@@ -32,9 +32,10 @@ CREATE TABLE IF NOT EXISTS claimed_promos (
   user_id       uuid          NOT NULL REFERENCES profiles(id) ON DELETE CASCADE,
   claim_code    text          NOT NULL DEFAULT 'MAKAN-' || upper(substring(gen_random_uuid()::text, 1, 8)),
   claimed_at    timestamptz   NOT NULL DEFAULT now(),
-  order_ref     text,                      -- linked MAKAN order ref once order placed
-  UNIQUE (promo_id, user_id, (claimed_at::date))
+  order_ref     text                       -- linked MAKAN order ref once order placed
 );
+
+-- Partial uniqueness enforced in application logic (claim_promo RPC uses explicit check)
 
 CREATE INDEX IF NOT EXISTS claimed_promos_user_idx  ON claimed_promos(user_id, claimed_at);
 CREATE INDEX IF NOT EXISTS claimed_promos_promo_idx ON claimed_promos(promo_id);
@@ -61,7 +62,7 @@ CREATE POLICY "promos_owner_all" ON promos FOR ALL
 
 CREATE POLICY "promos_admin_all" ON promos FOR ALL
   USING (
-    EXISTS (SELECT 1 FROM profiles p WHERE p.id = auth.uid() AND p.role = 'admin')
+    EXISTS (SELECT 1 FROM profiles p WHERE p.id = auth.uid() AND p.is_admin = true)
   );
 
 -- Claimed promos: users see only their own claims
@@ -77,7 +78,7 @@ CREATE POLICY "claims_own_insert" ON claimed_promos FOR INSERT
 
 CREATE POLICY "claims_admin_all" ON claimed_promos FOR ALL
   USING (
-    EXISTS (SELECT 1 FROM profiles p WHERE p.id = auth.uid() AND p.role = 'admin')
+    EXISTS (SELECT 1 FROM profiles p WHERE p.id = auth.uid() AND p.is_admin = true)
   );
 
 -- Restaurant owners can read claims for their promos (to verify at the door)

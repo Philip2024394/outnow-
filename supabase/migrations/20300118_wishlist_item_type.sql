@@ -73,4 +73,4 @@ BEGIN
 END;
 $$;
 
-GRANT EXECUTE ON FUNCTION add_to_wishlist TO authenticated;
+GRANT EXECUTE ON FUNCTION add_to_wishlist(text, uuid, text, numeric, text, text, text, text) TO authenticated;

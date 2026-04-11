@@ -213,7 +213,12 @@ export default function JoinSheet({ open, onClose, initialStep = 'phone' }) {
         {/* ── STEP: OTP ── */}
         {step === 'otp' && (
           <div className={styles.content}>
-            <div className={styles.emoji}>🔐</div>
+            <img
+              src="https://ik.imagekit.io/nepgaxllc/Futuristic%20biker%20in%20sleek%20gear.png"
+              alt=""
+              className={styles.otpBikerImg}
+              aria-hidden="true"
+            />
             <h2 className={styles.title}>{t('join.otp.title')}</h2>
             <p className={styles.sub}>{t('join.otp.sentTo')} {fullPhone}</p>
 

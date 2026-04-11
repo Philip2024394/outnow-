@@ -35,5 +35,5 @@ CREATE POLICY "photos_owner_claim" ON stock_photos FOR UPDATE
 DROP POLICY IF EXISTS "photos_admin_all" ON stock_photos;
 CREATE POLICY "photos_admin_all" ON stock_photos FOR ALL
   USING (
-    EXISTS (SELECT 1 FROM profiles p WHERE p.id = auth.uid() AND p.role = 'admin')
+    EXISTS (SELECT 1 FROM profiles p WHERE p.id = auth.uid() AND p.is_admin = true)
   );

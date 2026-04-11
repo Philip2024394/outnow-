@@ -7,12 +7,14 @@ import { useGeolocation } from '@/hooks/useGeolocation'
 import { useAuth } from '@/hooks/useAuth'
 import { useGuestGate } from '@/contexts/GuestGateContext'
 import {
-  fetchNearbyDrivers, createBooking, expireBooking, markBookingStarted,
-  completeBooking, cancelBooking, submitDriverReview, incrementDriverTrips,
+  fetchNearbyDrivers, createBooking, expireBooking,
+  completeBooking, cancelBooking, submitDriverReview,
+  subscribeToBooking,
 } from '@/services/bookingService'
 import {
   estimateFare, formatRp, DEFAULT_ZONES, DEFAULT_SETTINGS, fetchPricingZones, fetchGlobalSettings,
 } from '@/services/pricingService'
+import { notifyRideRequest } from '@/services/notificationService'
 import styles from '../BookingScreen.module.css'
 
 import BookingFormPanel   from './BookingFormPanel'
@@ -36,7 +38,7 @@ function AuthWall({ onClose, onSignUp }) {
       <ul className={styles.authFeatures}>
         <li>🛵 Instant bike rides</li>
         <li>🚗 Car taxi bookings</li>
-        <li>💬 Direct WhatsApp contact</li>
+        <li>💬 In-app driver messaging</li>
         <li>📍 Live driver tracking</li>
       </ul>
       <button className={styles.authSignUpBtn} onClick={() => { onClose(); onSignUp() }}>
@@ -87,7 +89,8 @@ export default function BookingScreen({ onClose }) {
   const [booking,        setBooking]        = useState(null)
   const [countdown,      setCountdown]      = useState(0)
   const [triedIds,       setTriedIds]       = useState([])
-  const countdownRef = useRef(null)
+  const countdownRef  = useRef(null)
+  const bookingSubRef = useRef(null)
 
   // ── Review ─────────────────────────────────────────────────────────────────
   const [reviewStars,      setReviewStars]      = useState(0)
@@ -176,10 +179,12 @@ export default function BookingScreen({ onClose }) {
     }
   }, [pickupCoords, vehicleType, triedIds])
 
-  // ── Select driver → WhatsApp ───────────────────────────────────────────────
+  // ── Select driver → in-app booking ───────────────────────────────────────────
   const handleSelectDriver = useCallback(async (driver, serviceType = 'ride', pkgNote = '', pkgWt = '', pkgSize = '') => {
     setSheetDriver(null)
     setSelectedDriver(driver)
+
+    const secs = settings.driver_timeout_seconds ?? 45
     const book = await createBooking({
       userId:          user?.id ?? user?.uid ?? 'guest',
       driverId:        driver.id,
@@ -189,39 +194,39 @@ export default function BookingScreen({ onClose }) {
       dropoffCoords:   destination ? { lat: destination.lat, lng: destination.lng } : null,
       fare,
       distanceKm,
-      timeoutSeconds:  settings.driver_timeout_seconds ?? 45,
+      serviceType,
+      packageNote:     pkgNote  || null,
+      packageWeight:   pkgWt    || null,
+      packageSize:     pkgSize  || null,
+      timeoutSeconds:  secs,
     })
     setBooking(book)
-
-    const vehicle = vehicleType === 'car_taxi' ? '🚗 Car Taxi' : '🛵 Bike Ride'
-    const msg = serviceType === 'delivery'
-      ? [
-          `Hi ${driver.display_name},`, ``,
-          `I need a package delivery via Hangger App:`, ``,
-          `📦 Collect from: ${pickup?.address ?? 'My current location'}`,
-          `📍 Deliver to: ${destination?.address ?? 'To be confirmed'}`,
-          `${vehicle}`, `💰 Fare: ${formatRp(fare)}`,
-          pkgWt   ? `⚖️ Weight: ${pkgWt}`   : '',
-          pkgSize ? `📐 Size: ${pkgSize}`   : '',
-          pkgNote ? `📝 Notes: ${pkgNote}`  : '',
-          ``, `Can you deliver this package?`, ``, `Booking ID: ${book.id}`,
-        ].filter(Boolean).join('\n')
-      : [
-          `Hi ${driver.display_name},`, ``,
-          `I need a ride via Hangger App:`, ``,
-          `📍 Pickup: ${pickup?.address ?? 'My current location'}`,
-          `📍 Destination: ${destination?.address ?? 'To be confirmed'}`,
-          `${vehicle}`, `💰 Fare: ${formatRp(fare)}`,
-          ``, `Can you pick me up?`, ``, `Booking ID: ${book.id}`,
-        ].join('\n')
-
-    const win = window.open(`https://wa.me/${driver.phone ?? ''}?text=${encodeURIComponent(msg)}`, '_blank')
-    if (!win) alert('WhatsApp could not open. Please contact the driver via in-app chat.')
-    incrementDriverTrips(driver.id)
-
-    const secs = settings.driver_timeout_seconds ?? 45
     setCountdown(secs)
     setPhase('waiting')
+
+    // Notify driver of the new booking (in-app notification row + triggers push)
+    notifyRideRequest(driver.id, {
+      passengerName: user?.display_name ?? 'A passenger',
+      pickup:        pickup?.address ?? 'Pickup location',
+      fromUserId:    user?.id ?? user?.uid ?? null,
+      bookingId:     book.id,
+    })
+
+    // Subscribe to real-time status changes
+    if (bookingSubRef.current) bookingSubRef.current()
+    bookingSubRef.current = subscribeToBooking(book.id, (updated) => {
+      if (updated.status === 'accepted' || updated.status === 'in_progress') {
+        clearInterval(countdownRef.current)
+        bookingSubRef.current?.()
+        setPhase('active')
+      } else if (updated.status === 'cancelled' || updated.status === 'expired') {
+        clearInterval(countdownRef.current)
+        bookingSubRef.current?.()
+        setPhase('expired')
+      }
+    })
+
+    // Countdown — auto-expire if driver doesn't respond in time
     countdownRef.current = setInterval(() => {
       setCountdown(prev => {
         if (prev <= 1) {
@@ -263,13 +268,7 @@ export default function BookingScreen({ onClose }) {
     }
   }, [booking, selectedDriver, triedIds, pickupCoords, vehicleType])
 
-  const handleRideStarted = async () => {
-    clearInterval(countdownRef.current)
-    if (booking) await markBookingStarted(booking.id)
-    setPhase('active')
-  }
-
-  const handleJourneyComplete = async () => {
+const handleJourneyComplete = async () => {
     if (booking) await completeBooking(booking.id, selectedDriver?.id)
     setPhase('review')
   }
@@ -292,7 +291,10 @@ export default function BookingScreen({ onClose }) {
     onClose()
   }
 
-  useEffect(() => () => clearInterval(countdownRef.current), [])
+  useEffect(() => () => {
+    clearInterval(countdownRef.current)
+    bookingSubRef.current?.()
+  }, [])
 
   // Rotate featured driver banner every 4s on choose phase
   useEffect(() => {
@@ -390,7 +392,7 @@ export default function BookingScreen({ onClose }) {
               cancelReason={cancelReason} setCancelReason={setCancelReason}
               handleSelectDriver={handleSelectDriver}
               handleTryAnother={handleTryAnother}
-              handleRideStarted={handleRideStarted}
+
               handleJourneyComplete={handleJourneyComplete}
               handleCancelRide={handleCancelRide}
               onClose={onClose}
@@ -420,7 +422,7 @@ export default function BookingScreen({ onClose }) {
               cancelReason={cancelReason} setCancelReason={setCancelReason}
               handleSelectDriver={handleSelectDriver}
               handleTryAnother={handleTryAnother}
-              handleRideStarted={handleRideStarted}
+
               handleJourneyComplete={handleJourneyComplete}
               handleCancelRide={handleCancelRide}
               onClose={onClose}

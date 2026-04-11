@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef, useCallback } from 'react'
 import { setDriverOnline, updateDriverLocation, getDriverOnlineStatus, setDriverBusy, setDriverSpeedKmh } from '@/services/bookingService'
 import { haversineKm } from '@/utils/distance'
+import { usePushNotifications } from '@/hooks/usePushNotifications'
 import GoOnlineSelfieModal from './GoOnlineSelfieModal'
 import styles from './OnlineToggle.module.css'
 
@@ -18,6 +19,8 @@ export default function OnlineToggle({ userId }) {
   const [saving,     setSaving]     = useState(false)
   const [showSelfie, setShowSelfie] = useState(false)
   const [autoBusy,   setAutoBusy]   = useState(false)
+
+  const { requestPermission, registerPushSubscription } = usePushNotifications()
 
   const intervalRef    = useRef(null)
   const watchRef       = useRef(null)
@@ -146,6 +149,10 @@ export default function OnlineToggle({ userId }) {
     setShowSelfie(false)
     setSaving(true)
     try {
+      // Request push permission and register subscription (once — browser remembers the choice)
+      const perm = await requestPermission()
+      if (perm === 'granted') await registerPushSubscription(userId)
+
       let coords = null
       await new Promise(resolve => {
         navigator.geolocation?.getCurrentPosition(

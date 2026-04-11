@@ -162,6 +162,7 @@
   margin: 0 auto;
 }
 
+
 .emoji {
   font-size: 44px;
   line-height: 1;
@@ -403,4 +404,15 @@
   color: var(--color-text-muted);
   text-align: center;
   width: 100%;
+}
+
+.otpBikerImg {
+  position: absolute;
+  right: -23px;
+  bottom: 103px;
+  width: 140px;
+  height: auto;
+  pointer-events: none;
+  opacity: 0.9;
+  filter: drop-shadow(0 4px 20px rgba(0,0,0,0.5));
 }

@@ -34,7 +34,6 @@ export default function BookingLivePanel({
   cancelReason, setCancelReason,
   handleSelectDriver,
   handleTryAnother,
-  handleRideStarted,
   handleJourneyComplete,
   handleCancelRide,
   onClose,
@@ -191,7 +190,6 @@ export default function BookingLivePanel({
               <div className={styles.sheetStars}>
                 {'★'.repeat(Math.floor(d.rating ?? 4.8))}
                 <span className={styles.sheetRatingNum}> {d.rating ?? '4.8'}</span>
-                <span className={styles.sheetTrips}> · {d.total_trips ?? 0} trips</span>
               </div>
             </div>
           </div>
@@ -200,6 +198,16 @@ export default function BookingLivePanel({
             <div className={styles.sheetSpecRow}><span className={styles.sheetSpecLabel}>Vehicle</span><span className={styles.sheetSpecValue}>{d.vehicle_model} {d.vehicle_year}</span></div>
             <div className={styles.sheetSpecRow}><span className={styles.sheetSpecLabel}>Color</span><span className={styles.sheetSpecValue}>{d.vehicle_color ?? '—'}</span></div>
             <div className={styles.sheetSpecRow}><span className={styles.sheetSpecLabel}>Plate</span><span className={styles.sheetSpecValue}>{d.plate_prefix ?? '—'} ••</span></div>
+            <div className={styles.sheetSpecRow}><span className={styles.sheetSpecLabel}>Experience</span><span className={styles.sheetSpecValue}>{d.years_experience != null ? `${d.years_experience}+ years` : '—'}</span></div>
+            <div className={styles.sheetSpecRow}><span className={styles.sheetSpecLabel}>Languages</span>
+              <span className={styles.sheetSpecValue}>
+                {['id', ...(d.languages?.filter(l => l !== 'id') ?? [])].map(l =>
+                  l === 'id' ? '🇮🇩 Indonesia' : l === 'en' ? '🇬🇧 English' : l === 'ar' ? '🇸🇦 Arabic' : l
+                ).join('  ·  ')}
+              </span>
+            </div>
+            <div className={styles.sheetSpecRow}><span className={styles.sheetSpecLabel}>Total Trips</span><span className={styles.sheetSpecValue}>{(d.total_trips ?? 0).toLocaleString()}</span></div>
+            <div className={styles.sheetSpecRow}><span className={styles.sheetSpecLabel}>Insurance</span><span className={`${styles.sheetSpecValue} ${styles.sheetSpecInsured}`}>✅ Insured Driver</span></div>
             <div className={styles.sheetSpecRow}><span className={styles.sheetSpecLabel}>Fare</span><span className={`${styles.sheetSpecValue} ${styles.sheetSpecFare}`}>{formatRp(fare)}</span></div>
           </div>
 
@@ -282,7 +290,7 @@ export default function BookingLivePanel({
                       onClick={() => handleSelectDriver(d, sheetService, packageNote, packageWeight ? `${packageWeight}g` : '', pkgSize)}
                     >
                       Book Now
-                      <span className={styles.sheetBookArrow}> via WhatsApp →</span>
+                      <span className={styles.sheetBookArrow}> →</span>
                     </button>
                     {sheetService === 'delivery' && !deliveryReady && (
                       <p className={styles.sheetBookHint}>Enter weight and all dimensions to continue</p>
@@ -308,7 +316,7 @@ export default function BookingLivePanel({
             <img src={selectedDriver?.driver_type === 'car_taxi' ? CAR_IMG : BIKE_IMG} alt="vehicle" className={styles.waitingEmojiImg} />
             <div style={{ flex: 1 }}>
               <p className={styles.waitingName}>{selectedDriver?.display_name}</p>
-              <p className={styles.waitingMeta}>Booking sent via WhatsApp</p>
+              <p className={styles.waitingMeta}>Booking sent — waiting for response</p>
               {selectedDriver?.vehicle_model && (
                 <p className={styles.waitingVehicle}>{selectedDriver.vehicle_color} {selectedDriver.vehicle_model} {selectedDriver.vehicle_year}</p>
               )}
@@ -318,11 +326,10 @@ export default function BookingLivePanel({
             </div>
             <div className={styles.countdown}>{countdown}s</div>
           </div>
-          <p className={styles.waitingNote}>⏱ Waiting for driver to accept… WhatsApp has been opened with your ride details.</p>
+          <p className={styles.waitingNote}>⏱ Request sent to driver — they will accept or decline in-app. This will update automatically.</p>
         </div>
         <div className={styles.waitingActions}>
-          <button className={styles.startedBtn} onClick={handleRideStarted}>✓ Ride Started</button>
-          <button className={styles.tryAnotherBtn} onClick={handleTryAnother}>📞 Try Another Driver</button>
+          <button className={styles.tryAnotherBtn} onClick={handleTryAnother}>Try Another Driver</button>
         </div>
       </div>
     )
@@ -373,14 +380,6 @@ export default function BookingLivePanel({
             </div>
           </div>
         </div>
-        <a
-          className={styles.whatsappBtn}
-          href={`https://wa.me/${selectedDriver?.phone ?? ''}?text=${encodeURIComponent(`Hi ${selectedDriver?.display_name}, I'm on my way!`)}`}
-          target="_blank"
-          rel="noreferrer"
-        >
-          💬 Open WhatsApp
-        </a>
         <button className={styles.completeBtn} onClick={handleJourneyComplete}>✓ Journey Completed</button>
         <button className={styles.cancelRideBtn} onClick={() => setPhase('cancelling')}>Cancel Ride</button>
       </div>
