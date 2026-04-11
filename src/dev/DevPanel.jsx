@@ -32,6 +32,9 @@ import DriverFoodOrderAlert    from '@/components/driver/DriverFoodOrderAlert'
 import FoodOrderStatus         from '@/components/orders/FoodOrderStatus'
 import PaymentTransferScreen   from '@/components/orders/PaymentTransferScreen'
 
+// ── Ride bookings ─────────────────────────────────────────────────────
+import DriverIncomingBooking   from '@/components/driver/DriverIncomingBooking'
+
 // ── Screens ──────────────────────────────────────────────────────────
 import ChatScreen          from '@/screens/ChatScreen'
 import ChatWindow          from '@/components/chat/ChatWindow'
@@ -112,6 +115,18 @@ const MOCK_FOOD_ORDER = {
     { name: 'Nasi Gudeg Komplit', qty: 1, price: 32000 },
     { name: 'Soto Ayam Kampung',  qty: 1, price: 25000 },
   ],
+}
+
+const MOCK_INCOMING_BOOKING = {
+  id: 'BOOK_DEV_001',
+  pickup_location:  'Jl. Malioboro No. 12, Yogyakarta',
+  dropoff_location: 'Prambanan Temple, Sleman',
+  fare:             28000,
+  distance_km:      4.2,
+  created_at:       new Date().toISOString(),
+  expires_at:       new Date(Date.now() + 45 * 1000).toISOString(),
+  status:           'pending',
+  passenger: { display_name: 'Rina Kartika', rating: 4.8, photo_url: null },
 }
 
 const MOCK_DRIVER_ORDER = {
@@ -205,6 +220,7 @@ const GROUPS = [
       { id: 'paymentSubmitted',  label: '🧾 Payment Submitted (waiting)' },
       { id: 'driverAlert',       label: '🏍️ Driver Order Alert'          },
       { id: 'foodOrderStatus',   label: '📦 Order Status Card'           },
+      { id: 'driverRideIncoming', label: '🔔 Driver — Incoming Ride Request' },
     ],
   },
   {
@@ -455,6 +471,15 @@ export default function DevPanel() {
         <FoodOrderStatus
           order={MOCK_FOOD_ORDER}
           onClose={close}
+        />
+      )}
+
+      {active === 'driverRideIncoming' && (
+        <DriverIncomingBooking
+          booking={MOCK_INCOMING_BOOKING}
+          driverId="dev-driver-1"
+          onAccepted={() => { close(); showToast('Ride accepted ✓', 'success') }}
+          onDeclined={() => { close(); showToast('Ride declined', 'error') }}
         />
       )}
 
