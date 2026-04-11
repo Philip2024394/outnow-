@@ -101,6 +101,51 @@ export default function DatingBubbleScreen({
   const [filters,      setFilters]      = useState({ ageMin: 18, ageMax: 45, gender: null, lookingFor: null, city: '', onlineOnly: false, withPhoto: true })
   const [priorityCard, setPriorityCard] = useState(null)
 
+  // ── Tap-to-confirm countdown ───────────���─────────────────────────────────
+  const [pendingId,  setPendingId]  = useState(null)  // session.id awaiting confirm
+  const [countdown,  setCountdown]  = useState(5)
+  const cdTimerRef   = useRef(null)
+  const cdSessionRef = useRef(null)  // stable ref to the pending session
+
+  const clearCountdown = () => {
+    if (cdTimerRef.current) { clearInterval(cdTimerRef.current); cdTimerRef.current = null }
+    setPendingId(null)
+    setCountdown(5)
+    cdSessionRef.current = null
+  }
+
+  // Clean up on unmount or close
+  useEffect(() => () => clearCountdown(), []) // eslint-disable-line
+  useEffect(() => { if (!open) clearCountdown() }, [open]) // eslint-disable-line
+
+  const handleSelectSession = (s) => {
+    if (pendingId === s.id) {
+      // Second tap — open immediately
+      clearCountdown()
+      onSelectSession(s)
+      return
+    }
+    // Cancel any running countdown and start fresh on this session
+    clearCountdown()
+    setPendingId(s.id)
+    setCountdown(5)
+    cdSessionRef.current = s
+    let count = 5
+    cdTimerRef.current = setInterval(() => {
+      count -= 1
+      setCountdown(count)
+      if (count <= 0) {
+        clearInterval(cdTimerRef.current)
+        cdTimerRef.current = null
+        const sess = cdSessionRef.current
+        setPendingId(null)
+        setCountdown(5)
+        cdSessionRef.current = null
+        if (sess) onSelectSession(sess)
+      }
+    }, 1000)
+  }
+
   // Apply filters to sessions
   const filteredSessions = sessions.filter(s => {
     const age = calcAge(s.dob)
@@ -532,9 +577,9 @@ export default function DatingBubbleScreen({
             return (
               <div
                 key={s.id}
-                className={[styles.gridCard, isLive ? styles.gridCardLive : ''].join(' ')}
+                className={[styles.gridCard, isLive ? styles.gridCardLive : '', pendingId === s.id ? styles.gridCardPending : ''].join(' ')}
                 style={isLive ? { '--glow': glow } : {}}
-                onClick={() => onSelectSession(s)}
+                onClick={() => handleSelectSession(s)}
               >
                 <div className={styles.gridPhoto}>
                   {photo
@@ -580,6 +625,17 @@ export default function DatingBubbleScreen({
                       ))}
                     </div>
                   )}
+                  {/* Countdown overlay */}
+                  {pendingId === s.id && (
+                    <div className={styles.gridCountdown} aria-label={`Opening in ${countdown}`}>
+                      <svg className={styles.cdRing} viewBox="0 0 56 56">
+                        <circle cx="28" cy="28" r="24" className={styles.cdTrack} />
+                        <circle cx="28" cy="28" r="24" className={styles.cdArc}
+                          style={{ '--cd-total': '150.8px', '--cd-progress': `${(countdown / 5) * 150.8}px` }} />
+                      </svg>
+                      <span className={styles.cdNum}>{countdown}</span>
+                    </div>
+                  )}
                 </div>
               </div>
             )
@@ -614,19 +670,32 @@ export default function DatingBubbleScreen({
               style={{ width: R * 2, height: R * 2 + 30 }}
             >
               <button
-                className={styles.bubbleBtn}
+                className={[styles.bubbleBtn, pendingId === s.id ? styles.bubbleBtnPending : ''].join(' ')}
                 style={{
                   width: R * 2, height: R * 2,
-                  boxShadow: `0 0 0 3px ${glow}, 0 0 22px ${glow}66`,
+                  boxShadow: pendingId === s.id
+                    ? `0 0 0 3px #E8458C, 0 0 28px #E8458C99`
+                    : `0 0 0 3px ${glow}, 0 0 22px ${glow}66`,
                 }}
-                onClick={() => onSelectSession(s)}
-                aria-label={`View ${s.displayName}`}
+                onClick={() => handleSelectSession(s)}
+                aria-label={pendingId === s.id ? `Tap again to view ${s.displayName}` : `View ${s.displayName}`}
               >
                 {photo
                   ? <img src={photo} alt={s.displayName} className={styles.bubbleImg} />
                   : <span className={styles.bubbleInit}>{(s.displayName ?? '?')[0].toUpperCase()}</span>
                 }
                 {isLive && <span className={styles.liveDot} style={{ background: glow, boxShadow: `0 0 6px ${glow}` }} />}
+                {/* Countdown ring overlay */}
+                {pendingId === s.id && (
+                  <div className={styles.bubbleCountdown} aria-hidden="true">
+                    <svg className={styles.cdRing} viewBox="0 0 96 96">
+                      <circle cx="48" cy="48" r="43" className={styles.cdTrack} />
+                      <circle cx="48" cy="48" r="43" className={styles.cdArc}
+                        style={{ '--cd-total': '270.2px', '--cd-progress': `${(countdown / 5) * 270.2}px` }} />
+                    </svg>
+                    <span className={styles.cdNumBubble}>{countdown}</span>
+                  </div>
+                )}
               </button>
 
               {/* Heart */}

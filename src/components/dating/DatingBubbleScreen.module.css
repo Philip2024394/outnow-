@@ -532,6 +532,96 @@
   pointer-events: none;
 }
 
+/* ── Tap-to-confirm countdown ─────────────────────────────────────────────── */
+
+/* Pending state on bubble button */
+.bubbleBtnPending {
+  animation: bubblePending 0.6s ease-in-out infinite alternate;
+}
+@keyframes bubblePending {
+  from { transform: scale(1); }
+  to   { transform: scale(1.06); }
+}
+
+/* Countdown overlay inside bubble button */
+.bubbleCountdown {
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none;
+  background: rgba(0, 0, 0, 0.42);
+}
+
+/* Countdown ring + number inside grid card photo */
+.gridCountdown {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0, 0, 0, 0.45);
+  border-radius: inherit;
+  pointer-events: none;
+  z-index: 4;
+}
+
+/* SVG ring — shared between bubble and grid */
+.cdRing {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  transform: rotate(-90deg);
+  pointer-events: none;
+}
+
+.cdTrack {
+  fill: none;
+  stroke: rgba(255, 255, 255, 0.18);
+  stroke-width: 4;
+}
+
+.cdArc {
+  fill: none;
+  stroke: #E8458C;
+  stroke-width: 4;
+  stroke-linecap: round;
+  /* bubble: 2π×43 ≈ 270.2  |  grid: 2π×24 ≈ 150.8 — set via --cd-total */
+  stroke-dasharray: var(--cd-total, 270.2);
+  stroke-dashoffset: calc(var(--cd-total, 270.2) - var(--cd-progress, 270.2));
+  transition: stroke-dashoffset 0.85s linear;
+}
+
+/* Number inside the bubble */
+.cdNumBubble {
+  position: absolute;
+  font-size: 28px;
+  font-weight: 900;
+  color: #fff;
+  text-shadow: 0 0 10px #E8458C, 0 2px 4px rgba(0,0,0,0.6);
+  letter-spacing: -0.02em;
+  pointer-events: none;
+}
+
+/* Number inside the grid countdown */
+.cdNum {
+  position: absolute;
+  font-size: 32px;
+  font-weight: 900;
+  color: #fff;
+  text-shadow: 0 0 12px #E8458C, 0 2px 6px rgba(0,0,0,0.7);
+  pointer-events: none;
+}
+
+/* Grid card pending highlight */
+.gridCardPending {
+  box-shadow: 0 0 0 3px #E8458C, 0 0 22px rgba(232, 69, 140, 0.5) !important;
+  transform: scale(1.03) !important;
+}
+
 /* Live pulse dot */
 .liveDot {
   position: absolute;
