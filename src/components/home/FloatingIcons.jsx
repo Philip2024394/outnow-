@@ -41,16 +41,20 @@ export default function FloatingIcons({ sessions = [], serviceCounts = {}, onSel
                 onClick={() => handleIconClick(icon)}
                 aria-label={icon.label}
               >
-                <img
-                  src={icon.img}
-                  alt={icon.label}
-                  className={icon.vehicle ? styles.dockImgVehicle : styles.dockImgSquare}
-                />
+                <div className={styles.iconWrap}>
+                  <img
+                    src={icon.img}
+                    alt={icon.label}
+                    className={icon.vehicle ? styles.dockImgVehicle : styles.dockImgSquare}
+                  />
+                  {/* Red notification badge — takes priority over session count */}
+                  {(serviceCounts[icon.id] ?? 0) > 0 ? (
+                    <span className={styles.notifBadge}>{serviceCounts[icon.id]}</span>
+                  ) : count > 0 ? (
+                    <span className={styles.badge}>{count}</span>
+                  ) : null}
+                </div>
                 <span className={styles.dockLabel}>{t(icon.labelKey)}</span>
-                {count > 0 && <span className={styles.badge}>{count}</span>}
-                {(serviceCounts[icon.id] ?? 0) > 0 && (
-                  <span className={styles.notifBadge}>{serviceCounts[icon.id]}</span>
-                )}
               </button>
             )
           })}
