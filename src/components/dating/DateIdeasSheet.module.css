@@ -22,13 +22,37 @@
   bottom: 0;
   width: 70%;
   max-width: 340px;
-  background: #080808;
-  border-right: 1px solid rgba(255, 107, 163, 0.18);
-  box-shadow: 6px 0 40px rgba(0, 0, 0, 0.7);
+  /* Background image + glass cover — matches notifications page */
+  background-color: #000;
+  background-image: url('https://ik.imagekit.io/nepgaxllc/Untitledfsdfdfdf33.png?updatedAt=1775555797749');
+  background-size: cover;
+  background-position: center top;
+  border-right: 1px solid rgba(255, 107, 163, 0.25);
+  box-shadow: 6px 0 48px rgba(0, 0, 0, 0.8);
   display: flex;
   flex-direction: column;
   overflow: hidden;
   animation: slideIn 0.3s cubic-bezier(0.32, 0.72, 0, 1);
+  isolation: isolate;
+}
+
+/* Glass overlay — same as notifications page ::before */
+.drawer::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.58);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  z-index: 0;
+  pointer-events: none;
+}
+
+/* All direct children need z-index:1 to sit above the glass */
+.drawerHeader,
+.drawerBody {
+  position: relative;
+  z-index: 1;
 }
 
 @keyframes slideIn {
