@@ -15,6 +15,8 @@ import HanggerNewsTab from './HanggerNewsTab'
 import NotificationsTab from './NotificationsTab'
 import MessagesTab   from './tabs/MessagesTab'
 import MarketingTab  from './MarketingTab'
+import IdVerificationTab from './tabs/IdVerificationTab'
+import CommissionsAdminTab from './tabs/CommissionsAdminTab'
 
 const LOGO = 'https://ik.imagekit.io/dateme/Logo%20with%20green%20map%20pin%20element.png'
 
@@ -25,9 +27,11 @@ const NAV = [
   { id: 'dating',       icon: '💕', label: 'Dating'       },
   { id: 'marketplace',  icon: '🛍️', label: 'Market'       },
   { id: 'restaurants',  icon: '🍽️', label: 'Food'         },
+  { id: 'commissions',  icon: '💰', label: 'Commissions'  },
   { id: 'rides',        icon: '🚗', label: 'Rides'        },
   { id: 'map',          icon: '🗺️', label: 'Live Map'     },
   { id: 'drivers',      icon: '🏍️', label: 'Drivers'      },
+  { id: 'id_verify',   icon: '⭐', label: 'ID Verify'    },
   { id: 'bookings',     icon: '📋', label: 'Bookings'     },
   { id: 'users',        icon: '👥', label: 'Users'        },
   { id: 'news',         icon: '📰', label: 'News'         },
@@ -156,6 +160,7 @@ export default function AdminDashboard({ onLogout }) {
           {tab === 'rides'       && <RidesAdminTab />}
           {tab === 'map'         && <LiveMapTab />}
           {tab === 'drivers'     && <DriversTab />}
+          {tab === 'id_verify'   && <IdVerificationTab />}
           {tab === 'bookings'    && <BookingsTab />}
           {tab === 'news'        && <HanggerNewsTab />}
           {tab === 'pricing'     && <PricingTab />}
@@ -163,6 +168,7 @@ export default function AdminDashboard({ onLogout }) {
           {tab === 'messages'    && <MessagesTab />}
           {tab === 'marketing'   && <MarketingTab />}
           {tab === 'users'       && <UsersTab />}
+          {tab === 'commissions' && <CommissionsAdminTab />}
         </div>
       </div>
     </div>

@@ -3,9 +3,10 @@ import { filterMessage, BLOCK_MESSAGES } from '@/utils/contentFilter'
 import { useAuth } from '@/hooks/useAuth'
 import { usePushNotifications } from '@/hooks/usePushNotifications'
 import { useMessages } from '@/hooks/useMessages'
-import { sendMessage, sendImageMessage, sendContactMessage, unlockConversation, likeMessage, markConversationRead, postSellerContactReveal } from '@/services/conversationService'
+import { sendMessage, sendImageMessage, sendContactMessage, unlockConversation, likeMessage, markConversationRead, postSellerContactReveal, saveOrderConversation } from '@/services/conversationService'
 import { getSellerContactDetails } from '@/services/unlockService'
 import { supabase } from '@/lib/supabase'
+import { hasUnpaidCommission, recordCommission, COMMISSION_RATES } from '@/services/commissionService'
 import { useChatPresence } from '@/hooks/useChatPresence'
 import ContactShareSheet from './ContactShareSheet'
 import VideoCheckBubble from './VideoCheckBubble'
@@ -13,6 +14,7 @@ import VideoCheckWindow from './VideoCheckWindow'
 import { useVideoCheck } from '@/hooks/useVideoCheck'
 import { useUnlocks } from '@/hooks/useUnlocks'
 import UnlockGate from './UnlockGate'
+import OrderCard from '@/components/orders/OrderCard'
 import styles from './ChatWindow.module.css'
 
 const IS_DEMO = import.meta.env.VITE_DEMO_MODE === 'true'
@@ -49,7 +51,7 @@ const THEME_CONFIG = {
   },
 }
 
-export default function ChatWindow({ conversation: conv, allConversations = [], onBack, onSwitchConv, onConvUpdate, isDating = false, chatTheme = null, role = null, sellerUserId = null }) {
+export default function ChatWindow({ conversation: conv, allConversations = [], onBack, onSwitchConv, onConvUpdate, isDating = false, chatTheme = null, role = null, sellerUserId = null, _forceCommissionLocked = false }) {
   // Support legacy isDating prop
   const theme = chatTheme ?? (isDating ? 'dating' : null)
   const themeConfig = THEME_CONFIG[theme] ?? null
@@ -66,6 +68,22 @@ export default function ChatWindow({ conversation: conv, allConversations = [], 
 
   // Real-time messages — falls back to conv.messages in demo
   const { messages, setMessages } = useMessages(conv.id, conv.messages ?? [])
+
+  // Persist the opening order-card message to Supabase on first mount.
+  // conv.userId is the seller's auth UUID; if it's a demo/integer ID the call
+  // is a no-op inside saveOrderConversation.
+  useEffect(() => {
+    const opening = conv.messages?.[0]
+    if (!opening?.orderCard || !conv.id.startsWith('order-')) return
+    saveOrderConversation(conv.userId, opening.orderCard).then(result => {
+      if (!result) return
+      // Swap the local temp ID for the real Supabase UUID so status-change
+      // updates can find the row with .eq('id', msgId)
+      setMessages(prev => prev.map(m =>
+        m.id === opening.id ? { ...m, id: result.msgId } : m
+      ))
+    })
+  }, []) // eslint-disable-line react-hooks/exhaustive-deps
 
   const [text, setText]                     = useState('')
   const [blockedMsg, setBlockedMsg]         = useState(null)
@@ -140,18 +158,23 @@ export default function ChatWindow({ conversation: conv, allConversations = [], 
 
   const contactUnlocked = conv.status === 'unlocked'
 
-  // ── 20-min free chat + unlock system ─────────────────────────────────────
+  // ── 20-min free chat + unlock system (dating only) ───────────────────────
+  const isDating = chatTheme === 'dating'
   const [unlockGateOpen, setUnlockGateOpen] = useState(false)
   const isBuyer = role === 'buyer'
   const {
-    timeLeftMs,
-    isUnlocked:       chatUnlocked,
+    timeLeftMs:            _timeLeftMs,
+    isUnlocked:            _chatUnlocked,
     showUnlockPrompt,
     unlockBalance,
     unlockWithCredit,
     unlockWithSubscription,
     dismissPrompt,
   } = useUnlocks(conv.id, role)
+
+  // 20-min window only applies to dating — market/food/ride are commission-gated only
+  const timeLeftMs   = isDating ? _timeLeftMs   : null
+  const chatUnlocked = isDating ? _chatUnlocked : true
 
   // After buyer pays, auto-post seller's contact details into the conversation
   const handleBuyerUnlockComplete = useCallback(async () => {
@@ -167,13 +190,26 @@ export default function ChatWindow({ conversation: conv, allConversations = [], 
     }
   }, [unlockWithCredit, sellerUserId, conv.otherUserId, conv.id, user]) // eslint-disable-line
 
-  // Auto-open gate when prompt fires or time expires
+  // Auto-open gate when prompt fires — dating only
   useEffect(() => {
-    if (showUnlockPrompt) setUnlockGateOpen(true)
-  }, [showUnlockPrompt])
+    if (isDating && showUnlockPrompt) setUnlockGateOpen(true)
+  }, [isDating, showUnlockPrompt])
 
-  // Block sending when time is up and not unlocked
+  // Block sending when time is up — dating only (market/food: commission lock handles it)
   const chatBlocked = !chatUnlocked && timeLeftMs !== null && timeLeftMs <= 0
+
+  // Commission lock — seller cannot send until outstanding commission is paid
+  const [commissionLocked, setCommissionLocked] = useState(_forceCommissionLocked)
+  const isSeller = role === 'seller'
+
+  useEffect(() => {
+    if (_forceCommissionLocked) { setCommissionLocked(true); return }
+    if (!isSeller) return
+    const sellerId = user?.uid ?? user?.id
+    if (!sellerId) return
+    const commType = theme === 'food' ? 'restaurant' : 'marketplace'
+    hasUnpaidCommission(sellerId, commType).then(setCommissionLocked)
+  }, [isSeller, user, _forceCommissionLocked, theme]) // eslint-disable-line
 
   const {
     phase:          videoPhase,
@@ -234,6 +270,37 @@ export default function ChatWindow({ conversation: conv, allConversations = [], 
     const newLiked = !msg.liked && !liked[msg.id]
     setLiked(prev => ({ ...prev, [msg.id]: newLiked }))
     likeMessage(msg.id, newLiked)
+  }
+
+  // Update order card status locally + persist to Supabase
+  const handleOrderStatusChange = (msgId, newStatus) => {
+    const order = messages.find(m => m.id === msgId)?.orderCard
+    setMessages(prev => prev.map(m =>
+      m.id === msgId
+        ? { ...m, orderCard: { ...m.orderCard, status: newStatus, updatedAt: Date.now() } }
+        : m
+    ))
+    try {
+      supabase?.from('messages').update({
+        order_card: { ...order, status: newStatus, updatedAt: Date.now() }
+      }).eq('id', msgId).then(() => {})
+    } catch { /* silent */ }
+
+    // Record commission and lock seller chat when payment is confirmed
+    // food chat → 10% restaurant rate, all others → 5% marketplace rate
+    if (newStatus === 'complete' && isSeller && order) {
+      const sellerId = user?.uid ?? user?.id
+      const commType = theme === 'food' ? 'restaurant' : 'marketplace'
+      const rate     = COMMISSION_RATES[commType]
+      if (sellerId && order.total) {
+        recordCommission(sellerId, order.orderId ?? msgId, order.total, commType)
+          .then(() => setCommissionLocked(true))
+        onConvUpdate?.({ lastMessage: `💰 ${Math.round(rate * 100)}% commission pending`, lastMessageTime: Date.now() })
+      }
+    }
+
+    const label = newStatus === 'confirmed' ? '✓ Order confirmed' : newStatus === 'complete' ? '✓ Order completed' : '✗ Order cancelled'
+    onConvUpdate?.({ lastMessage: label, lastMessageTime: Date.now() })
   }
 
   const isLiked = (msg) => msg.liked || !!liked[msg.id]
@@ -319,8 +386,8 @@ export default function ChatWindow({ conversation: conv, allConversations = [], 
           </button>
         </div>
 
-        {/* Full-width notice row */}
-        {!chatBlocked && (
+        {/* Free chat timer notice — dating only */}
+        {isDating && !chatBlocked && (
           <div className={styles.headerNoticeRow}>
             {chatUnlocked
               ? '✅ Chat unlocked · share contact anytime'
@@ -404,8 +471,14 @@ export default function ChatWindow({ conversation: conv, allConversations = [], 
             )}
 
             <div className={styles.bubbleWrap}>
-              {/* Seller contact reveal — auto-posted on buyer unlock */}
-              {msg.isContactReveal ? (
+              {/* Order card — marketplace or restaurant order */}
+              {msg.orderCard ? (
+                <OrderCard
+                  orderCard={msg.orderCard}
+                  fromMe={msg.fromMe}
+                  onStatusChange={(newStatus) => handleOrderStatusChange(msg.id, newStatus)}
+                />
+              ) : msg.isContactReveal ? (
                 <div className={styles.revealCard}>
                   <div className={styles.revealHeader}>
                     <span className={styles.revealIcon}>🔓</span>
@@ -557,8 +630,16 @@ export default function ChatWindow({ conversation: conv, allConversations = [], 
         <div className={styles.blockedHint}><span>📷</span> {videoError}</div>
       )}
 
+      {/* ── Commission lock banner (seller only) ── */}
+      {commissionLocked && isSeller && (
+        <div className={styles.commissionBanner}>
+          <span>💰</span>
+          <span>Commission payment pending — pay to reply to buyers</span>
+        </div>
+      )}
+
       {/* ── Blocked banner ── */}
-      {chatBlocked && (
+      {chatBlocked && !commissionLocked && (
         <button className={styles.blockedBanner} onClick={() => setUnlockGateOpen(true)}>
           <span>🔒</span>
           <span>Free chat time ended — tap to unlock and continue</span>
@@ -612,16 +693,16 @@ export default function ChatWindow({ conversation: conv, allConversations = [], 
           className={styles.input}
           value={text}
           onChange={handleTextChange}
-          onKeyDown={e => e.key === 'Enter' && !chatBlocked && handleSend()}
-          placeholder={chatBlocked ? 'Unlock to continue chatting…' : 'Message…'}
-          disabled={chatBlocked}
+          onKeyDown={e => e.key === 'Enter' && !chatBlocked && !commissionLocked && handleSend()}
+          placeholder={commissionLocked && isSeller ? 'Pay commission to reply…' : chatBlocked ? 'Unlock to continue chatting…' : 'Message…'}
+          disabled={chatBlocked || (commissionLocked && isSeller)}
           autoComplete="off"
         />
 
         <button
-          className={`${styles.sendBtn} ${text.trim() && !chatBlocked ? styles.sendBtnActive : ''}`}
+          className={`${styles.sendBtn} ${text.trim() && !chatBlocked && !(commissionLocked && isSeller) ? styles.sendBtnActive : ''}`}
           onClick={handleSend}
-          disabled={!text.trim() || chatBlocked}
+          disabled={!text.trim() || chatBlocked || (commissionLocked && isSeller)}
           aria-label="Send"
         >
           <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
@@ -641,8 +722,8 @@ export default function ChatWindow({ conversation: conv, allConversations = [], 
         }}
       />
 
-      {/* ── Unlock gate modal ── */}
-      {unlockGateOpen && (
+      {/* ── Unlock gate modal — dating only ── */}
+      {isDating && unlockGateOpen && (
         <UnlockGate
           unlockBalance={unlockBalance}
           isBuyer={isBuyer}

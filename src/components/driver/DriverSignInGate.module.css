@@ -1,0 +1,272 @@
+.screen {
+  position: fixed;
+  inset: 0;
+  background: #080808;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 52px 24px max(32px, env(safe-area-inset-bottom));
+  z-index: 9900;
+  overflow-y: auto;
+  font-family: inherit;
+}
+
+/* ── Gate header ── */
+.gateIcon {
+  font-size: 52px;
+  margin-bottom: 14px;
+  animation: pulse 2s ease infinite;
+}
+
+@keyframes pulse {
+  0%, 100% { transform: scale(1); }
+  50%       { transform: scale(1.08); }
+}
+
+.gateTitle {
+  font-size: 28px;
+  font-weight: 900;
+  color: #fff;
+  letter-spacing: -0.03em;
+  margin: 0 0 6px;
+  text-align: center;
+}
+
+.gateSub {
+  font-size: 14px;
+  color: rgba(255,255,255,0.4);
+  margin: 0 0 22px;
+  text-align: center;
+}
+
+/* ── Balance card ── */
+.balanceCard {
+  width: 100%;
+  max-width: 360px;
+  background: rgba(255,149,0,0.08);
+  border: 1px solid rgba(255,149,0,0.25);
+  border-radius: 16px;
+  padding: 18px 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  margin-bottom: 14px;
+}
+
+.balanceLabel {
+  font-size: 11px;
+  font-weight: 700;
+  color: rgba(255,149,0,0.6);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.balanceAmount {
+  font-size: 34px;
+  font-weight: 900;
+  font-family: monospace;
+  color: #FF9500;
+  letter-spacing: -0.02em;
+}
+
+.balanceSub {
+  font-size: 11px;
+  color: rgba(255,255,255,0.25);
+}
+
+/* ── Ride breakdown ── */
+.rideList {
+  width: 100%;
+  max-width: 360px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-bottom: 16px;
+}
+
+.rideRow {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: rgba(255,255,255,0.03);
+  border: 1px solid rgba(255,255,255,0.06);
+  border-radius: 10px;
+  padding: 10px 12px;
+  font-size: 12px;
+}
+
+.rideRef  { flex: 1; font-family: monospace; color: rgba(255,255,255,0.3); font-size: 11px; }
+.rideFare { color: rgba(255,255,255,0.5); white-space: nowrap; }
+.rideComm { font-weight: 800; color: #FF9500; font-family: monospace; white-space: nowrap; }
+
+/* ── Bank card ── */
+.bankCard {
+  width: 100%;
+  max-width: 360px;
+  background: linear-gradient(135deg, #005baa 0%, #003d7a 100%);
+  border-radius: 16px;
+  padding: 18px 20px;
+  margin-bottom: 16px;
+}
+
+.bankCardTop {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+}
+
+.bankCardBrand {
+  font-size: 11px;
+  font-weight: 700;
+  color: rgba(255,255,255,0.5);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+}
+
+.bankCardBank {
+  font-size: 14px;
+  font-weight: 900;
+  color: #fff;
+  letter-spacing: 0.05em;
+}
+
+.bankCardNumber {
+  font-size: 20px;
+  font-weight: 700;
+  font-family: monospace;
+  color: #fff;
+  letter-spacing: 0.12em;
+  margin-bottom: 10px;
+}
+
+.bankCardHolder {
+  font-size: 12px;
+  color: rgba(255,255,255,0.6);
+  margin-bottom: 10px;
+  display: block;
+}
+
+.bankCardAmount {
+  font-size: 13px;
+  color: rgba(255,255,255,0.5);
+  padding-top: 10px;
+  border-top: 1px solid rgba(255,255,255,0.15);
+}
+
+.bankCardAmount strong {
+  color: #fff;
+  font-family: monospace;
+}
+
+/* ── Proof upload ── */
+.uploadBtn {
+  width: 100%;
+  max-width: 360px;
+  padding: 15px;
+  background: rgba(255,255,255,0.05);
+  border: 1.5px dashed rgba(255,255,255,0.2);
+  border-radius: 14px;
+  color: rgba(255,255,255,0.5);
+  font-size: 14px;
+  font-weight: 700;
+  font-family: inherit;
+  cursor: pointer;
+  margin-bottom: 12px;
+  transition: all 0.15s;
+}
+
+.uploadBtn:not(:disabled):active { background: rgba(255,255,255,0.08); }
+.uploadBtn:disabled { opacity: 0.4; cursor: default; }
+
+.proofWrap {
+  width: 100%;
+  max-width: 360px;
+  margin-bottom: 14px;
+  border-radius: 12px;
+  overflow: hidden;
+  border: 1px solid rgba(255,255,255,0.1);
+}
+
+.proofImg {
+  width: 100%;
+  display: block;
+  max-height: 180px;
+  object-fit: cover;
+}
+
+.proofLabel {
+  display: block;
+  padding: 8px 12px;
+  background: rgba(52,199,89,0.1);
+  font-size: 12px;
+  font-weight: 700;
+  color: #34C759;
+  text-align: center;
+}
+
+.submitBtn {
+  width: 100%;
+  max-width: 360px;
+  padding: 16px;
+  background: #34C759;
+  color: #000;
+  font-size: 16px;
+  font-weight: 900;
+  border: none;
+  border-radius: 14px;
+  cursor: pointer;
+  font-family: inherit;
+  margin-bottom: 16px;
+  transition: opacity 0.15s;
+}
+
+.submitBtn:disabled { opacity: 0.5; cursor: default; }
+
+.footerNote {
+  font-size: 11px;
+  color: rgba(255,255,255,0.18);
+  text-align: center;
+  line-height: 1.6;
+  max-width: 320px;
+  margin: 0;
+}
+
+/* ── Submitted state ── */
+.submittedState {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  padding-top: 40px;
+}
+
+.submittedIcon  { font-size: 56px; }
+
+.submittedTitle {
+  font-size: 24px;
+  font-weight: 900;
+  color: rgba(255,255,255,0.9);
+}
+
+.submittedSub {
+  font-size: 14px;
+  color: rgba(255,255,255,0.4);
+  text-align: center;
+  line-height: 1.6;
+  max-width: 300px;
+}
+
+.submittedAmount {
+  font-size: 28px;
+  font-weight: 900;
+  font-family: monospace;
+  color: #FF9500;
+}
+
+.submittedNote {
+  font-size: 12px;
+  color: rgba(255,255,255,0.2);
+  margin: 0;
+}

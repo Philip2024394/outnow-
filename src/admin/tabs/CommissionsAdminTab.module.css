@@ -1,0 +1,432 @@
+.wrap {
+  padding: 24px 28px;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  min-height: 100%;
+}
+
+/* ── Summary cards ── */
+.summaryRow {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 14px;
+}
+
+.summaryCard {
+  background: rgba(255,255,255,0.03);
+  border: 1px solid rgba(255,255,255,0.07);
+  border-radius: 14px;
+  padding: 16px 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.summaryLabel {
+  font-size: 11px;
+  font-weight: 600;
+  color: rgba(255,255,255,0.35);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.summaryValue {
+  font-size: 22px;
+  font-weight: 900;
+  font-family: monospace;
+  letter-spacing: -0.02em;
+}
+
+.summarySub {
+  font-size: 11px;
+  color: rgba(255,255,255,0.25);
+}
+
+/* ── 72h rule banner ── */
+.ruleBanner {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: rgba(255,149,0,0.06);
+  border: 1px solid rgba(255,149,0,0.2);
+  border-radius: 12px;
+  padding: 12px 16px;
+  font-size: 13px;
+  color: rgba(255,255,255,0.5);
+  line-height: 1.5;
+}
+
+.ruleIcon { font-size: 18px; flex-shrink: 0; }
+
+.ruleText { flex: 1; }
+.ruleText strong { color: rgba(255,149,0,0.9); }
+.ruleText em { color: #FF3B30; font-style: normal; font-weight: 700; }
+
+.payAllBtn {
+  flex-shrink: 0;
+  padding: 8px 14px;
+  background: rgba(52,199,89,0.12);
+  border: 1px solid rgba(52,199,89,0.3);
+  border-radius: 8px;
+  color: #34C759;
+  font-size: 12px;
+  font-weight: 700;
+  font-family: inherit;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+/* ── Status tabs ── */
+.statusTabs {
+  display: flex;
+  gap: 6px;
+  border-bottom: 1px solid rgba(255,255,255,0.06);
+  padding-bottom: 0;
+}
+
+.statusTab {
+  padding: 9px 16px;
+  background: none;
+  border: none;
+  border-bottom: 2px solid transparent;
+  margin-bottom: -1px;
+  color: rgba(255,255,255,0.35);
+  font-size: 13px;
+  font-weight: 600;
+  font-family: inherit;
+  cursor: pointer;
+  transition: color 0.15s;
+  white-space: nowrap;
+}
+
+.statusTabActive {
+  color: #FF9500;
+  border-bottom-color: #FF9500;
+}
+
+/* ── Type filter row ── */
+.typeRow {
+  display: flex;
+  gap: 8px;
+}
+
+.typeBtn {
+  padding: 6px 14px;
+  background: rgba(255,255,255,0.04);
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 20px;
+  color: rgba(255,255,255,0.45);
+  font-size: 12px;
+  font-weight: 600;
+  font-family: inherit;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  transition: all 0.15s;
+}
+
+.typeBtnActive {
+  background: rgba(255,149,0,0.12);
+  border-color: rgba(255,149,0,0.35);
+  color: #FF9500;
+}
+
+.rateTag {
+  background: rgba(255,255,255,0.08);
+  border-radius: 4px;
+  padding: 1px 5px;
+  font-size: 10px;
+  font-weight: 800;
+  font-family: monospace;
+  color: rgba(255,255,255,0.4);
+}
+
+.typeBtnActive .rateTag {
+  background: rgba(255,149,0,0.15);
+  color: #FF9500;
+}
+
+/* ── Table ── */
+.tableWrap {
+  overflow-x: auto;
+  border-radius: 14px;
+  border: 1px solid rgba(255,255,255,0.07);
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+}
+
+.table thead tr {
+  background: rgba(255,255,255,0.03);
+  border-bottom: 1px solid rgba(255,255,255,0.07);
+}
+
+.table th {
+  padding: 11px 14px;
+  text-align: left;
+  font-size: 11px;
+  font-weight: 700;
+  color: rgba(255,255,255,0.3);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  white-space: nowrap;
+}
+
+.table tbody tr {
+  border-bottom: 1px solid rgba(255,255,255,0.04);
+  transition: background 0.1s;
+}
+
+.table tbody tr:last-child { border-bottom: none; }
+.table tbody tr:hover { background: rgba(255,255,255,0.025); }
+
+.table td {
+  padding: 11px 14px;
+  color: rgba(255,255,255,0.7);
+  vertical-align: middle;
+}
+
+.rowBlocked {
+  background: rgba(255,59,48,0.04) !important;
+}
+
+.sellerCell { min-width: 160px; }
+
+.sellerName {
+  display: block;
+  font-weight: 600;
+  color: rgba(255,255,255,0.85);
+}
+
+.blockedTag {
+  display: inline-block;
+  margin-top: 3px;
+  font-size: 10px;
+  color: #FF3B30;
+  background: rgba(255,59,48,0.1);
+  border-radius: 4px;
+  padding: 1px 6px;
+}
+
+.refCell {
+  font-family: monospace;
+  font-size: 11px;
+  color: rgba(255,255,255,0.3);
+  white-space: nowrap;
+}
+
+.numCell {
+  font-family: monospace;
+  font-size: 13px;
+  color: rgba(255,255,255,0.5);
+  white-space: nowrap;
+}
+
+.commCell {
+  font-family: monospace;
+  font-size: 14px;
+  font-weight: 800;
+  color: rgba(255,255,255,0.85);
+  white-space: nowrap;
+}
+
+/* Type pills */
+.typePill {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 3px 9px;
+  border-radius: 20px;
+  font-size: 11px;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.typePillMarket {
+  background: rgba(168,85,247,0.12);
+  border: 1px solid rgba(168,85,247,0.25);
+  color: #A855F7;
+}
+
+.typePillFood {
+  background: rgba(232,69,140,0.12);
+  border: 1px solid rgba(232,69,140,0.25);
+  color: #E8458C;
+}
+
+.typePillBike {
+  background: rgba(52,199,89,0.1);
+  border: 1px solid rgba(52,199,89,0.2);
+  color: #34C759;
+}
+
+.typePillCar {
+  background: rgba(96,165,250,0.1);
+  border: 1px solid rgba(96,165,250,0.2);
+  color: #60a5fa;
+}
+
+/* Due pill */
+.duePill {
+  display: inline-block;
+  padding: 3px 9px;
+  border-radius: 20px;
+  font-size: 11px;
+  font-weight: 700;
+  font-family: monospace;
+  white-space: nowrap;
+}
+
+.duePillOk {
+  background: rgba(52,199,89,0.1);
+  border: 1px solid rgba(52,199,89,0.2);
+  color: #34C759;
+}
+
+.duePillOverdue {
+  background: rgba(255,59,48,0.12);
+  border: 1px solid rgba(255,59,48,0.3);
+  color: #FF3B30;
+  animation: blink 1.2s linear infinite;
+}
+
+@keyframes blink { 0%,100%{opacity:1} 50%{opacity:0.5} }
+
+.duePillSignIn {
+  background: rgba(96,165,250,0.1);
+  border: 1px solid rgba(96,165,250,0.2);
+  color: #60a5fa;
+}
+
+.dueNa { color: rgba(255,255,255,0.15); font-size: 12px; }
+
+/* Status pills */
+.statusPill {
+  display: inline-block;
+  padding: 3px 9px;
+  border-radius: 20px;
+  font-size: 11px;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.statusPill_pending {
+  background: rgba(255,149,0,0.1);
+  border: 1px solid rgba(255,149,0,0.25);
+  color: #FF9500;
+}
+
+.statusPill_overdue {
+  background: rgba(255,59,48,0.12);
+  border: 1px solid rgba(255,59,48,0.3);
+  color: #FF3B30;
+}
+
+.statusPill_paid {
+  background: rgba(52,199,89,0.1);
+  border: 1px solid rgba(52,199,89,0.2);
+  color: #34C759;
+}
+
+/* Action buttons */
+.actionBtns { display: flex; gap: 6px; align-items: center; }
+
+.btnPay {
+  padding: 5px 12px;
+  background: rgba(52,199,89,0.12);
+  border: 1px solid rgba(52,199,89,0.3);
+  border-radius: 7px;
+  color: #34C759;
+  font-size: 11px;
+  font-weight: 700;
+  font-family: inherit;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.btnBlock {
+  padding: 5px 10px;
+  background: rgba(255,59,48,0.1);
+  border: 1px solid rgba(255,59,48,0.25);
+  border-radius: 7px;
+  color: #FF3B30;
+  font-size: 11px;
+  font-weight: 700;
+  font-family: inherit;
+  cursor: pointer;
+}
+
+.btnUnblock {
+  padding: 5px 12px;
+  background: rgba(255,149,0,0.1);
+  border: 1px solid rgba(255,149,0,0.25);
+  border-radius: 7px;
+  color: #FF9500;
+  font-size: 11px;
+  font-weight: 700;
+  font-family: inherit;
+  cursor: pointer;
+}
+
+.paidAt {
+  font-size: 11px;
+  color: rgba(255,255,255,0.25);
+  font-family: monospace;
+}
+
+/* ── Blocked list ── */
+.blockedList {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.blockedRow {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  background: rgba(255,59,48,0.05);
+  border: 1px solid rgba(255,59,48,0.15);
+  border-radius: 12px;
+  padding: 14px 16px;
+}
+
+.blockedLeft { display: flex; align-items: center; gap: 10px; min-width: 220px; }
+.blockedName { font-size: 14px; font-weight: 700; color: rgba(255,255,255,0.8); }
+
+.blockedMid { flex: 1; }
+.blockedOwed { display: block; font-size: 14px; font-weight: 700; color: #FF3B30; font-family: monospace; }
+.blockedReason { display: block; font-size: 11px; color: rgba(255,255,255,0.3); margin-top: 2px; }
+
+.unblockBtn {
+  padding: 8px 16px;
+  background: rgba(255,255,255,0.06);
+  border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 8px;
+  color: rgba(255,255,255,0.5);
+  font-size: 12px;
+  font-weight: 700;
+  font-family: inherit;
+  cursor: pointer;
+  flex-shrink: 0;
+}
+
+/* ── Empty states ── */
+.empty {
+  padding: 40px;
+  text-align: center;
+  color: rgba(255,255,255,0.2);
+  font-size: 14px;
+}
+
+.emptyRow {
+  padding: 32px !important;
+  text-align: center;
+  color: rgba(255,255,255,0.2) !important;
+  font-size: 13px;
+}

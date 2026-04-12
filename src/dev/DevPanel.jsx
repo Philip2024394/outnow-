@@ -15,6 +15,8 @@ import LandingScreen         from '@/screens/LandingScreen'
 import JoinSheet             from '@/screens/onboarding/JoinSheet'
 import AddToHomeScreenBanner from '@/components/pwa/AddToHomeScreenBanner'
 import DateIdeasSheet        from '@/components/dating/DateIdeasSheet'
+import VibeBlasterSheet      from '@/components/dating/VibeBlasterSheet'
+import QAFeedScreen          from '@/components/community/QAFeedScreen'
 
 // ── Modals / Gates ───────────────────────────────────────────────────
 import SOSModal    from '@/components/safety/SOSModal'
@@ -44,7 +46,31 @@ import LikedMeScreen       from '@/screens/LikedMeScreen'
 import ProfileScreen       from '@/screens/ProfileScreen'
 import LocationGateScreen  from '@/screens/LocationGateScreen'
 
+// ── Commerce & Chat Checkout ──────────────────────────────────────────
+import OrderCard           from '@/components/orders/OrderCard'
+import SellerProfileSheet  from '@/components/commerce/SellerProfileSheet'
+import ShopSearchScreen    from '@/screens/ShopSearchScreen'
+import RestaurantBrowseScreen from '@/screens/RestaurantBrowseScreen'
+import RestaurantMenuSheetNew from '@/components/restaurant/RestaurantMenuSheet'
+
 import styles from './DevPanel.module.css'
+
+// ── Commission ───────────────────────────────────────────────────────
+import SellerBlockedModal          from '@/components/commerce/SellerBlockedModal'
+import DeliveryOptionsSheet        from '@/components/commerce/DeliveryOptionsSheet'
+import SellerCommissionScreen      from '@/screens/SellerCommissionScreen'
+import RestaurantCommissionScreen  from '@/screens/RestaurantCommissionScreen'
+
+// ── Driver trip & commission flow ────────────────────────────────────
+import DriverTripEndSheet          from '@/components/driver/DriverTripEndSheet'
+import DriverSignInGate            from '@/components/driver/DriverSignInGate'
+
+// ── Restaurant payment flow ──────────────────────────────────────────
+import PaymentMethodSelector       from '@/components/restaurant/PaymentMethodSelector'
+import BankTransferChatCard        from '@/components/restaurant/BankTransferChatCard'
+import RestaurantOrderAlert        from '@/components/restaurant/RestaurantOrderAlert'
+import RestaurantPaymentConfirmSheet from '@/components/restaurant/RestaurantPaymentConfirmSheet'
+import RestaurantOrderQRSheet      from '@/components/restaurant/RestaurantOrderQRSheet'
 
 // ─────────────────────────────────────────────────────────────────────
 // MOCK DATA
@@ -151,6 +177,157 @@ const MOCK_DRIVER = {
   photo_url: null,
 }
 
+const MOCK_ORDER_CARD_MARKET = {
+  type: 'marketplace',
+  ref: '#SHOP_98765432',
+  sellerName: 'Bali Crafts Co.',
+  sellerId: 'dev-seller-1',
+  items: [
+    { name: 'Handwoven Rattan Bag', variantStr: 'Natural / M', qty: 1, price: 185000 },
+    { name: 'Batik Tote',           variantStr: 'Blue',         qty: 2, price: 95000  },
+  ],
+  subtotal: 375000,
+  deliveryFee: 25000,
+  total: 400000,
+  notes: 'Please wrap as gift',
+  status: 'pending',
+  updatedAt: new Date().toISOString(),
+}
+
+const MOCK_ORDER_CARD_FOOD = {
+  type: 'restaurant',
+  ref: '#MAKAN_12345678',
+  sellerName: 'Warung Sari Rasa',
+  sellerId: 'dev-r1',
+  items: [
+    { name: 'Nasi Gudeg Komplit', qty: 2, price: 28000 },
+    { name: 'Es Teh Manis',       qty: 2, price: 5000  },
+  ],
+  subtotal: 66000,
+  deliveryFee: 15000,
+  total: 81000,
+  notes: 'Extra krecek please',
+  status: 'confirmed',
+  updatedAt: new Date().toISOString(),
+}
+
+const MOCK_CONV_ORDER_MARKET = {
+  ...MOCK_CONVS.market,
+  id: 'dev-conv-order-market',
+  messages: [
+    { id: 'om1', fromMe: true, orderCard: MOCK_ORDER_CARD_MARKET, time: Date.now() - 5000 },
+  ],
+}
+
+const MOCK_CONV_ORDER_FOOD = {
+  ...MOCK_CONVS.food,
+  id: 'dev-conv-order-food',
+  messages: [
+    { id: 'of1', fromMe: true, orderCard: MOCK_ORDER_CARD_FOOD, time: Date.now() - 5000 },
+  ],
+}
+
+const MOCK_SELLER = {
+  id: 'dev-seller-1',
+  displayName: 'Dewi Hartono',
+  brandName: 'Bali Crafts Co.',
+  bio: 'Handmade rattan bags, batik and natural fibre goods crafted in Ubud. Every piece is one-of-a-kind.',
+  photoURL: null,
+  city: 'Ubud',
+  country: 'Indonesia',
+  lookingFor: 'handmade',
+  productCondition: 'new',
+  bizWhatsapp: null,
+  instagram: 'balicraftsco',
+  seller_plan: 'standard',
+  openTime: '9:00 AM',
+  closeTime: '6:00 PM',
+}
+
+// Commission mock data
+const MOCK_CONV_SELLER_LOCKED = {
+  ...MOCK_CONVS.market,
+  id: 'dev-conv-seller-locked',
+  messages: [
+    { id: 'sl1', fromMe: false, text: 'Hi, is the bag still available?', time: Date.now() - 120000 },
+    { id: 'sl2', fromMe: true,  text: 'Yes it is! Want to place an order?', time: Date.now() - 90000, read: true },
+    { id: 'sl3', fromMe: false, text: "Great, I'll take the tan one please.", time: Date.now() - 60000 },
+    { id: 'sl4', fromMe: true, orderCard: {
+      type: 'marketplace', ref: '#SHOP_11223344',
+      sellerName: 'Bali Crafts Co.', sellerId: 'dev-seller-1',
+      items: [{ name: 'Leather Crossbody Bag', variantStr: 'Tan', qty: 1, price: 1200000 }],
+      subtotal: 1200000, deliveryFee: 25000, total: 1225000,
+      status: 'complete', updatedAt: new Date().toISOString(),
+    }, time: Date.now() - 30000 },
+  ],
+}
+
+const MOCK_CONV_COMMISSION_PENDING = {
+  ...MOCK_CONVS.market,
+  id: 'dev-conv-commission-pending',
+  messages: [
+    { id: 'cp1', fromMe: false, text: 'Payment done, thank you!', time: Date.now() - 45000 },
+    { id: 'cp2', fromMe: true, orderCard: {
+      type: 'marketplace', ref: '#SHOP_55667788',
+      sellerName: 'Bali Crafts Co.', sellerId: 'dev-seller-1',
+      items: [{ name: 'Slim Card Wallet', variantStr: 'Black', qty: 2, price: 320000 }],
+      subtotal: 640000, deliveryFee: 15000, total: 655000,
+      status: 'complete', updatedAt: new Date().toISOString(),
+    }, time: Date.now() - 60000 },
+  ],
+}
+
+// Driver commission mock data
+const MOCK_COMPLETED_BOOKING = {
+  ...MOCK_INCOMING_BOOKING,
+  id: 'BOOK_DEV_END_001',
+  fare: 28000,
+  status: 'in_progress',
+}
+
+const MOCK_DRIVER_COMMISSIONS = [
+  { id: 'dc1', orderRef: '#RIDE_11223344', fare: 28000, amount: 2800 },
+  { id: 'dc2', orderRef: '#RIDE_55667788', fare: 35000, amount: 3500 },
+  { id: 'dc3', orderRef: '#RIDE_99001122', fare: 22000, amount: 2200 },
+]
+
+// Restaurant payment flow mock data
+const MOCK_REST_ORDER_COD = {
+  id: 'dev-rest-order-1',
+  ref: '#MAKAN_00000001',
+  buyerName: 'Rina Kartika',
+  paymentMethod: 'cod',
+  items: [
+    { name: 'Nasi Gudeg Komplit', qty: 2, price: 28000 },
+    { name: 'Es Teh Manis',       qty: 2, price: 5000  },
+  ],
+  total: 66000,
+  finalTotal: 66000,
+  notes: 'Extra krecek please',
+}
+
+const MOCK_REST_ORDER_BANK = {
+  ...MOCK_REST_ORDER_COD,
+  id: 'dev-rest-order-2',
+  ref: '#MAKAN_00000002',
+  paymentMethod: 'bank_transfer',
+  grossTotal: 66000,
+  discountAmount: 1980,
+  finalTotal: 64020,
+  proofUrl: null,
+}
+
+const MOCK_BANK_CARD_BASE = {
+  bankName: 'BCA',
+  accountNumber: '1234 5678 90',
+  accountHolder: 'Warung Sari Rasa',
+  grossTotal: 66000,
+  discountAmount: 1980,
+  finalTotal: 64020,
+  orderRef: '#MAKAN_00000002',
+  restaurantName: 'Warung Sari Rasa',
+}
+
 // ─────────────────────────────────────────────────────────────────────
 // GROUPS — the panel menu
 // ─────────────────────────────────────────────────────────────────────
@@ -205,6 +382,8 @@ const GROUPS = [
       { id: 'chat_market',   label: '🛍️ Chat — Market' },
       { id: 'chat_food',     label: '🍽️ Chat — Food' },
       { id: 'match',         label: '❤️ Dating / Match Screen' },
+      { id: 'vibeBlaster',   label: '⚡ Vibe Blaster' },
+      { id: 'qaFeed',        label: '💬 Q&A Live Feed' },
       { id: 'notifications', label: '🔔 Notifications Screen' },
       { id: 'likedMe',       label: '👀 Liked Me Screen' },
       { id: 'profile',       label: '👤 Profile Screen' },
@@ -227,14 +406,67 @@ const GROUPS = [
     ],
   },
   {
+    label: 'CHAT CHECKOUT',
+    color: '#34D399',
+    items: [
+      { id: 'orderCard_market',   label: '🛍️ Order Card — Marketplace (pending)' },
+      { id: 'orderCard_food',     label: '🍽️ Order Card — Restaurant (confirmed)' },
+      { id: 'chat_order_market',  label: '💬 Chat + Market Order Card' },
+      { id: 'chat_order_food',    label: '💬 Chat + Food Order Card' },
+      { id: 'sellerProfile',      label: '🏪 Seller Profile Sheet' },
+      { id: 'shopSearch',         label: '🔍 Shop Search Screen' },
+      { id: 'restaurantBrowse',   label: '🍜 Restaurant Browse Screen' },
+      { id: 'restaurantMenuChat', label: '📋 Restaurant Menu (chat order)' },
+    ],
+  },
+  {
+    label: 'COMMISSION SYSTEM',
+    color: '#FF9500',
+    items: [
+      { id: 'seller_commission_screen',      label: '💰 Seller Commission Dashboard (5%)' },
+      { id: 'restaurant_commission_screen',  label: '🍽️ Restaurant Commission Dashboard (10%)' },
+      { id: 'delivery_options_sheet',        label: '🚚 Delivery Options Sheet' },
+      { id: 'commission_banner',             label: '🟠 Commission Banner (seller)' },
+      { id: 'chat_seller_locked',            label: '🔒 Chat — Marketplace Seller Locked (5%)' },
+      { id: 'chat_restaurant_locked',        label: '🔒 Chat — Restaurant Owner Locked (10%)' },
+      { id: 'chat_commission_pending',       label: '📋 Chat — Completed Order (pending commission)' },
+      { id: 'seller_blocked_modal',          label: '🚫 Seller Blocked Modal' },
+      { id: 'toast_commission_recorded',     label: '💰 Toast — Commission Recorded' },
+      { id: 'toast_commission_paid',         label: '✅ Toast — Commission Paid' },
+      { id: 'toast_seller_blocked',          label: '🚫 Toast — Seller Blocked' },
+    ],
+  },
+  {
+    label: 'DRIVER COMMISSION',
+    color: '#34C759',
+    items: [
+      { id: 'driver_trip_end_declare',   label: '🏁 Trip End — Declare Outcome' },
+      { id: 'driver_trip_end_reason',    label: '✗ Trip End — Cancel Reason' },
+      { id: 'driver_trip_end_complete',  label: '✅ Trip End — Recorded' },
+      { id: 'driver_sign_in_gate',       label: '🔒 Sign-in Gate — Commission Due' },
+      { id: 'driver_sign_in_submitted',  label: '📤 Sign-in Gate — Proof Submitted' },
+    ],
+  },
+  {
+    label: 'RESTAURANT PAYMENT FLOW',
+    color: '#E8458C',
+    items: [
+      { id: 'payment_method_selector',       label: '💳 Payment Method Selector' },
+      { id: 'bank_transfer_card_awaiting',   label: '⏳ Bank Transfer Card — Awaiting Proof' },
+      { id: 'bank_transfer_card_uploaded',   label: '📤 Bank Transfer Card — Proof Uploaded' },
+      { id: 'bank_transfer_card_confirmed',  label: '✅ Bank Transfer Card — Confirmed' },
+      { id: 'restaurant_order_alert_cod',    label: '🍽️ Restaurant Order Alert — COD' },
+      { id: 'restaurant_order_alert_bank',   label: '🏦 Restaurant Order Alert — Bank Transfer' },
+      { id: 'restaurant_payment_confirm',    label: '📤 Restaurant Payment Confirm Sheet' },
+      { id: 'restaurant_qr_sheet',           label: '📷 Restaurant QR Sheet — Pre-scan' },
+      { id: 'restaurant_qr_sheet_scanned',   label: '✅ Restaurant QR Sheet — Scanned' },
+    ],
+  },
+  {
     label: 'MEMBERSHIP',
     color: '#FF6BA3',
     items: [
-      { id: 'membership_dating',     label: '💕 Dating Membership' },
-      { id: 'membership_market',     label: '🛍️ Market Membership' },
-      { id: 'membership_bike_ride',  label: '🛵 Bike Ride Membership' },
-      { id: 'membership_car_ride',   label: '🚗 Car Ride Membership' },
-      { id: 'membership_restaurant', label: '🍽️ Restaurant Membership' },
+      { id: 'membership_dating', label: '💕 Dating Membership' },
     ],
   },
 ]
@@ -267,6 +499,9 @@ export default function DevPanel() {
     if (id === 'toastSuccess') { setActive(null); showToast('Saved successfully!', 'success'); return }
     if (id === 'toastError')   { setActive(null); showToast('Something went wrong. Try again.', 'error'); return }
     if (id === 'toastInfo')    { setActive(null); showToast('Feature available for Pro members.', 'info'); return }
+    if (id === 'toast_commission_recorded') { setActive(null); showToast('Commission recorded — Rp 61.250 (5%) due within 72 hours', 'info'); return }
+    if (id === 'toast_commission_paid')     { setActive(null); showToast('Commission paid — chat unlocked!', 'success'); return }
+    if (id === 'toast_seller_blocked')      { setActive(null); showToast('Account blocked for commission avoidance', 'error'); return }
     if (id === 'langToast')   { setShowLangToast(true);  setPanelOpen(false); return }
     if (id === 'pwa')         { setShowPWA(true);        setPanelOpen(false); return }
     if (id === 'dateIdeas')   { setShowDateIdeas(true);  setPanelOpen(false); return }
@@ -400,6 +635,12 @@ export default function DevPanel() {
           <ChatWindow conversation={MOCK_CONVS.food} chatTheme="food" onBack={close} />
         </div>
       )}
+      {active === 'vibeBlaster' && (
+        <VibeBlasterSheet open={true} onClose={close} showToast={showToast} />
+      )}
+      {active === 'qaFeed' && (
+        <QAFeedScreen open={true} onClose={close} user={MOCK_USER} userProfile={MOCK_USER} />
+      )}
       {active === 'notifications' && (
         <div className={styles.screenOverlay}>
           <NotificationsScreen onClose={close} />
@@ -501,6 +742,286 @@ export default function DevPanel() {
           onDismiss={() => { close(); showToast('Warning dismissed', 'info') }}
         />
       )}
+
+      {/* ── CHAT CHECKOUT ── */}
+      {active === 'orderCard_market' && (
+        <div className={styles.fullOverlay} style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 20 }}>
+          <div style={{ width: '100%', maxWidth: 400 }}>
+            <OrderCard orderCard={MOCK_ORDER_CARD_MARKET} fromMe={true} onStatusChange={(s) => showToast(`Status → ${s}`, 'info')} />
+          </div>
+          <button className={styles.devClose} onClick={close}>CLOSE</button>
+        </div>
+      )}
+      {active === 'orderCard_food' && (
+        <div className={styles.fullOverlay} style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 20 }}>
+          <div style={{ width: '100%', maxWidth: 400 }}>
+            <OrderCard orderCard={MOCK_ORDER_CARD_FOOD} fromMe={false} onStatusChange={(s) => showToast(`Status → ${s}`, 'info')} />
+          </div>
+          <button className={styles.devClose} onClick={close}>CLOSE</button>
+        </div>
+      )}
+      {active === 'chat_order_market' && (
+        <div className={styles.screenOverlay}>
+          <ChatWindow conversation={MOCK_CONV_ORDER_MARKET} chatTheme="market" onBack={close} />
+        </div>
+      )}
+      {active === 'chat_order_food' && (
+        <div className={styles.screenOverlay}>
+          <ChatWindow conversation={MOCK_CONV_ORDER_FOOD} chatTheme="food" onBack={close} />
+        </div>
+      )}
+      {active === 'sellerProfile' && (
+        <SellerProfileSheet
+          seller={MOCK_SELLER}
+          onClose={close}
+          onOpenChat={() => showToast('Chat with seller tapped', 'info')}
+          onOrderViaChat={(p) => showToast(`Order via chat: ${p.product?.name ?? 'item'}`, 'success')}
+          showToast={showToast}
+        />
+      )}
+      {active === 'shopSearch' && (
+        <div className={styles.screenOverlay}>
+          <ShopSearchScreen
+            onClose={close}
+            showToast={showToast}
+            onOrderViaChat={(p) => { close(); showToast(`Order: ${p.product?.name ?? 'item'} → chat`, 'success') }}
+          />
+        </div>
+      )}
+      {active === 'restaurantBrowse' && (
+        <div className={styles.screenOverlay}>
+          <RestaurantBrowseScreen
+            onClose={close}
+            onBackToCategories={close}
+            onOrderViaChat={() => { close(); showToast(`Food order → chat`, 'success') }}
+          />
+        </div>
+      )}
+      {active === 'restaurantMenuChat' && (
+        <RestaurantMenuSheetNew
+          open={true}
+          restaurant={MOCK_RESTAURANT}
+          onClose={close}
+          onOrderViaChat={(p) => { close(); showToast(`Food order via chat: ${p.items?.length ?? 0} items`, 'success') }}
+        />
+      )}
+
+      {/* ── COMMISSION SYSTEM ── */}
+
+      {active === 'seller_commission_screen' && (
+        <div className={styles.screenOverlay}>
+          <SellerCommissionScreen
+            onClose={close}
+            onUpgrade={() => { close(); showToast('Opening monthly plan…', 'info') }}
+          />
+        </div>
+      )}
+
+      {active === 'restaurant_commission_screen' && (
+        <div className={styles.screenOverlay}>
+          <RestaurantCommissionScreen
+            onClose={close}
+            onUpgrade={() => { close(); showToast('Opening monthly plan…', 'info') }}
+          />
+        </div>
+      )}
+
+      <DeliveryOptionsSheet
+        open={active === 'delivery_options_sheet'}
+        onClose={close}
+        onSaved={(opts) => showToast(`Saved ${opts.length} delivery option${opts.length !== 1 ? 's' : ''}`, 'success')}
+      />
+
+      {active === 'commission_banner' && (
+        <div className={styles.fullOverlay} style={{ display:'flex', flexDirection:'column', alignItems:'center', justifyContent:'center', gap: 16, padding: 32 }}>
+          <p style={{ color:'rgba(255,255,255,0.4)', fontSize:12, margin:0 }}>Commission banner — shown above input bar when seller has unpaid commission</p>
+          <div style={{ width:'100%', maxWidth:420, background:'rgba(255,149,0,0.1)', borderTop:'1px solid rgba(255,149,0,0.3)', borderBottom:'1px solid rgba(255,149,0,0.3)', padding:'13px 16px', fontSize:13, fontWeight:700, color:'#FF9500', display:'flex', alignItems:'center', justifyContent:'center', gap:8 }}>
+            <span>💰</span>
+            <span>Commission payment pending — pay to reply to buyers</span>
+          </div>
+          <button className={styles.devClose} style={{ position:'static' }} onClick={close}>CLOSE</button>
+        </div>
+      )}
+
+      {active === 'chat_seller_locked' && (
+        <div className={styles.screenOverlay}>
+          <ChatWindow
+            conversation={MOCK_CONV_SELLER_LOCKED}
+            chatTheme="market"
+            role="seller"
+            _forceCommissionLocked={true}
+            onBack={close}
+          />
+        </div>
+      )}
+
+      {active === 'chat_restaurant_locked' && (
+        <div className={styles.screenOverlay}>
+          <ChatWindow
+            conversation={{ ...MOCK_CONV_ORDER_FOOD, id: 'dev-conv-rest-locked' }}
+            chatTheme="food"
+            role="seller"
+            _forceCommissionLocked={true}
+            onBack={close}
+          />
+        </div>
+      )}
+
+      {active === 'chat_commission_pending' && (
+        <div className={styles.screenOverlay}>
+          <ChatWindow
+            conversation={MOCK_CONV_COMMISSION_PENDING}
+            chatTheme="market"
+            role="seller"
+            _forceCommissionLocked={true}
+            onBack={close}
+          />
+        </div>
+      )}
+
+      <SellerBlockedModal
+        open={active === 'seller_blocked_modal'}
+        onPayBalance={() => { close(); showToast('Redirecting to balance payment…', 'info') }}
+        onUpgrade={() => { close(); showToast('Opening monthly plan…', 'info') }}
+        onClose={close}
+      />
+
+      {/* ── DRIVER COMMISSION ── */}
+
+      <DriverTripEndSheet
+        open={active === 'driver_trip_end_declare'}
+        booking={MOCK_COMPLETED_BOOKING}
+        onComplete={(r) => { close(); showToast(`Commission Rp ${Number(r.commission).toLocaleString('id-ID')} recorded ✓`, 'success') }}
+        onCancelled={(r) => { close(); showToast(`Cancelled: ${r.reason}`, 'info') }}
+      />
+
+      {active === 'driver_trip_end_reason' && (
+        <DriverTripEndSheet
+          open={true}
+          booking={MOCK_COMPLETED_BOOKING}
+          _forceStep="cancel_reason"
+          onComplete={() => { close(); showToast(`Commission recorded ✓`, 'success') }}
+          onCancelled={(r) => { close(); showToast(`Cancelled: ${r.reason}`, 'info') }}
+        />
+      )}
+
+      {active === 'driver_trip_end_complete' && (
+        <DriverTripEndSheet
+          open={true}
+          booking={MOCK_COMPLETED_BOOKING}
+          _forceStep="done"
+          _forceDoneOutcome="complete"
+          onComplete={() => {}}
+          onCancelled={() => {}}
+        />
+      )}
+
+      <DriverSignInGate
+        open={active === 'driver_sign_in_gate'}
+        driverName="Budi Santoso"
+        commissions={MOCK_DRIVER_COMMISSIONS}
+        onProofSubmitted={() => { showToast('Proof submitted — awaiting admin verification', 'info'); close() }}
+      />
+
+      {active === 'driver_sign_in_submitted' && (
+        <DriverSignInGate
+          open={true}
+          driverName="Budi Santoso"
+          commissions={MOCK_DRIVER_COMMISSIONS}
+          _forceSubmitted
+          onProofSubmitted={() => {}}
+          onClose={close}
+        />
+      )}
+
+      {/* ── RESTAURANT PAYMENT FLOW ── */}
+
+      <PaymentMethodSelector
+        open={active === 'payment_method_selector'}
+        total={66000}
+        onConfirm={(p) => { close(); showToast(`${p.paymentMethod} · ${p.finalTotal}`, 'info') }}
+        onClose={close}
+      />
+
+      {active === 'bank_transfer_card_awaiting' && (
+        <div className={styles.fullOverlay} style={{ display:'flex', alignItems:'center', justifyContent:'center', padding:20 }}>
+          <div style={{ width:'100%', maxWidth:420 }}>
+            <BankTransferChatCard
+              card={{ ...MOCK_BANK_CARD_BASE, state: 'awaiting_proof' }}
+              fromMe={true}
+              onProofUploaded={() => showToast('Proof uploaded ✓', 'success')}
+            />
+          </div>
+          <button className={styles.devClose} onClick={close}>CLOSE</button>
+        </div>
+      )}
+
+      {active === 'bank_transfer_card_uploaded' && (
+        <div className={styles.fullOverlay} style={{ display:'flex', alignItems:'center', justifyContent:'center', padding:20 }}>
+          <div style={{ width:'100%', maxWidth:420 }}>
+            <BankTransferChatCard
+              card={{ ...MOCK_BANK_CARD_BASE, state: 'proof_uploaded' }}
+              fromMe={true}
+            />
+          </div>
+          <button className={styles.devClose} onClick={close}>CLOSE</button>
+        </div>
+      )}
+
+      {active === 'bank_transfer_card_confirmed' && (
+        <div className={styles.fullOverlay} style={{ display:'flex', alignItems:'center', justifyContent:'center', padding:20 }}>
+          <div style={{ width:'100%', maxWidth:420 }}>
+            <BankTransferChatCard
+              card={{ ...MOCK_BANK_CARD_BASE, state: 'confirmed' }}
+              fromMe={true}
+            />
+          </div>
+          <button className={styles.devClose} onClick={close}>CLOSE</button>
+        </div>
+      )}
+
+      {active === 'restaurant_order_alert_cod' && (
+        <div className={styles.screenOverlay}>
+          <RestaurantOrderAlert
+            order={MOCK_REST_ORDER_COD}
+            onAccept={() => { close(); showToast('Order accepted ✓', 'success') }}
+            onDecline={() => { close(); showToast('Order declined', 'error') }}
+          />
+        </div>
+      )}
+
+      {active === 'restaurant_order_alert_bank' && (
+        <div className={styles.screenOverlay}>
+          <RestaurantOrderAlert
+            order={MOCK_REST_ORDER_BANK}
+            onAccept={() => { close(); showToast('Order accepted ✓', 'success') }}
+            onDecline={() => { close(); showToast('Order declined', 'error') }}
+          />
+        </div>
+      )}
+
+      <RestaurantPaymentConfirmSheet
+        open={active === 'restaurant_payment_confirm'}
+        order={{ ...MOCK_REST_ORDER_BANK, proofUrl: null }}
+        onConfirm={() => { close(); showToast('Payment confirmed · 10% commission recorded', 'success') }}
+        onDispute={(d) => { close(); showToast(`Dispute submitted: ${d.note}`, 'error') }}
+        onClose={close}
+      />
+
+      <RestaurantOrderQRSheet
+        open={active === 'restaurant_qr_sheet'}
+        order={{ ...MOCK_REST_ORDER_COD, driverId: 'dev-driver-1' }}
+        onScanned={() => showToast('QR scanned · commission recorded ✓', 'success')}
+        onClose={close}
+      />
+
+      <RestaurantOrderQRSheet
+        open={active === 'restaurant_qr_sheet_scanned'}
+        order={{ ...MOCK_REST_ORDER_COD, driverId: 'dev-driver-1' }}
+        onScanned={() => showToast('QR scanned · commission recorded ✓', 'success')}
+        onClose={close}
+        _forceScanned
+      />
 
       {/* ── MEMBERSHIP ── */}
       {['dating', 'market', 'bike_ride', 'car_ride', 'restaurant'].map(cat => (

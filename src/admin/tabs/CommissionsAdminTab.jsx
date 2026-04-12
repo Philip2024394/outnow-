@@ -1,0 +1,308 @@
+/**
+ * CommissionsAdminTab
+ * Admin view of the commission system.
+ * - Marketplace sellers  → 5%  per completed order
+ * - Restaurant owners    → 10% per completed order
+ * - 72-hour payment window — auto-posted to overdue by DB cron
+ * - Chat lock + account block for non-payers
+ */
+import { useState } from 'react'
+import styles from './CommissionsAdminTab.module.css'
+
+function fmtRp(n) { return `Rp ${Number(n ?? 0).toLocaleString('id-ID')}` }
+
+function dueLabel(dueAt) {
+  if (!dueAt) return null
+  const diff = new Date(dueAt) - Date.now()
+  if (diff <= 0) {
+    const overH = Math.floor(Math.abs(diff) / 3600000)
+    return { text: overH > 0 ? `${overH}h overdue` : 'Just overdue', overdue: true }
+  }
+  const h = Math.floor(diff / 3600000)
+  const m = Math.floor((diff % 3600000) / 60000)
+  if (h >= 48) return { text: `${Math.floor(h / 24)}d left`, overdue: false }
+  return { text: h > 0 ? `${h}h ${m}m left` : `${m}m left`, overdue: h < 12 }
+}
+
+// ── Demo data ─────────────────────────────────────────────────────────────────
+const now = Date.now()
+const h = (n) => new Date(now + n * 3600000).toISOString()
+const hAgo = (n) => new Date(now - n * 3600000).toISOString()
+
+const DEMO = [
+  { id:'c1',  seller:'Bali Crafts Co.',        sellerId:'s1',  orderRef:'#SHOP_11223344', commission_type:'marketplace', rate:0.05, order_total:1225000, amount:61250,  status:'pending',  created_at:hAgo(4),  due_at:h(68),  paid_at:null,  blocked:false },
+  { id:'c2',  seller:'Warung Sari Rasa',        sellerId:'s2',  orderRef:'#MAKAN_87654321',commission_type:'restaurant',  rate:0.10, order_total:81000,   amount:8100,   status:'pending',  created_at:hAgo(2),  due_at:h(70),  paid_at:null,  blocked:false },
+  { id:'c3',  seller:'Toko Batik Mega',         sellerId:'s3',  orderRef:'#SHOP_55443322', commission_type:'marketplace', rate:0.05, order_total:340000,  amount:17000,  status:'overdue',  created_at:hAgo(80), due_at:hAgo(8),paid_at:null,  blocked:false },
+  { id:'c4',  seller:'Ayam Geprek Mbak Rina',   sellerId:'s4',  orderRef:'#MAKAN_12345678',commission_type:'restaurant',  rate:0.10, order_total:56000,   amount:5600,   status:'overdue',  created_at:hAgo(96), due_at:hAgo(24),paid_at:null, blocked:false },
+  { id:'c5',  seller:'Butik Kebaya Sari',        sellerId:'s5',  orderRef:'#SHOP_99887766', commission_type:'marketplace', rate:0.05, order_total:890000,  amount:44500,  status:'paid',     created_at:hAgo(120),due_at:hAgo(48),paid_at:hAgo(50),blocked:false },
+  { id:'c6',  seller:'Bakso Pak Budi',           sellerId:'s6',  orderRef:'#MAKAN_44332211',commission_type:'restaurant',  rate:0.10, order_total:32000,   amount:3200,   status:'paid',     created_at:hAgo(72), due_at:hAgo(1), paid_at:hAgo(2), blocked:false },
+  { id:'c7',  seller:'Toko Elektronik Jaya',    sellerId:'s7',  orderRef:'#SHOP_77665544', commission_type:'marketplace', rate:0.05, order_total:2800000, amount:140000, status:'overdue',  created_at:hAgo(200),due_at:hAgo(128),paid_at:null, blocked:true  },
+  { id:'c8',  seller:'Nasi Goreng Pak Harto',   sellerId:'s8',  orderRef:'#MAKAN_66554433',commission_type:'restaurant',  rate:0.10, order_total:28000,   amount:2800,   status:'pending',  created_at:hAgo(1),  due_at:h(71),   paid_at:null,    blocked:false },
+  { id:'c9',  seller:'Handmade by Dewi',         sellerId:'s9',  orderRef:'#SHOP_22334455', commission_type:'marketplace', rate:0.05, order_total:475000,  amount:23750,  status:'paid',     created_at:hAgo(50), due_at:hAgo(2),  paid_at:hAgo(3), blocked:false },
+  { id:'c10', seller:'Sate & Gule Pak Sabar',    sellerId:'s10', orderRef:'#MAKAN_55667788',commission_type:'restaurant',  rate:0.10, order_total:65000,   amount:6500,   status:'overdue',  created_at:hAgo(100),due_at:hAgo(28), paid_at:null,    blocked:false },
+  { id:'c11', seller:'Budi Santoso (Bike)',       sellerId:'s11', orderRef:'#RIDE_11223344', commission_type:'driver_bike', rate:0.10, order_total:28000,   amount:2800,   status:'pending',  created_at:hAgo(3),  due_at:null,    paid_at:null,    blocked:false },
+  { id:'c12', seller:'Agus Wijaya (Bike)',        sellerId:'s12', orderRef:'#RIDE_22334455', commission_type:'driver_bike', rate:0.10, order_total:35000,   amount:3500,   status:'pending',  created_at:hAgo(5),  due_at:null,    paid_at:null,    blocked:false },
+  { id:'c13', seller:'Rizky Pratama (Car)',       sellerId:'s13', orderRef:'#RIDE_33445566', commission_type:'driver_car',  rate:0.10, order_total:85000,   amount:8500,   status:'overdue',  created_at:hAgo(350),due_at:null,    paid_at:null,    blocked:false },
+  { id:'c14', seller:'Hendra Gunawan (Car)',      sellerId:'s14', orderRef:'#RIDE_44556677', commission_type:'driver_car',  rate:0.10, order_total:120000,  amount:12000,  status:'paid',     created_at:hAgo(48), due_at:null,    paid_at:hAgo(1), blocked:false },
+]
+
+const BLOCKED_ACCOUNTS = DEMO.filter(c => c.blocked).map(c => ({
+  sellerId: c.sellerId,
+  seller:   c.seller,
+  commission_type: c.commission_type,
+  totalOwed: c.amount,
+  blockedAt: hAgo(50),
+  reason: 'Commission overdue > 72h — no response',
+}))
+
+const STATUS_TABS = ['all', 'pending', 'overdue', 'paid', 'blocked']
+const TYPE_FILTERS = [
+  { key: 'all',         label: 'All Types' },
+  { key: 'marketplace', label: '🛍️ Marketplace', rate: '5%'  },
+  { key: 'restaurant',  label: '🍽️ Restaurant',   rate: '10%' },
+  { key: 'driver_bike', label: '🚲 Bike Driver',  rate: '10%' },
+  { key: 'driver_car',  label: '🚗 Car Driver',   rate: '10%' },
+]
+
+export default function CommissionsAdminTab() {
+  const [statusTab,  setStatusTab]  = useState('all')
+  const [typeFilter, setTypeFilter] = useState('all')
+  const [data,       setData]       = useState(DEMO)
+  const [blocked,    setBlocked]    = useState(BLOCKED_ACCOUNTS)
+
+  // ── Derived stats ──────────────────────────────────────────────────────────
+  const totalOutstanding = data.filter(c => ['pending','overdue'].includes(c.status)).reduce((s,c) => s + c.amount, 0)
+  const totalOverdue     = data.filter(c => c.status === 'overdue').reduce((s,c) => s + c.amount, 0)
+  const todayPaid        = data.filter(c => c.status === 'paid' && c.paid_at && (Date.now() - new Date(c.paid_at)) < 86400000).reduce((s,c) => s + c.amount, 0)
+
+  // ── Filter ──────────────────────────────────────────────────────────────────
+  const filtered = data.filter(c => {
+    if (statusTab === 'blocked') return c.blocked
+    if (statusTab !== 'all' && c.status !== statusTab) return false
+    if (typeFilter !== 'all' && c.commission_type !== typeFilter) return false
+    return true
+  })
+
+  // ── Actions ────────────────────────────────────────────────────────────────
+  const markPaid = (id) => {
+    setData(d => d.map(c => c.id === id ? { ...c, status: 'paid', paid_at: new Date().toISOString() } : c))
+  }
+
+  const markBlocked = (id) => {
+    setData(d => d.map(c => c.id === id ? { ...c, blocked: true } : c))
+    const c = data.find(x => x.id === id)
+    if (c) setBlocked(b => [...b, { sellerId: c.sellerId, seller: c.seller, commission_type: c.commission_type, totalOwed: c.amount, blockedAt: new Date().toISOString(), reason: 'Manually blocked by admin' }])
+  }
+
+  const unblock = (sellerId) => {
+    setBlocked(b => b.filter(x => x.sellerId !== sellerId))
+    setData(d => d.map(c => c.sellerId === sellerId ? { ...c, blocked: false } : c))
+  }
+
+  const payAllOverdue = () => {
+    setData(d => d.map(c => c.status === 'overdue' ? { ...c, status: 'paid', paid_at: new Date().toISOString() } : c))
+  }
+
+  return (
+    <div className={styles.wrap}>
+
+      {/* ── Summary cards ── */}
+      <div className={styles.summaryRow}>
+        <div className={styles.summaryCard}>
+          <span className={styles.summaryLabel}>Total Outstanding</span>
+          <span className={styles.summaryValue} style={{ color: '#FF9500' }}>{fmtRp(totalOutstanding)}</span>
+          <span className={styles.summarySub}>{data.filter(c => ['pending','overdue'].includes(c.status)).length} commissions</span>
+        </div>
+        <div className={styles.summaryCard}>
+          <span className={styles.summaryLabel}>Overdue (72h+)</span>
+          <span className={styles.summaryValue} style={{ color: '#FF3B30' }}>{fmtRp(totalOverdue)}</span>
+          <span className={styles.summarySub}>{data.filter(c => c.status === 'overdue').length} sellers affected</span>
+        </div>
+        <div className={styles.summaryCard}>
+          <span className={styles.summaryLabel}>Collected Today</span>
+          <span className={styles.summaryValue} style={{ color: '#34C759' }}>{fmtRp(todayPaid)}</span>
+          <span className={styles.summarySub}>{data.filter(c => c.status === 'paid' && c.paid_at && (Date.now() - new Date(c.paid_at)) < 86400000).length} payments</span>
+        </div>
+        <div className={styles.summaryCard}>
+          <span className={styles.summaryLabel}>Blocked Accounts</span>
+          <span className={styles.summaryValue} style={{ color: '#FF3B30' }}>{blocked.length}</span>
+          <span className={styles.summarySub}>commission avoidance</span>
+        </div>
+      </div>
+
+      {/* ── 72h rule banner ── */}
+      <div className={styles.ruleBanner}>
+        <span className={styles.ruleIcon}>⏱</span>
+        <span className={styles.ruleText}>
+          <strong>72-hour rule</strong> — commissions are auto-posted to <em>Overdue</em> 72 hours after order completion.
+          Chat is locked when overdue. Account is blocked after a second missed payment.
+        </span>
+        {data.filter(c => c.status === 'overdue' && !c.blocked).length > 0 && (
+          <button className={styles.payAllBtn} onClick={payAllOverdue}>
+            ✓ Mark All Overdue as Paid
+          </button>
+        )}
+      </div>
+
+      {/* ── Status tabs ── */}
+      <div className={styles.statusTabs}>
+        {STATUS_TABS.map(t => (
+          <button
+            key={t}
+            className={`${styles.statusTab} ${statusTab === t ? styles.statusTabActive : ''}`}
+            onClick={() => setStatusTab(t)}
+          >
+            {t === 'all'     && 'All'}
+            {t === 'pending' && `⏳ Pending (${data.filter(c=>c.status==='pending').length})`}
+            {t === 'overdue' && `🔴 Overdue (${data.filter(c=>c.status==='overdue').length})`}
+            {t === 'paid'    && `✅ Paid (${data.filter(c=>c.status==='paid').length})`}
+            {t === 'blocked' && `🚫 Blocked (${blocked.length})`}
+          </button>
+        ))}
+      </div>
+
+      {/* ── Type filter row ── */}
+      {statusTab !== 'blocked' && (
+        <div className={styles.typeRow}>
+          {TYPE_FILTERS.map(f => (
+            <button
+              key={f.key}
+              className={`${styles.typeBtn} ${typeFilter === f.key ? styles.typeBtnActive : ''}`}
+              onClick={() => setTypeFilter(f.key)}
+            >
+              {f.label}
+              {f.rate && <span className={styles.rateTag}>{f.rate}</span>}
+            </button>
+          ))}
+        </div>
+      )}
+
+      {/* ── Blocked accounts list ── */}
+      {statusTab === 'blocked' && (
+        <div className={styles.blockedList}>
+          {blocked.length === 0 && (
+            <div className={styles.empty}>No blocked accounts</div>
+          )}
+          {blocked.map(b => (
+            <div key={b.sellerId} className={styles.blockedRow}>
+              <div className={styles.blockedLeft}>
+                <span className={styles.blockedName}>{b.seller}</span>
+                <span className={`${styles.typePill} ${b.commission_type === 'restaurant' ? styles.typePillFood : styles.typePillMarket}`}>
+                  {b.commission_type === 'restaurant' ? '🍽️ 10%' : '🛍️ 5%'}
+                </span>
+              </div>
+              <div className={styles.blockedMid}>
+                <span className={styles.blockedOwed}>{fmtRp(b.totalOwed)} outstanding</span>
+                <span className={styles.blockedReason}>{b.reason}</span>
+              </div>
+              <button className={styles.unblockBtn} onClick={() => unblock(b.sellerId)}>
+                Unblock
+              </button>
+            </div>
+          ))}
+        </div>
+      )}
+
+      {/* ── Commission table ── */}
+      {statusTab !== 'blocked' && (
+        <div className={styles.tableWrap}>
+          <table className={styles.table}>
+            <thead>
+              <tr>
+                <th>Seller</th>
+                <th>Type</th>
+                <th>Order Ref</th>
+                <th>Order Total</th>
+                <th>Commission</th>
+                <th>72h Window</th>
+                <th>Status</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              {filtered.length === 0 && (
+                <tr>
+                  <td colSpan={8} className={styles.emptyRow}>No commissions match this filter</td>
+                </tr>
+              )}
+              {filtered.map(c => {
+                const due = dueLabel(c.due_at)
+                return (
+                  <tr key={c.id} className={c.blocked ? styles.rowBlocked : ''}>
+                    <td className={styles.sellerCell}>
+                      <span className={styles.sellerName}>{c.seller}</span>
+                      {c.blocked && <span className={styles.blockedTag}>🚫 blocked</span>}
+                    </td>
+                    <td>
+                      <span className={`${styles.typePill} ${
+                        c.commission_type === 'restaurant'  ? styles.typePillFood  :
+                        c.commission_type === 'driver_bike' ? styles.typePillBike  :
+                        c.commission_type === 'driver_car'  ? styles.typePillCar   :
+                        styles.typePillMarket
+                      }`}>
+                        {c.commission_type === 'restaurant'  && '🍽️ 10%'}
+                        {c.commission_type === 'driver_bike' && '🚲 10%'}
+                        {c.commission_type === 'driver_car'  && '🚗 10%'}
+                        {c.commission_type === 'marketplace' && '🛍️ 5%'}
+                      </span>
+                    </td>
+                    <td className={styles.refCell}>{c.orderRef}</td>
+                    <td className={styles.numCell}>{fmtRp(c.order_total)}</td>
+                    <td className={styles.commCell}>{fmtRp(c.amount)}</td>
+                    <td>
+                      {c.commission_type?.startsWith('driver_') ? (
+                        <span className={`${styles.duePill} ${c.status === 'overdue' ? styles.duePillOverdue : styles.duePillSignIn}`}>
+                          {c.status === 'overdue' ? '🔴 14d+ overdue' : '🔑 Due: sign-in'}
+                        </span>
+                      ) : due ? (
+                        <span className={`${styles.duePill} ${due.overdue ? styles.duePillOverdue : styles.duePillOk}`}>
+                          {due.text}
+                        </span>
+                      ) : (
+                        <span className={styles.dueNa}>—</span>
+                      )}
+                    </td>
+                    <td>
+                      <span className={`${styles.statusPill} ${styles[`statusPill_${c.status}`]}`}>
+                        {c.status === 'pending' && '⏳ Pending'}
+                        {c.status === 'overdue' && '🔴 Overdue'}
+                        {c.status === 'paid'    && '✅ Paid'}
+                      </span>
+                    </td>
+                    <td>
+                      <div className={styles.actionBtns}>
+                        {(c.status === 'pending' || c.status === 'overdue') && !c.blocked && (
+                          <>
+                            <button className={styles.btnPay} onClick={() => markPaid(c.id)}>
+                              Mark Paid
+                            </button>
+                            {c.status === 'overdue' && (
+                              <button className={styles.btnBlock} onClick={() => markBlocked(c.id)}>
+                                Block
+                              </button>
+                            )}
+                          </>
+                        )}
+                        {c.status === 'paid' && (
+                          <span className={styles.paidAt}>
+                            {c.paid_at ? new Date(c.paid_at).toLocaleDateString('en-GB', { day:'numeric', month:'short' }) : '—'}
+                          </span>
+                        )}
+                        {c.blocked && (
+                          <button className={styles.btnUnblock} onClick={() => unblock(c.sellerId)}>
+                            Unblock
+                          </button>
+                        )}
+                      </div>
+                    </td>
+                  </tr>
+                )
+              })}
+            </tbody>
+          </table>
+        </div>
+      )}
+
+    </div>
+  )
+}

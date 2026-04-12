@@ -1,4 +1,5 @@
 import { supabase } from '@/lib/supabase'
+import { recordCommission } from './commissionService'
 
 // ─────────────────────────────────────────────────────────────────────────────
 // ECHO Commerce — data layer
@@ -200,9 +201,14 @@ export async function fetchOrders(userId) {
   } catch { return DEMO_ORDERS }
 }
 
-export async function updateOrderStatus(orderId, status) {
+export async function updateOrderStatus(orderId, status, { sellerId, orderTotal } = {}) {
   try {
-    await supabase.from('orders').update({ status }).eq('id', orderId)
+    await supabase?.from('orders').update({ status }).eq('id', orderId)
+
+    // Record 5% commission when seller marks order as complete
+    if (status === 'complete' && sellerId && orderTotal) {
+      await recordCommission(sellerId, orderId, orderTotal)
+    }
   } catch { /* noop */ }
 }
 
