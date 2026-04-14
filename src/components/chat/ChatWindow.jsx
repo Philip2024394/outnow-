@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect, useCallback } from 'react'
-import { filterMessage, BLOCK_MESSAGES } from '@/utils/contentFilter'
+import { filterMessage, BLOCK_MESSAGES, logViolation } from '@/utils/contentFilter'
 import { useAuth } from '@/hooks/useAuth'
 import { usePushNotifications } from '@/hooks/usePushNotifications'
 import { useMessages } from '@/hooks/useMessages'
@@ -93,6 +93,30 @@ export default function ChatWindow({ conversation: conv, allConversations = [], 
   const messagesEndRef            = useRef(null)
   const notifiedRef               = useRef(false)
   const imageInputRef             = useRef(null)
+  const prevMsgCountRef           = useRef(0)
+
+  // Chat sound notification — beeps on incoming messages
+  const playMessageSound = useCallback(() => {
+    try {
+      const ctx = new (window.AudioContext || window.webkitAudioContext)()
+      const playBeep = (time, freq) => {
+        const osc = ctx.createOscillator()
+        const gain = ctx.createGain()
+        osc.connect(gain)
+        gain.connect(ctx.destination)
+        osc.frequency.value = freq
+        osc.type = 'sine'
+        gain.gain.setValueAtTime(0.3, time)
+        gain.gain.exponentialRampToValueAtTime(0.01, time + 0.12)
+        osc.start(time)
+        osc.stop(time + 0.12)
+      }
+      const now = ctx.currentTime
+      playBeep(now, 880)
+      playBeep(now + 0.15, 1100)
+      playBeep(now + 0.30, 880)
+    } catch { /* audio not available */ }
+  }, [])
 
   // 30-day history countdown
   const daysLeft = conv.unlockedAt
@@ -115,6 +139,21 @@ export default function ChatWindow({ conversation: conv, allConversations = [], 
       { body: "Your chat is unlocked — no time limit, share contact whenever you're ready.", tag: `chat-start-${conv.id}` }
     )
   }, [firstMessageTime]) // eslint-disable-line
+
+  // Play sound on incoming messages (not own messages, not on initial load)
+  useEffect(() => {
+    if (prevMsgCountRef.current === 0) {
+      prevMsgCountRef.current = messages.length
+      return
+    }
+    if (messages.length > prevMsgCountRef.current) {
+      const newest = messages[messages.length - 1]
+      if (newest && !newest.fromMe && !newest.isSystemWarning) {
+        playMessageSound()
+      }
+    }
+    prevMsgCountRef.current = messages.length
+  }, [messages.length, playMessageSound])
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
@@ -228,7 +267,25 @@ export default function ChatWindow({ conversation: conv, allConversations = [], 
     const trimmed = text.trim()
     if (!trimmed) return
     const { blocked, reason } = filterMessage(trimmed)
-    if (blocked) { setBlockedMsg(BLOCK_MESSAGES[reason]); return }
+    if (blocked) {
+      setBlockedMsg(BLOCK_MESSAGES[reason])
+      // Log violation to admin — fire and forget
+      logViolation({
+        userId: user?.uid ?? user?.id,
+        conversationId: conv.id,
+        text: trimmed,
+        reason,
+        role: isSeller ? 'seller' : 'buyer',
+      })
+      // Insert a warning bubble into the chat so both users see it
+      setMessages(prev => [...prev, {
+        id: `warn-${Date.now()}`,
+        isSystemWarning: true,
+        text: `⚠️ Blocked: ${BLOCK_MESSAGES[reason]}\n\nAttempts to share contact information are logged and reviewed by admin. Repeated violations may result in account suspension.`,
+        time: Date.now(),
+      }])
+      return
+    }
     setText('')
     broadcastTyping(false)
     clearTimeout(typingTimeoutRef.current)
@@ -460,6 +517,20 @@ export default function ChatWindow({ conversation: conv, allConversations = [], 
 
         {/* All messages */}
         {messages.map(msg => (
+          msg.isSystemWarning ? (
+            <div key={msg.id} style={{
+              display:'flex', justifyContent:'center', padding:'8px 16px',
+            }}>
+              <div style={{
+                background:'rgba(239,68,68,0.12)', border:'1px solid rgba(239,68,68,0.3)',
+                borderRadius:12, padding:'10px 16px', maxWidth:'85%',
+                fontSize:12, lineHeight:1.5, color:'#fca5a5', textAlign:'center',
+                whiteSpace:'pre-line',
+              }}>
+                {msg.text}
+              </div>
+            </div>
+          ) :
           <div key={msg.id} className={`${styles.row} ${msg.fromMe ? styles.rowMine : styles.rowTheirs}`}>
             {!msg.fromMe && (
               <div className={styles.bubbleAvatar}>
