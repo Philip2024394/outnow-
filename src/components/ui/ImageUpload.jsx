@@ -24,6 +24,8 @@ export default function ImageUpload({
   const [uploading, setUploading] = useState(false)
   const [error, setError] = useState(null)
   const [localPreview, setLocalPreview] = useState(null)
+  const [showUrlInput, setShowUrlInput] = useState(false)
+  const [urlDraft, setUrlDraft] = useState('')
 
   const radius = shape === 'circle' ? '50%' : 10
 
@@ -42,12 +44,24 @@ export default function ImageUpload({
       const url = await uploadImage(file, folder)
       onChange?.(url)
       setLocalPreview(null)
+      setError(null)
     } catch (err) {
-      setError(err.message)
+      // Upload failed — keep the local preview and show URL paste option
+      setError(`Upload failed: ${err.message}. Paste a URL instead.`)
       setLocalPreview(null)
+      setShowUrlInput(true)
     } finally {
       setUploading(false)
     }
+  }
+
+  const handleUrlSubmit = () => {
+    const url = urlDraft.trim()
+    if (!url) return
+    onChange?.(url)
+    setUrlDraft('')
+    setShowUrlInput(false)
+    setError(null)
   }
 
   const preview = localPreview || value
@@ -124,32 +138,95 @@ export default function ImageUpload({
         onChange={handleFile}
       />
 
-      <button
-        type="button"
-        disabled={uploading}
-        onClick={() => inputRef.current?.click()}
-        style={{
-          background: `${accentColor}18`,
-          border: `1px solid ${accentColor}44`,
-          borderRadius: 7,
-          color: accentColor,
-          fontSize: 11,
-          fontWeight: 700,
-          padding: '5px 12px',
-          cursor: uploading ? 'default' : 'pointer',
-          fontFamily: 'inherit',
-          opacity: uploading ? 0.6 : 1,
-          transition: 'background 0.15s',
-          whiteSpace: 'nowrap',
-        }}
-        onMouseEnter={e => !uploading && (e.currentTarget.style.background = `${accentColor}28`)}
-        onMouseLeave={e => e.currentTarget.style.background = `${accentColor}18`}
-      >
-        {uploading ? 'Uploading…' : preview ? 'Change Photo' : 'Upload Photo'}
-      </button>
+      <div style={{ display: 'flex', gap: 6, alignItems: 'center', flexWrap: 'wrap' }}>
+        <button
+          type="button"
+          disabled={uploading}
+          onClick={() => inputRef.current?.click()}
+          style={{
+            background: `${accentColor}18`,
+            border: `1px solid ${accentColor}44`,
+            borderRadius: 7,
+            color: accentColor,
+            fontSize: 11,
+            fontWeight: 700,
+            padding: '5px 12px',
+            cursor: uploading ? 'default' : 'pointer',
+            fontFamily: 'inherit',
+            opacity: uploading ? 0.6 : 1,
+            transition: 'background 0.15s',
+            whiteSpace: 'nowrap',
+          }}
+          onMouseEnter={e => !uploading && (e.currentTarget.style.background = `${accentColor}28`)}
+          onMouseLeave={e => e.currentTarget.style.background = `${accentColor}18`}
+        >
+          {uploading ? 'Uploading…' : preview ? 'Change Photo' : 'Upload Photo'}
+        </button>
+
+        <button
+          type="button"
+          onClick={() => setShowUrlInput(v => !v)}
+          style={{
+            background: 'rgba(255,255,255,0.05)',
+            border: '1px solid rgba(255,255,255,0.15)',
+            borderRadius: 7,
+            color: 'rgba(255,255,255,0.5)',
+            fontSize: 11,
+            fontWeight: 600,
+            padding: '5px 10px',
+            cursor: 'pointer',
+            fontFamily: 'inherit',
+            whiteSpace: 'nowrap',
+          }}
+        >
+          {showUrlInput ? 'Cancel' : 'Paste URL'}
+        </button>
+      </div>
+
+      {showUrlInput && (
+        <div style={{ display: 'flex', gap: 6, width: '100%', maxWidth: 320 }}>
+          <input
+            type="url"
+            value={urlDraft}
+            onChange={e => setUrlDraft(e.target.value)}
+            onKeyDown={e => e.key === 'Enter' && handleUrlSubmit()}
+            placeholder="https://example.com/image.jpg"
+            style={{
+              flex: 1,
+              background: 'rgba(255,255,255,0.06)',
+              border: '1px solid rgba(255,255,255,0.15)',
+              borderRadius: 7,
+              color: '#fff',
+              fontSize: 12,
+              padding: '6px 10px',
+              fontFamily: 'inherit',
+              outline: 'none',
+              minWidth: 0,
+            }}
+          />
+          <button
+            type="button"
+            onClick={handleUrlSubmit}
+            style={{
+              background: `${accentColor}22`,
+              border: `1px solid ${accentColor}44`,
+              borderRadius: 7,
+              color: accentColor,
+              fontSize: 11,
+              fontWeight: 700,
+              padding: '5px 10px',
+              cursor: 'pointer',
+              fontFamily: 'inherit',
+              whiteSpace: 'nowrap',
+            }}
+          >
+            Set
+          </button>
+        </div>
+      )}
 
       {error && (
-        <span style={{ fontSize: 11, color: '#FF4444', maxWidth: 200, lineHeight: 1.4 }}>{error}</span>
+        <span style={{ fontSize: 11, color: '#FF4444', maxWidth: 300, lineHeight: 1.4 }}>{error}</span>
       )}
     </div>
   )
