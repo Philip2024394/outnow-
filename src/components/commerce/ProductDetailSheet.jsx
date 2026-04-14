@@ -2,6 +2,7 @@ import { useState, useMemo, lazy, Suspense } from 'react'
 import styles from './ProductDetailSheet.module.css'
 
 const ImageGalleryViewer = lazy(() => import('./ImageGalleryViewer'))
+const SimilarProducts = lazy(() => import('./SimilarProducts'))
 
 function formatIDR(val) {
   const n = parseFloat(val) || 0
@@ -346,6 +347,17 @@ export default function ProductDetailSheet({ product, onClose, sellerWa, sellerN
                 )
               )}
             </div>
+
+            {/* Similar products recommendation */}
+            <Suspense fallback={null}>
+              <SimilarProducts
+                currentProduct={product}
+                onSelect={(p) => {
+                  // Scroll to top and switch to the selected product
+                  // The parent component handles product switching
+                }}
+              />
+            </Suspense>
           </>
         )}
       </div>

@@ -2,6 +2,7 @@ import { useState, useEffect, useRef, useCallback } from 'react'
 import { supabase } from '@/lib/supabase'
 import { LOOKING_FOR_OPTIONS } from '@/utils/lookingForLabels'
 import { DEMO_BUSINESS_SELLERS } from '@/demo/mockData'
+import { sortProducts, sortSellers } from '@/utils/searchAlgorithm'
 import SellerProfileSheet from '@/components/commerce/SellerProfileSheet'
 import styles from './ShopSearchScreen.module.css'
 
@@ -50,6 +51,57 @@ function getCategoryLabel(lookingFor) {
   return opt ? `${opt.emoji ?? '🏪'} ${opt.label}` : '🏪 Business'
 }
 
+// ── Product card ──────────────────────────────────────────────────────────────
+function ProductCard({ product, onClick }) {
+  const price = parseFloat(product.price) || 0
+  const salePrice = parseFloat(product.sale_price) || 0
+  const hasSale = salePrice > 0 && salePrice < price
+  const discount = hasSale ? Math.round((1 - salePrice / price) * 100) : 0
+  const fmtRp = (n) => n >= 1_000_000 ? `${(n / 1_000_000).toFixed(n % 1_000_000 === 0 ? 0 : 1)}jt` : `Rp ${n.toLocaleString('id-ID')}`
+  const sellerName = product.profiles?.display_name ?? ''
+
+  return (
+    <button className={styles.card} onClick={() => onClick(product)} style={{ position:'relative' }}>
+      <div className={styles.cardImgWrap}>
+        {product.image_url
+          ? <img src={product.image_url} alt={product.name} className={styles.cardImg} />
+          : <div className={styles.cardImgFallback} style={{ fontSize:28, color:'rgba(255,255,255,0.15)' }}>📦</div>
+        }
+        {hasSale && (
+          <span style={{ position:'absolute', top:4, right:4, padding:'2px 6px', borderRadius:4, background:'rgba(239,68,68,0.9)', color:'#fff', fontSize:9, fontWeight:800 }}>
+            -{discount}%
+          </span>
+        )}
+        {product.stock === 0 && (
+          <span style={{ position:'absolute', bottom:4, left:4, padding:'2px 6px', borderRadius:4, background:'rgba(0,0,0,0.7)', color:'#ef4444', fontSize:9, fontWeight:700 }}>
+            Sold Out
+          </span>
+        )}
+      </div>
+      <div className={styles.cardBody}>
+        <div className={styles.cardName} style={{ fontSize:11, lineHeight:1.3, display:'-webkit-box', WebkitLineClamp:2, WebkitBoxOrient:'vertical', overflow:'hidden' }}>
+          {product.name}
+        </div>
+        <div style={{ padding:'2px 0', display:'flex', alignItems:'baseline', gap:4 }}>
+          {hasSale ? (
+            <>
+              <span style={{ fontSize:12, fontWeight:800, color:'#ef4444', fontFamily:'monospace' }}>{fmtRp(salePrice)}</span>
+              <span style={{ fontSize:9, textDecoration:'line-through', color:'rgba(255,255,255,0.3)' }}>{fmtRp(price)}</span>
+            </>
+          ) : (
+            <span style={{ fontSize:12, fontWeight:800, color:'#F59E0B', fontFamily:'monospace' }}>{fmtRp(price)}</span>
+          )}
+        </div>
+        {sellerName && (
+          <div style={{ fontSize:9, color:'rgba(255,255,255,0.3)', whiteSpace:'nowrap', overflow:'hidden', textOverflow:'ellipsis' }}>
+            {sellerName}{product.profiles?.city ? ` · ${product.profiles.city}` : ''}
+          </div>
+        )}
+      </div>
+    </button>
+  )
+}
+
 // ── Seller card ───────────────────────────────────────────────────────────────
 function SellerCard({ seller, onClick }) {
   return (
@@ -80,36 +132,63 @@ export default function ShopSearchScreen({ onClose, userCity, userCountry, giftF
   const [query,                  setQuery]                  = useState('')
   const [activeCategory,         setActiveCategory]         = useState('all')
   const [sellers,                setSellers]                = useState(DEMO_SELLERS)
+  const [products,               setProducts]               = useState([])
   const [loading,                setLoading]                = useState(false)
   const [selectedSeller,         setSelectedSeller]         = useState(null)
+  const [viewMode,               setViewMode]               = useState('all') // 'all' | 'products' | 'sellers'
   const [wishlistBannerDismissed, setWishlistBannerDismissed] = useState(false)
   const inputRef = useRef(null)
 
   const activeCat = SEARCH_CATEGORIES.find(c => c.id === activeCategory) ?? SEARCH_CATEGORIES[0]
 
-  const filtered = sellers
-    .filter(s => matchesCategory(s, activeCat) && matchesQuery(s, query))
-    .sort((a, b) => {
-      const score = s => (s.city === userCity ? 0 : s.country === userCountry ? 1 : 2)
-      return score(a) - score(b)
-    })
+  // Use search algorithm for relevance scoring + fair rotation
+  const filteredSellers = sortSellers(
+    sellers.filter(s => matchesCategory(s, activeCat) && matchesQuery(s, query)),
+    query, userCity, userCountry
+  )
+  const filteredProducts = sortProducts(
+    products.filter(p => {
+      if (activeCat.id === 'all') return true
+      return p.category === activeCat.id || activeCat.keywords?.some(kw => (p.name ?? '').toLowerCase().includes(kw) || (p.tags ?? []).some(t => t.toLowerCase().includes(kw)))
+    }),
+    query, userCity, userCountry
+  )
 
   const search = useCallback(async (q, catId) => {
     setLoading(true)
     try {
       const cat = SEARCH_CATEGORIES.find(c => c.id === catId) ?? SEARCH_CATEGORIES[0]
-      let dbQ = supabase
+      const like = q.trim() ? `%${q.trim()}%` : null
+
+      // Fetch sellers
+      let sellerQ = supabase
         .from('profiles')
-        .select('id,displayName,brandName,lookingFor,city,country,photoURL,bio,tags,productCondition,isOnline,bizWhatsapp')
-        .not('lookingFor', 'is', null)
-        .ilike('country', 'indonesia')
+        .select('id,displayName:display_name,brandName:brand_name,lookingFor:looking_for,city,country,photoURL:photo_url,bio,tags,productCondition:product_condition,isOnline:is_online,bizWhatsapp:biz_whatsapp,orders_filled,orders_canceled,created_at')
+        .not('looking_for', 'is', null)
         .limit(60)
-      if (cat.lookingFor?.length) dbQ = dbQ.in('lookingFor', cat.lookingFor)
-      if (q.trim()) dbQ = dbQ.or(`displayName.ilike.%${q}%,brandName.ilike.%${q}%,bio.ilike.%${q}%,city.ilike.%${q}%`)
-      const { data } = await dbQ
-      if (data && data.length > 0) setSellers(data)
-      else setSellers(DEMO_SELLERS)
-    } catch { setSellers(DEMO_SELLERS) }
+      if (cat.lookingFor?.length) sellerQ = sellerQ.in('looking_for', cat.lookingFor)
+      if (like) sellerQ = sellerQ.or(`display_name.ilike.${like},brand_name.ilike.${like},bio.ilike.${like},city.ilike.${like}`)
+
+      // Fetch products — search by name, tags, description, category
+      let productQ = supabase
+        .from('products')
+        .select('*, profiles:user_id(display_name, photo_url, city, country)')
+        .eq('active', true)
+        .limit(40)
+      if (like) productQ = productQ.or(`name.ilike.${like},description.ilike.${like},category.ilike.${like}`)
+      if (cat.id !== 'all') productQ = productQ.eq('category', cat.id)
+
+      const [sellersRes, productsRes] = await Promise.allSettled([sellerQ, productQ])
+
+      const sellerData = sellersRes.status === 'fulfilled' ? (sellersRes.value.data ?? []) : []
+      const productData = productsRes.status === 'fulfilled' ? (productsRes.value.data ?? []) : []
+
+      setSellers(sellerData.length > 0 ? sellerData : DEMO_SELLERS)
+      setProducts(productData)
+    } catch {
+      setSellers(DEMO_SELLERS)
+      setProducts([])
+    }
     setLoading(false)
   }, [])
 
@@ -212,37 +291,85 @@ export default function ShopSearchScreen({ onClose, userCity, userCountry, giftF
         ))}
       </div>
 
-      {/* ── Results info ── */}
+      {/* ── View mode toggle + results info ── */}
       <div className={styles.resultsBar}>
-        <span className={styles.resultsCount}>
-          {loading ? 'Searching…' : `${filtered.length} seller${filtered.length !== 1 ? 's' : ''}`}
-          {query ? ` · "${query}"` : ''}
-        </span>
+        <div style={{ display:'flex', gap:0, borderRadius:8, overflow:'hidden', border:'1px solid rgba(255,255,255,0.1)' }}>
+          {[
+            { id:'all',      label:'All' },
+            { id:'products', label:`Products (${filteredProducts.length})` },
+            { id:'sellers',  label:`Sellers (${filteredSellers.length})` },
+          ].map(m => (
+            <button key={m.id} onClick={() => setViewMode(m.id)}
+              style={{
+                padding:'5px 10px', fontSize:10, fontWeight:700, cursor:'pointer',
+                border:'none', fontFamily:'inherit',
+                background: viewMode === m.id ? 'rgba(245,158,11,0.2)' : 'transparent',
+                color: viewMode === m.id ? '#F59E0B' : 'rgba(255,255,255,0.35)',
+              }}
+            >{m.label}</button>
+          ))}
+        </div>
         {userCity && <span className={styles.localBadge}>📍 {userCity} first</span>}
       </div>
 
-      {/* ── Grid ── */}
-      <div className={styles.grid}>
-        {loading && Array.from({ length: 9 }).map((_, i) => (
-          <div key={i} className={styles.skeletonCard}>
-            <div className={styles.skeletonImg} />
-            <div className={styles.skeletonLine} style={{ width: '70%' }} />
-            <div className={styles.skeletonLine} style={{ width: '45%' }} />
+      {/* ── Products grid ── */}
+      {(viewMode === 'all' || viewMode === 'products') && filteredProducts.length > 0 && (
+        <>
+          {viewMode === 'all' && (
+            <div style={{ padding:'8px 16px 4px', fontSize:12, fontWeight:800, color:'#F59E0B' }}>
+              Products
+            </div>
+          )}
+          <div className={styles.grid}>
+            {filteredProducts.map(p => (
+              <ProductCard key={p.id} product={p} onClick={(prod) => {
+                // Find the seller for this product and open their profile
+                const seller = sellers.find(s => s.id === prod.user_id) ?? {
+                  id: prod.user_id,
+                  displayName: prod.profiles?.display_name ?? 'Seller',
+                  photoURL: prod.profiles?.photo_url ?? null,
+                  city: prod.profiles?.city ?? null,
+                  country: prod.profiles?.country ?? null,
+                }
+                handleSellerClick(seller)
+              }} />
+            ))}
           </div>
-        ))}
+        </>
+      )}
 
-        {!loading && filtered.map(seller => (
-          <SellerCard key={seller.id} seller={seller} onClick={handleSellerClick} />
-        ))}
+      {/* ── Sellers grid ── */}
+      {(viewMode === 'all' || viewMode === 'sellers') && (
+        <>
+          {viewMode === 'all' && filteredProducts.length > 0 && (
+            <div style={{ padding:'12px 16px 4px', fontSize:12, fontWeight:800, color:'#A78BFA' }}>
+              Sellers
+            </div>
+          )}
+          <div className={styles.grid}>
+            {loading && Array.from({ length: 9 }).map((_, i) => (
+              <div key={i} className={styles.skeletonCard}>
+                <div className={styles.skeletonImg} />
+                <div className={styles.skeletonLine} style={{ width: '70%' }} />
+                <div className={styles.skeletonLine} style={{ width: '45%' }} />
+              </div>
+            ))}
 
-        {!loading && filtered.length === 0 && (
-          <div className={styles.empty}>
-            <span>🔍</span>
-            <div>No sellers found</div>
-            <div className={styles.emptySub}>Try a different search or category</div>
+            {!loading && filteredSellers.map(seller => (
+              <SellerCard key={seller.id} seller={seller} onClick={handleSellerClick} />
+            ))}
           </div>
-        )}
-      </div>
+        </>
+      )}
+
+      {/* Empty state */}
+      {!loading && filteredSellers.length === 0 && filteredProducts.length === 0 && (
+        <div className={styles.empty} style={{ gridColumn:'1/-1' }}>
+          <span>🔍</span>
+          <div>No results found</div>
+          <div className={styles.emptySub}>Try a different search or category</div>
+        </div>
+      )}
     </div>
   )
 }
