@@ -17,6 +17,7 @@ import MessagesTab   from './tabs/MessagesTab'
 import MarketingTab  from './MarketingTab'
 import IdVerificationTab from './tabs/IdVerificationTab'
 import CommissionsAdminTab from './tabs/CommissionsAdminTab'
+import ViolationsTab from './tabs/ViolationsTab'
 
 const LOGO = 'https://ik.imagekit.io/dateme/Logo%20with%20green%20map%20pin%20element.png'
 
@@ -39,6 +40,7 @@ const NAV = [
   { id: 'notify',       icon: '🔔', label: 'Notify'       },
   { id: 'messages',     icon: '💬', label: 'Messages'     },
   { id: 'marketing',    icon: '📢', label: 'Marketing'    },
+  { id: 'violations',   icon: '🛡️', label: 'Violations',  alert: true },
 ]
 
 export default function AdminDashboard({ onLogout }) {
@@ -169,6 +171,7 @@ export default function AdminDashboard({ onLogout }) {
           {tab === 'marketing'   && <MarketingTab />}
           {tab === 'users'       && <UsersTab />}
           {tab === 'commissions' && <CommissionsAdminTab />}
+          {tab === 'violations'  && <ViolationsTab />}
         </div>
       </div>
     </div>

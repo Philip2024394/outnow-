@@ -15,6 +15,8 @@ import { useVideoCheck } from '@/hooks/useVideoCheck'
 import { useUnlocks } from '@/hooks/useUnlocks'
 import UnlockGate from './UnlockGate'
 import OrderCard from '@/components/orders/OrderCard'
+import BankDetailsCard from '@/components/orders/BankDetailsCard'
+import PaymentVerificationCard from '@/components/orders/PaymentVerificationCard'
 import styles from './ChatWindow.module.css'
 
 const IS_DEMO = import.meta.env.VITE_DEMO_MODE === 'true'
@@ -354,11 +356,145 @@ export default function ChatWindow({ conversation: conv, allConversations = [], 
           .then(() => setCommissionLocked(true))
         onConvUpdate?.({ lastMessage: `💰 ${Math.round(rate * 100)}% commission pending`, lastMessageTime: Date.now() })
       }
+      // Track seller reputation
+      if (supabase && sellerId) {
+        supabase.rpc('increment_order_filled', { p_user_id: sellerId }).catch(() => {})
+      }
+    }
+    if (newStatus === 'cancelled' && isSeller) {
+      const sellerId = user?.uid ?? user?.id
+      if (supabase && sellerId) {
+        supabase.rpc('increment_order_canceled', { p_user_id: sellerId }).catch(() => {})
+      }
     }
 
     const label = newStatus === 'confirmed' ? '✓ Order confirmed' : newStatus === 'complete' ? '✓ Order completed' : '✗ Order cancelled'
     onConvUpdate?.({ lastMessage: label, lastMessageTime: Date.now() })
   }
+
+  // ── Bank details: seller shares payment info in chat ─────────────────────
+  const handleShareBankDetails = useCallback(() => {
+    const orderMsg = messages.find(m => m.orderCard && m.orderCard.status === 'confirmed')
+    const orderRef = orderMsg?.orderCard?.ref ?? `#ORDER_${Date.now().toString().slice(-8)}`
+    const bankMsg = {
+      id: `bank-${Date.now()}`,
+      fromMe: true,
+      isBankDetails: true,
+      bankDetails: {
+        bankName: 'Set in seller settings',
+        accountNumber: '—',
+        accountName: '—',
+        reference: orderRef,
+      },
+      orderId: orderMsg?.id ?? null,
+      time: Date.now(),
+    }
+    // Try to fetch seller's actual bank details from Supabase
+    if (supabase && (user?.uid ?? user?.id)) {
+      supabase.from('seller_bank_details')
+        .select('bank_name, account_number, account_name')
+        .eq('user_id', user.uid ?? user.id)
+        .single()
+        .then(({ data }) => {
+          if (data) {
+            bankMsg.bankDetails = {
+              bankName: data.bank_name,
+              accountNumber: data.account_number,
+              accountName: data.account_name,
+              reference: orderRef,
+            }
+          }
+          setMessages(prev => [...prev, bankMsg])
+        })
+        .catch(() => setMessages(prev => [...prev, bankMsg]))
+    } else {
+      setMessages(prev => [...prev, bankMsg])
+    }
+    onConvUpdate?.({ lastMessage: '🏦 Bank details shared', lastMessageTime: Date.now() })
+  }, [messages, user, conv.id, onConvUpdate]) // eslint-disable-line
+
+  // ── Payment screenshot uploaded by buyer ────────────────────────────────
+  const handleScreenshotUploaded = useCallback(({ imageUrl, orderId }) => {
+    const verificationMsg = {
+      id: `pv-${Date.now()}`,
+      fromMe: true,
+      isPaymentVerification: true,
+      screenshotUrl: imageUrl,
+      orderId,
+      orderRef: messages.find(m => m.orderCard)?.orderCard?.ref ?? `#ORDER_${Date.now().toString().slice(-8)}`,
+      paymentStatus: 'pending_verification',
+      cancelCount: 0,
+      time: Date.now(),
+    }
+    setMessages(prev => [...prev, verificationMsg])
+    onConvUpdate?.({ lastMessage: '🧾 Payment screenshot sent', lastMessageTime: Date.now() })
+
+    // Record to Supabase
+    if (supabase) {
+      const sellerId = conv.otherUserId ?? conv.userId
+      supabase.from('payment_verifications').insert({
+        order_id: orderId ?? verificationMsg.id,
+        conversation_id: conv.id,
+        buyer_id: user?.uid ?? user?.id,
+        seller_id: sellerId,
+        screenshot_url: imageUrl,
+        status: 'pending_verification',
+      }).catch(() => {})
+    }
+  }, [messages, conv, user, onConvUpdate]) // eslint-disable-line
+
+  // ── Seller verifies payment (Order Active / Order Canceled) ─────────────
+  const handlePaymentVerify = useCallback((msgId, decision) => {
+    setMessages(prev => prev.map(m => {
+      if (m.id !== msgId) return m
+      const newCancelCount = decision === 'canceled' ? (m.cancelCount ?? 0) + 1 : m.cancelCount ?? 0
+      return { ...m, paymentStatus: decision === 'active' ? 'active' : 're_upload', cancelCount: newCancelCount }
+    }))
+
+    const sellerId = user?.uid ?? user?.id
+    const order = messages.find(m => m.orderCard)?.orderCard
+
+    if (decision === 'active') {
+      // Payment confirmed → record commission, update seller reputation
+      onConvUpdate?.({ lastMessage: '✅ Payment verified — order active', lastMessageTime: Date.now() })
+      if (sellerId && order?.total) {
+        const commType = theme === 'food' ? 'restaurant' : 'marketplace'
+        recordCommission(sellerId, order.orderId ?? msgId, order.total, commType)
+          .then(() => setCommissionLocked(true))
+      }
+      // Increment orders_filled
+      if (supabase && sellerId) {
+        supabase.rpc('increment_order_filled', { p_user_id: sellerId }).catch(() => {})
+      }
+      // Update payment_verifications status
+      if (supabase) {
+        supabase.from('payment_verifications')
+          .update({ status: 'active', verified_at: new Date().toISOString() })
+          .eq('conversation_id', conv.id)
+          .eq('status', 'pending_verification')
+          .catch(() => {})
+      }
+    } else {
+      // Canceled → buyer re-upload, counts against seller
+      onConvUpdate?.({ lastMessage: '⚠️ Payment not verified — re-upload needed', lastMessageTime: Date.now() })
+      // Increment orders_canceled on seller profile
+      if (supabase && sellerId) {
+        supabase.rpc('increment_order_canceled', { p_user_id: sellerId }).catch(() => {})
+      }
+      if (supabase) {
+        supabase.from('payment_verifications')
+          .update({ status: 'canceled', cancel_count: messages.find(m => m.id === msgId)?.cancelCount ?? 1 })
+          .eq('conversation_id', conv.id)
+          .eq('status', 'pending_verification')
+          .catch(() => {})
+      }
+    }
+  }, [messages, user, conv, theme, onConvUpdate]) // eslint-disable-line
+
+  // Check if there's a confirmed order (seller can share bank details)
+  const hasConfirmedOrder = messages.some(m => m.orderCard?.status === 'confirmed')
+  const hasBankDetails = messages.some(m => m.isBankDetails)
+  const canShareBank = isSeller && hasConfirmedOrder && !hasBankDetails
 
   const isLiked = (msg) => msg.liked || !!liked[msg.id]
 
@@ -549,6 +685,23 @@ export default function ChatWindow({ conversation: conv, allConversations = [], 
                   fromMe={msg.fromMe}
                   onStatusChange={(newStatus) => handleOrderStatusChange(msg.id, newStatus)}
                 />
+              ) : msg.isBankDetails ? (
+                <BankDetailsCard
+                  bankDetails={msg.bankDetails}
+                  fromMe={msg.fromMe}
+                  orderId={msg.orderId}
+                  onScreenshotUploaded={handleScreenshotUploaded}
+                />
+              ) : msg.isPaymentVerification ? (
+                <PaymentVerificationCard
+                  screenshotUrl={msg.screenshotUrl}
+                  orderId={msg.orderId}
+                  orderRef={msg.orderRef}
+                  fromMe={msg.fromMe}
+                  status={msg.paymentStatus}
+                  cancelCount={msg.cancelCount}
+                  onVerify={(decision) => handlePaymentVerify(msg.id, decision)}
+                />
               ) : msg.isContactReveal ? (
                 <div className={styles.revealCard}>
                   <div className={styles.revealHeader}>
@@ -715,6 +868,23 @@ export default function ChatWindow({ conversation: conv, allConversations = [], 
           <span>🔒</span>
           <span>Free chat time ended — tap to unlock and continue</span>
           <span className={styles.blockedBannerArrow}>›</span>
+        </button>
+      )}
+
+      {/* ── Share bank details prompt (seller only, after order confirmed) ── */}
+      {canShareBank && (
+        <button
+          onClick={handleShareBankDetails}
+          style={{
+            display:'flex', alignItems:'center', justifyContent:'center', gap:8,
+            width:'calc(100% - 32px)', margin:'0 16px 8px',
+            padding:'10px 16px', borderRadius:10,
+            background:'rgba(0,229,255,0.1)', border:'1px solid rgba(0,229,255,0.3)',
+            color:'#00E5FF', fontSize:13, fontWeight:700,
+            cursor:'pointer', fontFamily:'inherit',
+          }}
+        >
+          🏦 Share Bank Details for Payment
         </button>
       )}
 
