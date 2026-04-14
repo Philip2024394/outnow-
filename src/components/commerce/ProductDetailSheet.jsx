@@ -1,5 +1,7 @@
-import { useState, useMemo } from 'react'
+import { useState, useMemo, lazy, Suspense } from 'react'
 import styles from './ProductDetailSheet.module.css'
+
+const ImageGalleryViewer = lazy(() => import('./ImageGalleryViewer'))
 
 function formatIDR(val) {
   const n = parseFloat(val) || 0
@@ -19,6 +21,8 @@ export default function ProductDetailSheet({ product, onClose, sellerWa, sellerN
   const [selected,    setSelected]    = useState({})
   const [showOverlay, setShowOverlay] = useState(true)
   const [showSpecs,   setShowSpecs]   = useState(false)
+  const [galleryOpen, setGalleryOpen] = useState(false)
+  const [galleryStart, setGalleryStart] = useState(0)
 
   const activeImage = useMemo(() => {
     if (!product) return null
@@ -74,11 +78,42 @@ export default function ProductDetailSheet({ product, onClose, sellerWa, sellerN
   return (
     <div className={styles.page}>
 
-      {/* Background image */}
+      {/* Background image — tap to open gallery */}
       {activeImage
-        ? <img key={activeImage} src={activeImage} alt={product.name} className={styles.bgImg} />
+        ? <img key={activeImage} src={activeImage} alt={product.name} className={styles.bgImg} onClick={() => { setGalleryStart(0); setGalleryOpen(true) }} />
         : <div className={styles.bgFallback}><span className={styles.bgEmoji}>📦</span></div>
       }
+
+      {/* Thumbnail strip — shown when product has multiple images */}
+      {(product.images?.length > 1 || (product.variants?.color && product.variants.color.some(v => getImage(v)))) && (
+        <div style={{
+          position:'absolute', bottom:120, left:0, right:0, zIndex:5,
+          display:'flex', justifyContent:'center', gap:6, padding:'0 16px',
+        }}>
+          {(product.images ?? [activeImage]).map((url, i) => (
+            <button key={i} onClick={() => { setGalleryStart(i); setGalleryOpen(true) }}
+              style={{
+                width:44, height:44, borderRadius:8, overflow:'hidden', padding:0,
+                border: '2px solid rgba(255,255,255,0.4)', cursor:'pointer',
+                background:'#000', boxShadow:'0 2px 8px rgba(0,0,0,0.5)',
+                flexShrink:0,
+              }}>
+              <img src={url} alt="" style={{ width:'100%', height:'100%', objectFit:'cover', display:'block' }} />
+            </button>
+          ))}
+        </div>
+      )}
+
+      {/* Full-screen gallery viewer */}
+      {galleryOpen && (
+        <Suspense fallback={null}>
+          <ImageGalleryViewer
+            images={product.images ?? [activeImage].filter(Boolean)}
+            startIndex={galleryStart}
+            onClose={() => setGalleryOpen(false)}
+          />
+        </Suspense>
+      )}
 
       {/* Gradient — hidden when overlay is off so image shows fully */}
       <div className={[styles.bgGrad, showOverlay ? '' : styles.bgGradHidden].join(' ')} />
