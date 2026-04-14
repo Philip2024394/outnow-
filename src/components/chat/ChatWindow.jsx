@@ -214,9 +214,10 @@ export default function ChatWindow({ conversation: conv, allConversations = [], 
     dismissPrompt,
   } = useUnlocks(conv.id, role)
 
-  // 20-min window only applies to dating — market/food/ride are commission-gated only
-  const timeLeftMs   = isDatingTheme ? _timeLeftMs   : null
-  const chatUnlocked = isDatingTheme ? _chatUnlocked : true
+  // Chat is always free — no time limit on any theme.
+  // Social media / contact details remain behind paywall (UnlockGate).
+  const timeLeftMs   = null
+  const chatUnlocked = true
 
   // After buyer pays, auto-post seller's contact details into the conversation
   const handleBuyerUnlockComplete = useCallback(async () => {
@@ -635,13 +636,12 @@ export default function ChatWindow({ conversation: conv, allConversations = [], 
           </button>
         </div>
 
-        {/* Free chat timer notice — dating only */}
-        {isDatingTheme && !chatBlocked && (
+        {/* Chat notice — social details behind paywall */}
+        {isDatingTheme && (
           <div className={styles.headerNoticeRow}>
-            {chatUnlocked
-              ? '✅ Chat unlocked · share contact anytime'
-              : <>💬 20 min free chat&nbsp;&nbsp;{timeLeftMs != null && <span className={styles.headerNoticeTimer}>{formatCountdown(timeLeftMs)}</span>}</>
-            }
+            {contactUnlocked
+              ? '✅ Contact details unlocked'
+              : '💬 Free chat · Unlock to view social details'}
           </div>
         )}
       </div>

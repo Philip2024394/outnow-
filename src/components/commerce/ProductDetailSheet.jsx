@@ -51,19 +51,8 @@ export default function ProductDetailSheet({ product, onClose, sellerWa, sellerN
     if (onAddToCart) onAddToCart(product, variantStr)
   }
 
-  const waLink = sellerWa
-    ? (() => {
-        const variantText = variantKeys
-          .map(k => {
-            const opts = product.variants[k]
-            const sel  = selected[k] ?? getLabel(opts[0])
-            return `${k}: ${sel}`
-          })
-          .join(', ')
-        const msg = `Hi, I'm interested in *${product.name}*${variantText ? ` (${variantText})` : ''} from ${sellerName ?? 'your store'} on ECHO Shop!`
-        return `https://wa.me/${sellerWa.replace(/[^0-9]/g, '')}?text=${encodeURIComponent(msg)}`
-      })()
-    : null
+  // All orders go through in-app chat — no WhatsApp redirect
+  const waLink = null
 
   function handleSpecsBtn() {
     if (!showOverlay) {
