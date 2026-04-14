@@ -7,12 +7,10 @@ import WelcomeScreen from '@/screens/WelcomeScreen'
 import ProfileScreen from '@/screens/ProfileScreen'
 import LocationGateScreen from '@/screens/LocationGateScreen'
 import Spinner from '@/components/ui/Spinner'
-import AdminApp from '@/admin/AdminApp'
 import { GuestGateProvider } from '@/contexts/GuestGateContext'
 import { LanguageProvider } from '@/i18n'
 import LanguageToast from '@/components/ui/LanguageToast'
 import DevPanel from '@/dev/DevPanel'
-import CookieBanner from '@/components/ui/CookieBanner'
 import styles from './App.module.css'
 
 // ── Error Boundary — catches any render crash and shows a recovery screen ──
@@ -71,16 +69,7 @@ class ErrorBoundary extends Component {
 
 const LOGO_URL = 'https://ik.imagekit.io/dateme/Logo%20with%20green%20map%20pin%20element.png'
 
-// Route /admin path to the admin dashboard
-if (window.location.pathname.startsWith('/admin')) {
-  document.title = 'Hangger Admin'
-}
-
 export default function App() {
-  // Render admin dashboard for /admin route
-  if (window.location.pathname.startsWith('/admin')) {
-    return <AdminApp />
-  }
   const { user, userProfile, loading } = useAuth()
   const [guestMode, setGuestMode] = useState(false)
   const [returnParams, setReturnParams] = useState(null)
@@ -171,7 +160,6 @@ export default function App() {
     <ErrorBoundary>
       <LanguageProvider>
         <GuestGateProvider>
-          <CookieBanner />
           <DevPanel />
           <LanguageToast />
 

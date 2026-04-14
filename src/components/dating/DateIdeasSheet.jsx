@@ -151,7 +151,10 @@ export default function DateIdeasSheet({ open, _forceOpen = false, targetSession
                         '--dur':  `${1.4 + (i % 3) * 0.35}s`,
                       }}>♥</span>
                     ))}
-                    {sending ? 'Sending…' : '💕 Invite Me'}
+                    {sending
+                      ? 'Sending…'
+                      : `💕 Invite ${targetSession?.displayName?.split(' ')[0] ?? 'them'} on a date`
+                    }
                   </button>
                   <button className={styles.cancelBtn} onClick={closeModal}>Cancel</button>
                 </div>

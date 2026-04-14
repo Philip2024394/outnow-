@@ -27,7 +27,8 @@
   background-image: url('https://ik.imagekit.io/nepgaxllc/Untitledfsdfdfdf33.png?updatedAt=1775555797749');
   background-size: cover;
   background-position: center top;
-  border-right: 1px solid rgba(255, 107, 163, 0.25);
+  border-left: 2px solid rgba(255, 107, 163, 0.9);
+  border-right: 2px solid rgba(255, 107, 163, 0.9);
   box-shadow: 6px 0 48px rgba(0, 0, 0, 0.8);
   display: flex;
   flex-direction: column;
@@ -117,6 +118,25 @@
   gap: 8px;
   -webkit-overflow-scrolling: touch;
   overscroll-behavior: contain;
+  /* Pink scrollbar */
+  scrollbar-width: thin;
+  scrollbar-color: rgba(255, 107, 163, 0.7) rgba(255, 107, 163, 0.08);
+}
+
+.drawerBody::-webkit-scrollbar {
+  width: 5px;
+}
+.drawerBody::-webkit-scrollbar-track {
+  background: rgba(255, 107, 163, 0.12);
+  border-radius: 0;
+}
+.drawerBody::-webkit-scrollbar-thumb {
+  background: rgba(255, 107, 163, 0.85);
+  border-radius: 2px;
+  min-height: 48px;
+}
+.drawerBody::-webkit-scrollbar-thumb:hover {
+  background: #FF6BA3;
 }
 
 /* Section label — large category header */

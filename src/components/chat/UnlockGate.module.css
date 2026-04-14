@@ -374,3 +374,61 @@
 }
 
 .primaryBtnMarket:hover { background: #FB923C; }
+
+/* ── Dating theme ── */
+.sheetDating {
+  border-color: rgba(232, 69, 140, 0.35);
+}
+
+.iconWrapDating {
+  background: rgba(232, 69, 140, 0.12);
+  border-color: rgba(232, 69, 140, 0.35);
+}
+
+.tabActiveDating {
+  background: rgba(232, 69, 140, 0.2);
+  color: #E8458C;
+}
+
+.creditBadgeDating {
+  background: rgba(232, 69, 140, 0.1);
+  border-color: rgba(232, 69, 140, 0.3);
+}
+
+.creditBadgeDating .creditNum { color: #E8458C; }
+
+.packPriceDating { color: #E8458C; }
+
+.planPriceDating { color: #E8458C; }
+
+.primaryBtnDating {
+  background: linear-gradient(135deg, #E8458C, #f97316);
+  box-shadow: 0 4px 20px rgba(232, 69, 140, 0.4);
+}
+.primaryBtnDating:hover  { background: linear-gradient(135deg, #F06FA6, #fb923c); }
+
+.planCardDating {
+  border-color: rgba(232, 69, 140, 0.35);
+  background: rgba(232, 69, 140, 0.06);
+}
+
+.planBadgeDating {
+  background: linear-gradient(135deg, #E8458C, #f97316);
+  color: #fff;
+}
+
+.planBtnDating {
+  background: rgba(232, 69, 140, 0.1);
+  border: 1px solid rgba(232, 69, 140, 0.3);
+  color: #E8458C;
+}
+.planBtnDating:hover { background: rgba(232, 69, 140, 0.18); }
+
+.planBtnDatingPremium {
+  background: rgba(232, 69, 140, 0.18);
+  border: 1px solid rgba(232, 69, 140, 0.5);
+  color: #E8458C;
+}
+.planBtnDatingPremium:hover { background: rgba(232, 69, 140, 0.25); }
+
+.nudgeBtnDating { color: #E8458C; }

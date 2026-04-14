@@ -134,6 +134,15 @@ export default function PrivacySheet({ open, onClose }) {
             Only your first name and area are shown to other users. Your full profile is never visible until you choose to share it.
           </p>
         </div>
+
+        <div className={styles.divider}><span className={styles.dividerLabel}>Cookies & Storage</span></div>
+
+        <div className={pStyles.infoCard}>
+          <span className={pStyles.infoIcon}>🍪</span>
+          <p className={pStyles.infoText}>
+            Hangger uses essential browser storage (cookies and localStorage) solely to keep you signed in and remember your app preferences. We do not use advertising, tracking, or analytics cookies. No data is sold or shared with third parties. By using Hangger you agree to this essential use of storage as part of our Terms of Service.
+          </p>
+        </div>
       </div>
     </BottomSheet>
   )

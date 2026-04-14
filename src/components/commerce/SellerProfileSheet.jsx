@@ -17,7 +17,7 @@ function ContactIcon({ type, color }) {
   return null
 }
 
-export default function SellerProfileSheet({ seller, onClose, onOpenChat, giftFor = null, wishlistMode = false, onWishlistAdd = null, showToast }) {
+export default function SellerProfileSheet({ seller, onClose, onOpenChat, onOrderViaChat, giftFor = null, wishlistMode = false, onWishlistAdd = null, showToast }) {
   const { user } = useAuth()
   const userId = user?.uid ?? user?.id ?? null
 
@@ -136,16 +136,30 @@ export default function SellerProfileSheet({ seller, onClose, onOpenChat, giftFo
           <p className={styles.bio}>{seller.bio.slice(0, 350)}</p>
         )}
 
-        {/* Contact button */}
-        <button className={styles.contactRowBtn} onClick={() => setContactOpen(true)}>
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-            <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
-          </svg>
-          Contact &amp; Socials
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{marginLeft:'auto'}}>
-            <polyline points="9 18 15 12 9 6"/>
-          </svg>
-        </button>
+        {/* Action row — Chat + Contact */}
+        <div className={styles.actionRow}>
+          {(onOpenChat || onOrderViaChat) && (
+            <button
+              className={styles.chatBtn}
+              onClick={() => (onOpenChat ?? onOrderViaChat)?.({ seller, type: 'seller' })}
+            >
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+              </svg>
+              Chat with Seller
+            </button>
+          )}
+          <button className={styles.contactRowBtn} onClick={() => setContactOpen(true)}>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+              <circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/>
+              <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/>
+            </svg>
+            Socials
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{marginLeft:'auto'}}>
+              <polyline points="9 18 15 12 9 6"/>
+            </svg>
+          </button>
+        </div>
       </div>
 
       {/* Contact slide-up sheet */}

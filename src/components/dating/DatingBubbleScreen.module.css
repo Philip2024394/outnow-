@@ -1468,6 +1468,12 @@
 
 .matchCta:active { transform: scale(0.97); opacity: 0.9; }
 
+.matchCtaSecondary {
+  background: rgba(255, 255, 255, 0.08);
+  border: 1.5px solid rgba(255, 255, 255, 0.18);
+  color: rgba(255, 255, 255, 0.75);
+}
+
 .matchSkip {
   background: none;
   border: none;

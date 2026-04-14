@@ -358,6 +358,52 @@
   50%       { opacity: 0.55; }
 }
 
+/* ── Hangger Live button ── */
+.liveBtn {
+  position: relative;
+  width: 42px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 3px;
+  padding: 8px 4px 6px;
+  border-radius: 14px;
+  background: rgba(236, 72, 153, 0.1);
+  border: 1.5px solid rgba(236, 72, 153, 0.35);
+  color: rgba(236, 72, 153, 0.8);
+  cursor: pointer;
+  font-family: inherit;
+  -webkit-tap-highlight-color: transparent;
+  transition: transform 0.12s, background 0.15s, border-color 0.15s, color 0.15s;
+  animation: liveBtnPulse 2.8s ease-in-out infinite;
+}
+
+.liveBtn:active { transform: scale(0.88); }
+
+.liveBtnActive {
+  background: rgba(236, 72, 153, 0.22);
+  border-color: #EC4899;
+  color: #EC4899;
+  box-shadow: 0 0 16px rgba(236, 72, 153, 0.5);
+  animation: none;
+}
+
+@keyframes liveBtnPulse {
+  0%, 100% { box-shadow: 0 0 6px rgba(236, 72, 153, 0.2); }
+  50%       { box-shadow: 0 0 14px rgba(236, 72, 153, 0.5); }
+}
+
+.liveBtnLabel {
+  font-size: 8px;
+  font-weight: 800;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  line-height: 1;
+  color: inherit;
+  pointer-events: none;
+}
+
 /* ── Hangger News button ── */
 .newsBtn {
   position: relative;

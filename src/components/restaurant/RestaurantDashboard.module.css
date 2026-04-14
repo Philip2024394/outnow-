@@ -316,3 +316,98 @@
   background: rgba(141,198,63,0.08); border: 1px solid rgba(141,198,63,0.2);
   border-radius: 10px; padding: 10px 12px;
 }
+
+/* ── Orders tab ───────────────────────────────────────────────────────────── */
+.pickupCodeCard {
+  background: linear-gradient(135deg, rgba(232,69,140,0.12) 0%, rgba(192,37,106,0.08) 100%);
+  border: 1px solid rgba(232,69,140,0.3);
+  border-radius: 18px;
+  padding: 18px;
+  display: flex; flex-direction: column; gap: 8px;
+}
+.pickupCodeHeader { display: flex; flex-direction: column; gap: 3px; }
+.pickupCodeTitle  { font-size: 14px; font-weight: 900; color: #fff; }
+.pickupCodeHint   { font-size: 11px; color: rgba(255,255,255,0.4); }
+.pickupCodeValue  {
+  font-size: 36px; font-weight: 900; color: #E8458C;
+  letter-spacing: 0.3em; text-align: center;
+  padding: 10px 0;
+  font-variant-numeric: tabular-nums;
+}
+.pickupCodeNote {
+  font-size: 11px; color: rgba(255,255,255,0.4);
+  line-height: 1.5; margin: 0; text-align: center;
+}
+
+/* Order rows */
+.orderRow {
+  background: rgba(255,255,255,0.03);
+  border: 1px solid rgba(255,255,255,0.07);
+  border-radius: 14px;
+  padding: 12px 14px;
+  display: flex; flex-direction: column; gap: 6px;
+}
+.orderRowTop {
+  display: flex; align-items: center; justify-content: space-between;
+}
+.orderRef {
+  font-size: 12px; font-weight: 700; color: rgba(255,255,255,0.6);
+  letter-spacing: 0.06em;
+}
+.orderStatus {
+  font-size: 11px; font-weight: 800;
+  padding: 3px 10px; border-radius: 20px;
+  background: rgba(255,255,255,0.07);
+  color: rgba(255,255,255,0.5);
+}
+.orderStatus_confirmed      { background: rgba(245,158,11,0.15); color: #F59E0B; }
+.orderStatus_driver_heading { background: rgba(232,69,140,0.15); color: #E8458C; }
+.orderStatus_picked_up      { background: rgba(232,69,140,0.2);  color: #E8458C; }
+.orderStatus_delivered      { background: rgba(141,198,63,0.15); color: #8DC63F; }
+.orderStatus_cancelled      { background: rgba(248,113,113,0.15);color: #F87171; }
+
+.orderItems { display: flex; flex-wrap: wrap; gap: 5px; }
+.orderItem  {
+  font-size: 11px; color: rgba(255,255,255,0.7);
+  background: rgba(255,255,255,0.05);
+  border-radius: 6px; padding: 2px 8px;
+}
+.orderMeta {
+  display: flex; justify-content: space-between;
+  font-size: 11px; color: rgba(255,255,255,0.35);
+}
+
+/* Dating orders note */
+.datingOrdersNote {
+  font-size: 11px; color: rgba(255,255,255,0.4);
+  background: rgba(232,69,140,0.06);
+  border: 1px solid rgba(232,69,140,0.15);
+  border-radius: 10px; padding: 10px 13px;
+  line-height: 1.6;
+}
+
+/* Payment proof row in Orders tab */
+.paymentProofRow {
+  display: flex; flex-direction: column; gap: 8px;
+  padding-top: 8px;
+  border-top: 1px solid rgba(255,255,255,0.06);
+  margin-top: 4px;
+}
+.proofLink {
+  font-size: 12px; font-weight: 700; color: #F59E0B;
+  text-decoration: none;
+  background: rgba(245,158,11,0.08);
+  border: 1px solid rgba(245,158,11,0.2);
+  border-radius: 8px; padding: 7px 12px;
+  text-align: center;
+}
+.confirmPaymentBtn {
+  width: 100%; padding: 12px;
+  background: linear-gradient(135deg, #8DC63F 0%, #6aab1f 100%);
+  color: #fff; font-size: 13px; font-weight: 800;
+  border: none; border-radius: 12px;
+  cursor: pointer; font-family: inherit;
+  box-shadow: 0 4px 14px rgba(141,198,63,0.35);
+  transition: opacity 0.15s, transform 0.12s;
+}
+.confirmPaymentBtn:active { transform: scale(0.97); opacity: 0.9; }

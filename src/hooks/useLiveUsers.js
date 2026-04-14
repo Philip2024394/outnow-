@@ -55,6 +55,7 @@ function mapRow(row) {
     city: row.profile_city ?? row.city ?? null,
     userJoinedAt: row.profile_created_at ? new Date(row.profile_created_at).getTime() : null,
     isVerified: row.is_verified ?? false,
+    idVerified: row.id_verified ?? false,
     market: row.market ?? null,
     priceMin: row.price_min ?? null,
     priceMax: row.price_max ?? null,

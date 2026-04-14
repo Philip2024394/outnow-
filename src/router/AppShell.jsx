@@ -59,7 +59,6 @@ import OrderHistoryScreen from '@/screens/OrderHistoryScreen'
 import IncomingGiftsScreen from '@/screens/IncomingGiftsScreen'
 import ProfileScreen from '@/screens/ProfileScreen'
 import ChatScreen from '@/screens/ChatScreen'
-import MatchScreen from '@/screens/MatchScreen'
 import { DEMO_DATING_BUBBLES } from '@/demo/mockData'
 import { useNotifications } from '@/hooks/useNotifications'
 import { useAuth } from '@/hooks/useAuth'
@@ -76,6 +75,7 @@ import VibeCheckSheet      from '@/components/vibecheck/VibeCheckSheet'
 import VibeCheckBanner     from '@/components/vibecheck/VibeCheckBanner'
 import VibeBlastPage       from '@/components/vibecheck/VibeBlastPage'
 import HanggerNewsSheet    from '@/components/news/HanggerNewsSheet'
+import QAFeedScreen        from '@/components/community/QAFeedScreen'
 
 import TimeBackground from '@/components/ui/TimeBackground'
 import FloatingIcons from '@/components/home/FloatingIcons'
@@ -143,6 +143,7 @@ export default function AppShell({ returnParams, triggerGoLive }) {
     vibeCheckOpen,       setVibeCheckOpen,
     vibeBroadcastOpen,   setVibeBroadcastOpen,
     newsOpen,            setNewsOpen,
+    hanggerLiveOpen,     setHanggerLiveOpen,
     mapFilterOpen,       setMapFilterOpen,
     orderHistoryOpen,    setOrderHistoryOpen,
     incomingGiftsOpen,   setIncomingGiftsOpen,
@@ -319,6 +320,67 @@ export default function AppShell({ returnParams, triggerGoLive }) {
 
   const showToast = (message, type = 'info') => setToast({ message, type })
 
+  // ── Order via chat — shared handler for marketplace + restaurant ─────────────
+  // Called by ProductDetailSheet, SellerProfileSheet, RestaurantMenuSheet.
+  // Builds a pendingConv with an injected orderCard message then opens chat tab.
+  const handleOrderViaChat = ({ product, restaurant, variantStr, qty, items, subtotal, deliveryFee, total, notes, ref, sellerName, sellerId, seller }) => {
+    const isRestaurant = !!restaurant
+    const targetId     = isRestaurant ? (restaurant.id ?? restaurant.user_id) : (sellerId ?? seller?.id)
+    const targetName   = isRestaurant ? restaurant.name : (sellerName ?? seller?.brandName ?? seller?.displayName ?? 'Seller')
+    const targetPhoto  = isRestaurant ? (restaurant.photo ?? restaurant.image ?? null) : (seller?.photoURL ?? null)
+    const convId       = `order-${isRestaurant ? 'restaurant' : 'marketplace'}-${targetId}`
+    const orderRef     = ref ?? `#${isRestaurant ? 'MAKAN' : 'SHOP'}_${Date.now().toString().slice(-8)}`
+
+    // Build items array for marketplace single-product orders
+    const orderItems = items ?? (product ? [{
+      name:    product.name,
+      qty:     qty ?? 1,
+      price:   product.price ?? 0,
+      variant: variantStr ?? null,
+    }] : [])
+
+    const orderSubtotal = subtotal ?? orderItems.reduce((s, i) => s + (i.price * i.qty), 0)
+    const orderTotal    = total    ?? orderSubtotal + (deliveryFee ?? 0)
+
+    const orderCard = {
+      type:        isRestaurant ? 'restaurant' : 'marketplace',
+      ref:         orderRef,
+      sellerName:  targetName,
+      sellerId:    targetId,
+      items:       orderItems,
+      subtotal:    orderSubtotal,
+      deliveryFee: deliveryFee ?? null,
+      total:       orderTotal,
+      notes:       notes ?? '',
+      status:      'pending',
+      updatedAt:   Date.now(),
+    }
+
+    const openingMsg = {
+      id:        `order-${Date.now()}`,
+      senderId:  user?.id ?? 'me',
+      fromMe:    true,
+      orderCard,
+      time:      Date.now(),
+    }
+
+    setPendingConv({
+      id:              convId,
+      userId:          targetId,
+      displayName:     targetName,
+      photoURL:        targetPhoto,
+      emoji:           isRestaurant ? '🍽️' : '🛍️',
+      online:          true,
+      status:          'free',
+      openedAt:        Date.now(),
+      lastMessage:     `${isRestaurant ? '🍽️' : '🛍️'} Order ${orderRef}`,
+      lastMessageTime: Date.now(),
+      unread:          0,
+      messages:        [openingMsg],
+    })
+    setActiveTab('chat')
+  }
+
   return (
     <div className={styles.shell}>
       {/* Time-based background fills full screen */}
@@ -374,7 +436,7 @@ export default function AppShell({ returnParams, triggerGoLive }) {
         mutualSessions={mutualSessions}
         myProfile={userProfile}
         onClose={() => setDatingGridOpen(false)}
-        onSelectSession={(s) => { handleOpenDiscovery(s) }}
+        onSelectSession={(s) => { setDatingGridOpen(false); handleOpenDiscovery(s) }}
         onOpenDateIdeas={(s) => { setDatingGridOpen(false); setDateIdeasTarget(s); setDateIdeasOpen(true) }}
         onConnect={(session) => {
           closeOverlay()
@@ -402,10 +464,9 @@ export default function AppShell({ returnParams, triggerGoLive }) {
       />
 
       {/* Full-screen tab screens */}
-      {activeTab === 'match'   && <MatchScreen   onClose={() => setActiveTab('map')} />}
       {activeTab === 'chat'    && <ChatScreen key={pendingConv?.id ?? 'chat'} onClose={() => setActiveTab('map')} pendingConv={pendingConv} />}
       {activeTab === 'profile' && <ProfileScreen onClose={() => setActiveTab('map')} onOpenSettings={() => setSettingsOpen(true)} />}
-      {activeTab === 'shopping' && <ShopSearchScreen onClose={() => { setActiveTab('map'); setGiftForSession(null) }} userCity={userProfile?.city} userCountry={userProfile?.country} giftFor={giftForSession} onGiftDismiss={() => setGiftForSession(null)} showToast={showToast} />}
+      {activeTab === 'shopping' && <ShopSearchScreen onClose={() => { setActiveTab('map'); setGiftForSession(null) }} userCity={userProfile?.city} userCountry={userProfile?.country} giftFor={giftForSession} onGiftDismiss={() => setGiftForSession(null)} showToast={showToast} onOrderViaChat={handleOrderViaChat} />}
 
       <div className="map-top-fade" />
       <div className="map-bottom-fade" />
@@ -618,6 +679,8 @@ export default function AppShell({ returnParams, triggerGoLive }) {
           vibeBroadcastActive={vibeBroadcastOpen}
           onNews={() => setNewsOpen(true)}
           newsActive={newsOpen}
+          onHanggerLive={() => setHanggerLiveOpen(true)}
+          hanggerLiveActive={hanggerLiveOpen}
           driverOnline={driverOnline}
           onToggleDriverStatus={() => {
             if (driverOnline === null) return
@@ -654,6 +717,7 @@ export default function AppShell({ returnParams, triggerGoLive }) {
           scrollToId={foodScrollToId}
           onBackToCategories={() => setFoodBrowseOpen(false)}
           onClose={() => { setFoodBrowseOpen(false); setFoodOpen(false) }}
+          onOrderViaChat={handleOrderViaChat}
         />
       )}
 
@@ -703,45 +767,63 @@ export default function AppShell({ returnParams, triggerGoLive }) {
           closeOverlay()   // close DiscoveryCard so banner (z-index 900) is not blocked by it (z-index 9300)
           simulateAcceptance(session)
         }}
-        onConnect={(session) => {
+        onConnect={(session, firstMessage) => {
           closeOverlay()
           setDatingGridOpen(false)
-          const myName    = userProfile?.displayName ?? user?.displayName ?? 'Someone'
-          const myAge     = userProfile?.age ?? null
-          const myCountry = userProfile?.country ?? null
-          const myFor     = userProfile?.lookingFor ?? session.lookingFor ?? null
-          const lookingForLabel = myFor
-            ? myFor.replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase())
-            : null
-          const introParts = [
-            `Hi! I'm ${myName}`,
-            myAge     ? `${myAge} years old` : null,
-            myCountry ? `from ${myCountry}`  : null,
-            lookingForLabel ? `looking for ${lookingForLabel}` : null,
-          ].filter(Boolean)
-          const introText = introParts.join(', ') + ' 👋'
-          const introMsg = {
+          // Use user's typed message if provided, otherwise build auto-intro
+          let openingText = firstMessage ?? null
+          if (!openingText) {
+            const myName    = userProfile?.displayName ?? user?.displayName ?? 'Someone'
+            const myAge     = userProfile?.age ?? null
+            const myCountry = userProfile?.country ?? null
+            const myFor     = userProfile?.lookingFor ?? session.lookingFor ?? null
+            const lookingForLabel = myFor
+              ? myFor.replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase())
+              : null
+            const introParts = [
+              `Hi! I'm ${myName}`,
+              myAge     ? `${myAge} years old` : null,
+              myCountry ? `from ${myCountry}`  : null,
+              lookingForLabel ? `looking for ${lookingForLabel}` : null,
+            ].filter(Boolean)
+            openingText = introParts.join(', ') + ' 👋'
+          }
+          const openingMsg = {
             id:       `intro-${Date.now()}`,
             senderId: user?.id ?? 'me',
-            text:     introText,
+            text:     openingText,
             time:     Date.now(),
-            isMe:     true,
+            fromMe:   true,
           }
-          setPendingConv({
-            id: `dating-${session.userId ?? session.id}`,
-            userId: session.userId ?? session.id,
-            displayName: session.displayName ?? 'New Match',
-            photoURL: session.photoURL ?? null,
-            age: session.age ?? null,
-            area: session.area ?? session.city ?? null,
-            emoji: '💕',
-            online: true,
-            status: 'free',
-            openedAt: Date.now(),
-            lastMessage: introText,
-            lastMessageTime: Date.now(),
-            unread: 0,
-            messages: [introMsg],
+          const convId = `dating-${session.userId ?? session.id}`
+          setPendingConv(prev => {
+            // If same conv already open (re-open from connected state), keep messages
+            if (prev?.id === convId) {
+              const alreadyHas = prev.messages?.some(m => m.text === openingText)
+              return {
+                ...prev,
+                openedAt: prev.openedAt ?? Date.now(),
+                messages: alreadyHas || !firstMessage ? prev.messages : [...(prev.messages ?? []), openingMsg],
+                lastMessage: openingText,
+                lastMessageTime: Date.now(),
+              }
+            }
+            return {
+              id: convId,
+              userId: session.userId ?? session.id,
+              displayName: session.displayName ?? 'New Match',
+              photoURL: session.photoURL ?? null,
+              age: session.age ?? null,
+              area: session.area ?? session.city ?? null,
+              emoji: '💕',
+              online: true,
+              status: 'free',
+              openedAt: Date.now(),
+              lastMessage: openingText,
+              lastMessageTime: Date.now(),
+              unread: 0,
+              messages: [openingMsg],
+            }
           })
           setActiveTab('chat')
         }}
@@ -921,6 +1003,53 @@ export default function AppShell({ returnParams, triggerGoLive }) {
       <HanggerNewsSheet
         open={newsOpen}
         onClose={() => setNewsOpen(false)}
+      />
+
+      <QAFeedScreen
+        mode="live"
+        open={hanggerLiveOpen}
+        onClose={() => setHanggerLiveOpen(false)}
+        onOrderViaChat={handleOrderViaChat}
+        user={user}
+        viewerSession={null}
+        viewerProfile={userProfile ?? null}
+        targetUserId={null}
+        onConnect={(profile) => {
+          setHanggerLiveOpen(false)
+          // Reuse the dating card connect flow — profile shape is compatible
+          const session = {
+            userId:      profile.userId,
+            displayName: profile.displayName,
+            photoURL:    profile.photoURL ?? null,
+            age:         profile.age ?? null,
+            area:        profile.city ?? profile.area ?? null,
+          }
+          const myName    = userProfile?.displayName ?? user?.displayName ?? 'Someone'
+          const openingText = `Hi ${profile.displayName?.split(' ')[0] ?? 'there'}! I found you on Hangger Live 👋 I'm ${myName}`
+          const openingMsg = {
+            id:       `intro-${Date.now()}`,
+            senderId: user?.id ?? 'me',
+            text:     openingText,
+            time:     Date.now(),
+            fromMe:   true,
+          }
+          const convId = `live-${profile.userId}`
+          setPendingConv(prev => {
+            if (prev?.id === convId) return prev
+            return {
+              id: convId,
+              ...session,
+              emoji: '💬',
+              online: true,
+              status: 'free',
+              openedAt: Date.now(),
+              lastMessage: openingText,
+              lastMessageTime: Date.now(),
+              messages: [openingMsg],
+            }
+          })
+          setActiveTab('chat')
+        }}
       />
 
       <RatingSheet

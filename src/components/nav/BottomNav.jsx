@@ -6,7 +6,7 @@ const RING_R    = 20          // SVG circle radius
 const RING_CIRC = 2 * Math.PI * RING_R  // ≈ 125.7
 const HOLD_MS   = 3000
 
-export default function BottomNav({ activeTab = 'map', userPhotoURL, userName, isLive = false, isInviteOut = false, onProfileTap, onSOS, onVibeBroadcast, vibeBroadcastActive = false, onNews, newsActive = false, driverOnline = null, onToggleDriverStatus }) {
+export default function BottomNav({ activeTab = 'map', userPhotoURL, userName, isLive = false, isInviteOut = false, onProfileTap, onSOS, onVibeBroadcast, vibeBroadcastActive = false, onNews, newsActive = false, driverOnline = null, onToggleDriverStatus, onHanggerLive, hanggerLiveActive = false }) {
   const holdRef      = useRef(null)
   const frameRef     = useRef(null)
   const startRef     = useRef(null)
@@ -72,6 +72,22 @@ export default function BottomNav({ activeTab = 'map', userPhotoURL, userName, i
       </button>
 
       {/* placeholder — TABS array kept for future use */}
+
+      {/* Hangger Live */}
+      <button
+        className={`${styles.liveBtn} ${hanggerLiveActive ? styles.liveBtnActive : ''}`}
+        onClick={onHanggerLive}
+        aria-label="Hangger Live"
+      >
+        <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+          <circle cx="12" cy="12" r="2"/>
+          <path d="M16.24 7.76a6 6 0 0 1 0 8.49"/>
+          <path d="M7.76 7.76a6 6 0 0 0 0 8.49"/>
+          <path d="M19.07 4.93a10 10 0 0 1 0 14.14"/>
+          <path d="M4.93 4.93a10 10 0 0 0 0 14.14"/>
+        </svg>
+        <span className={styles.liveBtnLabel}>Live</span>
+      </button>
 
       {/* Hangger News */}
       <button

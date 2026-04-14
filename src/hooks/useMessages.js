@@ -11,6 +11,7 @@ function mapMsg(row, myUid) {
     imageURL: row.image_url ?? null,
     contactType: row.contact_type ?? null,
     contactValue: row.contact_value ?? null,
+    orderCard: row.order_card ?? null,
     liked: row.liked ?? false,
     time: new Date(row.created_at).getTime(),
   }
@@ -27,7 +28,8 @@ export function useMessages(conversationId, demoMessages = []) {
         conversationId.startsWith('conv-') ||
         conversationId.startsWith('meet-') ||
         conversationId.startsWith('dating-') ||
-        conversationId.startsWith('notif-')) {
+        conversationId.startsWith('notif-') ||
+        conversationId.startsWith('order-')) {
       setMessages(demoMessages)
       return
     }

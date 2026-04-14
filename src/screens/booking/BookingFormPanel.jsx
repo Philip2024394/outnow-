@@ -96,6 +96,12 @@ function LocationField({ label, query, setQuery, value, setValue, showSuggest, s
   )
 }
 
+function gpsDistanceKm(lat1, lng1, lat2, lng2) {
+  const dLat = (lat2 - lat1) * 111
+  const dLng = (lng2 - lng1) * 111 * Math.cos(lat1 * Math.PI / 180)
+  return Math.sqrt(dLat * dLat + dLng * dLng)
+}
+
 export default function BookingFormPanel({
   vehicleType, setVehicleType, setHasPickedVehicle,
   pickupQuery, setPickupQuery,
@@ -106,11 +112,18 @@ export default function BookingFormPanel({
   destination, setDestination,
   showDestSuggest, setShowDestSuggest,
   pickupCoords,
+  gpsCoords,
   fare, distanceKm,
   formatRp, estimateFare,
   zones, settings,
   handleFindDriver,
 }) {
+  const isManualPickup = pickup && pickup.address !== 'Current location (GPS)'
+  const gpsMismatchKm  = isManualPickup && gpsCoords && pickup.lat && pickup.lng
+    ? gpsDistanceKm(pickup.lat, pickup.lng, gpsCoords.lat, gpsCoords.lng)
+    : 0
+  const showMismatch = gpsMismatchKm > 1
+
   return (
     <div className={styles.body}>
       <DriverMap userCoords={pickupCoords} driverType={vehicleType} selectedDriverId={null} />
@@ -167,6 +180,13 @@ export default function BookingFormPanel({
           onGps={handleGps}
         />
       </div>
+
+      {/* GPS mismatch warning */}
+      {showMismatch && (
+        <div className={styles.gpsMismatchWarn}>
+          ⚠️ Your pickup is {gpsMismatchKm.toFixed(1)} km from your GPS position — is this correct?
+        </div>
+      )}
 
       {/* Fare preview */}
       <div className={styles.fareRow}>

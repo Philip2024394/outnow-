@@ -87,7 +87,7 @@ function randomEntry(W, H) {
 // ─────────────────────────────────────────────────────────────────────────────
 export default function DatingBubbleScreen({
   open, activity, sessions = [], mutualSessions, myProfile,
-  onClose, onSelectSession,
+  onClose, onSelectSession, onConnect,
 }) {
   const { user }                          = useAuth()
   const { saveLike, removeLike, isLiked } = useLikedProfiles()
@@ -538,7 +538,7 @@ export default function DatingBubbleScreen({
 
       {/* ── Priority card — floats from bottom-right ── */}
       {priorityCard && !filterOpen && (
-        <div className={styles.priorityCard} onClick={() => { setPriorityCard(null); onSelectSession(priorityCard) }}>
+        <div className={styles.priorityCard} onClick={() => { setPriorityCard(null); onConnect ? onConnect(priorityCard) : onSelectSession(priorityCard) }}>
           <div className={styles.priorityAvatar}>
             {(priorityCard.photos?.[0] ?? priorityCard.photoURL)
               ? <img src={priorityCard.photos?.[0] ?? priorityCard.photoURL} alt={priorityCard.displayName} className={styles.priorityAvatarImg} />
@@ -779,7 +779,12 @@ export default function DatingBubbleScreen({
                 }
               </div>
             </div>
-            <button className={styles.matchCta} onClick={() => { setMatchSession(null); onSelectSession(matchSession) }}>View Profile</button>
+            {onConnect && (
+              <button className={styles.matchCta} onClick={() => { setMatchSession(null); onConnect(matchSession) }}>
+                💬 Chat Now
+              </button>
+            )}
+            <button className={`${styles.matchCta} ${onConnect ? styles.matchCtaSecondary : ''}`} onClick={() => { setMatchSession(null); onSelectSession(matchSession) }}>View Profile</button>
             <button className={styles.matchSkip} onClick={() => setMatchSession(null)}>Maybe later</button>
           </div>
         </div>

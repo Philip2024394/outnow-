@@ -76,7 +76,7 @@ function SellerCard({ seller, onClick }) {
 }
 
 // ── Main screen ───────────────────────────────────────────────────────────────
-export default function ShopSearchScreen({ onClose, userCity, userCountry, giftFor, onGiftDismiss, wishlistMode = false, onWishlistSelectSeller, showToast }) {
+export default function ShopSearchScreen({ onClose, userCity, userCountry, giftFor, onGiftDismiss, wishlistMode = false, onWishlistSelectSeller, showToast, onOrderViaChat }) {
   const [query,                  setQuery]                  = useState('')
   const [activeCategory,         setActiveCategory]         = useState('all')
   const [sellers,                setSellers]                = useState(DEMO_SELLERS)
@@ -126,6 +126,7 @@ export default function ShopSearchScreen({ onClose, userCity, userCountry, giftF
         onClose={() => setSelectedSeller(null)}
         giftFor={giftFor ?? null}
         showToast={showToast}
+        onOrderViaChat={onOrderViaChat ?? null}
       />
     )
   }

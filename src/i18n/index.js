@@ -14,10 +14,9 @@ export const LANGUAGES = [
 const TRANSLATIONS = { en, id, ar, zh }
 const STORAGE_KEY  = 'hangger_lang'
 
-/** Detect best default language from browser settings */
+/** Default to Indonesian — respects any previously saved preference */
 function detectLang() {
-  // Locked to English until go-live — restore browser detection after launch
-  return 'en'
+  return localStorage.getItem(STORAGE_KEY) ?? 'id'
 }
 
 const LanguageContext = createContext({

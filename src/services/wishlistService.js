@@ -8,6 +8,57 @@ import { supabase } from '@/lib/supabase'
 
 const DEMO_WISHLIST = []
 
+const DEMO_FOOD_WISHLIST = [
+  {
+    id:               'demo-food-1',
+    product_id:       'demo-food-1',
+    product_name:     'Nasi Goreng Special',
+    product_price:    45000,
+    product_currency: 'IDR',
+    product_image:    'https://images.unsplash.com/photo-1512058564366-18510be2db19?w=300&q=70',
+    seller_name:      'Warung Bu Sri',
+    seller_id:        'demo-seller-1',
+    seller_wa:        null,
+    item_type:        'food',
+  },
+  {
+    id:               'demo-food-2',
+    product_id:       'demo-food-2',
+    product_name:     'Pad Thai Prawn',
+    product_price:    72000,
+    product_currency: 'IDR',
+    product_image:    'https://images.unsplash.com/photo-1559314809-0d155014e29e?w=300&q=70',
+    seller_name:      'Bangkok Street',
+    seller_id:        'demo-seller-2',
+    seller_wa:        null,
+    item_type:        'food',
+  },
+  {
+    id:               'demo-food-3',
+    product_id:       'demo-food-3',
+    product_name:     'Matcha Latte',
+    product_price:    38000,
+    product_currency: 'IDR',
+    product_image:    'https://images.unsplash.com/photo-1515823064-d6e0c04616a7?w=300&q=70',
+    seller_name:      'Kafe Hijau',
+    seller_id:        'demo-seller-3',
+    seller_wa:        null,
+    item_type:        'food',
+  },
+  {
+    id:               'demo-food-4',
+    product_id:       'demo-food-4',
+    product_name:     'Beef Ramen',
+    product_price:    89000,
+    product_currency: 'IDR',
+    product_image:    'https://images.unsplash.com/photo-1569718212165-3a8278d5f624?w=300&q=70',
+    seller_name:      'Ramen Taro',
+    seller_id:        'demo-seller-4',
+    seller_wa:        null,
+    item_type:        'food',
+  },
+]
+
 // ── Add ───────────────────────────────────────────────────────────────────────
 
 /**
@@ -62,13 +113,15 @@ export async function getMyWishlist(userId, itemType = 'product') {
 
 /** Fetch any user's public wishlist for a given type (for buyers viewing a profile). */
 export async function getProfileWishlist(userId, itemType = 'product') {
-  if (!supabase) return DEMO_WISHLIST
+  if (!supabase) return itemType === 'food' ? DEMO_FOOD_WISHLIST : DEMO_WISHLIST
   const { data } = await supabase
     .from('profile_wishlists')
     .select('*')
     .eq('user_id', userId)
     .eq('item_type', itemType)
     .order('added_at', { ascending: true })
+  // Fall back to demo items so the food slider always shows on dating profiles
+  if (itemType === 'food' && (!data || data.length === 0)) return DEMO_FOOD_WISHLIST
   return data ?? []
 }
 

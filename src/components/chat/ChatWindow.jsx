@@ -159,7 +159,7 @@ export default function ChatWindow({ conversation: conv, allConversations = [], 
   const contactUnlocked = conv.status === 'unlocked'
 
   // ── 20-min free chat + unlock system (dating only) ───────────────────────
-  const isDating = chatTheme === 'dating'
+  const isDatingTheme = theme === 'dating'
   const [unlockGateOpen, setUnlockGateOpen] = useState(false)
   const isBuyer = role === 'buyer'
   const {
@@ -173,8 +173,8 @@ export default function ChatWindow({ conversation: conv, allConversations = [], 
   } = useUnlocks(conv.id, role)
 
   // 20-min window only applies to dating — market/food/ride are commission-gated only
-  const timeLeftMs   = isDating ? _timeLeftMs   : null
-  const chatUnlocked = isDating ? _chatUnlocked : true
+  const timeLeftMs   = isDatingTheme ? _timeLeftMs   : null
+  const chatUnlocked = isDatingTheme ? _chatUnlocked : true
 
   // After buyer pays, auto-post seller's contact details into the conversation
   const handleBuyerUnlockComplete = useCallback(async () => {
@@ -192,8 +192,8 @@ export default function ChatWindow({ conversation: conv, allConversations = [], 
 
   // Auto-open gate when prompt fires — dating only
   useEffect(() => {
-    if (isDating && showUnlockPrompt) setUnlockGateOpen(true)
-  }, [isDating, showUnlockPrompt])
+    if (isDatingTheme && showUnlockPrompt) setUnlockGateOpen(true)
+  }, [isDatingTheme, showUnlockPrompt])
 
   // Block sending when time is up — dating only (market/food: commission lock handles it)
   const chatBlocked = !chatUnlocked && timeLeftMs !== null && timeLeftMs <= 0
@@ -387,7 +387,7 @@ export default function ChatWindow({ conversation: conv, allConversations = [], 
         </div>
 
         {/* Free chat timer notice — dating only */}
-        {isDating && !chatBlocked && (
+        {isDatingTheme && !chatBlocked && (
           <div className={styles.headerNoticeRow}>
             {chatUnlocked
               ? '✅ Chat unlocked · share contact anytime'
@@ -723,7 +723,7 @@ export default function ChatWindow({ conversation: conv, allConversations = [], 
       />
 
       {/* ── Unlock gate modal — dating only ── */}
-      {isDating && unlockGateOpen && (
+      {isDatingTheme && unlockGateOpen && (
         <UnlockGate
           unlockBalance={unlockBalance}
           isBuyer={isBuyer}

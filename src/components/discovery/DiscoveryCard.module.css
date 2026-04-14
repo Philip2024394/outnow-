@@ -181,14 +181,14 @@
 }
 .sideBtn {
   display: flex;
-  flex-direction: column;
   align-items: center;
-  gap: 3px;
-  width: 56px;
-  padding: 10px 6px 8px;
+  justify-content: center;
+  width: 46px;
+  height: 46px;
+  padding: 0;
   background: rgba(0,0,0,0.52);
   border: 1px solid rgba(255,255,255,0.14);
-  border-radius: 18px;
+  border-radius: 50%;
   cursor: pointer;
   backdrop-filter: blur(16px) saturate(1.6);
   -webkit-backdrop-filter: blur(16px) saturate(1.6);
@@ -211,14 +211,7 @@
   50%      { box-shadow: inset 0 1px 0 rgba(255,255,255,0.1), 0 0 0 8px rgba(141,198,63,0); }
 }
 .sideBtnEmoji { font-size: 22px; line-height: 1; }
-.sideBtnLabel {
-  font-size: 8px;
-  font-weight: 800;
-  color: rgba(255,255,255,0.65);
-  text-transform: uppercase;
-  letter-spacing: 0.04em;
-  line-height: 1;
-}
+.sideBtnLabel { display: none; }
 
 /* ── Floating hearts ─────────────────────────────────────────────────────────── */
 .floatingHeart {

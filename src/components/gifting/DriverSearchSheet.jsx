@@ -15,6 +15,26 @@ import styles from './DriverSearchSheet.module.css'
 
 function fmtRp(n) { return `Rp ${Number(n).toLocaleString('id-ID')}` }
 
+// Images 0–3 loop while searching. Images 4–5 play once (in order) when driver
+// is found, acting as a cinematic bridge before the driver card appears.
+const NIGHT_LOOP_IMAGES = [
+  'https://ik.imagekit.io/nepgaxllc/Indonesia%20at%20night_%20map%20transforms%20to%20city.png',
+  'https://ik.imagekit.io/nepgaxllc/Untitledfsdf.png?updatedAt=1775555383465',
+  'https://ik.imagekit.io/nepgaxllc/Night%20view%20of%20Kota%20Tua%20Jakarta.png',
+  'https://ik.imagekit.io/nepgaxllc/Tropical%20night%20road%20by%20the%20sea.png',
+]
+const NIGHT_FOUND_IMAGES = [
+  'https://ik.imagekit.io/nepgaxllc/Motorcyclist%20heading%20towards%20Borobudur%20at%20night.png', // driver walking to bike
+  'https://ik.imagekit.io/nepgaxllc/Night%20ride%20towards%20Borobudur%20temple.png',               // driver riding
+]
+// Combined for index-based rendering
+const NIGHT_ALL_IMAGES = [...NIGHT_LOOP_IMAGES, ...NIGHT_FOUND_IMAGES]
+
+function isNightWIB() {
+  const hourWIB = (new Date().getUTCHours() + 7) % 24
+  return hourWIB >= 18 || hourWIB < 6
+}
+
 export default function DriverSearchSheet({
   open,
   restaurant,
@@ -28,14 +48,29 @@ export default function DriverSearchSheet({
   _forceDriver,  // dev-only: pre-fill driver for 'found' phase
 }) {
   const { user } = useAuth()
-  const [phase,    setPhase]   = useState('searching') // searching | found | no_drivers | confirming
+  const [phase,    setPhase]   = useState('searching')
   const [driver,   setDriver]  = useState(_forceDriver ?? null)
   const [error,    setError]   = useState(null)
   const [foundSec, setFoundSec] = useState(null)
-  const searchStart = useRef(null)
+  const searchStart   = useRef(null)
+  const slideshowRef  = useRef(null)
+  const cinematicRefs = useRef([])
+
+  // Single index — all 6 image divs always in DOM, only active one is opacity 1.
+  // CSS transition handles the cross-fade automatically — no slot swapping needed.
+  const [bgIdx, setBgIdx] = useState(0)
+
+  // In dev/demo always show night slideshow so all images are testable
+  const nightMode = import.meta.env.DEV || import.meta.env.VITE_DEMO_MODE === 'true' || isNightWIB()
 
   const subtotal = items?.reduce((s, i) => s + i.price * i.qty, 0) ?? 0
   const total    = subtotal + (deliveryFee ?? 0)
+
+  // Cleanup on unmount
+  useEffect(() => () => {
+    clearInterval(slideshowRef.current)
+    cinematicRefs.current.forEach(clearTimeout)
+  }, [])
 
   // Run driver search when sheet opens
   useEffect(() => {
@@ -45,22 +80,46 @@ export default function DriverSearchSheet({
     setDriver(null)
     setError(null)
     setFoundSec(null)
+    setBgIdx(0)
+    clearInterval(slideshowRef.current)
+    cinematicRefs.current.forEach(clearTimeout)
+    cinematicRefs.current = []
     searchStart.current = Date.now()
     runSearch()
   }, [open]) // eslint-disable-line react-hooks/exhaustive-deps
 
+  // Loop images 0–3 every 3s while searching
+  useEffect(() => {
+    if (phase !== 'searching' || !nightMode) return
+    slideshowRef.current = setInterval(() => {
+      setBgIdx(i => (i + 1) % NIGHT_LOOP_IMAGES.length)
+    }, 3000)
+    return () => clearInterval(slideshowRef.current)
+  }, [phase, nightMode])
+
   async function runSearch() {
-    // Minimum 8s of searching animation
     const [drivers] = await Promise.all([
       searchFoodDrivers(restaurant?.lat, restaurant?.lng),
       new Promise(r => setTimeout(r, 8000)),
     ])
     const available = drivers.filter(d => !d.driver_busy)
     if (available.length === 0) { setPhase('no_drivers'); return }
+
     const elapsed = Math.round((Date.now() - (searchStart.current ?? Date.now())) / 1000)
     setFoundSec(elapsed)
     setDriver(available[0])
-    setPhase('found')
+
+    if (nightMode) {
+      // Stop loop, play cinematic: image 4 (3s) → image 5 (3s) → found
+      clearInterval(slideshowRef.current)
+      setBgIdx(4)
+      cinematicRefs.current = [
+        setTimeout(() => setBgIdx(5),        3000),
+        setTimeout(() => setPhase('found'),  6000),
+      ]
+    } else {
+      setPhase('found')
+    }
   }
 
   async function handleConfirm() {
@@ -86,9 +145,30 @@ export default function DriverSearchSheet({
 
   if (!open) return null
 
+  const foundBg = phase === 'found'
+    ? (nightMode ? styles.sheetFoundNight : styles.sheetFound)
+    : ''
+
   return (
     <div className={styles.backdrop}>
-      <div className={styles.sheet}>
+      <div className={`${styles.sheet} ${foundBg}`}>
+
+        {/* Night slideshow — all 6 images always in DOM, active one = opacity 1 */}
+        {phase === 'searching' && nightMode && (
+          <div className={styles.nightBgContainer}>
+            {NIGHT_ALL_IMAGES.map((img, i) => (
+              <div
+                key={i}
+                className={styles.nightBgSlot}
+                style={{
+                  backgroundImage: `url("${img}")`,
+                  opacity: i === bgIdx ? 1 : 0,
+                }}
+              />
+            ))}
+          </div>
+        )}
+
         <div className={styles.handle} />
 
         {/* ── SEARCHING ── */}

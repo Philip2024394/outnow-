@@ -63,7 +63,7 @@ function buildWhatsAppMessage(restaurant, cart, address, deliveryFare, maxPrepMi
 }
 
 // ── Main component ────────────────────────────────────────────────────────────
-export default function RestaurantMenuSheet({ restaurant, onClose }) {
+export default function RestaurantMenuSheet({ restaurant, onClose, onOrderViaChat }) {
   const items      = restaurant.menu_items ?? []
   const categories = [...new Set(items.map(i => i.category).filter(Boolean))]
 
@@ -172,10 +172,36 @@ export default function RestaurantMenuSheet({ restaurant, onClose }) {
     )
   }
 
-  // ── WhatsApp order ──
+  // ── Order handler — in-app chat first, WhatsApp fallback ──
   const handleOrder = () => {
     if (!showAddrInput) { setShowAddrInput(true); return }
-    const { msg, ref } = buildWhatsAppMessage(restaurant, cart, address, deliveryFare, maxPrepMin)
+    const ref = `#MAKAN_${Date.now().toString().slice(-8)}`
+
+    // ── In-app chat path ──
+    if (onOrderViaChat) {
+      const orderItems = cart.map(i => ({
+        name:    i.name,
+        qty:     i.qty,
+        price:   i.price,
+        note:    i.note ?? null,
+      }))
+      onOrderViaChat({
+        restaurant,
+        items:       orderItems,
+        subtotal:    foodTotal,
+        deliveryFee: deliveryFare ?? 0,
+        total:       grandTotal,
+        notes:       address ? `Deliver to: ${address}` : '',
+        ref,
+      })
+      setCartExpanded(false)
+      setCart([])
+      setShowAddrInput(false)
+      return
+    }
+
+    // ── WhatsApp fallback ──
+    const { msg } = buildWhatsAppMessage(restaurant, cart, address, deliveryFare, maxPrepMin)
     window.open(`https://wa.me/${restaurant.phone}?text=${encodeURIComponent(msg)}`, '_blank')
     // Record pending review — 1 per restaurant per 24 h
     const reviewKey = `makan_review_${restaurant.id}`
@@ -333,7 +359,9 @@ export default function RestaurantMenuSheet({ restaurant, onClose }) {
             )}
 
             <button className={styles.orderBtn} onClick={handleOrder}>
-              {showAddrInput ? '📲 Send Order via WhatsApp' : 'Order Now →'}
+              {showAddrInput
+                ? onOrderViaChat ? '💬 Send Order via Chat' : '📲 Send Order via WhatsApp'
+                : 'Order Now →'}
             </button>
           </div>
         )}
@@ -486,11 +514,15 @@ export default function RestaurantMenuSheet({ restaurant, onClose }) {
             <button
               className={styles.eventEnquiryBtn}
               onClick={() => {
-                const msg = `Hi ${restaurant.name}, I'd like to enquire about hosting an event at your venue. Please send me details about availability and packages.`
-                window.open(`https://wa.me/${restaurant.phone}?text=${encodeURIComponent(msg)}`, '_blank')
+                if (onOrderViaChat) {
+                  onOrderViaChat({ restaurant, items: [], subtotal: 0, deliveryFee: 0, total: 0, notes: 'Event enquiry — please send details about availability and packages.', ref: `#EVENT_${Date.now().toString().slice(-6)}` })
+                } else {
+                  const msg = `Hi ${restaurant.name}, I'd like to enquire about hosting an event at your venue. Please send me details about availability and packages.`
+                  window.open(`https://wa.me/${restaurant.phone}?text=${encodeURIComponent(msg)}`, '_blank')
+                }
               }}
             >
-              📲 Enquire via WhatsApp
+              💬 Enquire via Chat
             </button>
           </div>
         </div>

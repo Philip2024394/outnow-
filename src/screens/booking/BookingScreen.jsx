@@ -362,6 +362,7 @@ const handleJourneyComplete = async () => {
               destination={destination} setDestination={setDestination}
               showDestSuggest={showDestSuggest} setShowDestSuggest={setShowDestSuggest}
               pickupCoords={pickupCoords}
+              gpsCoords={gpsCoords}
               fare={fare} distanceKm={distanceKm}
               formatRp={formatRp} estimateFare={estimateFare}
               zones={zones} settings={settings}

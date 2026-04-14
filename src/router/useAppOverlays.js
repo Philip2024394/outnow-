@@ -46,10 +46,11 @@ export function useAppOverlays() {
   const [inviteOutSheetOpen,  setInviteOutSheetOpen]  = useState(false)
   const [discoveryListOpen,   setDiscoveryListOpen]   = useState(false)
 
-  // ── Vibe / news ─────────────────────────────────────────────────────────────
-  const [vibeCheckOpen,    setVibeCheckOpen]    = useState(false)
-  const [vibeBroadcastOpen, setVibeBroadcastOpen] = useState(false)
-  const [newsOpen,          setNewsOpen]          = useState(false)
+  // ── Vibe / news / live feed ─────────────────────────────────────────────────
+  const [vibeCheckOpen,      setVibeCheckOpen]      = useState(false)
+  const [vibeBroadcastOpen,  setVibeBroadcastOpen]  = useState(false)
+  const [newsOpen,           setNewsOpen]           = useState(false)
+  const [hanggerLiveOpen,    setHanggerLiveOpen]    = useState(false)
 
   // ── Map filter ──────────────────────────────────────────────────────────────
   const [mapFilterOpen, setMapFilterOpen] = useState(false)
@@ -85,6 +86,7 @@ export function useAppOverlays() {
     vibeCheckOpen,       setVibeCheckOpen,
     vibeBroadcastOpen,   setVibeBroadcastOpen,
     newsOpen,            setNewsOpen,
+    hanggerLiveOpen,     setHanggerLiveOpen,
     mapFilterOpen,       setMapFilterOpen,
     orderHistoryOpen,    setOrderHistoryOpen,
     incomingGiftsOpen,   setIncomingGiftsOpen,

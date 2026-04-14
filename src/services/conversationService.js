@@ -126,6 +126,31 @@ export async function postSellerContactReveal(conversationId, senderId, sellerDe
   return { ...localMsg, id: data.id }
 }
 
+/**
+ * Create (or reuse) a Supabase conversation with a seller and insert the
+ * opening order-card message.  Returns { convId, msgId } — both real UUIDs.
+ *
+ * sellerId must be a valid auth.users UUID.  If it isn't (e.g. demo restaurant
+ * with integer id) the call is skipped and null is returned.
+ */
+export async function saveOrderConversation(sellerId, orderCard) {
+  if (!supabase) return null
+  // Reject obviously non-UUID seller IDs (demo restaurants use integers)
+  if (!sellerId || !/^[0-9a-f-]{36}$/i.test(String(sellerId))) return null
+  try {
+    const { data, error } = await supabase
+      .rpc('create_order_conversation', {
+        p_seller_id:  sellerId,
+        p_order_card: orderCard,
+      })
+    if (error) throw error
+    const row = Array.isArray(data) ? data[0] : data
+    return row ? { convId: row.conv_id, msgId: row.msg_id } : null
+  } catch {
+    return null
+  }
+}
+
 export async function likeMessage(messageId, liked) {
   if (isDemo(messageId)) return;
 

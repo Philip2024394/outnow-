@@ -19,18 +19,38 @@
 /* Square-ish card */
 .card {
   background: #111111;
-  border: 1px solid rgba(57, 255, 20, 0.2);
+  background-image: url('https://ik.imagekit.io/nepgaxllc/Motorcycle%20and%20car%20on%20Jl.%20Thamrin.png');
+  background-size: cover;
+  background-position: center top;
+  border: none;
   border-radius: 28px;
   padding: 36px 28px 28px;
   width: 100%;
   max-width: 380px;
+  position: relative;
+  overflow: hidden;
   display: flex;
   flex-direction: column;
   align-items: center;
   gap: 16px;
   text-align: center;
-  box-shadow: 0 0 60px rgba(57, 255, 20, 0.08), 0 24px 48px rgba(0,0,0,0.6);
+  box-shadow: 0 24px 48px rgba(0,0,0,0.6);
   animation: pop-up 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.card::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(to bottom, rgba(0,0,0,0.45) 0%, rgba(0,0,0,0.65) 100%);
+  border-radius: inherit;
+  pointer-events: none;
+  z-index: 0;
+}
+
+.card > * {
+  position: relative;
+  z-index: 1;
 }
 
 @keyframes pop-up {

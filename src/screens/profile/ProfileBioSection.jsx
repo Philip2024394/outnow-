@@ -418,7 +418,7 @@ export default function ProfileBioSection({
           </div>
         </div>
 
-        {/* Bio */}
+        {/* Bio / Live feed opening text */}
         <div className={styles.fieldRow}>
           <div className={styles.fieldLabelRow}>
             <label className={styles.fieldLabel}>Bio</label>
@@ -433,6 +433,11 @@ export default function ProfileBioSection({
             maxLength={350}
           />
           <span className={styles.bioCount}>{bio.length}/350</span>
+          <ul className={styles.bioHints}>
+            <li>This text appears on your <strong>Hangger Live</strong> feed card, visible to everyone browsing the live feed</li>
+            <li>Max 350 characters including spaces</li>
+            <li>Be clear and engaging — this is your first impression in the live feed</li>
+          </ul>
         </div>
 
         {/* Country typeahead */}

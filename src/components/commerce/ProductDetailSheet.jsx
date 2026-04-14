@@ -15,7 +15,7 @@ function formatIDR(val) {
 function getLabel(opt) { return typeof opt === 'object' ? opt.label : opt }
 function getImage(opt) { return typeof opt === 'object' ? opt.image ?? null : null }
 
-export default function ProductDetailSheet({ product, onClose, sellerWa, sellerName, onAddToCart, onRemoveFromCart, getCartQty, totalCartQty, onOpenCart }) {
+export default function ProductDetailSheet({ product, onClose, sellerWa, sellerName, sellerId, onAddToCart, onRemoveFromCart, getCartQty, totalCartQty, onOpenCart, onOrderViaChat }) {
   const [selected,    setSelected]    = useState({})
   const [showOverlay, setShowOverlay] = useState(true)
   const [showSpecs,   setShowSpecs]   = useState(false)
@@ -169,16 +169,23 @@ export default function ProductDetailSheet({ product, onClose, sellerWa, sellerN
             )}
 
             <div className={styles.ctaRow}>
-              {waLink
-                ? <a href={waLink} target="_blank" rel="noopener noreferrer" className={onAddToCart ? styles.orderBtnSecondary : styles.orderBtn}>
+              {onOrderViaChat
+                ? <button
+                    className={onAddToCart ? styles.orderBtnSecondary : styles.orderBtn}
+                    onClick={() => onOrderViaChat({ product, variantStr, qty: Math.max(cartQty, 1), sellerName, sellerId })}
+                  >
                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
-                      <path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/>
+                      <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
                     </svg>
-                    Order via WhatsApp
-                  </a>
-                : <button className={styles.orderBtnDisabled} disabled>
-                    💬 Contact seller to order
+                    Order via Chat
                   </button>
+                : waLink
+                  ? <a href={waLink} target="_blank" rel="noopener noreferrer" className={onAddToCart ? styles.orderBtnSecondary : styles.orderBtn}>
+                      Order via WhatsApp
+                    </a>
+                  : <button className={styles.orderBtnDisabled} disabled>
+                      💬 Contact seller to order
+                    </button>
               }
               {onAddToCart && (
                 cartQty > 0 ? (
@@ -270,16 +277,23 @@ export default function ProductDetailSheet({ product, onClose, sellerWa, sellerN
             </div>
 
             <div className={styles.ctaRow}>
-              {waLink
-                ? <a href={waLink} target="_blank" rel="noopener noreferrer" className={onAddToCart ? styles.orderBtnSecondary : styles.orderBtn}>
+              {onOrderViaChat
+                ? <button
+                    className={onAddToCart ? styles.orderBtnSecondary : styles.orderBtn}
+                    onClick={() => onOrderViaChat({ product, variantStr, qty: Math.max(cartQty, 1), sellerName, sellerId })}
+                  >
                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
-                      <path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/>
+                      <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
                     </svg>
-                    Order via WhatsApp
-                  </a>
-                : <button className={styles.orderBtnDisabled} disabled>
-                    💬 Contact seller to order
+                    Order via Chat
                   </button>
+                : waLink
+                  ? <a href={waLink} target="_blank" rel="noopener noreferrer" className={onAddToCart ? styles.orderBtnSecondary : styles.orderBtn}>
+                      Order via WhatsApp
+                    </a>
+                  : <button className={styles.orderBtnDisabled} disabled>
+                      💬 Contact seller to order
+                    </button>
               }
               {onAddToCart && (
                 cartQty > 0 ? (

@@ -268,12 +268,40 @@
   overflow: hidden;
 }
 
-/* ── Contact & Socials row button ────────────────────────────────────────── */
+/* ── Action row (Chat + Socials side by side) ────────────────────────────── */
+.actionRow {
+  display: flex;
+  gap: 10px;
+  margin-top: 10px;
+  align-items: stretch;
+}
+
+/* Chat with Seller — primary */
+.chatBtn {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 13px 14px;
+  background: rgba(141,198,63,0.15);
+  border: 1.5px solid rgba(141,198,63,0.4);
+  border-radius: 14px;
+  color: #8DC63F;
+  font-size: 14px;
+  font-weight: 800;
+  cursor: pointer;
+  font-family: inherit;
+  backdrop-filter: blur(8px);
+  transition: background 0.15s;
+}
+.chatBtn:active { background: rgba(141,198,63,0.25); }
+
+/* Socials — secondary */
 .contactRowBtn {
   display: flex;
   align-items: center;
   gap: 9px;
-  width: 100%;
   padding: 13px 16px;
   background: rgba(245,158,11,0.12);
   border: 1.5px solid rgba(245,158,11,0.35);
@@ -283,14 +311,11 @@
   font-weight: 800;
   cursor: pointer;
   font-family: inherit;
-  margin-top: 10px;
   backdrop-filter: blur(8px);
   transition: background 0.15s;
+  white-space: nowrap;
 }
-
-.contactRowBtn:hover {
-  background: rgba(245,158,11,0.2);
-}
+.contactRowBtn:active { background: rgba(245,158,11,0.2); }
 
 /* ── Contact slide-up sheet ──────────────────────────────────────────────── */
 .contactBackdrop {

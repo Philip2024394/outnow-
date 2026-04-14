@@ -51,6 +51,39 @@ export default function ProfilePrivacySection({
   onClose,
   showToast,
 }) {
+  // ── ID verification upload ───────────────────────────────────────────────
+  const [idFile,       setIdFile]       = useLocalState(null)
+  const [idUploading,  setIdUploading]  = useLocalState(false)
+  const [idStatus,     setIdStatus]     = useLocalState(
+    userProfile?.id_verification_status ?? null  // 'pending' | 'approved' | 'rejected'
+  )
+
+  const handleIdUpload = async (e) => {
+    const file = e.target.files?.[0]
+    if (!file) return
+    setIdFile(file)
+    if (!supabase || (!user?.id && !user?.uid)) return
+    setIdUploading(true)
+    try {
+      const uid  = user.uid ?? user.id
+      const path = `id-documents/${uid}/${Date.now()}-${file.name}`
+      const { error: upErr } = await supabase.storage.from('documents').upload(path, file, { upsert: true })
+      if (upErr) throw upErr
+      const { data: urlData } = supabase.storage.from('documents').getPublicUrl(path)
+      await supabase.from('profiles').update({
+        id_document_url:         urlData.publicUrl,
+        id_verification_status:  'pending',
+        id_verified:             false,
+        updated_at:              new Date().toISOString(),
+      }).eq('id', uid)
+      setIdStatus('pending')
+      showToast?.('ID submitted for review ✅')
+    } catch (err) {
+      showToast?.(err.message ?? 'Upload failed', 'error')
+    }
+    setIdUploading(false)
+  }
+
   // ── Driver's licence upload ───────────────────────────────────────────────
   const [licenseFile,     setLicenseFile]     = useLocalState(null)
   const [licenseUploading, setLicenseUploading] = useLocalState(false)
@@ -292,6 +325,57 @@ export default function ProfilePrivacySection({
             )}
             <p className={styles.licenseNote}>
               Your licence is stored securely and only reviewed by Hangger staff. It is never shared with other users.
+            </p>
+          </div>
+
+          {/* ── Identity verification ── */}
+          <div className={styles.vDivider} />
+          <div className={styles.licenseSection}>
+            <div className={styles.licenseTitleRow}>
+              <span className={styles.licenseTitleIcon}>🪪</span>
+              <div>
+                <div className={styles.licenseTitle}>Identity Verification</div>
+                <div className={styles.licenseSub}>
+                  Upload a government-issued ID (passport, national ID, or driving licence). Once approved by our team a ⭐ badge will appear before your name on your dating profile.
+                </div>
+              </div>
+            </div>
+
+            {idStatus === 'approved' && (
+              <div className={styles.licenseStatusBadge} style={{ background: 'rgba(251,191,36,0.12)', borderColor: 'rgba(251,191,36,0.35)', color: '#FBBF24' }}>
+                ⭐ Verified — ID approved · badge is live on your profile
+              </div>
+            )}
+            {idStatus === 'pending' && (
+              <div className={styles.licenseStatusBadge} style={{ background: 'rgba(251,191,36,0.08)', borderColor: 'rgba(251,191,36,0.25)', color: '#FBBF24' }}>
+                ⏳ Under review — we'll notify you within 24 hours
+              </div>
+            )}
+            {idStatus === 'rejected' && (
+              <div className={styles.licenseStatusBadge} style={{ background: 'rgba(248,113,113,0.12)', borderColor: 'rgba(248,113,113,0.3)', color: '#F87171' }}>
+                ❌ Rejected — please re-upload a clear, legible photo
+              </div>
+            )}
+
+            {idStatus !== 'approved' && (
+              <label className={styles.licenseUploadBtn}>
+                <input
+                  type="file"
+                  accept="image/*,.pdf"
+                  style={{ display: 'none' }}
+                  onChange={handleIdUpload}
+                  disabled={idUploading}
+                />
+                {idUploading
+                  ? '⏳ Uploading…'
+                  : idFile
+                  ? `📄 ${idFile.name} — tap to re-upload`
+                  : '📷 Upload Passport / National ID'
+                }
+              </label>
+            )}
+            <p className={styles.licenseNote}>
+              Your document is stored securely and only reviewed by Hangger staff. It is never visible to other users.
             </p>
           </div>
         </div>

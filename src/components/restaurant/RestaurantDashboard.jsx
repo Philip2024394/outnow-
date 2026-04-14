@@ -1,8 +1,13 @@
 import { useState, useEffect, useCallback } from 'react'
 import { supabase } from '@/lib/supabase'
 import styles from './RestaurantDashboard.module.css'
-
-const CUISINES = ['Javanese','Indonesian','Chinese','Western','Japanese','Korean','Indian','Italian','Seafood','Vegetarian','Other']
+import { CUISINE_TYPES as CUISINES } from '@/constants/cuisineTypes'
+import {
+  getRestaurantOrders,
+  subscribeToRestaurantOrders,
+  ensurePickupCode,
+  confirmPaymentReceived,
+} from '@/services/foodOrderService'
 
 const FOOD_CATEGORIES = [
   { id: 'rice',       label: '🍚 Rice Dishes'  },
@@ -29,6 +34,14 @@ const EVENT_OPTIONS = [
 ]
 
 const BANKS = ['BCA','BRI','BNI','Mandiri','BSI','CIMB','Danamon','Permata','Other']
+
+const ORDER_STATUS_LABELS = {
+  confirmed:      'Confirmed',
+  driver_heading: 'Driver En Route',
+  picked_up:      'Picked Up',
+  delivered:      'Delivered',
+  cancelled:      'Cancelled',
+}
 
 function fmtRp(n) { return `Rp ${Number(n).toLocaleString('id-ID')}` }
 
@@ -85,8 +98,14 @@ export default function RestaurantDashboard({ userId, onClose }) {
   const [instagram,           setInstagram]           = useState('')
   const [tiktok,              setTiktok]              = useState('')
   const [facebook,            setFacebook]            = useState('')
-  const [repeatDiscount,      setRepeatDiscount]      = useState('')
-  const [repeatWindowDays,    setRepeatWindowDays]    = useState('3')
+  const [repeatDiscount,       setRepeatDiscount]       = useState('')
+  const [repeatWindowDays,     setRepeatWindowDays]     = useState('3')
+  const [acceptsDatingOrders,  setAcceptsDatingOrders]  = useState(false)
+
+  // ── Orders tab ──
+  const [foodOrders,   setFoodOrders]   = useState([])
+  const [pickupCode,   setPickupCode]   = useState(null)
+  const [codeLoading,  setCodeLoading]  = useState(false)
 
   // ── Menu fields ──
   const [menuItems,    setMenuItems]    = useState([])
@@ -136,6 +155,7 @@ export default function RestaurantDashboard({ userId, onClose }) {
       setFacebook(data.facebook ?? '')
       setRepeatDiscount(data.repeat_discount_percent ? String(data.repeat_discount_percent) : '')
       setRepeatWindowDays(data.repeat_discount_days ? String(data.repeat_discount_days) : '3')
+      setAcceptsDatingOrders(data.accepts_dating_orders ?? false)
       setMenuItems(data.menu_items ?? [])
     }
     setLoading(false)
@@ -148,6 +168,30 @@ export default function RestaurantDashboard({ userId, onClose }) {
     supabase.from('stock_photos').select('*').order('created_at', { ascending: true })
       .then(({ data }) => { if (data?.length) setStockPhotos(data) })
   }, [])
+
+  // ── Load orders + pickup code when Orders tab is opened ───────────────────
+  useEffect(() => {
+    if (tab !== 'orders' || !restaurant?.id) return
+    getRestaurantOrders(restaurant.id).then(setFoodOrders)
+    if (!restaurant.pickup_code) {
+      setCodeLoading(true)
+      ensurePickupCode(restaurant.id).then(code => {
+        setPickupCode(code)
+        setRestaurant(prev => ({ ...prev, pickup_code: code }))
+        setCodeLoading(false)
+      })
+    } else {
+      setPickupCode(restaurant.pickup_code)
+    }
+    const unsub = subscribeToRestaurantOrders(restaurant.id, updated => {
+      setFoodOrders(prev => {
+        const idx = prev.findIndex(o => o.id === updated.id)
+        if (idx === -1) return [updated, ...prev]
+        const next = [...prev]; next[idx] = updated; return next
+      })
+    })
+    return unsub
+  }, [tab, restaurant?.id]) // eslint-disable-line react-hooks/exhaustive-deps
 
   // ── Auto-geocode address → lat/lng ────────────────────────────────────────
   const geocodeAddress = async (addr, restaurantId) => {
@@ -224,6 +268,7 @@ export default function RestaurantDashboard({ userId, onClose }) {
       facebook:               facebook    || null,
       repeat_discount_percent: repeatDiscount    ? Number(repeatDiscount)    : null,
       repeat_discount_days:    repeatWindowDays  ? Number(repeatWindowDays)  : null,
+      accepts_dating_orders:   acceptsDatingOrders,
       updated_at: new Date().toISOString(),
     }).eq('id', restaurant.id)
     showToast('Business details saved ✓')
@@ -276,6 +321,12 @@ export default function RestaurantDashboard({ userId, onClose }) {
     if (!supabase) return
     await supabase.from('menu_items').delete().eq('id', id)
     setMenuItems(prev => prev.filter(i => i.id !== id))
+  }
+
+  const handleConfirmPayment = async (orderId) => {
+    await confirmPaymentReceived(orderId)
+    setFoodOrders(prev => prev.map(o => o.id === orderId ? { ...o, status: 'confirmed' } : o))
+    showToast('Payment confirmed — driver notified ✓')
   }
 
   const toggleItemAvailable = async (item) => {
@@ -340,6 +391,7 @@ export default function RestaurantDashboard({ userId, onClose }) {
           { id: 'business', label: '💳 Business' },
           { id: 'menu',     label: '🍽 Menu'     },
           { id: 'photos',   label: '📸 Cover'    },
+          { id: 'orders',   label: '📦 Orders'   },
         ].map(t => (
           <button key={t.id}
             className={`${styles.tabBtn} ${tab === t.id ? styles.tabActive : ''}`}
@@ -499,6 +551,27 @@ export default function RestaurantDashboard({ userId, onClose }) {
                 <Field label="Facebook page"      value={facebook}  onChange={setFacebook}  placeholder="e.g. warungbusari" />
               </Section>
 
+              <Section title="Dating Orders" hint="Accept food orders from dating app users">
+                {!(bankName && bankAccount && bankHolder) ? (
+                  <div className={styles.menuLock} style={{ margin: 0 }}>
+                    Fill in your bank details above to enable dating orders
+                  </div>
+                ) : (
+                  <>
+                    <Toggle
+                      label="Accept orders from dating profiles"
+                      value={acceptsDatingOrders}
+                      onChange={setAcceptsDatingOrders}
+                    />
+                    {acceptsDatingOrders && (
+                      <div className={styles.datingOrdersNote}>
+                        💕 Your restaurant will appear in the dating food section. Customers pay you directly via bank transfer before the driver is dispatched. You pay the driver cash on collection.
+                      </div>
+                    )}
+                  </>
+                )}
+              </Section>
+
               <button className={styles.saveBtn} onClick={saveBusiness} disabled={saving}>
                 {saving ? 'Saving…' : '💾 Save Business Details'}
               </button>
@@ -608,6 +681,85 @@ export default function RestaurantDashboard({ userId, onClose }) {
             <p className={styles.photosNote}>
               Tap Buy → WhatsApp request sent to our team → we confirm payment and activate within 24 hours.
             </p>
+          </div>
+        )}
+
+        {/* ══════════════════════════════════════════════════════════════════════
+            ORDERS TAB
+        ══════════════════════════════════════════════════════════════════════ */}
+        {tab === 'orders' && (
+          <div className={styles.form}>
+            {!restaurant?.id
+              ? <div className={styles.menuLock}>Save your profile first.</div>
+              : (<>
+                  {/* ── Pickup code card ── */}
+                  <div className={styles.pickupCodeCard}>
+                    <div className={styles.pickupCodeHeader}>
+                      <span className={styles.pickupCodeTitle}>🔐 Your Pickup Code</span>
+                      <span className={styles.pickupCodeHint}>Driver enters this when collecting an order</span>
+                    </div>
+                    {codeLoading
+                      ? <div className={styles.pickupCodeValue}>Generating…</div>
+                      : <div className={styles.pickupCodeValue}>{pickupCode ?? '—'}</div>
+                    }
+                    <p className={styles.pickupCodeNote}>
+                      Keep this code visible to your staff. The driver must enter it in the app before they can leave with the order.
+                    </p>
+                  </div>
+
+                  {/* ── Incoming orders ── */}
+                  <div className={styles.sectionHeader} style={{ marginTop: 8 }}>
+                    <span className={styles.sectionTitle}>Incoming Orders</span>
+                    <span className={styles.sectionHint}>Live · auto-refreshes</span>
+                  </div>
+
+                  {foodOrders.length === 0 && (
+                    <div className={styles.menuEmpty}>No orders yet today.</div>
+                  )}
+
+                  {foodOrders.map(order => (
+                    <div key={order.id} className={styles.orderRow}>
+                      <div className={styles.orderRowTop}>
+                        <span className={styles.orderRef}>{order.cash_ref}</span>
+                        <span className={`${styles.orderStatus} ${styles['orderStatus_' + order.status]}`}>
+                          {ORDER_STATUS_LABELS[order.status] ?? order.status}
+                        </span>
+                      </div>
+                      <div className={styles.orderItems}>
+                        {(order.items ?? []).map((it, i) => (
+                          <span key={i} className={styles.orderItem}>{it.qty}× {it.name}</span>
+                        ))}
+                      </div>
+                      <div className={styles.orderMeta}>
+                        <span>Driver: <strong>{order.driver_name ?? '—'}</strong></span>
+                        <span>{fmtRp(order.subtotal ?? 0)} subtotal</span>
+                      </div>
+
+                      {/* Payment proof + confirm button */}
+                      {order.status === 'payment_submitted' && (
+                        <div className={styles.paymentProofRow}>
+                          {order.payment_screenshot_url && (
+                            <a
+                              href={order.payment_screenshot_url}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className={styles.proofLink}
+                            >
+                              📸 View transfer screenshot
+                            </a>
+                          )}
+                          <button
+                            className={styles.confirmPaymentBtn}
+                            onClick={() => handleConfirmPayment(order.id)}
+                          >
+                            ✓ Payment Received — Release to Driver
+                          </button>
+                        </div>
+                      )}
+                    </div>
+                  ))}
+                </>)
+            }
           </div>
         )}
 

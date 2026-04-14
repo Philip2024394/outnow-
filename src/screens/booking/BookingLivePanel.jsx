@@ -3,6 +3,7 @@
  *   searching, choose driver, driver detail sheet, waiting for driver,
  *   expired booking, active ride, cancelling, cancelled.
  */
+import { useState } from 'react'
 import styles from '../BookingScreen.module.css'
 import DriverMap from '@/components/driver/DriverMap'
 
@@ -38,6 +39,8 @@ export default function BookingLivePanel({
   handleCancelRide,
   onClose,
 }) {
+  const [contactRevealed, setContactRevealed] = useState(false)
+
   const availableDrivers = drivers.filter(d => !d.driver_busy)
   const busyDrivers      = drivers.filter(d => d.driver_busy)
   const featured = availableDrivers[featuredIdx % Math.max(availableDrivers.length, 1)] ?? availableDrivers[0]
@@ -350,36 +353,106 @@ export default function BookingLivePanel({
 
   // ── Phase: active ────────────────────────────────────────────────────────────
   if (phase === 'active') {
+    const isBike = selectedDriver?.driver_type !== 'car_taxi'
+    const eta    = selectedDriver?.etaMin ?? Math.max(2, Math.round((selectedDriver?.distKm ?? 2) * 2.5))
     return (
       <div className={styles.body}>
+
+        {/* Animated road strip */}
+        <div className={styles.rideAnimWrap}>
+          <div className={styles.rideAnimRoad}>
+            <div className={styles.rideAnimDashes} />
+            <div className={styles.rideAnimVehicle}>
+              <img
+                src={isBike ? BIKE_IMG : CAR_IMG}
+                alt="vehicle"
+                className={styles.rideAnimVehicleImg}
+              />
+            </div>
+            <div className={styles.rideAnimDestPin}>📍</div>
+          </div>
+          <div className={styles.rideAnimStatus}>
+            <span className={styles.rideAnimPulse} />
+            <span className={styles.rideAnimStatusText}>Driver On the Way</span>
+          </div>
+        </div>
+
+        {/* ETA + driver card */}
         <div className={styles.activeRideCard}>
-          <div className={styles.activeRideBadge}>Ride Active</div>
+
+          {/* ETA row */}
+          <div className={styles.activeEtaRow}>
+            <div className={styles.activeEtaBox}>
+              <span className={styles.activeEtaNum}>~{eta}</span>
+              <span className={styles.activeEtaUnit}>min</span>
+            </div>
+            <div className={styles.activeEtaMeta}>
+              <span className={styles.activeEtaTitle}>Estimated Arrival</span>
+              <span className={styles.activeEtaSub}>No-traffic estimate · stay ready</span>
+            </div>
+          </div>
+
+          {/* Driver row */}
           <div className={styles.activeRideDriver}>
-            <img src={selectedDriver?.driver_type === 'car_taxi' ? CAR_IMG : BIKE_IMG} alt="vehicle" className={styles.activeRideVehicleImg} />
+            <div className={styles.activeDriverAvatar}>
+              {selectedDriver?.photo_url
+                ? <img src={selectedDriver.photo_url} alt="" className={styles.activeDriverAvatarImg} />
+                : <img src={isBike ? BIKE_IMG : CAR_IMG} alt="vehicle" className={styles.activeRideVehicleImg} />}
+            </div>
             <div className={styles.activeRideInfo}>
               <p className={styles.activeRideName}>{selectedDriver?.display_name}</p>
-              <p className={styles.activeRideType}>{selectedDriver?.driver_type === 'car_taxi' ? '🚗 Car Taxi' : '🛵 Bike Ride'}</p>
               <div className={styles.activeRideStars}>
                 {'★'.repeat(Math.floor(selectedDriver?.rating ?? 4.8))}
                 <span className={styles.activeRideRatingNum}> {selectedDriver?.rating ?? '4.8'}</span>
+                <span className={styles.activeRideTripCount}> · {(selectedDriver?.total_trips ?? 0).toLocaleString()} trips</span>
               </div>
             </div>
+            {selectedDriver?.driver_phone && (
+              contactRevealed
+                ? <a href={`tel:${selectedDriver.driver_phone}`} className={styles.activeCallLink}>📞 {selectedDriver.driver_phone}</a>
+                : <button className={styles.activeCallBtn} onClick={() => setContactRevealed(true)}>📞 Call</button>
+            )}
           </div>
-          <div className={styles.activeRideTripCard}>
-            <div className={styles.activeRideTripRow}>
-              <span className={`${styles.locationDot} ${styles.locationDotGreen}`} />
-              <span className={styles.activeRideTripText}>{pickup?.address ?? 'Pickup location'}</span>
-            </div>
-            <div className={styles.activeRideTripConnector} />
-            <div className={styles.activeRideTripRow}>
-              <span className={`${styles.locationDot} ${styles.locationDotRed}`} />
-              <span className={styles.activeRideTripText}>{destination?.address ?? 'Destination'}</span>
-            </div>
-            <div className={styles.activeRideTripMeta}>
-              <span>{formatRp(fare)}</span>
-            </div>
+
+          {/* Vehicle row */}
+          <div className={styles.activeVehicleRow}>
+            <span className={styles.activeVehicleText}>
+              {selectedDriver?.vehicle_color} {selectedDriver?.vehicle_model} {selectedDriver?.vehicle_year}
+            </span>
+            {selectedDriver?.plate_prefix && (
+              <span className={styles.activePlateBadge}>{selectedDriver.plate_prefix}</span>
+            )}
+          </div>
+
+        </div>
+
+        {/* Route card */}
+        <div className={styles.activeRideTripCard}>
+          <div className={styles.activeRideTripRow}>
+            <span className={`${styles.locationDot} ${styles.locationDotGreen}`} />
+            <span className={styles.activeRideTripText}>{pickup?.address ?? 'Pickup location'}</span>
+          </div>
+          <div className={styles.activeRideTripConnector} />
+          <div className={styles.activeRideTripRow}>
+            <span className={`${styles.locationDot} ${styles.locationDotRed}`} />
+            <span className={styles.activeRideTripText}>{destination?.address ?? 'Destination'}</span>
+          </div>
+          <div className={styles.activeRideTripMeta}>
+            <span>{formatRp(fare)}</span>
           </div>
         </div>
+
+        {/* Helmet safety reminder */}
+        <div className={styles.helmetCard}>
+          <span className={styles.helmetIcon}>🪖</span>
+          <div>
+            <p className={styles.helmetTitle}>Safety First — Helmet Required</p>
+            <p className={styles.helmetText}>
+              Fasten your helmet securely before the driver arrives. Chin strap must be clipped at all times during the ride. No exceptions.
+            </p>
+          </div>
+        </div>
+
         <button className={styles.completeBtn} onClick={handleJourneyComplete}>✓ Journey Completed</button>
         <button className={styles.cancelRideBtn} onClick={() => setPhase('cancelling')}>Cancel Ride</button>
       </div>

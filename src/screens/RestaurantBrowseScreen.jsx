@@ -338,7 +338,7 @@ function Stars({ rating }) {
 }
 
 // ── Main component ────────────────────────────────────────────────────────────
-export default function RestaurantBrowseScreen({ onClose, onBackToCategories, category, scrollToId }) {
+export default function RestaurantBrowseScreen({ onClose, onBackToCategories, category, scrollToId, onOrderViaChat }) {
   const [restaurants,    setRestaurants]    = useState([])
   const [loading,        setLoading]        = useState(true)
   const [activeIndex,    setActiveIndex]    = useState(0)
@@ -504,6 +504,7 @@ export default function RestaurantBrowseScreen({ onClose, onBackToCategories, ca
         <RestaurantMenuSheet
           restaurant={menuRestaurant}
           onClose={() => setMenuRestaurant(null)}
+          onOrderViaChat={onOrderViaChat ?? null}
         />
       )}
     </div>

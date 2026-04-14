@@ -64,6 +64,7 @@ import RestaurantCommissionScreen  from '@/screens/RestaurantCommissionScreen'
 // ── Driver trip & commission flow ────────────────────────────────────
 import DriverTripEndSheet          from '@/components/driver/DriverTripEndSheet'
 import DriverSignInGate            from '@/components/driver/DriverSignInGate'
+import DriverCashFloatModal        from '@/components/driver/DriverCashFloatModal'
 
 // ── Restaurant payment flow ──────────────────────────────────────────
 import PaymentMethodSelector       from '@/components/restaurant/PaymentMethodSelector'
@@ -336,9 +337,7 @@ const GROUPS = [
     label: '⚡ QUICK LINKS',
     color: '#F59E0B',
     items: [
-      { id: 'joinPhone',    label: '🔑 Sign In' },
-      { id: 'joinProfile',  label: '✏️ Create Account' },
-      { id: 'setLocation',  label: '📍 Set Location' },
+      { id: 'setLocation', label: '📍 Set Location' },
     ],
   },
   {
@@ -445,6 +444,8 @@ const GROUPS = [
       { id: 'driver_trip_end_complete',  label: '✅ Trip End — Recorded' },
       { id: 'driver_sign_in_gate',       label: '🔒 Sign-in Gate — Commission Due' },
       { id: 'driver_sign_in_submitted',  label: '📤 Sign-in Gate — Proof Submitted' },
+      { id: 'driver_cash_float',         label: '💵 Cash Float — Go Online' },
+      { id: 'driver_cash_float_filled',  label: '💵 Cash Float — Rp 150.000 Declared' },
     ],
   },
   {
@@ -931,6 +932,21 @@ export default function DevPanel() {
           _forceSubmitted
           onProofSubmitted={() => {}}
           onClose={close}
+        />
+      )}
+
+      {active === 'driver_cash_float' && (
+        <DriverCashFloatModal
+          driverName="Budi Santoso"
+          onConfirm={(amount) => { close(); showToast(amount > 0 ? `Float Rp ${Number(amount).toLocaleString('id-ID')} saved — going online` : 'No cash — COD orders skipped', 'success') }}
+        />
+      )}
+
+      {active === 'driver_cash_float_filled' && (
+        <DriverCashFloatModal
+          driverName="Budi Santoso"
+          _forceAmount={150000}
+          onConfirm={(amount) => { close(); showToast(`Float Rp ${Number(amount).toLocaleString('id-ID')} saved`, 'success') }}
         />
       )}
 

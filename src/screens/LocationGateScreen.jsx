@@ -126,37 +126,12 @@ export default function LocationGateScreen({ onConfirmed }) {
           disabled={status === 'scanning'}
           aria-label="Tap to confirm location"
         >
-          {/* Full fingerprint SVG — loop/whorl pattern */}
-          <svg
+          <img
+            src="https://ik.imagekit.io/nepgaxllc/Detailed%20white%20fingerprint%20on%20transparent%20background.png"
+            alt="fingerprint"
             className={styles.fpSvg}
-            viewBox="0 0 100 100"
-            fill="none"
-            stroke="currentColor"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-          >
-            {/* Whorl center */}
-            <ellipse cx="50" cy="49" rx="3" ry="2.5" strokeWidth="1.9" />
-            {/* Ridge 1 — tight inner loop */}
-            <path d="M44 49 Q50 39 56 49 Q50 59 44 49" strokeWidth="1.9" />
-            {/* Ridge 2 */}
-            <path d="M38 49 Q50 31 62 49 Q50 67 38 49" strokeWidth="1.9" />
-            {/* Ridge 3 */}
-            <path d="M32 50 Q50 23 68 50 Q60 71 50 73 Q40 71 32 50" strokeWidth="1.9" />
-            {/* Ridge 4 */}
-            <path d="M26 52 Q50 16 74 52 Q65 76 50 78 Q35 76 26 52" strokeWidth="1.9" />
-            {/* Ridge 5 */}
-            <path d="M20 54 Q50 9 80 54 Q70 80 50 82 Q30 80 20 54" strokeWidth="1.9" />
-            {/* Ridge 6 */}
-            <path d="M14 57 Q50 3 86 57 Q75 84 50 86 Q25 84 14 57" strokeWidth="1.8" />
-            {/* Ridge 7 — outer arch */}
-            <path d="M8 62 Q50 -2 92 62 Q80 88 50 90 Q20 88 8 62" strokeWidth="1.8" />
-            {/* Ridge 8 — outermost */}
-            <path d="M3 67 Q50 -8 97 67 Q84 93 50 95 Q16 93 3 67" strokeWidth="1.7" />
-            {/* Delta features at base */}
-            <path d="M30 79 Q40 73 50 74 Q60 73 70 79" strokeWidth="1.8" />
-            <path d="M35 87 Q42 82 50 83 Q58 82 65 87" strokeWidth="1.7" />
-          </svg>
+            draggable={false}
+          />
 
           {/* Scan line — visible only while scanning */}
           {status === 'scanning' && <div className={styles.scanLine} />}
@@ -183,7 +158,6 @@ export default function LocationGateScreen({ onConfirmed }) {
             : 'Tap the fingerprint to verify your location and join the community.'}
         </p>
 
-        <p className={styles.note}>Your location is only used for country verification.</p>
       </div>
     </div>
   )

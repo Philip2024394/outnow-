@@ -2,7 +2,7 @@
   position: fixed;
   inset: 0;
   background: rgba(0,0,0,0.72);
-  z-index: 1300;
+  z-index: 9500;
   display: flex;
   align-items: flex-end;
   justify-content: center;
@@ -34,7 +34,7 @@
 /* ── Floating draggable profile bubble ───────────────────────────────────── */
 .floatingBubble {
   position: fixed;
-  z-index: 1310;
+  z-index: 9510;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -117,6 +117,41 @@
   text-transform: uppercase;
   backdrop-filter: blur(6px);
 }
+
+/* ── Restaurant label ── */
+.restaurantRow {
+  display: flex; align-items: center; gap: 6px;
+  padding: 2px 0 6px;
+}
+.restaurantLabel { font-size: 11px; color: rgba(255,255,255,0.35); }
+.restaurantName  { font-size: 13px; font-weight: 800; color: rgba(255,255,255,0.8); }
+
+/* ── Multi-item list ── */
+.itemsList {
+  display: flex; flex-direction: column; gap: 0;
+  background: rgba(255,255,255,0.04);
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 14px;
+  overflow: hidden;
+}
+.itemRow {
+  display: flex; align-items: center; gap: 8px;
+  padding: 10px 14px;
+  border-bottom: 1px solid rgba(255,255,255,0.05);
+}
+.itemRow:last-child { border-bottom: none; }
+.itemQty  { font-size: 12px; font-weight: 800; color: #F59E0B; width: 22px; flex-shrink: 0; }
+.itemName { flex: 1; font-size: 13px; font-weight: 600; color: #fff; }
+.itemPrice { font-size: 12px; font-weight: 800; color: rgba(255,255,255,0.6); flex-shrink: 0; }
+
+.itemsSubtotalRow {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 10px 14px;
+  background: rgba(245,158,11,0.06);
+  font-size: 12px; color: rgba(255,255,255,0.5);
+  border-top: 1px solid rgba(245,158,11,0.15);
+}
+.itemsSubtotalVal { font-weight: 800; color: #F59E0B; }
 
 /* ── Dish card ────────────────────────────────────────────────────────────── */
 .productCard {

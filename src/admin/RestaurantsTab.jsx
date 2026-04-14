@@ -2,6 +2,7 @@ import { useState, useEffect, useCallback } from 'react'
 import { supabase } from '@/lib/supabase'
 import ImageUpload from '@/components/ui/ImageUpload'
 import styles from './RestaurantsTab.module.css'
+import { CUISINE_TYPES as CUISINES } from '@/constants/cuisineTypes'
 
 const DEMO = [
   { id: 1, name: 'Warung Bu Sari',        cuisine_type: 'Javanese',   address: 'Jl. Malioboro 45, Yogyakarta', phone: '6281234567890', status: 'pending',  is_open: false, rating: null, review_count: 0,   created_at: '2026-04-09T08:00:00Z', owner_id: 'u1', menu_items: [{ id:1 },{ id:2 }],             photo_url: 'https://picsum.photos/seed/warung/80',  description: 'Traditional Javanese cuisine' },
@@ -17,7 +18,6 @@ const FILTER_TABS = [
   { id: 'all',      label: 'All',      color: '#888' },
 ]
 
-const CUISINES = ['Javanese','Indonesian','Sundanese','Padang','Chinese','Japanese','Western','Fusion','Seafood','Vegetarian']
 
 function fmtDate(iso) {
   return new Date(iso).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })

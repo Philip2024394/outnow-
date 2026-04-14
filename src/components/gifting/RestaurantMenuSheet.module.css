@@ -1,0 +1,323 @@
+/* ── Backdrop + sheet ── */
+.backdrop {
+  position: fixed; inset: 0; z-index: 9500;
+  background: rgba(0,0,0,0.75);
+  display: flex; align-items: flex-end;
+}
+
+@property --sheetRimAngle {
+  syntax: '<angle>';
+  initial-value: 0deg;
+  inherits: false;
+}
+
+@keyframes spinSheetRim {
+  to { --sheetRimAngle: 360deg; }
+}
+
+@keyframes slideUp { from { transform: translateY(100%); } to { transform: none; } }
+
+.sheet {
+  width: 100%; height: 100dvh;
+  background-color: #111;
+  background-image:
+    linear-gradient(rgba(10,0,8,0.55), rgba(10,0,8,0.55)),
+    url("https://ik.imagekit.io/nepgaxllc/Valentine's%20Day%20feast%20of%20love.png");
+  background-size: cover;
+  background-position: center;
+  border-radius: 0;
+  border-top: none;
+  background-clip: padding-box;
+  display: flex; flex-direction: column;
+  overflow: hidden;
+  animation: slideUp 0.3s cubic-bezier(0.34,1.1,0.64,1);
+  position: relative;
+}
+
+/* Animated pink rim running along the top rounded edge */
+.sheet::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: 0;
+  padding-top: 3px;
+  background: conic-gradient(
+    from var(--sheetRimAngle),
+    rgba(232,69,140,0.08) 0deg,
+    rgba(232,69,140,0.08) 120deg,
+    rgba(232,69,140,0.55) 165deg,
+    #ff9ad0               185deg,
+    #E8458C               195deg,
+    #ff9ad0               205deg,
+    rgba(232,69,140,0.55) 225deg,
+    rgba(232,69,140,0.08) 270deg,
+    rgba(232,69,140,0.08) 360deg
+  );
+  -webkit-mask:
+    linear-gradient(#000 0 0) content-box,
+    linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  pointer-events: none;
+  z-index: 10;
+  animation: spinSheetRim 4s linear infinite;
+}
+
+.handle { display: none; }
+
+/* ── Header ── */
+.header {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: calc(env(safe-area-inset-top, 0px) + 14px) 16px 12px; flex-shrink: 0;
+  border-bottom: 1px solid rgba(255,255,255,0.06);
+}
+.headerInfo { display: flex; flex-direction: column; gap: 2px; }
+.restaurantName    { font-size: 18px; font-weight: 900; color: #fff; }
+.restaurantCuisine { font-size: 11px; color: rgba(255,255,255,0.4); }
+.closeBtn {
+  width: 32px; height: 32px; border-radius: 50%;
+  background: rgba(255,255,255,0.08); border: none;
+  color: rgba(255,255,255,0.5); font-size: 13px;
+  cursor: pointer; flex-shrink: 0; display: flex; align-items: center; justify-content: center;
+}
+
+/* ── Menu grid ── */
+.menu {
+  flex: 1; overflow-y: auto;
+  padding: 14px 14px 16px;
+}
+.menu::-webkit-scrollbar { display: none; }
+.menuWithFooter { padding-bottom: 220px; }
+
+.menuGrid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px;
+}
+
+.empty {
+  padding: 40px; text-align: center;
+  font-size: 13px; color: rgba(255,255,255,0.3);
+}
+
+/* ── Round dish card ── */
+.menuCard {
+  display: flex; flex-direction: column; align-items: center;
+  gap: 6px;
+  padding: 14px 10px 12px;
+  background: rgba(0,0,0,0.45);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(232,69,140,0.12);
+  border-radius: 18px;
+  box-shadow:
+    0 8px 24px rgba(232,69,140,0.18),
+    0 2px 8px rgba(0,0,0,0.5),
+    inset 0 1px 0 rgba(255,255,255,0.06);
+  transition: box-shadow 0.2s, border-color 0.15s;
+  -webkit-tap-highlight-color: transparent;
+}
+.menuCardActive {
+  background: rgba(0,0,0,0.55);
+  border-color: rgba(232,69,140,0.35);
+  box-shadow:
+    0 10px 30px rgba(232,69,140,0.32),
+    0 2px 8px rgba(0,0,0,0.5),
+    inset 0 1px 0 rgba(255,255,255,0.08);
+}
+
+/* Wrapper allows + button and badge to hang outside the circle */
+.menuCardImgWrap {
+  position: relative;
+  width: 80px;
+  flex-shrink: 0;
+  padding-bottom: 14px; /* space for edge button */
+}
+
+/* Round image */
+.menuCardImg {
+  width: 80px; height: 80px; border-radius: 50%;
+  background: rgba(255,255,255,0.06);
+  border: 2.5px solid rgba(232,69,140,0.35);
+  overflow: hidden;
+  display: flex; align-items: center; justify-content: center;
+}
+.menuCardActiveImg {
+  border-color: rgba(232,69,140,0.75);
+  box-shadow: 0 0 0 3px rgba(232,69,140,0.15);
+}
+.menuImg {
+  width: 100%; height: 100%; object-fit: cover;
+}
+.menuEmoji {
+  font-size: 28px;
+  display: flex; align-items: center; justify-content: center;
+  width: 100%; height: 100%;
+}
+
+/* Qty badge — top-right of circle */
+.menuBadge {
+  position: absolute; top: -3px; right: -3px;
+  background: #E8458C; color: #fff;
+  font-size: 10px; font-weight: 900;
+  width: 20px; height: 20px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  border: 2px solid #111;
+}
+
+/* + button sitting on the bottom edge of the circle */
+.addBtnEdge {
+  position: absolute;
+  bottom: 0; left: 50%;
+  transform: translateX(-50%);
+  width: 28px; height: 28px; border-radius: 50%;
+  background: #E8458C;
+  border: 2.5px solid #111;
+  color: #fff; font-size: 18px; font-weight: 900; line-height: 1;
+  display: flex; align-items: center; justify-content: center;
+  cursor: pointer; font-family: inherit;
+  box-shadow: 0 3px 10px rgba(232,69,140,0.5);
+  transition: transform 0.12s;
+  z-index: 2;
+}
+.addBtnEdge:active { transform: translateX(-50%) scale(0.84); }
+
+/* Text */
+.menuName {
+  font-size: 12px; font-weight: 700; color: #fff;
+  text-align: center; line-height: 1.3;
+  display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical;
+  overflow: hidden;
+  max-width: 100%;
+}
+.menuDesc { display: none; } /* hidden in grid view — shown in tooltip later */
+.menuPrice {
+  font-size: 12px; font-weight: 800; color: #E8458C;
+}
+
+
+.qtyRow {
+  display: flex; align-items: center; gap: 8px;
+}
+.qtyBtn {
+  width: 30px; height: 30px; border-radius: 50%;
+  background: rgba(232,69,140,0.15);
+  border: 1.5px solid rgba(232,69,140,0.45);
+  color: #E8458C; font-size: 17px; font-weight: 900; line-height: 1;
+  display: flex; align-items: center; justify-content: center;
+  cursor: pointer; font-family: inherit;
+  transition: background 0.1s;
+}
+.qtyBtn:active { background: rgba(232,69,140,0.35); }
+.qtyVal {
+  font-size: 15px; font-weight: 800; color: #fff;
+  min-width: 18px; text-align: center;
+}
+
+/* ── Sticky footer ── */
+.footer {
+  flex-shrink: 0;
+  background: rgba(10,0,8,0.75);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border-top: 1px solid rgba(255,255,255,0.08);
+  padding: 10px 14px 24px;
+  display: flex; flex-direction: column; gap: 8px;
+  box-shadow: 0 -8px 32px rgba(0,0,0,0.6);
+}
+
+/* Selected chips row */
+.chipsWrap {
+  display: flex; gap: 7px;
+  overflow-x: auto; padding: 2px 0 4px;
+  scrollbar-width: none;
+}
+.chipsWrap::-webkit-scrollbar { display: none; }
+
+.chip {
+  display: flex; align-items: center; gap: 4px;
+  background: rgba(232,69,140,0.14);
+  border: 1px solid rgba(232,69,140,0.35);
+  border-radius: 20px;
+  padding: 5px 8px 5px 10px;
+  white-space: nowrap; flex-shrink: 0;
+}
+.chipQty   { font-size: 11px; font-weight: 800; color: #E8458C; }
+.chipName  { font-size: 11px; font-weight: 600; color: #fff; max-width: 90px; overflow: hidden; text-overflow: ellipsis; }
+.chipRemove {
+  background: none; border: none; color: rgba(255,255,255,0.45);
+  font-size: 13px; cursor: pointer; padding: 0 0 0 4px;
+  line-height: 1; font-family: inherit;
+  transition: color 0.12s;
+}
+.chipRemove:active { color: #F87171; }
+
+/* Delivery row */
+.deliveryRow {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 6px 10px;
+  background: rgba(255,255,255,0.04);
+  border: 1px solid rgba(255,255,255,0.07);
+  border-radius: 10px;
+}
+.deliveryLeft { display: flex; align-items: center; gap: 6px; }
+.deliveryIcon  { font-size: 14px; }
+.deliveryLabel { font-size: 12px; font-weight: 600; color: rgba(255,255,255,0.7); }
+.deliveryDist  { font-size: 11px; color: rgba(255,255,255,0.3); }
+.deliveryFee   { font-size: 12px; font-weight: 800; color: #E8458C; }
+
+/* Comment */
+.commentWrap { position: relative; }
+.commentInput {
+  width: 100%; background: rgba(255,255,255,0.05);
+  border: 1.5px solid rgba(232,69,140,0.3);
+  border-radius: 12px; color: #fff; font-family: inherit;
+  font-size: 13px; padding: 10px 12px; resize: none;
+  outline: none; line-height: 1.5; box-sizing: border-box;
+}
+.commentInput::placeholder { color: rgba(255,255,255,0.25); }
+.commentCount {
+  position: absolute; bottom: 6px; right: 10px;
+  font-size: 9px; color: rgba(255,255,255,0.2);
+}
+
+/* Footer action bar */
+.footerActions {
+  display: flex; align-items: center; gap: 8px; margin-top: 2px;
+}
+
+.noteBtn {
+  flex-shrink: 0;
+  padding: 9px 12px;
+  background: rgba(255,255,255,0.06);
+  border: 1px solid rgba(255,255,255,0.12);
+  border-radius: 20px; color: rgba(255,255,255,0.5);
+  font-size: 12px; font-weight: 700;
+  cursor: pointer; font-family: inherit;
+  transition: background 0.15s, color 0.15s, border-color 0.15s;
+  white-space: nowrap;
+}
+.noteBtnOn {
+  background: rgba(232,69,140,0.12);
+  border-color: rgba(232,69,140,0.4);
+  color: #E8458C;
+}
+
+.footerTotals {
+  flex: 1; display: flex; flex-direction: column; align-items: flex-end; gap: 1px;
+}
+.totalLabel { font-size: 10px; color: rgba(255,255,255,0.35); }
+.totalVal   { font-size: 17px; font-weight: 900; color: #fff; }
+
+.sendBtn {
+  flex-shrink: 0;
+  padding: 12px 20px;
+  background: linear-gradient(135deg, #E8458C 0%, #C0256A 100%);
+  color: #fff; font-size: 14px; font-weight: 800;
+  border: none; border-radius: 20px;
+  cursor: pointer; font-family: inherit;
+  box-shadow: 0 4px 16px rgba(232,69,140,0.4);
+  transition: opacity 0.15s, transform 0.12s;
+  white-space: nowrap;
+}
+.sendBtn:active { transform: scale(0.95); opacity: 0.9; }

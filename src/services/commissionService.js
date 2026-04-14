@@ -283,6 +283,60 @@ export async function fetchDeliveryOptions(userId) {
   }
 }
 
+// ── Driver cash float helpers ─────────────────────────────────────────────────
+// Called by the booking matcher before assigning a COD food order to a driver.
+// Rule: driver.cashFloat must be >= order.foodTotal to be eligible.
+// If driver declared Rp 50.000 and food order is Rp 100.000 → NOT eligible.
+
+/**
+ * Returns true when a driver is eligible to accept a COD food order.
+ * @param {number} driverCashFloat  – amount declared at sign-in (IDR)
+ * @param {number} orderFoodTotal   – total food cost to be paid to restaurant (IDR)
+ * @param {string} paymentMethod    – 'cod' | 'transfer'
+ */
+export function driverEligibleForOrder(driverCashFloat, orderFoodTotal, paymentMethod) {
+  if (paymentMethod !== 'cod') return true          // transfer orders have no float requirement
+  return (driverCashFloat ?? 0) >= orderFoodTotal   // float must cover the full food price
+}
+
+/**
+ * Save the driver's declared cash float to Supabase.
+ * Updates driver_profiles.cash_float and cash_float_declared_at.
+ */
+export async function saveDriverCashFloat(driverId, amount) {
+  if (!supabase) return false
+  try {
+    const { error } = await supabase
+      .from('driver_profiles')
+      .update({
+        cash_float: amount,
+        cash_float_declared_at: new Date().toISOString(),
+      })
+      .eq('user_id', driverId)
+    return !error
+  } catch {
+    return false
+  }
+}
+
+/**
+ * Fetch the driver's current declared cash float.
+ */
+export async function getDriverCashFloat(driverId) {
+  if (!supabase) return 0
+  try {
+    const { data, error } = await supabase
+      .from('driver_profiles')
+      .select('cash_float, cash_float_declared_at')
+      .eq('user_id', driverId)
+      .single()
+    if (error || !data) return 0
+    return data.cash_float ?? 0
+  } catch {
+    return 0
+  }
+}
+
 // ── IDR formatter ─────────────────────────────────────────────────────────────
 export function fmtIDR(amount) {
   if (!amount) return 'Rp 0'

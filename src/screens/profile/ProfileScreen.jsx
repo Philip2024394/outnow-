@@ -24,6 +24,7 @@ import { usePushNotifications } from '@/hooks/usePushNotifications'
 import { fetchDriverPendingBooking } from '@/services/bookingService'
 import SideDrawer from '@/components/ui/SideDrawer'
 import MicroShop from '@/components/ui/MicroShop'
+import QAFeedScreen from '@/components/community/QAFeedScreen'
 import styles from '../ProfileScreen.module.css'
 
 import ProfileHeader from './ProfileHeader'
@@ -192,6 +193,9 @@ export default function ProfileScreen({ onClose, onboarding = false }) {
   const tier    = userProfile?.tier ?? 'free'
   const hasShop = tier === 'premium' || tier === 'business'
   const [confirmedLinks, setConfirmedLinks] = useState({})
+
+  // ── Q&A Feed ─────────────────────────────────────────────────────────────────
+  const [qaFeedOpen, setQaFeedOpen] = useState(false)
 
   // ── Account drawer ───────────────────────────────────────────────────────────
   const [drawerOpen,      setDrawerOpen]      = useState(false)
@@ -389,7 +393,7 @@ export default function ProfileScreen({ onClose, onboarding = false }) {
           <div style={{display: 'flex', flexDirection: 'column', gap: 4}}>
             <h2 style={{marginTop: 0, marginBottom: 20, color: '#fff', fontSize: 20, fontWeight: 800, letterSpacing: '-0.5px'}}>Dashboard</h2>
             <button style={{width: '100%', padding: '14px 16px', background: '#1a1a1a', color: '#fff', border: '1px solid #2a2a2a', borderRadius: 12, fontSize: 15, fontWeight: 600, marginBottom: 8, cursor: 'pointer', textAlign: 'left', transition: 'all 0.2s ease', boxShadow: '0 2px 8px rgba(0,0,0,0.3)'}} onMouseEnter={(e) => {e.target.style.background = '#252525'; e.target.style.borderColor = '#353535'; e.target.style.boxShadow = '0 4px 16px rgba(141,198,63,0.15)';}} onMouseLeave={(e) => {e.target.style.background = '#1a1a1a'; e.target.style.borderColor = '#2a2a2a'; e.target.style.boxShadow = '0 2px 8px rgba(0,0,0,0.3)';}}><span style={{display: 'inline-block', marginRight: 10}}>👤</span>View My Profile</button>
-            <button onClick={() => setDrawerOpen(false)} style={{width: '100%', padding: '14px 16px', background: '#1a1a1a', color: '#fff', border: '1px solid #2a2a2a', borderRadius: 12, fontSize: 15, fontWeight: 600, marginBottom: 12, cursor: 'pointer', textAlign: 'left', transition: 'all 0.2s ease', boxShadow: '0 2px 8px rgba(0,0,0,0.3)'}} onMouseEnter={(e) => {e.target.style.background = '#252525'; e.target.style.borderColor = '#353535'; e.target.style.boxShadow = '0 4px 16px rgba(141,198,63,0.15)';}} onMouseLeave={(e) => {e.target.style.background = '#1a1a1a'; e.target.style.borderColor = '#2a2a2a'; e.target.style.boxShadow = '0 2px 8px rgba(0,0,0,0.3)';}}><span style={{display: 'inline-block', marginRight: 10}}>📸</span>Edit Photos</button>
+            <button onClick={() => setDrawerOpen(false)} style={{width: '100%', padding: '14px 16px', background: '#1a1a1a', color: '#fff', border: '1px solid #2a2a2a', borderRadius: 12, fontSize: 15, fontWeight: 600, marginBottom: 8, cursor: 'pointer', textAlign: 'left', transition: 'all 0.2s ease', boxShadow: '0 2px 8px rgba(0,0,0,0.3)'}} onMouseEnter={(e) => {e.target.style.background = '#252525'; e.target.style.borderColor = '#353535'; e.target.style.boxShadow = '0 4px 16px rgba(141,198,63,0.15)';}} onMouseLeave={(e) => {e.target.style.background = '#1a1a1a'; e.target.style.borderColor = '#2a2a2a'; e.target.style.boxShadow = '0 2px 8px rgba(0,0,0,0.3)';}}><span style={{display: 'inline-block', marginRight: 10}}>📸</span>Edit Photos</button>
             <hr style={{border: 0, borderTop: '1px solid rgba(141,198,63,0.15)', margin: '12px 0'}} />
             <button style={{width: '100%', padding: '14px 16px', background: '#1a1a1a', color: '#fff', border: '1px solid #2a2a2a', borderRadius: 12, fontSize: 15, fontWeight: 600, marginBottom: 8, cursor: 'pointer', textAlign: 'left', transition: 'all 0.2s ease', boxShadow: '0 2px 8px rgba(0,0,0,0.3)'}} onMouseEnter={(e) => {e.target.style.background = '#252525'; e.target.style.borderColor = '#353535'; e.target.style.boxShadow = '0 4px 16px rgba(141,198,63,0.15)';}} onMouseLeave={(e) => {e.target.style.background = '#1a1a1a'; e.target.style.borderColor = '#2a2a2a'; e.target.style.boxShadow = '0 2px 8px rgba(0,0,0,0.3)';}}><span style={{display: 'inline-block', marginRight: 10}}>⚙️</span>Account Settings</button>
             <button style={{width: '100%', padding: '14px 16px', background: '#1a1a1a', color: '#fff', border: '1px solid #2a2a2a', borderRadius: 12, fontSize: 15, fontWeight: 600, marginBottom: 8, cursor: 'pointer', textAlign: 'left', transition: 'all 0.2s ease', boxShadow: '0 2px 8px rgba(0,0,0,0.3)'}} onMouseEnter={(e) => {e.target.style.background = '#252525'; e.target.style.borderColor = '#353535'; e.target.style.boxShadow = '0 4px 16px rgba(141,198,63,0.15)';}} onMouseLeave={(e) => {e.target.style.background = '#1a1a1a'; e.target.style.borderColor = '#2a2a2a'; e.target.style.boxShadow = '0 2px 8px rgba(0,0,0,0.3)';}}><span style={{display: 'inline-block', marginRight: 10}}>🔒</span>Privacy & Security</button>
@@ -638,6 +642,13 @@ export default function ProfileScreen({ onClose, onboarding = false }) {
         subValue={subCategory}
         onChange={(main, sub) => { setLookingFor(main); setSubCategory(sub ?? null) }}
         onClose={() => setLookingForOpen(false)}
+      />
+
+      <QAFeedScreen
+        open={qaFeedOpen}
+        onClose={() => setQaFeedOpen(false)}
+        user={user}
+        userProfile={userProfile}
       />
     </>
   )

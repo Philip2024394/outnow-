@@ -16,8 +16,14 @@ function formatPrice(price, currency) {
   return `${currency} ${Number(price).toLocaleString()}`
 }
 
-export default function FoodOrderSheet({ open, product, seller, giftFor, onClose, showToast }) {
+// items = array of { id, name, price, qty, image, currency } (multi-item cart)
+// product = single item object (quick-order from carousel)
+// One of the two must be provided.
+export default function FoodOrderSheet({ open, product, items, seller, giftFor, onClose, showToast }) {
   const { user } = useAuth()
+
+  const isMulti      = Array.isArray(items) && items.length > 0
+  const itemsSubtotal = isMulti ? items.reduce((s, i) => s + i.price * i.qty, 0) : 0
 
   const [message,   setMessage]   = useState('')
   const [sending,   setSending]   = useState(false)
@@ -43,12 +49,21 @@ export default function FoodOrderSheet({ open, product, seller, giftFor, onClose
     })
   }
 
-  if (!open || !product || !seller || !giftFor) return null
+  if (!open || (!product && !isMulti) || !seller || !giftFor) return null
 
   const distanceKm   = giftFor.distanceKm ?? giftFor.distKm ?? null
   const tier         = getDeliveryTier(distanceKm)
   const hanggerAvail = tier !== null
-  const totalPrice   = Number(product.price ?? 0) + Number(tier?.fee ?? 0)
+  const basePrice    = isMulti ? itemsSubtotal : Number(product.price ?? 0)
+  const totalPrice   = basePrice + Number(tier?.fee ?? 0)
+
+  // Bundle product used when placing a multi-item order
+  const orderProduct = isMulti ? {
+    id:       `cart-${Date.now()}`,
+    name:     items.map(i => `${i.qty}× ${i.name}`).join(', '),
+    price:    itemsSubtotal,
+    currency: 'IDR',
+  } : product
 
   const handleSend = async () => {
     if (!user?.id && !user?.uid) {
@@ -63,7 +78,7 @@ export default function FoodOrderSheet({ open, product, seller, giftFor, onClose
       const { id: orderId, error } = await placeGiftOrder({
         recipientId,
         sellerId:    seller.id,
-        product,
+        product:     orderProduct,
         giftMessage: message,
         deliveryFee: tier?.fee ?? 0,
         distanceKm,
@@ -74,7 +89,7 @@ export default function FoodOrderSheet({ open, product, seller, giftFor, onClose
       const sellerName = seller.brandName ?? seller.displayName ?? 'a restaurant'
 
       await notifyGiftToSeller(seller.id, {
-        productName: product.name,
+        productName: orderProduct.name,
         orderId,
         fromUserId:  buyerUserId,
       })
@@ -83,7 +98,7 @@ export default function FoodOrderSheet({ open, product, seller, giftFor, onClose
       if (recipientHasAddress) {
         await notifyGiftToRecipient(recipientId, {
           sellerName,
-          productName: product.name,
+          productName: orderProduct.name,
           orderId,
           fromUserId:  buyerUserId,
         })
@@ -149,25 +164,44 @@ export default function FoodOrderSheet({ open, product, seller, giftFor, onClose
       <div className={styles.sheet} onClick={e => e.stopPropagation()}>
         <div className={styles.handle} />
 
-        {/* Dish card */}
-        <div className={styles.productCard}>
-          {product.image || product.image_url
-            ? <img src={product.image ?? product.image_url} alt={product.name} className={styles.productImg} />
-            : <div className={styles.productImgFallback}>🍜</div>
-          }
-          <div className={styles.productInfo}>
-            <div className={styles.productName}>{product.name}</div>
-            {product.selectedVariant && (
-              <div className={styles.productVariant}>{product.selectedVariant}</div>
-            )}
-            <div className={styles.productSeller}>
-              from {seller.brandName ?? seller.displayName}
+        {/* ── Order summary ── */}
+        <div className={styles.restaurantRow}>
+          <span className={styles.restaurantLabel}>from</span>
+          <span className={styles.restaurantName}>{seller.brandName ?? seller.displayName}</span>
+        </div>
+
+        {isMulti ? (
+          <div className={styles.itemsList}>
+            {items.map(item => (
+              <div key={item.id} className={styles.itemRow}>
+                <span className={styles.itemQty}>{item.qty}×</span>
+                <span className={styles.itemName}>{item.name}</span>
+                <span className={styles.itemPrice}>{formatPrice(item.price * item.qty, item.currency)}</span>
+              </div>
+            ))}
+            <div className={styles.itemsSubtotalRow}>
+              <span>Subtotal</span>
+              <span className={styles.itemsSubtotalVal}>{formatPrice(itemsSubtotal, 'IDR')}</span>
             </div>
           </div>
-          <div className={styles.productPrice}>
-            {formatPrice(product.price, product.currency)}
+        ) : (
+          <div className={styles.productCard}>
+            {product.image || product.image_url
+              ? <img src={product.image ?? product.image_url} alt={product.name} className={styles.productImg} />
+              : <div className={styles.productImgFallback}>🍜</div>
+            }
+            <div className={styles.productInfo}>
+              <div className={styles.productName}>{product.name}</div>
+              {product.selectedVariant && (
+                <div className={styles.productVariant}>{product.selectedVariant}</div>
+              )}
+            </div>
+
+            <div className={styles.productPrice}>
+              {formatPrice(product.price, product.currency)}
+            </div>
           </div>
-        </div>
+        )}
 
         {/* Delivery */}
         {hanggerAvail ? (
@@ -219,7 +253,7 @@ export default function FoodOrderSheet({ open, product, seller, giftFor, onClose
         {/* Total + send */}
         <div className={styles.totalRow}>
           <span className={styles.totalLabel}>Total</span>
-          <span className={styles.totalValue}>{formatPrice(totalPrice, product.currency)}</span>
+          <span className={styles.totalValue}>{formatPrice(totalPrice, isMulti ? 'IDR' : product.currency)}</span>
         </div>
 
         <button className={styles.sendBtn} onClick={handleSend} disabled={sending}>
