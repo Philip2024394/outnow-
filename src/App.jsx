@@ -1,8 +1,7 @@
-import { Component, useEffect, useRef, useState } from 'react'
+import { Component, lazy, Suspense, useEffect, useRef, useState } from 'react'
 import { useAuth } from '@/hooks/useAuth'
 import LandingScreen from '@/screens/LandingScreen'
 import JoinSheet from '@/screens/onboarding/JoinSheet'
-import AppShell from '@/router/AppShell'
 import WelcomeScreen from '@/screens/WelcomeScreen'
 import ProfileScreen from '@/screens/ProfileScreen'
 import LocationGateScreen from '@/screens/LocationGateScreen'
@@ -10,8 +9,12 @@ import Spinner from '@/components/ui/Spinner'
 import { GuestGateProvider } from '@/contexts/GuestGateContext'
 import { LanguageProvider } from '@/i18n'
 import LanguageToast from '@/components/ui/LanguageToast'
-import DevPanel from '@/dev/DevPanel'
 import styles from './App.module.css'
+
+// Lazy-loaded: AppShell is the heaviest module — only needed after onboarding
+const AppShell = lazy(() => import('@/router/AppShell'))
+// DevPanel only used in dev mode
+const DevPanel = lazy(() => import('@/dev/DevPanel'))
 
 // ── Error Boundary — catches any render crash and shows a recovery screen ──
 class ErrorBoundary extends Component {
@@ -160,7 +163,7 @@ export default function App() {
     <ErrorBoundary>
       <LanguageProvider>
         <GuestGateProvider>
-          <DevPanel />
+          <Suspense fallback={null}><DevPanel /></Suspense>
           <LanguageToast />
 
           {/* ── New user: welcome slides ── */}
@@ -180,7 +183,14 @@ export default function App() {
 
           {/* ── Returning user or after onboarding complete ── */}
           {(guestMode || onboardStep === 'done') && (
-            <AppShell returnParams={returnParams} triggerGoLive={triggerGoLive} />
+            <Suspense fallback={
+              <div className={styles.splash}>
+                <img src={LOGO_URL} alt="Hangger" className={styles.splashLogo} />
+                <Spinner size={28} color="var(--color-live)" />
+              </div>
+            }>
+              <AppShell returnParams={returnParams} triggerGoLive={triggerGoLive} />
+            </Suspense>
           )}
 
         </GuestGateProvider>

@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from 'react'
+import { lazy, Suspense, useEffect, useMemo, useRef, useState } from 'react'
 import { useAppOverlays } from './useAppOverlays'
 import { createPortal } from 'react-dom'
 import { useOverlay, OVERLAY } from '@/contexts/OverlayContext'
@@ -18,7 +18,6 @@ import MapHeader from '@/components/map/MapHeader'
 import MapOverlay from '@/components/map/MapOverlay'
 import { endSession } from '@/services/sessionService'
 import { getSafetyContact } from '@/components/safety/SafetySheet'
-import SOSModal from '@/components/safety/SOSModal'
 import ProfileStrip from '@/components/map/ProfileStrip'
 import BoostBanner from '@/components/ui/BoostBanner'
 import StatusCheckInBanner from '@/components/status/StatusCheckInBanner'
@@ -27,38 +26,18 @@ import BottomNav from '@/components/nav/BottomNav'
 import GoLiveSheet from '@/components/golive/GoLiveSheet'
 import ActiveSessionBar from '@/components/session/ActiveSessionBar'
 import StillHerePrompt from '@/components/session/StillHerePrompt'
-import DiscoveryCard from '@/components/discovery/DiscoveryCard'
-import DiscoveryListSheet from '@/components/discovery/DiscoveryListSheet'
 import WaveBanner from '@/components/meet/WaveBanner'
 import DateInvitePopup  from '@/components/dating/DateInvitePopup'
-import DateIdeasSheet   from '@/components/dating/DateIdeasSheet'
 import { useDateInvites } from '@/hooks/useDateInvites'
 import MeetAcceptedBanner from '@/components/meet/MeetAcceptedBanner'
-import PaymentGate from '@/components/payment/PaymentGate'
-import ReportSheet from '@/components/moderation/ReportSheet'
-import SettingsSheet from '@/components/settings/SettingsSheet'
 import MapFilterSheet, { DEFAULT_MAP_FILTERS } from '@/components/map/MapFilterSheet'
 import CountrySearchSheet, { COUNTRIES } from '@/components/map/CountrySearchSheet'
 import MapSearchBar from '@/components/map/MapSearchBar'
 import GlobalSearchSuggest from '@/components/search/GlobalSearchSuggest'
-import CityResultsSheet from '@/components/map/CityResultsSheet'
-import CompanyBrowsePanel from '@/components/map/CompanyBrowsePanel'
-import ContactUnlockSheet from '@/components/payment/ContactUnlockSheet'
 import { useIpCountry } from '@/hooks/useIpCountry'
 import MomentumBanner from '@/components/map/MomentumBanner'
 import ExtendSessionPrompt from '@/components/ui/ExtendSessionPrompt'
-import RatingSheet from '@/components/session/RatingSheet'
-import ReviewsSection from '@/components/session/ReviewsSection'
-import LikedMeScreen from '@/screens/LikedMeScreen'
-import LikedProfilesScreen from '@/screens/LikedProfilesScreen'
 import { useLikedProfiles } from '@/hooks/useLikedProfiles'
-import NotificationsScreen from '@/screens/NotificationsScreen'
-import RideHistoryScreen from '@/screens/RideHistoryScreen'
-import BlockedUsersScreen from '@/screens/BlockedUsersScreen'
-import OrderHistoryScreen from '@/screens/OrderHistoryScreen'
-import IncomingGiftsScreen from '@/screens/IncomingGiftsScreen'
-import ProfileScreen from '@/screens/ProfileScreen'
-import ChatScreen from '@/screens/ChatScreen'
 import { DEMO_DATING_BUBBLES } from '@/demo/mockData'
 import { useNotifications } from '@/hooks/useNotifications'
 import { useAuth } from '@/hooks/useAuth'
@@ -67,29 +46,53 @@ import { useGuestGate } from '@/contexts/GuestGateContext'
 import AddToHomeScreenBanner from '@/components/pwa/AddToHomeScreenBanner'
 import BottomSheet from '@/components/ui/BottomSheet'
 import Toast from '@/components/ui/Toast'
-// DemoMapView removed — replaced by TimeBackground
-import UpgradeSheet from '@/components/premium/UpgradeSheet'
-import SpotClaimSheet from '@/components/spots/SpotClaimSheet'
-import MySpotScreen from '@/screens/MySpotScreen'
-import VibeCheckSheet      from '@/components/vibecheck/VibeCheckSheet'
 import VibeCheckBanner     from '@/components/vibecheck/VibeCheckBanner'
-import VibeBlastPage       from '@/components/vibecheck/VibeBlastPage'
-import HanggerNewsSheet    from '@/components/news/HanggerNewsSheet'
-import QAFeedScreen        from '@/components/community/QAFeedScreen'
 
 import TimeBackground from '@/components/ui/TimeBackground'
 import FloatingIcons from '@/components/home/FloatingIcons'
 import IntentGrid from '@/components/ui/IntentGrid'
-import DatingBubbleScreen from '@/components/dating/DatingBubbleScreen'
-import BookingScreen from '@/screens/BookingScreen'
-import RestaurantBrowseScreen from '@/screens/RestaurantBrowseScreen'
-import CategoryDiscoveryScreen from '@/screens/CategoryDiscoveryScreen'
 import ReviewPrompt from '@/components/restaurant/ReviewPrompt'
-
-import ShopSearchScreen from '@/screens/ShopSearchScreen'
 
 import '@/styles/map.css'
 import styles from './AppShell.module.css'
+
+// ── Lazy-loaded heavy screens (only downloaded when user opens them) ──────────
+const ChatScreen              = lazy(() => import('@/screens/ChatScreen'))
+const ProfileScreen           = lazy(() => import('@/screens/ProfileScreen'))
+const BookingScreen           = lazy(() => import('@/screens/BookingScreen'))
+const ShopSearchScreen        = lazy(() => import('@/screens/ShopSearchScreen'))
+const DatingBubbleScreen      = lazy(() => import('@/components/dating/DatingBubbleScreen'))
+const CategoryDiscoveryScreen = lazy(() => import('@/screens/CategoryDiscoveryScreen'))
+const RestaurantBrowseScreen  = lazy(() => import('@/screens/RestaurantBrowseScreen'))
+const QAFeedScreen            = lazy(() => import('@/components/community/QAFeedScreen'))
+const VibeBlastPage           = lazy(() => import('@/components/vibecheck/VibeBlastPage'))
+const NotificationsScreen     = lazy(() => import('@/screens/NotificationsScreen'))
+const RideHistoryScreen       = lazy(() => import('@/screens/RideHistoryScreen'))
+const LikedMeScreen           = lazy(() => import('@/screens/LikedMeScreen'))
+const LikedProfilesScreen     = lazy(() => import('@/screens/LikedProfilesScreen'))
+const BlockedUsersScreen      = lazy(() => import('@/screens/BlockedUsersScreen'))
+const OrderHistoryScreen      = lazy(() => import('@/screens/OrderHistoryScreen'))
+const IncomingGiftsScreen     = lazy(() => import('@/screens/IncomingGiftsScreen'))
+const SettingsSheet           = lazy(() => import('@/components/settings/SettingsSheet'))
+const DiscoveryCard           = lazy(() => import('@/components/discovery/DiscoveryCard'))
+const DiscoveryListSheet      = lazy(() => import('@/components/discovery/DiscoveryListSheet'))
+const SOSModal                = lazy(() => import('@/components/safety/SOSModal'))
+const PaymentGate             = lazy(() => import('@/components/payment/PaymentGate'))
+const ReportSheet             = lazy(() => import('@/components/moderation/ReportSheet'))
+const ContactUnlockSheet      = lazy(() => import('@/components/payment/ContactUnlockSheet'))
+const CityResultsSheet        = lazy(() => import('@/components/map/CityResultsSheet'))
+const CompanyBrowsePanel      = lazy(() => import('@/components/map/CompanyBrowsePanel'))
+const DateIdeasSheet          = lazy(() => import('@/components/dating/DateIdeasSheet'))
+const UpgradeSheet            = lazy(() => import('@/components/premium/UpgradeSheet'))
+const SpotClaimSheet          = lazy(() => import('@/components/spots/SpotClaimSheet'))
+const MySpotScreen            = lazy(() => import('@/screens/MySpotScreen'))
+const VibeCheckSheet          = lazy(() => import('@/components/vibecheck/VibeCheckSheet'))
+const HanggerNewsSheet        = lazy(() => import('@/components/news/HanggerNewsSheet'))
+const RatingSheet             = lazy(() => import('@/components/session/RatingSheet'))
+const ReviewsSection          = lazy(() => import('@/components/session/ReviewsSection'))
+
+// Minimal fallback for lazy screens
+const LazyFallback = () => null
 
 
 export default function AppShell({ returnParams, triggerGoLive }) {
@@ -401,11 +404,13 @@ export default function AppShell({ returnParams, triggerGoLive }) {
       )}
 
       {/* Date Ideas side drawer */}
+      <Suspense fallback={<LazyFallback />}>
       <DateIdeasSheet
         open={dateIdeasOpen}
         targetSession={dateIdeasTarget}
         onClose={() => { setDateIdeasOpen(false); setDateIdeasTarget(null) }}
       />
+      </Suspense>
 
       {/* Step 1 — Intent picker: what kind of connection? */}
       <IntentGrid
@@ -422,6 +427,7 @@ export default function AppShell({ returnParams, triggerGoLive }) {
       />
 
       {/* Step 2 — Floating bubble profiles matching that intent */}
+      <Suspense fallback={<LazyFallback />}>
       <DatingBubbleScreen
         open={datingGridOpen}
         activity={{ emoji: '💕', label: datingIntent ? datingIntent.charAt(0).toUpperCase() + datingIntent.slice(1).replace(/_/g, ' ') : 'Dating' }}
@@ -462,11 +468,14 @@ export default function AppShell({ returnParams, triggerGoLive }) {
           setActiveTab('chat')
         }}
       />
+      </Suspense>
 
       {/* Full-screen tab screens */}
-      {activeTab === 'chat'    && <ChatScreen key={pendingConv?.id ?? 'chat'} onClose={() => setActiveTab('map')} pendingConv={pendingConv} />}
-      {activeTab === 'profile' && <ProfileScreen onClose={() => setActiveTab('map')} onOpenSettings={() => setSettingsOpen(true)} />}
-      {activeTab === 'shopping' && <ShopSearchScreen onClose={() => { setActiveTab('map'); setGiftForSession(null) }} userCity={userProfile?.city} userCountry={userProfile?.country} giftFor={giftForSession} onGiftDismiss={() => setGiftForSession(null)} showToast={showToast} onOrderViaChat={handleOrderViaChat} />}
+      <Suspense fallback={<LazyFallback />}>
+        {activeTab === 'chat'    && <ChatScreen key={pendingConv?.id ?? 'chat'} onClose={() => setActiveTab('map')} pendingConv={pendingConv} />}
+        {activeTab === 'profile' && <ProfileScreen onClose={() => setActiveTab('map')} onOpenSettings={() => setSettingsOpen(true)} />}
+        {activeTab === 'shopping' && <ShopSearchScreen onClose={() => { setActiveTab('map'); setGiftForSession(null) }} userCity={userProfile?.city} userCountry={userProfile?.country} giftFor={giftForSession} onGiftDismiss={() => setGiftForSession(null)} showToast={showToast} onOrderViaChat={handleOrderViaChat} />}
+      </Suspense>
 
       <div className="map-top-fade" />
       <div className="map-bottom-fade" />
@@ -699,8 +708,11 @@ export default function AppShell({ returnParams, triggerGoLive }) {
         />
       )}
 
+      <Suspense fallback={<LazyFallback />}>
       {rideOpen && <BookingScreen onClose={() => setRideOpen(false)} />}
+      </Suspense>
 
+      <Suspense fallback={<LazyFallback />}>
       {foodOpen && !foodBrowseOpen && (
         <CategoryDiscoveryScreen
           onClose={() => setFoodOpen(false)}
@@ -720,6 +732,7 @@ export default function AppShell({ returnParams, triggerGoLive }) {
           onOrderViaChat={handleOrderViaChat}
         />
       )}
+      </Suspense>
 
       {/* Review prompt — floats globally, fires after any MAKAN WhatsApp order */}
       <ReviewPrompt userId={user?.id} />
@@ -753,6 +766,7 @@ export default function AppShell({ returnParams, triggerGoLive }) {
       )}
 
       {/* Sheets */}
+      <Suspense fallback={<LazyFallback />}>
       <DiscoveryCard
         open={overlay.type === OVERLAY.DISCOVERY}
         session={overlay.data}
@@ -838,7 +852,9 @@ export default function AppShell({ returnParams, triggerGoLive }) {
         buyerCountry={effectiveCountry}
         onClose={() => setContactUnlockSession(null)}
       />
+      </Suspense>
       <GoLiveSheet open={overlay.type === OVERLAY.GO_LIVE} onClose={closeOverlay} showToast={showToast} />
+      <Suspense fallback={<LazyFallback />}>
       <PaymentGate open={overlay.type === OVERLAY.PAYMENT_GATE} request={overlay.data} onClose={closeOverlay} showToast={showToast} />
       <ReportSheet open={overlay.type === OVERLAY.REPORT} session={overlay.data} onClose={closeOverlay} showToast={showToast} />
       {likedMeOpen && <LikedMeScreen onClose={() => setLikedMeOpen(false)} />}
@@ -901,6 +917,7 @@ export default function AppShell({ returnParams, triggerGoLive }) {
       {blockListOpen      && <BlockedUsersScreen  onClose={() => setBlockListOpen(false)} />}
       {orderHistoryOpen   && <OrderHistoryScreen  onClose={() => setOrderHistoryOpen(false)} />}
       {incomingGiftsOpen  && <IncomingGiftsScreen onClose={() => setIncomingGiftsOpen(false)} />}
+      </Suspense>
 
       <CountrySearchSheet
         open={countrySearchOpen}
@@ -912,6 +929,7 @@ export default function AppShell({ returnParams, triggerGoLive }) {
         onUpgrade={() => { setCountrySearchOpen(false); setActiveTab('profile') }}
       />
 
+      <Suspense fallback={<LazyFallback />}>
       <CityResultsSheet
         open={cityResultsOpen}
         query={searchQuery}
@@ -932,6 +950,8 @@ export default function AppShell({ returnParams, triggerGoLive }) {
         onClose={() => setCompanyPanelOpen(false)}
       />
 
+      </Suspense>
+
       <MapFilterSheet
         open={mapFilterOpen}
         onClose={() => setMapFilterOpen(false)}
@@ -941,6 +961,7 @@ export default function AppShell({ returnParams, triggerGoLive }) {
       />
 
 
+      <Suspense fallback={<LazyFallback />}>
       <UpgradeSheet
         open={upgradeOpen}
         onClose={() => setUpgradeOpen(false)}
@@ -961,7 +982,10 @@ export default function AppShell({ returnParams, triggerGoLive }) {
         onClaimSpot={() => { setMySpotOpen(false); setSpotClaimOpen(true) }}
       />
 
+      </Suspense>
+
       {createPortal(
+        <Suspense fallback={<LazyFallback />}>
         <SettingsSheet
           open={settingsOpen}
           onClose={() => setSettingsOpen(false)}
@@ -975,7 +999,8 @@ export default function AppShell({ returnParams, triggerGoLive }) {
           onMySpot={() => { setSettingsOpen(false); setTimeout(() => setMySpotOpen(true), 200) }}
           showToast={showToast}
           onSOS={() => setSosOpen(true)}
-        />,
+        />
+        </Suspense>,
         document.body
       )}
 
@@ -987,6 +1012,7 @@ export default function AppShell({ returnParams, triggerGoLive }) {
         />
       )}
 
+      <Suspense fallback={<LazyFallback />}>
       <SOSModal
         open={sosOpen}
         onClose={() => setSosOpen(false)}
@@ -1052,6 +1078,9 @@ export default function AppShell({ returnParams, triggerGoLive }) {
         }}
       />
 
+      </Suspense>
+
+      <Suspense fallback={<LazyFallback />}>
       <RatingSheet
         open={ratingOpen}
         session={mySession}
@@ -1091,8 +1120,9 @@ export default function AppShell({ returnParams, triggerGoLive }) {
       />
 
       <BottomSheet open={reviewsOpen} onClose={() => setReviewsOpen(false)} title="">
-        <ReviewsSection />
+        <Suspense fallback={<LazyFallback />}><ReviewsSection /></Suspense>
       </BottomSheet>
+      </Suspense>
 
 
       <VibeCheckSheet
