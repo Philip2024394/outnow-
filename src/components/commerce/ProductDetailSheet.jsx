@@ -208,40 +208,45 @@ export default function ProductDetailSheet({ product, onClose, sellerWa, sellerN
               <p className={styles.noSpecs}>No specifications listed for this product.</p>
             )}
 
-            <div className={styles.ctaRow}>
+            {/* Thumbnail strip + Cart button row */}
+            <div style={{ display:'flex', alignItems:'center', gap:8, marginTop:4 }}>
+              <div style={{ flex:1, minWidth:0, display:'flex', gap:6, overflowX:'auto', WebkitOverflowScrolling:'touch', scrollbarWidth:'none', paddingBottom:2 }}>
+                {(product.images?.length > 1 ? product.images : [activeImage].filter(Boolean)).map((url, i) => (
+                  <button key={i} onClick={() => { setGalleryStart(i); setGalleryOpen(true) }}
+                    style={{ width:42, height:42, borderRadius:8, overflow:'hidden', padding:0, border:'2px solid rgba(255,255,255,0.15)', cursor:'pointer', background:'#000', flexShrink:0, boxShadow:'0 1px 4px rgba(0,0,0,0.4)' }}>
+                    <img src={url} alt="" style={{ width:'100%', height:'100%', objectFit:'cover', display:'block' }} />
+                  </button>
+                ))}
+              </div>
+              <div style={{ flexShrink:0, display:'flex', gap:6 }}>
+                {onAddToCart && (
+                  cartQty > 0 ? (
+                    <div className={styles.qtyCompact}>
+                      <button className={styles.qtyCompactBtn} onClick={() => onRemoveFromCart(product.id, variantStr)}>−</button>
+                      <span className={styles.qtyCompactNum}>{cartQty}</span>
+                      <button className={styles.qtyCompactBtn} onClick={handleAddToCart}>+</button>
+                    </div>
+                  ) : (
+                    <button onClick={handleAddToCart} disabled={(product.stock ?? 0) === 0}
+                      style={{ height:42, padding:'0 14px', borderRadius:10, background:'rgba(245,158,11,0.15)', border:'1px solid rgba(245,158,11,0.35)', color:'#F59E0B', fontSize:12, fontWeight:800, cursor:'pointer', fontFamily:'inherit', whiteSpace:'nowrap', opacity:(product.stock ?? 0) === 0 ? 0.3 : 1 }}>
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.3" strokeLinecap="round" strokeLinejoin="round" style={{ marginRight:4, verticalAlign:'middle' }}>
+                        <circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/>
+                      </svg>
+                      Add
+                    </button>
+                  )
+                )}
+              </div>
+            </div>
+            {/* Order via Chat — full width below */}
+            <div style={{ marginTop:8 }}>
               {onOrderViaChat
-                ? <button
-                    className={onAddToCart ? styles.orderBtnSecondary : styles.orderBtn}
-                    onClick={() => onOrderViaChat({ product, variantStr, qty: Math.max(cartQty, 1), sellerName, sellerId })}
-                  >
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
-                      <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
-                    </svg>
+                ? <button className={styles.orderBtn} onClick={() => onOrderViaChat({ product, variantStr, qty: Math.max(cartQty, 1), sellerName, sellerId })}>
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
                     Order via Chat
                   </button>
-                : waLink
-                  ? <a href={waLink} target="_blank" rel="noopener noreferrer" className={onAddToCart ? styles.orderBtnSecondary : styles.orderBtn}>
-                      Order via WhatsApp
-                    </a>
-                  : <button className={styles.orderBtnDisabled} disabled>
-                      💬 Contact seller to order
-                    </button>
+                : <button className={styles.orderBtnDisabled} disabled>💬 Contact seller to order</button>
               }
-              {onAddToCart && (
-                cartQty > 0 ? (
-                  <div className={styles.qtyCompact}>
-                    <button className={styles.qtyCompactBtn} onClick={() => onRemoveFromCart(product.id, variantStr)}>−</button>
-                    <span className={styles.qtyCompactNum}>{cartQty}</span>
-                    <button className={styles.qtyCompactBtn} onClick={handleAddToCart}>+</button>
-                  </div>
-                ) : (
-                  <button
-                    className={styles.addCartSmall}
-                    onClick={handleAddToCart}
-                    disabled={(product.stock ?? 0) === 0}
-                  >Add Cart</button>
-                )
-              )}
             </div>
           </>
         ) : (
@@ -330,40 +335,45 @@ export default function ProductDetailSheet({ product, onClose, sellerWa, sellerN
               </span>
             </div>
 
-            <div className={styles.ctaRow}>
+            {/* Thumbnail strip + Cart button row */}
+            <div style={{ display:'flex', alignItems:'center', gap:8, marginTop:4 }}>
+              <div style={{ flex:1, minWidth:0, display:'flex', gap:6, overflowX:'auto', WebkitOverflowScrolling:'touch', scrollbarWidth:'none', paddingBottom:2 }}>
+                {(product.images?.length > 1 ? product.images : [activeImage].filter(Boolean)).map((url, i) => (
+                  <button key={i} onClick={() => { setGalleryStart(i); setGalleryOpen(true) }}
+                    style={{ width:42, height:42, borderRadius:8, overflow:'hidden', padding:0, border:'2px solid rgba(255,255,255,0.15)', cursor:'pointer', background:'#000', flexShrink:0, boxShadow:'0 1px 4px rgba(0,0,0,0.4)' }}>
+                    <img src={url} alt="" style={{ width:'100%', height:'100%', objectFit:'cover', display:'block' }} />
+                  </button>
+                ))}
+              </div>
+              <div style={{ flexShrink:0, display:'flex', gap:6 }}>
+                {onAddToCart && (
+                  cartQty > 0 ? (
+                    <div className={styles.qtyCompact}>
+                      <button className={styles.qtyCompactBtn} onClick={() => onRemoveFromCart(product.id, variantStr)}>−</button>
+                      <span className={styles.qtyCompactNum}>{cartQty}</span>
+                      <button className={styles.qtyCompactBtn} onClick={handleAddToCart}>+</button>
+                    </div>
+                  ) : (
+                    <button onClick={handleAddToCart} disabled={(product.stock ?? 0) === 0}
+                      style={{ height:42, padding:'0 14px', borderRadius:10, background:'rgba(245,158,11,0.15)', border:'1px solid rgba(245,158,11,0.35)', color:'#F59E0B', fontSize:12, fontWeight:800, cursor:'pointer', fontFamily:'inherit', whiteSpace:'nowrap', opacity:(product.stock ?? 0) === 0 ? 0.3 : 1 }}>
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.3" strokeLinecap="round" strokeLinejoin="round" style={{ marginRight:4, verticalAlign:'middle' }}>
+                        <circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/>
+                      </svg>
+                      Add
+                    </button>
+                  )
+                )}
+              </div>
+            </div>
+            {/* Order via Chat — full width below */}
+            <div style={{ marginTop:8 }}>
               {onOrderViaChat
-                ? <button
-                    className={onAddToCart ? styles.orderBtnSecondary : styles.orderBtn}
-                    onClick={() => onOrderViaChat({ product, variantStr, qty: Math.max(cartQty, 1), sellerName, sellerId })}
-                  >
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
-                      <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
-                    </svg>
+                ? <button className={styles.orderBtn} onClick={() => onOrderViaChat({ product, variantStr, qty: Math.max(cartQty, 1), sellerName, sellerId })}>
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
                     Order via Chat
                   </button>
-                : waLink
-                  ? <a href={waLink} target="_blank" rel="noopener noreferrer" className={onAddToCart ? styles.orderBtnSecondary : styles.orderBtn}>
-                      Order via WhatsApp
-                    </a>
-                  : <button className={styles.orderBtnDisabled} disabled>
-                      💬 Contact seller to order
-                    </button>
+                : <button className={styles.orderBtnDisabled} disabled>💬 Contact seller to order</button>
               }
-              {onAddToCart && (
-                cartQty > 0 ? (
-                  <div className={styles.qtyCompact}>
-                    <button className={styles.qtyCompactBtn} onClick={() => onRemoveFromCart(product.id, variantStr)}>−</button>
-                    <span className={styles.qtyCompactNum}>{cartQty}</span>
-                    <button className={styles.qtyCompactBtn} onClick={handleAddToCart}>+</button>
-                  </div>
-                ) : (
-                  <button
-                    className={styles.addCartSmall}
-                    onClick={handleAddToCart}
-                    disabled={(product.stock ?? 0) === 0}
-                  >Add Cart</button>
-                )
-              )}
             </div>
 
             {/* Similar products recommendation */}
