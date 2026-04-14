@@ -18,6 +18,21 @@ function formatIDR(val) {
 function getLabel(opt) { return typeof opt === 'object' ? opt.label : opt }
 function getImage(opt) { return typeof opt === 'object' ? opt.image ?? null : null }
 
+// Map color names to CSS colors for dot display
+const COLOR_MAP = {
+  black:'#111',white:'#f5f5f5',red:'#dc2626',blue:'#2563eb',navy:'#1e3a5f',
+  green:'#16a34a',brown:'#78350f',tan:'#d2b48c',grey:'#6b7280',gray:'#6b7280',
+  pink:'#ec4899',purple:'#9333ea',orange:'#ea580c',yellow:'#eab308',
+  gold:'#d4a017',silver:'#c0c0c0',beige:'#f5f0e1',cream:'#fffdd0',
+  'dark brown':'#3e1f00',cognac:'#9a3e00','rose gold':'#b76e79',
+  maroon:'#800000',coral:'#ff7f50',teal:'#0d9488',olive:'#808000',
+  burgundy:'#800020',charcoal:'#36454f',ivory:'#fffff0',khaki:'#c3b091',
+  mint:'#98ff98',peach:'#ffcba4',lavender:'#e6e6fa',turquoise:'#40e0d0',
+}
+function getColorCSS(label) {
+  return COLOR_MAP[label.toLowerCase()] ?? null
+}
+
 export default function ProductDetailSheet({ product, onClose, sellerWa, sellerName, sellerId, onAddToCart, onRemoveFromCart, getCartQty, totalCartQty, onOpenCart, onOrderViaChat }) {
   const [selected,    setSelected]    = useState({})
   const [showOverlay, setShowOverlay] = useState(true)
@@ -249,6 +264,8 @@ export default function ProductDetailSheet({ product, onClose, sellerWa, sellerN
             {variantKeys.map(key => {
               const opts = product.variants[key]
               const selectedLabel = selected[key] ?? getLabel(opts[0])
+              const isColorKey = key === 'color'
+
               return (
                 <div key={key} className={styles.variantGroup}>
                   <div className={styles.variantLabel}>
@@ -260,24 +277,36 @@ export default function ProductDetailSheet({ product, onClose, sellerWa, sellerN
                       const label    = getLabel(opt)
                       const img      = getImage(opt)
                       const isActive = selectedLabel === label
+                      const cssColor = isColorKey ? getColorCSS(label) : null
 
-                      if (key === 'color' && img) {
+                      // Color variant → round dot with outer ring
+                      if (isColorKey) {
                         return (
                           <button
                             key={label}
-                            className={styles.swatchBtn}
                             onClick={() => setSelected(prev => ({ ...prev, [key]: label }))}
                             title={label}
                             aria-label={label}
+                            style={{
+                              width: 36, height: 36, borderRadius: '50%', padding: 0,
+                              border: isActive ? '2px solid #F59E0B' : '2px solid rgba(255,255,255,0.15)',
+                              background: 'transparent', cursor: 'pointer',
+                              display: 'flex', alignItems: 'center', justifyContent: 'center',
+                              transition: 'border-color 0.15s, box-shadow 0.15s',
+                              boxShadow: isActive ? '0 0 0 3px rgba(245,158,11,0.25)' : 'none',
+                            }}
                           >
-                            <span
-                              className={[styles.swatchDot, isActive ? styles.swatchDotActive : ''].join(' ')}
-                              style={{ backgroundImage: `url(${img})` }}
-                            />
+                            <span style={{
+                              width: 22, height: 22, borderRadius: '50%', display: 'block',
+                              background: img ? `url(${img}) center/cover` : (cssColor ?? '#888'),
+                              border: label.toLowerCase() === 'white' ? '1px solid rgba(255,255,255,0.3)' : 'none',
+                              boxShadow: '0 1px 4px rgba(0,0,0,0.3)',
+                            }} />
                           </button>
                         )
                       }
 
+                      // Non-color variants (size, etc.) → text buttons
                       return (
                         <button
                           key={label}
