@@ -6,7 +6,9 @@
  * - 72-hour payment window — auto-posted to overdue by DB cron
  * - Chat lock + account block for non-payers
  */
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
+import { supabase } from '@/lib/supabase'
+import { markSellerCommissionsPaid } from '@/services/commissionService'
 import styles from './CommissionsAdminTab.module.css'
 
 function fmtRp(n) { return `Rp ${Number(n ?? 0).toLocaleString('id-ID')}` }
@@ -69,6 +71,43 @@ export default function CommissionsAdminTab() {
   const [typeFilter, setTypeFilter] = useState('all')
   const [data,       setData]       = useState(DEMO)
   const [blocked,    setBlocked]    = useState(BLOCKED_ACCOUNTS)
+
+  // ── Payment proofs from sellers ────────────────────────────────────────────
+  const [paymentProofs, setPaymentProofs] = useState([
+    { id:'pp1', seller_id:'s1', seller_name:'Bali Crafts Co.', amount:61250, screenshot_url:'https://picsum.photos/seed/proof1/400/600', status:'pending_review', created_at:hAgo(1) },
+    { id:'pp2', seller_id:'s2', seller_name:'Warung Sari Rasa', amount:8100, screenshot_url:'https://picsum.photos/seed/proof2/400/600', status:'pending_review', created_at:hAgo(3) },
+  ])
+  const [proofPreview, setProofPreview] = useState(null)
+
+  useEffect(() => {
+    if (!supabase) return
+    supabase.from('commission_payments')
+      .select('*, profiles:seller_id(display_name)')
+      .eq('status', 'pending_review')
+      .order('created_at', { ascending: false })
+      .then(({ data: proofs }) => {
+        if (proofs?.length) {
+          setPaymentProofs(proofs.map(p => ({
+            ...p, seller_name: p.profiles?.display_name ?? 'Unknown',
+          })))
+        }
+      })
+  }, [])
+
+  const handleConfirmProof = async (proofId, sellerId) => {
+    setPaymentProofs(prev => prev.map(p => p.id === proofId ? { ...p, status: 'confirmed' } : p))
+    // Mark all seller commissions as paid
+    await markSellerCommissionsPaid(sellerId, `Payment proof confirmed by admin`)
+    setData(d => d.map(c => c.sellerId === sellerId && ['pending','overdue'].includes(c.status)
+      ? { ...c, status: 'paid', paid_at: new Date().toISOString() } : c))
+    // Update proof status in DB
+    supabase?.from('commission_payments').update({ status: 'confirmed', reviewed_at: new Date().toISOString() }).eq('id', proofId).catch(() => {})
+  }
+
+  const handleRejectProof = async (proofId) => {
+    setPaymentProofs(prev => prev.map(p => p.id === proofId ? { ...p, status: 'rejected' } : p))
+    supabase?.from('commission_payments').update({ status: 'rejected', reviewed_at: new Date().toISOString(), admin_notes: 'Screenshot rejected — payment not confirmed' }).eq('id', proofId).catch(() => {})
+  }
 
   // ── Derived stats ──────────────────────────────────────────────────────────
   const totalOutstanding = data.filter(c => ['pending','overdue'].includes(c.status)).reduce((s,c) => s + c.amount, 0)
@@ -143,6 +182,69 @@ export default function CommissionsAdminTab() {
           </button>
         )}
       </div>
+
+      {/* ── Incoming payment proofs ── */}
+      {paymentProofs.filter(p => p.status === 'pending_review').length > 0 && (
+        <div style={{
+          margin:'0 0 16px', padding:16, borderRadius:12,
+          background:'linear-gradient(135deg, rgba(34,197,94,0.08), rgba(0,229,255,0.05))',
+          border:'1px solid rgba(34,197,94,0.2)',
+        }}>
+          <div style={{ display:'flex', alignItems:'center', gap:8, marginBottom:12 }}>
+            <span style={{ fontSize:18 }}>📸</span>
+            <span style={{ fontSize:14, fontWeight:800, color:'#22c55e' }}>
+              Incoming Payment Proofs ({paymentProofs.filter(p => p.status === 'pending_review').length})
+            </span>
+          </div>
+          <div style={{ display:'flex', flexDirection:'column', gap:10 }}>
+            {paymentProofs.filter(p => p.status === 'pending_review').map(proof => (
+              <div key={proof.id} style={{
+                display:'flex', alignItems:'center', gap:12, padding:'10px 14px',
+                background:'rgba(0,0,0,0.3)', borderRadius:10,
+              }}>
+                <img
+                  src={proof.screenshot_url} alt="Payment proof"
+                  onClick={() => setProofPreview(proof.screenshot_url)}
+                  style={{ width:48, height:64, objectFit:'cover', borderRadius:6, cursor:'pointer', border:'1px solid rgba(255,255,255,0.1)' }}
+                />
+                <div style={{ flex:1 }}>
+                  <div style={{ fontSize:13, fontWeight:700, color:'#fff' }}>{proof.seller_name}</div>
+                  <div style={{ fontSize:12, color:'#22c55e', fontWeight:700, fontFamily:'monospace' }}>
+                    Rp {Number(proof.amount).toLocaleString('id-ID')}
+                  </div>
+                  <div style={{ fontSize:10, color:'rgba(255,255,255,0.35)', marginTop:2 }}>
+                    {new Date(proof.created_at).toLocaleString('en-GB', { day:'numeric', month:'short', hour:'2-digit', minute:'2-digit' })}
+                  </div>
+                </div>
+                <div style={{ display:'flex', gap:6 }}>
+                  <button onClick={() => handleConfirmProof(proof.id, proof.seller_id)}
+                    style={{ padding:'6px 14px', borderRadius:8, background:'rgba(34,197,94,0.15)', border:'1px solid rgba(34,197,94,0.3)', color:'#22c55e', fontSize:12, fontWeight:700, cursor:'pointer', fontFamily:'inherit' }}>
+                    Confirm
+                  </button>
+                  <button onClick={() => handleRejectProof(proof.id)}
+                    style={{ padding:'6px 14px', borderRadius:8, background:'rgba(239,68,68,0.08)', border:'1px solid rgba(239,68,68,0.2)', color:'#ef4444', fontSize:12, fontWeight:700, cursor:'pointer', fontFamily:'inherit' }}>
+                    Reject
+                  </button>
+                  <button onClick={() => setProofPreview(proof.screenshot_url)}
+                    style={{ padding:'6px 10px', borderRadius:8, background:'rgba(255,255,255,0.05)', border:'1px solid rgba(255,255,255,0.1)', color:'rgba(255,255,255,0.5)', fontSize:12, cursor:'pointer', fontFamily:'inherit' }}>
+                    View
+                  </button>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* Screenshot preview modal */}
+      {proofPreview && (
+        <div onClick={() => setProofPreview(null)} style={{
+          position:'fixed', inset:0, zIndex:9999, background:'rgba(0,0,0,0.85)',
+          display:'flex', alignItems:'center', justifyContent:'center', cursor:'pointer',
+        }}>
+          <img src={proofPreview} alt="Payment proof" style={{ maxWidth:'90%', maxHeight:'90vh', borderRadius:12, boxShadow:'0 16px 64px rgba(0,0,0,0.5)' }} />
+        </div>
+      )}
 
       {/* ── Status tabs ── */}
       <div className={styles.statusTabs}>

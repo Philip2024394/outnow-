@@ -102,6 +102,30 @@ create policy "return_buyer_create" on return_requests for insert
   with check (auth.uid() = buyer_id);
 
 -- ────────────────────────────────────────────────────────────────
+-- Commission payment proofs — seller uploads screenshot, admin reviews
+-- ────────────────────────────────────────────────────────────────
+create table if not exists commission_payments (
+  id              uuid        primary key default gen_random_uuid(),
+  seller_id       uuid        references auth.users on delete cascade not null,
+  screenshot_url  text        not null,
+  amount          numeric     not null default 0,
+  status          text        not null default 'pending_review',
+    -- 'pending_review' | 'confirmed' | 'rejected'
+  admin_notes     text,
+  reviewed_at     timestamptz,
+  created_at      timestamptz default now()
+);
+
+alter table commission_payments enable row level security;
+drop policy if exists "cp_seller_select" on commission_payments;
+create policy "cp_seller_select" on commission_payments for select
+  using (auth.uid() = seller_id);
+create policy "cp_seller_insert" on commission_payments for insert
+  with check (auth.uid() = seller_id);
+
+create index if not exists idx_cp_pending on commission_payments(status, created_at desc) where status = 'pending_review';
+
+-- ────────────────────────────────────────────────────────────────
 -- Helper: increment seller reputation counters
 -- ────────────────────────────────────────────────────────────────
 create or replace function increment_order_filled(p_user_id uuid)
