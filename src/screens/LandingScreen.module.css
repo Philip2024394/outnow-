@@ -49,7 +49,7 @@
 /* ── Logo — directly in hero, no wrapper ── */
 .logo {
   position: absolute;
-  top: 5%;
+  top: calc(5% - 90px);
   left: 50%;
   transform: translateX(-50%);
   height: 80vh;
