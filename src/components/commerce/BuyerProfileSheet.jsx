@@ -6,6 +6,7 @@
  */
 import { useState, useEffect } from 'react'
 import { useAuth } from '@/hooks/useAuth'
+import PurchaseHistoryScreen from '@/screens/PurchaseHistoryScreen'
 import styles from './BuyerProfileSheet.module.css'
 
 // Recently viewed products stored in localStorage
@@ -60,6 +61,7 @@ export default function BuyerProfileSheet({ open, onClose, onOpenProduct }) {
   const { user } = useAuth()
   const [activeTab, setActiveTab] = useState('orders')
   const [recentlyViewed, setRecentlyViewed] = useState([])
+  const [ordersOpen, setOrdersOpen] = useState(false)
 
   useEffect(() => {
     if (open) setRecentlyViewed(getRecentlyViewed())
@@ -147,7 +149,7 @@ export default function BuyerProfileSheet({ open, onClose, onOpenProduct }) {
           {activeTab === 'orders' && (
             <div className={styles.ordersList}>
               <span className={styles.tabTitle}>My Orders</span>
-              {DEMO_ORDERS.map(o => (
+              {DEMO_ORDERS.slice(0, 3).map(o => (
                 <div key={o.id} className={styles.orderRow}>
                   <div className={styles.orderInfo}>
                     <span className={styles.orderProduct}>{o.product}</span>
@@ -161,9 +163,9 @@ export default function BuyerProfileSheet({ open, onClose, onOpenProduct }) {
                   </div>
                 </div>
               ))}
-              {DEMO_ORDERS.length === 0 && (
-                <p className={styles.emptyText}>No orders yet</p>
-              )}
+              <button className={styles.viewAllBtn} onClick={() => setOrdersOpen(true)}>
+                View All Orders →
+              </button>
             </div>
           )}
 
@@ -207,6 +209,10 @@ export default function BuyerProfileSheet({ open, onClose, onOpenProduct }) {
           )}
         </div>
       </div>
+
+      {ordersOpen && (
+        <PurchaseHistoryScreen onClose={() => setOrdersOpen(false)} />
+      )}
     </div>
   )
 }

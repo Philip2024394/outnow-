@@ -187,6 +187,23 @@
   margin-bottom: 6px;
 }
 
+.viewAllBtn {
+  width: 100%;
+  padding: 10px;
+  background: rgba(245,158,11,0.1);
+  border: 1px solid rgba(245,158,11,0.25);
+  border-radius: 8px;
+  color: #F59E0B;
+  font-size: 12px;
+  font-weight: 800;
+  cursor: pointer;
+  font-family: inherit;
+  margin-top: 4px;
+  transition: background 0.15s;
+}
+
+.viewAllBtn:hover { background: rgba(245,158,11,0.18); }
+
 .emptyText {
   font-size: 12px;
   color: rgba(255,255,255,0.25);

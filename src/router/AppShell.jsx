@@ -23,6 +23,7 @@ import BoostBanner from '@/components/ui/BoostBanner'
 import StatusCheckInBanner from '@/components/status/StatusCheckInBanner'
 import { useStatusCheckIn } from '@/hooks/useStatusCheckIn'
 import BottomNav from '@/components/nav/BottomNav'
+import SectionGateSheet, { checkSectionAccess } from '@/components/ui/SectionGateSheet'
 import GoLiveSheet from '@/components/golive/GoLiveSheet'
 import ActiveSessionBar from '@/components/session/ActiveSessionBar'
 import StillHerePrompt from '@/components/session/StillHerePrompt'
@@ -204,6 +205,7 @@ export default function AppShell({ returnParams, triggerGoLive }) {
   // Full map filter sheet
   const [mapFilters, setMapFilters] = useState(DEFAULT_MAP_FILTERS)
   const [activeTab, setActiveTab] = useState('map')
+  const [sectionGate, setSectionGate] = useState(null) // 'dating' | 'marketplace' | null
   const [giftForSession, setGiftForSession] = useState(null)
 
   // Send new users (no display name yet) straight to profile setup
@@ -443,8 +445,18 @@ export default function AppShell({ returnParams, triggerGoLive }) {
           onSelectSession={(s) => handleOpenDiscovery(s)}
           onFoodClick={() => setFoodOpen(true)}
           onRideClick={() => { if (isGuest) { triggerGate(); return } setRideOpen(true) }}
-          onShoppingClick={() => { if (isGuest) { triggerGate(); return } setActiveTab('shopping') }}
-          onDatingClick={() => setDatingIntentOpen(true)}
+          onShoppingClick={() => {
+            if (isGuest) { triggerGate(); return }
+            const access = checkSectionAccess('marketplace', userProfile)
+            if (!access.allowed) { setSectionGate('marketplace'); return }
+            setActiveTab('shopping')
+          }}
+          onDatingClick={() => {
+            if (isGuest) { triggerGate(); return }
+            const access = checkSectionAccess('dating', userProfile)
+            if (!access.allowed) { setSectionGate('dating'); return }
+            setDatingIntentOpen(true)
+          }}
           onMassageClick={() => { if (isGuest) { triggerGate(); return } setActiveTab('shopping') }}
         />
       )}
@@ -1186,6 +1198,30 @@ export default function AppShell({ returnParams, triggerGoLive }) {
 
       <AddToHomeScreenBanner />
       <Toast message={toast?.message} type={toast?.type} onDismiss={() => setToast(null)} />
+
+      {/* Section gate — one-time setup popup */}
+      <SectionGateSheet
+        open={!!sectionGate}
+        section={sectionGate}
+        onClose={() => setSectionGate(null)}
+        onComplete={(data) => {
+          // Save setup data to profile
+          if (data.datingSetup) {
+            userProfile.datingSetup = true
+            userProfile.relationshipGoal = data.relationshipGoal
+            userProfile.datingInterests = data.datingInterests
+          }
+          if (data.marketplaceSetup) {
+            userProfile.marketplaceSetup = true
+            userProfile.marketplaceRole = data.marketplaceRole
+            userProfile.marketplaceCategories = data.marketplaceCategories
+          }
+          setSectionGate(null)
+          // Now enter the section
+          if (data.datingSetup) setDatingIntentOpen(true)
+          if (data.marketplaceSetup) setActiveTab('shopping')
+        }}
+      />
     </div>
   )
 }
