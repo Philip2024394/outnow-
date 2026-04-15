@@ -181,10 +181,30 @@ export default function EchoCommercePanel({ userId, businessName, open: external
                       <span>${(order.total ?? 0).toFixed(2)}</span>
                       <span className={styles.orderTime}>{order.time}</span>
                     </div>
+                    {/* Show tracking info if shipped */}
+                    {order.trackingNo && (
+                      <div className={styles.trackingInfo}>
+                        <span className={styles.trackingLabel}>📦 {order.carrierName ?? 'Carrier'}: {order.trackingNo}</span>
+                      </div>
+                    )}
                     {canAdvance && (
                       <button
                         className={styles.advanceBtn}
-                        onClick={() => advanceOrder(order.id, order.status)}
+                        onClick={() => {
+                          const nextStatus = ORDER_STATUS_FLOW[ORDER_STATUS_FLOW.indexOf(order.status) + 1]
+                          if (nextStatus === 'shipped') {
+                            const carrier = prompt('Select carrier:\n\n1=JNE  2=J&T  3=SiCepat  4=Ninja  5=Pos Indonesia\n6=TIKI  7=Lion Parcel  8=Anteraja  9=Other\n\nEnter number:')
+                            const carrierMap = { '1':'jne','2':'jnt_express','3':'sicepat','4':'ninja','5':'pos_indo','6':'tiki','7':'lion_parcel','8':'antaraja','9':'other' }
+                            const carrierNames = { '1':'JNE','2':'J&T Express','3':'SiCepat','4':'Ninja Xpress','5':'Pos Indonesia','6':'TIKI','7':'Lion Parcel','8':'Anteraja','9':'Other' }
+                            const trackingNo = prompt('Enter tracking number:')
+                            if (trackingNo?.trim()) {
+                              order.trackingNo = trackingNo.trim()
+                              order.carrierKey = carrierMap[carrier] ?? 'other'
+                              order.carrierName = carrierNames[carrier] ?? 'Carrier'
+                            }
+                          }
+                          advanceOrder(order.id, order.status)
+                        }}
                       >
                         Mark as {ORDER_STATUS_FLOW[ORDER_STATUS_FLOW.indexOf(order.status) + 1]} →
                       </button>

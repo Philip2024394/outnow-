@@ -4,6 +4,7 @@
  * Accessible from buyer profile or bottom nav.
  */
 import { useState } from 'react'
+import { getTrackingUrl, getCarrierLabel } from '@/utils/trackingUrls'
 import styles from './PurchaseHistoryScreen.module.css'
 
 function fmtIDR(n) {
@@ -40,13 +41,13 @@ const DEMO_ORDERS = [
     id: 'ord-1', ref: '#IM-3637', status: 'delivered',
     product: 'Wireless Earbuds Pro', image: 'https://ik.imagekit.io/nepgaxllc/Untitleddsadasaaa.png',
     seller: 'SoundMax', qty: 1, total: 262500, date: Date.now() - 2 * 86400000,
-    delivery: 'JNE', trackingNo: 'JNE12345678', safeTrade: true,
+    delivery: 'JNE', carrierKey: 'jne', trackingNo: 'JNE12345678', safeTrade: true,
   },
   {
     id: 'ord-2', ref: '#IM-4182', status: 'shipped',
     product: 'Leather Crossbody Bag', image: 'https://ik.imagekit.io/nepgaxllc/Untitleddsadasaaassssd.png',
     seller: 'Kulit Asli', qty: 1, total: 1200000, date: Date.now() - 1 * 86400000,
-    delivery: 'SiCepat', trackingNo: 'SCP87654321', safeTrade: true,
+    delivery: 'SiCepat', carrierKey: 'sicepat', trackingNo: 'SCP87654321', safeTrade: true,
   },
   {
     id: 'ord-3', ref: '#IM-4201', status: 'confirmed',
@@ -58,7 +59,7 @@ const DEMO_ORDERS = [
     id: 'ord-4', ref: '#IM-2890', status: 'complete',
     product: 'Leather Keychain', image: 'https://ik.imagekit.io/nepgaxllc/Untitledzxczxczxczx.png',
     seller: 'Kulit Asli', qty: 3, total: 285000, date: Date.now() - 10 * 86400000,
-    delivery: 'Pos Indonesia', trackingNo: 'POS99887766', safeTrade: false,
+    delivery: 'Pos Indonesia', carrierKey: 'pos_indo', trackingNo: 'POS99887766', safeTrade: false,
   },
   {
     id: 'ord-5', ref: '#IM-1455', status: 'cancelled',
@@ -159,8 +160,13 @@ export default function PurchaseHistoryScreen({ onClose, onReorder }) {
                         Reorder
                       </button>
                     )}
-                    {order.status === 'shipped' && order.trackingNo && (
-                      <button className={styles.trackBtn} onClick={(e) => e.stopPropagation()}>
+                    {order.trackingNo && (order.status === 'shipped' || order.status === 'delivered') && (
+                      <button className={styles.trackBtn} onClick={(e) => {
+                        e.stopPropagation()
+                        const url = getTrackingUrl(order.carrierKey, order.trackingNo)
+                        if (url) window.open(url, '_blank')
+                        else alert(`Tracking: ${order.trackingNo}\nCarrier: ${order.delivery}`)
+                      }}>
                         Track Package
                       </button>
                     )}

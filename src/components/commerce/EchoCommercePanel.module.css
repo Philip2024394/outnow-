@@ -335,6 +335,9 @@
 .bulkBtn { padding: 4px 10px; background: #F59E0B; border: none; border-radius: 6px; color: #000; font-size: 10px; font-weight: 800; cursor: pointer; font-family: inherit; }
 .bulkBtnClear { padding: 4px 8px; background: none; border: 1px solid rgba(255,255,255,0.1); border-radius: 6px; color: rgba(255,255,255,0.4); font-size: 10px; font-weight: 600; cursor: pointer; font-family: inherit; }
 
+.trackingInfo { padding: 4px 0; }
+.trackingLabel { font-size: 10px; font-weight: 700; color: #818CF8; font-family: monospace; }
+
 .orderCheck { accent-color: #F59E0B; width: 14px; height: 14px; flex-shrink: 0; cursor: pointer; }
 .orderCardSelected { border-color: rgba(245,158,11,0.3) !important; background: rgba(245,158,11,0.04) !important; }
 
