@@ -59,6 +59,8 @@ import SellerVerification  from '@/components/commerce/SellerVerification'
 import ProductReviewPage   from '@/components/commerce/ProductReviewPage'
 import MakeOfferSheet      from '@/components/commerce/MakeOfferSheet'
 import SectionGateSheet    from '@/components/ui/SectionGateSheet'
+import PurchaseHistoryScreen from '@/screens/PurchaseHistoryScreen'
+import OrderProcessingOverlay from '@/components/orders/OrderProcessingOverlay'
 import ShopSearchScreen    from '@/screens/ShopSearchScreen'
 import RestaurantBrowseScreen from '@/screens/RestaurantBrowseScreen'
 import RestaurantMenuSheetNew from '@/components/restaurant/RestaurantMenuSheet'
@@ -443,6 +445,8 @@ const GROUPS = [
       { id: 'makeOffer',          label: '💰 Make an Offer Sheet' },
       { id: 'gateDating',         label: '💕 Gate: Dating Setup' },
       { id: 'gateMarketplace',    label: '🛍️ Gate: Marketplace Setup' },
+      { id: 'purchaseHistory',    label: '📋 Purchase History' },
+      { id: 'orderProcessing',    label: '⏳ Order Processing Overlay' },
     ],
   },
   {
@@ -839,6 +843,12 @@ export default function DevPanel() {
       )}
       {active === 'gateMarketplace' && (
         <SectionGateSheet open section="marketplace" onClose={close} onComplete={(data) => { showToast('Marketplace set up!', 'success'); close() }} />
+      )}
+      {active === 'purchaseHistory' && (
+        <PurchaseHistoryScreen onClose={close} />
+      )}
+      {active === 'orderProcessing' && (
+        <OrderProcessingOverlay open sellerName="Demo Seller" onClose={close} />
       )}
       {active === 'shopSearch' && (
         <div className={styles.screenOverlay}>
