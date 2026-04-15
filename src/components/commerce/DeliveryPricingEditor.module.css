@@ -126,6 +126,16 @@
 .carrierName {
   font-size: 13px; font-weight: 700; color: rgba(255,255,255,0.75);
   white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  display: block;
+}
+
+.suggestedRate {
+  display: block;
+  font-size: 9px;
+  font-weight: 600;
+  color: #F59E0B;
+  opacity: 0.6;
+  margin-top: 1px;
 }
 
 .priceInput {

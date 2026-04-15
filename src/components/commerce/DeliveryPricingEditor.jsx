@@ -8,11 +8,19 @@
  */
 import { useState } from 'react'
 import { PARCEL_CARRIERS, CARGO_CARRIERS, EXPORT_CARRIERS } from '@/services/commissionService'
+import { CARRIER_RATES } from '@/services/deliveryRateService'
 import styles from './DeliveryPricingEditor.module.css'
 
 function fmtIDR(n) {
   if (!n && n !== 0) return ''
   return Number(n).toLocaleString('id-ID')
+}
+
+// Get suggested rate for a carrier (1kg base rate)
+function getSuggestedRate(carrierType) {
+  const rate = CARRIER_RATES[carrierType]
+  if (rate?.rates) return rate.rates[1] ?? null // 1kg base rate
+  return null
 }
 
 export default function DeliveryPricingEditor({ open, onClose, product, onSave }) {
@@ -144,13 +152,18 @@ export default function DeliveryPricingEditor({ open, onClose, product, onSave }
 
         <div className={styles.body}>
           {/* ── Parcels ── */}
-          {tab === 'parcels' && PARCEL_CARRIERS.map(c => (
+          {tab === 'parcels' && PARCEL_CARRIERS.map(c => {
+            const suggested = getSuggestedRate(c.type)
+            return (
             <div key={c.type} className={`${styles.carrierRow} ${enabledCarriers[c.type] ? styles.carrierOn : ''}`}>
               <div className={styles.carrierToggle} onClick={() => toggleCarrier(c.type)}>
                 <div className={`${styles.check} ${enabledCarriers[c.type] ? styles.checkOn : ''}`}>
                   {enabledCarriers[c.type] && <span>✓</span>}
                 </div>
-                <span className={styles.carrierName}>{c.label}</span>
+                <div>
+                  <span className={styles.carrierName}>{c.label}</span>
+                  {suggested && <span className={styles.suggestedRate}>Suggested: Rp {fmtIDR(suggested)}/kg</span>}
+                </div>
               </div>
               {enabledCarriers[c.type] && !priceIncluded && (
                 <div className={styles.priceInput} onClick={e => e.stopPropagation()}>
@@ -160,21 +173,27 @@ export default function DeliveryPricingEditor({ open, onClose, product, onSave }
                     className={styles.priceField}
                     value={carrierPrices[c.type] ?? ''}
                     onChange={e => setPrice(c.type, e.target.value)}
-                    placeholder="0"
+                    placeholder={suggested ? String(suggested) : '0'}
                   />
                 </div>
               )}
             </div>
-          ))}
+            )
+          })}
 
           {/* ── Cargo ── */}
-          {tab === 'cargo' && CARGO_CARRIERS.map(c => (
+          {tab === 'cargo' && CARGO_CARRIERS.map(c => {
+            const suggested = getSuggestedRate(c.type)
+            return (
             <div key={c.type} className={`${styles.carrierRow} ${enabledCarriers[c.type] ? styles.carrierOn : ''}`}>
               <div className={styles.carrierToggle} onClick={() => toggleCarrier(c.type)}>
                 <div className={`${styles.check} ${enabledCarriers[c.type] ? styles.checkOn : ''}`}>
                   {enabledCarriers[c.type] && <span>✓</span>}
                 </div>
-                <span className={styles.carrierName}>{c.label}</span>
+                <div>
+                  <span className={styles.carrierName}>{c.label}</span>
+                  {suggested && <span className={styles.suggestedRate}>Suggested: Rp {fmtIDR(suggested)}/kg</span>}
+                </div>
               </div>
               {enabledCarriers[c.type] && !priceIncluded && (
                 <div className={styles.priceInput} onClick={e => e.stopPropagation()}>
@@ -184,12 +203,13 @@ export default function DeliveryPricingEditor({ open, onClose, product, onSave }
                     className={styles.priceField}
                     value={carrierPrices[c.type] ?? ''}
                     onChange={e => setPrice(c.type, e.target.value)}
-                    placeholder="0"
+                    placeholder={suggested ? String(suggested) : '0'}
                   />
                 </div>
               )}
             </div>
-          ))}
+            )
+          })}
 
           {/* ── Custom Carriers ── */}
           {tab === 'custom' && (
@@ -233,13 +253,18 @@ export default function DeliveryPricingEditor({ open, onClose, product, onSave }
           {tab === 'export' && (
             <>
               {/* DHL, FedEx, Pos Indonesia */}
-              {EXPORT_CARRIERS.map(c => (
+              {EXPORT_CARRIERS.map(c => {
+                const suggested = getSuggestedRate(c.type)
+                return (
                 <div key={c.type} className={`${styles.carrierRow} ${enabledCarriers[c.type] ? styles.carrierOn : ''}`}>
                   <div className={styles.carrierToggle} onClick={() => toggleCarrier(c.type)}>
                     <div className={`${styles.check} ${enabledCarriers[c.type] ? styles.checkOn : ''}`}>
                       {enabledCarriers[c.type] && <span>✓</span>}
                     </div>
-                    <span className={styles.carrierName}>{c.label}</span>
+                    <div>
+                      <span className={styles.carrierName}>{c.label}</span>
+                      {suggested && <span className={styles.suggestedRate}>Suggested: Rp {fmtIDR(suggested)}/kg</span>}
+                    </div>
                   </div>
                   {enabledCarriers[c.type] && !priceIncluded && (
                     <div className={styles.priceInput} onClick={e => e.stopPropagation()}>
@@ -249,12 +274,13 @@ export default function DeliveryPricingEditor({ open, onClose, product, onSave }
                         className={styles.priceField}
                         value={carrierPrices[c.type] ?? ''}
                         onChange={e => setPrice(c.type, e.target.value)}
-                        placeholder="0"
+                        placeholder={suggested ? String(suggested) : '0'}
                       />
                     </div>
                   )}
                 </div>
-              ))}
+                )
+              })}
 
               <div className={styles.formSection}>
                 <span className={styles.formTitle}>Add Country Rate</span>
