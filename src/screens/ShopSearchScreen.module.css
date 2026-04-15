@@ -169,10 +169,11 @@
 }
 
 .headerLogo {
-  height: 36px;
+  height: 72px;
   object-fit: contain;
   flex-shrink: 0;
   flex: 1;
+  object-position: left;
 }
 
 .headerIconBtn {
