@@ -74,7 +74,28 @@
 .detailBack { background: rgba(0,0,0,0.4); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); border: 1px solid rgba(255,255,255,0.08); border-radius: 8px; color: rgba(255,255,255,0.5); font-size: 12px; font-weight: 600; cursor: pointer; font-family: inherit; padding: 6px 12px; margin-bottom: 10px; }
 
 /* Detail card — black glass */
-.detailCard { display: flex; gap: 14px; align-items: center; padding: 12px; background: rgba(0,0,0,0.55); backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px); border: 1px solid rgba(255,255,255,0.1); border-radius: 14px; margin-bottom: 14px; }
+.detailCard { display: flex; gap: 14px; align-items: center; padding: 12px; background: rgba(0,0,0,0.55); backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px); border: 1px solid rgba(255,255,255,0.1); border-radius: 14px; margin-bottom: 14px; position: relative; }
+
+.detailFingerprintBtn {
+  position: absolute;
+  bottom: 10px;
+  right: 10px;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: rgba(0,0,0,0.6);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  border: 1.5px solid rgba(255,255,255,0.25);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  z-index: 4;
+  transition: background 0.15s, border-color 0.15s, box-shadow 0.15s;
+}
+
+.detailFingerprintBtn:hover { background: rgba(245,158,11,0.3); border-color: rgba(245,158,11,0.5); box-shadow: 0 0 10px rgba(245,158,11,0.2); }
 .detailImg { width: 70px; height: 70px; border-radius: 10px; object-fit: cover; flex-shrink: 0; border: 1px solid rgba(255,255,255,0.08); }
 .detailInfo { display: flex; flex-direction: column; gap: 3px; }
 .detailName { font-size: 16px; font-weight: 900; color: #fff; text-shadow: 0 1px 6px rgba(0,0,0,0.5); }

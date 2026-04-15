@@ -133,17 +133,10 @@ export default function AuctionPage({ open, onClose }) {
 
           <div className={styles.detailCard}>
             {detail.productImage && (
-              <img
-                src={detail.productImage}
-                alt=""
-                className={styles.detailImg}
-                onClick={() => setProductPreview(detail)}
-                style={{ cursor: 'pointer' }}
-              />
+              <img src={detail.productImage} alt="" className={styles.detailImg} />
             )}
             <div className={styles.detailInfo}>
               <span className={styles.detailName}>{detail.productName}</span>
-              {/* Seller hidden during live auction — revealed after end */}
               {detail.status === AUCTION_STATUS.LIVE ? (
                 <span className={styles.detailSellerHidden}>Seller revealed after auction ends</span>
               ) : (
@@ -155,10 +148,13 @@ export default function AuctionPage({ open, onClose }) {
               {detail.reservePrice && detail.currentPrice >= detail.reservePrice && (
                 <span className={styles.reserveMetInCard}>Reserve met</span>
               )}
-              <button className={styles.viewProductBtn} onClick={() => setProductPreview(detail)}>
-                View Product Details
-              </button>
             </div>
+            {/* Fingerprint button — bottom-right of product card */}
+            <button className={styles.detailFingerprintBtn} onClick={() => setProductPreview(detail)}>
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M2 12C2 6.5 6.5 2 12 2a10 10 0 0 1 8 4"/><path d="M5 19.5C5.5 18 6 15 6 12c0-3.5 2.5-6 6-6 1 0 2 .2 3 .5"/><path d="M12 12c0 4-1 8-4 12"/><path d="M12 12c0 5 2 9.5 6 12"/><path d="M12 12c0-2 1-4 3-5.5"/><path d="M2 17a10 10 0 0 0 4.5 4.5"/>
+              </svg>
+            </button>
           </div>
 
           {/* Price + timer */}
