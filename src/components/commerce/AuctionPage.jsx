@@ -357,8 +357,14 @@ export default function AuctionPage({ open, onClose }) {
               ) : (
                 <span className={styles.previewAuctionBadge}>Auction Listing</span>
               )}
-              {/* Bottom-left: product name */}
-              <span className={styles.previewImgName}>{pp.productName}</span>
+              {/* Bottom-left: NEW badge + product name + reserve status */}
+              <div className={styles.previewImgNameWrap}>
+                {pp.condition !== 'used' && <span className={styles.previewNewBadge}>NEW</span>}
+                <span className={styles.previewImgName}>{pp.productName}</span>
+                <span className={styles.previewImgReserve}>
+                  {pp.reservePrice ? '🔒 Has Reserve' : '🔓 No Reserve'}
+                </span>
+              </div>
               {/* Bottom-right: share to WhatsApp */}
               <a href={shareUrl} target="_blank" rel="noopener noreferrer" className={styles.previewShare} onClick={e => e.stopPropagation()}>
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="#25D366" stroke="none">
@@ -399,9 +405,6 @@ export default function AuctionPage({ open, onClose }) {
                 )}
                 <span className={styles.previewSpecChip}>
                   {pp.condition === 'used' ? '♻️ Used' : '✨ New'}
-                </span>
-                <span className={`${styles.previewSpecChip} ${pp.reservePrice ? styles.previewReserveChip : styles.previewNoReserveChip}`}>
-                  {pp.reservePrice ? '🔒 Has Reserve' : '🔓 No Reserve — Sold to Highest Bidder'}
                 </span>
               </div>
 
