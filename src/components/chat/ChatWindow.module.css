@@ -541,6 +541,17 @@
   margin-top: 2px;
 }
 
+/* ── Auto-reply label ── */
+.autoReplyLabel {
+  display: block;
+  font-size: 9px;
+  font-weight: 700;
+  color: #F59E0B;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-bottom: 3px;
+}
+
 /* ── Messages ── */
 .messages {
   flex: 1;

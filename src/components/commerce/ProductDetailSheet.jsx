@@ -6,6 +6,7 @@ import ReturnDetailsSheet from './ReturnDetailsSheet'
 import MakeOfferSheet from './MakeOfferSheet'
 import { trackProductView } from './BuyerProfileSheet'
 import ProductReviews from './ProductReviews'
+import SellerVideoPlayer from './SellerVideoPlayer'
 
 const ImageGalleryViewer = lazy(() => import('./ImageGalleryViewer'))
 const SimilarProducts = lazy(() => import('./SimilarProducts'))
@@ -49,6 +50,7 @@ export default function ProductDetailSheet({ product, onClose, sellerWa, sellerN
   const [returnOpen, setReturnOpen] = useState(false)
   const [safeTradeOpen, setSafeTradeOpen] = useState(false)
   const [offerOpen, setOfferOpen] = useState(false)
+  const [videoOpen, setVideoOpen] = useState(false)
 
   const activeImage = useMemo(() => {
     if (!product) return null
@@ -235,6 +237,20 @@ export default function ProductDetailSheet({ product, onClose, sellerWa, sellerN
           >
             <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
               <line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/>
+            </svg>
+          </button>
+        )}
+
+        {/* Video — only if product has video URL */}
+        {product.video_url && (
+          <button
+            className={[styles.sidePanelBtn, videoOpen ? styles.sidePanelBtnActive : ''].join(' ')}
+            onClick={() => setVideoOpen(true)}
+            aria-label="Watch video"
+            title="Watch video"
+          >
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+              <polygon points="5 3 19 12 5 21 5 3"/>
             </svg>
           </button>
         )}
@@ -473,6 +489,12 @@ export default function ProductDetailSheet({ product, onClose, sellerWa, sellerN
           onMakeOffer?.({ ...offer, sellerName, sellerId })
           setOfferOpen(false)
         }}
+      />
+      <SellerVideoPlayer
+        open={videoOpen}
+        onClose={() => setVideoOpen(false)}
+        videoUrl={product.video_url}
+        sellerName={sellerName}
       />
     </div>
   )

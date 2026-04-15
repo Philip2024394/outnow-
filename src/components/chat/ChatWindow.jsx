@@ -359,6 +359,20 @@ export default function ChatWindow({ conversation: conv, allConversations = [], 
       setTimeout(() => setIsTyping(false), 3300)
     }
     onConvUpdate?.({ lastMessage: trimmed, lastMessageTime: Date.now() })
+
+    // Auto-reply when seller is offline/outside hours
+    if (!isSeller && !sellerCurrentlyOpen && sellerHours) {
+      const autoReply = conv.autoReplyMessage ?? `Hi! Thanks for your message. I'm currently outside business hours. ${nextOpenLabel ? `I'll be back ${nextOpenLabel}.` : 'I\'ll reply as soon as possible.'} Your message has been received and I'll respond when I'm back.`
+      setTimeout(() => {
+        setMessages(prev => [...prev, {
+          id: `auto-${Date.now()}`,
+          fromMe: false,
+          text: autoReply,
+          time: Date.now(),
+          isAutoReply: true,
+        }])
+      }, 1500)
+    }
   }, [text, conv.id, user, onConvUpdate]) // eslint-disable-line
 
   // Contact sharing in social chat is intentionally free — payment only applies to
@@ -884,6 +898,7 @@ export default function ChatWindow({ conversation: conv, allConversations = [], 
               ) : (
                 /* Text or image bubble */
                 <div className={`${styles.bubble} ${msg.fromMe ? styles.bubbleMine : styles.bubbleTheirs} ${msg.imageURL ? styles.bubbleImage : ''}`}>
+                  {msg.isAutoReply && <span className={styles.autoReplyLabel}>Auto-reply</span>}
                   {msg.imageURL
                     ? <img src={msg.imageURL} alt="attachment" className={styles.attachmentImg} />
                     : <span className={styles.bubbleText}>{msg.text}</span>

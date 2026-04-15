@@ -116,6 +116,7 @@ function ProductFormSheet({ product, userId, tier, onSaved, onClose }) {
   const [dispatchTime,     setDispatchTime]     = useState(product?.dispatch_time ?? '')
   const [brandName,        setBrandName]        = useState(product?.brand_name ?? '')
   const [customBranding,   setCustomBranding]   = useState(product?.custom_branding ?? '')
+  const [videoUrl,         setVideoUrl]         = useState(product?.video_url ?? '')
   const [imageUrl,         setImageUrl]         = useState(product?.image_url ?? product?.image ?? '')
   const [images,           setImages]           = useState(product?.images ?? [])
   const [saving,           setSaving]           = useState(false)
@@ -192,6 +193,7 @@ function ProductFormSheet({ product, userId, tier, onSaved, onClose }) {
       dispatchTime: dispatchTime || null,
       brandName: brandName || null,
       customBranding: customBranding || null,
+      videoUrl: videoUrl.trim() || null,
     }
     try {
       if (isEdit) {
@@ -451,6 +453,13 @@ function ProductFormSheet({ product, userId, tier, onSaved, onClose }) {
               <option value="Yes — Custom packaging">Yes — Custom packaging</option>
               <option value="Yes — Logo printing available">Yes — Logo printing available</option>
             </select>
+
+            <label className={styles.fieldLabel}>Product Video (YouTube / TikTok / Instagram URL)</label>
+            <input className={styles.input} placeholder="e.g. https://youtube.com/watch?v=... or TikTok link"
+              value={videoUrl} onChange={e => setVideoUrl(e.target.value)} />
+            <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.25)', marginTop: -4, marginBottom: 8 }}>
+              Free — paste your YouTube, TikTok, or Instagram video link. Displays full-screen to buyers.
+            </div>
           </>
         )}
 

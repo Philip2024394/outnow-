@@ -14,6 +14,7 @@ export const DEMO_PRODUCTS = [
     dispatch_time: '1-2 business days', brand_name: 'SoundMax',
     safeTrade: { enabled: true, paypal: true, escrow: true },
     flashSale: { active: true, discountPercent: 25, endsAt: Date.now() + 6 * 60 * 60 * 1000 },
+    video_url: 'https://www.youtube.com/watch?v=dQw4w9WgXcQ',
     image: 'https://ik.imagekit.io/nepgaxllc/Untitleddsadasaaa.png',
     description: 'Crystal clear sound, 24hr battery, IPX5 waterproof. Compatible with Android & iOS.',
     specs: {

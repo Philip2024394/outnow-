@@ -41,6 +41,7 @@ export default function EchoCommercePanel({ userId, businessName, open: external
   const [catalogOpen, setCatalogOpen] = useState(false)
   const [deliveryPricingOpen, setDeliveryPricingOpen] = useState(false)
   const [analyticsOpen, setAnalyticsOpen] = useState(false)
+  const [selectedOrders, setSelectedOrders] = useState(new Set())
   const [deliveryPricingProduct, setDeliveryPricingProduct] = useState(null)
   const [loading, setLoading]         = useState(false)
 
@@ -134,15 +135,38 @@ export default function EchoCommercePanel({ userId, businessName, open: external
           {/* ── Orders section ── */}
           {!loading && section === 'orders' && (
             <div className={styles.list}>
+              {/* Bulk action bar */}
+              {selectedOrders.size > 0 && (
+                <div className={styles.bulkBar}>
+                  <span className={styles.bulkCount}>{selectedOrders.size} selected</span>
+                  <button className={styles.bulkBtn} onClick={() => {
+                    selectedOrders.forEach(id => {
+                      const o = orders.find(x => x.id === id)
+                      if (o) advanceOrder(id, o.status)
+                    })
+                    setSelectedOrders(new Set())
+                  }}>Advance All →</button>
+                  <button className={styles.bulkBtnClear} onClick={() => setSelectedOrders(new Set())}>Clear</button>
+                </div>
+              )}
+
               {orders.length === 0 && (
                 <div className={styles.empty}>No orders yet — share your store link to get started!</div>
               )}
               {orders.map(order => {
                 const color = STATUS_COLORS[order.status] ?? STATUS_COLORS.pending
                 const canAdvance = ORDER_STATUS_FLOW.indexOf(order.status) < ORDER_STATUS_FLOW.length - 1
+                const isSelected = selectedOrders.has(order.id)
                 return (
-                  <div key={order.id} className={styles.orderCard}>
+                  <div key={order.id} className={`${styles.orderCard} ${isSelected ? styles.orderCardSelected : ''}`}>
                     <div className={styles.orderTop}>
+                      <input type="checkbox" checked={isSelected} onChange={() => {
+                        setSelectedOrders(prev => {
+                          const next = new Set(prev)
+                          next.has(order.id) ? next.delete(order.id) : next.add(order.id)
+                          return next
+                        })
+                      }} className={styles.orderCheck} />
                       <span className={styles.orderProduct}>{order.product}</span>
                       <span
                         className={styles.orderStatus}
