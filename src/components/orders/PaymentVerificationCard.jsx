@@ -69,7 +69,7 @@ export default function PaymentVerificationCard({
 
       {/* SELLER: after decision */}
       {isSeller && status === 'active' && (
-        <div className={styles.statusMsg} style={{ color: '#22c55e' }}>
+        <div className={styles.statusMsg} style={{ color: '#8DC63F' }}>
           Payment confirmed. Order is active. Commission has been recorded.
         </div>
       )}
@@ -94,7 +94,7 @@ export default function PaymentVerificationCard({
 
       {/* BUYER: confirmed */}
       {isBuyer && status === 'active' && (
-        <div className={styles.statusMsg} style={{ color: '#22c55e' }}>
+        <div className={styles.statusMsg} style={{ color: '#8DC63F' }}>
           Payment verified! Your order is now active. The seller will prepare your item.
         </div>
       )}

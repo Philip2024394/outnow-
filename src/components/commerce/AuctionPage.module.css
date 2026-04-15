@@ -1,0 +1,152 @@
+.page { position: fixed; inset: 0; z-index: 400; display: flex; flex-direction: column; overflow: hidden; background: #000 url('https://ik.imagekit.io/nepgaxllc/ChatGPT%20Image%20Apr%2015,%202026,%2009_07_01%20PM.png') center/cover no-repeat; }
+
+.header { display: flex; align-items: center; justify-content: space-between; padding: 14px 16px; background: rgba(0,0,0,0.6); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); border-bottom: 2px solid #F59E0B; box-shadow: 0 2px 16px rgba(245,158,11,0.2); flex-shrink: 0; }
+.backBtn { width: 36px; height: 36px; border-radius: 50%; background: rgba(255,255,255,0.08); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); border: 1px solid rgba(255,255,255,0.12); color: rgba(255,255,255,0.7); display: flex; align-items: center; justify-content: center; cursor: pointer; }
+.headerCenter { display: flex; align-items: center; gap: 6px; }
+.headerIcon { font-size: 22px; }
+.headerTitle { font-size: 18px; font-weight: 900; color: #F59E0B; text-shadow: 0 1px 8px rgba(0,0,0,0.5); }
+.liveCount { font-size: 11px; font-weight: 800; color: #EF4444; background: rgba(239,68,68,0.15); backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px); border: 1px solid rgba(239,68,68,0.3); border-radius: 8px; padding: 4px 10px; animation: livePulse 2s ease-in-out infinite; }
+@keyframes livePulse { 0%,100% { opacity:1; } 50% { opacity:0.5; } }
+
+.bannedBanner { padding: 10px 16px; background: rgba(239,68,68,0.12); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); border-bottom: 1px solid rgba(239,68,68,0.2); color: #EF4444; font-size: 12px; font-weight: 700; flex-shrink: 0; }
+
+.feedBar { display: flex; align-items: center; gap: 8px; padding: 8px 16px; background: rgba(0,0,0,0.5); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); border-bottom: 1px solid rgba(255,255,255,0.06); flex-shrink: 0; overflow: hidden; }
+.feedIcon { font-size: 14px; flex-shrink: 0; }
+.feedScroll { display: flex; gap: 20px; overflow-x: auto; scrollbar-width: none; }
+.feedScroll::-webkit-scrollbar { height: 0; }
+.feedItem { font-size: 11px; color: rgba(255,255,255,0.5); white-space: nowrap; flex-shrink: 0; text-shadow: 0 1px 3px rgba(0,0,0,0.4); }
+.feedItem strong { color: #F59E0B; font-weight: 700; }
+
+/* Body / grid */
+.body { flex: 1; overflow-y: auto; padding: 12px 16px 32px; }
+.body::-webkit-scrollbar { width: 3px; }
+.body::-webkit-scrollbar-thumb { background: rgba(245,158,11,0.2); border-radius: 2px; }
+
+.empty { display: flex; flex-direction: column; align-items: center; gap: 8px; padding: 60px 20px; text-align: center; color: rgba(255,255,255,0.4); font-size: 14px; text-shadow: 0 1px 4px rgba(0,0,0,0.5); }
+.emptySub { font-size: 12px; color: rgba(255,255,255,0.3); }
+
+.sectionLabel { font-size: 13px; font-weight: 800; color: rgba(255,255,255,0.6); padding: 8px 0 6px; text-shadow: 0 1px 4px rgba(0,0,0,0.5); }
+
+.grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 16px; }
+
+/* Auction cards — black glass */
+.auctionCard { border-radius: 14px; overflow: hidden; border: 1px solid rgba(255,255,255,0.1); cursor: pointer; text-align: left; font-family: inherit; background: rgba(0,0,0,0.55); backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px); transition: border-color 0.15s, transform 0.15s; }
+.auctionCard:hover { border-color: rgba(245,158,11,0.4); transform: translateY(-2px); }
+.cardEnded { opacity: 0.7; }
+
+.cardImgWrap { position: relative; }
+.cardImg { width: 100%; height: 140px; object-fit: cover; display: block; }
+.cardImgPlaceholder { width: 100%; height: 140px; display: flex; align-items: center; justify-content: center; font-size: 32px; background: rgba(0,0,0,0.3); }
+.cardLive { position: absolute; top: 8px; left: 8px; background: #EF4444; color: #fff; font-size: 8px; font-weight: 900; padding: 2px 7px; border-radius: 4px; letter-spacing: 0.08em; animation: livePulse 2s ease-in-out infinite; }
+.cardTimer { position: absolute; bottom: 8px; right: 8px; background: rgba(0,0,0,0.7); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); color: #EF4444; font-size: 10px; font-weight: 800; font-family: monospace; padding: 3px 7px; border-radius: 6px; border: 1px solid rgba(239,68,68,0.3); }
+.cardStatus { position: absolute; top: 8px; left: 8px; background: rgba(0,0,0,0.65); backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px); color: rgba(255,255,255,0.7); font-size: 9px; font-weight: 700; padding: 3px 8px; border-radius: 6px; }
+.cardInfo { padding: 10px 12px; display: flex; flex-direction: column; gap: 3px; }
+.cardName { font-size: 13px; font-weight: 800; color: #fff; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; text-shadow: 0 1px 4px rgba(0,0,0,0.4); }
+.cardSeller { font-size: 10px; color: rgba(255,255,255,0.4); }
+.cardPriceRow { display: flex; justify-content: space-between; align-items: center; margin-top: 2px; }
+.cardPrice { font-size: 14px; font-weight: 900; color: #F59E0B; text-shadow: 0 1px 6px rgba(0,0,0,0.4); }
+.cardBids { font-size: 10px; color: rgba(255,255,255,0.4); }
+
+/* Detail view */
+.detail { flex: 1; overflow-y: auto; padding: 12px 16px 32px; }
+.detailBack { background: rgba(0,0,0,0.4); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); border: 1px solid rgba(255,255,255,0.08); border-radius: 8px; color: rgba(255,255,255,0.5); font-size: 12px; font-weight: 600; cursor: pointer; font-family: inherit; padding: 6px 12px; margin-bottom: 10px; }
+
+/* Detail card — black glass */
+.detailCard { display: flex; gap: 14px; align-items: center; padding: 12px; background: rgba(0,0,0,0.55); backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px); border: 1px solid rgba(255,255,255,0.1); border-radius: 14px; margin-bottom: 14px; }
+.detailImg { width: 70px; height: 70px; border-radius: 10px; object-fit: cover; flex-shrink: 0; border: 1px solid rgba(255,255,255,0.08); }
+.detailInfo { display: flex; flex-direction: column; gap: 3px; }
+.detailName { font-size: 16px; font-weight: 900; color: #fff; text-shadow: 0 1px 6px rgba(0,0,0,0.5); }
+.detailSeller { font-size: 12px; color: rgba(255,255,255,0.45); }
+.detailSellerHidden { font-size: 10px; color: rgba(255,255,255,0.25); font-style: italic; }
+.viewProductBtn { background: rgba(255,255,255,0.06); backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px); border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; color: rgba(255,255,255,0.5); font-size: 10px; font-weight: 700; padding: 5px 10px; cursor: pointer; font-family: inherit; margin-top: 6px; width: fit-content; transition: color 0.15s, border-color 0.15s; }
+.viewProductBtn:hover { color: #F59E0B; border-color: rgba(245,158,11,0.3); }
+.reserveInCard { font-size: 10px; font-weight: 800; color: #FBBF24; background: rgba(251,191,36,0.12); border: 1px solid rgba(251,191,36,0.25); border-radius: 6px; padding: 2px 8px; width: fit-content; margin-top: 4px; }
+.reserveMetInCard { font-size: 10px; font-weight: 800; color: #8DC63F; background: rgba(141,198,63,0.12); border: 1px solid rgba(141,198,63,0.25); border-radius: 6px; padding: 2px 8px; width: fit-content; margin-top: 4px; }
+
+/* Price block — own background image */
+.priceBlock { display: flex; justify-content: space-between; padding: 16px; border: 1.5px solid rgba(245,158,11,0.25); border-radius: 14px; margin-bottom: 12px; position: relative; overflow: hidden; }
+.priceBlock::before { content: ''; position: absolute; inset: 0; background: url('https://ik.imagekit.io/nepgaxllc/Untitledsdfsdfsdasdfsdsdf.png') center/cover no-repeat; z-index: 0; }
+.priceBlock::after { content: ''; position: absolute; inset: 0; background: rgba(0,0,0,0.25); z-index: 1; }
+.priceLeft { position: relative; z-index: 2; display: flex; flex-direction: column; gap: 2px; }
+.priceLabel { font-size: 10px; font-weight: 700; color: rgba(255,255,255,0.6); text-transform: uppercase; letter-spacing: 0.05em; text-shadow: 0 1px 4px rgba(0,0,0,0.5); }
+.priceValue { font-size: 28px; font-weight: 900; color: #F59E0B; text-shadow: 0 2px 10px rgba(0,0,0,0.5); }
+.bidCount { font-size: 11px; color: rgba(255,255,255,0.6); text-shadow: 0 1px 4px rgba(0,0,0,0.5); }
+.priceRight { position: relative; z-index: 2; display: flex; flex-direction: column; align-items: flex-end; gap: 2px; }
+.timerLabel { font-size: 10px; font-weight: 700; color: rgba(255,255,255,0.6); text-transform: uppercase; text-shadow: 0 1px 4px rgba(0,0,0,0.5); }
+.timerValue { font-size: 22px; font-weight: 900; color: #EF4444; font-family: monospace; text-shadow: 0 2px 8px rgba(0,0,0,0.5); }
+
+/* Reserve notes — black glass */
+.reserveNote { padding: 8px 12px; background: rgba(0,0,0,0.5); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); border: 1px solid rgba(251,191,36,0.2); border-radius: 8px; color: #FBBF24; font-size: 11px; font-weight: 700; margin-bottom: 12px; text-align: center; }
+.reserveMet { padding: 8px 12px; background: rgba(0,0,0,0.5); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); border: 1px solid rgba(141,198,63,0.2); border-radius: 8px; color: #8DC63F; font-size: 11px; font-weight: 700; margin-bottom: 12px; text-align: center; }
+
+/* Bid section — black glass */
+.bidSection { display: flex; flex-direction: column; gap: 8px; margin-bottom: 14px; padding: 14px; background: rgba(0,0,0,0.5); backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px); border: 1px solid rgba(255,255,255,0.08); border-radius: 14px; }
+.bidInputWrap { display: flex; align-items: center; background: rgba(255,255,255,0.06); border: 1.5px solid rgba(245,158,11,0.25); border-radius: 12px; padding: 0 14px; height: 50px; }
+.bidInputWrap:focus-within { border-color: #F59E0B; }
+.bidRp { font-size: 14px; font-weight: 700; color: rgba(255,255,255,0.4); margin-right: 8px; }
+.bidInput { background: none; border: none; color: #fff; font-size: 20px; font-weight: 900; font-family: inherit; width: 100%; outline: none; }
+.bidInput::placeholder { color: rgba(255,255,255,0.15); }
+.bidInput::-webkit-inner-spin-button, .bidInput::-webkit-outer-spin-button { -webkit-appearance: none; }
+.bidBtn { padding: 14px; background: #F59E0B; border: none; border-radius: 12px; color: #000; font-size: 15px; font-weight: 900; cursor: pointer; font-family: inherit; box-shadow: 0 4px 16px rgba(245,158,11,0.4), 0 0 20px rgba(245,158,11,0.3); animation: bidBtnPulse 1.8s ease-in-out infinite; }
+.bidBtn:hover { background: #FBBF24; box-shadow: 0 4px 20px rgba(245,158,11,0.6), 0 0 28px rgba(245,158,11,0.4); }
+
+@keyframes bidBtnPulse {
+  0%, 100% { box-shadow: 0 4px 16px rgba(245,158,11,0.4), 0 0 20px rgba(245,158,11,0.3); transform: translateX(0); }
+  10% { transform: translateX(-2px) rotate(-0.5deg); }
+  20% { transform: translateX(2px) rotate(0.5deg); }
+  30% { transform: translateX(-1px); }
+  40% { transform: translateX(1px); }
+  50% { transform: translateX(0); box-shadow: 0 4px 24px rgba(245,158,11,0.6), 0 0 30px rgba(245,158,11,0.5); }
+}
+.bidError { font-size: 11px; color: #EF4444; font-weight: 600; }
+.bidMin { font-size: 10px; color: rgba(255,255,255,0.35); }
+
+/* Winner / status banners — black glass */
+.winnerBanner { display: flex; align-items: center; gap: 10px; padding: 14px; background: rgba(0,0,0,0.55); backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px); border: 1px solid rgba(245,158,11,0.2); border-radius: 12px; margin-bottom: 14px; }
+.winnerIcon { font-size: 28px; }
+.winnerName { font-size: 15px; font-weight: 900; color: #F59E0B; display: block; text-shadow: 0 1px 6px rgba(0,0,0,0.4); }
+.winnerSub { font-size: 11px; color: rgba(255,255,255,0.5); }
+.paidBanner { padding: 12px; background: rgba(0,0,0,0.5); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); border: 1px solid rgba(141,198,63,0.25); border-radius: 12px; color: #8DC63F; font-size: 13px; font-weight: 700; text-align: center; margin-bottom: 14px; }
+.unsoldBanner { padding: 12px; background: rgba(0,0,0,0.5); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.1); border-radius: 12px; color: rgba(255,255,255,0.4); font-size: 13px; font-weight: 700; text-align: center; margin-bottom: 14px; }
+
+/* Bid history — black glass */
+.bidHistory { margin-top: 4px; padding: 14px; background: rgba(0,0,0,0.55); backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px); border: 1px solid rgba(255,255,255,0.08); border-radius: 14px; }
+.bidHistoryTitle { font-size: 12px; font-weight: 800; color: rgba(255,255,255,0.5); text-transform: uppercase; letter-spacing: 0.05em; display: block; margin-bottom: 8px; }
+.bidRow { display: flex; align-items: center; gap: 8px; padding: 8px 0; border-bottom: 1px solid rgba(255,255,255,0.05); }
+.bidRow:last-child { border-bottom: none; }
+
+/* Top bidder — glowing border */
+.bidRowTop { padding: 10px 12px; margin: 0 -12px 4px; border-radius: 10px; border: 1.5px solid rgba(245,158,11,0.4); background: rgba(245,158,11,0.06); box-shadow: 0 0 12px rgba(245,158,11,0.15), inset 0 0 8px rgba(245,158,11,0.05); animation: topBidGlow 2.5s ease-in-out infinite; }
+@keyframes topBidGlow { 0%,100% { box-shadow: 0 0 12px rgba(245,158,11,0.15), inset 0 0 8px rgba(245,158,11,0.05); } 50% { box-shadow: 0 0 20px rgba(245,158,11,0.3), inset 0 0 12px rgba(245,158,11,0.08); } }
+
+.topBidderCrown { font-size: 14px; flex-shrink: 0; }
+
+.bidRowName { font-size: 12px; font-weight: 700; color: rgba(255,255,255,0.65); flex: 1; }
+.bidRowTop .bidRowName { color: #F59E0B; font-weight: 800; }
+.bidRowAmount { font-size: 13px; font-weight: 800; color: #F59E0B; }
+.bidRowTop .bidRowAmount { font-size: 14px; font-weight: 900; }
+.bidRowTime { font-size: 10px; color: rgba(255,255,255,0.3); }
+
+/* ── Product preview popup ── */
+.previewBackdrop { position: fixed; inset: 0; background: rgba(0,0,0,0.75); display: flex; align-items: center; justify-content: center; z-index: 500; backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px); padding: 20px; }
+
+.previewModal { width: 100%; max-width: 380px; max-height: 85vh; background: rgba(0,0,0,0.7); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); border: 1px solid rgba(255,255,255,0.1); border-radius: 20px; overflow: hidden; position: relative; animation: previewIn 0.2s cubic-bezier(0.32,0.72,0,1) forwards; }
+@keyframes previewIn { from { transform: scale(0.92); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+
+.previewClose { position: absolute; top: 12px; right: 12px; width: 32px; height: 32px; border-radius: 50%; background: rgba(0,0,0,0.5); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); border: 1px solid rgba(255,255,255,0.15); color: rgba(255,255,255,0.6); display: flex; align-items: center; justify-content: center; cursor: pointer; z-index: 2; }
+
+.previewMainImg { width: 100%; height: 280px; object-fit: cover; display: block; }
+
+.previewInfo { padding: 18px 20px 24px; display: flex; flex-direction: column; gap: 10px; }
+
+.previewName { font-size: 18px; font-weight: 900; color: #fff; margin: 0; text-shadow: 0 1px 6px rgba(0,0,0,0.4); }
+
+.previewPriceRow { display: flex; justify-content: space-between; align-items: center; font-size: 13px; color: rgba(255,255,255,0.5); }
+
+.previewLabel { font-size: 11px; font-weight: 600; color: rgba(255,255,255,0.35); }
+.previewPrice { font-weight: 700; color: rgba(255,255,255,0.5); }
+.previewPriceCurrent { font-weight: 900; font-size: 16px; color: #F59E0B; }
+
+.previewSeller { display: flex; justify-content: space-between; align-items: center; padding-top: 8px; border-top: 1px solid rgba(255,255,255,0.06); font-size: 13px; color: rgba(255,255,255,0.6); font-weight: 700; }
+
+.previewSellerHidden { padding: 8px 12px; margin-top: 4px; background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.06); border-radius: 8px; font-size: 11px; color: rgba(255,255,255,0.25); text-align: center; font-style: italic; }

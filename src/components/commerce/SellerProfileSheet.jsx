@@ -75,8 +75,8 @@ export default function SellerProfileSheet({ seller, onClose, onOpenChat, onOrde
       <div className={styles.topBar}>
         <div className={styles.hanggerLogoWrap}>
           <img
-            src="https://ik.imagekit.io/nepgaxllc/Hangger%20Market%20logo%20design.png"
-            alt="Hangger Market"
+            src="https://ik.imagekit.io/nepgaxllc/Indoo%20Market%20logo%20design.png?updatedAt=1776203793752"
+            alt="Indoo Market"
             className={styles.hanggerLogoImg}
           />
         </div>

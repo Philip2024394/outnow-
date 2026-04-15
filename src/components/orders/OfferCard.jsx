@@ -21,7 +21,7 @@ function fmtRp(n) {
 
 const STATUS_CONFIG = {
   pending:   { label: 'Pending',   color: '#f5c518', bg: 'rgba(245,197,24,0.12)', border: 'rgba(245,197,24,0.3)' },
-  accepted:  { label: 'Accepted',  color: '#22c55e', bg: 'rgba(34,197,94,0.12)',  border: 'rgba(34,197,94,0.3)' },
+  accepted:  { label: 'Accepted',  color: '#8DC63F', bg: 'rgba(141,198,63,0.12)',  border: 'rgba(141,198,63,0.3)' },
   countered: { label: 'Countered', color: '#818CF8', bg: 'rgba(129,140,248,0.12)', border: 'rgba(129,140,248,0.3)' },
   declined:  { label: 'Declined',  color: '#ef4444', bg: 'rgba(239,68,68,0.12)',  border: 'rgba(239,68,68,0.3)' },
 }
@@ -114,7 +114,7 @@ export default function OfferCard({ offerCard, fromMe, onRespond }) {
 
       {/* Status messages */}
       {status === 'accepted' && (
-        <div className={styles.statusNote} style={{ color: '#22c55e' }}>
+        <div className={styles.statusNote} style={{ color: '#8DC63F' }}>
           Offer accepted! Proceed to checkout to complete your order.
         </div>
       )}

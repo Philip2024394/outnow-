@@ -102,7 +102,7 @@
 
 .savingsRow {
   font-size: 11px;
-  color: #34D399;
+  color: #8DC63F;
   font-weight: 600;
   text-align: right;
 }
@@ -164,7 +164,7 @@
 .btnAccept {
   flex: 1;
   padding: 10px 0;
-  background: #22c55e;
+  background: #8DC63F;
   border: none;
   border-radius: 10px;
   color: #fff;

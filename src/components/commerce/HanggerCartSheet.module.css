@@ -282,11 +282,11 @@
 }
 
 .dFree {
-  color: #34D399;
+  color: #8DC63F;
   font-weight: 900;
   font-size: 12px;
-  background: rgba(52, 211, 153, 0.1);
-  border: 1px solid rgba(52, 211, 153, 0.25);
+  background: rgba(141, 198, 63, 0.1);
+  border: 1px solid rgba(141, 198, 63, 0.25);
   border-radius: 8px;
   padding: 2px 8px;
 }
@@ -294,7 +294,7 @@
 .dCheapest {
   font-size: 9px;
   font-weight: 700;
-  color: #34D399;
+  color: #8DC63F;
   text-transform: uppercase;
   letter-spacing: 0.05em;
 }
@@ -464,10 +464,10 @@
   gap: 8px;
   margin: 0 16px;
   padding: 10px 12px;
-  background: rgba(52, 211, 153, 0.05);
-  border: 1px solid rgba(52, 211, 153, 0.15);
+  background: rgba(141, 198, 63, 0.05);
+  border: 1px solid rgba(141, 198, 63, 0.15);
   border-radius: 10px;
-  color: #34D399;
+  color: #8DC63F;
   font-size: 11px;
   line-height: 1.5;
 }
@@ -512,6 +512,16 @@
 }
 
 .gpsBtn:disabled { opacity: 0.5; cursor: default; }
+
+/* ── Voucher ── */
+.voucherRow { display: flex; gap: 8px; }
+.voucherInput { flex: 1; padding: 9px 12px; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; color: #fff; font-size: 13px; font-weight: 700; font-family: monospace; letter-spacing: 0.05em; outline: none; box-sizing: border-box; text-transform: uppercase; }
+.voucherInput:focus { border-color: rgba(245,158,11,0.4); }
+.voucherInput::placeholder { color: rgba(255,255,255,0.2); font-family: inherit; letter-spacing: normal; text-transform: none; }
+.voucherApply { padding: 9px 16px; background: rgba(245,158,11,0.12); border: 1px solid rgba(245,158,11,0.3); border-radius: 8px; color: #F59E0B; font-size: 12px; font-weight: 800; cursor: pointer; font-family: inherit; flex-shrink: 0; }
+.voucherApply:hover { background: rgba(245,158,11,0.2); }
+.voucherError { font-size: 11px; color: #EF4444; font-weight: 600; margin-top: 4px; display: block; }
+.voucherSuccess { font-size: 11px; color: #8DC63F; font-weight: 700; margin-top: 4px; display: block; }
 
 /* ── Dropship toggle ── */
 .dropshipToggle {

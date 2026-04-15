@@ -75,7 +75,7 @@
 .hanggerLogo {
   width: 120px;
   height: 30px;
-  background: url('https://ik.imagekit.io/nepgaxllc/Hangger%20Market%20logo%20design.png')
+  background: url('https://ik.imagekit.io/nepgaxllc/Indoo%20Market%20logo%20design.png?updatedAt=1776203793752')
     no-repeat center / 260%;
   mix-blend-mode: screen;
   flex-shrink: 0;
@@ -455,6 +455,28 @@
   display: block;
 }
 
+/* ── Flash Sale banner in catalog ── */
+.flashBanner {
+  width: 100%;
+  padding: 0 0 10px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  transition: transform 0.15s;
+}
+
+.flashBanner:hover { transform: scale(1.01); }
+.flashBanner:active { transform: scale(0.99); }
+
+.flashBannerImg {
+  width: 100%;
+  height: auto;
+  border-radius: 12px;
+  display: block;
+  border: 1.5px solid rgba(245,158,11,0.3);
+  box-shadow: 0 2px 16px rgba(245,158,11,0.15);
+}
+
 .newBadge {
   position: absolute;
   top: 8px;
@@ -494,9 +516,37 @@
 }
 
 .cardName  { font-size: 13px; font-weight: 800; color: #fff; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.cardMeta  { display: flex; align-items: center; gap: 6px; }
+.cardMeta  { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
 .cardPrice { font-size: 13px; font-weight: 900; color: #F59E0B; }
+.cardPriceSale { font-size: 13px; font-weight: 900; color: #EF4444; animation: pricePulse 2s ease-in-out infinite; }
+
+@keyframes pricePulse {
+  0%, 100% { opacity: 1; text-shadow: none; }
+  50% { opacity: 0.85; text-shadow: 0 0 8px rgba(239,68,68,0.5); }
+}
+.cardPriceOriginal { font-size: 10px; font-weight: 600; color: rgba(255,255,255,0.3); text-decoration: line-through; }
 .cardStock { display: none; }
+
+.discountBadge {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  background: #FFE500;
+  color: #000;
+  font-size: 9px;
+  font-weight: 900;
+  padding: 2px 7px;
+  animation: badgePulse 2s ease-in-out infinite;
+  border-radius: 6px;
+  z-index: 2;
+  box-shadow: 0 0 8px rgba(255,229,0,0.6);
+  letter-spacing: 0.03em;
+}
+
+@keyframes badgePulse {
+  0%, 100% { box-shadow: 0 0 8px rgba(255,229,0,0.6); transform: scale(1); }
+  50% { box-shadow: 0 0 14px rgba(255,229,0,0.9); transform: scale(1.05); }
+}
 
 .cardBrand {
   font-size: 9px;
@@ -528,8 +578,8 @@
 .cardFreeDelivery {
   font-size: 8px;
   font-weight: 800;
-  color: #34D399;
-  background: rgba(52,211,153,0.1);
+  color: #8DC63F;
+  background: rgba(141,198,63,0.1);
   border-radius: 6px;
   padding: 2px 5px;
 }

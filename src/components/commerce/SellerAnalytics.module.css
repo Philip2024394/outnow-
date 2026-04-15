@@ -1,0 +1,46 @@
+.backdrop { position: fixed; inset: 0; background: rgba(0,0,0,0.7); display: flex; align-items: flex-end; justify-content: center; z-index: 9000; backdrop-filter: blur(4px); }
+.sheet { width: 100%; max-width: 480px; background: #111; border-radius: 22px 22px 0 0; border: 1px solid rgba(245,158,11,0.2); border-bottom: none; display: flex; flex-direction: column; max-height: 90vh; overflow: hidden; animation: slideUp 0.25s cubic-bezier(0.32,0.72,0,1) forwards; }
+@keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
+.handle { width: 36px; height: 4px; background: rgba(255,255,255,0.15); border-radius: 2px; margin: 12px auto 0; }
+
+.header { display: flex; align-items: center; justify-content: space-between; padding: 16px 20px 12px; border-bottom: 1px solid rgba(255,255,255,0.06); }
+.title { font-size: 17px; font-weight: 800; color: #fff; }
+.periodTabs { display: flex; gap: 4px; }
+.periodTab { padding: 4px 10px; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.08); border-radius: 6px; color: rgba(255,255,255,0.35); font-size: 11px; font-weight: 700; cursor: pointer; font-family: inherit; }
+.periodActive { background: rgba(245,158,11,0.15); border-color: rgba(245,158,11,0.35); color: #F59E0B; }
+
+.body { flex: 1; overflow-y: auto; padding: 16px 20px 32px; display: flex; flex-direction: column; gap: 20px; }
+
+/* Stats */
+.statsRow { display: flex; gap: 8px; }
+.stat { flex: 1; padding: 12px; background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.07); border-radius: 10px; display: flex; flex-direction: column; align-items: center; gap: 3px; }
+.statVal { font-size: 18px; font-weight: 900; color: #F59E0B; }
+.statLabel { font-size: 9px; font-weight: 700; color: rgba(255,255,255,0.3); text-transform: uppercase; }
+
+/* Chart */
+.chartSection { display: flex; flex-direction: column; gap: 10px; }
+.chartTitle { font-size: 12px; font-weight: 800; color: rgba(255,255,255,0.5); text-transform: uppercase; letter-spacing: 0.04em; }
+
+.chart { display: flex; align-items: flex-end; gap: 6px; height: 120px; padding-top: 8px; }
+.chartBar { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 4px; height: 100%; justify-content: flex-end; }
+.barFill { width: 100%; background: linear-gradient(to top, rgba(245,158,11,0.3), #F59E0B); border-radius: 4px 4px 0 0; min-height: 4px; transition: height 0.3s; }
+.barLabel { font-size: 9px; color: rgba(255,255,255,0.3); font-weight: 600; }
+.barValue { font-size: 8px; color: rgba(255,255,255,0.4); font-weight: 700; position: absolute; top: -14px; }
+.chartBar { position: relative; }
+
+/* Funnel */
+.funnel { display: flex; flex-direction: column; gap: 6px; }
+.funnelRow { position: relative; height: 32px; display: flex; align-items: center; }
+.funnelBar { position: absolute; left: 0; top: 0; bottom: 0; background: rgba(245,158,11,0.12); border-radius: 6px; min-width: 4px; }
+.funnelInfo { position: relative; z-index: 1; display: flex; justify-content: space-between; width: 100%; padding: 0 10px; }
+.funnelLabel { font-size: 11px; font-weight: 700; color: rgba(255,255,255,0.6); }
+.funnelCount { font-size: 11px; font-weight: 700; color: #F59E0B; }
+
+/* Top products */
+.topRow { display: flex; align-items: center; gap: 8px; padding: 8px 0; border-bottom: 1px solid rgba(255,255,255,0.04); }
+.topRow:last-child { border-bottom: none; }
+.topRank { font-size: 12px; font-weight: 900; color: rgba(255,255,255,0.2); min-width: 24px; }
+.topName { font-size: 12px; font-weight: 700; color: rgba(255,255,255,0.7); flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.topRight { display: flex; flex-direction: column; align-items: flex-end; gap: 1px; flex-shrink: 0; }
+.topSold { font-size: 10px; color: rgba(255,255,255,0.35); }
+.topRev { font-size: 12px; font-weight: 800; color: #F59E0B; }

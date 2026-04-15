@@ -11,6 +11,9 @@ export const DEMO_PRODUCTS = [
   {
     id: 'demo-1', name: 'Wireless Earbuds Pro', price: 350000, currency: 'IDR',
     category: 'electronics', stock: 12, active: true, isNew: true,
+    dispatch_time: '1-2 business days', brand_name: 'SoundMax',
+    safeTrade: { enabled: true, paypal: true, escrow: true },
+    flashSale: { active: true, discountPercent: 25, endsAt: Date.now() + 6 * 60 * 60 * 1000 },
     image: 'https://ik.imagekit.io/nepgaxllc/Untitleddsadasaaa.png',
     description: 'Crystal clear sound, 24hr battery, IPX5 waterproof. Compatible with Android & iOS.',
     specs: {
@@ -37,6 +40,9 @@ export const DEMO_PRODUCTS = [
   {
     id: 'demo-2', name: 'Leather Crossbody Bag', price: 1200000, currency: 'IDR',
     category: 'bags', stock: 5, active: true, isNew: true,
+    dispatch_time: '2-3 business days', brand_name: 'Kulit Asli',
+    safeTrade: { enabled: true, paypal: true, escrow: false },
+    custom_branding: 'Yes — Custom packaging',
     image: 'https://ik.imagekit.io/nepgaxllc/Untitleddsadasaaasss.png',
     description: 'Genuine full-grain leather, brass hardware, adjustable strap. Handcrafted in Jakarta.',
     specs: {
@@ -68,7 +74,7 @@ export const DEMO_PRODUCTS = [
   },
   {
     id: 'demo-3', name: 'Leather Tote Bag', price: 850000, currency: 'IDR',
-    category: 'bags', stock: 8, active: true,
+    category: 'bags', stock: 8, active: true, dispatch_time: '3-5 business days', brand_name: 'Kulit Asli',
     image: 'https://ik.imagekit.io/nepgaxllc/Untitleddsadasaaassssdasdcxc.png',
     description: 'Spacious tote in full-grain leather. Perfect for work or weekend. Handcrafted in Bali.',
     specs: {
@@ -95,7 +101,8 @@ export const DEMO_PRODUCTS = [
   },
   {
     id: 'demo-4', name: 'Slim Card Wallet', price: 320000, currency: 'IDR',
-    category: 'bags', stock: 20, active: true, isNew: true,
+    category: 'bags', stock: 20, active: true, isNew: true, dispatch_time: 'Same day', brand_name: 'Kulit Asli',
+    flashSale: { active: true, discountPercent: 15, endsAt: Date.now() + 3 * 60 * 60 * 1000 },
     image: 'https://ik.imagekit.io/nepgaxllc/Untitleddsadasaaassssdasdcxcasdasda.png',
     description: 'Slim genuine leather card wallet. Holds 6 cards + cash pocket.',
     specs: {
@@ -125,7 +132,7 @@ export const DEMO_PRODUCTS = [
   },
   {
     id: 'demo-5', name: 'Bifold Leather Wallet', price: 450000, currency: 'IDR',
-    category: 'bags', stock: 15, active: true,
+    category: 'bags', stock: 15, active: true, dispatch_time: '1 business day', brand_name: 'Kulit Asli',
     image: 'https://ik.imagekit.io/nepgaxllc/Untitleddsadasaaassssdasdcxcasdasdadfssdf.png',
     description: 'Classic bifold with 8 card slots, ID window and bill compartment.',
     specs: {
@@ -154,7 +161,8 @@ export const DEMO_PRODUCTS = [
   },
   {
     id: 'demo-6', name: 'Leather Keychain', price: 95000, currency: 'IDR',
-    category: 'handmade', stock: 40, active: true,
+    category: 'handmade', stock: 40, active: true, dispatch_time: '2-4 weeks (made to order)',
+    custom_branding: 'Yes — Logo printing available',
     image: 'https://ik.imagekit.io/nepgaxllc/Untitledzxczxczxczx.png',
     description: 'Hand-stitched leather keychain. Personalised initials available.',
     specs: {

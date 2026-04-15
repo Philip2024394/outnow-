@@ -27,7 +27,7 @@ function buildWhatsAppMessage(sellerName, cart, address, notes) {
 
   const msg = [
     `🛍 *Order from ${sellerName}*`,
-    `Hangger Market — ${ref}`,
+    `Indoo Market — ${ref}`,
     '———————————————',
     ...lines,
     '———————————————',

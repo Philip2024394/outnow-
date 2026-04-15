@@ -4,6 +4,8 @@ import SafeTradeModal from './SafeTradeModal'
 import FreightCompaniesSheet from './FreightCompaniesSheet'
 import ReturnDetailsSheet from './ReturnDetailsSheet'
 import MakeOfferSheet from './MakeOfferSheet'
+import { trackProductView } from './BuyerProfileSheet'
+import ProductReviews from './ProductReviews'
 
 const ImageGalleryViewer = lazy(() => import('./ImageGalleryViewer'))
 const SimilarProducts = lazy(() => import('./SimilarProducts'))
@@ -59,6 +61,9 @@ export default function ProductDetailSheet({ product, onClose, sellerWa, sellerN
     return product.image ?? null
   }, [selected.color, product])
 
+  // Track product view for recently viewed
+  useMemo(() => { if (product) trackProductView(product) }, [product?.id]) // eslint-disable-line
+
   if (!product) return null
 
   const variantKeys = product.variants ? Object.keys(product.variants) : []
@@ -84,7 +89,6 @@ export default function ProductDetailSheet({ product, onClose, sellerWa, sellerN
   const hasSpecs = product.specs && Object.keys(product.specs).length > 0
 
   return (
-    <>
     <div className={styles.page}>
 
       {/* Background image — tap to open gallery */}
@@ -273,7 +277,15 @@ export default function ProductDetailSheet({ product, onClose, sellerWa, sellerN
             </div>
 
             <h2 className={styles.name}>{product.name}</h2>
-            <div className={styles.price}>{formatIDR(product.price)}</div>
+            {product.flashSale?.active && product.flashSale.endsAt > Date.now() ? (
+              <div className={styles.priceRow}>
+                <span className={styles.priceSale}>{formatIDR(Math.round(product.price * (1 - product.flashSale.discountPercent / 100)))}</span>
+                <span className={styles.priceOriginal}>{formatIDR(product.price)}</span>
+                <span className={styles.discountTag}>-{product.flashSale.discountPercent}%</span>
+              </div>
+            ) : (
+              <div className={styles.price}>{formatIDR(product.price)}</div>
+            )}
 
             {product.description && (
               <p className={styles.description}>{product.description}</p>
@@ -351,7 +363,7 @@ export default function ProductDetailSheet({ product, onClose, sellerWa, sellerN
 
             {/* Stock + payment badges */}
             <div className={styles.stockRow}>
-              <span className={styles.stockDot} style={{ background: (product.stock ?? 0) > 0 ? '#34D399' : '#EF4444' }} />
+              <span className={styles.stockDot} style={{ background: (product.stock ?? 0) > 0 ? '#8DC63F' : '#EF4444' }} />
               <span className={styles.stockText}>
                 {(product.stock ?? 0) > 0 ? `${product.stock} in stock` : 'Out of stock'}
               </span>
@@ -379,6 +391,9 @@ export default function ProductDetailSheet({ product, onClose, sellerWa, sellerN
                 </span>
               )}
             </div>
+
+            {/* Product reviews */}
+            <ProductReviews productId={product.id} productName={product.name} />
 
             {/* Thumbnail strip + Cart button row */}
             <div style={{ display:'flex', alignItems:'center', gap:8, marginTop:4 }}>
@@ -433,35 +448,23 @@ export default function ProductDetailSheet({ product, onClose, sellerWa, sellerN
           </>
       </div>
 
-    </div>
-
-    {/* Portaled modals — rendered outside the overflow:hidden page div */}
-    {freightOpen && (
+      {/* Modals — each component internally uses createPortal to document.body */}
       <FreightCompaniesSheet
         open={freightOpen}
         onClose={() => setFreightOpen(false)}
         product={product}
       />
-    )}
-
-    {returnOpen && (
       <ReturnDetailsSheet
         open={returnOpen}
         onClose={() => setReturnOpen(false)}
         product={product}
       />
-    )}
-
-    {safeTradeOpen && (
       <SafeTradeModal
         open={safeTradeOpen}
         onClose={() => setSafeTradeOpen(false)}
         product={product}
         sellerName={sellerName}
       />
-    )}
-
-    {offerOpen && (
       <MakeOfferSheet
         open={offerOpen}
         onClose={() => setOfferOpen(false)}
@@ -471,7 +474,6 @@ export default function ProductDetailSheet({ product, onClose, sellerWa, sellerN
           setOfferOpen(false)
         }}
       />
-    )}
-    </>
+    </div>
   )
 }

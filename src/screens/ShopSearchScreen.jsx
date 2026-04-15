@@ -4,6 +4,10 @@ import { LOOKING_FOR_OPTIONS } from '@/utils/lookingForLabels'
 import { DEMO_BUSINESS_SELLERS } from '@/demo/mockData'
 import { sortProducts, sortSellers } from '@/utils/searchAlgorithm'
 import SellerProfileSheet from '@/components/commerce/SellerProfileSheet'
+import RecommendationBanner from '@/components/commerce/RecommendationBanner'
+import FlashSalePage from '@/components/commerce/FlashSalePage'
+import AuctionPage from '@/components/commerce/AuctionPage'
+import SearchAutocomplete, { saveRecentSearch } from '@/components/commerce/SearchAutocomplete'
 import styles from './ShopSearchScreen.module.css'
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -137,22 +141,51 @@ export default function ShopSearchScreen({ onClose, userCity, userCountry, giftF
   const [selectedSeller,         setSelectedSeller]         = useState(null)
   const [viewMode,               setViewMode]               = useState('all') // 'all' | 'products' | 'sellers'
   const [wishlistBannerDismissed, setWishlistBannerDismissed] = useState(false)
+  const [flashSaleOpen, setFlashSaleOpen] = useState(false)
+  const [auctionOpen, setAuctionOpen] = useState(false)
+  const [showFilters, setShowFilters] = useState(false)
+  const [filterSort, setFilterSort] = useState('relevance') // relevance | price_low | price_high | distance
+  const [filterCity, setFilterCity] = useState('')
+  const [filterCondition, setFilterCondition] = useState('all') // all | new | used
+  const [searchFocused, setSearchFocused] = useState(false)
   const inputRef = useRef(null)
 
   const activeCat = SEARCH_CATEGORIES.find(c => c.id === activeCategory) ?? SEARCH_CATEGORIES[0]
 
   // Use search algorithm for relevance scoring + fair rotation
   const filteredSellers = sortSellers(
-    sellers.filter(s => matchesCategory(s, activeCat) && matchesQuery(s, query)),
-    query, userCity, userCountry
-  )
-  const filteredProducts = sortProducts(
-    products.filter(p => {
-      if (activeCat.id === 'all') return true
-      return p.category === activeCat.id || activeCat.keywords?.some(kw => (p.name ?? '').toLowerCase().includes(kw) || (p.tags ?? []).some(t => t.toLowerCase().includes(kw)))
+    sellers.filter(s => {
+      if (!matchesCategory(s, activeCat) || !matchesQuery(s, query)) return false
+      if (filterCity && !(s.city ?? '').toLowerCase().includes(filterCity.toLowerCase())) return false
+      return true
     }),
     query, userCity, userCountry
   )
+
+  let filteredProducts = sortProducts(
+    products.filter(p => {
+      if (activeCat.id !== 'all') {
+        if (p.category !== activeCat.id && !activeCat.keywords?.some(kw => (p.name ?? '').toLowerCase().includes(kw) || (p.tags ?? []).some(t => t.toLowerCase().includes(kw)))) return false
+      }
+      // City filter
+      if (filterCity) {
+        const pCity = (p.profiles?.city ?? p.city ?? '').toLowerCase()
+        if (!pCity.includes(filterCity.toLowerCase())) return false
+      }
+      // Condition filter
+      if (filterCondition === 'new' && p.condition && !p.condition.toLowerCase().includes('new')) return false
+      if (filterCondition === 'used' && p.condition && p.condition.toLowerCase().includes('new')) return false
+      return true
+    }),
+    query, userCity, userCountry
+  )
+
+  // Sort products
+  if (filterSort === 'price_low') {
+    filteredProducts = [...filteredProducts].sort((a, b) => (a.price ?? 0) - (b.price ?? 0))
+  } else if (filterSort === 'price_high') {
+    filteredProducts = [...filteredProducts].sort((a, b) => (b.price ?? 0) - (a.price ?? 0))
+  }
 
   const search = useCallback(async (q, catId) => {
     setLoading(true)
@@ -217,6 +250,7 @@ export default function ShopSearchScreen({ onClose, userCity, userCountry, giftF
   }
 
   return (
+    <>
     <div className={styles.screen}>
 
       {/* ── Gift context chip ── */}
@@ -234,26 +268,18 @@ export default function ShopSearchScreen({ onClose, userCity, userCountry, giftF
         </div>
       )}
 
-      {/* ── Wishlist discovery banner (normal browsing mode only) ── */}
-      {!giftFor && !wishlistMode && !wishlistBannerDismissed && (
-        <div className={styles.wishlistBanner}>
-          <span className={styles.wishlistBannerEmoji}>📌</span>
-          <div className={styles.wishlistBannerText}>
-            <strong>Pin items to your profile</strong>
-            <span>Admirers can buy them as anonymous gifts — a gesture of commitment before or after a date</span>
-          </div>
-          <button className={styles.wishlistBannerClose} onClick={() => setWishlistBannerDismissed(true)} aria-label="Dismiss">✕</button>
-        </div>
-      )}
-
-      {/* ── Header with search bar ── */}
+      {/* ── Header: logo + back ── */}
       <div className={styles.header}>
+        <img src="https://ik.imagekit.io/nepgaxllc/Indoo%20Market%20logo%20design.png?updatedAt=1776203793752" alt="Indoo Market" className={styles.headerLogo} />
         <button className={styles.backBtn} onClick={onClose}>
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
             <polyline points="15 18 9 12 15 6"/>
           </svg>
         </button>
+      </div>
 
+      {/* ── Search bar + filter ── */}
+      <div className={styles.searchRow}>
         <div className={styles.searchWrap}>
           <span className={styles.searchIcon}>
             <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
@@ -265,31 +291,103 @@ export default function ShopSearchScreen({ onClose, userCity, userCountry, giftF
             className={styles.searchInput}
             value={query}
             onChange={e => setQuery(e.target.value)}
-            placeholder="Search sellers, products, services…"
+            onFocus={() => setSearchFocused(true)}
+            onBlur={() => setTimeout(() => setSearchFocused(false), 200)}
+            onKeyDown={e => { if (e.key === 'Enter' && query.trim()) { saveRecentSearch(query); setSearchFocused(false); inputRef.current?.blur() } }}
+            placeholder="Search products, sellers…"
           />
           {query && (
             <button className={styles.clearBtn} onClick={() => setQuery('')}>✕</button>
           )}
+          <SearchAutocomplete
+            query={query}
+            products={products}
+            visible={searchFocused}
+            onSelect={(q) => { setQuery(q); saveRecentSearch(q); setSearchFocused(false) }}
+          />
         </div>
-
-        <div className={styles.wordmark}>
-          <img src="https://ik.imagekit.io/nepgaxllc/Indoo%20Market%20logo%20design.png?updatedAt=1776203793752" alt="Indoo Market" style={{ height:40, objectFit:'contain' }} />
-        </div>
+        <button className={styles.filterInlineBtn} onClick={() => setShowFilters(v => !v)}>
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+            <line x1="4" y1="21" x2="4" y2="14"/><line x1="4" y1="10" x2="4" y2="3"/><line x1="12" y1="21" x2="12" y2="12"/><line x1="12" y1="8" x2="12" y2="3"/><line x1="20" y1="21" x2="20" y2="16"/><line x1="20" y1="12" x2="20" y2="3"/><line x1="1" y1="14" x2="7" y2="14"/><line x1="9" y1="8" x2="15" y2="8"/><line x1="17" y1="16" x2="23" y2="16"/>
+          </svg>
+          {(filterSort !== 'relevance' || filterCity || filterCondition !== 'all') && (
+            <span className={styles.filterInlineDot} />
+          )}
+        </button>
       </div>
 
-      {/* ── Category chips ── */}
-      <div className={styles.chips}>
-        {SEARCH_CATEGORIES.map(cat => (
-          <button
-            key={cat.id}
-            className={[styles.chip, activeCategory === cat.id ? styles.chipActive : ''].join(' ')}
-            onClick={() => setActiveCategory(cat.id)}
-          >
-            <span>{cat.emoji}</span>
-            <span>{cat.label}</span>
+      {/* ── 3 Tabs: Products / Flash Sale / Auctions ── */}
+      <div className={styles.mainTabs}>
+        <button
+          className={`${styles.mainTab} ${!flashSaleOpen && !auctionOpen ? styles.mainTabActive : ''}`}
+          onClick={() => { setFlashSaleOpen(false); setAuctionOpen(false) }}
+        >
+          🛍️ Products
+        </button>
+        <button
+          className={`${styles.mainTab} ${flashSaleOpen ? styles.mainTabActive : ''}`}
+          onClick={() => { setFlashSaleOpen(true); setAuctionOpen(false) }}
+        >
+          ⚡ Flash Sale
+        </button>
+        <button
+          className={`${styles.mainTab} ${auctionOpen ? styles.mainTabActive : ''}`}
+          onClick={() => { setAuctionOpen(true); setFlashSaleOpen(false) }}
+        >
+          🔨 Auctions
+        </button>
+      </div>
+
+      {/* ── Expanded filters ── */}
+      {showFilters && (
+        <div className={styles.filterPanel}>
+          <div className={styles.filterRow}>
+            <div className={styles.filterGroup}>
+              <span className={styles.filterLabel}>Sort by</span>
+              <select className={styles.filterSelect} value={filterSort} onChange={e => setFilterSort(e.target.value)}>
+                <option value="relevance">Relevance</option>
+                <option value="price_low">Price: Low to High</option>
+                <option value="price_high">Price: High to Low</option>
+                <option value="distance">Distance: Nearest</option>
+              </select>
+            </div>
+            <div className={styles.filterGroup}>
+              <span className={styles.filterLabel}>Condition</span>
+              <select className={styles.filterSelect} value={filterCondition} onChange={e => setFilterCondition(e.target.value)}>
+                <option value="all">All</option>
+                <option value="new">New</option>
+                <option value="used">Used</option>
+              </select>
+            </div>
+          </div>
+          <div className={styles.filterGroup}>
+            <span className={styles.filterLabel}>City</span>
+            <input className={styles.filterInput} value={filterCity} onChange={e => setFilterCity(e.target.value)} placeholder="e.g. Jakarta, Bali, Surabaya" />
+          </div>
+          <div className={styles.filterGroup}>
+            <span className={styles.filterLabel}>Category</span>
+            <div className={styles.filterChips}>
+              {SEARCH_CATEGORIES.map(cat => (
+                <button key={cat.id}
+                  className={[styles.filterChip, activeCategory === cat.id ? styles.filterChipActive : ''].join(' ')}
+                  onClick={() => setActiveCategory(cat.id)}
+                >
+                  {cat.emoji} {cat.label}
+                </button>
+              ))}
+            </div>
+          </div>
+          <button className={styles.filterClear} onClick={() => { setFilterSort('relevance'); setFilterCity(''); setFilterCondition('all'); setActiveCategory('all') }}>
+            Clear all filters
           </button>
-        ))}
-      </div>
+        </div>
+      )}
+
+      {/* ── Recommendation banners ── */}
+      {!query.trim() && (
+        <RecommendationBanner onProductTap={(p) => setSelectedSeller(null)} />
+      )}
+
 
       {/* ── View mode toggle + results info ── */}
       <div className={styles.resultsBar}>
@@ -371,5 +469,17 @@ export default function ShopSearchScreen({ onClose, userCity, userCountry, giftF
         </div>
       )}
     </div>
+
+    <FlashSalePage
+      open={flashSaleOpen}
+      onClose={() => setFlashSaleOpen(false)}
+      onOrderViaChat={onOrderViaChat}
+      onMakeOffer={onMakeOffer}
+    />
+    <AuctionPage
+      open={auctionOpen}
+      onClose={() => setAuctionOpen(false)}
+    />
+    </>
   )
 }

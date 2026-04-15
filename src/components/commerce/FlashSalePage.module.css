@@ -1,0 +1,277 @@
+.page {
+  position: fixed;
+  inset: 0;
+  background: #0a0a0a;
+  z-index: 400;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+/* Header */
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 16px;
+  background: linear-gradient(135deg, #1a0800 0%, #0a0a0a 100%);
+  border-bottom: 2px solid #F59E0B;
+  box-shadow: 0 2px 16px rgba(245,158,11,0.2);
+  flex-shrink: 0;
+}
+
+.backBtn {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: rgba(255,255,255,0.06);
+  border: 1px solid rgba(255,255,255,0.1);
+  color: rgba(255,255,255,0.7);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
+
+.headerCenter {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.flashIcon { font-size: 22px; }
+
+.headerTitle {
+  font-size: 18px;
+  font-weight: 900;
+  color: #FFE500;
+  text-shadow: 0 0 12px rgba(255,229,0,0.4);
+}
+
+.timerBox {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 1px;
+}
+
+.timerLabel {
+  font-size: 9px;
+  font-weight: 700;
+  color: rgba(255,255,255,0.35);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.timerValue {
+  font-size: 18px;
+  font-weight: 900;
+  color: #EF4444;
+  font-family: 'SF Mono', 'Fira Code', monospace;
+  letter-spacing: 0.05em;
+}
+
+/* Activity feed */
+.activityBar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 16px;
+  background: rgba(245,158,11,0.06);
+  border-bottom: 1px solid rgba(245,158,11,0.1);
+  flex-shrink: 0;
+  overflow: hidden;
+}
+
+.activityIcon { font-size: 14px; flex-shrink: 0; }
+
+.activityScroll {
+  display: flex;
+  gap: 24px;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+}
+
+.activityScroll::-webkit-scrollbar { height: 0; }
+
+.activityItem {
+  font-size: 11px;
+  color: rgba(255,255,255,0.45);
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.activityItem strong {
+  color: #F59E0B;
+  font-weight: 700;
+}
+
+/* Body */
+.body {
+  flex: 1;
+  overflow-y: auto;
+  padding: 16px;
+}
+
+.body::-webkit-scrollbar { width: 3px; }
+.body::-webkit-scrollbar-thumb { background: rgba(245,158,11,0.2); border-radius: 2px; }
+
+/* Empty state */
+.empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  padding: 60px 20px;
+  text-align: center;
+  color: rgba(255,255,255,0.3);
+  font-size: 14px;
+}
+
+.emptyIcon { font-size: 40px; opacity: 0.3; }
+.emptySub { font-size: 12px; color: rgba(255,255,255,0.2); }
+
+/* Grid */
+.grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+
+/* Product card */
+.card {
+  border-radius: 14px;
+  overflow: hidden;
+  border: 1px solid rgba(255,255,255,0.08);
+  cursor: pointer;
+  transition: border-color 0.15s, transform 0.15s;
+  background: rgba(255,255,255,0.02);
+}
+
+.card:hover {
+  border-color: rgba(245,158,11,0.4);
+  transform: translateY(-2px);
+}
+
+.cardImgWrap {
+  position: relative;
+}
+
+.cardImg {
+  width: 100%;
+  height: 160px;
+  object-fit: cover;
+  display: block;
+}
+
+.cardImgPlaceholder {
+  width: 100%;
+  height: 160px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 36px;
+  background: rgba(255,255,255,0.03);
+}
+
+.cardDiscount {
+  position: absolute;
+  top: 8px;
+  left: 8px;
+  background: #FFE500;
+  color: #000;
+  font-size: 11px;
+  font-weight: 900;
+  padding: 3px 8px;
+  border-radius: 6px;
+  box-shadow: 0 0 10px rgba(255,229,0,0.6);
+}
+
+.cardTimer {
+  position: absolute;
+  bottom: 8px;
+  right: 8px;
+  background: rgba(0,0,0,0.7);
+  backdrop-filter: blur(6px);
+  color: #EF4444;
+  font-size: 10px;
+  font-weight: 800;
+  font-family: 'SF Mono', 'Fira Code', monospace;
+  padding: 3px 7px;
+  border-radius: 6px;
+  border: 1px solid rgba(239,68,68,0.3);
+}
+
+.cardInfo {
+  padding: 10px 12px 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.cardBrand {
+  font-size: 8px;
+  font-weight: 700;
+  color: rgba(255,255,255,0.3);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.cardName {
+  font-size: 13px;
+  font-weight: 800;
+  color: #fff;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.cardPrices {
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+}
+
+.cardSalePrice {
+  font-size: 15px;
+  font-weight: 900;
+  color: #EF4444;
+}
+
+.cardOrigPrice {
+  font-size: 11px;
+  font-weight: 600;
+  color: rgba(255,255,255,0.25);
+  text-decoration: line-through;
+}
+
+/* Stock progress bar */
+.cardStock {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 4px;
+}
+
+.stockBar {
+  flex: 1;
+  height: 4px;
+  background: rgba(255,255,255,0.08);
+  border-radius: 2px;
+  overflow: hidden;
+}
+
+.stockFill {
+  height: 100%;
+  background: linear-gradient(90deg, #EF4444, #F59E0B);
+  border-radius: 2px;
+  transition: width 0.3s;
+}
+
+.stockText {
+  font-size: 9px;
+  font-weight: 700;
+  color: rgba(255,255,255,0.35);
+  flex-shrink: 0;
+}

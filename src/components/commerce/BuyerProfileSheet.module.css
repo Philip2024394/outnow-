@@ -1,0 +1,231 @@
+/* Mirrors SellerProfileSheet layout exactly */
+.page {
+  position: fixed;
+  inset: 0;
+  z-index: 320;
+  overflow: hidden;
+}
+
+.bgImg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center top;
+  z-index: 0;
+}
+
+.bgFallback {
+  position: absolute;
+  inset: 0;
+  background: #0d0d0d;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 0;
+}
+
+.bgInitial { font-size: 80px; font-weight: 900; color: rgba(245,158,11,0.15); }
+
+.bgGrad {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(to top, rgba(0,0,0,0.97) 0%, rgba(0,0,0,0.7) 40%, transparent 100%);
+  z-index: 1;
+  pointer-events: none;
+}
+
+/* Top bar */
+.topBar {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px;
+  z-index: 20;
+}
+
+.logoWrap { display: flex; align-items: center; }
+
+.backBtn {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  padding: 6px 13px 6px 9px;
+  background: rgba(0,0,0,0.5);
+  border: 1px solid rgba(255,255,255,0.18);
+  border-radius: 20px;
+  color: rgba(255,255,255,0.9);
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+  font-family: inherit;
+  backdrop-filter: blur(6px);
+}
+
+/* Side panel — mirrors seller but with buyer buttons */
+.sidePanel {
+  position: absolute;
+  top: 80px;
+  right: 14px;
+  z-index: 20;
+  background: #0a0a0a;
+  border: 1.5px solid rgba(245,158,11,0.4);
+  border-radius: 28px;
+  padding: 6px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  backdrop-filter: blur(8px);
+}
+
+.sidePanelBtn {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: #111;
+  border: 1.5px solid rgba(255,255,255,0.12);
+  color: rgba(255,255,255,0.4);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: border-color 0.15s, color 0.15s, background 0.15s;
+}
+
+.sidePanelBtnActive {
+  border-color: #F59E0B;
+  color: #F59E0B;
+  background: rgba(245,158,11,0.12);
+}
+
+/* Bottom overlay */
+.bottomOverlay {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  padding: 0 20px 36px;
+  z-index: 10;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  max-height: 65vh;
+  overflow-y: auto;
+}
+
+.bottomOverlay::-webkit-scrollbar { width: 0; }
+
+.buyerName {
+  font-size: 26px;
+  font-weight: 900;
+  color: #fff;
+  text-shadow: 0 2px 12px rgba(0,0,0,0.5);
+}
+
+.locationText {
+  font-size: 12px;
+  color: rgba(255,255,255,0.5);
+  margin: 0;
+}
+
+.memberText {
+  font-size: 11px;
+  color: rgba(255,255,255,0.3);
+  margin: 0;
+}
+
+/* Tab content */
+.tabContent {
+  margin-top: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.tabTitle {
+  font-size: 14px;
+  font-weight: 800;
+  color: #F59E0B;
+  display: block;
+  margin-bottom: 6px;
+}
+
+.emptyText {
+  font-size: 12px;
+  color: rgba(255,255,255,0.25);
+  margin: 8px 0;
+}
+
+/* Orders list */
+.ordersList { display: flex; flex-direction: column; gap: 6px; }
+
+.orderRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 10px 12px;
+  background: rgba(255,255,255,0.04);
+  border: 1px solid rgba(255,255,255,0.06);
+  border-radius: 12px;
+}
+
+.orderInfo { display: flex; flex-direction: column; gap: 2px; flex: 1; min-width: 0; }
+.orderProduct { font-size: 13px; font-weight: 700; color: rgba(255,255,255,0.85); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.orderDate { font-size: 10px; color: rgba(255,255,255,0.3); }
+.orderRight { display: flex; flex-direction: column; align-items: flex-end; gap: 2px; flex-shrink: 0; }
+.orderTotal { font-size: 13px; font-weight: 800; color: #F59E0B; }
+.orderStatus { font-size: 10px; font-weight: 700; text-transform: capitalize; }
+
+/* Recently viewed grid */
+.viewedList { display: flex; flex-direction: column; gap: 8px; }
+
+.viewedGrid {
+  display: flex;
+  gap: 8px;
+  overflow-x: auto;
+  padding-bottom: 4px;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+}
+
+.viewedGrid::-webkit-scrollbar { height: 0; }
+
+.viewedCard {
+  flex-shrink: 0;
+  width: 110px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  cursor: pointer;
+}
+
+.viewedImg {
+  width: 110px;
+  height: 110px;
+  border-radius: 10px;
+  object-fit: cover;
+  border: 1px solid rgba(255,255,255,0.08);
+}
+
+.viewedImgPlaceholder {
+  width: 110px;
+  height: 110px;
+  border-radius: 10px;
+  background: rgba(255,255,255,0.04);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 28px;
+}
+
+.viewedName { font-size: 11px; font-weight: 700; color: rgba(255,255,255,0.75); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.viewedPrice { font-size: 11px; font-weight: 800; color: #F59E0B; }
+
+/* Sections */
+.wishlistSection, .safeTradeSection { display: flex; flex-direction: column; gap: 6px; }

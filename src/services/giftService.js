@@ -1,6 +1,6 @@
 /**
  * giftService.js
- * Anonymous gifting via Hangger Marketplace.
+ * Anonymous gifting via Indoo Marketplace.
  *
  * Privacy model:
  *  - Buyer never sees recipient address

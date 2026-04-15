@@ -92,7 +92,7 @@
   flex-shrink: 0;
 }
 
-.statusGreen { background: #34D399; box-shadow: 0 0 8px rgba(52,211,153,0.4); }
+.statusGreen { background: #8DC63F; box-shadow: 0 0 8px rgba(141,198,63,0.4); }
 .statusRed   { background: #EF4444; box-shadow: 0 0 8px rgba(239,68,68,0.4); }
 
 .statusText {

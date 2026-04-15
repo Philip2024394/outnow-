@@ -1,0 +1,34 @@
+.tab { padding: 16px; display: flex; flex-direction: column; gap: 16px; }
+.loading { padding: 40px; text-align: center; color: rgba(255,255,255,0.3); }
+
+.statsRow { display: flex; gap: 8px; flex-wrap: wrap; }
+.stat { flex: 1; min-width: 80px; padding: 12px; background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.07); border-radius: 10px; display: flex; flex-direction: column; align-items: center; gap: 3px; }
+.statVal { font-size: 20px; font-weight: 900; color: #fff; }
+.statLabel { font-size: 9px; font-weight: 700; color: rgba(255,255,255,0.3); text-transform: uppercase; letter-spacing: 0.05em; }
+
+.filterRow { display: flex; gap: 6px; }
+.filterBtn { padding: 6px 12px; background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08); border-radius: 8px; color: rgba(255,255,255,0.4); font-size: 11px; font-weight: 700; cursor: pointer; font-family: inherit; transition: all 0.15s; }
+.filterActive { background: rgba(245,158,11,0.12); border-color: rgba(245,158,11,0.35); color: #F59E0B; }
+
+.list { display: flex; flex-direction: column; gap: 10px; }
+.empty { padding: 30px; text-align: center; color: rgba(255,255,255,0.2); font-size: 13px; }
+
+.auctionRow { background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.06); border-radius: 12px; padding: 12px; display: flex; flex-wrap: wrap; gap: 12px; }
+.rowLeft { display: flex; gap: 10px; flex: 1; min-width: 200px; }
+.rowImg { width: 50px; height: 50px; border-radius: 8px; object-fit: cover; flex-shrink: 0; }
+.rowInfo { display: flex; flex-direction: column; gap: 3px; min-width: 0; }
+.rowName { font-size: 13px; font-weight: 800; color: #fff; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.rowSeller { font-size: 10px; color: rgba(255,255,255,0.35); }
+.rowMeta { display: flex; gap: 8px; font-size: 10px; color: rgba(255,255,255,0.25); flex-wrap: wrap; }
+
+.rowRight { display: flex; flex-direction: column; align-items: flex-end; gap: 3px; flex-shrink: 0; }
+.rowPrice { font-size: 16px; font-weight: 900; color: #F59E0B; }
+.rowStatus { font-size: 10px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.04em; }
+.rowTimer { font-size: 11px; font-weight: 700; color: #EF4444; font-family: monospace; }
+.rowWinner { font-size: 10px; color: rgba(255,255,255,0.4); }
+
+.rowBids { width: 100%; border-top: 1px solid rgba(255,255,255,0.04); padding-top: 8px; display: flex; flex-direction: column; gap: 4px; }
+.bidEntry { display: flex; gap: 8px; font-size: 10px; }
+.bidName { color: rgba(255,255,255,0.5); flex: 1; }
+.bidAmt { color: #F59E0B; font-weight: 700; }
+.bidTime { color: rgba(255,255,255,0.2); }

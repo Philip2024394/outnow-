@@ -47,6 +47,7 @@
   );
   z-index: 1;
   transition: opacity 0.25s ease;
+  pointer-events: none;
 }
 
 .bgGradHidden {
@@ -95,7 +96,7 @@
   cursor: pointer;
   font-family: inherit;
   backdrop-filter: blur(6px);
-  z-index: 10;
+  z-index: 20;
 }
 
 /* ── Floating side panel (top-right) ─────────────────────────────────────── */
@@ -103,7 +104,7 @@
   position: absolute;
   top: 80px;
   right: 14px;
-  z-index: 10;
+  z-index: 20;
   background: #0a0a0a;
   border: 1.5px solid rgba(245,158,11,0.4);
   border-radius: 28px;
@@ -296,6 +297,48 @@
   margin-top: -4px;
 }
 
+.priceRow {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  margin-top: -4px;
+}
+
+.priceSale {
+  font-size: 26px;
+  font-weight: 900;
+  color: #EF4444;
+  animation: detailPricePulse 2s ease-in-out infinite;
+}
+
+@keyframes detailPricePulse {
+  0%, 100% { opacity: 1; text-shadow: none; }
+  50% { opacity: 0.85; text-shadow: 0 0 12px rgba(239,68,68,0.5); }
+}
+
+.priceOriginal {
+  font-size: 16px;
+  font-weight: 600;
+  color: rgba(255,255,255,0.3);
+  text-decoration: line-through;
+}
+
+.discountTag {
+  font-size: 11px;
+  font-weight: 900;
+  color: #000;
+  background: #FFE500;
+  padding: 2px 8px;
+  border-radius: 6px;
+  box-shadow: 0 0 8px rgba(255,229,0,0.5);
+  animation: detailBadgePulse 2s ease-in-out infinite;
+}
+
+@keyframes detailBadgePulse {
+  0%, 100% { box-shadow: 0 0 8px rgba(255,229,0,0.5); transform: scale(1); }
+  50% { box-shadow: 0 0 16px rgba(255,229,0,0.8); transform: scale(1.06); }
+}
+
 .description {
   font-size: 13px;
   color: rgba(255,255,255,0.55);
@@ -466,9 +509,9 @@
 .safeTradeBadge {
   font-size: 9px;
   font-weight: 800;
-  color: #34D399;
-  background: rgba(52,211,153,0.1);
-  border: 1px solid rgba(52,211,153,0.3);
+  color: #8DC63F;
+  background: rgba(141,198,63,0.1);
+  border: 1px solid rgba(141,198,63,0.3);
   border-radius: 10px;
   padding: 2px 8px;
   letter-spacing: 0.03em;

@@ -20,7 +20,7 @@ import SellerProfileSheet      from '@/components/commerce/SellerProfileSheet'
 import ProductDetailSheet      from '@/components/commerce/ProductDetailSheet'
 import styles from './QAFeedScreen.module.css'
 
-const HANGGER_LOGO = 'https://ik.imagekit.io/nepgaxllc/Hangger%20Market%20logo%20design.png'
+const HANGGER_LOGO = 'https://ik.imagekit.io/nepgaxllc/Indoo%20Market%20logo%20design.png?updatedAt=1776203793752'
 
 // ── Demo marketplace products (fallback when Supabase is empty) ───────────────
 const DEMO_MKT_PRODUCTS = [
@@ -75,7 +75,7 @@ function LiveMarketplaceFeed({ onClose, onSelectProduct }) {
       {/* ── Header — logo + live pill only ── */}
       <div className={styles.lmHeader}>
         <div className={styles.lmLogoWrap}>
-          <img src={HANGGER_LOGO} alt="Hangger Market" className={styles.lmLogo} />
+          <img src={HANGGER_LOGO} alt="Indoo Market" className={styles.lmLogo} />
         </div>
         <span className={styles.lmLivePill}>
           <span className={styles.lmLiveDot} />

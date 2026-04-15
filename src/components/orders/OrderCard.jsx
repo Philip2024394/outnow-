@@ -25,7 +25,7 @@ function fmtRp(n) {
 
 const STATUS_CONFIG = {
   pending:   { label: 'Pending',   color: '#f5c518', bg: 'rgba(245,197,24,0.12)',   border: 'rgba(245,197,24,0.3)'  },
-  confirmed: { label: 'Confirmed', color: '#22c55e', bg: 'rgba(34,197,94,0.12)',    border: 'rgba(34,197,94,0.3)'   },
+  confirmed: { label: 'Confirmed', color: '#8DC63F', bg: 'rgba(141,198,63,0.12)',    border: 'rgba(141,198,63,0.3)'   },
   complete:  { label: 'Complete',  color: '#60a5fa', bg: 'rgba(96,165,250,0.12)',   border: 'rgba(96,165,250,0.3)'  },
   cancelled: { label: 'Cancelled', color: '#ef4444', bg: 'rgba(239,68,68,0.12)',    border: 'rgba(239,68,68,0.3)'   },
 }

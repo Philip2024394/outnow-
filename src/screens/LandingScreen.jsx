@@ -14,7 +14,7 @@ export default function LandingScreen({ onGetStarted, onSignIn, onBrowse }) {
       <div className={styles.overlayBottom} />
 
       <div className={styles.logoWrap}>
-        <img src={LOGO_URL} alt="Hangger" className={styles.logo} />
+        <img src={LOGO_URL} alt="Indoo" className={styles.logo} />
       </div>
 
       <div className={styles.bottom}>

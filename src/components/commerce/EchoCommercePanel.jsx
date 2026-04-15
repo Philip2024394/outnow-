@@ -5,6 +5,8 @@ import {
 } from '@/services/commerceService'
 import ProductCatalogSlider from './ProductCatalogSlider'
 import DeliveryPricingEditor from './DeliveryPricingEditor'
+import { createAuction, getAuctions, fmtIDR, AUCTION_STATUS } from '@/services/auctionService'
+import SellerAnalytics from './SellerAnalytics'
 import styles from './EchoCommercePanel.module.css'
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -17,7 +19,7 @@ const STATUS_COLORS = {
   pending:   { bg: 'rgba(251,191,36,0.12)',  border: 'rgba(251,191,36,0.3)',  text: '#FBBF24' },
   confirmed: { bg: 'rgba(167,139,250,0.12)', border: 'rgba(167,139,250,0.3)', text: '#A78BFA' },
   shipped:   { bg: 'rgba(99,102,241,0.12)',  border: 'rgba(99,102,241,0.3)',  text: '#818CF8' },
-  delivered: { bg: 'rgba(52,211,153,0.12)',  border: 'rgba(52,211,153,0.3)',  text: '#34D399' },
+  delivered: { bg: 'rgba(141,198,63,0.12)',  border: 'rgba(141,198,63,0.3)',  text: '#8DC63F' },
 }
 
 function StatCard({ label, value, icon }) {
@@ -38,6 +40,7 @@ export default function EchoCommercePanel({ userId, businessName, open: external
   const [section, setSection]         = useState('orders') // orders | products | shipping
   const [catalogOpen, setCatalogOpen] = useState(false)
   const [deliveryPricingOpen, setDeliveryPricingOpen] = useState(false)
+  const [analyticsOpen, setAnalyticsOpen] = useState(false)
   const [deliveryPricingProduct, setDeliveryPricingProduct] = useState(null)
   const [loading, setLoading]         = useState(false)
 
@@ -92,8 +95,11 @@ export default function EchoCommercePanel({ userId, businessName, open: external
               <img src="https://ik.imagekit.io/nepgaxllc/Indoo%20Market%20logo%20design.png?updatedAt=1776203793752" alt="Indoo Market" style={{ height:22, objectFit:'contain' }} />
               <span className={styles.commerce}>Seller</span>
             </div>
+            <button className={styles.headerCatalogBtn} onClick={() => setAnalyticsOpen(true)}>
+              📊
+            </button>
             <button className={styles.headerCatalogBtn} onClick={() => setCatalogOpen(true)}>
-              📦 Products
+              📦
             </button>
           </div>
 
@@ -112,13 +118,13 @@ export default function EchoCommercePanel({ userId, businessName, open: external
 
           {/* Section tabs */}
           <div className={styles.sectionTabs}>
-            {['orders', 'products', 'shipping', 'payment'].map(s => (
+            {['orders', 'products', 'shipping', 'payment', 'auction'].map(s => (
               <button
                 key={s}
                 className={[styles.sectionTab, section === s ? styles.sectionTabActive : ''].join(' ')}
                 onClick={() => setSection(s)}
               >
-                {s === 'orders' ? '🧾 Orders' : s === 'products' ? '📦 Products' : s === 'shipping' ? '🚚 Ship' : '🛡 Pay'}
+                {s === 'orders' ? '🧾' : s === 'products' ? '📦' : s === 'shipping' ? '🚚' : s === 'payment' ? '🛡' : '🔨'}
               </button>
             ))}
           </div>
@@ -180,14 +186,40 @@ export default function EchoCommercePanel({ userId, businessName, open: external
                     <span className={styles.productName}>{p.name}</span>
                     <span className={styles.productPrice}>${(p.price ?? 0).toFixed(2)}</span>
                     <span className={styles.productStock}>Stock: {p.stock ?? '–'}</span>
+                    {p.flashSale?.active && (
+                      <span className={styles.flashBadge}>⚡ -{p.flashSale.discountPercent}%</span>
+                    )}
                   </div>
-                  <button
-                    className={[styles.toggleActive, p.active ? styles.toggleOn : styles.toggleOff].join(' ')}
-                    onClick={() => handleToggleProduct(p.id, p.active)}
-                    title={p.active ? 'Hide product' : 'Show product'}
-                  >
-                    {p.active ? 'Live' : 'Off'}
-                  </button>
+                  <div className={styles.productActions}>
+                    <button
+                      className={[styles.toggleActive, p.active ? styles.toggleOn : styles.toggleOff].join(' ')}
+                      onClick={() => handleToggleProduct(p.id, p.active)}
+                      title={p.active ? 'Hide product' : 'Show product'}
+                    >
+                      {p.active ? 'Live' : 'Off'}
+                    </button>
+                    <button
+                      className={[styles.flashToggle, p.flashSale?.active ? styles.flashToggleOn : ''].join(' ')}
+                      onClick={() => {
+                        if (p.flashSale?.active) {
+                          setProducts(prev => prev.map(pr => pr.id === p.id ? { ...pr, flashSale: { ...pr.flashSale, active: false } } : pr))
+                        } else {
+                          const pct = prompt('Discount % (e.g. 10, 25, 50):')
+                          if (pct && !isNaN(pct) && Number(pct) > 0 && Number(pct) <= 90) {
+                            const hrs = prompt('Sale duration in hours (max 48):')
+                            const duration = Math.min(48, Math.max(1, Number(hrs) || 6))
+                            setProducts(prev => prev.map(pr => pr.id === p.id ? {
+                              ...pr,
+                              flashSale: { active: true, discountPercent: Number(pct), endsAt: Date.now() + duration * 3600000 }
+                            } : pr))
+                          }
+                        }
+                      }}
+                      title={p.flashSale?.active ? 'Stop flash sale' : 'Start flash sale'}
+                    >
+                      ⚡
+                    </button>
+                  </div>
                 </div>
               ))}
             </div>
@@ -316,6 +348,59 @@ export default function EchoCommercePanel({ userId, businessName, open: external
               <button className={styles.saveShippingBtn}>Save Payment Settings</button>
             </div>
           )}
+
+          {/* ── Auction section ── */}
+          {!loading && section === 'auction' && (
+            <div className={styles.shippingSection}>
+              <div className={styles.shippingTitle}>Create Auction</div>
+              <div className={styles.shippingSub2}>Select a product to auction (max 6 hours)</div>
+              {products.filter(p => p.active).map(p => (
+                <button
+                  key={p.id}
+                  className={styles.deliveryPricingBtn}
+                  onClick={() => {
+                    const startPrice = prompt('Starting price (Rp):')
+                    if (!startPrice || isNaN(startPrice)) return
+                    const reserve = prompt('Reserve price (Rp) — leave empty for none:')
+                    const hours = prompt('Auction duration (hours, max 6):')
+                    const dur = Math.min(6, Math.max(1, Number(hours) || 4))
+                    createAuction({
+                      productId: p.id,
+                      productName: p.name,
+                      productImage: p.image,
+                      sellerId: userId,
+                      sellerName: businessName ?? 'Seller',
+                      startPrice: Number(startPrice),
+                      reservePrice: reserve ? Number(reserve) : null,
+                      startTime: Date.now(),
+                      endTime: Date.now() + dur * 3600000,
+                    })
+                    alert(`Auction started for ${p.name} at Rp ${Number(startPrice).toLocaleString('id-ID')} for ${dur} hours`)
+                  }}
+                >
+                  <span className={styles.deliveryPricingName}>{p.name} — {fmtIDR(p.price)}</span>
+                  <span className={styles.deliveryPricingArrow}>🔨</span>
+                </button>
+              ))}
+
+              <div className={styles.shippingTitle} style={{ marginTop: 16 }}>My Auctions</div>
+              {getAuctions().filter(a => a.sellerId === userId).length === 0 && (
+                <div className={styles.empty} style={{ fontSize: 11 }}>No auctions yet</div>
+              )}
+              {getAuctions().filter(a => a.sellerId === userId).map(a => (
+                <div key={a.id} className={styles.deliveryPricingBtn} style={{ cursor: 'default', flexDirection: 'column', alignItems: 'flex-start', gap: 4 }}>
+                  <span className={styles.deliveryPricingName}>{a.productName}</span>
+                  <div style={{ display: 'flex', gap: 8, fontSize: 10, color: 'rgba(255,255,255,0.4)' }}>
+                    <span>Current: {fmtIDR(a.currentPrice)}</span>
+                    <span>{a.bidCount} bids</span>
+                    <span style={{ color: a.status === AUCTION_STATUS.LIVE ? '#8DC63F' : a.status === AUCTION_STATUS.PAID ? '#F59E0B' : '#EF4444', fontWeight: 700 }}>
+                      {a.status}
+                    </span>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
         </div>
       </div>
 
@@ -345,6 +430,8 @@ export default function EchoCommercePanel({ userId, businessName, open: external
           setDeliveryPricingProduct(null)
         }}
       />
+
+      <SellerAnalytics open={analyticsOpen} onClose={() => setAnalyticsOpen(false)} />
     </>
   )
 }

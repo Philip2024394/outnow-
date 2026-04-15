@@ -5,6 +5,7 @@ import ProductDetailSheet from './ProductDetailSheet'
 import HanggerCartPanel from './HanggerCartPanel'
 import HanggerCartSheet from './HanggerCartSheet'
 import SellerTrustCard from './SellerTrustCard'
+import FlashSalePage from './FlashSalePage'
 import styles from './ProductCatalogSlider.module.css'
 
 // ── IDR price formatter ───────────────────────────────────────────────────────
@@ -64,6 +65,7 @@ export default function ProductCatalogSlider({
   const [cart,          setCart]          = useState(() => loadCart(cartKey))
   const [cartModalOpen, setCartModalOpen] = useState(false)
   const [trustCardOpen, setTrustCardOpen] = useState(false)
+  const [flashSaleOpen, setFlashSaleOpen] = useState(false)
 
   // Persist cart on every change
   useEffect(() => { saveCart(cartKey, cart) }, [cart, cartKey])
@@ -137,7 +139,7 @@ export default function ProductCatalogSlider({
         {/* Header */}
         <div className={styles.header}>
           <div className={styles.headerTitle}>
-            <span className={styles.echo}>Hangger Market</span>
+            <span className={styles.echo}>Indoo Market</span>
             <span className={styles.catalog}>{sellerName}</span>
           </div>
 
@@ -180,6 +182,13 @@ export default function ProductCatalogSlider({
         </div>
 
         <div className={styles.body}>
+          {/* Flash Sale banner — shown when seller has active flash sales */}
+          {products.some(p => p.flashSale?.active && p.flashSale.endsAt > Date.now()) && (
+            <button className={styles.flashBanner} onClick={() => setFlashSaleOpen(true)}>
+              <img src="https://ik.imagekit.io/nepgaxllc/ChatGPT%20Image%20Apr%2015,%202026,%2008_25_21%20PM.png" alt="Flash Sale" className={styles.flashBannerImg} />
+            </button>
+          )}
+
           {/* Product groups */}
           {filtered.length === 0 ? (
             <div className={styles.emptyGrid}>
@@ -202,6 +211,9 @@ export default function ProductCatalogSlider({
                           : <div className={styles.cardImgPlaceholder}>📦</div>
                         }
                         {p.isNew && <span className={styles.newBadge}>NEW</span>}
+                        {p.flashSale?.active && p.flashSale.endsAt > Date.now() && (
+                          <span className={styles.discountBadge}>-{p.flashSale.discountPercent}%</span>
+                        )}
                       </div>
                       <div className={styles.cardInfo}>
                         {p.brand_name && (
@@ -209,7 +221,14 @@ export default function ProductCatalogSlider({
                         )}
                         <div className={styles.cardName}>{p.name}</div>
                         <div className={styles.cardMeta}>
-                          <span className={styles.cardPrice}>{formatIDR(p.price)}</span>
+                          {p.flashSale?.active && p.flashSale.endsAt > Date.now() ? (
+                            <>
+                              <span className={styles.cardPriceSale}>{formatIDR(Math.round(p.price * (1 - p.flashSale.discountPercent / 100)))}</span>
+                              <span className={styles.cardPriceOriginal}>{formatIDR(p.price)}</span>
+                            </>
+                          ) : (
+                            <span className={styles.cardPrice}>{formatIDR(p.price)}</span>
+                          )}
                           {p.condition && p.condition !== 'new' && (
                             <span className={styles.cardCondition}>{p.condition}</span>
                           )}
@@ -264,6 +283,13 @@ export default function ProductCatalogSlider({
         onClearCart={clearCart}
         sellerName={sellerName}
         sellerWa={sellerWa}
+      />
+
+      <FlashSalePage
+        open={flashSaleOpen}
+        onClose={() => setFlashSaleOpen(false)}
+        allProducts={products}
+        onMakeOffer={onMakeOffer}
       />
 
       <SellerTrustCard

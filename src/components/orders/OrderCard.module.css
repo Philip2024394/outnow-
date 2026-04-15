@@ -187,8 +187,8 @@
 .safeTradeSection {
   margin: 0 14px 8px;
   padding: 12px;
-  background: rgba(52, 211, 153, 0.04);
-  border: 1px solid rgba(52, 211, 153, 0.15);
+  background: rgba(141, 198, 63, 0.04);
+  border: 1px solid rgba(141, 198, 63, 0.15);
   border-radius: 12px;
   display: flex;
   flex-direction: column;
@@ -199,13 +199,13 @@
   display: flex;
   align-items: center;
   gap: 7px;
-  color: #34D399;
+  color: #8DC63F;
 }
 
 .safeTradeTitle {
   font-size: 12px;
   font-weight: 800;
-  color: #34D399;
+  color: #8DC63F;
   letter-spacing: 0.02em;
 }
 
@@ -241,8 +241,8 @@
 }
 
 .safeTradeOptionActive {
-  border-color: #34D399;
-  background: rgba(52, 211, 153, 0.06);
+  border-color: #8DC63F;
+  background: rgba(141, 198, 63, 0.06);
 }
 
 .safeTradeOptionTop {
@@ -260,7 +260,7 @@
 .safeTradeCheck {
   font-size: 13px;
   font-weight: 900;
-  color: #34D399;
+  color: #8DC63F;
 }
 
 .safeTradeOptionFees {
@@ -299,7 +299,7 @@
 .safeTradeInfoLink {
   background: none;
   border: none;
-  color: rgba(52, 211, 153, 0.6);
+  color: rgba(141, 198, 63, 0.6);
   font-size: 10px;
   font-weight: 600;
   cursor: pointer;
@@ -311,7 +311,7 @@
   transition: color 0.15s;
 }
 
-.safeTradeInfoLink:hover { color: #34D399; }
+.safeTradeInfoLink:hover { color: #8DC63F; }
 
 /* ── Actions ── */
 .actions {
@@ -323,7 +323,7 @@
 .btnConfirm {
   flex: 1;
   padding: 10px 0;
-  background: #22c55e;
+  background: #8DC63F;
   border: none;
   border-radius: 10px;
   color: #fff;
@@ -372,7 +372,7 @@
   padding: 8px 14px 12px;
   font-size: 12px;
   font-weight: 700;
-  color: #22c55e;
+  color: #8DC63F;
   text-align: center;
 }
 

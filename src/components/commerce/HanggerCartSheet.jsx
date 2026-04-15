@@ -1,5 +1,6 @@
 import { useState, useMemo } from 'react'
 import { PARCEL_CARRIERS, CARGO_CARRIERS, EXPORT_CARRIERS } from '@/services/commissionService'
+import { validateVoucher, redeemVoucher } from '@/services/voucherService'
 import styles from './HanggerCartSheet.module.css'
 
 function formatIDR(n) {
@@ -39,6 +40,8 @@ export default function HanggerCartSheet({
   const [locating, setLocating]   = useState(false)
   const [showMore, setShowMore]   = useState(false)
   const [dropship, setDropship]   = useState(false)
+  const [voucherCode, setVoucherCode] = useState('')
+  const [voucherResult, setVoucherResult] = useState(null) // { valid, discount, error }
   const [dropshipAddr, setDropshipAddr] = useState('')
   const [locatingDrop, setLocatingDrop] = useState(false)
 
@@ -426,19 +429,50 @@ export default function HanggerCartSheet({
             </div>
           )}
 
+          {/* Voucher code */}
+          <div className={styles.section}>
+            <div className={styles.sectionLabel}>Voucher code</div>
+            <div className={styles.voucherRow}>
+              <input
+                className={styles.voucherInput}
+                value={voucherCode}
+                onChange={e => { setVoucherCode(e.target.value.toUpperCase()); setVoucherResult(null) }}
+                placeholder="Enter code"
+                maxLength={20}
+              />
+              <button className={styles.voucherApply} onClick={() => {
+                if (!voucherCode.trim()) return
+                const result = validateVoucher(voucherCode, subtotal)
+                setVoucherResult(result)
+              }}>Apply</button>
+            </div>
+            {voucherResult && !voucherResult.valid && (
+              <span className={styles.voucherError}>{voucherResult.error}</span>
+            )}
+            {voucherResult?.valid && (
+              <span className={styles.voucherSuccess}>-{voucherResult.discountPercent}% ({formatIDR(voucherResult.discount)} off)</span>
+            )}
+          </div>
+
           {/* Totals */}
           <div className={styles.totals}>
             <div className={styles.totalRow}>
               <span>Subtotal</span>
               <span>{formatIDR(subtotal)}</span>
             </div>
+            {voucherResult?.valid && (
+              <div className={styles.totalRow}>
+                <span style={{ color: '#8DC63F' }}>Voucher -{voucherResult.discountPercent}%</span>
+                <span style={{ color: '#8DC63F' }}>-{formatIDR(voucherResult.discount)}</span>
+              </div>
+            )}
             <div className={styles.totalRow}>
               <span>{selected.icon} {selected.label}</span>
-              <span>{deliveryFee > 0 ? `~${formatIDR(deliveryFee)}` : <span style={{ color: '#34D399', fontWeight: 700 }}>Free</span>}</span>
+              <span>{deliveryFee > 0 ? `~${formatIDR(deliveryFee)}` : <span style={{ color: '#8DC63F', fontWeight: 700 }}>Free</span>}</span>
             </div>
             <div className={[styles.totalRow, styles.grandRow].join(' ')}>
               <span>Est. total</span>
-              <span className={styles.grandVal}>{formatIDR(total)}</span>
+              <span className={styles.grandVal}>{formatIDR(total - (voucherResult?.valid ? voucherResult.discount : 0))}</span>
             </div>
           </div>
         </div>

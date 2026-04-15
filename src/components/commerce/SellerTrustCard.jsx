@@ -49,7 +49,7 @@ export default function SellerTrustCard({ open, onClose, seller }) {
   // Badges
   const badges = []
   if (totalOrders >= 100) badges.push({ label: 'Top Seller', color: '#FFE500', bg: 'rgba(255,229,0,0.1)' })
-  if (responseTime && responseTime <= 30) badges.push({ label: 'Fast Responder', color: '#34D399', bg: 'rgba(52,211,153,0.08)' })
+  if (responseTime && responseTime <= 30) badges.push({ label: 'Fast Responder', color: '#8DC63F', bg: 'rgba(141,198,63,0.08)' })
   if (safeTrade.enabled) badges.push({ label: 'Safe Trade', color: '#60A5FA', bg: 'rgba(96,165,250,0.08)' })
   if (seller.verified) badges.push({ label: 'Verified', color: '#F59E0B', bg: 'rgba(245,158,11,0.08)' })
 
@@ -110,7 +110,7 @@ export default function SellerTrustCard({ open, onClose, seller }) {
           </div>
           <div className={styles.statDivider} />
           <div className={styles.stat}>
-            <span className={styles.statValue} style={{ color: fillRate >= 90 ? '#34D399' : fillRate >= 70 ? '#FBBF24' : '#EF4444' }}>{fillRate}%</span>
+            <span className={styles.statValue} style={{ color: fillRate >= 90 ? '#8DC63F' : fillRate >= 70 ? '#FBBF24' : '#EF4444' }}>{fillRate}%</span>
             <span className={styles.statLabel}>Filled</span>
           </div>
           <div className={styles.statDivider} />
@@ -132,7 +132,7 @@ export default function SellerTrustCard({ open, onClose, seller }) {
           <div className={styles.optionsList}>
             {safeTrade.enabled && (
               <div className={styles.optionItem}>
-                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#34D399" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#8DC63F" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
                 <span>Safe Trade — {[safeTrade.paypal && 'PayPal', safeTrade.escrow && 'Escrow'].filter(Boolean).join(' & ') || 'Available'}</span>
               </div>
             )}

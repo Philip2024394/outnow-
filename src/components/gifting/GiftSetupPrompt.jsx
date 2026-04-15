@@ -50,7 +50,7 @@ export default function GiftSetupPrompt({ open, onClose, onShop, onWishlist, sho
           <div className={styles.header}>
             <span className={styles.headerEmoji}>🛍️</span>
             <div className={styles.headerText}>
-              <h2 className={styles.title}>Hangger Marketplace</h2>
+              <h2 className={styles.title}>Indoo Marketplace</h2>
               <p className={styles.subtitle}>Shop local sellers or receive anonymous gifts from admirers</p>
             </div>
           </div>
