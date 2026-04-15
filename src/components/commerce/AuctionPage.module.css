@@ -208,8 +208,14 @@
 .previewImgName { font-size: 16px; font-weight: 900; color: #fff; text-shadow: 0 2px 8px rgba(0,0,0,0.7); line-height: 1.2; }
 .previewImgReserve { font-size: 10px; font-weight: 700; color: rgba(255,255,255,0.7); text-shadow: 0 1px 4px rgba(0,0,0,0.6); }
 
-.previewShare { position: absolute; bottom: 10px; right: 10px; width: 36px; height: 36px; border-radius: 50%; background: rgba(0,0,0,0.5); backdrop-filter: blur(6px); display: flex; align-items: center; justify-content: center; text-decoration: none; border: 1px solid rgba(255,255,255,0.15); transition: background 0.15s; }
-.previewShare:hover { background: rgba(37,211,102,0.2); }
+.previewShare { position: absolute; bottom: 10px; right: 10px; width: 36px; height: 36px; border-radius: 50%; background: rgba(0,0,0,0.6); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); display: flex; align-items: center; justify-content: center; cursor: pointer; border: 1px solid rgba(255,255,255,0.2); transition: background 0.15s; }
+.previewShare:hover { background: rgba(245,158,11,0.2); border-color: rgba(245,158,11,0.4); }
+
+.shareMenu { position: absolute; bottom: 50px; right: 10px; background: rgba(0,0,0,0.85); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); border: 1px solid rgba(255,255,255,0.12); border-radius: 12px; overflow: hidden; z-index: 10; min-width: 150px; }
+.shareItem { display: flex; align-items: center; gap: 8px; padding: 10px 14px; color: rgba(255,255,255,0.7); font-size: 13px; font-weight: 600; text-decoration: none; font-family: inherit; transition: background 0.1s; border-bottom: 1px solid rgba(255,255,255,0.05); }
+.shareItem:last-child { border-bottom: none; }
+.shareItem:hover { background: rgba(255,255,255,0.06); }
+.shareItemIcon { font-size: 16px; width: 20px; text-align: center; }
 
 .previewInfo { padding: 16px 18px 20px; display: flex; flex-direction: column; gap: 8px; }
 

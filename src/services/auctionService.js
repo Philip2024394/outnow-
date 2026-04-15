@@ -146,11 +146,13 @@ export function saveAuctions(auctions) {
 }
 
 // ── Create auction ───────────────────────────────────────────────────────────
-export function createAuction({ productId, productName, productImage, sellerId, sellerName, startPrice, reservePrice, buyNowPrice, startTime, endTime }) {
+export function createAuction({ productId, productName, productImage, description, material, weight, dimensions, condition, sellerId, sellerName, startPrice, reservePrice, buyNowPrice, startTime, endTime }) {
   const auctions = getAuctions()
   const auction = {
     id: `auc-${Date.now()}`,
-    productId, productName, productImage, sellerId, sellerName,
+    productId, productName, productImage,
+    description: description || '', material: material || '', weight: weight || '', dimensions: dimensions || '', condition: condition || 'new',
+    sellerId, sellerName,
     startPrice, reservePrice: reservePrice || null,
     buyNowPrice: buyNowPrice || null,
     currentPrice: startPrice,
