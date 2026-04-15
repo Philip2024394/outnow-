@@ -139,17 +139,14 @@ export default function AuctionPage({ open, onClose }) {
             )}
             <div className={styles.detailInfo}>
               <span className={styles.detailName}>{detail.productName}</span>
-              {detail.status === AUCTION_STATUS.LIVE ? (
-                <span className={styles.detailSellerHidden}>Seller revealed after auction ends</span>
-              ) : (
-                <span className={styles.detailSeller}>by {detail.sellerName}</span>
-              )}
-              {detail.reservePrice && detail.currentPrice < detail.reservePrice && (
-                <span className={styles.reserveInCard}>Reserve not met</span>
-              )}
-              {detail.reservePrice && detail.currentPrice >= detail.reservePrice && (
-                <span className={styles.reserveMetInCard}>Reserve met</span>
-              )}
+              <span className={styles.detailCondition}>
+                {detail.itemCondition === 'used_good' ? '♻️ Used Good Condition'
+                  : detail.itemCondition === 'needs_repair' ? '🔧 Needs Repair'
+                  : '✨ New Unused'}
+              </span>
+              <span className={detail.reservePrice ? styles.reserveInCard : styles.noReserveInCard}>
+                {detail.reservePrice ? '🔒 Price Reserve' : '🔓 No Reserve'}
+              </span>
             </div>
             {/* Fingerprint button — bottom-right of product card */}
             <button className={styles.detailFingerprintBtn} onClick={() => setProductPreview(detail)}>

@@ -387,6 +387,8 @@ export default function EchoCommercePanel({ userId, businessName, open: external
                     if (!startPrice || isNaN(startPrice)) return
                     const reserve = prompt('Reserve price (Rp):\n\n• Set a reserve = item only sells if bidding reaches this price\n• Leave empty = NO reserve, item sells to highest bidder regardless of price')
                     const buyNowPr = prompt('Buy Now price (Rp) — leave empty for no Buy Now:')
+                    const itemCond = prompt('Item condition:\n\n1 = New Unused\n2 = Used Good Condition\n3 = Needs Repair\n\nEnter 1, 2, or 3:')
+                    const condMap = { '1': 'new_unused', '2': 'used_good', '3': 'needs_repair' }
                     const desc = prompt('Short description for auction (max 300 characters):')
                     const hours = prompt('Auction duration (hours, max 6):')
                     const dur = Math.min(6, Math.max(1, Number(hours) || 4))
@@ -399,6 +401,7 @@ export default function EchoCommercePanel({ userId, businessName, open: external
                       weight: p.weight_grams ? `${p.weight_grams}g` : '',
                       dimensions: p.dimensions ?? '',
                       condition: p.condition ?? 'new',
+                      itemCondition: condMap[itemCond] ?? 'new_unused',
                       sellerId: userId,
                       sellerName: businessName ?? 'Seller',
                       startPrice: Number(startPrice),

@@ -80,7 +80,7 @@ export const DEMO_AUCTIONS = [
     productImage: 'https://ik.imagekit.io/nepgaxllc/Untitleddsadasaaa.png',
     description: 'Crystal clear sound, 24hr battery, IPX5 waterproof. Compatible with Android & iOS.',
     material: 'ABS Plastic, Silicone ear tips',
-    weight: '250g', dimensions: '8 × 6 × 4 cm', condition: 'new', rating: 4.5,
+    weight: '250g', dimensions: '8 × 6 × 4 cm', condition: 'new', itemCondition: 'new_unused', rating: 4.5,
     sellerId: 'seller-1',
     sellerName: 'SoundMax',
     startPrice: 10000,
@@ -110,7 +110,7 @@ export const DEMO_AUCTIONS = [
     productImage: 'https://ik.imagekit.io/nepgaxllc/Untitleddsadasaaassssdasdcxcasdasda.png',
     description: 'Slim genuine leather card wallet. Holds 6 cards + cash pocket. Handcrafted in Bali.',
     material: 'Genuine Leather',
-    weight: '120g', dimensions: '10 × 7 × 1 cm', condition: 'new', rating: 0,
+    weight: '120g', dimensions: '10 × 7 × 1 cm', condition: 'new', itemCondition: 'new_unused', rating: 0,
     sellerId: 'seller-2',
     sellerName: 'Kulit Asli',
     startPrice: 5000,
@@ -146,12 +146,12 @@ export function saveAuctions(auctions) {
 }
 
 // ── Create auction ───────────────────────────────────────────────────────────
-export function createAuction({ productId, productName, productImage, description, material, weight, dimensions, condition, sellerId, sellerName, startPrice, reservePrice, buyNowPrice, startTime, endTime }) {
+export function createAuction({ productId, productName, productImage, description, material, weight, dimensions, condition, itemCondition, sellerId, sellerName, startPrice, reservePrice, buyNowPrice, startTime, endTime }) {
   const auctions = getAuctions()
   const auction = {
     id: `auc-${Date.now()}`,
     productId, productName, productImage,
-    description: description || '', material: material || '', weight: weight || '', dimensions: dimensions || '', condition: condition || 'new',
+    description: description || '', material: material || '', weight: weight || '', dimensions: dimensions || '', condition: condition || 'new', itemCondition: itemCondition || 'new_unused',
     sellerId, sellerName,
     startPrice, reservePrice: reservePrice || null,
     buyNowPrice: buyNowPrice || null,
