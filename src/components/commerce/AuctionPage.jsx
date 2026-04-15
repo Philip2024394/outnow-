@@ -6,7 +6,8 @@
 import { useState, useEffect, useRef, useCallback } from 'react'
 import { createPortal } from 'react-dom'
 import {
-  getAuctions, placeBid, getBidIncrement, isAuctionBanned,
+  getAuctions, placeBid, getBidLimits, isAuctionBanned,
+  isBuyNowAvailable, buyNow, buyNowExpired, confirmBuyNowPayment,
   AUCTION_STATUS, fmtIDR,
 } from '@/services/auctionService'
 import { useAuth } from '@/hooks/useAuth'
@@ -64,6 +65,14 @@ export default function AuctionPage({ open, onClose }) {
     setSelected(auctions.find(a => a.id === selected.id) ?? selected)
   }
 
+  const handleBuyNow = () => {
+    if (!selected || banned) return
+    const result = buyNow(selected.id, userId, userName)
+    if (result.error) { setBidError(result.error); return }
+    refresh()
+    setSelected(auctions.find(a => a.id === selected.id) ?? selected)
+  }
+
   if (!open) return null
 
   const liveAuctions = auctions.filter(a => a.status === AUCTION_STATUS.LIVE && a.endTime > Date.now())
@@ -77,7 +86,10 @@ export default function AuctionPage({ open, onClose }) {
     .slice(0, 8)
 
   const detail = selected ? auctions.find(a => a.id === selected.id) ?? selected : null
-  const minBid = detail ? detail.currentPrice + getBidIncrement(detail.currentPrice) : 0
+  const bidLimits = detail ? getBidLimits(detail.currentPrice) : { min: 0, max: 0 }
+  const minBid = bidLimits.min
+  const maxBid = bidLimits.max
+  const canBuyNow = detail ? isBuyNowAvailable(detail) : false
 
   return createPortal(
     <div className={styles.page}>
@@ -169,6 +181,11 @@ export default function AuctionPage({ open, onClose }) {
             </div>
           </div>
 
+          {/* Delivery included label */}
+          {detail.deliveryIncluded && (
+            <div className={styles.deliveryIncluded}>📦 Price includes delivery within Indonesia</div>
+          )}
+
           {/* Bid input — only for live auctions */}
           {detail.status === AUCTION_STATUS.LIVE && detail.endTime > Date.now() && !banned && (
             <div className={styles.bidSection}>
@@ -181,13 +198,47 @@ export default function AuctionPage({ open, onClose }) {
                   onChange={e => { setBidAmount(e.target.value); setBidError('') }}
                   placeholder={String(minBid)}
                   min={minBid}
+                  max={maxBid}
                 />
               </div>
               <button className={styles.bidBtn} onClick={handleBid}>
                 Place Bid
               </button>
               {bidError && <span className={styles.bidError}>{bidError}</span>}
-              <span className={styles.bidMin}>Min bid: {fmtIDR(minBid)}</span>
+              <div className={styles.bidLimits}>
+                <span>Min: {fmtIDR(minBid)}</span>
+                <span>Max: {fmtIDR(maxBid)}</span>
+              </div>
+
+              {/* Buy Now */}
+              {canBuyNow && (
+                <button className={styles.buyNowBtn} onClick={handleBuyNow}>
+                  Buy Now — {fmtIDR(detail.buyNowPrice)}
+                </button>
+              )}
+            </div>
+          )}
+
+          {/* Buy Now payment window — 5 min countdown */}
+          {detail.status === AUCTION_STATUS.PAUSED_BUY_NOW && (
+            <div className={styles.buyNowBanner}>
+              <span className={styles.buyNowBannerIcon}>⏱️</span>
+              <div>
+                <span className={styles.buyNowBannerTitle}>
+                  {detail.buyNowBuyerId === userId ? 'Upload payment proof now!' : `${detail.winnerName} is buying now`}
+                </span>
+                <span className={styles.buyNowBannerTimer}>
+                  {formatTimer((detail.buyNowDeadline ?? 0) - Date.now())} remaining
+                </span>
+                <span className={styles.buyNowBannerNote}>Auction paused — bidding resumes if not paid</span>
+              </div>
+            </div>
+          )}
+
+          {/* 5% commission info */}
+          {detail.status === AUCTION_STATUS.PAID && detail.commission && (
+            <div className={styles.commissionNote}>
+              5% commission: {fmtIDR(detail.commission)} · Seller receives: {fmtIDR(detail.currentPrice - detail.commission)}
             </div>
           )}
 

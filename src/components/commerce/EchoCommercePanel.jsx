@@ -5,7 +5,7 @@ import {
 } from '@/services/commerceService'
 import ProductCatalogSlider from './ProductCatalogSlider'
 import DeliveryPricingEditor from './DeliveryPricingEditor'
-import { createAuction, getAuctions, fmtIDR, AUCTION_STATUS } from '@/services/auctionService'
+import { createAuction, getAuctions, cancelAuction, editAuction, canEditAuction, fmtIDR, AUCTION_STATUS } from '@/services/auctionService'
 import SellerAnalytics from './SellerAnalytics'
 import styles from './EchoCommercePanel.module.css'
 
@@ -359,9 +359,10 @@ export default function EchoCommercePanel({ userId, businessName, open: external
                   key={p.id}
                   className={styles.deliveryPricingBtn}
                   onClick={() => {
-                    const startPrice = prompt('Starting price (Rp):')
+                    const startPrice = prompt('Starting price (Rp) — includes delivery within Indonesia:')
                     if (!startPrice || isNaN(startPrice)) return
                     const reserve = prompt('Reserve price (Rp) — leave empty for none:')
+                    const buyNowPr = prompt('Buy Now price (Rp) — leave empty for no Buy Now:')
                     const hours = prompt('Auction duration (hours, max 6):')
                     const dur = Math.min(6, Math.max(1, Number(hours) || 4))
                     createAuction({
@@ -372,10 +373,11 @@ export default function EchoCommercePanel({ userId, businessName, open: external
                       sellerName: businessName ?? 'Seller',
                       startPrice: Number(startPrice),
                       reservePrice: reserve ? Number(reserve) : null,
+                      buyNowPrice: buyNowPr ? Number(buyNowPr) : null,
                       startTime: Date.now(),
                       endTime: Date.now() + dur * 3600000,
                     })
-                    alert(`Auction started for ${p.name} at Rp ${Number(startPrice).toLocaleString('id-ID')} for ${dur} hours`)
+                    alert(`Auction started for ${p.name}\nStart: Rp ${Number(startPrice).toLocaleString('id-ID')}\n${buyNowPr ? 'Buy Now: Rp ' + Number(buyNowPr).toLocaleString('id-ID') : 'No Buy Now'}\nDuration: ${dur} hours\nPrice includes delivery · 5% commission on sale`)
                   }}
                 >
                   <span className={styles.deliveryPricingName}>{p.name} — {fmtIDR(p.price)}</span>
@@ -390,13 +392,43 @@ export default function EchoCommercePanel({ userId, businessName, open: external
               {getAuctions().filter(a => a.sellerId === userId).map(a => (
                 <div key={a.id} className={styles.deliveryPricingBtn} style={{ cursor: 'default', flexDirection: 'column', alignItems: 'flex-start', gap: 4 }}>
                   <span className={styles.deliveryPricingName}>{a.productName}</span>
-                  <div style={{ display: 'flex', gap: 8, fontSize: 10, color: 'rgba(255,255,255,0.4)' }}>
+                  <div style={{ display: 'flex', gap: 8, fontSize: 10, color: 'rgba(255,255,255,0.4)', alignItems: 'center' }}>
                     <span>Current: {fmtIDR(a.currentPrice)}</span>
                     <span>{a.bidCount} bids</span>
                     <span style={{ color: a.status === AUCTION_STATUS.LIVE ? '#8DC63F' : a.status === AUCTION_STATUS.PAID ? '#F59E0B' : '#EF4444', fontWeight: 700 }}>
                       {a.status}
                     </span>
                   </div>
+                  {canEditAuction(a) && (
+                    <div style={{ display: 'flex', gap: 6, marginTop: 4 }}>
+                      <button
+                        className={styles.flashToggle}
+                        style={{ width: 'auto', padding: '2px 8px', fontSize: 9, color: '#F59E0B', borderColor: 'rgba(245,158,11,0.3)' }}
+                        onClick={() => {
+                          const price = prompt('New starting price (Rp):', a.startPrice)
+                          if (price && !isNaN(price)) {
+                            editAuction(a.id, { startPrice: Number(price) })
+                            alert('Auction updated')
+                          }
+                        }}
+                      >Edit</button>
+                      <button
+                        className={styles.flashToggle}
+                        style={{ width: 'auto', padding: '2px 8px', fontSize: 9, color: '#EF4444', borderColor: 'rgba(239,68,68,0.3)' }}
+                        onClick={() => {
+                          if (confirm('Cancel this auction?')) {
+                            cancelAuction(a.id)
+                            alert('Auction cancelled')
+                          }
+                        }}
+                      >Cancel</button>
+                    </div>
+                  )}
+                  {a.bidCount > 0 && a.status === AUCTION_STATUS.LIVE && (
+                    <span style={{ fontSize: 9, color: 'rgba(255,255,255,0.2)', marginTop: 2, fontStyle: 'italic' }}>
+                      Cannot edit or cancel — has bids
+                    </span>
+                  )}
                 </div>
               ))}
             </div>

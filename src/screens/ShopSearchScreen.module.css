@@ -548,6 +548,101 @@
   background: rgba(245,158,11,0.07);
 }
 
+/* ── Auction overlay on seller/product cards ── */
+.auctionOverlay {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 3;
+}
+
+.auctionOverlayImg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.auctionLiveText {
+  position: relative;
+  z-index: 4;
+  font-size: 14px;
+  font-weight: 900;
+  color: #fff;
+  background: rgba(239,68,68,0.85);
+  padding: 4px 14px;
+  border-radius: 6px;
+  letter-spacing: 0.12em;
+  text-shadow: 0 1px 4px rgba(0,0,0,0.5);
+  animation: liveHeartbeat 1.5s ease-in-out infinite;
+}
+
+@keyframes liveHeartbeat {
+  0%, 100% { transform: scale(1); opacity: 1; box-shadow: 0 0 8px rgba(239,68,68,0.4); }
+  15% { transform: scale(1.12); box-shadow: 0 0 16px rgba(239,68,68,0.6); }
+  30% { transform: scale(1); }
+  45% { transform: scale(1.08); box-shadow: 0 0 12px rgba(239,68,68,0.5); }
+  60% { transform: scale(1); opacity: 0.9; }
+}
+
+/* ── New shop overlay ── */
+.newShopOverlay {
+  position: absolute;
+  inset: 0;
+  z-index: 3;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.newShopOverlayImg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* ── Deactivated product overlay ── */
+.cardDeactivated { pointer-events: auto; }
+.cardDeactivated:hover { transform: none; border-color: rgba(255,255,255,0.06); }
+
+.deactivatedOverlay {
+  position: absolute;
+  inset: 0;
+  z-index: 3;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.deactivatedOverlayImg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.deactivatedStock {
+  position: relative;
+  z-index: 4;
+  font-size: 12px;
+  font-weight: 900;
+  color: #EF4444;
+  background: rgba(0,0,0,0.7);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  padding: 4px 12px;
+  border-radius: 6px;
+  border: 1px solid rgba(239,68,68,0.3);
+  margin-top: 60px;
+  text-shadow: 0 1px 4px rgba(0,0,0,0.5);
+}
+
 .onlineDot {
   position: absolute;
   top: 6px;

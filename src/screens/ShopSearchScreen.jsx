@@ -8,6 +8,7 @@ import RecommendationBanner from '@/components/commerce/RecommendationBanner'
 import FlashSalePage from '@/components/commerce/FlashSalePage'
 import AuctionPage from '@/components/commerce/AuctionPage'
 import SearchAutocomplete, { saveRecentSearch } from '@/components/commerce/SearchAutocomplete'
+import { getAuctions, AUCTION_STATUS } from '@/services/auctionService'
 import styles from './ShopSearchScreen.module.css'
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -56,7 +57,28 @@ function getCategoryLabel(lookingFor) {
 }
 
 // ── Product card ──────────────────────────────────────────────────────────────
-function ProductCard({ product, onClick }) {
+const POWER_SELLER_IMG = 'https://ik.imagekit.io/nepgaxllc/ChatGPT%20Image%20Apr%2015,%202026,%2010_10_59%20PM.png'
+const POWER_SELLER_MIN_ORDERS = 3
+
+const DEACTIVATED_IMGS = [
+  'https://ik.imagekit.io/nepgaxllc/ChatGPT%20Image%20Apr%2015,%202026,%2010_14_04%20PM.png',   // Restocking
+  'https://ik.imagekit.io/nepgaxllc/ChatGPT%20Image%20Apr%2015,%202026,%2010_15_55%20PM.png',   // Sold Out
+]
+const DEACTIVATED_SHOW_DAYS = 3
+
+function isPowerSeller(seller) {
+  const orders = seller.ordersFilled ?? seller.orders_filled ?? 0
+  return orders >= POWER_SELLER_MIN_ORDERS
+}
+
+function isRecentlyDeactivated(product) {
+  if (product.active) return false
+  const deactivatedAt = product.deactivated_at ?? product.deactivatedAt
+  if (!deactivatedAt) return true // no timestamp = just deactivated, show it
+  return (Date.now() - new Date(deactivatedAt).getTime()) < DEACTIVATED_SHOW_DAYS * 86400000
+}
+
+function ProductCard({ product, onClick, isFirstNewShopProduct, isPowerSellerProduct, onAuctionTap }) {
   const price = parseFloat(product.price) || 0
   const salePrice = parseFloat(product.sale_price) || 0
   const hasSale = salePrice > 0 && salePrice < price
@@ -64,8 +86,16 @@ function ProductCard({ product, onClick }) {
   const fmtRp = (n) => n >= 1_000_000 ? `${(n / 1_000_000).toFixed(n % 1_000_000 === 0 ? 0 : 1)}jt` : `Rp ${n.toLocaleString('id-ID')}`
   const sellerName = product.profiles?.display_name ?? ''
 
+  // Check if this product is in a live auction
+  const liveAuction = getAuctions().find(a =>
+    a.productId === product.id && a.status === AUCTION_STATUS.LIVE && a.endTime > Date.now()
+  )
+  const inAuction = !!liveAuction
+  const deactivated = product._showDeactivated ?? false
+  const deactivatedImg = DEACTIVATED_IMGS[product.id?.charCodeAt(0) % 2 ?? 0]
+
   return (
-    <button className={styles.card} onClick={() => onClick(product)} style={{ position:'relative' }}>
+    <button className={`${styles.card} ${deactivated ? styles.cardDeactivated : ''}`} onClick={() => !deactivated && onClick(product)} style={{ position:'relative', cursor: deactivated ? 'default' : 'pointer' }}>
       <div className={styles.cardImgWrap}>
         {product.image_url
           ? <img src={product.image_url} alt={product.name} className={styles.cardImg} />
@@ -80,6 +110,28 @@ function ProductCard({ product, onClick }) {
           <span style={{ position:'absolute', bottom:4, left:4, padding:'2px 6px', borderRadius:4, background:'rgba(0,0,0,0.7)', color:'#ef4444', fontSize:9, fontWeight:700 }}>
             Sold Out
           </span>
+        )}
+        {inAuction && (
+          <div className={styles.auctionOverlay} onClick={(e) => { e.stopPropagation(); onAuctionTap?.(liveAuction) }}>
+            <img src="https://ik.imagekit.io/nepgaxllc/ChatGPT%20Image%20Apr%2015,%202026,%2009_59_27%20PM.png" alt="" className={styles.auctionOverlayImg} />
+            <span className={styles.auctionLiveText}>LIVE</span>
+          </div>
+        )}
+        {isFirstNewShopProduct && !inAuction && (
+          <div className={styles.newShopOverlay}>
+            <img src={NEW_SHOP_IMGS[product.id?.charCodeAt(0) % 2 ?? 0]} alt="" className={styles.newShopOverlayImg} />
+          </div>
+        )}
+        {isPowerSellerProduct && !inAuction && !isFirstNewShopProduct && !deactivated && (
+          <div className={styles.newShopOverlay}>
+            <img src={POWER_SELLER_IMG} alt="Power Seller" className={styles.newShopOverlayImg} />
+          </div>
+        )}
+        {deactivated && (
+          <div className={styles.deactivatedOverlay}>
+            <img src={deactivatedImg} alt="" className={styles.deactivatedOverlayImg} />
+            <span className={styles.deactivatedStock}>0 Stock</span>
+          </div>
         )}
       </div>
       <div className={styles.cardBody}>
@@ -107,7 +159,26 @@ function ProductCard({ product, onClick }) {
 }
 
 // ── Seller card ───────────────────────────────────────────────────────────────
-function SellerCard({ seller, onClick }) {
+const NEW_SHOP_DAYS = 7
+const NEW_SHOP_IMGS = [
+  'https://ik.imagekit.io/nepgaxllc/ChatGPT%20Image%20Apr%2015,%202026,%2010_05_14%20PM.png',
+  'https://ik.imagekit.io/nepgaxllc/ChatGPT%20Image%20Apr%2015,%202026,%2010_07_52%20PM.png',
+]
+
+function isNewShop(seller) {
+  const created = seller.created_at ?? seller.createdAt
+  if (!created) return false
+  return (Date.now() - new Date(created).getTime()) < NEW_SHOP_DAYS * 86400000
+}
+
+function SellerCard({ seller, onClick, onAuctionTap }) {
+  // Check if seller has an active auction
+  const liveAuction = getAuctions().find(a =>
+    a.sellerId === seller.id && a.status === AUCTION_STATUS.LIVE && a.endTime > Date.now()
+  )
+  const hasLiveAuction = !!liveAuction
+  const newShop = isNewShop(seller)
+
   return (
     <button className={styles.card} onClick={() => onClick(seller)}>
       <div className={styles.cardImgWrap}>
@@ -118,6 +189,17 @@ function SellerCard({ seller, onClick }) {
         {seller.isOnline && <span className={styles.onlineDot} />}
         {seller.productCondition && seller.productCondition !== 'new' && (
           <span className={styles.conditionBadge}>{seller.productCondition}</span>
+        )}
+        {hasLiveAuction && (
+          <div className={styles.auctionOverlay} onClick={(e) => { e.stopPropagation(); onAuctionTap?.(liveAuction) }}>
+            <img src="https://ik.imagekit.io/nepgaxllc/ChatGPT%20Image%20Apr%2015,%202026,%2009_59_27%20PM.png" alt="" className={styles.auctionOverlayImg} />
+            <span className={styles.auctionLiveText}>LIVE</span>
+          </div>
+        )}
+        {newShop && !hasLiveAuction && (
+          <div className={styles.newShopOverlay}>
+            <img src={NEW_SHOP_IMGS[seller.id?.charCodeAt(0) % 2 ?? 0]} alt="" className={styles.newShopOverlayImg} />
+          </div>
         )}
       </div>
       <div className={styles.cardBody}>
@@ -143,6 +225,7 @@ export default function ShopSearchScreen({ onClose, userCity, userCountry, giftF
   const [wishlistBannerDismissed, setWishlistBannerDismissed] = useState(false)
   const [flashSaleOpen, setFlashSaleOpen] = useState(false)
   const [auctionOpen, setAuctionOpen] = useState(false)
+  const [auctionSelected, setAuctionSelected] = useState(null)
   const [showFilters, setShowFilters] = useState(false)
   const [filterSort, setFilterSort] = useState('relevance') // relevance | price_low | price_high | distance
   const [filterCity, setFilterCity] = useState('')
@@ -247,6 +330,11 @@ export default function ShopSearchScreen({ onClose, userCity, userCountry, giftF
   const handleSellerClick = (seller) => {
     if (wishlistMode) { onWishlistSelectSeller?.(seller) }
     else { setSelectedSeller(seller) }
+  }
+
+  const handleAuctionTap = (auction) => {
+    setAuctionSelected(auction)
+    setAuctionOpen(true)
   }
 
   return (
@@ -419,19 +507,36 @@ export default function ShopSearchScreen({ onClose, userCity, userCountry, giftF
             </div>
           )}
           <div className={styles.grid}>
-            {filteredProducts.map(p => (
-              <ProductCard key={p.id} product={p} onClick={(prod) => {
-                // Find the seller for this product and open their profile
-                const seller = sellers.find(s => s.id === prod.user_id) ?? {
-                  id: prod.user_id,
-                  displayName: prod.profiles?.display_name ?? 'Seller',
-                  photoURL: prod.profiles?.photo_url ?? null,
-                  city: prod.profiles?.city ?? null,
-                  country: prod.profiles?.country ?? null,
-                }
-                handleSellerClick(seller)
-              }} />
-            ))}
+            {filteredProducts.reduce((acc, p, i) => {
+              // Cap deactivated cards: max 2 per 30 normal cards
+              const deactivatedSoFar = acc.filter(x => x.props.product._showDeactivated).length
+              const batch30 = Math.floor(acc.length / 30)
+              const deactivatedInBatch = acc.slice(batch30 * 30).filter(x => x.props.product._showDeactivated).length
+
+              if (isRecentlyDeactivated(p)) {
+                if (deactivatedInBatch >= 2) return acc // skip excess
+              }
+
+              const sellerMatch = sellers.find(s => s.id === p.user_id)
+              const isFirstNew = sellerMatch && isNewShop(sellerMatch) && filteredProducts.findIndex(fp => fp.user_id === p.user_id) === i
+              const isFirstPower = sellerMatch && isPowerSeller(sellerMatch) && !isNewShop(sellerMatch) && filteredProducts.findIndex(fp => fp.user_id === p.user_id) === i
+              const showDeactivated = isRecentlyDeactivated(p)
+              const cardProduct = showDeactivated ? { ...p, _showDeactivated: true } : p
+
+              acc.push(
+                <ProductCard key={p.id} product={cardProduct} isFirstNewShopProduct={isFirstNew} isPowerSellerProduct={isFirstPower} onAuctionTap={handleAuctionTap} onClick={(prod) => {
+                  const seller = sellers.find(s => s.id === prod.user_id) ?? {
+                    id: prod.user_id,
+                    displayName: prod.profiles?.display_name ?? 'Seller',
+                    photoURL: prod.profiles?.photo_url ?? null,
+                    city: prod.profiles?.city ?? null,
+                    country: prod.profiles?.country ?? null,
+                  }
+                  handleSellerClick(seller)
+                }} />
+              )
+              return acc
+            }, [])}
           </div>
         </>
       )}
