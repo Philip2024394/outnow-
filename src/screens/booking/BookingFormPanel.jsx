@@ -208,14 +208,16 @@ export default function BookingFormPanel({
           <span className={styles.vehicleTabLabel}>⏰ Hire</span>
           <span className={styles.vehicleTabPrice}>{formatRpStatic(hireRates.perHour)}/hr</span>
         </button>
-      </div>
 
-      {/* Directory button */}
-      <button className={styles.directoryBtn} onClick={() => setDirectoryOpen(true)}>
-        <span>📍</span>
-        <span>Browse Destinations</span>
-        <span className={styles.directoryArrow}>→</span>
-      </button>
+        {/* Directory tab */}
+        <button
+          className={styles.vehicleTab}
+          onClick={() => { setHireMode(false); setDirectoryOpen(true) }}
+        >
+          <span className={styles.vehicleTabLabel}>📍 Places</span>
+          <span className={styles.vehicleTabPrice}>Fixed price</span>
+        </button>
+      </div>
 
       {/* ── Hourly Hire panel ── */}
       {hireMode && (
