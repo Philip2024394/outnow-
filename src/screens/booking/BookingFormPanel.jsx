@@ -7,8 +7,28 @@
 import styles from '../BookingScreen.module.css'
 import DriverMap from '@/components/driver/DriverMap'
 
+import { useState } from 'react'
+
 const BIKE_IMG = 'https://ik.imagekit.io/nepgaxllc/Sleek%20green%20and%20black%20scooter%20setup.png'
 const CAR_IMG  = 'https://ik.imagekit.io/nepgaxllc/Sporty%20green%20and%20black%20hatchback.png'
+
+// Hourly hire pricing
+const HOURLY_RATES = {
+  bike: { perHour: 33000, packages: [
+    { hours: 3, price: 99000,  label: '3 Hours' },
+    { hours: 6, price: 180000, label: '6 Hours', badge: '~10% off' },
+    { hours: 9, price: 250000, label: '9 Hours', badge: '~15% off' },
+  ]},
+  car: { perHour: 55000, packages: [
+    { hours: 3, price: 165000, label: '3 Hours' },
+    { hours: 6, price: 300000, label: '6 Hours', badge: '~10% off' },
+    { hours: 9, price: 420000, label: '9 Hours', badge: '~15% off' },
+  ]},
+}
+
+function formatRpStatic(n) {
+  return `Rp ${Number(n).toLocaleString('id-ID')}`
+}
 
 const DEMO_PLACES = [
   { label: 'Malioboro Street',        address: 'Jl. Malioboro, Yogyakarta',         lat: -7.793, lng: 110.365 },
@@ -119,6 +139,11 @@ export default function BookingFormPanel({
   handleFindDriver,
   initialVehicle,
 }) {
+  const [hireMode, setHireMode] = useState(false)
+  const [selectedHirePackage, setSelectedHirePackage] = useState(null)
+  const isBikeMode = !initialVehicle || initialVehicle === 'bike_ride'
+  const hireRates = isBikeMode ? HOURLY_RATES.bike : HOURLY_RATES.car
+
   const isManualPickup = pickup && pickup.address !== 'Current location (GPS)'
   const gpsMismatchKm  = isManualPickup && gpsCoords && pickup.lat && pickup.lng
     ? gpsDistanceKm(pickup.lat, pickup.lng, gpsCoords.lat, gpsCoords.lng)
@@ -171,7 +196,61 @@ export default function BookingFormPanel({
             </button>
           </>
         )}
+
+        {/* Hire by Hour tab */}
+        <button
+          className={`${styles.vehicleTab} ${hireMode ? styles.vehicleTabActive : ''}`}
+          onClick={() => { setHireMode(true); setVehicleType(isBikeMode ? 'bike_hire' : 'car_hire'); setHasPickedVehicle(true) }}
+          style={hireMode ? { borderColor: '#F59E0B' } : {}}
+        >
+          <span className={styles.vehicleTabLabel}>⏰ Hire</span>
+          <span className={styles.vehicleTabPrice}>{formatRpStatic(hireRates.perHour)}/hr</span>
+        </button>
       </div>
+
+      {/* ── Hourly Hire panel ── */}
+      {hireMode && (
+        <div className={styles.hirePanel}>
+          <div className={styles.hireTitleRow}>
+            <span className={styles.hireTitle}>{isBikeMode ? '🏍️' : '🚗'} Hire {isBikeMode ? 'Bike' : 'Car'} + Driver</span>
+            <button className={styles.hireBack} onClick={() => { setHireMode(false); setSelectedHirePackage(null); setVehicleType(isBikeMode ? 'bike_ride' : 'car_taxi') }}>
+              ← Back
+            </button>
+          </div>
+
+          <div className={styles.hirePackages}>
+            {hireRates.packages.map(pkg => (
+              <button
+                key={pkg.hours}
+                className={`${styles.hirePackage} ${selectedHirePackage === pkg.hours ? styles.hirePackageActive : ''}`}
+                onClick={() => setSelectedHirePackage(pkg.hours)}
+              >
+                <span className={styles.hirePackageHours}>{pkg.label}</span>
+                <span className={styles.hirePackagePrice}>{formatRpStatic(pkg.price)}</span>
+                {pkg.badge && <span className={styles.hirePackageBadge}>{pkg.badge}</span>}
+              </button>
+            ))}
+          </div>
+
+          <div className={styles.hireRules}>
+            <div className={styles.hireRule}>📸 Fuel gauge photo at start & end — buyer pays fuel difference</div>
+            <div className={styles.hireRule}>📍 Driver returns you to pickup location</div>
+            <div className={styles.hireRule}>🔄 Unlimited km — go wherever you want</div>
+            <div className={styles.hireRule}>⏱️ Timer starts when driver arrives</div>
+            <div className={styles.hireRule}>➕ Extend +1hr at {formatRpStatic(hireRates.perHour)}/hr during trip</div>
+          </div>
+
+          {selectedHirePackage && (
+            <div className={styles.hireSummary}>
+              <span className={styles.hireSummaryLabel}>Total hire fee</span>
+              <span className={styles.hireSummaryPrice}>
+                {formatRpStatic(hireRates.packages.find(p => p.hours === selectedHirePackage)?.price ?? 0)}
+              </span>
+              <span className={styles.hireSummaryFuel}>+ fuel (paid separately at end of trip)</span>
+            </div>
+          )}
+        </div>
+      )}
 
       {/* Location fields */}
       <div className={styles.fieldGroup}>
