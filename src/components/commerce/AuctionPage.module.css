@@ -116,13 +116,12 @@
 }
 .priceBlock::before { content: ''; position: absolute; inset: 0; background: url('https://ik.imagekit.io/nepgaxllc/ChatGPT%20Image%20Apr%2015,%202026,%2009_40_34%20PM.png?updatedAt=1776264052312') center/cover no-repeat; z-index: 0; }
 .priceBlock::after { content: ''; position: absolute; inset: 0; background: rgba(0,0,0,0.25); z-index: 1; }
-.priceLeft { position: relative; z-index: 2; display: flex; flex-direction: column; gap: 2px; }
+.priceLeft { position: relative; z-index: 2; display: flex; flex-direction: column; gap: 2px; width: 100%; }
 .priceLabel { font-size: 10px; font-weight: 700; color: rgba(255,255,255,0.6); text-transform: uppercase; letter-spacing: 0.05em; text-shadow: 0 1px 4px rgba(0,0,0,0.5); }
 .priceValue { font-size: 28px; font-weight: 900; color: #FFE500; text-shadow: 0 2px 10px rgba(0,0,0,0.5); }
+.bidTimerRow { display: flex; align-items: center; justify-content: space-between; gap: 8px; width: 100%; }
 .bidCount { font-size: 12px; font-weight: 700; color: rgba(255,255,255,0.8); text-shadow: 0 1px 4px rgba(0,0,0,0.5); }
-.priceRight { position: relative; z-index: 2; display: flex; flex-direction: column; align-items: flex-end; gap: 2px; }
-.timerLabel { font-size: 10px; font-weight: 700; color: rgba(255,255,255,0.6); text-transform: uppercase; text-shadow: 0 1px 4px rgba(0,0,0,0.5); }
-.timerValue { font-size: 22px; font-weight: 900; color: #EF4444; font-family: monospace; text-shadow: 0 2px 8px rgba(0,0,0,0.5); }
+.timerValue { font-size: 18px; font-weight: 900; color: #EF4444; font-family: monospace; text-shadow: 0 2px 8px rgba(0,0,0,0.5); }
 
 /* Reserve notes — black glass */
 .reserveNote { padding: 8px 12px; background: rgba(0,0,0,0.5); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); border: 1px solid rgba(251,191,36,0.2); border-radius: 8px; color: #FBBF24; font-size: 11px; font-weight: 700; margin-bottom: 12px; text-align: center; }

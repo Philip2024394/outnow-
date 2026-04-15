@@ -164,18 +164,15 @@ export default function AuctionPage({ open, onClose }) {
             <div className={styles.priceLeft}>
               <span className={styles.priceLabel}>Current bid</span>
               <span className={styles.priceValue}>{fmtIDR(detail.currentPrice)}</span>
-              <span className={styles.bidCount}>{detail.bidCount} bids</span>
-            </div>
-            <div className={styles.priceRight}>
-              <span className={styles.timerLabel}>
-                {detail.status === AUCTION_STATUS.AWAITING_PAYMENT ? 'Payment due' : 'Ends in'}
-              </span>
-              <span className={styles.timerValue}>
-                {detail.status === AUCTION_STATUS.AWAITING_PAYMENT
-                  ? formatTimer((detail.paymentDeadline ?? 0) - Date.now())
-                  : formatTimer(detail.endTime - Date.now())
-                }
-              </span>
+              <div className={styles.bidTimerRow}>
+                <span className={styles.bidCount}>{detail.bidCount} bids</span>
+                <span className={styles.timerValue}>
+                  {detail.status === AUCTION_STATUS.AWAITING_PAYMENT
+                    ? formatTimer((detail.paymentDeadline ?? 0) - Date.now())
+                    : formatTimer(detail.endTime - Date.now())
+                  }
+                </span>
+              </div>
             </div>
           </div>
 
