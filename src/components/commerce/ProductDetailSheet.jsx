@@ -213,7 +213,7 @@ export default function ProductDetailSheet({ product, onClose, sellerWa, sellerN
               <div style={{ flex:1, minWidth:0, display:'flex', gap:6, overflowX:'auto', WebkitOverflowScrolling:'touch', scrollbarWidth:'none', paddingBottom:2 }}>
                 {(product.images?.length > 1 ? product.images : [activeImage].filter(Boolean)).map((url, i) => (
                   <button key={i} onClick={() => { setGalleryStart(i); setGalleryOpen(true) }}
-                    style={{ width:42, height:42, borderRadius:8, overflow:'hidden', padding:0, border:'2px solid rgba(255,255,255,0.15)', cursor:'pointer', background:'#000', flexShrink:0, boxShadow:'0 1px 4px rgba(0,0,0,0.4)' }}>
+                    style={{ width:56, height:56, borderRadius:10, overflow:'hidden', padding:0, border:'2px solid rgba(255,255,255,0.15)', cursor:'pointer', background:'#000', flexShrink:0, boxShadow:'0 2px 6px rgba(0,0,0,0.4)' }}>
                     <img src={url} alt="" style={{ width:'100%', height:'100%', objectFit:'cover', display:'block' }} />
                   </button>
                 ))}
@@ -339,7 +339,7 @@ export default function ProductDetailSheet({ product, onClose, sellerWa, sellerN
               <div style={{ flex:1, minWidth:0, display:'flex', gap:6, overflowX:'auto', WebkitOverflowScrolling:'touch', scrollbarWidth:'none', paddingBottom:2 }}>
                 {(product.images?.length > 1 ? product.images : [activeImage].filter(Boolean)).map((url, i) => (
                   <button key={i} onClick={() => { setGalleryStart(i); setGalleryOpen(true) }}
-                    style={{ width:42, height:42, borderRadius:8, overflow:'hidden', padding:0, border:'2px solid rgba(255,255,255,0.15)', cursor:'pointer', background:'#000', flexShrink:0, boxShadow:'0 1px 4px rgba(0,0,0,0.4)' }}>
+                    style={{ width:56, height:56, borderRadius:10, overflow:'hidden', padding:0, border:'2px solid rgba(255,255,255,0.15)', cursor:'pointer', background:'#000', flexShrink:0, boxShadow:'0 2px 6px rgba(0,0,0,0.4)' }}>
                     <img src={url} alt="" style={{ width:'100%', height:'100%', objectFit:'cover', display:'block' }} />
                   </button>
                 ))}
