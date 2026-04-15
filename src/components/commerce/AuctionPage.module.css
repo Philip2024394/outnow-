@@ -107,7 +107,12 @@
 .reserveMetInCard { font-size: 10px; font-weight: 800; color: #8DC63F; background: rgba(141,198,63,0.12); border: 1px solid rgba(141,198,63,0.25); border-radius: 6px; padding: 2px 8px; width: fit-content; margin-top: 4px; }
 
 /* Price block — own background image */
-.priceBlock { display: flex; justify-content: space-between; padding: 16px; border: 1.5px solid rgba(245,158,11,0.25); border-radius: 14px; margin-bottom: 12px; position: relative; overflow: hidden; }
+.priceBlock { display: flex; justify-content: space-between; padding: 16px; border: 2px solid #000; border-radius: 14px; margin-bottom: 12px; position: relative; overflow: hidden; animation: bidGlow 2.5s ease-in-out infinite; }
+
+@keyframes bidGlow {
+  0%, 100% { box-shadow: 0 0 8px rgba(0,0,0,0.6), 0 0 16px rgba(245,158,11,0.1); }
+  50% { box-shadow: 0 0 12px rgba(0,0,0,0.8), 0 0 24px rgba(245,158,11,0.2), 0 0 36px rgba(245,158,11,0.08); }
+}
 .priceBlock::before { content: ''; position: absolute; inset: 0; background: url('https://ik.imagekit.io/nepgaxllc/ChatGPT%20Image%20Apr%2015,%202026,%2009_40_34%20PM.png?updatedAt=1776264052312') center/cover no-repeat; z-index: 0; }
 .priceBlock::after { content: ''; position: absolute; inset: 0; background: rgba(0,0,0,0.25); z-index: 1; }
 .priceLeft { position: relative; z-index: 2; display: flex; flex-direction: column; gap: 2px; }
