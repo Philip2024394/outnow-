@@ -59,6 +59,10 @@ export const DIRECTORY_CATEGORIES = [
   { id: 'government', icon: '🏛️', label: 'Government' },
   { id: 'nature',     icon: '🌿', label: 'Nature' },
   { id: 'food',       icon: '🍔', label: 'Food Areas' },
+  { id: 'fastfood',   icon: '🍟', label: 'Fast Food' },
+  { id: 'gym',        icon: '💪', label: 'Gyms' },
+  { id: 'salon',      icon: '💇', label: 'Hair & Beauty' },
+  { id: 'spa',        icon: '💆', label: 'Massage & Spa' },
 ]
 
 export const YOGYAKARTA_DESTINATIONS = [
@@ -145,6 +149,35 @@ export const YOGYAKARTA_DESTINATIONS = [
   { id: 'prawirotaman', name: 'Jl. Prawirotaman', category: 'food', lat: -7.8127, lng: 110.3677, address: 'Prawirotaman, Mergangsan' },
   { id: 'kaliurang', name: 'Kaliurang Food Street', category: 'food', lat: -7.6035, lng: 110.4240, address: 'Jl. Kaliurang, Sleman' },
   { id: 'alun_selatan', name: 'Alun-Alun Kidul (Night)', category: 'food', lat: -7.8122, lng: 110.3637, address: 'Alun-Alun Selatan, Kraton' },
+
+  // Fast Food
+  { id: 'mcd_malioboro', name: 'McDonald\'s Malioboro', category: 'fastfood', lat: -7.7935, lng: 110.3645, address: 'Jl. Malioboro, Gedongtengen' },
+  { id: 'kfc_amplaz', name: 'KFC Ambarukmo Plaza', category: 'fastfood', lat: -7.7823, lng: 110.4020, address: 'Ambarukmo Plaza, Sleman' },
+  { id: 'burger_king', name: 'Burger King Hartono', category: 'fastfood', lat: -7.7510, lng: 110.4105, address: 'Hartono Mall, Sleman' },
+  { id: 'phd_jogja', name: 'Pizza Hut Delivery', category: 'fastfood', lat: -7.7830, lng: 110.3770, address: 'Jl. Gejayan, Sleman' },
+  { id: 'jco', name: 'J.CO Donuts Jogja City', category: 'fastfood', lat: -7.7755, lng: 110.3895, address: 'Jogja City Mall, Sleman' },
+  { id: 'starbucks', name: 'Starbucks Malioboro', category: 'fastfood', lat: -7.7940, lng: 110.3650, address: 'Jl. Malioboro, Gedongtengen' },
+
+  // Gyms
+  { id: 'celebrity_fitness', name: 'Celebrity Fitness Amplaz', category: 'gym', lat: -7.7820, lng: 110.4015, address: 'Ambarukmo Plaza Lt. 3' },
+  { id: 'gold_gym', name: 'Gold\'s Gym Hartono', category: 'gym', lat: -7.7515, lng: 110.4112, address: 'Hartono Mall, Sleman' },
+  { id: 'fitness_first', name: 'Fitness First Jogja City', category: 'gym', lat: -7.7758, lng: 110.3900, address: 'Jogja City Mall Lt. 3' },
+  { id: 'atlas_gym', name: 'Atlas Sports Club', category: 'gym', lat: -7.7680, lng: 110.3880, address: 'Jl. Colombo, Sleman' },
+  { id: 'crossfit_jogja', name: 'CrossFit Yogyakarta', category: 'gym', lat: -7.7790, lng: 110.3840, address: 'Jl. Gejayan, Sleman' },
+
+  // Hair & Beauty Salons
+  { id: 'johnny_andrean', name: 'Johnny Andrean Salon', category: 'salon', lat: -7.7825, lng: 110.4018, address: 'Ambarukmo Plaza, Sleman' },
+  { id: 'irwan_team', name: 'Irwan Team Hairdesign', category: 'salon', lat: -7.7760, lng: 110.3898, address: 'Jogja City Mall, Sleman' },
+  { id: 'flaurent', name: 'Flaurent Hair Studio', category: 'salon', lat: -7.7838, lng: 110.3775, address: 'Jl. Gejayan, Sleman' },
+  { id: 'nail_plus', name: 'The Nail Plus Spa', category: 'salon', lat: -7.7830, lng: 110.3760, address: 'Jl. Kaliurang Km 5, Sleman' },
+  { id: 'browbar', name: 'BrowBar Beauty Lounge', category: 'salon', lat: -7.7850, lng: 110.3890, address: 'Jl. Laksda Adisucipto, Sleman' },
+
+  // Massage & Spa
+  { id: 'kraton_spa', name: 'Kraton Spa & Wellness', category: 'spa', lat: -7.8045, lng: 110.3640, address: 'Jl. Rotowijayan, Kraton' },
+  { id: 'jamu_spa', name: 'Jamu Traditional Spa', category: 'spa', lat: -7.8110, lng: 110.3660, address: 'Jl. Prawirotaman, Mergangsan' },
+  { id: 'kirana_spa', name: 'Kirana Spa', category: 'spa', lat: -7.7830, lng: 110.3900, address: 'Jl. Laksda Adisucipto, Sleman' },
+  { id: 'taman_sari_spa', name: 'Taman Sari Royal Heritage', category: 'spa', lat: -7.8095, lng: 110.3595, address: 'Jl. Taman, Kraton' },
+  { id: 'martha_tilaar', name: 'Martha Tilaar Salon & Spa', category: 'spa', lat: -7.7762, lng: 110.3893, address: 'Jogja City Mall, Sleman' },
 ].map(d => ({
   ...d,
   distanceKm: Math.round(distanceKm(CITY_CENTER.lat, CITY_CENTER.lng, d.lat, d.lng) * 10) / 10,
