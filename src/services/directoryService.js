@@ -48,6 +48,9 @@ export const DIRECTORY_CATEGORIES = [
   { id: 'airport',    icon: '✈️', label: 'Airports' },
   { id: 'temple',     icon: '🛕', label: 'Temples' },
   { id: 'beach',      icon: '🏖️', label: 'Beaches' },
+  { id: 'nightlife',  icon: '🍸', label: 'Nightlife' },
+  { id: 'restaurant', icon: '🍽️', label: 'Restaurants' },
+  { id: 'art',        icon: '🎨', label: 'Art & Culture' },
   { id: 'hospital',   icon: '🏥', label: 'Hospitals' },
   { id: 'transport',  icon: '🚉', label: 'Transport' },
   { id: 'shopping',   icon: '🛍️', label: 'Shopping' },
@@ -110,6 +113,32 @@ export const YOGYAKARTA_DESTINATIONS = [
   { id: 'pindul', name: 'Pindul Cave (Tubing)', category: 'nature', lat: -7.9447, lng: 110.6054, address: 'Gunungkidul, DIY' },
   { id: 'kalibiru', name: 'Kalibiru National Park', category: 'nature', lat: -7.8161, lng: 110.1047, address: 'Kulon Progo, DIY' },
   { id: 'merapi', name: 'Mount Merapi Viewpoint', category: 'nature', lat: -7.6646, lng: 110.4265, address: 'Kaliurang, Sleman' },
+
+  // Nightlife — Bars & Clubs
+  { id: 'boshe', name: 'Boshe VVIP Club', category: 'nightlife', lat: -7.7825, lng: 110.3895, address: 'Jl. Magelang Km 6, Sleman' },
+  { id: 'liquid', name: 'Liquid Next Level', category: 'nightlife', lat: -7.7835, lng: 110.3780, address: 'Jl. Magelang, Sleman' },
+  { id: 'hugos', name: 'Hugo\'s Cafe & Bar', category: 'nightlife', lat: -7.8108, lng: 110.3670, address: 'Jl. Prawirotaman II' },
+  { id: 'momobar', name: 'Momo Bar Prawirotaman', category: 'nightlife', lat: -7.8115, lng: 110.3685, address: 'Jl. Prawirotaman, Mergangsan' },
+  { id: 'jazzspot', name: 'Jazz Spot Jogja', category: 'nightlife', lat: -7.7940, lng: 110.3620, address: 'Jl. Pakuningratan, Jetis' },
+  { id: 'viavia', name: 'ViaVia Jogja', category: 'nightlife', lat: -7.8120, lng: 110.3665, address: 'Jl. Prawirotaman 30' },
+
+  // Restaurants
+  { id: 'gudeg_yu_djum', name: 'Gudeg Yu Djum', category: 'restaurant', lat: -7.7835, lng: 110.3880, address: 'Jl. Kaliurang Km 4, Sleman' },
+  { id: 'bale_raos', name: 'Bale Raos (Royal Cuisine)', category: 'restaurant', lat: -7.8055, lng: 110.3625, address: 'Kraton Yogyakarta' },
+  { id: 'mediterranean', name: 'Mediterranea Restaurant', category: 'restaurant', lat: -7.7753, lng: 110.3890, address: 'Jl. Laksda Adisucipto, Sleman' },
+  { id: 'milas', name: 'Milas Vegetarian', category: 'restaurant', lat: -7.8125, lng: 110.3672, address: 'Jl. Prawirotaman, Mergangsan' },
+  { id: 'sate_klathak', name: 'Sate Klathak Pak Pong', category: 'restaurant', lat: -7.8340, lng: 110.3460, address: 'Jl. Imogiri Barat, Bantul' },
+  { id: 'house_raminten', name: 'House of Raminten', category: 'restaurant', lat: -7.7820, lng: 110.3752, address: 'Jl. FM Noto 7, Kotabaru' },
+  { id: 'jejamuran', name: 'Jejamuran (Mushroom)', category: 'restaurant', lat: -7.6865, lng: 110.3420, address: 'Jl. Magelang Km 12, Sleman' },
+  { id: 'abhayagiri', name: 'Abhayagiri Restaurant', category: 'restaurant', lat: -7.6150, lng: 110.4235, address: 'Kaliurang, Sleman (mountain view)' },
+
+  // Art & Culture
+  { id: 'affandi', name: 'Affandi Museum', category: 'art', lat: -7.7810, lng: 110.3965, address: 'Jl. Laksda Adisucipto 167' },
+  { id: 'sonobudoyo', name: 'Sonobudoyo Museum', category: 'art', lat: -7.8000, lng: 110.3635, address: 'Jl. Pangurakan, Kraton' },
+  { id: 'ullen_sentalu', name: 'Ullen Sentalu Museum', category: 'art', lat: -7.5990, lng: 110.4175, address: 'Kaliurang, Sleman' },
+  { id: 'taman_budaya', name: 'Taman Budaya Yogyakarta', category: 'art', lat: -7.7930, lng: 110.3745, address: 'Jl. Sriwedani, Gondomanan' },
+  { id: 'batik_center', name: 'Batik Craft Center', category: 'art', lat: -7.8040, lng: 110.3660, address: 'Jl. Tirtodipuran, Mantrijeron' },
+  { id: 'cemeti', name: 'Cemeti Art House', category: 'art', lat: -7.8080, lng: 110.3745, address: 'Jl. D.I. Panjaitan 41' },
 
   // Food Areas
   { id: 'prawirotaman', name: 'Jl. Prawirotaman', category: 'food', lat: -7.8127, lng: 110.3677, address: 'Prawirotaman, Mergangsan' },

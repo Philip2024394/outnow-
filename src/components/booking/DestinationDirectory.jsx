@@ -14,12 +14,21 @@ import styles from './DestinationDirectory.module.css'
 
 export default function DestinationDirectory({ open, onClose, onSelectDestination, vehicleMode }) {
   const [category, setCategory] = useState('all')
+  const [search, setSearch] = useState('')
 
   if (!open) return null
 
-  const destinations = category === 'all'
-    ? getDestinationsByCategory('all').slice(0, 20)
+  let destinations = category === 'all'
+    ? getDestinationsByCategory('all')
     : getDestinationsByCategory(category)
+
+  // Search filter
+  if (search.trim()) {
+    const q = search.toLowerCase()
+    destinations = destinations.filter(d =>
+      d.name.toLowerCase().includes(q) || d.address.toLowerCase().includes(q) || d.category.includes(q)
+    )
+  }
 
   const isBike = vehicleMode !== 'car_taxi'
 
@@ -40,6 +49,20 @@ export default function DestinationDirectory({ open, onClose, onSelectDestinatio
             <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
           </svg>
         </button>
+      </div>
+
+      {/* Search bar */}
+      <div className={styles.searchBar}>
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.35)" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+          <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+        </svg>
+        <input
+          className={styles.searchInput}
+          value={search}
+          onChange={e => setSearch(e.target.value)}
+          placeholder="Search destinations..."
+        />
+        {search && <button className={styles.searchClear} onClick={() => setSearch('')}>✕</button>}
       </div>
 
       {/* Category chips */}
