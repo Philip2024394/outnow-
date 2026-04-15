@@ -316,16 +316,15 @@ const handleJourneyComplete = async () => {
   const bgImage = (() => {
     const h = new Date().getHours()
     const isNight = h >= 18 || h < 6
-    if (!hasPickedVehicle) {
-      return isNight
-        ? 'url("https://ik.imagekit.io/nepgaxllc/Untitledddddddddddsfsdfadsfasdfsdfs.png")'
-        : 'url("https://ik.imagekit.io/nepgaxllc/Untitledddddddddddsfsdfadsfasdf.png")'
-    }
-    if (vehicleType === 'car_taxi') {
+    const isCar = initialVehicle === 'car_taxi' || vehicleType === 'car_taxi' || vehicleType === 'car_parcel'
+
+    if (isCar) {
+      // Car backgrounds only
       return isNight
         ? 'url("https://ik.imagekit.io/nepgaxllc/Untitledddddddddddsfsdf.png")'
         : 'url("https://ik.imagekit.io/nepgaxllc/Untitledddddddddd.png")'
     }
+    // Bike backgrounds only
     return isNight
       ? 'url("https://ik.imagekit.io/nepgaxllc/Untitleddfsadfasdfdasdasdasdsdfasd.png")'
       : 'url("https://ik.imagekit.io/nepgaxllc/Untitledddddddddddsfsdfadsfasdf.png")'
@@ -367,6 +366,7 @@ const handleJourneyComplete = async () => {
               formatRp={formatRp} estimateFare={estimateFare}
               zones={zones} settings={settings}
               handleFindDriver={handleFindDriver}
+              initialVehicle={initialVehicle}
             />
           )}
 

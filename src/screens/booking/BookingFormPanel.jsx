@@ -117,6 +117,7 @@ export default function BookingFormPanel({
   formatRp, estimateFare,
   zones, settings,
   handleFindDriver,
+  initialVehicle,
 }) {
   const isManualPickup = pickup && pickup.address !== 'Current location (GPS)'
   const gpsMismatchKm  = isManualPickup && gpsCoords && pickup.lat && pickup.lng
@@ -128,24 +129,48 @@ export default function BookingFormPanel({
     <div className={styles.body}>
       <DriverMap userCoords={pickupCoords} driverType={vehicleType} selectedDriverId={null} />
 
-      {/* Vehicle tabs */}
+      {/* Vehicle tabs — bike page shows bike options only, car page shows car options only */}
       <div className={styles.vehicleTabs}>
-        <button
-          className={`${styles.vehicleTab} ${vehicleType === 'bike_ride' ? styles.vehicleTabActive : ''}`}
-          onClick={() => { setVehicleType('bike_ride'); setHasPickedVehicle(true) }}
-        >
-          <span className={styles.vehicleTabLabel}>Bike Ride</span>
-          <span className={styles.vehicleTabPrice}>{formatRp(estimateFare('bike_ride', 'Yogyakarta', distanceKm, zones, settings))}</span>
-          <img src={BIKE_IMG} alt="Bike" className={styles.vehicleTabImg} />
-        </button>
-        <button
-          className={`${styles.vehicleTab} ${vehicleType === 'car_taxi' ? styles.vehicleTabActive : ''}`}
-          onClick={() => { setVehicleType('car_taxi'); setHasPickedVehicle(true) }}
-        >
-          <span className={styles.vehicleTabLabel}>Car Taxi</span>
-          <span className={styles.vehicleTabPrice}>{formatRp(estimateFare('car_taxi', 'Yogyakarta', distanceKm, zones, settings))}</span>
-          <img src={CAR_IMG} alt="Car" className={`${styles.vehicleTabImg} ${styles.vehicleTabImgCar}`} />
-        </button>
+        {(!initialVehicle || initialVehicle === 'bike_ride') && (
+          <>
+            <button
+              className={`${styles.vehicleTab} ${vehicleType === 'bike_ride' ? styles.vehicleTabActive : ''}`}
+              onClick={() => { setVehicleType('bike_ride'); setHasPickedVehicle(true) }}
+            >
+              <span className={styles.vehicleTabLabel}>Bike Ride</span>
+              <span className={styles.vehicleTabPrice}>{formatRp(estimateFare('bike_ride', 'Yogyakarta', distanceKm, zones, settings))}</span>
+              <img src={BIKE_IMG} alt="Bike" className={styles.vehicleTabImg} />
+            </button>
+            <button
+              className={`${styles.vehicleTab} ${vehicleType === 'bike_parcel' ? styles.vehicleTabActive : ''}`}
+              onClick={() => { setVehicleType('bike_parcel'); setHasPickedVehicle(true) }}
+            >
+              <span className={styles.vehicleTabLabel}>Bike Parcel</span>
+              <span className={styles.vehicleTabPrice}>{formatRp(estimateFare('bike_ride', 'Yogyakarta', distanceKm, zones, settings))}</span>
+              <img src={BIKE_IMG} alt="Bike Parcel" className={styles.vehicleTabImg} />
+            </button>
+          </>
+        )}
+        {initialVehicle === 'car_taxi' && (
+          <>
+            <button
+              className={`${styles.vehicleTab} ${vehicleType === 'car_taxi' ? styles.vehicleTabActive : ''}`}
+              onClick={() => { setVehicleType('car_taxi'); setHasPickedVehicle(true) }}
+            >
+              <span className={styles.vehicleTabLabel}>Car Taxi</span>
+              <span className={styles.vehicleTabPrice}>{formatRp(estimateFare('car_taxi', 'Yogyakarta', distanceKm, zones, settings))}</span>
+              <img src={CAR_IMG} alt="Car" className={`${styles.vehicleTabImg} ${styles.vehicleTabImgCar}`} />
+            </button>
+            <button
+              className={`${styles.vehicleTab} ${vehicleType === 'car_parcel' ? styles.vehicleTabActive : ''}`}
+              onClick={() => { setVehicleType('car_parcel'); setHasPickedVehicle(true) }}
+            >
+              <span className={styles.vehicleTabLabel}>Car Package</span>
+              <span className={styles.vehicleTabPrice}>{formatRp(estimateFare('car_taxi', 'Yogyakarta', distanceKm, zones, settings))}</span>
+              <img src={CAR_IMG} alt="Car Package" className={`${styles.vehicleTabImg} ${styles.vehicleTabImgCar}`} />
+            </button>
+          </>
+        )}
       </div>
 
       {/* Location fields */}
