@@ -357,6 +357,8 @@ export default function AppShell({ returnParams, triggerGoLive }) {
       notes:       notes ?? '',
       status:      'pending',
       updatedAt:   Date.now(),
+      safeTrade:       product?.safeTrade ?? null,
+      cashOnDelivery:  product?.cashOnDelivery ?? false,
     }
 
     const openingMsg = {
@@ -377,6 +379,50 @@ export default function AppShell({ returnParams, triggerGoLive }) {
       status:          'free',
       openedAt:        Date.now(),
       lastMessage:     `${isRestaurant ? '🍽️' : '🛍️'} Order ${orderRef}`,
+      lastMessageTime: Date.now(),
+      unread:          0,
+      messages:        [openingMsg],
+    })
+    setActiveTab('chat')
+  }
+
+  // ── Make an Offer — creates a chat conversation with an offer card ──
+  const handleMakeOffer = ({ product, qty, offerPrice, listedPrice, totalOffer, message, sellerName, sellerId }) => {
+    const targetId   = sellerId
+    const targetName = sellerName ?? 'Seller'
+    const convId     = `offer-marketplace-${targetId}-${Date.now()}`
+    const offerRef   = `#OFFER_${Date.now().toString().slice(-8)}`
+
+    const offerCard = {
+      ref:          offerRef,
+      productName:  product?.name ?? 'Product',
+      productImage: product?.image ?? null,
+      qty,
+      offerPrice,
+      listedPrice,
+      totalOffer,
+      message:      message ?? '',
+      status:       'pending',
+      updatedAt:    Date.now(),
+    }
+
+    const openingMsg = {
+      id:       `offer-${Date.now()}`,
+      senderId: user?.id ?? 'me',
+      fromMe:   true,
+      offerCard,
+      time:     Date.now(),
+    }
+
+    setPendingConv({
+      id:              convId,
+      userId:          targetId,
+      displayName:     targetName,
+      emoji:           '💰',
+      online:          true,
+      status:          'free',
+      openedAt:        Date.now(),
+      lastMessage:     `💰 Offer ${offerRef}`,
       lastMessageTime: Date.now(),
       unread:          0,
       messages:        [openingMsg],
@@ -474,7 +520,7 @@ export default function AppShell({ returnParams, triggerGoLive }) {
       <Suspense fallback={<LazyFallback />}>
         {activeTab === 'chat'    && <ChatScreen key={pendingConv?.id ?? 'chat'} onClose={() => setActiveTab('map')} pendingConv={pendingConv} />}
         {activeTab === 'profile' && <ProfileScreen onClose={() => setActiveTab('map')} onOpenSettings={() => setSettingsOpen(true)} />}
-        {activeTab === 'shopping' && <ShopSearchScreen onClose={() => { setActiveTab('map'); setGiftForSession(null) }} userCity={userProfile?.city} userCountry={userProfile?.country} giftFor={giftForSession} onGiftDismiss={() => setGiftForSession(null)} showToast={showToast} onOrderViaChat={handleOrderViaChat} />}
+        {activeTab === 'shopping' && <ShopSearchScreen onClose={() => { setActiveTab('map'); setGiftForSession(null) }} userCity={userProfile?.city} userCountry={userProfile?.country} giftFor={giftForSession} onGiftDismiss={() => setGiftForSession(null)} showToast={showToast} onOrderViaChat={handleOrderViaChat} onMakeOffer={handleMakeOffer} />}
       </Suspense>
 
       <div className="map-top-fade" />

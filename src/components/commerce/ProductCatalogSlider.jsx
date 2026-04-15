@@ -4,6 +4,7 @@ import { DEMO_PRODUCTS } from '@/services/commerceService'
 import ProductDetailSheet from './ProductDetailSheet'
 import HanggerCartPanel from './HanggerCartPanel'
 import HanggerCartSheet from './HanggerCartSheet'
+import SellerTrustCard from './SellerTrustCard'
 import styles from './ProductCatalogSlider.module.css'
 
 // ── IDR price formatter ───────────────────────────────────────────────────────
@@ -53,6 +54,8 @@ export default function ProductCatalogSlider({
   onGiftSelect = null,    // gift mode — product tap opens GiftOrderSheet
   giftRecipientName = null,
   onWishlistAdd = null,   // wishlist mode — product tap pins to wishlist
+  onMakeOffer = null,     // make an offer — sends offer card to chat
+  seller = null,          // seller data for trust card
 }) {
   const cartKey = `hangger_cart_${sellerWa || sellerName || 'default'}`
 
@@ -60,6 +63,7 @@ export default function ProductCatalogSlider({
   const [query,         setQuery]         = useState('')
   const [cart,          setCart]          = useState(() => loadCart(cartKey))
   const [cartModalOpen, setCartModalOpen] = useState(false)
+  const [trustCardOpen, setTrustCardOpen] = useState(false)
 
   // Persist cart on every change
   useEffect(() => { saveCart(cartKey, cart) }, [cart, cartKey])
@@ -137,15 +141,12 @@ export default function ProductCatalogSlider({
             <span className={styles.catalog}>{sellerName}</span>
           </div>
 
-          {totalQty > 0 && (
-            <button className={styles.cartBtn} onClick={() => setCartModalOpen(true)} aria-label="View cart">
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.3" strokeLinecap="round" strokeLinejoin="round">
-                <circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/>
-                <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/>
-              </svg>
-              <span className={styles.cartCount}>{totalQty}</span>
-            </button>
-          )}
+          {/* Seller trust card button */}
+          <button className={styles.trustBtn} onClick={() => setTrustCardOpen(true)} aria-label="Seller info">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+              <circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/>
+            </svg>
+          </button>
 
           <button className={styles.closeBtn} onClick={onClose}>✕</button>
         </div>
@@ -203,11 +204,22 @@ export default function ProductCatalogSlider({
                         {p.isNew && <span className={styles.newBadge}>NEW</span>}
                       </div>
                       <div className={styles.cardInfo}>
+                        {p.brand_name && (
+                          <div className={styles.cardBrand}>{p.brand_name}</div>
+                        )}
                         <div className={styles.cardName}>{p.name}</div>
                         <div className={styles.cardMeta}>
                           <span className={styles.cardPrice}>{formatIDR(p.price)}</span>
                           {p.condition && p.condition !== 'new' && (
                             <span className={styles.cardCondition}>{p.condition}</span>
+                          )}
+                        </div>
+                        <div className={styles.cardTags}>
+                          {p.dispatch_time && (
+                            <span className={styles.cardDispatch}>{p.dispatch_time}</span>
+                          )}
+                          {p.deliveryPricing?.priceIncluded && (
+                            <span className={styles.cardFreeDelivery}>Free delivery</span>
                           )}
                         </div>
                       </div>
@@ -228,6 +240,7 @@ export default function ProductCatalogSlider({
         onClearCart={clearCart}
         sellerName={sellerName}
         sellerWa={sellerWa}
+        cartSheetOpen={cartModalOpen && totalQty > 0}
       />
 
       <ProductDetailSheet
@@ -240,6 +253,7 @@ export default function ProductCatalogSlider({
         getCartQty={getCartQty}
         totalCartQty={totalQty}
         onOpenCart={() => { setDetailProduct(null); setCartModalOpen(true) }}
+        onMakeOffer={onMakeOffer}
       />
 
       <HanggerCartSheet
@@ -250,6 +264,16 @@ export default function ProductCatalogSlider({
         onClearCart={clearCart}
         sellerName={sellerName}
         sellerWa={sellerWa}
+      />
+
+      <SellerTrustCard
+        open={trustCardOpen}
+        onClose={() => setTrustCardOpen(false)}
+        seller={seller ?? {
+          brandName: sellerName,
+          bizWhatsapp: sellerWa,
+          businessType: 'Seller',
+        }}
       />
     </>,
     document.body

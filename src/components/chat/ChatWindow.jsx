@@ -16,6 +16,8 @@ import { useVideoCheck } from '@/hooks/useVideoCheck'
 import { useUnlocks } from '@/hooks/useUnlocks'
 import UnlockGate from './UnlockGate'
 import OrderCard from '@/components/orders/OrderCard'
+import OfferCard from '@/components/orders/OfferCard'
+import { isSellerOpen, getNextOpenTime, formatCountdown as fmtHoursCountdown } from '@/utils/sellerHours'
 import BankDetailsCard from '@/components/orders/BankDetailsCard'
 import PaymentVerificationCard from '@/components/orders/PaymentVerificationCard'
 import styles from './ChatWindow.module.css'
@@ -470,8 +472,15 @@ export default function ChatWindow({ conversation: conv, allConversations = [], 
     onConvUpdate?.({ lastMessage: '🏦 Bank details shared', lastMessageTime: Date.now() })
   }, [messages, user, conv.id, onConvUpdate]) // eslint-disable-line
 
+  // ── Generate Indoo Market sales number #IM-XXXX ─────────────────────────
+  const generateSalesNumber = () => {
+    const num = Math.floor(1000 + Math.random() * 9000)
+    return `#IM-${num}`
+  }
+
   // ── Payment screenshot uploaded by buyer ────────────────────────────────
   const handleScreenshotUploaded = useCallback(({ imageUrl, orderId }) => {
+    const salesNumber = generateSalesNumber()
     const verificationMsg = {
       id: `pv-${Date.now()}`,
       fromMe: true,
@@ -479,12 +488,19 @@ export default function ChatWindow({ conversation: conv, allConversations = [], 
       screenshotUrl: imageUrl,
       orderId,
       orderRef: messages.find(m => m.orderCard)?.orderCard?.ref ?? `#ORDER_${Date.now().toString().slice(-8)}`,
+      salesNumber,
       paymentStatus: 'pending_verification',
       cancelCount: 0,
       time: Date.now(),
     }
     setMessages(prev => [...prev, verificationMsg])
-    onConvUpdate?.({ lastMessage: '🧾 Payment screenshot sent', lastMessageTime: Date.now() })
+
+    // Also attach salesNumber to the original order card message
+    setMessages(prev => prev.map(m =>
+      m.orderCard ? { ...m, orderCard: { ...m.orderCard, salesNumber } } : m
+    ))
+
+    onConvUpdate?.({ lastMessage: `🧾 Payment screenshot sent · ${salesNumber}`, lastMessageTime: Date.now() })
 
     // Record to Supabase
     if (supabase) {
@@ -495,6 +511,7 @@ export default function ChatWindow({ conversation: conv, allConversations = [], 
         buyer_id: user?.uid ?? user?.id,
         seller_id: sellerId,
         screenshot_url: imageUrl,
+        sales_number: salesNumber,
         status: 'pending_verification',
       }).catch(() => {})
     }
@@ -547,6 +564,43 @@ export default function ChatWindow({ conversation: conv, allConversations = [], 
       }
     }
   }, [messages, user, conv, theme, onConvUpdate]) // eslint-disable-line
+
+  // ── Offer response handler ─────────────────────────────────────────────
+  const handleOfferRespond = useCallback((msgId, decision, counterPrice) => {
+    setMessages(prev => prev.map(m => {
+      if (m.id !== msgId) return m
+      return {
+        ...m,
+        offerCard: {
+          ...m.offerCard,
+          status: decision,
+          counterPrice: counterPrice ?? m.offerCard?.counterPrice,
+          updatedAt: Date.now(),
+        },
+      }
+    }))
+    const label = decision === 'accepted' ? '✓ Offer accepted' : decision === 'countered' ? '↩ Counter offer sent' : '✗ Offer declined'
+    onConvUpdate?.({ lastMessage: label, lastMessageTime: Date.now() })
+  }, [onConvUpdate])
+
+  // ── Outside-hours detection with live countdown ────────────────────────
+  const sellerHours = conv.openingHours ?? null
+  const sellerCurrentlyOpen = isSellerOpen(sellerHours)
+  const [hoursCountdown, setHoursCountdown] = useState('')
+  const [nextOpenLabel, setNextOpenLabel] = useState('')
+
+  useEffect(() => {
+    if (sellerCurrentlyOpen || !sellerHours) { setHoursCountdown(''); setNextOpenLabel(''); return }
+    function update() {
+      const next = getNextOpenTime(sellerHours)
+      if (!next) return
+      setNextOpenLabel(`Opens ${next.dayShort} at ${next.time}`)
+      setHoursCountdown(fmtHoursCountdown(next.diffMs))
+    }
+    update()
+    const id = setInterval(update, 60000)
+    return () => clearInterval(id)
+  }, [sellerCurrentlyOpen, sellerHours])
 
   // Check if there's a confirmed order (seller can share bank details)
   const hasConfirmedOrder = messages.some(m => m.orderCard?.status === 'confirmed')
@@ -676,6 +730,24 @@ export default function ChatWindow({ conversation: conv, allConversations = [], 
 
 
 
+      {/* ── Outside business hours banner ── */}
+      {!sellerCurrentlyOpen && sellerHours && !isSeller && (
+        <div className={styles.hoursBanner}>
+          <div className={styles.hoursBannerIcon}>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>
+            </svg>
+          </div>
+          <div className={styles.hoursBannerText}>
+            <span className={styles.hoursBannerTitle}>Outside business hours</span>
+            <span className={styles.hoursBannerSub}>
+              {nextOpenLabel}{hoursCountdown ? ` (in ${hoursCountdown})` : ''}
+            </span>
+            <span className={styles.hoursBannerNote}>Your message has been sent — they'll see it when they're back</span>
+          </div>
+        </div>
+      )}
+
       {/* ── Messages ── */}
       <div className={styles.messages}>
 
@@ -741,6 +813,12 @@ export default function ChatWindow({ conversation: conv, allConversations = [], 
                   fromMe={msg.fromMe}
                   onStatusChange={(newStatus) => handleOrderStatusChange(msg.id, newStatus)}
                 />
+              ) : msg.offerCard ? (
+                <OfferCard
+                  offerCard={msg.offerCard}
+                  fromMe={msg.fromMe}
+                  onRespond={(decision, counterPrice) => handleOfferRespond(msg.id, decision, counterPrice)}
+                />
               ) : msg.isBankDetails ? (
                 <BankDetailsCard
                   bankDetails={msg.bankDetails}
@@ -753,6 +831,7 @@ export default function ChatWindow({ conversation: conv, allConversations = [], 
                   screenshotUrl={msg.screenshotUrl}
                   orderId={msg.orderId}
                   orderRef={msg.orderRef}
+                  salesNumber={msg.salesNumber}
                   fromMe={msg.fromMe}
                   status={msg.paymentStatus}
                   cancelCount={msg.cancelCount}

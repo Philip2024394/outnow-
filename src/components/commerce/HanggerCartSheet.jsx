@@ -1,4 +1,5 @@
-import { useState } from 'react'
+import { useState, useMemo } from 'react'
+import { PARCEL_CARRIERS, CARGO_CARRIERS, EXPORT_CARRIERS } from '@/services/commissionService'
 import styles from './HanggerCartSheet.module.css'
 
 function formatIDR(n) {
@@ -7,60 +8,126 @@ function formatIDR(n) {
     const jt = n / 1_000_000
     return Number.isInteger(jt) ? `${jt}jt` : `${jt.toFixed(1).replace('.', ',')}jt`
   }
-  if (n >= 1_000) return `${n.toLocaleString('id-ID')}rp`
-  return `${n}rp`
+  if (n >= 1_000) return `Rp ${n.toLocaleString('id-ID')}`
+  return `Rp ${n}`
 }
 
-const DELIVERY_OPTIONS = [
-  { id: 'bike',     icon: '🛵', label: 'Bike',     fee: 15000, note: 'Same city · 1-2 hrs'     },
-  { id: 'car',      icon: '🚗', label: 'Car',      fee: 30000, note: 'Same city · 30-60 min'   },
-  { id: 'standard', icon: '📦', label: 'Courier',  fee: 20000, note: '3-5 business days'       },
-  { id: 'collect',  icon: '🤝', label: 'Pick Up',  fee: 0,     note: 'Collect from seller'     },
-]
+// Bike delivery — city only, per-km pricing, no Safe Trade
+const BIKE_DELIVERY = {
+  id: 'bike', type: 'hangger_ride', icon: '🛵', label: 'Bike Delivery',
+  note: 'Same city · 1-2 hrs · per km pricing',
+  baseFare: 15000, perKm: 3000, cityOnly: true, safeTrade: false,
+}
 
-function buildWhatsAppMessage(sellerName, cart, deliveryId, address, notes) {
-  const opt      = DELIVERY_OPTIONS.find(d => d.id === deliveryId) ?? DELIVERY_OPTIONS[0]
-  const subtotal = cart.reduce((s, i) => s + i.price * i.qty, 0)
-  const total    = subtotal + opt.fee
-  const ref      = `#HANG_${Date.now().toString().slice(-8)}`
-
-  const lines = cart.map(i => {
-    let ln = `• ${i.name} × ${i.qty}`
-    if (i.variant) ln += ` (${i.variant})`
-    ln += ` — ${formatIDR(i.price * i.qty)}`
-    return ln
-  })
-
-  const msg = [
-    `🛍 *Order from ${sellerName}*`,
-    `Hangger Market — ${ref}`,
-    '———————————————',
-    ...lines,
-    '———————————————',
-    `${opt.icon} ${opt.label}: ${opt.fee > 0 ? `~${formatIDR(opt.fee)}` : 'Free'}`,
-    `💰 *Est. total: ~${formatIDR(total)}*`,
-    address?.trim() ? `📍 Deliver to: ${address.trim()}` : '',
-    notes?.trim()   ? `📝 Notes: ${notes.trim()}`         : '',
-  ].filter(Boolean).join('\n')
-
-  return { msg, ref, total }
+// Pick up — always free
+const PICKUP_OPTION = {
+  id: 'collect', type: 'collect', icon: '🤝', label: 'Pick Up',
+  note: 'Collect from seller', fee: 0, safeTrade: true,
 }
 
 export default function HanggerCartSheet({
   open, onClose,
   cart, onUpdateQty, onClearCart,
   sellerName, sellerWa,
+  product,
+  onOrderViaChat,
 }) {
-  const [delivery,   setDelivery]   = useState('bike')
-  const [address,    setAddress]    = useState('')
-  const [notes,      setNotes]      = useState('')
-  const [showAddr,   setShowAddr]   = useState(false)
-  const [locating,   setLocating]   = useState(false)
+  const [selectedDelivery, setSelectedDelivery] = useState(null) // auto-set below
+  const [address, setAddress]     = useState('')
+  const [notes, setNotes]         = useState('')
+  const [showAddr, setShowAddr]   = useState(false)
+  const [locating, setLocating]   = useState(false)
+  const [showMore, setShowMore]   = useState(false)
+  const [dropship, setDropship]   = useState(false)
+  const [dropshipAddr, setDropshipAddr] = useState('')
+  const [locatingDrop, setLocatingDrop] = useState(false)
 
-  const opt      = DELIVERY_OPTIONS.find(d => d.id === delivery) ?? DELIVERY_OPTIONS[0]
+  // Build delivery options from seller's product config
+  const deliveryConfig = product?.deliveryPricing ?? {}
+  const priceIncluded = deliveryConfig.priceIncluded ?? false
+  const carrierPrices = deliveryConfig.carriers ?? {}
+  const customCarriers = deliveryConfig.customCarriers ?? []
+
+  // Build all available delivery options sorted by price (cheapest first)
+  const deliveryOptions = useMemo(() => {
+    const options = []
+
+    // Free delivery if price included
+    if (priceIncluded) {
+      options.push({
+        id: 'free', type: 'free', icon: '🎁', label: 'Free Delivery',
+        note: 'Included in product price', fee: 0, safeTrade: true,
+      })
+    }
+
+    // Seller-configured parcel carriers
+    PARCEL_CARRIERS.forEach(c => {
+      if (carrierPrices[c.type] !== undefined) {
+        options.push({
+          id: c.type, type: c.type, icon: '📦', label: c.label,
+          note: 'Nationwide · 3-5 days', fee: carrierPrices[c.type], safeTrade: true,
+        })
+      }
+    })
+
+    // Seller-configured cargo carriers
+    CARGO_CARRIERS.forEach(c => {
+      if (carrierPrices[c.type] !== undefined) {
+        options.push({
+          id: c.type, type: c.type, icon: '🚛', label: c.label,
+          note: 'Large items · 5-10 days', fee: carrierPrices[c.type], safeTrade: true,
+        })
+      }
+    })
+
+    // Seller-configured export carriers
+    EXPORT_CARRIERS.forEach(c => {
+      if (carrierPrices[c.type] !== undefined) {
+        options.push({
+          id: c.type, type: c.type, icon: '✈️', label: c.label,
+          note: 'International · 7-14 days', fee: carrierPrices[c.type], safeTrade: true,
+        })
+      }
+    })
+
+    // Custom carriers from seller
+    customCarriers.forEach((c, i) => {
+      options.push({
+        id: `custom_${i}`, type: `custom_${i}`, icon: '📬', label: c.name,
+        note: c.category === 'cargo' ? 'Large items' : 'Parcels',
+        fee: c.price ?? 0, safeTrade: true,
+      })
+    })
+
+    // Always add pickup
+    options.push(PICKUP_OPTION)
+
+    // Sort by fee (cheapest first), free always on top
+    options.sort((a, b) => a.fee - b.fee)
+
+    return options
+  }, [priceIncluded, carrierPrices, customCarriers])
+
+  // Auto-select cheapest on first render
+  const cheapest = deliveryOptions[0] ?? PICKUP_OPTION
+  const selected = selectedDelivery
+    ? (deliveryOptions.find(d => d.id === selectedDelivery) ?? cheapest)
+    : cheapest
+
+  const isBike = selected.id === 'bike'
   const subtotal = cart.reduce((s, i) => s + i.price * i.qty, 0)
-  const total    = subtotal + opt.fee
+  const deliveryFee = selected.fee ?? 0
+  const total = subtotal + deliveryFee
   const totalQty = cart.reduce((s, i) => s + i.qty, 0)
+
+  // Safe Trade available for this product (not for bike delivery)
+  const safeTrade = product?.safeTrade ?? {}
+  const safeTradeAvailable = safeTrade.enabled && selected.safeTrade
+
+  // How many options to show before "Show more"
+  const visibleCount = 3
+  const hasMore = deliveryOptions.length > visibleCount
+  const visibleOptions = showMore ? deliveryOptions : deliveryOptions.slice(0, visibleCount)
 
   function handleUseLocation() {
     if (!navigator.geolocation) return
@@ -68,7 +135,7 @@ export default function HanggerCartSheet({
     navigator.geolocation.getCurrentPosition(
       async ({ coords }) => {
         try {
-          const res  = await fetch(
+          const res = await fetch(
             `https://nominatim.openstreetmap.org/reverse?lat=${coords.latitude}&lon=${coords.longitude}&format=json`
           )
           const data = await res.json()
@@ -82,10 +149,68 @@ export default function HanggerCartSheet({
     )
   }
 
+  function handleUseLocationDrop() {
+    if (!navigator.geolocation) return
+    setLocatingDrop(true)
+    navigator.geolocation.getCurrentPosition(
+      async ({ coords }) => {
+        try {
+          const res = await fetch(
+            `https://nominatim.openstreetmap.org/reverse?lat=${coords.latitude}&lon=${coords.longitude}&format=json`
+          )
+          const data = await res.json()
+          setDropshipAddr(data.display_name ?? `${coords.latitude}, ${coords.longitude}`)
+        } catch {
+          setDropshipAddr(`${coords.latitude.toFixed(5)}, ${coords.longitude.toFixed(5)}`)
+        } finally { setLocatingDrop(false) }
+      },
+      () => setLocatingDrop(false),
+      { timeout: 8000 }
+    )
+  }
+
   function handleCheckout() {
+    if (!showAddr && selected.id !== 'collect') { setShowAddr(true); return }
+
+    // For in-app chat order
+    if (onOrderViaChat) {
+      onOrderViaChat({
+        product,
+        items: cart.map(i => ({ name: i.name, qty: i.qty, price: i.price, variant: i.variant })),
+        subtotal,
+        deliveryFee,
+        total,
+        notes: notes.trim() || '',
+        sellerName,
+      })
+      onClose()
+      return
+    }
+
+    // Fallback: WhatsApp order
     if (!sellerWa) return
-    if (!showAddr) { setShowAddr(true); return }
-    const { msg } = buildWhatsAppMessage(sellerName, cart, delivery, address, notes)
+    const ref = `#HANG_${Date.now().toString().slice(-8)}`
+    const lines = cart.map(i => {
+      let ln = `• ${i.name} × ${i.qty}`
+      if (i.variant) ln += ` (${i.variant})`
+      ln += ` — ${formatIDR(i.price * i.qty)}`
+      return ln
+    })
+    const msg = [
+      `🛍 *Order from ${sellerName}*`,
+      `Indoo Market — ${ref}`,
+      '———————————————',
+      ...lines,
+      '———————————————',
+      `${selected.icon} ${selected.label}: ${deliveryFee > 0 ? `~${formatIDR(deliveryFee)}` : 'Free'}`,
+      `💰 *Est. total: ~${formatIDR(total)}*`,
+      address?.trim() ? `📍 Buyer address: ${address.trim()}` : '',
+      dropship && dropshipAddr?.trim() ? `📦 Dropship to: ${dropshipAddr.trim()}` : '',
+      dropship ? '🔄 *Dropship order* — ship directly to customer address above' : '',
+      notes?.trim() ? `📝 Notes: ${notes.trim()}` : '',
+      isBike ? '⚠️ Bike delivery — direct bank transfer required (no Safe Trade)' : '',
+    ].filter(Boolean).join('\n')
+
     window.open(
       `https://wa.me/${sellerWa.replace(/[^0-9]/g, '')}?text=${encodeURIComponent(msg)}`,
       '_blank'
@@ -128,45 +253,127 @@ export default function HanggerCartSheet({
                   <span className={styles.itemPrice}>{formatIDR(item.price * item.qty)}</span>
                 </div>
                 <div className={styles.qtyControl}>
-                  <button
-                    className={styles.qtyBtn}
-                    onClick={() => onUpdateQty(item.id, item.variant, item.qty - 1)}
-                  >−</button>
+                  <button className={styles.qtyBtn} onClick={() => onUpdateQty(item.id, item.variant, item.qty - 1)}>−</button>
                   <span className={styles.qtyNum}>{item.qty}</span>
-                  <button
-                    className={styles.qtyBtn}
-                    onClick={() => onUpdateQty(item.id, item.variant, item.qty + 1)}
-                  >+</button>
+                  <button className={styles.qtyBtn} onClick={() => onUpdateQty(item.id, item.variant, item.qty + 1)}>+</button>
                 </div>
               </div>
             ))}
           </div>
 
-          {/* Delivery options */}
+          {/* ── Delivery section ── */}
           <div className={styles.section}>
-            <div className={styles.sectionLabel}>Delivery method</div>
-            <div className={styles.deliveryGrid}>
-              {DELIVERY_OPTIONS.map(o => (
+            <div className={styles.sectionLabel}>Delivery</div>
+
+            {/* Pick Up — always first */}
+            <button
+              className={`${styles.pickupBtn} ${selected.id === 'collect' ? styles.pickupBtnActive : ''}`}
+              onClick={() => setSelectedDelivery('collect')}
+            >
+              <div className={styles.pickupContent}>
+                <div className={styles.pickupInfo}>
+                  <span className={styles.pickupLabel}>Free Pick Up</span>
+                  <span className={styles.pickupNote}>Collect from seller</span>
+                </div>
+                <span className={styles.pickupFree}>FREE</span>
+              </div>
+            </button>
+
+            {/* Cheapest / recommended (skip if it's pick up) */}
+            {deliveryOptions.length > 0 && cheapest.id !== 'collect' && (
+              <div className={styles.recommendedDelivery}>
                 <button
-                  key={o.id}
-                  className={[styles.deliveryBtn, delivery === o.id ? styles.deliveryBtnActive : ''].join(' ')}
-                  onClick={() => setDelivery(o.id)}
+                  className={`${styles.deliveryBtn} ${selected.id === cheapest.id && !selectedDelivery ? styles.deliveryBtnActive : (selected.id === cheapest.id ? styles.deliveryBtnActive : '')}`}
+                  onClick={() => setSelectedDelivery(cheapest.id)}
                 >
-                  <span className={styles.dIcon}>{o.icon}</span>
-                  <span className={styles.dLabel}>{o.label}</span>
-                  <span className={styles.dNote}>{o.note}</span>
-                  <span className={styles.dFee}>{o.fee > 0 ? `+${formatIDR(o.fee)}` : 'Free'}</span>
+                  <div className={styles.dTop}>
+                    <span className={styles.dIcon}>{cheapest.icon}</span>
+                    <div className={styles.dInfo}>
+                      <span className={styles.dLabel}>{cheapest.label}</span>
+                      <span className={styles.dNote}>{cheapest.note}</span>
+                    </div>
+                    <span className={styles.dFee}>
+                      {cheapest.fee === 0 ? <span className={styles.dFree}>FREE</span> : formatIDR(cheapest.fee)}
+                    </span>
+                  </div>
+                  {cheapest.fee === 0 && <span className={styles.dCheapest}>Best value</span>}
+                  {cheapest.fee > 0 && <span className={styles.dCheapest}>Cheapest option</span>}
                 </button>
-              ))}
-            </div>
+              </div>
+            )}
+
+            {/* Bike delivery — always shown for city buyers */}
+            <button
+              className={`${styles.deliveryBtn} ${styles.bikeBtn} ${selected.id === 'bike' ? styles.deliveryBtnActive : ''}`}
+              onClick={() => setSelectedDelivery('bike')}
+            >
+              <div className={styles.dTop}>
+                <img src="https://ik.imagekit.io/nepgaxllc/Untitlediuooiuoifsdfsdf-removebg-preview.png?updatedAt=1775659748531" alt="Bike" className={styles.bikeIcon} />
+                <div className={styles.dInfo}>
+                  <span className={styles.dLabel}>{BIKE_DELIVERY.label}</span>
+                  <span className={styles.dNote}>{BIKE_DELIVERY.note}</span>
+                </div>
+                <span className={styles.dFee}>~{formatIDR(BIKE_DELIVERY.baseFare)}</span>
+              </div>
+              <div className={styles.bikeNotice}>
+                <span className={styles.bikeNoticeDot} />
+                Direct transfer only · No Safe Trade
+              </div>
+            </button>
+
+            {/* Other options (excluding pick up) */}
+            {visibleOptions.filter(d => d.id !== cheapest.id && d.id !== 'collect').map(opt => (
+              <button
+                key={opt.id}
+                className={`${styles.deliveryBtn} ${selected.id === opt.id ? styles.deliveryBtnActive : ''}`}
+                onClick={() => setSelectedDelivery(opt.id)}
+              >
+                <div className={styles.dTop}>
+                  <span className={styles.dIcon}>{opt.icon}</span>
+                  <div className={styles.dInfo}>
+                    <span className={styles.dLabel}>{opt.label}</span>
+                    <span className={styles.dNote}>{opt.note}</span>
+                  </div>
+                  <span className={styles.dFee}>
+                    {opt.fee === 0 ? <span className={styles.dFree}>FREE</span> : formatIDR(opt.fee)}
+                  </span>
+                </div>
+              </button>
+            ))}
+
+            {hasMore && !showMore && (
+              <button className={styles.showMoreBtn} onClick={() => setShowMore(true)}>
+                + {deliveryOptions.length - visibleCount} more option{deliveryOptions.length - visibleCount > 1 ? 's' : ''}
+              </button>
+            )}
           </div>
+
+          {/* Bike warning banner */}
+          {isBike && (
+            <div className={styles.bikeBanner}>
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/>
+              </svg>
+              <span>Bike delivery requires direct bank transfer with screenshot upload. Safe Trade (PayPal/Escrow) is not available for bike orders.</span>
+            </div>
+          )}
+
+          {/* Safe Trade badge — shown for non-bike deliveries when seller offers it */}
+          {safeTradeAvailable && !isBike && (
+            <div className={styles.safeTradeBanner}>
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+              </svg>
+              <span>Safe Trade available — PayPal or Escrow buyer protection at checkout</span>
+            </div>
+          )}
 
           {/* Notes */}
           <div className={styles.section}>
             <div className={styles.sectionLabel}>Special notes or requests</div>
             <textarea
               className={styles.notesInput}
-              placeholder="e.g. leave at door, gift wrap, allergies…"
+              placeholder="e.g. leave at door, gift wrap, allergies..."
               value={notes}
               onChange={e => setNotes(e.target.value)}
               rows={2}
@@ -174,20 +381,48 @@ export default function HanggerCartSheet({
           </div>
 
           {/* Address — revealed after first checkout tap */}
-          {showAddr && opt.id !== 'collect' && (
+          {showAddr && selected.id !== 'collect' && (
             <div className={styles.section}>
-              <div className={styles.sectionLabel}>Delivery address</div>
+              <div className={styles.sectionLabel}>Your address</div>
               <textarea
                 className={styles.addrInput}
-                placeholder="Enter your full address…"
+                placeholder="Enter your full address..."
                 value={address}
                 onChange={e => setAddress(e.target.value)}
                 rows={2}
                 autoFocus
               />
               <button className={styles.gpsBtn} onClick={handleUseLocation} disabled={locating}>
-                {locating ? '📡 Detecting…' : '📍 Use my location'}
+                {locating ? '📡 Detecting...' : '📍 Use my location'}
               </button>
+
+              {/* Dropship toggle */}
+              <div className={styles.dropshipToggle} onClick={() => setDropship(v => !v)}>
+                <div className={`${styles.dropshipCheck} ${dropship ? styles.dropshipCheckOn : ''}`}>
+                  {dropship && <span>✓</span>}
+                </div>
+                <div className={styles.dropshipInfo}>
+                  <span className={styles.dropshipLabel}>Dropship order</span>
+                  <span className={styles.dropshipSub}>Ship directly to a different address</span>
+                </div>
+              </div>
+
+              {/* Dropship delivery address */}
+              {dropship && (
+                <>
+                  <div className={styles.sectionLabel} style={{ marginTop: 4 }}>Deliver to (customer address)</div>
+                  <textarea
+                    className={styles.addrInput}
+                    placeholder="Enter customer's delivery address..."
+                    value={dropshipAddr}
+                    onChange={e => setDropshipAddr(e.target.value)}
+                    rows={2}
+                  />
+                  <button className={styles.gpsBtn} onClick={handleUseLocationDrop} disabled={locatingDrop}>
+                    {locatingDrop ? '📡 Detecting...' : '📍 Use customer location'}
+                  </button>
+                </>
+              )}
             </div>
           )}
 
@@ -198,8 +433,8 @@ export default function HanggerCartSheet({
               <span>{formatIDR(subtotal)}</span>
             </div>
             <div className={styles.totalRow}>
-              <span>{opt.icon} {opt.label}</span>
-              <span>{opt.fee > 0 ? `~${formatIDR(opt.fee)}` : 'Free'}</span>
+              <span>{selected.icon} {selected.label}</span>
+              <span>{deliveryFee > 0 ? `~${formatIDR(deliveryFee)}` : <span style={{ color: '#34D399', fontWeight: 700 }}>Free</span>}</span>
             </div>
             <div className={[styles.totalRow, styles.grandRow].join(' ')}>
               <span>Est. total</span>
@@ -216,12 +451,12 @@ export default function HanggerCartSheet({
           <button
             className={styles.checkoutBtn}
             onClick={handleCheckout}
-            disabled={!sellerWa}
+            disabled={!sellerWa && !onOrderViaChat}
           >
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.3" strokeLinecap="round" strokeLinejoin="round">
               <path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/>
             </svg>
-            {showAddr ? 'Send Order via WhatsApp' : 'Checkout'}
+            {showAddr ? (isBike ? 'Send Order · Direct Transfer' : 'Checkout') : 'Checkout'}
           </button>
         </div>
 

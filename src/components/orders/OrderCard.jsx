@@ -14,7 +14,9 @@
  *   fromMe      — true if the viewer sent this card (i.e. the buyer)
  *   onStatusChange(newStatus) — called when a button is pressed
  */
+import { useState } from 'react'
 import styles from './OrderCard.module.css'
+import SafeTradeModal from '@/components/commerce/SafeTradeModal'
 
 function fmtRp(n) {
   if (!n && n !== 0) return '—'
@@ -33,14 +35,35 @@ const TYPE_BADGE = {
   restaurant:  { emoji: '🍽️', label: 'Restaurant Order'  },
 }
 
-export default function OrderCard({ orderCard, fromMe, onStatusChange }) {
+// PayPal / Escrow fee percentages
+const SAFE_TRADE_FEES = {
+  paypal: { label: 'PayPal', incoming: 3.49, outgoing: 0, note: '+ Rp 5,000 fixed fee per transaction' },
+  escrow: { label: 'Escrow', incoming: 3.25, outgoing: 0, note: 'Fee varies by transaction size' },
+}
+
+export default function OrderCard({ orderCard, fromMe, onStatusChange, onSafeTradeSelect }) {
+  const [selectedSafeTrade, setSelectedSafeTrade] = useState(null) // 'paypal' | 'escrow' | null
+  const [showSafeTradeInfo, setShowSafeTradeInfo] = useState(false)
+
   if (!orderCard) return null
 
-  const { type, ref: orderRef, sellerName, items = [], subtotal, deliveryFee, total, notes, status = 'pending' } = orderCard
+  const { type, ref: orderRef, sellerName, items = [], subtotal, deliveryFee, total, notes, status = 'pending', salesNumber, safeTrade } = orderCard
   const st   = STATUS_CONFIG[status] ?? STATUS_CONFIG.pending
   const badge = TYPE_BADGE[type] ?? TYPE_BADGE.marketplace
   const isBuyer  = fromMe   // the person who placed the order
   const isSeller = !fromMe  // the person receiving the order
+
+  // Safe Trade availability from seller's product config
+  const safeTradeEnabled = safeTrade?.enabled ?? false
+  const hasPaypal = safeTrade?.paypal ?? false
+  const hasEscrow = safeTrade?.escrow ?? false
+  const safeTradeAvailable = safeTradeEnabled && (hasPaypal || hasEscrow)
+
+  const handleSafeTradeSelect = (method) => {
+    const next = selectedSafeTrade === method ? null : method
+    setSelectedSafeTrade(next)
+    onSafeTradeSelect?.(next)
+  }
 
   return (
     <div className={styles.card}>
@@ -52,6 +75,7 @@ export default function OrderCard({ orderCard, fromMe, onStatusChange }) {
           <div>
             <div className={styles.typeLabel}>{badge.label}</div>
             <div className={styles.ref}>{orderRef}</div>
+            {salesNumber && <div className={styles.salesNumber}>{salesNumber}</div>}
           </div>
         </div>
         <span
@@ -115,6 +139,77 @@ export default function OrderCard({ orderCard, fromMe, onStatusChange }) {
         <div className={styles.notes}>
           <span className={styles.notesLabel}>Note:</span> {notes}
         </div>
+      )}
+
+      {/* Safe Trade selection — shown to buyer when order is confirmed and seller offers it */}
+      {safeTradeAvailable && isBuyer && (status === 'pending' || status === 'confirmed') && (
+        <div className={styles.safeTradeSection}>
+          <div className={styles.safeTradeHeader}>
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+            </svg>
+            <span className={styles.safeTradeTitle}>Safe Trade Available</span>
+          </div>
+          <p className={styles.safeTradeDesc}>
+            This seller offers buyer protection. Select a payment method for secure checkout.
+          </p>
+
+          <div className={styles.safeTradeOptions}>
+            {hasPaypal && (
+              <button
+                className={`${styles.safeTradeOption} ${selectedSafeTrade === 'paypal' ? styles.safeTradeOptionActive : ''}`}
+                onClick={() => handleSafeTradeSelect('paypal')}
+              >
+                <div className={styles.safeTradeOptionTop}>
+                  <span className={styles.safeTradeOptionName}>PayPal</span>
+                  {selectedSafeTrade === 'paypal' && <span className={styles.safeTradeCheck}>✓</span>}
+                </div>
+                <div className={styles.safeTradeOptionFees}>
+                  <span className={styles.safeTradeOptionFee}>{SAFE_TRADE_FEES.paypal.incoming}% processing fee</span>
+                  <span className={styles.safeTradeOptionNote}>{SAFE_TRADE_FEES.paypal.note}</span>
+                </div>
+              </button>
+            )}
+            {hasEscrow && (
+              <button
+                className={`${styles.safeTradeOption} ${selectedSafeTrade === 'escrow' ? styles.safeTradeOptionActive : ''}`}
+                onClick={() => handleSafeTradeSelect('escrow')}
+              >
+                <div className={styles.safeTradeOptionTop}>
+                  <span className={styles.safeTradeOptionName}>Escrow</span>
+                  {selectedSafeTrade === 'escrow' && <span className={styles.safeTradeCheck}>✓</span>}
+                </div>
+                <div className={styles.safeTradeOptionFees}>
+                  <span className={styles.safeTradeOptionFee}>{SAFE_TRADE_FEES.escrow.incoming}% processing fee</span>
+                  <span className={styles.safeTradeOptionNote}>{SAFE_TRADE_FEES.escrow.note}</span>
+                </div>
+              </button>
+            )}
+          </div>
+
+          {selectedSafeTrade && (
+            <div className={styles.safeTradeTotal}>
+              <span>Processing fee</span>
+              <span className={styles.safeTradeFeeAmount}>
+                {fmtRp(Math.round((total ?? 0) * (SAFE_TRADE_FEES[selectedSafeTrade].incoming / 100)))}
+              </span>
+            </div>
+          )}
+
+          <button className={styles.safeTradeInfoLink} onClick={() => setShowSafeTradeInfo(true)}>
+            What is Safe Trade? Learn about buyer protection →
+          </button>
+        </div>
+      )}
+
+      {/* Safe Trade info modal */}
+      {showSafeTradeInfo && (
+        <SafeTradeModal
+          open={showSafeTradeInfo}
+          onClose={() => setShowSafeTradeInfo(false)}
+          product={{ safeTrade }}
+          sellerName={sellerName}
+        />
       )}
 
       {/* Action buttons — only show if not already complete/cancelled */}

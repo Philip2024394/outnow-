@@ -112,7 +112,10 @@ function ProductFormSheet({ product, userId, tier, onSaved, onClose }) {
   const [childCertified,   setChildCertified]   = useState(product?.child_certified ?? '')
   const [euCertification,  setEuCertification]  = useState(product?.eu_certification ?? '')
   const [yearManufactured, setYearManufactured] = useState(product?.year_manufactured ?? '')
-  const [returnPolicy,     setReturnPolicy]     = useState(product?.return_policy ?? '7-day return in original packaging with receipt')
+  const [returnPolicy,     setReturnPolicy]     = useState(product?.return_policy ?? '14-day return in original packaging with receipt')
+  const [dispatchTime,     setDispatchTime]     = useState(product?.dispatch_time ?? '')
+  const [brandName,        setBrandName]        = useState(product?.brand_name ?? '')
+  const [customBranding,   setCustomBranding]   = useState(product?.custom_branding ?? '')
   const [imageUrl,         setImageUrl]         = useState(product?.image_url ?? product?.image ?? '')
   const [images,           setImages]           = useState(product?.images ?? [])
   const [saving,           setSaving]           = useState(false)
@@ -186,6 +189,9 @@ function ProductFormSheet({ product, userId, tier, onSaved, onClose }) {
       euCertification: euCertification || null,
       yearManufactured: yearManufactured || null,
       returnPolicy: returnPolicy || null,
+      dispatchTime: dispatchTime || null,
+      brandName: brandName || null,
+      customBranding: customBranding || null,
     }
     try {
       if (isEdit) {
@@ -265,6 +271,10 @@ function ProductFormSheet({ product, userId, tier, onSaved, onClose }) {
             <label className={styles.fieldLabel}>Product Name *</label>
             <input className={styles.input} placeholder="e.g. Leather Crossbody Bag"
               value={name} onChange={e => setName(e.target.value)} maxLength={120} />
+
+            <label className={styles.fieldLabel}>Brand Name</label>
+            <input className={styles.input} placeholder="e.g. Nike, Gucci, or your brand"
+              value={brandName} onChange={e => setBrandName(e.target.value)} maxLength={80} />
 
             <label className={styles.fieldLabel}>Category *</label>
             <select className={styles.input} value={category} onChange={e => handleCategoryChange(e.target.value)}
@@ -410,6 +420,19 @@ function ProductFormSheet({ product, userId, tier, onSaved, onClose }) {
               <option value="Local & Export Market">Local & Export Market</option>
             </select>
 
+            <label className={styles.fieldLabel}>Estimated Dispatch Time</label>
+            <select className={styles.input} value={dispatchTime} onChange={e => setDispatchTime(e.target.value)} style={{ appearance:'auto' }}>
+              <option value="">— Select —</option>
+              <option value="Same day">Same day</option>
+              <option value="1 business day">1 business day</option>
+              <option value="1-2 business days">1-2 business days</option>
+              <option value="2-3 business days">2-3 business days</option>
+              <option value="3-5 business days">3-5 business days</option>
+              <option value="5-7 business days">5-7 business days</option>
+              <option value="1-2 weeks">1-2 weeks</option>
+              <option value="2-4 weeks (made to order)">2-4 weeks (made to order)</option>
+            </select>
+
             <label className={styles.fieldLabel}>Custom Order</label>
             <select className={styles.input} value={customOrder} onChange={e => setCustomOrder(e.target.value)} style={{ appearance:'auto' }}>
               <option value="">— Select —</option>
@@ -417,6 +440,16 @@ function ProductFormSheet({ product, userId, tier, onSaved, onClose }) {
               <option value="Yes — Made to Order">Yes — Made to Order</option>
               <option value="Yes — Custom Design Available">Yes — Custom Design Available</option>
               <option value="Yes — Bulk Orders Welcome">Yes — Bulk Orders Welcome</option>
+            </select>
+
+            <label className={styles.fieldLabel}>Custom Branding for Buyer</label>
+            <select className={styles.input} value={customBranding} onChange={e => setCustomBranding(e.target.value)} style={{ appearance:'auto' }}>
+              <option value="">— Select —</option>
+              <option value="Not available">Not available</option>
+              <option value="Yes — Own label/branding">Yes — Own label/branding</option>
+              <option value="Yes — White label available">Yes — White label available</option>
+              <option value="Yes — Custom packaging">Yes — Custom packaging</option>
+              <option value="Yes — Logo printing available">Yes — Logo printing available</option>
             </select>
           </>
         )}

@@ -32,6 +32,14 @@
   margin-top: 2px;
 }
 
+.salesNumber {
+  font-size: 12px;
+  font-weight: 800;
+  color: #F59E0B;
+  letter-spacing: 0.04em;
+  margin-top: 2px;
+}
+
 .screenshotWrap {
   padding: 0 12px 10px;
 }

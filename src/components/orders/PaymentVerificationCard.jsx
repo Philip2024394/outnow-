@@ -16,6 +16,7 @@ export default function PaymentVerificationCard({
   screenshotUrl,
   orderId,
   orderRef,
+  salesNumber,
   fromMe,          // true = seller viewing, false = buyer viewing
   status,          // 'pending_verification' | 'active' | 'canceled' | 're_upload'
   onVerify,        // (decision: 'active' | 'canceled') => void
@@ -43,6 +44,7 @@ export default function PaymentVerificationCard({
              'Payment Verification'}
           </div>
           <div className={styles.ref}>{orderRef}</div>
+          {salesNumber && <div className={styles.salesNumber}>{salesNumber}</div>}
         </div>
       </div>
 
@@ -117,7 +119,7 @@ export default function PaymentVerificationCard({
 
       {/* Return policy notice */}
       <div className={styles.returnPolicy}>
-        <strong>Return Policy:</strong> If you are not 100% satisfied with your purchase, you may return the item in its original packaging with your purchase receipt within 7 days. Include a written reason for the return. Your buying reputation will not be affected by legitimate returns.
+        <strong>Return Policy:</strong> You have 14 days from delivery to return an item in its original packaging. If the product matches the listing, the buyer pays return shipping. If the product does not match the listing details, the seller pays return shipping. Include a written reason for the return. Your buying reputation will not be affected by legitimate returns.
       </div>
     </div>
   )

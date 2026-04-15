@@ -1,0 +1,236 @@
+.backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.7);
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  z-index: 9000;
+  backdrop-filter: blur(4px);
+}
+
+.sheet {
+  width: 100%;
+  max-width: 480px;
+  background: #111;
+  border-radius: 22px 22px 0 0;
+  border: 1px solid rgba(255,255,255,0.08);
+  border-bottom: none;
+  display: flex;
+  flex-direction: column;
+  max-height: 90vh;
+  overflow: hidden;
+  animation: slideUp 0.25s cubic-bezier(0.32,0.72,0,1) forwards;
+}
+
+@keyframes slideUp {
+  from { transform: translateY(100%); opacity: 0.5; }
+  to   { transform: translateY(0);    opacity: 1; }
+}
+
+.handle {
+  width: 36px;
+  height: 4px;
+  background: rgba(255,255,255,0.15);
+  border-radius: 2px;
+  margin: 12px auto 0;
+  flex-shrink: 0;
+}
+
+.header {
+  padding: 16px 20px 12px;
+  border-bottom: 1px solid rgba(255,255,255,0.06);
+  flex-shrink: 0;
+}
+
+.title {
+  display: block;
+  font-size: 17px;
+  font-weight: 800;
+  color: #fff;
+}
+
+.sub {
+  display: block;
+  font-size: 12px;
+  color: rgba(255,255,255,0.35);
+  margin-top: 3px;
+}
+
+/* ── Price included toggle row ── */
+.inclRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 20px;
+  border-bottom: 1px solid rgba(255,255,255,0.06);
+  cursor: pointer;
+  flex-shrink: 0;
+}
+
+.inclInfo { display: flex; flex-direction: column; gap: 2px; }
+.inclLabel { font-size: 14px; font-weight: 700; color: rgba(255,255,255,0.85); }
+.inclSub { font-size: 11px; color: rgba(255,255,255,0.3); }
+
+.toggle {
+  width: 44px; height: 26px; border-radius: 13px;
+  background: rgba(255,255,255,0.1); border: 1.5px solid rgba(255,255,255,0.12);
+  position: relative; transition: background 0.2s, border-color 0.2s; flex-shrink: 0;
+}
+.toggleOn { background: #34D399; border-color: #34D399; }
+.toggleThumb {
+  width: 20px; height: 20px; border-radius: 50%; background: #fff;
+  position: absolute; top: 2px; left: 2px;
+  transition: transform 0.2s cubic-bezier(0.34,1.56,0.64,1);
+  box-shadow: 0 1px 4px rgba(0,0,0,0.3);
+}
+.toggleOn .toggleThumb { transform: translateX(18px); }
+
+/* ── Tabs ── */
+.tabs {
+  display: flex; gap: 0; padding: 0 12px;
+  border-bottom: 1px solid rgba(255,255,255,0.06); flex-shrink: 0;
+}
+.tab {
+  flex: 1; padding: 11px 6px; background: none; border: none;
+  border-bottom: 2px solid transparent; color: rgba(255,255,255,0.3);
+  font-size: 12px; font-weight: 700; cursor: pointer; font-family: inherit;
+  text-align: center; transition: color 0.15s;
+}
+.tabActive { color: #F59E0B; border-bottom-color: #F59E0B; }
+
+/* ── Body ── */
+.body {
+  flex: 1; overflow-y: auto; padding: 4px 0;
+}
+
+/* ── Carrier rows ── */
+.carrierRow {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 12px 20px; border-bottom: 1px solid rgba(255,255,255,0.04); gap: 10px;
+}
+.carrierOn { background: rgba(245,158,11,0.03); }
+
+.carrierToggle {
+  display: flex; align-items: center; gap: 10px; cursor: pointer; flex: 1; min-width: 0;
+}
+
+.check {
+  width: 22px; height: 22px; border-radius: 6px;
+  border: 1.5px solid rgba(255,255,255,0.15); background: rgba(255,255,255,0.03);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 12px; color: #000; flex-shrink: 0; transition: all 0.15s;
+}
+.checkOn { background: #F59E0B; border-color: #F59E0B; }
+
+.carrierName {
+  font-size: 13px; font-weight: 700; color: rgba(255,255,255,0.75);
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+
+.priceInput {
+  display: flex; align-items: center; background: rgba(255,255,255,0.05);
+  border: 1px solid rgba(255,255,255,0.1); border-radius: 8px;
+  padding: 0 8px; height: 34px; flex-shrink: 0;
+}
+
+.rpLabel { font-size: 11px; color: rgba(255,255,255,0.35); margin-right: 4px; }
+
+.priceField {
+  background: none; border: none; color: #fff; font-size: 13px;
+  font-weight: 700; font-family: monospace; width: 80px; outline: none;
+}
+.priceField::-webkit-inner-spin-button,
+.priceField::-webkit-outer-spin-button { -webkit-appearance: none; }
+
+/* ── Form sections (custom / export) ── */
+.formSection {
+  padding: 16px 20px; display: flex; flex-direction: column; gap: 10px;
+  border-bottom: 1px solid rgba(255,255,255,0.06);
+}
+
+.formTitle {
+  font-size: 13px; font-weight: 800; color: rgba(255,255,255,0.5);
+  text-transform: uppercase; letter-spacing: 0.04em;
+}
+
+.formRow { display: flex; gap: 8px; }
+
+.textInput {
+  background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 8px; padding: 9px 12px; color: #fff; font-size: 13px;
+  font-family: inherit; outline: none; width: 100%; box-sizing: border-box;
+}
+.textInput::placeholder { color: rgba(255,255,255,0.2); }
+.textInput:focus { border-color: rgba(245,158,11,0.4); }
+
+.selectInput {
+  background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 8px; padding: 9px 12px; color: #fff; font-size: 13px;
+  font-family: inherit; outline: none; cursor: pointer;
+}
+.selectInput option { background: #222; color: #fff; }
+
+.addBtn {
+  padding: 10px; background: rgba(245,158,11,0.12); border: 1px solid rgba(245,158,11,0.3);
+  border-radius: 8px; color: #F59E0B; font-size: 13px; font-weight: 700;
+  cursor: pointer; font-family: inherit; transition: background 0.15s;
+}
+.addBtn:hover { background: rgba(245,158,11,0.2); }
+.addBtn:disabled { opacity: 0.3; cursor: default; }
+
+/* ── Custom carrier list ── */
+.customList {
+  padding: 8px 0;
+}
+
+.customRow, .exportRow {
+  display: flex; align-items: center; gap: 10px;
+  padding: 10px 20px; border-bottom: 1px solid rgba(255,255,255,0.04);
+}
+
+.customLogo {
+  width: 28px; height: 28px; border-radius: 6px; object-fit: contain;
+  background: rgba(255,255,255,0.06); flex-shrink: 0;
+}
+
+.customDot {
+  width: 28px; height: 28px; border-radius: 6px;
+  background: rgba(129,140,248,0.15); border: 1px solid rgba(129,140,248,0.3);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 12px; font-weight: 900; color: #818CF8; flex-shrink: 0;
+}
+
+.customInfo { flex: 1; display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+.customName { font-size: 13px; font-weight: 700; color: rgba(255,255,255,0.75); }
+.customCat { font-size: 10px; color: rgba(255,255,255,0.3); text-transform: uppercase; }
+
+.customPrice { font-size: 13px; font-weight: 800; color: #F59E0B; flex-shrink: 0; }
+
+.exportInfo { flex: 1; display: flex; flex-direction: column; gap: 2px; }
+.exportCountry { font-size: 13px; font-weight: 700; color: rgba(255,255,255,0.75); }
+.exportMeta { font-size: 10px; color: rgba(255,255,255,0.3); }
+
+.removeBtn {
+  width: 24px; height: 24px; border-radius: 50%; background: rgba(239,68,68,0.1);
+  border: 1px solid rgba(239,68,68,0.2); color: #EF4444; font-size: 12px;
+  font-weight: 700; cursor: pointer; display: flex; align-items: center;
+  justify-content: center; flex-shrink: 0; transition: background 0.15s;
+}
+.removeBtn:hover { background: rgba(239,68,68,0.2); }
+
+/* ── Footer ── */
+.footer {
+  padding: 14px 20px max(14px, env(safe-area-inset-bottom));
+  border-top: 1px solid rgba(255,255,255,0.07); flex-shrink: 0;
+  display: flex; justify-content: flex-end;
+}
+
+.saveBtn {
+  padding: 12px 28px; background: #F59E0B; color: #000;
+  font-size: 14px; font-weight: 800; border: none; border-radius: 10px;
+  cursor: pointer; font-family: inherit; transition: background 0.15s;
+}
+.saveBtn:hover { background: #FBBF24; }
+.saveBtn:disabled { opacity: 0.5; cursor: default; }
+.saveBtnSaved { background: #34C759 !important; opacity: 1 !important; }

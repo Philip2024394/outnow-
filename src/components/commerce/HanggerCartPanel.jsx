@@ -43,6 +43,7 @@ function buildWhatsAppMessage(sellerName, cart, address, notes) {
 export default function HanggerCartPanel({
   cart, onUpdateQty, onClearCart,
   sellerName, sellerWa,
+  cartSheetOpen,
 }) {
   const [expanded,  setExpanded]  = useState(false)
   const [notes,     setNotes]     = useState('')
@@ -56,15 +57,22 @@ export default function HanggerCartPanel({
   const total    = subtotal + DELIVERY_FEE
 
   // Auto-expand when item added, collapse after 2.5s
+  // Don't auto-expand if the full cart sheet is already open
   const prevQtyRef = useRef(totalQty)
   useEffect(() => {
+    if (cartSheetOpen) { prevQtyRef.current = totalQty; return }
     if (totalQty > prevQtyRef.current) {
       setExpanded(true)
       clearTimeout(collapseRef.current)
       collapseRef.current = setTimeout(() => setExpanded(false), 2500)
     }
     prevQtyRef.current = totalQty
-  }, [totalQty])
+  }, [totalQty, cartSheetOpen])
+
+  // Collapse panel when cart sheet opens
+  useEffect(() => {
+    if (cartSheetOpen) setExpanded(false)
+  }, [cartSheetOpen])
 
   useEffect(() => () => clearTimeout(collapseRef.current), [])
 

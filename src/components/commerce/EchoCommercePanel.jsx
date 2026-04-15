@@ -4,6 +4,7 @@ import {
   updateOrderStatus, toggleProductActive, DEMO_STATS,
 } from '@/services/commerceService'
 import ProductCatalogSlider from './ProductCatalogSlider'
+import DeliveryPricingEditor from './DeliveryPricingEditor'
 import styles from './EchoCommercePanel.module.css'
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -36,6 +37,8 @@ export default function EchoCommercePanel({ userId, businessName, open: external
   const [products, setProducts]       = useState([])
   const [section, setSection]         = useState('orders') // orders | products | shipping
   const [catalogOpen, setCatalogOpen] = useState(false)
+  const [deliveryPricingOpen, setDeliveryPricingOpen] = useState(false)
+  const [deliveryPricingProduct, setDeliveryPricingProduct] = useState(null)
   const [loading, setLoading]         = useState(false)
 
   const load = useCallback(async () => {
@@ -109,13 +112,13 @@ export default function EchoCommercePanel({ userId, businessName, open: external
 
           {/* Section tabs */}
           <div className={styles.sectionTabs}>
-            {['orders', 'products', 'shipping'].map(s => (
+            {['orders', 'products', 'shipping', 'payment'].map(s => (
               <button
                 key={s}
                 className={[styles.sectionTab, section === s ? styles.sectionTabActive : ''].join(' ')}
                 onClick={() => setSection(s)}
               >
-                {s === 'orders' ? '🧾 Orders' : s === 'products' ? '📦 Products' : '🚚 Shipping'}
+                {s === 'orders' ? '🧾 Orders' : s === 'products' ? '📦 Products' : s === 'shipping' ? '🚚 Ship' : '🛡 Pay'}
               </button>
             ))}
           </div>
@@ -211,6 +214,106 @@ export default function EchoCommercePanel({ userId, businessName, open: external
                 </label>
               ))}
               <button className={styles.saveShippingBtn}>Save Shipping Settings</button>
+
+              {/* Per-product delivery pricing */}
+              <div className={styles.shippingTitle} style={{ marginTop: 16 }}>Product Delivery Pricing</div>
+              <div className={styles.shippingSub2}>Set delivery prices per product, per carrier</div>
+              {products.map(p => (
+                <button
+                  key={p.id}
+                  className={styles.deliveryPricingBtn}
+                  onClick={() => { setDeliveryPricingProduct(p); setDeliveryPricingOpen(true) }}
+                >
+                  <span className={styles.deliveryPricingName}>{p.name}</span>
+                  <span className={styles.deliveryPricingArrow}>→</span>
+                </button>
+              ))}
+              {products.length === 0 && (
+                <div className={styles.empty} style={{ fontSize: 11 }}>Add products first to set delivery pricing</div>
+              )}
+            </div>
+          )}
+
+          {/* ── Payment section (COD + Safe Trade) ── */}
+          {!loading && section === 'payment' && (
+            <div className={styles.shippingSection}>
+              <div className={styles.shippingTitle}>Cash on Delivery</div>
+              <div className={styles.shippingSub2}>Enable COD per product</div>
+              {products.map(p => (
+                <label key={p.id} className={styles.shippingOpt}>
+                  <input
+                    type="checkbox"
+                    checked={p.cashOnDelivery ?? false}
+                    onChange={() => setProducts(prev => prev.map(pr =>
+                      pr.id === p.id ? { ...pr, cashOnDelivery: !pr.cashOnDelivery } : pr
+                    ))}
+                    className={styles.shippingCheck}
+                  />
+                  <div className={styles.shippingText}>
+                    <span className={styles.shippingLabel}>{p.name}</span>
+                    <span className={styles.shippingSub}>{p.cashOnDelivery ? 'COD enabled' : 'COD disabled'}</span>
+                  </div>
+                </label>
+              ))}
+              {products.length === 0 && (
+                <div className={styles.empty} style={{ fontSize: 11 }}>Add products first</div>
+              )}
+
+              <div className={styles.shippingTitle} style={{ marginTop: 16 }}>Safe Trade</div>
+              <div className={styles.shippingSub2}>Buyer protection via PayPal or Escrow</div>
+
+              {products.map(p => {
+                const st = p.safeTrade ?? {}
+                return (
+                  <div key={p.id} className={styles.safeTradeProduct}>
+                    <span className={styles.safeTradeProductName}>{p.name}</span>
+                    <div className={styles.safeTradeToggles}>
+                      <label className={styles.safeTradeToggle}>
+                        <input
+                          type="checkbox"
+                          checked={st.enabled ?? false}
+                          onChange={() => setProducts(prev => prev.map(pr =>
+                            pr.id === p.id ? { ...pr, safeTrade: { ...pr.safeTrade, enabled: !(pr.safeTrade?.enabled) } } : pr
+                          ))}
+                          className={styles.shippingCheck}
+                        />
+                        <span className={styles.safeTradeLabel}>Enabled</span>
+                      </label>
+                      {st.enabled && (
+                        <>
+                          <label className={styles.safeTradeToggle}>
+                            <input
+                              type="checkbox"
+                              checked={st.paypal ?? false}
+                              onChange={() => setProducts(prev => prev.map(pr =>
+                                pr.id === p.id ? { ...pr, safeTrade: { ...pr.safeTrade, paypal: !(pr.safeTrade?.paypal) } } : pr
+                              ))}
+                              className={styles.shippingCheck}
+                            />
+                            <span className={styles.safeTradeLabel}>PayPal</span>
+                          </label>
+                          <label className={styles.safeTradeToggle}>
+                            <input
+                              type="checkbox"
+                              checked={st.escrow ?? false}
+                              onChange={() => setProducts(prev => prev.map(pr =>
+                                pr.id === p.id ? { ...pr, safeTrade: { ...pr.safeTrade, escrow: !(pr.safeTrade?.escrow) } } : pr
+                              ))}
+                              className={styles.shippingCheck}
+                            />
+                            <span className={styles.safeTradeLabel}>Escrow</span>
+                          </label>
+                        </>
+                      )}
+                    </div>
+                  </div>
+                )
+              })}
+              {products.length === 0 && (
+                <div className={styles.empty} style={{ fontSize: 11 }}>Add products first</div>
+              )}
+
+              <button className={styles.saveShippingBtn}>Save Payment Settings</button>
             </div>
           )}
         </div>
@@ -223,6 +326,24 @@ export default function EchoCommercePanel({ userId, businessName, open: external
         userId={userId}
         products={products}
         onProductsChange={setProducts}
+      />
+
+      {/* Delivery pricing editor per product */}
+      <DeliveryPricingEditor
+        open={deliveryPricingOpen}
+        onClose={() => { setDeliveryPricingOpen(false); setDeliveryPricingProduct(null) }}
+        product={deliveryPricingProduct}
+        onSave={(config) => {
+          if (deliveryPricingProduct) {
+            setProducts(prev => prev.map(p =>
+              p.id === deliveryPricingProduct.id
+                ? { ...p, deliveryPricing: config }
+                : p
+            ))
+          }
+          setDeliveryPricingOpen(false)
+          setDeliveryPricingProduct(null)
+        }}
       />
     </>
   )

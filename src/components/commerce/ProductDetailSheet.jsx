@@ -1,5 +1,9 @@
 import { useState, useMemo, lazy, Suspense } from 'react'
 import styles from './ProductDetailSheet.module.css'
+import SafeTradeModal from './SafeTradeModal'
+import FreightCompaniesSheet from './FreightCompaniesSheet'
+import ReturnDetailsSheet from './ReturnDetailsSheet'
+import MakeOfferSheet from './MakeOfferSheet'
 
 const ImageGalleryViewer = lazy(() => import('./ImageGalleryViewer'))
 const SimilarProducts = lazy(() => import('./SimilarProducts'))
@@ -33,12 +37,16 @@ function getColorCSS(label) {
   return COLOR_MAP[label.toLowerCase()] ?? null
 }
 
-export default function ProductDetailSheet({ product, onClose, sellerWa, sellerName, sellerId, onAddToCart, onRemoveFromCart, getCartQty, totalCartQty, onOpenCart, onOrderViaChat }) {
+export default function ProductDetailSheet({ product, onClose, sellerWa, sellerName, sellerId, onAddToCart, onRemoveFromCart, getCartQty, totalCartQty, onOpenCart, onOrderViaChat, onMakeOffer }) {
   const [selected,    setSelected]    = useState({})
   const [showOverlay, setShowOverlay] = useState(true)
   const [showSpecs,   setShowSpecs]   = useState(false)
   const [galleryOpen, setGalleryOpen] = useState(false)
   const [galleryStart, setGalleryStart] = useState(0)
+  const [freightOpen, setFreightOpen] = useState(false)
+  const [returnOpen, setReturnOpen] = useState(false)
+  const [safeTradeOpen, setSafeTradeOpen] = useState(false)
+  const [offerOpen, setOfferOpen] = useState(false)
 
   const activeImage = useMemo(() => {
     if (!product) return null
@@ -70,17 +78,13 @@ export default function ProductDetailSheet({ product, onClose, sellerWa, sellerN
   const waLink = null
 
   function handleSpecsBtn() {
-    if (!showOverlay) {
-      setShowOverlay(true)
-      setShowSpecs(true)
-    } else {
-      setShowSpecs(v => !v)
-    }
+    setShowSpecs(v => !v)
   }
 
   const hasSpecs = product.specs && Object.keys(product.specs).length > 0
 
   return (
+    <>
     <div className={styles.page}>
 
       {/* Background image — tap to open gallery */}
@@ -180,76 +184,87 @@ export default function ProductDetailSheet({ product, onClose, sellerWa, sellerN
             <line x1="3" y1="18" x2="3.01" y2="18"/>
           </svg>
         </button>
+
+        {/* Freight / delivery companies */}
+        <button
+          className={[styles.sidePanelBtn, freightOpen ? styles.sidePanelBtnActive : ''].join(' ')}
+          onClick={() => setFreightOpen(true)}
+          aria-label="Delivery options"
+          title="Delivery options"
+        >
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+            <rect x="1" y="3" width="15" height="13" rx="2" ry="2"/><polygon points="16 8 20 8 23 11 23 16 16 16 16 8"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/>
+          </svg>
+        </button>
+
+        {/* Return policy */}
+        <button
+          className={[styles.sidePanelBtn, returnOpen ? styles.sidePanelBtnActive : ''].join(' ')}
+          onClick={() => setReturnOpen(true)}
+          aria-label="Return policy"
+          title="Return policy"
+        >
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+            <polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"/>
+          </svg>
+        </button>
+
+        {/* Safe Trade */}
+        <button
+          className={[styles.sidePanelBtn, safeTradeOpen ? styles.sidePanelBtnActive : ''].join(' ')}
+          onClick={() => setSafeTradeOpen(true)}
+          aria-label="Safe Trade"
+          title="Safe Trade"
+        >
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+          </svg>
+        </button>
+
+        {/* Make an Offer — only if seller allows offers */}
+        {(product.allowOffers !== false) && (
+          <button
+            className={[styles.sidePanelBtn, offerOpen ? styles.sidePanelBtnActive : ''].join(' ')}
+            onClick={() => setOfferOpen(true)}
+            aria-label="Make an offer"
+            title="Make an offer"
+          >
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+              <line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/>
+            </svg>
+          </button>
+        )}
       </div>
+
+      {/* Specs slider — slides from left, 70% width, dims rest of screen */}
+      {showSpecs && hasSpecs && (
+        <>
+          <div className={styles.specsBackdrop} onClick={() => setShowSpecs(false)} />
+          <div className={styles.specsPanel}>
+            <div className={styles.specsPanelHeader}>
+              <span className={styles.specsPanelTitle}>Specifications</span>
+              <button className={styles.specsPanelClose} onClick={() => setShowSpecs(false)}>
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                  <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+                </svg>
+              </button>
+            </div>
+            <div className={styles.specsList}>
+              {Object.entries(product.specs).map(([k, v]) => (
+                <div key={k} className={styles.specsItem}>
+                  <span className={styles.specsItemKey}>{k}</span>
+                  <span className={styles.specsItemVal}>{v}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+        </>
+      )}
 
       {/* Bottom overlay */}
       <div className={[styles.overlay, showOverlay ? '' : styles.overlayHidden].join(' ')}>
 
-        {showSpecs ? (
-          /* ── Specs view ── */
-          <>
-            <div className={styles.specsHeader}>
-              <span className={styles.specsTitle}>Specifications</span>
-              <button className={styles.specsBackBtn} onClick={() => setShowSpecs(false)}>
-                ← Details
-              </button>
-            </div>
-
-            {hasSpecs ? (
-              <div className={styles.specsList}>
-                {Object.entries(product.specs).map(([k, v]) => (
-                  <div key={k} className={styles.specRow}>
-                    <span className={styles.specKey}>{k}</span>
-                    <span className={styles.specVal}>{v}</span>
-                  </div>
-                ))}
-              </div>
-            ) : (
-              <p className={styles.noSpecs}>No specifications listed for this product.</p>
-            )}
-
-            {/* Thumbnail strip + Cart button row */}
-            <div style={{ display:'flex', alignItems:'center', gap:8, marginTop:4 }}>
-              <div style={{ flex:1, minWidth:0, display:'flex', gap:6, overflowX:'auto', WebkitOverflowScrolling:'touch', scrollbarWidth:'none', paddingBottom:2 }}>
-                {(product.images?.length > 1 ? product.images : [activeImage].filter(Boolean)).map((url, i) => (
-                  <button key={i} onClick={() => { setGalleryStart(i); setGalleryOpen(true) }}
-                    style={{ width:56, height:56, borderRadius:10, overflow:'hidden', padding:0, border:'2px solid rgba(255,255,255,0.15)', cursor:'pointer', background:'#000', flexShrink:0, boxShadow:'0 2px 6px rgba(0,0,0,0.4)' }}>
-                    <img src={url} alt="" style={{ width:'100%', height:'100%', objectFit:'cover', display:'block' }} />
-                  </button>
-                ))}
-              </div>
-              <div style={{ flexShrink:0, display:'flex', gap:6 }}>
-                {onAddToCart && (
-                  cartQty > 0 ? (
-                    <div className={styles.qtyCompact}>
-                      <button className={styles.qtyCompactBtn} onClick={() => onRemoveFromCart(product.id, variantStr)}>−</button>
-                      <span className={styles.qtyCompactNum}>{cartQty}</span>
-                      <button className={styles.qtyCompactBtn} onClick={handleAddToCart}>+</button>
-                    </div>
-                  ) : (
-                    <button onClick={handleAddToCart} disabled={(product.stock ?? 0) === 0}
-                      style={{ height:42, padding:'0 14px', borderRadius:10, background:'rgba(245,158,11,0.15)', border:'1px solid rgba(245,158,11,0.35)', color:'#F59E0B', fontSize:12, fontWeight:800, cursor:'pointer', fontFamily:'inherit', whiteSpace:'nowrap', opacity:(product.stock ?? 0) === 0 ? 0.3 : 1 }}>
-                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.3" strokeLinecap="round" strokeLinejoin="round" style={{ marginRight:4, verticalAlign:'middle' }}>
-                        <circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/>
-                      </svg>
-                      Add
-                    </button>
-                  )
-                )}
-              </div>
-            </div>
-            {/* Order via Chat — full width below */}
-            {onOrderViaChat && (
-              <div style={{ marginTop:8 }}>
-                <button className={styles.orderBtn} onClick={() => onOrderViaChat({ product, variantStr, qty: Math.max(cartQty, 1), sellerName, sellerId })}>
-                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
-                  Order via Chat
-                </button>
-              </div>
-            )}
-          </>
-        ) : (
-          /* ── Details view ── */
+        {/* ── Details view ── */}
           <>
             {/* NEW badge + category */}
             <div className={styles.badgeRow}>
@@ -326,12 +341,43 @@ export default function ProductDetailSheet({ product, onClose, sellerWa, sellerN
               )
             })}
 
-            {/* Stock */}
+            {/* Brand name */}
+            {product.brand_name && (
+              <div className={styles.brandRow}>
+                <span className={styles.brandLabel}>Brand</span>
+                <span className={styles.brandName}>{product.brand_name}</span>
+              </div>
+            )}
+
+            {/* Stock + payment badges */}
             <div className={styles.stockRow}>
               <span className={styles.stockDot} style={{ background: (product.stock ?? 0) > 0 ? '#34D399' : '#EF4444' }} />
               <span className={styles.stockText}>
                 {(product.stock ?? 0) > 0 ? `${product.stock} in stock` : 'Out of stock'}
               </span>
+              {product.cashOnDelivery && (
+                <span className={styles.codBadge}>COD</span>
+              )}
+              {product.safeTrade?.enabled && (
+                <span className={styles.safeTradeBadge} onClick={() => setSafeTradeOpen(true)}>Safe Trade</span>
+              )}
+            </div>
+
+            {/* Dispatch time + custom branding badges */}
+            <div className={styles.infoBadges}>
+              {product.dispatch_time && (
+                <span className={styles.dispatchBadge}>
+                  <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{ verticalAlign: '-1px' }}>
+                    <circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>
+                  </svg>
+                  {' '}Dispatch: {product.dispatch_time}
+                </span>
+              )}
+              {product.custom_branding && product.custom_branding !== 'Not available' && (
+                <span className={styles.brandingBadge}>
+                  {product.custom_branding}
+                </span>
+              )}
             </div>
 
             {/* Thumbnail strip + Cart button row */}
@@ -385,8 +431,47 @@ export default function ProductDetailSheet({ product, onClose, sellerWa, sellerN
               />
             </Suspense>
           </>
-        )}
       </div>
+
     </div>
+
+    {/* Portaled modals — rendered outside the overflow:hidden page div */}
+    {freightOpen && (
+      <FreightCompaniesSheet
+        open={freightOpen}
+        onClose={() => setFreightOpen(false)}
+        product={product}
+      />
+    )}
+
+    {returnOpen && (
+      <ReturnDetailsSheet
+        open={returnOpen}
+        onClose={() => setReturnOpen(false)}
+        product={product}
+      />
+    )}
+
+    {safeTradeOpen && (
+      <SafeTradeModal
+        open={safeTradeOpen}
+        onClose={() => setSafeTradeOpen(false)}
+        product={product}
+        sellerName={sellerName}
+      />
+    )}
+
+    {offerOpen && (
+      <MakeOfferSheet
+        open={offerOpen}
+        onClose={() => setOfferOpen(false)}
+        product={product}
+        onSubmitOffer={(offer) => {
+          onMakeOffer?.({ ...offer, sellerName, sellerId })
+          setOfferOpen(false)
+        }}
+      />
+    )}
+    </>
   )
 }

@@ -82,6 +82,24 @@
 }
 
 /* ── Cart badge button ───────────────────────────────────────────────────── */
+.trustBtn {
+  width: 36px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(255,255,255,0.06);
+  border: 1.5px solid rgba(255,255,255,0.12);
+  border-radius: 50%;
+  color: rgba(255,255,255,0.5);
+  cursor: pointer;
+  font-family: inherit;
+  transition: background 0.15s, color 0.15s;
+  flex-shrink: 0;
+}
+
+.trustBtn:hover { background: rgba(255,255,255,0.1); color: #F59E0B; }
+
 .cartBtn {
   position: relative;
   width: 36px;
@@ -479,6 +497,42 @@
 .cardMeta  { display: flex; align-items: center; gap: 6px; }
 .cardPrice { font-size: 13px; font-weight: 900; color: #F59E0B; }
 .cardStock { display: none; }
+
+.cardBrand {
+  font-size: 9px;
+  font-weight: 700;
+  color: rgba(255,255,255,0.4);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.cardTags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  margin-top: 2px;
+}
+
+.cardDispatch {
+  font-size: 8px;
+  font-weight: 700;
+  color: rgba(255,255,255,0.5);
+  background: rgba(255,255,255,0.08);
+  border-radius: 6px;
+  padding: 2px 5px;
+}
+
+.cardFreeDelivery {
+  font-size: 8px;
+  font-weight: 800;
+  color: #34D399;
+  background: rgba(52,211,153,0.1);
+  border-radius: 6px;
+  padding: 2px 5px;
+}
 
 .cardCondition {
   font-size: 9px;

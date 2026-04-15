@@ -1,0 +1,429 @@
+.backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.7);
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  z-index: 9000;
+  backdrop-filter: blur(4px);
+}
+
+.sheet {
+  width: 100%;
+  max-width: 480px;
+  border-radius: 22px 22px 0 0;
+  border: 1px solid rgba(255,255,255,0.08);
+  border-top: 2px solid #F59E0B;
+  border-bottom: none;
+  display: flex;
+  flex-direction: column;
+  max-height: 85vh;
+  overflow: hidden;
+  animation: slideUp 0.25s cubic-bezier(0.32,0.72,0,1) forwards;
+  position: relative;
+  box-shadow: 0 -4px 24px rgba(245,158,11,0.25), 0 -1px 8px rgba(245,158,11,0.4);
+}
+
+/* Background image */
+.sheet::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: url('https://ik.imagekit.io/nepgaxllc/Untitledsdfsssasdassdasda.png') center/cover no-repeat;
+  z-index: 0;
+}
+
+/* Dark overlay on top of background */
+.sheet::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: rgba(0,0,0,0.75);
+  z-index: 1;
+}
+
+@keyframes slideUp {
+  from { transform: translateY(100%); opacity: 0.5; }
+  to   { transform: translateY(0);    opacity: 1; }
+}
+
+.handle {
+  width: 36px;
+  height: 4px;
+  background: rgba(255,255,255,0.2);
+  border-radius: 2px;
+  margin: 12px auto 0;
+  flex-shrink: 0;
+  position: relative;
+  z-index: 2;
+}
+
+.sheetHeader {
+  padding: 16px 20px 12px;
+  border-bottom: 1px solid rgba(255,255,255,0.08);
+  flex-shrink: 0;
+  position: relative;
+  z-index: 2;
+}
+
+.sheetTitle {
+  display: block;
+  font-size: 17px;
+  font-weight: 800;
+  color: #fff;
+  letter-spacing: -0.02em;
+  text-shadow: 0 1px 8px rgba(0,0,0,0.5);
+}
+
+.sheetSub {
+  display: block;
+  font-size: 12px;
+  color: rgba(255,255,255,0.45);
+  margin-top: 3px;
+}
+
+/* ── Tabs — glass style ── */
+.tabs {
+  display: flex;
+  gap: 6px;
+  padding: 10px 16px;
+  border-bottom: 1px solid rgba(255,255,255,0.06);
+  flex-shrink: 0;
+  position: relative;
+  z-index: 2;
+}
+
+.tab {
+  flex: 1;
+  padding: 10px 8px;
+  background: rgba(255,255,255,0.06);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 12px;
+  color: rgba(255,255,255,0.45);
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+  font-family: inherit;
+  transition: all 0.15s;
+  text-align: center;
+}
+
+.tab:hover { background: rgba(255,255,255,0.1); }
+
+.tabActive {
+  background: rgba(245,158,11,0.15);
+  border-color: rgba(245,158,11,0.4);
+  color: #F59E0B;
+  box-shadow: 0 0 12px rgba(245,158,11,0.15);
+}
+
+/* ── Carrier list ── */
+.list {
+  flex: 1;
+  overflow-y: auto;
+  display: flex;
+  flex-wrap: wrap;
+  padding: 10px 16px;
+  gap: 8px;
+  position: relative;
+  z-index: 2;
+  align-content: flex-start;
+}
+
+.list::-webkit-scrollbar { width: 3px; }
+.list::-webkit-scrollbar-track { background: transparent; }
+.list::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 2px; }
+
+/* ── Carrier row — glass card, logo on top ── */
+.carrierRow {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  width: calc(50% - 4px);
+  background: rgba(255,255,255,0.06);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 14px;
+  overflow: hidden;
+  transition: background 0.15s, border-color 0.15s;
+  box-sizing: border-box;
+}
+
+.carrierRow:hover {
+  background: rgba(255,255,255,0.09);
+  border-color: rgba(255,255,255,0.15);
+}
+
+.carrierLeft {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0;
+  width: 100%;
+}
+
+.carrierLogo {
+  width: 100%;
+  height: 56px;
+  object-fit: contain;
+  padding: 10px 20px;
+  box-sizing: border-box;
+  flex-shrink: 0;
+}
+
+.carrierIcon {
+  width: 100%;
+  height: 56px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.carrierIcon span {
+  font-size: 22px;
+  font-weight: 900;
+  color: #F59E0B;
+}
+
+.carrierInfo {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  width: 100%;
+  padding: 8px 12px 10px;
+  border-top: 1px solid rgba(255,255,255,0.06);
+  box-sizing: border-box;
+}
+
+.carrierName {
+  font-size: 13px;
+  font-weight: 700;
+  color: rgba(255,255,255,0.9);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  text-shadow: 0 1px 4px rgba(0,0,0,0.3);
+}
+
+.carrierBadge {
+  font-size: 9px;
+  font-weight: 700;
+  color: rgba(141,198,63,0.9);
+  background: rgba(141,198,63,0.1);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  border: 1px solid rgba(141,198,63,0.2);
+  border-radius: 10px;
+  padding: 2px 7px;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  width: fit-content;
+}
+
+.carrierBadgeCargo {
+  font-size: 9px;
+  font-weight: 700;
+  color: #FF9500;
+  background: rgba(255,149,0,0.1);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  border: 1px solid rgba(255,149,0,0.2);
+  border-radius: 10px;
+  padding: 2px 7px;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  width: fit-content;
+}
+
+.carrierBadgeExport {
+  font-size: 9px;
+  font-weight: 700;
+  color: #60A5FA;
+  background: rgba(96,165,250,0.1);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  border: 1px solid rgba(96,165,250,0.2);
+  border-radius: 10px;
+  padding: 2px 7px;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  width: fit-content;
+}
+
+.carrierBadgeCustom {
+  font-size: 9px;
+  font-weight: 700;
+  color: #818CF8;
+  background: rgba(129,140,248,0.1);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  border: 1px solid rgba(129,140,248,0.2);
+  border-radius: 10px;
+  padding: 2px 7px;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  width: fit-content;
+}
+
+.carrierMeta {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.carrierDays {
+  font-size: 10px;
+  font-weight: 600;
+  color: rgba(255,255,255,0.45);
+}
+
+.carrierExpress {
+  font-size: 9px;
+  font-weight: 700;
+  color: #34D399;
+  background: rgba(52,211,153,0.08);
+  border: 1px solid rgba(52,211,153,0.2);
+  border-radius: 6px;
+  padding: 1px 6px;
+  width: fit-content;
+}
+
+.carrierPrice {
+  margin-top: 2px;
+}
+
+.priceValue {
+  font-size: 13px;
+  font-weight: 800;
+  color: #F59E0B;
+  text-shadow: 0 1px 6px rgba(245,158,11,0.3);
+}
+
+.priceIncluded {
+  font-size: 11px;
+  font-weight: 700;
+  color: #34D399;
+  background: rgba(52,211,153,0.1);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  border: 1px solid rgba(52,211,153,0.2);
+  border-radius: 10px;
+  padding: 3px 10px;
+}
+
+/* ── Export rows — glass card (full width) ── */
+.exportRow {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 16px;
+  gap: 12px;
+  background: rgba(255,255,255,0.06);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 14px;
+}
+
+.exportCountry {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.exportFlag {
+  font-size: 22px;
+}
+
+.exportName {
+  font-size: 14px;
+  font-weight: 700;
+  color: rgba(255,255,255,0.9);
+  text-shadow: 0 1px 4px rgba(0,0,0,0.3);
+}
+
+.exportDetails {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 2px;
+}
+
+.exportSize {
+  font-size: 10px;
+  color: rgba(255,255,255,0.35);
+}
+
+.exportPrice {
+  font-size: 14px;
+  font-weight: 800;
+  color: #F59E0B;
+  text-shadow: 0 1px 6px rgba(245,158,11,0.3);
+}
+
+/* ── Section divider ── */
+.sectionDivider {
+  font-size: 10px;
+  font-weight: 700;
+  color: rgba(255,255,255,0.35);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  padding: 8px 4px 4px;
+  width: 100%;
+}
+
+/* ── Empty state ── */
+.empty {
+  padding: 32px 20px;
+  text-align: center;
+  font-size: 13px;
+  color: rgba(255,255,255,0.3);
+  width: 100%;
+}
+
+/* ── Footer — glass ── */
+.footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 20px max(14px, env(safe-area-inset-bottom));
+  border-top: 1px solid rgba(255,255,255,0.08);
+  flex-shrink: 0;
+  position: relative;
+  z-index: 2;
+  background: rgba(0,0,0,0.3);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+}
+
+.footerNote {
+  font-size: 10px;
+  color: rgba(255,255,255,0.3);
+  flex: 1;
+  padding-right: 12px;
+}
+
+.closeBtn {
+  padding: 10px 22px;
+  background: rgba(255,255,255,0.08);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  color: rgba(255,255,255,0.75);
+  font-size: 13px;
+  font-weight: 700;
+  border: 1px solid rgba(255,255,255,0.12);
+  border-radius: 12px;
+  cursor: pointer;
+  font-family: inherit;
+  transition: background 0.15s;
+  flex-shrink: 0;
+}
+
+.closeBtn:hover { background: rgba(255,255,255,0.14); }

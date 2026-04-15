@@ -207,7 +207,7 @@
   border-top: 1px solid rgba(255, 255, 255, 0.06);
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 8px;
 }
 
 .sectionLabel {
@@ -218,42 +218,261 @@
   letter-spacing: 0.07em;
 }
 
-/* ── Delivery grid ───────────────────────────────────────────────────────── */
-.deliveryGrid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 8px;
-}
+/* ── Delivery options — stacked list ─────────────────────────────────────── */
+.recommendedDelivery { display: flex; flex-direction: column; }
 
 .deliveryBtn {
   display: flex;
   flex-direction: column;
-  align-items: flex-start;
-  gap: 2px;
-  padding: 10px 12px;
-  background: rgba(255, 255, 255, 0.04);
-  border: 1.5px solid rgba(255, 255, 255, 0.1);
-  border-radius: 12px;
+  gap: 6px;
+  padding: 12px 14px;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1.5px solid rgba(255, 255, 255, 0.08);
+  border-radius: 14px;
   cursor: pointer;
   font-family: inherit;
   text-align: left;
   transition: border-color 0.15s, background 0.15s;
+  width: 100%;
 }
 
 .deliveryBtn:hover {
-  border-color: rgba(245, 158, 11, 0.35);
-  background: rgba(245, 158, 11, 0.05);
+  border-color: rgba(245, 158, 11, 0.3);
+  background: rgba(245, 158, 11, 0.04);
 }
 
 .deliveryBtnActive {
   border-color: #F59E0B;
-  background: rgba(245, 158, 11, 0.1);
+  background: rgba(245, 158, 11, 0.08);
 }
 
-.dIcon  { font-size: 18px; }
-.dLabel { font-size: 12px; font-weight: 800; color: #fff; }
-.dNote  { font-size: 10px; color: rgba(255, 255, 255, 0.35); line-height: 1.3; }
-.dFee   { font-size: 11px; font-weight: 700; color: #F59E0B; margin-top: 2px; }
+.dTop {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+}
+
+.dIcon { font-size: 20px; flex-shrink: 0; }
+
+.dInfo {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+}
+
+.dLabel {
+  font-size: 13px;
+  font-weight: 800;
+  color: rgba(255, 255, 255, 0.85);
+}
+
+.dNote {
+  font-size: 10px;
+  color: rgba(255, 255, 255, 0.3);
+}
+
+.dFee {
+  font-size: 13px;
+  font-weight: 800;
+  color: #F59E0B;
+  flex-shrink: 0;
+}
+
+.dFree {
+  color: #34D399;
+  font-weight: 900;
+  font-size: 12px;
+  background: rgba(52, 211, 153, 0.1);
+  border: 1px solid rgba(52, 211, 153, 0.25);
+  border-radius: 8px;
+  padding: 2px 8px;
+}
+
+.dCheapest {
+  font-size: 9px;
+  font-weight: 700;
+  color: #34D399;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+/* ── Bike delivery button — distinct styling ─────────────────────────────── */
+.bikeBtn {
+  border-color: rgba(255, 149, 0, 0.2);
+  background: rgba(255, 149, 0, 0.04);
+}
+
+.bikeBtn:hover {
+  border-color: rgba(255, 149, 0, 0.4);
+  background: rgba(255, 149, 0, 0.08);
+}
+
+.bikeBtn.deliveryBtnActive {
+  border-color: #FF9500;
+  background: rgba(255, 149, 0, 0.1);
+}
+
+.bikeIcon {
+  width: 36px;
+  height: 36px;
+  object-fit: contain;
+  flex-shrink: 0;
+}
+
+.bikeNotice {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 9px;
+  font-weight: 700;
+  color: #FF9500;
+  letter-spacing: 0.02em;
+}
+
+.bikeNoticeDot {
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: #FF9500;
+  flex-shrink: 0;
+}
+
+/* ── Pick Up card with background image ─────────────────────────────────── */
+.pickupBtn {
+  position: relative;
+  width: 100%;
+  padding: 0;
+  border: 1.5px solid rgba(245, 158, 11, 0.25);
+  border-radius: 14px;
+  cursor: pointer;
+  font-family: inherit;
+  text-align: left;
+  overflow: hidden;
+  background: #000;
+  transition: border-color 0.15s, box-shadow 0.15s;
+  min-height: 72px;
+  box-shadow: 0 0 8px rgba(245, 158, 11, 0.08);
+}
+
+.pickupBtn::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: url('https://ik.imagekit.io/nepgaxllc/Untitledfffffddsdsdsdfsddasdassdfsdfsdfsdsdasd.png') center/cover no-repeat;
+  z-index: 0;
+}
+
+.pickupBtn::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.2);
+  z-index: 1;
+}
+
+.pickupBtn:hover {
+  border-color: rgba(245, 158, 11, 0.45);
+  box-shadow: 0 0 14px rgba(245, 158, 11, 0.15);
+}
+
+.pickupBtnActive {
+  border-color: #F59E0B;
+  box-shadow: 0 0 18px rgba(245, 158, 11, 0.25), 0 0 6px rgba(245, 158, 11, 0.15);
+}
+
+.pickupContent {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 16px 18px;
+}
+
+.pickupInfo {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.pickupLabel {
+  font-size: 15px;
+  font-weight: 800;
+  color: #fff;
+  text-shadow: 0 1px 8px rgba(0, 0, 0, 0.6);
+}
+
+.pickupNote {
+  font-size: 11px;
+  color: rgba(255, 255, 255, 0.55);
+  text-shadow: 0 1px 4px rgba(0, 0, 0, 0.5);
+}
+
+.pickupFree {
+  font-size: 13px;
+  font-weight: 900;
+  color: #000;
+  background: #FFE500;
+  border: none;
+  border-radius: 8px;
+  padding: 4px 12px;
+  flex-shrink: 0;
+  box-shadow: 0 0 10px rgba(255, 229, 0, 0.5), 0 0 20px rgba(255, 229, 0, 0.2);
+}
+
+/* ── Show more ──────────────────────────────────────────────────────────── */
+.showMoreBtn {
+  background: none;
+  border: 1px dashed rgba(255, 255, 255, 0.1);
+  border-radius: 10px;
+  padding: 10px;
+  color: rgba(255, 255, 255, 0.35);
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  font-family: inherit;
+  transition: color 0.15s, border-color 0.15s;
+  text-align: center;
+}
+
+.showMoreBtn:hover { color: #F59E0B; border-color: rgba(245, 158, 11, 0.3); }
+
+/* ── Info banners ────────────────────────────────────────────────────────── */
+.bikeBanner {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  margin: 0 16px;
+  padding: 10px 12px;
+  background: rgba(255, 149, 0, 0.06);
+  border: 1px solid rgba(255, 149, 0, 0.15);
+  border-radius: 10px;
+  color: #FF9500;
+  font-size: 11px;
+  line-height: 1.5;
+}
+
+.bikeBanner svg { flex-shrink: 0; margin-top: 1px; }
+
+.safeTradeBanner {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  margin: 0 16px;
+  padding: 10px 12px;
+  background: rgba(52, 211, 153, 0.05);
+  border: 1px solid rgba(52, 211, 153, 0.15);
+  border-radius: 10px;
+  color: #34D399;
+  font-size: 11px;
+  line-height: 1.5;
+}
+
+.safeTradeBanner svg { flex-shrink: 0; margin-top: 1px; }
 
 /* ── Notes / address inputs ──────────────────────────────────────────────── */
 .notesInput,
@@ -293,6 +512,61 @@
 }
 
 .gpsBtn:disabled { opacity: 0.5; cursor: default; }
+
+/* ── Dropship toggle ── */
+.dropshipToggle {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 12px;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 10px;
+  cursor: pointer;
+  transition: background 0.15s, border-color 0.15s;
+}
+
+.dropshipToggle:hover {
+  background: rgba(129, 140, 248, 0.05);
+  border-color: rgba(129, 140, 248, 0.2);
+}
+
+.dropshipCheck {
+  width: 22px;
+  height: 22px;
+  border-radius: 6px;
+  border: 1.5px solid rgba(255, 255, 255, 0.15);
+  background: rgba(255, 255, 255, 0.03);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  color: #000;
+  flex-shrink: 0;
+  transition: all 0.15s;
+}
+
+.dropshipCheckOn {
+  background: #818CF8;
+  border-color: #818CF8;
+}
+
+.dropshipInfo {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+}
+
+.dropshipLabel {
+  font-size: 13px;
+  font-weight: 700;
+  color: rgba(255, 255, 255, 0.8);
+}
+
+.dropshipSub {
+  font-size: 10px;
+  color: rgba(255, 255, 255, 0.3);
+}
 
 /* ── Totals ──────────────────────────────────────────────────────────────── */
 .totals {

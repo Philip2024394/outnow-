@@ -17,7 +17,7 @@ function ContactIcon({ type, color }) {
   return null
 }
 
-export default function SellerProfileSheet({ seller, onClose, onOpenChat, onOrderViaChat, giftFor = null, wishlistMode = false, onWishlistAdd = null, showToast }) {
+export default function SellerProfileSheet({ seller, onClose, onOpenChat, onOrderViaChat, onMakeOffer, giftFor = null, wishlistMode = false, onWishlistAdd = null, showToast }) {
   const { user } = useAuth()
   const userId = user?.uid ?? user?.id ?? null
 
@@ -289,6 +289,8 @@ export default function SellerProfileSheet({ seller, onClose, onOpenChat, onOrde
         onWishlistAdd={wishlistMode ? (p) => { setCatalogOpen(false); onWishlistAdd?.(p) } : null}
         onGiftSelect={giftFor && !wishlistMode ? (p) => { setCatalogOpen(false); setGiftProduct(p) } : null}
         giftRecipientName={giftFor?.displayName ?? null}
+        onMakeOffer={onMakeOffer}
+        seller={seller}
       />
 
       <GiftOrderSheet

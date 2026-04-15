@@ -253,6 +253,40 @@ export const DELIVERY_SERVICES = [
   { type: 'pos',          label: 'Kantor Pos',       cityOnly: false, baseFare: 7000,  perKm: 0,    food: false },
 ]
 
+// ── Freight companies — Parcels & Packages ───────────────────────────────────
+export const PARCEL_CARRIERS = [
+  { type: 'tiki',         label: 'TIKI',                      logo: 'https://ik.imagekit.io/nepgaxllc/Untitledsdfsss-removebg-preview.png',                    deliveryDays: '3-4 days',  express: '1 day (ONS)' },
+  { type: 'jne',          label: 'JNE',                       logo: 'https://ik.imagekit.io/nepgaxllc/sssss-removebg-preview.png',                             deliveryDays: '2-3 days',  express: '1 day (YES)' },
+  { type: 'jnt_express',  label: 'J&T Express',               logo: 'https://ik.imagekit.io/nepgaxllc/Untitledsdds-removebg-preview.png',                      deliveryDays: '2-3 days',  express: '1 day' },
+  { type: 'sicepat',      label: 'SiCepat Ekspres',           logo: 'https://ik.imagekit.io/nepgaxllc/Untitleddfsfsd-removebg-preview.png',                    deliveryDays: '2-3 days',  express: '1 day (BEST)' },
+  { type: 'ninja',        label: 'Ninja Xpress',              logo: 'https://ik.imagekit.io/nepgaxllc/Untitledddddddss-removebg-preview.png',                  deliveryDays: '2-3 days',  express: '1 day' },
+  { type: 'lion_parcel',  label: 'Lion Parcel',               logo: 'https://ik.imagekit.io/nepgaxllc/Untitledasdasdasdasdd-removebg-preview.png',              deliveryDays: '2-3 days',  express: '1 day (ONEPACK)' },
+  { type: 'antaraja',     label: 'Anteraja',                  logo: 'https://ik.imagekit.io/nepgaxllc/Untitledvvdasa-removebg-preview.png',                    deliveryDays: '2-3 days',  express: 'Next day' },
+  { type: 'wahana',       label: 'Wahana Express',            logo: 'https://ik.imagekit.io/nepgaxllc/Untitledvv-removebg-preview.png',                        deliveryDays: '3-5 days',  express: null },
+  { type: 'sap',          label: 'SAP Express',               logo: 'https://ik.imagekit.io/nepgaxllc/Untitleddsfsdss-removebg-preview.png',                   deliveryDays: '2-4 days',  express: '1 day' },
+  { type: 'idexpress',    label: 'IDExpress',                 logo: 'https://ik.imagekit.io/nepgaxllc/Untitledsddsdsdsasdasd-removebg-preview.png',             deliveryDays: '2-3 days',  express: '1 day' },
+  { type: 'pos_indo',     label: 'Pos Indonesia',             logo: 'https://ik.imagekit.io/nepgaxllc/Untitledfffffddsdsdsdfsddasdassdfsdfsdfsd.png',           deliveryDays: '3-7 days',  express: '1-2 days' },
+]
+
+// ── Freight companies — Large Cargo ──────────────────────────────────────────
+export const CARGO_CARRIERS = [
+  { type: 'geodis',       label: 'GEODIS',                    logo: 'https://ik.imagekit.io/nepgaxllc/Untitledasdasdasddaaa-removebg-preview.png',              deliveryDays: '5-10 days', express: null },
+  { type: 'jnt_cargo',    label: 'J&T Cargo',                 logo: 'https://ik.imagekit.io/nepgaxllc/Untitleddsfsdsssss-removebg-preview.png',                deliveryDays: '5-7 days',  express: '3-5 days' },
+  { type: 'selog',        label: 'SELOG',                      logo: 'https://ik.imagekit.io/nepgaxllc/Untitledfffffdd-removebg-preview.png',                   deliveryDays: '5-10 days', express: null },
+  { type: 'intl_flight',  label: 'International Freight',     logo: 'https://ik.imagekit.io/nepgaxllc/Untitledfffffddsdsdsdfsd-removebg-preview.png',           deliveryDays: '7-14 days', express: '3-5 days' },
+  { type: 'lion_air',     label: 'Lion Air',                   logo: 'https://ik.imagekit.io/nepgaxllc/Untitledfffffddsdsd-removebg-preview.png',               deliveryDays: '3-5 days',  express: '1-2 days' },
+]
+
+// ── Export / International carriers ──────────────────────────────────────────
+export const EXPORT_CARRIERS = [
+  { type: 'dhl',            label: 'DHL',            logo: 'https://ik.imagekit.io/nepgaxllc/Untitledfffffddsdsdsdfsddasdas-removebg-preview.png',              deliveryDays: '5-10 days', express: '2-4 days' },
+  { type: 'fedex',          label: 'FedEx',          logo: 'https://ik.imagekit.io/nepgaxllc/Untitledfffffddsdsdsdfsddasdassdfsdf-removebg-preview.png',        deliveryDays: '5-10 days', express: '2-3 days' },
+  { type: 'pos_indo_intl',  label: 'Pos Indonesia',  logo: 'https://ik.imagekit.io/nepgaxllc/Untitledfffffddsdsdsdfsddasdassdfsdfsdfsd.png',                    deliveryDays: '7-14 days', express: '5-7 days' },
+]
+
+// All freight carriers combined
+export const ALL_CARRIERS = [...PARCEL_CARRIERS, ...CARGO_CARRIERS, ...EXPORT_CARRIERS]
+
 // Food delivery only uses Hangger Ride (bike) — couriers don't deliver hot food.
 export const FOOD_DELIVERY_SERVICES = DELIVERY_SERVICES.filter(s => s.food)
 
