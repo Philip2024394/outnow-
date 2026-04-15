@@ -70,7 +70,7 @@ class ErrorBoundary extends Component {
 
 // import CategorySelector from '@/components/ui/CategorySelector'
 
-const LOGO_URL = 'https://ik.imagekit.io/dateme/Logo%20with%20green%20map%20pin%20element.png'
+const LOGO_URL = 'https://ik.imagekit.io/nepgaxllc/Bold%203D%20_INDOO_%20logo%20design.png?updatedAt=1776203769926'
 
 export default function App() {
   const { user, userProfile, loading } = useAuth()

@@ -1,7 +1,7 @@
 import { usePWA } from '@/hooks/usePWA'
 import styles from './AddToHomeScreenBanner.module.css'
 
-const LOGO_URL = 'https://ik.imagekit.io/nepgaxllc/Untitleddsfsdf-removebg-preview.png'
+const LOGO_URL = 'https://ik.imagekit.io/nepgaxllc/Bold%203D%20_INDOO_%20logo%20design.png?updatedAt=1776203769926'
 
 export default function AddToHomeScreenBanner({ _forceVisible = false }) {
   const { canShowBanner, isIOS, install, dismiss } = usePWA()

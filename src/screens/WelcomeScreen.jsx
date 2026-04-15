@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import styles from './WelcomeScreen.module.css'
 
-const LOGO_URL = 'https://ik.imagekit.io/nepgaxllc/Untitleddsfsdf-removebg-preview.png'
+const LOGO_URL = 'https://ik.imagekit.io/nepgaxllc/Bold%203D%20_INDOO_%20logo%20design.png?updatedAt=1776203769926'
 
 const SLIDES = [
   {

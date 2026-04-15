@@ -86,8 +86,8 @@ export default function EchoCommercePanel({ userId, businessName, open: external
           {/* Header */}
           <div className={styles.header}>
             <div className={styles.headerLeft}>
-              <span className={styles.echo}>ECHO</span>
-              <span className={styles.commerce}>Commerce</span>
+              <img src="https://ik.imagekit.io/nepgaxllc/Indoo%20Market%20logo%20design.png?updatedAt=1776203793752" alt="Indoo Market" style={{ height:22, objectFit:'contain' }} />
+              <span className={styles.commerce}>Seller</span>
             </div>
             <button className={styles.headerCatalogBtn} onClick={() => setCatalogOpen(true)}>
               📦 Products

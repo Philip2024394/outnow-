@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import styles from './AdminLogin.module.css'
 
-const LOGO_URL = 'https://ik.imagekit.io/dateme/Logo%20with%20green%20map%20pin%20element.png'
+const LOGO_URL = 'https://ik.imagekit.io/nepgaxllc/Bold%203D%20_INDOO_%20logo%20design.png?updatedAt=1776203769926'
 
 // Set VITE_ADMIN_USER and VITE_ADMIN_PASSWORD in your .env file
 const ADMIN_USER = import.meta.env.VITE_ADMIN_USER     ?? 'admin'

@@ -27,8 +27,8 @@ export default function ProfileShopSection({
         <div style={{ display: 'flex', flexDirection: 'column', gap: 12, marginTop: 8 }}>
           <div style={{ background: 'rgba(245,158,11,0.08)', border: '1px solid rgba(245,158,11,0.2)', borderRadius: 14, padding: '14px 16px' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 10 }}>
-              <span style={{ fontSize: 15, fontWeight: 900, color: '#F59E0B', letterSpacing: '0.08em' }}>ECHO</span>
-              <span style={{ fontSize: 13, fontWeight: 700, color: 'rgba(255,255,255,0.5)' }}>Commerce Setup</span>
+              <img src="https://ik.imagekit.io/nepgaxllc/Indoo%20Market%20logo%20design.png?updatedAt=1776203793752" alt="Indoo Market" style={{ height:20, objectFit:'contain' }} />
+              <span style={{ fontSize: 13, fontWeight: 700, color: 'rgba(255,255,255,0.5)' }}>Seller Setup</span>
             </div>
 
             {/* Brand name */}

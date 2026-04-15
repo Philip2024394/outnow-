@@ -2,7 +2,7 @@ import { useLanguage } from '@/i18n'
 import styles from './LandingScreen.module.css'
 
 const HERO_IMG = 'https://ik.imagekit.io/nepgaxllc/front%20app.png'
-const LOGO_URL = 'https://ik.imagekit.io/nepgaxllc/Untitleddsfsdf-removebg-preview.png'
+const LOGO_URL = 'https://ik.imagekit.io/nepgaxllc/Bold%203D%20_INDOO_%20logo%20design.png?updatedAt=1776203769926'
 
 export default function LandingScreen({ onGetStarted, onSignIn, onBrowse }) {
   const { t } = useLanguage()

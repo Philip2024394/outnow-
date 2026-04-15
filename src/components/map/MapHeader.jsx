@@ -3,7 +3,7 @@ import { useAuth } from '@/hooks/useAuth'
 import { useLanguage } from '@/i18n'
 import styles from './MapHeader.module.css'
 
-const LOGO_URL = 'https://ik.imagekit.io/nepgaxllc/Untitleddsfsdf-removebg-preview.png'
+const LOGO_URL = 'https://ik.imagekit.io/nepgaxllc/Bold%203D%20_INDOO_%20logo%20design.png?updatedAt=1776203769926'
 
 export default function MapHeader({
   onOpenNotifications,
