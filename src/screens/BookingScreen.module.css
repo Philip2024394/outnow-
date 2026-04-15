@@ -87,13 +87,13 @@
 /* ── Vehicle tabs ── */
 .vehicleTabs {
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 6px;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 10px;
 }
 .vehicleTab {
   position: relative;
-  padding: 10px 8px;
-  border-radius: 10px;
+  padding: 14px 16px;
+  border-radius: 12px;
   background: rgba(0,0,0,0.82);
   backdrop-filter: blur(4px);
   -webkit-backdrop-filter: blur(4px);
@@ -120,14 +120,14 @@
 }
 .vehicleTabLabel {
   display: block;
-  font-size: 11px;
+  font-size: 14px;
   font-weight: 800;
   line-height: 1.2;
-  margin-bottom: 2px;
+  margin-bottom: 4px;
 }
 .vehicleTabPrice {
   display: block;
-  font-size: 10px;
+  font-size: 13px;
   font-weight: 700;
   color: #fff;
   line-height: 1;
