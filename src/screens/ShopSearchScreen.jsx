@@ -478,7 +478,10 @@ export default function ShopSearchScreen({ onClose, userCity, userCountry, giftF
 
       {/* ── Recommendation banners ── */}
       {!query.trim() && (
-        <RecommendationBanner onProductTap={(p) => setSelectedSeller(null)} />
+        <RecommendationBanner onProductTap={(p) => {
+          const s = sellers.find(x => x.id === p.user_id) ?? { id: p.user_id ?? 'unknown', displayName: p.brand_name ?? 'Seller', brandName: p.brand_name, photoURL: null, city: p.city ?? null }
+          handleSellerClick(s)
+        }} />
       )}
 
 
