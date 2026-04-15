@@ -8,6 +8,7 @@ import styles from '../BookingScreen.module.css'
 import DriverMap from '@/components/driver/DriverMap'
 
 import { useState } from 'react'
+import DestinationDirectory from '@/components/booking/DestinationDirectory'
 
 const BIKE_IMG = 'https://ik.imagekit.io/nepgaxllc/Sleek%20green%20and%20black%20scooter%20setup.png'
 const CAR_IMG  = 'https://ik.imagekit.io/nepgaxllc/Sporty%20green%20and%20black%20hatchback.png'
@@ -140,6 +141,7 @@ export default function BookingFormPanel({
   initialVehicle,
 }) {
   const [hireMode, setHireMode] = useState(false)
+  const [directoryOpen, setDirectoryOpen] = useState(false)
   const [selectedHirePackage, setSelectedHirePackage] = useState(null)
   const isBikeMode = !initialVehicle || initialVehicle === 'bike_ride'
   const hireRates = isBikeMode ? HOURLY_RATES.bike : HOURLY_RATES.car
@@ -207,6 +209,13 @@ export default function BookingFormPanel({
           <span className={styles.vehicleTabPrice}>{formatRpStatic(hireRates.perHour)}/hr</span>
         </button>
       </div>
+
+      {/* Directory button */}
+      <button className={styles.directoryBtn} onClick={() => setDirectoryOpen(true)}>
+        <span>📍</span>
+        <span>Browse Destinations</span>
+        <span className={styles.directoryArrow}>→</span>
+      </button>
 
       {/* ── Hourly Hire panel ── */}
       {hireMode && (
@@ -332,6 +341,19 @@ export default function BookingFormPanel({
           </button>
         </div>
       )}
+
+      <DestinationDirectory
+        open={directoryOpen}
+        onClose={() => setDirectoryOpen(false)}
+        vehicleMode={initialVehicle}
+        onSelectDestination={(dest) => {
+          setHireMode(false)
+          setDestination({ label: dest.name, address: dest.address, lat: dest.lat, lng: dest.lng })
+          setDestQuery(dest.name)
+          setVehicleType(isBikeMode ? 'bike_ride' : 'car_taxi')
+          setHasPickedVehicle(true)
+        }}
+      />
     </div>
   )
 }

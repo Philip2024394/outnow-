@@ -1,0 +1,35 @@
+.page { position: fixed; inset: 0; background: #0a0a0a; z-index: 420; display: flex; flex-direction: column; }
+
+.header { display: flex; align-items: center; justify-content: space-between; padding: 16px; border-bottom: 1px solid rgba(255,255,255,0.06); flex-shrink: 0; }
+.headerTitle { font-size: 18px; font-weight: 900; color: #fff; }
+.closeBtn { width: 36px; height: 36px; border-radius: 50%; background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.1); color: rgba(255,255,255,0.6); display: flex; align-items: center; justify-content: center; cursor: pointer; }
+
+.categories { display: flex; gap: 6px; padding: 10px 16px; overflow-x: auto; flex-shrink: 0; scrollbar-width: none; }
+.categories::-webkit-scrollbar { height: 0; }
+.catChip { padding: 7px 14px; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.08); border-radius: 20px; color: rgba(255,255,255,0.45); font-size: 12px; font-weight: 700; cursor: pointer; font-family: inherit; white-space: nowrap; flex-shrink: 0; transition: all 0.15s; }
+.catChipActive { background: rgba(245,158,11,0.15); border-color: rgba(245,158,11,0.4); color: #F59E0B; }
+
+.body { flex: 1; overflow-y: auto; padding: 8px 16px 32px; display: flex; flex-direction: column; gap: 6px; }
+.body::-webkit-scrollbar { width: 3px; }
+.body::-webkit-scrollbar-thumb { background: rgba(245,158,11,0.2); border-radius: 2px; }
+
+.empty { padding: 40px; text-align: center; color: rgba(255,255,255,0.25); font-size: 13px; }
+
+.card { display: flex; gap: 12px; padding: 12px; background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.06); border-radius: 12px; cursor: pointer; font-family: inherit; text-align: left; transition: border-color 0.15s; width: 100%; }
+.card:hover { border-color: rgba(245,158,11,0.3); }
+
+.cardLeft { display: flex; align-items: center; justify-content: center; width: 40px; flex-shrink: 0; }
+.cardIcon { font-size: 22px; }
+
+.cardInfo { flex: 1; display: flex; flex-direction: column; gap: 3px; min-width: 0; }
+.cardName { font-size: 14px; font-weight: 800; color: rgba(255,255,255,0.85); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.cardAddress { font-size: 10px; color: rgba(255,255,255,0.3); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+.cardMeta { display: flex; gap: 8px; align-items: center; }
+.cardDistance { font-size: 11px; font-weight: 700; color: rgba(255,255,255,0.5); }
+.cardReturn { font-size: 9px; font-weight: 700; color: #F59E0B; background: rgba(245,158,11,0.1); border-radius: 4px; padding: 1px 6px; }
+.cardOneWay { font-size: 9px; font-weight: 700; color: #8DC63F; background: rgba(141,198,63,0.1); border-radius: 4px; padding: 1px 6px; }
+
+.cardRight { display: flex; flex-direction: column; align-items: flex-end; gap: 4px; flex-shrink: 0; justify-content: center; }
+.cardPrice { font-size: 15px; font-weight: 900; color: #F59E0B; }
+.cardVehicle { font-size: 14px; }

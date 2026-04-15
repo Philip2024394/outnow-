@@ -150,6 +150,11 @@
   right: -28px;
 }
 
+/* ── Directory button ── */
+.directoryBtn { display: flex; align-items: center; gap: 8px; width: calc(100% - 32px); margin: 0 16px 8px; padding: 10px 14px; background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08); border-radius: 10px; color: rgba(255,255,255,0.5); font-size: 13px; font-weight: 700; cursor: pointer; font-family: inherit; transition: border-color 0.15s; }
+.directoryBtn:hover { border-color: rgba(245,158,11,0.3); color: #F59E0B; }
+.directoryArrow { margin-left: auto; color: rgba(255,255,255,0.25); }
+
 /* ── Hourly Hire ── */
 .hirePanel { padding: 12px 16px; display: flex; flex-direction: column; gap: 12px; }
 
