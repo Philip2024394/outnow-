@@ -46,21 +46,18 @@
   z-index: 2;
 }
 
-/* ── Logo — centered in upper hero area ── */
-.logoWrap {
+/* ── Logo — directly in hero, no wrapper ── */
+.logo {
   position: absolute;
-  top: 8%;
+  top: 5%;
   left: 50%;
   transform: translateX(-50%);
-  z-index: 10;
-  pointer-events: none;
-}
-
-.logo {
   height: 80vh;
   max-height: 640px;
   width: auto;
   object-fit: contain;
+  z-index: 3;
+  pointer-events: none;
   filter: drop-shadow(0 4px 24px rgba(0,0,0,0.7));
 }
 
