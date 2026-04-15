@@ -138,14 +138,6 @@ export default function BuyerProfileSheet({ open, onClose, onOpenProduct }) {
             📍 {city}{country ? `, ${country}` : ''}
           </p>
         )}
-        {/* Enabled domains */}
-        <div className={styles.domainTags}>
-          {(user?.enabledDomains ?? ['marketplace', 'dating', 'food', 'rides']).map(d => (
-            <span key={d} className={styles.domainTag}>
-              {d === 'marketplace' ? '🛍️' : d === 'dating' ? '💕' : d === 'food' ? '🍔' : d === 'rides' ? '🚗' : d === 'massage' ? '💆' : '🏠'} {d}
-            </span>
-          ))}
-        </div>
         {memberText && <p className={styles.memberText}>{memberText}</p>}
 
         {/* Tab content */}

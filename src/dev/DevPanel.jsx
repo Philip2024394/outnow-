@@ -58,6 +58,7 @@ import SellerAnalytics     from '@/components/commerce/SellerAnalytics'
 import SellerVerification  from '@/components/commerce/SellerVerification'
 import ProductReviewPage   from '@/components/commerce/ProductReviewPage'
 import MakeOfferSheet      from '@/components/commerce/MakeOfferSheet'
+import SectionGateSheet    from '@/components/ui/SectionGateSheet'
 import ShopSearchScreen    from '@/screens/ShopSearchScreen'
 import RestaurantBrowseScreen from '@/screens/RestaurantBrowseScreen'
 import RestaurantMenuSheetNew from '@/components/restaurant/RestaurantMenuSheet'
@@ -440,6 +441,8 @@ const GROUPS = [
       { id: 'sellerVerify',       label: '🆔 Seller Verification' },
       { id: 'productReviews',     label: '⭐ Product Reviews Page' },
       { id: 'makeOffer',          label: '💰 Make an Offer Sheet' },
+      { id: 'gateDating',         label: '💕 Gate: Dating Setup' },
+      { id: 'gateMarketplace',    label: '🛍️ Gate: Marketplace Setup' },
     ],
   },
   {
@@ -830,6 +833,12 @@ export default function DevPanel() {
       )}
       {active === 'makeOffer' && (
         <MakeOfferSheet open onClose={close} product={{ id: 'demo-1', name: 'Wireless Earbuds Pro', price: 350000 }} onSubmitOffer={() => showToast('Offer sent', 'success')} />
+      )}
+      {active === 'gateDating' && (
+        <SectionGateSheet open section="dating" onClose={close} onComplete={(data) => { showToast('Dating profile set up!', 'success'); close() }} />
+      )}
+      {active === 'gateMarketplace' && (
+        <SectionGateSheet open section="marketplace" onClose={close} onComplete={(data) => { showToast('Marketplace set up!', 'success'); close() }} />
       )}
       {active === 'shopSearch' && (
         <div className={styles.screenOverlay}>
