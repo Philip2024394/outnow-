@@ -239,15 +239,14 @@ export default function ProductDetailSheet({ product, onClose, sellerWa, sellerN
               </div>
             </div>
             {/* Order via Chat — full width below */}
-            <div style={{ marginTop:8 }}>
-              {onOrderViaChat
-                ? <button className={styles.orderBtn} onClick={() => onOrderViaChat({ product, variantStr, qty: Math.max(cartQty, 1), sellerName, sellerId })}>
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
-                    Order via Chat
-                  </button>
-                : <button className={styles.orderBtnDisabled} disabled>💬 Contact seller to order</button>
-              }
-            </div>
+            {onOrderViaChat && (
+              <div style={{ marginTop:8 }}>
+                <button className={styles.orderBtn} onClick={() => onOrderViaChat({ product, variantStr, qty: Math.max(cartQty, 1), sellerName, sellerId })}>
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+                  Order via Chat
+                </button>
+              </div>
+            )}
           </>
         ) : (
           /* ── Details view ── */
@@ -366,15 +365,14 @@ export default function ProductDetailSheet({ product, onClose, sellerWa, sellerN
               </div>
             </div>
             {/* Order via Chat — full width below */}
-            <div style={{ marginTop:8 }}>
-              {onOrderViaChat
-                ? <button className={styles.orderBtn} onClick={() => onOrderViaChat({ product, variantStr, qty: Math.max(cartQty, 1), sellerName, sellerId })}>
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
-                    Order via Chat
-                  </button>
-                : <button className={styles.orderBtnDisabled} disabled>💬 Contact seller to order</button>
-              }
-            </div>
+            {onOrderViaChat && (
+              <div style={{ marginTop:8 }}>
+                <button className={styles.orderBtn} onClick={() => onOrderViaChat({ product, variantStr, qty: Math.max(cartQty, 1), sellerName, sellerId })}>
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+                  Order via Chat
+                </button>
+              </div>
+            )}
 
             {/* Similar products recommendation */}
             <Suspense fallback={null}>
