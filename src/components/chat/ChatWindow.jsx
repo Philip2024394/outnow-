@@ -20,6 +20,7 @@ import OfferCard from '@/components/orders/OfferCard'
 import { isSellerOpen, getNextOpenTime, formatCountdown as fmtHoursCountdown } from '@/utils/sellerHours'
 import BankDetailsCard from '@/components/orders/BankDetailsCard'
 import PaymentVerificationCard from '@/components/orders/PaymentVerificationCard'
+import OrderProcessingOverlay from '@/components/orders/OrderProcessingOverlay'
 import styles from './ChatWindow.module.css'
 
 const IS_DEMO = import.meta.env.VITE_DEMO_MODE === 'true'
@@ -516,6 +517,9 @@ export default function ChatWindow({ conversation: conv, allConversations = [], 
 
     onConvUpdate?.({ lastMessage: `🧾 Payment screenshot sent · ${salesNumber}`, lastMessageTime: Date.now() })
 
+    // Show order processing overlay
+    setOrderProcessing(true)
+
     // Record to Supabase
     if (supabase) {
       const sellerId = conv.otherUserId ?? conv.userId
@@ -601,6 +605,7 @@ export default function ChatWindow({ conversation: conv, allConversations = [], 
   const sellerHours = conv.openingHours ?? null
   const sellerCurrentlyOpen = isSellerOpen(sellerHours)
   const [hoursCountdown, setHoursCountdown] = useState('')
+  const [orderProcessing, setOrderProcessing] = useState(false)
   const [nextOpenLabel, setNextOpenLabel] = useState('')
 
   useEffect(() => {
@@ -1221,6 +1226,24 @@ export default function ChatWindow({ conversation: conv, allConversations = [], 
         countdown={countdown}
         displayName={conv.displayName}
         onEnd={endVideoCall}
+      />
+
+      {/* Order processing overlay — shows after payment screenshot upload */}
+      <OrderProcessingOverlay
+        open={orderProcessing}
+        sellerName={conv.displayName}
+        onClose={() => {
+          setOrderProcessing(false)
+          // Add notification message in chat
+          setMessages(prev => [...prev, {
+            id: `notify-${Date.now()}`,
+            fromMe: false,
+            text: `📦 Order received and in process. ${conv.displayName ?? 'Seller'} will update you soon regarding any details required and dispatch information.`,
+            time: Date.now(),
+            isAutoReply: true,
+          }])
+          onConvUpdate?.({ lastMessage: '📦 Order received — processing', lastMessageTime: Date.now() })
+        }}
       />
     </div>
   )
