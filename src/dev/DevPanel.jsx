@@ -49,6 +49,15 @@ import LocationGateScreen  from '@/screens/LocationGateScreen'
 // ── Commerce & Chat Checkout ──────────────────────────────────────────
 import OrderCard           from '@/components/orders/OrderCard'
 import SellerProfileSheet  from '@/components/commerce/SellerProfileSheet'
+import BuyerProfileSheet   from '@/components/commerce/BuyerProfileSheet'
+import FlashSalePage       from '@/components/commerce/FlashSalePage'
+import AuctionPage         from '@/components/commerce/AuctionPage'
+import SafeTradeModal      from '@/components/commerce/SafeTradeModal'
+import SellerTrustCard     from '@/components/commerce/SellerTrustCard'
+import SellerAnalytics     from '@/components/commerce/SellerAnalytics'
+import SellerVerification  from '@/components/commerce/SellerVerification'
+import ProductReviewPage   from '@/components/commerce/ProductReviewPage'
+import MakeOfferSheet      from '@/components/commerce/MakeOfferSheet'
 import ShopSearchScreen    from '@/screens/ShopSearchScreen'
 import RestaurantBrowseScreen from '@/screens/RestaurantBrowseScreen'
 import RestaurantMenuSheetNew from '@/components/restaurant/RestaurantMenuSheet'
@@ -419,6 +428,21 @@ const GROUPS = [
     ],
   },
   {
+    label: 'MARKETPLACE',
+    color: '#F59E0B',
+    items: [
+      { id: 'buyerProfile',       label: '👤 Buyer Profile Sheet' },
+      { id: 'flashSale',          label: '⚡ Flash Sale Page' },
+      { id: 'auctionPage',        label: '🔨 Auction Page' },
+      { id: 'safeTrade',          label: '🛡️ Safe Trade Modal' },
+      { id: 'sellerTrust',        label: '📊 Seller Trust Card' },
+      { id: 'sellerAnalytics',    label: '📈 Seller Analytics' },
+      { id: 'sellerVerify',       label: '🆔 Seller Verification' },
+      { id: 'productReviews',     label: '⭐ Product Reviews Page' },
+      { id: 'makeOffer',          label: '💰 Make an Offer Sheet' },
+    ],
+  },
+  {
     label: 'COMMISSION SYSTEM',
     color: '#FF9500',
     items: [
@@ -779,6 +803,33 @@ export default function DevPanel() {
           onOrderViaChat={(p) => showToast(`Order via chat: ${p.product?.name ?? 'item'}`, 'success')}
           showToast={showToast}
         />
+      )}
+      {active === 'buyerProfile' && (
+        <BuyerProfileSheet open onClose={close} />
+      )}
+      {active === 'flashSale' && (
+        <FlashSalePage open onClose={close} />
+      )}
+      {active === 'auctionPage' && (
+        <AuctionPage open onClose={close} />
+      )}
+      {active === 'safeTrade' && (
+        <SafeTradeModal open onClose={close} product={{ safeTrade: { enabled: true, paypal: true, escrow: true } }} sellerName="Demo Seller" />
+      )}
+      {active === 'sellerTrust' && (
+        <SellerTrustCard open onClose={close} seller={{ ...MOCK_SELLER, ordersFilled: 127, ordersCanceled: 3, avgResponseMinutes: 15, verified: true }} />
+      )}
+      {active === 'sellerAnalytics' && (
+        <SellerAnalytics open onClose={close} />
+      )}
+      {active === 'sellerVerify' && (
+        <SellerVerification open onClose={close} onSubmit={() => showToast('Verification submitted', 'success')} />
+      )}
+      {active === 'productReviews' && (
+        <ProductReviewPage open onClose={close} productName="Demo Product" productId="demo-1" />
+      )}
+      {active === 'makeOffer' && (
+        <MakeOfferSheet open onClose={close} product={{ id: 'demo-1', name: 'Wireless Earbuds Pro', price: 350000 }} onSubmitOffer={() => showToast('Offer sent', 'success')} />
       )}
       {active === 'shopSearch' && (
         <div className={styles.screenOverlay}>
