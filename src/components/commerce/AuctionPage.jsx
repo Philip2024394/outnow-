@@ -96,14 +96,15 @@ export default function AuctionPage({ open, onClose }) {
     <div className={styles.page}>
       {/* Header */}
       <div className={styles.header}>
-        <button className={styles.backBtn} onClick={onClose}>
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
-        </button>
-        <div className={styles.headerCenter}>
+        <div className={styles.headerLeft}>
           <span className={styles.headerIcon}>🔨</span>
           <span className={styles.headerTitle}>Live Auctions</span>
         </div>
-        <span className={styles.liveCount}>{liveAuctions.length} live</span>
+        <button className={styles.backBtn} onClick={onClose}>
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+            <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+          </svg>
+        </button>
       </div>
 
       {/* Banned banner */}
@@ -284,7 +285,10 @@ export default function AuctionPage({ open, onClose }) {
 
           {liveAuctions.length > 0 && (
             <>
-              <div className={styles.sectionLabel}>🔴 Live Now</div>
+              <div className={styles.sectionLabelRow}>
+                <span className={styles.sectionLabel}>🔴 Live Now</span>
+                <span className={styles.liveCount}>{liveAuctions.length} live</span>
+              </div>
               <div className={styles.grid}>
                 {liveAuctions.map(a => (
                   <div key={a.id} className={styles.auctionCard} onClick={() => setSelected(a)}>

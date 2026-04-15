@@ -2,7 +2,8 @@
 
 .header { display: flex; align-items: center; justify-content: space-between; padding: 14px 16px; background: rgba(0,0,0,0.6); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); border-bottom: 2px solid #F59E0B; box-shadow: 0 2px 16px rgba(245,158,11,0.2); flex-shrink: 0; }
 .backBtn { width: 36px; height: 36px; border-radius: 50%; background: rgba(255,255,255,0.08); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); border: 1px solid rgba(255,255,255,0.12); color: rgba(255,255,255,0.7); display: flex; align-items: center; justify-content: center; cursor: pointer; }
-.headerCenter { display: flex; align-items: center; gap: 6px; }
+.headerLeft { display: flex; align-items: center; gap: 6px; flex: 1; }
+.sectionLabelRow { display: flex; align-items: center; justify-content: space-between; padding: 8px 0 6px; }
 .headerIcon { font-size: 22px; }
 .headerTitle { font-size: 18px; font-weight: 900; color: #F59E0B; text-shadow: 0 1px 8px rgba(0,0,0,0.5); }
 .liveCount { font-size: 11px; font-weight: 800; color: #EF4444; background: rgba(239,68,68,0.15); backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px); border: 1px solid rgba(239,68,68,0.3); border-radius: 8px; padding: 4px 10px; animation: livePulse 2s ease-in-out infinite; }
@@ -117,8 +118,8 @@
 .priceBlock::after { content: ''; position: absolute; inset: 0; background: rgba(0,0,0,0.25); z-index: 1; }
 .priceLeft { position: relative; z-index: 2; display: flex; flex-direction: column; gap: 2px; }
 .priceLabel { font-size: 10px; font-weight: 700; color: rgba(255,255,255,0.6); text-transform: uppercase; letter-spacing: 0.05em; text-shadow: 0 1px 4px rgba(0,0,0,0.5); }
-.priceValue { font-size: 28px; font-weight: 900; color: #F59E0B; text-shadow: 0 2px 10px rgba(0,0,0,0.5); }
-.bidCount { font-size: 11px; color: rgba(255,255,255,0.6); text-shadow: 0 1px 4px rgba(0,0,0,0.5); }
+.priceValue { font-size: 28px; font-weight: 900; color: #fff; text-shadow: 0 2px 10px rgba(0,0,0,0.5); }
+.bidCount { font-size: 12px; font-weight: 700; color: rgba(255,255,255,0.8); text-shadow: 0 1px 4px rgba(0,0,0,0.5); }
 .priceRight { position: relative; z-index: 2; display: flex; flex-direction: column; align-items: flex-end; gap: 2px; }
 .timerLabel { font-size: 10px; font-weight: 700; color: rgba(255,255,255,0.6); text-transform: uppercase; text-shadow: 0 1px 4px rgba(0,0,0,0.5); }
 .timerValue { font-size: 22px; font-weight: 900; color: #EF4444; font-family: monospace; text-shadow: 0 2px 8px rgba(0,0,0,0.5); }
@@ -135,16 +136,12 @@
 .bidInput { background: none; border: none; color: #fff; font-size: 20px; font-weight: 900; font-family: inherit; width: 100%; outline: none; }
 .bidInput::placeholder { color: rgba(255,255,255,0.15); }
 .bidInput::-webkit-inner-spin-button, .bidInput::-webkit-outer-spin-button { -webkit-appearance: none; }
-.bidBtn { padding: 14px; background: #F59E0B; border: none; border-radius: 12px; color: #000; font-size: 15px; font-weight: 900; cursor: pointer; font-family: inherit; box-shadow: 0 4px 16px rgba(245,158,11,0.4), 0 0 20px rgba(245,158,11,0.3); animation: bidBtnPulse 1.8s ease-in-out infinite; }
-.bidBtn:hover { background: #FBBF24; box-shadow: 0 4px 20px rgba(245,158,11,0.6), 0 0 28px rgba(245,158,11,0.4); }
+.bidBtn { padding: 14px; background: #F59E0B; border: none; border-radius: 12px; color: #000; font-size: 15px; font-weight: 900; cursor: pointer; font-family: inherit; box-shadow: 0 4px 16px rgba(245,158,11,0.4); animation: bidBtnHeartbeat 2.5s ease-in-out infinite; }
+.bidBtn:hover { background: #FBBF24; }
 
-@keyframes bidBtnPulse {
-  0%, 100% { box-shadow: 0 4px 16px rgba(245,158,11,0.4), 0 0 20px rgba(245,158,11,0.3); transform: translateX(0); }
-  10% { transform: translateX(-2px) rotate(-0.5deg); }
-  20% { transform: translateX(2px) rotate(0.5deg); }
-  30% { transform: translateX(-1px); }
-  40% { transform: translateX(1px); }
-  50% { transform: translateX(0); box-shadow: 0 4px 24px rgba(245,158,11,0.6), 0 0 30px rgba(245,158,11,0.5); }
+@keyframes bidBtnHeartbeat {
+  0%, 100% { box-shadow: 0 4px 16px rgba(245,158,11,0.3); transform: scale(1); }
+  50% { box-shadow: 0 4px 24px rgba(245,158,11,0.5), 0 0 20px rgba(245,158,11,0.3); transform: scale(1.02); }
 }
 .bidError { font-size: 11px; color: #EF4444; font-weight: 600; }
 .bidLimits { display: flex; justify-content: space-between; font-size: 10px; color: rgba(255,255,255,0.3); }
