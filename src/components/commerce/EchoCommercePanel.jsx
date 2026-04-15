@@ -385,7 +385,7 @@ export default function EchoCommercePanel({ userId, businessName, open: external
                   onClick={() => {
                     const startPrice = prompt('Starting price (Rp) — includes delivery within Indonesia:')
                     if (!startPrice || isNaN(startPrice)) return
-                    const reserve = prompt('Reserve price (Rp) — leave empty for none:')
+                    const reserve = prompt('Reserve price (Rp):\n\n• Set a reserve = item only sells if bidding reaches this price\n• Leave empty = NO reserve, item sells to highest bidder regardless of price')
                     const buyNowPr = prompt('Buy Now price (Rp) — leave empty for no Buy Now:')
                     const hours = prompt('Auction duration (hours, max 6):')
                     const dur = Math.min(6, Math.max(1, Number(hours) || 4))
@@ -401,7 +401,7 @@ export default function EchoCommercePanel({ userId, businessName, open: external
                       startTime: Date.now(),
                       endTime: Date.now() + dur * 3600000,
                     })
-                    alert(`Auction started for ${p.name}\nStart: Rp ${Number(startPrice).toLocaleString('id-ID')}\n${buyNowPr ? 'Buy Now: Rp ' + Number(buyNowPr).toLocaleString('id-ID') : 'No Buy Now'}\nDuration: ${dur} hours\nPrice includes delivery · 5% commission on sale`)
+                    alert(`Auction started for ${p.name}\nStart: Rp ${Number(startPrice).toLocaleString('id-ID')}\n${reserve ? 'Reserve: Rp ' + Number(reserve).toLocaleString('id-ID') : '⚠️ No Reserve — sells to highest bidder'}\n${buyNowPr ? 'Buy Now: Rp ' + Number(buyNowPr).toLocaleString('id-ID') : 'No Buy Now'}\nDuration: ${dur} hours\nPrice includes delivery · 5% commission on sale`)
                   }}
                 >
                   <span className={styles.deliveryPricingName}>{p.name} — {fmtIDR(p.price)}</span>

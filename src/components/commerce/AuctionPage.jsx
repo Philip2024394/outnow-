@@ -343,11 +343,6 @@ export default function AuctionPage({ open, onClose }) {
         return (
         <div className={styles.previewBackdrop} onClick={() => setProductPreview(null)}>
           <div className={styles.previewModal} onClick={e => e.stopPropagation()}>
-            <button className={styles.previewClose} onClick={() => setProductPreview(null)}>
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
-              </svg>
-            </button>
 
             {/* Main image with overlays */}
             <div className={styles.previewImgWrap}>
@@ -405,6 +400,9 @@ export default function AuctionPage({ open, onClose }) {
                 <span className={styles.previewSpecChip}>
                   {pp.condition === 'used' ? '♻️ Used' : '✨ New'}
                 </span>
+                <span className={`${styles.previewSpecChip} ${pp.reservePrice ? styles.previewReserveChip : styles.previewNoReserveChip}`}>
+                  {pp.reservePrice ? '🔒 Has Reserve' : '🔓 No Reserve — Sold to Highest Bidder'}
+                </span>
               </div>
 
               {/* Seller button — orange, only after auction */}
@@ -417,6 +415,11 @@ export default function AuctionPage({ open, onClose }) {
                   View Seller Details
                 </button>
               )}
+
+              {/* Close button */}
+              <button className={styles.previewCloseBtn} onClick={() => setProductPreview(null)}>
+                Close
+              </button>
             </div>
           </div>
         </div>
