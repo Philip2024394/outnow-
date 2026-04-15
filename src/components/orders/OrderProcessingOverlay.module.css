@@ -19,7 +19,7 @@
 .bgDim {
   position: absolute;
   inset: 0;
-  background: rgba(0,0,0,0.35);
+  background: transparent;
   z-index: 1;
 }
 
@@ -48,7 +48,7 @@
   width: 60px;
   height: 60px;
   border-radius: 50%;
-  background: rgba(236,72,153,0.25);
+  background: rgba(255,255,255,0.25);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -60,7 +60,7 @@
   position: absolute;
   inset: -10px;
   border-radius: 50%;
-  border: 2px solid rgba(236,72,153,0.4);
+  border: 2px solid rgba(255,255,255,0.4);
   animation: pulseExpand 2s ease-in-out infinite;
 }
 
@@ -68,7 +68,7 @@
   position: absolute;
   inset: -10px;
   border-radius: 50%;
-  border: 2px solid rgba(236,72,153,0.25);
+  border: 2px solid rgba(255,255,255,0.25);
   animation: pulseExpand 2s ease-in-out infinite 0.5s;
 }
 
@@ -104,7 +104,7 @@
   width: 8px;
   height: 8px;
   border-radius: 50%;
-  background: rgba(236,72,153,0.8);
+  background: rgba(255,255,255,0.8);
   animation: dotBounce 1.4s ease-in-out infinite;
 }
 
