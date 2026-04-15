@@ -290,11 +290,17 @@ export default function AuctionPage({ open, onClose }) {
               <div className={styles.sectionLabel}>🔴 Live Now</div>
               <div className={styles.grid}>
                 {liveAuctions.map(a => (
-                  <button key={a.id} className={styles.auctionCard} onClick={() => setSelected(a)}>
+                  <div key={a.id} className={styles.auctionCard} onClick={() => setSelected(a)}>
                     <div className={styles.cardImgWrap}>
                       {a.productImage ? <img src={a.productImage} alt="" className={styles.cardImg} /> : <div className={styles.cardImgPlaceholder}>📦</div>}
                       <span className={styles.cardLive}>LIVE</span>
                       <span className={styles.cardTimer}>{formatTimer(a.endTime - Date.now())}</span>
+                      {/* Fingerprint — view product details */}
+                      <button className={styles.fingerprintBtn} onClick={(e) => { e.stopPropagation(); setProductPreview(a) }}>
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                          <path d="M2 12C2 6.5 6.5 2 12 2a10 10 0 0 1 8 4"/><path d="M5 19.5C5.5 18 6 15 6 12c0-3.5 2.5-6 6-6 1 0 2 .2 3 .5"/><path d="M12 12c0 4-1 8-4 12"/><path d="M12 12c0 5 2 9.5 6 12"/><path d="M12 12c0-2 1-4 3-5.5"/><path d="M2 17a10 10 0 0 0 4.5 4.5"/>
+                        </svg>
+                      </button>
                     </div>
                     <div className={styles.cardInfo}>
                       <span className={styles.cardName}>{a.productName}</span>
@@ -303,7 +309,7 @@ export default function AuctionPage({ open, onClose }) {
                         <span className={styles.cardBids}>{a.bidCount} bids</span>
                       </div>
                     </div>
-                  </button>
+                  </div>
                 ))}
               </div>
             </>
