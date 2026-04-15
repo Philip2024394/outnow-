@@ -512,9 +512,9 @@
 /* ── Grid ────────────────────────────────────────────────────────────────── */
 .grid {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 8px;
-  padding: 0 10px 16px;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 10px;
+  padding: 0 14px 16px;
   align-content: start;
 }
 
