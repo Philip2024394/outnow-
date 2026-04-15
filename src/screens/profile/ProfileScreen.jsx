@@ -96,6 +96,7 @@ export default function ProfileScreen({ onClose, onboarding = false }) {
 
   // ── Looking for ──────────────────────────────────────────────────────────────
   const [lookingFor,   setLookingFor]   = useState(userProfile?.lookingFor ?? '')
+  const [enabledDomains, setEnabledDomains] = useState(userProfile?.enabledDomains ?? ['marketplace', 'dating', 'food', 'rides'])
   const [subCategory,  setSubCategory]  = useState(userProfile?.subCategory ?? null)
   const [intentGridOpen, setIntentGridOpen] = useState(false)
   const [lookingForOpen, setLookingForOpen] = useState(false)
@@ -342,6 +343,7 @@ export default function ProfileScreen({ onClose, onboarding = false }) {
         country,
         activities:  selectedActivity ? [selectedActivity] : [],
         lookingFor,
+        enabledDomains,
         subCategory,
         speakingNative,
         speakingSecond,
@@ -502,6 +504,37 @@ export default function ProfileScreen({ onClose, onboarding = false }) {
           />
 
           {/* ── Shop section (ECHO commerce inline fields) ── */}
+          {/* ── App Domains — what buyer wants to use ── */}
+          {profileTab === 'profile' && (
+            <div className={styles.domainsSection}>
+              <div className={styles.domainsBadge}>🛍️ Buyer</div>
+              <span className={styles.domainsTitle}>I want to use</span>
+              <div className={styles.domainsGrid}>
+                {[
+                  { id: 'marketplace', icon: '🛍️', label: 'Marketplace' },
+                  { id: 'dating', icon: '💕', label: 'Dating' },
+                  { id: 'food', icon: '🍔', label: 'Food Delivery' },
+                  { id: 'rides', icon: '🚗', label: 'Rides' },
+                  { id: 'massage', icon: '💆', label: 'Massage' },
+                  { id: 'rentals', icon: '🏠', label: 'Rentals' },
+                ].map(d => {
+                  const on = enabledDomains.includes(d.id)
+                  return (
+                    <button key={d.id}
+                      className={`${styles.domainChip} ${on ? styles.domainChipOn : ''}`}
+                      onClick={() => setEnabledDomains(prev =>
+                        prev.includes(d.id) ? prev.filter(x => x !== d.id) : [...prev, d.id]
+                      )}
+                    >
+                      <span>{d.icon}</span>
+                      <span>{d.label}</span>
+                    </button>
+                  )
+                })}
+              </div>
+            </div>
+          )}
+
           <ProfileShopSection
             lookingFor={lookingFor}
             profileTab={profileTab}
