@@ -57,8 +57,8 @@
 }
 
 .logo {
-  height: 40vh;
-  max-height: 320px;
+  height: 80vh;
+  max-height: 640px;
   width: auto;
   object-fit: contain;
   filter: drop-shadow(0 4px 24px rgba(0,0,0,0.7));
