@@ -5,7 +5,7 @@ import FreightCompaniesSheet from './FreightCompaniesSheet'
 import ReturnDetailsSheet from './ReturnDetailsSheet'
 import MakeOfferSheet from './MakeOfferSheet'
 import { trackProductView } from './BuyerProfileSheet'
-import ProductReviews from './ProductReviews'
+import ProductReviewPage from './ProductReviewPage'
 import SellerVideoPlayer from './SellerVideoPlayer'
 
 const ImageGalleryViewer = lazy(() => import('./ImageGalleryViewer'))
@@ -51,6 +51,7 @@ export default function ProductDetailSheet({ product, onClose, sellerWa, sellerN
   const [safeTradeOpen, setSafeTradeOpen] = useState(false)
   const [offerOpen, setOfferOpen] = useState(false)
   const [videoOpen, setVideoOpen] = useState(false)
+  const [reviewsOpen, setReviewsOpen] = useState(false)
 
   const activeImage = useMemo(() => {
     if (!product) return null
@@ -241,6 +242,18 @@ export default function ProductDetailSheet({ product, onClose, sellerWa, sellerN
           </button>
         )}
 
+        {/* Reviews */}
+        <button
+          className={[styles.sidePanelBtn, reviewsOpen ? styles.sidePanelBtnActive : ''].join(' ')}
+          onClick={() => setReviewsOpen(true)}
+          aria-label="Reviews"
+          title="Reviews"
+        >
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+            <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
+          </svg>
+        </button>
+
         {/* Video — only if product has video URL */}
         {product.video_url && (
           <button
@@ -408,8 +421,6 @@ export default function ProductDetailSheet({ product, onClose, sellerWa, sellerN
               )}
             </div>
 
-            {/* Product reviews */}
-            <ProductReviews productId={product.id} productName={product.name} />
 
             {/* Thumbnail strip + Cart button row */}
             <div style={{ display:'flex', alignItems:'center', gap:8, marginTop:4 }}>
@@ -495,6 +506,12 @@ export default function ProductDetailSheet({ product, onClose, sellerWa, sellerN
         onClose={() => setVideoOpen(false)}
         videoUrl={product.video_url}
         sellerName={sellerName}
+      />
+      <ProductReviewPage
+        open={reviewsOpen}
+        onClose={() => setReviewsOpen(false)}
+        productName={product.name}
+        productId={product.id}
       />
     </div>
   )

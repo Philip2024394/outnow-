@@ -3,6 +3,7 @@ import { supabase } from '@/lib/supabase'
 import { LOOKING_FOR_OPTIONS } from '@/utils/lookingForLabels'
 import { DEMO_BUSINESS_SELLERS } from '@/demo/mockData'
 import { sortProducts, sortSellers } from '@/utils/searchAlgorithm'
+import { DEMO_PRODUCTS } from '@/services/commerceService'
 import SellerProfileSheet from '@/components/commerce/SellerProfileSheet'
 import RecommendationBanner from '@/components/commerce/RecommendationBanner'
 import FlashSalePage from '@/components/commerce/FlashSalePage'
@@ -97,8 +98,8 @@ function ProductCard({ product, onClick, isFirstNewShopProduct, isPowerSellerPro
   return (
     <button className={`${styles.card} ${deactivated ? styles.cardDeactivated : ''}`} onClick={() => !deactivated && onClick(product)} style={{ position:'relative', cursor: deactivated ? 'default' : 'pointer' }}>
       <div className={styles.cardImgWrap}>
-        {product.image_url
-          ? <img src={product.image_url} alt={product.name} className={styles.cardImg} />
+        {(product.image_url ?? product.image)
+          ? <img src={product.image_url ?? product.image} alt={product.name} className={styles.cardImg} />
           : <div className={styles.cardImgFallback} style={{ fontSize:28, color:'rgba(255,255,255,0.15)' }}>📦</div>
         }
         {hasSale && (
@@ -141,7 +142,7 @@ function ProductCard({ product, onClick, isFirstNewShopProduct, isPowerSellerPro
         <div style={{ padding:'2px 0', display:'flex', alignItems:'baseline', gap:4 }}>
           {hasSale ? (
             <>
-              <span style={{ fontSize:12, fontWeight:800, color:'#ef4444', fontFamily:'monospace' }}>{fmtRp(salePrice)}</span>
+              <span style={{ fontSize:12, fontWeight:800, color:'#FFE500', fontFamily:'monospace' }}>{fmtRp(salePrice)}</span>
               <span style={{ fontSize:9, textDecoration:'line-through', color:'rgba(255,255,255,0.3)' }}>{fmtRp(price)}</span>
             </>
           ) : (
@@ -218,7 +219,7 @@ export default function ShopSearchScreen({ onClose, userCity, userCountry, giftF
   const [query,                  setQuery]                  = useState('')
   const [activeCategory,         setActiveCategory]         = useState('all')
   const [sellers,                setSellers]                = useState(DEMO_SELLERS)
-  const [products,               setProducts]               = useState([])
+  const [products,               setProducts]               = useState(DEMO_PRODUCTS)
   const [loading,                setLoading]                = useState(false)
   const [selectedSeller,         setSelectedSeller]         = useState(null)
   const [viewMode,               setViewMode]               = useState('all') // 'all' | 'products' | 'sellers'
@@ -300,10 +301,10 @@ export default function ShopSearchScreen({ onClose, userCity, userCountry, giftF
       const productData = productsRes.status === 'fulfilled' ? (productsRes.value.data ?? []) : []
 
       setSellers(sellerData.length > 0 ? sellerData : DEMO_SELLERS)
-      setProducts(productData)
+      setProducts(productData.length > 0 ? productData : DEMO_PRODUCTS)
     } catch {
       setSellers(DEMO_SELLERS)
-      setProducts([])
+      setProducts(DEMO_PRODUCTS)
     }
     setLoading(false)
   }, [])
