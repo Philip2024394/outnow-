@@ -95,7 +95,7 @@ function ProductCard({ product, onClick, isFirstNewShopProduct, isPowerSellerPro
   )
   const inAuction = !!liveAuction
   const deactivated = product._showDeactivated ?? false
-  const deactivatedImg = DEACTIVATED_IMGS[product.id?.charCodeAt(0) % 2 ?? 0]
+  const deactivatedImg = DEACTIVATED_IMGS[(product.id?.charCodeAt(0) ?? 0) % 2]
 
   return (
     <button className={`${styles.card} ${deactivated ? styles.cardDeactivated : ''}`} onClick={() => !deactivated && onClick(product)} style={{ position:'relative', cursor: deactivated ? 'default' : 'pointer' }}>
@@ -122,7 +122,7 @@ function ProductCard({ product, onClick, isFirstNewShopProduct, isPowerSellerPro
         )}
         {isFirstNewShopProduct && !inAuction && (
           <div className={styles.newShopOverlay}>
-            <img src={NEW_SHOP_IMGS[product.id?.charCodeAt(0) % 2 ?? 0]} alt="" className={styles.newShopOverlayImg} />
+            <img src={NEW_SHOP_IMGS[(product.id?.charCodeAt(0) ?? 0) % 2]} alt="" className={styles.newShopOverlayImg} />
           </div>
         )}
         {isPowerSellerProduct && !inAuction && !isFirstNewShopProduct && !deactivated && (
@@ -201,7 +201,7 @@ function SellerCard({ seller, onClick, onAuctionTap }) {
         )}
         {newShop && !hasLiveAuction && (
           <div className={styles.newShopOverlay}>
-            <img src={NEW_SHOP_IMGS[seller.id?.charCodeAt(0) % 2 ?? 0]} alt="" className={styles.newShopOverlayImg} />
+            <img src={NEW_SHOP_IMGS[(seller.id?.charCodeAt(0) ?? 0) % 2]} alt="" className={styles.newShopOverlayImg} />
           </div>
         )}
       </div>
