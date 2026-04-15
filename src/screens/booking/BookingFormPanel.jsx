@@ -159,16 +159,16 @@ export default function BookingFormPanel({
         {(!initialVehicle || initialVehicle === 'bike_ride') && (
           <>
             <button
-              className={`${styles.vehicleTab} ${vehicleType === 'bike_ride' ? styles.vehicleTabActive : ''}`}
-              onClick={() => { setVehicleType('bike_ride'); setHasPickedVehicle(true) }}
+              className={`${styles.vehicleTab} ${!hireMode && vehicleType === 'bike_ride' ? styles.vehicleTabActive : ''}`}
+              onClick={() => { setHireMode(false); setVehicleType('bike_ride'); setHasPickedVehicle(true) }}
             >
               <span className={styles.vehicleTabLabel}>Bike Ride</span>
               <span className={styles.vehicleTabPrice}>{formatRp(estimateFare('bike_ride', 'Yogyakarta', distanceKm, zones, settings))}</span>
               <img src={BIKE_IMG} alt="Bike" className={styles.vehicleTabImg} />
             </button>
             <button
-              className={`${styles.vehicleTab} ${vehicleType === 'bike_parcel' ? styles.vehicleTabActive : ''}`}
-              onClick={() => { setVehicleType('bike_parcel'); setHasPickedVehicle(true) }}
+              className={`${styles.vehicleTab} ${!hireMode && vehicleType === 'bike_parcel' ? styles.vehicleTabActive : ''}`}
+              onClick={() => { setHireMode(false); setVehicleType('bike_parcel'); setHasPickedVehicle(true) }}
             >
               <span className={styles.vehicleTabLabel}>Bike Parcel</span>
               <span className={styles.vehicleTabPrice}>{formatRp(estimateFare('bike_ride', 'Yogyakarta', distanceKm, zones, settings))}</span>
@@ -179,16 +179,16 @@ export default function BookingFormPanel({
         {initialVehicle === 'car_taxi' && (
           <>
             <button
-              className={`${styles.vehicleTab} ${vehicleType === 'car_taxi' ? styles.vehicleTabActive : ''}`}
-              onClick={() => { setVehicleType('car_taxi'); setHasPickedVehicle(true) }}
+              className={`${styles.vehicleTab} ${!hireMode && vehicleType === 'car_taxi' ? styles.vehicleTabActive : ''}`}
+              onClick={() => { setHireMode(false); setVehicleType('car_taxi'); setHasPickedVehicle(true) }}
             >
               <span className={styles.vehicleTabLabel}>Car Taxi</span>
               <span className={styles.vehicleTabPrice}>{formatRp(estimateFare('car_taxi', 'Yogyakarta', distanceKm, zones, settings))}</span>
               <img src={CAR_IMG} alt="Car" className={`${styles.vehicleTabImg} ${styles.vehicleTabImgCar}`} />
             </button>
             <button
-              className={`${styles.vehicleTab} ${vehicleType === 'car_parcel' ? styles.vehicleTabActive : ''}`}
-              onClick={() => { setVehicleType('car_parcel'); setHasPickedVehicle(true) }}
+              className={`${styles.vehicleTab} ${!hireMode && vehicleType === 'car_parcel' ? styles.vehicleTabActive : ''}`}
+              onClick={() => { setHireMode(false); setVehicleType('car_parcel'); setHasPickedVehicle(true) }}
             >
               <span className={styles.vehicleTabLabel}>Car Package</span>
               <span className={styles.vehicleTabPrice}>{formatRp(estimateFare('car_taxi', 'Yogyakarta', distanceKm, zones, settings))}</span>
@@ -252,7 +252,8 @@ export default function BookingFormPanel({
         </div>
       )}
 
-      {/* Location fields */}
+      {/* Location fields — hidden in hire mode */}
+      {!hireMode && (<>
       <div className={styles.fieldGroup}>
         <LocationField
           label="Destination"
@@ -308,6 +309,29 @@ export default function BookingFormPanel({
         Find a Driver
       </button>
       {!pickup && <p className={styles.fieldHint}>Set your pickup location to continue</p>}
+      </>)}
+
+      {/* Hire mode — find driver with pickup only */}
+      {hireMode && selectedHirePackage && (
+        <div className={styles.fieldGroup}>
+          <LocationField
+            label="Pickup Location"
+            query={pickupQuery} setQuery={setPickupQuery}
+            value={pickup} setValue={setPickup}
+            showSuggest={showPickupSuggest} setShowSuggest={setShowPickupSuggest}
+            placeholder="Where should the driver pick you up?"
+            isPickup
+            gpsLoading={gpsLoading} gpsError={gpsError} onGps={handleGps}
+          />
+          <button
+            className={styles.findBtn}
+            disabled={!pickup}
+            onClick={handleFindDriver}
+          >
+            Find a Driver — {formatRpStatic(hireRates.packages.find(p => p.hours === selectedHirePackage)?.price ?? 0)}
+          </button>
+        </div>
+      )}
     </div>
   )
 }
