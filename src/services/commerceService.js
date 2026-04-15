@@ -11,6 +11,7 @@ export const DEMO_PRODUCTS = [
   {
     id: 'demo-1', name: 'Wireless Earbuds Pro', price: 350000, currency: 'IDR',
     category: 'electronics', stock: 12, active: true, isNew: true,
+    weight_grams: 250, dimensions: '8 x 6 x 4 cm',
     dispatch_time: '1-2 business days', brand_name: 'SoundMax',
     safeTrade: { enabled: true, paypal: true, escrow: true },
     flashSale: { active: true, discountPercent: 25, endsAt: Date.now() + 6 * 60 * 60 * 1000 },
@@ -39,7 +40,7 @@ export const DEMO_PRODUCTS = [
     },
   },
   {
-    id: 'demo-2', name: 'Leather Crossbody Bag', price: 1200000, currency: 'IDR',
+    id: 'demo-2', name: 'Leather Crossbody Bag', weight_grams: 650, dimensions: '26 x 18 x 8 cm', price: 1200000, currency: 'IDR',
     category: 'bags', stock: 5, active: true, isNew: true,
     dispatch_time: '2-3 business days', brand_name: 'Kulit Asli',
     safeTrade: { enabled: true, paypal: true, escrow: false },

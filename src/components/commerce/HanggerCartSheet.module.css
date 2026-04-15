@@ -514,6 +514,12 @@
 .gpsBtn:disabled { opacity: 0.5; cursor: default; }
 
 /* ── Voucher ── */
+/* ── Shipping info ── */
+.shippingInfo { display: flex; flex-direction: column; gap: 3px; padding: 8px 10px; background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.06); border-radius: 8px; margin-bottom: 6px; }
+.shippingWeight { font-size: 11px; font-weight: 700; color: rgba(255,255,255,0.6); }
+.shippingEstimate { font-size: 12px; font-weight: 800; color: #F59E0B; }
+.shippingNote { font-size: 9px; color: rgba(255,255,255,0.25); font-style: italic; }
+
 .voucherRow { display: flex; gap: 8px; }
 .voucherInput { flex: 1; padding: 9px 12px; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; color: #fff; font-size: 13px; font-weight: 700; font-family: monospace; letter-spacing: 0.05em; outline: none; box-sizing: border-box; text-transform: uppercase; }
 .voucherInput:focus { border-color: rgba(245,158,11,0.4); }

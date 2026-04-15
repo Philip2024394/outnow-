@@ -1,6 +1,7 @@
 import { useState, useMemo } from 'react'
 import { PARCEL_CARRIERS, CARGO_CARRIERS, EXPORT_CARRIERS } from '@/services/commissionService'
 import { validateVoucher, redeemVoucher } from '@/services/voucherService'
+import { calculateCombinedShipping, fmtWeight } from '@/services/deliveryRateService'
 import styles from './HanggerCartSheet.module.css'
 
 function formatIDR(n) {
@@ -31,6 +32,9 @@ export default function HanggerCartSheet({
   cart, onUpdateQty, onClearCart,
   sellerName, sellerWa,
   product,
+  products = [],
+  sellerCity = '',
+  buyerCity = '',
   onOrderViaChat,
 }) {
   const [selectedDelivery, setSelectedDelivery] = useState(null) // auto-set below
@@ -111,6 +115,12 @@ export default function HanggerCartSheet({
     return options
   }, [priceIncluded, carrierPrices, customCarriers])
 
+  // Combined shipping calculation — weight-based, one fee for all items
+  const shippingCalc = useMemo(() => {
+    if (cart.length === 0) return null
+    return calculateCombinedShipping(cart, products, sellerCity, buyerCity)
+  }, [cart, products, sellerCity, buyerCity])
+
   // Auto-select cheapest on first render
   const cheapest = deliveryOptions[0] ?? PICKUP_OPTION
   const selected = selectedDelivery
@@ -119,7 +129,12 @@ export default function HanggerCartSheet({
 
   const isBike = selected.id === 'bike'
   const subtotal = cart.reduce((s, i) => s + i.price * i.qty, 0)
-  const deliveryFee = selected.fee ?? 0
+
+  // Use weight-based rate when available, otherwise fall back to seller's set price
+  const deliveryFee = selected.id === 'collect' ? 0
+    : selected.id === 'bike' ? BIKE_DELIVERY.baseFare
+    : (shippingCalc?.cheapest?.total ?? selected.fee ?? 0)
+
   const total = subtotal + deliveryFee
   const totalQty = cart.reduce((s, i) => s + i.qty, 0)
 
@@ -267,6 +282,21 @@ export default function HanggerCartSheet({
           {/* ── Delivery section ── */}
           <div className={styles.section}>
             <div className={styles.sectionLabel}>Delivery</div>
+
+            {/* Weight & shipping info */}
+            {shippingCalc && (
+              <div className={styles.shippingInfo}>
+                <span className={styles.shippingWeight}>
+                  📦 {fmtWeight(shippingCalc.totalWeightGrams)} · {shippingCalc.itemCount} item{shippingCalc.itemCount !== 1 ? 's' : ''} · combined shipping
+                </span>
+                {shippingCalc.cheapest && (
+                  <span className={styles.shippingEstimate}>
+                    From {formatIDR(shippingCalc.cheapest.total)} via {shippingCalc.cheapest.label}
+                  </span>
+                )}
+                <span className={styles.shippingNote}>Estimated rate · one delivery fee for all items from this seller</span>
+              </div>
+            )}
 
             {/* Pick Up — always first */}
             <button
