@@ -51,7 +51,7 @@ function AuthWall({ onClose, onSignUp }) {
   )
 }
 
-export default function BookingScreen({ onClose }) {
+export default function BookingScreen({ onClose, initialVehicle }) {
   const { user }              = useAuth()
   const { openSignUp }        = useGuestGate()
   const { coords: gpsCoords } = useGeolocation()
@@ -69,8 +69,8 @@ export default function BookingScreen({ onClose }) {
   }, [])
 
   // ── Form state ─────────────────────────────────────────────────────────────
-  const [vehicleType,      setVehicleType]      = useState(null)
-  const [hasPickedVehicle, setHasPickedVehicle] = useState(false)
+  const [vehicleType,      setVehicleType]      = useState(initialVehicle ?? null)
+  const [hasPickedVehicle, setHasPickedVehicle] = useState(!!initialVehicle)
 
   const [pickupQuery,       setPickupQuery]       = useState('')
   const [pickup,            setPickup]            = useState(null)

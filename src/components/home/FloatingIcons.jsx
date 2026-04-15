@@ -18,7 +18,8 @@ export default function FloatingIcons({ sessions = [], serviceCounts = {}, onSel
 
   const handleIconClick = (icon) => {
     if (icon.id === 'food' && onFoodClick)                                    { onFoodClick();     return }
-    if ((icon.id === 'bike_ride' || icon.id === 'car_taxi') && onRideClick)   { onRideClick();     return }
+    if (icon.id === 'bike_ride' && onRideClick)   { onRideClick('bike_ride');  return }
+    if (icon.id === 'car_taxi' && onRideClick)    { onRideClick('car_taxi');   return }
     if (icon.id === 'shopping' && onShoppingClick)                            { onShoppingClick(); return }
     if (icon.id === 'dating' && onDatingClick)                                { onDatingClick();   return }
     if (icon.id === 'massage' && onMassageClick)                              { onMassageClick();  return }

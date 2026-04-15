@@ -206,6 +206,7 @@ export default function AppShell({ returnParams, triggerGoLive }) {
   const [mapFilters, setMapFilters] = useState(DEFAULT_MAP_FILTERS)
   const [activeTab, setActiveTab] = useState('map')
   const [sectionGate, setSectionGate] = useState(null) // 'dating' | 'marketplace' | null
+  const [rideVehicleType, setRideVehicleType] = useState('bike_ride') // 'bike_ride' | 'car_taxi'
   const [giftForSession, setGiftForSession] = useState(null)
 
   // Send new users (no display name yet) straight to profile setup
@@ -444,7 +445,7 @@ export default function AppShell({ returnParams, triggerGoLive }) {
           serviceCounts={serviceUnreadCounts}
           onSelectSession={(s) => handleOpenDiscovery(s)}
           onFoodClick={() => setFoodOpen(true)}
-          onRideClick={() => { if (isGuest) { triggerGate(); return } setRideOpen(true) }}
+          onRideClick={(type) => { if (isGuest) { triggerGate(); return } setRideVehicleType(type ?? 'bike_ride'); setRideOpen(true) }}
           onShoppingClick={() => {
             if (isGuest) { triggerGate(); return }
             const access = checkSectionAccess('marketplace', userProfile)
@@ -767,7 +768,7 @@ export default function AppShell({ returnParams, triggerGoLive }) {
       )}
 
       <Suspense fallback={<LazyFallback />}>
-      {rideOpen && <BookingScreen onClose={() => setRideOpen(false)} />}
+      {rideOpen && <BookingScreen onClose={() => setRideOpen(false)} initialVehicle={rideVehicleType} />}
       </Suspense>
 
       <Suspense fallback={<LazyFallback />}>
