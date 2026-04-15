@@ -11,9 +11,10 @@ const CITY_CENTER = { lat: -7.7928, lng: 110.3653 }
 const ONE_WAY_LIMIT_KM = 10
 
 // Pricing
-const BIKE_BASE = 5000
-const BIKE_PER_KM = 3000
-const CAR_BASE = 10000
+// Yogyakarta Zone 1 (Central Java) — within government regulation
+const BIKE_BASE = 8000
+const BIKE_PER_KM = 2500
+const CAR_BASE = 15000
 const CAR_PER_KM = 4000
 
 // Haversine distance
