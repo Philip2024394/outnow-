@@ -131,7 +131,7 @@ export default function BuyerProfileSheet({ open, onClose, onOpenProduct }) {
 
       {/* Bottom overlay — buyer info + tab content */}
       <div className={styles.bottomOverlay}>
-        <span className={styles.buyerBadge}>🛍️ Buyer</span>
+        <span className={styles.buyerBadge}>🛍️ Buyer Profile</span>
         <div className={styles.buyerName}>{displayName}</div>
         {city && (
           <p className={styles.locationText}>
