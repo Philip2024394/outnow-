@@ -23,8 +23,15 @@ export default function DestinationDirectory({ open, onClose, onSelectDestinatio
 
   const isBike = vehicleMode !== 'car_taxi'
 
+  // Day/night background matching booking page
+  const h = new Date().getHours()
+  const isNight = h >= 18 || h < 6
+  const bgImage = isBike
+    ? (isNight ? 'https://ik.imagekit.io/nepgaxllc/Untitleddfsadfasdfdasdasdasdsdfasd.png' : 'https://ik.imagekit.io/nepgaxllc/Untitledddddddddddsfsdfadsfasdf.png')
+    : (isNight ? 'https://ik.imagekit.io/nepgaxllc/Untitledddddddddddsfsdf.png' : 'https://ik.imagekit.io/nepgaxllc/Untitledddddddddd.png')
+
   return createPortal(
-    <div className={styles.page}>
+    <div className={styles.page} style={{ backgroundImage: `url("${bgImage}")`, backgroundSize: 'cover', backgroundPosition: 'center top' }}>
       {/* Header */}
       <div className={styles.header}>
         <span className={styles.headerTitle}>📍 Destinations</span>
