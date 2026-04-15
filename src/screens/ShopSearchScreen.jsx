@@ -8,6 +8,8 @@ import SellerProfileSheet from '@/components/commerce/SellerProfileSheet'
 import RecommendationBanner from '@/components/commerce/RecommendationBanner'
 import FlashSalePage from '@/components/commerce/FlashSalePage'
 import AuctionPage from '@/components/commerce/AuctionPage'
+import BuyerProfileSheet from '@/components/commerce/BuyerProfileSheet'
+import PurchaseHistoryScreen from '@/screens/PurchaseHistoryScreen'
 import SearchAutocomplete, { saveRecentSearch } from '@/components/commerce/SearchAutocomplete'
 import { getAuctions, AUCTION_STATUS } from '@/services/auctionService'
 import styles from './ShopSearchScreen.module.css'
@@ -232,6 +234,8 @@ export default function ShopSearchScreen({ onClose, userCity, userCountry, giftF
   const [filterCity, setFilterCity] = useState('')
   const [filterCondition, setFilterCondition] = useState('all') // all | new | used
   const [searchFocused, setSearchFocused] = useState(false)
+  const [buyerProfileOpen, setBuyerProfileOpen] = useState(false)
+  const [ordersOpen, setOrdersOpen] = useState(false)
   const inputRef = useRef(null)
 
   const activeCat = SEARCH_CATEGORIES.find(c => c.id === activeCategory) ?? SEARCH_CATEGORIES[0]
@@ -357,12 +361,12 @@ export default function ShopSearchScreen({ onClose, userCity, userCountry, giftF
         </div>
       )}
 
-      {/* ── Header: logo + back ── */}
+      {/* ── Header: logo + settings icon ── */}
       <div className={styles.header}>
         <img src="https://ik.imagekit.io/nepgaxllc/Indoo%20Market%20logo%20design.png?updatedAt=1776203793752" alt="Indoo Market" className={styles.headerLogo} />
-        <button className={styles.backBtn} onClick={onClose}>
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-            <polyline points="15 18 9 12 15 6"/>
+        <button className={styles.headerIconBtn} onClick={() => setBuyerProfileOpen(true)} title="My Account">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+            <circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/>
           </svg>
         </button>
       </div>
@@ -585,6 +589,10 @@ export default function ShopSearchScreen({ onClose, userCity, userCountry, giftF
     <AuctionPage
       open={auctionOpen}
       onClose={() => setAuctionOpen(false)}
+    />
+    <BuyerProfileSheet
+      open={buyerProfileOpen}
+      onClose={() => setBuyerProfileOpen(false)}
     />
     </>
   )
