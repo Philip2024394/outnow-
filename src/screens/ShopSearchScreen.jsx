@@ -272,7 +272,7 @@ export default function ShopSearchScreen({ onClose, userCity, userCountry, giftF
         </div>
 
         <div className={styles.wordmark}>
-          <img src="https://ik.imagekit.io/nepgaxllc/Indoo%20Market%20logo%20design.png?updatedAt=1776203793752" alt="Indoo Market" style={{ height:28, objectFit:'contain' }} />
+          <img src="https://ik.imagekit.io/nepgaxllc/Indoo%20Market%20logo%20design.png?updatedAt=1776203793752" alt="Indoo Market" style={{ height:40, objectFit:'contain' }} />
         </div>
       </div>
 
