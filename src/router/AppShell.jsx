@@ -447,8 +447,8 @@ export default function AppShell({ returnParams, triggerGoLive }) {
       {/* Time-based background fills full screen */}
       <TimeBackground />
 
-      {/* Floating activity icons — visible on map tab when dock is on */}
-      {activeTab === 'map' && dockVisible && (
+      {/* Floating activity icons — visible when dock is on */}
+      {dockVisible && (
         <FloatingIcons
           sessions={visibleSessions}
           serviceCounts={serviceUnreadCounts}
@@ -459,15 +459,12 @@ export default function AppShell({ returnParams, triggerGoLive }) {
             if (isGuest) { triggerGate(); return }
             const access = checkSectionAccess('marketplace', userProfile)
             if (!access.allowed) { setSectionGate('marketplace'); return }
-            setDockVisible(false); setActiveSection('marketplace'); setActiveTab('shopping')
+            setActiveSection('marketplace'); setActiveTab('shopping')
           }}
           onDatingClick={() => {
-            if (isGuest) { triggerGate(); return }
-            const access = checkSectionAccess('dating', userProfile)
-            if (!access.allowed) { setSectionGate('dating'); return }
             setActiveSection('dating'); setDatingGridOpen(true)
           }}
-          onMassageClick={() => { if (isGuest) { triggerGate(); return } setActiveSection('massage'); setMassageOpen(true) }}
+          onMassageClick={() => { if (isGuest) { triggerGate(); return } setDockVisible(false); setActiveSection('massage'); setMassageOpen(true) }}
           onRentalsClick={() => { if (isGuest) { triggerGate(); return } setDockVisible(false); setActiveSection('rentals'); setActiveTab('rentals') }}
         />
       )}
@@ -544,7 +541,7 @@ export default function AppShell({ returnParams, triggerGoLive }) {
       <Suspense fallback={<LazyFallback />}>
         {activeTab === 'chat'    && <ChatScreen key={pendingConv?.id ?? 'chat'} onClose={() => setActiveTab('map')} pendingConv={pendingConv} />}
         {activeTab === 'profile' && <ProfileScreen onClose={() => setActiveTab('map')} onOpenSettings={() => setSettingsOpen(true)} />}
-        {activeTab === 'shopping' && <ShopSearchScreen onClose={() => { setActiveTab('map'); setDockVisible(true); setGiftForSession(null) }} userCity={userProfile?.city} userCountry={userProfile?.country} giftFor={giftForSession} onGiftDismiss={() => setGiftForSession(null)} showToast={showToast} onOrderViaChat={handleOrderViaChat} onMakeOffer={handleMakeOffer} />}
+        {activeTab === 'shopping' && <ShopSearchScreen onClose={() => { setActiveTab('map'); setDockVisible(true); setGiftForSession(null); setActiveSection('default') }} userCity={userProfile?.city} userCountry={userProfile?.country} giftFor={giftForSession} onGiftDismiss={() => setGiftForSession(null)} showToast={showToast} onOrderViaChat={handleOrderViaChat} onMakeOffer={handleMakeOffer} onLandingChange={(onLanding) => { if (!onLanding) setDockVisible(false) }} />}
         {activeTab === 'rentals' && <RentalSearchScreen onClose={() => { setActiveTab('map'); setDockVisible(true) }} />}
       </Suspense>
 

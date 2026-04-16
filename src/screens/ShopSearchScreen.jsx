@@ -221,7 +221,7 @@ function SellerCard({ seller, onClick, onAuctionTap }) {
 }
 
 // ── Main screen ───────────────────────────────────────────────────────────────
-export default function ShopSearchScreen({ onClose, userCity, userCountry, giftFor, onGiftDismiss, wishlistMode = false, onWishlistSelectSeller, showToast, onOrderViaChat, onMakeOffer }) {
+export default function ShopSearchScreen({ onClose, userCity, userCountry, giftFor, onGiftDismiss, wishlistMode = false, onWishlistSelectSeller, showToast, onOrderViaChat, onMakeOffer, onLandingChange }) {
   const [showLanding, setShowLanding] = useState(true)
   const [query,                  setQuery]                  = useState('')
   const [activeCategory,         setActiveCategory]         = useState('all')
@@ -358,7 +358,7 @@ export default function ShopSearchScreen({ onClose, userCity, userCountry, giftF
       <div className={styles.landingContent}>
         <h1 className={styles.landingTitle}>Indoo Market</h1>
         <p className={styles.landingSub}>Buy & sell anything — fashion, electronics, handmade and more</p>
-        <button className={styles.landingBtn} onClick={() => { markSectionVisited('marketplace'); setShowLanding(false) }}>
+        <button className={styles.landingBtn} onClick={() => { markSectionVisited('marketplace'); setShowLanding(false); onLandingChange?.(false) }}>
           Browse Market
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
             <polyline points="9 18 15 12 9 6"/>
@@ -367,7 +367,7 @@ export default function ShopSearchScreen({ onClose, userCity, userCountry, giftF
         <SectionCTAButton
           section="marketplace"
           className={styles.landingBtnOutline}
-          onReady={() => { markSectionVisited('marketplace'); setShowLanding(false) }}
+          onReady={() => { markSectionVisited('marketplace'); setShowLanding(false); onLandingChange?.(false) }}
         />
       </div>
     </div>
