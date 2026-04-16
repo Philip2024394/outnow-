@@ -1,8 +1,6 @@
-/* MassageHeroNav — Hero toggle from HomePage.tsx */
-/* Row 1: Home Service / Places toggle */
-/* Row 2: Massage / Facial / Beauty / Filter buttons */
+/* MassageHeroNav — Indoo Massage hero with Home/Places toggle */
+/* Cream spa gold #C9A96E */
 
-/* bg-white sticky top-[60px] z-10 → bg-black/80 backdrop-blur */
 .hero {
   background: rgba(0,0,0,0.8);
   backdrop-filter: blur(12px);
@@ -10,7 +8,16 @@
   position: sticky;
   top: 60px;
   z-index: 10;
-  padding: 0 0 12px;
+  padding: 12px 0;
+}
+
+.title {
+  font-size: 20px;
+  font-weight: 900;
+  color: #C9A96E;
+  text-align: center;
+  margin: 0 0 12px;
+  letter-spacing: 0.5px;
 }
 
 .inner { max-width: 672px; margin: 0 auto; }
@@ -69,76 +76,3 @@
 /* whitespace-nowrap overflow-hidden text-ellipsis */
 .row1Label { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 
-/* ── Row 2: Service type buttons ── */
-/* max-w-2xl mx-auto mt-4 flex flex-row gap-2 sm:gap-3 items-center min-h-[54px] */
-.row2 {
-  max-width: 672px;
-  margin: 16px auto 0;
-  display: flex;
-  gap: 8px;
-  align-items: center;
-  min-height: 54px;
-  padding: 0 4px;
-}
-@media (min-width: 640px) { .row2 { gap: 12px; } }
-
-/* flex-1 min-w-0 h-[42px] px-2 rounded-full font-semibold text-sm flex items-center justify-center gap-1.5 border */
-.serviceBtn {
-  flex: 1;
-  min-width: 0;
-  height: 42px;
-  padding: 0 8px;
-  border-radius: 9999px;
-  font-weight: 600;
-  font-size: 14px;
-  font-family: inherit;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 6px;
-  transition: all 0.15s;
-  cursor: pointer;
-}
-@media (min-width: 640px) { .serviceBtn { gap: 8px; } }
-
-/* inactive: bg-gray-200 text-gray-600 border-gray-300 → bg-white/6 text-white/40 border-white/10 */
-.serviceBtnInactive {
-  background: rgba(255,255,255,0.06);
-  color: rgba(255,255,255,0.4);
-  border: 1px solid rgba(255,255,255,0.1);
-}
-.serviceBtnInactive:hover { background: rgba(255,255,255,0.1); }
-
-/* active: bg-amber-500 text-white border-amber-500 shadow → bg-green text-black */
-.serviceBtnActive {
-  background: #C9A96E;
-  color: #000;
-  border: 1px solid #C9A96E;
-  box-shadow: 0 2px 8px rgba(201,169,110,0.3);
-}
-
-/* w-4 h-4 flex-shrink-0 */
-.serviceIcon { width: 16px; height: 16px; flex-shrink: 0; }
-
-/* whitespace-nowrap */
-.serviceLabel { white-space: nowrap; }
-
-/* Filter button: flex-shrink-0 h-[42px] w-[42px] rounded-full border bg-gray-100 → bg-white/6 border-white/10 */
-.filterBtn {
-  flex-shrink: 0;
-  height: 42px;
-  width: 42px;
-  border-radius: 9999px;
-  border: 1px solid rgba(255,255,255,0.1);
-  background: rgba(255,255,255,0.06);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: rgba(255,255,255,0.4);
-  cursor: pointer;
-  transition: background 0.15s;
-}
-.filterBtn:hover { background: rgba(255,255,255,0.1); }
-
-/* w-5 h-5 */
-.filterIcon { width: 20px; height: 20px; }

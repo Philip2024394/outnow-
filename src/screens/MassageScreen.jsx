@@ -18,7 +18,6 @@ export default function MassageScreen({ onClose }) {
   const [massageType, setMassageType] = useState('all')
   const [statusFilter, setStatusFilter] = useState('all')
   const [mainTab, setMainTab] = useState('home-service') // 'home-service' | 'places'
-  const [serviceButton, setServiceButton] = useState('massage') // 'massage' | 'facial' | 'beautician'
 
   const therapists = searchTherapists({
     query: search,
@@ -70,9 +69,6 @@ export default function MassageScreen({ onClose }) {
       <MassageHeroNav
         mainTab={mainTab}
         onMainTabChange={setMainTab}
-        serviceButton={serviceButton}
-        onServiceChange={setServiceButton}
-        onFilterClick={() => { /* TODO: open filter drawer */ }}
       />
 
       {/* Massage type filter chips */}

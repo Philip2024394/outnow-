@@ -11,16 +11,21 @@
 .metaCategory { font-size: 11px; color: #C9A96E; font-weight: 600; display: flex; align-items: center; gap: 4px; }
 .metaIcon { width: 12px; height: 12px; }
 
-/* ── Card container ── */
-/* bg-white rounded-2xl overflow-visible border border-slate-200 hover:border-orange-200 */
-/* Dark: bg-black/75 border-white/8 hover:border-cream/30 */
+/* ── Card container — glass effect matching booking ride containers ── */
 .card {
-  background: rgba(0,0,0,0.75); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
+  background: rgba(0,0,0,0.82);
+  backdrop-filter: blur(20px) saturate(1.8);
+  -webkit-backdrop-filter: blur(20px) saturate(1.8);
   border-radius: 16px; overflow: visible;
-  border: 1.5px solid rgba(255,255,255,0.08);
+  border: 1.5px solid rgba(255,255,255,0.06);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.08), 0 4px 20px rgba(0,0,0,0.3);
   transition: all 0.3s; cursor: pointer;
 }
-.card:hover { border-color: rgba(201,169,110,0.3); box-shadow: 0 15px 30px rgba(0,0,0,0.4); }
+.card:hover {
+  background: rgba(255,255,255,0.06);
+  border-color: rgba(255,255,255,0.15);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.15), 0 8px 30px rgba(0,0,0,0.4);
+}
 
 /* ── Image container ── */
 /* relative rounded-t-2xl pt-2 bg-white overflow-visible */

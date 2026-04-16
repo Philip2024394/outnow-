@@ -177,8 +177,7 @@ export default function TherapistCard({ therapist, onBookNow, onSchedule, onShar
           />
         )}
 
-        {/* 9. Button row — Book Now + Schedule + Menu Prices */}
-        {/* Was: relative z-10 flex gap-2 px-4 */}
+        {/* 9. Button row — Book Now + Menu Prices */}
         <div className={`${styles.buttonRow} ${spacingClass}`}>
           <button
             type="button"
@@ -186,13 +185,6 @@ export default function TherapistCard({ therapist, onBookNow, onSchedule, onShar
             className={`${styles.filledBtn} ${bookFlash ? styles.filledBtnFlash : ''}`}
           >
             {chatLang === 'id' ? 'Pesan Sekarang' : 'Book Now'}
-          </button>
-          <button
-            type="button"
-            onClick={handleSchedule}
-            className={styles.filledBtn}
-          >
-            {chatLang === 'id' ? 'Terjadwal' : 'Scheduled'}
           </button>
           <button
             type="button"
