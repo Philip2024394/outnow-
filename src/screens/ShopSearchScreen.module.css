@@ -247,22 +247,24 @@
 
 .mainTab {
   flex: 1;
-  padding: 10px 8px;
-  background: none;
+  padding: 8px 8px;
+  background: transparent;
   border: none;
-  border-bottom: 2px solid transparent;
+  border-radius: 8px;
   color: rgba(255,255,255,0.35);
   font-size: 12px;
   font-weight: 700;
   cursor: pointer;
   font-family: inherit;
   text-align: center;
-  transition: color 0.15s, border-color 0.15s;
+  transition: all 0.15s;
+  margin: 0 2px;
 }
 
 .mainTabActive {
-  color: #F59E0B;
-  border-bottom-color: #F59E0B;
+  background: #F59E0B;
+  color: #000;
+  border-radius: 8px;
 }
 
 /* Filter button (right of search bar) */
