@@ -421,22 +421,24 @@
 }
 
 .filterChip {
-  padding: 5px 10px;
-  background: rgba(255,255,255,0.04);
-  border: 1px solid rgba(255,255,255,0.08);
+  padding: 7px 14px;
+  background: rgba(0,0,0,0.7);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  border: 1.5px solid rgba(255,255,255,0.06);
   border-radius: 20px;
-  color: rgba(255,255,255,0.45);
-  font-size: 11px;
-  font-weight: 600;
+  color: rgba(255,255,255,0.4);
+  font-size: 12px;
+  font-weight: 700;
   cursor: pointer;
   font-family: inherit;
   transition: all 0.15s;
 }
 
 .filterChipActive {
-  background: rgba(245,158,11,0.15);
-  border-color: rgba(245,158,11,0.4);
-  color: #F59E0B;
+  background: #F59E0B;
+  border-color: #F59E0B;
+  color: #000;
 }
 
 .filterClear {
@@ -760,13 +762,7 @@
   white-space: nowrap;
 }
 
-.cardCity {
-  font-size: 9px;
-  color: rgba(255,255,255,0.28);
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
+.cardCity { display: none; }
 
 /* ── Skeleton ────────────────────────────────────────────────────────────── */
 .skeletonCard {
