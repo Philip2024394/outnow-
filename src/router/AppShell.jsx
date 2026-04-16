@@ -53,6 +53,7 @@ import TimeBackground from '@/components/ui/TimeBackground'
 import FloatingIcons from '@/components/home/FloatingIcons'
 import IntentGrid from '@/components/ui/IntentGrid'
 import ReviewPrompt from '@/components/restaurant/ReviewPrompt'
+import DriverRegistration from '@/components/driver/DriverRegistration'
 
 import '@/styles/map.css'
 import styles from './AppShell.module.css'
@@ -209,6 +210,7 @@ export default function AppShell({ returnParams, triggerGoLive }) {
   const [dockVisible, setDockVisible] = useState(true)
   const [rideOnLanding, setRideOnLanding] = useState(true)
   const [activeSection, setActiveSection] = useState('default')
+  const [driverRegOpen, setDriverRegOpen] = useState(false)
   const [sectionGate, setSectionGate] = useState(null) // 'dating' | 'marketplace' | null
   const [rideVehicleType, setRideVehicleType] = useState('bike_ride') // 'bike_ride' | 'car_taxi'
   const [giftForSession, setGiftForSession] = useState(null)
@@ -1180,6 +1182,8 @@ export default function AppShell({ returnParams, triggerGoLive }) {
         }}
       />
 
+      <DriverRegistration open={driverRegOpen} onClose={() => setDriverRegOpen(false)} />
+
       {/* Side nav — hidden on booking form, visible on landing */}
       {(!rideOpen || rideOnLanding) && <BottomNav
           isGuest={isGuest}
@@ -1188,13 +1192,12 @@ export default function AppShell({ returnParams, triggerGoLive }) {
           activeSection={activeSection}
           onSectionRegister={() => {
             if (isGuest) { triggerGate(); return }
-            // Each section opens its registration flow
-            if (activeSection === 'rides')       { setDockVisible(false); setRideVehicleType('bike_ride'); setRideOpen(true) }
+            if (activeSection === 'rides')       { setDriverRegOpen(true) }
             if (activeSection === 'marketplace') { setActiveTab('shopping') }
             if (activeSection === 'food')        { setFoodOpen(true) }
             if (activeSection === 'dating')      { setDatingIntentOpen(true) }
             if (activeSection === 'rentals')     { setActiveTab('rentals') }
-            if (activeSection === 'default')     { setDockVisible(false); setRideVehicleType('bike_ride'); setRideOpen(true) }
+            if (activeSection === 'default')     { setDriverRegOpen(true) }
           }}
           onHome={() => {
             setActiveTab('map')

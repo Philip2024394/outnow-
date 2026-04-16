@@ -17,6 +17,7 @@ const SECTION_BTNS = {
 }
 
 export default function BottomNav({ activeTab = 'map', userPhotoURL, userName, isLive = false, isInviteOut = false, onProfileTap, onSOS, onSectionRegister, activeSection = 'default', driverOnline = null, onToggleDriverStatus, onHanggerLive, hanggerLiveActive = false, isGuest = false, onToggleDock, dockVisible = true, onHome }) {
+  const onLanding = activeSection !== 'default'
   const holdRef      = useRef(null)
   const frameRef     = useRef(null)
   const startRef     = useRef(null)
@@ -68,18 +69,18 @@ export default function BottomNav({ activeTab = 'map', userPhotoURL, userName, i
         <span className={styles.homeBtnLabel}>Home</span>
       </button>
 
-      {/* SOS */}
-      <button className={styles.sosBtn} onClick={onSOS} aria-label="SOS / Safety">
+      {/* SOS — hidden on landing pages */}
+      {!onLanding && <button className={styles.sosBtn} onClick={onSOS} aria-label="SOS / Safety">
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
           <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/>
           <line x1="12" y1="9" x2="12" y2="13"/>
           <line x1="12" y1="17" x2="12.01" y2="17" strokeWidth="3"/>
         </svg>
         <span className={styles.sosBtnLabel}>SOS</span>
-      </button>
+      </button>}
 
-      {/* Section register — changes per active section */}
-      {(() => {
+      {/* Section register — only shows when in a section, not on home */}
+      {activeSection !== 'default' && (() => {
         const btn = SECTION_BTNS[activeSection] || SECTION_BTNS.default
         return (
           <button
@@ -93,44 +94,39 @@ export default function BottomNav({ activeTab = 'map', userPhotoURL, userName, i
         )
       })()}
 
-      {/* placeholder — TABS array kept for future use */}
+      {/* Live + Toggle — hidden on landing pages */}
+      {!onLanding && <>
+        <button
+          className={`${styles.liveBtn} ${hanggerLiveActive ? styles.liveBtnActive : ''}`}
+          onClick={onHanggerLive}
+          aria-label="Hangger Live"
+        >
+          <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+            <circle cx="12" cy="12" r="2"/>
+            <path d="M16.24 7.76a6 6 0 0 1 0 8.49"/>
+            <path d="M7.76 7.76a6 6 0 0 0 0 8.49"/>
+            <path d="M19.07 4.93a10 10 0 0 1 0 14.14"/>
+            <path d="M4.93 4.93a10 10 0 0 0 0 14.14"/>
+          </svg>
+          <span className={styles.liveBtnLabel}>Live</span>
+        </button>
 
-      {/* Hangger Live */}
-      <button
-        className={`${styles.liveBtn} ${hanggerLiveActive ? styles.liveBtnActive : ''}`}
-        onClick={onHanggerLive}
-        aria-label="Hangger Live"
-      >
-        <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
-          <circle cx="12" cy="12" r="2"/>
-          <path d="M16.24 7.76a6 6 0 0 1 0 8.49"/>
-          <path d="M7.76 7.76a6 6 0 0 0 0 8.49"/>
-          <path d="M19.07 4.93a10 10 0 0 1 0 14.14"/>
-          <path d="M4.93 4.93a10 10 0 0 0 0 14.14"/>
-        </svg>
-        <span className={styles.liveBtnLabel}>Live</span>
-      </button>
-
-      {/* Dock toggle */}
-      <button
-        className={`${styles.dockToggleBtn} ${dockVisible ? styles.dockToggleActive : ''}`}
-        onClick={onToggleDock}
-        aria-label="Toggle menu"
-      >
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
-          {dockVisible ? (
-            <>{/* Grid icon — dock is showing */}
-              <rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/>
-              <rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/>
-            </>
-          ) : (
-            <>{/* Menu icon — dock is hidden */}
-              <line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/>
-            </>
-          )}
-        </svg>
-        <span className={styles.dockToggleLabel}>{dockVisible ? 'Hide' : 'Menu'}</span>
-      </button>
+        <button
+          className={`${styles.dockToggleBtn} ${dockVisible ? styles.dockToggleActive : ''}`}
+          onClick={onToggleDock}
+          aria-label="Toggle menu"
+        >
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+            {dockVisible ? (
+              <><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/>
+                <rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></>
+            ) : (
+              <><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></>
+            )}
+          </svg>
+          <span className={styles.dockToggleLabel}>{dockVisible ? 'Hide' : 'Menu'}</span>
+        </button>
+      </>}
 
       {/* Profile — hold 3s to toggle driver online/offline */}
       <button
