@@ -54,6 +54,7 @@ import FloatingIcons from '@/components/home/FloatingIcons'
 import IntentGrid from '@/components/ui/IntentGrid'
 import ReviewPrompt from '@/components/restaurant/ReviewPrompt'
 import DriverRegistration from '@/components/driver/DriverRegistration'
+import TherapistRegistration from '@/domains/massage/components/TherapistRegistration'
 
 import '@/styles/map.css'
 import styles from './AppShell.module.css'
@@ -212,6 +213,7 @@ export default function AppShell({ returnParams, triggerGoLive }) {
   const [rideOnLanding, setRideOnLanding] = useState(true)
   const [activeSection, setActiveSection] = useState('default')
   const [driverRegOpen, setDriverRegOpen] = useState(false)
+  const [therapistRegOpen, setTherapistRegOpen] = useState(false)
   const [massageOpen, setMassageOpen] = useState(false)
   const [massageOnLanding, setMassageOnLanding] = useState(true)
   const [sectionGate, setSectionGate] = useState(null) // 'dating' | 'marketplace' | null
@@ -1188,6 +1190,7 @@ export default function AppShell({ returnParams, triggerGoLive }) {
       />
 
       <DriverRegistration open={driverRegOpen} onClose={() => setDriverRegOpen(false)} driverType={rideVehicleType === 'car_taxi' ? 'car' : 'bike'} />
+      <TherapistRegistration open={therapistRegOpen} onClose={() => setTherapistRegOpen(false)} />
 
       {/* Side nav — hidden on booking form, visible on landing */}
       {(!rideOpen || rideOnLanding) && (!massageOpen || massageOnLanding) && activeTab !== 'shopping' && activeTab !== 'rentals' && activeTab !== 'chat' && <BottomNav
@@ -1203,6 +1206,7 @@ export default function AppShell({ returnParams, triggerGoLive }) {
             if (activeSection === 'food')        { setFoodOpen(true) }
             if (activeSection === 'dating')      { setDatingIntentOpen(true) }
             if (activeSection === 'rentals')     { setActiveTab('rentals') }
+            if (activeSection === 'massage')     { setTherapistRegOpen(true) }
             if (activeSection === 'default')     { setDriverRegOpen(true) }
           }}
           onHome={() => {
