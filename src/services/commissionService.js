@@ -10,6 +10,7 @@ import { supabase } from '@/lib/supabase'
 export const COMMISSION_RATES = {
   marketplace:  0.05,   // 5%  — due within 72h
   restaurant:   0.10,   // 10% — due within 72h
+  rental:       0.10,   // 10% — due within 72h
   driver_bike:  0.10,   // 10% — due at next sign-in
   driver_car:   0.10,   // 10% — due at next sign-in
 }

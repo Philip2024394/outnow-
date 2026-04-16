@@ -1,0 +1,62 @@
+.overlay { position: fixed; inset: 0; z-index: 450; background: rgba(0,0,0,0.8); backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px); display: flex; align-items: flex-end; justify-content: center; }
+
+.sheet {
+  width: 100%; max-width: 440px; max-height: 85vh; overflow-y: auto;
+  background: rgba(10,10,10,0.95); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+  border: 1.5px solid rgba(141,198,63,0.2); border-radius: 18px 18px 0 0;
+  padding: 0;
+}
+.sheet::-webkit-scrollbar { width: 3px; }
+.sheet::-webkit-scrollbar-thumb { background: rgba(141,198,63,0.2); border-radius: 2px; }
+
+.header { display: flex; align-items: center; justify-content: space-between; padding: 16px 18px; border-bottom: 1px solid rgba(255,255,255,0.06); }
+.title { font-size: 15px; font-weight: 900; color: #fff; }
+.closeBtn { width: 30px; height: 30px; border-radius: 50%; background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.1); color: rgba(255,255,255,0.5); display: flex; align-items: center; justify-content: center; cursor: pointer; }
+
+.body { padding: 16px 18px; display: flex; flex-direction: column; gap: 14px; }
+
+.vehicleRow { display: flex; align-items: center; gap: 10px; }
+.vehicleIcon { font-size: 28px; }
+.vehicleName { font-size: 14px; font-weight: 800; color: #fff; }
+.vehicleSpec { font-size: 10px; color: rgba(255,255,255,0.35); }
+
+/* Date picker */
+.dateRow { display: flex; gap: 10px; }
+.dateField { flex: 1; display: flex; flex-direction: column; gap: 4px; }
+.dateLabel { font-size: 10px; font-weight: 700; color: rgba(255,255,255,0.35); text-transform: uppercase; }
+.dateInput { background: rgba(0,0,0,0.5); border: 1.5px solid rgba(255,255,255,0.08); border-radius: 10px; padding: 10px 12px; color: #fff; font-size: 13px; font-family: inherit; outline: none; color-scheme: dark; }
+.dateInput:focus { border-color: rgba(141,198,63,0.4); }
+
+.daysDisplay { text-align: center; font-size: 13px; font-weight: 700; color: rgba(255,255,255,0.5); padding: 4px 0; }
+.daysCount { color: #8DC63F; font-size: 18px; font-weight: 900; }
+
+/* Driver toggle */
+.driverRow { display: flex; align-items: center; justify-content: space-between; padding: 10px 14px; background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.06); border-radius: 10px; }
+.driverLabel { font-size: 12px; color: rgba(255,255,255,0.5); font-weight: 600; }
+.driverPrice { font-size: 10px; color: rgba(255,255,255,0.3); }
+.toggle { width: 42px; height: 24px; border-radius: 12px; background: rgba(255,255,255,0.1); border: none; cursor: pointer; position: relative; transition: background 0.2s; flex-shrink: 0; }
+.toggleOn { background: #8DC63F; }
+.toggleDot { position: absolute; top: 3px; left: 3px; width: 18px; height: 18px; border-radius: 50%; background: #fff; transition: transform 0.2s; }
+.toggleOn .toggleDot { transform: translateX(18px); }
+
+/* Breakdown */
+.breakdown { display: flex; flex-direction: column; gap: 6px; padding: 12px 14px; background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.05); border-radius: 10px; }
+.breakdownRow { display: flex; justify-content: space-between; font-size: 12px; color: rgba(255,255,255,0.4); }
+.breakdownVal { color: #fff; font-weight: 700; }
+.breakdownTotal { display: flex; justify-content: space-between; font-size: 16px; font-weight: 900; color: #8DC63F; padding-top: 8px; border-top: 1px solid rgba(255,255,255,0.06); }
+.savedBadge { font-size: 11px; font-weight: 700; color: #8DC63F; background: rgba(141,198,63,0.1); padding: 4px 10px; border-radius: 6px; text-align: center; }
+
+/* Book button */
+.bookBtn { width: 100%; padding: 14px; background: #8DC63F; border: none; border-radius: 12px; color: #000; font-size: 14px; font-weight: 900; font-family: inherit; cursor: pointer; }
+.bookBtn:disabled { opacity: 0.35; cursor: not-allowed; }
+
+/* Booking form extras */
+.bookingFields { display: flex; flex-direction: column; gap: 10px; padding-top: 8px; border-top: 1px solid rgba(255,255,255,0.06); }
+.input { background: rgba(0,0,0,0.5); border: 1.5px solid rgba(255,255,255,0.08); border-radius: 10px; padding: 10px 12px; color: #fff; font-size: 13px; font-family: inherit; outline: none; }
+.input::placeholder { color: rgba(255,255,255,0.2); }
+
+.successMsg { text-align: center; padding: 24px; display: flex; flex-direction: column; align-items: center; gap: 10px; }
+.successIcon { font-size: 40px; }
+.successTitle { font-size: 15px; font-weight: 900; color: #8DC63F; }
+.successText { font-size: 12px; color: rgba(255,255,255,0.4); line-height: 1.5; }
+.commNote { font-size: 10px; color: rgba(255,255,255,0.25); text-align: center; }

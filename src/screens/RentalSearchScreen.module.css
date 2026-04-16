@@ -284,14 +284,13 @@
 .extraItem { font-size: 11px; color: rgba(255,255,255,0.4); }
 .extraKey { color: rgba(255,255,255,0.25); font-weight: 700; }
 
-/* WhatsApp CTA */
-.waBtn {
+/* Chat CTA */
+.chatBtn {
   display: flex; align-items: center; justify-content: center; gap: 8px;
-  margin: 0 16px 16px; padding: 14px;
-  background: linear-gradient(135deg, #25D366, #128C7E);
-  border: none; border-radius: 12px;
-  color: #fff; font-size: 14px; font-weight: 900; font-family: inherit;
-  cursor: pointer; box-shadow: 0 4px 20px rgba(37,211,102,0.2);
-  transition: box-shadow 0.15s;
+  margin: 0 16px; padding: 14px;
+  background: #8DC63F; border: none; border-radius: 12px;
+  color: #000; font-size: 14px; font-weight: 900; font-family: inherit;
+  cursor: pointer; transition: background 0.15s; width: calc(100% - 32px);
 }
-.waBtn:hover { box-shadow: 0 4px 28px rgba(37,211,102,0.35); }
+.chatBtn:hover { background: #7AB635; }
+.commissionNote { display: block; text-align: center; font-size: 10px; color: rgba(255,255,255,0.25); padding: 6px 16px 16px; }

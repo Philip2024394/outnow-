@@ -8,6 +8,8 @@ import {
   VEHICLE_TYPES, FUEL_OPTIONS,
   createListing, getMyListings, deleteListing, toggleListingStatus, fmtPrice,
 } from '@/services/rentalListingService'
+import { getBookings, updateBookingStatus } from '@/services/rentalTrackingService'
+import RentalTrackingMap from './RentalTrackingMap'
 import styles from './RentalDashboard.module.css'
 
 function Toggle({ value, onChange }) {
@@ -59,12 +61,11 @@ function ListingForm({ onSubmit, onClose }) {
   const [airportDropoff, setAirportDropoff] = useState(false)
   const [airportFee, setAirportFee] = useState('')
 
-  // Contact
-  const [whatsapp, setWhatsapp] = useState('')
+  // Location
   const [location, setLocation] = useState('')
 
   const isBike = vehicleType === 'motorcycle'
-  const canSubmit = vehicleType && brand && model && priceDaily && whatsapp
+  const canSubmit = vehicleType && brand && model && priceDaily
 
   function handleSubmit() {
     if (!canSubmit) return
@@ -81,7 +82,7 @@ function ListingForm({ onSubmit, onClose }) {
       seats: isBike ? 0 : Number(seats) || 0,
       hotelDelivery, deliveryFee: Number(deliveryFee) || 0,
       airportPickup, airportDropoff, airportFee: Number(airportFee) || 0,
-      whatsapp, location,
+      location,
     })
   }
 
@@ -237,12 +238,8 @@ function ListingForm({ onSubmit, onClose }) {
             </div>
           )}
 
-          {/* Contact */}
-          <span className={styles.formSection}>Contact</span>
-          <div className={styles.field}>
-            <span className={styles.label}>WhatsApp Number *</span>
-            <input className={styles.input} value={whatsapp} onChange={e => setWhatsapp(e.target.value)} placeholder="+62 812 3456 7890" type="tel" />
-          </div>
+          {/* Location */}
+          <span className={styles.formSection}>Location</span>
           <div className={styles.field}>
             <span className={styles.label}>Location / Area</span>
             <input className={styles.input} value={location} onChange={e => setLocation(e.target.value)} placeholder="Sleman, Yogyakarta" />
@@ -262,8 +259,15 @@ export default function RentalDashboard({ open, onClose }) {
   const [listings, setListings] = useState([])
   const [tab, setTab] = useState('all')
   const [showForm, setShowForm] = useState(false)
+  const [bookings, setBookings] = useState([])
+  const [trackingBooking, setTrackingBooking] = useState(null)
 
-  useEffect(() => { if (open) setListings(getMyListings()) }, [open])
+  useEffect(() => {
+    if (open) {
+      setListings(getMyListings())
+      setBookings(getBookings())
+    }
+  }, [open])
 
   if (!open) return null
 
@@ -304,9 +308,9 @@ export default function RentalDashboard({ open, onClose }) {
       </div>
 
       <div className={styles.tabs}>
-        {['all', 'active', 'paused'].map(t => (
+        {['all', 'active', 'paused', 'bookings'].map(t => (
           <button key={t} className={`${styles.tab} ${tab === t ? styles.tabActive : ''}`} onClick={() => setTab(t)}>
-            {t.charAt(0).toUpperCase() + t.slice(1)} ({t === 'all' ? listings.length : listings.filter(l => l.status === (t === 'active' ? 'active' : 'paused')).length})
+            {t === 'bookings' ? `Bookings (${bookings.length})` : `${t.charAt(0).toUpperCase() + t.slice(1)} (${t === 'all' ? listings.length : listings.filter(l => l.status === (t === 'active' ? 'active' : 'paused')).length})`}
           </button>
         ))}
       </div>
@@ -343,7 +347,39 @@ export default function RentalDashboard({ open, onClose }) {
         ))}
       </div>
 
+      {/* Bookings tab */}
+      {tab === 'bookings' && (
+        <div className={styles.body}>
+          {bookings.length === 0 && <div className={styles.empty}>No booking requests yet</div>}
+          {bookings.map(b => (
+            <div key={b.id} className={styles.listingCard}>
+              <div className={styles.listingImgPlaceholder}>📋</div>
+              <div className={styles.listingBody}>
+                <span className={styles.listingName}>{b.vehicleName}</span>
+                <span className={styles.listingMeta}>{b.renterName} · {b.renterPhone}</span>
+                <span className={styles.listingMeta}>{b.startDate} → {b.endDate} · {b.days} days</span>
+                <span className={styles.listingPrice}>{fmtPrice(b.total)}</span>
+              </div>
+              <div className={styles.listingActions}>
+                <span className={`${styles.statusBadge} ${b.status === 'active' ? styles.statusActive : b.status === 'pending' ? styles.statusPaused : styles.statusActive}`}>
+                  {b.status}
+                </span>
+                {b.status === 'pending' && (
+                  <button className={styles.listingEditBtn} onClick={() => { updateBookingStatus(b.id, 'active'); setBookings(getBookings()) }}>Accept</button>
+                )}
+                {b.status === 'active' && (
+                  <button className={styles.addBtn} style={{ fontSize: 9, padding: '5px 10px' }} onClick={() => setTrackingBooking(b)}>
+                    📍 Track
+                  </button>
+                )}
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+
       {showForm && <ListingForm onSubmit={handleCreate} onClose={() => setShowForm(false)} />}
+      {trackingBooking && <RentalTrackingMap booking={trackingBooking} onClose={() => setTrackingBooking(null)} />}
     </div>,
     document.body
   )
