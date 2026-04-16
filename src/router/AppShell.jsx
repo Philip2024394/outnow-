@@ -459,7 +459,7 @@ export default function AppShell({ returnParams, triggerGoLive }) {
             if (isGuest) { triggerGate(); return }
             const access = checkSectionAccess('marketplace', userProfile)
             if (!access.allowed) { setSectionGate('marketplace'); return }
-            setActiveSection('marketplace'); setActiveTab('shopping')
+            setDockVisible(false); setActiveSection('marketplace'); setActiveTab('shopping')
           }}
           onDatingClick={() => {
             setActiveSection('dating'); setDatingGridOpen(true)

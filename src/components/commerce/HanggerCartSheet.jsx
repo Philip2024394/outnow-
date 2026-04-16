@@ -38,6 +38,7 @@ export default function HanggerCartSheet({
   onOrderViaChat,
 }) {
   const [selectedDelivery, setSelectedDelivery] = useState(null) // auto-set below
+  const [showDeliveryOptions, setShowDeliveryOptions] = useState(false)
   const [address, setAddress]     = useState('')
   const [notes, setNotes]         = useState('')
   const [showAddr, setShowAddr]   = useState(false)
@@ -283,62 +284,67 @@ export default function HanggerCartSheet({
           <div className={styles.section}>
             <div className={styles.sectionLabel}>Delivery</div>
 
-            {/* Weight & shipping info */}
-            {shippingCalc && (
-              <div className={styles.shippingInfo}>
-                <span className={styles.shippingWeight}>
-                  📦 {fmtWeight(shippingCalc.totalWeightGrams)} · {shippingCalc.itemCount} item{shippingCalc.itemCount !== 1 ? 's' : ''} · combined shipping
-                </span>
-                {shippingCalc.cheapest && (
-                  <span className={styles.shippingEstimate}>
-                    From {formatIDR(shippingCalc.cheapest.total)} via {shippingCalc.cheapest.label}
-                  </span>
-                )}
-                <span className={styles.shippingNote}>Estimated rate · one delivery fee for all items from this seller</span>
-              </div>
-            )}
-
-            {/* Pick Up — always first */}
+            {/* Selected delivery — compact view with Change button */}
             <button
-              className={`${styles.pickupBtn} ${selected.id === 'collect' ? styles.pickupBtnActive : ''}`}
-              onClick={() => setSelectedDelivery('collect')}
+              className={`${styles.deliveryBtn} ${styles.deliveryBtnActive}`}
+              onClick={() => setShowDeliveryOptions(!showDeliveryOptions)}
             >
-              <div className={styles.pickupContent}>
-                <div className={styles.pickupInfo}>
-                  <span className={styles.pickupLabel}>Free Pick Up</span>
-                  <span className={styles.pickupNote}>Collect from seller</span>
+              <div className={styles.dTop}>
+                <span className={styles.dIcon}>{selected.icon || '📦'}</span>
+                <div className={styles.dInfo}>
+                  <span className={styles.dLabel}>{selected.label}</span>
+                  <span className={styles.dNote}>{selected.note}</span>
                 </div>
-                <span className={styles.pickupFree}>FREE</span>
+                <span className={styles.dFee}>
+                  {selected.fee === 0 || selected.id === 'collect' ? <span className={styles.dFree}>FREE</span> : formatIDR(selected.fee ?? deliveryFee)}
+                </span>
               </div>
+              <span className={styles.dCheapest}>{showDeliveryOptions ? 'Hide options' : 'Change delivery'}</span>
             </button>
 
-            {/* Cheapest / recommended (skip if it's pick up) */}
-            {deliveryOptions.length > 0 && cheapest.id !== 'collect' && (
-              <div className={styles.recommendedDelivery}>
+            {/* Expanded delivery options — only when Change is tapped */}
+            {showDeliveryOptions && (
+              <>
+                {/* Pick Up */}
                 <button
-                  className={`${styles.deliveryBtn} ${selected.id === cheapest.id && !selectedDelivery ? styles.deliveryBtnActive : (selected.id === cheapest.id ? styles.deliveryBtnActive : '')}`}
-                  onClick={() => setSelectedDelivery(cheapest.id)}
+                  className={`${styles.pickupBtn} ${selected.id === 'collect' ? styles.pickupBtnActive : ''}`}
+                  onClick={() => { setSelectedDelivery('collect'); setShowDeliveryOptions(false) }}
                 >
-                  <div className={styles.dTop}>
-                    <span className={styles.dIcon}>{cheapest.icon}</span>
-                    <div className={styles.dInfo}>
-                      <span className={styles.dLabel}>{cheapest.label}</span>
-                      <span className={styles.dNote}>{cheapest.note}</span>
+                  <div className={styles.pickupContent}>
+                    <div className={styles.pickupInfo}>
+                      <span className={styles.pickupLabel}>Free Pick Up</span>
+                      <span className={styles.pickupNote}>Collect from seller</span>
                     </div>
-                    <span className={styles.dFee}>
-                      {cheapest.fee === 0 ? <span className={styles.dFree}>FREE</span> : formatIDR(cheapest.fee)}
-                    </span>
+                    <span className={styles.pickupFree}>FREE</span>
                   </div>
-                  {cheapest.fee === 0 && <span className={styles.dCheapest}>Best value</span>}
-                  {cheapest.fee > 0 && <span className={styles.dCheapest}>Cheapest option</span>}
                 </button>
-              </div>
-            )}
 
-            {/* Bike delivery — always shown for city buyers */}
+                {/* Cheapest / recommended */}
+                {deliveryOptions.length > 0 && cheapest.id !== 'collect' && (
+                  <div className={styles.recommendedDelivery}>
+                    <button
+                      className={`${styles.deliveryBtn} ${selected.id === cheapest.id ? styles.deliveryBtnActive : ''}`}
+                      onClick={() => { setSelectedDelivery(cheapest.id); setShowDeliveryOptions(false) }}
+                    >
+                      <div className={styles.dTop}>
+                        <span className={styles.dIcon}>{cheapest.icon}</span>
+                        <div className={styles.dInfo}>
+                          <span className={styles.dLabel}>{cheapest.label}</span>
+                          <span className={styles.dNote}>{cheapest.note}</span>
+                        </div>
+                        <span className={styles.dFee}>
+                          {cheapest.fee === 0 ? <span className={styles.dFree}>FREE</span> : formatIDR(cheapest.fee)}
+                        </span>
+                      </div>
+                      <span className={styles.dCheapest}>Cheapest option</span>
+                    </button>
+                  </div>
+                )}
+
+            {/* Bike delivery */}
             <button
               className={`${styles.deliveryBtn} ${styles.bikeBtn} ${selected.id === 'bike' ? styles.deliveryBtnActive : ''}`}
-              onClick={() => setSelectedDelivery('bike')}
+              onClick={() => { setSelectedDelivery('bike'); setShowDeliveryOptions(false) }}
             >
               <div className={styles.dTop}>
                 <img src="https://ik.imagekit.io/nepgaxllc/Untitlediuooiuoifsdfsdf-removebg-preview.png?updatedAt=1775659748531" alt="Bike" className={styles.bikeIcon} />
@@ -348,18 +354,14 @@ export default function HanggerCartSheet({
                 </div>
                 <span className={styles.dFee}>~{formatIDR(BIKE_DELIVERY.baseFare)}</span>
               </div>
-              <div className={styles.bikeNotice}>
-                <span className={styles.bikeNoticeDot} />
-                Direct transfer only · No Safe Trade
-              </div>
             </button>
 
-            {/* Other options (excluding pick up) */}
+            {/* Other options */}
             {visibleOptions.filter(d => d.id !== cheapest.id && d.id !== 'collect').map(opt => (
               <button
                 key={opt.id}
                 className={`${styles.deliveryBtn} ${selected.id === opt.id ? styles.deliveryBtnActive : ''}`}
-                onClick={() => setSelectedDelivery(opt.id)}
+                onClick={() => { setSelectedDelivery(opt.id); setShowDeliveryOptions(false) }}
               >
                 <div className={styles.dTop}>
                   <span className={styles.dIcon}>{opt.icon}</span>
@@ -378,6 +380,8 @@ export default function HanggerCartSheet({
               <button className={styles.showMoreBtn} onClick={() => setShowMore(true)}>
                 + {deliveryOptions.length - visibleCount} more option{deliveryOptions.length - visibleCount > 1 ? 's' : ''}
               </button>
+            )}
+              </>
             )}
           </div>
 
