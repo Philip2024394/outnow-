@@ -1182,7 +1182,7 @@ export default function AppShell({ returnParams, triggerGoLive }) {
         }}
       />
 
-      <DriverRegistration open={driverRegOpen} onClose={() => setDriverRegOpen(false)} />
+      <DriverRegistration open={driverRegOpen} onClose={() => setDriverRegOpen(false)} driverType={rideVehicleType === 'car_taxi' ? 'car' : 'bike'} />
 
       {/* Side nav — hidden on booking form, visible on landing */}
       {(!rideOpen || rideOnLanding) && <BottomNav
