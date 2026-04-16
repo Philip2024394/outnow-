@@ -454,7 +454,7 @@ export default function AppShell({ returnParams, triggerGoLive }) {
           serviceCounts={serviceUnreadCounts}
           onSelectSession={(s) => handleOpenDiscovery(s)}
           onFoodClick={() => { setDockVisible(false); setActiveSection('food'); setFoodOpen(true) }}
-          onRideClick={(type) => { if (isGuest) { triggerGate(); return } setDockVisible(false); setActiveSection('rides'); setRideVehicleType(type ?? 'bike_ride'); setRideOpen(true) }}
+          onRideClick={(type) => { if (isGuest) { triggerGate(); return } setActiveSection('rides'); setRideVehicleType(type ?? 'bike_ride'); setRideOpen(true) }}
           onShoppingClick={() => {
             if (isGuest) { triggerGate(); return }
             const access = checkSectionAccess('marketplace', userProfile)
@@ -730,7 +730,7 @@ export default function AppShell({ returnParams, triggerGoLive }) {
       )}
 
       <Suspense fallback={<LazyFallback />}>
-      {rideOpen && <BookingScreen onClose={() => { setRideOpen(false); setRideOnLanding(true); setDockVisible(true) }} initialVehicle={rideVehicleType} onLandingChange={(onLanding) => setRideOnLanding(onLanding)} />}
+      {rideOpen && <BookingScreen onClose={() => { setRideOpen(false); setRideOnLanding(true); setDockVisible(true) }} initialVehicle={rideVehicleType} onLandingChange={(onLanding) => { setRideOnLanding(onLanding); if (!onLanding) setDockVisible(false) }} />}
       </Suspense>
 
       <Suspense fallback={<LazyFallback />}>
