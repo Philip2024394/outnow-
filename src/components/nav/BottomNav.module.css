@@ -124,7 +124,7 @@
 }
 
 /* ── Vibe broadcast button ── */
-.vibeBtn {
+.sectionBtn {
   position: relative;
   width: 42px;
   display: flex;
@@ -134,24 +134,28 @@
   gap: 3px;
   padding: 8px 4px 6px;
   border-radius: 14px;
-  background: rgba(167, 139, 250, 0.1);
-  border: 1.5px solid rgba(167, 139, 250, 0.35);
-  color: rgba(167, 139, 250, 0.8);
+  background: rgba(141, 198, 63, 0.08);
+  border: 1.5px solid rgba(141, 198, 63, 0.25);
+  color: rgba(141, 198, 63, 0.7);
   cursor: pointer;
   font-family: inherit;
   -webkit-tap-highlight-color: transparent;
   transition: transform 0.12s, background 0.15s, border-color 0.15s, color 0.15s;
 }
 
-.vibeBtn:active {
+.sectionBtn:active {
   transform: scale(0.88);
 }
 
-.vibeBtnActive {
-  background: rgba(167, 139, 250, 0.2);
-  border-color: #A78BFA;
-  color: #A78BFA;
-  box-shadow: 0 0 14px rgba(167, 139, 250, 0.4);
+.sectionBtnIcon { font-size: 16px; line-height: 1; }
+
+.sectionBtnLabel {
+  font-size: 8px;
+  font-weight: 800;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  line-height: 1;
+  color: inherit;
 }
 
 .vibeBtnLabel {
@@ -405,6 +409,40 @@
 }
 
 /* ── Hangger News button ── */
+.homeBtn {
+  position: relative;
+  width: 42px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 3px;
+  padding: 8px 4px 6px;
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1.5px solid rgba(255, 255, 255, 0.1);
+  color: rgba(255, 255, 255, 0.4);
+  cursor: pointer;
+  font-family: inherit;
+  -webkit-tap-highlight-color: transparent;
+  transition: transform 0.12s, background 0.15s, border-color 0.15s, color 0.15s;
+}
+.homeBtn:active { transform: scale(0.88); }
+.homeBtnActive {
+  background: rgba(141, 198, 63, 0.15);
+  border-color: #8DC63F;
+  color: #8DC63F;
+  box-shadow: 0 0 12px rgba(141, 198, 63, 0.3);
+}
+.homeBtnLabel {
+  font-size: 8px;
+  font-weight: 800;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  line-height: 1;
+  color: inherit;
+}
+
 .dockToggleBtn {
   position: relative;
   width: 42px;

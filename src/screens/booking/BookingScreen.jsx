@@ -56,7 +56,7 @@ function AuthWall({ onClose, onSignUp }) {
   )
 }
 
-export default function BookingScreen({ onClose, initialVehicle }) {
+export default function BookingScreen({ onClose, initialVehicle, onLandingChange }) {
   const { user }              = useAuth()
   const { openSignUp }        = useGuestGate()
   const { coords: gpsCoords } = useGeolocation()
@@ -65,7 +65,7 @@ export default function BookingScreen({ onClose, initialVehicle }) {
   const isGuest  = !demoMode && (!user || user.uid === 'demo-me')
 
   const sectionKey = initialVehicle === 'bike_ride' ? 'bike_rides' : 'car_rides'
-  const [showLanding, setShowLanding] = useState(() => !hasVisitedSection(sectionKey))
+  const [showLanding, setShowLanding] = useState(true)
 
   // ── Pricing ────────────────────────────────────────────────────────────────
   const [zones,    setZones]    = useState(DEFAULT_ZONES)
@@ -346,25 +346,15 @@ const handleJourneyComplete = async () => {
     return (
       <div className={styles.landingPage} style={landingBg ? { backgroundImage: `url("${landingBg}")` } : {}}>
         <div className={styles.landingOverlay} />
-        <button className={styles.landingBack} onClick={onClose}>
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-            <polyline points="15 18 9 12 15 6"/>
-          </svg>
-        </button>
         <div className={styles.landingContent}>
           <h1 className={styles.landingTitle}>{title}</h1>
           <p className={styles.landingSub}>{sub}</p>
-          <button className={styles.landingBtn} onClick={() => { markSectionVisited(sectionKey); setShowLanding(false) }}>
+          <button className={styles.landingBtn} onClick={() => { markSectionVisited(sectionKey); setShowLanding(false); onLandingChange?.(false) }}>
             Book a Ride
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
               <polyline points="9 18 15 12 9 6"/>
             </svg>
           </button>
-          <SectionCTAButton
-            section="driver"
-            className={styles.landingBtnOutline}
-            onReady={() => { markSectionVisited(sectionKey); setShowLanding(false) }}
-          />
         </div>
       </div>
     )

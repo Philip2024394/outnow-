@@ -6,7 +6,17 @@ const RING_R    = 20          // SVG circle radius
 const RING_CIRC = 2 * Math.PI * RING_R  // ≈ 125.7
 const HOLD_MS   = 3000
 
-export default function BottomNav({ activeTab = 'map', userPhotoURL, userName, isLive = false, isInviteOut = false, onProfileTap, onSOS, onVibeBroadcast, vibeBroadcastActive = false, onNews, newsActive = false, driverOnline = null, onToggleDriverStatus, onHanggerLive, hanggerLiveActive = false, isGuest = false, onToggleDock, dockVisible = true }) {
+const SECTION_BTNS = {
+  default:     { icon: '🏍️', label: 'Driver', svgPath: 'M12 8v4l3 3' },
+  rides:       { icon: '🏍️', label: 'Driver' },
+  marketplace: { icon: '🛍️', label: 'Seller' },
+  food:        { icon: '🍽️', label: 'Chef' },
+  dating:      { icon: '💕', label: 'Profile' },
+  rentals:     { icon: '🚗', label: 'List' },
+  massage:     { icon: '💆', label: 'Join' },
+}
+
+export default function BottomNav({ activeTab = 'map', userPhotoURL, userName, isLive = false, isInviteOut = false, onProfileTap, onSOS, onSectionRegister, activeSection = 'default', driverOnline = null, onToggleDriverStatus, onHanggerLive, hanggerLiveActive = false, isGuest = false, onToggleDock, dockVisible = true, onHome }) {
   const holdRef      = useRef(null)
   const frameRef     = useRef(null)
   const startRef     = useRef(null)
@@ -49,7 +59,16 @@ export default function BottomNav({ activeTab = 'map', userPhotoURL, userName, i
   return (
     <nav className={styles.nav}>
 
-      {/* SOS — top, always red */}
+      {/* Home — always takes user back to home */}
+      <button className={`${styles.homeBtn} ${activeTab === 'map' ? styles.homeBtnActive : ''}`} onClick={onHome} aria-label="Home">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+          <path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/>
+          <polyline points="9 22 9 12 15 12 15 22"/>
+        </svg>
+        <span className={styles.homeBtnLabel}>Home</span>
+      </button>
+
+      {/* SOS */}
       <button className={styles.sosBtn} onClick={onSOS} aria-label="SOS / Safety">
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
           <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/>
@@ -59,17 +78,20 @@ export default function BottomNav({ activeTab = 'map', userPhotoURL, userName, i
         <span className={styles.sosBtnLabel}>SOS</span>
       </button>
 
-      {/* Vibe broadcast */}
-      <button
-        className={`${styles.vibeBtn} ${vibeBroadcastActive ? styles.vibeBtnActive : ''}`}
-        onClick={onVibeBroadcast}
-        aria-label="Broadcast your vibe"
-      >
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
-          <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/>
-        </svg>
-        <span className={styles.vibeBtnLabel}>Vibe</span>
-      </button>
+      {/* Section register — changes per active section */}
+      {(() => {
+        const btn = SECTION_BTNS[activeSection] || SECTION_BTNS.default
+        return (
+          <button
+            className={styles.sectionBtn}
+            onClick={onSectionRegister}
+            aria-label={btn.label}
+          >
+            <span className={styles.sectionBtnIcon}>{btn.icon}</span>
+            <span className={styles.sectionBtnLabel}>{btn.label}</span>
+          </button>
+        )
+      })()}
 
       {/* placeholder — TABS array kept for future use */}
 

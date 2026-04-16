@@ -207,6 +207,8 @@ export default function AppShell({ returnParams, triggerGoLive }) {
   const [mapFilters, setMapFilters] = useState(DEFAULT_MAP_FILTERS)
   const [activeTab, setActiveTab] = useState('map')
   const [dockVisible, setDockVisible] = useState(true)
+  const [rideOnLanding, setRideOnLanding] = useState(true)
+  const [activeSection, setActiveSection] = useState('default')
   const [sectionGate, setSectionGate] = useState(null) // 'dating' | 'marketplace' | null
   const [rideVehicleType, setRideVehicleType] = useState('bike_ride') // 'bike_ride' | 'car_taxi'
   const [giftForSession, setGiftForSession] = useState(null)
@@ -446,22 +448,22 @@ export default function AppShell({ returnParams, triggerGoLive }) {
           sessions={visibleSessions}
           serviceCounts={serviceUnreadCounts}
           onSelectSession={(s) => handleOpenDiscovery(s)}
-          onFoodClick={() => { setDockVisible(false); setFoodOpen(true) }}
-          onRideClick={(type) => { if (isGuest) { triggerGate(); return } setDockVisible(false); setRideVehicleType(type ?? 'bike_ride'); setRideOpen(true) }}
+          onFoodClick={() => { setDockVisible(false); setActiveSection('food'); setFoodOpen(true) }}
+          onRideClick={(type) => { if (isGuest) { triggerGate(); return } setDockVisible(false); setActiveSection('rides'); setRideVehicleType(type ?? 'bike_ride'); setRideOpen(true) }}
           onShoppingClick={() => {
             if (isGuest) { triggerGate(); return }
             const access = checkSectionAccess('marketplace', userProfile)
             if (!access.allowed) { setSectionGate('marketplace'); return }
-            setDockVisible(false); setActiveTab('shopping')
+            setDockVisible(false); setActiveSection('marketplace'); setActiveTab('shopping')
           }}
           onDatingClick={() => {
             if (isGuest) { triggerGate(); return }
             const access = checkSectionAccess('dating', userProfile)
             if (!access.allowed) { setSectionGate('dating'); return }
-            setDockVisible(false); setDatingIntentOpen(true)
+            setDockVisible(false); setActiveSection('dating'); setDatingIntentOpen(true)
           }}
-          onMassageClick={() => { if (isGuest) { triggerGate(); return } setDockVisible(false); setActiveTab('shopping') }}
-          onRentalsClick={() => { if (isGuest) { triggerGate(); return } setDockVisible(false); setActiveTab('rentals') }}
+          onMassageClick={() => { if (isGuest) { triggerGate(); return } setDockVisible(false); setActiveSection('massage'); setActiveTab('shopping') }}
+          onRentalsClick={() => { if (isGuest) { triggerGate(); return } setDockVisible(false); setActiveSection('rentals'); setActiveTab('rentals') }}
         />
       )}
 
@@ -721,60 +723,8 @@ export default function AppShell({ returnParams, triggerGoLive }) {
         />
       )}
 
-      {/* Side nav — always visible */}
-      <BottomNav
-          isGuest={isGuest}
-          dockVisible={dockVisible}
-          onToggleDock={() => setDockVisible(v => !v)}
-          activeTab={activeTab}
-          onChange={(tab) => {
-            if (isGuest && tab !== 'map') { triggerGate(); return }
-            setActiveTab(tab)
-            if (tab === 'map') {
-              setDockVisible(true)
-              setCompanyPanelOpen(false)
-            }
-          }}
-          unreadChats={0}
-          userPhotoURL={userProfile?.photoURL ?? null}
-          userName={userProfile?.displayName ?? 'You'}
-          isLive={!!mySession}
-          isInviteOut={!mySession && !!inviteOut}
-          onProfileTap={() => { if (isGuest) { triggerGate(); return } setActiveTab('profile') }}
-          onDiscoverNow={()    => openDiscoveryList('now')}
-          onDiscoverInvite={() => openDiscoveryList('invite')}
-          outNowCount={categorySessions.filter(s => s.status !== 'invite_out').length}
-          inviteOutCount={categorySessions.filter(s => s.status === 'invite_out').length}
-          newNowCount={newNowCount}
-          newInviteCount={newInviteCount}
-          onDateIdeas={() => setDateIdeasOpen(true)}
-          dateIdeasActive={dateIdeasOpen}
-          onSOS={() => setSosOpen(true)}
-          onVibeBroadcast={() => setVibeBroadcastOpen(true)}
-          vibeBroadcastActive={vibeBroadcastOpen}
-          onNews={() => setNewsOpen(true)}
-          newsActive={newsOpen}
-          onHanggerLive={() => setHanggerLiveOpen(true)}
-          hanggerLiveActive={hanggerLiveOpen}
-          driverOnline={driverOnline}
-          onToggleDriverStatus={() => {
-            if (driverOnline === null) return
-            const next = !driverOnline
-            setDriverOnline(next)
-            localStorage.setItem('hangger_driver_online', String(next))
-            // Persist to Supabase if available
-            if (supabase && (user?.id ?? user?.uid)) {
-              supabase
-                .from('profiles')
-                .update({ driver_online: next })
-                .eq('id', user.id ?? user.uid)
-                .then(() => {})
-            }
-          }}
-        />
-
       <Suspense fallback={<LazyFallback />}>
-      {rideOpen && <BookingScreen onClose={() => { setRideOpen(false); setDockVisible(true) }} initialVehicle={rideVehicleType} />}
+      {rideOpen && <BookingScreen onClose={() => { setRideOpen(false); setRideOnLanding(true); setDockVisible(true) }} initialVehicle={rideVehicleType} onLandingChange={(onLanding) => setRideOnLanding(onLanding)} />}
       </Suspense>
 
       <Suspense fallback={<LazyFallback />}>
@@ -1229,6 +1179,74 @@ export default function AppShell({ returnParams, triggerGoLive }) {
           if (data.marketplaceSetup) setActiveTab('shopping')
         }}
       />
+
+      {/* Side nav — hidden on booking form, visible on landing */}
+      {(!rideOpen || rideOnLanding) && <BottomNav
+          isGuest={isGuest}
+          dockVisible={dockVisible}
+          onToggleDock={() => setDockVisible(v => !v)}
+          activeSection={activeSection}
+          onSectionRegister={() => {
+            if (isGuest) { triggerGate(); return }
+            // Each section opens its registration flow
+            if (activeSection === 'rides')       { setDockVisible(false); setRideVehicleType('bike_ride'); setRideOpen(true) }
+            if (activeSection === 'marketplace') { setActiveTab('shopping') }
+            if (activeSection === 'food')        { setFoodOpen(true) }
+            if (activeSection === 'dating')      { setDatingIntentOpen(true) }
+            if (activeSection === 'rentals')     { setActiveTab('rentals') }
+            if (activeSection === 'default')     { setDockVisible(false); setRideVehicleType('bike_ride'); setRideOpen(true) }
+          }}
+          onHome={() => {
+            setActiveTab('map')
+            setDockVisible(true)
+            setActiveSection('default')
+            setRideOpen(false)
+            setRideOnLanding(true)
+            setFoodOpen(false)
+            setFoodBrowseOpen(false)
+            setDatingIntentOpen(false)
+          }}
+          activeTab={activeTab}
+          onChange={(tab) => {
+            if (isGuest && tab !== 'map') { triggerGate(); return }
+            setActiveTab(tab)
+            if (tab === 'map') {
+              setDockVisible(true)
+              setCompanyPanelOpen(false)
+            }
+          }}
+          unreadChats={0}
+          userPhotoURL={userProfile?.photoURL ?? null}
+          userName={userProfile?.displayName ?? 'You'}
+          isLive={!!mySession}
+          isInviteOut={!mySession && !!inviteOut}
+          onProfileTap={() => { if (isGuest) { triggerGate(); return } setActiveTab('profile') }}
+          onDiscoverNow={()    => openDiscoveryList('now')}
+          onDiscoverInvite={() => openDiscoveryList('invite')}
+          outNowCount={categorySessions.filter(s => s.status !== 'invite_out').length}
+          inviteOutCount={categorySessions.filter(s => s.status === 'invite_out').length}
+          newNowCount={newNowCount}
+          newInviteCount={newInviteCount}
+          onDateIdeas={() => setDateIdeasOpen(true)}
+          dateIdeasActive={dateIdeasOpen}
+          onSOS={() => setSosOpen(true)}
+          onHanggerLive={() => setHanggerLiveOpen(true)}
+          hanggerLiveActive={hanggerLiveOpen}
+          driverOnline={driverOnline}
+          onToggleDriverStatus={() => {
+            if (driverOnline === null) return
+            const next = !driverOnline
+            setDriverOnline(next)
+            localStorage.setItem('hangger_driver_online', String(next))
+            if (supabase && (user?.id ?? user?.uid)) {
+              supabase
+                .from('profiles')
+                .update({ driver_online: next })
+                .eq('id', user.id ?? user.uid)
+                .then(() => {})
+            }
+          }}
+        />}
     </div>
   )
 }

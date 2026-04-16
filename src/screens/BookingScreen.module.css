@@ -1488,7 +1488,7 @@
 }
 .landingContent {
   position: relative; z-index: 2;
-  padding: 0 24px 48px; display: flex; flex-direction: column; gap: 12px;
+  padding: 0 24px 100px; display: flex; flex-direction: column; gap: 12px;
 }
 .landingTitle {
   font-size: 32px; font-weight: 900; color: #fff; margin: 0;
@@ -1506,11 +1506,3 @@
   cursor: pointer; transition: background 0.15s;
 }
 .landingBtn:hover { background: #7AB635; }
-.landingBtnOutline {
-  padding: 12px 32px; width: fit-content;
-  background: transparent; border: 1.5px solid rgba(255,255,255,0.2);
-  border-radius: 14px; color: rgba(255,255,255,0.6);
-  font-size: 13px; font-weight: 700; font-family: inherit;
-  cursor: pointer; transition: all 0.15s;
-}
-.landingBtnOutline:hover { border-color: rgba(255,255,255,0.4); color: #fff; }

@@ -371,7 +371,7 @@ function Stars({ rating }) {
 
 // ── Main component ────────────────────────────────────────────────────────────
 export default function RestaurantBrowseScreen({ onClose, onBackToCategories, category, scrollToId, onOrderViaChat }) {
-  const [showLanding, setShowLanding] = useState(() => !hasVisitedSection('food'))
+  const [showLanding, setShowLanding] = useState(true)
   const [restaurants,    setRestaurants]    = useState([])
   const [loading,        setLoading]        = useState(true)
   const [activeIndex,    setActiveIndex]    = useState(0)

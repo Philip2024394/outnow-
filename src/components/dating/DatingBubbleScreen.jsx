@@ -96,7 +96,7 @@ export default function DatingBubbleScreen({
   const { user }                          = useAuth()
   const { saveLike, removeLike, isLiked } = useLikedProfiles()
 
-  const [showLanding, setShowLanding] = useState(() => !hasVisitedSection('dating'))
+  const [showLanding, setShowLanding] = useState(true)
   const [likedIds,     setLikedIds]     = useState(new Set())
   const [burstIds,     setBurstIds]     = useState(new Set())
   const [matchSession, setMatchSession] = useState(null)

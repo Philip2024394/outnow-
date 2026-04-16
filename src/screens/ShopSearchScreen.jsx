@@ -222,7 +222,7 @@ function SellerCard({ seller, onClick, onAuctionTap }) {
 
 // ── Main screen ───────────────────────────────────────────────────────────────
 export default function ShopSearchScreen({ onClose, userCity, userCountry, giftFor, onGiftDismiss, wishlistMode = false, onWishlistSelectSeller, showToast, onOrderViaChat, onMakeOffer }) {
-  const [showLanding, setShowLanding] = useState(() => !hasVisitedSection('marketplace'))
+  const [showLanding, setShowLanding] = useState(true)
   const [query,                  setQuery]                  = useState('')
   const [activeCategory,         setActiveCategory]         = useState('all')
   const [sellers,                setSellers]                = useState(DEMO_SELLERS)

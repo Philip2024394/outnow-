@@ -270,7 +270,7 @@ function RentalCategories({ onSelect, onBack, onDashboard }) {
 
 export default function RentalSearchScreen({ onClose }) {
   usePreloadImages()
-  const [view, setView] = useState(() => hasVisitedSection('rentals') ? 'categories' : 'landing')
+  const [view, setView] = useState('landing')
   const [search, setSearch] = useState('')
   const [category, setCategory] = useState('all')
   const [activeFilter, setActiveFilter] = useState(null)
