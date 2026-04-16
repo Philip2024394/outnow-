@@ -50,46 +50,20 @@ export default function MassageScreen({ onClose }) {
 
   return (
     <div className={styles.page}>
-      {/* Header with search */}
-      <div className={styles.header}>
-        <button className={styles.backBtn} onClick={() => setShowLanding(true)}>
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-            <polyline points="15 18 9 12 15 6"/>
-          </svg>
-        </button>
+      {/* Hero nav — Indoo Massage title + Home Massage / Massage Places toggle */}
+      <MassageHeroNav
+        mainTab={mainTab}
+        onMainTabChange={setMainTab}
+      />
+
+      {/* Search bar — under the toggle */}
+      <div className={styles.searchRow}>
         <div className={styles.searchWrap}>
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.3)" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
             <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
           </svg>
           <input className={styles.searchInput} value={search} onChange={e => setSearch(e.target.value)} placeholder="Search therapists..." />
         </div>
-      </div>
-
-      {/* Hero nav — Home Massage / Places toggle + Massage / Facial / Beauty */}
-      <MassageHeroNav
-        mainTab={mainTab}
-        onMainTabChange={setMainTab}
-      />
-
-      {/* Massage type filter chips */}
-      <div className={styles.filters}>
-        <button className={`${styles.filterChip} ${massageType === 'all' ? styles.filterChipActive : ''}`} onClick={() => setMassageType('all')}>
-          All Types
-        </button>
-        {MASSAGE_TYPES.map(t => (
-          <button key={t} className={`${styles.filterChip} ${massageType === t ? styles.filterChipActive : ''}`} onClick={() => setMassageType(t)}>
-            {t}
-          </button>
-        ))}
-      </div>
-
-      {/* Status filter */}
-      <div className={styles.statusFilters}>
-        {['all', 'Available', 'Busy'].map(s => (
-          <button key={s} className={`${styles.statusChip} ${statusFilter === s ? styles.statusChipActive : ''}`} onClick={() => setStatusFilter(s)}>
-            {s === 'all' ? 'All' : s}
-          </button>
-        ))}
       </div>
 
       {/* Therapist cards */}

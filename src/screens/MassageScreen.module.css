@@ -17,18 +17,8 @@
 .searchInput::placeholder { color: rgba(255,255,255,0.25); }
 
 /* Filter chips */
-.filters { display: flex; gap: 6px; padding: 10px 16px; overflow-x: auto; flex-shrink: 0; scrollbar-width: none; }
-.filters::-webkit-scrollbar { height: 0; }
-.filterChip { padding: 6px 14px; background: rgba(255,255,255,0.04); border: 1.5px solid rgba(255,255,255,0.06); border-radius: 20px; color: rgba(255,255,255,0.4); font-size: 11px; font-weight: 700; font-family: inherit; cursor: pointer; white-space: nowrap; flex-shrink: 0; transition: all 0.15s; }
-.filterChipActive { background: rgba(141,198,63,0.12); border-color: rgba(141,198,63,0.4); color: #8DC63F; }
-
-/* Status filter */
-.statusFilters { display: flex; gap: 6px; padding: 0 16px 8px; }
-.statusChip { padding: 5px 12px; border-radius: 16px; font-size: 10px; font-weight: 700; font-family: inherit; cursor: pointer; border: 1px solid rgba(255,255,255,0.06); background: rgba(255,255,255,0.03); color: rgba(255,255,255,0.3); transition: all 0.15s; }
-.statusAll { }
-.statusAvailable { }
-.statusBusy { }
-.statusChipActive { background: rgba(141,198,63,0.1); border-color: rgba(141,198,63,0.3); color: #8DC63F; }
+/* Search bar row — under hero toggle */
+.searchRow { padding: 8px 16px; flex-shrink: 0; }
 
 /* Body — scrollable card list */
 .body { flex: 1; overflow-y: auto; padding: 8px 16px 80px; display: flex; flex-direction: column; gap: 16px; }
