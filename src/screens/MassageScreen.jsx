@@ -13,7 +13,7 @@ import styles from './MassageScreen.module.css'
 
 const MASSAGE_LANDING_BG = 'https://ik.imagekit.io/nepgaxllc/ChatGPT%20Image%20Apr%2017,%202026,%2001_03_53%20AM.png'
 
-export default function MassageScreen({ onClose }) {
+export default function MassageScreen({ onClose, onLandingChange }) {
   const [showLanding, setShowLanding] = useState(true)
   const [search, setSearch] = useState('')
   const [massageType, setMassageType] = useState('all')
@@ -34,7 +34,7 @@ export default function MassageScreen({ onClose }) {
         <div className={styles.landingContent}>
           <h1 className={styles.landingTitle}>Indoo Massage</h1>
           <p className={styles.landingSub}>Professional massage therapists — home, hotel & villa service</p>
-          <button className={styles.landingBtn} onClick={() => setShowLanding(false)}>
+          <button className={styles.landingBtn} onClick={() => { setShowLanding(false); onLandingChange?.(false) }}>
             Find a Therapist
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
               <polyline points="9 18 15 12 9 6"/>
@@ -43,7 +43,7 @@ export default function MassageScreen({ onClose }) {
           <SectionCTAButton
             section="massage"
             className={styles.landingBtnOutline}
-            onReady={() => setShowLanding(false)}
+            onReady={() => { setShowLanding(false); onLandingChange?.(false) }}
           />
         </div>
       </div>

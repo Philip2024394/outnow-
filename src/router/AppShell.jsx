@@ -212,6 +212,8 @@ export default function AppShell({ returnParams, triggerGoLive }) {
   const [rideOnLanding, setRideOnLanding] = useState(true)
   const [activeSection, setActiveSection] = useState('default')
   const [driverRegOpen, setDriverRegOpen] = useState(false)
+  const [massageOpen, setMassageOpen] = useState(false)
+  const [massageOnLanding, setMassageOnLanding] = useState(true)
   const [sectionGate, setSectionGate] = useState(null) // 'dating' | 'marketplace' | null
   const [rideVehicleType, setRideVehicleType] = useState('bike_ride') // 'bike_ride' | 'car_taxi'
   const [giftForSession, setGiftForSession] = useState(null)
@@ -465,7 +467,7 @@ export default function AppShell({ returnParams, triggerGoLive }) {
             if (!access.allowed) { setSectionGate('dating'); return }
             setDockVisible(false); setActiveSection('dating'); setDatingIntentOpen(true)
           }}
-          onMassageClick={() => { if (isGuest) { triggerGate(); return } setDockVisible(false); setActiveSection('massage'); setActiveTab('massage') }}
+          onMassageClick={() => { if (isGuest) { triggerGate(); return } setActiveSection('massage'); setMassageOpen(true) }}
           onRentalsClick={() => { if (isGuest) { triggerGate(); return } setDockVisible(false); setActiveSection('rentals'); setActiveTab('rentals') }}
         />
       )}
@@ -543,7 +545,6 @@ export default function AppShell({ returnParams, triggerGoLive }) {
         {activeTab === 'profile' && <ProfileScreen onClose={() => setActiveTab('map')} onOpenSettings={() => setSettingsOpen(true)} />}
         {activeTab === 'shopping' && <ShopSearchScreen onClose={() => { setActiveTab('map'); setDockVisible(true); setGiftForSession(null) }} userCity={userProfile?.city} userCountry={userProfile?.country} giftFor={giftForSession} onGiftDismiss={() => setGiftForSession(null)} showToast={showToast} onOrderViaChat={handleOrderViaChat} onMakeOffer={handleMakeOffer} />}
         {activeTab === 'rentals' && <RentalSearchScreen onClose={() => { setActiveTab('map'); setDockVisible(true) }} />}
-        {activeTab === 'massage' && <MassageScreen onClose={() => { setActiveTab('map'); setDockVisible(true); setActiveSection('default') }} />}
       </Suspense>
 
       <div className="map-top-fade" />
@@ -729,6 +730,10 @@ export default function AppShell({ returnParams, triggerGoLive }) {
 
       <Suspense fallback={<LazyFallback />}>
       {rideOpen && <BookingScreen onClose={() => { setRideOpen(false); setRideOnLanding(true); setDockVisible(true) }} initialVehicle={rideVehicleType} onLandingChange={(onLanding) => setRideOnLanding(onLanding)} />}
+      </Suspense>
+
+      <Suspense fallback={<LazyFallback />}>
+      {massageOpen && <MassageScreen onClose={() => { setMassageOpen(false); setMassageOnLanding(true); setDockVisible(true); setActiveSection('default') }} onLandingChange={(onLanding) => setMassageOnLanding(onLanding)} />}
       </Suspense>
 
       <Suspense fallback={<LazyFallback />}>
@@ -1187,7 +1192,7 @@ export default function AppShell({ returnParams, triggerGoLive }) {
       <DriverRegistration open={driverRegOpen} onClose={() => setDriverRegOpen(false)} driverType={rideVehicleType === 'car_taxi' ? 'car' : 'bike'} />
 
       {/* Side nav — hidden on booking form, visible on landing */}
-      {(!rideOpen || rideOnLanding) && <BottomNav
+      {(!rideOpen || rideOnLanding) && (!massageOpen || massageOnLanding) && <BottomNav
           isGuest={isGuest}
           dockVisible={dockVisible}
           onToggleDock={() => setDockVisible(v => !v)}
@@ -1211,6 +1216,8 @@ export default function AppShell({ returnParams, triggerGoLive }) {
             setFoodOpen(false)
             setFoodBrowseOpen(false)
             setDatingIntentOpen(false)
+            setMassageOpen(false)
+            setMassageOnLanding(true)
           }}
           activeTab={activeTab}
           onChange={(tab) => {
