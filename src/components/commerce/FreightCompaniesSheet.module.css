@@ -192,8 +192,9 @@
 
 .carrierInfo {
   display: flex;
-  flex-direction: column;
-  gap: 3px;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
   width: 100%;
   padding: 8px 12px 10px;
   border-top: 1px solid rgba(255,255,255,0.06);
@@ -295,7 +296,10 @@
 }
 
 .carrierPrice {
-  margin-top: 2px;
+  font-size: 12px;
+  font-weight: 800;
+  color: #8DC63F;
+  white-space: nowrap;
 }
 
 .priceValue {

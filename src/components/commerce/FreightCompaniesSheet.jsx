@@ -24,7 +24,7 @@ function CarrierIcon({ label }) {
 }
 
 // Carrier card — logo on top, info bar underneath
-function CarrierCard({ logo, logoBg, label, deliveryDays }) {
+function CarrierCard({ logo, logoBg, label, deliveryDays, price, priceIncluded }) {
   return (
     <div className={styles.carrierRow}>
       <div className={styles.carrierLeft} style={logoBg ? { background: logoBg, borderRadius: '13px 13px 0 0' } : undefined}>
@@ -35,6 +35,9 @@ function CarrierCard({ logo, logoBg, label, deliveryDays }) {
       </div>
       <div className={styles.carrierInfo}>
         {deliveryDays && <span className={styles.carrierDays}>{deliveryDays}</span>}
+        <span className={styles.carrierPrice}>
+          {priceIncluded ? 'Free' : price || '—'}
+        </span>
       </div>
     </div>
   )
