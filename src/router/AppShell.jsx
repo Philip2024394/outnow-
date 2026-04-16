@@ -1190,7 +1190,7 @@ export default function AppShell({ returnParams, triggerGoLive }) {
       <DriverRegistration open={driverRegOpen} onClose={() => setDriverRegOpen(false)} driverType={rideVehicleType === 'car_taxi' ? 'car' : 'bike'} />
 
       {/* Side nav — hidden on booking form, visible on landing */}
-      {(!rideOpen || rideOnLanding) && (!massageOpen || massageOnLanding) && <BottomNav
+      {(!rideOpen || rideOnLanding) && (!massageOpen || massageOnLanding) && activeTab !== 'shopping' && activeTab !== 'rentals' && <BottomNav
           isGuest={isGuest}
           dockVisible={dockVisible}
           onToggleDock={() => setDockVisible(v => !v)}
