@@ -72,6 +72,7 @@ const RideHistoryScreen       = lazy(() => import('@/screens/RideHistoryScreen')
 const LikedMeScreen           = lazy(() => import('@/screens/LikedMeScreen'))
 const LikedProfilesScreen     = lazy(() => import('@/screens/LikedProfilesScreen'))
 const BlockedUsersScreen      = lazy(() => import('@/screens/BlockedUsersScreen'))
+const RentalSearchScreen      = lazy(() => import('@/screens/RentalSearchScreen'))
 const OrderHistoryScreen      = lazy(() => import('@/screens/OrderHistoryScreen'))
 const IncomingGiftsScreen     = lazy(() => import('@/screens/IncomingGiftsScreen'))
 const SettingsSheet           = lazy(() => import('@/components/settings/SettingsSheet'))
@@ -459,6 +460,7 @@ export default function AppShell({ returnParams, triggerGoLive }) {
             setDatingIntentOpen(true)
           }}
           onMassageClick={() => { if (isGuest) { triggerGate(); return } setActiveTab('shopping') }}
+          onRentalsClick={() => { if (isGuest) { triggerGate(); return } setActiveTab('rentals') }}
         />
       )}
 
@@ -534,6 +536,7 @@ export default function AppShell({ returnParams, triggerGoLive }) {
         {activeTab === 'chat'    && <ChatScreen key={pendingConv?.id ?? 'chat'} onClose={() => setActiveTab('map')} pendingConv={pendingConv} />}
         {activeTab === 'profile' && <ProfileScreen onClose={() => setActiveTab('map')} onOpenSettings={() => setSettingsOpen(true)} />}
         {activeTab === 'shopping' && <ShopSearchScreen onClose={() => { setActiveTab('map'); setGiftForSession(null) }} userCity={userProfile?.city} userCountry={userProfile?.country} giftFor={giftForSession} onGiftDismiss={() => setGiftForSession(null)} showToast={showToast} onOrderViaChat={handleOrderViaChat} onMakeOffer={handleMakeOffer} />}
+        {activeTab === 'rentals' && <RentalSearchScreen onClose={() => setActiveTab('map')} />}
       </Suspense>
 
       <div className="map-top-fade" />

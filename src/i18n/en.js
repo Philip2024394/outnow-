@@ -43,6 +43,7 @@ export default {
   'icons.car':     'Car',
   'icons.shop':    'Shop',
   'icons.massage': 'Massage',
+  'icons.rentals': 'Rentals',
 
   // Map header
   'header.signIn': 'Sign In',

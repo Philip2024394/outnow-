@@ -43,6 +43,7 @@ export default {
   'icons.car':     '打车',
   'icons.shop':    '购物',
   'icons.massage': '按摩',
+  'icons.rentals': '租赁',
 
   // Map header
   'header.signIn': '登录',

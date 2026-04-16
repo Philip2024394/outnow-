@@ -43,6 +43,7 @@ export default {
   'icons.car':     'سيارة',
   'icons.shop':    'تسوق',
   'icons.massage': 'تدليك',
+  'icons.rentals': 'إيجار',
 
   // Map header
   'header.signIn': 'دخول',

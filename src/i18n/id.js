@@ -43,6 +43,7 @@ export default {
   'icons.car':     'Mobil',
   'icons.shop':    'Belanja',
   'icons.massage': 'Pijat',
+  'icons.rentals': 'Sewa',
 
   // Map header
   'header.signIn': 'Masuk',

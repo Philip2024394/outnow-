@@ -10,17 +10,32 @@ import {
   DIRECTORY_CATEGORIES, getDestinationsByCategory,
   calculateDirectoryPrice, fmtIDR,
 } from '@/services/directoryService'
+import SuggestPlaceSheet from './SuggestPlaceSheet'
 import styles from './DestinationDirectory.module.css'
 
+// Seeded shuffle so order stays stable during the session
+function shuffleArray(arr) {
+  const a = [...arr]
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]]
+  }
+  return a
+}
+
+let _shuffled = null
+function getShuffledDestinations() {
+  if (!_shuffled) _shuffled = shuffleArray(getDestinationsByCategory('all'))
+  return _shuffled
+}
+
 export default function DestinationDirectory({ open, onClose, onSelectDestination, vehicleMode }) {
-  const [category, setCategory] = useState('all')
   const [search, setSearch] = useState('')
+  const [suggestOpen, setSuggestOpen] = useState(false)
 
   if (!open) return null
 
-  let destinations = category === 'all'
-    ? getDestinationsByCategory('all')
-    : getDestinationsByCategory(category)
+  let destinations = getShuffledDestinations()
 
   // Search filter
   if (search.trim()) {
@@ -44,11 +59,19 @@ export default function DestinationDirectory({ open, onClose, onSelectDestinatio
       {/* Header */}
       <div className={styles.header}>
         <span className={styles.headerTitle}>📍 Destinations</span>
-        <button className={styles.closeBtn} onClick={onClose}>
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-            <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
-          </svg>
-        </button>
+        <div className={styles.headerRight}>
+          <button className={styles.suggestBtn} onClick={() => setSuggestOpen(true)}>
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+              <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
+            </svg>
+            Suggest
+          </button>
+          <button className={styles.closeBtn} onClick={onClose}>
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+              <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+            </svg>
+          </button>
+        </div>
       </div>
 
       {/* Search bar */}
@@ -63,18 +86,6 @@ export default function DestinationDirectory({ open, onClose, onSelectDestinatio
           placeholder="Search destinations..."
         />
         {search && <button className={styles.searchClear} onClick={() => setSearch('')}>✕</button>}
-      </div>
-
-      {/* Category chips */}
-      <div className={styles.categories}>
-        <button className={`${styles.catChip} ${category === 'all' ? styles.catChipActive : ''}`} onClick={() => setCategory('all')}>
-          All
-        </button>
-        {DIRECTORY_CATEGORIES.map(c => (
-          <button key={c.id} className={`${styles.catChip} ${category === c.id ? styles.catChipActive : ''}`} onClick={() => setCategory(c.id)}>
-            {c.icon} {c.label}
-          </button>
-        ))}
       </div>
 
       {/* Destination cards */}
@@ -110,8 +121,6 @@ export default function DestinationDirectory({ open, onClose, onSelectDestinatio
                 <span className={styles.cardAddress}>{dest.address}</span>
                 <div className={styles.cardMeta}>
                   <span className={styles.cardDistance}>{dest.distanceKm} km</span>
-                  {pricing.isReturn && <span className={styles.cardReturn}>↩ Return trip</span>}
-                  {!pricing.isReturn && <span className={styles.cardOneWay}>→ One way</span>}
                 </div>
               </div>
               <div className={styles.cardRight}>
@@ -122,6 +131,8 @@ export default function DestinationDirectory({ open, onClose, onSelectDestinatio
           )
         })}
       </div>
+
+      <SuggestPlaceSheet open={suggestOpen} onClose={() => setSuggestOpen(false)} />
     </div>,
     document.body
   )

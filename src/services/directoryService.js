@@ -63,6 +63,19 @@ export const DIRECTORY_CATEGORIES = [
   { id: 'gym',        icon: '💪', label: 'Gyms' },
   { id: 'salon',      icon: '💇', label: 'Hair & Beauty' },
   { id: 'spa',        icon: '💆', label: 'Massage & Spa' },
+  { id: 'money',      icon: '💱', label: 'Money Exchange' },
+  { id: 'dentist',    icon: '🦷', label: 'Dentist' },
+  { id: 'karaoke',    icon: '🎤', label: 'Karaoke' },
+  { id: 'mall',       icon: '🏬', label: 'Shopping Malls' },
+  { id: 'market',     icon: '🏪', label: 'Markets' },
+  { id: 'waterpark',  icon: '🏊', label: 'Waterparks' },
+  { id: 'bus',        icon: '🚌', label: 'Bus Stations' },
+  { id: 'train',      icon: '🚆', label: 'Train Stations' },
+  { id: 'pizza',      icon: '🍕', label: 'Pizza' },
+  { id: 'chinese',    icon: '🥡', label: 'Chinese Food' },
+  { id: 'sushi',      icon: '🍣', label: 'Sushi & Japanese' },
+  { id: 'billiards',  icon: '🎱', label: 'Billiards' },
+  { id: 'western',    icon: '🥩', label: 'Western Food' },
 ]
 
 export const YOGYAKARTA_DESTINATIONS = [
@@ -178,6 +191,99 @@ export const YOGYAKARTA_DESTINATIONS = [
   { id: 'kirana_spa', name: 'Kirana Spa', category: 'spa', lat: -7.7830, lng: 110.3900, address: 'Jl. Laksda Adisucipto, Sleman' },
   { id: 'taman_sari_spa', name: 'Taman Sari Royal Heritage', category: 'spa', lat: -7.8095, lng: 110.3595, address: 'Jl. Taman, Kraton' },
   { id: 'martha_tilaar', name: 'Martha Tilaar Salon & Spa', category: 'spa', lat: -7.7762, lng: 110.3893, address: 'Jogja City Mall, Sleman' },
+
+  // Money Exchange
+  { id: 'bca_malioboro', name: 'BCA Money Changer', category: 'money', lat: -7.7932, lng: 110.3648, address: 'Jl. Malioboro, Gedongtengen' },
+  { id: 'vr_money', name: 'VR Money Changer (Official)', category: 'money', lat: -7.7940, lng: 110.3655, address: 'Jl. Malioboro 60' },
+  { id: 'pt_central', name: 'PT Central Valuta', category: 'money', lat: -7.7835, lng: 110.3890, address: 'Jl. Laksda Adisucipto, Sleman' },
+  { id: 'bni_forex', name: 'BNI Currency Exchange', category: 'money', lat: -7.7890, lng: 110.3620, address: 'Jl. Trikora, Gedongtengen' },
+
+  // Dentist
+  { id: 'audy_dental', name: 'Audy Dental Clinic', category: 'dentist', lat: -7.7815, lng: 110.3870, address: 'Jl. Laksda Adisucipto, Sleman' },
+  { id: 'happy_dental', name: 'Happy Dental Jogja', category: 'dentist', lat: -7.7780, lng: 110.3840, address: 'Jl. Colombo, Sleman' },
+  { id: 'jogja_dental', name: 'Jogja Dental Center', category: 'dentist', lat: -7.7920, lng: 110.3710, address: 'Jl. Cik Di Tiro, Jetis' },
+  { id: 'my_dental', name: 'My Dental Clinic', category: 'dentist', lat: -7.7755, lng: 110.3895, address: 'Jogja City Mall, Sleman' },
+
+  // Karaoke
+  { id: 'inul_vista', name: 'Inul Vizta Family KTV', category: 'karaoke', lat: -7.7820, lng: 110.4012, address: 'Ambarukmo Plaza, Sleman' },
+  { id: 'happy_puppy', name: 'Happy Puppy KTV', category: 'karaoke', lat: -7.7760, lng: 110.3900, address: 'Jogja City Mall, Sleman' },
+  { id: 'nav_karaoke', name: 'NAV Karaoke', category: 'karaoke', lat: -7.7830, lng: 110.3775, address: 'Jl. Gejayan, Sleman' },
+  { id: 'diva_ktv', name: 'Diva Family Karaoke', category: 'karaoke', lat: -7.7515, lng: 110.4110, address: 'Hartono Mall, Sleman' },
+
+  // Shopping Malls
+  { id: 'mall_amplaz', name: 'Ambarukmo Plaza', category: 'mall', lat: -7.7821, lng: 110.4017, address: 'Jl. Laksda Adisucipto, Sleman' },
+  { id: 'mall_hartono', name: 'Hartono Mall', category: 'mall', lat: -7.7512, lng: 110.4109, address: 'Jl. Ring Road Utara, Sleman' },
+  { id: 'mall_jogja_city', name: 'Jogja City Mall', category: 'mall', lat: -7.7757, lng: 110.3899, address: 'Jl. Magelang, Sleman' },
+  { id: 'mall_galeria', name: 'Galeria Mall', category: 'mall', lat: -7.7870, lng: 110.3715, address: 'Jl. Jend. Sudirman, Gondokusuman' },
+  { id: 'mall_sleman_city', name: 'Sleman City Hall', category: 'mall', lat: -7.7465, lng: 110.3580, address: 'Jl. Magelang Km 5, Sleman' },
+  { id: 'mall_lippo', name: 'Lippo Plaza Jogja', category: 'mall', lat: -7.7850, lng: 110.3780, address: 'Jl. Laksda Adisucipto, Sleman' },
+
+  // Traditional Markets
+  { id: 'pasar_beringharjo', name: 'Pasar Beringharjo', category: 'market', lat: -7.7981, lng: 110.3658, address: 'Jl. Pabringan, Gondomanan' },
+  { id: 'malioboro_market', name: 'Malioboro Street Market', category: 'market', lat: -7.7928, lng: 110.3653, address: 'Jl. Malioboro, Gedongtengen' },
+  { id: 'pasar_kranggan', name: 'Pasar Kranggan', category: 'market', lat: -7.7975, lng: 110.3720, address: 'Jl. Kranggan, Gondomanan' },
+  { id: 'pasar_demangan', name: 'Pasar Demangan', category: 'market', lat: -7.7730, lng: 110.3850, address: 'Jl. Gejayan, Sleman' },
+  { id: 'pasar_ngasem', name: 'Pasar Ngasem (Bird Market)', category: 'market', lat: -7.8085, lng: 110.3615, address: 'Jl. Polowijan, Kraton' },
+  { id: 'pasar_godean', name: 'Pasar Godean', category: 'market', lat: -7.7745, lng: 110.2950, address: 'Godean, Sleman' },
+
+  // Waterparks
+  { id: 'jogja_bay', name: 'Jogja Bay Waterpark', category: 'waterpark', lat: -7.7375, lng: 110.4210, address: 'Jl. Stadion Maguwoharjo, Sleman' },
+  { id: 'galaxy_waterpark', name: 'Galaxy Waterpark', category: 'waterpark', lat: -7.8320, lng: 110.3520, address: 'Jl. Wonosari, Bantul' },
+  { id: 'kids_fun', name: 'Kids Fun Waterpark', category: 'waterpark', lat: -7.8270, lng: 110.3620, address: 'Jl. Wonosari Km 10, Bantul' },
+
+  // Bus Stations
+  { id: 'giwangan_bus', name: 'Terminal Giwangan', category: 'bus', lat: -7.8236, lng: 110.3883, address: 'Jl. Imogiri Timur, Umbulharjo' },
+  { id: 'jombor_bus', name: 'Terminal Jombor', category: 'bus', lat: -7.7468, lng: 110.3586, address: 'Jl. Magelang Km 5, Sleman' },
+  { id: 'condongcatur_bus', name: 'Terminal Condongcatur', category: 'bus', lat: -7.7570, lng: 110.3920, address: 'Jl. Ring Road Utara, Sleman' },
+  { id: 'wates_bus', name: 'Terminal Wates', category: 'bus', lat: -7.8620, lng: 110.1545, address: 'Wates, Kulon Progo' },
+  { id: 'prambanan_bus', name: 'Terminal Prambanan', category: 'bus', lat: -7.7530, lng: 110.4930, address: 'Prambanan, Sleman' },
+
+  // Train Stations
+  { id: 'tugu_train', name: 'Stasiun Tugu (Main)', category: 'train', lat: -7.7893, lng: 110.3614, address: 'Jl. Mangkubumi, Gedongtengen' },
+  { id: 'lempuyangan_train', name: 'Stasiun Lempuyangan', category: 'train', lat: -7.7879, lng: 110.3768, address: 'Jl. Lempuyangan, Danurejan' },
+  { id: 'klaten_train', name: 'Stasiun Klaten', category: 'train', lat: -7.7050, lng: 110.6060, address: 'Klaten, Central Java' },
+  { id: 'solo_train', name: 'Stasiun Solo Balapan', category: 'train', lat: -7.5665, lng: 110.8218, address: 'Solo, Central Java' },
+  { id: 'maguwo_train', name: 'Stasiun Maguwo (Airport)', category: 'train', lat: -7.7870, lng: 110.4280, address: 'Near Adisucipto Airport, Sleman' },
+
+  // Pizza
+  { id: 'pizza_hut_malioboro', name: 'Pizza Hut Malioboro', category: 'pizza', lat: -7.7938, lng: 110.3648, address: 'Jl. Malioboro, Gedongtengen' },
+  { id: 'dominos_gejayan', name: 'Domino\'s Pizza Gejayan', category: 'pizza', lat: -7.7828, lng: 110.3778, address: 'Jl. Gejayan, Sleman' },
+  { id: 'phd_seturan', name: 'Pizza Hut Delivery Seturan', category: 'pizza', lat: -7.7680, lng: 110.4020, address: 'Jl. Seturan Raya, Sleman' },
+  { id: 'dominos_amplaz', name: 'Domino\'s Ambarukmo Plaza', category: 'pizza', lat: -7.7823, lng: 110.4020, address: 'Ambarukmo Plaza, Sleman' },
+  { id: 'papa_rons', name: 'Papa Ron\'s Pizza', category: 'pizza', lat: -7.7758, lng: 110.3898, address: 'Jogja City Mall, Sleman' },
+  { id: 'panties_pizza', name: 'Panties Pizza Jogja', category: 'pizza', lat: -7.7840, lng: 110.3770, address: 'Jl. Gejayan, Sleman' },
+
+  // Chinese Food
+  { id: 'ta_wan', name: 'Ta Wan Restaurant', category: 'chinese', lat: -7.7822, lng: 110.4018, address: 'Ambarukmo Plaza, Sleman' },
+  { id: 'din_tai_fung', name: 'Din Tai Fung', category: 'chinese', lat: -7.7515, lng: 110.4112, address: 'Hartono Mall, Sleman' },
+  { id: 'imperial_kitchen', name: 'Imperial Kitchen & Dimsum', category: 'chinese', lat: -7.7760, lng: 110.3900, address: 'Jogja City Mall, Sleman' },
+  { id: 'bakmi_jawa', name: 'Bakmi Jawa Pak Yono', category: 'chinese', lat: -7.7890, lng: 110.3660, address: 'Jl. Mangkubumi, Gedongtengen' },
+  { id: 'swikee_purwodadi', name: 'Swikee Purwodadi Jogja', category: 'chinese', lat: -7.7945, lng: 110.3710, address: 'Jl. Pasar Kembang, Gedongtengen' },
+  { id: 'phoenix_dimsum', name: 'Phoenix Chinese Restaurant', category: 'chinese', lat: -7.7870, lng: 110.3720, address: 'Jl. Jend. Sudirman, Gondokusuman' },
+
+  // Sushi & Japanese
+  { id: 'sushi_tei', name: 'Sushi Tei', category: 'sushi', lat: -7.7822, lng: 110.4015, address: 'Ambarukmo Plaza, Sleman' },
+  { id: 'genki_sushi', name: 'Genki Sushi', category: 'sushi', lat: -7.7758, lng: 110.3898, address: 'Jogja City Mall, Sleman' },
+  { id: 'ichiban_sushi', name: 'Ichiban Sushi', category: 'sushi', lat: -7.7515, lng: 110.4110, address: 'Hartono Mall, Sleman' },
+  { id: 'marugame', name: 'Marugame Udon', category: 'sushi', lat: -7.7823, lng: 110.4020, address: 'Ambarukmo Plaza, Sleman' },
+  { id: 'yoshinoya', name: 'Yoshinoya', category: 'sushi', lat: -7.7760, lng: 110.3900, address: 'Jogja City Mall, Sleman' },
+  { id: 'okinawa_sushi', name: 'Okinawa Sushi Jogja', category: 'sushi', lat: -7.7838, lng: 110.3775, address: 'Jl. Gejayan, Sleman' },
+
+  // Billiards
+  { id: 'strikes_billiard', name: 'Strikes Billiard & Bar', category: 'billiards', lat: -7.7835, lng: 110.3780, address: 'Jl. Gejayan, Sleman' },
+  { id: 'zone_billiard', name: 'Zone Billiard', category: 'billiards', lat: -7.7760, lng: 110.3898, address: 'Jogja City Mall Lt. 4, Sleman' },
+  { id: 'masterpiece_billiard', name: 'Masterpiece Billiard', category: 'billiards', lat: -7.7850, lng: 110.3890, address: 'Jl. Laksda Adisucipto, Sleman' },
+  { id: 'kings_billiard', name: 'King\'s Pool & Lounge', category: 'billiards', lat: -7.7830, lng: 110.3765, address: 'Jl. Gejayan, Sleman' },
+  { id: 'century_billiard', name: 'Century Billiard Jogja', category: 'billiards', lat: -7.7515, lng: 110.4108, address: 'Hartono Mall, Sleman' },
+
+  // Western Food
+  { id: 'steak_holycow', name: 'Steak Holic / HolyCow', category: 'western', lat: -7.7840, lng: 110.3772, address: 'Jl. Gejayan, Sleman' },
+  { id: 'outback', name: 'Outback Steakhouse', category: 'western', lat: -7.7822, lng: 110.4018, address: 'Ambarukmo Plaza, Sleman' },
+  { id: 'pepper_lunch', name: 'Pepper Lunch', category: 'western', lat: -7.7760, lng: 110.3900, address: 'Jogja City Mall, Sleman' },
+  { id: 'tgif_jogja', name: 'TGI Friday\'s Jogja', category: 'western', lat: -7.7515, lng: 110.4110, address: 'Hartono Mall, Sleman' },
+  { id: 'abuba_steak', name: 'Abuba Steak Jogja', category: 'western', lat: -7.7838, lng: 110.3775, address: 'Jl. Gejayan, Sleman' },
+  { id: 'the_house', name: 'The House of Raminten Western', category: 'western', lat: -7.7820, lng: 110.3752, address: 'Jl. FM Noto, Kotabaru' },
+  { id: 'nanamia_pizzeria', name: 'Nanamia Pizzeria', category: 'western', lat: -7.7830, lng: 110.3760, address: 'Jl. Kaliurang Km 5, Sleman' },
 ].map(d => ({
   ...d,
   distanceKm: Math.round(distanceKm(CITY_CENTER.lat, CITY_CENTER.lng, d.lat, d.lng) * 10) / 10,
