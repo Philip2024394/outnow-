@@ -1,0 +1,28 @@
+/* TherapistSpecialties — exact Tailwind→CSS Module conversion */
+/* Source: src/modules/therapist/TherapistSpecialties.tsx */
+
+/* mx-4 mb-2 */
+.wrap {
+  margin: 0 16px 8px;
+}
+
+/* flex justify-between items-center */
+.row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+/* text-xs text-gray-800 flex-shrink-0 font-medium → text-white/50 */
+.text {
+  font-size: 12px;
+  color: rgba(255,255,255,0.5);
+  flex-shrink: 0;
+  font-weight: 500;
+}
+
+/* font-bold text-gray-900 → text-white/70 */
+.bold {
+  font-weight: 700;
+  color: rgba(255,255,255,0.7);
+}
