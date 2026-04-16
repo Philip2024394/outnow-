@@ -358,7 +358,6 @@ export default function AuctionPage({ open, onClose }) {
               )}
               {/* Bottom-left: NEW badge + product name + reserve status */}
               <div className={styles.previewImgNameWrap}>
-                {pp.condition !== 'used' && <span className={styles.previewNewBadge}>NEW</span>}
                 <span className={styles.previewImgName}>{pp.productName}</span>
                 <span className={styles.previewImgReserve}>
                   {pp.reservePrice ? '🔒 Has Reserve' : '🔓 No Reserve'}

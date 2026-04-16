@@ -215,8 +215,8 @@
   align-items: center;
   gap: 2px;
   padding: 6px 12px;
-  background: rgba(245,158,11,0.1);
-  border: 1.5px solid rgba(245,158,11,0.25);
+  background: rgba(0,0,0,0.8);
+  border: 1.5px solid rgba(255,255,255,0.1);
   border-radius: 10px;
   color: #F59E0B;
   cursor: pointer;
@@ -224,7 +224,7 @@
   font-family: inherit;
   transition: all 0.15s;
 }
-.profileBtn:hover { background: rgba(245,158,11,0.2); border-color: #F59E0B; }
+.profileBtn:hover { background: rgba(0,0,0,0.9); border-color: rgba(245,158,11,0.3); }
 .profileBtnLabel { font-size: 8px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.5px; }
 
 /* ── Search row (below logo) ── */
@@ -400,8 +400,10 @@
 
 .filterInput {
   padding: 8px 12px;
-  background: rgba(255,255,255,0.05);
-  border: 1px solid rgba(255,255,255,0.1);
+  background: rgba(0,0,0,0.8);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1.5px solid rgba(255,255,255,0.06);
   border-radius: 8px;
   color: #fff;
   font-size: 13px;

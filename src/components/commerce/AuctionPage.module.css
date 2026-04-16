@@ -111,7 +111,7 @@
 .noReserveInCard { font-size: 10px; font-weight: 800; color: #8DC63F; margin-top: 2px; }
 
 /* Price block — own background image */
-.priceBlock { display: flex; justify-content: space-between; padding: 16px; border: 2px solid #000; border-radius: 14px; margin-bottom: 12px; position: relative; overflow: hidden; animation: bidGlow 2.5s ease-in-out infinite; }
+.priceBlock { display: flex; justify-content: space-between; padding: 24px 16px; border: 2px solid #000; border-radius: 14px; margin-bottom: 12px; position: relative; overflow: hidden; animation: bidGlow 2.5s ease-in-out infinite; min-height: 80px; }
 
 @keyframes bidGlow {
   0%, 100% { box-shadow: 0 0 8px rgba(0,0,0,0.6), 0 0 16px rgba(245,158,11,0.1); }
@@ -235,17 +235,17 @@
 .previewSpec { display: flex; justify-content: space-between; font-size: 13px; }
 .previewSpecLabel { color: rgba(255,255,255,0.35); font-weight: 600; }
 .previewSpecVal { color: rgba(255,255,255,0.7); font-weight: 700; }
-.previewDesc { font-size: 13px; color: rgba(255,255,255,0.45); line-height: 1.55; }
+.previewDesc { font-size: 13px; color: rgba(255,255,255,0.45); line-height: 1.55; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
 .previewSpecs { display: flex; flex-wrap: wrap; gap: 6px; }
 .previewSpecChip { font-size: 11px; font-weight: 700; color: rgba(255,255,255,0.5); background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.08); border-radius: 6px; padding: 4px 10px; }
 
 /* Seller button — orange, disabled during live */
 .previewBtnRow { display: flex; gap: 8px; align-items: center; margin-top: 4px; }
-.previewSellerBtn { flex: 1; padding: 13px; background: rgba(245,158,11,0.1); border: 1.5px solid rgba(245,158,11,0.25); border-radius: 12px; color: #F59E0B; font-size: 13px; font-weight: 800; cursor: default; font-family: inherit; opacity: 0.7; }
+.previewSellerBtn { flex: 1; padding: 13px; background: rgba(239,68,68,0.15); border: 1.5px solid rgba(239,68,68,0.3); border-radius: 12px; color: #EF4444; font-size: 13px; font-weight: 800; cursor: default; font-family: inherit; }
 .previewSellerBtnActive { flex: 1; padding: 13px; background: #F59E0B; border: none; border-radius: 12px; color: #000; font-size: 14px; font-weight: 900; cursor: pointer; font-family: inherit; box-shadow: 0 4px 12px rgba(245,158,11,0.3); }
 
 .previewReserveChip { color: #FBBF24 !important; border-color: rgba(251,191,36,0.25) !important; background: rgba(251,191,36,0.08) !important; }
 .previewNoReserveChip { color: #8DC63F !important; border-color: rgba(141,198,63,0.25) !important; background: rgba(141,198,63,0.08) !important; }
 
-.previewCloseBtn { width: 40px; height: 40px; flex-shrink: 0; background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.15); border-radius: 50%; color: rgba(255,255,255,0.5); font-size: 16px; font-weight: 700; cursor: pointer; font-family: inherit; display: flex; align-items: center; justify-content: center; transition: all 0.15s; }
-.previewCloseBtn:hover { color: #fff; background: rgba(255,255,255,0.15); }
+.previewCloseBtn { width: 40px; height: 40px; flex-shrink: 0; background: #F59E0B; border: none; border-radius: 50%; color: #000; font-size: 16px; font-weight: 900; cursor: pointer; font-family: inherit; display: flex; align-items: center; justify-content: center; transition: background 0.15s; }
+.previewCloseBtn:hover { background: #D97706; }
