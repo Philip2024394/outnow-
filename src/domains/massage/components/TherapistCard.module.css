@@ -1,23 +1,24 @@
 /* TherapistCard — compact glass card, gold #F59E0B */
 /* Top row: photo + info. Full width: bio, pricing, buttons */
 
+/* Warm dark glass — blends with spa background image */
 .card {
   position: relative;
   padding: 14px;
-  background: rgba(0,0,0,0.82);
-  backdrop-filter: blur(20px) saturate(1.8);
-  -webkit-backdrop-filter: blur(20px) saturate(1.8);
-  border: 1.5px solid rgba(255,255,255,0.06);
+  background: rgba(30,20,10,0.75);
+  backdrop-filter: blur(20px) saturate(1.6);
+  -webkit-backdrop-filter: blur(20px) saturate(1.6);
+  border: 1px solid rgba(245,158,11,0.1);
   border-radius: 14px;
   cursor: pointer;
   transition: all 0.2s ease;
-  box-shadow: inset 0 1px 0 rgba(255,255,255,0.08), 0 4px 16px rgba(0,0,0,0.3);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.05), 0 4px 16px rgba(0,0,0,0.4);
   width: 100%;
 }
 .card:hover {
-  background: rgba(255,255,255,0.08);
-  border-color: rgba(255,255,255,0.15);
-  box-shadow: inset 0 1px 0 rgba(255,255,255,0.15), 0 8px 24px rgba(0,0,0,0.4);
+  background: rgba(40,28,15,0.85);
+  border-color: rgba(245,158,11,0.2);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.08), 0 8px 24px rgba(0,0,0,0.5);
 }
 
 /* Star rating — top right corner */
@@ -103,22 +104,22 @@
   flex-direction: column;
   align-items: center;
   padding: 8px 4px;
-  background: rgba(245,158,11,0.06);
-  border: 1px solid rgba(245,158,11,0.15);
+  background: rgba(255,255,255,0.05);
+  border: 1px solid rgba(255,255,255,0.1);
   border-radius: 8px;
 }
-.priceDur { font-size: 9px; color: rgba(255,255,255,0.3); font-weight: 600; }
-.priceVal { font-size: 13px; font-weight: 800; color: #F59E0B; margin-top: 2px; }
+.priceDur { font-size: 9px; color: rgba(255,255,255,0.35); font-weight: 600; }
+.priceVal { font-size: 13px; font-weight: 800; color: #fff; margin-top: 2px; }
 
 /* Buttons — full width */
 .actions { display: flex; gap: 6px; }
 .bookBtn {
   flex: 1; padding: 10px;
-  background: #F59E0B; border: none; border-radius: 8px;
+  background: #8DC63F; border: none; border-radius: 8px;
   color: #000; font-size: 13px; font-weight: 800;
   font-family: inherit; cursor: pointer; transition: background 0.15s;
 }
-.bookBtn:hover { background: #D97706; }
+.bookBtn:hover { background: #7AB635; }
 .menuBtn {
   padding: 10px 16px;
   background: transparent; border: 1.5px solid rgba(245,158,11,0.3);
