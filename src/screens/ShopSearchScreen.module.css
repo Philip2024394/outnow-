@@ -920,21 +920,32 @@
 }
 .landingSearchInput::placeholder { color: rgba(255,255,255,0.3); }
 
-/* Footer bar on landing */
-.landingFooter {
-  position: absolute; bottom: 0; left: 0; right: 0; z-index: 2;
-  display: flex; justify-content: space-around; align-items: center;
-  padding: 10px 8px 16px;
-  background: rgba(0,0,0,0.7); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px);
-  border-top: 1px solid rgba(255,255,255,0.06);
+/* Floating dock on landing — exact same design as home FloatingIcons */
+.landingDock {
+  position: absolute; bottom: 24px; left: 16px; right: 70px; z-index: 2;
 }
-.landingFooterBtn {
-  display: flex; flex-direction: column; align-items: center; gap: 3px;
-  background: none; border: none; color: rgba(255,255,255,0.5);
-  font-size: 10px; font-weight: 700; font-family: inherit; cursor: pointer;
-  padding: 6px 12px; border-radius: 8px; transition: color 0.15s;
+.landingDockInner {
+  display: grid; grid-template-columns: repeat(3, 1fr); gap: 1px;
+  background: rgba(10,10,14,0.75);
+  backdrop-filter: blur(24px) saturate(1.8);
+  -webkit-backdrop-filter: blur(24px) saturate(1.8);
+  border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 20px;
+  padding: 10px 6px;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.08), 0 8px 32px rgba(0,0,0,0.5);
+  overflow: hidden;
 }
-.landingFooterBtn:hover { color: #F59E0B; }
+.landingDockBtn {
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  gap: 5px; padding: 6px 4px 4px;
+  background: none; border: none; cursor: pointer; font-family: inherit;
+  -webkit-tap-highlight-color: transparent;
+  transition: transform 0.15s ease, background 0.15s ease;
+  border-radius: 14px; min-width: 0;
+}
+.landingDockBtn:active { transform: scale(0.88); background: rgba(245,158,11,0.1); }
+.landingDockImg { width: 36px; height: 36px; object-fit: contain; pointer-events: none; }
+.landingDockLabel { font-size: 10px; font-weight: 700; color: rgba(255,255,255,0.55); text-align: center; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 70px; }
 .landingBtnOutline {
   padding: 12px 32px; width: fit-content;
   background: transparent; border: 1.5px solid rgba(255,255,255,0.2);
