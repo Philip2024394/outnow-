@@ -1,0 +1,144 @@
+/* MassageHeroNav — Hero toggle from HomePage.tsx */
+/* Row 1: Home Service / Places toggle */
+/* Row 2: Massage / Facial / Beauty / Filter buttons */
+
+/* bg-white sticky top-[60px] z-10 → bg-black/80 backdrop-blur */
+.hero {
+  background: rgba(0,0,0,0.8);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  position: sticky;
+  top: 60px;
+  z-index: 10;
+  padding: 0 0 12px;
+}
+
+.inner { max-width: 672px; margin: 0 auto; }
+
+/* ── Row 1: Home Service / Places toggle ── */
+/* flex bg-gray-200 rounded-full p-1 overflow-x-auto */
+/* Dark theme: bg-white/6 */
+.row1 {
+  display: flex;
+  background: rgba(255,255,255,0.06);
+  border-radius: 9999px;
+  padding: 4px;
+  overflow-x: auto;
+}
+
+/* flex-1 min-w-0 py-2 px-2 sm:px-3 rounded-full flex items-center justify-center gap-1 text-[11px] sm:text-xs font-semibold min-h-[42px] */
+.row1Btn {
+  flex: 1;
+  min-width: 0;
+  padding: 8px 8px;
+  border-radius: 9999px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  font-size: 11px;
+  font-weight: 600;
+  font-family: inherit;
+  min-height: 42px;
+  transition: all 0.3s;
+  border: none;
+  cursor: pointer;
+}
+@media (min-width: 640px) {
+  .row1Btn { padding: 8px 12px; gap: 6px; font-size: 12px; }
+}
+
+/* inactive: text-gray-600 hover:bg-gray-100 → text-white/40 hover:bg-white/5 */
+.row1BtnInactive {
+  background: transparent;
+  color: rgba(255,255,255,0.4);
+}
+.row1BtnInactive:hover { background: rgba(255,255,255,0.05); }
+
+/* active: bg-amber-500 text-white shadow → bg-green text-black */
+.row1BtnActive {
+  background: #8DC63F;
+  color: #000;
+  box-shadow: 0 2px 8px rgba(141,198,63,0.3);
+}
+
+/* w-3.5 h-3.5 sm:w-4 sm:h-4 flex-shrink-0 */
+.row1Icon { width: 14px; height: 14px; flex-shrink: 0; }
+@media (min-width: 640px) { .row1Icon { width: 16px; height: 16px; } }
+
+/* whitespace-nowrap overflow-hidden text-ellipsis */
+.row1Label { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+/* ── Row 2: Service type buttons ── */
+/* max-w-2xl mx-auto mt-4 flex flex-row gap-2 sm:gap-3 items-center min-h-[54px] */
+.row2 {
+  max-width: 672px;
+  margin: 16px auto 0;
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  min-height: 54px;
+  padding: 0 4px;
+}
+@media (min-width: 640px) { .row2 { gap: 12px; } }
+
+/* flex-1 min-w-0 h-[42px] px-2 rounded-full font-semibold text-sm flex items-center justify-center gap-1.5 border */
+.serviceBtn {
+  flex: 1;
+  min-width: 0;
+  height: 42px;
+  padding: 0 8px;
+  border-radius: 9999px;
+  font-weight: 600;
+  font-size: 14px;
+  font-family: inherit;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  transition: all 0.15s;
+  cursor: pointer;
+}
+@media (min-width: 640px) { .serviceBtn { gap: 8px; } }
+
+/* inactive: bg-gray-200 text-gray-600 border-gray-300 → bg-white/6 text-white/40 border-white/10 */
+.serviceBtnInactive {
+  background: rgba(255,255,255,0.06);
+  color: rgba(255,255,255,0.4);
+  border: 1px solid rgba(255,255,255,0.1);
+}
+.serviceBtnInactive:hover { background: rgba(255,255,255,0.1); }
+
+/* active: bg-amber-500 text-white border-amber-500 shadow → bg-green text-black */
+.serviceBtnActive {
+  background: #8DC63F;
+  color: #000;
+  border: 1px solid #8DC63F;
+  box-shadow: 0 2px 8px rgba(141,198,63,0.3);
+}
+
+/* w-4 h-4 flex-shrink-0 */
+.serviceIcon { width: 16px; height: 16px; flex-shrink: 0; }
+
+/* whitespace-nowrap */
+.serviceLabel { white-space: nowrap; }
+
+/* Filter button: flex-shrink-0 h-[42px] w-[42px] rounded-full border bg-gray-100 → bg-white/6 border-white/10 */
+.filterBtn {
+  flex-shrink: 0;
+  height: 42px;
+  width: 42px;
+  border-radius: 9999px;
+  border: 1px solid rgba(255,255,255,0.1);
+  background: rgba(255,255,255,0.06);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: rgba(255,255,255,0.4);
+  cursor: pointer;
+  transition: background 0.15s;
+}
+.filterBtn:hover { background: rgba(255,255,255,0.1); }
+
+/* w-5 h-5 */
+.filterIcon { width: 20px; height: 20px; }

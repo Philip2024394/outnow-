@@ -7,6 +7,7 @@ import { useState } from 'react'
 import { MASSAGE_TYPES, getTherapists, searchTherapists, AVAILABILITY } from '@/services/massageService'
 import SectionCTAButton from '@/components/ui/SectionCTAButton'
 import TherapistCard from '@/domains/massage/components/TherapistCard'
+import MassageHeroNav from '@/domains/massage/components/MassageHeroNav'
 import styles from './MassageScreen.module.css'
 
 const MASSAGE_LANDING_BG = '' // User will provide landing page image
@@ -16,6 +17,8 @@ export default function MassageScreen({ onClose }) {
   const [search, setSearch] = useState('')
   const [massageType, setMassageType] = useState('all')
   const [statusFilter, setStatusFilter] = useState('all')
+  const [mainTab, setMainTab] = useState('home-service') // 'home-service' | 'places'
+  const [serviceButton, setServiceButton] = useState('massage') // 'massage' | 'facial' | 'beautician'
 
   const therapists = searchTherapists({
     query: search,
@@ -62,6 +65,15 @@ export default function MassageScreen({ onClose }) {
           <input className={styles.searchInput} value={search} onChange={e => setSearch(e.target.value)} placeholder="Search therapists..." />
         </div>
       </div>
+
+      {/* Hero nav — Home Massage / Places toggle + Massage / Facial / Beauty */}
+      <MassageHeroNav
+        mainTab={mainTab}
+        onMainTabChange={setMainTab}
+        serviceButton={serviceButton}
+        onServiceChange={setServiceButton}
+        onFilterClick={() => { /* TODO: open filter drawer */ }}
+      />
 
       {/* Massage type filter chips */}
       <div className={styles.filters}>
