@@ -13,7 +13,7 @@ const SECTION_BTNS = {
   food:        { icon: '🍽️', label: 'Chef' },
   dating:      { icon: '💕', label: 'Profile' },
   rentals:     { icon: '🚗', label: 'List' },
-  massage:     { icon: '💆', label: 'Join' },
+  massage:     { icon: '💆', label: 'Register' },
 }
 
 export default function BottomNav({ activeTab = 'map', userPhotoURL, userName, isLive = false, isInviteOut = false, onProfileTap, onSOS, onSectionRegister, activeSection = 'default', rideType = 'bike', driverOnline = null, onToggleDriverStatus, onHanggerLive, hanggerLiveActive = false, isGuest = false, onToggleDock, dockVisible = true, onHome }) {

@@ -733,7 +733,7 @@ export default function AppShell({ returnParams, triggerGoLive }) {
       </Suspense>
 
       <Suspense fallback={<LazyFallback />}>
-      {massageOpen && <MassageScreen onClose={() => { setMassageOpen(false); setMassageOnLanding(true); setDockVisible(true); setActiveSection('default') }} onLandingChange={(onLanding) => setMassageOnLanding(onLanding)} />}
+      {massageOpen && <MassageScreen onClose={() => { setMassageOpen(false); setMassageOnLanding(true); setDockVisible(true); setActiveSection('default') }} onLandingChange={(onLanding) => { setMassageOnLanding(onLanding); if (!onLanding) setDockVisible(false) }} />}
       </Suspense>
 
       <Suspense fallback={<LazyFallback />}>
