@@ -76,10 +76,9 @@ export default function MassageScreen({ onClose }) {
           <TherapistCard
             key={t.id}
             therapist={t}
-            onBookNow={(data) => { /* TODO: open in-app chat booking */ }}
-            onSchedule={(data) => { /* TODO: open scheduled booking */ }}
-            onShare={(therapist) => { /* TODO: share profile */ }}
-            language="en"
+            onBookNow={(therapist) => { /* TODO: open booking with 10% commission */ }}
+            onMenu={(therapist) => { /* TODO: open price menu */ }}
+            onTap={(therapist) => { /* TODO: open full profile */ }}
           />
         ))}
       </div>
