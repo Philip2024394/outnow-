@@ -364,11 +364,6 @@ export default function ShopSearchScreen({ onClose, userCity, userCountry, giftF
             <polyline points="9 18 15 12 9 6"/>
           </svg>
         </button>
-        <SectionCTAButton
-          section="marketplace"
-          className={styles.landingBtnOutline}
-          onReady={() => { markSectionVisited('marketplace'); setShowLanding(false); onLandingChange?.(false) }}
-        />
       </div>
     </div>
   )

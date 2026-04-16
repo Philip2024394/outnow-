@@ -214,6 +214,7 @@ export default function AppShell({ returnParams, triggerGoLive }) {
   const [activeSection, setActiveSection] = useState('default')
   const [driverRegOpen, setDriverRegOpen] = useState(false)
   const [therapistRegOpen, setTherapistRegOpen] = useState(false)
+  const [marketplaceLanding, setMarketplaceLanding] = useState(true)
   const [massageOpen, setMassageOpen] = useState(false)
   const [massageOnLanding, setMassageOnLanding] = useState(true)
   const [sectionGate, setSectionGate] = useState(null) // 'dating' | 'marketplace' | null
@@ -461,7 +462,7 @@ export default function AppShell({ returnParams, triggerGoLive }) {
             if (isGuest) { triggerGate(); return }
             const access = checkSectionAccess('marketplace', userProfile)
             if (!access.allowed) { setSectionGate('marketplace'); return }
-            setDockVisible(false); setActiveSection('marketplace'); setActiveTab('shopping')
+            setDockVisible(false); setActiveSection('marketplace'); setActiveTab('shopping'); setMarketplaceLanding(true)
           }}
           onDatingClick={() => {
             setActiveSection('dating'); setDatingGridOpen(true)
@@ -543,7 +544,7 @@ export default function AppShell({ returnParams, triggerGoLive }) {
       <Suspense fallback={<LazyFallback />}>
         {activeTab === 'chat'    && <ChatScreen key={pendingConv?.id ?? 'chat'} onClose={() => setActiveTab('map')} pendingConv={pendingConv} />}
         {activeTab === 'profile' && <ProfileScreen onClose={() => setActiveTab('map')} onOpenSettings={() => setSettingsOpen(true)} />}
-        {activeTab === 'shopping' && <ShopSearchScreen onClose={() => { setActiveTab('map'); setDockVisible(true); setGiftForSession(null); setActiveSection('default') }} userCity={userProfile?.city} userCountry={userProfile?.country} giftFor={giftForSession} onGiftDismiss={() => setGiftForSession(null)} showToast={showToast} onOrderViaChat={handleOrderViaChat} onMakeOffer={handleMakeOffer} onLandingChange={(onLanding) => { if (!onLanding) setDockVisible(false) }} />}
+        {activeTab === 'shopping' && <ShopSearchScreen onClose={() => { setActiveTab('map'); setDockVisible(true); setGiftForSession(null); setActiveSection('default'); setMarketplaceLanding(true) }} userCity={userProfile?.city} userCountry={userProfile?.country} giftFor={giftForSession} onGiftDismiss={() => setGiftForSession(null)} showToast={showToast} onOrderViaChat={handleOrderViaChat} onMakeOffer={handleMakeOffer} onLandingChange={(onLanding) => { if (!onLanding) { setDockVisible(false); setMarketplaceLanding(false) } }} />}
         {activeTab === 'rentals' && <RentalSearchScreen onClose={() => { setActiveTab('map'); setDockVisible(true) }} />}
       </Suspense>
 
@@ -1193,7 +1194,7 @@ export default function AppShell({ returnParams, triggerGoLive }) {
       <TherapistRegistration open={therapistRegOpen} onClose={() => setTherapistRegOpen(false)} />
 
       {/* Side nav — hidden on booking form, visible on landing */}
-      {(!rideOpen || rideOnLanding) && (!massageOpen || massageOnLanding) && activeTab !== 'shopping' && activeTab !== 'rentals' && activeTab !== 'chat' && <BottomNav
+      {(!rideOpen || rideOnLanding) && (!massageOpen || massageOnLanding) && (activeTab !== 'shopping' || marketplaceLanding) && activeTab !== 'rentals' && activeTab !== 'chat' && <BottomNav
           isGuest={isGuest}
           dockVisible={dockVisible}
           onToggleDock={() => setDockVisible(v => !v)}
