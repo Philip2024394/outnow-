@@ -216,18 +216,6 @@ export default function ProductDetailSheet({ product, onClose, sellerWa, sellerN
           </svg>
         </button>
 
-        {/* Safe Trade */}
-        <button
-          className={[styles.sidePanelBtn, safeTradeOpen ? styles.sidePanelBtnActive : ''].join(' ')}
-          onClick={() => setSafeTradeOpen(true)}
-          aria-label="Safe Trade"
-          title="Safe Trade"
-        >
-          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-            <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
-          </svg>
-        </button>
-
         {/* Make an Offer — only if seller allows offers */}
         {(product.allowOffers !== false) && (
           <button
@@ -238,32 +226,6 @@ export default function ProductDetailSheet({ product, onClose, sellerWa, sellerN
           >
             <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
               <line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/>
-            </svg>
-          </button>
-        )}
-
-        {/* Reviews */}
-        <button
-          className={[styles.sidePanelBtn, reviewsOpen ? styles.sidePanelBtnActive : ''].join(' ')}
-          onClick={() => setReviewsOpen(true)}
-          aria-label="Reviews"
-          title="Reviews"
-        >
-          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-            <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
-          </svg>
-        </button>
-
-        {/* Video — only if product has video URL */}
-        {product.video_url && (
-          <button
-            className={[styles.sidePanelBtn, videoOpen ? styles.sidePanelBtnActive : ''].join(' ')}
-            onClick={() => setVideoOpen(true)}
-            aria-label="Watch video"
-            title="Watch video"
-          >
-            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-              <polygon points="5 3 19 12 5 21 5 3"/>
             </svg>
           </button>
         )}
