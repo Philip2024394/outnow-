@@ -48,6 +48,7 @@ export default function ChatScreen({ onClose, pendingConv, openConvId }) {
         onSwitchConv={(id) => setOpenConv(id)}
         onConvUpdate={(updates) => updateConversation(conv.id, updates)}
         isDating={conv.emoji === '💕' || conv.type === 'dating'}
+        chatTheme={conv.emoji === '🛍️' || conv.id?.startsWith('order-marketplace') ? 'market' : conv.emoji === '🍽️' || conv.id?.startsWith('order-restaurant') ? 'food' : null}
       />
     )
   }
