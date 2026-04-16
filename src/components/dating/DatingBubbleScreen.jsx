@@ -91,7 +91,7 @@ function randomEntry(W, H) {
 // ─────────────────────────────────────────────────────────────────────────────
 export default function DatingBubbleScreen({
   open, activity, sessions = [], mutualSessions, myProfile,
-  onClose, onSelectSession, onConnect,
+  onClose, onSelectSession, onConnect, onLandingChange,
 }) {
   const { user }                          = useAuth()
   const { saveLike, removeLike, isLiked } = useLikedProfiles()
@@ -397,7 +397,7 @@ export default function DatingBubbleScreen({
       <div className={styles.landingContent}>
         <h1 className={styles.landingTitle}>Indoo Dating</h1>
         <p className={styles.landingSub}>See who's online near you — find your match</p>
-        <button className={styles.landingBtn} onClick={() => { markSectionVisited('dating'); setShowLanding(false) }}>
+        <button className={styles.landingBtn} onClick={() => { markSectionVisited('dating'); setShowLanding(false); onLandingChange?.(false) }}>
           Enter Dating
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
             <polyline points="9 18 15 12 9 6"/>

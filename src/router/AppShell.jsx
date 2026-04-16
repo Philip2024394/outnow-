@@ -465,7 +465,7 @@ export default function AppShell({ returnParams, triggerGoLive }) {
             if (isGuest) { triggerGate(); return }
             const access = checkSectionAccess('dating', userProfile)
             if (!access.allowed) { setSectionGate('dating'); return }
-            setDockVisible(false); setActiveSection('dating'); setDatingIntentOpen(true)
+            setActiveSection('dating'); setDatingIntentOpen(true)
           }}
           onMassageClick={() => { if (isGuest) { triggerGate(); return } setActiveSection('massage'); setMassageOpen(true) }}
           onRentalsClick={() => { if (isGuest) { triggerGate(); return } setDockVisible(false); setActiveSection('rentals'); setActiveTab('rentals') }}
@@ -512,6 +512,7 @@ export default function AppShell({ returnParams, triggerGoLive }) {
         myProfile={userProfile}
         onClose={() => setDatingGridOpen(false)}
         onSelectSession={(s) => { setDatingGridOpen(false); handleOpenDiscovery(s) }}
+        onLandingChange={(onLanding) => { if (!onLanding) setDockVisible(false) }}
         onOpenDateIdeas={(s) => { setDatingGridOpen(false); setDateIdeasTarget(s); setDateIdeasOpen(true) }}
         onConnect={(session) => {
           closeOverlay()
