@@ -12,6 +12,17 @@
   overflow-y: auto;
   overflow-x: hidden;
 }
+.screen::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.5);
+  backdrop-filter: blur(3px);
+  -webkit-backdrop-filter: blur(3px);
+  pointer-events: none;
+  z-index: 0;
+}
+.screen > * { position: relative; z-index: 1; }
 
 .screen::-webkit-scrollbar { width: 3px; }
 .screen::-webkit-scrollbar-thumb { background: rgba(245,158,11,0.2); border-radius: 2px; }

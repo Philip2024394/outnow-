@@ -10,6 +10,17 @@
   flex-direction: column;
   overflow: hidden;
 }
+.page::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.5);
+  backdrop-filter: blur(3px);
+  -webkit-backdrop-filter: blur(3px);
+  pointer-events: none;
+  z-index: 0;
+}
+.page > * { position: relative; z-index: 1; }
 
 /* Header */
 .header {
@@ -17,9 +28,8 @@
   align-items: center;
   justify-content: space-between;
   padding: 14px 16px;
-  background: linear-gradient(135deg, #1a0800 0%, #0a0a0a 100%);
-  border-bottom: 2px solid #F59E0B;
-  box-shadow: 0 2px 16px rgba(245,158,11,0.2);
+  background: transparent;
+  border-bottom: none;
   flex-shrink: 0;
 }
 
