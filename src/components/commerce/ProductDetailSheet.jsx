@@ -299,11 +299,6 @@ export default function ProductDetailSheet({ product, onClose, sellerWa, sellerN
 
         {/* ── Details view ── */}
           <>
-            {/* NEW badge + category */}
-            <div className={styles.badgeRow}>
-              {product.isNew && <span className={styles.newBadge}>NEW</span>}
-              {product.category && <span className={styles.category}>{product.category}</span>}
-            </div>
 
             <h2 className={styles.name}>{product.name}</h2>
             {product.flashSale?.active && product.flashSale.endsAt > Date.now() ? (
