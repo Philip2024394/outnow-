@@ -9,6 +9,8 @@ import {
   RENTAL_CATEGORIES, getListings, getListingsByCategory,
   searchListings, fmtIDR, getConditionLabel,
 } from '@/services/rentalService'
+import { getDirectory } from '@/services/vehicleDirectoryService'
+import RentalDashboard from '@/components/rentals/RentalDashboard'
 import styles from './RentalSearchScreen.module.css'
 
 function RentalDetail({ listing, onClose }) {
@@ -107,7 +109,7 @@ function RentalDetail({ listing, onClose }) {
 
 const LANDING_BG = 'https://ik.imagekit.io/nepgaxllc/Untitledsdfasdfdddfsdfsdsdfsdfadsasda.png?updatedAt=1776095672208'
 
-function RentalLanding({ onEnter, onClose }) {
+function RentalLanding({ onEnter, onClose, onDashboard }) {
   return (
     <div className={styles.landing} style={{ backgroundImage: `url("${LANDING_BG}")` }}>
       <div className={styles.landingOverlay} />
@@ -125,6 +127,9 @@ function RentalLanding({ onEnter, onClose }) {
             <polyline points="9 18 15 12 9 6"/>
           </svg>
         </button>
+        <button className={styles.landingBtnOutline} onClick={onDashboard}>
+          List Your Vehicle
+        </button>
       </div>
     </div>
   )
@@ -139,17 +144,73 @@ const CATEGORY_TILES = [
   { id: 'Party & Event', label: 'Party & Event',  emoji: '🎉', desc: 'Tents, Decor & Catering',filter: ['Party & Event'], bg: null, tagline: 'Make your event perfect' },
 ]
 
-const VEHICLES_BG = 'https://ik.imagekit.io/nepgaxllc/Scooter%20ride%20to%20the%20rental%20lot.png?updatedAt=1776105148434'
-const PROPERTY_BG = 'https://ik.imagekit.io/nepgaxllc/Scenic%20fork%20and%20green%20motorbike%20ride.png?updatedAt=1776103948833'
+const VEHICLES_BG = 'https://ik.imagekit.io/nepgaxllc/ChatGPT%20Image%20Apr%2016,%202026,%2004_41_52%20PM.png'
+const PROPERTY_BG = 'https://ik.imagekit.io/nepgaxllc/ChatGPT%20Image%20Apr%2016,%202026,%2003_21_17%20PM.png'
 const FASHION_BG  = 'https://ik.imagekit.io/nepgaxllc/Stylish%20shopping%20stroll%20at%20sunset.png?updatedAt=1776105703045'
 const EQUIPMENT_BG = 'https://ik.imagekit.io/nepgaxllc/Exploring%20the%20marketplace%20on%20a%20scooter.png?updatedAt=1776106102122'
 
 // Preload all background images on mount
-const ALL_BGS = [LANDING_BG, VEHICLES_BG, PROPERTY_BG, FASHION_BG, EQUIPMENT_BG]
+const BIKE_DIR_BG = 'https://ik.imagekit.io/nepgaxllc/Untitledsdfsdfsdasdfsdsdfsadasd.png'
+const CAR_DIR_BG = 'https://ik.imagekit.io/nepgaxllc/Untitledsdfasdfdddfsdfsdsdfsdfadsasdadasdaadasdsadfsdsasdaasdasdadsasd.png?updatedAt=1776099885459'
+const TRUCK_DIR_BG = 'https://ik.imagekit.io/nepgaxllc/Untitledsdfsdfsdasdfsdsdfsadasddsasd.png'
+const ALL_BGS = [LANDING_BG, VEHICLES_BG, PROPERTY_BG, FASHION_BG, EQUIPMENT_BG, BIKE_DIR_BG, CAR_DIR_BG, TRUCK_DIR_BG]
 function usePreloadImages() {
   useEffect(() => {
     ALL_BGS.forEach(src => { const img = new Image(); img.src = src })
   }, [])
+}
+
+
+function VehicleDirectory({ vehicleType, onSelectModel, onBack }) {
+  const directory = getDirectory(vehicleType)
+  const isBike = vehicleType === 'Motorcycles'
+  const isTruck = vehicleType === 'Trucks'
+  const isBus = vehicleType === 'Buses'
+  const title = isBike ? 'Motor Bikes' : isTruck ? 'Trucks' : isBus ? 'Buses' : 'Cars'
+  const bgUrl = isBike ? BIKE_DIR_BG : isTruck ? TRUCK_DIR_BG : CAR_DIR_BG
+  const bgStyle = bgUrl ? { backgroundImage: `url("${bgUrl}")`, backgroundSize: 'cover', backgroundPosition: 'center' } : {}
+
+  return (
+    <div className={styles.dirPage} style={bgStyle}>
+      <div className={styles.dirHeader}>
+        <button className={styles.backBtn} onClick={onBack}>
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+            <polyline points="15 18 9 12 15 6"/>
+          </svg>
+        </button>
+        <span className={styles.dirHeaderTitle}>Select {title}</span>
+      </div>
+      <div className={styles.dirBody}>
+        <div className={styles.dirGrid}>
+          {directory.map(v => (
+            <button key={v.id} className={styles.dirCard} onClick={() => onSelectModel(v)}>
+              <div className={styles.dirCardBadge}>{v.listings}</div>
+              <div className={styles.dirCardImgWrap}>
+                {v.image ? (
+                  <img src={v.image} alt={v.name} className={styles.dirCardImg} />
+                ) : (
+                  <span className={styles.dirCardPlaceholder}>{isBike ? '🏍️' : isTruck ? '🚛' : isBus ? '🚌' : '🚗'}</span>
+                )}
+              </div>
+              <div className={styles.dirCardInfo}>
+                <span className={styles.dirCardName}>{v.name}</span>
+                <span className={styles.dirCardSpec}>
+                  {v.cc}cc · {v.type}
+                  {v.seats ? ` · ${v.seats} seats` : ''}
+                  {v.payload ? ` · ${v.payload}` : ''}
+                </span>
+                {v.priceFrom && (
+                  <span className={styles.dirCardPrice}>
+                    Rp {(v.priceFrom/1000).toFixed(0)}k – {(v.priceTo/1000).toFixed(0)}k<span className={styles.dirCardPriceDay}>/day</span>
+                  </span>
+                )}
+              </div>
+            </button>
+          ))}
+        </div>
+      </div>
+    </div>
+  )
 }
 
 function SubCategoryLanding({ bg, title, tagline, buttons, onSelect, onBack }) {
@@ -203,11 +264,14 @@ function RentalCategories({ onSelect, onClose }) {
 
 export default function RentalSearchScreen({ onClose }) {
   usePreloadImages()
-  const [view, setView] = useState('landing') // landing | categories | vehicles | browse
+  const [view, setView] = useState('landing') // landing | categories | vehicles | vehicleDir | browse
   const [search, setSearch] = useState('')
   const [category, setCategory] = useState('all')
   const [activeFilter, setActiveFilter] = useState(null)
+  const [vehicleType, setVehicleType] = useState(null) // Motorcycles | Cars | Trucks
+  const [selectedModel, setSelectedModel] = useState(null)
   const [selected, setSelected] = useState(null)
+  const [dashboardOpen, setDashboardOpen] = useState(false)
 
   let listings = search.trim()
     ? searchListings(search)
@@ -222,7 +286,7 @@ export default function RentalSearchScreen({ onClose }) {
   }
 
   if (view === 'landing') {
-    return <RentalLanding onEnter={() => setView('categories')} onClose={onClose} />
+    return <RentalLanding onEnter={() => setView('categories')} onClose={onClose} onDashboard={() => setDashboardOpen(true)} />
   }
 
   if (view === 'categories') {
@@ -250,9 +314,20 @@ export default function RentalSearchScreen({ onClose }) {
           { icon: '🏍️', label: 'Motor Bike', filter: 'Motorcycles' },
           { icon: '🚗', label: 'Car', filter: 'Cars' },
           { icon: '🚛', label: 'Truck', filter: 'Trucks' },
+          { icon: '🚌', label: 'Bus', filter: 'Buses' },
         ]}
-        onSelect={(type) => { setActiveFilter([type]); setView('browse') }}
+        onSelect={(type) => { setVehicleType(type); setView('vehicleDir') }}
         onBack={() => setView('categories')}
+      />
+    )
+  }
+
+  if (view === 'vehicleDir' && vehicleType) {
+    return (
+      <VehicleDirectory
+        vehicleType={vehicleType}
+        onSelectModel={(model) => { setSelectedModel(model); setActiveFilter([vehicleType]); setView('browse') }}
+        onBack={() => setView('vehicles')}
       />
     )
   }
@@ -267,6 +342,7 @@ export default function RentalSearchScreen({ onClose }) {
           { icon: '🏠', label: 'House', filter: 'House' },
           { icon: '🏭', label: 'Factory', filter: 'Factory' },
           { icon: '🏢', label: 'Kos', filter: 'Kos' },
+          { icon: '🏡', label: 'Villa', filter: 'Villa' },
         ]}
         onSelect={(type) => { setActiveFilter([type]); setView('browse') }}
         onBack={() => setView('categories')}
@@ -366,6 +442,7 @@ export default function RentalSearchScreen({ onClose }) {
 
       {/* Detail view */}
       {selected && <RentalDetail listing={selected} onClose={() => setSelected(null)} />}
+      <RentalDashboard open={dashboardOpen} onClose={() => setDashboardOpen(false)} />
     </div>
   )
 }
