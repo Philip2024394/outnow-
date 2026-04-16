@@ -1,5 +1,5 @@
 /* MassageHeroNav — Indoo Massage hero with Home/Places toggle */
-/* Cream spa gold #C9A96E */
+/* Cream spa gold #F59E0B */
 
 .hero {
   background: rgba(0,0,0,0.8);
@@ -14,7 +14,7 @@
 .title {
   font-size: 20px;
   font-weight: 900;
-  color: #C9A96E;
+  color: #F59E0B;
   text-align: center;
   margin: 0 0 12px;
   letter-spacing: 0.5px;
@@ -64,9 +64,9 @@
 
 /* active: bg-amber-500 text-white shadow → bg-green text-black */
 .row1BtnActive {
-  background: #C9A96E;
+  background: #F59E0B;
   color: #000;
-  box-shadow: 0 2px 8px rgba(201,169,110,0.3);
+  box-shadow: 0 2px 8px rgba(245,158,11,0.3);
 }
 
 /* w-3.5 h-3.5 sm:w-4 sm:h-4 flex-shrink-0 */

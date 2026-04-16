@@ -67,18 +67,33 @@ export default function TherapistCard({ therapist, onBookNow, onMenu, onTap }) {
           </div>
         )}
 
-        {/* Rating + starting price */}
-        <div className={styles.bottomRow}>
-          <div className={styles.rating}>
-            <svg className={styles.ratingStar} viewBox="0 0 20 20" fill="currentColor">
-              <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
-            </svg>
-            {therapist.rating?.toFixed(1) || '4.8'}
-            <span className={styles.ratingCount}>({therapist.reviewCount || 0})</span>
+        {/* Bio — 3 lines */}
+        {therapist.description && (
+          <p className={styles.bio}>{therapist.description}</p>
+        )}
+
+        {/* Rating */}
+        <div className={styles.ratingRow}>
+          <svg className={styles.ratingStar} viewBox="0 0 20 20" fill="currentColor">
+            <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+          </svg>
+          <span className={styles.ratingVal}>{therapist.rating?.toFixed(1) || '4.8'}</span>
+          <span className={styles.ratingCount}>({therapist.reviewCount || 0})</span>
+        </div>
+
+        {/* Pricing — 60 / 90 / 120 min */}
+        <div className={styles.pricingRow}>
+          <div className={styles.priceBox}>
+            <span className={styles.priceDur}>60min</span>
+            <span className={styles.priceVal}>{fmtPrice(therapist.price60)}</span>
           </div>
-          <div>
-            <span className={styles.price}>{fmtPrice(startingPrice)}</span>
-            <span className={styles.priceLabel}>/hr</span>
+          <div className={styles.priceBox}>
+            <span className={styles.priceDur}>90min</span>
+            <span className={styles.priceVal}>{fmtPrice(therapist.price90)}</span>
+          </div>
+          <div className={styles.priceBox}>
+            <span className={styles.priceDur}>120min</span>
+            <span className={styles.priceVal}>{fmtPrice(therapist.price120)}</span>
           </div>
         </div>
 
