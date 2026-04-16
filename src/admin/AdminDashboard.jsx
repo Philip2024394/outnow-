@@ -18,6 +18,7 @@ import MessagesTab   from './tabs/MessagesTab'
 import MarketingTab  from './MarketingTab'
 import IdVerificationTab from './tabs/IdVerificationTab'
 import CommissionsAdminTab from './tabs/CommissionsAdminTab'
+import MassageAdminTab from './tabs/MassageAdminTab'
 import ViolationsTab from './tabs/ViolationsTab'
 import PlaceSuggestionsTab from './tabs/PlaceSuggestionsTab'
 
@@ -32,6 +33,7 @@ const NAV = [
   { id: 'auctions',     icon: '🔨', label: 'Auctions'     },
   { id: 'restaurants',  icon: '🍽️', label: 'Food'         },
   { id: 'commissions',  icon: '💰', label: 'Commissions'  },
+  { id: 'massage',      icon: '💆', label: 'Massage'      },
   { id: 'rides',        icon: '🚗', label: 'Rides'        },
   { id: 'map',          icon: '🗺️', label: 'Live Map'     },
   { id: 'drivers',      icon: '🏍️', label: 'Drivers'      },
@@ -176,6 +178,7 @@ export default function AdminDashboard({ onLogout }) {
           {tab === 'marketing'   && <MarketingTab />}
           {tab === 'users'       && <UsersTab />}
           {tab === 'commissions' && <CommissionsAdminTab />}
+          {tab === 'massage'     && <MassageAdminTab />}
           {tab === 'violations'  && <ViolationsTab />}
           {tab === 'places'      && <PlaceSuggestionsTab />}
         </div>

@@ -351,14 +351,6 @@ export default function ShopSearchScreen({ onClose, userCity, userCountry, giftF
     <div className={styles.landingPage} style={{ backgroundImage: `url("${MARKET_LANDING_BG}")` }}>
       <div className={styles.landingOverlay} />
 
-      {/* Search bar — top */}
-      <div className={styles.landingSearchBar}>
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.35)" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-          <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
-        </svg>
-        <input className={styles.landingSearchInput} placeholder="Search products..." readOnly onClick={() => { markSectionVisited('marketplace'); setShowLanding(false); onLandingChange?.(false) }} />
-      </div>
-
       {/* Center content */}
       <div className={styles.landingContent}>
         <h1 className={styles.landingTitle}>Indoo Market</h1>
@@ -369,24 +361,6 @@ export default function ShopSearchScreen({ onClose, userCity, userCountry, giftF
             <polyline points="9 18 15 12 9 6"/>
           </svg>
         </button>
-      </div>
-
-      {/* Floating dock — same design as home page FloatingIcons */}
-      <div className={styles.landingDock}>
-        <div className={styles.landingDockInner}>
-          <button className={styles.landingDockBtn} onClick={() => { markSectionVisited('marketplace'); setShowLanding(false); onLandingChange?.(false) }}>
-            <img src="https://ik.imagekit.io/nepgaxllc/Untitledsadasdasdasdasddfssdfasdasd-removebg-preview.png" alt="Shop" className={styles.landingDockImg} />
-            <span className={styles.landingDockLabel}>Shop</span>
-          </button>
-          <button className={styles.landingDockBtn} onClick={() => { markSectionVisited('marketplace'); setShowLanding(false); onLandingChange?.(false); setTimeout(() => setFlashSaleOpen?.(true), 100) }}>
-            <img src="https://ik.imagekit.io/nepgaxllc/Untitledsadasdasdasdasddfssdfasdasdfsasdf-removebg-preview.png" alt="Flash Sale" className={styles.landingDockImg} />
-            <span className={styles.landingDockLabel}>Flash Sale</span>
-          </button>
-          <button className={styles.landingDockBtn} onClick={() => { markSectionVisited('marketplace'); setShowLanding(false); onLandingChange?.(false) }}>
-            <img src="https://ik.imagekit.io/nepgaxllc/Untitledsadasdasdasdasddfssdfasdasdfsasdfsdffasdf-removebg-preview.png" alt="Auctions" className={styles.landingDockImg} />
-            <span className={styles.landingDockLabel}>Auctions</span>
-          </button>
-        </div>
       </div>
     </div>
   )

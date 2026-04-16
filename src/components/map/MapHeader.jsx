@@ -1,4 +1,5 @@
 import { useMySession } from '@/hooks/useMySession'
+import { createPortal } from 'react-dom'
 import { useAuth } from '@/hooks/useAuth'
 import { useLanguage } from '@/i18n'
 import styles from './MapHeader.module.css'
@@ -16,7 +17,7 @@ export default function MapHeader({
   const photoURL = user?.photoURL ?? user?.user_metadata?.avatar_url ?? null
   const displayName = user?.displayName ?? user?.user_metadata?.full_name ?? null
 
-  return (
+  return createPortal(
     <div className={styles.header}>
       {/* Logo — left side */}
       <div className={styles.logoArea}>
@@ -56,6 +57,7 @@ export default function MapHeader({
           </button>
         )}
       </div>
-    </div>
+    </div>,
+    document.body
   )
 }

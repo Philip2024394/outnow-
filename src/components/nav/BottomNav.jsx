@@ -1,4 +1,5 @@
 import { useRef, useState } from 'react'
+import { createPortal } from 'react-dom'
 import Avatar from '@/components/ui/Avatar'
 import styles from './BottomNav.module.css'
 
@@ -57,7 +58,7 @@ export default function BottomNav({ activeTab = 'map', userPhotoURL, userName, i
   // Derived ring values
   const dashOffset = RING_CIRC - (RING_CIRC * holdPct) / 100
 
-  return (
+  return createPortal(
     <nav className={styles.nav}>
 
       {/* Home — always takes user back to home */}
@@ -206,6 +207,7 @@ export default function BottomNav({ activeTab = 'map', userPhotoURL, userName, i
         )}
       </button>
 
-    </nav>
+    </nav>,
+    document.body
   )
 }

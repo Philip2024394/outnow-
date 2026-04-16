@@ -1,0 +1,829 @@
+.wrap {
+  padding: 24px 28px;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  min-height: 100%;
+}
+
+/* ── Header ── */
+.header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+}
+
+.title {
+  font-size: 20px;
+  font-weight: 900;
+  color: #00E5FF;
+  font-family: monospace;
+  margin: 0 0 4px;
+}
+
+.subtitle {
+  font-size: 12px;
+  color: rgba(255,255,255,0.35);
+  margin: 0;
+}
+
+.headerActions {
+  display: flex;
+  gap: 8px;
+}
+
+/* ── Summary cards ── */
+.summaryRow {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 14px;
+}
+
+.summaryCard {
+  background: rgba(255,255,255,0.03);
+  border: 1px solid rgba(255,255,255,0.07);
+  border-radius: 14px;
+  padding: 16px 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.summaryLabel {
+  font-size: 11px;
+  font-weight: 600;
+  color: rgba(255,255,255,0.35);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.summaryValue {
+  font-size: 22px;
+  font-weight: 900;
+  font-family: monospace;
+  letter-spacing: -0.02em;
+}
+
+.summarySub {
+  font-size: 11px;
+  color: rgba(255,255,255,0.25);
+}
+
+/* ── Tabs ── */
+.tabRow {
+  display: flex;
+  gap: 4px;
+  border-bottom: 1px solid rgba(255,255,255,0.06);
+}
+
+.tab {
+  padding: 10px 18px;
+  background: none;
+  border: none;
+  border-bottom: 2px solid transparent;
+  margin-bottom: -1px;
+  color: rgba(255,255,255,0.35);
+  font-size: 13px;
+  font-weight: 700;
+  font-family: inherit;
+  cursor: pointer;
+}
+
+.tabActive {
+  color: #00E5FF;
+  border-bottom-color: #00E5FF;
+}
+
+/* ═══════ PROFILES GRID ═══════ */
+.profileGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(380px, 1fr));
+  gap: 14px;
+}
+
+.profileCard {
+  background: rgba(255,255,255,0.03);
+  border: 1px solid rgba(255,255,255,0.07);
+  border-radius: 14px;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  transition: border-color 0.15s;
+}
+
+.profileCard:hover {
+  border-color: rgba(0,229,255,0.2);
+}
+
+.profileDeactivated {
+  opacity: 0.5;
+  border-color: rgba(255,59,48,0.2);
+}
+
+.profileHeader {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+}
+
+.profileAvatar {
+  width: 52px;
+  height: 52px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2px solid rgba(255,255,255,0.1);
+  flex-shrink: 0;
+}
+
+.profileInfo {
+  flex: 1;
+  min-width: 0;
+}
+
+.profileNameRow {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.profileName {
+  font-size: 15px;
+  font-weight: 800;
+  color: rgba(255,255,255,0.9);
+}
+
+.verifiedBadge {
+  font-size: 9px;
+  font-weight: 800;
+  color: #00E5FF;
+  background: rgba(0,229,255,0.1);
+  border: 1px solid rgba(0,229,255,0.25);
+  border-radius: 4px;
+  padding: 1px 6px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.profileArea {
+  font-size: 12px;
+  color: rgba(255,255,255,0.35);
+  display: block;
+  margin-top: 2px;
+}
+
+.profileMeta {
+  display: flex;
+  gap: 10px;
+  margin-top: 4px;
+}
+
+.profileRating {
+  font-size: 11px;
+  color: #FFD60A;
+  font-weight: 700;
+}
+
+.profileExp,
+.profileAge {
+  font-size: 11px;
+  color: rgba(255,255,255,0.3);
+}
+
+/* Status badge */
+.statusBadge {
+  padding: 3px 10px;
+  border-radius: 20px;
+  font-size: 10px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  flex-shrink: 0;
+}
+
+.statusAvailable {
+  background: rgba(52,199,89,0.1);
+  border: 1px solid rgba(52,199,89,0.25);
+  color: #34C759;
+}
+
+.statusBusy {
+  background: rgba(255,149,0,0.1);
+  border: 1px solid rgba(255,149,0,0.25);
+  color: #FF9500;
+}
+
+.statusOffline {
+  background: rgba(255,255,255,0.05);
+  border: 1px solid rgba(255,255,255,0.1);
+  color: rgba(255,255,255,0.35);
+}
+
+.statusDeactivated {
+  background: rgba(255,59,48,0.1);
+  border: 1px solid rgba(255,59,48,0.25);
+  color: #FF3B30;
+}
+
+/* Services tags */
+.profileServices {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+}
+
+.serviceTag {
+  padding: 3px 9px;
+  background: rgba(168,85,247,0.08);
+  border: 1px solid rgba(168,85,247,0.2);
+  border-radius: 12px;
+  font-size: 10px;
+  font-weight: 700;
+  color: #A855F7;
+}
+
+/* Pricing */
+.pricingRow {
+  display: flex;
+  gap: 10px;
+}
+
+.priceItem {
+  font-size: 11px;
+  font-family: monospace;
+  color: rgba(255,255,255,0.45);
+  background: rgba(255,255,255,0.03);
+  padding: 3px 8px;
+  border-radius: 6px;
+  border: 1px solid rgba(255,255,255,0.06);
+}
+
+/* Details */
+.profileDetails {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.detailItem {
+  font-size: 10px;
+  color: rgba(255,255,255,0.3);
+}
+
+/* Profile actions */
+.profileActions {
+  display: flex;
+  gap: 6px;
+  margin-top: 4px;
+}
+
+.btnEdit {
+  padding: 6px 14px;
+  background: rgba(0,229,255,0.1);
+  border: 1px solid rgba(0,229,255,0.25);
+  border-radius: 8px;
+  color: #00E5FF;
+  font-size: 11px;
+  font-weight: 700;
+  font-family: inherit;
+  cursor: pointer;
+}
+
+.btnDeactivate {
+  padding: 6px 14px;
+  background: rgba(255,59,48,0.08);
+  border: 1px solid rgba(255,59,48,0.2);
+  border-radius: 8px;
+  color: #FF3B30;
+  font-size: 11px;
+  font-weight: 700;
+  font-family: inherit;
+  cursor: pointer;
+}
+
+.btnActivate {
+  padding: 6px 14px;
+  background: rgba(52,199,89,0.1);
+  border: 1px solid rgba(52,199,89,0.25);
+  border-radius: 8px;
+  color: #34C759;
+  font-size: 11px;
+  font-weight: 700;
+  font-family: inherit;
+  cursor: pointer;
+}
+
+.btnNotify {
+  padding: 6px 14px;
+  background: rgba(255,149,0,0.08);
+  border: 1px solid rgba(255,149,0,0.2);
+  border-radius: 8px;
+  color: #FF9500;
+  font-size: 11px;
+  font-weight: 700;
+  font-family: inherit;
+  cursor: pointer;
+}
+
+.notifyAllBtn {
+  padding: 8px 16px;
+  background: rgba(255,149,0,0.12);
+  border: 1px solid rgba(255,149,0,0.3);
+  border-radius: 8px;
+  color: #FF9500;
+  font-size: 12px;
+  font-weight: 700;
+  font-family: inherit;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+/* ═══════ COMMISSIONS ═══════ */
+.commSection {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.ruleBanner {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: rgba(255,149,0,0.06);
+  border: 1px solid rgba(255,149,0,0.2);
+  border-radius: 12px;
+  padding: 12px 16px;
+  font-size: 13px;
+  color: rgba(255,255,255,0.5);
+  line-height: 1.5;
+}
+
+.ruleIcon { font-size: 18px; flex-shrink: 0; }
+.ruleText { flex: 1; }
+.ruleText strong { color: rgba(255,149,0,0.9); }
+.ruleText em { color: #FF3B30; font-style: normal; font-weight: 700; }
+
+.commFilters {
+  display: flex;
+  gap: 6px;
+  border-bottom: 1px solid rgba(255,255,255,0.06);
+  padding-bottom: 0;
+}
+
+.commFilterBtn {
+  padding: 9px 16px;
+  background: none;
+  border: none;
+  border-bottom: 2px solid transparent;
+  margin-bottom: -1px;
+  color: rgba(255,255,255,0.35);
+  font-size: 13px;
+  font-weight: 600;
+  font-family: inherit;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.commFilterActive {
+  color: #FF9500;
+  border-bottom-color: #FF9500;
+}
+
+/* Table */
+.tableWrap {
+  overflow-x: auto;
+  border-radius: 14px;
+  border: 1px solid rgba(255,255,255,0.07);
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+}
+
+.table thead tr {
+  background: rgba(255,255,255,0.03);
+  border-bottom: 1px solid rgba(255,255,255,0.07);
+}
+
+.table th {
+  padding: 11px 14px;
+  text-align: left;
+  font-size: 11px;
+  font-weight: 700;
+  color: rgba(255,255,255,0.3);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  white-space: nowrap;
+}
+
+.table tbody tr {
+  border-bottom: 1px solid rgba(255,255,255,0.04);
+  transition: background 0.1s;
+}
+
+.table tbody tr:last-child { border-bottom: none; }
+.table tbody tr:hover { background: rgba(255,255,255,0.025); }
+
+.table td {
+  padding: 11px 14px;
+  color: rgba(255,255,255,0.7);
+  vertical-align: middle;
+}
+
+.rowBlocked { background: rgba(255,59,48,0.04) !important; }
+
+.sellerCell { min-width: 140px; }
+.sellerName { display: block; font-weight: 600; color: rgba(255,255,255,0.85); }
+.blockedTag {
+  display: inline-block;
+  margin-top: 3px;
+  font-size: 10px;
+  color: #FF3B30;
+  background: rgba(255,59,48,0.1);
+  border-radius: 4px;
+  padding: 1px 6px;
+}
+
+.refCell { font-family: monospace; font-size: 11px; color: rgba(255,255,255,0.3); white-space: nowrap; }
+.numCell { font-family: monospace; font-size: 13px; color: rgba(255,255,255,0.5); white-space: nowrap; }
+.commCell { font-family: monospace; font-size: 14px; font-weight: 800; color: rgba(255,255,255,0.85); white-space: nowrap; }
+
+/* Due pill */
+.duePill {
+  display: inline-block;
+  padding: 3px 9px;
+  border-radius: 20px;
+  font-size: 11px;
+  font-weight: 700;
+  font-family: monospace;
+  white-space: nowrap;
+}
+
+.duePillOk {
+  background: rgba(52,199,89,0.1);
+  border: 1px solid rgba(52,199,89,0.2);
+  color: #34C759;
+}
+
+.duePillOverdue {
+  background: rgba(255,59,48,0.12);
+  border: 1px solid rgba(255,59,48,0.3);
+  color: #FF3B30;
+  animation: blink 1.2s linear infinite;
+}
+
+@keyframes blink { 0%,100%{opacity:1} 50%{opacity:0.5} }
+
+.dueNa { color: rgba(255,255,255,0.15); font-size: 12px; }
+
+/* Status pills */
+.statusPill {
+  display: inline-block;
+  padding: 3px 9px;
+  border-radius: 20px;
+  font-size: 11px;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.statusPill_pending {
+  background: rgba(255,149,0,0.1);
+  border: 1px solid rgba(255,149,0,0.25);
+  color: #FF9500;
+}
+
+.statusPill_overdue {
+  background: rgba(255,59,48,0.12);
+  border: 1px solid rgba(255,59,48,0.3);
+  color: #FF3B30;
+}
+
+.statusPill_paid {
+  background: rgba(52,199,89,0.1);
+  border: 1px solid rgba(52,199,89,0.2);
+  color: #34C759;
+}
+
+/* Action buttons */
+.actionBtns { display: flex; gap: 6px; align-items: center; }
+
+.btnPay {
+  padding: 5px 12px;
+  background: rgba(52,199,89,0.12);
+  border: 1px solid rgba(52,199,89,0.3);
+  border-radius: 7px;
+  color: #34C759;
+  font-size: 11px;
+  font-weight: 700;
+  font-family: inherit;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.btnBlock {
+  padding: 5px 10px;
+  background: rgba(255,59,48,0.1);
+  border: 1px solid rgba(255,59,48,0.25);
+  border-radius: 7px;
+  color: #FF3B30;
+  font-size: 11px;
+  font-weight: 700;
+  font-family: inherit;
+  cursor: pointer;
+}
+
+.btnUnblock {
+  padding: 5px 12px;
+  background: rgba(255,149,0,0.1);
+  border: 1px solid rgba(255,149,0,0.25);
+  border-radius: 7px;
+  color: #FF9500;
+  font-size: 11px;
+  font-weight: 700;
+  font-family: inherit;
+  cursor: pointer;
+}
+
+.paidAt {
+  font-size: 11px;
+  color: rgba(255,255,255,0.25);
+  font-family: monospace;
+}
+
+.emptyRow {
+  padding: 32px !important;
+  text-align: center;
+  color: rgba(255,255,255,0.2) !important;
+  font-size: 13px;
+}
+
+/* ═══════ NOTIFICATIONS ═══════ */
+.notifySection {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.notifyHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.notifySectionTitle {
+  font-size: 15px;
+  font-weight: 800;
+  color: rgba(255,255,255,0.7);
+  margin: 0;
+}
+
+.notifyList {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.notifyRow {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 14px;
+  background: rgba(255,255,255,0.03);
+  border: 1px solid rgba(255,255,255,0.06);
+  border-radius: 12px;
+}
+
+.notifyAvatar {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.notifyInfo { flex: 1; }
+.notifyName { display: block; font-size: 13px; font-weight: 700; color: rgba(255,255,255,0.8); }
+.notifyArea { font-size: 11px; color: rgba(255,255,255,0.3); }
+
+/* Sent log */
+.sentLog {
+  background: rgba(255,255,255,0.02);
+  border: 1px solid rgba(255,255,255,0.06);
+  border-radius: 12px;
+  padding: 14px;
+}
+
+.sentLogTitle {
+  font-size: 13px;
+  font-weight: 700;
+  color: rgba(255,255,255,0.4);
+  margin: 0 0 10px;
+}
+
+.sentItem {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 6px 0;
+  border-bottom: 1px solid rgba(255,255,255,0.03);
+  font-size: 12px;
+}
+
+.sentItem:last-child { border-bottom: none; }
+.sentTo { color: rgba(255,255,255,0.5); min-width: 120px; font-weight: 600; }
+.sentTitle { color: rgba(255,255,255,0.35); flex: 1; }
+.sentTime { color: rgba(255,255,255,0.2); font-family: monospace; font-size: 11px; }
+
+/* ═══════ MODAL ═══════ */
+.modalOverlay {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  background: rgba(0,0,0,0.7);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  backdrop-filter: blur(4px);
+}
+
+.modal {
+  background: #1a1a2e;
+  border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 16px;
+  width: 520px;
+  max-width: 95vw;
+  max-height: 85vh;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 24px 80px rgba(0,0,0,0.6);
+}
+
+.modalHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 18px 20px;
+  border-bottom: 1px solid rgba(255,255,255,0.06);
+}
+
+.modalTitle {
+  font-size: 16px;
+  font-weight: 800;
+  color: #00E5FF;
+  margin: 0;
+}
+
+.modalClose {
+  background: none;
+  border: none;
+  color: rgba(255,255,255,0.3);
+  font-size: 22px;
+  cursor: pointer;
+  padding: 0 4px;
+  line-height: 1;
+}
+
+.modalBody {
+  padding: 18px 20px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.modalFooter {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  padding: 14px 20px;
+  border-top: 1px solid rgba(255,255,255,0.06);
+}
+
+.fieldLabel {
+  font-size: 11px;
+  font-weight: 700;
+  color: rgba(255,255,255,0.4);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-top: 4px;
+}
+
+.fieldInput {
+  padding: 9px 12px;
+  background: rgba(255,255,255,0.05);
+  border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 8px;
+  color: #fff;
+  font-size: 13px;
+  font-family: inherit;
+  outline: none;
+}
+
+.fieldInput:focus {
+  border-color: rgba(0,229,255,0.4);
+}
+
+.fieldTextarea {
+  padding: 9px 12px;
+  background: rgba(255,255,255,0.05);
+  border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 8px;
+  color: #fff;
+  font-size: 13px;
+  font-family: inherit;
+  outline: none;
+  resize: vertical;
+}
+
+.fieldTextarea:focus {
+  border-color: rgba(0,229,255,0.4);
+}
+
+.typeCheckboxes {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.checkboxLabel {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 12px;
+  color: rgba(255,255,255,0.5);
+  cursor: pointer;
+}
+
+.checkboxLabel input {
+  accent-color: #00E5FF;
+}
+
+.priceFields {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+}
+
+/* Template row */
+.templateRow {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 6px;
+}
+
+.templateLabel {
+  font-size: 11px;
+  color: rgba(255,255,255,0.3);
+  font-weight: 700;
+}
+
+.templateBtn {
+  padding: 4px 10px;
+  background: rgba(255,255,255,0.04);
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 6px;
+  color: rgba(255,255,255,0.45);
+  font-size: 11px;
+  font-weight: 600;
+  font-family: inherit;
+  cursor: pointer;
+}
+
+.templateBtn:hover {
+  background: rgba(0,229,255,0.08);
+  border-color: rgba(0,229,255,0.2);
+  color: #00E5FF;
+}
+
+/* Modal buttons */
+.btnCancel {
+  padding: 8px 18px;
+  background: rgba(255,255,255,0.05);
+  border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 8px;
+  color: rgba(255,255,255,0.45);
+  font-size: 13px;
+  font-weight: 600;
+  font-family: inherit;
+  cursor: pointer;
+}
+
+.btnSave {
+  padding: 8px 20px;
+  background: rgba(0,229,255,0.15);
+  border: 1px solid rgba(0,229,255,0.35);
+  border-radius: 8px;
+  color: #00E5FF;
+  font-size: 13px;
+  font-weight: 700;
+  font-family: inherit;
+  cursor: pointer;
+}
+
+.btnSave:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}

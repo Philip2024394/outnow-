@@ -168,6 +168,73 @@ export function notifyGiftStatusUpdate(toUserId, { status, productName, orderId 
   })
 }
 
+// ── Massage ──────────────────────────────────────────────────────────────────
+
+export function notifyMassageBooking(toUserId, { customerName, serviceType, duration, fromUserId, bookingId }) {
+  return send(toUserId, {
+    type:       'massage_booking',
+    title:      `New booking request`,
+    body:       `${customerName} requested a ${duration}min ${serviceType} session. Tap to accept or decline.`,
+    fromUserId,
+    data:       { action: 'open_massage', bookingId },
+  })
+}
+
+export function notifyMassageConfirmed(toUserId, { therapistName, serviceType, duration, fromUserId, bookingId }) {
+  return send(toUserId, {
+    type:       'massage_confirmed',
+    title:      `Booking confirmed!`,
+    body:       `${therapistName} confirmed your ${duration}min ${serviceType} session. They're on their way.`,
+    fromUserId,
+    data:       { action: 'open_massage', bookingId },
+  })
+}
+
+export function notifyMassageCommissionDue(toUserId, { amount, dueIn }) {
+  return send(toUserId, {
+    type:       'massage_commission',
+    title:      `Commission payment due`,
+    body:       `Your commission of Rp ${Number(amount).toLocaleString('id-ID')} is due in ${dueIn}. Submit payment proof to avoid account restrictions.`,
+    data:       { action: 'open_massage_commission' },
+  })
+}
+
+export function notifyMassageCommissionOverdue(toUserId, { amount }) {
+  return send(toUserId, {
+    type:       'massage_commission_overdue',
+    title:      `Commission overdue — action required`,
+    body:       `Your commission of Rp ${Number(amount).toLocaleString('id-ID')} is overdue. Your account may be restricted until payment is received.`,
+    data:       { action: 'open_massage_commission' },
+  })
+}
+
+export function notifyMassageProfileDeactivated(toUserId, { reason }) {
+  return send(toUserId, {
+    type:       'massage_deactivated',
+    title:      `Profile deactivated`,
+    body:       reason || 'Your massage therapist profile has been deactivated by admin. Contact support for details.',
+    data:       { action: 'open_massage' },
+  })
+}
+
+export function notifyMassageProfileReactivated(toUserId) {
+  return send(toUserId, {
+    type:       'massage_reactivated',
+    title:      `Profile reactivated`,
+    body:       'Your massage therapist profile is active again. You can now receive new booking requests.',
+    data:       { action: 'open_massage' },
+  })
+}
+
+export function notifyMassageAdmin(toUserId, { title, body }) {
+  return send(toUserId, {
+    type:       'massage_admin',
+    title:      title || 'Admin Notice',
+    body:       body || '',
+    data:       { action: 'open_massage' },
+  })
+}
+
 // ── Date suggestions (admin) ──────────────────────────────────────────────────
 
 export function notifyDateSuggestionAccepted(toUserId, { ideaTitle }) {

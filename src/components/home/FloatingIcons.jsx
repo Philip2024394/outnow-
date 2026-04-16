@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { createPortal } from 'react-dom'
 import ActivityProfileGrid from './ActivityProfileGrid'
 import { useLanguage } from '@/i18n'
 import styles from './FloatingIcons.module.css'
@@ -28,7 +29,7 @@ export default function FloatingIcons({ sessions = [], serviceCounts = {}, onSel
     setActiveActivity(icon)
   }
 
-  return (
+  return createPortal(
     <>
       <div className={styles.dock}>
         <div className={styles.dockInner}>
@@ -74,6 +75,7 @@ export default function FloatingIcons({ sessions = [], serviceCounts = {}, onSel
         onClose={() => setActiveActivity(null)}
         onSelectSession={(s) => { setActiveActivity(null); onSelectSession?.(s) }}
       />
-    </>
+    </>,
+    document.body
   )
 }

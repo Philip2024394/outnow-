@@ -1,4 +1,5 @@
 import { useRef } from 'react'
+import { createPortal } from 'react-dom'
 import styles from './MapSearchBar.module.css'
 
 export default function MapSearchBar({
@@ -21,7 +22,7 @@ export default function MapSearchBar({
     }
   }
 
-  return (
+  return createPortal(
     <div className={styles.wrap}>
       <div className={styles.bar}>
         <svg className={styles.icon} width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
@@ -60,6 +61,7 @@ export default function MapSearchBar({
 
       {/* Suggest dropdown rendered as child — positioned relative to .wrap */}
       {children}
-    </div>
+    </div>,
+    document.body
   )
 }
