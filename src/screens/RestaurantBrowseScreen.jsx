@@ -372,6 +372,7 @@ function Stars({ rating }) {
 // ── Main component ────────────────────────────────────────────────────────────
 export default function RestaurantBrowseScreen({ onClose, onBackToCategories, category, scrollToId, onOrderViaChat }) {
   const [showLanding, setShowLanding] = useState(true)
+  const [showVideo, setShowVideo] = useState(false)
   const [restaurants,    setRestaurants]    = useState([])
   const [loading,        setLoading]        = useState(true)
   const [activeIndex,    setActiveIndex]    = useState(0)
@@ -460,10 +461,29 @@ export default function RestaurantBrowseScreen({ onClose, onBackToCategories, ca
 
   if (showLanding) return (
     <FoodLanding
-      onBrowse={() => { markSectionVisited('food'); setShowLanding(false) }}
+      onBrowse={() => { markSectionVisited('food'); setShowLanding(false); setShowVideo(true) }}
       onRegister={() => { markSectionVisited('food'); setShowLanding(false) }}
       onClose={onClose}
     />
+  )
+
+  if (showVideo) return (
+    <div className={styles.videoPage}>
+      <div className={styles.videoCard} onClick={() => setShowVideo(false)}>
+        <video
+          src="https://ik.imagekit.io/nepgaxllc/street%20food.mp4?updatedAt=1776064212346"
+          className={styles.videoPlayer}
+          autoPlay
+          loop
+          muted
+          playsInline
+        />
+        <div className={styles.videoOverlay}>
+          <h2 className={styles.videoTitle}>Indoo Street</h2>
+          <p className={styles.videoSub}>Tap to explore street food</p>
+        </div>
+      </div>
+    </div>
   )
 
   if (loading) return (

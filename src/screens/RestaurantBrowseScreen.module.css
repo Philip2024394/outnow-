@@ -245,6 +245,40 @@
 @keyframes spin { to { transform: rotate(360deg); } }
 .loadingText { font-size: 14px; color: #444; font-weight: 600; }
 
+/* ── Video page ── */
+.videoPage {
+  position: fixed; inset: 0; z-index: 9000;
+  background: #000;
+  display: flex; align-items: center; justify-content: center;
+  padding: 16px;
+}
+.videoCard {
+  position: relative;
+  width: 100%; max-width: 400px;
+  border-radius: 20px;
+  overflow: hidden;
+  cursor: pointer;
+  box-shadow: 0 10px 40px rgba(0,0,0,0.5);
+}
+.videoPlayer {
+  width: 100%;
+  display: block;
+  border-radius: 20px;
+}
+.videoOverlay {
+  position: absolute; bottom: 0; left: 0; right: 0;
+  padding: 24px;
+  background: linear-gradient(to top, rgba(0,0,0,0.8) 0%, transparent 100%);
+  border-radius: 0 0 20px 20px;
+}
+.videoTitle {
+  font-size: 28px; font-weight: 900; color: #fff; margin: 0;
+  text-shadow: 0 2px 12px rgba(0,0,0,0.5);
+}
+.videoSub {
+  font-size: 13px; color: rgba(255,255,255,0.6); margin: 6px 0 0;
+}
+
 /* ── Landing page ──────────────────────────────────────────────────────────── */
 .landingPage {
   position: fixed; inset: 0; z-index: 100;
