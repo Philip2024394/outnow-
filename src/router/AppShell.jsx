@@ -206,6 +206,7 @@ export default function AppShell({ returnParams, triggerGoLive }) {
   // Full map filter sheet
   const [mapFilters, setMapFilters] = useState(DEFAULT_MAP_FILTERS)
   const [activeTab, setActiveTab] = useState('map')
+  const [dockVisible, setDockVisible] = useState(true)
   const [sectionGate, setSectionGate] = useState(null) // 'dating' | 'marketplace' | null
   const [rideVehicleType, setRideVehicleType] = useState('bike_ride') // 'bike_ride' | 'car_taxi'
   const [giftForSession, setGiftForSession] = useState(null)
@@ -439,28 +440,28 @@ export default function AppShell({ returnParams, triggerGoLive }) {
       {/* Time-based background fills full screen */}
       <TimeBackground />
 
-      {/* Floating activity icons — home screen only */}
-      {activeTab === 'map' && (
+      {/* Floating activity icons — visible when dock is on and on map */}
+      {activeTab === 'map' && dockVisible && (
         <FloatingIcons
           sessions={visibleSessions}
           serviceCounts={serviceUnreadCounts}
           onSelectSession={(s) => handleOpenDiscovery(s)}
-          onFoodClick={() => setFoodOpen(true)}
-          onRideClick={(type) => { if (isGuest) { triggerGate(); return } setRideVehicleType(type ?? 'bike_ride'); setRideOpen(true) }}
+          onFoodClick={() => { setDockVisible(false); setFoodOpen(true) }}
+          onRideClick={(type) => { if (isGuest) { triggerGate(); return } setDockVisible(false); setRideVehicleType(type ?? 'bike_ride'); setRideOpen(true) }}
           onShoppingClick={() => {
             if (isGuest) { triggerGate(); return }
             const access = checkSectionAccess('marketplace', userProfile)
             if (!access.allowed) { setSectionGate('marketplace'); return }
-            setActiveTab('shopping')
+            setDockVisible(false); setActiveTab('shopping')
           }}
           onDatingClick={() => {
             if (isGuest) { triggerGate(); return }
             const access = checkSectionAccess('dating', userProfile)
             if (!access.allowed) { setSectionGate('dating'); return }
-            setDatingIntentOpen(true)
+            setDockVisible(false); setDatingIntentOpen(true)
           }}
-          onMassageClick={() => { if (isGuest) { triggerGate(); return } setActiveTab('shopping') }}
-          onRentalsClick={() => { if (isGuest) { triggerGate(); return } setActiveTab('rentals') }}
+          onMassageClick={() => { if (isGuest) { triggerGate(); return } setDockVisible(false); setActiveTab('shopping') }}
+          onRentalsClick={() => { if (isGuest) { triggerGate(); return } setDockVisible(false); setActiveTab('rentals') }}
         />
       )}
 
@@ -535,8 +536,8 @@ export default function AppShell({ returnParams, triggerGoLive }) {
       <Suspense fallback={<LazyFallback />}>
         {activeTab === 'chat'    && <ChatScreen key={pendingConv?.id ?? 'chat'} onClose={() => setActiveTab('map')} pendingConv={pendingConv} />}
         {activeTab === 'profile' && <ProfileScreen onClose={() => setActiveTab('map')} onOpenSettings={() => setSettingsOpen(true)} />}
-        {activeTab === 'shopping' && <ShopSearchScreen onClose={() => { setActiveTab('map'); setGiftForSession(null) }} userCity={userProfile?.city} userCountry={userProfile?.country} giftFor={giftForSession} onGiftDismiss={() => setGiftForSession(null)} showToast={showToast} onOrderViaChat={handleOrderViaChat} onMakeOffer={handleMakeOffer} />}
-        {activeTab === 'rentals' && <RentalSearchScreen onClose={() => setActiveTab('map')} />}
+        {activeTab === 'shopping' && <ShopSearchScreen onClose={() => { setActiveTab('map'); setDockVisible(true); setGiftForSession(null) }} userCity={userProfile?.city} userCountry={userProfile?.country} giftFor={giftForSession} onGiftDismiss={() => setGiftForSession(null)} showToast={showToast} onOrderViaChat={handleOrderViaChat} onMakeOffer={handleMakeOffer} />}
+        {activeTab === 'rentals' && <RentalSearchScreen onClose={() => { setActiveTab('map'); setDockVisible(true) }} />}
       </Suspense>
 
       <div className="map-top-fade" />
@@ -720,14 +721,17 @@ export default function AppShell({ returnParams, triggerGoLive }) {
         />
       )}
 
-      {/* Bottom nav — map tab only */}
-      {activeTab === 'map' && (
-        <BottomNav
+      {/* Side nav — always visible */}
+      <BottomNav
+          isGuest={isGuest}
+          dockVisible={dockVisible}
+          onToggleDock={() => setDockVisible(v => !v)}
           activeTab={activeTab}
           onChange={(tab) => {
             if (isGuest && tab !== 'map') { triggerGate(); return }
             setActiveTab(tab)
             if (tab === 'map') {
+              setDockVisible(true)
               setCompanyPanelOpen(false)
             }
           }}
@@ -768,10 +772,9 @@ export default function AppShell({ returnParams, triggerGoLive }) {
             }
           }}
         />
-      )}
 
       <Suspense fallback={<LazyFallback />}>
-      {rideOpen && <BookingScreen onClose={() => setRideOpen(false)} initialVehicle={rideVehicleType} />}
+      {rideOpen && <BookingScreen onClose={() => { setRideOpen(false); setDockVisible(true) }} initialVehicle={rideVehicleType} />}
       </Suspense>
 
       <Suspense fallback={<LazyFallback />}>

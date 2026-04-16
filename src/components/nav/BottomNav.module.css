@@ -1,10 +1,10 @@
 /* Vertical right-side floating nav */
 .nav {
-  position: absolute;
+  position: fixed;
   right: 14px;
   top: 50%;
   transform: translateY(-50%);
-  z-index: var(--z-header);
+  z-index: 10000;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -405,7 +405,7 @@
 }
 
 /* ── Hangger News button ── */
-.newsBtn {
+.dockToggleBtn {
   position: relative;
   width: 42px;
   display: flex;
@@ -424,16 +424,16 @@
   transition: transform 0.12s, background 0.15s, border-color 0.15s, color 0.15s;
 }
 
-.newsBtn:active { transform: scale(0.88); }
+.dockToggleBtn:active { transform: scale(0.88); }
 
-.newsBtnActive {
-  background: rgba(245, 158, 11, 0.15);
-  border-color: #F59E0B;
-  color: #F59E0B;
-  box-shadow: 0 0 12px rgba(245, 158, 11, 0.3);
+.dockToggleActive {
+  background: rgba(141, 198, 63, 0.15);
+  border-color: #8DC63F;
+  color: #8DC63F;
+  box-shadow: 0 0 12px rgba(141, 198, 63, 0.3);
 }
 
-.newsBtnLabel {
+.dockToggleLabel {
   font-size: 8px;
   font-weight: 800;
   letter-spacing: 0.05em;

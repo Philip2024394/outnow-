@@ -6,7 +6,7 @@ const RING_R    = 20          // SVG circle radius
 const RING_CIRC = 2 * Math.PI * RING_R  // ≈ 125.7
 const HOLD_MS   = 3000
 
-export default function BottomNav({ activeTab = 'map', userPhotoURL, userName, isLive = false, isInviteOut = false, onProfileTap, onSOS, onVibeBroadcast, vibeBroadcastActive = false, onNews, newsActive = false, driverOnline = null, onToggleDriverStatus, onHanggerLive, hanggerLiveActive = false }) {
+export default function BottomNav({ activeTab = 'map', userPhotoURL, userName, isLive = false, isInviteOut = false, onProfileTap, onSOS, onVibeBroadcast, vibeBroadcastActive = false, onNews, newsActive = false, driverOnline = null, onToggleDriverStatus, onHanggerLive, hanggerLiveActive = false, isGuest = false, onToggleDock, dockVisible = true }) {
   const holdRef      = useRef(null)
   const frameRef     = useRef(null)
   const startRef     = useRef(null)
@@ -89,20 +89,25 @@ export default function BottomNav({ activeTab = 'map', userPhotoURL, userName, i
         <span className={styles.liveBtnLabel}>Live</span>
       </button>
 
-      {/* Hangger News */}
+      {/* Dock toggle */}
       <button
-        className={`${styles.newsBtn} ${newsActive ? styles.newsBtnActive : ''}`}
-        onClick={onNews}
-        aria-label="Hangger News"
+        className={`${styles.dockToggleBtn} ${dockVisible ? styles.dockToggleActive : ''}`}
+        onClick={onToggleDock}
+        aria-label="Toggle menu"
       >
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-          <path d="M4 22h16a2 2 0 0 0 2-2V4a2 2 0 0 0-2-2H8a2 2 0 0 0-2 2v16a2 2 0 0 0-2-2z"/>
-          <path d="M2 10h4"/>
-          <path d="M8 6h8"/>
-          <path d="M8 10h8"/>
-          <path d="M8 14h5"/>
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+          {dockVisible ? (
+            <>{/* Grid icon — dock is showing */}
+              <rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/>
+              <rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/>
+            </>
+          ) : (
+            <>{/* Menu icon — dock is hidden */}
+              <line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/>
+            </>
+          )}
         </svg>
-        <span className={styles.newsBtnLabel}>News</span>
+        <span className={styles.dockToggleLabel}>{dockVisible ? 'Hide' : 'Menu'}</span>
       </button>
 
       {/* Profile — hold 3s to toggle driver online/offline */}
