@@ -20,7 +20,7 @@
   inset: 0;
   border-radius: 12px 12px 0 0;
   overflow: hidden;
-  background: linear-gradient(to right, #8DC63F, #6BA032);
+  background: linear-gradient(to right, #C9A96E, #A07D3F);
 }
 
 /* absolute inset-0 w-full h-full object-cover rounded-t-xl */
@@ -54,7 +54,7 @@
 .ratingStar {
   width: 16px;
   height: 16px;
-  color: #8DC63F;
+  color: #C9A96E;
 }
 
 /* text-sm font-bold text-white */
@@ -107,7 +107,7 @@
   padding: 8px 20px;
   border-radius: 9999px;
   box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1);
-  background: linear-gradient(to right, #8DC63F, #6BA032);
+  background: linear-gradient(to right, #C9A96E, #A07D3F);
   animation: discountFade 2s ease-in-out infinite;
 }
 
