@@ -1,0 +1,184 @@
+/* TherapistCard — composed card, exact layout from massage app */
+/* Source: src/components/TherapistCard.tsx lines 1239-1383 */
+
+/* w-full bg-white rounded-xl shadow-lg border border-gray-200 border-t-4 border-t-amber-400 overflow-visible relative pb-8 */
+/* Dark theme: bg-black/75 backdrop-blur border-white/8 border-t-green */
+.card {
+  width: 100%;
+  background: rgba(0,0,0,0.75);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1.5px solid rgba(255,255,255,0.08);
+  border-top: 4px solid #8DC63F;
+  border-radius: 12px;
+  overflow: visible;
+  position: relative;
+  padding-bottom: 32px;
+  box-shadow: 0 10px 25px rgba(0,0,0,0.3);
+  transition: all 0.2s;
+  touch-action: manipulation;
+}
+.card:active { box-shadow: 0 15px 30px rgba(0,0,0,0.4); }
+
+/* ── Location display ── */
+/* px-4 mt-3 flex flex-col items-end */
+.location {
+  padding: 0 16px;
+  margin-top: 12px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+}
+
+/* flex items-center gap-1 text-xs text-black font-medium uppercase → text-white */
+.locationCity {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 12px;
+  color: #fff;
+  font-weight: 500;
+  text-transform: uppercase;
+}
+
+/* w-3 h-3 */
+.locationPin { width: 12px; height: 12px; }
+
+/* text-xs text-amber-500 mt-1 font-medium uppercase → text-green */
+.locationArea {
+  font-size: 12px;
+  color: #8DC63F;
+  margin-top: 4px;
+  font-weight: 500;
+  text-transform: uppercase;
+}
+
+/* ── Client preference ── */
+/* mx-4 mb-2, text-xs text-gray-600 text-left → text-white/40 */
+.clientPref {
+  margin: 0 16px 8px;
+  font-size: 12px;
+  color: rgba(255,255,255,0.4);
+  text-align: left;
+}
+/* font-bold → text-white/60 */
+.clientPrefBold {
+  font-weight: 700;
+  color: rgba(255,255,255,0.6);
+}
+
+/* ── Bio ── */
+/* therapist-bio-section bg-white/90 backdrop-blur-sm rounded-lg py-2 px-3 shadow-sm mx-4 mb-3 */
+/* Dark theme: bg-white/4 backdrop-blur */
+.bio {
+  margin: 0 16px 12px;
+  padding: 8px 12px;
+  background: rgba(255,255,255,0.04);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+  border-radius: 8px;
+  box-shadow: 0 1px 2px rgba(0,0,0,0.1);
+}
+/* text-sm text-gray-700 leading-5 break-words whitespace-normal line-clamp-6 → text-white/50 */
+.bioText {
+  font-size: 14px;
+  color: rgba(255,255,255,0.5);
+  line-height: 1.4;
+  word-break: break-word;
+  white-space: normal;
+  display: -webkit-box;
+  -webkit-line-clamp: 6;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+/* ── Button row ── */
+/* relative z-10 flex gap-2 px-4 */
+.buttonRow {
+  position: relative;
+  z-index: 10;
+  display: flex;
+  gap: 8px;
+  padding: 0 16px;
+  touch-action: manipulation;
+}
+
+/* Spacing variants */
+.spacingLarge { margin-top: 16px; }
+.spacingMedium { margin-top: 12px; }
+.spacingSmall { margin-top: 12px; }
+
+/* flex-1 py-2.5 rounded-lg font-semibold text-sm bg-amber-500 text-white → bg-green text-black */
+.filledBtn {
+  flex: 1;
+  padding: 10px;
+  border-radius: 8px;
+  font-weight: 600;
+  font-size: 14px;
+  font-family: inherit;
+  background: #8DC63F;
+  color: #000;
+  border: none;
+  cursor: pointer;
+  transition: background 0.15s;
+  min-height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.filledBtn:hover { background: #7AB635; }
+.filledBtn:disabled { cursor: not-allowed; opacity: 0.6; }
+
+@keyframes bookHeartbeat {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(141,198,63,0.5); }
+  50% { box-shadow: 0 0 0 8px rgba(141,198,63,0.25), 0 0 16px 4px rgba(141,198,63,0.3); }
+}
+.filledBtnFlash { animation: bookHeartbeat 1.2s ease-in-out infinite; }
+
+/* flex-1 py-2.5 rounded-lg font-semibold text-sm bg-white border-2 border-amber-500 text-amber-600 → outline green */
+.outlineBtn {
+  flex: 1;
+  padding: 10px;
+  border-radius: 8px;
+  font-weight: 600;
+  font-size: 14px;
+  font-family: inherit;
+  background: transparent;
+  border: 2px solid rgba(141,198,63,0.4);
+  color: #8DC63F;
+  cursor: pointer;
+  transition: all 0.15s;
+  min-height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.outlineBtn:hover { background: rgba(141,198,63,0.05); }
+
+/* ── Hotel/Villa Partner Link ── */
+/* mt-3 mb-2 px-2 */
+.partnerLink {
+  margin-top: 12px;
+  margin-bottom: 8px;
+  padding: 0 8px;
+}
+/* w-full bg-gradient-to-r from-amber-50 border border-amber-200 rounded-lg p-2.5 → bg-green/5 border-green/20 */
+.partnerBtn {
+  width: 100%;
+  background: rgba(141,198,63,0.05);
+  border: 1px solid rgba(141,198,63,0.2);
+  border-radius: 8px;
+  padding: 10px;
+  cursor: pointer;
+  transition: background 0.15s;
+  font-family: inherit;
+  display: block;
+}
+.partnerBtn:hover { background: rgba(141,198,63,0.1); }
+.partnerInner { display: flex; align-items: center; gap: 8px; }
+.partnerIcon { width: 20px; height: 20px; color: #8DC63F; flex-shrink: 0; }
+.partnerBody { flex: 1; text-align: left; min-width: 0; }
+/* text-xs font-bold text-amber-900 truncate → text-white */
+.partnerName { font-size: 12px; font-weight: 700; color: #fff; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+/* text-[10px] text-amber-700 → text-green */
+.partnerSub { font-size: 10px; color: #8DC63F; }
