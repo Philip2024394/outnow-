@@ -11,6 +11,7 @@ import {
 } from '@/services/rentalService'
 import { getDirectory } from '@/services/vehicleDirectoryService'
 import RentalDashboard from '@/components/rentals/RentalDashboard'
+import SectionCTAButton from '@/components/ui/SectionCTAButton'
 import PriceCalculator from '@/components/rentals/PriceCalculator'
 import styles from './RentalSearchScreen.module.css'
 
@@ -128,9 +129,11 @@ function RentalLanding({ onEnter, onClose, onDashboard }) {
             <polyline points="9 18 15 12 9 6"/>
           </svg>
         </button>
-        <button className={styles.landingBtnOutline} onClick={onDashboard}>
-          List Your Vehicle
-        </button>
+        <SectionCTAButton
+          section="rentals"
+          className={styles.landingBtnOutline}
+          onReady={onDashboard}
+        />
       </div>
     </div>
   )
@@ -162,7 +165,7 @@ function usePreloadImages() {
 }
 
 
-function VehicleDirectory({ vehicleType, onSelectModel, onBack, onCalc }) {
+function VehicleDirectory({ vehicleType, onSelectModel, onBack }) {
   const directory = getDirectory(vehicleType)
   const isBike = vehicleType === 'Motorcycles'
   const isTruck = vehicleType === 'Trucks'
@@ -184,7 +187,7 @@ function VehicleDirectory({ vehicleType, onSelectModel, onBack, onCalc }) {
       <div className={styles.dirBody}>
         <div className={styles.dirGrid}>
           {directory.map(v => (
-            <button key={v.id} className={styles.dirCard} onClick={() => onCalc(v)}>
+            <button key={v.id} className={styles.dirCard} onClick={() => onSelectModel(v)}>
               <div className={styles.dirCardBadge}>{v.listings}</div>
               <div className={styles.dirCardImgWrap}>
                 {v.image ? (
@@ -239,11 +242,11 @@ function SubCategoryLanding({ bg, title, tagline, buttons, onSelect, onBack }) {
   )
 }
 
-function RentalCategories({ onSelect, onClose }) {
+function RentalCategories({ onSelect, onBack }) {
   return (
     <div className={styles.catPage}>
       <div className={styles.catHeader}>
-        <button className={styles.backBtn} onClick={onClose}>
+        <button className={styles.backBtn} onClick={onBack}>
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
             <polyline points="15 18 9 12 15 6"/>
           </svg>
@@ -301,7 +304,7 @@ export default function RentalSearchScreen({ onClose }) {
           if (c.id === 'Electronics' || c.id === 'Audio & Sound' || c.id === 'Party & Event') { setView('equipment'); return }
           setActiveFilter(c.filter); setView('browse')
         }}
-        onClose={onClose}
+        onBack={() => setView('landing')}
       />
     )
   }
@@ -330,7 +333,6 @@ export default function RentalSearchScreen({ onClose }) {
         vehicleType={vehicleType}
         onSelectModel={(model) => { setSelectedModel(model); setActiveFilter([vehicleType]); setView('browse') }}
         onBack={() => setView('vehicles')}
-        onCalc={(v) => setCalcVehicle(v)}
       />
     )
   }
@@ -390,7 +392,10 @@ export default function RentalSearchScreen({ onClose }) {
     <div className={styles.page}>
       {/* Header */}
       <div className={styles.header}>
-        <button className={styles.backBtn} onClick={onClose}>
+        <button className={styles.backBtn} onClick={() => {
+          if (vehicleType) { setView('vehicleDir'); return }
+          setView('categories')
+        }}>
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
             <polyline points="15 18 9 12 15 6"/>
           </svg>

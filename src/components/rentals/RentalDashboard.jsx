@@ -64,6 +64,12 @@ function ListingForm({ onSubmit, onClose }) {
   // Location
   const [location, setLocation] = useState('')
 
+  // Optional features
+  const [damageReport, setDamageReport] = useState(false)
+  const [insuranceAddon, setInsuranceAddon] = useState(false)
+  const [insuranceDaily, setInsuranceDaily] = useState('')
+  const [conditionLog, setConditionLog] = useState(false)
+
   const isBike = vehicleType === 'motorcycle'
   const canSubmit = vehicleType && brand && model && priceDaily
 
@@ -83,6 +89,11 @@ function ListingForm({ onSubmit, onClose }) {
       hotelDelivery, deliveryFee: Number(deliveryFee) || 0,
       airportPickup, airportDropoff, airportFee: Number(airportFee) || 0,
       location,
+      // Optional features
+      damageReport,
+      insuranceAddon,
+      insuranceDaily: Number(insuranceDaily) || 0,
+      conditionLog,
     })
   }
 
@@ -245,6 +256,36 @@ function ListingForm({ onSubmit, onClose }) {
             <input className={styles.input} value={location} onChange={e => setLocation(e.target.value)} placeholder="Sleman, Yogyakarta" />
           </div>
 
+          {/* Optional features */}
+          <span className={styles.formSection}>Optional Features</span>
+          <div className={styles.toggleRow}>
+            <div>
+              <span className={styles.toggleLabel}>📸 Damage Report</span>
+              <span className={styles.toggleHint}>Before/after photos at pickup & return</span>
+            </div>
+            <Toggle value={damageReport} onChange={setDamageReport} />
+          </div>
+          <div className={styles.toggleRow}>
+            <div>
+              <span className={styles.toggleLabel}>🛡️ Insurance Add-on</span>
+              <span className={styles.toggleHint}>Offer optional insurance to renters</span>
+            </div>
+            <Toggle value={insuranceAddon} onChange={setInsuranceAddon} />
+          </div>
+          {insuranceAddon && (
+            <div className={styles.field}>
+              <span className={styles.label}>Insurance per day (Rp)</span>
+              <input className={styles.input} value={insuranceDaily} onChange={e => setInsuranceDaily(e.target.value)} placeholder="25000" type="number" />
+            </div>
+          )}
+          <div className={styles.toggleRow}>
+            <div>
+              <span className={styles.toggleLabel}>📋 Vehicle Condition Log</span>
+              <span className={styles.toggleHint}>Odometer + fuel level photo at pickup/return</span>
+            </div>
+            <Toggle value={conditionLog} onChange={setConditionLog} />
+          </div>
+
           <button className={styles.submitBtn} disabled={!canSubmit} onClick={handleSubmit}>
             Create Listing
           </button>
@@ -332,15 +373,16 @@ export default function RentalDashboard({ open, onClose }) {
                 {l.vehicleType === 'motorcycle' && l.raincoats > 0 && <span className={styles.listingTag}>🧥 {l.raincoats} raincoat{l.raincoats > 1 ? 's' : ''}</span>}
                 {l.hotelDelivery && <span className={`${styles.listingTag} ${styles.listingTagGreen}`}>🏨 Hotel delivery</span>}
                 {l.airportPickup && <span className={`${styles.listingTag} ${styles.listingTagGreen}`}>✈️ Airport</span>}
+                {l.damageReport && <span className={styles.listingTag}>📸 Damage report</span>}
+                {l.insuranceAddon && <span className={`${styles.listingTag} ${styles.listingTagGreen}`}>🛡️ Insurance {fmtPrice(l.insuranceDaily)}/day</span>}
+                {l.conditionLog && <span className={styles.listingTag}>📋 Condition log</span>}
               </div>
             </div>
             <div className={styles.listingActions}>
+              <Toggle value={l.status === 'active'} onChange={() => handleToggle(l.id)} />
               <span className={`${styles.statusBadge} ${l.status === 'active' ? styles.statusActive : styles.statusPaused}`}>
-                {l.status === 'active' ? 'Active' : 'Paused'}
+                {l.status === 'active' ? 'Live' : 'Off'}
               </span>
-              <button className={styles.listingEditBtn} onClick={() => handleToggle(l.id)}>
-                {l.status === 'active' ? 'Pause' : 'Resume'}
-              </button>
               <button className={styles.listingDeleteBtn} onClick={() => handleDelete(l.id)}>Delete</button>
             </div>
           </div>
