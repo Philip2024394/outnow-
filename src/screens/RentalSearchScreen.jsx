@@ -12,6 +12,7 @@ import {
 import { getDirectory } from '@/services/vehicleDirectoryService'
 import RentalDashboard from '@/components/rentals/RentalDashboard'
 import SectionCTAButton from '@/components/ui/SectionCTAButton'
+import { hasVisitedSection, markSectionVisited } from '@/services/sectionVisitService'
 import PriceCalculator from '@/components/rentals/PriceCalculator'
 import styles from './RentalSearchScreen.module.css'
 
@@ -242,7 +243,7 @@ function SubCategoryLanding({ bg, title, tagline, buttons, onSelect, onBack }) {
   )
 }
 
-function RentalCategories({ onSelect, onBack }) {
+function RentalCategories({ onSelect, onBack, onDashboard }) {
   return (
     <div className={styles.catPage}>
       <div className={styles.catHeader}>
@@ -252,6 +253,7 @@ function RentalCategories({ onSelect, onBack }) {
           </svg>
         </button>
         <span className={styles.catHeaderTitle}>What do you want to rent?</span>
+        <button className={styles.addBtn} onClick={onDashboard}>+ List</button>
       </div>
       <div className={styles.catGrid}>
         {CATEGORY_TILES.map(c => (
@@ -268,7 +270,7 @@ function RentalCategories({ onSelect, onBack }) {
 
 export default function RentalSearchScreen({ onClose }) {
   usePreloadImages()
-  const [view, setView] = useState('landing') // landing | categories | vehicles | vehicleDir | browse
+  const [view, setView] = useState(() => hasVisitedSection('rentals') ? 'categories' : 'landing')
   const [search, setSearch] = useState('')
   const [category, setCategory] = useState('all')
   const [activeFilter, setActiveFilter] = useState(null)
@@ -291,7 +293,7 @@ export default function RentalSearchScreen({ onClose }) {
   }
 
   if (view === 'landing') {
-    return <RentalLanding onEnter={() => setView('categories')} onClose={onClose} onDashboard={() => setDashboardOpen(true)} />
+    return <RentalLanding onEnter={() => { markSectionVisited('rentals'); setView('categories') }} onClose={onClose} onDashboard={() => { markSectionVisited('rentals'); setDashboardOpen(true) }} />
   }
 
   if (view === 'categories') {
@@ -305,6 +307,7 @@ export default function RentalSearchScreen({ onClose }) {
           setActiveFilter(c.filter); setView('browse')
         }}
         onBack={() => setView('landing')}
+        onDashboard={() => setDashboardOpen(true)}
       />
     )
   }

@@ -3,7 +3,39 @@ import { supabase } from '@/lib/supabase'
 import { useGeolocation } from '@/hooks/useGeolocation'
 import { haversineKm } from '@/utils/distance'
 import RestaurantMenuSheet from '@/components/restaurant/RestaurantMenuSheet'
+import SectionCTAButton from '@/components/ui/SectionCTAButton'
+import { hasVisitedSection, markSectionVisited } from '@/services/sectionVisitService'
 import styles from './RestaurantBrowseScreen.module.css'
+
+const FOOD_LANDING_BG = 'https://ik.imagekit.io/nepgaxllc/ChatGPT%20Image%20Apr%2016,%202026,%2006_04_21%20PM.png'
+
+function FoodLanding({ onBrowse, onRegister, onClose }) {
+  return (
+    <div className={styles.landingPage} style={{ backgroundImage: `url("${FOOD_LANDING_BG}")` }}>
+      <div className={styles.landingOverlay} />
+      <button className={styles.landingBack} onClick={onClose}>
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+          <polyline points="15 18 9 12 15 6"/>
+        </svg>
+      </button>
+      <div className={styles.landingContent}>
+        <h1 className={styles.landingTitle}>Indoo Street</h1>
+        <p className={styles.landingSub}>Discover street food, warung & restaurants near you</p>
+        <button className={styles.landingBtn} onClick={onBrowse}>
+          Order Food
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+            <polyline points="9 18 15 12 9 6"/>
+          </svg>
+        </button>
+        <SectionCTAButton
+          section="restaurant"
+          className={styles.landingBtnOutline}
+          onReady={onRegister}
+        />
+      </div>
+    </div>
+  )
+}
 
 // Kemenhub Zone 1 (Java/Bali) bike delivery rates
 const BIKE_BASE   = 9250
@@ -339,6 +371,7 @@ function Stars({ rating }) {
 
 // ── Main component ────────────────────────────────────────────────────────────
 export default function RestaurantBrowseScreen({ onClose, onBackToCategories, category, scrollToId, onOrderViaChat }) {
+  const [showLanding, setShowLanding] = useState(() => !hasVisitedSection('food'))
   const [restaurants,    setRestaurants]    = useState([])
   const [loading,        setLoading]        = useState(true)
   const [activeIndex,    setActiveIndex]    = useState(0)
@@ -424,6 +457,14 @@ export default function RestaurantBrowseScreen({ onClose, onBackToCategories, ca
   const catLabel  = category ? category.label : 'MAKAN'
   const catEmoji  = category ? category.emoji  : '🍽'
   const catColor  = category ? category.color  : '#8DC63F'
+
+  if (showLanding) return (
+    <FoodLanding
+      onBrowse={() => { markSectionVisited('food'); setShowLanding(false) }}
+      onRegister={() => { markSectionVisited('food'); setShowLanding(false) }}
+      onClose={onClose}
+    />
+  )
 
   if (loading) return (
     <div className={styles.screen}>

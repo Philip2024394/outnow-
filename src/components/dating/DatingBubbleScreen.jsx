@@ -3,7 +3,11 @@ import { createPortal } from 'react-dom'
 import { sendMeetRequest } from '@/services/meetService'
 import { useLikedProfiles } from '@/hooks/useLikedProfiles'
 import { useAuth } from '@/hooks/useAuth'
+import SectionCTAButton from '@/components/ui/SectionCTAButton'
+import { hasVisitedSection, markSectionVisited } from '@/services/sectionVisitService'
 import styles from './DatingBubbleScreen.module.css'
+
+const DATING_LANDING_BG = 'https://ik.imagekit.io/nepgaxllc/Untitleddsadasdasd.png?updatedAt=1775725948545'
 
 // ── Physics ──────────────────────────────────────────────────────────────────
 const R            = 48          // bubble radius px
@@ -92,6 +96,7 @@ export default function DatingBubbleScreen({
   const { user }                          = useAuth()
   const { saveLike, removeLike, isLiked } = useLikedProfiles()
 
+  const [showLanding, setShowLanding] = useState(() => !hasVisitedSection('dating'))
   const [likedIds,     setLikedIds]     = useState(new Set())
   const [burstIds,     setBurstIds]     = useState(new Set())
   const [matchSession, setMatchSession] = useState(null)
@@ -380,6 +385,29 @@ export default function DatingBubbleScreen({
   if (!open || !activity) return null
   const myPhoto = myProfile?.photos?.[0] ?? myProfile?.photoURL ?? null
   const myName  = myProfile?.displayName ?? user?.displayName ?? 'You'
+
+  if (showLanding) return createPortal(
+    <div className={styles.landingPage} style={{ backgroundImage: `url("${DATING_LANDING_BG}")` }}>
+      <div className={styles.landingOverlay} />
+      <button className={styles.landingBack} onClick={onClose}>
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+          <polyline points="15 18 9 12 15 6"/>
+        </svg>
+      </button>
+      <div className={styles.landingContent}>
+        <h1 className={styles.landingTitle}>Indoo Dating</h1>
+        <p className={styles.landingSub}>See who's online near you — find your match</p>
+        <button className={styles.landingBtn} onClick={() => { markSectionVisited('dating'); setShowLanding(false) }}>
+          Enter Dating
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+            <polyline points="9 18 15 12 9 6"/>
+          </svg>
+        </button>
+        <span className={styles.landingFreeNote}>Free to look — create profile to connect</span>
+      </div>
+    </div>,
+    document.body
+  )
 
   return createPortal(
     <div className={styles.page}>

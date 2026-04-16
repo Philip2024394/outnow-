@@ -15,7 +15,12 @@ import {
   estimateFare, formatRp, DEFAULT_ZONES, DEFAULT_SETTINGS, fetchPricingZones, fetchGlobalSettings,
 } from '@/services/pricingService'
 import { notifyRideRequest } from '@/services/notificationService'
+import { hasVisitedSection, markSectionVisited } from '@/services/sectionVisitService'
+import SectionCTAButton from '@/components/ui/SectionCTAButton'
 import styles from '../BookingScreen.module.css'
+
+const BIKE_LANDING_BG = 'https://ik.imagekit.io/nepgaxllc/ChatGPT%20Image%20Apr%2016,%202026,%2006_35_10%20PM.png'
+const CAR_LANDING_BG = 'https://ik.imagekit.io/nepgaxllc/ChatGPT%20Image%20Apr%2016,%202026,%2006_46_36%20PM.png'
 
 import BookingFormPanel   from './BookingFormPanel'
 import BookingLivePanel   from './BookingLivePanel'
@@ -58,6 +63,9 @@ export default function BookingScreen({ onClose, initialVehicle }) {
 
   const demoMode = import.meta.env.VITE_DEMO_MODE === 'true'
   const isGuest  = !demoMode && (!user || user.uid === 'demo-me')
+
+  const sectionKey = initialVehicle === 'bike_ride' ? 'bike_rides' : 'car_rides'
+  const [showLanding, setShowLanding] = useState(() => !hasVisitedSection(sectionKey))
 
   // ── Pricing ────────────────────────────────────────────────────────────────
   const [zones,    setZones]    = useState(DEFAULT_ZONES)
@@ -329,6 +337,38 @@ const handleJourneyComplete = async () => {
       ? 'url("https://ik.imagekit.io/nepgaxllc/Untitleddfsadfasdfdasdasdasdsdfasd.png")'
       : 'url("https://ik.imagekit.io/nepgaxllc/Untitledddddddddddsfsdfadsfasdf.png")'
   })()
+
+  if (showLanding) {
+    const isBike = initialVehicle === 'bike_ride'
+    const landingBg = isBike ? BIKE_LANDING_BG : CAR_LANDING_BG
+    const title = isBike ? 'Indoo Bike' : 'Indoo Car'
+    const sub = isBike ? 'Fast, safe bike rides across the city' : 'Comfortable car rides for every journey'
+    return (
+      <div className={styles.landingPage} style={landingBg ? { backgroundImage: `url("${landingBg}")` } : {}}>
+        <div className={styles.landingOverlay} />
+        <button className={styles.landingBack} onClick={onClose}>
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+            <polyline points="15 18 9 12 15 6"/>
+          </svg>
+        </button>
+        <div className={styles.landingContent}>
+          <h1 className={styles.landingTitle}>{title}</h1>
+          <p className={styles.landingSub}>{sub}</p>
+          <button className={styles.landingBtn} onClick={() => { markSectionVisited(sectionKey); setShowLanding(false) }}>
+            Book a Ride
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+              <polyline points="9 18 15 12 9 6"/>
+            </svg>
+          </button>
+          <SectionCTAButton
+            section="driver"
+            className={styles.landingBtnOutline}
+            onReady={() => { markSectionVisited(sectionKey); setShowLanding(false) }}
+          />
+        </div>
+      </div>
+    )
+  }
 
   return (
     <div className={styles.screen} style={{ backgroundImage: bgImage }}>

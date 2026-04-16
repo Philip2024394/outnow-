@@ -12,7 +12,11 @@ import BuyerProfileSheet from '@/components/commerce/BuyerProfileSheet'
 import PurchaseHistoryScreen from '@/screens/PurchaseHistoryScreen'
 import SearchAutocomplete, { saveRecentSearch } from '@/components/commerce/SearchAutocomplete'
 import { getAuctions, AUCTION_STATUS } from '@/services/auctionService'
+import SectionCTAButton from '@/components/ui/SectionCTAButton'
+import { hasVisitedSection, markSectionVisited } from '@/services/sectionVisitService'
 import styles from './ShopSearchScreen.module.css'
+
+const MARKET_LANDING_BG = 'https://ik.imagekit.io/nepgaxllc/ChatGPT%20Image%20Apr%2016,%202026,%2006_18_15%20PM.png'
 
 // ─────────────────────────────────────────────────────────────────────────────
 // ShopSearchScreen — header search bar + category chips + 3-col seller grid
@@ -218,6 +222,7 @@ function SellerCard({ seller, onClick, onAuctionTap }) {
 
 // ── Main screen ───────────────────────────────────────────────────────────────
 export default function ShopSearchScreen({ onClose, userCity, userCountry, giftFor, onGiftDismiss, wishlistMode = false, onWishlistSelectSeller, showToast, onOrderViaChat, onMakeOffer }) {
+  const [showLanding, setShowLanding] = useState(() => !hasVisitedSection('marketplace'))
   const [query,                  setQuery]                  = useState('')
   const [activeCategory,         setActiveCategory]         = useState('all')
   const [sellers,                setSellers]                = useState(DEMO_SELLERS)
@@ -341,6 +346,32 @@ export default function ShopSearchScreen({ onClose, userCity, userCountry, giftF
     setAuctionSelected(auction)
     setAuctionOpen(true)
   }
+
+  if (showLanding) return (
+    <div className={styles.landingPage} style={{ backgroundImage: `url("${MARKET_LANDING_BG}")` }}>
+      <div className={styles.landingOverlay} />
+      <button className={styles.landingBack} onClick={onClose}>
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+          <polyline points="15 18 9 12 15 6"/>
+        </svg>
+      </button>
+      <div className={styles.landingContent}>
+        <h1 className={styles.landingTitle}>Indoo Market</h1>
+        <p className={styles.landingSub}>Buy & sell anything — fashion, electronics, handmade and more</p>
+        <button className={styles.landingBtn} onClick={() => { markSectionVisited('marketplace'); setShowLanding(false) }}>
+          Browse Market
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+            <polyline points="9 18 15 12 9 6"/>
+          </svg>
+        </button>
+        <SectionCTAButton
+          section="marketplace"
+          className={styles.landingBtnOutline}
+          onReady={() => { markSectionVisited('marketplace'); setShowLanding(false) }}
+        />
+      </div>
+    </div>
+  )
 
   return (
     <>
