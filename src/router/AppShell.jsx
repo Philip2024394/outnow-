@@ -74,6 +74,7 @@ const LikedMeScreen           = lazy(() => import('@/screens/LikedMeScreen'))
 const LikedProfilesScreen     = lazy(() => import('@/screens/LikedProfilesScreen'))
 const BlockedUsersScreen      = lazy(() => import('@/screens/BlockedUsersScreen'))
 const RentalSearchScreen      = lazy(() => import('@/screens/RentalSearchScreen'))
+const MassageScreen           = lazy(() => import('@/screens/MassageScreen'))
 const OrderHistoryScreen      = lazy(() => import('@/screens/OrderHistoryScreen'))
 const IncomingGiftsScreen     = lazy(() => import('@/screens/IncomingGiftsScreen'))
 const SettingsSheet           = lazy(() => import('@/components/settings/SettingsSheet'))
@@ -464,7 +465,7 @@ export default function AppShell({ returnParams, triggerGoLive }) {
             if (!access.allowed) { setSectionGate('dating'); return }
             setDockVisible(false); setActiveSection('dating'); setDatingIntentOpen(true)
           }}
-          onMassageClick={() => { if (isGuest) { triggerGate(); return } setDockVisible(false); setActiveSection('massage'); setActiveTab('shopping') }}
+          onMassageClick={() => { if (isGuest) { triggerGate(); return } setDockVisible(false); setActiveSection('massage'); setActiveTab('massage') }}
           onRentalsClick={() => { if (isGuest) { triggerGate(); return } setDockVisible(false); setActiveSection('rentals'); setActiveTab('rentals') }}
         />
       )}
@@ -542,6 +543,7 @@ export default function AppShell({ returnParams, triggerGoLive }) {
         {activeTab === 'profile' && <ProfileScreen onClose={() => setActiveTab('map')} onOpenSettings={() => setSettingsOpen(true)} />}
         {activeTab === 'shopping' && <ShopSearchScreen onClose={() => { setActiveTab('map'); setDockVisible(true); setGiftForSession(null) }} userCity={userProfile?.city} userCountry={userProfile?.country} giftFor={giftForSession} onGiftDismiss={() => setGiftForSession(null)} showToast={showToast} onOrderViaChat={handleOrderViaChat} onMakeOffer={handleMakeOffer} />}
         {activeTab === 'rentals' && <RentalSearchScreen onClose={() => { setActiveTab('map'); setDockVisible(true) }} />}
+        {activeTab === 'massage' && <MassageScreen onClose={() => { setActiveTab('map'); setDockVisible(true); setActiveSection('default') }} />}
       </Suspense>
 
       <div className="map-top-fade" />

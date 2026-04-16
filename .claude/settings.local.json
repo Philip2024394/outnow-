@@ -3,7 +3,10 @@
     "allow": [
       "Bash(npm install:*)",
       "Bash(npm run:*)",
-      "Bash(wc -l src/**/*.tsx src/**/*.ts)"
+      "Bash(wc -l src/**/*.tsx src/**/*.ts)",
+      "Bash(cp /tmp/massage-audit/src/components/TherapistCard.tsx C:/Users/Victus/Claude-Work/TherapistCard.tsx.ref)",
+      "Bash(cp /tmp/massage-audit/src/pages/AdvancedSearchPage.tsx C:/Users/Victus/Claude-Work/AdvancedSearch.tsx.ref)",
+      "Bash(cp /tmp/massage-audit/src/types.ts C:/Users/Victus/Claude-Work/types.ts.ref)"
     ]
   }
 }
