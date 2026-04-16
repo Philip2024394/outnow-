@@ -1190,6 +1190,7 @@ export default function AppShell({ returnParams, triggerGoLive }) {
           dockVisible={dockVisible}
           onToggleDock={() => setDockVisible(v => !v)}
           activeSection={activeSection}
+          rideType={rideVehicleType === 'car_taxi' ? 'car' : 'bike'}
           onSectionRegister={() => {
             if (isGuest) { triggerGate(); return }
             if (activeSection === 'rides')       { setDriverRegOpen(true) }

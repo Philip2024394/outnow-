@@ -16,7 +16,7 @@ const SECTION_BTNS = {
   massage:     { icon: '💆', label: 'Join' },
 }
 
-export default function BottomNav({ activeTab = 'map', userPhotoURL, userName, isLive = false, isInviteOut = false, onProfileTap, onSOS, onSectionRegister, activeSection = 'default', driverOnline = null, onToggleDriverStatus, onHanggerLive, hanggerLiveActive = false, isGuest = false, onToggleDock, dockVisible = true, onHome }) {
+export default function BottomNav({ activeTab = 'map', userPhotoURL, userName, isLive = false, isInviteOut = false, onProfileTap, onSOS, onSectionRegister, activeSection = 'default', rideType = 'bike', driverOnline = null, onToggleDriverStatus, onHanggerLive, hanggerLiveActive = false, isGuest = false, onToggleDock, dockVisible = true, onHome }) {
   const onLanding = activeSection !== 'default'
   const holdRef      = useRef(null)
   const frameRef     = useRef(null)
@@ -82,13 +82,21 @@ export default function BottomNav({ activeTab = 'map', userPhotoURL, userName, i
       {/* Section register — only shows when in a section, not on home */}
       {activeSection !== 'default' && (() => {
         const btn = SECTION_BTNS[activeSection] || SECTION_BTNS.default
+        const isRides = activeSection === 'rides'
+        const rideImg = rideType === 'car'
+          ? 'https://ik.imagekit.io/nepgaxllc/Sporty%20green%20and%20black%20hatchback.png?updatedAt=1775634925566'
+          : 'https://ik.imagekit.io/nepgaxllc/Sleek%20green%20and%20black%20scooter%20setup.png?updatedAt=1775634845237'
         return (
           <button
             className={styles.sectionBtn}
             onClick={onSectionRegister}
             aria-label={btn.label}
           >
-            <span className={styles.sectionBtnIcon}>{btn.icon}</span>
+            {isRides ? (
+              <img src={rideImg} alt="" className={styles.sectionBtnImg} />
+            ) : (
+              <span className={styles.sectionBtnIcon}>{btn.icon}</span>
+            )}
             <span className={styles.sectionBtnLabel}>{btn.label}</span>
           </button>
         )

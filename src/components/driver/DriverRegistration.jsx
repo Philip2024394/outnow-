@@ -8,6 +8,7 @@ import { createPortal } from 'react-dom'
 import {
   VEHICLE_TYPES, submitApplication, getApplicationByPhone,
 } from '@/services/driverRegistrationService'
+import { INDONESIA_CITIES } from '@/data/indonesiaCities'
 import styles from './DriverRegistration.module.css'
 
 const MAX_FILE_SIZE = 5 * 1024 * 1024 // 5MB
@@ -81,6 +82,8 @@ export default function DriverRegistration({ open, onClose, driverType = 'bike' 
   const [address, setAddress] = useState('')
   const [district, setDistrict] = useState('')
   const [city, setCity] = useState('Yogyakarta')
+  const [citySearch, setCitySearch] = useState('')
+  const [cityOpen, setCityOpen] = useState(false)
   const [postcode, setPostcode] = useState('')
 
   // Vehicle
@@ -245,21 +248,36 @@ export default function DriverRegistration({ open, onClose, driverType = 'bike' 
 
         {/* Personal info */}
         <div className={styles.card}>
-          <span className={styles.section}>Personal Information</span>
+          <span className={styles.section}>
+            <img src={isBike ? 'https://ik.imagekit.io/nepgaxllc/Untitlediuooiuoi-removebg-preview.png?updatedAt=1775653404037' : 'https://ik.imagekit.io/nepgaxllc/Untitlediuooiuoifsdfsdfdasdadasd-removebg-preview.png?updatedAt=1775663126206'} alt="" className={styles.sectionIcon} />
+            Personal Information
+          </span>
           <span className={styles.warning}>Incorrect applications will be reported</span>
           <input className={styles.input} value={fullName} onChange={e => setFullName(e.target.value)} placeholder="Full Name (as on KTP)" />
           <input className={styles.input} value={phone} onChange={e => setPhone(e.target.value)} placeholder="Phone Number" type="tel" />
           <input className={styles.input} value={address} onChange={e => setAddress(e.target.value)} placeholder="Street Address" />
           <div className={styles.row}>
             <input className={styles.input} value={district} onChange={e => setDistrict(e.target.value)} placeholder="District / Kecamatan" />
-            <input className={styles.input} value={city} onChange={e => setCity(e.target.value)} placeholder="City" />
+            <div className={styles.cityWrap}>
+              <input className={styles.input} value={cityOpen ? citySearch : city} onChange={e => { setCitySearch(e.target.value); setCityOpen(true) }} onFocus={() => setCityOpen(true)} placeholder="City" />
+              {cityOpen && (
+                <div className={styles.cityDropdown}>
+                  {INDONESIA_CITIES.filter(c => c.toLowerCase().includes((citySearch || '').toLowerCase())).slice(0, 8).map(c => (
+                    <button key={c} className={styles.cityOption} onClick={() => { setCity(c); setCitySearch(''); setCityOpen(false) }}>{c}</button>
+                  ))}
+                </div>
+              )}
+            </div>
           </div>
           <input className={styles.input} value={postcode} onChange={e => setPostcode(e.target.value)} placeholder="Postcode" style={{ maxWidth: '50%' }} />
         </div>
 
         {/* Vehicle details */}
         <div className={styles.card}>
-          <span className={styles.section}>{isBike ? 'Bike' : 'Car'} Details</span>
+          <span className={styles.section}>
+            <img src={isBike ? 'https://ik.imagekit.io/nepgaxllc/Sleek%20green%20and%20black%20scooter%20setup.png?updatedAt=1775634845237' : 'https://ik.imagekit.io/nepgaxllc/Sporty%20green%20and%20black%20hatchback.png?updatedAt=1775634925566'} alt="" className={styles.sectionIcon} />
+            {isBike ? 'Bike' : 'Car'} Details
+          </span>
           <div className={styles.row}>
             <input className={styles.input} value={brand} onChange={e => setBrand(e.target.value)} placeholder={isBike ? 'Brand (Honda)' : 'Brand (Toyota)'} />
             <input className={styles.input} value={model} onChange={e => setModel(e.target.value)} placeholder={isBike ? 'Model (Beat)' : 'Model (Avanza)'} />
