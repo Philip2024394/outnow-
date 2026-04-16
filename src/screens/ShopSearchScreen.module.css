@@ -888,7 +888,7 @@
 }
 .landingContent {
   position: relative; z-index: 2;
-  padding: 0 24px 48px; display: flex; flex-direction: column; gap: 12px;
+  padding: 0 24px 100px; display: flex; flex-direction: column; gap: 12px;
 }
 .landingTitle {
   font-size: 32px; font-weight: 900; color: #fff; margin: 0;
@@ -906,6 +906,35 @@
   cursor: pointer; transition: background 0.15s;
 }
 .landingBtn:hover { background: #D97706; }
+
+/* Search bar on landing */
+.landingSearchBar {
+  position: absolute; top: 16px; left: 16px; right: 70px; z-index: 2;
+  display: flex; align-items: center; gap: 8px;
+  padding: 0 14px; height: 40px;
+  background: rgba(0,0,0,0.6); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
+  border: 1.5px solid rgba(255,255,255,0.1); border-radius: 12px;
+}
+.landingSearchInput {
+  flex: 1; background: none; border: none; color: #fff; font-size: 13px; font-family: inherit; outline: none; cursor: pointer;
+}
+.landingSearchInput::placeholder { color: rgba(255,255,255,0.3); }
+
+/* Footer bar on landing */
+.landingFooter {
+  position: absolute; bottom: 0; left: 0; right: 0; z-index: 2;
+  display: flex; justify-content: space-around; align-items: center;
+  padding: 10px 8px 16px;
+  background: rgba(0,0,0,0.7); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px);
+  border-top: 1px solid rgba(255,255,255,0.06);
+}
+.landingFooterBtn {
+  display: flex; flex-direction: column; align-items: center; gap: 3px;
+  background: none; border: none; color: rgba(255,255,255,0.5);
+  font-size: 10px; font-weight: 700; font-family: inherit; cursor: pointer;
+  padding: 6px 12px; border-radius: 8px; transition: color 0.15s;
+}
+.landingFooterBtn:hover { color: #F59E0B; }
 .landingBtnOutline {
   padding: 12px 32px; width: fit-content;
   background: transparent; border: 1.5px solid rgba(255,255,255,0.2);

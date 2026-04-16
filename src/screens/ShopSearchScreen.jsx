@@ -350,11 +350,16 @@ export default function ShopSearchScreen({ onClose, userCity, userCountry, giftF
   if (showLanding) return (
     <div className={styles.landingPage} style={{ backgroundImage: `url("${MARKET_LANDING_BG}")` }}>
       <div className={styles.landingOverlay} />
-      <button className={styles.landingBack} onClick={onClose}>
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-          <polyline points="15 18 9 12 15 6"/>
+
+      {/* Search bar — top */}
+      <div className={styles.landingSearchBar}>
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.35)" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+          <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
         </svg>
-      </button>
+        <input className={styles.landingSearchInput} placeholder="Search products..." readOnly onClick={() => { markSectionVisited('marketplace'); setShowLanding(false); onLandingChange?.(false) }} />
+      </div>
+
+      {/* Center content */}
       <div className={styles.landingContent}>
         <h1 className={styles.landingTitle}>Indoo Market</h1>
         <p className={styles.landingSub}>Buy & sell anything — fashion, electronics, handmade and more</p>
@@ -363,6 +368,34 @@ export default function ShopSearchScreen({ onClose, userCity, userCountry, giftF
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
             <polyline points="9 18 15 12 9 6"/>
           </svg>
+        </button>
+      </div>
+
+      {/* Footer bar — bottom */}
+      <div className={styles.landingFooter}>
+        <button className={styles.landingFooterBtn} onClick={() => { markSectionVisited('marketplace'); setShowLanding(false); onLandingChange?.(false) }}>
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/>
+          </svg>
+          <span>Shop</span>
+        </button>
+        <button className={styles.landingFooterBtn} onClick={() => { markSectionVisited('marketplace'); setShowLanding(false); onLandingChange?.(false) }}>
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
+          </svg>
+          <span>Flash Sale</span>
+        </button>
+        <button className={styles.landingFooterBtn} onClick={() => { markSectionVisited('marketplace'); setShowLanding(false); onLandingChange?.(false) }}>
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
+          </svg>
+          <span>Wishlist</span>
+        </button>
+        <button className={styles.landingFooterBtn} onClick={() => { markSectionVisited('marketplace'); setShowLanding(false); onLandingChange?.(false) }}>
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/>
+          </svg>
+          <span>Auctions</span>
         </button>
       </div>
     </div>
