@@ -16,7 +16,7 @@ import SectionCTAButton from '@/components/ui/SectionCTAButton'
 import { hasVisitedSection, markSectionVisited } from '@/services/sectionVisitService'
 import styles from './ShopSearchScreen.module.css'
 
-const MARKET_LANDING_BG = 'https://ik.imagekit.io/nepgaxllc/ChatGPT%20Image%20Apr%2016,%202026,%2006_18_15%20PM.png'
+const MARKET_LANDING_BG = 'https://ik.imagekit.io/nepgaxllc/ChatGPT%20Image%20Apr%2017,%202026,%2002_19_47%20AM.png'
 
 // ─────────────────────────────────────────────────────────────────────────────
 // ShopSearchScreen — header search bar + category chips + 3-col seller grid

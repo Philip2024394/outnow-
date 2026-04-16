@@ -447,7 +447,7 @@ export default function AppShell({ returnParams, triggerGoLive }) {
       {/* Time-based background fills full screen */}
       <TimeBackground />
 
-      {/* Floating activity icons — visible when dock is on and on map */}
+      {/* Floating activity icons — visible on map tab when dock is on */}
       {activeTab === 'map' && dockVisible && (
         <FloatingIcons
           sessions={visibleSessions}
@@ -465,7 +465,7 @@ export default function AppShell({ returnParams, triggerGoLive }) {
             if (isGuest) { triggerGate(); return }
             const access = checkSectionAccess('dating', userProfile)
             if (!access.allowed) { setSectionGate('dating'); return }
-            setActiveSection('dating'); setDatingIntentOpen(true)
+            setActiveSection('dating'); setDatingGridOpen(true)
           }}
           onMassageClick={() => { if (isGuest) { triggerGate(); return } setActiveSection('massage'); setMassageOpen(true) }}
           onRentalsClick={() => { if (isGuest) { triggerGate(); return } setDockVisible(false); setActiveSection('rentals'); setActiveTab('rentals') }}
