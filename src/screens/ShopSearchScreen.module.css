@@ -265,6 +265,9 @@
   border-bottom-color: #F59E0B;
 }
 
+/* Products/Sellers section headers */
+.sectionHeader { font-size: 16px; font-weight: 900; color: #fff; padding: 8px 14px 4px; }
+
 /* Filter button (right of search bar) */
 .filterInlineBtn {
   display: flex;
@@ -376,8 +379,13 @@
 
 /* ── Expanded filter panel ─────────────────────────────────────────────── */
 .filterPanel {
-  padding: 10px 16px 14px;
-  border-bottom: 1px solid rgba(255,255,255,0.06);
+  padding: 14px 16px;
+  margin: 0 14px 8px;
+  background: rgba(0,0,0,0.8);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1.5px solid rgba(255,255,255,0.06);
+  border-radius: 14px;
   display: flex;
   flex-direction: column;
   gap: 12px;
