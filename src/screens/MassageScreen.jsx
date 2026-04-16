@@ -11,7 +11,7 @@ import MassageHeroNav from '@/domains/massage/components/MassageHeroNav'
 import MenuSlider from '@/domains/massage/components/MenuSlider'
 import styles from './MassageScreen.module.css'
 
-const MASSAGE_LANDING_BG = '' // User will provide landing page image
+const MASSAGE_LANDING_BG = 'https://ik.imagekit.io/nepgaxllc/ChatGPT%20Image%20Apr%2017,%202026,%2001_03_53%20AM.png'
 
 export default function MassageScreen({ onClose }) {
   const [showLanding, setShowLanding] = useState(true)
