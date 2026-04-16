@@ -240,11 +240,12 @@
 .previewSpecChip { font-size: 11px; font-weight: 700; color: rgba(255,255,255,0.5); background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.08); border-radius: 6px; padding: 4px 10px; }
 
 /* Seller button — orange, disabled during live */
-.previewSellerBtn { width: 100%; padding: 13px; background: rgba(245,158,11,0.1); border: 1.5px solid rgba(245,158,11,0.25); border-radius: 12px; color: #F59E0B; font-size: 13px; font-weight: 800; cursor: default; font-family: inherit; margin-top: 4px; opacity: 0.7; }
-.previewSellerBtnActive { width: 100%; padding: 13px; background: #F59E0B; border: none; border-radius: 12px; color: #000; font-size: 14px; font-weight: 900; cursor: pointer; font-family: inherit; margin-top: 4px; box-shadow: 0 4px 12px rgba(245,158,11,0.3); }
+.previewBtnRow { display: flex; gap: 8px; align-items: center; margin-top: 4px; }
+.previewSellerBtn { flex: 1; padding: 13px; background: rgba(245,158,11,0.1); border: 1.5px solid rgba(245,158,11,0.25); border-radius: 12px; color: #F59E0B; font-size: 13px; font-weight: 800; cursor: default; font-family: inherit; opacity: 0.7; }
+.previewSellerBtnActive { flex: 1; padding: 13px; background: #F59E0B; border: none; border-radius: 12px; color: #000; font-size: 14px; font-weight: 900; cursor: pointer; font-family: inherit; box-shadow: 0 4px 12px rgba(245,158,11,0.3); }
 
 .previewReserveChip { color: #FBBF24 !important; border-color: rgba(251,191,36,0.25) !important; background: rgba(251,191,36,0.08) !important; }
 .previewNoReserveChip { color: #8DC63F !important; border-color: rgba(141,198,63,0.25) !important; background: rgba(141,198,63,0.08) !important; }
 
-.previewCloseBtn { width: 100%; padding: 11px; background: none; border: 1px solid rgba(255,255,255,0.1); border-radius: 10px; color: rgba(255,255,255,0.4); font-size: 13px; font-weight: 700; cursor: pointer; font-family: inherit; margin-top: 6px; transition: color 0.15s, border-color 0.15s; }
-.previewCloseBtn:hover { color: rgba(255,255,255,0.6); border-color: rgba(255,255,255,0.2); }
+.previewCloseBtn { width: 40px; height: 40px; flex-shrink: 0; background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.15); border-radius: 50%; color: rgba(255,255,255,0.5); font-size: 16px; font-weight: 700; cursor: pointer; font-family: inherit; display: flex; align-items: center; justify-content: center; transition: all 0.15s; }
+.previewCloseBtn:hover { color: #fff; background: rgba(255,255,255,0.15); }

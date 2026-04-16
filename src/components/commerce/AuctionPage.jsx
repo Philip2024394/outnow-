@@ -427,21 +427,21 @@ export default function AuctionPage({ open, onClose }) {
                 </span>
               </div>
 
-              {/* Seller button — orange, only after auction */}
-              {isLive ? (
-                <button className={styles.previewSellerBtn} disabled>
-                  Sellers Details After Auction Success
+              {/* Bid + Close — same row */}
+              <div className={styles.previewBtnRow}>
+                {isLive ? (
+                  <button className={styles.previewSellerBtnActive} onClick={() => { /* TODO: place bid */ }}>
+                    Place a Bid
+                  </button>
+                ) : (
+                  <button className={styles.previewSellerBtn} disabled>
+                    Auction Ended
+                  </button>
+                )}
+                <button className={styles.previewCloseBtn} onClick={() => setProductPreview(null)}>
+                  ✕
                 </button>
-              ) : (
-                <button className={styles.previewSellerBtnActive} onClick={() => { setProductPreview(null) }}>
-                  View Seller Details
-                </button>
-              )}
-
-              {/* Close button */}
-              <button className={styles.previewCloseBtn} onClick={() => setProductPreview(null)}>
-                Close
-              </button>
+              </div>
             </div>
           </div>
         </div>

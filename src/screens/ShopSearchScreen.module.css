@@ -186,7 +186,7 @@
 }
 
 .headerLogo {
-  height: 72px;
+  height: 144px;
   object-fit: contain;
   flex-shrink: 0;
   flex: 1;
@@ -256,16 +256,16 @@
   width: 32px;
   height: 32px;
   border-radius: 8px;
-  background: rgba(245,158,11,0.1);
-  border: 1px solid rgba(245,158,11,0.25);
-  color: #F59E0B;
+  background: #F59E0B;
+  border: none;
+  color: #000;
   cursor: pointer;
   flex-shrink: 0;
   position: relative;
   transition: background 0.15s;
 }
 
-.filterInlineBtn:hover { background: rgba(245,158,11,0.2); }
+.filterInlineBtn:hover { background: #D97706; }
 
 .filterInlineDot {
   position: absolute;
@@ -478,7 +478,7 @@
 .auctionBtn:hover { border-color: rgba(255,255,255,0.2); background: rgba(255,255,255,0.1); }
 
 .auctionIcon { font-size: 16px; }
-.auctionText { font-size: 13px; font-weight: 800; color: rgba(255,255,255,0.7); flex: 1; text-align: left; }
+.auctionText { font-size: 13px; font-weight: 800; color: #F59E0B; flex: 1; text-align: left; }
 .auctionLive { font-size: 9px; font-weight: 900; color: #EF4444; background: rgba(239,68,68,0.12); border: 1px solid rgba(239,68,68,0.3); border-radius: 6px; padding: 2px 8px; letter-spacing: 0.08em; animation: livePulse 2s ease-in-out infinite; }
 
 .flashSaleIcon { font-size: 18px; }
@@ -486,7 +486,7 @@
 .flashSaleText {
   font-size: 14px;
   font-weight: 800;
-  color: rgba(255,255,255,0.7);
+  color: #EF4444;
   flex: 1;
   text-align: left;
 }

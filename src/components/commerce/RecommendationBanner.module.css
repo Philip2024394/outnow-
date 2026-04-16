@@ -26,13 +26,16 @@
   color: rgba(255,255,255,0.6);
 }
 
+@keyframes scrollLeft {
+  0% { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
+}
 .scroll {
   display: flex;
   gap: 10px;
-  overflow-x: auto;
+  overflow-x: hidden;
   padding: 0 16px;
-  -webkit-overflow-scrolling: touch;
-  scrollbar-width: none;
+  animation: scrollLeft 30s linear infinite;
 }
 
 .scroll::-webkit-scrollbar { height: 0; }
