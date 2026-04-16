@@ -11,7 +11,11 @@
       "Bash(cp /tmp/massage-audit/src/components/therapist/TherapistCardHeader.tsx C:/Users/Victus/Claude-Work/_ref_CardHeader.tsx)",
       "Bash(cp /tmp/massage-audit/src/modules/therapist/TherapistProfile.tsx C:/Users/Victus/Claude-Work/_ref_Profile.tsx)",
       "Bash(cp /tmp/massage-audit/src/modules/therapist/TherapistPricingGrid.tsx C:/Users/Victus/Claude-Work/_ref_PricingGrid.tsx)",
-      "Bash(cp /tmp/massage-audit/src/components/therapist/TherapistSpecialties.tsx C:/Users/Victus/Claude-Work/_ref_Specialties.tsx)"
+      "Bash(cp /tmp/massage-audit/src/components/therapist/TherapistSpecialties.tsx C:/Users/Victus/Claude-Work/_ref_Specialties.tsx)",
+      "Bash(cp /tmp/massage-audit/src/pages/HomePage.tsx C:/Users/Victus/Claude-Work/_ref_HomePage.tsx)",
+      "Bash(cp /tmp/massage-audit/src/components/PricesButton.tsx C:/Users/Victus/Claude-Work/_ref_PricesButton.tsx)",
+      "Bash(cp /tmp/massage-audit/src/modules/therapist/TherapistPriceListModal.tsx C:/Users/Victus/Claude-Work/_ref_PriceListModal.tsx)",
+      "Bash(cp /tmp/massage-audit/src/components/BookingMenuSlider.tsx C:/Users/Victus/Claude-Work/_ref_BookingMenuSlider.tsx)"
     ]
   }
 }
