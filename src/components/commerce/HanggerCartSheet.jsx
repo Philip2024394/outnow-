@@ -73,7 +73,8 @@ export default function HanggerCartSheet({
       if (carrierPrices[c.type] !== undefined) {
         options.push({
           id: c.type, type: c.type, icon: '📦', label: c.label,
-          note: 'Nationwide · 3-5 days', fee: carrierPrices[c.type], safeTrade: true,
+          logo: c.logo, deliveryDays: c.deliveryDays,
+          note: c.deliveryDays || 'Nationwide · 3-5 days', fee: carrierPrices[c.type], safeTrade: true,
         })
       }
     })
@@ -83,7 +84,8 @@ export default function HanggerCartSheet({
       if (carrierPrices[c.type] !== undefined) {
         options.push({
           id: c.type, type: c.type, icon: '🚛', label: c.label,
-          note: 'Large items · 5-10 days', fee: carrierPrices[c.type], safeTrade: true,
+          logo: c.logo, deliveryDays: c.deliveryDays,
+          note: c.deliveryDays || 'Large items · 5-10 days', fee: carrierPrices[c.type], safeTrade: true,
         })
       }
     })
@@ -93,7 +95,8 @@ export default function HanggerCartSheet({
       if (carrierPrices[c.type] !== undefined) {
         options.push({
           id: c.type, type: c.type, icon: '✈️', label: c.label,
-          note: 'International · 7-14 days', fee: carrierPrices[c.type], safeTrade: true,
+          logo: c.logo, deliveryDays: c.deliveryDays,
+          note: c.deliveryDays || 'International · 7-14 days', fee: carrierPrices[c.type], safeTrade: true,
         })
       }
     })
@@ -284,16 +287,20 @@ export default function HanggerCartSheet({
           <div className={styles.section}>
             <div className={styles.sectionLabel}>Delivery</div>
 
-            {/* Selected delivery — compact view with Change button */}
+            {/* Selected delivery — compact card with logo + days + price */}
             <button
               className={`${styles.deliveryBtn} ${styles.deliveryBtnActive}`}
               onClick={() => setShowDeliveryOptions(!showDeliveryOptions)}
             >
               <div className={styles.dTop}>
-                <span className={styles.dIcon}>{selected.icon || '📦'}</span>
+                {selected.logo ? (
+                  <img src={selected.logo} alt={selected.label} className={styles.dLogo} />
+                ) : (
+                  <span className={styles.dIcon}>{selected.icon || '📦'}</span>
+                )}
                 <div className={styles.dInfo}>
                   <span className={styles.dLabel}>{selected.label}</span>
-                  <span className={styles.dNote}>{selected.note}</span>
+                  <span className={styles.dNote}>{selected.deliveryDays || selected.note}</span>
                 </div>
                 <span className={styles.dFee}>
                   {selected.fee === 0 || selected.id === 'collect' ? <span className={styles.dFree}>FREE</span> : formatIDR(selected.fee ?? deliveryFee)}

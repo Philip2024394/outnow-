@@ -254,6 +254,7 @@
 }
 
 .dIcon { font-size: 20px; flex-shrink: 0; }
+.dLogo { width: 36px; height: 36px; object-fit: contain; flex-shrink: 0; border-radius: 6px; }
 
 .dInfo {
   flex: 1;
