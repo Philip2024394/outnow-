@@ -26,19 +26,29 @@
   color: rgba(255,255,255,0.6);
 }
 
+.scroll {
+  display: flex;
+  gap: 10px;
+  overflow-x: auto;
+  padding: 0 16px;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+}
+
+.scroll::-webkit-scrollbar { height: 0; }
+
 @keyframes scrollLeft {
   0% { transform: translateX(0); }
   100% { transform: translateX(-50%); }
 }
-.scroll {
+.scrollAuto {
   display: flex;
   gap: 10px;
   overflow-x: hidden;
   padding: 0 16px;
-  animation: scrollLeft 30s linear infinite;
+  animation: scrollLeft 25s linear infinite;
 }
-
-.scroll::-webkit-scrollbar { height: 0; }
+.scrollAuto:hover { animation-play-state: paused; }
 
 .card {
   flex-shrink: 0;

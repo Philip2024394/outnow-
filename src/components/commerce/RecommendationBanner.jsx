@@ -71,9 +71,9 @@ export default function RecommendationBanner({ onProductTap, allProducts }) {
             <span className={styles.sectionIcon}>✨</span>
             <span className={styles.sectionTitle}>Recommended for You</span>
           </div>
-          <div className={styles.scroll}>
-            {recommended.map(p => (
-              <div key={p.id} className={styles.card} onClick={() => onProductTap?.(p)}>
+          <div className={styles.scrollAuto}>
+            {[...recommended, ...recommended].map((p, i) => (
+              <div key={`${p.id}-${i}`} className={styles.card} onClick={() => onProductTap?.(p)}>
                 {p.image
                   ? <img src={p.image} alt={p.name} className={styles.cardImg} />
                   : <div className={styles.cardImgPlaceholder}>📦</div>
