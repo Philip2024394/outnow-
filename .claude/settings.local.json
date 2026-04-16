@@ -6,7 +6,12 @@
       "Bash(wc -l src/**/*.tsx src/**/*.ts)",
       "Bash(cp /tmp/massage-audit/src/components/TherapistCard.tsx C:/Users/Victus/Claude-Work/TherapistCard.tsx.ref)",
       "Bash(cp /tmp/massage-audit/src/pages/AdvancedSearchPage.tsx C:/Users/Victus/Claude-Work/AdvancedSearch.tsx.ref)",
-      "Bash(cp /tmp/massage-audit/src/types.ts C:/Users/Victus/Claude-Work/types.ts.ref)"
+      "Bash(cp /tmp/massage-audit/src/types.ts C:/Users/Victus/Claude-Work/types.ts.ref)",
+      "Bash(cp /tmp/massage-audit/src/components/TherapistCard.tsx C:/Users/Victus/Claude-Work/_ref_TherapistCard.tsx)",
+      "Bash(cp /tmp/massage-audit/src/components/therapist/TherapistCardHeader.tsx C:/Users/Victus/Claude-Work/_ref_CardHeader.tsx)",
+      "Bash(cp /tmp/massage-audit/src/modules/therapist/TherapistProfile.tsx C:/Users/Victus/Claude-Work/_ref_Profile.tsx)",
+      "Bash(cp /tmp/massage-audit/src/modules/therapist/TherapistPricingGrid.tsx C:/Users/Victus/Claude-Work/_ref_PricingGrid.tsx)",
+      "Bash(cp /tmp/massage-audit/src/components/therapist/TherapistSpecialties.tsx C:/Users/Victus/Claude-Work/_ref_Specialties.tsx)"
     ]
   }
 }
