@@ -1,0 +1,90 @@
+/* MenuSlider — slide-up service menu */
+
+.overlay {
+  position: fixed; inset: 0; z-index: 10001;
+  display: flex; flex-direction: column; justify-content: flex-end;
+}
+.backdrop { position: absolute; inset: 0; background: rgba(0,0,0,0.6); }
+
+.sheet {
+  position: relative;
+  background: rgba(10,10,10,0.97);
+  backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+  border-radius: 16px 16px 0 0;
+  max-height: 85vh; overflow-y: auto;
+  animation: slideUp 0.3s ease-out;
+}
+@keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
+.sheet::-webkit-scrollbar { width: 3px; }
+.sheet::-webkit-scrollbar-thumb { background: rgba(232,213,183,0.2); border-radius: 2px; }
+
+/* Header */
+.header {
+  position: sticky; top: 0; z-index: 10;
+  background: rgba(10,10,10,0.97);
+  border-bottom: 1px solid rgba(255,255,255,0.06);
+  padding: 14px 16px;
+  display: flex; align-items: center; justify-content: space-between;
+}
+.headerTitle { font-size: 16px; font-weight: 900; color: #fff; }
+.headerSub { font-size: 11px; color: rgba(255,255,255,0.3); display: block; margin-top: 2px; }
+.closeBtn {
+  width: 36px; height: 36px; border-radius: 50%;
+  background: #8DC63F; color: #000;
+  display: flex; align-items: center; justify-content: center;
+  border: none; cursor: pointer;
+}
+
+/* Menu list */
+.menuList {
+  padding: 8px 16px 24px;
+  display: flex; flex-direction: column; gap: 8px;
+}
+
+/* Service row */
+.serviceRow {
+  background: rgba(0,0,0,0.6);
+  backdrop-filter: blur(4px); -webkit-backdrop-filter: blur(4px);
+  border: 1.5px solid rgba(255,255,255,0.06);
+  border-radius: 12px;
+  padding: 12px;
+  transition: all 0.15s;
+}
+.serviceRow:hover {
+  border-color: rgba(255,255,255,0.15);
+}
+
+.serviceName {
+  font-size: 14px; font-weight: 700; color: #fff;
+  margin-bottom: 8px;
+}
+
+.priceGrid {
+  display: flex; gap: 6px;
+}
+.priceCell {
+  flex: 1;
+  display: flex; flex-direction: column; align-items: center;
+  padding: 6px 4px;
+  background: rgba(255,255,255,0.04);
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 8px;
+}
+.priceDur { font-size: 9px; color: rgba(255,255,255,0.35); font-weight: 600; }
+.priceVal { font-size: 13px; font-weight: 800; color: #fff; margin-top: 2px; }
+.priceNA { font-size: 11px; color: rgba(255,255,255,0.2); margin-top: 2px; }
+
+/* Book button per service */
+.serviceBookBtn {
+  margin-top: 8px; width: 100%; padding: 8px;
+  background: #8DC63F; border: none; border-radius: 8px;
+  color: #000; font-size: 12px; font-weight: 800;
+  font-family: inherit; cursor: pointer;
+}
+.serviceBookBtn:hover { background: #7AB635; }
+
+/* Empty state */
+.empty {
+  padding: 40px; text-align: center;
+  color: rgba(255,255,255,0.2); font-size: 13px;
+}

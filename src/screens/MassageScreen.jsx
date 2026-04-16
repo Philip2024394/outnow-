@@ -8,6 +8,7 @@ import { MASSAGE_TYPES, getTherapists, searchTherapists, AVAILABILITY } from '@/
 import SectionCTAButton from '@/components/ui/SectionCTAButton'
 import TherapistCard from '@/domains/massage/components/TherapistCard'
 import MassageHeroNav from '@/domains/massage/components/MassageHeroNav'
+import MenuSlider from '@/domains/massage/components/MenuSlider'
 import styles from './MassageScreen.module.css'
 
 const MASSAGE_LANDING_BG = '' // User will provide landing page image
@@ -17,7 +18,8 @@ export default function MassageScreen({ onClose }) {
   const [search, setSearch] = useState('')
   const [massageType, setMassageType] = useState('all')
   const [statusFilter, setStatusFilter] = useState('all')
-  const [mainTab, setMainTab] = useState('home-service') // 'home-service' | 'places'
+  const [mainTab, setMainTab] = useState('home-service')
+  const [menuTherapist, setMenuTherapist] = useState(null)
 
   const therapists = searchTherapists({
     query: search,
@@ -77,11 +79,19 @@ export default function MassageScreen({ onClose }) {
             key={t.id}
             therapist={t}
             onBookNow={(therapist) => { /* TODO: open booking with 10% commission */ }}
-            onMenu={(therapist) => { /* TODO: open price menu */ }}
+            onMenu={(therapist) => setMenuTherapist(therapist)}
             onTap={(therapist) => { /* TODO: open full profile */ }}
           />
         ))}
       </div>
+
+      {/* Menu slider */}
+      <MenuSlider
+        open={!!menuTherapist}
+        onClose={() => setMenuTherapist(null)}
+        therapist={menuTherapist}
+        onBook={(therapist, service) => { /* TODO: book specific service */ setMenuTherapist(null) }}
+      />
     </div>
   )
 }

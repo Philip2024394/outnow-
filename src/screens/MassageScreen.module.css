@@ -1,4 +1,6 @@
 .page { position: fixed; inset: 0; z-index: 100; background: #0a0a0a; background-image: url('https://ik.imagekit.io/nepgaxllc/ChatGPT%20Image%20Apr%2017,%202026,%2012_32_13%20AM.png'); background-size: cover; background-position: center; display: flex; flex-direction: column; overflow: hidden; }
+.page::before { content: ''; position: absolute; inset: 0; background: rgba(0,0,0,0.4); backdrop-filter: blur(2px); -webkit-backdrop-filter: blur(2px); pointer-events: none; z-index: 0; }
+.page > * { position: relative; z-index: 1; }
 
 /* Landing */
 .landingPage { position: fixed; inset: 0; z-index: 100; background-size: cover; background-position: center; display: flex; flex-direction: column; justify-content: flex-end; }

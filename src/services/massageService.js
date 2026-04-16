@@ -32,11 +32,18 @@ const DEMO_THERAPISTS = [
     clientPreferences: 'All',
     languages: ['Indonesian', 'English'],
     phone: '+6281234567890',
+    menu: [
+      { name: 'Balinese Massage', price60: 150000, price90: 200000, price120: 250000 },
+      { name: 'Deep Tissue', price60: 175000, price90: 225000, price120: 275000 },
+      { name: 'Aromatherapy', price60: 160000, price90: 210000, price120: 260000 },
+      { name: 'Hot Stone', price60: 200000, price90: 275000, price120: 350000 },
+      { name: 'Reflexology', price60: 120000, price90: 0, price120: 0 },
+    ],
   },
   {
     id: 'th2', name: 'Putu Ayu', age: 32, yearsOfExperience: 10,
     profileImage: 'https://i.pravatar.cc/300?img=47',
-    description: 'Master therapist trained in traditional Javanese and Thai techniques. 10 years of professional experience serving international clients.',
+    description: 'Master therapist trained in traditional Javanese and Thai techniques. 10 years serving international clients.',
     location: 'Yogyakarta', area: 'Kraton',
     lat: -7.8052, lng: 110.3642,
     massageTypes: ['Thai', 'Traditional', 'Swedish'],
@@ -46,6 +53,11 @@ const DEMO_THERAPISTS = [
     clientPreferences: 'Females Only',
     languages: ['Indonesian', 'English', 'Japanese'],
     phone: '+6281234567891',
+    menu: [
+      { name: 'Thai Massage', price60: 180000, price90: 250000, price120: 300000 },
+      { name: 'Traditional Javanese', price60: 160000, price90: 220000, price120: 280000 },
+      { name: 'Swedish Relaxation', price60: 170000, price90: 230000, price120: 290000 },
+    ],
   },
   {
     id: 'th3', name: 'Wayan Surya', age: 35, yearsOfExperience: 12,
@@ -60,6 +72,12 @@ const DEMO_THERAPISTS = [
     clientPreferences: 'All',
     languages: ['Indonesian', 'English'],
     phone: '+6281234567892',
+    menu: [
+      { name: 'Sports Recovery', price60: 200000, price90: 275000, price120: 350000 },
+      { name: 'Deep Tissue', price60: 190000, price90: 260000, price120: 330000 },
+      { name: 'Swedish', price60: 175000, price90: 240000, price120: 300000 },
+      { name: 'Cupping Therapy', price60: 220000, price90: 0, price120: 0 },
+    ],
     busyUntil: new Date(Date.now() + 45 * 60000).toISOString(),
   },
   {
@@ -75,6 +93,11 @@ const DEMO_THERAPISTS = [
     clientPreferences: 'All',
     languages: ['Indonesian'],
     phone: '+6281234567893',
+    menu: [
+      { name: 'Aromatherapy Bliss', price60: 130000, price90: 175000, price120: 220000 },
+      { name: 'Swedish Relaxation', price60: 125000, price90: 170000, price120: 215000 },
+      { name: 'Hot Stone Therapy', price60: 160000, price90: 210000, price120: 260000 },
+    ],
   },
   {
     id: 'th5', name: 'Kadek Yoga', age: 30, yearsOfExperience: 8,
@@ -89,6 +112,14 @@ const DEMO_THERAPISTS = [
     clientPreferences: 'All',
     languages: ['Indonesian', 'English', 'Mandarin'],
     phone: '+6281234567894',
+    menu: [
+      { name: 'Balinese Traditional', price60: 175000, price90: 230000, price120: 280000 },
+      { name: 'Hot Stone Premium', price60: 225000, price90: 300000, price120: 375000 },
+      { name: 'Reflexology', price60: 120000, price90: 160000, price120: 0 },
+      { name: 'Couples Massage', price60: 0, price90: 400000, price120: 500000 },
+      { name: 'Prenatal Massage', price60: 150000, price90: 200000, price120: 0 },
+      { name: 'Head & Shoulder', price60: 100000, price90: 0, price120: 0 },
+    ],
   },
   {
     id: 'th6', name: 'Sri Wahyuni', age: 29, yearsOfExperience: 7,
@@ -103,6 +134,12 @@ const DEMO_THERAPISTS = [
     clientPreferences: 'Females Only',
     languages: ['Indonesian', 'Javanese'],
     phone: '+6281234567895',
+    menu: [
+      { name: 'Traditional Javanese', price60: 140000, price90: 190000, price120: 240000 },
+      { name: 'Shiatsu', price60: 155000, price90: 210000, price120: 260000 },
+      { name: 'Reflexology', price60: 110000, price90: 150000, price120: 0 },
+      { name: 'Prenatal Massage', price60: 145000, price90: 195000, price120: 0 },
+    ],
   },
 ]
 
