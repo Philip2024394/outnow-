@@ -6,7 +6,7 @@
 import { useState } from 'react'
 import { MASSAGE_TYPES, getTherapists, searchTherapists, AVAILABILITY } from '@/services/massageService'
 import SectionCTAButton from '@/components/ui/SectionCTAButton'
-import TherapistCard from '@/components/massage/TherapistCard'
+import TherapistCard from '@/domains/massage/components/TherapistCard'
 import styles from './MassageScreen.module.css'
 
 const MASSAGE_LANDING_BG = '' // User will provide landing page image
@@ -94,9 +94,10 @@ export default function MassageScreen({ onClose }) {
           <TherapistCard
             key={t.id}
             therapist={t}
-            onBook={(therapist, duration) => { /* TODO: open booking flow */ }}
-            onSchedule={(therapist) => { /* TODO: open schedule */ }}
-            onProfile={(therapist) => { /* TODO: open profile */ }}
+            onBookNow={(data) => { /* TODO: open in-app chat booking */ }}
+            onSchedule={(data) => { /* TODO: open scheduled booking */ }}
+            onShare={(therapist) => { /* TODO: share profile */ }}
+            language="en"
           />
         ))}
       </div>
