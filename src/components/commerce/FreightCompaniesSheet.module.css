@@ -412,13 +412,11 @@
 
 .closeBtn {
   padding: 10px 22px;
-  background: rgba(255,255,255,0.08);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-  color: rgba(255,255,255,0.75);
+  background: #F59E0B;
+  color: #000;
   font-size: 13px;
   font-weight: 700;
-  border: 1px solid rgba(255,255,255,0.12);
+  border: none;
   border-radius: 12px;
   cursor: pointer;
   font-family: inherit;
@@ -426,4 +424,4 @@
   flex-shrink: 0;
 }
 
-.closeBtn:hover { background: rgba(255,255,255,0.14); }
+.closeBtn:hover { background: #D97706; }

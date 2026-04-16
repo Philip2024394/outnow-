@@ -24,7 +24,7 @@ function CarrierIcon({ label }) {
 }
 
 // Carrier card — logo on top, info bar underneath
-function CarrierCard({ logo, logoBg, label, badge, badgeClass, price, priceIncluded, deliveryDays, express }) {
+function CarrierCard({ logo, logoBg, label, deliveryDays }) {
   return (
     <div className={styles.carrierRow}>
       <div className={styles.carrierLeft} style={logoBg ? { background: logoBg, borderRadius: '13px 13px 0 0' } : undefined}>
@@ -34,18 +34,7 @@ function CarrierCard({ logo, logoBg, label, badge, badgeClass, price, priceInclu
         }
       </div>
       <div className={styles.carrierInfo}>
-        <span className={styles.carrierName}>{label}</span>
-        <div className={styles.carrierMeta}>
-          <span className={badgeClass}>{badge}</span>
-          {deliveryDays && <span className={styles.carrierDays}>{deliveryDays}</span>}
-        </div>
-        {express && <span className={styles.carrierExpress}>Express: {express}</span>}
-        <div className={styles.carrierPrice}>
-          {priceIncluded
-            ? <span className={styles.priceIncluded}>Included</span>
-            : <span className={styles.priceValue}>{price}</span>
-          }
-        </div>
+        {deliveryDays && <span className={styles.carrierDays}>{deliveryDays}</span>}
       </div>
     </div>
   )
