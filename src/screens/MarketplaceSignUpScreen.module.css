@@ -159,8 +159,12 @@
   border-radius: 12px; color: #000; font-size: 16px; font-weight: 900;
   cursor: pointer; font-family: inherit;
   box-shadow: 0 4px 20px rgba(245,158,11,0.4);
+  transition: background 0.3s, color 0.3s, box-shadow 0.3s;
 }
-.createAccountBtn:disabled { background: rgba(255,255,255,0.06); color: rgba(255,255,255,0.2); box-shadow: none; cursor: default; }
+.createAccountBtn:disabled {
+  background: rgba(255,255,255,0.06); color: rgba(255,255,255,0.15);
+  box-shadow: none; cursor: default;
+}
 
 .switchAuth {
   background: none; border: none; color: rgba(255,255,255,0.4);
