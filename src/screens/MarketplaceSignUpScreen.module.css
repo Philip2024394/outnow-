@@ -18,7 +18,7 @@
   color: rgba(255,255,255,0.5); display: flex; align-items: center; justify-content: center;
   cursor: pointer; flex-shrink: 0;
 }
-.headerLogo { height: 112px; object-fit: contain; align-self: flex-start; }
+.headerLogo { height: 44px; object-fit: contain; align-self: flex-start; }
 .headerText { flex: 1; }
 .headerTitle { display: block; font-size: 16px; font-weight: 900; color: #fff; }
 .headerSub { display: block; font-size: 11px; color: rgba(255,255,255,0.35); margin-top: 1px; }

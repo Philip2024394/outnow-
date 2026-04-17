@@ -12,7 +12,7 @@ import { supabase } from '@/lib/supabase'
 import { useAuth } from '@/hooks/useAuth'
 import styles from './MarketplaceSignUpScreen.module.css'
 
-const MARKET_LOGO = 'https://ik.imagekit.io/nepgaxllc/Indoo%20Market%20logo%20design.png?updatedAt=1776203793752'
+const MARKET_LOGO = 'https://ik.imagekit.io/nepgaxllc/Untitledfsdsd-removebg-preview.png'
 
 const CATEGORIES = [
   { id: 'womens_fashion',    emoji: '👗', label: "Women's Fashion" },
