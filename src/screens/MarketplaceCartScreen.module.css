@@ -17,7 +17,7 @@
   cursor: pointer; flex-shrink: 0;
 }
 .headerLogo { height: 35px; object-fit: contain; margin-top: 4px; }
-.title { flex: 1; font-size: 17px; font-weight: 900; color: #fff; margin: 0; }
+.title { flex: 1; font-size: 17px; font-weight: 900; color: #fff; margin: 0; text-align: right; }
 
 /* Tabs */
 .tabs {
