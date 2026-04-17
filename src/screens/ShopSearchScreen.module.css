@@ -11,7 +11,7 @@
   flex-direction: column;
   overflow-y: auto;
   overflow-x: hidden;
-  padding-right: 74px; /* clear the right-side nav panel (58px panel + 16px gap) */
+  padding-right: 60px; /* clear the right-side nav panel (58px panel + 2px gap) */
 }
 .screen::before {
   content: '';
