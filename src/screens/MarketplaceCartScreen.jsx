@@ -31,10 +31,10 @@ const DEMO_HISTORY = [
 
 const STATUS_STYLES = {
   pending:   { bg: 'rgba(251,191,36,0.15)', color: '#FBBF24', label: 'Pending' },
-  confirmed: { bg: 'rgba(167,139,250,0.15)', color: '#A78BFA', label: 'Confirmed' },
-  shipped:   { bg: 'rgba(99,102,241,0.15)',  color: '#818CF8', label: 'Shipped' },
-  delivered: { bg: 'rgba(52,199,89,0.15)',   color: '#34C759', label: 'Delivered' },
-  cancelled: { bg: 'rgba(239,68,68,0.15)',   color: '#EF4444', label: 'Cancelled' },
+  confirmed: { bg: '#8DC63F',               color: '#fff',    label: 'Confirmed' },
+  shipped:   { bg: 'rgba(99,102,241,0.15)', color: '#818CF8', label: 'Shipped' },
+  delivered: { bg: 'rgba(52,199,89,0.15)',  color: '#34C759', label: 'Delivered' },
+  cancelled: { bg: '#EF4444',              color: '#fff',    label: 'Cancelled' },
 }
 
 export default function MarketplaceCartScreen({ open, onClose }) {
@@ -185,10 +185,10 @@ export default function MarketplaceCartScreen({ open, onClose }) {
                     <span className={styles.orderDate}>{order.date}</span>
                   </div>
                   {order.status === 'delivered' && (
-                    <button className={styles.reviewBtn}>Write Review</button>
-                  )}
-                  {order.status === 'delivered' && (
-                    <button className={styles.reorderBtn}>Buy Again</button>
+                    <div className={styles.actionRow}>
+                      <button className={styles.reviewBtn}>Write Review</button>
+                      <button className={styles.reorderBtn}>Buy Again</button>
+                    </div>
                   )}
                 </div>
               )

@@ -128,19 +128,20 @@
 .orderMeta { display: flex; gap: 10px; flex-wrap: wrap; font-size: 12px; color: rgba(255,255,255,0.4); }
 .orderTotal { color: #F59E0B; font-weight: 700; font-family: monospace; }
 .orderDate { color: rgba(255,255,255,0.25); }
-.orderTracking { font-size: 11px; color: #818CF8; font-family: monospace; }
+.orderTracking { font-size: 14px; color: #fff; font-family: monospace; font-weight: 700; }
 
+.actionRow { display: flex; gap: 8px; }
 .reviewBtn {
-  align-self: flex-start; padding: 6px 14px;
-  background: rgba(245,158,11,0.1); border: 1px solid rgba(245,158,11,0.3);
-  border-radius: 8px; color: #F59E0B; font-size: 11px; font-weight: 700;
-  cursor: pointer; font-family: inherit;
+  flex: 1; padding: 9px 14px;
+  background: #F59E0B; border: none;
+  border-radius: 8px; color: #000; font-size: 12px; font-weight: 800;
+  cursor: pointer; font-family: inherit; text-align: center;
 }
 .reorderBtn {
-  align-self: flex-start; padding: 6px 14px;
-  background: rgba(52,199,89,0.1); border: 1px solid rgba(52,199,89,0.3);
-  border-radius: 8px; color: #34C759; font-size: 11px; font-weight: 700;
-  cursor: pointer; font-family: inherit;
+  flex: 1; padding: 9px 14px;
+  background: #8DC63F; border: none;
+  border-radius: 8px; color: #000; font-size: 12px; font-weight: 800;
+  cursor: pointer; font-family: inherit; text-align: center;
 }
 
 /* Footer */
