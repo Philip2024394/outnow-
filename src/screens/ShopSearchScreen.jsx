@@ -351,13 +351,24 @@ export default function ShopSearchScreen({ onClose, userCity, userCountry, giftF
     <div className={styles.landingPage} style={{ backgroundImage: `url("${MARKET_LANDING_BG}")` }}>
       <div className={styles.landingOverlay} />
 
-      {/* Header: brand logo */}
+      {/* Header: brand logo + search bar */}
       <div className={styles.landingHeader}>
         <img src="https://ik.imagekit.io/nepgaxllc/Indoo%20Market%20logo%20design.png?updatedAt=1776203793752" alt="Indoo Market" className={styles.landingHeaderLogo} />
+        <div className={styles.landingSearchWrap}>
+          <svg className={styles.landingSearchIcon} width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+            <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+          </svg>
+          <input
+            className={styles.landingSearchInput}
+            placeholder="Search products, sellers…"
+            readOnly
+            onClick={() => { markSectionVisited('marketplace'); setShowLanding(false); onLandingChange?.(false) }}
+          />
+        </div>
       </div>
 
-      {/* Footer content */}
-      <div className={styles.landingContent}>
+      {/* Footer content — pushed to very bottom */}
+      <div className={styles.landingFooter}>
         <p className={styles.landingSub}>Buy & sell anything — fashion, electronics, handmade and more</p>
         <button className={styles.landingBtn} onClick={() => { markSectionVisited('marketplace'); setShowLanding(false); onLandingChange?.(false) }}>
           Enter Marketplace
