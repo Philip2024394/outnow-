@@ -102,7 +102,14 @@ export default function MarketplaceCartScreen({ open, onClose }) {
             )}
             {cart.map(item => (
               <div key={item.id} className={styles.cartCard}>
-                <img src={item.image} alt={item.name} className={styles.cartImg} />
+                <div className={styles.cartLeft}>
+                  <img src={item.image} alt={item.name} className={styles.cartImg} />
+                  <div className={styles.qtyRow}>
+                    <button className={styles.qtyBtn} onClick={() => updateQty(item.id, -1)}>-</button>
+                    <span className={styles.qtyNum}>{item.qty}</span>
+                    <button className={styles.qtyBtn} onClick={() => updateQty(item.id, 1)}>+</button>
+                  </div>
+                </div>
                 <div className={styles.cartRight}>
                   <div className={styles.cartTopRow}>
                     <div className={styles.cartInfo}>
@@ -110,14 +117,12 @@ export default function MarketplaceCartScreen({ open, onClose }) {
                       <span className={styles.cartSeller}>{item.seller}</span>
                       <span className={styles.cartPrice}>{fmtRp(item.price)}</span>
                     </div>
-                    <button className={styles.removeBtn} onClick={() => removeItem(item.id)}>Remove</button>
+                    <button className={styles.removeBtn} onClick={() => removeItem(item.id)} aria-label="Delete">
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2"/></svg>
+                    </button>
                   </div>
                   <div className={styles.cartBottomRow}>
-                    <div className={styles.qtyRow}>
-                      <button className={styles.qtyBtn} onClick={() => updateQty(item.id, -1)}>-</button>
-                      <span className={styles.qtyNum}>{item.qty}</span>
-                      <button className={styles.qtyBtn} onClick={() => updateQty(item.id, 1)}>+</button>
-                    </div>
+                    <span className={styles.cartSubtotalLabel}>Total</span>
                     <span className={styles.cartSubtotal}>{fmtRp(item.price * item.qty)}</span>
                   </div>
                 </div>

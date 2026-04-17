@@ -39,7 +39,7 @@ const DEMO_NOTIFICATIONS = [
 
 function timeAgo(str) { return str }
 
-export default function MarketplaceNotificationsScreen({ open, onClose }) {
+export default function MarketplaceNotificationsScreen({ open, onClose, onOpenReviews, onOpenOrders }) {
   const { user } = useAuth()
   const [notifications, setNotifications] = useState(DEMO_NOTIFICATIONS)
   const [filter, setFilter] = useState('all')
@@ -125,7 +125,11 @@ export default function MarketplaceNotificationsScreen({ open, onClose }) {
           </div>
         )}
         {filtered.map(n => (
-          <button key={n.id} className={`${styles.card} ${!n.read ? styles.cardUnread : ''}`} onClick={() => markRead(n.id)}>
+          <button key={n.id} className={`${styles.card} ${!n.read ? styles.cardUnread : ''}`} onClick={() => {
+            markRead(n.id)
+            if (n.title.includes('review')) onOpenReviews?.()
+            else if (n.type === 'orders') onOpenOrders?.()
+          }}>
             <span className={styles.cardIcon}>{n.icon}</span>
             <div className={styles.cardBody}>
               <span className={styles.cardTitle}>{n.title}</span>

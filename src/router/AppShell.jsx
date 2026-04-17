@@ -103,6 +103,7 @@ const SellerWalletScreen      = lazy(() => import('@/screens/SellerWalletScreen'
 const SellerAnalytics         = lazy(() => import('@/components/commerce/SellerAnalytics'))
 const MarketplaceNotificationsScreen = lazy(() => import('@/screens/MarketplaceNotificationsScreen'))
 const MarketplaceCartScreen   = lazy(() => import('@/screens/MarketplaceCartScreen'))
+const SellerReviewsScreen     = lazy(() => import('@/screens/SellerReviewsScreen'))
 
 // Minimal fallback for lazy screens
 const LazyFallback = () => null
@@ -233,6 +234,7 @@ export default function AppShell({ returnParams, triggerGoLive }) {
   const [marketProfileOpen, setMarketProfileOpen] = useState(false)
   const [marketNotifOpen, setMarketNotifOpen] = useState(false)
   const [marketCartOpen, setMarketCartOpen] = useState(false)
+  const [sellerReviewsOpen, setSellerReviewsOpen] = useState(false)
   const [shopOpen, setShopOpen] = useState(false)
   const [massageOpen, setMassageOpen] = useState(false)
   const [massageOnLanding, setMassageOnLanding] = useState(true)
@@ -1256,12 +1258,17 @@ export default function AppShell({ returnParams, triggerGoLive }) {
 
       {/* Marketplace Notifications */}
       <Suspense fallback={null}>
-        <MarketplaceNotificationsScreen open={marketNotifOpen} onClose={() => setMarketNotifOpen(false)} />
+        <MarketplaceNotificationsScreen open={marketNotifOpen} onClose={() => setMarketNotifOpen(false)} onOpenReviews={() => { setMarketNotifOpen(false); setSellerReviewsOpen(true) }} onOpenOrders={() => { setMarketNotifOpen(false); setSellerOrdersOpen(true) }} />
       </Suspense>
 
       {/* Marketplace Cart */}
       <Suspense fallback={null}>
         <MarketplaceCartScreen open={marketCartOpen} onClose={() => setMarketCartOpen(false)} />
+      </Suspense>
+
+      {/* Seller Reviews */}
+      <Suspense fallback={null}>
+        <SellerReviewsScreen open={sellerReviewsOpen} onClose={() => setSellerReviewsOpen(false)} />
       </Suspense>
 
       {/* Marketplace Chat overlay — portaled to body to escape .shell stacking context */}
@@ -1335,6 +1342,7 @@ export default function AppShell({ returnParams, triggerGoLive }) {
             setMarketProfileOpen(false)
             setMarketNotifOpen(false)
             setMarketCartOpen(false)
+            setSellerReviewsOpen(false)
             setNotifOpen(false)
             setOrderHistoryOpen(false)
             setMarketplaceSignUpOpen(false)
