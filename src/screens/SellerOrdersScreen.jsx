@@ -9,12 +9,14 @@ import styles from './SellerOrdersScreen.module.css'
 
 const MARKET_LOGO = 'https://ik.imagekit.io/nepgaxllc/Untitledfsdsd-removebg-preview.png'
 
-const STATUS_FLOW = ['pending', 'confirmed', 'shipped', 'delivered']
+const STATUS_FLOW = ['awaiting_payment', 'pending', 'confirmed', 'shipped', 'delivered']
 const STATUS_COLORS = {
-  pending:   { bg: 'rgba(251,191,36,0.15)', border: '#FBBF24', text: '#FBBF24' },
-  confirmed: { bg: '#8DC63F',               border: '#8DC63F', text: '#fff' },
-  shipped:   { bg: '#8DC63F',               border: '#8DC63F', text: '#fff', glow: true },
-  delivered: { bg: 'rgba(52,199,89,0.15)',  border: '#34C759', text: '#34C759' },
+  awaiting_payment: { bg: 'rgba(251,191,36,0.15)', border: '#FBBF24', text: '#FBBF24' },
+  pending:          { bg: 'rgba(251,191,36,0.15)', border: '#FBBF24', text: '#FBBF24' },
+  confirmed:        { bg: '#8DC63F',               border: '#8DC63F', text: '#fff' },
+  shipped:          { bg: '#8DC63F',               border: '#8DC63F', text: '#fff', glow: true },
+  delivered:        { bg: 'rgba(52,199,89,0.15)',  border: '#34C759', text: '#34C759' },
+  payment_failed:   { bg: '#EF4444',              border: '#EF4444', text: '#fff' },
 }
 
 const CARRIERS = [
@@ -29,48 +31,94 @@ const CARRIERS = [
   { id: 'indoo',   label: 'Indoo Express', logo: null },
 ]
 
+const PAYMENT_DEADLINE_HOURS = 72
+
 const now = Date.now()
 const DEMO_ORDERS = [
   {
-    id: 'o1', product: 'Nike Air Max 90 Original', image: 'https://picsum.photos/seed/shoe1/200', price: 1250000,
+    id: 'o1', orderRef: 'ORD-240417-001', product: 'Nike Air Max 90 Original', image: 'https://picsum.photos/seed/shoe1/200', price: 1250000,
     buyer: 'Ava Mitchell', buyerAvatar: 'https://i.pravatar.cc/80?img=1', buyerAddress: 'Jl. Malioboro No. 52, Yogyakarta 55271',
-    buyerPhone: '+6281234567890', qty: 1, total: 1250000, status: 'pending', time: '2h ago',
-    orderedAt: new Date(now - 2 * 3600000).toISOString(), paymentScreenshot: 'https://picsum.photos/seed/pay1/400/600',
-    paymentMethod: 'Bank Transfer (BCA)', carrier: null, trackingNo: null,
+    buyerPhone: '+6281234567890', qty: 1, total: 1250000, status: 'awaiting_payment', time: '2h ago',
+    orderedAt: new Date(now - 2 * 3600000).toISOString(), paymentDeadline: new Date(now - 2 * 3600000 + PAYMENT_DEADLINE_HOURS * 3600000).toISOString(),
+    paymentScreenshot: null, paymentMethod: 'Bank Transfer (BCA)', carrier: null, trackingNo: null,
+    reminders: { sent48h: false, sent24h: false, sent8h: false },
   },
   {
-    id: 'o2', product: 'Samsung Galaxy Buds Pro', image: 'https://picsum.photos/seed/buds1/200', price: 445000,
+    id: 'o2', orderRef: 'ORD-240417-002', product: 'Samsung Galaxy Buds Pro', image: 'https://picsum.photos/seed/buds1/200', price: 445000,
     buyer: 'Ravi Gupta', buyerAvatar: 'https://i.pravatar.cc/80?img=11', buyerAddress: 'Jl. Gejayan No. 15, Sleman, Yogyakarta 55281',
     buyerPhone: '+6281234567891', qty: 2, total: 890000, status: 'confirmed', time: '5h ago',
-    orderedAt: new Date(now - 5 * 3600000).toISOString(), paymentScreenshot: 'https://picsum.photos/seed/pay2/400/600',
-    paymentMethod: 'QRIS (GoPay)', carrier: null, trackingNo: null,
+    orderedAt: new Date(now - 5 * 3600000).toISOString(), paymentDeadline: null,
+    paymentScreenshot: 'https://picsum.photos/seed/pay2/400/600', paymentMethod: 'QRIS (GoPay)', carrier: null, trackingNo: null,
+    reminders: {},
   },
   {
-    id: 'o3', product: 'Batik Shirt Premium Jogja', image: 'https://picsum.photos/seed/batik1/200', price: 340000,
+    id: 'o3', orderRef: 'ORD-240416-003', product: 'Batik Shirt Premium Jogja', image: 'https://picsum.photos/seed/batik1/200', price: 340000,
     buyer: 'Maya Patel', buyerAvatar: 'https://i.pravatar.cc/80?img=9', buyerAddress: 'Jl. Prawirotaman No. 8, Yogyakarta 55153',
     buyerPhone: '+6281234567892', qty: 1, total: 340000, status: 'shipped', time: '1d ago',
-    orderedAt: new Date(now - 24 * 3600000).toISOString(), paymentScreenshot: 'https://picsum.photos/seed/pay3/400/600',
-    paymentMethod: 'Bank Transfer (Mandiri)', carrier: 'jne', trackingNo: 'JNE9876543210',
+    orderedAt: new Date(now - 24 * 3600000).toISOString(), paymentDeadline: null,
+    paymentScreenshot: 'https://picsum.photos/seed/pay3/400/600', paymentMethod: 'Bank Transfer (Mandiri)', carrier: 'jne', trackingNo: 'JNE9876543210',
+    reminders: {},
   },
   {
-    id: 'o4', product: 'Aromatherapy Candle Set', image: 'https://picsum.photos/seed/candle1/200', price: 58333,
+    id: 'o4', orderRef: 'ORD-240414-004', product: 'Aromatherapy Candle Set', image: 'https://picsum.photos/seed/candle1/200', price: 58333,
     buyer: 'Chloe Brennan', buyerAvatar: 'https://i.pravatar.cc/80?img=5', buyerAddress: 'Jl. Kaliurang Km 12, Sleman 55584',
     buyerPhone: '+6281234567893', qty: 3, total: 175000, status: 'delivered', time: '3d ago',
-    orderedAt: new Date(now - 72 * 3600000).toISOString(), paymentScreenshot: null,
-    paymentMethod: 'COD', carrier: 'sicepat', trackingNo: 'SCP1122334455',
+    orderedAt: new Date(now - 72 * 3600000).toISOString(), paymentDeadline: null,
+    paymentScreenshot: null, paymentMethod: 'COD', carrier: 'sicepat', trackingNo: 'SCP1122334455',
+    reminders: {},
   },
   {
-    id: 'o5', product: 'Handmade Leather Wallet', image: 'https://picsum.photos/seed/wallet1/200', price: 285000,
+    id: 'o5', orderRef: 'ORD-240417-005', product: 'Handmade Leather Wallet', image: 'https://picsum.photos/seed/wallet1/200', price: 285000,
     buyer: 'Jordan Lee', buyerAvatar: 'https://i.pravatar.cc/80?img=3', buyerAddress: 'Jl. Seturan No. 22, Depok, Sleman 55281',
-    buyerPhone: '+6281234567894', qty: 1, total: 285000, status: 'pending', time: '30m ago',
-    orderedAt: new Date(now - 30 * 60000).toISOString(), paymentScreenshot: 'https://picsum.photos/seed/pay5/400/600',
-    paymentMethod: 'Bank Transfer (BRI)', carrier: null, trackingNo: null,
+    buyerPhone: '+6281234567894', qty: 1, total: 285000, status: 'awaiting_payment', time: '30m ago',
+    orderedAt: new Date(now - 64 * 3600000).toISOString(), paymentDeadline: new Date(now - 64 * 3600000 + PAYMENT_DEADLINE_HOURS * 3600000).toISOString(),
+    paymentScreenshot: null, paymentMethod: 'Bank Transfer (BRI)', carrier: null, trackingNo: null,
+    reminders: { sent48h: true, sent24h: true, sent8h: false },
+  },
+  {
+    id: 'o6', orderRef: 'ORD-240415-006', product: 'Ceramic Vase Handmade', image: 'https://picsum.photos/seed/vase1/200', price: 195000,
+    buyer: 'Sam Okafor', buyerAvatar: 'https://i.pravatar.cc/80?img=7', buyerAddress: 'Jl. Sosrowijayan No. 3, Yogyakarta 55271',
+    buyerPhone: '+6281234567895', qty: 1, total: 195000, status: 'payment_failed', time: '2d ago',
+    orderedAt: new Date(now - 96 * 3600000).toISOString(), paymentDeadline: new Date(now - 24 * 3600000).toISOString(),
+    paymentScreenshot: null, paymentMethod: 'Bank Transfer (BNI)', carrier: null, trackingNo: null,
+    reminders: { sent48h: true, sent24h: true, sent8h: true },
   },
 ]
 
 function fmtRp(n) { return `Rp ${Number(n ?? 0).toLocaleString('id-ID')}` }
 
-function Countdown48h({ orderedAt }) {
+function PaymentCountdown({ deadline, onExpired }) {
+  const [left, setLeft] = useState('')
+  const [phase, setPhase] = useState('normal') // normal | warning | urgent | expired
+  useEffect(() => {
+    if (!deadline) return
+    const calc = () => {
+      const diff = new Date(deadline).getTime() - Date.now()
+      if (diff <= 0) { setLeft('Expired'); setPhase('expired'); onExpired?.(); return }
+      const h = Math.floor(diff / 3600000)
+      const m = Math.floor((diff % 3600000) / 60000)
+      setLeft(`${h}h ${m}m`)
+      if (h < 8) setPhase('urgent')
+      else if (h < 24) setPhase('warning')
+      else setPhase('normal')
+    }
+    calc()
+    const t = setInterval(calc, 60000)
+    return () => clearInterval(t)
+  }, [deadline])
+  return (
+    <div className={styles.paymentTimer}>
+      <span className={styles.paymentTimerLabel}>Payment due in</span>
+      <span className={`${styles.paymentTimerValue} ${phase === 'urgent' ? styles.timerUrgent : phase === 'warning' ? styles.timerWarning : phase === 'expired' ? styles.timerExpired : ''}`}>
+        {left}
+      </span>
+      {phase === 'urgent' && <span className={styles.timerAlert}>Auto-cancel if not paid</span>}
+      {phase === 'expired' && <span className={styles.timerAlert}>Payment window closed</span>}
+    </div>
+  )
+}
+
+function ShipCountdown({ orderedAt }) {
   const [left, setLeft] = useState('')
   useEffect(() => {
     const calc = () => {
@@ -107,7 +155,7 @@ export default function SellerOrdersScreen({ open, onClose, onOpenChat }) {
   if (!open) return null
 
   const filtered = filter === 'all' ? orders : orders.filter(o => o.status === filter)
-  const counts = { all: orders.length, pending: orders.filter(o => o.status === 'pending').length, confirmed: orders.filter(o => o.status === 'confirmed').length, shipped: orders.filter(o => o.status === 'shipped').length, delivered: orders.filter(o => o.status === 'delivered').length }
+  const counts = { all: orders.length, awaiting_payment: orders.filter(o => o.status === 'awaiting_payment').length, pending: orders.filter(o => o.status === 'pending').length, confirmed: orders.filter(o => o.status === 'confirmed').length, shipped: orders.filter(o => o.status === 'shipped').length, delivered: orders.filter(o => o.status === 'delivered').length, payment_failed: orders.filter(o => o.status === 'payment_failed').length }
 
   const advanceOrder = (id, currentStatus) => {
     const nextIdx = STATUS_FLOW.indexOf(currentStatus) + 1
@@ -124,6 +172,12 @@ export default function SellerOrdersScreen({ open, onClose, onOpenChat }) {
   }
 
   const needsShipping = (o) => o.status === 'pending' || o.status === 'confirmed'
+  const awaitingPayment = (o) => o.status === 'awaiting_payment'
+
+  // Auto-expire payment
+  const handlePaymentExpired = (orderId) => {
+    setOrders(prev => prev.map(o => o.id === orderId ? { ...o, status: 'payment_failed' } : o))
+  }
   const carrierInfo = (id) => CARRIERS.find(c => c.id === id)
 
   // ── ORDER DETAIL VIEW ──
@@ -143,11 +197,17 @@ export default function SellerOrdersScreen({ open, onClose, onOpenChat }) {
         </div>
 
         <div className={styles.detail}>
-          {/* Status */}
+          {/* Status + timers */}
           <div className={styles.detailStatus}>
-            <span className={`${styles.detailStatusBadge} ${color.glow ? styles.statusGlow : ''}`} style={{ background: color.bg, color: color.text }}>{o.status}</span>
-            {needsShipping(o) && <Countdown48h orderedAt={o.orderedAt} />}
+            <span className={`${styles.detailStatusBadge} ${color.glow ? styles.statusGlow : ''}`} style={{ background: color.bg, color: color.text }}>
+              {o.status === 'awaiting_payment' ? 'Awaiting Payment' : o.status === 'payment_failed' ? 'Payment Failed' : o.status}
+            </span>
+            {needsShipping(o) && <ShipCountdown orderedAt={o.orderedAt} />}
           </div>
+          {awaitingPayment(o) && o.paymentDeadline && (
+            <PaymentCountdown deadline={o.paymentDeadline} onExpired={() => { handlePaymentExpired(o.id); setSelectedOrder(prev => prev ? { ...prev, status: 'payment_failed' } : prev) }} />
+          )}
+          {o.orderRef && <span className={styles.orderRef}>Ref: {o.orderRef}</span>}
 
           {/* Product */}
           <div className={styles.detailProduct}>
@@ -256,9 +316,9 @@ export default function SellerOrdersScreen({ open, onClose, onOpenChat }) {
       </div>
 
       <div className={styles.tabs}>
-        {['all', 'pending', 'confirmed', 'shipped', 'delivered'].map(t => (
+        {['all', 'awaiting_payment', 'pending', 'confirmed', 'shipped', 'delivered', 'payment_failed'].map(t => (
           <button key={t} className={`${styles.tab} ${filter === t ? styles.tabActive : ''}`} onClick={() => setFilter(t)}>
-            {t === 'all' ? 'All' : t.charAt(0).toUpperCase() + t.slice(1)} ({counts[t]})
+            {t === 'all' ? 'All' : t === 'awaiting_payment' ? 'Awaiting Pay' : t === 'payment_failed' ? 'Failed' : t.charAt(0).toUpperCase() + t.slice(1)} ({counts[t]})
           </button>
         ))}
       </div>
@@ -277,8 +337,11 @@ export default function SellerOrdersScreen({ open, onClose, onOpenChat }) {
               </div>
               <div className={styles.cardRight}>
                 <span className={`${styles.cardStatus} ${color.glow ? styles.statusGlow : ''}`} style={{ background: color.bg, borderColor: color.border, color: color.text }}>
-                  {order.status}
+                  {order.status === 'awaiting_payment' ? 'Awaiting Pay' : order.status === 'payment_failed' ? 'Failed' : order.status}
                 </span>
+                {awaitingPayment(order) && order.paymentDeadline && (
+                  <PaymentCountdown deadline={order.paymentDeadline} onExpired={() => handlePaymentExpired(order.id)} />
+                )}
                 {needsShipping(order) && (
                   <span className={styles.shipBadge}>Ship now</span>
                 )}
