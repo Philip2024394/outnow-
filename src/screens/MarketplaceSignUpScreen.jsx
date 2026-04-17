@@ -47,7 +47,8 @@ const STEPS = ['account', 'role', 'categories', 'details', 'done']
 
 export default function MarketplaceSignUpScreen({ open, onClose, onComplete }) {
   const { user } = useAuth()
-  const [step, setStep] = useState('account')
+  // Skip account step if user is already signed in
+  const [step, setStep] = useState(user ? 'role' : 'account')
   const [phoneNum, setPhoneNum] = useState('')
   const [password, setPassword] = useState('')
   const [confirmPassword, setConfirmPassword] = useState('')
@@ -175,7 +176,7 @@ export default function MarketplaceSignUpScreen({ open, onClose, onComplete }) {
   const handleFinish = () => {
     onComplete?.({ role, categories, brandName, description, city, phone: phoneNum })
     onClose?.()
-    setStep('account')
+    setStep(user ? 'role' : 'account')
     setPhoneNum('')
     setPassword('')
     setConfirmPassword('')
@@ -204,11 +205,11 @@ export default function MarketplaceSignUpScreen({ open, onClose, onComplete }) {
       {/* Body */}
       <div className={styles.body}>
 
-        {/* ═══ STEP 0: Account (Phone + Password) ═══ */}
+        {/* ═══ STEP 0: Account (Phone + Password) — only if not signed in ═══ */}
         {step === 'account' && (
           <>
-            <h2 className={styles.stepTitle}>{isLogin ? 'Sign In' : 'Create Account'}</h2>
-            <p className={styles.stepSub}>Use your phone number to {isLogin ? 'sign in' : 'get started'}</p>
+            <h2 className={styles.stepTitle}>{isLogin ? 'Welcome Back' : 'Create Account'}</h2>
+            <p className={styles.stepSub}>{isLogin ? 'Enter your phone number and password' : 'Use your phone number to get started'}</p>
 
             <div className={styles.fields}>
               <div className={styles.field}>
@@ -233,7 +234,7 @@ export default function MarketplaceSignUpScreen({ open, onClose, onComplete }) {
                     className={styles.fieldInput}
                     value={password}
                     onChange={e => setPassword(e.target.value)}
-                    placeholder={isLogin ? 'Enter password' : 'Min 6 characters'}
+                    placeholder="Min 6 characters"
                     type={showPassword ? 'text' : 'password'}
                     autoComplete={isLogin ? 'current-password' : 'new-password'}
                   />
@@ -367,27 +368,16 @@ export default function MarketplaceSignUpScreen({ open, onClose, onComplete }) {
       {/* Footer */}
       <div className={styles.footer}>
         {step === 'account' && (
-          <div className={styles.authBtnRow}>
-            <button
-              className={`${styles.authBtn} ${!isLogin ? styles.authBtnActive : styles.authBtnInactive}`}
-              onClick={() => { setIsLogin(false); setAuthError('') }}
+          <>
+            <button className={styles.enterBtn} onClick={handleNext}
+              disabled={!phoneValid || !passwordValid || (!isLogin && !passwordsMatch) || saving}
             >
-              Create Account
+              {saving ? (isLogin ? 'Signing in...' : 'Creating account...') : isLogin ? 'Sign In' : 'Create Account'} →
             </button>
-            <button
-              className={`${styles.authBtn} ${isLogin ? styles.authBtnActive : styles.authBtnInactive}`}
-              onClick={() => { setIsLogin(true); setAuthError('') }}
-            >
-              Sign In
+            <button className={styles.switchAuth} onClick={() => { setIsLogin(v => !v); setAuthError('') }}>
+              {isLogin ? 'New here? Create Account' : 'Already have an account? Sign In'}
             </button>
-          </div>
-        )}
-        {step === 'account' && (
-          <button className={styles.enterBtn} onClick={handleNext}
-            disabled={!phoneValid || !passwordValid || (!isLogin && !passwordsMatch) || saving}
-          >
-            {saving ? (isLogin ? 'Signing in...' : 'Creating account...') : 'Continue'} →
-          </button>
+          </>
         )}
         {step !== 'account' && step !== 'done' && (
           <button className={styles.backBtn} onClick={() => {

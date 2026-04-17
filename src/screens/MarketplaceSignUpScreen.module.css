@@ -137,20 +137,12 @@
   border-radius: 8px; padding: 8px 12px; margin: 0;
 }
 
-.authBtnRow { display: flex; gap: 8px; width: 100%; }
-.authBtn {
-  flex: 1; padding: 12px; border-radius: 10px;
-  font-size: 14px; font-weight: 800; cursor: pointer;
-  font-family: inherit; text-align: center;
-  transition: all 0.15s;
+.switchAuth {
+  background: none; border: none; color: rgba(255,255,255,0.4);
+  font-size: 12px; font-weight: 600; cursor: pointer;
+  font-family: inherit; padding: 6px 0; text-align: center; width: 100%;
 }
-.authBtnActive {
-  background: #F59E0B; border: 1.5px solid #F59E0B; color: #000;
-}
-.authBtnInactive {
-  background: rgba(0,0,0,0.7); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
-  border: 1.5px solid rgba(255,255,255,0.12); color: rgba(255,255,255,0.5);
-}
+.switchAuth:hover { color: #F59E0B; }
 
 /* Form fields */
 .fields { display: flex; flex-direction: column; gap: 16px; }
