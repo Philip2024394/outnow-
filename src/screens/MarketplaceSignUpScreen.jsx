@@ -58,7 +58,7 @@ export default function MarketplaceSignUpScreen({ open, onClose, onComplete }) {
 
   if (!open) return null
 
-  const toggleCat = (id) => setCategories(prev => prev.includes(id) ? prev.filter(c => c !== id) : [...prev, id])
+  const selectCat = (id) => setCategories([id])
 
   const isSeller = role === 'seller' || role === 'both'
 
@@ -184,10 +184,10 @@ export default function MarketplaceSignUpScreen({ open, onClose, onComplete }) {
         {step === 'categories' && (
           <>
             <h2 className={styles.stepTitle}>What will you {role === 'seller' ? 'sell' : 'buy & sell'}?</h2>
-            <p className={styles.stepSub}>Select one or more categories</p>
+            <p className={styles.stepSub}>Select your main category</p>
             <div className={styles.catGrid}>
               {CATEGORIES.map(c => (
-                <button key={c.id} className={`${styles.catCard} ${categories.includes(c.id) ? styles.catCardOn : ''}`} onClick={() => toggleCat(c.id)}>
+                <button key={c.id} className={`${styles.catCard} ${categories.includes(c.id) ? styles.catCardOn : ''}`} onClick={() => selectCat(c.id)}>
                   <span className={styles.catEmoji}>{c.emoji}</span>
                   <span className={styles.catLabel}>{c.label}</span>
                 </button>
