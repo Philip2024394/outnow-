@@ -187,7 +187,8 @@
 }
 
 .headerLogo {
-  height: 44px;
+  height: 35px;
+  margin-top: 8px;
   object-fit: contain;
   flex-shrink: 0;
   flex: 1;
