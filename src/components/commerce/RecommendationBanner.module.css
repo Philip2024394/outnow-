@@ -30,7 +30,7 @@
   display: flex;
   gap: 10px;
   overflow-x: auto;
-  padding: 0 16px;
+  padding: 0 14px;
   -webkit-overflow-scrolling: touch;
   scrollbar-width: none;
 }
@@ -45,15 +45,15 @@
   display: flex;
   gap: 10px;
   overflow-x: hidden;
-  padding: 0 16px;
+  padding: 0 14px;
   animation: scrollLeft 25s linear infinite;
 }
 .scrollAuto:hover { animation-play-state: paused; }
 
 .card {
   flex-shrink: 0;
-  width: 120px;
-  border-radius: 12px;
+  width: calc((100vw - 28px - 10px) / 2);
+  border-radius: 13px;
   overflow: hidden;
   border: 1.5px solid rgba(255,255,255,0.06);
   cursor: pointer;
@@ -61,7 +61,7 @@
   background: rgba(0,0,0,0.82);
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
-  box-shadow: inset 0 1px 0 rgba(255,255,255,0.06), 0 4px 12px rgba(0,0,0,0.3);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.06), 0 4px 16px rgba(0,0,0,0.3);
 }
 
 .card:hover {
@@ -71,15 +71,15 @@
 }
 
 .cardImg {
-  width: 120px;
-  height: 120px;
+  width: 100%;
+  aspect-ratio: 1 / 1;
   object-fit: cover;
   display: block;
 }
 
 .cardImgPlaceholder {
-  width: 120px;
-  height: 120px;
+  width: 100%;
+  aspect-ratio: 1 / 1;
   display: flex;
   align-items: center;
   justify-content: center;
