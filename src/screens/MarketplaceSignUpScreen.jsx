@@ -254,13 +254,19 @@ export default function MarketplaceSignUpScreen({ open, onClose, onComplete }) {
                 <div className={styles.field}>
                   <label className={styles.fieldLabel}>Confirm Password</label>
                   <input
-                    className={styles.fieldInput}
+                    className={`${styles.fieldInput} ${confirmPassword && !passwordsMatch ? styles.fieldInputError : ''}`}
                     value={confirmPassword}
                     onChange={e => setConfirmPassword(e.target.value)}
                     placeholder="Re-enter password"
                     type={showPassword ? 'text' : 'password'}
                     autoComplete="new-password"
                   />
+                  {confirmPassword && !passwordsMatch && (
+                    <span className={styles.fieldError}>Passwords do not match</span>
+                  )}
+                  {confirmPassword && passwordsMatch && (
+                    <span className={styles.fieldSuccess}>Passwords match</span>
+                  )}
                 </div>
               )}
             </div>
