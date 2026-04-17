@@ -1204,8 +1204,12 @@ export default function AppShell({ returnParams, triggerGoLive }) {
       <Suspense fallback={null}>
         <MarketplaceSignUpScreen open={marketplaceSignUpOpen} onClose={() => setMarketplaceSignUpOpen(false)} onComplete={({ role }) => {
           setMarketplaceSignUpOpen(false)
+          // Store role on profile
+          if (userProfile) {
+            userProfile.marketplaceSetup = true
+            userProfile.marketplaceRole = role
+          }
           if (role === 'seller' || role === 'both') {
-            // Open marketplace product grid after sign up
             setShopOpen(true); setMarketplaceLanding(false); setDockVisible(false)
           }
         }} />
@@ -1230,7 +1234,15 @@ export default function AppShell({ returnParams, triggerGoLive }) {
       {(!rideOpen || rideOnLanding) && (!massageOpen || massageOnLanding) && (!datingGridOpen || datingOnLanding) && activeTab !== 'rentals' && activeTab !== 'chat' && <BottomNav
           isGuest={isGuest}
           dockVisible={dockVisible}
-          theme={sellerDashOpen ? 'seller' : shopOpen ? 'marketplace' : 'default'}
+          theme={(() => {
+            if (sellerDashOpen) return 'seller'
+            if (shopOpen && !marketplaceLanding) {
+              const role = userProfile?.marketplaceRole || JSON.parse(localStorage.getItem('hangger_profile') || '{}').marketplaceRole
+              if (role === 'seller' || role === 'both') return 'seller'
+            }
+            if (shopOpen) return 'marketplace'
+            return 'default'
+          })()}
           onChat={() => { setShopOpen(false); setSellerDashOpen(false); setMarketplaceLanding(true); setDockVisible(true); setActiveSection('default'); setActiveTab('chat') }}
           onAlerts={() => { setNotifOpen(true) }}
           onProfile={() => { setShopOpen(false); setSellerDashOpen(false); setMarketplaceLanding(true); setDockVisible(true); setActiveSection('default'); setActiveTab('profile') }}
