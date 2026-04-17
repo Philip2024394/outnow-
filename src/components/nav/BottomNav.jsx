@@ -17,9 +17,10 @@ const SECTION_BTNS = {
   massage:     { icon: '💆', label: 'Register' },
 }
 
-export default function BottomNav({ activeTab = 'map', userPhotoURL, userName, isLive = false, isInviteOut = false, onProfileTap, onSOS, onSectionRegister, activeSection = 'default', rideType = 'bike', driverOnline = null, onToggleDriverStatus, onHanggerLive, hanggerLiveActive = false, isGuest = false, onToggleDock, dockVisible = true, onHome, theme = 'default', onChat, onAlerts, onProfile, onCart, onSignUp }) {
+export default function BottomNav({ activeTab = 'map', userPhotoURL, userName, isLive = false, isInviteOut = false, onProfileTap, onSOS, onSectionRegister, activeSection = 'default', rideType = 'bike', driverOnline = null, onToggleDriverStatus, onHanggerLive, hanggerLiveActive = false, isGuest = false, onToggleDock, dockVisible = true, onHome, theme = 'default', onChat, onAlerts, onProfile, onCart, onSignUp, onAddProduct, onOrders, onAnalytics, onMyShop, onWallet }) {
   const onLanding = activeSection !== 'default'
   const isMarketTheme = theme === 'marketplace'
+  const isSellerTheme = theme === 'seller'
   const holdRef      = useRef(null)
   const frameRef     = useRef(null)
   const startRef     = useRef(null)
@@ -123,8 +124,51 @@ export default function BottomNav({ activeTab = 'map', userPhotoURL, userName, i
         </button>
       )}
 
-      {/* SOS — hidden on landing pages and marketplace theme */}
-      {!onLanding && !isMarketTheme && <button className={styles.sosBtn} onClick={onSOS} aria-label="SOS / Safety">
+      {/* ═══ SELLER DASHBOARD NAV ═══ */}
+      {isSellerTheme && (
+        <>
+          <button className={`${styles.homeBtn} ${styles.homeBtnMarketActive}`} onClick={onHome} aria-label="Home">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/>
+            </svg>
+            <span className={styles.homeBtnLabel}>Browse</span>
+          </button>
+          <button className={styles.sellerBtn} onClick={onAddProduct} aria-label="Add Product">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+              <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
+            </svg>
+            <span className={styles.sellerBtnLabel}>Add</span>
+          </button>
+          <button className={styles.sellerBtn} onClick={onOrders} aria-label="Orders">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 01-8 0"/>
+            </svg>
+            <span className={styles.sellerBtnLabel}>Orders</span>
+          </button>
+          <button className={styles.sellerBtn} onClick={onAnalytics} aria-label="Analytics">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+              <line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/>
+            </svg>
+            <span className={styles.sellerBtnLabel}>Stats</span>
+          </button>
+          <button className={styles.sellerBtn} onClick={onMyShop} aria-label="My Shop">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M3 9l9-7 9 7"/><path d="M9 22V12h6v10"/>
+              <rect x="3" y="9" width="18" height="13" rx="1" fill="none"/>
+            </svg>
+            <span className={styles.sellerBtnLabel}>Shop</span>
+          </button>
+          <button className={styles.sellerBtn} onClick={onWallet} aria-label="Wallet">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+              <rect x="1" y="4" width="22" height="16" rx="2" ry="2"/><line x1="1" y1="10" x2="23" y2="10"/>
+            </svg>
+            <span className={styles.sellerBtnLabel}>Wallet</span>
+          </button>
+        </>
+      )}
+
+      {/* SOS — hidden on landing pages, marketplace theme, and seller theme */}
+      {!onLanding && !isMarketTheme && !isSellerTheme && <button className={styles.sosBtn} onClick={onSOS} aria-label="SOS / Safety">
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
           <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/>
           <line x1="12" y1="9" x2="12" y2="13"/>
@@ -133,8 +177,8 @@ export default function BottomNav({ activeTab = 'map', userPhotoURL, userName, i
         <span className={styles.sosBtnLabel}>SOS</span>
       </button>}
 
-      {/* Section register — only shows when in a section, not on home, hidden in marketplace theme */}
-      {activeSection !== 'default' && !isMarketTheme && (() => {
+      {/* Section register — only shows when in a section, not on home, hidden in marketplace/seller theme */}
+      {activeSection !== 'default' && !isMarketTheme && !isSellerTheme && (() => {
         const btn = SECTION_BTNS[activeSection] || SECTION_BTNS.default
         const isRides = activeSection === 'rides'
         const rideImg = rideType === 'car'
@@ -156,8 +200,8 @@ export default function BottomNav({ activeTab = 'map', userPhotoURL, userName, i
         )
       })()}
 
-      {/* Live + Toggle — hidden on landing pages and marketplace theme */}
-      {!onLanding && !isMarketTheme && <>
+      {/* Live + Toggle — hidden on landing pages, marketplace theme, and seller theme */}
+      {!onLanding && !isMarketTheme && !isSellerTheme && <>
         <button
           className={`${styles.liveBtn} ${hanggerLiveActive ? styles.liveBtnActive : ''}`}
           onClick={onHanggerLive}
@@ -190,8 +234,8 @@ export default function BottomNav({ activeTab = 'map', userPhotoURL, userName, i
         </button>
       </>}
 
-      {/* Profile avatar — hold 3s to toggle driver online/offline, hidden in marketplace theme */}
-      {!isMarketTheme && <button
+      {/* Profile avatar — hold 3s to toggle driver online/offline, hidden in marketplace/seller theme */}
+      {!isMarketTheme && !isSellerTheme && <button
         ref={holdRef}
         className={[
           styles.avatarTab,

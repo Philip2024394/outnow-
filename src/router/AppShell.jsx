@@ -97,6 +97,7 @@ const RatingSheet             = lazy(() => import('@/components/session/RatingSh
 const ReviewsSection          = lazy(() => import('@/components/session/ReviewsSection'))
 const DevPanel                = lazy(() => import('@/dev/DevPanel'))
 const MarketplaceSignUpScreen = lazy(() => import('@/screens/MarketplaceSignUpScreen'))
+const AddProductSheet         = lazy(() => import('@/components/commerce/AddProductSheet'))
 
 // Minimal fallback for lazy screens
 const LazyFallback = () => null
@@ -218,6 +219,8 @@ export default function AppShell({ returnParams, triggerGoLive }) {
   const [therapistRegOpen, setTherapistRegOpen] = useState(false)
   const [marketplaceSignUpOpen, setMarketplaceSignUpOpen] = useState(false)
   const [marketplaceLanding, setMarketplaceLanding] = useState(true)
+  const [sellerDashOpen, setSellerDashOpen] = useState(false)
+  const [addProductOpen, setAddProductOpen] = useState(false)
   const [shopOpen, setShopOpen] = useState(false)
   const [massageOpen, setMassageOpen] = useState(false)
   const [massageOnLanding, setMassageOnLanding] = useState(true)
@@ -1208,6 +1211,16 @@ export default function AppShell({ returnParams, triggerGoLive }) {
         }} />
       </Suspense>
 
+      {/* Add Product sheet — opened from seller side nav */}
+      <Suspense fallback={null}>
+        <AddProductSheet
+          open={addProductOpen}
+          onClose={() => setAddProductOpen(false)}
+          onSaved={() => setAddProductOpen(false)}
+          userId={user?.id ?? user?.uid}
+        />
+      </Suspense>
+
       {/* Dev panel — home page only */}
       {activeTab === 'map' && !shopOpen && !foodOpen && !rideOpen && !massageOpen && !datingGridOpen && (
         <Suspense fallback={null}><DevPanel /></Suspense>
@@ -1217,12 +1230,17 @@ export default function AppShell({ returnParams, triggerGoLive }) {
       {(!rideOpen || rideOnLanding) && (!massageOpen || massageOnLanding) && (!datingGridOpen || datingOnLanding) && activeTab !== 'rentals' && activeTab !== 'chat' && <BottomNav
           isGuest={isGuest}
           dockVisible={dockVisible}
-          theme={shopOpen ? 'marketplace' : 'default'}
-          onChat={() => { setShopOpen(false); setMarketplaceLanding(true); setDockVisible(true); setActiveSection('default'); setActiveTab('chat') }}
+          theme={sellerDashOpen ? 'seller' : shopOpen ? 'marketplace' : 'default'}
+          onChat={() => { setShopOpen(false); setSellerDashOpen(false); setMarketplaceLanding(true); setDockVisible(true); setActiveSection('default'); setActiveTab('chat') }}
           onAlerts={() => { setNotifOpen(true) }}
-          onProfile={() => { setShopOpen(false); setMarketplaceLanding(true); setDockVisible(true); setActiveSection('default'); setActiveTab('profile') }}
+          onProfile={() => { setShopOpen(false); setSellerDashOpen(false); setMarketplaceLanding(true); setDockVisible(true); setActiveSection('default'); setActiveTab('profile') }}
           onCart={() => { setOrderHistoryOpen(true) }}
           onSignUp={() => { setMarketplaceSignUpOpen(true) }}
+          onAddProduct={() => { setAddProductOpen(true) }}
+          onOrders={() => { setSellerDashOpen(true) }}
+          onAnalytics={() => { setSellerDashOpen(true) }}
+          onMyShop={() => { setShopOpen(true); setMarketplaceLanding(false); setSellerDashOpen(false) }}
+          onWallet={() => { setSellerDashOpen(true) }}
           onToggleDock={() => setDockVisible(v => !v)}
           activeSection={activeSection}
           rideType={rideVehicleType === 'car_taxi' ? 'car' : 'bike'}
@@ -1251,6 +1269,7 @@ export default function AppShell({ returnParams, triggerGoLive }) {
             setMassageOnLanding(true)
             setShopOpen(false)
             setMarketplaceLanding(true)
+            setSellerDashOpen(false)
           }}
           activeTab={activeTab}
           onChange={(tab) => {

@@ -662,3 +662,38 @@
   color: inherit;
   pointer-events: none;
 }
+
+/* ── Seller dashboard nav buttons ── */
+.sellerBtn {
+  position: relative;
+  width: 42px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 3px;
+  padding: 8px 4px 6px;
+  border-radius: 14px;
+  background: rgba(168,85,247,0.08);
+  border: 1.5px solid rgba(168,85,247,0.25);
+  color: #A855F7;
+  cursor: pointer;
+  font-family: inherit;
+  -webkit-tap-highlight-color: transparent;
+  transition: transform 0.12s, background 0.15s, border-color 0.15s;
+}
+
+.sellerBtn:active {
+  transform: scale(0.88);
+  background: rgba(168,85,247,0.18);
+}
+
+.sellerBtnLabel {
+  font-size: 8px;
+  font-weight: 800;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  line-height: 1;
+  color: inherit;
+  pointer-events: none;
+}
