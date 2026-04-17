@@ -1310,9 +1310,20 @@ export default function AppShell({ returnParams, triggerGoLive }) {
             if (activeSection === 'default')     { setDriverRegOpen(true) }
           }}
           onHome={() => {
-            setActiveTab('map')
-            setDockVisible(true)
-            setActiveSection('default')
+            // Close ALL overlay screens first
+            setSellerOrdersOpen(false)
+            setSellerWalletOpen(false)
+            setSellerAnalyticsOpen(false)
+            setAddProductOpen(false)
+            setMarketChatOpen(false)
+            setMarketProfileOpen(false)
+            setNotifOpen(false)
+            setOrderHistoryOpen(false)
+            setMarketplaceSignUpOpen(false)
+            setSellerDashOpen(false)
+            // Close all sections
+            setShopOpen(false)
+            setMarketplaceLanding(true)
             setRideOpen(false)
             setRideOnLanding(true)
             setFoodOpen(false)
@@ -1322,15 +1333,10 @@ export default function AppShell({ returnParams, triggerGoLive }) {
             setDatingOnLanding(true)
             setMassageOpen(false)
             setMassageOnLanding(true)
-            setShopOpen(false)
-            setMarketplaceLanding(true)
-            setSellerDashOpen(false)
-            setSellerOrdersOpen(false)
-            setSellerWalletOpen(false)
-            setSellerAnalyticsOpen(false)
-            setAddProductOpen(false)
-            setMarketChatOpen(false)
-            setMarketProfileOpen(false)
+            // Go home
+            setActiveSection('default')
+            setDockVisible(true)
+            setActiveTab('map')
           }}
           activeTab={activeTab}
           onChange={(tab) => {
