@@ -96,6 +96,7 @@ const HanggerNewsSheet        = lazy(() => import('@/components/news/HanggerNews
 const RatingSheet             = lazy(() => import('@/components/session/RatingSheet'))
 const ReviewsSection          = lazy(() => import('@/components/session/ReviewsSection'))
 const DevPanel                = lazy(() => import('@/dev/DevPanel'))
+const MarketplaceSignUpScreen = lazy(() => import('@/screens/MarketplaceSignUpScreen'))
 
 // Minimal fallback for lazy screens
 const LazyFallback = () => null
@@ -215,6 +216,7 @@ export default function AppShell({ returnParams, triggerGoLive }) {
   const [activeSection, setActiveSection] = useState('default')
   const [driverRegOpen, setDriverRegOpen] = useState(false)
   const [therapistRegOpen, setTherapistRegOpen] = useState(false)
+  const [marketplaceSignUpOpen, setMarketplaceSignUpOpen] = useState(false)
   const [marketplaceLanding, setMarketplaceLanding] = useState(true)
   const [shopOpen, setShopOpen] = useState(false)
   const [massageOpen, setMassageOpen] = useState(false)
@@ -1196,6 +1198,15 @@ export default function AppShell({ returnParams, triggerGoLive }) {
 
       <DriverRegistration open={driverRegOpen} onClose={() => setDriverRegOpen(false)} driverType={rideVehicleType === 'car_taxi' ? 'car' : 'bike'} />
       <TherapistRegistration open={therapistRegOpen} onClose={() => setTherapistRegOpen(false)} />
+      <Suspense fallback={null}>
+        <MarketplaceSignUpScreen open={marketplaceSignUpOpen} onClose={() => setMarketplaceSignUpOpen(false)} onComplete={({ role }) => {
+          setMarketplaceSignUpOpen(false)
+          if (role === 'seller' || role === 'both') {
+            // Open marketplace product grid after sign up
+            setShopOpen(true); setMarketplaceLanding(false); setDockVisible(false)
+          }
+        }} />
+      </Suspense>
 
       {/* Dev panel — home page only */}
       {activeTab === 'map' && !shopOpen && !foodOpen && !rideOpen && !massageOpen && !datingGridOpen && (
@@ -1211,7 +1222,7 @@ export default function AppShell({ returnParams, triggerGoLive }) {
           onAlerts={() => { setNotifOpen(true) }}
           onProfile={() => { setShopOpen(false); setMarketplaceLanding(true); setDockVisible(true); setActiveSection('default'); setActiveTab('profile') }}
           onCart={() => { setOrderHistoryOpen(true) }}
-          onSignUp={() => { setShopOpen(false); setMarketplaceLanding(true); setDockVisible(true); setActiveSection('default'); setActiveTab('profile') }}
+          onSignUp={() => { setMarketplaceSignUpOpen(true) }}
           onToggleDock={() => setDockVisible(v => !v)}
           activeSection={activeSection}
           rideType={rideVehicleType === 'car_taxi' ? 'car' : 'bike'}
