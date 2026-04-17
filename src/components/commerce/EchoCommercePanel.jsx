@@ -7,6 +7,7 @@ import ProductCatalogSlider from './ProductCatalogSlider'
 import DeliveryPricingEditor from './DeliveryPricingEditor'
 import { createAuction, getAuctions, cancelAuction, editAuction, canEditAuction, fmtIDR, AUCTION_STATUS } from '@/services/auctionService'
 import SellerAnalytics from './SellerAnalytics'
+import AddProductSheet from './AddProductSheet'
 import styles from './EchoCommercePanel.module.css'
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -43,6 +44,8 @@ export default function EchoCommercePanel({ userId, businessName, open: external
   const [analyticsOpen, setAnalyticsOpen] = useState(false)
   const [selectedOrders, setSelectedOrders] = useState(new Set())
   const [deliveryPricingProduct, setDeliveryPricingProduct] = useState(null)
+  const [addProductOpen, setAddProductOpen] = useState(false)
+  const [editingProduct, setEditingProduct] = useState(null)
   const [loading, setLoading]         = useState(false)
 
   const load = useCallback(async () => {
@@ -218,9 +221,14 @@ export default function EchoCommercePanel({ userId, businessName, open: external
           {/* ── Products section ── */}
           {!loading && section === 'products' && (
             <div className={styles.list}>
-              <button className={styles.addProductBtn} onClick={() => setCatalogOpen(true)}>
-                + Add / Edit Products
-              </button>
+              <div style={{ display: 'flex', gap: 6 }}>
+                <button className={styles.addProductBtn} onClick={() => { setEditingProduct(null); setAddProductOpen(true) }}>
+                  + Add Product
+                </button>
+                <button className={styles.addProductBtn} onClick={() => setCatalogOpen(true)} style={{ background: 'rgba(255,255,255,0.04)' }}>
+                  View Catalogue
+                </button>
+              </div>
               {products.map(p => (
                 <div key={p.id} className={[styles.productRow, p.active ? '' : styles.productInactive].join(' ')}>
                   {p.image && (
@@ -517,6 +525,14 @@ export default function EchoCommercePanel({ userId, businessName, open: external
       />
 
       <SellerAnalytics open={analyticsOpen} onClose={() => setAnalyticsOpen(false)} />
+
+      <AddProductSheet
+        open={addProductOpen}
+        onClose={() => { setAddProductOpen(false); setEditingProduct(null) }}
+        onSaved={() => { load(); setAddProductOpen(false); setEditingProduct(null) }}
+        userId={userId}
+        editProduct={editingProduct}
+      />
     </>
   )
 }

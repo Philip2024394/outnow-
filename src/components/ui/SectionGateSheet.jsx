@@ -15,7 +15,7 @@ import styles from './SectionGateSheet.module.css'
 
 const DATING_GOALS = ['Casual dating', 'Serious relationship', 'Marriage', 'Friends first', 'Not sure yet']
 const DATING_INTERESTS = ['Music', 'Travel', 'Food', 'Sports', 'Art', 'Movies', 'Gaming', 'Photography', 'Fitness', 'Reading', 'Nature', 'Fashion', 'Cooking', 'Dancing', 'Tech']
-const MARKETPLACE_CATEGORIES = ['Fashion', 'Electronics', 'Beauty', 'Home', 'Handmade', 'Food', 'Health', 'Vehicles', 'Services', 'Tech', 'Education', 'Farm & Agri']
+const MARKETPLACE_CATEGORIES = ["Women's Fashion", "Men's Fashion", 'Shoes', 'Bags & Luggage', 'Watches & Jewellery', 'Muslim Fashion', 'Phones & Accessories', 'Computers & Laptops', 'Electronics', 'TV & Home Appliances', 'Beauty & Skincare', 'Health', 'Food & Beverages', 'Mom & Baby', 'Toys & Games', 'Sports & Outdoors', 'Home & Living', 'Furniture & Decor', 'Automotive', 'Books & Stationery', 'Pet Supplies', 'Hobbies & Collections']
 
 export function checkSectionAccess(section, userProfile) {
   if (!userProfile) return { allowed: false, missing: 'profile' }
