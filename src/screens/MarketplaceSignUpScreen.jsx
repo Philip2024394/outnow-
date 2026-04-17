@@ -330,10 +330,6 @@ export default function MarketplaceSignUpScreen({ open, onClose, onComplete }) {
                 <label className={styles.fieldLabel}>City / Location</label>
                 <input className={styles.fieldInput} value={city} onChange={e => setCity(e.target.value)} placeholder="e.g. Yogyakarta" />
               </div>
-              <div className={styles.field}>
-                <label className={styles.fieldLabel}>WhatsApp Number (optional)</label>
-                <input className={styles.fieldInput} value={phone} onChange={e => setPhone(e.target.value)} placeholder="+62 812 3456 7890" type="tel" />
-              </div>
             </div>
           </>
         )}
