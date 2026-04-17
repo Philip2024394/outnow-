@@ -588,3 +588,49 @@
 .shopTab.tabActive svg {
   stroke: #F59E0B;
 }
+
+/* ── Marketplace orange theme ── */
+.navMarket {
+  border-color: rgba(245,158,11,0.15);
+}
+
+.homeBtnMarketActive {
+  background: rgba(245,158,11,0.15);
+  border-color: #F59E0B;
+  color: #F59E0B;
+  box-shadow: 0 0 12px rgba(245,158,11,0.3);
+}
+
+.marketBtn {
+  position: relative;
+  width: 42px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 3px;
+  padding: 8px 4px 6px;
+  border-radius: 14px;
+  background: rgba(245,158,11,0.08);
+  border: 1.5px solid rgba(245,158,11,0.25);
+  color: #F59E0B;
+  cursor: pointer;
+  font-family: inherit;
+  -webkit-tap-highlight-color: transparent;
+  transition: transform 0.12s, background 0.15s, border-color 0.15s;
+}
+
+.marketBtn:active {
+  transform: scale(0.88);
+  background: rgba(245,158,11,0.18);
+}
+
+.marketBtnLabel {
+  font-size: 8px;
+  font-weight: 800;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  line-height: 1;
+  color: inherit;
+  pointer-events: none;
+}

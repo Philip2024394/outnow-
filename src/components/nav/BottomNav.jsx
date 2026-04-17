@@ -17,8 +17,9 @@ const SECTION_BTNS = {
   massage:     { icon: '💆', label: 'Register' },
 }
 
-export default function BottomNav({ activeTab = 'map', userPhotoURL, userName, isLive = false, isInviteOut = false, onProfileTap, onSOS, onSectionRegister, activeSection = 'default', rideType = 'bike', driverOnline = null, onToggleDriverStatus, onHanggerLive, hanggerLiveActive = false, isGuest = false, onToggleDock, dockVisible = true, onHome }) {
+export default function BottomNav({ activeTab = 'map', userPhotoURL, userName, isLive = false, isInviteOut = false, onProfileTap, onSOS, onSectionRegister, activeSection = 'default', rideType = 'bike', driverOnline = null, onToggleDriverStatus, onHanggerLive, hanggerLiveActive = false, isGuest = false, onToggleDock, dockVisible = true, onHome, theme = 'default', onChat, onAlerts }) {
   const onLanding = activeSection !== 'default'
+  const isMarketTheme = theme === 'marketplace'
   const holdRef      = useRef(null)
   const frameRef     = useRef(null)
   const startRef     = useRef(null)
@@ -59,10 +60,10 @@ export default function BottomNav({ activeTab = 'map', userPhotoURL, userName, i
   const dashOffset = RING_CIRC - (RING_CIRC * holdPct) / 100
 
   return createPortal(
-    <nav className={styles.nav}>
+    <nav className={`${styles.nav} ${isMarketTheme ? styles.navMarket : ''}`}>
 
       {/* Home — always takes user back to home */}
-      <button className={`${styles.homeBtn} ${activeTab === 'map' ? styles.homeBtnActive : ''}`} onClick={onHome} aria-label="Home">
+      <button className={`${styles.homeBtn} ${activeTab === 'map' ? (isMarketTheme ? styles.homeBtnMarketActive : styles.homeBtnActive) : ''}`} onClick={onHome} aria-label="Home">
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
           <path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/>
           <polyline points="9 22 9 12 15 12 15 22"/>
@@ -70,8 +71,29 @@ export default function BottomNav({ activeTab = 'map', userPhotoURL, userName, i
         <span className={styles.homeBtnLabel}>Home</span>
       </button>
 
-      {/* SOS — hidden on landing pages */}
-      {!onLanding && <button className={styles.sosBtn} onClick={onSOS} aria-label="SOS / Safety">
+      {/* Chat — marketplace theme only */}
+      {isMarketTheme && (
+        <button className={styles.marketBtn} onClick={onChat} aria-label="Chat">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+          </svg>
+          <span className={styles.marketBtnLabel}>Chat</span>
+        </button>
+      )}
+
+      {/* Alerts — marketplace theme only */}
+      {isMarketTheme && (
+        <button className={styles.marketBtn} onClick={onAlerts} aria-label="Alerts">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/>
+            <path d="M13.73 21a2 2 0 0 1-3.46 0"/>
+          </svg>
+          <span className={styles.marketBtnLabel}>Alerts</span>
+        </button>
+      )}
+
+      {/* SOS — hidden on landing pages and marketplace theme */}
+      {!onLanding && !isMarketTheme && <button className={styles.sosBtn} onClick={onSOS} aria-label="SOS / Safety">
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
           <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/>
           <line x1="12" y1="9" x2="12" y2="13"/>
@@ -80,8 +102,8 @@ export default function BottomNav({ activeTab = 'map', userPhotoURL, userName, i
         <span className={styles.sosBtnLabel}>SOS</span>
       </button>}
 
-      {/* Section register — only shows when in a section, not on home */}
-      {activeSection !== 'default' && (() => {
+      {/* Section register — only shows when in a section, not on home, hidden in marketplace theme */}
+      {activeSection !== 'default' && !isMarketTheme && (() => {
         const btn = SECTION_BTNS[activeSection] || SECTION_BTNS.default
         const isRides = activeSection === 'rides'
         const rideImg = rideType === 'car'
@@ -103,8 +125,8 @@ export default function BottomNav({ activeTab = 'map', userPhotoURL, userName, i
         )
       })()}
 
-      {/* Live + Toggle — hidden on landing pages */}
-      {!onLanding && <>
+      {/* Live + Toggle — hidden on landing pages and marketplace theme */}
+      {!onLanding && !isMarketTheme && <>
         <button
           className={`${styles.liveBtn} ${hanggerLiveActive ? styles.liveBtnActive : ''}`}
           onClick={onHanggerLive}
