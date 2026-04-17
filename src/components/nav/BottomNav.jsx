@@ -180,8 +180,8 @@ export default function BottomNav({ activeTab = 'map', userPhotoURL, userName, i
         </button>
       </>}
 
-      {/* Profile — hold 3s to toggle driver online/offline */}
-      <button
+      {/* Profile avatar — hold 3s to toggle driver online/offline, hidden in marketplace theme */}
+      {!isMarketTheme && <button
         ref={holdRef}
         className={[
           styles.avatarTab,
@@ -248,7 +248,7 @@ export default function BottomNav({ activeTab = 'map', userPhotoURL, userName, i
             {driverOnline ? 'Go Offline' : 'Go Online'}
           </span>
         )}
-      </button>
+      </button>}
 
     </nav>,
     document.body
