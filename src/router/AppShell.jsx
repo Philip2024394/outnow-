@@ -1202,8 +1202,8 @@ export default function AppShell({ returnParams, triggerGoLive }) {
         <Suspense fallback={null}><DevPanel /></Suspense>
       )}
 
-      {/* Side nav — hidden on marketplace, booking forms, chat, rentals */}
-      {!shopOpen && (!rideOpen || rideOnLanding) && (!massageOpen || massageOnLanding) && (!datingGridOpen || datingOnLanding) && activeTab !== 'rentals' && activeTab !== 'chat' && <BottomNav
+      {/* Side nav — visible on marketplace with orange theme */}
+      {(!rideOpen || rideOnLanding) && (!massageOpen || massageOnLanding) && (!datingGridOpen || datingOnLanding) && activeTab !== 'rentals' && activeTab !== 'chat' && <BottomNav
           isGuest={isGuest}
           dockVisible={dockVisible}
           theme={shopOpen ? 'marketplace' : 'default'}
