@@ -98,6 +98,9 @@ const ReviewsSection          = lazy(() => import('@/components/session/ReviewsS
 const DevPanel                = lazy(() => import('@/dev/DevPanel'))
 const MarketplaceSignUpScreen = lazy(() => import('@/screens/MarketplaceSignUpScreen'))
 const AddProductSheet         = lazy(() => import('@/components/commerce/AddProductSheet'))
+const SellerOrdersScreen      = lazy(() => import('@/screens/SellerOrdersScreen'))
+const SellerWalletScreen      = lazy(() => import('@/screens/SellerWalletScreen'))
+const SellerAnalytics         = lazy(() => import('@/components/commerce/SellerAnalytics'))
 
 // Minimal fallback for lazy screens
 const LazyFallback = () => null
@@ -221,6 +224,9 @@ export default function AppShell({ returnParams, triggerGoLive }) {
   const [marketplaceLanding, setMarketplaceLanding] = useState(true)
   const [sellerDashOpen, setSellerDashOpen] = useState(false)
   const [addProductOpen, setAddProductOpen] = useState(false)
+  const [sellerOrdersOpen, setSellerOrdersOpen] = useState(false)
+  const [sellerWalletOpen, setSellerWalletOpen] = useState(false)
+  const [sellerAnalyticsOpen, setSellerAnalyticsOpen] = useState(false)
   const [shopOpen, setShopOpen] = useState(false)
   const [massageOpen, setMassageOpen] = useState(false)
   const [massageOnLanding, setMassageOnLanding] = useState(true)
@@ -1225,6 +1231,21 @@ export default function AppShell({ returnParams, triggerGoLive }) {
         />
       </Suspense>
 
+      {/* Seller Orders — opened from seller side nav */}
+      <Suspense fallback={null}>
+        <SellerOrdersScreen open={sellerOrdersOpen} onClose={() => setSellerOrdersOpen(false)} />
+      </Suspense>
+
+      {/* Seller Wallet — opened from seller side nav */}
+      <Suspense fallback={null}>
+        <SellerWalletScreen open={sellerWalletOpen} onClose={() => setSellerWalletOpen(false)} />
+      </Suspense>
+
+      {/* Seller Analytics — opened from seller side nav */}
+      <Suspense fallback={null}>
+        <SellerAnalytics open={sellerAnalyticsOpen} onClose={() => setSellerAnalyticsOpen(false)} />
+      </Suspense>
+
       {/* Dev panel — home page only */}
       {activeTab === 'map' && !shopOpen && !foodOpen && !rideOpen && !massageOpen && !datingGridOpen && (
         <Suspense fallback={null}><DevPanel /></Suspense>
@@ -1249,10 +1270,10 @@ export default function AppShell({ returnParams, triggerGoLive }) {
           onCart={() => { setOrderHistoryOpen(true) }}
           onSignUp={() => { setMarketplaceSignUpOpen(true) }}
           onAddProduct={() => { setAddProductOpen(true) }}
-          onOrders={() => { setSellerDashOpen(true) }}
-          onAnalytics={() => { setSellerDashOpen(true) }}
+          onOrders={() => { setSellerOrdersOpen(true) }}
+          onAnalytics={() => { setSellerAnalyticsOpen(true) }}
           onMyShop={() => { setShopOpen(true); setMarketplaceLanding(false); setSellerDashOpen(false) }}
-          onWallet={() => { setSellerDashOpen(true) }}
+          onWallet={() => { setSellerWalletOpen(true) }}
           onToggleDock={() => setDockVisible(v => !v)}
           activeSection={activeSection}
           rideType={rideVehicleType === 'car_taxi' ? 'car' : 'bike'}
