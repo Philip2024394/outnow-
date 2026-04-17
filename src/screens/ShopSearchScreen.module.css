@@ -106,7 +106,7 @@
   display: flex;
   align-items: center;
   gap: 10px;
-  padding: 4px 14px 0;
+  padding: 0 14px 0;
   flex-shrink: 0;
 }
 
@@ -186,7 +186,7 @@
 }
 
 .headerLogo {
-  height: 144px;
+  height: 72px;
   object-fit: contain;
   flex-shrink: 0;
   flex: 1;
@@ -233,7 +233,7 @@
   display: flex;
   align-items: center;
   gap: 8px;
-  padding: 6px 14px 10px;
+  padding: 2px 14px 6px;
   flex-shrink: 0;
 }
 
