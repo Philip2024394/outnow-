@@ -713,8 +713,8 @@ export default function AppShell({ returnParams, triggerGoLive }) {
         />
       )}
 
-      {/* Bottom nav bar — always visible on map tab */}
-      {activeTab === 'map' && (
+      {/* Bottom nav bar — visible on map tab, hidden on marketplace/food/massage */}
+      {activeTab === 'map' && !shopOpen && !foodOpen && !massageOpen && (
         <ProfileStrip
           activeTab={activeTab}
           onTabChange={(tab) => {
