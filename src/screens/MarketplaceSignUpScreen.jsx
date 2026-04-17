@@ -138,13 +138,9 @@ export default function MarketplaceSignUpScreen({ open, onClose, onComplete }) {
       {/* Header */}
       <div className={styles.header}>
         <img src={MARKET_LOGO} alt="Indoo Market" className={styles.headerLogo} />
-        <div className={styles.headerText}>
-          <span className={styles.headerTitle}>Join Indoo Market</span>
-          <span className={styles.headerSub}>Step {Math.min(stepIndex + 1, 3)} of {isSeller ? 3 : 1}</span>
-        </div>
       </div>
 
-      {/* Progress bar */}
+      {/* Progress bar — full width */}
       <div className={styles.progress}>
         <div className={styles.progressFill} style={{ width: step === 'done' ? '100%' : `${((stepIndex + 1) / (isSeller ? 3 : 1)) * 100}%` }} />
       </div>

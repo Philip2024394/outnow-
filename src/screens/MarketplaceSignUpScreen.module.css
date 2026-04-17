@@ -25,7 +25,8 @@
 
 /* Progress */
 .progress {
-  height: 3px; background: rgba(255,255,255,0.06); flex-shrink: 0;
+  height: 4px; background: rgba(255,255,255,0.06); flex-shrink: 0;
+  margin-right: -52px;
 }
 .progressFill {
   height: 100%; background: #F59E0B; border-radius: 0 2px 2px 0;
