@@ -1,6 +1,6 @@
 .screen {
   position: fixed; inset: 0; z-index: 9500;
-  background: #FAFAFA;
+  background: #0a0a0a;
   display: flex; flex-direction: column;
   overflow: hidden;
 }
@@ -9,22 +9,22 @@
 .header {
   display: flex; align-items: center; gap: 12px;
   padding: 14px 16px; flex-shrink: 0;
-  border-bottom: 1px solid #eee;
+  border-bottom: 1px solid rgba(255,255,255,0.06);
 }
 .closeBtn {
   width: 36px; height: 36px; border-radius: 50%;
-  background: #f0f0f0; border: 1px solid #ddd;
-  color: #777; display: flex; align-items: center; justify-content: center;
+  background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.1);
+  color: rgba(255,255,255,0.5); display: flex; align-items: center; justify-content: center;
   cursor: pointer; flex-shrink: 0;
 }
 .headerLogo { height: 56px; object-fit: contain; }
 .headerText { flex: 1; }
-.headerTitle { display: block; font-size: 16px; font-weight: 900; color: #1a1a1a; }
-.headerSub { display: block; font-size: 11px; color: #bbb; margin-top: 1px; }
+.headerTitle { display: block; font-size: 16px; font-weight: 900; color: #fff; }
+.headerSub { display: block; font-size: 11px; color: rgba(255,255,255,0.35); margin-top: 1px; }
 
 /* Progress */
 .progress {
-  height: 3px; background: #f0f0f0; flex-shrink: 0;
+  height: 3px; background: rgba(255,255,255,0.06); flex-shrink: 0;
 }
 .progressFill {
   height: 100%; background: #F59E0B; border-radius: 0 2px 2px 0;
@@ -38,26 +38,29 @@
 .body::-webkit-scrollbar { width: 3px; }
 .body::-webkit-scrollbar-thumb { background: rgba(245,158,11,0.2); border-radius: 2px; }
 
-.stepTitle { font-size: 22px; font-weight: 900; color: #1a1a1a; margin: 0 0 6px; }
-.stepSub { font-size: 13px; color: #aaa; margin: 0 0 20px; }
+.stepTitle { font-size: 22px; font-weight: 900; color: #fff; margin: 0 0 6px; }
+.stepSub { font-size: 13px; color: rgba(255,255,255,0.4); margin: 0 0 20px; }
 
 /* Role cards */
 .roleCards { display: flex; flex-direction: column; gap: 10px; }
 .roleCard {
   display: flex; align-items: center; gap: 14px;
-  padding: 16px 18px; background: #fff;
-  border: 1.5px solid #e5e5e5; border-radius: 14px;
+  padding: 16px 18px;
+  background: rgba(0,0,0,0.75);
+  backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
+  border: 1.5px solid rgba(255,255,255,0.08); border-radius: 14px;
   cursor: pointer; font-family: inherit; text-align: left;
   transition: all 0.15s;
 }
 .roleCard:active { transform: scale(0.98); }
 .roleCardOn {
-  background: rgba(245,158,11,0.08);
+  background: rgba(0,0,0,0.85);
   border-color: #F59E0B;
+  box-shadow: 0 0 10px rgba(245,158,11,0.2);
 }
 .roleEmoji { font-size: 28px; flex-shrink: 0; }
-.roleLabel { font-size: 16px; font-weight: 800; color: #222; display: block; }
-.roleDesc { font-size: 12px; color: #aaa; display: block; margin-top: 2px; }
+.roleLabel { font-size: 16px; font-weight: 800; color: #fff; display: block; }
+.roleDesc { font-size: 12px; color: rgba(255,255,255,0.45); display: block; margin-top: 2px; }
 .roleCardOn .roleLabel { color: #F59E0B; }
 
 /* Category grid */
@@ -66,40 +69,47 @@
 }
 .catCard {
   display: flex; align-items: center; gap: 10px;
-  padding: 14px 12px; background: #fff;
-  border: 1.5px solid #e5e5e5; border-radius: 12px;
+  padding: 14px 12px;
+  background: rgba(0,0,0,0.75);
+  backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
+  border: 1.5px solid rgba(255,255,255,0.08); border-radius: 12px;
   cursor: pointer; font-family: inherit; text-align: left;
   transition: all 0.15s;
 }
 .catCard:active { transform: scale(0.96); }
 .catCardOn {
-  background: rgba(245,158,11,0.08);
-  border-color: rgba(245,158,11,0.4);
+  background: rgba(0,0,0,0.85);
+  border-color: #F59E0B;
+  box-shadow: 0 0 8px rgba(245,158,11,0.2);
 }
 .catEmoji { font-size: 20px; flex-shrink: 0; }
-.catLabel { font-size: 12px; font-weight: 700; color: #777; }
+.catLabel { font-size: 12px; font-weight: 700; color: rgba(255,255,255,0.5); }
 .catCardOn .catLabel { color: #F59E0B; }
 
 /* Form fields */
 .fields { display: flex; flex-direction: column; gap: 16px; }
 .field { display: flex; flex-direction: column; gap: 6px; }
-.fieldLabel { font-size: 12px; font-weight: 700; color: #999; }
+.fieldLabel { font-size: 12px; font-weight: 700; color: rgba(255,255,255,0.5); }
 .fieldInput {
-  padding: 12px 14px; background: #f5f5f5;
-  border: 1.5px solid #ddd; border-radius: 10px;
-  color: #1a1a1a; font-size: 14px; font-family: inherit; outline: none;
+  padding: 12px 14px;
+  background: rgba(0,0,0,0.6);
+  backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
+  border: 1.5px solid rgba(255,255,255,0.1); border-radius: 10px;
+  color: #fff; font-size: 14px; font-family: inherit; outline: none;
 }
-.fieldInput:focus { border-color: rgba(245,158,11,0.4); }
-.fieldInput::placeholder { color: #ccc; }
+.fieldInput:focus { border-color: #F59E0B; }
+.fieldInput::placeholder { color: rgba(255,255,255,0.25); }
 .fieldTextarea {
-  padding: 12px 14px; background: #f5f5f5;
-  border: 1.5px solid #ddd; border-radius: 10px;
-  color: #1a1a1a; font-size: 14px; font-family: inherit; outline: none;
+  padding: 12px 14px;
+  background: rgba(0,0,0,0.6);
+  backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
+  border: 1.5px solid rgba(255,255,255,0.1); border-radius: 10px;
+  color: #fff; font-size: 14px; font-family: inherit; outline: none;
   resize: none;
 }
-.fieldTextarea:focus { border-color: rgba(245,158,11,0.4); }
-.fieldTextarea::placeholder { color: #ccc; }
-.charCount { font-size: 10px; color: #ccc; align-self: flex-end; }
+.fieldTextarea:focus { border-color: #F59E0B; }
+.fieldTextarea::placeholder { color: rgba(255,255,255,0.25); }
+.charCount { font-size: 10px; color: rgba(255,255,255,0.3); align-self: flex-end; }
 
 /* Done state */
 .doneWrap {
@@ -107,15 +117,15 @@
   text-align: center; padding: 40px 0 20px;
 }
 .doneEmoji { font-size: 56px; margin-bottom: 16px; }
-.doneTitle { font-size: 24px; font-weight: 900; color: #1a1a1a; margin: 0 0 8px; }
-.doneSub { font-size: 14px; color: #999; margin: 0 0 24px; max-width: 280px; }
+.doneTitle { font-size: 24px; font-weight: 900; color: #fff; margin: 0 0 8px; }
+.doneSub { font-size: 14px; color: rgba(255,255,255,0.45); margin: 0 0 24px; max-width: 280px; }
 .doneFeatures {
   display: flex; flex-direction: column; gap: 10px;
   width: 100%; max-width: 280px;
 }
 .doneFeature {
   display: flex; align-items: center; gap: 10px;
-  font-size: 13px; font-weight: 600; color: #666;
+  font-size: 13px; font-weight: 600; color: rgba(255,255,255,0.6);
   text-align: left;
 }
 .doneFeature span { font-size: 18px; flex-shrink: 0; }
@@ -124,12 +134,12 @@
 .footer {
   display: flex; gap: 10px;
   padding: 14px 20px calc(env(safe-area-inset-bottom, 8px) + 14px);
-  border-top: 1px solid #eee; flex-shrink: 0;
+  border-top: 1px solid rgba(255,255,255,0.06); flex-shrink: 0;
 }
 .backBtn {
   padding: 14px 20px; background: none;
-  border: 1px solid #ddd; border-radius: 12px;
-  color: #aaa; font-size: 14px; font-weight: 700;
+  border: 1px solid rgba(255,255,255,0.1); border-radius: 12px;
+  color: rgba(255,255,255,0.4); font-size: 14px; font-weight: 700;
   cursor: pointer; font-family: inherit;
 }
 .enterBtn {
@@ -139,6 +149,6 @@
   box-shadow: 0 4px 16px rgba(245,158,11,0.4);
 }
 .enterBtn:disabled {
-  background: #f0f0f0; color: #ccc;
+  background: rgba(255,255,255,0.06); color: rgba(255,255,255,0.2);
   box-shadow: none; cursor: default;
 }
