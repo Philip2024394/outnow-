@@ -1321,13 +1321,12 @@ export default function AppShell({ returnParams, triggerGoLive }) {
           isGuest={isGuest}
           dockVisible={dockVisible}
           theme={(() => {
-            if (sellerDashOpen) return 'seller'
-            if (shopOpen && !marketplaceLanding) {
-              const role = userProfile?.marketplaceRole || JSON.parse(localStorage.getItem('hangger_profile') || '{}').marketplaceRole
-              if (role === 'seller' || role === 'both') return 'seller'
-            }
-            if (shopOpen) return 'marketplace'
-            return 'default'
+            if (!shopOpen) return 'default'
+            if (shopOpen && marketplaceLanding) return 'marketplace'
+            const role = userProfile?.marketplaceRole || JSON.parse(localStorage.getItem('hangger_profile') || '{}').marketplaceRole
+            if (role === 'both') return 'both'
+            if (role === 'seller') return 'seller'
+            return 'buyer'
           })()}
           onChat={() => { setMarketChatOpen(true) }}
           onAlerts={() => { shopOpen ? setMarketNotifOpen(true) : setNotifOpen(true) }}

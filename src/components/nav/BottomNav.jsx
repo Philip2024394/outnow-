@@ -19,9 +19,11 @@ const SECTION_BTNS = {
 
 export default function BottomNav({ activeTab = 'map', userPhotoURL, userName, isLive = false, isInviteOut = false, onProfileTap, onSOS, onSectionRegister, activeSection = 'default', rideType = 'bike', driverOnline = null, onToggleDriverStatus, onHanggerLive, hanggerLiveActive = false, isGuest = false, onToggleDock, dockVisible = true, onHome, theme = 'default', onChat, onAlerts, onProfile, onCart, onSignUp, onAddProduct, onOrders, onAnalytics, onMyShop, onWallet }) {
   const onLanding = activeSection !== 'default'
-  const isMarketTheme = theme === 'marketplace'
+  const isMarketTheme = theme === 'marketplace' || theme === 'buyer'
   const isSellerTheme = theme === 'seller'
-  if (theme !== 'default') console.log('[NAV] theme:', theme, 'market:', isMarketTheme, 'seller:', isSellerTheme)
+  const isBothTheme = theme === 'both'
+  const showBuyerBtns = isMarketTheme || isBothTheme
+  const showSellerBtns = isSellerTheme || isBothTheme
   const holdRef      = useRef(null)
   const frameRef     = useRef(null)
   const startRef     = useRef(null)
@@ -62,10 +64,10 @@ export default function BottomNav({ activeTab = 'map', userPhotoURL, userName, i
   const dashOffset = RING_CIRC - (RING_CIRC * holdPct) / 100
 
   return createPortal(
-    <nav className={`${styles.nav} ${isMarketTheme ? styles.navMarket : ''}`}>
+    <nav className={`${styles.nav} ${(showBuyerBtns || showSellerBtns) ? styles.navMarket : ''}`}>
 
       {/* Home — always takes user back to home */}
-      <button className={`${styles.homeBtn} ${activeTab === 'map' ? (isMarketTheme ? styles.homeBtnMarketActive : styles.homeBtnActive) : ''}`} onClick={onHome} aria-label="Home">
+      <button className={`${styles.homeBtn} ${activeTab === 'map' ? ((showBuyerBtns || showSellerBtns) ? styles.homeBtnMarketActive : styles.homeBtnActive) : ''}`} onClick={onHome} aria-label="Home">
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
           <path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/>
           <polyline points="9 22 9 12 15 12 15 22"/>
@@ -74,7 +76,7 @@ export default function BottomNav({ activeTab = 'map', userPhotoURL, userName, i
       </button>
 
       {/* Chat — marketplace theme only */}
-      {isMarketTheme && (
+      {showBuyerBtns && (
         <button className={styles.marketBtn} onClick={() => { console.log('[NAV] Chat clicked, onChat:', typeof onChat); onChat?.() }} aria-label="Chat">
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
             <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
@@ -84,7 +86,7 @@ export default function BottomNav({ activeTab = 'map', userPhotoURL, userName, i
       )}
 
       {/* Alerts — marketplace theme only */}
-      {isMarketTheme && (
+      {showBuyerBtns && (
         <button className={styles.marketBtn} onClick={() => { console.log('[NAV] Alerts clicked'); onAlerts?.() }} aria-label="Alerts">
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
             <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/>
@@ -95,7 +97,7 @@ export default function BottomNav({ activeTab = 'map', userPhotoURL, userName, i
       )}
 
       {/* Cart — marketplace theme only */}
-      {isMarketTheme && (
+      {showBuyerBtns && (
         <button className={styles.marketBtn} onClick={() => { console.log('[NAV] Cart clicked'); onCart?.() }} aria-label="Cart">
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
             <circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/>
@@ -106,7 +108,7 @@ export default function BottomNav({ activeTab = 'map', userPhotoURL, userName, i
       )}
 
       {/* Profile — marketplace theme only */}
-      {isMarketTheme && (
+      {showBuyerBtns && (
         <button className={styles.marketBtn} onClick={() => { console.log('[NAV] Profile clicked'); onProfile?.() }} aria-label="Profile">
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
             <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/>
@@ -116,7 +118,7 @@ export default function BottomNav({ activeTab = 'map', userPhotoURL, userName, i
       )}
 
       {/* Create Account — marketplace theme only */}
-      {isMarketTheme && (
+      {showBuyerBtns && !showSellerBtns && (
         <button className={styles.marketBtnAccent} onClick={() => { console.log('[NAV] SignUp clicked'); onSignUp?.() }} aria-label="Create Account">
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
             <path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="8.5" cy="7" r="4"/><line x1="20" y1="8" x2="20" y2="14"/><line x1="23" y1="11" x2="17" y2="11"/>
@@ -126,7 +128,7 @@ export default function BottomNav({ activeTab = 'map', userPhotoURL, userName, i
       )}
 
       {/* ═══ SELLER DASHBOARD NAV ═══ */}
-      {isSellerTheme && (
+      {showSellerBtns && (
         <>
           <button className={`${styles.homeBtn} ${styles.homeBtnMarketActive}`} onClick={onHome} aria-label="Home">
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
@@ -168,8 +170,8 @@ export default function BottomNav({ activeTab = 'map', userPhotoURL, userName, i
         </>
       )}
 
-      {/* SOS — hidden on landing pages, marketplace theme, and seller theme */}
-      {!onLanding && !isMarketTheme && !isSellerTheme && <button className={styles.sosBtn} onClick={onSOS} aria-label="SOS / Safety">
+      {/* SOS — hidden on landing pages and marketplace/seller/both theme */}
+      {!onLanding && !showBuyerBtns && !showSellerBtns && <button className={styles.sosBtn} onClick={onSOS} aria-label="SOS / Safety">
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
           <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/>
           <line x1="12" y1="9" x2="12" y2="13"/>
@@ -179,7 +181,7 @@ export default function BottomNav({ activeTab = 'map', userPhotoURL, userName, i
       </button>}
 
       {/* Section register — only shows when in a section, not on home, hidden in marketplace/seller theme */}
-      {activeSection !== 'default' && !isMarketTheme && !isSellerTheme && (() => {
+      {activeSection !== 'default' && !showBuyerBtns && !showSellerBtns && (() => {
         const btn = SECTION_BTNS[activeSection] || SECTION_BTNS.default
         const isRides = activeSection === 'rides'
         const rideImg = rideType === 'car'
@@ -202,7 +204,7 @@ export default function BottomNav({ activeTab = 'map', userPhotoURL, userName, i
       })()}
 
       {/* Live + Toggle — hidden on landing pages, marketplace theme, and seller theme */}
-      {!onLanding && !isMarketTheme && !isSellerTheme && <>
+      {!onLanding && !showBuyerBtns && !showSellerBtns && <>
         <button
           className={`${styles.liveBtn} ${hanggerLiveActive ? styles.liveBtnActive : ''}`}
           onClick={onHanggerLive}
@@ -236,7 +238,7 @@ export default function BottomNav({ activeTab = 'map', userPhotoURL, userName, i
       </>}
 
       {/* Profile avatar — hold 3s to toggle driver online/offline, hidden in marketplace/seller theme */}
-      {!isMarketTheme && !isSellerTheme && <button
+      {!showBuyerBtns && !showSellerBtns && <button
         ref={holdRef}
         className={[
           styles.avatarTab,
