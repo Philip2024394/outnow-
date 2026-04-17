@@ -132,12 +132,8 @@ export default function MarketplaceSignUpScreen({ open, onClose, onComplete }) {
   const handleNext = () => {
     if (step === 'role' && !role) return
     if (step === 'role') {
-      // If already signed in, skip account step
-      if (user) {
-        if (isSeller) { setStep('categories') } else { setStep('done') }
-      } else {
-        setStep('account')
-      }
+      // ALL users go to account step (phone + password)
+      setStep('account')
       return
     }
     if (step === 'account') { handleCreateAccount(); return }
