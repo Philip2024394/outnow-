@@ -43,18 +43,23 @@ const CATEGORIES = [
   { id: 'vouchers_services', emoji: '🎫', label: 'Vouchers & Services' },
 ]
 
-const STEPS = ['role', 'categories', 'details', 'done']
+const STEPS = ['account', 'role', 'categories', 'details', 'done']
 
 export default function MarketplaceSignUpScreen({ open, onClose, onComplete }) {
   const { user } = useAuth()
-  const [step, setStep] = useState('role')
+  const [step, setStep] = useState('account')
+  const [phoneNum, setPhoneNum] = useState('')
+  const [password, setPassword] = useState('')
+  const [confirmPassword, setConfirmPassword] = useState('')
+  const [showPassword, setShowPassword] = useState(false)
+  const [authError, setAuthError] = useState('')
   const [role, setRole] = useState('')
   const [categories, setCategories] = useState([])
   const [brandName, setBrandName] = useState('')
   const [description, setDescription] = useState('')
   const [city, setCity] = useState('')
-  const [phone, setPhone] = useState('')
   const [saving, setSaving] = useState(false)
+  const [isLogin, setIsLogin] = useState(false)
 
   if (!open) return null
 
@@ -62,11 +67,63 @@ export default function MarketplaceSignUpScreen({ open, onClose, onComplete }) {
 
   const isSeller = role === 'seller' || role === 'both'
 
+  const phoneValid = phoneNum.replace(/\D/g, '').length >= 10
+  const passwordValid = password.length >= 6
+  const passwordsMatch = password === confirmPassword
+
+  const handleAccountNext = async () => {
+    setAuthError('')
+    if (!phoneValid) { setAuthError('Enter a valid phone number (10+ digits)'); return }
+    if (!passwordValid) { setAuthError('Password must be at least 6 characters'); return }
+    if (!isLogin && !passwordsMatch) { setAuthError('Passwords do not match'); return }
+
+    setSaving(true)
+    const cleanPhone = phoneNum.replace(/\D/g, '').replace(/^0/, '62')
+    const fakeEmail = `${cleanPhone}@indoo.market`
+
+    if (supabase) {
+      if (isLogin) {
+        // Sign in
+        const { error } = await supabase.auth.signInWithPassword({ email: fakeEmail, password })
+        if (error) {
+          setAuthError(error.message === 'Invalid login credentials' ? 'Wrong phone number or password' : error.message)
+          setSaving(false)
+          return
+        }
+      } else {
+        // Sign up
+        const { error } = await supabase.auth.signUp({
+          email: fakeEmail,
+          password,
+          options: { data: { phone: cleanPhone, display_name: cleanPhone } }
+        })
+        if (error) {
+          if (error.message.includes('already registered')) {
+            setAuthError('This phone number is already registered. Try signing in.')
+            setSaving(false)
+            return
+          }
+          setAuthError(error.message)
+          setSaving(false)
+          return
+        }
+      }
+    }
+
+    // Save phone to localStorage
+    const existing = JSON.parse(localStorage.getItem('hangger_profile') || '{}')
+    existing.phone = cleanPhone
+    localStorage.setItem('hangger_profile', JSON.stringify(existing))
+
+    setSaving(false)
+    setStep('role')
+  }
+
   const handleNext = () => {
+    if (step === 'account') { handleAccountNext(); return }
     if (step === 'role' && !role) return
     if (step === 'role') {
       if (role === 'buyer') {
-        // Buyers skip to done
         setStep('done')
       } else {
         setStep('categories')
@@ -95,10 +152,8 @@ export default function MarketplaceSignUpScreen({ open, onClose, onComplete }) {
       payload.brandName = brandName.trim()
       payload.marketplaceDescription = description.trim()
       payload.marketplaceCity = city.trim()
-      payload.marketplacePhone = phone.trim()
     }
 
-    // Save to Supabase
     if (supabase && user?.id) {
       await supabase.from('profiles').update({
         marketplace_setup: true,
@@ -110,7 +165,6 @@ export default function MarketplaceSignUpScreen({ open, onClose, onComplete }) {
       }).eq('id', user.id).catch(() => {})
     }
 
-    // Save to localStorage as fallback
     const existing = JSON.parse(localStorage.getItem('hangger_profile') || '{}')
     localStorage.setItem('hangger_profile', JSON.stringify({ ...existing, ...payload }))
 
@@ -119,16 +173,18 @@ export default function MarketplaceSignUpScreen({ open, onClose, onComplete }) {
   }
 
   const handleFinish = () => {
-    onComplete?.({ role, categories, brandName, description, city, phone })
+    onComplete?.({ role, categories, brandName, description, city, phone: phoneNum })
     onClose?.()
-    // Reset
-    setStep('role')
+    setStep('account')
+    setPhoneNum('')
+    setPassword('')
+    setConfirmPassword('')
     setRole('')
     setCategories([])
     setBrandName('')
     setDescription('')
     setCity('')
-    setPhone('')
+    setAuthError('')
   }
 
   const stepIndex = STEPS.indexOf(step)
@@ -142,11 +198,73 @@ export default function MarketplaceSignUpScreen({ open, onClose, onComplete }) {
 
       {/* Progress bar — full width */}
       <div className={styles.progress}>
-        <div className={styles.progressFill} style={{ width: step === 'done' ? '100%' : `${((stepIndex + 1) / (isSeller ? 3 : 1)) * 100}%` }} />
+        <div className={styles.progressFill} style={{ width: step === 'done' ? '100%' : `${((stepIndex + 1) / (isSeller ? 4 : 2)) * 100}%` }} />
       </div>
 
       {/* Body */}
       <div className={styles.body}>
+
+        {/* ═══ STEP 0: Account (Phone + Password) ═══ */}
+        {step === 'account' && (
+          <>
+            <h2 className={styles.stepTitle}>{isLogin ? 'Sign In' : 'Create Account'}</h2>
+            <p className={styles.stepSub}>Use your phone number to {isLogin ? 'sign in' : 'get started'}</p>
+
+            <div className={styles.fields}>
+              <div className={styles.field}>
+                <label className={styles.fieldLabel}>Phone Number</label>
+                <div className={styles.phoneInputWrap}>
+                  <span className={styles.phonePrefix}>+62</span>
+                  <input
+                    className={styles.phoneInput}
+                    value={phoneNum}
+                    onChange={e => setPhoneNum(e.target.value)}
+                    placeholder="812 3456 7890"
+                    type="tel"
+                    autoComplete="tel"
+                  />
+                </div>
+              </div>
+
+              <div className={styles.field}>
+                <label className={styles.fieldLabel}>Password</label>
+                <div className={styles.passwordWrap}>
+                  <input
+                    className={styles.fieldInput}
+                    value={password}
+                    onChange={e => setPassword(e.target.value)}
+                    placeholder={isLogin ? 'Enter password' : 'Min 6 characters'}
+                    type={showPassword ? 'text' : 'password'}
+                    autoComplete={isLogin ? 'current-password' : 'new-password'}
+                  />
+                  <button className={styles.eyeBtn} onClick={() => setShowPassword(v => !v)} type="button">
+                    {showPassword ? '🙈' : '👁'}
+                  </button>
+                </div>
+              </div>
+
+              {!isLogin && (
+                <div className={styles.field}>
+                  <label className={styles.fieldLabel}>Confirm Password</label>
+                  <input
+                    className={styles.fieldInput}
+                    value={confirmPassword}
+                    onChange={e => setConfirmPassword(e.target.value)}
+                    placeholder="Re-enter password"
+                    type={showPassword ? 'text' : 'password'}
+                    autoComplete="new-password"
+                  />
+                </div>
+              )}
+            </div>
+
+            {authError && <p className={styles.authError}>{authError}</p>}
+
+            <button className={styles.switchAuth} onClick={() => { setIsLogin(v => !v); setAuthError('') }}>
+              {isLogin ? "Don't have an account? Sign Up" : 'Already have an account? Sign In'}
+            </button>
+          </>
+        )}
 
         {/* ═══ STEP 1: Role ═══ */}
         {step === 'role' && (
@@ -252,8 +370,9 @@ export default function MarketplaceSignUpScreen({ open, onClose, onComplete }) {
 
       {/* Footer */}
       <div className={styles.footer}>
-        {step !== 'role' && step !== 'done' && (
+        {step !== 'account' && step !== 'done' && (
           <button className={styles.backBtn} onClick={() => {
+            if (step === 'role') setStep('account')
             if (step === 'categories') setStep('role')
             if (step === 'details') setStep('categories')
           }}>Back</button>
@@ -265,13 +384,14 @@ export default function MarketplaceSignUpScreen({ open, onClose, onComplete }) {
         ) : (
           <button className={styles.enterBtn} onClick={handleNext}
             disabled={
+              (step === 'account' && (!phoneValid || !passwordValid || (!isLogin && !passwordsMatch))) ||
               (step === 'role' && !role) ||
               (step === 'categories' && categories.length === 0) ||
               (step === 'details' && !brandName.trim()) ||
               saving
             }
           >
-            {saving ? 'Saving...' : step === 'details' ? 'Create Account' : 'Continue'} →
+            {saving ? (step === 'account' ? (isLogin ? 'Signing in...' : 'Creating account...') : 'Saving...') : step === 'account' ? (isLogin ? 'Sign In' : 'Create Account') : step === 'details' ? 'Finish Setup' : 'Continue'} →
           </button>
         )}
       </div>
