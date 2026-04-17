@@ -900,7 +900,7 @@ export default function AppShell({ returnParams, triggerGoLive }) {
       <PaymentGate open={overlay.type === OVERLAY.PAYMENT_GATE} request={overlay.data} onClose={closeOverlay} showToast={showToast} />
       <ReportSheet open={overlay.type === OVERLAY.REPORT} session={overlay.data} onClose={closeOverlay} showToast={showToast} />
       {likedMeOpen && <LikedMeScreen onClose={() => setLikedMeOpen(false)} />}
-      {notifOpen && (
+      {notifOpen && createPortal(
         <div style={{ position: 'fixed', inset: 0, zIndex: 9800 }}>
         <NotificationsScreen
           onClose={() => setNotifOpen(false)}
@@ -937,7 +937,8 @@ export default function AppShell({ returnParams, triggerGoLive }) {
             userPhoto: userProfile?.photoURL ?? user?.photoURL ?? null,
           }}
         />
-        </div>
+        </div>,
+        document.body
       )}
       {rideHistoryOpen && (
         <RideHistoryScreen
@@ -959,7 +960,7 @@ export default function AppShell({ returnParams, triggerGoLive }) {
         />
       )}
       {blockListOpen      && <BlockedUsersScreen  onClose={() => setBlockListOpen(false)} />}
-      {orderHistoryOpen   && <OrderHistoryScreen  onClose={() => setOrderHistoryOpen(false)} />}
+      {orderHistoryOpen   && createPortal(<div style={{ position: 'fixed', inset: 0, zIndex: 9400 }}><OrderHistoryScreen onClose={() => setOrderHistoryOpen(false)} /></div>, document.body)}
       {incomingGiftsOpen  && <IncomingGiftsScreen onClose={() => setIncomingGiftsOpen(false)} />}
       </Suspense>
 
@@ -1250,22 +1251,24 @@ export default function AppShell({ returnParams, triggerGoLive }) {
         <SellerAnalytics open={sellerAnalyticsOpen} onClose={() => setSellerAnalyticsOpen(false)} />
       </Suspense>
 
-      {/* Marketplace Chat overlay — opens on top of marketplace without navigating away */}
-      {marketChatOpen && (
+      {/* Marketplace Chat overlay — portaled to body to escape .shell stacking context */}
+      {marketChatOpen && createPortal(
         <div style={{ position: 'fixed', inset: 0, zIndex: 9800 }}>
           <Suspense fallback={null}>
             <ChatScreen onClose={() => setMarketChatOpen(false)} pendingConv={pendingConv} />
           </Suspense>
-        </div>
+        </div>,
+        document.body
       )}
 
-      {/* Marketplace Profile overlay — opens on top of marketplace without navigating away */}
-      {marketProfileOpen && (
+      {/* Marketplace Profile overlay — portaled to body */}
+      {marketProfileOpen && createPortal(
         <div style={{ position: 'fixed', inset: 0, zIndex: 9800 }}>
           <Suspense fallback={null}>
             <ProfileScreen onClose={() => setMarketProfileOpen(false)} onOpenSettings={() => { setMarketProfileOpen(false); setSettingsOpen(true) }} />
           </Suspense>
-        </div>
+        </div>,
+        document.body
       )}
 
       {/* Dev panel — home page only */}
