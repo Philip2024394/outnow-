@@ -95,6 +95,7 @@ const VibeCheckSheet          = lazy(() => import('@/components/vibecheck/VibeCh
 const HanggerNewsSheet        = lazy(() => import('@/components/news/HanggerNewsSheet'))
 const RatingSheet             = lazy(() => import('@/components/session/RatingSheet'))
 const ReviewsSection          = lazy(() => import('@/components/session/ReviewsSection'))
+const DevPanel                = lazy(() => import('@/dev/DevPanel'))
 
 // Minimal fallback for lazy screens
 const LazyFallback = () => null
@@ -1195,6 +1196,11 @@ export default function AppShell({ returnParams, triggerGoLive }) {
 
       <DriverRegistration open={driverRegOpen} onClose={() => setDriverRegOpen(false)} driverType={rideVehicleType === 'car_taxi' ? 'car' : 'bike'} />
       <TherapistRegistration open={therapistRegOpen} onClose={() => setTherapistRegOpen(false)} />
+
+      {/* Dev panel — home page only */}
+      {activeTab === 'map' && !shopOpen && !foodOpen && !rideOpen && !massageOpen && !datingGridOpen && (
+        <Suspense fallback={null}><DevPanel /></Suspense>
+      )}
 
       {/* Side nav — hidden on booking form, visible on marketplace (orange theme) */}
       {(!rideOpen || rideOnLanding) && (!massageOpen || massageOnLanding) && (!datingGridOpen || datingOnLanding) && activeTab !== 'rentals' && activeTab !== 'chat' && <BottomNav

@@ -163,7 +163,7 @@ export default function App() {
     <ErrorBoundary>
       <LanguageProvider>
         <GuestGateProvider>
-          <Suspense fallback={null}><DevPanel /></Suspense>
+          {/* DevPanel rendered inside AppShell for home page only */}
           <LanguageToast />
 
           {/* ── New user: welcome slides ── */}

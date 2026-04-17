@@ -107,6 +107,7 @@
   align-items: center;
   gap: 10px;
   padding: 0 14px 0;
+  margin-right: -38px; /* extend header into the panel gap so Account button sits far right */
   flex-shrink: 0;
 }
 
