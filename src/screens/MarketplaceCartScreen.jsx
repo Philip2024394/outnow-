@@ -103,19 +103,23 @@ export default function MarketplaceCartScreen({ open, onClose }) {
             {cart.map(item => (
               <div key={item.id} className={styles.cartCard}>
                 <img src={item.image} alt={item.name} className={styles.cartImg} />
-                <div className={styles.cartInfo}>
-                  <span className={styles.cartName}>{item.name}</span>
-                  <span className={styles.cartSeller}>{item.seller}</span>
-                  <span className={styles.cartPrice}>{fmtRp(item.price)}</span>
-                </div>
-                <div className={styles.cartActions}>
-                  <div className={styles.qtyRow}>
-                    <button className={styles.qtyBtn} onClick={() => updateQty(item.id, -1)}>-</button>
-                    <span className={styles.qtyNum}>{item.qty}</span>
-                    <button className={styles.qtyBtn} onClick={() => updateQty(item.id, 1)}>+</button>
+                <div className={styles.cartRight}>
+                  <div className={styles.cartTopRow}>
+                    <div className={styles.cartInfo}>
+                      <span className={styles.cartName}>{item.name}</span>
+                      <span className={styles.cartSeller}>{item.seller}</span>
+                      <span className={styles.cartPrice}>{fmtRp(item.price)}</span>
+                    </div>
+                    <button className={styles.removeBtn} onClick={() => removeItem(item.id)}>Remove</button>
                   </div>
-                  <span className={styles.cartSubtotal}>{fmtRp(item.price * item.qty)}</span>
-                  <button className={styles.removeBtn} onClick={() => removeItem(item.id)}>Remove</button>
+                  <div className={styles.cartBottomRow}>
+                    <div className={styles.qtyRow}>
+                      <button className={styles.qtyBtn} onClick={() => updateQty(item.id, -1)}>-</button>
+                      <span className={styles.qtyNum}>{item.qty}</span>
+                      <button className={styles.qtyBtn} onClick={() => updateQty(item.id, 1)}>+</button>
+                    </div>
+                    <span className={styles.cartSubtotal}>{fmtRp(item.price * item.qty)}</span>
+                  </div>
                 </div>
               </div>
             ))}
