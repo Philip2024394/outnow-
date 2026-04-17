@@ -1211,6 +1211,7 @@ export default function AppShell({ returnParams, triggerGoLive }) {
           onAlerts={() => { setNotifOpen(true) }}
           onProfile={() => { setShopOpen(false); setMarketplaceLanding(true); setDockVisible(true); setActiveSection('default'); setActiveTab('profile') }}
           onCart={() => { setOrderHistoryOpen(true) }}
+          onSignUp={() => { setShopOpen(false); setMarketplaceLanding(true); setDockVisible(true); setActiveSection('default'); setActiveTab('profile') }}
           onToggleDock={() => setDockVisible(v => !v)}
           activeSection={activeSection}
           rideType={rideVehicleType === 'car_taxi' ? 'car' : 'bike'}

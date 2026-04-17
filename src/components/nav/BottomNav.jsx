@@ -17,7 +17,7 @@ const SECTION_BTNS = {
   massage:     { icon: '💆', label: 'Register' },
 }
 
-export default function BottomNav({ activeTab = 'map', userPhotoURL, userName, isLive = false, isInviteOut = false, onProfileTap, onSOS, onSectionRegister, activeSection = 'default', rideType = 'bike', driverOnline = null, onToggleDriverStatus, onHanggerLive, hanggerLiveActive = false, isGuest = false, onToggleDock, dockVisible = true, onHome, theme = 'default', onChat, onAlerts, onProfile, onCart }) {
+export default function BottomNav({ activeTab = 'map', userPhotoURL, userName, isLive = false, isInviteOut = false, onProfileTap, onSOS, onSectionRegister, activeSection = 'default', rideType = 'bike', driverOnline = null, onToggleDriverStatus, onHanggerLive, hanggerLiveActive = false, isGuest = false, onToggleDock, dockVisible = true, onHome, theme = 'default', onChat, onAlerts, onProfile, onCart, onSignUp }) {
   const onLanding = activeSection !== 'default'
   const isMarketTheme = theme === 'marketplace'
   const holdRef      = useRef(null)
@@ -110,6 +110,16 @@ export default function BottomNav({ activeTab = 'map', userPhotoURL, userName, i
             <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/>
           </svg>
           <span className={styles.marketBtnLabel}>Profile</span>
+        </button>
+      )}
+
+      {/* Create Account — marketplace theme only */}
+      {isMarketTheme && (
+        <button className={styles.marketBtnAccent} onClick={onSignUp} aria-label="Create Account">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="8.5" cy="7" r="4"/><line x1="20" y1="8" x2="20" y2="14"/><line x1="23" y1="11" x2="17" y2="11"/>
+          </svg>
+          <span className={styles.marketBtnLabel}>Sign Up</span>
         </button>
       )}
 
