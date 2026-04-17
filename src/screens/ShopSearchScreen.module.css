@@ -888,7 +888,7 @@
   padding: 12px 14px 0;
 }
 .landingHeaderLogo {
-  height: 64px; object-fit: contain; align-self: flex-start;
+  height: 128px; object-fit: contain; align-self: flex-start;
   filter: drop-shadow(0 2px 10px rgba(0,0,0,0.5));
 }
 .landingSearchWrap {
