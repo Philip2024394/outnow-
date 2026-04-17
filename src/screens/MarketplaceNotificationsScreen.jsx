@@ -39,7 +39,7 @@ const DEMO_NOTIFICATIONS = [
 
 function timeAgo(str) { return str }
 
-export default function MarketplaceNotificationsScreen({ open, onClose, onOpenReviews, onOpenOrders }) {
+export default function MarketplaceNotificationsScreen({ open, onClose, onOpenReviews, onOpenOrders, onOpenChat, onOpenWallet, onOpenProducts, onOpenCart }) {
   const { user } = useAuth()
   const [notifications, setNotifications] = useState(DEMO_NOTIFICATIONS)
   const [filter, setFilter] = useState('all')
