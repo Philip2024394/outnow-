@@ -187,6 +187,7 @@ export default function MarketplaceSignUpScreen({ open, onClose, onComplete }) {
                 <button key={c.id} className={`${styles.catCard} ${categories.includes(c.id) ? styles.catCardOn : ''}`} onClick={() => selectCat(c.id)}>
                   <span className={styles.catEmoji}>{c.emoji}</span>
                   <span className={styles.catLabel}>{c.label}</span>
+                  {categories.includes(c.id) && <span className={styles.catTick}>&#10003;</span>}
                 </button>
               ))}
             </div>
