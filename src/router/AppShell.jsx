@@ -1246,7 +1246,7 @@ export default function AppShell({ returnParams, triggerGoLive }) {
 
       {/* Seller Orders — opened from seller side nav */}
       <Suspense fallback={null}>
-        <SellerOrdersScreen open={sellerOrdersOpen} onClose={() => setSellerOrdersOpen(false)} />
+        <SellerOrdersScreen open={sellerOrdersOpen} onClose={() => setSellerOrdersOpen(false)} onOpenChat={() => setMarketChatOpen(true)} />
       </Suspense>
 
       {/* Seller Wallet — opened from seller side nav */}
