@@ -259,10 +259,6 @@ export default function MarketplaceSignUpScreen({ open, onClose, onComplete }) {
             </div>
 
             {authError && <p className={styles.authError}>{authError}</p>}
-
-            <button className={styles.switchAuth} onClick={() => { setIsLogin(v => !v); setAuthError('') }}>
-              {isLogin ? "Don't have an account? Sign Up" : 'Already have an account? Sign In'}
-            </button>
           </>
         )}
 
@@ -370,6 +366,29 @@ export default function MarketplaceSignUpScreen({ open, onClose, onComplete }) {
 
       {/* Footer */}
       <div className={styles.footer}>
+        {step === 'account' && (
+          <div className={styles.authBtnRow}>
+            <button
+              className={`${styles.authBtn} ${!isLogin ? styles.authBtnActive : styles.authBtnInactive}`}
+              onClick={() => { setIsLogin(false); setAuthError('') }}
+            >
+              Create Account
+            </button>
+            <button
+              className={`${styles.authBtn} ${isLogin ? styles.authBtnActive : styles.authBtnInactive}`}
+              onClick={() => { setIsLogin(true); setAuthError('') }}
+            >
+              Sign In
+            </button>
+          </div>
+        )}
+        {step === 'account' && (
+          <button className={styles.enterBtn} onClick={handleNext}
+            disabled={!phoneValid || !passwordValid || (!isLogin && !passwordsMatch) || saving}
+          >
+            {saving ? (isLogin ? 'Signing in...' : 'Creating account...') : 'Continue'} →
+          </button>
+        )}
         {step !== 'account' && step !== 'done' && (
           <button className={styles.backBtn} onClick={() => {
             if (step === 'role') setStep('account')
@@ -377,21 +396,16 @@ export default function MarketplaceSignUpScreen({ open, onClose, onComplete }) {
             if (step === 'details') setStep('categories')
           }}>Back</button>
         )}
-        {step === 'done' ? (
+        {step !== 'account' && step !== 'done' && (
+          <button className={styles.enterBtn} onClick={handleNext}
+            disabled={(step === 'role' && !role) || (step === 'categories' && categories.length === 0) || (step === 'details' && !brandName.trim()) || saving}
+          >
+            {saving ? 'Saving...' : step === 'details' ? 'Finish Setup' : 'Continue'} →
+          </button>
+        )}
+        {step === 'done' && (
           <button className={styles.enterBtn} onClick={handleFinish}>
             {isSeller ? 'Open Dashboard' : 'Start Shopping'} →
-          </button>
-        ) : (
-          <button className={styles.enterBtn} onClick={handleNext}
-            disabled={
-              (step === 'account' && (!phoneValid || !passwordValid || (!isLogin && !passwordsMatch))) ||
-              (step === 'role' && !role) ||
-              (step === 'categories' && categories.length === 0) ||
-              (step === 'details' && !brandName.trim()) ||
-              saving
-            }
-          >
-            {saving ? (step === 'account' ? (isLogin ? 'Signing in...' : 'Creating account...') : 'Saving...') : step === 'account' ? (isLogin ? 'Sign In' : 'Create Account') : step === 'details' ? 'Finish Setup' : 'Continue'} →
           </button>
         )}
       </div>
