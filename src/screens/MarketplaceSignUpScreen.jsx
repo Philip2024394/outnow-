@@ -47,8 +47,7 @@ const STEPS = ['account', 'role', 'categories', 'details', 'done']
 
 export default function MarketplaceSignUpScreen({ open, onClose, onComplete }) {
   const { user } = useAuth()
-  // Skip account step if user is already signed in
-  const [step, setStep] = useState(user ? 'role' : 'account')
+  const [step, setStep] = useState('role')
   const [phoneNum, setPhoneNum] = useState('')
   const [password, setPassword] = useState('')
   const [confirmPassword, setConfirmPassword] = useState('')
@@ -61,6 +60,8 @@ export default function MarketplaceSignUpScreen({ open, onClose, onComplete }) {
   const [city, setCity] = useState('')
   const [saving, setSaving] = useState(false)
   const [isLogin, setIsLogin] = useState(false)
+  const [showTerms, setShowTerms] = useState(false)
+  const [termsAccepted, setTermsAccepted] = useState(false)
 
   if (!open) return null
 
@@ -72,11 +73,14 @@ export default function MarketplaceSignUpScreen({ open, onClose, onComplete }) {
   const passwordValid = password.length >= 6
   const passwordsMatch = password === confirmPassword
 
-  const handleAccountNext = async () => {
+  const handleCreateAccount = async () => {
     setAuthError('')
     if (!phoneValid) { setAuthError('Enter a valid phone number (10+ digits)'); return }
     if (!passwordValid) { setAuthError('Password must be at least 6 characters'); return }
     if (!isLogin && !passwordsMatch) { setAuthError('Passwords do not match'); return }
+
+    // Show terms popup before creating
+    if (!isLogin && !termsAccepted) { setShowTerms(true); return }
 
     setSaving(true)
     const cleanPhone = phoneNum.replace(/\D/g, '').replace(/^0/, '62')
@@ -84,7 +88,6 @@ export default function MarketplaceSignUpScreen({ open, onClose, onComplete }) {
 
     if (supabase) {
       if (isLogin) {
-        // Sign in
         const { error } = await supabase.auth.signInWithPassword({ email: fakeEmail, password })
         if (error) {
           setAuthError(error.message === 'Invalid login credentials' ? 'Wrong phone number or password' : error.message)
@@ -92,7 +95,6 @@ export default function MarketplaceSignUpScreen({ open, onClose, onComplete }) {
           return
         }
       } else {
-        // Sign up
         const { error } = await supabase.auth.signUp({
           email: fakeEmail,
           password,
@@ -111,26 +113,34 @@ export default function MarketplaceSignUpScreen({ open, onClose, onComplete }) {
       }
     }
 
-    // Save phone to localStorage
     const existing = JSON.parse(localStorage.getItem('hangger_profile') || '{}')
     existing.phone = cleanPhone
     localStorage.setItem('hangger_profile', JSON.stringify(existing))
 
     setSaving(false)
-    setStep('role')
+    // After account created, go to categories for sellers, done for buyers
+    if (isSeller) { setStep('categories') } else { setStep('done') }
+  }
+
+  const handleTermsAccept = () => {
+    setTermsAccepted(true)
+    setShowTerms(false)
+    // Now actually create the account
+    handleCreateAccount()
   }
 
   const handleNext = () => {
-    if (step === 'account') { handleAccountNext(); return }
     if (step === 'role' && !role) return
     if (step === 'role') {
-      if (role === 'buyer') {
-        setStep('done')
+      // If already signed in, skip account step
+      if (user) {
+        if (isSeller) { setStep('categories') } else { setStep('done') }
       } else {
-        setStep('categories')
+        setStep('account')
       }
       return
     }
+    if (step === 'account') { handleCreateAccount(); return }
     if (step === 'categories') {
       if (categories.length === 0) return
       setStep('details')
@@ -176,7 +186,7 @@ export default function MarketplaceSignUpScreen({ open, onClose, onComplete }) {
   const handleFinish = () => {
     onComplete?.({ role, categories, brandName, description, city, phone: phoneNum })
     onClose?.()
-    setStep(user ? 'role' : 'account')
+    setStep('role')
     setPhoneNum('')
     setPassword('')
     setConfirmPassword('')
@@ -199,7 +209,7 @@ export default function MarketplaceSignUpScreen({ open, onClose, onComplete }) {
 
       {/* Progress bar — full width */}
       <div className={styles.progress}>
-        <div className={styles.progressFill} style={{ width: step === 'done' ? '100%' : `${((stepIndex + 1) / (isSeller ? 4 : 2)) * 100}%` }} />
+        <div className={styles.progressFill} style={{ width: step === 'done' ? '100%' : `${((stepIndex + 1) / (user ? (isSeller ? 3 : 1) : (isSeller ? 4 : 2))) * 100}%` }} />
       </div>
 
       {/* Body */}
@@ -369,29 +379,33 @@ export default function MarketplaceSignUpScreen({ open, onClose, onComplete }) {
       <div className={styles.footer}>
         {step === 'account' && (
           <>
-            <button className={styles.enterBtn} onClick={handleNext}
+            <button className={styles.createAccountBtn} onClick={handleNext}
               disabled={!phoneValid || !passwordValid || (!isLogin && !passwordsMatch) || saving}
             >
-              {saving ? (isLogin ? 'Signing in...' : 'Creating account...') : isLogin ? 'Sign In' : 'Create Account'} →
+              {saving ? (isLogin ? 'Signing in...' : 'Creating account...') : isLogin ? 'Sign In' : 'Create Account'}
             </button>
             <button className={styles.switchAuth} onClick={() => { setIsLogin(v => !v); setAuthError('') }}>
               {isLogin ? 'New here? Create Account' : 'Already have an account? Sign In'}
             </button>
           </>
         )}
-        {step !== 'account' && step !== 'done' && (
-          <button className={styles.backBtn} onClick={() => {
-            if (step === 'role') setStep('account')
-            if (step === 'categories') setStep('role')
-            if (step === 'details') setStep('categories')
-          }}>Back</button>
-        )}
-        {step !== 'account' && step !== 'done' && (
-          <button className={styles.enterBtn} onClick={handleNext}
-            disabled={(step === 'role' && !role) || (step === 'categories' && categories.length === 0) || (step === 'details' && !brandName.trim()) || saving}
-          >
-            {saving ? 'Saving...' : step === 'details' ? 'Finish Setup' : 'Continue'} →
+        {step === 'role' && (
+          <button className={styles.enterBtn} onClick={handleNext} disabled={!role}>
+            Continue →
           </button>
+        )}
+        {(step === 'categories' || step === 'details') && (
+          <>
+            <button className={styles.backBtn} onClick={() => {
+              if (step === 'categories') { user ? setStep('role') : setStep('account') }
+              if (step === 'details') setStep('categories')
+            }}>Back</button>
+            <button className={styles.enterBtn} onClick={handleNext}
+              disabled={(step === 'categories' && categories.length === 0) || (step === 'details' && !brandName.trim()) || saving}
+            >
+              {saving ? 'Saving...' : step === 'details' ? 'Finish Setup' : 'Continue'} →
+            </button>
+          </>
         )}
         {step === 'done' && (
           <button className={styles.enterBtn} onClick={handleFinish}>
@@ -399,6 +413,55 @@ export default function MarketplaceSignUpScreen({ open, onClose, onComplete }) {
           </button>
         )}
       </div>
+
+      {/* ═══ TERMS & CONDITIONS POPUP ═══ */}
+      {showTerms && (
+        <div className={styles.termsOverlay}>
+          <div className={styles.termsModal}>
+            <h3 className={styles.termsTitle}>Terms & Conditions</h3>
+            <div className={styles.termsBody}>
+              <p className={styles.termsSection}><strong>1. Platform Role</strong></p>
+              <p>Indoo Market is a marketplace platform that connects buyers and sellers. Indoo Market does not own, sell, or ship any products listed on the platform. We act solely as an intermediary between buyers and sellers.</p>
+
+              <p className={styles.termsSection}><strong>2. Safe Trade</strong></p>
+              <p>We strongly recommend using Safe Trade for all transactions. Safe Trade holds payment in escrow until the buyer confirms receipt of the product. Indoo Market is not liable for transactions conducted outside of Safe Trade.</p>
+
+              <p className={styles.termsSection}><strong>3. Seller Responsibilities</strong></p>
+              <p>Sellers are responsible for the accuracy of product listings, timely shipping, and providing genuine products as described. Sellers must comply with local laws regarding product safety, labelling, and taxation.</p>
+
+              <p className={styles.termsSection}><strong>4. Buyer Responsibilities</strong></p>
+              <p>Buyers must provide accurate delivery information and complete payment within the specified timeframe. Disputes should be raised within 48 hours of delivery.</p>
+
+              <p className={styles.termsSection}><strong>5. Commission & Fees</strong></p>
+              <p>Sellers pay a 5% commission on each completed sale. Commission is due within 72 hours of order completion. Failure to pay may result in account restrictions.</p>
+
+              <p className={styles.termsSection}><strong>6. Prohibited Items</strong></p>
+              <p>Illegal goods, counterfeit products, weapons, drugs, and any items prohibited by Indonesian law may not be listed. Violations will result in immediate account termination.</p>
+
+              <p className={styles.termsSection}><strong>7. Data Collection</strong></p>
+              <p>We collect phone numbers, transaction data, and usage analytics to improve the platform, personalize recommendations, and ensure security. Your data is stored securely and never sold to third parties. We may use anonymized data for feature development and platform improvements.</p>
+
+              <p className={styles.termsSection}><strong>8. Limitation of Liability</strong></p>
+              <p>Indoo Market is not responsible for product quality, delivery issues, or disputes between buyers and sellers. We provide tools and suggestions for safe trading but cannot guarantee outcomes of any transaction.</p>
+
+              <p className={styles.termsSection}><strong>9. Account Termination</strong></p>
+              <p>We reserve the right to suspend or terminate accounts that violate these terms, engage in fraudulent activity, or receive repeated complaints.</p>
+
+              <p className={styles.termsSection}><strong>10. Changes to Terms</strong></p>
+              <p>We may update these terms from time to time. Continued use of the platform after changes constitutes acceptance of the updated terms.</p>
+            </div>
+
+            <label className={styles.termsCheckbox}>
+              <input type="checkbox" checked={termsAccepted} onChange={e => setTermsAccepted(e.target.checked)} />
+              <span>I have read and agree to the Terms & Conditions</span>
+            </label>
+
+            <button className={styles.termsAcceptBtn} onClick={handleTermsAccept} disabled={!termsAccepted}>
+              Accept & Create Account
+            </button>
+          </div>
+        </div>
+      )}
     </div>,
     document.body
   )
