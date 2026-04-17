@@ -105,6 +105,7 @@ const MarketplaceNotificationsScreen = lazy(() => import('@/screens/MarketplaceN
 const MarketplaceCartScreen   = lazy(() => import('@/screens/MarketplaceCartScreen'))
 const SellerReviewsScreen     = lazy(() => import('@/screens/SellerReviewsScreen'))
 const WriteReviewScreen       = lazy(() => import('@/screens/WriteReviewScreen'))
+const SellerProductsScreen    = lazy(() => import('@/screens/SellerProductsScreen'))
 
 // Minimal fallback for lazy screens
 const LazyFallback = () => null
@@ -238,6 +239,7 @@ export default function AppShell({ returnParams, triggerGoLive }) {
   const [sellerReviewsOpen, setSellerReviewsOpen] = useState(false)
   const [writeReviewOpen, setWriteReviewOpen] = useState(false)
   const [writeReviewOrder, setWriteReviewOrder] = useState(null)
+  const [sellerProductsOpen, setSellerProductsOpen] = useState(false)
   const [shopOpen, setShopOpen] = useState(false)
   const [massageOpen, setMassageOpen] = useState(false)
   const [massageOnLanding, setMassageOnLanding] = useState(true)
@@ -1279,6 +1281,16 @@ export default function AppShell({ returnParams, triggerGoLive }) {
         <WriteReviewScreen open={writeReviewOpen} onClose={() => { setWriteReviewOpen(false); setWriteReviewOrder(null) }} order={writeReviewOrder} />
       </Suspense>
 
+      {/* Seller Products */}
+      <Suspense fallback={null}>
+        <SellerProductsScreen
+          open={sellerProductsOpen}
+          onClose={() => setSellerProductsOpen(false)}
+          onAddProduct={() => { setAddProductOpen(true) }}
+          onEditProduct={(p) => { setAddProductOpen(true) }}
+        />
+      </Suspense>
+
       {/* Marketplace Chat overlay — portaled to body to escape .shell stacking context */}
       {marketChatOpen && createPortal(
         <div style={{ position: 'fixed', inset: 0, zIndex: 9800 }}>
@@ -1325,7 +1337,7 @@ export default function AppShell({ returnParams, triggerGoLive }) {
           onAddProduct={() => { setAddProductOpen(true) }}
           onOrders={() => { setSellerOrdersOpen(true) }}
           onAnalytics={() => { setSellerAnalyticsOpen(true) }}
-          onMyShop={() => { setShopOpen(true); setMarketplaceLanding(false); setSellerDashOpen(false) }}
+          onMyShop={() => { setSellerProductsOpen(true) }}
           onWallet={() => { setSellerWalletOpen(true) }}
           onToggleDock={() => setDockVisible(v => !v)}
           activeSection={activeSection}
@@ -1353,6 +1365,7 @@ export default function AppShell({ returnParams, triggerGoLive }) {
             setSellerReviewsOpen(false)
             setWriteReviewOpen(false)
             setWriteReviewOrder(null)
+            setSellerProductsOpen(false)
             setNotifOpen(false)
             setOrderHistoryOpen(false)
             setMarketplaceSignUpOpen(false)
