@@ -11,7 +11,8 @@ import MassageHeroNav from '@/domains/massage/components/MassageHeroNav'
 import MenuSlider from '@/domains/massage/components/MenuSlider'
 import styles from './MassageScreen.module.css'
 
-const MASSAGE_LANDING_BG = 'https://ik.imagekit.io/nepgaxllc/ChatGPT%20Image%20Apr%2017,%202026,%2001_03_53%20AM.png'
+const MASSAGE_LANDING_BG = 'https://ik.imagekit.io/nepgaxllc/ChatGPT%20Image%20Apr%2017,%202026,%2004_37_21%20PM.png'
+const MASSAGE_LOGO = 'https://ik.imagekit.io/nepgaxllc/ChatGPT%20Image%20Apr%2017,%202026,%2004_51_02%20PM.png'
 
 export default function MassageScreen({ onClose, onLandingChange }) {
   const [showLanding, setShowLanding] = useState(true)
@@ -32,6 +33,7 @@ export default function MassageScreen({ onClose, onLandingChange }) {
       <div className={styles.landingPage} style={MASSAGE_LANDING_BG ? { backgroundImage: `url("${MASSAGE_LANDING_BG}")` } : { background: '#0a0a0a' }}>
         <div className={styles.landingOverlay} />
         <div className={styles.landingContent}>
+          <img src={MASSAGE_LOGO} alt="Indoo Massage" className={styles.landingLogo} />
           <h1 className={styles.landingTitle}>Indoo Massage</h1>
           <p className={styles.landingSub}>Professional massage therapists — home, hotel & villa service</p>
           <button className={styles.landingBtn} onClick={() => { setShowLanding(false); onLandingChange?.(false); }}>
