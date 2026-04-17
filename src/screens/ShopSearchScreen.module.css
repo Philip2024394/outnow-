@@ -882,6 +882,27 @@
   background: linear-gradient(to top, rgba(0,0,0,0.85) 0%, rgba(0,0,0,0.3) 40%, rgba(0,0,0,0.1) 70%, transparent 100%);
   pointer-events: none;
 }
+.landingHeader {
+  position: relative; z-index: 2;
+  display: flex; flex-direction: column; gap: 8px;
+  padding: 12px 14px 0;
+}
+.landingHeaderLogo {
+  height: 64px; object-fit: contain; align-self: flex-start;
+  filter: drop-shadow(0 2px 10px rgba(0,0,0,0.5));
+}
+.landingSearchWrap {
+  display: flex; align-items: center; gap: 8px;
+  background: rgba(0,0,0,0.6); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
+  border: 1.5px solid rgba(255,255,255,0.1); border-radius: 10px;
+  padding: 0 11px; height: 38px;
+}
+.landingSearchIcon { color: #F59E0B; display: flex; align-items: center; flex-shrink: 0; }
+.landingSearchInput {
+  flex: 1; background: none; border: none; outline: none;
+  color: #fff; font-size: 13px; font-family: inherit; cursor: pointer;
+}
+.landingSearchInput::placeholder { color: rgba(255,255,255,0.25); }
 .landingBack {
   position: absolute; top: 16px; left: 16px; z-index: 2;
   width: 38px; height: 38px; border-radius: 50%;
