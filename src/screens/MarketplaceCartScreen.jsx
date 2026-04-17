@@ -13,9 +13,21 @@ const MARKET_LOGO = 'https://ik.imagekit.io/nepgaxllc/Untitledfsdsd-removebg-pre
 function fmtRp(n) { return `Rp ${Number(n ?? 0).toLocaleString('id-ID')}` }
 
 const DEMO_CART = [
-  { id: 'c1', name: 'Nike Air Max 90 Original', price: 1250000, qty: 1, image: 'https://picsum.photos/seed/shoe1/200', seller: 'Bali Crafts Co.', stock: 5 },
-  { id: 'c2', name: 'Batik Shirt Premium Jogja', price: 340000, qty: 2, image: 'https://picsum.photos/seed/batik1/200', seller: 'Toko Batik Mega', stock: 12 },
-  { id: 'c3', name: 'Aromatherapy Candle Set', price: 175000, qty: 1, image: 'https://picsum.photos/seed/candle1/200', seller: 'Handmade by Dewi', stock: 8 },
+  { id: 'c1', name: 'Nike Air Max 90 Original', price: 1250000, qty: 1, image: 'https://picsum.photos/seed/shoe1/200', seller: 'Bali Crafts Co.', sellerId: 's1', stock: 5 },
+  { id: 'c2', name: 'Batik Shirt Premium Jogja', price: 340000, qty: 2, image: 'https://picsum.photos/seed/batik1/200', seller: 'Toko Batik Mega', sellerId: 's2', stock: 12 },
+  { id: 'c3', name: 'Aromatherapy Candle Set', price: 175000, qty: 1, image: 'https://picsum.photos/seed/candle1/200', seller: 'Handmade by Dewi', sellerId: 's3', stock: 8 },
+  { id: 'c4', name: 'Handmade Ceramic Mug', price: 95000, qty: 1, image: 'https://picsum.photos/seed/mug1/200', seller: 'Handmade by Dewi', sellerId: 's3', stock: 15 },
+  { id: 'c5', name: 'Vintage Batik Scarf', price: 185000, qty: 1, image: 'https://picsum.photos/seed/scarf1/200', seller: 'Toko Batik Mega', sellerId: 's2', stock: 7 },
+]
+
+const PAYMENT_METHODS = [
+  { id: 'bca',     label: 'BCA Transfer',     account: '123-456-7890' },
+  { id: 'mandiri', label: 'Mandiri Transfer',  account: '987-654-3210' },
+  { id: 'bri',     label: 'BRI Transfer',      account: '111-222-3333' },
+  { id: 'qris',    label: 'QRIS',              account: 'Scan QR Code' },
+  { id: 'gopay',   label: 'GoPay',             account: '0812-3456-7890' },
+  { id: 'ovo',     label: 'OVO',               account: '0812-3456-7890' },
+  { id: 'cod',     label: 'Cash on Delivery',  account: null },
 ]
 
 const DEMO_ACTIVE = [
@@ -43,6 +55,14 @@ export default function MarketplaceCartScreen({ open, onClose, onWriteReview }) 
   const [cart, setCart] = useState(DEMO_CART)
   const [activeOrders] = useState(DEMO_ACTIVE)
   const [history] = useState(DEMO_HISTORY)
+  // Checkout flow
+  const [checkoutStep, setCheckoutStep] = useState(null) // null | 'review' | 'pay' | index (seller) | 'done'
+  const [checkoutSellers, setCheckoutSellers] = useState([])
+  const [currentSellerIdx, setCurrentSellerIdx] = useState(0)
+  const [paymentMethod, setPaymentMethod] = useState('')
+  const [paymentProofs, setPaymentProofs] = useState({}) // sellerId -> url
+  const [address, setAddress] = useState('')
+  const [notes, setNotes] = useState('')
 
   if (!open) return null
 
@@ -60,6 +80,31 @@ export default function MarketplaceCartScreen({ open, onClose, onWriteReview }) 
 
   const cartTotal = cart.reduce((sum, item) => sum + item.price * item.qty, 0)
   const cartCount = cart.reduce((sum, item) => sum + item.qty, 0)
+
+  // Group cart by seller
+  const sellerGroups = {}
+  cart.forEach(item => {
+    if (!sellerGroups[item.seller]) sellerGroups[item.seller] = { seller: item.seller, sellerId: item.sellerId, items: [] }
+    sellerGroups[item.seller].items.push(item)
+  })
+  const sellerList = Object.values(sellerGroups)
+
+  const startCheckout = () => {
+    setCheckoutSellers(sellerList)
+    setCurrentSellerIdx(0)
+    setPaymentProofs({})
+    setCheckoutStep('review')
+  }
+
+  const handleUploadProof = (sellerId) => {
+    const url = prompt('Paste payment proof screenshot URL:')
+    if (url?.trim()) setPaymentProofs(prev => ({ ...prev, [sellerId]: url.trim() }))
+  }
+
+  const handleConfirmAll = () => {
+    setCheckoutStep('done')
+    // In production: create orders in Supabase, notify sellers
+  }
 
   return createPortal(
     <div className={styles.screen}>
@@ -92,8 +137,8 @@ export default function MarketplaceCartScreen({ open, onClose, onWriteReview }) 
       {/* Content */}
       <div className={styles.list}>
 
-        {/* ═══ CART TAB ═══ */}
-        {tab === 'cart' && (
+        {/* ═══ CART TAB — grouped by seller ═══ */}
+        {tab === 'cart' && !checkoutStep && (
           <>
             {cart.length === 0 && (
               <div className={styles.empty}>
@@ -102,35 +147,178 @@ export default function MarketplaceCartScreen({ open, onClose, onWriteReview }) 
                 <span className={styles.emptySub}>Browse the marketplace to add products</span>
               </div>
             )}
-            {cart.map(item => (
-              <div key={item.id} className={styles.cartCard}>
-                <div className={styles.cartLeft}>
-                  <img src={item.image} alt={item.name} className={styles.cartImg} />
-                  <div className={styles.qtyRow}>
-                    <button className={styles.qtyBtn} onClick={() => updateQty(item.id, -1)}>-</button>
-                    <span className={styles.qtyNum}>{item.qty}</span>
-                    <button className={styles.qtyBtn} onClick={() => updateQty(item.id, 1)}>+</button>
-                  </div>
+            {sellerList.map(group => (
+              <div key={group.seller} className={styles.sellerGroup}>
+                <div className={styles.sellerGroupHeader}>
+                  <span className={styles.sellerGroupIcon}>🏪</span>
+                  <span className={styles.sellerGroupName}>{group.seller}</span>
+                  <span className={styles.sellerGroupCount}>{group.items.length} item{group.items.length > 1 ? 's' : ''}</span>
                 </div>
-                <div className={styles.cartRight}>
-                  <div className={styles.cartTopRow}>
-                    <div className={styles.cartInfo}>
-                      <span className={styles.cartName}>{item.name}</span>
-                      <span className={styles.cartSeller}>{item.seller}</span>
-                      <span className={styles.cartPrice}>{fmtRp(item.price)}</span>
+                {group.items.map(item => (
+                  <div key={item.id} className={styles.cartCard}>
+                    <div className={styles.cartLeft}>
+                      <img src={item.image} alt={item.name} className={styles.cartImg} />
+                      <div className={styles.qtyRow}>
+                        <button className={styles.qtyBtn} onClick={() => updateQty(item.id, -1)}>-</button>
+                        <span className={styles.qtyNum}>{item.qty}</span>
+                        <button className={styles.qtyBtn} onClick={() => updateQty(item.id, 1)}>+</button>
+                      </div>
                     </div>
-                    <button className={styles.removeBtn} onClick={() => removeItem(item.id)} aria-label="Delete">
-                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2"/></svg>
-                    </button>
+                    <div className={styles.cartRight}>
+                      <div className={styles.cartTopRow}>
+                        <div className={styles.cartInfo}>
+                          <span className={styles.cartName}>{item.name}</span>
+                          <span className={styles.cartPrice}>{fmtRp(item.price)}</span>
+                        </div>
+                        <button className={styles.removeBtn} onClick={() => removeItem(item.id)} aria-label="Delete">
+                          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2"/></svg>
+                        </button>
+                      </div>
+                      <div className={styles.cartBottomRow}>
+                        <span className={styles.cartSubtotalLabel}>Total</span>
+                        <span className={styles.cartSubtotal}>{fmtRp(item.price * item.qty)}</span>
+                      </div>
+                    </div>
                   </div>
-                  <div className={styles.cartBottomRow}>
-                    <span className={styles.cartSubtotalLabel}>Total</span>
-                    <span className={styles.cartSubtotal}>{fmtRp(item.price * item.qty)}</span>
-                  </div>
+                ))}
+                <div className={styles.sellerGroupTotal}>
+                  Subtotal: <strong>{fmtRp(group.items.reduce((s, i) => s + i.price * i.qty, 0))}</strong>
                 </div>
               </div>
             ))}
           </>
+        )}
+
+        {/* ═══ CHECKOUT: Review all sellers ═══ */}
+        {tab === 'cart' && checkoutStep === 'review' && (
+          <>
+            <h2 className={styles.checkoutTitle}>Review Your Orders</h2>
+            <p className={styles.checkoutSub}>Your cart will be split into {checkoutSellers.length} separate order{checkoutSellers.length > 1 ? 's' : ''} — one per seller</p>
+
+            {/* Delivery address */}
+            <div className={styles.checkoutField}>
+              <label className={styles.checkoutLabel}>Delivery Address</label>
+              <textarea className={styles.checkoutTextarea} value={address} onChange={e => setAddress(e.target.value)}
+                placeholder="Full address: street, city, postal code" rows={3} />
+            </div>
+
+            {checkoutSellers.map((group, i) => {
+              const total = group.items.reduce((s, item) => s + item.price * item.qty, 0)
+              return (
+                <div key={group.seller} className={styles.checkoutSellerCard}>
+                  <div className={styles.checkoutSellerHeader}>
+                    <span className={styles.checkoutSellerNum}>Order {i + 1} of {checkoutSellers.length}</span>
+                    <span className={styles.checkoutSellerName}>🏪 {group.seller}</span>
+                  </div>
+                  {group.items.map(item => (
+                    <div key={item.id} className={styles.checkoutItem}>
+                      <img src={item.image} alt="" className={styles.checkoutItemImg} />
+                      <span className={styles.checkoutItemName}>{item.name}</span>
+                      <span className={styles.checkoutItemQty}>x{item.qty}</span>
+                      <span className={styles.checkoutItemPrice}>{fmtRp(item.price * item.qty)}</span>
+                    </div>
+                  ))}
+                  <div className={styles.checkoutSellerTotal}>
+                    Total to {group.seller}: <strong>{fmtRp(total)}</strong>
+                  </div>
+                </div>
+              )
+            })}
+          </>
+        )}
+
+        {/* ═══ CHECKOUT: Payment per seller ═══ */}
+        {tab === 'cart' && checkoutStep === 'pay' && (
+          <>
+            <div className={styles.checkoutProgress}>
+              {checkoutSellers.map((_, i) => (
+                <span key={i} className={`${styles.progressDot} ${i < currentSellerIdx ? styles.progressDotDone : i === currentSellerIdx ? styles.progressDotActive : ''}`} />
+              ))}
+            </div>
+
+            {(() => {
+              const group = checkoutSellers[currentSellerIdx]
+              if (!group) return null
+              const total = group.items.reduce((s, item) => s + item.price * item.qty, 0)
+              return (
+                <div className={styles.paySection}>
+                  <h2 className={styles.checkoutTitle}>Payment {currentSellerIdx + 1} of {checkoutSellers.length}</h2>
+                  <div className={styles.checkoutSellerCard}>
+                    <div className={styles.checkoutSellerHeader}>
+                      <span className={styles.checkoutSellerName}>🏪 {group.seller}</span>
+                    </div>
+                    {group.items.map(item => (
+                      <div key={item.id} className={styles.checkoutItem}>
+                        <img src={item.image} alt="" className={styles.checkoutItemImg} />
+                        <span className={styles.checkoutItemName}>{item.name}</span>
+                        <span className={styles.checkoutItemQty}>x{item.qty}</span>
+                        <span className={styles.checkoutItemPrice}>{fmtRp(item.price * item.qty)}</span>
+                      </div>
+                    ))}
+                    <div className={styles.payTotal}>
+                      Pay: <strong>{fmtRp(total)}</strong>
+                    </div>
+                  </div>
+
+                  {/* Payment method */}
+                  <div className={styles.checkoutField}>
+                    <label className={styles.checkoutLabel}>Payment Method</label>
+                    <div className={styles.paymentGrid}>
+                      {PAYMENT_METHODS.map(m => (
+                        <button key={m.id} className={`${styles.paymentBtn} ${paymentMethod === m.id ? styles.paymentBtnOn : ''}`}
+                          onClick={() => setPaymentMethod(m.id)}>
+                          <span className={styles.paymentBtnLabel}>{m.label}</span>
+                          {m.account && <span className={styles.paymentBtnAccount}>{m.account}</span>}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Upload proof */}
+                  {paymentMethod && paymentMethod !== 'cod' && (
+                    <div className={styles.checkoutField}>
+                      <label className={styles.checkoutLabel}>Upload Payment Proof</label>
+                      {paymentProofs[group.sellerId] ? (
+                        <div className={styles.proofUploaded}>
+                          <img src={paymentProofs[group.sellerId]} alt="Proof" className={styles.proofImg} />
+                          <span className={styles.proofCheck}>Uploaded</span>
+                        </div>
+                      ) : (
+                        <button className={styles.uploadBtn} onClick={() => handleUploadProof(group.sellerId)}>
+                          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+                          Upload Screenshot
+                        </button>
+                      )}
+                    </div>
+                  )}
+
+                  {/* Notes */}
+                  <div className={styles.checkoutField}>
+                    <label className={styles.checkoutLabel}>Note to seller (optional)</label>
+                    <input className={styles.checkoutInput} value={notes} onChange={e => setNotes(e.target.value)} placeholder="e.g. Please wrap as gift" />
+                  </div>
+                </div>
+              )
+            })()}
+          </>
+        )}
+
+        {/* ═══ CHECKOUT: Done ═══ */}
+        {tab === 'cart' && checkoutStep === 'done' && (
+          <div className={styles.checkoutDone}>
+            <span className={styles.checkoutDoneIcon}>🎉</span>
+            <h2 className={styles.checkoutDoneTitle}>{checkoutSellers.length} Order{checkoutSellers.length > 1 ? 's' : ''} Placed!</h2>
+            <p className={styles.checkoutDoneSub}>Payment proof sent to each seller. You'll receive confirmation within 24 hours.</p>
+            <div className={styles.checkoutDoneList}>
+              {checkoutSellers.map((group, i) => (
+                <div key={i} className={styles.checkoutDoneItem}>
+                  <span className={styles.checkoutDoneCheck}>✓</span>
+                  <span>{group.seller}</span>
+                  <span className={styles.checkoutDoneAmount}>{fmtRp(group.items.reduce((s, item) => s + item.price * item.qty, 0))}</span>
+                </div>
+              ))}
+            </div>
+          </div>
         )}
 
         {/* ═══ ACTIVE ORDERS TAB ═══ */}
@@ -199,16 +387,49 @@ export default function MarketplaceCartScreen({ open, onClose, onWriteReview }) 
         )}
       </div>
 
-      {/* Cart footer — only on cart tab with items */}
-      {tab === 'cart' && cart.length > 0 && (
+      {/* Footer */}
+      {tab === 'cart' && cart.length > 0 && !checkoutStep && (
         <div className={styles.footer}>
           <div className={styles.footerTotal}>
-            <span className={styles.footerLabel}>Total ({cartCount} items)</span>
+            <span className={styles.footerLabel}>Total ({cartCount} items from {sellerList.length} seller{sellerList.length > 1 ? 's' : ''})</span>
             <span className={styles.footerPrice}>{fmtRp(cartTotal)}</span>
           </div>
-          <button className={styles.checkoutBtn}>
-            Checkout
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+          <button className={styles.checkoutBtn} onClick={startCheckout}>
+            Checkout All →
+          </button>
+        </div>
+      )}
+      {tab === 'cart' && checkoutStep === 'review' && (
+        <div className={styles.footer}>
+          <button className={styles.backBtn} onClick={() => setCheckoutStep(null)}>Back</button>
+          <button className={styles.checkoutBtn} onClick={() => { setCheckoutStep('pay'); setCurrentSellerIdx(0); setPaymentMethod('') }} disabled={!address.trim()}>
+            Proceed to Payment →
+          </button>
+        </div>
+      )}
+      {tab === 'cart' && checkoutStep === 'pay' && (
+        <div className={styles.footer}>
+          <button className={styles.backBtn} onClick={() => {
+            if (currentSellerIdx > 0) { setCurrentSellerIdx(i => i - 1); setPaymentMethod('') }
+            else setCheckoutStep('review')
+          }}>Back</button>
+          {currentSellerIdx < checkoutSellers.length - 1 ? (
+            <button className={styles.checkoutBtn} onClick={() => { setCurrentSellerIdx(i => i + 1); setPaymentMethod(''); setNotes('') }}
+              disabled={!paymentMethod || (paymentMethod !== 'cod' && !paymentProofs[checkoutSellers[currentSellerIdx]?.sellerId])}>
+              Next Seller →
+            </button>
+          ) : (
+            <button className={styles.checkoutBtn} onClick={handleConfirmAll}
+              disabled={!paymentMethod || (paymentMethod !== 'cod' && !paymentProofs[checkoutSellers[currentSellerIdx]?.sellerId])}>
+              Confirm All Orders
+            </button>
+          )}
+        </div>
+      )}
+      {tab === 'cart' && checkoutStep === 'done' && (
+        <div className={styles.footer}>
+          <button className={styles.checkoutBtn} onClick={() => { setCheckoutStep(null); setCart([]); setTab('active') }}>
+            View Active Orders
           </button>
         </div>
       )}
