@@ -17,7 +17,13 @@
   cursor: pointer; flex-shrink: 0;
 }
 .headerLogo { height: 35px; object-fit: contain; margin-top: 4px; }
-.title { flex: 1; font-size: 17px; font-weight: 900; color: #fff; margin: 0; text-align: right; }
+.title {
+  flex: 1; font-size: 17px; font-weight: 900; color: #fff; margin: 0;
+  text-align: right; display: flex; align-items: center; justify-content: flex-end; gap: 6px;
+}
+.titleIcon { flex-shrink: 0; }
+.titleIconSpin { flex-shrink: 0; animation: cogSpin 4s linear infinite; }
+@keyframes cogSpin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
 
 /* Tabs */
 .tabs {
