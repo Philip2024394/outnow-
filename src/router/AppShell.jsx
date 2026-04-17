@@ -552,7 +552,7 @@ export default function AppShell({ returnParams, triggerGoLive }) {
       <div className="map-bottom-fade" />
 
       {/* Header: logo + notifications + likes + settings — map tab only, hidden when a section with its own header is open */}
-      {activeTab === 'map' && !(shopOpen && !marketplaceLanding) && !(foodOpen && foodBrowseOpen) && !(massageOpen && !massageOnLanding) && (
+      {activeTab === 'map' && !shopOpen && !(foodOpen && foodBrowseOpen) && !(massageOpen && !massageOnLanding) && (
         <MapHeader
           onOpenNotifications={() => setNotifOpen(true)}
           notifCount={notifUnreadCount}
@@ -564,7 +564,7 @@ export default function AppShell({ returnParams, triggerGoLive }) {
       )}
 
       {/* Search bar + inline auto-suggest — map tab only, hidden when a section with its own search is open */}
-      {activeTab === 'map' && !(shopOpen && !marketplaceLanding) && !(foodOpen && foodBrowseOpen) && !(massageOpen && !massageOnLanding) && (
+      {activeTab === 'map' && !shopOpen && !(foodOpen && foodBrowseOpen) && !(massageOpen && !massageOnLanding) && (
         <MapSearchBar
           value={searchQuery}
           onChange={setSearchQuery}

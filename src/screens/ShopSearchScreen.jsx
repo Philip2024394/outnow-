@@ -349,13 +349,13 @@ export default function ShopSearchScreen({ onClose, userCity, userCountry, giftF
 
   if (showLanding) return (
     <div className={styles.landingPage} style={{ backgroundImage: `url("${MARKET_LANDING_BG}")` }}>
+      <div className={styles.landingOverlay} />
 
-      {/* Top content */}
-      <div className={styles.landingContentTop}>
-        <img src="https://ik.imagekit.io/nepgaxllc/Indoo%20Market%20logo%20design.png?updatedAt=1776203793752" alt="Indoo Market" className={styles.landingLogo} />
+      {/* Footer content */}
+      <div className={styles.landingContent}>
         <p className={styles.landingSub}>Buy & sell anything — fashion, electronics, handmade and more</p>
         <button className={styles.landingBtn} onClick={() => { markSectionVisited('marketplace'); setShowLanding(false); onLandingChange?.(false) }}>
-          Browse Market
+          Enter Marketplace
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
             <polyline points="9 18 15 12 9 6"/>
           </svg>
