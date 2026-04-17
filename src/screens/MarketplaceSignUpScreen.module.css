@@ -65,6 +65,13 @@
 .roleDesc { font-size: 12px; color: rgba(255,255,255,0.45); display: block; margin-top: 2px; }
 .roleCardOn .roleLabel { color: #F59E0B; }
 
+/* Role hero image */
+.roleHeroImg {
+  width: 180px; height: auto; object-fit: contain;
+  align-self: flex-end; margin-top: 8px;
+  filter: drop-shadow(0 4px 16px rgba(0,0,0,0.5));
+}
+
 /* Category grid */
 .catGrid {
   display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px;

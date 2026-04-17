@@ -295,6 +295,7 @@ export default function MarketplaceSignUpScreen({ open, onClose, onComplete }) {
                 <span className={styles.roleDesc}>Buy from others and sell your own products</span>
               </button>
             </div>
+            <img src="https://ik.imagekit.io/nepgaxllc/ChatGPT%20Image%20Apr%2017,%202026,%2010_00_27%20PM.png?updatedAt=1776438046206" alt="" className={styles.roleHeroImg} />
           </>
         )}
 
