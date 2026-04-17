@@ -17,7 +17,7 @@ const SECTION_BTNS = {
   massage:     { icon: '💆', label: 'Register' },
 }
 
-export default function BottomNav({ activeTab = 'map', userPhotoURL, userName, isLive = false, isInviteOut = false, onProfileTap, onSOS, onSectionRegister, activeSection = 'default', rideType = 'bike', driverOnline = null, onToggleDriverStatus, onHanggerLive, hanggerLiveActive = false, isGuest = false, onToggleDock, dockVisible = true, onHome, theme = 'default', onChat, onAlerts }) {
+export default function BottomNav({ activeTab = 'map', userPhotoURL, userName, isLive = false, isInviteOut = false, onProfileTap, onSOS, onSectionRegister, activeSection = 'default', rideType = 'bike', driverOnline = null, onToggleDriverStatus, onHanggerLive, hanggerLiveActive = false, isGuest = false, onToggleDock, dockVisible = true, onHome, theme = 'default', onChat, onAlerts, onProfile, onCart }) {
   const onLanding = activeSection !== 'default'
   const isMarketTheme = theme === 'marketplace'
   const holdRef      = useRef(null)
@@ -89,6 +89,27 @@ export default function BottomNav({ activeTab = 'map', userPhotoURL, userName, i
             <path d="M13.73 21a2 2 0 0 1-3.46 0"/>
           </svg>
           <span className={styles.marketBtnLabel}>Alerts</span>
+        </button>
+      )}
+
+      {/* Cart — marketplace theme only */}
+      {isMarketTheme && (
+        <button className={styles.marketBtn} onClick={onCart} aria-label="Cart">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+            <circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/>
+            <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/>
+          </svg>
+          <span className={styles.marketBtnLabel}>Cart</span>
+        </button>
+      )}
+
+      {/* Profile — marketplace theme only */}
+      {isMarketTheme && (
+        <button className={styles.marketBtn} onClick={onProfile} aria-label="Profile">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/>
+          </svg>
+          <span className={styles.marketBtnLabel}>Profile</span>
         </button>
       )}
 
