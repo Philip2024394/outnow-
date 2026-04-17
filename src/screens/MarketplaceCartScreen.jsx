@@ -6,6 +6,7 @@
 import { useState, useEffect } from 'react'
 import { createPortal } from 'react-dom'
 import { useAuth } from '@/hooks/useAuth'
+import { createOrder, notifySeller, fetchBuyerOrders } from '@/services/marketplaceOrderService'
 import styles from './MarketplaceCartScreen.module.css'
 
 const MARKET_LOGO = 'https://ik.imagekit.io/nepgaxllc/Untitledfsdsd-removebg-preview.png'
@@ -53,8 +54,36 @@ export default function MarketplaceCartScreen({ open, onClose, onWriteReview }) 
   const { user } = useAuth()
   const [tab, setTab] = useState('cart')
   const [cart, setCart] = useState(DEMO_CART)
-  const [activeOrders] = useState(DEMO_ACTIVE)
-  const [history] = useState(DEMO_HISTORY)
+  const [activeOrders, setActiveOrders] = useState(DEMO_ACTIVE)
+  const [history, setHistory] = useState(DEMO_HISTORY)
+
+  useEffect(() => {
+    if (!open || !user?.id) return
+    fetchBuyerOrders(user.id).then(orders => {
+      if (!orders.length) return
+      const active = orders.filter(o => ['awaiting_payment','pending','confirmed','shipped'].includes(o.status))
+        .map(o => ({
+          id: o.id,
+          product: o.items?.[0]?.name ?? 'Order',
+          total: o.total,
+          status: o.status,
+          seller: o.seller?.display_name ?? o.seller?.brand_name ?? 'Seller',
+          date: new Date(o.created_at).toLocaleDateString('en-GB', { month: 'short', day: 'numeric' }),
+          tracking: o.tracking_no,
+        }))
+      const hist = orders.filter(o => ['delivered','cancelled','refunded'].includes(o.status))
+        .map(o => ({
+          id: o.id,
+          product: o.items?.[0]?.name ?? 'Order',
+          total: o.total,
+          status: o.status,
+          seller: o.seller?.display_name ?? o.seller?.brand_name ?? 'Seller',
+          date: new Date(o.created_at).toLocaleDateString('en-GB', { month: 'short', day: 'numeric' }),
+        }))
+      if (active.length) setActiveOrders(active)
+      if (hist.length) setHistory(hist)
+    })
+  }, [open, user?.id])
   // Checkout flow
   const [checkoutStep, setCheckoutStep] = useState(null) // null | 'review' | 'pay' | index (seller) | 'done'
   const [checkoutSellers, setCheckoutSellers] = useState([])
@@ -101,9 +130,34 @@ export default function MarketplaceCartScreen({ open, onClose, onWriteReview }) 
     if (url?.trim()) setPaymentProofs(prev => ({ ...prev, [sellerId]: url.trim() }))
   }
 
-  const handleConfirmAll = () => {
+  const [submitting, setSubmitting] = useState(false)
+
+  const handleConfirmAll = async () => {
+    if (!user?.id) { setCheckoutStep('done'); return }
+    setSubmitting(true)
+    try {
+      for (const group of checkoutSellers) {
+        const items = group.items.map(i => ({ id: i.id, name: i.name, price: i.price, qty: i.qty, image: i.image }))
+        const subtotal = group.items.reduce((s, i) => s + i.price * i.qty, 0)
+        const order = await createOrder({
+          buyerId: user.id,
+          sellerId: group.sellerId,
+          items,
+          subtotal,
+          deliveryFee: 0,
+          total: subtotal,
+          paymentMethod,
+          paymentProofUrl: paymentProofs[group.sellerId] ?? null,
+          deliveryAddress: address,
+          notes,
+        })
+        if (order) await notifySeller(group.sellerId, order)
+      }
+    } catch (e) {
+      console.warn('[checkout] order creation failed', e)
+    }
+    setSubmitting(false)
     setCheckoutStep('done')
-    // In production: create orders in Supabase, notify sellers
   }
 
   return createPortal(
@@ -420,8 +474,8 @@ export default function MarketplaceCartScreen({ open, onClose, onWriteReview }) 
             </button>
           ) : (
             <button className={styles.checkoutBtn} onClick={handleConfirmAll}
-              disabled={!paymentMethod || (paymentMethod !== 'cod' && !paymentProofs[checkoutSellers[currentSellerIdx]?.sellerId])}>
-              Confirm All Orders
+              disabled={submitting || !paymentMethod || (paymentMethod !== 'cod' && !paymentProofs[checkoutSellers[currentSellerIdx]?.sellerId])}>
+              {submitting ? 'Placing Orders…' : 'Confirm All Orders'}
             </button>
           )}
         </div>

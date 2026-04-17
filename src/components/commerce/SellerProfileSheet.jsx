@@ -44,7 +44,7 @@ export default function SellerProfileSheet({ seller, onClose, onOpenChat, onOrde
   // WhatsApp only available if seller has paid monthly plan
   const sellerSubscribed = ['standard', 'premium'].includes(seller.seller_plan ?? seller.sellerPlan)
   const waLink = (sellerSubscribed && seller.bizWhatsapp)
-    ? `https://wa.me/${seller.bizWhatsapp.replace(/[^0-9]/g, '')}?text=${encodeURIComponent('Hi, I found your store on Hangger!')}`
+    ? `https://wa.me/${seller.bizWhatsapp.replace(/[^0-9]/g, '')}?text=${encodeURIComponent('Hi, I found your store on Indoo!')}`
     : null
 
   // All social links the seller has added
@@ -73,11 +73,11 @@ export default function SellerProfileSheet({ seller, onClose, onOpenChat, onOrde
 
       {/* Top bar — logo left, back button right */}
       <div className={styles.topBar}>
-        <div className={styles.hanggerLogoWrap}>
+        <div className={styles.indooLogoWrap}>
           <img
             src="https://ik.imagekit.io/nepgaxllc/Indoo%20Market%20logo%20design.png?updatedAt=1776203793752"
             alt="Indoo Market"
-            className={styles.hanggerLogoImg}
+            className={styles.indooLogoImg}
           />
         </div>
         <button className={styles.backBtn} onClick={onClose}>

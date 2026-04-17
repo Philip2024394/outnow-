@@ -21,7 +21,7 @@ export default function MapHeader({
     <div className={styles.header}>
       {/* Logo — left side */}
       <div className={styles.logoArea}>
-        <img src={LOGO_URL} alt="Hangger" className={styles.logo} />
+        <img src={LOGO_URL} alt="Indoo" className={styles.logo} />
       </div>
 
       <div className={styles.right}>

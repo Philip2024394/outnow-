@@ -139,7 +139,7 @@ export default function MySpotScreen({ open, onClose, onClaimSpot }) {
           <div className={styles.claimIcon}>📍</div>
           <h2 className={styles.claimTitle}>Own your postcode</h2>
           <p className={styles.claimSub}>
-            Claim your location on the Hangger map. First come, first served — once it's yours, nobody can take it.
+            Claim your location on the Indoo map. First come, first served — once it's yours, nobody can take it.
           </p>
           <button className={styles.claimBtn} onClick={onClaimSpot}>
             Claim your spot

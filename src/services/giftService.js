@@ -11,9 +11,9 @@
  */
 import { supabase } from '@/lib/supabase'
 
-// ── Hangger bike delivery tiers ───────────────────────────────────────────────
+// ── Indoo bike delivery tiers ───────────────────────────────────────────────
 // Distance is measured from SELLER location to recipient — same-city radius.
-// When the recipient is > 20 km from the seller, Hangger bike delivery is simply
+// When the recipient is > 20 km from the seller, Indoo bike delivery is simply
 // not shown; the seller can offer their own courier (nationwide) via their
 // seller panel. The gift order still proceeds.
 export const DELIVERY_TIERS = [
@@ -24,7 +24,7 @@ export const DELIVERY_TIERS = [
 ]
 
 /**
- * Returns the matching tier or null when outside Hangger local range (> 20 km).
+ * Returns the matching tier or null when outside Indoo local range (> 20 km).
  * Callers should treat null as "hide bike delivery — seller ships instead".
  */
 export function getDeliveryTier(distanceKm) {

@@ -236,8 +236,12 @@ export default function AddProductSheet({ open, onClose, onSaved, userId, editPr
                 <div className={styles.condRow}>
                   <button className={`${styles.condBtn} ${condition === 'new' ? styles.condBtnOn : ''}`}
                     onClick={() => setCondition('new')}>New</button>
-                  <button className={`${styles.condBtn} ${condition === 'used' ? styles.condBtnOn : ''}`}
-                    onClick={() => setCondition('used')}>Pre-owned</button>
+                  <button className={`${styles.condBtn} ${condition === 'like_new' ? styles.condBtnOn : ''}`}
+                    onClick={() => setCondition('like_new')}>Like New</button>
+                  <button className={`${styles.condBtn} ${condition === 'good' ? styles.condBtnOn : ''}`}
+                    onClick={() => setCondition('good')}>Good</button>
+                  <button className={`${styles.condBtn} ${condition === 'fair' ? styles.condBtnOn : ''}`}
+                    onClick={() => setCondition('fair')}>Fair</button>
                 </div>
               </div>
             </>

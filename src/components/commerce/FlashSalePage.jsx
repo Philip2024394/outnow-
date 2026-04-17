@@ -1,13 +1,14 @@
 /**
  * FlashSalePage
- * Full-screen flash sale page showing all active flash sale products.
- * Countdown timer, live activity feed, same order flow as standard.
+ * Full-screen flash sale page with marketplace header, tab bar, countdown timer.
  */
 import { useState, useEffect, useRef } from 'react'
 import { createPortal } from 'react-dom'
 import { DEMO_PRODUCTS } from '@/services/commerceService'
 import ProductDetailSheet from './ProductDetailSheet'
 import styles from './FlashSalePage.module.css'
+
+const MARKET_LOGO = 'https://ik.imagekit.io/nepgaxllc/Untitledfsdsd-removebg-preview.png'
 
 function formatIDR(n) {
   n = parseFloat(n) || 0
@@ -63,17 +64,26 @@ export default function FlashSalePage({ open, onClose, allProducts, onOrderViaCh
 
   return createPortal(
     <div className={styles.page}>
-      {/* Header */}
+      {/* Header — brand logo + close */}
       <div className={styles.header}>
-        <button className={styles.backBtn} onClick={onClose}>
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-            <polyline points="15 18 9 12 15 6"/>
-          </svg>
+        <img src={MARKET_LOGO} alt="Indoo Market" className={styles.headerLogo} />
+        <button className={styles.closeBtn} onClick={onClose}>
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
         </button>
-        <div className={styles.headerCenter}>
-          <span className={styles.flashIcon}>⚡</span>
-          <span className={styles.headerTitle}>Flash Sale</span>
-        </div>
+      </div>
+
+      {/* Tabs — matching main marketplace, Flash Sale highlighted */}
+      <div className={styles.mainTabs}>
+        <button className={styles.mainTab} onClick={onClose}>🛍️ Products</button>
+        <button className={`${styles.mainTab} ${styles.mainTabActive}`}>⚡ Flash Sale</button>
+        <button className={styles.mainTab} onClick={onClose}>🔨 Auctions</button>
+        <button className={styles.mainTab} onClick={onClose}>🔄 Used</button>
+      </div>
+
+      {/* Timer bar */}
+      <div className={styles.timerBar}>
+        <span className={styles.flashIcon}>⚡</span>
+        <span className={styles.timerTitle}>Flash Sale</span>
         <div className={styles.timerBox}>
           <span className={styles.timerLabel}>Ends in</span>
           <span className={styles.timerValue}>{countdown}</span>

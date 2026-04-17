@@ -221,7 +221,7 @@ function SellerCard({ seller, onClick, onAuctionTap }) {
 }
 
 // ── Main screen ───────────────────────────────────────────────────────────────
-export default function ShopSearchScreen({ onClose, userCity, userCountry, giftFor, onGiftDismiss, wishlistMode = false, onWishlistSelectSeller, showToast, onOrderViaChat, onMakeOffer, onLandingChange, onHome, onChat, onAlerts, onProfile }) {
+export default function ShopSearchScreen({ onClose, userCity, userCountry, giftFor, onGiftDismiss, wishlistMode = false, onWishlistSelectSeller, showToast, onOrderViaChat, onMakeOffer, onLandingChange, onHome, onChat, onAlerts, onProfile, onOpenUsedGoods, onOpenWanted }) {
   const [showLanding, setShowLanding] = useState(true)
   const [query,                  setQuery]                  = useState('')
   const [activeCategory,         setActiveCategory]         = useState('all')
@@ -367,15 +367,33 @@ export default function ShopSearchScreen({ onClose, userCity, userCountry, giftF
         </div>
       </div>
 
+      {/* Market section cards */}
+      <div className={styles.landingCards}>
+        <button className={styles.landingCard} onClick={() => { markSectionVisited('marketplace'); setShowLanding(false); onLandingChange?.(false) }}>
+          <span className={styles.landingCardIcon}>✨</span>
+          <span className={styles.landingCardTitle}>New Products</span>
+          <span className={styles.landingCardSub}>Brand new goods</span>
+        </button>
+        <button className={styles.landingCard} onClick={() => onOpenUsedGoods?.()}>
+          <span className={styles.landingCardIcon}>🔄</span>
+          <span className={styles.landingCardTitle}>Used Goods</span>
+          <span className={styles.landingCardSub}>Pre-owned deals</span>
+        </button>
+        <button className={styles.landingCard} onClick={() => onOpenWanted?.()}>
+          <span className={styles.landingCardIcon}>👀</span>
+          <span className={styles.landingCardTitle}>Wanted</span>
+          <span className={styles.landingCardSub}>Post what you need</span>
+        </button>
+        <button className={styles.landingCard} onClick={() => { markSectionVisited('marketplace'); setShowLanding(false); onLandingChange?.(false) }}>
+          <span className={styles.landingCardIcon}>🛍️</span>
+          <span className={styles.landingCardTitle}>Shop All</span>
+          <span className={styles.landingCardSub}>Browse everything</span>
+        </button>
+      </div>
+
       {/* Footer content — pushed to very bottom */}
       <div className={styles.landingFooter}>
         <p className={styles.landingSub}>Buy & sell anything — fashion, electronics, handmade and more</p>
-        <button className={styles.landingBtn} onClick={() => { markSectionVisited('marketplace'); setShowLanding(false); onLandingChange?.(false) }}>
-          Enter Marketplace
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-            <polyline points="9 18 15 12 9 6"/>
-          </svg>
-        </button>
       </div>
 
     </div>
@@ -468,6 +486,12 @@ export default function ShopSearchScreen({ onClose, userCity, userCountry, giftF
           onClick={() => { setAuctionOpen(true); setFlashSaleOpen(false) }}
         >
           🔨 Auctions
+        </button>
+        <button
+          className={styles.mainTab}
+          onClick={() => onOpenUsedGoods?.()}
+        >
+          🔄 Used
         </button>
       </div>
 

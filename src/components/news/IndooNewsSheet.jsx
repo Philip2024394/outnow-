@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import { supabase } from '@/lib/supabase'
-import styles from './HanggerNewsSheet.module.css'
+import styles from './IndooNewsSheet.module.css'
 
 const LOGO_URL = 'https://ik.imagekit.io/nepgaxllc/Bold%203D%20_INDOO_%20logo%20design.png?updatedAt=1776203769926'
 
@@ -33,7 +33,7 @@ const SECTIONS = {
   marketplace:  { label: 'Marketplace',   color: '#F59E0B', bg: 'rgba(245,158,11,0.08)'  },
   street:       { label: 'Street Food',   color: '#EAB308', bg: 'rgba(234,179,8,0.08)'   },
   dating:       { label: 'Dating',        color: '#F472B6', bg: 'rgba(244,114,182,0.08)' },
-  announcement: { label: 'From Hangger',  color: '#A78BFA', bg: 'rgba(167,139,250,0.08)' },
+  announcement: { label: 'From Indoo',  color: '#A78BFA', bg: 'rgba(167,139,250,0.08)' },
 }
 
 function timeAgo(dateStr) {
@@ -48,7 +48,7 @@ function timeAgo(dateStr) {
 const DEMO_POSTS = [
   {
     id: 'd1', section: 'weekly', emoji: '📰',
-    title: 'Hangger had its biggest week yet',
+    title: 'Indoo had its biggest week yet',
     body: 'Over 1,200 sessions went live across Indonesia this week — a new record. Jakarta and Bali led the way with the most active users per city.',
     stat_label: 'Sessions This Week', stat_value: '1,247',
     highlight: null,
@@ -80,15 +80,15 @@ const DEMO_POSTS = [
   },
   {
     id: 'd5', section: 'announcement', emoji: '📣',
-    title: 'Coming soon — Hangger Premium',
-    body: 'We\'re launching Hangger Premium next month with profile boosts, unlimited unlocks, and early access to new features. Stay tuned for the announcement.',
+    title: 'Coming soon — Indoo Premium',
+    body: 'We\'re launching Indoo Premium next month with profile boosts, unlimited unlocks, and early access to new features. Stay tuned for the announcement.',
     stat_label: null, stat_value: null,
     highlight: null,
     updated_at: new Date(Date.now() - 3 * 86_400_000).toISOString(),
   },
 ]
 
-export default function HanggerNewsSheet({ open, onClose }) {
+export default function IndooNewsSheet({ open, onClose }) {
   const [posts, setPosts]     = useState([])
   const [loading, setLoading] = useState(true)
   const [hour, setHour]       = useState(getWIBHour)
@@ -149,7 +149,7 @@ export default function HanggerNewsSheet({ open, onClose }) {
       <header className={styles.header}>
         <div className={styles.headerInner}>
           <div className={styles.headerBrand}>
-            <img src={LOGO_URL} alt="Hangger" className={styles.headerLogo} draggable={false} />
+            <img src={LOGO_URL} alt="Indoo" className={styles.headerLogo} draggable={false} />
             <span className={styles.headerNews}>news</span>
           </div>
           <button className={styles.closeBtn} onClick={onClose} aria-label="Close">✕</button>
@@ -209,7 +209,7 @@ export default function HanggerNewsSheet({ open, onClose }) {
         )}
 
         <p className={styles.footer}>
-          Hangger News is updated by the Hangger team every few days.
+          Indoo News is updated by the Indoo team every few days.
         </p>
       </div>
     </div>

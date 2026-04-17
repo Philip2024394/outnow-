@@ -5,7 +5,7 @@
  *                   first (targetUserId), then continues into the global feed.
  *                   Background = that profile's photo (clear).
  *
- * mode='live'     — "Hangger Live" opened from the home nav. Shows all users'
+ * mode='live'     — "Indoo Live" opened from the home nav. Shows all users'
  *                   posts. A ProfileIntroSlide is inserted whenever the author
  *                   changes so each person gets their own "page". Category
  *                   filter: All | Dating.
@@ -20,7 +20,7 @@ import SellerProfileSheet      from '@/components/commerce/SellerProfileSheet'
 import ProductDetailSheet      from '@/components/commerce/ProductDetailSheet'
 import styles from './QAFeedScreen.module.css'
 
-const HANGGER_LOGO = 'https://ik.imagekit.io/nepgaxllc/Indoo%20Market%20logo%20design.png?updatedAt=1776203793752'
+const INDOO_LOGO = 'https://ik.imagekit.io/nepgaxllc/Indoo%20Market%20logo%20design.png?updatedAt=1776203793752'
 
 // ── Demo marketplace products (fallback when Supabase is empty) ───────────────
 const DEMO_MKT_PRODUCTS = [
@@ -75,7 +75,7 @@ function LiveMarketplaceFeed({ onClose, onSelectProduct }) {
       {/* ── Header — logo + live pill only ── */}
       <div className={styles.lmHeader}>
         <div className={styles.lmLogoWrap}>
-          <img src={HANGGER_LOGO} alt="Indoo Market" className={styles.lmLogo} />
+          <img src={INDOO_LOGO} alt="Indoo Market" className={styles.lmLogo} />
         </div>
         <span className={styles.lmLivePill}>
           <span className={styles.lmLiveDot} />
@@ -202,7 +202,7 @@ const TICKER_MSGS = [
 // ── Seed posts ───────────────────────────────────────────────────────────────
 const SEED_POSTS = [
   { id: 'seed-1', userId: 'u1', displayName: 'Maya R.',  photoURL: 'https://i.pravatar.cc/400?img=1',  text: 'Anyone know the best rooftop bar in Seminyak right now? Looking for sunset vibes 🌅', likes: 14, dislikes: 0, createdAt: Date.now() - 8 * 60000 },
-  { id: 'seed-2', userId: 'u2', displayName: 'James T.', photoURL: 'https://i.pravatar.cc/400?img=7',  text: 'Is the Hangger marketplace open for international shipping or Bali only? 🌍', likes: 6, dislikes: 1, createdAt: Date.now() - 22 * 60000 },
+  { id: 'seed-2', userId: 'u2', displayName: 'James T.', photoURL: 'https://i.pravatar.cc/400?img=7',  text: 'Is the Indoo marketplace open for international shipping or Bali only? 🌍', likes: 6, dislikes: 1, createdAt: Date.now() - 22 * 60000 },
   { id: 'seed-3', userId: 'u3', displayName: 'Sari W.',  photoURL: 'https://i.pravatar.cc/400?img=5',  text: 'What are the best warungs near Canggu for a big breakfast? 🍳', likes: 21, dislikes: 0, createdAt: Date.now() - 45 * 60000 },
   { id: 'seed-4', userId: 'u4', displayName: 'Luca M.',  photoURL: 'https://i.pravatar.cc/400?img=12', text: 'Looking for a surf school that takes complete beginners — any recommendations? 🏄', likes: 9, dislikes: 0, createdAt: Date.now() - 90 * 60000 },
   { id: 'seed-5', userId: 'u5', displayName: 'Priya K.', photoURL: 'https://i.pravatar.cc/400?img=9',  text: 'Is there a night market happening this weekend in Ubud? 🌙', likes: 33, dislikes: 2, createdAt: Date.now() - 120 * 60000 },
@@ -252,8 +252,8 @@ function ShareSheet({ profile, onClose }) {
   const [copied, setCopied] = useState(false)
   const url = typeof window !== 'undefined'
     ? `${window.location.origin}/profile/${profile.userId}`
-    : `https://hangger.app/profile/${profile.userId}`
-  const text = `Check out ${profile.displayName}'s live feed on Hangger!`
+    : `https://indoo.id/profile/${profile.userId}`
+  const text = `Check out ${profile.displayName}'s live feed on Indoo!`
 
   const share = (platform) => {
     const enc = encodeURIComponent
@@ -342,7 +342,7 @@ function ShareSheet({ profile, onClose }) {
   )
 }
 
-// ── Profile intro slide (Hangger Live only) ──────────────────────────────────
+// ── Profile intro slide (Indoo Live only) ──────────────────────────────────
 function ProfileIntroSlide({ profile, postCount, category, isOwn, onChat, onShare, bio }) {
   const badge = CATEGORY_BADGE[category] ?? CATEGORY_BADGE.community
   const gradIdx = profile.userId
@@ -945,7 +945,7 @@ export default function QAFeedScreen({ open, onClose, user, viewerSession, viewe
         <div className={styles.headerMid}>
           {isLiveMode ? (
             <div className={styles.headerProfile}>
-              <span className={styles.headerName}>Hangger Live</span>
+              <span className={styles.headerName}>Indoo Live</span>
               <span className={styles.headerAge}>Community feed</span>
             </div>
           ) : viewerSession ? (

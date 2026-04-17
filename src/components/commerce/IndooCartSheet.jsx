@@ -2,7 +2,7 @@ import { useState, useMemo } from 'react'
 import { PARCEL_CARRIERS, CARGO_CARRIERS, EXPORT_CARRIERS } from '@/services/commissionService'
 import { validateVoucher, redeemVoucher } from '@/services/voucherService'
 import { calculateCombinedShipping, fmtWeight } from '@/services/deliveryRateService'
-import styles from './HanggerCartSheet.module.css'
+import styles from './IndooCartSheet.module.css'
 
 function formatIDR(n) {
   n = parseFloat(n) || 0
@@ -16,7 +16,7 @@ function formatIDR(n) {
 
 // Bike delivery — city only, per-km pricing, no Safe Trade
 const BIKE_DELIVERY = {
-  id: 'bike', type: 'hangger_ride', icon: '🛵', label: 'Bike Delivery',
+  id: 'bike', type: 'indoo_ride', icon: '🛵', label: 'Bike Delivery',
   note: 'Same city · 1-2 hrs · per km pricing',
   baseFare: 15000, perKm: 3000, cityOnly: true, safeTrade: false,
 }
@@ -27,7 +27,7 @@ const PICKUP_OPTION = {
   note: 'Collect from seller', fee: 0, safeTrade: true,
 }
 
-export default function HanggerCartSheet({
+export default function IndooCartSheet({
   open, onClose,
   cart, onUpdateQty, onClearCart,
   sellerName, sellerWa,

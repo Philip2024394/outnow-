@@ -167,7 +167,7 @@ export default function ProfilePrivacySection({
           <div className={styles.vHero}>
             <span className={styles.vHeroTitle}>0% Commission</span>
             <p className={styles.vHeroSub}>
-              hangger.app never takes a cut — no commission on sales, no fee when contact changes hands.
+              indoo.id never takes a cut — no commission on sales, no fee when contact changes hands.
               Get verified and your account is fully live, open for business, and completely yours.
             </p>
           </div>
@@ -176,7 +176,7 @@ export default function ProfilePrivacySection({
             {[
               'Verified badge on your profile',
               'Social media links shown to all buyers',
-              'Higher listing on hangger.app',
+              'Higher listing on indoo.id',
               'Local buyers message you free — no unlock fee',
               'No commission, ever',
             ].map(b => (
@@ -324,7 +324,7 @@ export default function ProfilePrivacySection({
               </label>
             )}
             <p className={styles.licenseNote}>
-              Your licence is stored securely and only reviewed by Hangger staff. It is never shared with other users.
+              Your licence is stored securely and only reviewed by Indoo staff. It is never shared with other users.
             </p>
           </div>
 
@@ -375,7 +375,7 @@ export default function ProfilePrivacySection({
               </label>
             )}
             <p className={styles.licenseNote}>
-              Your document is stored securely and only reviewed by Hangger staff. It is never visible to other users.
+              Your document is stored securely and only reviewed by Indoo staff. It is never visible to other users.
             </p>
           </div>
         </div>
@@ -451,10 +451,10 @@ export default function ProfilePrivacySection({
                 </svg>
               </button>
 
-              <button className={styles.drawerRow} onClick={() => setToast({ message: "Hangger v0.1.0 — who's hanging near you?", type: 'error' })}>
+              <button className={styles.drawerRow} onClick={() => setToast({ message: "Indoo v0.1.0 — who's hanging near you?", type: 'error' })}>
                 <span className={styles.drawerRowIcon}>ℹ️</span>
                 <div className={styles.drawerRowText}>
-                  <span className={styles.drawerRowLabel}>About Hangger</span>
+                  <span className={styles.drawerRowLabel}>About Indoo</span>
                   <span className={styles.drawerRowSub}>Version 0.1.0</span>
                 </div>
               </button>

@@ -358,7 +358,7 @@ export default function MakerCard({ open, session, onClose, showToast, onGuestAc
                   <span className={styles.contactItemIcon} style={{ background: 'var(--status-color)' }}>💬</span>
                   <div className={styles.contactItemText}>
                     <span className={styles.contactItemLabel}>
-                      {meetLoading ? 'Sending…' : meetSent || hasInterest ? '✓ Message Sent' : `Message on Hangger`}
+                      {meetLoading ? 'Sending…' : meetSent || hasInterest ? '✓ Message Sent' : `Message on Indoo`}
                     </span>
                     <span className={styles.contactItemSub}>Free — send a direct message</span>
                   </div>

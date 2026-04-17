@@ -31,7 +31,7 @@ export default function AdminLogin({ onLogin }) {
   return (
     <div className={styles.page}>
       <div className={styles.card}>
-        <img src={LOGO_URL} alt="Hangger" className={styles.logo} />
+        <img src={LOGO_URL} alt="Indoo" className={styles.logo} />
         <h1 className={styles.title}>Admin Dashboard</h1>
         <p className={styles.sub}>Sign in with your admin credentials</p>
 

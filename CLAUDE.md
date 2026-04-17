@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-**Hangger** (package name `hangger`, app ID `com.hangger.app`) is a location-based social app where users "go live" at venues, discover who's out nearby, and connect via chat/meet/dating features. It runs as a PWA and Capacitor native app.
+**Indoo** (package name `indoo`, app ID `id.indoo.app`, domain `indoo.id`) is a location-based marketplace and social app for the Indonesian market. Users can buy/sell products, order food, book rides, date, and "go live" at venues to discover who's nearby. It runs as a PWA and Capacitor native app. Primary language: Bahasa Indonesia (with English, Arabic, Chinese support).
 
 ## Commands
 
@@ -79,3 +79,7 @@ Set `VITE_DEMO_MODE=true` to run without a real backend (Supabase client becomes
 ## Capacitor (Mobile)
 
 Config in `capacitor.config.ts`. Uses `dist/` as web dir. Plugins: LocalNotifications, PushNotifications, BackgroundGeolocation.
+
+## Note: Supabase table `hangger_news`
+
+The Supabase table `hangger_news` still uses the old name. A database migration is needed to rename it to `indoo_news`. Until then, all queries reference `hangger_news`.

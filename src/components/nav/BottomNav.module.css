@@ -363,7 +363,7 @@
   50%       { opacity: 0.55; }
 }
 
-/* ── Hangger Live button ── */
+/* ── Indoo Live button ── */
 .liveBtn {
   position: relative;
   width: 42px;
@@ -409,7 +409,7 @@
   pointer-events: none;
 }
 
-/* ── Hangger News button ── */
+/* ── Indoo News button ── */
 .homeBtn {
   position: relative;
   width: 42px;

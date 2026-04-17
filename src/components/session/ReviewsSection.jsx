@@ -58,7 +58,7 @@ export default function ReviewsSection() {
         ))}
       </div>
 
-      <p className={styles.footnote}>Reviews from verified Hangger users in your country</p>
+      <p className={styles.footnote}>Reviews from verified Indoo users in your country</p>
     </div>
   )
 }

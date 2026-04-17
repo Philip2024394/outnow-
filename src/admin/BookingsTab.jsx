@@ -114,7 +114,7 @@ export default function BookingsTab() {
 
   const handleDownload = () => {
     const csv      = buildCSV(bookings)
-    const filename = `hangger-bookings-${year}-${String(month).padStart(2,'0')}.csv`
+    const filename = `indoo-bookings-${year}-${String(month).padStart(2,'0')}.csv`
     downloadCSV(csv, filename)
   }
 

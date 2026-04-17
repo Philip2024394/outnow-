@@ -1,6 +1,6 @@
 {
-  "name": "hangger-functions",
-  "description": "Hangger Firebase Cloud Functions",
+  "name": "indoo-functions",
+  "description": "Indoo Firebase Cloud Functions",
   "version": "0.1.0",
   "main": "index.js",
   "engines": { "node": "20" },

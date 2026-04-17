@@ -268,7 +268,7 @@ export default function DiscoveryCard({ open, session, mySession, onClose, showT
           <div className={styles.noPhotoBg}>
             <img
               src="https://ik.imagekit.io/nepgaxllc/Untitledxczxc-removebg-preview.png?updatedAt=1775162044064"
-              alt="Hangger"
+              alt="Indoo"
               className={styles.noPhotoLogo}
             />
             <span className={styles.noPhotoQuote}>"{quoteForUser(session.displayName ?? session.id)}"</span>

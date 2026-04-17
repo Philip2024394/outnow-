@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react'
-import styles from './HanggerCartPanel.module.css'
+import styles from './IndooCartPanel.module.css'
 
 const DELIVERY_FEE = 15000
 
@@ -40,7 +40,7 @@ function buildWhatsAppMessage(sellerName, cart, address, notes) {
   return { msg, total }
 }
 
-export default function HanggerCartPanel({
+export default function IndooCartPanel({
   cart, onUpdateQty, onClearCart,
   sellerName, sellerWa,
   cartSheetOpen,

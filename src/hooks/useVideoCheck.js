@@ -12,7 +12,7 @@ import { useAuth } from './useAuth'
 async function getTurnCredential() {
   const secret  = 'openrelayprojectsecret'
   const expiry  = Math.floor(Date.now() / 1000) + 3600
-  const username = `${expiry}:hangger`
+  const username = `${expiry}:indoo`
   const key = await crypto.subtle.importKey(
     'raw',
     new TextEncoder().encode(secret),

@@ -8,7 +8,8 @@
  */
 import { useState, useEffect } from 'react'
 import { supabase } from '@/lib/supabase'
-import { markSellerCommissionsPaid } from '@/services/commissionService'
+import { markSellerCommissionsPaid, blockAccount, unblockAccount } from '@/services/commissionService'
+import { setSellerChatBlock } from '@/services/marketplaceChatService'
 import styles from './CommissionsAdminTab.module.css'
 
 function fmtRp(n) { return `Rp ${Number(n ?? 0).toLocaleString('id-ID')}` }
@@ -123,19 +124,63 @@ export default function CommissionsAdminTab() {
   })
 
   // ── Actions ────────────────────────────────────────────────────────────────
-  const markPaid = (id) => {
+  const markPaid = async (id) => {
     setData(d => d.map(c => c.id === id ? { ...c, status: 'paid', paid_at: new Date().toISOString() } : c))
+    const c = data.find(x => x.id === id)
+    if (c) {
+      // Mark paid in Supabase
+      supabase?.from('seller_commissions').update({ status: 'paid', paid_at: new Date().toISOString() }).eq('id', id).catch(() => {})
+      // If seller was blocked, unblock their chat
+      if (c.blocked) {
+        await setSellerChatBlock(c.sellerId, false)
+        await unblockAccount({ userId: c.sellerId })
+        setBlocked(b => b.filter(x => x.sellerId !== c.sellerId))
+        setData(d => d.map(x => x.sellerId === c.sellerId ? { ...x, blocked: false } : x))
+      }
+      // Notify seller
+      supabase?.from('notifications').insert({
+        user_id: c.sellerId,
+        type: 'commission',
+        title: 'Commission Paid',
+        body: `Your commission of ${fmtRp(c.amount)} has been confirmed. Thank you!`,
+        read: false,
+      }).catch(() => {})
+    }
   }
 
-  const markBlocked = (id) => {
+  const markBlocked = async (id) => {
     setData(d => d.map(c => c.id === id ? { ...c, blocked: true } : c))
     const c = data.find(x => x.id === id)
-    if (c) setBlocked(b => [...b, { sellerId: c.sellerId, seller: c.seller, commission_type: c.commission_type, totalOwed: c.amount, blockedAt: new Date().toISOString(), reason: 'Manually blocked by admin' }])
+    if (c) {
+      setBlocked(b => [...b, { sellerId: c.sellerId, seller: c.seller, commission_type: c.commission_type, totalOwed: c.amount, blockedAt: new Date().toISOString(), reason: 'Manually blocked by admin' }])
+      // Block seller chat + account in Supabase
+      await setSellerChatBlock(c.sellerId, true)
+      await blockAccount({ userId: c.sellerId, reason: 'commission_overdue', notes: `Commission ${fmtRp(c.amount)} overdue — chat locked` })
+      // Notify seller
+      supabase?.from('notifications').insert({
+        user_id: c.sellerId,
+        type: 'commission',
+        title: 'Messaging Locked',
+        body: `Your messaging is locked due to unpaid commission (${fmtRp(c.amount)}). Pay to restore access.`,
+        read: false,
+      }).catch(() => {})
+    }
   }
 
-  const unblock = (sellerId) => {
+  const unblock = async (sellerId) => {
     setBlocked(b => b.filter(x => x.sellerId !== sellerId))
     setData(d => d.map(c => c.sellerId === sellerId ? { ...c, blocked: false } : c))
+    // Unblock seller chat + account in Supabase
+    await setSellerChatBlock(sellerId, false)
+    await unblockAccount({ userId: sellerId })
+    // Notify seller
+    supabase?.from('notifications').insert({
+      user_id: sellerId,
+      type: 'commission',
+      title: 'Messaging Restored',
+      body: 'Your messaging access has been restored. Thank you for your payment.',
+      read: false,
+    }).catch(() => {})
   }
 
   const payAllOverdue = () => {

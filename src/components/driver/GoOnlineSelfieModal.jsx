@@ -189,7 +189,7 @@ export default function GoOnlineSelfieModal({ userId, onSuccess, onCancel }) {
         {/* Legal note */}
         <p className={styles.legalNote}>
           🔒 Securely stored by PT Hammerex Products Indonesia. By going online you confirm
-          you are the registered driver for this Hangger account.
+          you are the registered driver for this Indoo account.
         </p>
 
       </div>

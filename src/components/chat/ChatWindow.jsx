@@ -1061,7 +1061,7 @@ export default function ChatWindow({ conversation: conv, allConversations = [], 
             </div>
             <div style={{ display:'flex', justifyContent:'space-between', fontSize:12, color:'rgba(255,255,255,0.7)' }}>
               <span style={{ color:'rgba(255,255,255,0.4)' }}>Name</span>
-              <span style={{ fontWeight:700 }}>Hangger Admin</span>
+              <span style={{ fontWeight:700 }}>Indoo Admin</span>
             </div>
           </div>
 

@@ -86,7 +86,7 @@ export default function PhoneAuthScreen({ onBack }) {
       <button className={styles.back} onClick={onBack}>← Back</button>
 
       <div className={styles.content}>
-        <div className={styles.logo}>Hangger</div>
+        <div className={styles.logo}>Indoo</div>
 
         {step === 'phone' ? (
           <form onSubmit={handleSendOTP} className={styles.form}>

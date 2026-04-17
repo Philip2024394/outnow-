@@ -72,7 +72,7 @@ export default function BankTransferChatCard({ card, fromMe, onProofUploaded }) 
       {/* Bank card visual */}
       <div className={styles.bankCard} style={{ background: `linear-gradient(135deg, ${accentColor} 0%, ${accentColor}cc 100%)` }}>
         <div className={styles.bankCardTop}>
-          <span className={styles.bankCardBrand}>MAKAN by Hangger</span>
+          <span className={styles.bankCardBrand}>MAKAN by Indoo</span>
           <span className={styles.bankCardName}>{bankName}</span>
         </div>
         <div className={styles.bankCardNumber}>{accountNumber}</div>

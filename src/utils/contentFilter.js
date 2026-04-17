@@ -48,7 +48,7 @@ export function filterMessage(text) {
 export const BLOCK_MESSAGES = {
   phone:  "Phone numbers cannot be shared in chat. This protects both buyer and seller. All transactions must stay in-app.",
   link:   "Links and websites are not allowed in chat. Complete your transaction here to stay protected.",
-  social: "Social media and external contacts cannot be shared. All communication must remain in Hangger chat.",
+  social: "Social media and external contacts cannot be shared. All communication must remain in Indoo chat.",
 }
 
 /**

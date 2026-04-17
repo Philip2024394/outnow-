@@ -1,8 +1,8 @@
 import type { CapacitorConfig } from '@capacitor/cli'
 
 const config: CapacitorConfig = {
-  appId: 'com.hangger.app',
-  appName: 'Hangger',
+  appId: 'id.indoo.app',
+  appName: 'Indoo',
   webDir: 'dist',
   server: {
     androidScheme: 'https',
@@ -17,7 +17,7 @@ const config: CapacitorConfig = {
     },
     BackgroundGeolocation: {
       backgroundMessage: 'Checking for hot venues nearby…',
-      backgroundTitle: 'Hangger is watching for nearby spots',
+      backgroundTitle: 'Indoo is watching for nearby spots',
     },
   },
 }

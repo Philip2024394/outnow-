@@ -124,7 +124,7 @@ export default function RatingSheet({ open, onSubmit, onSkip, session }) {
           <div className={styles.top}>
             <div className={styles.iconWrap}><span className={styles.icon}>🌙</span></div>
             <h2 className={styles.title}>How was your night out?</h2>
-            <p className={styles.sub}>Your feedback keeps Hangger real</p>
+            <p className={styles.sub}>Your feedback keeps Indoo real</p>
           </div>
 
           <div className={styles.starsWrap}>

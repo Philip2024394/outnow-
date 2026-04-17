@@ -1,5 +1,5 @@
 // ─────────────────────────────────────────────────────────────────────────────
-// Hangger — Category / Sub-category directory
+// Indoo — Category / Sub-category directory
 // Every main category → specific positions → auto search keywords
 // ─────────────────────────────────────────────────────────────────────────────
 

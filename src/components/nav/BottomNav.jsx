@@ -17,7 +17,7 @@ const SECTION_BTNS = {
   massage:     { icon: '💆', label: 'Register' },
 }
 
-export default function BottomNav({ activeTab = 'map', userPhotoURL, userName, isLive = false, isInviteOut = false, onProfileTap, onSOS, onSectionRegister, activeSection = 'default', rideType = 'bike', driverOnline = null, onToggleDriverStatus, onHanggerLive, hanggerLiveActive = false, isGuest = false, onToggleDock, dockVisible = true, onHome, theme = 'default', onChat, onAlerts, onProfile, onCart, onSignUp, onAddProduct, onOrders, onAnalytics, onMyShop, onWallet }) {
+export default function BottomNav({ activeTab = 'map', userPhotoURL, userName, isLive = false, isInviteOut = false, onProfileTap, onSOS, onSectionRegister, activeSection = 'default', rideType = 'bike', driverOnline = null, onToggleDriverStatus, onIndooLive, indooLiveActive = false, isGuest = false, onToggleDock, dockVisible = true, onHome, theme = 'default', onChat, onAlerts, onProfile, onCart, onSignUp, onAddProduct, onOrders, onAnalytics, onMyShop, onWallet, onDashboard }) {
   const onLanding = activeSection !== 'default'
   const isMarketTheme = theme === 'marketplace' || theme === 'buyer'
   const isSellerTheme = theme === 'seller'
@@ -107,13 +107,13 @@ export default function BottomNav({ activeTab = 'map', userPhotoURL, userName, i
         </button>
       )}
 
-      {/* Profile — marketplace theme only */}
+      {/* Dashboard — marketplace buyer */}
       {showBuyerBtns && (
-        <button className={styles.marketBtn} onClick={() => { console.log('[NAV] Profile clicked'); onProfile?.() }} aria-label="Profile">
+        <button className={styles.marketBtn} onClick={() => { onDashboard?.() }} aria-label="Dashboard">
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
-            <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/>
+            <rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/>
           </svg>
-          <span className={styles.marketBtnLabel}>Profile</span>
+          <span className={styles.marketBtnLabel}>Dashboard</span>
         </button>
       )}
 
@@ -206,9 +206,9 @@ export default function BottomNav({ activeTab = 'map', userPhotoURL, userName, i
       {/* Live + Toggle — hidden on landing pages, marketplace theme, and seller theme */}
       {!onLanding && !showBuyerBtns && !showSellerBtns && <>
         <button
-          className={`${styles.liveBtn} ${hanggerLiveActive ? styles.liveBtnActive : ''}`}
-          onClick={onHanggerLive}
-          aria-label="Hangger Live"
+          className={`${styles.liveBtn} ${indooLiveActive ? styles.liveBtnActive : ''}`}
+          onClick={onIndooLive}
+          aria-label="Indoo Live"
         >
           <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
             <circle cx="12" cy="12" r="2"/>

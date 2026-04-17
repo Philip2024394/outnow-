@@ -196,7 +196,7 @@ export async function deleteAccount(userId) {
   const { error } = await supabase.functions.invoke('delete-account', {
     body: { userId },
   })
-  if (error) throw new Error('Account deletion failed — please contact support@hangger.app')
+  if (error) throw new Error('Account deletion failed — please contact support@indoo.id')
 }
 
 /**
@@ -214,7 +214,7 @@ export async function exportMyData(userId) {
 
   const payload = {
     _exported_at: new Date().toISOString(),
-    _note: 'Your personal data export from Hangger. Contact privacy@hangger.app to request changes.',
+    _note: 'Your personal data export from Indoo. Contact privacy@indoo.id to request changes.',
     profile:  profileRes.data  ?? null,
     sessions: sessionsRes.data ?? [],
     messages: messagesRes.data ?? [],
@@ -224,7 +224,7 @@ export async function exportMyData(userId) {
   const url  = URL.createObjectURL(blob)
   const a    = document.createElement('a')
   a.href     = url
-  a.download = `hangger-my-data-${new Date().toISOString().split('T')[0]}.json`
+  a.download = `indoo-my-data-${new Date().toISOString().split('T')[0]}.json`
   document.body.appendChild(a)
   a.click()
   document.body.removeChild(a)

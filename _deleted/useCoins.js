@@ -2,9 +2,9 @@ import { useState, useCallback, useEffect } from 'react'
 import { supabase } from '@/lib/supabase'
 import { useAuth } from './useAuth'
 
-const BALANCE_KEY      = 'hangger_coins'
-const HISTORY_KEY      = 'hangger_coins_history'
-const TRANSACTIONS_KEY = 'hangger_transactions'
+const BALANCE_KEY      = 'indoo_coins'
+const HISTORY_KEY      = 'indoo_coins_history'
+const TRANSACTIONS_KEY = 'indoo_transactions'
 
 export const COIN_REWARDS = {
   PROFILE_PHOTO:    { amount: 10, label: 'Added profile photo' },

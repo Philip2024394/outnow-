@@ -6,7 +6,7 @@ export default function LanguageToast({ _forceVisible = false }) {
   const { lang, setLang, t, isFirstPick, dismissFirstPick } = useLanguage()
   const [visible, setVisible] = useState(_forceVisible)
   // Float above cookie banner if it's also showing
-  const cookiePending = !localStorage.getItem('hangger_cookie_consent')
+  const cookiePending = !localStorage.getItem('indoo_cookie_consent')
 
   // Slight delay so landing screen renders first
   useEffect(() => {

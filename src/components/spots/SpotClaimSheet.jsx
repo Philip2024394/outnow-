@@ -245,7 +245,7 @@ export default function SpotClaimSheet({ open, onClose, showToast }) {
 
         {status === 'protected' && (
           <div className={styles.protectedNotice}>
-            <p>Government buildings, royal estates, airports, and public landmarks are preserved as neutral zones on the Hangger map.</p>
+            <p>Government buildings, royal estates, airports, and public landmarks are preserved as neutral zones on the Indoo map.</p>
           </div>
         )}
 

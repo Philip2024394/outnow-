@@ -118,7 +118,7 @@ export default function DriverDocumentUpload({ userId, driverType }) {
         )}
         {application.status === 'approved' && (
           <p className={styles.approvedNote}>
-            You are now a verified Hangger driver. Go online from your profile to start receiving rides.
+            You are now a verified Indoo driver. Go online from your profile to start receiving rides.
           </p>
         )}
       </div>
@@ -184,25 +184,25 @@ export default function DriverDocumentUpload({ userId, driverType }) {
         <div className={styles.termsHeader}>
           <span className={styles.termsHeaderIcon}>📋</span>
           <span className={styles.termsHeaderTitle}>Driver Terms &amp; Conditions</span>
-          <span className={styles.termsHeaderSub}>PT Hammerex Products Indonesia — trading as Hangger</span>
+          <span className={styles.termsHeaderSub}>PT Hammerex Products Indonesia — trading as Indoo</span>
         </div>
 
         <div className={styles.termsScroll}>
           <p className={styles.termsPreamble}>
-            These Terms and Conditions (&ldquo;Agreement&rdquo;) govern your registration and use of the Hangger
+            These Terms and Conditions (&ldquo;Agreement&rdquo;) govern your registration and use of the Indoo
             platform as a driver partner. This Agreement is entered into between you (&ldquo;Driver Partner&rdquo;)
             and <strong>PT Hammerex Products Indonesia</strong>, a company duly incorporated under the laws of the
-            Republic of Indonesia, operating the Hangger ride-hailing application
-            (&ldquo;Hangger&rdquo; / &ldquo;the Platform&rdquo;). By submitting this application you confirm you
+            Republic of Indonesia, operating the Indoo ride-hailing application
+            (&ldquo;Indoo&rdquo; / &ldquo;the Platform&rdquo;). By submitting this application you confirm you
             have read, understood, and agree to be legally bound by every clause below.
           </p>
 
           <div className={styles.termsSection}>
             <h4 className={styles.termsSectionTitle}>1. Platform Nature — Technology Service Only</h4>
             <p>
-              Hangger is a technology platform that connects passengers and senders with independent driver
+              Indoo is a technology platform that connects passengers and senders with independent driver
               partners. <strong>PT Hammerex Products Indonesia does not provide transportation or logistics
-              services and is not a transport operator.</strong> Hangger acts solely as an intermediary
+              services and is not a transport operator.</strong> Indoo acts solely as an intermediary
               technology provider. All transportation services are provided exclusively by you, the Driver
               Partner, in your own capacity.
             </p>
@@ -214,7 +214,7 @@ export default function DriverDocumentUpload({ userId, driverType }) {
               You acknowledge and agree that your relationship with PT Hammerex Products Indonesia is that
               of an <strong>independent contractor (mitra pengemudi)</strong>, not an employee, agent, joint
               venture partner, or representative of the company. Nothing in this Agreement shall be construed
-              to create any employment, agency, partnership, or franchise relationship. Hangger has no
+              to create any employment, agency, partnership, or franchise relationship. Indoo has no
               obligation to provide minimum earnings, guaranteed hours, benefits, pension contributions,
               health insurance, severance pay, or any other employment entitlement under Indonesian Manpower
               Law (Undang-Undang Ketenagakerjaan) or any applicable regulation.
@@ -240,7 +240,7 @@ export default function DriverDocumentUpload({ userId, driverType }) {
             </ul>
             <p>
               <strong>PT Hammerex Products Indonesia bears no liability whatsoever for your personal tax
-              obligations.</strong> Hangger will not withhold, file, or remit taxes on your behalf unless
+              obligations.</strong> Indoo will not withhold, file, or remit taxes on your behalf unless
               required to do so by applicable Indonesian law.
             </p>
           </div>
@@ -248,13 +248,13 @@ export default function DriverDocumentUpload({ userId, driverType }) {
           <div className={styles.termsSection}>
             <h4 className={styles.termsSectionTitle}>4. Account Exclusivity — No Account Sharing</h4>
             <p>
-              Your Hangger Driver account is strictly personal and non-transferable. <strong>You must not
-              allow any other individual to access, operate, or use your Hangger driver account under any
+              Your Indoo Driver account is strictly personal and non-transferable. <strong>You must not
+              allow any other individual to access, operate, or use your Indoo driver account under any
               circumstances</strong>, including but not limited to allowing another person to accept rides,
               go online, or communicate with passengers using your account. Any such sharing constitutes a
               material breach of this Agreement and will result in immediate permanent suspension without
-              appeal. Any exception requires prior written authorisation from Hangger admin, which may be
-              granted or refused at Hangger&apos;s sole discretion. You accept full legal liability for all
+              appeal. Any exception requires prior written authorisation from Indoo admin, which may be
+              granted or refused at Indoo&apos;s sole discretion. You accept full legal liability for all
               activity conducted through your account.
             </p>
           </div>
@@ -274,7 +274,7 @@ export default function DriverDocumentUpload({ userId, driverType }) {
               <li>Is adequately insured as required under Indonesian law.</li>
             </ul>
             <p>
-              You agree to immediately cease operations on the Hangger platform if your vehicle becomes
+              You agree to immediately cease operations on the Indoo platform if your vehicle becomes
               unroadworthy or unsafe for any reason. <strong>PT Hammerex Products Indonesia accepts no
               liability for accidents, injuries, losses, or claims arising from the mechanical condition
               or roadworthiness of your vehicle.</strong>
@@ -285,7 +285,7 @@ export default function DriverDocumentUpload({ userId, driverType }) {
             <h4 className={styles.termsSectionTitle}>6. Compliance with Indonesian Law</h4>
             <p>
               You agree to comply with all applicable Indonesian laws and regulations at all times while
-              using the Hangger platform, including traffic laws, ride-hailing regulations (Permenhub),
+              using the Indoo platform, including traffic laws, ride-hailing regulations (Permenhub),
               passenger data privacy obligations (UU PDP), and consumer protection regulations (UU
               Perlindungan Konsumen). Any violation of applicable law is your sole responsibility.
             </p>
@@ -297,7 +297,7 @@ export default function DriverDocumentUpload({ userId, driverType }) {
               To the maximum extent permitted by applicable Indonesian law, <strong>PT Hammerex Products
               Indonesia, its directors, officers, employees, and affiliates shall not be liable</strong> for
               any direct, indirect, incidental, special, consequential, or punitive damages arising out of
-              or in connection with your use of the Hangger platform, including but not limited to loss of
+              or in connection with your use of the Indoo platform, including but not limited to loss of
               income, loss of data, personal injury, property damage, or third-party claims.
             </p>
           </div>
@@ -308,7 +308,7 @@ export default function DriverDocumentUpload({ userId, driverType }) {
               PT Hammerex Products Indonesia reserves the right to suspend or permanently terminate your
               Driver account at any time, with or without notice, if you breach any term of this Agreement,
               receive sustained low ratings, engage in fraudulent or abusive conduct, or for any other reason
-              at Hangger&apos;s sole discretion. No compensation is owed for suspension or termination.
+              at Indoo&apos;s sole discretion. No compensation is owed for suspension or termination.
             </p>
           </div>
 
@@ -326,14 +326,14 @@ export default function DriverDocumentUpload({ userId, driverType }) {
           <div className={styles.termsSection}>
             <h4 className={styles.termsSectionTitle}>10. Amendments</h4>
             <p>
-              PT Hammerex Products Indonesia may amend these Terms at any time. Continued use of the Hangger
+              PT Hammerex Products Indonesia may amend these Terms at any time. Continued use of the Indoo
               platform after notification of amendments constitutes your acceptance of the revised terms.
             </p>
           </div>
 
           <p className={styles.termsFooter}>
             <strong>PT Hammerex Products Indonesia</strong> — Registered company in the Republic of Indonesia.
-            Trading as <strong>Hangger</strong>. All rights reserved.
+            Trading as <strong>Indoo</strong>. All rights reserved.
           </p>
         </div>
 
@@ -349,7 +349,7 @@ export default function DriverDocumentUpload({ userId, driverType }) {
             {termsAccepted ? '✓' : ''}
           </span>
           <span className={styles.termsCheckLabel}>
-            I have read and fully agree to the Hangger Driver Terms &amp; Conditions. I understand I am an
+            I have read and fully agree to the Indoo Driver Terms &amp; Conditions. I understand I am an
             independent contractor, solely responsible for my tax obligations, and that PT Hammerex Products
             Indonesia does not employ me.
           </span>

@@ -1,8 +1,8 @@
-// ── Hangger Service Worker ────────────────────────────────────────────────────
+// ── Indoo Service Worker ────────────────────────────────────────────────────
 // Strategy: network-first for navigation (HTML), cache-first for static assets.
 // This prevents the "blank on refresh" issue caused by stale cached HTML.
 
-const CACHE_VERSION = 'hangger-v3'
+const CACHE_VERSION = 'indoo-v1'
 const STATIC_CACHE  = `${CACHE_VERSION}-static`
 const IMAGE_CACHE   = `${CACHE_VERSION}-images`
 
@@ -114,7 +114,7 @@ self.addEventListener('push', (e) => {
     body: data.body ?? "Someone you liked is out now — go meet them!",
     icon: 'https://ik.imagekit.io/dateme/Logo%20with%20green%20map%20pin%20element.png',
     badge: 'https://ik.imagekit.io/dateme/Logo%20with%20green%20map%20pin%20element.png',
-    tag: data.tag ?? 'hangger-general',
+    tag: data.tag ?? 'indoo-general',
     renotify: true,
     // Ride requests use a more urgent vibration pattern
     vibrate: isRide ? [300, 100, 300, 100, 300] : [200, 100, 200],

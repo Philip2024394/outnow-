@@ -1,7 +1,7 @@
 /**
  * DriverSignInGate
  * Blocking screen shown when driver taps "Go Online" and has unpaid commission.
- * Driver must transfer outstanding amount to Hangger bank account and
+ * Driver must transfer outstanding amount to Indoo bank account and
  * upload proof — admin verifies and marks paid before driver can go online.
  *
  * No bypass — driver cannot go online until commission is cleared.
@@ -9,10 +9,10 @@
 import { useState, useRef } from 'react'
 import styles from './DriverSignInGate.module.css'
 
-const HANGGER_BANK = {
+const INDOO_BANK = {
   name:   'BCA',
   number: '7890 1234 56',
-  holder: 'PT Hangger Indonesia',
+  holder: 'PT Indoo Indonesia',
 }
 
 function fmtRp(n) { return `Rp ${Number(n ?? 0).toLocaleString('id-ID')}` }
@@ -95,11 +95,11 @@ export default function DriverSignInGate({ open, driverName, commissions = [], o
           {/* Bank transfer instructions */}
           <div className={styles.bankCard}>
             <div className={styles.bankCardTop}>
-              <span className={styles.bankCardBrand}>Transfer to Hangger</span>
-              <span className={styles.bankCardBank}>{HANGGER_BANK.name}</span>
+              <span className={styles.bankCardBrand}>Transfer to Indoo</span>
+              <span className={styles.bankCardBank}>{INDOO_BANK.name}</span>
             </div>
-            <div className={styles.bankCardNumber}>{HANGGER_BANK.number}</div>
-            <div className={styles.bankCardHolder}>{HANGGER_BANK.holder}</div>
+            <div className={styles.bankCardNumber}>{INDOO_BANK.number}</div>
+            <div className={styles.bankCardHolder}>{INDOO_BANK.holder}</div>
             <div className={styles.bankCardAmount}>
               Transfer exactly <strong>{fmtRp(totalDue)}</strong>
             </div>

@@ -12,7 +12,7 @@ export const LANGUAGES = [
 ]
 
 const TRANSLATIONS = { en, id, ar, zh }
-const STORAGE_KEY  = 'hangger_lang'
+const STORAGE_KEY  = 'indoo_lang'
 
 /** Default to Indonesian — respects any previously saved preference */
 function detectLang() {

@@ -92,7 +92,7 @@ const UpgradeSheet            = lazy(() => import('@/components/premium/UpgradeS
 const SpotClaimSheet          = lazy(() => import('@/components/spots/SpotClaimSheet'))
 const MySpotScreen            = lazy(() => import('@/screens/MySpotScreen'))
 const VibeCheckSheet          = lazy(() => import('@/components/vibecheck/VibeCheckSheet'))
-const HanggerNewsSheet        = lazy(() => import('@/components/news/HanggerNewsSheet'))
+const IndooNewsSheet        = lazy(() => import('@/components/news/IndooNewsSheet'))
 const RatingSheet             = lazy(() => import('@/components/session/RatingSheet'))
 const ReviewsSection          = lazy(() => import('@/components/session/ReviewsSection'))
 const DevPanel                = lazy(() => import('@/dev/DevPanel'))
@@ -103,6 +103,9 @@ const SellerWalletScreen      = lazy(() => import('@/screens/SellerWalletScreen'
 const SellerAnalytics         = lazy(() => import('@/components/commerce/SellerAnalytics'))
 const MarketplaceNotificationsScreen = lazy(() => import('@/screens/MarketplaceNotificationsScreen'))
 const MarketplaceCartScreen   = lazy(() => import('@/screens/MarketplaceCartScreen'))
+const BuyerDashboardScreen    = lazy(() => import('@/screens/BuyerDashboardScreen'))
+const UsedGoodsScreen         = lazy(() => import('@/screens/UsedGoodsScreen'))
+const WantedBoardScreen       = lazy(() => import('@/screens/WantedBoardScreen'))
 const SellerReviewsScreen     = lazy(() => import('@/screens/SellerReviewsScreen'))
 const WriteReviewScreen       = lazy(() => import('@/screens/WriteReviewScreen'))
 const SellerProductsScreen    = lazy(() => import('@/screens/SellerProductsScreen'))
@@ -163,7 +166,7 @@ export default function AppShell({ returnParams, triggerGoLive }) {
     vibeCheckOpen,       setVibeCheckOpen,
     vibeBroadcastOpen,   setVibeBroadcastOpen,
     newsOpen,            setNewsOpen,
-    hanggerLiveOpen,     setHanggerLiveOpen,
+    indooLiveOpen,     setIndooLiveOpen,
     mapFilterOpen,       setMapFilterOpen,
     orderHistoryOpen,    setOrderHistoryOpen,
     incomingGiftsOpen,   setIncomingGiftsOpen,
@@ -202,7 +205,7 @@ export default function AppShell({ returnParams, triggerGoLive }) {
   useEffect(() => {
     if (!isDriverAccount) { setDriverOnline(null); return }
     // Prefer localStorage (reflects last toggle) then fall back to DB value
-    const stored = localStorage.getItem('hangger_driver_online')
+    const stored = localStorage.getItem('indoo_driver_online')
     setDriverOnline(stored !== null ? stored === 'true' : (userProfile?.driverOnline ?? false))
   }, [isDriverAccount, userProfile?.driverOnline])
   const [vibeBanner, setVibeBanner]         = useState(null) // { status: 'active'|'invite_out'|'scheduled' }
@@ -237,6 +240,9 @@ export default function AppShell({ returnParams, triggerGoLive }) {
   const [marketProfileOpen, setMarketProfileOpen] = useState(false)
   const [marketNotifOpen, setMarketNotifOpen] = useState(false)
   const [marketCartOpen, setMarketCartOpen] = useState(false)
+  const [buyerDashOpen, setBuyerDashOpen] = useState(false)
+  const [usedGoodsOpen, setUsedGoodsOpen] = useState(false)
+  const [wantedBoardOpen, setWantedBoardOpen] = useState(false)
   const [sellerReviewsOpen, setSellerReviewsOpen] = useState(false)
   const [writeReviewOpen, setWriteReviewOpen] = useState(false)
   const [writeReviewOrder, setWriteReviewOrder] = useState(null)
@@ -763,7 +769,7 @@ export default function AppShell({ returnParams, triggerGoLive }) {
       </Suspense>
 
       <Suspense fallback={<LazyFallback />}>
-      {shopOpen && <ShopSearchScreen onClose={() => { setShopOpen(false); setDockVisible(true); setGiftForSession(null); setActiveSection('default'); setMarketplaceLanding(true) }} userCity={userProfile?.city} userCountry={userProfile?.country} giftFor={giftForSession} onGiftDismiss={() => setGiftForSession(null)} showToast={showToast} onOrderViaChat={handleOrderViaChat} onMakeOffer={handleMakeOffer} onLandingChange={(onLanding) => { setMarketplaceLanding(onLanding); if (!onLanding) setDockVisible(false) }} onHome={() => { setShopOpen(false); setDockVisible(true); setActiveSection('default'); setMarketplaceLanding(true); setActiveTab('map') }} onChat={() => { setShopOpen(false); setDockVisible(true); setActiveSection('default'); setMarketplaceLanding(true); setActiveTab('chat') }} onAlerts={() => setNotifOpen(true)} onProfile={() => { setShopOpen(false); setDockVisible(true); setActiveSection('default'); setMarketplaceLanding(true); setActiveTab('profile') }} />}
+      {shopOpen && <ShopSearchScreen onClose={() => { setShopOpen(false); setDockVisible(true); setGiftForSession(null); setActiveSection('default'); setMarketplaceLanding(true) }} userCity={userProfile?.city} userCountry={userProfile?.country} giftFor={giftForSession} onGiftDismiss={() => setGiftForSession(null)} showToast={showToast} onOrderViaChat={handleOrderViaChat} onMakeOffer={handleMakeOffer} onLandingChange={(onLanding) => { setMarketplaceLanding(onLanding); if (!onLanding) setDockVisible(false) }} onHome={() => { setShopOpen(false); setDockVisible(true); setActiveSection('default'); setMarketplaceLanding(true); setActiveTab('map') }} onChat={() => { setShopOpen(false); setDockVisible(true); setActiveSection('default'); setMarketplaceLanding(true); setActiveTab('chat') }} onAlerts={() => setNotifOpen(true)} onProfile={() => { setShopOpen(false); setDockVisible(true); setActiveSection('default'); setMarketplaceLanding(true); setActiveTab('profile') }} onOpenUsedGoods={() => setUsedGoodsOpen(true)} onOpenWanted={() => setWantedBoardOpen(true)} />}
       </Suspense>
 
       <Suspense fallback={<LazyFallback />}>
@@ -1083,22 +1089,22 @@ export default function AppShell({ returnParams, triggerGoLive }) {
         userProfile={userProfile}
       />
 
-      <HanggerNewsSheet
+      <IndooNewsSheet
         open={newsOpen}
         onClose={() => setNewsOpen(false)}
       />
 
       <QAFeedScreen
         mode="live"
-        open={hanggerLiveOpen}
-        onClose={() => setHanggerLiveOpen(false)}
+        open={indooLiveOpen}
+        onClose={() => setIndooLiveOpen(false)}
         onOrderViaChat={handleOrderViaChat}
         user={user}
         viewerSession={null}
         viewerProfile={userProfile ?? null}
         targetUserId={null}
         onConnect={(profile) => {
-          setHanggerLiveOpen(false)
+          setIndooLiveOpen(false)
           // Reuse the dating card connect flow — profile shape is compatible
           const session = {
             userId:      profile.userId,
@@ -1108,7 +1114,7 @@ export default function AppShell({ returnParams, triggerGoLive }) {
             area:        profile.city ?? profile.area ?? null,
           }
           const myName    = userProfile?.displayName ?? user?.displayName ?? 'Someone'
-          const openingText = `Hi ${profile.displayName?.split(' ')[0] ?? 'there'}! I found you on Hangger Live 👋 I'm ${myName}`
+          const openingText = `Hi ${profile.displayName?.split(' ')[0] ?? 'there'}! I found you on Indoo Live 👋 I'm ${myName}`
           const openingMsg = {
             id:       `intro-${Date.now()}`,
             senderId: user?.id ?? 'me',
@@ -1270,6 +1276,9 @@ export default function AppShell({ returnParams, triggerGoLive }) {
       {/* Marketplace Cart */}
       <Suspense fallback={null}>
         <MarketplaceCartScreen open={marketCartOpen} onClose={() => setMarketCartOpen(false)} onWriteReview={(order) => { setWriteReviewOrder(order); setWriteReviewOpen(true) }} />
+        <BuyerDashboardScreen open={buyerDashOpen} onClose={() => setBuyerDashOpen(false)} onOpenChat={(c) => { setMarketChatContact(c); setMarketChatOpen(true) }} onWriteReview={(order) => { setWriteReviewOrder(order); setWriteReviewOpen(true) }} />
+        <UsedGoodsScreen open={usedGoodsOpen} onClose={() => setUsedGoodsOpen(false)} onOpenChat={(c) => { setMarketChatContact(c); setMarketChatOpen(true) }} />
+        <WantedBoardScreen open={wantedBoardOpen} onClose={() => setWantedBoardOpen(false)} onOpenChat={(c) => { setMarketChatContact(c); setMarketChatOpen(true) }} />
       </Suspense>
 
       {/* Seller Reviews */}
@@ -1319,7 +1328,7 @@ export default function AppShell({ returnParams, triggerGoLive }) {
           theme={(() => {
             if (!shopOpen) return 'default'
             if (shopOpen && marketplaceLanding) return 'marketplace'
-            const role = userProfile?.marketplaceRole || JSON.parse(localStorage.getItem('hangger_profile') || '{}').marketplaceRole
+            const role = userProfile?.marketplaceRole || JSON.parse(localStorage.getItem('indoo_profile') || '{}').marketplaceRole
             if (role === 'both') return 'both'
             if (role === 'seller') return 'seller'
             return 'buyer'
@@ -1334,6 +1343,7 @@ export default function AppShell({ returnParams, triggerGoLive }) {
           onAnalytics={() => { setSellerAnalyticsOpen(true) }}
           onMyShop={() => { setSellerProductsOpen(true) }}
           onWallet={() => { setSellerWalletOpen(true) }}
+          onDashboard={() => { setBuyerDashOpen(true) }}
           onToggleDock={() => setDockVisible(v => !v)}
           activeSection={activeSection}
           rideType={rideVehicleType === 'car_taxi' ? 'car' : 'bike'}
@@ -1406,14 +1416,14 @@ export default function AppShell({ returnParams, triggerGoLive }) {
           onDateIdeas={() => setDateIdeasOpen(true)}
           dateIdeasActive={dateIdeasOpen}
           onSOS={() => setSosOpen(true)}
-          onHanggerLive={() => setHanggerLiveOpen(true)}
-          hanggerLiveActive={hanggerLiveOpen}
+          onIndooLive={() => setIndooLiveOpen(true)}
+          indooLiveActive={indooLiveOpen}
           driverOnline={driverOnline}
           onToggleDriverStatus={() => {
             if (driverOnline === null) return
             const next = !driverOnline
             setDriverOnline(next)
-            localStorage.setItem('hangger_driver_online', String(next))
+            localStorage.setItem('indoo_driver_online', String(next))
             if (supabase && (user?.id ?? user?.uid)) {
               supabase
                 .from('profiles')

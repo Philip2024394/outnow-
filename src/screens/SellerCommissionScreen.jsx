@@ -109,7 +109,7 @@ export default function SellerCommissionScreen({ onClose, onUpgrade }) {
               <div className={styles.payActions}>
                 <a
                   className={styles.btnPay}
-                  href="https://hangger.app/pay-commission"
+                  href="https://indoo.id/pay-commission"
                   target="_blank"
                   rel="noopener noreferrer"
                 >
@@ -136,7 +136,7 @@ export default function SellerCommissionScreen({ onClose, onUpgrade }) {
           <div className={styles.infoBody}>
             <span className={styles.infoTitle}>How commission works</span>
             <p className={styles.infoText}>
-              Hangger charges a <strong>5% commission</strong> on every completed sale.
+              Indoo charges a <strong>5% commission</strong> on every completed sale.
               You have <strong>72 hours</strong> after marking "Payment Received" to settle.
               Unpaid commissions lock your chat reply — buyers can still reach you.
             </p>

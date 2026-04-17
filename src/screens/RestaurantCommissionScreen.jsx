@@ -80,7 +80,7 @@ export default function RestaurantCommissionScreen({ onClose, onUpgrade }) {
           <span className={styles.rateBadgeIcon}>🍽️</span>
           <div>
             <span className={styles.rateBadgeTitle}>10% per completed order</span>
-            <span className={styles.rateBadgeSub}>Hangger charges 10% on every restaurant order marked complete</span>
+            <span className={styles.rateBadgeSub}>Indoo charges 10% on every restaurant order marked complete</span>
           </div>
         </div>
 
@@ -112,7 +112,7 @@ export default function RestaurantCommissionScreen({ onClose, onUpgrade }) {
               <div className={styles.payActions}>
                 <a
                   className={styles.btnPay}
-                  href="https://hangger.app/pay-commission"
+                  href="https://indoo.id/pay-commission"
                   target="_blank"
                   rel="noopener noreferrer"
                 >
@@ -139,7 +139,7 @@ export default function RestaurantCommissionScreen({ onClose, onUpgrade }) {
           <div className={styles.infoBody}>
             <span className={styles.infoTitle}>How restaurant commission works</span>
             <p className={styles.infoText}>
-              Hangger charges <strong>10% commission</strong> when you mark an order as
+              Indoo charges <strong>10% commission</strong> when you mark an order as
               complete. You have <strong>72 hours</strong> to pay. Unpaid commissions
               lock your chat — customers can still message you but you cannot reply.
             </p>

@@ -1,0 +1,60 @@
+.screen { position: fixed; inset: 0; z-index: 9800; background: #080808; display: flex; flex-direction: column; overflow: hidden; }
+.header { display: flex; align-items: center; gap: 12px; padding: 14px 16px; background: #111; border-bottom: 1px solid rgba(255,255,255,0.06); }
+.backBtn { background: none; border: none; color: #fff; cursor: pointer; padding: 4px; }
+.headerText { flex: 1; display: flex; flex-direction: column; }
+.title { font-size: 16px; font-weight: 800; color: #fff; margin: 0; }
+.subtitle { font-size: 11px; color: rgba(255,255,255,0.35); font-weight: 600; }
+.addBtn { padding: 8px 16px; background: #8DC63F; border: none; border-radius: 10px; color: #000; font-size: 13px; font-weight: 800; cursor: pointer; font-family: inherit; }
+
+/* Post form */
+.form { padding: 14px 16px; background: rgba(141,198,63,0.04); border-bottom: 1px solid rgba(141,198,63,0.1); display: flex; flex-direction: column; gap: 8px; }
+.formInput { padding: 10px 14px; background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.08); border-radius: 10px; color: #fff; font-size: 14px; font-family: inherit; outline: none; }
+.formInput::placeholder { color: rgba(255,255,255,0.25); }
+.formInput:focus { border-color: rgba(141,198,63,0.3); }
+.formTextarea { padding: 10px 14px; background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.08); border-radius: 10px; color: #fff; font-size: 14px; font-family: inherit; outline: none; resize: none; }
+.formTextarea::placeholder { color: rgba(255,255,255,0.25); }
+.formTextarea:focus { border-color: rgba(141,198,63,0.3); }
+.formSelect { flex: 1; padding: 10px 14px; background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.08); border-radius: 10px; color: #fff; font-size: 13px; font-family: inherit; outline: none; }
+.formRow { display: flex; gap: 8px; }
+.condRow { display: flex; gap: 6px; flex: 1; }
+.condBtn { flex: 1; padding: 8px 4px; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.08); border-radius: 8px; color: rgba(255,255,255,0.4); font-size: 12px; font-weight: 700; cursor: pointer; font-family: inherit; }
+.condBtnOn { background: rgba(141,198,63,0.12); border-color: rgba(141,198,63,0.3); color: #8DC63F; }
+.formSubmit { padding: 12px; background: #8DC63F; border: none; border-radius: 10px; color: #000; font-size: 14px; font-weight: 800; cursor: pointer; font-family: inherit; margin-top: 4px; }
+.formSubmit:disabled { opacity: 0.5; cursor: not-allowed; }
+
+/* Search */
+.searchRow { padding: 10px 16px 0; }
+.searchWrap { display: flex; align-items: center; gap: 8px; padding: 10px 14px; background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.08); border-radius: 12px; }
+.searchWrap svg { color: rgba(255,255,255,0.3); flex-shrink: 0; }
+.searchInput { flex: 1; background: none; border: none; outline: none; color: #fff; font-size: 14px; font-family: inherit; }
+.searchInput::placeholder { color: rgba(255,255,255,0.25); }
+
+/* Content */
+.content { flex: 1; overflow-y: auto; padding: 10px 16px 100px; display: flex; flex-direction: column; gap: 12px; }
+.empty { display: flex; flex-direction: column; align-items: center; gap: 8px; padding: 60px 20px; color: rgba(255,255,255,0.3); font-size: 14px; }
+.emptyIcon { font-size: 40px; }
+.emptySub { font-size: 12px; color: rgba(255,255,255,0.2); }
+
+/* Wanted card */
+.card { background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.06); border-radius: 16px; padding: 16px; transition: border-color 0.3s; }
+.card:hover { border-color: rgba(141,198,63,0.2); }
+.cardHeader { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 10px; }
+.cardUser { display: flex; align-items: center; gap: 10px; }
+.cardAvatar { width: 36px; height: 36px; border-radius: 50%; object-fit: cover; }
+.cardAvatarFallback { width: 36px; height: 36px; border-radius: 50%; background: rgba(141,198,63,0.15); display: flex; align-items: center; justify-content: center; font-size: 15px; font-weight: 800; color: #8DC63F; }
+.cardUserInfo { display: flex; flex-direction: column; }
+.cardUserName { font-size: 13px; font-weight: 700; color: #fff; }
+.cardTime { font-size: 11px; color: rgba(255,255,255,0.3); }
+.cardBadges { display: flex; gap: 6px; }
+.condPill { padding: 3px 10px; border-radius: 20px; font-size: 10px; font-weight: 700; }
+.condPillNew { background: rgba(52,199,89,0.12); color: #34C759; border: 1px solid rgba(52,199,89,0.2); }
+.condPillUsed { background: rgba(251,191,36,0.12); color: #FBBF24; border: 1px solid rgba(251,191,36,0.2); }
+.condPillEither { background: rgba(59,130,246,0.12); color: #3B82F6; border: 1px solid rgba(59,130,246,0.2); }
+.cardTitle { font-size: 16px; font-weight: 800; color: #fff; margin: 0 0 6px; line-height: 1.3; }
+.cardDesc { font-size: 13px; color: rgba(255,255,255,0.5); margin: 0 0 10px; line-height: 1.5; }
+.cardImage { width: 100%; max-height: 200px; object-fit: cover; border-radius: 10px; margin-bottom: 10px; }
+.cardFooter { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.cardBudget { font-size: 14px; font-weight: 800; color: #8DC63F; }
+.cardCat { padding: 3px 10px; background: rgba(255,255,255,0.05); border-radius: 20px; font-size: 10px; font-weight: 700; color: rgba(255,255,255,0.35); }
+.haveItBtn { margin-left: auto; padding: 8px 16px; background: rgba(141,198,63,0.12); border: 1px solid rgba(141,198,63,0.3); border-radius: 10px; color: #8DC63F; font-size: 13px; font-weight: 800; cursor: pointer; font-family: inherit; }
+.haveItBtn:active { transform: scale(0.96); }

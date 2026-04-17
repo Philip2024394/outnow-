@@ -79,7 +79,7 @@ export function useNotifications() {
           }
 
           if (!suppress) {
-            newNotifs.forEach(n => notify(n.title || 'Hangger', { body: n.body || '', tag: n.id }))
+            newNotifs.forEach(n => notify(n.title || 'Indoo', { body: n.body || '', tag: n.id }))
           }
         }
       }

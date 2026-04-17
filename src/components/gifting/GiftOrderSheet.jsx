@@ -2,7 +2,7 @@
  * GiftOrderSheet.jsx
  * Anonymous gift checkout sheet.
  *
- * Shows: recipient chip, product details, Hangger delivery tier pricing,
+ * Shows: recipient chip, product details, Indoo delivery tier pricing,
  * optional anonymous message, and a "Send Gift Anonymously" button.
  *
  * Privacy: the buyer never sees the recipient's address.
@@ -73,7 +73,7 @@ export default function GiftOrderSheet({ open, product, seller, giftFor, onClose
 
   const distanceKm    = giftFor.distanceKm ?? giftFor.distKm ?? null
   const tier          = getDeliveryTier(distanceKm)   // null when > 20 km from seller
-  const hanggerAvail  = tier !== null                  // false → hide bike delivery, don't block
+  const indooAvail  = tier !== null                  // false → hide bike delivery, don't block
   const totalPrice    = Number(product.price ?? 0) + Number(tier?.fee ?? 0)
 
   const handleSend = async () => {
@@ -243,10 +243,10 @@ export default function GiftOrderSheet({ open, product, seller, giftFor, onClose
         </div>
 
         {/* Delivery pricing — only shown when seller is within 20 km */}
-        {hanggerAvail ? (
+        {indooAvail ? (
           <div className={styles.deliverySection}>
             <div className={styles.deliveryTitle}>
-              <span>🏍️ Hangger Local Delivery</span>
+              <span>🏍️ Indoo Local Delivery</span>
               {distanceKm != null && (
                 <span className={styles.distanceTag}>{distanceKm.toFixed(1)} km</span>
               )}
@@ -274,7 +274,7 @@ export default function GiftOrderSheet({ open, product, seller, giftFor, onClose
           </div>
         ) : (
           <div className={styles.sellerShipsNote}>
-            🚚 Outside Hangger local range — the seller will arrange delivery.
+            🚚 Outside Indoo local range — the seller will arrange delivery.
             Contact the seller after ordering to confirm shipping method.
           </div>
         )}

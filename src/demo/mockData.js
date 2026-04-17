@@ -34,7 +34,7 @@ export const DEMO_USER = {
   displayName: 'You',
   photoURL: null,
   phoneNumber: null,
-  email: 'demo@hangger.app',
+  email: 'demo@indoo.id',
 }
 
 const _ACTIVE_SESSIONS = [
@@ -1383,7 +1383,7 @@ export const DEMO_CATEGORY_SESSIONS = [
     displayName: 'Nikos', age: 45,
     photoURL: 'https://picsum.photos/seed/cat-restaurant/400/500',
     photos: ['https://picsum.photos/seed/cat-restaurant/400/500'],
-    bio: 'Owner of a Greek taverna in Islington — homemade moussaka, fresh octopus and proper retsina. Walk-ins welcome or book a table via Hangger.',
+    bio: 'Owner of a Greek taverna in Islington — homemade moussaka, fresh octopus and proper retsina. Walk-ins welcome or book a table via Indoo.',
     lookingFor: 'restaurant',
     activityType: 'food', activities: ['food', 'drinks'],
     brandName: 'Nikos Taverna', tradeRole: 'selling', cuisineType: 'greek',

@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import { supabase } from '@/lib/supabase'
-import styles from './HanggerNewsTab.module.css'
+import styles from './IndooNewsTab.module.css'
 
 const SECTIONS = [
   { value: 'weekly',       label: 'Weekly Recap',   emoji: '📰', color: '#8DC63F' },
@@ -30,7 +30,7 @@ function daysSince(dateStr) {
   return `${days} days ago`
 }
 
-export default function HanggerNewsTab() {
+export default function IndooNewsTab() {
   const [posts, setPosts]       = useState([])
   const [loading, setLoading]   = useState(true)
   const [editing, setEditing]   = useState(null)   // null = list view, {} = form
@@ -224,7 +224,7 @@ export default function HanggerNewsTab() {
     <div className={styles.wrap}>
       <div className={styles.listHeader}>
         <div>
-          <h2 className={styles.listTitle}>Hangger News Posts</h2>
+          <h2 className={styles.listTitle}>Indoo News Posts</h2>
           <p className={styles.listSub}>Update every few days — users see all active posts in the app</p>
         </div>
         <button className={styles.newBtn} onClick={() => setEditing({ ...BLANK })}>
@@ -237,7 +237,7 @@ export default function HanggerNewsTab() {
       ) : posts.length === 0 ? (
         <div className={styles.empty}>
           <span className={styles.emptyIcon}>📰</span>
-          <p>No posts yet. Create your first Hangger News post.</p>
+          <p>No posts yet. Create your first Indoo News post.</p>
           <button className={styles.newBtn} onClick={() => setEditing({ ...BLANK })}>Create Post</button>
         </div>
       ) : (

@@ -98,7 +98,7 @@ export default function NotificationsTab() {
         <div className={styles.statCard} style={{ borderTopColor: '#A855F7' }}>
           <span className={styles.statLabel}>Ride Alerts</span>
           <span className={styles.statValue}>{notifs.filter(n => n.type === 'ride' || n.type === 'ride_accepted').length}</span>
-          <span className={styles.statSub}>hangger rides</span>
+          <span className={styles.statSub}>indoo rides</span>
         </div>
       </div>
 

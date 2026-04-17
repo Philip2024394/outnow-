@@ -108,7 +108,7 @@ export default function DriverWarningScreen({ driverId, warningType = 'missed', 
                 {new Date().toLocaleDateString('en-GB', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })}
               </p>
               <h2 className={styles.reviewTitle}>Performance Review</h2>
-              <p className={styles.reviewSub}>Prepared by Hangger Driver Operations</p>
+              <p className={styles.reviewSub}>Prepared by Indoo Driver Operations</p>
             </div>
 
             {/* Driver profile card */}
@@ -183,7 +183,7 @@ export default function DriverWarningScreen({ driverId, warningType = 'missed', 
               <div className={styles.mgmtSignature}>
                 <span className={styles.mgmtSigIcon}>🏢</span>
                 <div>
-                  <p className={styles.mgmtSigName}>Hangger Management</p>
+                  <p className={styles.mgmtSigName}>Indoo Management</p>
                   <p className={styles.mgmtSigTitle}>Head Office · Driver Operations</p>
                 </div>
               </div>
@@ -220,7 +220,7 @@ export default function DriverWarningScreen({ driverId, warningType = 'missed', 
 
               <p className={styles.policyBody}>
                 Missing or declining customer bookings is a direct violation of your
-                <strong> Hangger Policy Agreement</strong>. Every missed or declined ride
+                <strong> Indoo Policy Agreement</strong>. Every missed or declined ride
                 negatively impacts our customers and the quality of service we are
                 committed to delivering.
               </p>
@@ -245,7 +245,7 @@ export default function DriverWarningScreen({ driverId, warningType = 'missed', 
             <div className={styles.signatureLine}>
               <span className={styles.signatureIcon}>🏢</span>
               <div>
-                <p className={styles.signatureName}>Hangger Management</p>
+                <p className={styles.signatureName}>Indoo Management</p>
                 <p className={styles.signatureTitle}>Head Office · Driver Operations</p>
               </div>
             </div>

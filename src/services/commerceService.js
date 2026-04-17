@@ -10,7 +10,7 @@ import { recordCommission } from './commissionService'
 export const DEMO_PRODUCTS = [
   {
     id: 'demo-1', name: 'Wireless Earbuds Pro', price: 350000, currency: 'IDR',
-    category: 'electronics', stock: 12, active: true, isNew: true,
+    category: 'electronics', stock: 12, active: true, isNew: true, condition: 'new',
     weight_grams: 250, dimensions: '8 x 6 x 4 cm',
     dispatch_time: '1-2 business days', brand_name: 'SoundMax',
     safeTrade: { enabled: true, paypal: true, escrow: true },
@@ -41,7 +41,7 @@ export const DEMO_PRODUCTS = [
   },
   {
     id: 'demo-2', name: 'Leather Crossbody Bag', weight_grams: 650, dimensions: '26 x 18 x 8 cm', price: 1200000, currency: 'IDR',
-    category: 'bags', stock: 5, active: true, isNew: true,
+    category: 'bags', stock: 5, active: true, isNew: true, condition: 'new',
     dispatch_time: '2-3 business days', brand_name: 'Kulit Asli',
     safeTrade: { enabled: true, paypal: true, escrow: false },
     custom_branding: 'Yes — Custom packaging',
@@ -76,7 +76,7 @@ export const DEMO_PRODUCTS = [
   },
   {
     id: 'demo-3', name: 'Leather Tote Bag', price: 850000, currency: 'IDR',
-    category: 'bags', stock: 8, active: true, dispatch_time: '3-5 business days', brand_name: 'Kulit Asli',
+    category: 'bags', stock: 8, active: true, condition: 'like_new', dispatch_time: '3-5 business days', brand_name: 'Kulit Asli',
     image: 'https://ik.imagekit.io/nepgaxllc/Untitleddsadasaaassssdasdcxc.png',
     description: 'Spacious tote in full-grain leather. Perfect for work or weekend. Handcrafted in Bali.',
     specs: {
@@ -103,7 +103,7 @@ export const DEMO_PRODUCTS = [
   },
   {
     id: 'demo-4', name: 'Slim Card Wallet', price: 320000, currency: 'IDR',
-    category: 'bags', stock: 20, active: true, isNew: true, dispatch_time: 'Same day', brand_name: 'Kulit Asli',
+    category: 'bags', stock: 20, active: true, isNew: true, condition: 'new', dispatch_time: 'Same day', brand_name: 'Kulit Asli',
     flashSale: { active: true, discountPercent: 15, endsAt: Date.now() + 3 * 60 * 60 * 1000 },
     image: 'https://ik.imagekit.io/nepgaxllc/Untitleddsadasaaassssdasdcxcasdasda.png',
     description: 'Slim genuine leather card wallet. Holds 6 cards + cash pocket.',
@@ -134,7 +134,7 @@ export const DEMO_PRODUCTS = [
   },
   {
     id: 'demo-5', name: 'Bifold Leather Wallet', price: 450000, currency: 'IDR',
-    category: 'bags', stock: 15, active: true, dispatch_time: '1 business day', brand_name: 'Kulit Asli',
+    category: 'bags', stock: 15, active: true, condition: 'good', dispatch_time: '1 business day', brand_name: 'Kulit Asli',
     image: 'https://ik.imagekit.io/nepgaxllc/Untitleddsadasaaassssdasdcxcasdasdadfssdf.png',
     description: 'Classic bifold with 8 card slots, ID window and bill compartment.',
     specs: {
@@ -163,7 +163,7 @@ export const DEMO_PRODUCTS = [
   },
   {
     id: 'demo-6', name: 'Leather Keychain', price: 95000, currency: 'IDR',
-    category: 'handmade', stock: 40, active: true, dispatch_time: '2-4 weeks (made to order)',
+    category: 'handmade', stock: 40, active: true, condition: 'fair', dispatch_time: '2-4 weeks (made to order)',
     custom_branding: 'Yes — Logo printing available',
     image: 'https://ik.imagekit.io/nepgaxllc/Untitledzxczxczxczx.png',
     description: 'Hand-stitched leather keychain. Personalised initials available.',
@@ -264,6 +264,35 @@ export async function deleteProduct(productId) {
   try {
     await supabase.from('products').delete().eq('id', productId)
   } catch { /* noop */ }
+}
+
+// ── Browse all products (buyer-facing) ───────────────────────────────────────
+export async function fetchAllProducts({ condition } = {}) {
+  try {
+    let q = supabase
+      .from('products')
+      .select('*, seller:user_id ( display_name, brand_name, avatar_url, city )')
+      .eq('active', true)
+      .order('created_at', { ascending: false })
+      .limit(100)
+    if (condition === 'used') q = q.in('condition', ['like_new', 'good', 'fair', 'used'])
+    else if (condition === 'new') q = q.eq('condition', 'new')
+    const { data, error } = await q
+    if (error || !data?.length) {
+      const filtered = condition === 'used'
+        ? DEMO_PRODUCTS.filter(p => p.condition && p.condition !== 'new')
+        : condition === 'new'
+        ? DEMO_PRODUCTS.filter(p => !p.condition || p.condition === 'new')
+        : DEMO_PRODUCTS
+      return filtered
+    }
+    return data
+  } catch {
+    const filtered = condition === 'used'
+      ? DEMO_PRODUCTS.filter(p => p.condition && p.condition !== 'new')
+      : DEMO_PRODUCTS
+    return filtered
+  }
 }
 
 // ── Orders ───────────────────────────────────────────────────────────────────

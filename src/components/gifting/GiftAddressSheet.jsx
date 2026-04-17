@@ -73,7 +73,7 @@ export default function GiftAddressSheet({ open, onClose, showToast }) {
           <div className={styles.headerText}>
             <h2 className={styles.title}>Gift Delivery Address</h2>
             <p className={styles.subtitle}>
-              Private — only used when someone sends you a gift via Hangger
+              Private — only used when someone sends you a gift via Indoo
             </p>
           </div>
         </div>

@@ -78,7 +78,7 @@
 }
 
 /* Clipping wrapper crops the whitespace padding in the source image */
-.hanggerLogoWrap {
+.indooLogoWrap {
   width: 200px;
   height: 66px;
   overflow: hidden;
@@ -88,7 +88,7 @@
   margin-left: -13px;
 }
 
-.hanggerLogoImg {
+.indooLogoImg {
   position: absolute;
   width: 220%;
   top: 50%;

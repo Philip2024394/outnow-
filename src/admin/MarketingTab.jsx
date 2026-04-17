@@ -38,7 +38,7 @@ function generateAds(topic, tone, platform) {
     tiktok:    ['POV:','Wait for it…','This changed everything →','No one talks about this:','Here\'s why 👇','You need to see this:','Real talk:','Okay but hear me out','Not me discovering','This is your sign'],
     facebook:  ['Have you tried','Did you know','Introducing','We\'re excited to share','Don\'t miss out on','Here\'s what people are saying about','Find out why thousands love','Join us for','Today only:','Limited time:'],
     whatsapp:  ['👋 Hey!','📢 Big news!','🎉 Exciting!','⚡ Quick update:','✅ Just launched:','🔔 Reminder:','💡 Did you know?','🎯 Special offer:','🌟 Featured:','🚨 Alert:'],
-    inapp:     ['New on Hangger:','Just for you:','Featured today:','Hot right now:','Don\'t miss:','Trending:','Top pick:','Exclusive:','New update:','Check this out:'],
+    inapp:     ['New on Indoo:','Just for you:','Featured today:','Hot right now:','Don\'t miss:','Trending:','Top pick:','Exclusive:','New update:','Check this out:'],
   }
   const suffix = {
     Professional:   'Learn more and get started today.',
@@ -53,18 +53,18 @@ function generateAds(topic, tone, platform) {
   return platformHooks.map((hook, i) => {
     const mid = [
       `${topic} is here and it\'s better than ever.`,
-      `Discover ${topic} on Hangger — Jakarta\'s #1 app.`,
+      `Discover ${topic} on Indoo — Jakarta\'s #1 app.`,
       `${topic} just got a major upgrade. Here\'s what\'s new.`,
       `Thousands of users are already loving ${topic}.`,
       `Get the best ${topic} experience right on your phone.`,
-      `${topic} available now — download Hangger free.`,
+      `${topic} available now — download Indoo free.`,
       `Your ${topic} experience is about to change forever.`,
       `We built ${topic} just for you. Here\'s why it matters.`,
-      `${topic} on Hangger is now live. Don\'t miss it.`,
-      `The future of ${topic} is here. Meet Hangger.`,
+      `${topic} on Indoo is now live. Don\'t miss it.`,
+      `The future of ${topic} is here. Meet Indoo.`,
     ][i]
     const hashTags = platform === 'instagram' || platform === 'tiktok'
-      ? `\n\n#${topic.replace(/\s/g,'')} #Hangger #Jakarta #Indonesia #${tone.replace(/\s/g,'')}` : ''
+      ? `\n\n#${topic.replace(/\s/g,'')} #Indoo #Jakarta #Indonesia #${tone.replace(/\s/g,'')}` : ''
     return `${hook} ${mid} ${suffix[tone]}${hashTags}`
   })
 }
@@ -238,12 +238,12 @@ function PreviewModal({ show, onClose, postType, bannerSrc, overlays, transform,
               <div className={s.phoneScreen}>
                 {tab === 'whatsapp' && (
                   <div className={s.waPreview}>
-                    <div className={s.waHeader}><div className={s.waAvatar}>H</div><div><div className={s.waName}>Hangger Admin</div><div className={s.waStatus}>online</div></div></div>
+                    <div className={s.waHeader}><div className={s.waAvatar}>H</div><div><div className={s.waName}>Indoo Admin</div><div className={s.waStatus}>online</div></div></div>
                     <div className={s.waMessages}>
                       <div className={s.waBubble}>
                         {postType === 'banner' && bannerSrc && <BannerPreview />}
                         {postType === 'video'  && <div className={s.videoPreviewThumb}>🎬 {videoMeta.title || 'Video'}</div>}
-                        <div className={s.waBubbleText}>{postType === 'text' ? richText : (videoMeta.desc || overlays[0]?.text || 'Check out Hangger! 🚀')}</div>
+                        <div className={s.waBubbleText}>{postType === 'text' ? richText : (videoMeta.desc || overlays[0]?.text || 'Check out Indoo! 🚀')}</div>
                         {videoMeta.link && <div className={s.waLink}>🔗 {videoMeta.link}</div>}
                         <div className={s.waBubbleTime}>now ✓✓</div>
                       </div>
@@ -252,20 +252,20 @@ function PreviewModal({ show, onClose, postType, bannerSrc, overlays, transform,
                 )}
                 {tab === 'social' && (
                   <div className={s.instaPreview}>
-                    <div className={s.instaHeader}><div className={s.instaAvatar}>H</div><span className={s.instaUser}>hangger.official</span></div>
+                    <div className={s.instaHeader}><div className={s.instaAvatar}>I</div><span className={s.instaUser}>indoo.official</span></div>
                     {postType === 'banner' && <BannerPreview />}
                     {postType === 'video'  && <div className={s.videoPreviewThumb} style={{ aspectRatio:'1', borderRadius:0 }}>🎬 {videoMeta.title}</div>}
                     <div className={s.instaActions}>❤️ 💬 📤</div>
-                    <div className={s.instaCaption}><b>hangger.official</b> {postType === 'text' ? richText : (overlays[0]?.text || videoMeta.desc || 'New on Hangger 🚀')}</div>
+                    <div className={s.instaCaption}><b>indoo.official</b> {postType === 'text' ? richText : (overlays[0]?.text || videoMeta.desc || 'New on Indoo 🚀')}</div>
                   </div>
                 )}
                 {tab === 'inapp' && (
                   <div className={s.inappPreview}>
                     <div className={s.inappBubble}>
-                      <span className={s.inappBadge}>📢 Hangger</span>
+                      <span className={s.inappBadge}>📢 Indoo</span>
                       {postType === 'banner' && bannerSrc && <BannerPreview />}
                       {postType === 'video'  && <div className={s.videoPreviewThumb}>🎬 {videoMeta.title}</div>}
-                      <div className={s.inappText}>{postType === 'text' ? richText : (overlays[0]?.text || videoMeta.desc || 'New message from Hangger!')}</div>
+                      <div className={s.inappText}>{postType === 'text' ? richText : (overlays[0]?.text || videoMeta.desc || 'New message from Indoo!')}</div>
                       {videoMeta.link && <div className={s.waLink}>🔗 Open App</div>}
                     </div>
                   </div>
@@ -647,7 +647,7 @@ export default function MarketingTab() {
                 <div className={s.videoMeta}>
                   <div className={s.field}><label className={s.fieldLabel}>Title</label><input className={s.metaInput} value={videoMeta.title} onChange={e => setVideoMeta(m => ({ ...m, title: e.target.value }))} placeholder="Video title…" /></div>
                   <div className={s.field}><label className={s.fieldLabel}>Description</label><textarea className={s.metaTextarea} value={videoMeta.desc} onChange={e => setVideoMeta(m => ({ ...m, desc: e.target.value }))} rows={3} placeholder="Add a description…" /></div>
-                  <div className={s.field}><label className={s.fieldLabel}>🔗 App Link (push traffic)</label><input className={s.metaInput} value={videoMeta.link} onChange={e => setVideoMeta(m => ({ ...m, link: e.target.value }))} placeholder="https://hangger.app/feature/…" /></div>
+                  <div className={s.field}><label className={s.fieldLabel}>🔗 App Link (push traffic)</label><input className={s.metaInput} value={videoMeta.link} onChange={e => setVideoMeta(m => ({ ...m, link: e.target.value }))} placeholder="https://indoo.id/feature/…" /></div>
                 </div>
               </div>
             )}

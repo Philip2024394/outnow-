@@ -113,9 +113,9 @@ export default function MarketplaceSignUpScreen({ open, onClose, onComplete }) {
       }
     }
 
-    const existing = JSON.parse(localStorage.getItem('hangger_profile') || '{}')
+    const existing = JSON.parse(localStorage.getItem('indoo_profile') || '{}')
     existing.phone = cleanPhone
-    localStorage.setItem('hangger_profile', JSON.stringify(existing))
+    localStorage.setItem('indoo_profile', JSON.stringify(existing))
 
     setSaving(false)
     // After account created, go to categories for sellers, done for buyers
@@ -172,8 +172,8 @@ export default function MarketplaceSignUpScreen({ open, onClose, onComplete }) {
       }).eq('id', user.id).catch(() => {})
     }
 
-    const existing = JSON.parse(localStorage.getItem('hangger_profile') || '{}')
-    localStorage.setItem('hangger_profile', JSON.stringify({ ...existing, ...payload }))
+    const existing = JSON.parse(localStorage.getItem('indoo_profile') || '{}')
+    localStorage.setItem('indoo_profile', JSON.stringify({ ...existing, ...payload }))
 
     setSaving(false)
     setStep('done')

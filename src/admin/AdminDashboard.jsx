@@ -12,7 +12,7 @@ import RestaurantsTab from './RestaurantsTab'
 import DriversTab     from './DriversTab'
 import PricingTab     from './PricingTab'
 import BookingsTab    from './BookingsTab'
-import HanggerNewsTab from './HanggerNewsTab'
+import IndooNewsTab from './IndooNewsTab'
 import NotificationsTab from './NotificationsTab'
 import MessagesTab   from './tabs/MessagesTab'
 import MarketingTab  from './MarketingTab'
@@ -93,7 +93,7 @@ export default function AdminDashboard({ onLogout }) {
       {/* ── Sidebar ── */}
       <aside className={styles.sidebar}>
         <div className={styles.sideTop}>
-          <img src={LOGO} alt="Hangger" className={styles.logo} />
+          <img src={LOGO} alt="Indoo" className={styles.logo} />
           <span className={styles.adminLabel}>ADMIN SYSTEM</span>
           <span className={styles.version}>v2.0 · 2030</span>
         </div>
@@ -154,7 +154,7 @@ export default function AdminDashboard({ onLogout }) {
                 ⚠ {alertCount} issue{alertCount > 1 ? 's' : ''}
               </button>
             )}
-            <span className={styles.adminTag}>hangger.admin</span>
+            <span className={styles.adminTag}>indoo.admin</span>
           </div>
         </header>
 
@@ -171,7 +171,7 @@ export default function AdminDashboard({ onLogout }) {
           {tab === 'drivers'     && <DriversTab />}
           {tab === 'id_verify'   && <IdVerificationTab />}
           {tab === 'bookings'    && <BookingsTab />}
-          {tab === 'news'        && <HanggerNewsTab />}
+          {tab === 'news'        && <IndooNewsTab />}
           {tab === 'pricing'     && <PricingTab />}
           {tab === 'notify'      && <NotificationsTab />}
           {tab === 'messages'    && <MessagesTab />}

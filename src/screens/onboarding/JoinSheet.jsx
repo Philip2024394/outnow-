@@ -166,7 +166,7 @@ export default function JoinSheet({ open, onClose, initialStep = 'phone' }) {
       {/* Logo — top-left, same position as home screen */}
       <img
         src="https://ik.imagekit.io/nepgaxllc/Untitleddsfsdf-removebg-preview.png"
-        alt="Hangger"
+        alt="Indoo"
         className={styles.headerLogo}
         draggable={false}
       />

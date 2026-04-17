@@ -235,7 +235,7 @@
   display: flex;
   align-items: center;
   gap: 8px;
-  padding: 2px 14px 6px;
+  padding: 12px 14px 10px;
   flex-shrink: 0;
 }
 
@@ -250,16 +250,17 @@
 
 .mainTab {
   flex: 1;
-  padding: 10px 8px;
+  padding: 10px 4px;
   background: none;
   border: none;
   border-bottom: 2px solid transparent;
   color: rgba(255,255,255,0.35);
-  font-size: 12px;
-  font-weight: 700;
+  font-size: 13px;
+  font-weight: 800;
   cursor: pointer;
   font-family: inherit;
   text-align: center;
+  white-space: nowrap;
   transition: color 0.15s, border-color 0.15s;
 }
 
@@ -888,6 +889,32 @@
   display: flex; flex-direction: column; gap: 10px;
   padding: 12px 14px 0;
 }
+/* ── Landing page section cards ─────────────────────────────────────────────── */
+.landingCards {
+  position: relative; z-index: 2;
+  display: grid; grid-template-columns: 1fr 1fr;
+  gap: 12px; padding: 20px 24px 12px;
+}
+.landingCard {
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  gap: 6px; padding: 22px 12px;
+  background: rgba(0,0,0,0.55);
+  backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px);
+  border: 1.5px solid rgba(255,255,255,0.08);
+  border-radius: 16px;
+  cursor: pointer; font-family: inherit;
+  transition: transform 0.2s ease, border-color 0.3s ease, box-shadow 0.3s ease;
+}
+.landingCard:hover {
+  border-color: rgba(141,198,63,0.4);
+  box-shadow: 0 0 20px rgba(141,198,63,0.15);
+  transform: scale(1.03);
+}
+.landingCard:active { transform: scale(0.96); }
+.landingCardIcon { font-size: 32px; filter: drop-shadow(0 2px 6px rgba(0,0,0,0.4)); }
+.landingCardTitle { font-size: 14px; font-weight: 800; color: #fff; }
+.landingCardSub { font-size: 11px; color: rgba(255,255,255,0.4); font-weight: 600; }
+
 .landingFooter {
   position: relative; z-index: 2;
   padding: 0 24px calc(env(safe-area-inset-bottom, 8px) + 24px);

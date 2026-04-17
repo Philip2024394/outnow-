@@ -434,7 +434,7 @@ export default function ProfileBioSection({
           />
           <span className={styles.bioCount}>{bio.length}/350</span>
           <ul className={styles.bioHints}>
-            <li>This text appears on your <strong>Hangger Live</strong> feed card, visible to everyone browsing the live feed</li>
+            <li>This text appears on your <strong>Indoo Live</strong> feed card, visible to everyone browsing the live feed</li>
             <li>Max 350 characters including spaces</li>
             <li>Be clear and engaging — this is your first impression in the live feed</li>
           </ul>

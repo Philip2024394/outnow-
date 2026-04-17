@@ -1,5 +1,5 @@
 /**
- * Hangger — Category Copy System
+ * Indoo — Category Copy System
  *
  * Drives all text content on maker/business profile cards.
  * Layout, colors, and design are untouched — only labels and copy change.

@@ -245,9 +245,9 @@ export async function unblockAccount({ phone, userId }) {
 }
 
 // ── Delivery options helpers ──────────────────────────────────────────────────
-// Marketplace sellers can use couriers. Food delivery is Hangger Ride only.
+// Marketplace sellers can use couriers. Food delivery is Indoo Ride only.
 export const DELIVERY_SERVICES = [
-  { type: 'hangger_ride', label: 'Hangger Ride 🚲', cityOnly: true,  baseFare: 15000, perKm: 3000, food: true  },
+  { type: 'indoo_ride', label: 'Indoo Ride 🚲', cityOnly: true,  baseFare: 15000, perKm: 3000, food: true  },
   { type: 'jne',          label: 'JNE',              cityOnly: false, baseFare: 9000,  perKm: 0,    food: false },
   { type: 'jnt',          label: 'J&T Express',      cityOnly: false, baseFare: 8000,  perKm: 0,    food: false },
   { type: 'sicepat',      label: 'SiCepat',          cityOnly: false, baseFare: 8000,  perKm: 0,    food: false },
@@ -289,7 +289,7 @@ export const EXPORT_CARRIERS = [
 // All freight carriers combined
 export const ALL_CARRIERS = [...PARCEL_CARRIERS, ...CARGO_CARRIERS, ...EXPORT_CARRIERS]
 
-// Food delivery only uses Hangger Ride (bike) — couriers don't deliver hot food.
+// Food delivery only uses Indoo Ride (bike) — couriers don't deliver hot food.
 export const FOOD_DELIVERY_SERVICES = DELIVERY_SERVICES.filter(s => s.food)
 
 export async function saveDeliveryOptions(userId, options) {

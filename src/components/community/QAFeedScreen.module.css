@@ -227,7 +227,7 @@
   100% { transform: translateX(-50%); }
 }
 
-/* ── Search bar (Hangger Live) ─────────────────────────────────────────────── */
+/* ── Search bar (Indoo Live) ─────────────────────────────────────────────── */
 .searchBar {
   position: absolute;
   top: calc(env(safe-area-inset-top, 0px) + 56px);
@@ -1068,7 +1068,7 @@
   display: block;
 }
 
-/* ── Yellow / black / white theme for Hangger Live ─────────────────────────── */
+/* ── Yellow / black / white theme for Indoo Live ─────────────────────────── */
 
 /* CSS custom property so a single token controls the whole live palette */
 .screenLive { --live: #f5c518; --live-dim: rgba(245,197,24,0.18); --live-border: rgba(245,197,24,0.35); }

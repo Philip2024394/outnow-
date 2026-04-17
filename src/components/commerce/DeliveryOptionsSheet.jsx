@@ -1,7 +1,7 @@
 /**
  * DeliveryOptionsSheet
  * Bottom sheet for sellers to toggle which delivery services they offer
- * and set a base fare for Hangger Ride.
+ * and set a base fare for Indoo Ride.
  */
 import { useState, useEffect } from 'react'
 import { useAuth } from '@/hooks/useAuth'
@@ -31,8 +31,8 @@ export default function DeliveryOptionsSheet({ open, onClose, onSaved, mode = 'm
     const uid = user?.uid ?? user?.id
     if (!uid) {
       // Demo: pre-toggle a few
-      setEnabled({ hangger_ride: true, jnt: true, jne: true })
-      setFareEdit({ hangger_ride: '15000' })
+      setEnabled({ indoo_ride: true, jnt: true, jne: true })
+      setFareEdit({ indoo_ride: '15000' })
       return
     }
     fetchDeliveryOptions(uid).then(opts => {
@@ -109,8 +109,8 @@ export default function DeliveryOptionsSheet({ open, onClose, onSaved, mode = 'm
                 </div>
 
                 <div className={styles.rowRight}>
-                  {/* Custom base fare for Hangger Ride when enabled */}
-                  {on && service.type === 'hangger_ride' && (
+                  {/* Custom base fare for Indoo Ride when enabled */}
+                  {on && service.type === 'indoo_ride' && (
                     <div
                       className={styles.fareInputWrap}
                       onClick={e => e.stopPropagation()}
@@ -119,8 +119,8 @@ export default function DeliveryOptionsSheet({ open, onClose, onSaved, mode = 'm
                       <input
                         className={styles.fareInput}
                         type="number"
-                        value={fareEdit['hangger_ride'] ?? ''}
-                        onChange={e => setFareEdit(p => ({ ...p, hangger_ride: e.target.value }))}
+                        value={fareEdit['indoo_ride'] ?? ''}
+                        onChange={e => setFareEdit(p => ({ ...p, indoo_ride: e.target.value }))}
                         placeholder="15000"
                         min="0"
                       />

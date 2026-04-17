@@ -65,7 +65,7 @@ export default function DriverEarningsScreen({ driverId, profile, onClose }) {
             <span className={styles.statLbl}>Cancels</span>
           </div>
         </div>
-        <div className={styles.freeNote}>✅ You keep 100% — Hangger charges zero commission</div>
+        <div className={styles.freeNote}>✅ You keep 100% — Indoo charges zero commission</div>
       </div>
 
       {/* Trip list */}

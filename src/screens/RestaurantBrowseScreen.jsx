@@ -650,7 +650,7 @@ function RestaurantCard({ restaurant: r, onOpenMenu }) {
 
         <div className={styles.cardFooter}>
           <span className={styles.footerDot} />
-          <span>MAKAN by Hangger</span>
+          <span>MAKAN by Indoo</span>
           <span className={styles.footerDot} />
         </div>
       </div>

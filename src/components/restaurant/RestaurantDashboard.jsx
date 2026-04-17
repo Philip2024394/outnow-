@@ -342,7 +342,7 @@ export default function RestaurantDashboard({ userId, onClose }) {
   // ── Stock photo purchase ──────────────────────────────────────────────────
   const handleBuyPhoto = (photo) => {
     if (!restaurant?.id) return showToast('Save your profile first')
-    const msg = `Hi, I'd like to purchase the cover photo "${photo.style_tag}" (ID: ${photo.id}) for *${name || 'my restaurant'}* on MAKAN by Hangger.\n\nPayment: Rp 100,000`
+    const msg = `Hi, I'd like to purchase the cover photo "${photo.style_tag}" (ID: ${photo.id}) for *${name || 'my restaurant'}* on MAKAN by Indoo.\n\nPayment: Rp 100,000`
     window.open(`https://wa.me/${phone.replace(/\D/g,'')}?text=${encodeURIComponent(msg)}`, '_blank')
     setBuyingPhoto(photo.id)
   }

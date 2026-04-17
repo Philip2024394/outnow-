@@ -140,7 +140,7 @@ export default function PrivacySheet({ open, onClose }) {
         <div className={pStyles.infoCard}>
           <span className={pStyles.infoIcon}>🍪</span>
           <p className={pStyles.infoText}>
-            Hangger uses essential browser storage (cookies and localStorage) solely to keep you signed in and remember your app preferences. We do not use advertising, tracking, or analytics cookies. No data is sold or shared with third parties. By using Hangger you agree to this essential use of storage as part of our Terms of Service.
+            Indoo uses essential browser storage (cookies and localStorage) solely to keep you signed in and remember your app preferences. We do not use advertising, tracking, or analytics cookies. No data is sold or shared with third parties. By using Indoo you agree to this essential use of storage as part of our Terms of Service.
           </p>
         </div>
       </div>

@@ -113,40 +113,88 @@ function RentalDetail({ listing, onClose, onChat }) {
 const LANDING_BG = 'https://ik.imagekit.io/nepgaxllc/Untitledsdfasdfdddfsdfsdsdfsdfadsasda.png?updatedAt=1776095672208'
 
 function RentalLanding({ onEnter, onClose, onDashboard }) {
+  const [panelOpen, setPanelOpen] = useState(false)
   return (
-    <div className={styles.landing} style={{ backgroundImage: `url("${LANDING_BG}")` }}>
-      <div className={styles.landingOverlay} />
-      <button className={styles.landingBack} onClick={onClose}>
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-          <polyline points="15 18 9 12 15 6"/>
-        </svg>
-      </button>
-      <div className={styles.landingContent}>
-        <h1 className={styles.landingTitle}>Indoo Rentals</h1>
-        <p className={styles.landingSub}>Motors, cars, villas, cameras, sound systems and more — rent anything you need</p>
-        <button className={styles.landingBtn} onClick={onEnter}>
-          Let's Go Rent
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-            <polyline points="9 18 15 12 9 6"/>
-          </svg>
+    <div className={styles.landing}>
+      {/* Side panel — exact EchoCommercePanel style */}
+      <div className={`${styles.sideNav} ${panelOpen ? styles.sideNavOpen : ''}`}>
+        {/* Pull tab */}
+        <button className={styles.sideNavTab} onClick={() => setPanelOpen(v => !v)} title={panelOpen ? 'Close panel' : 'Open rentals panel'}>
+          {panelOpen ? '›' : '‹'}
+          {!panelOpen && <span className={styles.sideNavTabLabel}>Rent</span>}
         </button>
-        <SectionCTAButton
-          section="rentals"
-          className={styles.landingBtnOutline}
-          onReady={onDashboard}
-        />
+
+        <div className={styles.sideNavInner}>
+          {/* Header */}
+          <div className={styles.sideNavHeader}>
+            <div className={styles.sideNavHeaderLeft}>
+              <span className={styles.sideNavEcho}>🏷️ INDOO</span>
+              <span className={styles.sideNavCommerce}>Rentals</span>
+            </div>
+          </div>
+
+          {/* Stats */}
+          <div className={styles.sideNavStats}>
+            <div className={styles.sideNavStat}><span className={styles.sideNavStatIcon}>📦</span><span className={styles.sideNavStatVal}>0</span><span className={styles.sideNavStatLabel}>Listings</span></div>
+            <div className={styles.sideNavStat}><span className={styles.sideNavStatIcon}>👁</span><span className={styles.sideNavStatVal}>0</span><span className={styles.sideNavStatLabel}>Views</span></div>
+            <div className={styles.sideNavStat}><span className={styles.sideNavStatIcon}>💬</span><span className={styles.sideNavStatVal}>0</span><span className={styles.sideNavStatLabel}>Enquiries</span></div>
+            <div className={styles.sideNavStat}><span className={styles.sideNavStatIcon}>📋</span><span className={styles.sideNavStatVal}>0</span><span className={styles.sideNavStatLabel}>Bookings</span></div>
+          </div>
+
+          {/* Action buttons */}
+          <button className={`${styles.sideNavBtn} ${styles.sideNavBtnAccent}`} onClick={() => { setPanelOpen(false); onDashboard() }}>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+            List Your Rental
+          </button>
+          <button className={styles.sideNavBtn} onClick={() => { setPanelOpen(false); onEnter() }}>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+            Browse Rentals
+          </button>
+          <button className={styles.sideNavBtn} onClick={() => { setPanelOpen(false); onClose() }}>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+            Back to Home
+          </button>
+        </div>
+      </div>
+
+      {/* Main content area */}
+      <div className={styles.landingMain}>
+        {/* Header — brand logo */}
+        <div className={styles.landingHeader}>
+          <img src="https://ik.imagekit.io/nepgaxllc/Untitledfsdsd-removebg-preview.png" alt="Indoo Rentals" className={styles.landingLogo} />
+        </div>
+
+        {/* Search bar */}
+        <div className={styles.landingSearchRow}>
+          <div className={styles.landingSearchWrap}>
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#8DC63F" strokeWidth="2.5" strokeLinecap="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+            <input className={styles.landingSearchInput} placeholder="Search rentals..." readOnly onClick={onEnter} />
+          </div>
+        </div>
+
+        {/* Hero content — pushed to bottom */}
+        <div className={styles.landingContent}>
+          <h1 className={styles.landingTitle}>Indoo Rentals</h1>
+          <p className={styles.landingSub}>Motors, cars, villas, cameras, sound systems and more — rent anything you need</p>
+          <button className={styles.landingBtn} onClick={onEnter}>
+            Let's Go Rent
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+              <polyline points="9 18 15 12 9 6"/>
+            </svg>
+          </button>
+        </div>
       </div>
     </div>
   )
 }
 
 const CATEGORY_TILES = [
-  { id: 'Vehicles',      label: 'Vehicles',       emoji: '🚗', desc: 'Cars, Motorcycles & Trucks', filter: ['Cars', 'Motorcycles'], bg: 'https://ik.imagekit.io/nepgaxllc/Scooter%20ride%20to%20the%20rental%20lot.png?updatedAt=1776105148434', tagline: 'Find your perfect ride' },
-  { id: 'Property',      label: 'Property',       emoji: '🏠', desc: 'Villas, Kos & Rooms',   filter: ['Property'], bg: null, tagline: 'Stay anywhere you want' },
-  { id: 'Fashion',       label: 'Fashion',        emoji: '👗', desc: 'Kebaya, Suits & More',   filter: ['Fashion'], bg: null, tagline: 'Dress for every occasion' },
+  { id: 'Vehicles',      label: 'Vehicles',       img: 'https://ik.imagekit.io/nepgaxllc/ChatGPT%20Image%20Apr%2018,%202026,%2001_21_07%20AM.png', desc: 'Cars, Motorcycles & Trucks', filter: ['Cars', 'Motorcycles'], bg: 'https://ik.imagekit.io/nepgaxllc/Scooter%20ride%20to%20the%20rental%20lot.png?updatedAt=1776105148434', tagline: 'Find your perfect ride' },
+  { id: 'Property',      label: 'Property',       img: 'https://ik.imagekit.io/nepgaxllc/ChatGPT%20Image%20Apr%2018,%202026,%2001_31_24%20AM.png', desc: 'Villas, Kos & Rooms',   filter: ['Property'], bg: null, tagline: 'Stay anywhere you want' },
+  { id: 'Fashion',       label: 'Fashion',        img: 'https://ik.imagekit.io/nepgaxllc/ChatGPT%20Image%20Apr%2018,%202026,%2001_44_22%20AM.png', desc: 'Kebaya, Suits & More',   filter: ['Fashion'], bg: null, tagline: 'Dress for every occasion' },
   { id: 'Electronics',   label: 'Electronics',    emoji: '📷', desc: 'Cameras, Laptops & Gear',filter: ['Electronics'], bg: null, tagline: 'Gear up without buying' },
-  { id: 'Audio & Sound', label: 'Audio & Sound',  emoji: '🔊', desc: 'Speakers, DJ & PA',      filter: ['Audio & Sound'], bg: null, tagline: 'Sound for every event' },
-  { id: 'Party & Event', label: 'Party & Event',  emoji: '🎉', desc: 'Tents, Decor & Catering',filter: ['Party & Event'], bg: null, tagline: 'Make your event perfect' },
+  { id: 'Audio & Sound', label: 'Audio & Sound',  img: 'https://ik.imagekit.io/nepgaxllc/ChatGPT%20Image%20Apr%2018,%202026,%2001_50_12%20AM.png', desc: 'Speakers, DJ & PA',      filter: ['Audio & Sound'], bg: null, tagline: 'Sound for every event' },
+  { id: 'Party & Event', label: 'Party & Event',  img: 'https://ik.imagekit.io/nepgaxllc/ChatGPT%20Image%20Apr%2018,%202026,%2001_29_12%20AM.png', desc: 'Tents, Decor & Catering',filter: ['Party & Event'], bg: null, tagline: 'Make your event perfect' },
 ]
 
 const VEHICLES_BG = 'https://ik.imagekit.io/nepgaxllc/ChatGPT%20Image%20Apr%2016,%202026,%2004_41_52%20PM.png'
@@ -155,8 +203,8 @@ const FASHION_BG  = 'https://ik.imagekit.io/nepgaxllc/Stylish%20shopping%20strol
 const EQUIPMENT_BG = 'https://ik.imagekit.io/nepgaxllc/Exploring%20the%20marketplace%20on%20a%20scooter.png?updatedAt=1776106102122'
 
 // Preload all background images on mount
-const BIKE_DIR_BG = 'https://ik.imagekit.io/nepgaxllc/Untitledsdfsdfsdasdfsdsdfsadasd.png'
-const CAR_DIR_BG = 'https://ik.imagekit.io/nepgaxllc/Untitledsdfasdfdddfsdfsdsdfsdfadsasdadasdaadasdsadfsdsasdaasdasdadsasd.png?updatedAt=1776099885459'
+const BIKE_DIR_BG = 'https://ik.imagekit.io/nepgaxllc/ChatGPT%20Image%20Apr%2018,%202026,%2012_33_21%20AM.png'
+const CAR_DIR_BG = 'https://ik.imagekit.io/nepgaxllc/ChatGPT%20Image%20Apr%2018,%202026,%2012_38_19%20AM.png'
 const TRUCK_DIR_BG = 'https://ik.imagekit.io/nepgaxllc/Untitledsdfsdfsdasdfsdsdfsadasddsasd.png'
 const ALL_BGS = [LANDING_BG, VEHICLES_BG, PROPERTY_BG, FASHION_BG, EQUIPMENT_BG, BIKE_DIR_BG, CAR_DIR_BG, TRUCK_DIR_BG]
 function usePreloadImages() {
@@ -177,13 +225,16 @@ function VehicleDirectory({ vehicleType, onSelectModel, onBack }) {
 
   return (
     <div className={styles.dirPage} style={bgStyle}>
-      <div className={styles.dirHeader}>
-        <button className={styles.backBtn} onClick={onBack}>
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-            <polyline points="15 18 9 12 15 6"/>
-          </svg>
-        </button>
-        <span className={styles.dirHeaderTitle}>Select {title}</span>
+      <button onClick={onBack} style={{ position:'absolute', top:16, right:16, zIndex:3, width:36, height:36, borderRadius:'50%', background:'#8DC63F', border:'none', display:'flex', alignItems:'center', justifyContent:'center', cursor:'pointer', boxShadow:'0 2px 10px rgba(0,0,0,0.3)' }}>
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#000" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+          <polyline points="15 18 9 12 15 6"/>
+        </svg>
+      </button>
+      <div className={styles.dirHero}>
+        <h1 className={styles.dirHeroTitle}>{title} Rentals</h1>
+        <p className={styles.dirHeroSub}>
+          {isBike ? 'Find your perfect ride in Indonesia' : isTruck ? 'Heavy-duty vehicles for every job' : isBus ? 'Group travel made easy' : 'Drive in comfort across the island'}
+        </p>
       </div>
       <div className={styles.dirBody}>
         <div className={styles.dirGrid}>
@@ -233,7 +284,9 @@ function SubCategoryLanding({ bg, title, tagline, buttons, onSelect, onBack }) {
         <div className={styles.vehicleBtns}>
           {buttons.map(b => (
             <button key={b.filter} className={styles.vehicleBtn} onClick={() => onSelect(b.filter)}>
-              <span className={styles.vehicleBtnIcon}>{b.icon}</span>
+              {b.img
+                ? <img src={b.img} alt={b.label} className={styles.vehicleBtnImg} />
+                : <span className={styles.vehicleBtnIcon}>{b.icon}</span>}
               <span className={styles.vehicleBtnLabel}>{b.label}</span>
             </button>
           ))}
@@ -247,20 +300,24 @@ function RentalCategories({ onSelect, onBack, onDashboard }) {
   return (
     <div className={styles.catPage}>
       <div className={styles.catHeader}>
-        <button className={styles.backBtn} onClick={onBack}>
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+        <div>
+          <h1 className={styles.catHeroTitle}>Indoo Rentals</h1>
+          <p className={styles.catHeroSub}>Rent anything, anywhere in Indonesia</p>
+        </div>
+        <button onClick={onBack} style={{ width:36, height:36, borderRadius:'50%', background:'#8DC63F', border:'none', display:'flex', alignItems:'center', justifyContent:'center', cursor:'pointer', boxShadow:'0 2px 10px rgba(0,0,0,0.3)', flexShrink:0 }}>
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#000" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
             <polyline points="15 18 9 12 15 6"/>
           </svg>
         </button>
-        <span className={styles.catHeaderTitle}>What do you want to rent?</span>
-        <button className={styles.addBtn} onClick={onDashboard}>+ List</button>
       </div>
       <div className={styles.catGrid}>
         {CATEGORY_TILES.map(c => (
           <button key={c.id} className={styles.catTile} onClick={() => onSelect(c)}>
-            <span className={styles.catTileEmoji}>{c.emoji}</span>
+            {c.img
+              ? <img src={c.img} alt={c.label} className={styles.catTileImg} />
+              : <span className={styles.catTileEmoji}>{c.emoji}</span>
+            }
             <span className={styles.catTileLabel}>{c.label}</span>
-            <span className={styles.catTileDesc}>{c.desc}</span>
           </button>
         ))}
       </div>
@@ -319,10 +376,10 @@ export default function RentalSearchScreen({ onClose }) {
         title="Rent Vehicles"
         tagline="Find your perfect ride"
         buttons={[
-          { icon: '🏍️', label: 'Motor Bike', filter: 'Motorcycles' },
-          { icon: '🚗', label: 'Car', filter: 'Cars' },
-          { icon: '🚛', label: 'Truck', filter: 'Trucks' },
-          { icon: '🚌', label: 'Bus', filter: 'Buses' },
+          { img: 'https://ik.imagekit.io/nepgaxllc/Sleek%20green%20and%20black%20scooter%20setup.png?updatedAt=1775634845237', label: 'Motor Bike', filter: 'Motorcycles' },
+          { img: 'https://ik.imagekit.io/nepgaxllc/Sporty%20green%20and%20black%20hatchback.png?updatedAt=1775634925566', label: 'Car', filter: 'Cars' },
+          { img: 'https://ik.imagekit.io/nepgaxllc/asdasdasssss-removebg-preview.png', label: 'Truck', filter: 'Trucks' },
+          { img: 'https://ik.imagekit.io/nepgaxllc/asdasdasssssddd-removebg-preview.png', label: 'Bus', filter: 'Buses' },
         ]}
         onSelect={(type) => { setVehicleType(type); setView('vehicleDir') }}
         onBack={() => setView('categories')}

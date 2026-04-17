@@ -43,7 +43,7 @@ export default function PaymentCard({ restaurant, total, orderRef, onDone }) {
           <div className={styles.cardTop}>
             <div className={styles.cardBrand}>
               <span className={styles.cardBrandMakan}>MAKAN</span>
-              <span className={styles.cardBrandBy}>by Hangger</span>
+              <span className={styles.cardBrandBy}>by Indoo</span>
             </div>
             <span className={styles.bankName}>{bank?.name ?? '—'}</span>
           </div>
@@ -110,7 +110,7 @@ export default function PaymentCard({ restaurant, total, orderRef, onDone }) {
 
         {/* ── Disclaimer ── */}
         <p className={styles.disclaimer}>
-          ⚠️ Payment is directly between you and {restaurant.name}. Hangger facilitates the order only and is not involved in this transaction. Always confirm with the restaurant before transferring.
+          ⚠️ Payment is directly between you and {restaurant.name}. Indoo facilitates the order only and is not involved in this transaction. Always confirm with the restaurant before transferring.
         </p>
 
       </div>

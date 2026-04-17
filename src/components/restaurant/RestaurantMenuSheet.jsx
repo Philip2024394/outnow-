@@ -49,7 +49,7 @@ function buildWhatsAppMessage(restaurant, cart, address, deliveryFare, maxPrepMi
   const ref        = `#MAKAN_${Date.now().toString().slice(-8)}`
   const msg = [
     `🍽 *Order from ${restaurant.name}*`,
-    `MAKAN by Hangger — ${ref}`,
+    `MAKAN by Indoo — ${ref}`,
     '———————————————',
     ...lines,
     '———————————————',

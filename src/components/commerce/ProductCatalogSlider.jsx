@@ -2,8 +2,8 @@ import { useState, useEffect, useCallback } from 'react'
 import { createPortal } from 'react-dom'
 import { DEMO_PRODUCTS } from '@/services/commerceService'
 import ProductDetailSheet from './ProductDetailSheet'
-import HanggerCartPanel from './HanggerCartPanel'
-import HanggerCartSheet from './HanggerCartSheet'
+import IndooCartPanel from './IndooCartPanel'
+import IndooCartSheet from './IndooCartSheet'
 import SellerTrustCard from './SellerTrustCard'
 import FlashSalePage from './FlashSalePage'
 import styles from './ProductCatalogSlider.module.css'
@@ -58,7 +58,7 @@ export default function ProductCatalogSlider({
   onMakeOffer = null,     // make an offer — sends offer card to chat
   seller = null,          // seller data for trust card
 }) {
-  const cartKey = `hangger_cart_${sellerWa || sellerName || 'default'}`
+  const cartKey = `indoo_cart_${sellerWa || sellerName || 'default'}`
 
   const [detailProduct, setDetailProduct] = useState(null)
   const [query,         setQuery]         = useState('')
@@ -253,7 +253,7 @@ export default function ProductCatalogSlider({
       </div>
 
       {/* Cart panel — fixed top-right corner of the screen */}
-      <HanggerCartPanel
+      <IndooCartPanel
         cart={cart}
         onUpdateQty={updateQty}
         onClearCart={clearCart}
@@ -275,7 +275,7 @@ export default function ProductCatalogSlider({
         onMakeOffer={onMakeOffer}
       />
 
-      <HanggerCartSheet
+      <IndooCartSheet
         open={cartModalOpen && totalQty > 0}
         onClose={() => setCartModalOpen(false)}
         cart={cart}

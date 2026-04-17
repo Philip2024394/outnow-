@@ -21,7 +21,7 @@ export default function AuthScreen({ onGuest, onAdminDev }) {
       <div className={styles.overlay} />
 
       <div className={styles.logoWrap}>
-        <img src={BRAND_URL} alt="Hangger" className={styles.logo} />
+        <img src={BRAND_URL} alt="Indoo" className={styles.logo} />
         <p className={styles.tagline}>Meet People Out Near You</p>
       </div>
 

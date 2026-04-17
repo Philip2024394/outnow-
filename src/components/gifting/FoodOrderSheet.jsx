@@ -53,7 +53,7 @@ export default function FoodOrderSheet({ open, product, items, seller, giftFor, 
 
   const distanceKm   = giftFor.distanceKm ?? giftFor.distKm ?? null
   const tier         = getDeliveryTier(distanceKm)
-  const hanggerAvail = tier !== null
+  const indooAvail = tier !== null
   const basePrice    = isMulti ? itemsSubtotal : Number(product.price ?? 0)
   const totalPrice   = basePrice + Number(tier?.fee ?? 0)
 
@@ -204,10 +204,10 @@ export default function FoodOrderSheet({ open, product, items, seller, giftFor, 
         )}
 
         {/* Delivery */}
-        {hanggerAvail ? (
+        {indooAvail ? (
           <div className={styles.deliverySection}>
             <div className={styles.deliveryTitle}>
-              <span>🏍️ Hangger Local Delivery</span>
+              <span>🏍️ Indoo Local Delivery</span>
               {distanceKm != null && (
                 <span className={styles.distanceTag}>{distanceKm.toFixed(1)} km</span>
               )}
@@ -230,7 +230,7 @@ export default function FoodOrderSheet({ open, product, items, seller, giftFor, 
           </div>
         ) : (
           <div className={styles.sellerShipsNote}>
-            🚚 Outside Hangger local range — the restaurant will arrange delivery.
+            🚚 Outside Indoo local range — the restaurant will arrange delivery.
           </div>
         )}
 

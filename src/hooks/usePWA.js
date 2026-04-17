@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 
-const DISMISSED_KEY = 'hangger_pwa_dismissed'
+const DISMISSED_KEY = 'indoo_pwa_dismissed'
 
 export function usePWA() {
   const [installPrompt, setInstallPrompt] = useState(null)

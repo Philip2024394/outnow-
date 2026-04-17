@@ -1,12 +1,13 @@
 {
-  "name": "Hangger",
-  "short_name": "Hangger",
-  "description": "Food, rides, dating & more — hangger.app",
+  "name": "Indoo — Marketplace Indonesia",
+  "short_name": "Indoo",
+  "description": "Marketplace, makanan, ojek, kencan & lainnya di Indonesia — indoo.id",
   "start_url": "/",
   "display": "standalone",
   "background_color": "#080808",
   "theme_color": "#080808",
   "orientation": "portrait",
+  "lang": "id",
   "icons": [
     {
       "src": "https://ik.imagekit.io/nepgaxllc/Hangger%20scooter%20app%20icon%20design.png",
@@ -21,6 +22,6 @@
       "purpose": "any maskable"
     }
   ],
-  "categories": ["social", "lifestyle"],
+  "categories": ["shopping", "social", "lifestyle", "food"],
   "screenshots": []
 }

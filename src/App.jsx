@@ -30,7 +30,7 @@ class ErrorBoundary extends Component {
   componentDidCatch(error, info) {
     // Log to console in dev; wire to Sentry / Supabase log in prod
     if (import.meta.env.DEV) {
-      console.error('[Hangger] Uncaught render error:', error, info)
+      console.error('[Indoo] Uncaught render error:', error, info)
     }
   }
 
@@ -49,7 +49,7 @@ class ErrorBoundary extends Component {
             Something went wrong
           </p>
           <p style={{ fontSize: 13, color: 'rgba(255,255,255,0.4)', margin: 0, lineHeight: 1.6 }}>
-            {import.meta.env.DEV ? this.state.error?.message : 'Hangger hit an unexpected error.'}
+            {import.meta.env.DEV ? this.state.error?.message : 'Indoo hit an unexpected error.'}
           </p>
           <button
             onClick={() => window.location.reload()}
@@ -134,7 +134,7 @@ export default function App() {
       <ErrorBoundary>
         <LanguageProvider>
           <div className={styles.splash}>
-            <img src={LOGO_URL} alt="Hangger" className={styles.splashLogo} />
+            <img src={LOGO_URL} alt="Indoo" className={styles.splashLogo} />
             <Spinner size={28} color="var(--color-live)" />
           </div>
         </LanguageProvider>
@@ -185,7 +185,7 @@ export default function App() {
           {(guestMode || onboardStep === 'done') && (
             <Suspense fallback={
               <div className={styles.splash}>
-                <img src={LOGO_URL} alt="Hangger" className={styles.splashLogo} />
+                <img src={LOGO_URL} alt="Indoo" className={styles.splashLogo} />
                 <Spinner size={28} color="var(--color-live)" />
               </div>
             }>

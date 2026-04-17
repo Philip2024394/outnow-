@@ -141,7 +141,7 @@ export default function LocationGateScreen({ onConfirmed }) {
         {(status === 'denied' || status === 'wrong_country') && (
           <p className={styles.locationAlert}>
             {status === 'wrong_country'
-              ? 'Hangger is Indonesia-only right now'
+              ? 'Indoo is Indonesia-only right now'
               : 'Turn On Location On Your Phone'}
           </p>
         )}
