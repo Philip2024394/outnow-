@@ -42,11 +42,6 @@ export default function MassageScreen({ onClose, onLandingChange }) {
               <polyline points="9 18 15 12 9 6"/>
             </svg>
           </button>
-          <SectionCTAButton
-            section="massage"
-            className={styles.landingBtnOutline}
-            onReady={() => { setShowLanding(false); onLandingChange?.(false) }}
-          />
         </div>
       </div>
     )
