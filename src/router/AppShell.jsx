@@ -227,6 +227,8 @@ export default function AppShell({ returnParams, triggerGoLive }) {
   const [sellerOrdersOpen, setSellerOrdersOpen] = useState(false)
   const [sellerWalletOpen, setSellerWalletOpen] = useState(false)
   const [sellerAnalyticsOpen, setSellerAnalyticsOpen] = useState(false)
+  const [marketChatOpen, setMarketChatOpen] = useState(false)
+  const [marketProfileOpen, setMarketProfileOpen] = useState(false)
   const [shopOpen, setShopOpen] = useState(false)
   const [massageOpen, setMassageOpen] = useState(false)
   const [massageOnLanding, setMassageOnLanding] = useState(true)
@@ -1246,6 +1248,16 @@ export default function AppShell({ returnParams, triggerGoLive }) {
         <SellerAnalytics open={sellerAnalyticsOpen} onClose={() => setSellerAnalyticsOpen(false)} />
       </Suspense>
 
+      {/* Marketplace Chat overlay — opens on top of marketplace without navigating away */}
+      <Suspense fallback={null}>
+        {marketChatOpen && <ChatScreen onClose={() => setMarketChatOpen(false)} pendingConv={pendingConv} />}
+      </Suspense>
+
+      {/* Marketplace Profile overlay — opens on top of marketplace without navigating away */}
+      <Suspense fallback={null}>
+        {marketProfileOpen && <ProfileScreen onClose={() => setMarketProfileOpen(false)} onOpenSettings={() => { setMarketProfileOpen(false); setSettingsOpen(true) }} />}
+      </Suspense>
+
       {/* Dev panel — home page only */}
       {activeTab === 'map' && !shopOpen && !foodOpen && !rideOpen && !massageOpen && !datingGridOpen && (
         <Suspense fallback={null}><DevPanel /></Suspense>
@@ -1264,9 +1276,9 @@ export default function AppShell({ returnParams, triggerGoLive }) {
             if (shopOpen) return 'marketplace'
             return 'default'
           })()}
-          onChat={() => { setShopOpen(false); setSellerDashOpen(false); setMarketplaceLanding(true); setDockVisible(true); setActiveSection('default'); setActiveTab('chat') }}
+          onChat={() => { setMarketChatOpen(true) }}
           onAlerts={() => { setNotifOpen(true) }}
-          onProfile={() => { setShopOpen(false); setSellerDashOpen(false); setMarketplaceLanding(true); setDockVisible(true); setActiveSection('default'); setActiveTab('profile') }}
+          onProfile={() => { setMarketProfileOpen(true) }}
           onCart={() => { setOrderHistoryOpen(true) }}
           onSignUp={() => { setMarketplaceSignUpOpen(true) }}
           onAddProduct={() => { setAddProductOpen(true) }}
@@ -1303,6 +1315,12 @@ export default function AppShell({ returnParams, triggerGoLive }) {
             setShopOpen(false)
             setMarketplaceLanding(true)
             setSellerDashOpen(false)
+            setSellerOrdersOpen(false)
+            setSellerWalletOpen(false)
+            setSellerAnalyticsOpen(false)
+            setAddProductOpen(false)
+            setMarketChatOpen(false)
+            setMarketProfileOpen(false)
           }}
           activeTab={activeTab}
           onChange={(tab) => {
