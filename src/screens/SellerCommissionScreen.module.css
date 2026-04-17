@@ -6,6 +6,7 @@
   flex-direction: column;
   z-index: 500;
   font-family: inherit;
+  padding-right: 52px;
 }
 
 /* ── Header ── */

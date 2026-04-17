@@ -1,4 +1,4 @@
-.backdrop { position: fixed; inset: 0; z-index: 9600; background: rgba(0,0,0,0.8); display: flex; align-items: flex-end; justify-content: center; }
+.backdrop { position: fixed; inset: 0; z-index: 9600; background: rgba(0,0,0,0.8); display: flex; align-items: flex-end; justify-content: center; padding-right: 52px; }
 
 .sheet {
   width: 100%; max-width: 480px; max-height: 92vh;
