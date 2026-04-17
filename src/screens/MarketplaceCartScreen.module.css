@@ -136,18 +136,18 @@
 
 /* Footer */
 .footer {
-  display: flex; align-items: center; gap: 14px;
+  display: flex; flex-direction: column; gap: 10px;
   padding: 14px 16px calc(env(safe-area-inset-bottom, 8px) + 14px);
   border-top: 1px solid rgba(255,255,255,0.06); flex-shrink: 0;
   background: rgba(0,0,0,0.8); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
 }
-.footerTotal { flex: 1; display: flex; flex-direction: column; gap: 2px; }
-.footerLabel { font-size: 11px; color: rgba(255,255,255,0.4); }
-.footerPrice { font-size: 20px; font-weight: 900; color: #fff; font-family: monospace; }
+.footerTotal { display: flex; align-items: baseline; justify-content: space-between; }
+.footerLabel { font-size: 13px; color: rgba(255,255,255,0.4); }
+.footerPrice { font-size: 22px; font-weight: 900; color: #fff; font-family: monospace; }
 
 .checkoutBtn {
-  display: flex; align-items: center; gap: 6px;
-  padding: 14px 24px; background: #F59E0B; border: none; border-radius: 12px;
+  display: flex; align-items: center; justify-content: center; gap: 6px;
+  width: 100%; padding: 14px; background: #F59E0B; border: none; border-radius: 12px;
   color: #000; font-size: 15px; font-weight: 900;
   cursor: pointer; font-family: inherit;
   box-shadow: 0 4px 16px rgba(245,158,11,0.4);
