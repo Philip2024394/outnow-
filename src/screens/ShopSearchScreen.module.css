@@ -884,8 +884,7 @@
 }
 .landingHeader {
   position: relative; z-index: 2;
-  display: flex; flex-direction: column; gap: 8px;
-  padding: 12px 14px 0;
+  padding: 0;
 }
 .landingHeaderLogo {
   height: 128px; object-fit: contain; align-self: flex-start;
