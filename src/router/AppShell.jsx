@@ -1198,11 +1198,11 @@ export default function AppShell({ returnParams, triggerGoLive }) {
       <DriverRegistration open={driverRegOpen} onClose={() => setDriverRegOpen(false)} driverType={rideVehicleType === 'car_taxi' ? 'car' : 'bike'} />
       <TherapistRegistration open={therapistRegOpen} onClose={() => setTherapistRegOpen(false)} />
 
-      {/* Side nav — hidden on booking form + marketplace landing, visible in marketplace product directory (orange theme) */}
-      {(!rideOpen || rideOnLanding) && (!massageOpen || massageOnLanding) && !(shopOpen && marketplaceLanding) && (!datingGridOpen || datingOnLanding) && activeTab !== 'rentals' && activeTab !== 'chat' && <BottomNav
+      {/* Side nav — hidden on booking form, visible on marketplace landing + product directory (orange theme) */}
+      {(!rideOpen || rideOnLanding) && (!massageOpen || massageOnLanding) && (!datingGridOpen || datingOnLanding) && activeTab !== 'rentals' && activeTab !== 'chat' && <BottomNav
           isGuest={isGuest}
           dockVisible={dockVisible}
-          theme={(shopOpen && !marketplaceLanding) ? 'marketplace' : 'default'}
+          theme={shopOpen ? 'marketplace' : 'default'}
           onChat={() => { setShopOpen(false); setMarketplaceLanding(true); setDockVisible(true); setActiveSection('default'); setActiveTab('chat') }}
           onAlerts={() => { setNotifOpen(true) }}
           onToggleDock={() => setDockVisible(v => !v)}
