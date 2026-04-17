@@ -101,6 +101,7 @@ const AddProductSheet         = lazy(() => import('@/components/commerce/AddProd
 const SellerOrdersScreen      = lazy(() => import('@/screens/SellerOrdersScreen'))
 const SellerWalletScreen      = lazy(() => import('@/screens/SellerWalletScreen'))
 const SellerAnalytics         = lazy(() => import('@/components/commerce/SellerAnalytics'))
+const MarketplaceNotificationsScreen = lazy(() => import('@/screens/MarketplaceNotificationsScreen'))
 
 // Minimal fallback for lazy screens
 const LazyFallback = () => null
@@ -229,6 +230,7 @@ export default function AppShell({ returnParams, triggerGoLive }) {
   const [sellerAnalyticsOpen, setSellerAnalyticsOpen] = useState(false)
   const [marketChatOpen, setMarketChatOpen] = useState(false)
   const [marketProfileOpen, setMarketProfileOpen] = useState(false)
+  const [marketNotifOpen, setMarketNotifOpen] = useState(false)
   const [shopOpen, setShopOpen] = useState(false)
   const [massageOpen, setMassageOpen] = useState(false)
   const [massageOnLanding, setMassageOnLanding] = useState(true)
@@ -1251,6 +1253,11 @@ export default function AppShell({ returnParams, triggerGoLive }) {
         <SellerAnalytics open={sellerAnalyticsOpen} onClose={() => setSellerAnalyticsOpen(false)} />
       </Suspense>
 
+      {/* Marketplace Notifications */}
+      <Suspense fallback={null}>
+        <MarketplaceNotificationsScreen open={marketNotifOpen} onClose={() => setMarketNotifOpen(false)} />
+      </Suspense>
+
       {/* Marketplace Chat overlay — portaled to body to escape .shell stacking context */}
       {marketChatOpen && createPortal(
         <div style={{ position: 'fixed', inset: 0, zIndex: 9800 }}>
@@ -1290,7 +1297,7 @@ export default function AppShell({ returnParams, triggerGoLive }) {
             return 'default'
           })()}
           onChat={() => { setMarketChatOpen(true) }}
-          onAlerts={() => { setNotifOpen(true) }}
+          onAlerts={() => { shopOpen ? setMarketNotifOpen(true) : setNotifOpen(true) }}
           onProfile={() => { setMarketProfileOpen(true) }}
           onCart={() => { setOrderHistoryOpen(true) }}
           onSignUp={() => { setMarketplaceSignUpOpen(true) }}
@@ -1320,6 +1327,7 @@ export default function AppShell({ returnParams, triggerGoLive }) {
             setAddProductOpen(false)
             setMarketChatOpen(false)
             setMarketProfileOpen(false)
+            setMarketNotifOpen(false)
             setNotifOpen(false)
             setOrderHistoryOpen(false)
             setMarketplaceSignUpOpen(false)
