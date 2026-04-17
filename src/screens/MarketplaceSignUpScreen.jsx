@@ -137,9 +137,6 @@ export default function MarketplaceSignUpScreen({ open, onClose, onComplete }) {
     <div className={styles.screen}>
       {/* Header */}
       <div className={styles.header}>
-        <button className={styles.closeBtn} onClick={onClose}>
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
-        </button>
         <img src={MARKET_LOGO} alt="Indoo Market" className={styles.headerLogo} />
         <div className={styles.headerText}>
           <span className={styles.headerTitle}>Join Indoo Market</span>
