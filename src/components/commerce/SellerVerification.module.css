@@ -1,39 +1,39 @@
 .backdrop { position: fixed; inset: 0; background: rgba(0,0,0,0.7); display: flex; align-items: flex-end; justify-content: center; z-index: 9200; backdrop-filter: blur(4px); }
-.sheet { width: 100%; max-width: 420px; background: #111; border-radius: 22px 22px 0 0; border: 1px solid rgba(245,158,11,0.2); border-bottom: none; display: flex; flex-direction: column; max-height: 90vh; overflow-y: auto; animation: slideUp 0.25s cubic-bezier(0.32,0.72,0,1) forwards; }
+.sheet { width: 100%; max-width: 420px; background: #FAFAFA; border-radius: 22px 22px 0 0; border: 1px solid rgba(245,158,11,0.2); border-bottom: none; display: flex; flex-direction: column; max-height: 90vh; overflow-y: auto; animation: slideUp 0.25s cubic-bezier(0.32,0.72,0,1) forwards; }
 @keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
 .handle { width: 36px; height: 4px; background: rgba(255,255,255,0.15); border-radius: 2px; margin: 12px auto 0; }
 
-.header { padding: 16px 20px 12px; border-bottom: 1px solid rgba(255,255,255,0.06); }
-.title { display: block; font-size: 17px; font-weight: 800; color: #fff; }
-.subtitle { display: block; font-size: 12px; color: rgba(255,255,255,0.4); margin-top: 2px; }
+.header { padding: 16px 20px 12px; border-bottom: 1px solid #eee; }
+.title { display: block; font-size: 17px; font-weight: 800; color: #1a1a1a; }
+.subtitle { display: block; font-size: 12px; color: #999; margin-top: 2px; }
 
 .body { padding: 16px 20px; display: flex; flex-direction: column; gap: 12px; }
 
 .benefits { padding: 12px; background: rgba(141,198,63,0.06); border: 1px solid rgba(141,198,63,0.15); border-radius: 10px; display: flex; flex-direction: column; gap: 6px; }
 .benefitsTitle { font-size: 12px; font-weight: 800; color: #8DC63F; }
-.benefit { font-size: 11px; color: rgba(255,255,255,0.5); }
+.benefit { font-size: 11px; color: #777; }
 
-.fieldLabel { font-size: 10px; font-weight: 700; color: rgba(255,255,255,0.3); text-transform: uppercase; letter-spacing: 0.06em; }
-.input { padding: 10px 12px; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; color: #fff; font-size: 13px; font-family: inherit; outline: none; box-sizing: border-box; }
+.fieldLabel { font-size: 10px; font-weight: 700; color: #bbb; text-transform: uppercase; letter-spacing: 0.06em; }
+.input { padding: 10px 12px; background: #f5f5f5; border: 1px solid #ddd; border-radius: 8px; color: #1a1a1a; font-size: 13px; font-family: inherit; outline: none; box-sizing: border-box; }
 .input:focus { border-color: rgba(245,158,11,0.4); }
-.input::placeholder { color: rgba(255,255,255,0.2); }
+.input::placeholder { color: #ccc; }
 
-.uploadBtn { padding: 14px; background: rgba(255,255,255,0.04); border: 1.5px dashed rgba(255,255,255,0.15); border-radius: 12px; color: rgba(255,255,255,0.4); font-size: 13px; font-weight: 700; cursor: pointer; font-family: inherit; display: flex; align-items: center; justify-content: center; gap: 8px; }
+.uploadBtn { padding: 14px; background: #fff; border: 1.5px dashed #ccc; border-radius: 12px; color: #999; font-size: 13px; font-weight: 700; cursor: pointer; font-family: inherit; display: flex; align-items: center; justify-content: center; gap: 8px; }
 .uploadBtn:hover { border-color: rgba(245,158,11,0.3); color: #F59E0B; }
 
 .previewWrap { position: relative; }
-.previewImg { width: 100%; max-height: 200px; object-fit: cover; border-radius: 10px; border: 1px solid rgba(255,255,255,0.08); }
-.changeBtn { position: absolute; bottom: 8px; right: 8px; padding: 5px 12px; background: rgba(0,0,0,0.7); backdrop-filter: blur(6px); border: 1px solid rgba(255,255,255,0.15); border-radius: 8px; color: #fff; font-size: 10px; font-weight: 700; cursor: pointer; font-family: inherit; }
+.previewImg { width: 100%; max-height: 200px; object-fit: cover; border-radius: 10px; border: 1px solid #e5e5e5; }
+.changeBtn { position: absolute; bottom: 8px; right: 8px; padding: 5px 12px; background: rgba(0,0,0,0.7); backdrop-filter: blur(6px); border: 1px solid rgba(255,255,255,0.15); border-radius: 8px; color: #1a1a1a; font-size: 10px; font-weight: 700; cursor: pointer; font-family: inherit; }
 
-.notice { font-size: 10px; color: rgba(255,255,255,0.25); line-height: 1.5; padding: 8px 0; }
+.notice { font-size: 10px; color: #bbb; line-height: 1.5; padding: 8px 0; }
 
-.footer { display: flex; gap: 10px; padding: 14px 20px max(14px, env(safe-area-inset-bottom)); border-top: 1px solid rgba(255,255,255,0.06); }
-.cancelBtn { padding: 12px 16px; background: none; border: 1px solid rgba(255,255,255,0.1); border-radius: 12px; color: rgba(255,255,255,0.4); font-size: 13px; font-weight: 700; cursor: pointer; font-family: inherit; }
+.footer { display: flex; gap: 10px; padding: 14px 20px max(14px, env(safe-area-inset-bottom)); border-top: 1px solid #eee; }
+.cancelBtn { padding: 12px 16px; background: none; border: 1px solid #ddd; border-radius: 12px; color: #999; font-size: 13px; font-weight: 700; cursor: pointer; font-family: inherit; }
 .submitBtn { flex: 1; padding: 12px; background: #F59E0B; border: none; border-radius: 12px; color: #000; font-size: 14px; font-weight: 900; cursor: pointer; font-family: inherit; box-shadow: 0 4px 16px rgba(245,158,11,0.4); }
-.submitBtn:disabled { background: rgba(255,255,255,0.08); color: rgba(255,255,255,0.2); box-shadow: none; cursor: default; }
+.submitBtn:disabled { background: rgba(255,255,255,0.08); color: #ccc; box-shadow: none; cursor: default; }
 
 .successWrap { padding: 40px 20px; display: flex; flex-direction: column; align-items: center; gap: 10px; text-align: center; }
 .successIcon { font-size: 40px; }
 .successTitle { font-size: 18px; font-weight: 900; color: #8DC63F; }
-.successSub { font-size: 12px; color: rgba(255,255,255,0.4); line-height: 1.5; }
-.doneBtn { margin-top: 12px; padding: 10px 28px; background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.1); border-radius: 10px; color: rgba(255,255,255,0.6); font-size: 13px; font-weight: 700; cursor: pointer; font-family: inherit; }
+.successSub { font-size: 12px; color: #999; line-height: 1.5; }
+.doneBtn { margin-top: 12px; padding: 10px 28px; background: #f0f0f0; border: 1px solid #ddd; border-radius: 10px; color: #666; font-size: 13px; font-weight: 700; cursor: pointer; font-family: inherit; }

@@ -5,7 +5,7 @@
   right: 0;
   width: 280px;
   height: 100%;
-  background: #0e0e0e;
+  background: #FAFAFA;
   border-left: 1px solid rgba(245,158,11,0.2);
   z-index: 200;
   transform: translateX(100%);
@@ -30,7 +30,7 @@
   background: #F59E0B;
   border: none;
   border-radius: 10px 0 0 10px;
-  color: #fff;
+  color: #1a1a1a;
   font-size: 18px;
   font-weight: 900;
   cursor: pointer;
@@ -91,7 +91,7 @@
 .commerce {
   font-size: 13px;
   font-weight: 700;
-  color: rgba(255,255,255,0.6);
+  color: #666;
 }
 
 /* ── Hangger Market logo ──────────────────────────────────────────────────── */
@@ -124,7 +124,7 @@
 .bizName {
   font-size: 13px;
   font-weight: 600;
-  color: rgba(255,255,255,0.85);
+  color: #222;
   text-align: center;
   padding: 4px 8px;
   background: rgba(245,158,11,0.07);
@@ -139,8 +139,8 @@
 }
 
 .statCard {
-  background: rgba(255,255,255,0.04);
-  border: 1px solid rgba(255,255,255,0.08);
+  background: #fff;
+  border: 1px solid #e5e5e5;
   border-radius: 10px;
   padding: 10px 8px;
   display: flex;
@@ -150,8 +150,8 @@
 }
 
 .statIcon  { font-size: 16px; }
-.statValue { font-size: 18px; font-weight: 900; color: #fff; }
-.statLabel { font-size: 10px; color: rgba(255,255,255,0.4); font-weight: 600; }
+.statValue { font-size: 18px; font-weight: 900; color: #1a1a1a; }
+.statLabel { font-size: 10px; color: #999; font-weight: 600; }
 
 /* ── Section tabs ────────────────────────────────────────────────────────── */
 .sectionTabs {
@@ -162,10 +162,10 @@
 .sectionTab {
   flex: 1;
   padding: 6px 0;
-  background: rgba(255,255,255,0.05);
-  border: 1px solid rgba(255,255,255,0.08);
+  background: #f5f5f5;
+  border: 1px solid #e5e5e5;
   border-radius: 8px;
-  color: rgba(255,255,255,0.45);
+  color: #888;
   font-size: 10px;
   font-weight: 700;
   cursor: pointer;
@@ -188,14 +188,14 @@
 
 .loading {
   text-align: center;
-  color: rgba(255,255,255,0.3);
+  color: #bbb;
   font-size: 13px;
   padding: 20px;
 }
 
 .empty {
   text-align: center;
-  color: rgba(255,255,255,0.3);
+  color: #bbb;
   font-size: 12px;
   padding: 20px 8px;
   line-height: 1.5;
@@ -203,8 +203,8 @@
 
 /* ── Order card ─────────────────────────────────────────────────────────── */
 .orderCard {
-  background: rgba(255,255,255,0.04);
-  border: 1px solid rgba(255,255,255,0.07);
+  background: #fff;
+  border: 1px solid #eee;
   border-radius: 10px;
   padding: 10px 11px;
   display: flex;
@@ -222,7 +222,7 @@
 .orderProduct {
   font-size: 12px;
   font-weight: 700;
-  color: rgba(255,255,255,0.9);
+  color: #1a1a1a;
   flex: 1;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -243,10 +243,10 @@
   gap: 8px;
   flex-wrap: wrap;
   font-size: 11px;
-  color: rgba(255,255,255,0.4);
+  color: #999;
 }
 
-.orderTime { color: rgba(255,255,255,0.25); }
+.orderTime { color: #bbb; }
 
 .advanceBtn {
   background: rgba(245,158,11,0.1);
@@ -284,8 +284,8 @@
   display: flex;
   align-items: center;
   gap: 8px;
-  background: rgba(255,255,255,0.04);
-  border: 1px solid rgba(255,255,255,0.07);
+  background: #fff;
+  border: 1px solid #eee;
   border-radius: 10px;
   padding: 8px 10px;
   transition: opacity 0.2s;
@@ -311,9 +311,9 @@
   overflow: hidden;
 }
 
-.productName  { font-size: 11px; font-weight: 700; color: rgba(255,255,255,0.85); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.productName  { font-size: 11px; font-weight: 700; color: #222; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .productPrice { font-size: 11px; color: #F59E0B; font-weight: 700; }
-.productStock { font-size: 10px; color: rgba(255,255,255,0.3); }
+.productStock { font-size: 10px; color: #bbb; }
 
 .toggleActive {
   flex-shrink: 0;
@@ -327,13 +327,13 @@
 }
 
 .toggleOn  { background: rgba(141,198,63,0.12); border-color: rgba(141,198,63,0.35); color: #8DC63F; }
-.toggleOff { background: rgba(255,255,255,0.05); border-color: rgba(255,255,255,0.15); color: rgba(255,255,255,0.4); }
+.toggleOff { background: #f5f5f5; border-color: #ccc; color: #999; }
 
 /* Bulk actions */
 .bulkBar { display: flex; align-items: center; gap: 6px; padding: 8px 10px; background: rgba(245,158,11,0.08); border: 1px solid rgba(245,158,11,0.2); border-radius: 8px; margin-bottom: 6px; }
 .bulkCount { font-size: 11px; font-weight: 700; color: #F59E0B; flex: 1; }
 .bulkBtn { padding: 4px 10px; background: #F59E0B; border: none; border-radius: 6px; color: #000; font-size: 10px; font-weight: 800; cursor: pointer; font-family: inherit; }
-.bulkBtnClear { padding: 4px 8px; background: none; border: 1px solid rgba(255,255,255,0.1); border-radius: 6px; color: rgba(255,255,255,0.4); font-size: 10px; font-weight: 600; cursor: pointer; font-family: inherit; }
+.bulkBtnClear { padding: 4px 8px; background: none; border: 1px solid #ddd; border-radius: 6px; color: #999; font-size: 10px; font-weight: 600; cursor: pointer; font-family: inherit; }
 
 .trackingInfo { padding: 4px 0; }
 .trackingLabel { font-size: 10px; font-weight: 700; color: #818CF8; font-family: monospace; }
@@ -345,7 +345,7 @@
 
 .flashToggle {
   width: 32px; height: 22px; border-radius: 6px;
-  background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1);
+  background: #f5f5f5; border: 1px solid #ddd;
   font-size: 10px; cursor: pointer; display: flex; align-items: center; justify-content: center;
   transition: all 0.15s;
 }
@@ -366,7 +366,7 @@
 .shippingTitle {
   font-size: 12px;
   font-weight: 700;
-  color: rgba(255,255,255,0.5);
+  color: #777;
   margin-bottom: 2px;
 }
 
@@ -375,8 +375,8 @@
   align-items: center;
   gap: 10px;
   padding: 9px 10px;
-  background: rgba(255,255,255,0.04);
-  border: 1px solid rgba(255,255,255,0.07);
+  background: #fff;
+  border: 1px solid #eee;
   border-radius: 10px;
   cursor: pointer;
 }
@@ -396,8 +396,8 @@
   gap: 1px;
 }
 
-.shippingLabel { font-size: 12px; font-weight: 700; color: rgba(255,255,255,0.85); }
-.shippingSub   { font-size: 10px; color: rgba(255,255,255,0.35); }
+.shippingLabel { font-size: 12px; font-weight: 700; color: #222; }
+.shippingSub   { font-size: 10px; color: #aaa; }
 
 .saveShippingBtn {
   margin-top: 4px;
@@ -420,7 +420,7 @@
 /* ── Per-product delivery pricing ─────────────────────────────────────────── */
 .shippingSub2 {
   font-size: 10px;
-  color: rgba(255,255,255,0.3);
+  color: #bbb;
   margin-bottom: 4px;
 }
 
@@ -430,8 +430,8 @@
   justify-content: space-between;
   width: 100%;
   padding: 10px 12px;
-  background: rgba(255,255,255,0.04);
-  border: 1px solid rgba(255,255,255,0.07);
+  background: #fff;
+  border: 1px solid #eee;
   border-radius: 8px;
   cursor: pointer;
   font-family: inherit;
@@ -443,7 +443,7 @@
 .deliveryPricingName {
   font-size: 12px;
   font-weight: 700;
-  color: rgba(255,255,255,0.75);
+  color: #333;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -457,8 +457,8 @@
 
 /* ── Safe Trade per-product ──────────────────────────────────────────────── */
 .safeTradeProduct {
-  background: rgba(255,255,255,0.04);
-  border: 1px solid rgba(255,255,255,0.07);
+  background: #fff;
+  border: 1px solid #eee;
   border-radius: 10px;
   padding: 10px 12px;
   display: flex;
@@ -469,7 +469,7 @@
 .safeTradeProductName {
   font-size: 12px;
   font-weight: 700;
-  color: rgba(255,255,255,0.75);
+  color: #333;
 }
 
 .safeTradeToggles {
@@ -488,5 +488,5 @@
 .safeTradeLabel {
   font-size: 11px;
   font-weight: 600;
-  color: rgba(255,255,255,0.5);
+  color: #777;
 }
