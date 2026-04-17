@@ -106,6 +106,7 @@ const MarketplaceCartScreen   = lazy(() => import('@/screens/MarketplaceCartScre
 const SellerReviewsScreen     = lazy(() => import('@/screens/SellerReviewsScreen'))
 const WriteReviewScreen       = lazy(() => import('@/screens/WriteReviewScreen'))
 const SellerProductsScreen    = lazy(() => import('@/screens/SellerProductsScreen'))
+const MarketplaceChatScreen   = lazy(() => import('@/screens/MarketplaceChatScreen'))
 
 // Minimal fallback for lazy screens
 const LazyFallback = () => null
@@ -1291,15 +1292,10 @@ export default function AppShell({ returnParams, triggerGoLive }) {
         />
       </Suspense>
 
-      {/* Marketplace Chat overlay — portaled to body to escape .shell stacking context */}
-      {marketChatOpen && createPortal(
-        <div style={{ position: 'fixed', inset: 0, zIndex: 9800 }}>
-          <Suspense fallback={null}>
-            <ChatScreen onClose={() => setMarketChatOpen(false)} pendingConv={pendingConv} />
-          </Suspense>
-        </div>,
-        document.body
-      )}
+      {/* Marketplace Chat */}
+      <Suspense fallback={null}>
+        <MarketplaceChatScreen open={marketChatOpen} onClose={() => setMarketChatOpen(false)} />
+      </Suspense>
 
       {/* Marketplace Profile overlay — portaled to body */}
       {marketProfileOpen && createPortal(
