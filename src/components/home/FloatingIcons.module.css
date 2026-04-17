@@ -3,7 +3,7 @@
   position: fixed;
   top: calc(var(--safe-top) + 148px);
   left: 16px;
-  right: 86px; /* clears the right-side nav pill */
+  right: 72px; /* clears the right-side nav pill */
   z-index: 9999;
   pointer-events: none;
 }
