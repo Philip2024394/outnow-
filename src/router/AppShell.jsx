@@ -462,8 +462,6 @@ export default function AppShell({ returnParams, triggerGoLive }) {
           onRideClick={(type) => { if (isGuest) { triggerGate(); return } setActiveSection('rides'); setRideVehicleType(type ?? 'bike_ride'); setRideOpen(true) }}
           onShoppingClick={() => {
             if (isGuest) { triggerGate(); return }
-            const access = checkSectionAccess('marketplace', userProfile)
-            if (!access.allowed) { setSectionGate('marketplace'); return }
             setActiveSection('marketplace'); setShopOpen(true); setMarketplaceLanding(true)
           }}
           onDatingClick={() => {
@@ -1198,8 +1196,8 @@ export default function AppShell({ returnParams, triggerGoLive }) {
       <DriverRegistration open={driverRegOpen} onClose={() => setDriverRegOpen(false)} driverType={rideVehicleType === 'car_taxi' ? 'car' : 'bike'} />
       <TherapistRegistration open={therapistRegOpen} onClose={() => setTherapistRegOpen(false)} />
 
-      {/* Side nav — hidden on booking form + marketplace landing (landing has its own bottom nav) */}
-      {(!rideOpen || rideOnLanding) && (!massageOpen || massageOnLanding) && !(shopOpen && marketplaceLanding) && (!datingGridOpen || datingOnLanding) && activeTab !== 'rentals' && activeTab !== 'chat' && <BottomNav
+      {/* Side nav — hidden on booking form, visible on marketplace (orange theme) */}
+      {(!rideOpen || rideOnLanding) && (!massageOpen || massageOnLanding) && (!datingGridOpen || datingOnLanding) && activeTab !== 'rentals' && activeTab !== 'chat' && <BottomNav
           isGuest={isGuest}
           dockVisible={dockVisible}
           theme={shopOpen ? 'marketplace' : 'default'}
