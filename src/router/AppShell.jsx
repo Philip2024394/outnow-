@@ -901,6 +901,7 @@ export default function AppShell({ returnParams, triggerGoLive }) {
       <ReportSheet open={overlay.type === OVERLAY.REPORT} session={overlay.data} onClose={closeOverlay} showToast={showToast} />
       {likedMeOpen && <LikedMeScreen onClose={() => setLikedMeOpen(false)} />}
       {notifOpen && (
+        <div style={{ position: 'fixed', inset: 0, zIndex: 9800 }}>
         <NotificationsScreen
           onClose={() => setNotifOpen(false)}
           userId={user?.id}
@@ -936,6 +937,7 @@ export default function AppShell({ returnParams, triggerGoLive }) {
             userPhoto: userProfile?.photoURL ?? user?.photoURL ?? null,
           }}
         />
+        </div>
       )}
       {rideHistoryOpen && (
         <RideHistoryScreen
@@ -1249,14 +1251,22 @@ export default function AppShell({ returnParams, triggerGoLive }) {
       </Suspense>
 
       {/* Marketplace Chat overlay — opens on top of marketplace without navigating away */}
-      <Suspense fallback={null}>
-        {marketChatOpen && <ChatScreen onClose={() => setMarketChatOpen(false)} pendingConv={pendingConv} />}
-      </Suspense>
+      {marketChatOpen && (
+        <div style={{ position: 'fixed', inset: 0, zIndex: 9800 }}>
+          <Suspense fallback={null}>
+            <ChatScreen onClose={() => setMarketChatOpen(false)} pendingConv={pendingConv} />
+          </Suspense>
+        </div>
+      )}
 
       {/* Marketplace Profile overlay — opens on top of marketplace without navigating away */}
-      <Suspense fallback={null}>
-        {marketProfileOpen && <ProfileScreen onClose={() => setMarketProfileOpen(false)} onOpenSettings={() => { setMarketProfileOpen(false); setSettingsOpen(true) }} />}
-      </Suspense>
+      {marketProfileOpen && (
+        <div style={{ position: 'fixed', inset: 0, zIndex: 9800 }}>
+          <Suspense fallback={null}>
+            <ProfileScreen onClose={() => setMarketProfileOpen(false)} onOpenSettings={() => { setMarketProfileOpen(false); setSettingsOpen(true) }} />
+          </Suspense>
+        </div>
+      )}
 
       {/* Dev panel — home page only */}
       {activeTab === 'map' && !shopOpen && !foodOpen && !rideOpen && !massageOpen && !datingGridOpen && (
