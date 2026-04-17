@@ -96,11 +96,10 @@
 
 /* ── Hangger Market logo ──────────────────────────────────────────────────── */
 .hanggerLogo {
-  width: 110px;
-  height: 28px;
+  width: 220px;
+  height: 56px;
   background: url('https://ik.imagekit.io/nepgaxllc/Indoo%20Market%20logo%20design.png?updatedAt=1776203793752')
     no-repeat center / 260%;
-  mix-blend-mode: screen;
   flex-shrink: 0;
 }
 
@@ -124,7 +123,7 @@
 .bizName {
   font-size: 13px;
   font-weight: 600;
-  color: #222;
+  color: rgba(255,255,255,0.85);
   text-align: center;
   padding: 4px 8px;
   background: rgba(245,158,11,0.07);
@@ -139,8 +138,10 @@
 }
 
 .statCard {
-  background: #fff;
-  border: 1px solid #e5e5e5;
+  background: rgba(0,0,0,0.75);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1.5px solid rgba(255,255,255,0.08);
   border-radius: 10px;
   padding: 10px 8px;
   display: flex;
@@ -150,8 +151,8 @@
 }
 
 .statIcon  { font-size: 16px; }
-.statValue { font-size: 18px; font-weight: 900; color: #1a1a1a; }
-.statLabel { font-size: 10px; color: #999; font-weight: 600; }
+.statValue { font-size: 18px; font-weight: 900; color: #fff; }
+.statLabel { font-size: 10px; color: rgba(255,255,255,0.5); font-weight: 600; }
 
 /* ── Section tabs ────────────────────────────────────────────────────────── */
 .sectionTabs {
@@ -162,10 +163,12 @@
 .sectionTab {
   flex: 1;
   padding: 6px 0;
-  background: #f5f5f5;
-  border: 1px solid #e5e5e5;
+  background: rgba(0,0,0,0.7);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border: 1.5px solid rgba(255,255,255,0.08);
   border-radius: 8px;
-  color: #888;
+  color: rgba(255,255,255,0.5);
   font-size: 10px;
   font-weight: 700;
   cursor: pointer;
@@ -174,9 +177,10 @@
 }
 
 .sectionTabActive {
-  background: rgba(245,158,11,0.18);
-  border-color: rgba(245,158,11,0.4);
+  background: rgba(0,0,0,0.85);
+  border-color: #F59E0B;
   color: #F59E0B;
+  box-shadow: 0 0 8px rgba(245,158,11,0.2);
 }
 
 /* ── List / scroll container ─────────────────────────────────────────────── */
@@ -203,8 +207,10 @@
 
 /* ── Order card ─────────────────────────────────────────────────────────── */
 .orderCard {
-  background: #fff;
-  border: 1px solid #eee;
+  background: rgba(0,0,0,0.7);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border: 1.5px solid rgba(255,255,255,0.08);
   border-radius: 10px;
   padding: 10px 11px;
   display: flex;
@@ -222,7 +228,7 @@
 .orderProduct {
   font-size: 12px;
   font-weight: 700;
-  color: #1a1a1a;
+  color: #fff;
   flex: 1;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -284,8 +290,10 @@
   display: flex;
   align-items: center;
   gap: 8px;
-  background: #fff;
-  border: 1px solid #eee;
+  background: rgba(0,0,0,0.7);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border: 1.5px solid rgba(255,255,255,0.08);
   border-radius: 10px;
   padding: 8px 10px;
   transition: opacity 0.2s;
@@ -311,9 +319,9 @@
   overflow: hidden;
 }
 
-.productName  { font-size: 11px; font-weight: 700; color: #222; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.productName  { font-size: 11px; font-weight: 700; color: #fff; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .productPrice { font-size: 11px; color: #F59E0B; font-weight: 700; }
-.productStock { font-size: 10px; color: #bbb; }
+.productStock { font-size: 10px; color: rgba(255,255,255,0.4); }
 
 .toggleActive {
   flex-shrink: 0;
@@ -375,8 +383,10 @@
   align-items: center;
   gap: 10px;
   padding: 9px 10px;
-  background: #fff;
-  border: 1px solid #eee;
+  background: rgba(0,0,0,0.7);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border: 1.5px solid rgba(255,255,255,0.08);
   border-radius: 10px;
   cursor: pointer;
 }
@@ -396,8 +406,8 @@
   gap: 1px;
 }
 
-.shippingLabel { font-size: 12px; font-weight: 700; color: #222; }
-.shippingSub   { font-size: 10px; color: #aaa; }
+.shippingLabel { font-size: 12px; font-weight: 700; color: #fff; }
+.shippingSub   { font-size: 10px; color: rgba(255,255,255,0.4); }
 
 .saveShippingBtn {
   margin-top: 4px;
@@ -430,8 +440,10 @@
   justify-content: space-between;
   width: 100%;
   padding: 10px 12px;
-  background: #fff;
-  border: 1px solid #eee;
+  background: rgba(0,0,0,0.7);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border: 1.5px solid rgba(255,255,255,0.08);
   border-radius: 8px;
   cursor: pointer;
   font-family: inherit;
@@ -443,7 +455,7 @@
 .deliveryPricingName {
   font-size: 12px;
   font-weight: 700;
-  color: #333;
+  color: rgba(255,255,255,0.7);
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -457,8 +469,10 @@
 
 /* ── Safe Trade per-product ──────────────────────────────────────────────── */
 .safeTradeProduct {
-  background: #fff;
-  border: 1px solid #eee;
+  background: rgba(0,0,0,0.7);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border: 1.5px solid rgba(255,255,255,0.08);
   border-radius: 10px;
   padding: 10px 12px;
   display: flex;
@@ -469,7 +483,7 @@
 .safeTradeProductName {
   font-size: 12px;
   font-weight: 700;
-  color: #333;
+  color: rgba(255,255,255,0.7);
 }
 
 .safeTradeToggles {
