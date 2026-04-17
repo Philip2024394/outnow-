@@ -32,7 +32,7 @@ const DEMO_HISTORY = [
 const STATUS_STYLES = {
   pending:   { bg: 'rgba(251,191,36,0.15)', color: '#FBBF24', label: 'Pending' },
   confirmed: { bg: '#8DC63F',               color: '#fff',    label: 'Confirmed' },
-  shipped:   { bg: 'rgba(99,102,241,0.15)', color: '#818CF8', label: 'Shipped' },
+  shipped:   { bg: '#8DC63F',               color: '#fff',    label: 'Shipped', glow: true },
   delivered: { bg: 'rgba(52,199,89,0.15)',  color: '#34C759', label: 'Delivered' },
   cancelled: { bg: '#EF4444',              color: '#fff',    label: 'Cancelled' },
 }
@@ -146,7 +146,7 @@ export default function MarketplaceCartScreen({ open, onClose }) {
                 <div key={order.id} className={styles.orderCard}>
                   <div className={styles.orderTop}>
                     <span className={styles.orderProduct}>{order.product}</span>
-                    <span className={styles.orderStatus} style={{ background: st.bg, color: st.color }}>{st.label}</span>
+                    <span className={`${styles.orderStatus} ${st.glow ? styles.orderStatusGlow : ''}`} style={{ background: st.bg, color: st.color }}>{st.label}</span>
                   </div>
                   <div className={styles.orderMeta}>
                     <span>{order.seller}</span>
@@ -177,7 +177,7 @@ export default function MarketplaceCartScreen({ open, onClose }) {
                 <div key={order.id} className={styles.orderCard}>
                   <div className={styles.orderTop}>
                     <span className={styles.orderProduct}>{order.product}</span>
-                    <span className={styles.orderStatus} style={{ background: st.bg, color: st.color }}>{st.label}</span>
+                    <span className={`${styles.orderStatus} ${st.glow ? styles.orderStatusGlow : ''}`} style={{ background: st.bg, color: st.color }}>{st.label}</span>
                   </div>
                   <div className={styles.orderMeta}>
                     <span>{order.seller}</span>

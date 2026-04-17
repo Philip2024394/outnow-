@@ -88,12 +88,12 @@
 .qtyRow { display: flex; align-items: center; gap: 0; }
 .qtyBtn {
   width: 28px; height: 28px; border-radius: 6px;
-  background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.1);
-  color: #fff; font-size: 16px; font-weight: 700; cursor: pointer;
+  background: #F59E0B; border: none;
+  color: #000; font-size: 16px; font-weight: 800; cursor: pointer;
   display: flex; align-items: center; justify-content: center;
   font-family: inherit;
 }
-.qtyBtn:active { background: rgba(245,158,11,0.15); border-color: #F59E0B; }
+.qtyBtn:active { background: #D97706; }
 .qtyNum {
   width: 32px; text-align: center;
   font-size: 14px; font-weight: 800; color: #fff;
@@ -124,6 +124,13 @@
 .orderStatus {
   font-size: 11px; font-weight: 700; padding: 3px 10px;
   border-radius: 20px; flex-shrink: 0;
+}
+.orderStatusGlow {
+  animation: shippedGlow 2s ease-in-out infinite;
+}
+@keyframes shippedGlow {
+  0%, 100% { box-shadow: 0 0 6px rgba(141,198,63,0.3); }
+  50% { box-shadow: 0 0 16px rgba(141,198,63,0.7), 0 0 30px rgba(141,198,63,0.3); }
 }
 .orderMeta { display: flex; gap: 10px; flex-wrap: wrap; font-size: 12px; color: rgba(255,255,255,0.4); }
 .orderTotal { color: #F59E0B; font-weight: 700; font-family: monospace; }
