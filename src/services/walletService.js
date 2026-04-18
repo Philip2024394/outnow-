@@ -36,14 +36,14 @@ function getLocalWallet(userId) {
       data[userId] = {
         balance: 0, commissionOwed: 0, totalEarned: 0,
         totalCommissionPaid: 0, totalOrders: 0,
-        debtLimit: DEFAULT_DEBT_LIMIT, freeOrdersLeft: 3,
+        debtLimit: DEFAULT_DEBT_LIMIT, freeOrdersLeft: 1,
         transactions: [], created_at: new Date().toISOString(),
       }
       localStorage.setItem(WALLET_KEY, JSON.stringify(data))
     }
     return data[userId]
   } catch {
-    return { balance: 0, commissionOwed: 0, totalEarned: 0, totalCommissionPaid: 0, totalOrders: 0, debtLimit: DEFAULT_DEBT_LIMIT, freeOrdersLeft: 3, transactions: [], created_at: new Date().toISOString() }
+    return { balance: 0, commissionOwed: 0, totalEarned: 0, totalCommissionPaid: 0, totalOrders: 0, debtLimit: DEFAULT_DEBT_LIMIT, freeOrdersLeft: 1, transactions: [], created_at: new Date().toISOString() }
   }
 }
 

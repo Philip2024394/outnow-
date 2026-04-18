@@ -88,16 +88,91 @@ export default function OwnerProfileForm({ open, onClose, onComplete }) {
     )
   }
 
-  // Plan selection screen — 3 tiers
+  // Welcome screen — simple, clear, one path
   if (showPlanSelect) {
-    const plans = [
+    const handleContinue = () => {
+      try {
+        const p = JSON.parse(localStorage.getItem('indoo_rental_owner') || '{}')
+        p.plan = 'free'
+        p.plan_started = new Date().toISOString()
+        localStorage.setItem('indoo_rental_owner', JSON.stringify(p))
+      } catch {}
+      setShowPlanSelect(false)
+      onComplete?.({ ownerId, ownerType, fullName, companyName, yearEstablished, whatsapp, email, city, address, fleetSize, bio, plan: 'free', rentalAgreement: { local: localAgreement, tourist: touristAgreement, accepted: agreementAccepted } })
+    }
+
+    return createPortal(
+      <div className={styles.screen} style={{ backgroundImage: 'url(https://ik.imagekit.io/nepgaxllc/ChatGPT%20Image%20Apr%2018,%202026,%2006_51_21%20PM.png?updatedAt=1776513101123)', backgroundSize: 'cover', backgroundPosition: 'center' }}>
+        <div style={{ position: 'absolute', inset: 0, background: 'rgba(0,0,0,0.5)', pointerEvents: 'none' }} />
+
+        <div className={styles.content} style={{ position: 'relative', zIndex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', minHeight: '100%', padding: '40px 20px' }}>
+
+          {/* Bike image */}
+          <img src="https://ik.imagekit.io/nepgaxllc/ChatGPT%20Image%20Apr%2019,%202026,%2012_04_09%20AM.png" alt="" style={{ width: 140, height: 140, objectFit: 'contain', filter: 'drop-shadow(0 8px 24px rgba(0,0,0,0.5))', marginBottom: 24 }} />
+
+          {/* Welcome text */}
+          <h1 style={{ fontSize: 26, fontWeight: 900, color: '#fff', margin: '0 0 6px', textAlign: 'center' }}>Welcome to Indoo</h1>
+          <p style={{ fontSize: 14, color: '#8DC63F', fontWeight: 700, margin: '0 0 30px', textAlign: 'center' }}>Start earning today</p>
+
+          {/* Simple package card */}
+          <div style={{
+            width: '100%', maxWidth: 340, padding: '24px 20px',
+            background: 'rgba(0,0,0,0.6)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)',
+            border: '1.5px solid rgba(141,198,63,0.25)', borderRadius: 20,
+            boxShadow: '0 0 20px rgba(141,198,63,0.1), inset 0 1px 0 rgba(255,255,255,0.04)',
+          }}>
+            {/* Features */}
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
+              {[
+                { icon: '✅', text: 'FREE to join', sub: 'No monthly fees, no sign-up cost' },
+                { icon: '🎁', text: 'First order — zero commission', sub: 'Your first customer is on us' },
+                { icon: '💰', text: 'After that — 10% per order', sub: 'Only pay when you earn' },
+                { icon: '📊', text: 'Credit limit — Rp 50.000', sub: 'Increases with your order history' },
+              ].map((item, i) => (
+                <div key={i} style={{ display: 'flex', gap: 12, alignItems: 'flex-start' }}>
+                  <span style={{ fontSize: 20, flexShrink: 0, marginTop: 1 }}>{item.icon}</span>
+                  <div>
+                    <div style={{ fontSize: 14, fontWeight: 800, color: '#fff' }}>{item.text}</div>
+                    <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.3)', marginTop: 2 }}>{item.sub}</div>
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            {/* Divider */}
+            <div style={{ height: 1, background: 'rgba(255,255,255,0.06)', margin: '18px 0' }} />
+
+            {/* Bottom message */}
+            <p style={{ fontSize: 12, color: 'rgba(255,255,255,0.4)', textAlign: 'center', margin: 0, lineHeight: 1.5 }}>
+              That's it. No hidden fees. No contracts.{'\n'}Just list and start earning.
+            </p>
+          </div>
+
+          {/* CTA */}
+          <button onClick={handleContinue} style={{
+            width: '100%', maxWidth: 340, marginTop: 20, padding: '16px 0',
+            borderRadius: 14, background: '#8DC63F', border: 'none',
+            color: '#000', fontSize: 16, fontWeight: 800, cursor: 'pointer',
+            fontFamily: 'inherit', boxShadow: '0 4px 20px rgba(141,198,63,0.3)',
+          }}>
+            Get Started →
+          </button>
+
+          <p style={{ fontSize: 10, color: 'rgba(255,255,255,0.2)', marginTop: 10, textAlign: 'center' }}>
+            By continuing you agree to Indoo's terms of service
+          </p>
+        </div>
+      </div>,
+      document.body
+    )
+  }
+
+  // Old plan code removed — wallet system handles everything now
+  if (false) {
+    const _unused = [
       {
-        id: 'free', name: 'Kickstart', tagline: 'Start Your Engine', price: '0', color: '#8DC63F', commission: '10%',
-        commColor: '#EF4444', commBg: 'rgba(239,68,68,0.08)', commBorder: 'rgba(239,68,68,0.2)',
-        contact: 'In-app chat only', badge: null, stars: 1, img: 'https://ik.imagekit.io/nepgaxllc/ChatGPT%20Image%20Apr%2019,%202026,%2012_07_28%20AM.png',
-        features: [
-          { t: 'Up to 3 listings', y: true },
-          { t: 'In-app chat with renters', y: true },
+        id: '_removed', features: [
+          { t: 'placeholder', y: true },
           { t: 'Basic rental card', y: true },
           { t: 'Standard search position', y: true },
           { t: 'Views count only', y: true },

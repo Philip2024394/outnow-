@@ -14,7 +14,7 @@ CREATE TABLE IF NOT EXISTS wallets (
   total_earned  BIGINT NOT NULL DEFAULT 0,
   total_commission_paid BIGINT NOT NULL DEFAULT 0,
   total_orders  INT NOT NULL DEFAULT 0,
-  free_orders_left INT NOT NULL DEFAULT 3,
+  free_orders_left INT NOT NULL DEFAULT 1,
   status        TEXT NOT NULL DEFAULT 'active' CHECK (status IN ('active', 'paused', 'blocked')),
   created_at    TIMESTAMPTZ DEFAULT NOW(),
   updated_at    TIMESTAMPTZ DEFAULT NOW(),
