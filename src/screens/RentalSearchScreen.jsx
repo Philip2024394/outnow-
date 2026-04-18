@@ -364,6 +364,7 @@ export default function RentalSearchScreen({ onClose }) {
   const [showFilter, setShowFilter] = useState(false)
   const [priceSort, setPriceSort] = useState('')
   const [cardImgIdx, setCardImgIdx] = useState({})
+  const [flippedCards, setFlippedCards] = useState({})
 
   // Merge demo listings with owner-published live listings
   const ownerListings = (() => {
@@ -609,106 +610,129 @@ export default function RentalSearchScreen({ onClose }) {
         <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
           {sortedListings.length === 0 && <div className={styles.empty}>No rentals found</div>}
 
+          <style>{`@keyframes flipGlow { 0%,100% { box-shadow: 0 0 8px rgba(141,198,63,0.3); } 50% { box-shadow: 0 0 18px rgba(141,198,63,0.6), 0 0 30px rgba(141,198,63,0.2); } }`}</style>
           {sortedListings.map(l => {
             const imgs = l.images?.length ? l.images : [l.image || '']
             const currentImg = cardImgIdx[l.id] || 0
+            const isFlipped = !!flippedCards[l.id]
             return (
-            <button key={l.id} onClick={() => setSelected(l)} style={{
-              display: 'flex', flexDirection: 'column', width: '100%',
-              background: 'rgba(0,0,0,0.5)', backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)',
-              border: '1.5px solid rgba(141,198,63,0.08)', borderRadius: 20,
-              overflow: 'hidden', cursor: 'pointer', fontFamily: 'inherit', textAlign: 'left',
-              transition: 'all 0.3s cubic-bezier(0.4,0,0.2,1)', position: 'relative',
-              boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.04), 0 4px 20px rgba(0,0,0,0.3)',
-            }}>
-              {/* Top accent */}
-              <div style={{ position: 'absolute', top: 0, left: '10%', right: '10%', height: 1, background: 'linear-gradient(90deg, transparent, rgba(141,198,63,0.2), transparent)', pointerEvents: 'none', zIndex: 2 }} />
+            <div key={l.id} style={{ perspective: 1000, width: '100%' }}>
+              <div style={{
+                position: 'relative', width: '100%', minHeight: isFlipped ? 260 : 'auto',
+                transition: 'transform 0.6s cubic-bezier(0.4,0,0.2,1)',
+                transformStyle: 'preserve-3d',
+                transform: isFlipped ? 'rotateY(180deg)' : 'rotateY(0)',
+              }}>
 
-              {/* Image carousel section */}
-              <div style={{ position: 'relative', width: '100%', aspectRatio: '16/9', overflow: 'hidden', background: '#0a0a0a' }}>
-                <img src={imgs[currentImg]} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block', transition: 'opacity 0.3s' }} />
+                {/* ══ FRONT SIDE ══ */}
+                <div style={{
+                  backfaceVisibility: 'hidden', WebkitBackfaceVisibility: 'hidden',
+                  width: '100%', display: 'flex', flexDirection: 'column',
+                  background: 'rgba(0,0,0,0.5)', backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)',
+                  border: '1.5px solid rgba(141,198,63,0.08)', borderRadius: 20,
+                  overflow: 'hidden', fontFamily: 'inherit', textAlign: 'left',
+                  boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.04), 0 4px 20px rgba(0,0,0,0.3)',
+                  position: isFlipped ? 'absolute' : 'relative', inset: isFlipped ? 0 : undefined,
+                }}>
+                  <div style={{ position: 'absolute', top: 0, left: '10%', right: '10%', height: 1, background: 'linear-gradient(90deg, transparent, rgba(141,198,63,0.2), transparent)', pointerEvents: 'none', zIndex: 2 }} />
 
-                {/* Image dots — if multiple images */}
-                {imgs.length > 1 && (
-                  <div style={{ position: 'absolute', bottom: 8, left: '50%', transform: 'translateX(-50%)', display: 'flex', gap: 4, zIndex: 3 }}>
-                    {imgs.slice(0, 5).map((_, di) => (
-                      <div key={di} onClick={e => { e.stopPropagation(); setCardImgIdx(p => ({ ...p, [l.id]: di })) }} style={{
-                        width: currentImg === di ? 16 : 6, height: 6, borderRadius: 3,
-                        background: currentImg === di ? '#8DC63F' : 'rgba(255,255,255,0.3)',
-                        transition: 'all 0.2s', cursor: 'pointer',
-                        boxShadow: currentImg === di ? '0 0 6px rgba(141,198,63,0.5)' : 'none',
-                      }} />
-                    ))}
+                  {/* Image */}
+                  <div onClick={() => setSelected(l)} style={{ position: 'relative', width: '100%', aspectRatio: '16/9', overflow: 'hidden', background: '#0a0a0a', cursor: 'pointer' }}>
+                    <img src={imgs[currentImg]} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }} />
+                    {imgs.length > 1 && <div style={{ position: 'absolute', bottom: 8, left: '50%', transform: 'translateX(-50%)', display: 'flex', gap: 4, zIndex: 3 }}>{imgs.slice(0,5).map((_,di) => <div key={di} onClick={e => { e.stopPropagation(); setCardImgIdx(p => ({...p,[l.id]:di})) }} style={{ width: currentImg===di?16:6, height:6, borderRadius:3, background: currentImg===di?'#8DC63F':'rgba(255,255,255,0.3)', transition:'all 0.2s', cursor:'pointer', boxShadow: currentImg===di?'0 0 6px rgba(141,198,63,0.5)':'none' }} />)}</div>}
+                    {l.isOwnerListing && <div style={{ position:'absolute',top:10,left:10,padding:'3px 8px',background:'#8DC63F',borderRadius:6,fontSize:8,fontWeight:900,color:'#000',letterSpacing:'0.04em',zIndex:3 }}>YOUR LISTING</div>}
+                    <div style={{ position:'absolute',top:10,right:10,padding:'4px 8px',background:'rgba(0,0,0,0.5)',backdropFilter:'blur(8px)',borderRadius:8,display:'flex',alignItems:'center',gap:3,zIndex:3 }}><span style={{fontSize:11,color:'#FFD700',fontWeight:800}}>★ {l.rating||'—'}</span><span style={{fontSize:9,color:'rgba(255,255,255,0.3)'}}>({l.review_count})</span></div>
+                    {l.extra_fields?.withDriver && <div style={{ position:'absolute',bottom:10,left:10,width:28,height:28,borderRadius:'50%',background:'rgba(0,0,0,0.5)',backdropFilter:'blur(8px)',border:'1.5px solid rgba(141,198,63,0.3)',display:'flex',alignItems:'center',justifyContent:'center',color:'#8DC63F',zIndex:3 }}><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3"/></svg></div>}
+                    {imgs.length > 1 && <div style={{ position:'absolute',bottom:10,left:l.extra_fields?.withDriver?44:10,padding:'3px 8px',background:'rgba(0,0,0,0.5)',backdropFilter:'blur(8px)',borderRadius:6,display:'flex',alignItems:'center',gap:4,zIndex:3 }}><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.5)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg><span style={{fontSize:9,fontWeight:700,color:'rgba(255,255,255,0.5)'}}>{imgs.length}</span></div>}
+
+                    {/* FLIP BUTTON — fingerprint, bottom right with glow */}
+                    <button onClick={e => { e.stopPropagation(); setFlippedCards(p => ({...p,[l.id]:true})) }} style={{ position:'absolute',bottom:10,right:10,width:36,height:36,borderRadius:'50%',background:'rgba(0,0,0,0.5)',backdropFilter:'blur(8px)',border:'2px solid #8DC63F',display:'flex',alignItems:'center',justifyContent:'center',cursor:'pointer',zIndex:4,animation:'flipGlow 2s ease-in-out infinite',padding:0 }}>
+                      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#8DC63F" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d="M18.9 8a8.1 8.1 0 0 0-2.2-3.8A8 8 0 0 0 4 12c0 2.2.5 3.9 1.3 5.3"/><path d="M12 4a8 8 0 0 1 8 8c0 2.5-.7 4.2-1.6 5.5"/><path d="M8 12a4 4 0 0 1 8 0c0 1.4-.3 2.5-.8 3.4"/><path d="M12 8a4 4 0 0 0-4 4c0 1.8.5 3.2 1.2 4.2"/><path d="M12 12v8"/></svg>
+                    </button>
                   </div>
-                )}
 
-                {/* YOUR LISTING badge */}
-                {l.isOwnerListing && (
-                  <div style={{ position: 'absolute', top: 10, left: 10, padding: '3px 8px', background: '#8DC63F', borderRadius: 6, fontSize: 8, fontWeight: 900, color: '#000', letterSpacing: '0.04em', zIndex: 3 }}>YOUR LISTING</div>
-                )}
-
-                {/* Rating badge — top right */}
-                <div style={{ position: 'absolute', top: 10, right: 10, padding: '4px 8px', background: 'rgba(0,0,0,0.5)', backdropFilter: 'blur(8px)', borderRadius: 8, display: 'flex', alignItems: 'center', gap: 3, zIndex: 3 }}>
-                  <span style={{ fontSize: 11, color: '#FFD700', fontWeight: 800 }}>★ {l.rating || '—'}</span>
-                  <span style={{ fontSize: 9, color: 'rgba(255,255,255,0.3)' }}>({l.review_count})</span>
-                </div>
-
-                {/* Driver icon */}
-                {l.extra_fields?.withDriver && (
-                  <div style={{ position: 'absolute', bottom: 10, right: 10, width: 28, height: 28, borderRadius: '50%', background: 'rgba(0,0,0,0.5)', backdropFilter: 'blur(8px)', border: '1.5px solid rgba(141,198,63,0.3)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#8DC63F', zIndex: 3, boxShadow: '0 0 8px rgba(141,198,63,0.15)' }}>
-                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3"/></svg>
-                  </div>
-                )}
-
-                {/* Image count badge */}
-                {imgs.length > 1 && (
-                  <div style={{ position: 'absolute', bottom: 10, left: 10, padding: '3px 8px', background: 'rgba(0,0,0,0.5)', backdropFilter: 'blur(8px)', borderRadius: 6, display: 'flex', alignItems: 'center', gap: 4, zIndex: 3 }}>
-                    <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.5)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
-                    <span style={{ fontSize: 9, fontWeight: 700, color: 'rgba(255,255,255,0.5)' }}>{imgs.length}</span>
-                  </div>
-                )}
-              </div>
-
-              {/* Info section */}
-              <div style={{ padding: '12px 14px 14px', display: 'flex', flexDirection: 'column', gap: 6 }}>
-                {/* Title + city */}
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 8 }}>
-                  <div style={{ flex: 1, minWidth: 0 }}>
-                    <div style={{ fontSize: 16, fontWeight: 900, color: '#fff', letterSpacing: '-0.01em', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{l.title}</div>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginTop: 3 }}>
-                      <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.25)" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>
-                      <span style={{ fontSize: 11, color: 'rgba(255,255,255,0.3)', fontWeight: 600 }}>{l.city || 'Indonesia'}</span>
+                  {/* Front info */}
+                  <div onClick={() => setSelected(l)} style={{ padding:'12px 14px 14px',display:'flex',flexDirection:'column',gap:6,cursor:'pointer' }}>
+                    <div style={{ display:'flex',justifyContent:'space-between',alignItems:'flex-start',gap:8 }}>
+                      <div style={{flex:1,minWidth:0}}>
+                        <div style={{fontSize:16,fontWeight:900,color:'#fff',letterSpacing:'-0.01em',overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap'}}>{l.title}</div>
+                        <div style={{display:'flex',alignItems:'center',gap:4,marginTop:3}}><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.25)" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg><span style={{fontSize:11,color:'rgba(255,255,255,0.3)',fontWeight:600}}>{l.city||'Indonesia'}</span></div>
+                      </div>
+                      <div style={{display:'flex',alignItems:'center',gap:3,flexShrink:0}}><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.15)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg><span style={{fontSize:9,color:'rgba(255,255,255,0.15)',fontWeight:600}}>{l.view_count}</span></div>
+                    </div>
+                    <div style={{display:'flex',alignItems:'baseline',justifyContent:'space-between',marginTop:2}}>
+                      <div style={{display:'flex',alignItems:'baseline',gap:3}}><span style={{fontSize:10,fontWeight:700,color:'rgba(141,198,63,0.6)'}}>Rp</span><span style={{fontSize:22,fontWeight:900,color:'#8DC63F',letterSpacing:'-0.02em'}}>{fmtIDR(l.price_day).replace('Rp ','')}</span><span style={{fontSize:11,color:'rgba(255,255,255,0.25)',fontWeight:600}}>/day</span></div>
+                      {l.price_month > 0 && <span style={{fontSize:11,color:'rgba(255,255,255,0.2)',fontWeight:600}}>{fmtIDR(l.price_month)}/mo</span>}
                     </div>
                   </div>
-                  {/* Views */}
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 3, flexShrink: 0 }}>
-                    <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.15)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
-                    <span style={{ fontSize: 9, color: 'rgba(255,255,255,0.15)', fontWeight: 600 }}>{l.view_count}</span>
+                </div>
+
+                {/* ══ BACK SIDE ══ */}
+                <div style={{
+                  backfaceVisibility: 'hidden', WebkitBackfaceVisibility: 'hidden',
+                  transform: 'rotateY(180deg)',
+                  position: 'absolute', inset: 0, width: '100%',
+                  background: 'rgba(0,0,0,0.7)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)',
+                  border: '1.5px solid rgba(141,198,63,0.15)', borderRadius: 20,
+                  overflow: 'hidden', fontFamily: 'inherit', textAlign: 'left',
+                  boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.04), 0 4px 20px rgba(0,0,0,0.4), 0 0 16px rgba(141,198,63,0.08)',
+                  display: 'flex', flexDirection: 'column', padding: '16px',
+                }}>
+                  <div style={{ position: 'absolute', top: 0, left: '10%', right: '10%', height: 1, background: 'linear-gradient(90deg, transparent, rgba(141,198,63,0.3), transparent)', pointerEvents: 'none' }} />
+
+                  {/* Back header */}
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 10 }}>
+                    <div>
+                      <div style={{ fontSize: 18, fontWeight: 900, color: '#fff', letterSpacing: '-0.01em' }}>{l.title}</div>
+                      <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.3)', marginTop: 2 }}>📍 {l.city || 'Indonesia'}</div>
+                    </div>
+                    {/* Flip back button */}
+                    <button onClick={e => { e.stopPropagation(); setFlippedCards(p => ({...p,[l.id]:false})) }} style={{ width: 30, height: 30, borderRadius: '50%', background: '#8DC63F', border: 'none', color: '#000', fontSize: 12, fontWeight: 900, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>✕</button>
+                  </div>
+
+                  {/* Spec chips */}
+                  <div style={{ display: 'flex', gap: 4, flexWrap: 'wrap', marginBottom: 10 }}>
+                    <span style={{ padding: '3px 8px', background: 'rgba(141,198,63,0.08)', border: '1px solid rgba(141,198,63,0.15)', borderRadius: 6, fontSize: 10, fontWeight: 700, color: '#8DC63F' }}>{l.sub_category || l.category}</span>
+                    <span style={{ padding: '3px 8px', background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.06)', borderRadius: 6, fontSize: 10, fontWeight: 700, color: 'rgba(255,255,255,0.4)' }}>{getConditionLabel(l.condition)}</span>
+                    {l.features?.map((f, fi) => <span key={fi} style={{ padding: '3px 8px', background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.06)', borderRadius: 6, fontSize: 10, fontWeight: 700, color: 'rgba(255,255,255,0.35)' }}>{f}</span>)}
+                    {l.extra_fields?.withDriver && <span style={{ padding: '3px 8px', background: 'rgba(141,198,63,0.08)', border: '1px solid rgba(141,198,63,0.15)', borderRadius: 6, fontSize: 10, fontWeight: 700, color: '#8DC63F' }}>🚗 Driver Available</span>}
+                  </div>
+
+                  {/* Description */}
+                  <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.5)', lineHeight: 1.5, flex: 1, overflow: 'hidden', marginBottom: 12 }}>
+                    {l.description?.slice(0, 180)}{l.description?.length > 180 ? '...' : ''}
+                  </div>
+
+                  {/* Price grid */}
+                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 6, marginBottom: 12 }}>
+                    <div style={{ padding: '8px 6px', background: 'rgba(0,0,0,0.3)', border: '1px solid rgba(141,198,63,0.1)', borderRadius: 10, textAlign: 'center' }}>
+                      <div style={{ fontSize: 7, fontWeight: 700, color: 'rgba(255,255,255,0.25)', letterSpacing: '0.05em' }}>DAY</div>
+                      <div style={{ fontSize: 14, fontWeight: 900, color: '#8DC63F', marginTop: 2 }}>{l.price_day ? fmtIDR(l.price_day) : '—'}</div>
+                    </div>
+                    <div style={{ padding: '8px 6px', background: 'rgba(0,0,0,0.3)', border: '1px solid rgba(141,198,63,0.1)', borderRadius: 10, textAlign: 'center' }}>
+                      <div style={{ fontSize: 7, fontWeight: 700, color: 'rgba(255,255,255,0.25)', letterSpacing: '0.05em' }}>WEEK</div>
+                      <div style={{ fontSize: 14, fontWeight: 900, color: '#8DC63F', marginTop: 2 }}>{l.price_week ? fmtIDR(l.price_week) : '—'}</div>
+                    </div>
+                    <div style={{ padding: '8px 6px', background: 'rgba(0,0,0,0.3)', border: '1px solid rgba(141,198,63,0.1)', borderRadius: 10, textAlign: 'center' }}>
+                      <div style={{ fontSize: 7, fontWeight: 700, color: 'rgba(255,255,255,0.25)', letterSpacing: '0.05em' }}>MONTH</div>
+                      <div style={{ fontSize: 14, fontWeight: 900, color: '#8DC63F', marginTop: 2 }}>{l.price_month ? fmtIDR(l.price_month) : '—'}</div>
+                    </div>
+                  </div>
+
+                  {/* Action buttons */}
+                  <div style={{ display: 'flex', gap: 8 }}>
+                    <button onClick={e => { e.stopPropagation(); setFlippedCards(p => ({...p,[l.id]:false})); setChatListing(l) }} style={{ flex: 1, padding: '11px 0', borderRadius: 12, background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.1)', color: '#fff', fontSize: 13, fontWeight: 800, cursor: 'pointer', fontFamily: 'inherit', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6 }}>
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>
+                      Chat
+                    </button>
+                    <button onClick={e => { e.stopPropagation(); setFlippedCards(p => ({...p,[l.id]:false})); setBookingListing(l) }} style={{ flex: 1, padding: '11px 0', borderRadius: 12, background: '#8DC63F', border: 'none', color: '#000', fontSize: 13, fontWeight: 800, cursor: 'pointer', fontFamily: 'inherit', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6, boxShadow: '0 2px 10px rgba(141,198,63,0.3)' }}>
+                      🏍️ Book Now
+                    </button>
                   </div>
                 </div>
 
-                {/* Spec chips */}
-                <div style={{ display: 'flex', gap: 4, flexWrap: 'wrap' }}>
-                  <span style={{ padding: '3px 8px', background: 'rgba(141,198,63,0.08)', border: '1px solid rgba(141,198,63,0.15)', borderRadius: 6, fontSize: 10, fontWeight: 700, color: '#8DC63F' }}>{l.sub_category || l.category}</span>
-                  <span style={{ padding: '3px 8px', background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.06)', borderRadius: 6, fontSize: 10, fontWeight: 700, color: 'rgba(255,255,255,0.4)' }}>{getConditionLabel(l.condition)}</span>
-                  {l.features?.slice(0, 2).map((f, fi) => (
-                    <span key={fi} style={{ padding: '3px 8px', background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.06)', borderRadius: 6, fontSize: 10, fontWeight: 700, color: 'rgba(255,255,255,0.35)' }}>{f}</span>
-                  ))}
-                </div>
-
-                {/* Price row */}
-                <div style={{ display: 'flex', alignItems: 'baseline', justifyContent: 'space-between', marginTop: 2 }}>
-                  <div style={{ display: 'flex', alignItems: 'baseline', gap: 3 }}>
-                    <span style={{ fontSize: 10, fontWeight: 700, color: 'rgba(141,198,63,0.6)' }}>Rp</span>
-                    <span style={{ fontSize: 22, fontWeight: 900, color: '#8DC63F', letterSpacing: '-0.02em' }}>{fmtIDR(l.price_day).replace('Rp ', '')}</span>
-                    <span style={{ fontSize: 11, color: 'rgba(255,255,255,0.25)', fontWeight: 600 }}>/day</span>
-                  </div>
-                  {l.price_month > 0 && (
-                    <span style={{ fontSize: 11, color: 'rgba(255,255,255,0.2)', fontWeight: 600 }}>{fmtIDR(l.price_month)}/mo</span>
-                  )}
-                </div>
               </div>
-            </button>
+            </div>
           )})}
         </div>
       </div>
