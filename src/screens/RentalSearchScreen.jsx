@@ -361,6 +361,9 @@ export default function RentalSearchScreen({ onClose }) {
   const [calcVehicle, setCalcVehicle] = useState(null)
   const [chatListing, setChatListing] = useState(null)
   const [bookingListing, setBookingListing] = useState(null)
+  const [showFilter, setShowFilter] = useState(false)
+  const [priceSort, setPriceSort] = useState('')
+  const [cardImgIdx, setCardImgIdx] = useState({})
 
   // Merge demo listings with owner-published live listings
   const ownerListings = (() => {
@@ -552,10 +555,6 @@ export default function RentalSearchScreen({ onClose }) {
       />
     )
   }
-
-  const [showFilter, setShowFilter] = useState(false)
-  const [priceSort, setPriceSort] = useState('') // '', 'low', 'high'
-  const [cardImgIdx, setCardImgIdx] = useState({}) // track which image each card shows
 
   let sortedListings = [...listings]
   if (priceSort === 'low') sortedListings.sort((a, b) => (a.price_day || 0) - (b.price_day || 0))
