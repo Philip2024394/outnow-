@@ -133,7 +133,7 @@ function CarShowroom({ brand, model, cc, trans, onSelectCar }) {
       <div ref={scrollRef} className={showroomStyles.carousel} onScroll={handleScroll}>
         {displayCars.map((car, i) => (
           <div key={`${car.id}-${i}`} className={showroomStyles.bikeSlide} onClick={() => onSelectCar?.(car)}>
-            <img src={car.image} alt={car.name} className={showroomStyles.bikeImg} style={{ height: 120, maxWidth: '80%', marginTop: 30 }} />
+            <img src={car.image} alt={car.name} className={showroomStyles.bikeImg} style={{ height: 120, maxWidth: '80%', marginTop: 25 }} />
             <div className={showroomStyles.floorGlow} />
           </div>
         ))}

@@ -266,6 +266,13 @@ function VehicleDirectory({ vehicleType, onSelectModel, onBack }) {
                 )}
               </div>
 
+              {/* Driver available icon — bottom right (cars, buses, trucks only) */}
+              {!isBike && (
+                <div className={styles.dirCardDriver} title="Driver available">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3"/></svg>
+                </div>
+              )}
+
               {/* Arrow indicator */}
               <div className={styles.dirCardArrow}>
                 <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
@@ -585,6 +592,12 @@ export default function RentalSearchScreen({ onClose }) {
             <button key={l.id} className={styles.card} onClick={() => setSelected(l)} style={{ position: 'relative' }}>
               {l.isOwnerListing && <div style={{ position: 'absolute', top: 6, left: 6, padding: '2px 6px', background: '#8DC63F', borderRadius: 4, fontSize: 7, fontWeight: 900, color: '#000', letterSpacing: '0.04em', zIndex: 2 }}>YOUR LISTING</div>}
               <img src={l.images?.[0]} alt="" className={styles.cardImg} />
+              {/* Driver available icon */}
+              {l.extra_fields?.withDriver && (
+                <div className={styles.cardDriverIcon} title="Driver available">
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3"/></svg>
+                </div>
+              )}
               <div className={styles.cardBody}>
                 <span className={styles.cardTitle}>{l.title}</span>
                 <div className={styles.cardMeta}>

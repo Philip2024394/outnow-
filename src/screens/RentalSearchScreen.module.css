@@ -217,9 +217,9 @@
   z-index: 3; pointer-events: none;
 }
 
-/* Listings badge — bottom right */
+/* Listings badge — bottom left */
 .dirCardBadge {
-  position: absolute; bottom: 10px; right: 10px; z-index: 3;
+  position: absolute; bottom: 10px; left: 10px; z-index: 3;
   display: flex; align-items: center; gap: 3px;
   padding: 3px 8px;
   background: rgba(0,0,0,0.5); backdrop-filter: blur(8px);
@@ -231,7 +231,7 @@
   font-size: 12px; font-weight: 900; color: #8DC63F;
 }
 .dirCardBadgeLabel {
-  font-size: 8px; font-weight: 600; color: rgba(255,255,255,0.3);
+  font-size: 9px; font-weight: 700; color: rgba(255,255,255,0.45);
   letter-spacing: 0.03em;
 }
 
@@ -249,6 +249,7 @@
   filter: drop-shadow(0 8px 20px rgba(0,0,0,0.5));
   transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
   position: relative; z-index: 1;
+  margin-top: -5px;
 }
 .dirCard:hover .dirCardImg { transform: scale(1.08) translateY(-4px); }
 .dirCard:nth-child(even) .dirCardImg { transform: scaleX(-1); }
@@ -280,12 +281,12 @@
   display: flex; flex-wrap: wrap; gap: 4px;
 }
 .dirCardChip {
-  padding: 2px 7px;
-  background: rgba(255,255,255,0.04);
-  border: 1px solid rgba(255,255,255,0.06);
+  padding: 3px 8px;
+  background: rgba(255,255,255,0.06);
+  border: 1px solid rgba(255,255,255,0.08);
   border-radius: 6px;
-  font-size: 9px; font-weight: 700;
-  color: rgba(255,255,255,0.4);
+  font-size: 11px; font-weight: 700;
+  color: rgba(255,255,255,0.6);
   white-space: nowrap;
 }
 
@@ -298,7 +299,7 @@
   display: flex; align-items: baseline; gap: 1px;
 }
 .dirCardPriceCurrency {
-  font-size: 9px; font-weight: 600; color: rgba(141,198,63,0.5);
+  font-size: 11px; font-weight: 700; color: rgba(141,198,63,0.7);
 }
 .dirCardPriceValue {
   font-size: 16px; font-weight: 900; color: #8DC63F;
@@ -312,10 +313,10 @@
   display: flex; align-items: baseline; gap: 2px;
 }
 .dirCardPriceTo {
-  font-size: 11px; font-weight: 700; color: rgba(141,198,63,0.6);
+  font-size: 12px; font-weight: 800; color: rgba(141,198,63,0.7);
 }
 .dirCardPriceDay {
-  font-size: 8px; font-weight: 600; color: rgba(255,255,255,0.2);
+  font-size: 10px; font-weight: 700; color: rgba(255,255,255,0.35);
 }
 
 /* Arrow indicator — top right, solid green */
@@ -332,6 +333,17 @@
 .dirCard:hover .dirCardArrow {
   transform: scale(1.1);
   box-shadow: 0 0 14px rgba(141,198,63,0.4);
+}
+
+/* Driver available icon — bottom right on directory cards */
+.dirCardDriver {
+  position: absolute; bottom: 10px; right: 10px; z-index: 3;
+  width: 28px; height: 28px; border-radius: 50%;
+  background: rgba(0,0,0,0.5); backdrop-filter: blur(8px);
+  border: 1.5px solid rgba(141,198,63,0.3);
+  display: flex; align-items: center; justify-content: center;
+  color: #8DC63F;
+  box-shadow: 0 0 8px rgba(141,198,63,0.15);
 }
 
 /* Category selection page */
@@ -513,6 +525,17 @@
   font-size: 10px; color: #FFD700; font-weight: 800;
 }
 .cardViews { font-size: 9px; color: rgba(255,255,255,0.15); font-weight: 600; }
+
+/* Driver icon on browse listing cards — bottom right of image */
+.cardDriverIcon {
+  position: absolute; bottom: calc(100% - 130px + 8px); right: 8px; z-index: 2;
+  width: 24px; height: 24px; border-radius: 50%;
+  background: rgba(0,0,0,0.5); backdrop-filter: blur(8px);
+  border: 1.5px solid rgba(141,198,63,0.3);
+  display: flex; align-items: center; justify-content: center;
+  color: #8DC63F;
+  box-shadow: 0 0 8px rgba(141,198,63,0.15);
+}
 
 /* Detail sheet */
 .detailOverlay { position: fixed; inset: 0; background: rgba(0,0,0,0.8); backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px); z-index: 300; display: flex; flex-direction: column; overflow: hidden; }
