@@ -133,7 +133,7 @@ function CarShowroom({ brand, model, cc, trans, onSelectCar }) {
       <div ref={scrollRef} className={showroomStyles.carousel} onScroll={handleScroll}>
         {displayCars.map((car, i) => (
           <div key={`${car.id}-${i}`} className={showroomStyles.bikeSlide} onClick={() => onSelectCar?.(car)}>
-            <img src={car.image} alt={car.name} className={showroomStyles.bikeImg} />
+            <img src={car.image} alt={car.name} className={showroomStyles.bikeImg} style={{ height: 120, maxWidth: '80%', marginTop: 30 }} />
             <div className={showroomStyles.floorGlow} />
           </div>
         ))}
@@ -346,7 +346,7 @@ export default function CarListingForm({ open, onClose, onSubmit, editListing })
   }
 
   return createPortal(
-    <div className={styles.screen} style={{ backgroundImage: `url(${step === 1 ? 'https://ik.imagekit.io/nepgaxllc/ChatGPT%20Image%20Apr%2018,%202026,%2007_07_33%20PM.png' : step === 2 ? 'https://ik.imagekit.io/nepgaxllc/ChatGPT%20Image%20Apr%2018,%202026,%2010_39_50%20PM.png' : step >= 4 ? 'https://ik.imagekit.io/nepgaxllc/ChatGPT%20Image%20Apr%2018,%202026,%2011_13_56%20PM.png?updatedAt=1776528855040' : 'https://ik.imagekit.io/nepgaxllc/ChatGPT%20Image%20Apr%2018,%202026,%2006_57_42%20PM.png'})`, backgroundSize: 'cover', backgroundPosition: 'center' }}>
+    <div className={styles.screen} style={{ backgroundImage: `url(${step === 1 ? 'https://ik.imagekit.io/nepgaxllc/ChatGPT%20Image%20Apr%2019,%202026,%2003_22_50%20AM.png' : step === 2 ? 'https://ik.imagekit.io/nepgaxllc/ChatGPT%20Image%20Apr%2019,%202026,%2003_24_51%20AM.png' : step >= 4 ? 'https://ik.imagekit.io/nepgaxllc/ChatGPT%20Image%20Apr%2018,%202026,%2011_13_56%20PM.png?updatedAt=1776528855040' : 'https://ik.imagekit.io/nepgaxllc/ChatGPT%20Image%20Apr%2019,%202026,%2003_15_15%20AM.png'})`, backgroundSize: 'cover', backgroundPosition: 'center' }}>
 
       <div style={{ padding: '16px 20px 0', flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'space-between', position: 'relative', zIndex: 10 }}>
         {/* Back button */}

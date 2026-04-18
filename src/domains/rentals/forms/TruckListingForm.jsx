@@ -140,7 +140,7 @@ function TruckShowroom({ brand, model, payload, truckType, onSelectTruck }) {
       <div ref={scrollRef} className={showroomStyles.carousel} onScroll={handleScroll}>
         {displayTrucks.map((truck, i) => (
           <div key={`${truck.id}-${i}`} className={showroomStyles.bikeSlide} onClick={() => onSelectTruck?.(truck)}>
-            <img src={truck.image} alt={truck.name} className={showroomStyles.bikeImg} />
+            <img src={truck.image} alt={truck.name} className={showroomStyles.bikeImg} style={{ height: 120, maxWidth: '80%', marginTop: 30 }} />
             <div className={showroomStyles.floorGlow} />
           </div>
         ))}
@@ -356,7 +356,7 @@ export default function TruckListingForm({ open, onClose, onSubmit, editListing 
   }
 
   return createPortal(
-    <div className={styles.screen} style={{ backgroundImage: `url(${step === 1 ? 'https://ik.imagekit.io/nepgaxllc/ChatGPT%20Image%20Apr%2018,%202026,%2007_07_33%20PM.png' : step === 2 ? 'https://ik.imagekit.io/nepgaxllc/ChatGPT%20Image%20Apr%2018,%202026,%2010_39_50%20PM.png' : step >= 4 ? 'https://ik.imagekit.io/nepgaxllc/ChatGPT%20Image%20Apr%2018,%202026,%2011_13_56%20PM.png?updatedAt=1776528855040' : 'https://ik.imagekit.io/nepgaxllc/ChatGPT%20Image%20Apr%2018,%202026,%2006_57_42%20PM.png'})`, backgroundSize: 'cover', backgroundPosition: 'center' }}>
+    <div className={styles.screen} style={{ backgroundImage: `url(${step === 1 ? 'https://ik.imagekit.io/nepgaxllc/ChatGPT%20Image%20Apr%2019,%202026,%2004_15_20%20AM.png' : step === 2 ? 'https://ik.imagekit.io/nepgaxllc/ChatGPT%20Image%20Apr%2019,%202026,%2004_23_29%20AM.png' : step === 3 ? 'https://ik.imagekit.io/nepgaxllc/ChatGPT%20Image%20Apr%2019,%202026,%2003_45_34%20AM.png?updatedAt=1776545159845' : step >= 4 ? 'https://ik.imagekit.io/nepgaxllc/ChatGPT%20Image%20Apr%2019,%202026,%2003_45_34%20AM.png?updatedAt=1776545159845' : 'https://ik.imagekit.io/nepgaxllc/ChatGPT%20Image%20Apr%2019,%202026,%2003_42_02%20AM.png'})`, backgroundSize: 'cover', backgroundPosition: 'center' }}>
 
       <div style={{ padding: '16px 20px 0', flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'space-between', position: 'relative', zIndex: 10 }}>
         {/* Back button — left */}
@@ -474,7 +474,7 @@ export default function TruckListingForm({ open, onClose, onSubmit, editListing 
 
         {/* ═══ STEP 5: SUCCESS — view live listing ═══ */}
         {step === 5 && (
-          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', minHeight: '70vh', textAlign: 'center', padding: 40, animation: 'fadeInScale 0.5s ease' }}>
+          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', minHeight: '60vh', textAlign: 'center', padding: '0 40px', animation: 'fadeInScale 0.5s ease' }}>
             <style>{`@keyframes fadeInScale { from { opacity: 0; transform: scale(0.9); } to { opacity: 1; transform: scale(1); } }`}</style>
 
             {/* Success check */}
@@ -488,7 +488,7 @@ export default function TruckListingForm({ open, onClose, onSubmit, editListing 
             <p style={{ fontSize: 14, color: '#8DC63F', margin: '0 0 4px', fontWeight: 700 }}>
               {isEditing ? 'Your changes are now live on the marketplace' : 'Your truck is now on the marketplace'}
             </p>
-            <p style={{ fontSize: 11, color: 'rgba(255,255,255,0.3)', margin: '0 0 30px' }}>REF: {truckRef}</p>
+            <p style={{ fontSize: 11, color: 'rgba(255,255,255,0.3)', margin: '0 0 24px' }}>REF: {truckRef}</p>
 
             {/* Truck info summary */}
             <div style={{ padding: '14px 20px', background: 'rgba(0,0,0,0.4)', backdropFilter: 'blur(12px)', border: '1px solid rgba(141,198,63,0.15)', borderRadius: 14, marginBottom: 24, width: '100%', maxWidth: 280 }}>
@@ -497,7 +497,7 @@ export default function TruckListingForm({ open, onClose, onSubmit, editListing 
               <div style={{ fontSize: 18, fontWeight: 900, color: '#8DC63F', marginTop: 8 }}>{daily ? `Rp ${daily}/day` : ''}</div>
             </div>
 
-            {/* Action buttons */}
+            {/* Action buttons — no Done button */}
             <div style={{ display: 'flex', flexDirection: 'column', gap: 10, width: '100%', maxWidth: 280 }}>
               <button onClick={() => { onClose('viewMarketplace') }} style={{ width: '100%', padding: '14px 0', borderRadius: 14, background: '#8DC63F', border: 'none', color: '#000', fontSize: 15, fontWeight: 800, cursor: 'pointer', fontFamily: 'inherit', boxShadow: '0 4px 20px rgba(141,198,63,0.3)', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8 }}>
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#000" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
@@ -505,9 +505,6 @@ export default function TruckListingForm({ open, onClose, onSubmit, editListing 
               </button>
               <button onClick={() => { setMyListings(JSON.parse(localStorage.getItem('indoo_my_truck_listings') || '[]')); setShowMyListings(true) }} style={{ width: '100%', padding: '12px 0', borderRadius: 14, background: 'rgba(255,215,0,0.1)', border: '1.5px solid rgba(255,215,0,0.25)', color: '#FFD700', fontSize: 13, fontWeight: 800, cursor: 'pointer', fontFamily: 'inherit' }}>
                 🚛 View My Listings
-              </button>
-              <button onClick={onClose} style={{ width: '100%', padding: '12px 0', borderRadius: 14, background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)', color: 'rgba(255,255,255,0.5)', fontSize: 13, fontWeight: 700, cursor: 'pointer', fontFamily: 'inherit' }}>
-                Done
               </button>
             </div>
           </div>
@@ -930,7 +927,7 @@ export default function TruckListingForm({ open, onClose, onSubmit, editListing 
 
         {/* ═══ STEP 2: PRICING ═══ */}
         {step === 2 && (
-          <div className={styles.form} style={{ paddingTop: 70 }}>
+          <div className={styles.form} style={{ paddingTop: 130 }}>
             {/* Rental Rates */}
             <div style={{ background: 'rgba(0,0,0,0.7)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)', border: '1.5px solid rgba(141,198,63,0.2)', borderRadius: 20, padding: '16px 14px', boxShadow: '0 0 20px rgba(141,198,63,0.08), inset 0 1px 0 rgba(141,198,63,0.05)' }}>
               <h2 className={styles.inlineGroupTitle} style={{ paddingTop: 0, textShadow: '0 0 12px rgba(141,198,63,0.4), 0 2px 8px rgba(0,0,0,0.5)' }}>Rental Rates</h2>
@@ -1002,24 +999,6 @@ export default function TruckListingForm({ open, onClose, onSubmit, editListing 
               </div>
             </div>
 
-            {/* ── Tourist Rental Terms — toggle + view ── */}
-            <div style={{ background: 'rgba(0,0,0,0.7)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)', border: `1.5px solid ${touristTermsEnabled ? 'rgba(255,215,0,0.2)' : 'rgba(255,255,255,0.06)'}`, borderRadius: 20, padding: '16px 14px', boxShadow: touristTermsEnabled ? '0 0 20px rgba(255,215,0,0.06)' : 'none', transition: 'all 0.25s' }}>
-              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-                  <span style={{ fontSize: 20 }}>✈️</span>
-                  <div>
-                    <span style={{ fontSize: 14, fontWeight: 800, color: touristTermsEnabled ? '#FFD700' : 'rgba(255,255,255,0.3)' }}>Tourist Rental</span>
-                    <p style={{ fontSize: 10, color: 'rgba(255,255,255,0.2)', margin: '2px 0 0', fontWeight: 500 }}>Terms for foreign renters</p>
-                  </div>
-                </div>
-                <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                  {touristTermsEnabled && <button onClick={() => setShowTouristTerms(true)} style={{ padding: '6px 10px', background: 'rgba(255,215,0,0.1)', border: '1px solid rgba(255,215,0,0.2)', borderRadius: 8, color: '#FFD700', fontSize: 10, fontWeight: 700, cursor: 'pointer', fontFamily: 'inherit' }}>View</button>}
-                  <button onClick={() => setTouristTermsEnabled(!touristTermsEnabled)} style={{ width: 44, height: 24, borderRadius: 12, background: touristTermsEnabled ? '#FFD700' : 'rgba(255,255,255,0.1)', border: 'none', cursor: 'pointer', position: 'relative', transition: 'background 0.2s' }}>
-                    <div style={{ width: 18, height: 18, borderRadius: '50%', background: '#fff', position: 'absolute', top: 3, left: touristTermsEnabled ? 23 : 3, transition: 'left 0.2s', boxShadow: '0 1px 3px rgba(0,0,0,0.3)' }} />
-                  </button>
-                </div>
-              </div>
-            </div>
 
             {/* Local Terms Popup */}
             {showLocalTerms && (
@@ -1047,31 +1026,6 @@ export default function TruckListingForm({ open, onClose, onSubmit, editListing 
               </div>
             )}
 
-            {/* Tourist Terms Popup */}
-            {showTouristTerms && (
-              <div style={{ position: 'fixed', inset: 0, zIndex: 99999, background: 'rgba(0,0,0,0.85)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 16 }}>
-                <div style={{ width: '100%', maxWidth: 400, background: '#111', border: '1.5px solid rgba(255,215,0,0.2)', borderRadius: 20, overflow: 'hidden', boxShadow: '0 20px 60px rgba(0,0,0,0.6), 0 0 20px rgba(255,215,0,0.08)' }}>
-                  <div style={{ padding: '16px 16px 12px', borderBottom: '1px solid rgba(255,255,255,0.06)', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                      <span style={{ fontSize: 20 }}>✈️</span>
-                      <span style={{ fontSize: 15, fontWeight: 800, color: '#FFD700' }}>Tourist Truck Rental Terms</span>
-                    </div>
-                    <button onClick={() => setShowTouristTerms(false)} style={{ width: 32, height: 32, borderRadius: '50%', background: '#FFD700', border: 'none', color: '#000', fontSize: 14, fontWeight: 900, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>✕</button>
-                  </div>
-                  <div style={{ padding: '12px 16px 16px', maxHeight: '60vh', overflowY: 'auto' }}>
-                    {['Valid Passport (physical or copy)', 'International Driving Permit (IDP) for truck class', 'Deposit paid in advance to secure booking', 'Bank details must match passport name', 'Proof of business or logistics purpose', 'All documents must match (passport, bank, business)', 'Emergency local contact required', 'Return vehicle with full tank of diesel', 'Late return charged per hour', 'Renter responsible for damage and cargo', 'Vehicle cannot leave the province without prior approval', 'Professional driver recommended for heavy trucks'].map((term, i, arr) => (
-                      <div key={i} style={{ display: 'flex', alignItems: 'flex-start', gap: 10, padding: '10px 0', borderBottom: i < arr.length - 1 ? '1px solid rgba(255,255,255,0.04)' : 'none' }}>
-                        <span style={{ fontSize: 14, color: '#FFD700', marginTop: 1 }}>✓</span>
-                        <span style={{ fontSize: 13, color: 'rgba(255,255,255,0.7)', fontWeight: 500, lineHeight: 1.4 }}>{term}</span>
-                      </div>
-                    ))}
-                  </div>
-                  <div style={{ padding: '8px 16px 16px' }}>
-                    <button onClick={() => setShowTouristTerms(false)} style={{ width: '100%', padding: '13px 0', borderRadius: 12, background: '#FFD700', border: 'none', color: '#000', fontSize: 14, fontWeight: 800, cursor: 'pointer', fontFamily: 'inherit' }}>Close</button>
-                  </div>
-                </div>
-              </div>
-            )}
             </>)}
 
             {/* If agreement already saved — show small confirmation */}
@@ -1124,20 +1078,22 @@ export default function TruckListingForm({ open, onClose, onSubmit, editListing 
 
         {/* ═══ STEP 3: PREVIEW ═══ */}
         {step === 3 && (
-          <div className={styles.form}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 }}>
-              <span className={showroomStyles.refBadge}>REF: {truckRef}</span>
-              <span className={showroomStyles.statusBadge}>Ready to Publish</span>
+          <div className={styles.form} style={{ paddingTop: 80 }}>
+            <div style={{ background: 'rgba(0,0,0,0.6)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)', border: '1.5px solid rgba(141,198,63,0.2)', borderRadius: 20, padding: '16px 14px', boxShadow: '0 0 20px rgba(141,198,63,0.1), inset 0 1px 0 rgba(255,255,255,0.04)' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
+                <span className={showroomStyles.refBadge}>REF: {truckRef}</span>
+                <span className={showroomStyles.statusBadge}>Ready to Publish</span>
+              </div>
+              <PreviewCard title={displayTitle} city={city} category="Truck" subType={`${make} ${model} · ${cc}cc · ${payload}`} price={daily} image={mainImage} tags={tags} />
+              {buyNow && buyNowPrice && <div className={showroomStyles.buyNowPreview}><span>Buy Now: Rp {Number(buyNowPrice).toLocaleString('id-ID')}{negotiable ? ' · Negotiable' : ' · Fixed'}</span></div>}
             </div>
-            <PreviewCard title={displayTitle} city={city} category="Truck" subType={`${make} ${model} · ${cc}cc · ${payload}`} price={daily} image={mainImage} tags={tags} />
-            {buyNow && buyNowPrice && <div className={showroomStyles.buyNowPreview}><span>Buy Now: Rp {Number(buyNowPrice).toLocaleString('id-ID')}{negotiable ? ' · Negotiable' : ' · Fixed'}</span></div>}
           </div>
         )}
       </div>
 
       {/* My Listings Popup */}
       {showMyListings && (
-        <div style={{ position: 'fixed', inset: 0, zIndex: 99999, backgroundImage: 'url(https://ik.imagekit.io/nepgaxllc/ChatGPT%20Image%20Apr%2018,%202026,%2011_13_56%20PM.png)', backgroundSize: 'cover', backgroundPosition: 'center', display: 'flex', flexDirection: 'column' }}>
+        <div style={{ position: 'fixed', inset: 0, zIndex: 99999, backgroundImage: 'url(https://ik.imagekit.io/nepgaxllc/ChatGPT%20Image%20Apr%2019,%202026,%2003_45_34%20AM.png?updatedAt=1776545159845)', backgroundSize: 'cover', backgroundPosition: 'center', display: 'flex', flexDirection: 'column' }}>
           <div style={{ position: 'absolute', inset: 0, background: 'rgba(0,0,0,0.55)', pointerEvents: 'none' }} />
           {/* Header */}
           <div style={{ padding: '16px 16px 12px', borderBottom: '1px solid rgba(255,255,255,0.06)', display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexShrink: 0, position: 'relative', zIndex: 1 }}>
@@ -1223,7 +1179,7 @@ export default function TruckListingForm({ open, onClose, onSubmit, editListing 
           {previewListingIdx !== null && myListings[previewListingIdx] && (() => {
             const pl = myListings[previewListingIdx]
             return (
-              <div style={{ position: 'fixed', inset: 0, zIndex: 999999, backgroundImage: 'url(https://ik.imagekit.io/nepgaxllc/ChatGPT%20Image%20Apr%2018,%202026,%2011_13_56%20PM.png)', backgroundSize: 'cover', backgroundPosition: 'center', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 16 }} onClick={() => setPreviewListingIdx(null)}>
+              <div style={{ position: 'fixed', inset: 0, zIndex: 999999, backgroundImage: 'url(https://ik.imagekit.io/nepgaxllc/ChatGPT%20Image%20Apr%2019,%202026,%2003_45_34%20AM.png?updatedAt=1776545159845)', backgroundSize: 'cover', backgroundPosition: 'center', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 16 }} onClick={() => setPreviewListingIdx(null)}>
                 <div style={{ position: 'absolute', inset: 0, background: 'rgba(0,0,0,0.6)', pointerEvents: 'none' }} />
                 {/* Container window */}
                 <div onClick={e => e.stopPropagation()} style={{

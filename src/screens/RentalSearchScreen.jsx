@@ -182,10 +182,11 @@ const FASHION_BG  = 'https://ik.imagekit.io/nepgaxllc/Stylish%20shopping%20strol
 const EQUIPMENT_BG = 'https://ik.imagekit.io/nepgaxllc/Exploring%20the%20marketplace%20on%20a%20scooter.png?updatedAt=1776106102122'
 
 // Preload all background images on mount
-const BIKE_DIR_BG = 'https://ik.imagekit.io/nepgaxllc/ChatGPT%20Image%20Apr%2018,%202026,%2012_33_21%20AM.png'
-const CAR_DIR_BG = 'https://ik.imagekit.io/nepgaxllc/ChatGPT%20Image%20Apr%2018,%202026,%2012_38_19%20AM.png'
+const BIKE_DIR_BG = 'https://ik.imagekit.io/nepgaxllc/Untitledsdfsdfsdasdfsdsdfsadasd.png?updatedAt=1776328299311'
+const CAR_DIR_BG = 'https://ik.imagekit.io/nepgaxllc/Untitledsdfasdfdddfsdfsdsdfsdfadsasdadasdaadasdsadfsdsasdaasdasdadsasd.png?updatedAt=1776099885459'
 const TRUCK_DIR_BG = 'https://ik.imagekit.io/nepgaxllc/Untitledsdfsdfsdasdfsdsdfsadasddsasd.png'
-const ALL_BGS = [LANDING_BG, VEHICLES_BG, PROPERTY_BG, FASHION_BG, EQUIPMENT_BG, BIKE_DIR_BG, CAR_DIR_BG, TRUCK_DIR_BG]
+const BUS_DIR_BG = 'https://ik.imagekit.io/nepgaxllc/ChatGPT%20Image%20Apr%2019,%202026,%2004_38_15%20AM.png'
+const ALL_BGS = [LANDING_BG, VEHICLES_BG, PROPERTY_BG, FASHION_BG, EQUIPMENT_BG, BIKE_DIR_BG, CAR_DIR_BG, TRUCK_DIR_BG, BUS_DIR_BG]
 function usePreloadImages() {
   useEffect(() => {
     ALL_BGS.forEach(src => { const img = new Image(); img.src = src })
@@ -199,7 +200,7 @@ function VehicleDirectory({ vehicleType, onSelectModel, onBack }) {
   const isTruck = vehicleType === 'Trucks'
   const isBus = vehicleType === 'Buses'
   const title = isBike ? 'Motor Bikes' : isTruck ? 'Trucks' : isBus ? 'Buses' : 'Cars'
-  const bgUrl = isBike ? BIKE_DIR_BG : isTruck ? TRUCK_DIR_BG : CAR_DIR_BG
+  const bgUrl = isBike ? BIKE_DIR_BG : isTruck ? TRUCK_DIR_BG : isBus ? BUS_DIR_BG : CAR_DIR_BG
   const bgStyle = bgUrl ? { backgroundImage: `url("${bgUrl}")`, backgroundSize: 'cover', backgroundPosition: 'center' } : {}
 
   return (
@@ -217,28 +218,57 @@ function VehicleDirectory({ vehicleType, onSelectModel, onBack }) {
       </div>
       <div className={styles.dirBody}>
         <div className={styles.dirGrid}>
-          {directory.map(v => (
-            <button key={v.id} className={styles.dirCard} onClick={() => onSelectModel(v)}>
-              <div className={styles.dirCardBadge}>{v.listings}</div>
+          {directory.map((v, idx) => (
+            <button key={v.id} className={styles.dirCard} onClick={() => onSelectModel(v)} style={{ animationDelay: `${idx * 0.08}s` }}>
+              {/* Top accent line */}
+              <div className={styles.dirCardAccent} />
+
+              {/* Listings count badge */}
+              <div className={styles.dirCardBadge}>
+                <span className={styles.dirCardBadgeNum}>{v.listings}</span>
+                <span className={styles.dirCardBadgeLabel}>listed</span>
+              </div>
+
+              {/* Vehicle image — floating with shadow */}
               <div className={styles.dirCardImgWrap}>
                 {v.image ? (
                   <img src={v.image} alt={v.name} className={styles.dirCardImg} />
                 ) : (
                   <span className={styles.dirCardPlaceholder}>{isBike ? '🏍️' : isTruck ? '🚛' : isBus ? '🚌' : '🚗'}</span>
                 )}
+                {/* Floor reflection */}
+                <div className={styles.dirCardReflection} />
               </div>
+
+              {/* Info panel */}
               <div className={styles.dirCardInfo}>
                 <span className={styles.dirCardName}>{v.name}</span>
-                <span className={styles.dirCardSpec}>
-                  {v.cc}cc · {v.type}
-                  {v.seats ? ` · ${v.seats} seats` : ''}
-                  {v.payload ? ` · ${v.payload}` : ''}
-                </span>
+                {/* Spec chips */}
+                <div className={styles.dirCardChips}>
+                  <span className={styles.dirCardChip}>{v.cc}cc</span>
+                  <span className={styles.dirCardChip}>{v.type}</span>
+                  {v.seats && <span className={styles.dirCardChip}>{v.seats} seat{v.seats > 1 ? 's' : ''}</span>}
+                  {v.payload && <span className={styles.dirCardChip}>{v.payload}</span>}
+                </div>
+                {/* Price bar */}
                 {v.priceFrom && (
-                  <span className={styles.dirCardPrice}>
-                    Rp {(v.priceFrom/1000).toFixed(0)}k – {(v.priceTo/1000).toFixed(0)}k<span className={styles.dirCardPriceDay}>/day</span>
-                  </span>
+                  <div className={styles.dirCardPriceBar}>
+                    <div className={styles.dirCardPriceLeft}>
+                      <span className={styles.dirCardPriceCurrency}>Rp</span>
+                      <span className={styles.dirCardPriceValue}>{(v.priceFrom/1000).toFixed(0)}k</span>
+                    </div>
+                    <div className={styles.dirCardPriceDivider} />
+                    <div className={styles.dirCardPriceRight}>
+                      <span className={styles.dirCardPriceTo}>{(v.priceTo/1000).toFixed(0)}k</span>
+                      <span className={styles.dirCardPriceDay}>/day</span>
+                    </div>
+                  </div>
                 )}
+              </div>
+
+              {/* Arrow indicator */}
+              <div className={styles.dirCardArrow}>
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
               </div>
             </button>
           ))}
@@ -444,7 +474,7 @@ export default function RentalSearchScreen({ onClose }) {
         title="Rent Vehicles"
         tagline="Find your perfect ride"
         buttons={[
-          { img: 'https://ik.imagekit.io/nepgaxllc/Sleek%20green%20and%20black%20scooter%20setup.png?updatedAt=1775634845237', label: 'Motor Bike', filter: 'Motorcycles' },
+          { img: 'https://ik.imagekit.io/nepgaxllc/Sleek%20green%20and%20black%20scooter%20setup.png?updatedAt=1775634845237', label: 'Bike', filter: 'Motorcycles' },
           { img: 'https://ik.imagekit.io/nepgaxllc/Sporty%20green%20and%20black%20hatchback.png?updatedAt=1775634925566', label: 'Car', filter: 'Cars' },
           { img: 'https://ik.imagekit.io/nepgaxllc/asdasdasssss-removebg-preview.png', label: 'Truck', filter: 'Trucks' },
           { img: 'https://ik.imagekit.io/nepgaxllc/asdasdasssssddd-removebg-preview.png', label: 'Bus', filter: 'Buses' },
