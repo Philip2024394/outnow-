@@ -679,9 +679,11 @@ export default function RentalSearchScreen({ onClose }) {
                       </div>
                       <div style={{display:'flex',alignItems:'center',gap:4,flexShrink:0}}><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.2)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg><span style={{fontSize:11,color:'rgba(255,255,255,0.2)',fontWeight:600}}>{l.view_count}</span></div>
                     </div>
-                    <div style={{display:'flex',alignItems:'baseline',justifyContent:'space-between',marginTop:2}}>
+                    <div style={{display:'flex',alignItems:'center',justifyContent:'space-between',marginTop:2}}>
                       <div style={{display:'flex',alignItems:'baseline',gap:3}}><span style={{fontSize:10,fontWeight:700,color:'rgba(141,198,63,0.6)'}}>Rp</span><span style={{fontSize:22,fontWeight:900,color:'#8DC63F',letterSpacing:'-0.02em'}}>{fmtIDR(l.price_day).replace('Rp ','')}</span><span style={{fontSize:11,color:'rgba(255,255,255,0.25)',fontWeight:600}}>/day</span></div>
-                      {l.price_month > 0 && <span style={{fontSize:11,color:'rgba(255,255,255,0.2)',fontWeight:600}}>{fmtIDR(l.price_month)}/mo</span>}
+                      <button onClick={e => { e.stopPropagation(); setBookingListing(l) }} style={{ padding:'8px 16px',borderRadius:10,background:'#8DC63F',border:'none',color:'#000',fontSize:12,fontWeight:800,cursor:'pointer',fontFamily:'inherit',display:'flex',alignItems:'center',gap:5,boxShadow:'0 2px 8px rgba(141,198,63,0.3)',flexShrink:0 }}>
+                        Book Now
+                      </button>
                     </div>
                   </div>
                 </div>
