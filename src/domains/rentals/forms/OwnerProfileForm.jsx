@@ -121,13 +121,18 @@ export default function OwnerProfileForm({ open, onClose, onComplete }) {
             border: '1.5px solid rgba(141,198,63,0.25)', borderRadius: 20,
             boxShadow: '0 0 20px rgba(141,198,63,0.1), inset 0 1px 0 rgba(255,255,255,0.04)',
           }}>
+            {/* Main message */}
+            <h2 style={{ fontSize: 20, fontWeight: 900, color: '#fff', margin: '0 0 6px', textAlign: 'center' }}>Free To Join And Do Business</h2>
+            <p style={{ fontSize: 14, color: '#8DC63F', fontWeight: 700, textAlign: 'center', margin: '0 0 20px' }}>Start With Your First Order Today</p>
+
             {/* Features */}
             <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
               {[
-                { icon: '✅', text: 'FREE to join', sub: 'No monthly fees, no sign-up cost' },
-                { icon: '🎁', text: 'First order — zero commission', sub: 'Your first customer is on us' },
-                { icon: '💰', text: 'After that — 10% per order', sub: 'Only pay when you earn' },
+                { icon: '✅', text: 'No sign-up fees', sub: 'Create your account completely free' },
+                { icon: '🏍️', text: 'List unlimited vehicles', sub: 'Motorbikes, cars, trucks — list them all' },
+                { icon: '💬', text: 'Connect with renters', sub: 'In-app chat to manage bookings' },
                 { icon: '📊', text: 'Track your earnings', sub: 'Wallet dashboard with full history' },
+                { icon: '🌍', text: 'Reach millions of tourists', sub: 'Your listings visible across Indonesia' },
               ].map((item, i) => (
                 <div key={i} style={{ display: 'flex', gap: 12, alignItems: 'flex-start' }}>
                   <span style={{ fontSize: 20, flexShrink: 0, marginTop: 1 }}>{item.icon}</span>
@@ -138,14 +143,6 @@ export default function OwnerProfileForm({ open, onClose, onComplete }) {
                 </div>
               ))}
             </div>
-
-            {/* Divider */}
-            <div style={{ height: 1, background: 'rgba(255,255,255,0.06)', margin: '18px 0' }} />
-
-            {/* Bottom message */}
-            <p style={{ fontSize: 12, color: 'rgba(255,255,255,0.4)', textAlign: 'center', margin: 0, lineHeight: 1.5 }}>
-              That's it. No hidden fees. No contracts.{'\n'}Just list and start earning.
-            </p>
           </div>
 
           {/* CTA */}
@@ -159,7 +156,7 @@ export default function OwnerProfileForm({ open, onClose, onComplete }) {
           </button>
 
           <p style={{ fontSize: 10, color: 'rgba(255,255,255,0.2)', marginTop: 10, textAlign: 'center' }}>
-            By continuing you agree to Indoo's terms of service
+            By continuing you agree to Indoo's <span style={{ color: 'rgba(141,198,63,0.5)', textDecoration: 'underline', cursor: 'pointer' }}>terms of service</span> including commission rates
           </p>
         </div>
       </div>,
