@@ -636,19 +636,38 @@ export default function RentalSearchScreen({ onClose }) {
                 }}>
                   <div style={{ position: 'absolute', top: 0, left: '10%', right: '10%', height: 1, background: 'linear-gradient(90deg, transparent, rgba(141,198,63,0.2), transparent)', pointerEvents: 'none', zIndex: 2 }} />
 
-                  {/* Image */}
-                  <div onClick={() => setSelected(l)} style={{ position: 'relative', width: '100%', aspectRatio: '16/9', overflow: 'hidden', background: '#0a0a0a', cursor: 'pointer' }}>
-                    <img src={imgs[currentImg]} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }} />
-                    {imgs.length > 1 && <div style={{ position: 'absolute', bottom: 8, left: '50%', transform: 'translateX(-50%)', display: 'flex', gap: 4, zIndex: 3 }}>{imgs.slice(0,5).map((_,di) => <div key={di} onClick={e => { e.stopPropagation(); setCardImgIdx(p => ({...p,[l.id]:di})) }} style={{ width: currentImg===di?16:6, height:6, borderRadius:3, background: currentImg===di?'#8DC63F':'rgba(255,255,255,0.3)', transition:'all 0.2s', cursor:'pointer', boxShadow: currentImg===di?'0 0 6px rgba(141,198,63,0.5)':'none' }} />)}</div>}
-                    {l.isOwnerListing && <div style={{ position:'absolute',top:10,left:10,padding:'3px 8px',background:'#8DC63F',borderRadius:6,fontSize:8,fontWeight:900,color:'#000',letterSpacing:'0.04em',zIndex:3 }}>YOUR LISTING</div>}
-                    <div style={{ position:'absolute',top:10,right:10,padding:'4px 10px',background:'rgba(0,0,0,0.5)',backdropFilter:'blur(8px)',borderRadius:8,display:'flex',alignItems:'center',gap:4,zIndex:3 }}><span style={{fontSize:12,color:'#FFD700',fontWeight:800}}>★ {l.rating||'—'}</span><span style={{fontSize:10,color:'rgba(255,255,255,0.35)'}}>({l.review_count})</span></div>
-                    {l.extra_fields?.withDriver && <div style={{ position:'absolute',bottom:10,left:10,width:28,height:28,borderRadius:'50%',background:'rgba(0,0,0,0.5)',backdropFilter:'blur(8px)',border:'1.5px solid rgba(141,198,63,0.3)',display:'flex',alignItems:'center',justifyContent:'center',color:'#8DC63F',zIndex:3 }}><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3"/></svg></div>}
-                    {imgs.length > 1 && <div style={{ position:'absolute',bottom:10,left:l.extra_fields?.withDriver?44:10,padding:'4px 10px',background:'rgba(0,0,0,0.5)',backdropFilter:'blur(8px)',borderRadius:8,display:'flex',alignItems:'center',gap:5,zIndex:3 }}><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.5)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg><span style={{fontSize:11,fontWeight:700,color:'rgba(255,255,255,0.5)'}}>{imgs.length}</span></div>}
+                  {/* Image section — main + vertical carousel */}
+                  <div style={{ display: 'flex', width: '100%', aspectRatio: '16/9', overflow: 'hidden', background: '#0a0a0a' }}>
+                    {/* Main image */}
+                    <div onClick={() => setSelected(l)} style={{ flex: 1, position: 'relative', overflow: 'hidden', cursor: 'pointer' }}>
+                      <img src={imgs[currentImg]} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block', transition: 'opacity 0.3s' }} />
+                      {l.isOwnerListing && <div style={{ position:'absolute',top:8,left:8,padding:'3px 8px',background:'#8DC63F',borderRadius:6,fontSize:8,fontWeight:900,color:'#000',letterSpacing:'0.04em',zIndex:3 }}>YOUR LISTING</div>}
+                      <div style={{ position:'absolute',top:8,right:8,padding:'4px 10px',background:'rgba(0,0,0,0.5)',backdropFilter:'blur(8px)',borderRadius:8,display:'flex',alignItems:'center',gap:4,zIndex:3 }}><span style={{fontSize:12,color:'#FFD700',fontWeight:800}}>★ {l.rating||'—'}</span><span style={{fontSize:10,color:'rgba(255,255,255,0.35)'}}>({l.review_count})</span></div>
+                      {l.extra_fields?.withDriver && <div style={{ position:'absolute',bottom:8,left:8,width:26,height:26,borderRadius:'50%',background:'rgba(0,0,0,0.5)',backdropFilter:'blur(8px)',border:'1.5px solid rgba(141,198,63,0.3)',display:'flex',alignItems:'center',justifyContent:'center',color:'#8DC63F',zIndex:3 }}><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3"/></svg></div>}
 
-                    {/* FLIP BUTTON — fingerprint, bottom right with glow */}
-                    <button onClick={e => { e.stopPropagation(); setFlippedCards(p => ({...p,[l.id]:true})) }} style={{ position:'absolute',bottom:10,right:10,width:36,height:36,borderRadius:'50%',background:'rgba(0,0,0,0.5)',backdropFilter:'blur(8px)',border:'2px solid #8DC63F',display:'flex',alignItems:'center',justifyContent:'center',cursor:'pointer',zIndex:4,animation:'flipGlow 2s ease-in-out infinite',padding:0 }}>
-                      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#8DC63F" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d="M18.9 8a8.1 8.1 0 0 0-2.2-3.8A8 8 0 0 0 4 12c0 2.2.5 3.9 1.3 5.3"/><path d="M12 4a8 8 0 0 1 8 8c0 2.5-.7 4.2-1.6 5.5"/><path d="M8 12a4 4 0 0 1 8 0c0 1.4-.3 2.5-.8 3.4"/><path d="M12 8a4 4 0 0 0-4 4c0 1.8.5 3.2 1.2 4.2"/><path d="M12 12v8"/></svg>
-                    </button>
+                      {/* FLIP BUTTON */}
+                      <button onClick={e => { e.stopPropagation(); setFlippedCards(p => ({...p,[l.id]:true})) }} style={{ position:'absolute',bottom:8,right:8,width:34,height:34,borderRadius:'50%',background:'rgba(0,0,0,0.5)',backdropFilter:'blur(8px)',border:'2px solid #8DC63F',display:'flex',alignItems:'center',justifyContent:'center',cursor:'pointer',zIndex:4,animation:'flipGlow 2s ease-in-out infinite',padding:0 }}>
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#8DC63F" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d="M18.9 8a8.1 8.1 0 0 0-2.2-3.8A8 8 0 0 0 4 12c0 2.2.5 3.9 1.3 5.3"/><path d="M12 4a8 8 0 0 1 8 8c0 2.5-.7 4.2-1.6 5.5"/><path d="M8 12a4 4 0 0 1 8 0c0 1.4-.3 2.5-.8 3.4"/><path d="M12 8a4 4 0 0 0-4 4c0 1.8.5 3.2 1.2 4.2"/><path d="M12 12v8"/></svg>
+                      </button>
+                    </div>
+
+                    {/* Vertical thumbnail strip — right side */}
+                    {imgs.length > 1 && (
+                      <div style={{ width: 52, display: 'flex', flexDirection: 'column', gap: 3, padding: 3, background: 'rgba(0,0,0,0.4)', overflowY: 'auto', scrollbarWidth: 'none' }}>
+                        {imgs.slice(0, 5).map((img, di) => (
+                          <div key={di} onClick={e => { e.stopPropagation(); setCardImgIdx(p => ({...p,[l.id]:di})) }} style={{
+                            width: '100%', flex: '1 1 0', minHeight: 0,
+                            borderRadius: 6, overflow: 'hidden', cursor: 'pointer',
+                            border: currentImg === di ? '2px solid #8DC63F' : '2px solid transparent',
+                            boxShadow: currentImg === di ? '0 0 6px rgba(141,198,63,0.4)' : 'none',
+                            opacity: currentImg === di ? 1 : 0.5,
+                            transition: 'all 0.2s',
+                          }}>
+                            <img src={img} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }} />
+                          </div>
+                        ))}
+                      </div>
+                    )}
                   </div>
 
                   {/* Front info */}
