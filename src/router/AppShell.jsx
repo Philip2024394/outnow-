@@ -100,6 +100,7 @@ const MarketplaceSignUpScreen = lazy(() => import('@/screens/MarketplaceSignUpSc
 const AddProductSheet         = lazy(() => import('@/components/commerce/AddProductSheet'))
 const SellerOrdersScreen      = lazy(() => import('@/screens/SellerOrdersScreen'))
 const SellerWalletScreen      = lazy(() => import('@/screens/SellerWalletScreen'))
+const IndooWallet             = lazy(() => import('@/components/wallet/IndooWallet'))
 const SellerAnalytics         = lazy(() => import('@/components/commerce/SellerAnalytics'))
 const MarketplaceNotificationsScreen = lazy(() => import('@/screens/MarketplaceNotificationsScreen'))
 const MarketplaceCartScreen   = lazy(() => import('@/screens/MarketplaceCartScreen'))
@@ -235,6 +236,7 @@ export default function AppShell({ returnParams, triggerGoLive }) {
   const [addProductOpen, setAddProductOpen] = useState(false)
   const [sellerOrdersOpen, setSellerOrdersOpen] = useState(false)
   const [sellerWalletOpen, setSellerWalletOpen] = useState(false)
+  const [indooWalletOpen, setIndooWalletOpen] = useState(false)
   const [sellerAnalyticsOpen, setSellerAnalyticsOpen] = useState(false)
   const [marketChatOpen, setMarketChatOpen] = useState(false)
   const [marketProfileOpen, setMarketProfileOpen] = useState(false)
@@ -1258,7 +1260,12 @@ export default function AppShell({ returnParams, triggerGoLive }) {
         <SellerOrdersScreen open={sellerOrdersOpen} onClose={() => setSellerOrdersOpen(false)} onOpenChat={() => setMarketChatOpen(true)} />
       </Suspense>
 
-      {/* Seller Wallet — opened from seller side nav */}
+      {/* Indoo Universal Wallet */}
+      <Suspense fallback={null}>
+        <IndooWallet open={indooWalletOpen} onClose={() => setIndooWalletOpen(false)} />
+      </Suspense>
+
+      {/* Seller Wallet (legacy) — opened from seller side nav */}
       <Suspense fallback={null}>
         <SellerWalletScreen open={sellerWalletOpen} onClose={() => setSellerWalletOpen(false)} />
       </Suspense>
@@ -1342,7 +1349,7 @@ export default function AppShell({ returnParams, triggerGoLive }) {
           onOrders={() => { setSellerOrdersOpen(true) }}
           onAnalytics={() => { setSellerAnalyticsOpen(true) }}
           onMyShop={() => { setSellerProductsOpen(true) }}
-          onWallet={() => { setSellerWalletOpen(true) }}
+          onWallet={() => { setIndooWalletOpen(true) }}
           onDashboard={() => { setBuyerDashOpen(true) }}
           onToggleDock={() => setDockVisible(v => !v)}
           activeSection={activeSection}

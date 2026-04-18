@@ -1,19 +1,20 @@
 import { supabase } from '@/lib/supabase'
 
 // ─────────────────────────────────────────────────────────────────────────────
-// Commission Service
-// Marketplace sellers  → 5%  commission on every completed sale
-// Restaurant owners    → 10% commission on every completed order
-// Chat goes read-only for seller/restaurant when commission is unpaid.
+// Commission Service (Legacy — wallet system is primary)
+// All services: 10% flat commission via walletService.js
+// This file kept for Supabase RPC backward compatibility
 // ─────────────────────────────────────────────────────────────────────────────
 
 export const COMMISSION_RATES = {
-  marketplace:  0.05,   // 5%  — due within 72h
-  restaurant:   0.10,   // 10% — due within 72h
-  rental:       0.10,   // 10% — due within 72h
-  massage:      0.10,   // 10% — due within 72h
-  driver_bike:  0.10,   // 10% — due at next sign-in
-  driver_car:   0.10,   // 10% — due at next sign-in
+  marketplace:  0.10,   // 10% — all services unified
+  restaurant:   0.10,   // 10%
+  rental:       0.10,   // 10%
+  massage:      0.10,   // 10%
+  driver_bike:  0.10,   // 10%
+  driver_car:   0.10,   // 10%
+  dating:       0.10,   // 10%
+  food:         0.10,   // 10%
 }
 
 // ── Record a new commission when order is marked complete ─────────────────────

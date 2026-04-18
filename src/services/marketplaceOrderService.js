@@ -1,5 +1,6 @@
 import { supabase } from '@/lib/supabase'
 import { recordCommission } from './commissionService'
+import { processCommission } from './walletService'
 
 // ── Create order (buyer side) ───────────────────────────────────────────────
 export async function createOrder({ buyerId, sellerId, items, subtotal, deliveryFee, total, paymentMethod, paymentProofUrl, deliveryAddress, notes }) {
@@ -84,8 +85,10 @@ export async function updateMarketplaceOrderStatus(orderId, status, extras = {})
       .eq('id', orderId)
     if (error) throw error
 
-    // Record 5% commission when order delivered
+    // Record commission when order delivered — new wallet system (10%)
     if (status === 'delivered' && extras.sellerId && extras.orderTotal) {
+      processCommission(extras.sellerId, 'marketplace', orderId, extras.orderTotal)
+      // Legacy fallback
       await recordCommission(extras.sellerId, orderId, extras.orderTotal, 'marketplace')
     }
 

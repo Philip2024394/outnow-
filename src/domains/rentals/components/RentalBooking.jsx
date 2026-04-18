@@ -1,8 +1,7 @@
 import { useState } from 'react'
 import { createPortal } from 'react-dom'
 import { checkSpam, recordStrike, isUserBanned, getWarningMessage } from '@/utils/spamFilter'
-
-const COMMISSION_RATE = 0.10 // 10%
+import { processCommission, COMMISSION_RATE } from '@/services/walletService'
 
 function fmtPrice(n) {
   if (!n) return '—'
@@ -152,6 +151,9 @@ export function RentalBookingFlow({ listing, onClose, onConfirm }) {
           created_at: new Date().toISOString(),
         })
         localStorage.setItem('indoo_rental_bookings', JSON.stringify(bookings))
+        // Process commission via wallet system
+        const ownerId = listing.extra_fields?.ownerId || 'default'
+        processCommission(ownerId, 'rental', listing.ref || listing.id, totalRental)
       } catch {}
     }, 3000)
   }

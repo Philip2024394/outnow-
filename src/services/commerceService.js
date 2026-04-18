@@ -1,5 +1,6 @@
 import { supabase } from '@/lib/supabase'
 import { recordCommission } from './commissionService'
+import { processCommission } from './walletService'
 
 // ─────────────────────────────────────────────────────────────────────────────
 // ECHO Commerce — data layer
@@ -313,8 +314,9 @@ export async function updateOrderStatus(orderId, status, { sellerId, orderTotal 
   try {
     await supabase?.from('orders').update({ status }).eq('id', orderId)
 
-    // Record 5% commission when seller marks order as complete
+    // Record commission when order complete — new wallet system (10%)
     if (status === 'complete' && sellerId && orderTotal) {
+      processCommission(sellerId, 'marketplace', orderId, orderTotal)
       await recordCommission(sellerId, orderId, orderTotal)
     }
   } catch { /* noop */ }

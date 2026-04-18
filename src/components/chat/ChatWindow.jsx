@@ -7,6 +7,8 @@ import { sendMessage, sendImageMessage, sendContactMessage, unlockConversation, 
 import { getSellerContactDetails } from '@/services/unlockService'
 import { supabase } from '@/lib/supabase'
 import { hasUnpaidCommission, recordCommission, COMMISSION_RATES, getSellerBalance } from '@/services/commissionService'
+import { checkSpam, recordStrike, getWarningMessage } from '@/utils/spamFilter'
+import { canReceiveOrders } from '@/services/walletService'
 import { uploadImage } from '@/lib/uploadImage'
 import { useChatPresence } from '@/hooks/useChatPresence'
 import ContactShareSheet from './ContactShareSheet'
