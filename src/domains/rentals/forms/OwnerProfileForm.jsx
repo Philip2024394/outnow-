@@ -107,12 +107,14 @@ export default function OwnerProfileForm({ open, onClose, onComplete }) {
 
         <div className={styles.content} style={{ position: 'relative', zIndex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', minHeight: '100%', padding: '40px 20px' }}>
 
+          {/* Welcome text */}
+          <h1 style={{ fontSize: 26, fontWeight: 900, color: '#fff', margin: '0 0 16px', textAlign: 'center' }}>Welcome to Indoo</h1>
+
           {/* Bike image */}
           <img src="https://ik.imagekit.io/nepgaxllc/ChatGPT%20Image%20Apr%2019,%202026,%2012_04_09%20AM.png" alt="" style={{ width: 140, height: 140, objectFit: 'contain', filter: 'drop-shadow(0 8px 24px rgba(0,0,0,0.5))', marginBottom: 24 }} />
 
-          {/* Welcome text */}
-          <h1 style={{ fontSize: 26, fontWeight: 900, color: '#fff', margin: '0 0 6px', textAlign: 'center' }}>Welcome to Indoo</h1>
-          <p style={{ fontSize: 14, color: '#8DC63F', fontWeight: 700, margin: '0 0 30px', textAlign: 'center' }}>Start earning today</p>
+          {/* Spacer */}
+          <div style={{ height: 10 }} />
 
           {/* Simple package card */}
           <div style={{
@@ -122,8 +124,8 @@ export default function OwnerProfileForm({ open, onClose, onComplete }) {
             boxShadow: '0 0 20px rgba(141,198,63,0.1), inset 0 1px 0 rgba(255,255,255,0.04)',
           }}>
             {/* Main message */}
-            <h2 style={{ fontSize: 20, fontWeight: 900, color: '#fff', margin: '0 0 6px', textAlign: 'center' }}>Free To Join And Do Business</h2>
-            <p style={{ fontSize: 14, color: '#8DC63F', fontWeight: 700, textAlign: 'center', margin: '0 0 20px' }}>Start With Your First Order Today</p>
+            <h2 style={{ fontSize: 20, fontWeight: 900, color: '#fff', margin: '0 0 6px', textAlign: 'center' }}>Free To Join</h2>
+            <p style={{ fontSize: 14, color: '#8DC63F', fontWeight: 700, textAlign: 'center', margin: '0 0 20px' }}>Start Today For Unlimited Access</p>
 
             {/* Features */}
             <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>

@@ -7,6 +7,8 @@ import OwnerProfileForm from './forms/OwnerProfileForm'
 import MotorbikeListingForm from './forms/MotorbikeListingForm'
 import CarListingForm from './forms/CarListingForm'
 import BicycleListingForm from './forms/BicycleListingForm'
+import BusListingForm from './forms/BusListingForm'
+import TruckListingForm from './forms/TruckListingForm'
 import EventEquipmentListingForm from './forms/EventEquipmentListingForm'
 import PropertyListingForm from './forms/PropertyListingForm'
 import styles from './rentalFormStyles.module.css'
@@ -36,9 +38,10 @@ export default function RentalCategoryRouter({ open, onClose, onSubmit }) {
 
   const handleFormClose = (action, listing) => {
     if (action === 'edit' && listing) {
+      const cat = selectedCat
       setSelectedCat(null)
       setEditListingData(listing)
-      setTimeout(() => setSelectedCat('motorbike'), 50)
+      setTimeout(() => setSelectedCat(cat), 50)
     } else if (action === 'viewMarketplace') {
       setSelectedCat(null)
       setEditListingData(null)
@@ -51,10 +54,12 @@ export default function RentalCategoryRouter({ open, onClose, onSubmit }) {
 
   // Owner done + category selected → show the listing form
   if (selectedCat === 'motorbike') return <MotorbikeListingForm open onClose={handleFormClose} onSubmit={onSubmit} editListing={editListingData} />
-  if (selectedCat === 'car') return <CarListingForm open onClose={() => setSelectedCat(null)} onSubmit={onSubmit} />
-  if (selectedCat === 'bicycle') return <BicycleListingForm open onClose={() => setSelectedCat(null)} onSubmit={onSubmit} />
-  if (selectedCat === 'property') return <PropertyListingForm open onClose={() => setSelectedCat(null)} onSubmit={onSubmit} />
-  if (selectedCat === 'event') return <EventEquipmentListingForm open onClose={() => setSelectedCat(null)} onSubmit={onSubmit} />
+  if (selectedCat === 'car') return <CarListingForm open onClose={handleFormClose} onSubmit={onSubmit} editListing={editListingData} />
+  if (selectedCat === 'bicycle') return <BicycleListingForm open onClose={handleFormClose} onSubmit={onSubmit} editListing={editListingData} />
+  if (selectedCat === 'bus') return <BusListingForm open onClose={handleFormClose} onSubmit={onSubmit} editListing={editListingData} />
+  if (selectedCat === 'truck') return <TruckListingForm open onClose={handleFormClose} onSubmit={onSubmit} editListing={editListingData} />
+  if (selectedCat === 'property') return <PropertyListingForm open onClose={handleFormClose} onSubmit={onSubmit} editListing={editListingData} />
+  if (selectedCat === 'event') return <EventEquipmentListingForm open onClose={handleFormClose} onSubmit={onSubmit} editListing={editListingData} />
 
   // Category selection screen
   return (
