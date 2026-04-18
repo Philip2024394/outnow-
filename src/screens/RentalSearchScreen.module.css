@@ -217,9 +217,9 @@
   z-index: 3; pointer-events: none;
 }
 
-/* Listings badge — top left, pill style */
+/* Listings badge — bottom right */
 .dirCardBadge {
-  position: absolute; top: 10px; left: 10px; z-index: 3;
+  position: absolute; bottom: 10px; right: 10px; z-index: 3;
   display: flex; align-items: center; gap: 3px;
   padding: 3px 8px;
   background: rgba(0,0,0,0.5); backdrop-filter: blur(8px);
@@ -318,20 +318,20 @@
   font-size: 8px; font-weight: 600; color: rgba(255,255,255,0.2);
 }
 
-/* Arrow indicator — right edge */
+/* Arrow indicator — top right, solid green */
 .dirCardArrow {
-  position: absolute; right: 10px; top: 50%; transform: translateY(-50%);
-  width: 24px; height: 24px; border-radius: 50%;
-  background: rgba(141,198,63,0.08);
-  border: 1px solid rgba(141,198,63,0.15);
+  position: absolute; right: 10px; top: 10px;
+  width: 26px; height: 26px; border-radius: 50%;
+  background: #8DC63F;
+  border: none;
   display: flex; align-items: center; justify-content: center;
-  color: rgba(141,198,63,0.5);
+  color: #000;
   z-index: 3; transition: all 0.2s;
+  box-shadow: 0 2px 8px rgba(141,198,63,0.3);
 }
 .dirCard:hover .dirCardArrow {
-  background: #8DC63F; color: #000;
-  border-color: #8DC63F;
-  box-shadow: 0 0 10px rgba(141,198,63,0.3);
+  transform: scale(1.1);
+  box-shadow: 0 0 14px rgba(141,198,63,0.4);
 }
 
 /* Category selection page */
@@ -429,42 +429,90 @@
 .body::-webkit-scrollbar { width: 3px; }
 .body::-webkit-scrollbar-thumb { background: rgba(141,198,63,0.2); border-radius: 2px; }
 
-.grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; }
+.grid { display: flex; flex-direction: column; gap: 12px; }
 
-.empty { padding: 40px; text-align: center; color: rgba(255,255,255,0.2); font-size: 13px; grid-column: 1 / -1; }
+.empty { padding: 40px; text-align: center; color: rgba(255,255,255,0.2); font-size: 13px; }
 
-/* Rental card */
+/* ── Premium Rental Listing Card ─────────────────────────────────────────── */
+@keyframes rentalCardIn {
+  from { opacity: 0; transform: translateY(16px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
 .card {
-  display: flex; flex-direction: column;
-  background: rgba(255,255,255,0.03);
-  backdrop-filter: blur(4px); -webkit-backdrop-filter: blur(4px);
-  border: 1.5px solid rgba(255,255,255,0.06);
-  border-radius: 14px; overflow: hidden;
+  display: flex; flex-direction: row; align-items: stretch;
+  background: rgba(0,0,0,0.5);
+  backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px);
+  border: 1.5px solid rgba(141,198,63,0.08);
+  border-radius: 18px; overflow: hidden;
   cursor: pointer; font-family: inherit; text-align: left;
-  transition: all 0.2s ease;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  animation: rentalCardIn 0.4s ease both;
+  min-height: 120px; position: relative;
 }
-.card:hover {
-  border-color: rgba(255,255,255,0.15);
-  box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+.card::before {
+  content: '';
+  position: absolute; top: 0; left: 10%; right: 10%; height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(141,198,63,0.25), transparent);
+  pointer-events: none; z-index: 2;
+}
+.card:hover, .card:active {
+  border-color: rgba(141,198,63,0.3);
+  box-shadow: 0 8px 32px rgba(0,0,0,0.4), 0 0 16px rgba(141,198,63,0.08);
+  transform: translateY(-2px);
 }
 
-.cardImg { width: 100%; aspect-ratio: 4/3; object-fit: cover; background: rgba(255,255,255,0.03); }
-.cardBody { padding: 10px 12px 12px; display: flex; flex-direction: column; gap: 4px; }
-.cardTitle { font-size: 12px; font-weight: 800; color: #fff; line-height: 1.3; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+/* Image — left side, tall */
+.cardImg {
+  width: 130px; min-width: 130px; height: auto;
+  object-fit: cover; display: block; flex-shrink: 0;
+  background: rgba(255,255,255,0.02);
+}
 
-.cardMeta { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
-.cardCategory { font-size: 9px; font-weight: 700; color: #8DC63F; background: rgba(141,198,63,0.12); padding: 2px 7px; border-radius: 4px; }
-.cardCondition { font-size: 9px; font-weight: 700; color: rgba(255,255,255,0.35); background: rgba(255,255,255,0.05); padding: 2px 7px; border-radius: 4px; }
-.cardCity { font-size: 9px; color: rgba(255,255,255,0.3); }
+/* Body — right side */
+.cardBody {
+  flex: 1; padding: 12px 14px 10px; min-width: 0;
+  display: flex; flex-direction: column; justify-content: space-between; gap: 4px;
+}
 
-.cardPrices { display: flex; flex-direction: column; gap: 1px; margin-top: 4px; }
-.cardPriceMain { font-size: 14px; font-weight: 900; color: #8DC63F; }
-.cardPricePer { font-size: 9px; color: rgba(255,255,255,0.3); font-weight: 600; }
-.cardPriceSub { font-size: 10px; color: rgba(255,255,255,0.25); }
+.cardTitle {
+  font-size: 14px; font-weight: 900; color: #fff;
+  line-height: 1.2; letter-spacing: -0.01em;
+  overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+}
 
-.cardFooter { display: flex; align-items: center; justify-content: space-between; margin-top: 4px; padding-top: 6px; border-top: 1px solid rgba(255,255,255,0.04); }
-.cardRating { display: flex; align-items: center; gap: 3px; font-size: 10px; color: #F59E0B; font-weight: 700; }
-.cardViews { font-size: 9px; color: rgba(255,255,255,0.2); }
+.cardMeta { display: flex; align-items: center; gap: 4px; flex-wrap: wrap; margin-top: 2px; }
+.cardCategory {
+  font-size: 8px; font-weight: 800; color: #8DC63F;
+  background: rgba(141,198,63,0.1); border: 1px solid rgba(141,198,63,0.15);
+  padding: 2px 7px; border-radius: 6px; letter-spacing: 0.03em;
+}
+.cardCondition {
+  font-size: 8px; font-weight: 700; color: rgba(255,255,255,0.4);
+  background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.06);
+  padding: 2px 7px; border-radius: 6px;
+}
+.cardCity {
+  font-size: 8px; color: rgba(255,255,255,0.25); font-weight: 600;
+}
+
+/* Price section */
+.cardPrices { display: flex; align-items: baseline; gap: 6px; margin-top: 4px; }
+.cardPriceMain { font-size: 18px; font-weight: 900; color: #8DC63F; letter-spacing: -0.02em; }
+.cardPricePer { font-size: 9px; color: rgba(255,255,255,0.25); font-weight: 600; }
+.cardPriceSub { font-size: 9px; color: rgba(255,255,255,0.2); margin-left: 4px; }
+
+/* Footer — rating + views */
+.cardFooter {
+  display: flex; align-items: center; justify-content: space-between;
+  margin-top: auto; padding-top: 6px;
+  border-top: 1px solid rgba(255,255,255,0.04);
+}
+.cardRating {
+  display: flex; align-items: center; gap: 3px;
+  font-size: 10px; color: #FFD700; font-weight: 800;
+}
+.cardViews { font-size: 9px; color: rgba(255,255,255,0.15); font-weight: 600; }
 
 /* Detail sheet */
 .detailOverlay { position: fixed; inset: 0; background: rgba(0,0,0,0.8); backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px); z-index: 300; display: flex; flex-direction: column; overflow: hidden; }
