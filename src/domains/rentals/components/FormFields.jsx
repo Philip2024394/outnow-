@@ -1,7 +1,34 @@
 /**
  * Shared form field components for rental listing forms.
  */
+import { useState, useRef } from 'react'
+import { supabase } from '@/lib/supabase'
+import ImageEditPopup from './ImageEditPopup'
 import styles from '../rentalFormStyles.module.css'
+
+const ACCEPTED_FORMATS = '.jpg,.jpeg,.png,.webp,.heic'
+const MAX_FILE_SIZE = 5 * 1024 * 1024 // 5MB
+
+async function uploadImage(file) {
+  // Validate
+  if (file.size > MAX_FILE_SIZE) { alert('File too large. Max 5MB.'); return null }
+
+  // Create local preview immediately
+  const localUrl = URL.createObjectURL(file)
+
+  // If Supabase is available, upload to storage
+  if (supabase) {
+    const ext = file.name.split('.').pop()?.toLowerCase() || 'jpg'
+    const path = `rentals/${Date.now()}-${Math.random().toString(36).slice(2, 8)}.${ext}`
+    const { data, error } = await supabase.storage.from('images').upload(path, file, { contentType: file.type })
+    if (error) { console.error('Upload error:', error); return localUrl }
+    const { data: urlData } = supabase.storage.from('images').getPublicUrl(data.path)
+    return urlData?.publicUrl || localUrl
+  }
+
+  // Demo mode — just use local blob URL
+  return localUrl
+}
 
 export function TextField({ label, value, onChange, placeholder, required, hint, type = 'text', error }) {
   return (
@@ -147,33 +174,148 @@ export function Section({ icon, title, sub, children }) {
   )
 }
 
+
 export function ImageUploader({ mainImage, thumbImages, onSetMain, onAddThumb, onRemoveThumb, onRemoveMain }) {
+  const [editingSrc, setEditingSrc] = useState(null)
+  const [editingIdx, setEditingIdx] = useState(null)
+  const fileRef = useRef(null)
+
+  // All images in one pool — main first, then thumbs
+  const allImages = [mainImage, ...thumbImages].filter(Boolean)
+  const coverIdx = mainImage ? 0 : -1
+
+  const handleFileUpload = async (e) => {
+    const file = e.target.files?.[0]
+    if (!file) return
+    const url = await uploadImage(file)
+    if (!url) return
+    if (!mainImage) {
+      // First image becomes cover
+      onSetMain(url)
+    } else {
+      onAddThumb(url)
+    }
+    e.target.value = ''
+  }
+
+  const handleSetCover = (idx) => {
+    const img = allImages[idx]
+    if (!img || idx === coverIdx) return
+    // Current cover goes to thumbs, selected becomes cover
+    if (mainImage) {
+      onAddThumb(mainImage) // old cover → thumbs
+    }
+    // Remove selected from thumbs
+    const thumbIdx = idx - (mainImage ? 1 : 0)
+    if (thumbIdx >= 0) onRemoveThumb(thumbIdx)
+    onSetMain(img)
+  }
+
+  const handleRemove = (idx) => {
+    if (idx === 0 && mainImage) {
+      onRemoveMain()
+      // Promote first thumb to cover if available
+      if (thumbImages.length > 0) {
+        onSetMain(thumbImages[0])
+        onRemoveThumb(0)
+      }
+    } else {
+      const thumbIdx = idx - (mainImage ? 1 : 0)
+      onRemoveThumb(thumbIdx)
+    }
+  }
+
+  const handleEditorSave = (result) => {
+    if (result.croppedDataUrl && editingIdx !== null) {
+      if (editingIdx === 0 && mainImage) {
+        onSetMain(result.croppedDataUrl)
+      } else {
+        const thumbIdx = editingIdx - (mainImage ? 1 : 0)
+        onRemoveThumb(thumbIdx)
+        onAddThumb(result.croppedDataUrl)
+      }
+    }
+    setEditingSrc(null)
+    setEditingIdx(null)
+  }
+
+  const currentCover = mainImage || null
+
   return (
     <>
+      {/* Image Editor Popup */}
+      {editingSrc && (
+        <ImageEditPopup
+          src={editingSrc}
+          onSave={handleEditorSave}
+          onCancel={() => { setEditingSrc(null); setEditingIdx(null) }}
+          isCover={editingIdx === 0 && !!mainImage}
+        />
+      )}
+
+      {/* Format info */}
+      <div style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '0 0 10px', flexWrap: 'wrap' }}>
+        <span style={{ fontSize: 10, fontWeight: 700, color: 'rgba(255,255,255,0.3)', background: 'rgba(255,255,255,0.04)', padding: '3px 8px', borderRadius: 6 }}>JPG</span>
+        <span style={{ fontSize: 10, fontWeight: 700, color: 'rgba(255,255,255,0.3)', background: 'rgba(255,255,255,0.04)', padding: '3px 8px', borderRadius: 6 }}>PNG</span>
+        <span style={{ fontSize: 10, fontWeight: 700, color: 'rgba(255,255,255,0.3)', background: 'rgba(255,255,255,0.04)', padding: '3px 8px', borderRadius: 6 }}>WEBP</span>
+        <span style={{ fontSize: 10, fontWeight: 700, color: 'rgba(255,255,255,0.3)', background: 'rgba(255,255,255,0.04)', padding: '3px 8px', borderRadius: 6 }}>HEIC</span>
+        <span style={{ fontSize: 10, color: 'rgba(255,255,255,0.15)', marginLeft: 'auto' }}>Max 5MB · Up to 5 photos</span>
+      </div>
+
+      {/* Main preview — shows current cover image in 16:9 */}
       <div className={styles.mainImageWrap}>
-        {mainImage ? (
+        {currentCover ? (
           <div className={styles.mainImagePreview}>
-            <img src={mainImage} alt="Main" className={styles.mainImageImg} />
-            <button className={styles.mainImageRemove} onClick={onRemoveMain}>✕ Remove</button>
+            <img src={currentCover} alt="Cover" className={styles.mainImageImg} />
             <span className={styles.mainImageBadge}>COVER PHOTO</span>
+            <button onClick={() => { setEditingSrc(currentCover); setEditingIdx(0) }} style={{ position: 'absolute', top: 10, left: 10, padding: '6px 14px', background: '#000', border: 'none', borderRadius: 10, color: '#fff', fontSize: 11, fontWeight: 800, cursor: 'pointer', fontFamily: 'inherit', zIndex: 3, letterSpacing: '0.03em', boxShadow: '0 2px 8px rgba(0,0,0,0.4)' }}>
+              ✎ Edit
+            </button>
           </div>
         ) : (
-          <button className={styles.mainImageAdd} onClick={() => { const u = prompt('Paste main cover image URL:'); if (u?.trim()) onSetMain(u.trim()) }}>
+          <button className={styles.mainImageAdd} onClick={() => fileRef.current?.click()}>
+            <input ref={fileRef} type="file" accept={ACCEPTED_FORMATS} onChange={handleFileUpload} style={{ display: 'none' }} />
             <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#8DC63F" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
-            <span className={styles.mainImageAddTitle}>Add Cover Photo</span>
-            <span className={styles.mainImageAddSub}>This image shows on your rental card</span>
+            <span className={styles.mainImageAddTitle}>Upload Photos</span>
+            <span className={styles.mainImageAddSub}>First image becomes your cover photo (16:9)</span>
           </button>
         )}
       </div>
+
+      {/* Label */}
+      <div style={{ textAlign: 'center', padding: '4px 0 2px', fontSize: 10, color: 'rgba(141,198,63,0.4)', fontWeight: 600, letterSpacing: '0.04em' }}>
+        ↑ Rental card preview · Tap below to set cover
+      </div>
+
+      {/* All images row — tap to set cover (yellow frame), edit, remove */}
       <div className={styles.thumbRow}>
-        {thumbImages.map((img, i) => (
-          <div key={i} className={styles.thumbCard}>
-            <img src={img} alt="" className={styles.thumbImg} />
-            <button className={styles.thumbRemove} onClick={() => onRemoveThumb(i)}>✕</button>
-          </div>
-        ))}
-        {thumbImages.length < 8 && (
-          <button className={styles.thumbAdd} onClick={() => { const u = prompt('Paste image URL:'); if (u?.trim()) onAddThumb(u.trim()) }}>
+        {allImages.map((img, i) => {
+          const isCover = i === coverIdx
+          return (
+            <div key={i} style={{
+              position: 'relative', width: 80, height: 80, borderRadius: 14, overflow: 'hidden', flexShrink: 0,
+              border: isCover ? '2.5px solid #FFD700' : '2px solid rgba(255,255,255,0.05)',
+              boxShadow: isCover ? '0 0 12px rgba(255,215,0,0.3)' : '0 2px 8px rgba(0,0,0,0.3)',
+            }}>
+              {/* Tap to set as cover */}
+              <img src={img} alt="" className={styles.thumbImg} onClick={() => handleSetCover(i)} style={{ cursor: 'pointer' }} />
+              {/* Cover badge */}
+              {isCover && (
+                <div style={{ position: 'absolute', top: 3, left: 3, padding: '2px 5px', background: '#FFD700', borderRadius: 4, fontSize: 7, fontWeight: 900, color: '#000', letterSpacing: '0.04em' }}>COVER</div>
+              )}
+              {/* Remove */}
+              <button onClick={(e) => { e.stopPropagation(); handleRemove(i) }} style={{
+                position: 'absolute', top: 3, right: 3, width: 18, height: 18, borderRadius: '50%',
+                background: '#EF4444', border: 'none', color: '#fff', fontSize: 9,
+                cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 2,
+              }}>✕</button>
+            </div>
+          )
+        })}
+        {allImages.length < 5 && (
+          <button className={styles.thumbAdd} onClick={() => fileRef.current?.click()}>
+            {!currentCover && <input ref={fileRef} type="file" accept={ACCEPTED_FORMATS} onChange={handleFileUpload} style={{ display: 'none' }} />}
+            {currentCover && <input ref={fileRef} type="file" accept={ACCEPTED_FORMATS} onChange={handleFileUpload} style={{ display: 'none' }} />}
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#8DC63F" strokeWidth="2" strokeLinecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
             <span>Add</span>
           </button>

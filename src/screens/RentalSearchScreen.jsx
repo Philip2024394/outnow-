@@ -350,11 +350,11 @@ export default function RentalSearchScreen({ onClose }) {
       onClose={() => setRenterSignUpOpen(false)}
       onComplete={() => { setRenterSignUpOpen(false); markSectionVisited('rentals'); setView('categories') }}
     />
-    <RentalCategoryRouter
+    {rentalCategoryOpen && <RentalCategoryRouter
       open={rentalCategoryOpen}
       onClose={() => setRentalListingOpen(false)}
       onSubmit={async (listing) => { console.log('[rental] New listing:', listing) }}
-    />
+    />}
   </>
 
   if (view === 'landing') {
@@ -522,11 +522,6 @@ export default function RentalSearchScreen({ onClose }) {
       {/* Detail view */}
       {selected && <RentalDetail listing={selected} onClose={() => setSelected(null)} />}
       <RentalDashboard open={dashboardOpen} onClose={() => setDashboardOpen(false)} />
-      <RentalCategoryRouter
-        open={rentalCategoryOpen}
-        onClose={() => setRentalListingOpen(false)}
-        onSubmit={async (listing) => { console.log('[rental] New listing:', listing) }}
-      />
       <PriceCalculator vehicle={calcVehicle} onClose={() => setCalcVehicle(null)} />
       {modals}
     </div>

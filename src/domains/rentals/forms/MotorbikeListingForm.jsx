@@ -202,47 +202,65 @@ function IncludedBundle({ helmets, raincoat, phoneHolder, usbCharger, sideBox })
 /* ══════════════════════════════════════════════════════════════════════════════
    MAIN FORM
    ══════════════════════════════════════════════════════════════════════════════ */
-export default function MotorbikeListingForm({ open, onClose, onSubmit }) {
-  const bikeRef = useMemo(() => generateRef(), [])
+export default function MotorbikeListingForm({ open, onClose, onSubmit, editListing }) {
+  const isEditing = !!editListing
+  const bikeRef = useMemo(() => editListing?.ref || generateRef(), [editListing])
+  const ef = editListing?.extra_fields || {}
   const [step, setStep] = useState(0)
-  const [mainImage, setMainImage] = useState('')
-  const [thumbs, setThumbs] = useState([])
-  const [title, setTitle] = useState('')
-  const [desc, setDesc] = useState('')
-  const [city, setCity] = useState('')
-  const [make, setMake] = useState('')
-  const [model, setModel] = useState('')
-  const [year, setYear] = useState('')
-  const [cc, setCc] = useState('')
-  const [trans, setTrans] = useState('')
-  const [fuelType, setFuelType] = useState('Petrol')
-  const [color, setColor] = useState([])
-  const [plateNo, setPlateNo] = useState('')
-  const [insurance, setInsurance] = useState(false)
-  const [fuelPolicy, setFuelPolicy] = useState('')
-  const [condition, setCondition] = useState('Good')
-  const [mileage, setMileage] = useState('')
-  const [helmets, setHelmets] = useState('2')
-  const [raincoat, setRaincoat] = useState('0')
-  const [delivery, setDelivery] = useState(false)
-  const [airportDropoff, setAirportDropoff] = useState(false)
-  const [deliveryFee, setDeliveryFee] = useState('')
-  const [airportFee, setAirportFee] = useState('')
-  const [sideBox, setSideBox] = useState(false)
-  const [phoneHolder, setPhoneHolder] = useState(false)
-  const [usbCharger, setUsbCharger] = useState(false)
-  const [minAge, setMinAge] = useState('17')
-  const [minRental, setMinRental] = useState('1 day')
-  const [license, setLicense] = useState('')
-  const [whatsapp, setWhatsapp] = useState('')
-  const [daily, setDaily] = useState('')
-  const [weekly, setWeekly] = useState('')
-  const [monthly, setMonthly] = useState('')
-  const [deposit, setDeposit] = useState('')
-  const [lateFee, setLateFee] = useState('')
-  const [buyNow, setBuyNow] = useState(false)
-  const [buyNowPrice, setBuyNowPrice] = useState('')
-  const [negotiable, setNegotiable] = useState(true)
+  const [mainImage, setMainImage] = useState(editListing?.image || '')
+  const [thumbs, setThumbs] = useState(() => editListing?.images?.slice(1) || [])
+  const [title, setTitle] = useState(editListing?.title || '')
+  const [desc, setDesc] = useState(editListing?.description || '')
+  const [city, setCity] = useState(() => {
+    if (editListing?.city) return editListing.city
+    try { const p = JSON.parse(localStorage.getItem('indoo_rental_owner') || '{}'); return p.city || '' } catch { return '' }
+  })
+  const [make, setMake] = useState(ef.make || '')
+  const [model, setModel] = useState(ef.model || '')
+  const [year, setYear] = useState(ef.year || '')
+  const [cc, setCc] = useState(ef.cc || '')
+  const [trans, setTrans] = useState(ef.transmission || '')
+  const [fuelType, setFuelType] = useState(ef.fuelType || 'Petrol')
+  const [color, setColor] = useState(ef.colors || [])
+  const [plateNo, setPlateNo] = useState(ef.plateNo || '')
+  const [insurance, setInsurance] = useState(ef.insurance || false)
+  const [fuelPolicy, setFuelPolicy] = useState(ef.fuelPolicy || '')
+  const [condition, setCondition] = useState(editListing?.condition || ef.condition || 'Good')
+  const [mileage, setMileage] = useState(ef.mileage || '')
+  const [helmets, setHelmets] = useState(ef.helmets || '2')
+  const [raincoat, setRaincoat] = useState(ef.raincoat || '0')
+  const [delivery, setDelivery] = useState(ef.delivery || false)
+  const [airportDropoff, setAirportDropoff] = useState(ef.airportDropoff || false)
+  const [deliveryFee, setDeliveryFee] = useState(ef.deliveryFee || '')
+  const [airportFee, setAirportFee] = useState(ef.airportFee || '')
+  const [sideBox, setSideBox] = useState(ef.sideBox || false)
+  const [phoneHolder, setPhoneHolder] = useState(ef.phoneHolder || false)
+  const [usbCharger, setUsbCharger] = useState(ef.usbCharger || false)
+  const [minAge, setMinAge] = useState(ef.minAge || '17')
+  const [minRental, setMinRental] = useState(ef.minRental || '1 day')
+  const [license, setLicense] = useState(ef.license || '')
+  const [whatsapp, setWhatsapp] = useState(() => {
+    if (ef.whatsapp) return ef.whatsapp
+    try { const p = JSON.parse(localStorage.getItem('indoo_rental_owner') || '{}'); return p.whatsapp || '' } catch { return '' }
+  })
+  const [daily, setDaily] = useState(editListing?.price_day || '')
+  const [weekly, setWeekly] = useState(editListing?.price_week || '')
+  const [monthly, setMonthly] = useState(editListing?.price_month || '')
+  const [deposit, setDeposit] = useState(ef.deposit || '')
+  const [lateFee, setLateFee] = useState(ef.lateFee || '')
+  const [buyNow, setBuyNow] = useState(!!editListing?.buy_now)
+  const [buyNowPrice, setBuyNowPrice] = useState(editListing?.buy_now?.price || '')
+  const [negotiable, setNegotiable] = useState(editListing?.buy_now?.negotiable ?? true)
+  const [showLocalTerms, setShowLocalTerms] = useState(false)
+  const [showTouristTerms, setShowTouristTerms] = useState(false)
+  const [localTermsEnabled, setLocalTermsEnabled] = useState(true)
+  const [touristTermsEnabled, setTouristTermsEnabled] = useState(true)
+  const [showAgreementEditor, setShowAgreementEditor] = useState(false)
+  const [agreementEditTab, setAgreementEditTab] = useState('local')
+  const ownerProfile = useMemo(() => { try { return JSON.parse(localStorage.getItem('indoo_rental_owner') || '{}') } catch { return {} } }, [])
+  const ownerAgreementSaved = !!ownerProfile.rentalAgreement?.accepted
+  const [editLocalTerms, setEditLocalTerms] = useState(ownerProfile.rentalAgreement?.local || '')
+  const [editTouristTerms, setEditTouristTerms] = useState(ownerProfile.rentalAgreement?.tourist || '')
   const [submitting, setSubmitting] = useState(false)
   const [modelSuggestions, setModelSuggestions] = useState([])
   const [showSuggestions, setShowSuggestions] = useState(false)
@@ -256,46 +274,169 @@ export default function MotorbikeListingForm({ open, onClose, onSubmit }) {
   const [editingLicense, setEditingLicense] = useState(false)
   const [editingMinRental, setEditingMinRental] = useState(false)
   const [editingColor, setEditingColor] = useState(false)
+  const [showDrawer, setShowDrawer] = useState(false)
+  const [showMyListings, setShowMyListings] = useState(false)
+  const [previewListingIdx, setPreviewListingIdx] = useState(null)
+  const [editingListing, setEditingListing] = useState(null)
+  const DEMO_LISTINGS = [
+    { ref: 'BIKE-XK2F4821', category: 'Motorcycles', title: 'Honda Beat 125cc 2024', image: 'https://ik.imagekit.io/nepgaxllc/Honda%20Beat.png?updatedAt=1775634845000', price_day: '85.000', price_week: '500.000', price_month: '1.800.000', condition: 'Like New', status: 'live', created_at: '2026-04-15T10:30:00Z', extra_fields: { make: 'Honda', model: 'Beat', cc: '125', year: '2024', transmission: 'Automatic' } },
+    { ref: 'BIKE-MN7P3295', category: 'Motorcycles', title: 'Yamaha NMAX 155cc 2023', image: 'https://ik.imagekit.io/nepgaxllc/Yamaha%20NMAX.png?updatedAt=1775634845000', price_day: '150.000', price_week: '900.000', price_month: '3.000.000', condition: 'Good', status: 'live', created_at: '2026-04-12T08:15:00Z', extra_fields: { make: 'Yamaha', model: 'NMAX 155', cc: '155', year: '2023', transmission: 'Automatic' } },
+    { ref: 'BIKE-RT4K6738', category: 'Motorcycles', title: 'Honda PCX 160cc 2024', image: 'https://ik.imagekit.io/nepgaxllc/Honda%20PCX.png?updatedAt=1775634845000', price_day: '175.000', price_week: '1.050.000', price_month: '3.500.000', condition: 'New', status: 'offline', created_at: '2026-04-10T14:20:00Z', extra_fields: { make: 'Honda', model: 'PCX 160', cc: '160', year: '2024', transmission: 'Automatic' } },
+    { ref: 'BIKE-WQ9L1456', category: 'Motorcycles', title: 'Honda Vario 160cc 2023', image: 'https://ik.imagekit.io/nepgaxllc/Honda%20Vario.png?updatedAt=1775634845000', price_day: '100.000', price_week: '600.000', price_month: '2.200.000', condition: 'Good', status: 'live', created_at: '2026-04-08T11:45:00Z', extra_fields: { make: 'Honda', model: 'Vario 160', cc: '160', year: '2023', transmission: 'Automatic' } },
+  ]
+  const [myListings, setMyListings] = useState(() => {
+    try {
+      const saved = JSON.parse(localStorage.getItem('indoo_my_listings') || '[]')
+      return saved.length > 0 ? saved : DEMO_LISTINGS
+    } catch { return DEMO_LISTINGS }
+  })
   const brandInputRef = useRef(null)
   const modelInputRef = useRef(null)
 
   if (!open) return null
 
-  const autoTitle = [make, model, year].filter(Boolean).join(' ')
+  const autoTitle = [make, model, cc && `${cc}cc`, year].filter(Boolean).join(' ')
   const displayTitle = title || (autoTitle ? `${autoTitle} — Rental ${city || ''}`.trim() : '')
   const tags = [cc && `${cc}cc`, trans, condition, fuelPolicy, helmets !== '0' && `${helmets} helmet${helmets > 1 ? 's' : ''}`, delivery && 'Drop Off', insurance && 'Insured', buyNow && 'For Sale'].filter(Boolean)
+
+  // Random description templates
+  const autoDesc = useMemo(() => {
+    if (!make || !model) return ''
+    const bike = `${make} ${model}`
+    const eng = cc ? ` ${cc}cc` : ''
+    const tr = trans ? `, ${trans.toLowerCase()}` : ''
+    const yr = year ? ` (${year})` : ''
+    const cond = condition ? `${condition} condition` : 'well-maintained'
+    const loc = city ? ` in ${city}` : ''
+    const ins = insurance ? ' Fully insured.' : ''
+    const helm = helmets !== '0' ? ` ${helmets} helmet${Number(helmets) > 1 ? 's' : ''} included.` : ''
+    const del = delivery ? ' Free hotel/villa drop off available.' : ''
+    const templates = [
+      `${bike}${eng}${tr}${yr} available for daily, weekly or monthly rental${loc}. ${cond}, clean and ready to ride.${ins}${helm}${del} Perfect for exploring the area!`,
+      `Rent this ${cond} ${bike}${eng}${yr}${loc}. Smooth ride${tr ? ' with ' + trans.toLowerCase() + ' transmission' : ''}.${ins}${helm}${del} Great for tourists and locals alike.`,
+      `${bike}${eng}${yr} — ${cond}${tr}. Available for short or long-term rental${loc}.${ins}${helm}${del} Well-serviced and reliable for daily use.`,
+      `Looking for a reliable ride${loc}? This ${bike}${eng}${yr} is in ${cond} and ready to go.${tr ? ' ' + trans + ' transmission.' : ''}${ins}${helm}${del} Book now!`,
+      `${cond} ${bike}${eng}${tr}${yr}. Ideal for getting around${loc}. Recently serviced and road-ready.${ins}${helm}${del} Flexible rental periods available.`,
+    ]
+    return templates[Math.floor(Math.random() * templates.length)]
+  }, [make, model, cc, trans, year, condition, city, insurance, helmets, delivery])
   const priceChange = (k, v) => { if (k === 'daily') setDaily(v); if (k === 'weekly') setWeekly(v); if (k === 'monthly') setMonthly(v); if (k === 'deposit') setDeposit(v); if (k === 'lateFee') setLateFee(v) }
 
   const handleSubmit = async () => {
     setSubmitting(true)
-    await onSubmit?.({
-      ref: bikeRef, category: 'Motorcycles', title: title || autoTitle, description: desc, city, image: mainImage,
+    const listing = {
+      ref: bikeRef, category: 'Motorcycles', title: title || autoTitle, description: desc || autoDesc, city, image: mainImage,
       images: [mainImage, ...thumbs].filter(Boolean),
-      price_day: Number(daily), price_week: Number(weekly), price_month: Number(monthly),
-      condition, buy_now: buyNow ? { price: Number(buyNowPrice), negotiable } : null,
-      extra_fields: { make, model, year, cc, transmission: trans, fuelType, colors: color, plateNo, insurance, fuelPolicy, condition, mileage, helmets, raincoat, delivery, deliveryFee, airportDropoff, airportFee, sideBox, phoneHolder, usbCharger, minAge, minRental, license, whatsapp, deposit, lateFee },
-    })
+      price_day: daily, price_week: weekly, price_month: monthly,
+      condition, buy_now: buyNow ? { price: buyNowPrice, negotiable } : null,
+      extra_fields: { make, model, year, cc, transmission: trans, fuelType, colors: color, plateNo, insurance, fuelPolicy, condition, mileage, helmets, raincoat, delivery, deliveryFee, airportDropoff, airportFee, sideBox, phoneHolder, usbCharger, minAge, license, whatsapp, deposit, lateFee },
+      status: 'live',
+      created_at: new Date().toISOString(),
+    }
+    // Save to localStorage — update if editing, add if new
+    try {
+      const saved = JSON.parse(localStorage.getItem('indoo_my_listings') || '[]')
+      if (isEditing) {
+        const idx = saved.findIndex(l => l.ref === bikeRef)
+        if (idx >= 0) saved[idx] = { ...saved[idx], ...listing }
+        else saved.push(listing)
+      } else {
+        saved.push(listing)
+      }
+      localStorage.setItem('indoo_my_listings', JSON.stringify(saved))
+    } catch {}
+    await onSubmit?.(listing)
     setSubmitting(false); setStep(4)
   }
 
   return createPortal(
-    <div className={styles.screen} style={{ backgroundImage: 'url(https://ik.imagekit.io/nepgaxllc/UntitledsadasdadsaasAS.png)', backgroundSize: 'cover', backgroundPosition: 'center' }}>
+    <div className={styles.screen} style={{ backgroundImage: `url(${step === 1 ? 'https://ik.imagekit.io/nepgaxllc/ChatGPT%20Image%20Apr%2018,%202026,%2007_07_33%20PM.png' : step === 2 ? 'https://ik.imagekit.io/nepgaxllc/ChatGPT%20Image%20Apr%2018,%202026,%2010_39_50%20PM.png' : 'https://ik.imagekit.io/nepgaxllc/ChatGPT%20Image%20Apr%2018,%202026,%2006_57_42%20PM.png'})`, backgroundSize: 'cover', backgroundPosition: 'center' }}>
 
-      <div style={{ padding: '16px 20px 0', flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-        <span style={{ fontSize: 18, fontWeight: 900, color: '#fff', letterSpacing: '-0.02em' }}>Bike Details</span>
+      <div style={{ padding: '16px 20px 0', flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'space-between', position: 'relative', zIndex: 10 }}>
+        {/* Back button — left */}
         <button onClick={() => step > 0 ? setStep(s => s - 1) : onClose()} style={{ width: 38, height: 38, borderRadius: '50%', background: '#8DC63F', border: 'none', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', boxShadow: '0 2px 10px rgba(141,198,63,0.3)' }}>
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#000" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
         </button>
+        {/* Settings button — right */}
+        <button onClick={() => setShowDrawer(true)} style={{ width: 38, height: 38, borderRadius: '50%', background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' }}>
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+        </button>
       </div>
 
-      <div className={styles.content} style={{ paddingTop: 77 }}>
+      {/* Settings Side Drawer */}
+      {showDrawer && (
+        <>
+          {/* Backdrop — blurred */}
+          <div onClick={() => setShowDrawer(false)} style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.4)', backdropFilter: 'blur(8px)', WebkitBackdropFilter: 'blur(8px)', zIndex: 9998 }} />
+          {/* Drawer — slides in from right, 70% width, glass background */}
+          <div style={{
+            position: 'fixed', top: 0, right: 0, bottom: 0, width: '70%',
+            background: 'rgba(0,0,0,0.7)', backdropFilter: 'blur(24px)', WebkitBackdropFilter: 'blur(24px)',
+            borderLeft: '1.5px solid rgba(141,198,63,0.2)',
+            boxShadow: '-10px 0 40px rgba(0,0,0,0.5), 0 0 20px rgba(141,198,63,0.08)',
+            zIndex: 9999, display: 'flex', flexDirection: 'column',
+            animation: 'slideInRight 0.25s ease',
+          }}>
+            <style>{`@keyframes slideInRight { from { transform: translateX(100%) } to { transform: translateX(0) } } @keyframes livePulse { 0%, 100% { opacity: 1; text-shadow: 0 0 6px rgba(141,198,63,0.8); } 50% { opacity: 0.5; text-shadow: 0 0 2px rgba(141,198,63,0.2); } }
+@keyframes liveGlow { 0%, 100% { box-shadow: 0 0 8px rgba(141,198,63,0.4), inset 0 0 4px rgba(141,198,63,0.1); } 50% { box-shadow: 0 0 16px rgba(141,198,63,0.6), inset 0 0 8px rgba(141,198,63,0.15); } }`}</style>
+            {/* Green edge accent line */}
+            <div style={{ position: 'absolute', top: 0, left: 0, bottom: 0, width: 2, background: 'linear-gradient(180deg, transparent, #8DC63F 30%, #8DC63F 70%, transparent)', pointerEvents: 'none', boxShadow: '0 0 12px rgba(141,198,63,0.4)' }} />
+
+            {/* Drawer header */}
+            <div style={{ padding: '20px 16px', borderBottom: '1px solid rgba(255,255,255,0.06)', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#8DC63F" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+                <span style={{ fontSize: 16, fontWeight: 800, color: '#fff' }}>Settings</span>
+              </div>
+              <button onClick={() => setShowDrawer(false)} style={{ width: 32, height: 32, borderRadius: '50%', background: '#8DC63F', border: 'none', color: '#000', fontSize: 14, fontWeight: 900, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>✕</button>
+            </div>
+
+            {/* Menu items — black glass buttons */}
+            <div style={{ flex: 1, padding: '12px 10px', overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: 8 }}>
+              {[
+                { icon: '', img: 'https://ik.imagekit.io/nepgaxllc/Sleek%20green%20and%20black%20scooter%20setup.png?updatedAt=1775634845237', label: 'My Listings', sub: `${myListings.length} listing${myListings.length !== 1 ? 's' : ''}`, action: () => { setShowDrawer(false); setShowMyListings(true) } },
+                { icon: '📋', label: 'Rental Agreement', sub: 'Update local & tourist terms', action: () => { setShowDrawer(false); setShowAgreementEditor(true) } },
+                { icon: '📅', label: 'Booking Calendar', sub: 'View & manage bookings' },
+                { icon: '📊', label: 'Rental Shop Stats', sub: 'Views, bookings & revenue' },
+                { icon: '📄', label: 'Terms of Rental Service', sub: 'Policies & conditions' },
+              ].map((item, i) => (
+                <button key={i} onClick={() => { if (item.action) item.action(); else setShowDrawer(false) }} style={{
+                  display: 'flex', alignItems: 'center', gap: 12, width: '100%',
+                  padding: '14px 12px',
+                  background: 'rgba(0,0,0,0.4)', backdropFilter: 'blur(12px)', WebkitBackdropFilter: 'blur(12px)',
+                  border: '1.5px solid rgba(141,198,63,0.12)', borderRadius: 14,
+                  cursor: 'pointer', textAlign: 'left', fontFamily: 'inherit', transition: 'all 0.2s',
+                  boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.03), 0 2px 8px rgba(0,0,0,0.2)',
+                }}>
+                  {item.img ? <img src={item.img} alt="" style={{ width: 64, height: 64, objectFit: 'contain', filter: 'drop-shadow(0 2px 6px rgba(0,0,0,0.4))' }} /> : <span style={{ fontSize: 24 }}>{item.icon}</span>}
+                  <div style={{ flex: 1 }}>
+                    <div style={{ fontSize: 14, fontWeight: 700, color: '#fff' }}>{item.label}</div>
+                    <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.3)', marginTop: 2 }}>{item.sub}</div>
+                  </div>
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="rgba(141,198,63,0.4)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+                </button>
+              ))}
+            </div>
+
+            {/* Drawer footer */}
+            <div style={{ padding: '16px', borderTop: '1px solid rgba(255,255,255,0.04)', textAlign: 'center' }}>
+              <span style={{ fontSize: 10, color: 'rgba(255,255,255,0.15)', fontWeight: 600 }}>Indoo Rentals v1.0</span>
+            </div>
+          </div>
+        </>
+      )}
+
+      <div className={styles.content} style={{ paddingTop: 97 }}>
 
         {step === 4 && (
           <div className={styles.done}>
             <span className={styles.doneIcon}>🎉</span>
-            <h2 className={styles.doneTitle}>Listing Published!</h2>
+            <h2 className={styles.doneTitle}>{isEditing ? 'Listing Updated!' : 'Listing Published!'}</h2>
             <p className={styles.doneSub}>Ref: {bikeRef}</p>
-            <p className={styles.doneSub}>Your motorbike rental is now live.</p>
+            <p className={styles.doneSub}>{isEditing ? 'Your changes have been saved.' : 'Your motorbike rental is now live.'}</p>
+            <button onClick={() => { setMyListings(JSON.parse(localStorage.getItem('indoo_my_listings') || '[]')); setShowMyListings(true) }} style={{ padding: '12px 24px', background: 'rgba(255,215,0,0.1)', border: '1.5px solid rgba(255,215,0,0.25)', borderRadius: 12, color: '#FFD700', fontSize: 13, fontWeight: 800, cursor: 'pointer', fontFamily: 'inherit', marginBottom: 10 }}>
+              📦 View My Listings
+            </button>
             <button className={styles.doneBtn} onClick={onClose}>Done</button>
           </div>
         )}
@@ -316,8 +457,12 @@ export default function MotorbikeListingForm({ open, onClose, onSubmit }) {
             }} />
 
             {/* ── Motor Bike Details — glass container ── */}
-            <div style={{ background: 'rgba(0,0,0,0.5)', backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)', border: '1.5px solid rgba(255,255,255,0.06)', borderRadius: 20, padding: '16px 14px', marginTop: 23 }}>
-            <h2 className={styles.inlineGroupTitle} style={{ paddingTop: 0 }}>Motor Bike Details</h2>
+            <div style={{ background: 'rgba(0,0,0,0.7)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)', border: '1.5px solid rgba(141,198,63,0.2)', borderRadius: 20, padding: '16px 14px', marginTop: 23, boxShadow: '0 0 20px rgba(141,198,63,0.08), inset 0 1px 0 rgba(141,198,63,0.05)' }}>
+            <h2 className={styles.inlineGroupTitle} style={{ paddingTop: 0, textShadow: '0 0 12px rgba(141,198,63,0.4), 0 2px 8px rgba(0,0,0,0.5)' }}>Motor Bike Details</h2>
+            <p style={{ fontSize: 11, color: 'rgba(255,255,255,0.25)', margin: '-4px 0 4px', fontWeight: 500 }}>Select or enter your motorbike information</p>
+            <div style={{ position: 'relative', height: 2, marginBottom: 10, overflow: 'hidden' }}>
+              <div style={{ position: 'absolute', width: 60, height: 2, background: 'linear-gradient(90deg, transparent, #8DC63F, transparent)', animation: 'runGlow 3s ease-in-out infinite' }} />
+            </div>
 
             <div className={styles.inlineGroup}>
               {/* Brand — with edit button + brand picker grid */}
@@ -434,40 +579,72 @@ export default function MotorbikeListingForm({ open, onClose, onSubmit }) {
 
         {/* ═══ STEP 1: LISTING DETAILS ═══ */}
         {step === 1 && (
-          <div className={styles.form}>
-            <Section icon="📸" title="Bike Photos" sub="No names or watermarks. Main + up to 4 thumbnails" />
-            <ImageUploader mainImage={mainImage} thumbImages={thumbs.slice(0, 4)} onSetMain={setMainImage} onAddThumb={u => { if (thumbs.length < 4) setThumbs(p => [...p, u]) }} onRemoveThumb={i => setThumbs(p => p.filter((_, j) => j !== i))} onRemoveMain={() => setMainImage('')} />
+          <div className={styles.form} style={{ paddingTop: 150 }}>
 
-            {/* ── Listing Info — inline ── */}
-            <h2 className={styles.inlineGroupTitle}>Listing Info</h2>
-            <div className={styles.inlineGroup}>
-              <div className={styles.inlineField}>
-                <span className={styles.inlineLabel}>Title</span>
-                <input className={styles.inlineInput} value={title} onChange={e => setTitle(e.target.value)} placeholder={autoTitle || 'Honda Beat 2023'} />
-              </div>
+            {/* ── Photos ── */}
+            <div style={{ background: 'rgba(0,0,0,0.6)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)', border: '1.5px solid rgba(141,198,63,0.2)', borderRadius: 20, padding: '16px 14px', boxShadow: '0 0 20px rgba(141,198,63,0.08)', position: 'relative', zIndex: 1 }}>
+              <h2 className={styles.inlineGroupTitle} style={{ paddingTop: 0, textShadow: '0 0 12px rgba(141,198,63,0.4)' }}>📸 Bike Photos</h2>
+              <p style={{ fontSize: 11, color: 'rgba(255,255,255,0.25)', margin: '-4px 0 8px', fontWeight: 500 }}>No names or watermarks. Main + up to 4 thumbnails</p>
+              <ImageUploader mainImage={mainImage} thumbImages={thumbs.slice(0, 4)} onSetMain={setMainImage} onAddThumb={u => { if (thumbs.length < 4) setThumbs(p => [...p, u]) }} onRemoveThumb={i => setThumbs(p => p.filter((_, j) => j !== i))} onRemoveMain={() => setMainImage('')} />
+            </div>
 
-              <div className={styles.inlineField} style={{ alignItems: 'flex-start', paddingTop: 16 }}>
-                <span className={styles.inlineLabel} style={{ paddingTop: 2 }}>Description</span>
-                <div style={{ flex: 1 }}>
-                  <textarea className={styles.inlineInput} style={{ resize: 'none', minHeight: 60, display: 'block', width: '100%' }} value={desc} onChange={e => { if (e.target.value.length <= 350) setDesc(e.target.value) }} placeholder="Condition, features..." rows={3} />
-                  <span style={{ fontSize: 10, color: 'rgba(255,255,255,0.15)', float: 'right' }}>{desc.length}/350</span>
+            {/* ── Listing Info ── */}
+            <div style={{ background: 'rgba(0,0,0,0.6)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)', border: '1.5px solid rgba(141,198,63,0.2)', borderRadius: 20, padding: '16px 14px', boxShadow: '0 0 20px rgba(141,198,63,0.08)', position: 'relative', zIndex: 1 }}>
+              <h2 className={styles.inlineGroupTitle} style={{ paddingTop: 0, textShadow: '0 0 12px rgba(141,198,63,0.4)' }}>Listing Info</h2>
+              <p style={{ fontSize: 11, color: 'rgba(255,255,255,0.25)', margin: '-4px 0 4px', fontWeight: 500 }}>Title, description & contact</p>
+              <div style={{ position: 'relative', height: 2, marginBottom: 10, overflow: 'hidden' }}><div style={{ position: 'absolute', width: 60, height: 2, background: 'linear-gradient(90deg, transparent, #8DC63F, transparent)', animation: 'runGlow 3s ease-in-out infinite' }} /></div>
+              {/* Auto-filled bike info */}
+              {autoTitle && (
+                <div style={{ padding: '0 0 8px', display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
+                  {make && <span style={{ fontSize: 11, fontWeight: 700, color: '#FFD700', background: 'rgba(255,215,0,0.08)', padding: '3px 8px', borderRadius: 6, border: '1px solid rgba(255,215,0,0.15)' }}>{make}</span>}
+                  {model && <span style={{ fontSize: 11, fontWeight: 700, color: '#8DC63F', background: 'rgba(141,198,63,0.08)', padding: '3px 8px', borderRadius: 6, border: '1px solid rgba(141,198,63,0.15)' }}>{model}</span>}
+                  {cc && <span style={{ fontSize: 11, fontWeight: 700, color: 'rgba(255,255,255,0.5)', background: 'rgba(255,255,255,0.04)', padding: '3px 8px', borderRadius: 6 }}>{cc}cc</span>}
+                  {year && <span style={{ fontSize: 11, fontWeight: 700, color: 'rgba(255,255,255,0.5)', background: 'rgba(255,255,255,0.04)', padding: '3px 8px', borderRadius: 6 }}>{year}</span>}
+                  {trans && <span style={{ fontSize: 11, fontWeight: 700, color: 'rgba(255,255,255,0.5)', background: 'rgba(255,255,255,0.04)', padding: '3px 8px', borderRadius: 6 }}>{trans}</span>}
                 </div>
-              </div>
-
-              <div className={styles.inlineField}>
-                <span className={styles.inlineLabel}>Location</span>
-                <input className={styles.inlineInput} value={city} onChange={e => setCity(e.target.value)} placeholder="Bali, Yogyakarta" />
-                <button onClick={() => { setCity('Detecting...'); navigator.geolocation.getCurrentPosition(async (pos) => { try { const r = await fetch(`https://nominatim.openstreetmap.org/reverse?lat=${pos.coords.latitude}&lon=${pos.coords.longitude}&format=json`); const d = await r.json(); setCity([d.address?.city, d.address?.town, d.address?.village, d.address?.state].filter(Boolean).slice(0, 2).join(', ') || 'Location set') } catch { setCity('Location set') } }, () => setCity(''), { enableHighAccuracy: true, timeout: 10000 }) }} style={{ background: 'none', border: 'none', color: '#8DC63F', fontSize: 12, fontWeight: 700, cursor: 'pointer', fontFamily: 'inherit', whiteSpace: 'nowrap', padding: '0 0 0 8px' }}>📍 GPS</button>
-              </div>
-
-              <div className={styles.inlineField}>
-                <span className={styles.inlineLabel}>WhatsApp</span>
-                <input className={styles.inlineInput} value={whatsapp} onChange={e => setWhatsapp(e.target.value)} placeholder="08123456789" type="tel" />
+              )}
+              <div className={styles.inlineGroup}>
+                <div className={styles.inlineField}>
+                  <span className={styles.inlineLabel}>Title</span>
+                  <input className={styles.inlineInput} value={title || autoTitle} onChange={e => setTitle(e.target.value)} placeholder="Honda Beat 150cc 2023" />
+                </div>
+                <div className={styles.inlineField} style={{ alignItems: 'flex-start', paddingTop: 16 }}>
+                  <span className={styles.inlineLabel} style={{ paddingTop: 2 }}>Description</span>
+                  <div style={{ flex: 1 }}>
+                    <textarea
+                      className={styles.inlineInput}
+                      style={{ resize: 'none', minHeight: 100, display: 'block', width: '100%', overflow: 'hidden', height: 'auto' }}
+                      value={desc || autoDesc}
+                      onChange={e => { if (e.target.value.length <= 350) setDesc(e.target.value) }}
+                      placeholder="Condition, features..."
+                      rows={5}
+                      onInput={e => { e.target.style.height = 'auto'; e.target.style.height = e.target.scrollHeight + 'px' }}
+                      ref={el => { if (el) { el.style.height = 'auto'; el.style.height = el.scrollHeight + 'px' } }}
+                    />
+                    <span style={{ fontSize: 10, color: 'rgba(255,255,255,0.15)', float: 'right' }}>{(desc || autoDesc).length}/350</span>
+                  </div>
+                </div>
+                <div className={styles.inlineField}>
+                  <span className={styles.inlineLabel}>Location</span>
+                  <input className={styles.inlineInput} value={city} onChange={e => setCity(e.target.value)} placeholder="Bali, Yogyakarta" />
+                  <button onClick={() => { setCity('Detecting...'); navigator.geolocation.getCurrentPosition(async (pos) => { try { const r = await fetch(`https://nominatim.openstreetmap.org/reverse?lat=${pos.coords.latitude}&lon=${pos.coords.longitude}&format=json`); const d = await r.json(); setCity([d.address?.city, d.address?.town, d.address?.village, d.address?.state].filter(Boolean).slice(0, 2).join(', ') || 'Location set') } catch { setCity('Location set') } }, () => setCity(''), { enableHighAccuracy: true, timeout: 10000 }) }} style={{ background: 'none', border: 'none', color: '#8DC63F', fontSize: 12, fontWeight: 700, cursor: 'pointer', fontFamily: 'inherit', whiteSpace: 'nowrap', padding: '0 0 0 8px' }}>📍 GPS</button>
+                </div>
+                <div className={styles.inlineField} style={{ opacity: 0.5, pointerEvents: 'none', position: 'relative' }}>
+                  <span className={styles.inlineLabel}>WhatsApp</span>
+                  <input className={styles.inlineInput} value={whatsapp ? whatsapp.slice(0, 4) + '••••••••' : ''} readOnly placeholder="Locked" type="tel" style={{ cursor: 'not-allowed' }} />
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 4, position: 'absolute', right: 12, top: '50%', transform: 'translateY(-50%)' }}>
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#FFD700" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+                    <span style={{ fontSize: 9, fontWeight: 800, color: '#FFD700', letterSpacing: '0.04em' }}>PRO</span>
+                  </div>
+                </div>
               </div>
             </div>
 
-            {/* ── Rental Policy — inline ── */}
-            <h2 className={styles.inlineGroupTitle}>Rental Policy</h2>
+            {/* ── Rental Policy ── */}
+            <div style={{ background: 'rgba(0,0,0,0.6)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)', border: '1.5px solid rgba(141,198,63,0.2)', borderRadius: 20, padding: '16px 14px', boxShadow: '0 0 20px rgba(141,198,63,0.08)', position: 'relative', zIndex: 1 }}>
+              <h2 className={styles.inlineGroupTitle} style={{ paddingTop: 0, textShadow: '0 0 12px rgba(141,198,63,0.4)' }}>Rental Policy</h2>
+              <p style={{ fontSize: 11, color: 'rgba(255,255,255,0.25)', margin: '-4px 0 4px', fontWeight: 500 }}>Fuel, license & minimum rental</p>
+              <div style={{ position: 'relative', height: 2, marginBottom: 10, overflow: 'hidden' }}><div style={{ position: 'absolute', width: 60, height: 2, background: 'linear-gradient(90deg, transparent, #8DC63F, transparent)', animation: 'runGlow 3s ease-in-out infinite' }} /></div>
             <div className={styles.inlineGroup}>
               <PickerField label="Fuel Policy" value={fuelPolicy} onChange={setFuelPolicy} options={FUEL_POLICY} placeholder="Return Full" editing={editingFuelPolicy} setEditing={setEditingFuelPolicy} styles={styles} />
               <PickerField label="License" value={license} onChange={setLicense} options={LICENSE} placeholder="SIM C" editing={editingLicense} setEditing={setEditingLicense} styles={styles} />
@@ -478,11 +655,37 @@ export default function MotorbikeListingForm({ open, onClose, onSubmit }) {
                 <span className={styles.inlineSuffix}>years</span>
               </div>
 
-              <PickerField label="Min Rental" value={minRental} onChange={setMinRental} options={MIN_RENTAL} placeholder="1 day" editing={editingMinRental} setEditing={setEditingMinRental} styles={styles} />
+              {/* Rental periods with pricing */}
+              <div style={{ borderTop: '1px solid rgba(255,255,255,0.04)', paddingTop: 8, marginTop: 4 }}>
+                <span style={{ fontSize: 11, fontWeight: 700, color: 'rgba(141,198,63,0.5)', letterSpacing: '0.03em', marginBottom: 6, display: 'block' }}>Rental Prices</span>
+              </div>
+              <div className={styles.inlineField}>
+                <span className={styles.inlineLabel}>1 Day</span>
+                <span style={{ color: 'rgba(255,255,255,0.2)', fontSize: 13, fontWeight: 600, marginRight: 2 }}>Rp</span>
+                <input className={`${styles.inlineInput} ${!daily ? styles.inlineInputEmpty : ''}`} value={daily} onChange={e => setDaily(e.target.value.replace(/[^0-9.]/g, ''))} placeholder="150.000" inputMode="decimal" />
+                {daily && <span style={{ fontSize: 10, color: '#8DC63F', fontWeight: 700, whiteSpace: 'nowrap', marginLeft: 4 }}>{Number(daily.replace(/\./g,'')) >= 1000000 ? (Number(daily.replace(/\./g,''))/1000000).toFixed(1).replace('.0','') + 'jt' : daily}</span>}
+              </div>
+              <div className={styles.inlineField}>
+                <span className={styles.inlineLabel}>1 Week</span>
+                <span style={{ color: 'rgba(255,255,255,0.2)', fontSize: 13, fontWeight: 600, marginRight: 2 }}>Rp</span>
+                <input className={styles.inlineInput} value={weekly} onChange={e => setWeekly(e.target.value.replace(/[^0-9.]/g, ''))} placeholder={daily ? Math.round(Number(daily.replace(/\./g,'')) * 7 * 0.85).toLocaleString('id-ID').replace(/,/g,'.') : '900.000'} inputMode="decimal" />
+                {weekly && <span style={{ fontSize: 10, color: '#8DC63F', fontWeight: 700, whiteSpace: 'nowrap', marginLeft: 4 }}>{Number(weekly.replace(/\./g,'')) >= 1000000 ? (Number(weekly.replace(/\./g,''))/1000000).toFixed(1).replace('.0','') + 'jt' : weekly}</span>}
+              </div>
+              <div className={styles.inlineField}>
+                <span className={styles.inlineLabel}>1 Month</span>
+                <span style={{ color: 'rgba(255,255,255,0.2)', fontSize: 13, fontWeight: 600, marginRight: 2 }}>Rp</span>
+                <input className={styles.inlineInput} value={monthly} onChange={e => setMonthly(e.target.value.replace(/[^0-9.]/g, ''))} placeholder={daily ? Math.round(Number(daily.replace(/\./g,'')) * 30 * 0.7).toLocaleString('id-ID').replace(/,/g,'.') : '3.000.000'} inputMode="decimal" />
+                {monthly && <span style={{ fontSize: 10, color: '#8DC63F', fontWeight: 700, whiteSpace: 'nowrap', marginLeft: 4 }}>{Number(monthly.replace(/\./g,'')) >= 1000000 ? (Number(monthly.replace(/\./g,''))/1000000).toFixed(1).replace('.0','') + 'jt' : monthly}</span>}
+              </div>
             </div>
 
-            {/* ── Included — inline with +/- counters ── */}
-            <h2 className={styles.inlineGroupTitle}>Included With Rental</h2>
+            </div>
+
+            {/* ── Included — glass container ── */}
+            <div style={{ background: 'rgba(0,0,0,0.6)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)', border: '1.5px solid rgba(141,198,63,0.2)', borderRadius: 20, padding: '16px 14px', boxShadow: '0 0 20px rgba(141,198,63,0.08)', position: 'relative', zIndex: 1 }}>
+              <h2 className={styles.inlineGroupTitle} style={{ paddingTop: 0, textShadow: '0 0 12px rgba(141,198,63,0.4)' }}>Included With Rental</h2>
+              <p style={{ fontSize: 11, color: 'rgba(255,255,255,0.25)', margin: '-4px 0 4px', fontWeight: 500 }}>Helmets, accessories & extras</p>
+              <div style={{ position: 'relative', height: 2, marginBottom: 10, overflow: 'hidden' }}><div style={{ position: 'absolute', width: 60, height: 2, background: 'linear-gradient(90deg, transparent, #8DC63F, transparent)', animation: 'runGlow 3s ease-in-out infinite' }} /></div>
             <div className={styles.inlineGroup}>
               <div className={styles.inlineField}>
                 <span className={styles.inlineLabel}>Helmets</span>
@@ -502,69 +705,311 @@ export default function MotorbikeListingForm({ open, onClose, onSubmit }) {
               </div>
               <div className={styles.inlineField}>
                 <span className={styles.inlineLabel}>Phone Stand</span>
-                <button onClick={() => setPhoneHolder(!phoneHolder)} style={{ background: 'none', border: 'none', color: phoneHolder ? '#8DC63F' : 'rgba(255,255,255,0.2)', fontSize: 15, fontWeight: 700, cursor: 'pointer', fontFamily: 'inherit', padding: 0 }}>{phoneHolder ? '✓ Yes' : 'No'}</button>
+                <button onClick={() => setPhoneHolder(!phoneHolder)} style={{ background: 'none', border: 'none', color: phoneHolder ? '#8DC63F' : 'rgba(255,255,255,0.2)', fontSize: 15, fontWeight: 700, cursor: 'pointer', fontFamily: 'inherit', padding: 0, flex: 1, textAlign: 'left' }}>{phoneHolder ? '✓ Yes' : 'No'}</button>
+                <button className={styles.inlineEditBtn} onClick={() => setPhoneHolder(!phoneHolder)}>
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#FBBF24" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+                </button>
               </div>
               <div className={styles.inlineField}>
                 <span className={styles.inlineLabel}>USB Charger</span>
-                <button onClick={() => setUsbCharger(!usbCharger)} style={{ background: 'none', border: 'none', color: usbCharger ? '#8DC63F' : 'rgba(255,255,255,0.2)', fontSize: 15, fontWeight: 700, cursor: 'pointer', fontFamily: 'inherit', padding: 0 }}>{usbCharger ? '✓ Yes' : 'No'}</button>
+                <button onClick={() => setUsbCharger(!usbCharger)} style={{ background: 'none', border: 'none', color: usbCharger ? '#8DC63F' : 'rgba(255,255,255,0.2)', fontSize: 15, fontWeight: 700, cursor: 'pointer', fontFamily: 'inherit', padding: 0, flex: 1, textAlign: 'left' }}>{usbCharger ? '✓ Yes' : 'No'}</button>
+                <button className={styles.inlineEditBtn} onClick={() => setUsbCharger(!usbCharger)}>
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#FBBF24" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+                </button>
               </div>
               <div className={styles.inlineField}>
                 <span className={styles.inlineLabel}>Storage Box</span>
-                <button onClick={() => setSideBox(!sideBox)} style={{ background: 'none', border: 'none', color: sideBox ? '#8DC63F' : 'rgba(255,255,255,0.2)', fontSize: 15, fontWeight: 700, cursor: 'pointer', fontFamily: 'inherit', padding: 0 }}>{sideBox ? '✓ Yes' : 'No'}</button>
+                <button onClick={() => setSideBox(!sideBox)} style={{ background: 'none', border: 'none', color: sideBox ? '#8DC63F' : 'rgba(255,255,255,0.2)', fontSize: 15, fontWeight: 700, cursor: 'pointer', fontFamily: 'inherit', padding: 0, flex: 1, textAlign: 'left' }}>{sideBox ? '✓ Yes' : 'No'}</button>
+                <button className={styles.inlineEditBtn} onClick={() => setSideBox(!sideBox)}>
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#FBBF24" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+                </button>
               </div>
             </div>
 
-            {/* ── Drop Off — inline ── */}
-            <h2 className={styles.inlineGroupTitle}>Drop Off Service</h2>
-            <p className={styles.inlineGroupSub}>Prepare documents in advance</p>
+            </div>
+
+            {/* ── Drop Off — glass container ── */}
+            <div style={{ background: 'rgba(0,0,0,0.6)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)', border: '1.5px solid rgba(141,198,63,0.2)', borderRadius: 20, padding: '16px 14px', boxShadow: '0 0 20px rgba(141,198,63,0.08)', position: 'relative', zIndex: 1 }}>
+              <h2 className={styles.inlineGroupTitle} style={{ paddingTop: 0, textShadow: '0 0 12px rgba(141,198,63,0.4)' }}>Drop Off Service</h2>
+              <p style={{ fontSize: 11, color: 'rgba(255,255,255,0.25)', margin: '-4px 0 4px', fontWeight: 500 }}>Prepare documents in advance</p>
+              <div style={{ position: 'relative', height: 2, marginBottom: 10, overflow: 'hidden' }}><div style={{ position: 'absolute', width: 60, height: 2, background: 'linear-gradient(90deg, transparent, #8DC63F, transparent)', animation: 'runGlow 3s ease-in-out infinite' }} /></div>
             <div className={styles.inlineGroup}>
+              {/* Hotel / Villa Drop Off */}
               <div className={styles.inlineField}>
                 <span className={styles.inlineLabel}>Hotel / Villa</span>
-                <button onClick={() => setDelivery(!delivery)} style={{ background: 'none', border: 'none', color: delivery ? '#8DC63F' : 'rgba(255,255,255,0.2)', fontSize: 15, fontWeight: 700, cursor: 'pointer', fontFamily: 'inherit', padding: 0 }}>{delivery ? '✓ Yes' : 'No'}</button>
+                <button onClick={() => { setDelivery(!delivery); if (!delivery) setDeliveryFee('Free') }} style={{ background: 'none', border: 'none', color: delivery ? '#8DC63F' : 'rgba(255,255,255,0.2)', fontSize: 15, fontWeight: 700, cursor: 'pointer', fontFamily: 'inherit', padding: 0, flex: 1, textAlign: 'left' }}>{delivery ? '✓ Yes' : 'No'}</button>
+                <button className={styles.inlineEditBtn} onClick={() => { setDelivery(!delivery); if (!delivery) setDeliveryFee('Free') }}>
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#FBBF24" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+                </button>
               </div>
               {delivery && (
-                <div className={styles.inlineField}>
-                  <span className={styles.inlineLabel}>Fee</span>
-                  <button onClick={() => setDeliveryFee(deliveryFee === 'Free' ? '' : 'Free')} style={{ background: 'none', border: 'none', color: deliveryFee === 'Free' ? '#8DC63F' : '#EF4444', fontSize: 14, fontWeight: 800, cursor: 'pointer', fontFamily: 'inherit', padding: '0 12px 0 0' }}>{deliveryFee === 'Free' ? '✓ Free' : 'Free'}</button>
-                  <input className={styles.inlineInput} value={deliveryFee === 'Free' ? '' : deliveryFee} onChange={e => setDeliveryFee(e.target.value.replace(/[^0-9]/g, ''))} placeholder="price" inputMode="numeric" style={{ maxWidth: 100 }} />
-                  {deliveryFee && deliveryFee !== 'Free' && <span className={styles.inlineSuffix}>Rp</span>}
+                <div style={{ padding: '4px 0 4px 8px' }}>
+                  <div style={{ display: 'flex', gap: 8, marginBottom: 8 }}>
+                    <button onClick={() => setDeliveryFee('Free')} style={{ flex: 1, padding: '10px 0', borderRadius: 10, background: deliveryFee === 'Free' ? '#8DC63F' : 'rgba(255,255,255,0.04)', border: deliveryFee === 'Free' ? 'none' : '1px solid rgba(255,255,255,0.08)', color: deliveryFee === 'Free' ? '#000' : 'rgba(255,255,255,0.4)', fontSize: 13, fontWeight: 800, cursor: 'pointer', fontFamily: 'inherit', transition: 'all 0.2s' }}>
+                      {deliveryFee === 'Free' ? '✓ ' : ''}Free Drop Off
+                    </button>
+                    <button onClick={() => setDeliveryFee('')} style={{ flex: 1, padding: '10px 0', borderRadius: 10, background: deliveryFee !== 'Free' ? '#FFD700' : 'rgba(255,255,255,0.04)', border: deliveryFee !== 'Free' ? 'none' : '1px solid rgba(255,255,255,0.08)', color: deliveryFee !== 'Free' ? '#000' : 'rgba(255,255,255,0.4)', fontSize: 13, fontWeight: 800, cursor: 'pointer', fontFamily: 'inherit', transition: 'all 0.2s' }}>
+                      Set Price
+                    </button>
+                  </div>
+                  {deliveryFee !== 'Free' && (
+                    <div className={styles.inlineField}>
+                      <span className={styles.inlineLabel}>Price</span>
+                      <span style={{ color: 'rgba(255,255,255,0.2)', fontSize: 13, fontWeight: 600, marginRight: 2 }}>Rp</span>
+                      <input className={styles.inlineInput} value={deliveryFee} onChange={e => setDeliveryFee(e.target.value.replace(/[^0-9.]/g, ''))} placeholder="50.000" inputMode="decimal" />
+                      {deliveryFee && <span style={{ fontSize: 10, color: '#8DC63F', fontWeight: 700, whiteSpace: 'nowrap', marginLeft: 4 }}>{Number(deliveryFee.replace(/\./g,'')) >= 1000000 ? (Number(deliveryFee.replace(/\./g,''))/1000000).toFixed(1).replace('.0','') + 'jt' : deliveryFee}</span>}
+                    </div>
+                  )}
                 </div>
               )}
+
+              {/* Airport Drop Off */}
               <div className={styles.inlineField}>
                 <span className={styles.inlineLabel}>Airport</span>
-                <button onClick={() => setAirportDropoff(!airportDropoff)} style={{ background: 'none', border: 'none', color: airportDropoff ? '#8DC63F' : 'rgba(255,255,255,0.2)', fontSize: 15, fontWeight: 700, cursor: 'pointer', fontFamily: 'inherit', padding: 0 }}>{airportDropoff ? '✓ Yes' : 'No'}</button>
+                <button onClick={() => { setAirportDropoff(!airportDropoff); if (!airportDropoff) setAirportFee('Free') }} style={{ background: 'none', border: 'none', color: airportDropoff ? '#8DC63F' : 'rgba(255,255,255,0.2)', fontSize: 15, fontWeight: 700, cursor: 'pointer', fontFamily: 'inherit', padding: 0, flex: 1, textAlign: 'left' }}>{airportDropoff ? '✓ Yes' : 'No'}</button>
+                <button className={styles.inlineEditBtn} onClick={() => { setAirportDropoff(!airportDropoff); if (!airportDropoff) setAirportFee('Free') }}>
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#FBBF24" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+                </button>
               </div>
               {airportDropoff && (
-                <div className={styles.inlineField}>
-                  <span className={styles.inlineLabel}>Fee</span>
-                  <button onClick={() => setAirportFee(airportFee === 'Free' ? '' : 'Free')} style={{ background: 'none', border: 'none', color: airportFee === 'Free' ? '#8DC63F' : '#EF4444', fontSize: 14, fontWeight: 800, cursor: 'pointer', fontFamily: 'inherit', padding: '0 12px 0 0' }}>{airportFee === 'Free' ? '✓ Free' : 'Free'}</button>
-                  <input className={styles.inlineInput} value={airportFee === 'Free' ? '' : airportFee} onChange={e => setAirportFee(e.target.value.replace(/[^0-9]/g, ''))} placeholder="price" inputMode="numeric" style={{ maxWidth: 100 }} />
-                  {airportFee && airportFee !== 'Free' && <span className={styles.inlineSuffix}>Rp</span>}
+                <div style={{ padding: '4px 0 4px 8px' }}>
+                  <div style={{ display: 'flex', gap: 8, marginBottom: 8 }}>
+                    <button onClick={() => setAirportFee('Free')} style={{ flex: 1, padding: '10px 0', borderRadius: 10, background: airportFee === 'Free' ? '#8DC63F' : 'rgba(255,255,255,0.04)', border: airportFee === 'Free' ? 'none' : '1px solid rgba(255,255,255,0.08)', color: airportFee === 'Free' ? '#000' : 'rgba(255,255,255,0.4)', fontSize: 13, fontWeight: 800, cursor: 'pointer', fontFamily: 'inherit', transition: 'all 0.2s' }}>
+                      {airportFee === 'Free' ? '✓ ' : ''}Free Drop Off
+                    </button>
+                    <button onClick={() => setAirportFee('')} style={{ flex: 1, padding: '10px 0', borderRadius: 10, background: airportFee !== 'Free' ? '#FFD700' : 'rgba(255,255,255,0.04)', border: airportFee !== 'Free' ? 'none' : '1px solid rgba(255,255,255,0.08)', color: airportFee !== 'Free' ? '#000' : 'rgba(255,255,255,0.4)', fontSize: 13, fontWeight: 800, cursor: 'pointer', fontFamily: 'inherit', transition: 'all 0.2s' }}>
+                      Set Price
+                    </button>
+                  </div>
+                  {airportFee !== 'Free' && (
+                    <div className={styles.inlineField}>
+                      <span className={styles.inlineLabel}>Price</span>
+                      <span style={{ color: 'rgba(255,255,255,0.2)', fontSize: 13, fontWeight: 600, marginRight: 2 }}>Rp</span>
+                      <input className={styles.inlineInput} value={airportFee} onChange={e => setAirportFee(e.target.value.replace(/[^0-9.]/g, ''))} placeholder="75.000" inputMode="decimal" />
+                      {airportFee && <span style={{ fontSize: 10, color: '#8DC63F', fontWeight: 700, whiteSpace: 'nowrap', marginLeft: 4 }}>{Number(airportFee.replace(/\./g,'')) >= 1000000 ? (Number(airportFee.replace(/\./g,''))/1000000).toFixed(1).replace('.0','') + 'jt' : airportFee}</span>}
+                    </div>
+                  )}
                 </div>
               )}
             </div>
 
-            {/* ── Buy Now — inline ── */}
-            <h2 className={styles.inlineGroupTitle}>Buy Now Price</h2>
-            <p className={styles.inlineGroupSub}>List your motor bike for sale</p>
+            </div>
+
+            {/* ── Buy Now — glass container ── */}
+            <div style={{ background: 'rgba(0,0,0,0.6)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)', border: '1.5px solid rgba(141,198,63,0.2)', borderRadius: 20, padding: '16px 14px', boxShadow: '0 0 20px rgba(141,198,63,0.08)', position: 'relative', zIndex: 1 }}>
+              <h2 className={styles.inlineGroupTitle} style={{ paddingTop: 0, textShadow: '0 0 12px rgba(141,198,63,0.4)' }}>Buy Now Price</h2>
+              <p style={{ fontSize: 11, color: 'rgba(255,255,255,0.25)', margin: '-4px 0 4px', fontWeight: 500 }}>List your motor bike for sale</p>
+              <div style={{ position: 'relative', height: 2, marginBottom: 10, overflow: 'hidden' }}><div style={{ position: 'absolute', width: 60, height: 2, background: 'linear-gradient(90deg, transparent, #8DC63F, transparent)', animation: 'runGlow 3s ease-in-out infinite' }} /></div>
             <div className={styles.inlineGroup}>
               <div className={styles.inlineField}>
                 <span className={styles.inlineLabel}>Price</span>
                 <span style={{ color: 'rgba(255,255,255,0.2)', fontSize: 14, fontWeight: 600, marginRight: 4 }}>Rp</span>
-                <input className={styles.inlineInput} value={buyNowPrice} onChange={e => { const raw = e.target.value.replace(/[^0-9]/g, ''); setBuyNowPrice(raw); setBuyNow(!!raw) }} placeholder="13000000" inputMode="numeric" />
+                <input className={styles.inlineInput} value={buyNowPrice} onChange={e => { const raw = e.target.value.replace(/[^0-9.]/g, ''); setBuyNowPrice(raw); setBuyNow(!!raw) }} placeholder="13.000.000" inputMode="decimal" />
               </div>
               {buyNowPrice && (
                 <div style={{ padding: '4px 0 8px', fontSize: 15, fontWeight: 800, color: '#8DC63F' }}>
-                  Rp {Number(buyNowPrice).toLocaleString('id-ID')}{Number(buyNowPrice) >= 1000000 && ` (${(Number(buyNowPrice) / 1000000).toFixed(1).replace('.0', '')}jt)`}
+                  Rp {buyNowPrice}{Number(buyNowPrice.replace(/\./g,'')) >= 1000000 && ` (${Math.round(Number(buyNowPrice.replace(/\./g,'')) / 1000000)}jt)`}
                 </div>
               )}
+            </div>
             </div>
 
           </div>
         )}
 
         {/* ═══ STEP 1: PRICING ═══ */}
-        {step === 2 && <div className={styles.form}><PriceFields daily={daily} weekly={weekly} monthly={monthly} deposit={deposit} lateFee={lateFee} onChange={priceChange} /></div>}
+        {step === 2 && (
+          <div className={styles.form} style={{ paddingTop: 70 }}>
+            {/* Rental Rates */}
+            <div style={{ background: 'rgba(0,0,0,0.7)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)', border: '1.5px solid rgba(141,198,63,0.2)', borderRadius: 20, padding: '16px 14px', boxShadow: '0 0 20px rgba(141,198,63,0.08), inset 0 1px 0 rgba(141,198,63,0.05)' }}>
+              <h2 className={styles.inlineGroupTitle} style={{ paddingTop: 0, textShadow: '0 0 12px rgba(141,198,63,0.4), 0 2px 8px rgba(0,0,0,0.5)' }}>Rental Rates</h2>
+              <p style={{ fontSize: 11, color: 'rgba(255,255,255,0.25)', margin: '-4px 0 4px', fontWeight: 500 }}>Set your daily, weekly & monthly prices</p>
+              <div style={{ position: 'relative', height: 2, marginBottom: 12, overflow: 'hidden' }}>
+                <div style={{ position: 'absolute', width: 60, height: 2, background: 'linear-gradient(90deg, transparent, #8DC63F, transparent)', animation: 'runGlow 3s ease-in-out infinite' }} />
+              </div>
+              <div className={styles.inlineGroup}>
+                <div className={styles.inlineField}>
+                  <span className={styles.inlineLabel}>Daily</span>
+                  <span style={{ color: 'rgba(255,255,255,0.2)', fontSize: 14, fontWeight: 600, marginRight: 4 }}>Rp</span>
+                  <input className={`${styles.inlineInput} ${!daily ? styles.inlineInputEmpty : ''}`} value={daily} onChange={e => priceChange('daily', e.target.value.replace(/[^0-9]/g, ''))} placeholder="150000" inputMode="numeric" autoComplete="new-password" />
+                </div>
+                <div className={styles.inlineField}>
+                  <span className={styles.inlineLabel}>Weekly</span>
+                  <span style={{ color: 'rgba(255,255,255,0.2)', fontSize: 14, fontWeight: 600, marginRight: 4 }}>Rp</span>
+                  <input className={styles.inlineInput} value={weekly} onChange={e => priceChange('weekly', e.target.value.replace(/[^0-9]/g, ''))} placeholder="900000" inputMode="numeric" autoComplete="new-password" />
+                  {daily && !weekly && <span className={styles.inlineSuffix} style={{ fontSize: 9 }}>~{Math.round(daily * 7 * 0.85).toLocaleString('id-ID')}</span>}
+                </div>
+                <div className={styles.inlineField}>
+                  <span className={styles.inlineLabel}>Monthly</span>
+                  <span style={{ color: 'rgba(255,255,255,0.2)', fontSize: 14, fontWeight: 600, marginRight: 4 }}>Rp</span>
+                  <input className={styles.inlineInput} value={monthly} onChange={e => priceChange('monthly', e.target.value.replace(/[^0-9]/g, ''))} placeholder="3000000" inputMode="numeric" autoComplete="new-password" />
+                  {daily && !monthly && <span className={styles.inlineSuffix} style={{ fontSize: 9 }}>~{Math.round(daily * 30 * 0.7).toLocaleString('id-ID')}</span>}
+                </div>
+              </div>
+            </div>
+
+            {/* Security & Fees */}
+            <div style={{ background: 'rgba(0,0,0,0.7)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)', border: '1.5px solid rgba(141,198,63,0.2)', borderRadius: 20, padding: '16px 14px', boxShadow: '0 0 20px rgba(141,198,63,0.08), inset 0 1px 0 rgba(141,198,63,0.05)' }}>
+              <h2 className={styles.inlineGroupTitle} style={{ paddingTop: 0, textShadow: '0 0 12px rgba(141,198,63,0.4), 0 2px 8px rgba(0,0,0,0.5)' }}>Security & Fees</h2>
+              <p style={{ fontSize: 11, color: 'rgba(255,255,255,0.25)', margin: '-4px 0 4px', fontWeight: 500 }}>Deposit and late return charges</p>
+              <div style={{ position: 'relative', height: 2, marginBottom: 12, overflow: 'hidden' }}>
+                <div style={{ position: 'absolute', width: 60, height: 2, background: 'linear-gradient(90deg, transparent, #8DC63F, transparent)', animation: 'runGlow 3s ease-in-out infinite' }} />
+              </div>
+              <div className={styles.inlineGroup}>
+                <div className={styles.inlineField}>
+                  <span className={styles.inlineLabel}>Deposit</span>
+                  <span style={{ color: 'rgba(255,255,255,0.2)', fontSize: 14, fontWeight: 600, marginRight: 4 }}>Rp</span>
+                  <input className={`${styles.inlineInput} ${!deposit ? styles.inlineInputEmpty : ''}`} value={deposit} onChange={e => priceChange('deposit', e.target.value.replace(/[^0-9.]/g, ''))} placeholder="500.000" inputMode="decimal" autoComplete="new-password" />
+                </div>
+                <div className={styles.inlineField}>
+                  <span className={styles.inlineLabel}>Late Fee</span>
+                  <span style={{ color: 'rgba(255,255,255,0.2)', fontSize: 14, fontWeight: 600, marginRight: 4 }}>Rp</span>
+                  <input className={`${styles.inlineInput} ${!lateFee ? styles.inlineInputEmpty : ''}`} value={lateFee} onChange={e => priceChange('lateFee', e.target.value.replace(/[^0-9.]/g, ''))} placeholder="50.000" inputMode="decimal" autoComplete="new-password" />
+                  <span className={styles.inlineSuffix}>/hour</span>
+                </div>
+              </div>
+            </div>
+
+            {/* ── Rental Terms — only show if owner hasn't saved agreement yet ── */}
+            {!ownerAgreementSaved && (<>
+            {/* ── Local Rental Terms — toggle + view ── */}
+            <div style={{ background: 'rgba(0,0,0,0.7)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)', border: `1.5px solid ${localTermsEnabled ? 'rgba(255,215,0,0.2)' : 'rgba(255,255,255,0.06)'}`, borderRadius: 20, padding: '16px 14px', boxShadow: localTermsEnabled ? '0 0 20px rgba(255,215,0,0.06)' : 'none', transition: 'all 0.25s' }}>
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                  <span style={{ fontSize: 20 }}>🇮🇩</span>
+                  <div>
+                    <span style={{ fontSize: 14, fontWeight: 800, color: localTermsEnabled ? '#FFD700' : 'rgba(255,255,255,0.3)' }}>Local Rental</span>
+                    <p style={{ fontSize: 10, color: 'rgba(255,255,255,0.2)', margin: '2px 0 0', fontWeight: 500 }}>Terms for Indonesian renters</p>
+                  </div>
+                </div>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                  {localTermsEnabled && <button onClick={() => setShowLocalTerms(true)} style={{ padding: '6px 10px', background: 'rgba(255,215,0,0.1)', border: '1px solid rgba(255,215,0,0.2)', borderRadius: 8, color: '#FFD700', fontSize: 10, fontWeight: 700, cursor: 'pointer', fontFamily: 'inherit' }}>View</button>}
+                  <button onClick={() => setLocalTermsEnabled(!localTermsEnabled)} style={{ width: 44, height: 24, borderRadius: 12, background: localTermsEnabled ? '#FFD700' : 'rgba(255,255,255,0.1)', border: 'none', cursor: 'pointer', position: 'relative', transition: 'background 0.2s' }}>
+                    <div style={{ width: 18, height: 18, borderRadius: '50%', background: '#fff', position: 'absolute', top: 3, left: localTermsEnabled ? 23 : 3, transition: 'left 0.2s', boxShadow: '0 1px 3px rgba(0,0,0,0.3)' }} />
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            {/* ── Tourist Rental Terms — toggle + view ── */}
+            <div style={{ background: 'rgba(0,0,0,0.7)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)', border: `1.5px solid ${touristTermsEnabled ? 'rgba(255,215,0,0.2)' : 'rgba(255,255,255,0.06)'}`, borderRadius: 20, padding: '16px 14px', boxShadow: touristTermsEnabled ? '0 0 20px rgba(255,215,0,0.06)' : 'none', transition: 'all 0.25s' }}>
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                  <span style={{ fontSize: 20 }}>✈️</span>
+                  <div>
+                    <span style={{ fontSize: 14, fontWeight: 800, color: touristTermsEnabled ? '#FFD700' : 'rgba(255,255,255,0.3)' }}>Tourist Rental</span>
+                    <p style={{ fontSize: 10, color: 'rgba(255,255,255,0.2)', margin: '2px 0 0', fontWeight: 500 }}>Terms for foreign renters</p>
+                  </div>
+                </div>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                  {touristTermsEnabled && <button onClick={() => setShowTouristTerms(true)} style={{ padding: '6px 10px', background: 'rgba(255,215,0,0.1)', border: '1px solid rgba(255,215,0,0.2)', borderRadius: 8, color: '#FFD700', fontSize: 10, fontWeight: 700, cursor: 'pointer', fontFamily: 'inherit' }}>View</button>}
+                  <button onClick={() => setTouristTermsEnabled(!touristTermsEnabled)} style={{ width: 44, height: 24, borderRadius: 12, background: touristTermsEnabled ? '#FFD700' : 'rgba(255,255,255,0.1)', border: 'none', cursor: 'pointer', position: 'relative', transition: 'background 0.2s' }}>
+                    <div style={{ width: 18, height: 18, borderRadius: '50%', background: '#fff', position: 'absolute', top: 3, left: touristTermsEnabled ? 23 : 3, transition: 'left 0.2s', boxShadow: '0 1px 3px rgba(0,0,0,0.3)' }} />
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            {/* Local Terms Popup */}
+            {showLocalTerms && (
+              <div style={{ position: 'fixed', inset: 0, zIndex: 99999, background: 'rgba(0,0,0,0.85)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 16 }}>
+                <div style={{ width: '100%', maxWidth: 400, background: '#111', border: '1.5px solid rgba(141,198,63,0.25)', borderRadius: 20, overflow: 'hidden', boxShadow: '0 20px 60px rgba(0,0,0,0.6), 0 0 20px rgba(141,198,63,0.1)' }}>
+                  <div style={{ padding: '16px 16px 12px', borderBottom: '1px solid rgba(255,255,255,0.06)', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                      <span style={{ fontSize: 20 }}>🇮🇩</span>
+                      <span style={{ fontSize: 15, fontWeight: 800, color: '#fff' }}>Local Rental Terms</span>
+                    </div>
+                    <button onClick={() => setShowLocalTerms(false)} style={{ width: 32, height: 32, borderRadius: '50%', background: '#8DC63F', border: 'none', color: '#000', fontSize: 14, fontWeight: 900, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>✕</button>
+                  </div>
+                  <div style={{ padding: '12px 16px 16px', maxHeight: '60vh', overflowY: 'auto' }}>
+                    {['Valid KTP (National ID Card)', 'SIM C (Motorcycle License) or SIM A (Car License)', 'WhatsApp contact number', 'KTP held as collateral during rental', 'Return vehicle with full tank of fuel', 'Late return charged per hour', 'Renter responsible for all traffic violations'].map((term, i, arr) => (
+                      <div key={i} style={{ display: 'flex', alignItems: 'flex-start', gap: 10, padding: '10px 0', borderBottom: i < arr.length - 1 ? '1px solid rgba(255,255,255,0.04)' : 'none' }}>
+                        <span style={{ fontSize: 14, color: '#8DC63F', marginTop: 1 }}>✓</span>
+                        <span style={{ fontSize: 13, color: 'rgba(255,255,255,0.7)', fontWeight: 500, lineHeight: 1.4 }}>{term}</span>
+                      </div>
+                    ))}
+                  </div>
+                  <div style={{ padding: '8px 16px 16px' }}>
+                    <button onClick={() => setShowLocalTerms(false)} style={{ width: '100%', padding: '13px 0', borderRadius: 12, background: '#8DC63F', border: 'none', color: '#000', fontSize: 14, fontWeight: 800, cursor: 'pointer', fontFamily: 'inherit' }}>Close</button>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* Tourist Terms Popup */}
+            {showTouristTerms && (
+              <div style={{ position: 'fixed', inset: 0, zIndex: 99999, background: 'rgba(0,0,0,0.85)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 16 }}>
+                <div style={{ width: '100%', maxWidth: 400, background: '#111', border: '1.5px solid rgba(255,215,0,0.2)', borderRadius: 20, overflow: 'hidden', boxShadow: '0 20px 60px rgba(0,0,0,0.6), 0 0 20px rgba(255,215,0,0.08)' }}>
+                  <div style={{ padding: '16px 16px 12px', borderBottom: '1px solid rgba(255,255,255,0.06)', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                      <span style={{ fontSize: 20 }}>✈️</span>
+                      <span style={{ fontSize: 15, fontWeight: 800, color: '#FFD700' }}>Tourist Rental Terms</span>
+                    </div>
+                    <button onClick={() => setShowTouristTerms(false)} style={{ width: 32, height: 32, borderRadius: '50%', background: '#FFD700', border: 'none', color: '#000', fontSize: 14, fontWeight: 900, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>✕</button>
+                  </div>
+                  <div style={{ padding: '12px 16px 16px', maxHeight: '60vh', overflowY: 'auto' }}>
+                    {['Valid Passport (physical or copy)', 'International Driving Permit (IDP)', 'Small deposit paid in advance to secure booking', 'Bank details must match passport name', 'Proof of hotel/villa stay with remaining days', 'All documents must match (passport, bank, hotel)', 'Emergency local contact required', 'Return vehicle with full tank of fuel', 'Late return charged per hour', 'Renter responsible for damage and third-party costs', 'Vehicle cannot leave the island'].map((term, i, arr) => (
+                      <div key={i} style={{ display: 'flex', alignItems: 'flex-start', gap: 10, padding: '10px 0', borderBottom: i < arr.length - 1 ? '1px solid rgba(255,255,255,0.04)' : 'none' }}>
+                        <span style={{ fontSize: 14, color: '#FFD700', marginTop: 1 }}>✓</span>
+                        <span style={{ fontSize: 13, color: 'rgba(255,255,255,0.7)', fontWeight: 500, lineHeight: 1.4 }}>{term}</span>
+                      </div>
+                    ))}
+                  </div>
+                  <div style={{ padding: '8px 16px 16px' }}>
+                    <button onClick={() => setShowTouristTerms(false)} style={{ width: '100%', padding: '13px 0', borderRadius: 12, background: '#FFD700', border: 'none', color: '#000', fontSize: 14, fontWeight: 800, cursor: 'pointer', fontFamily: 'inherit' }}>Close</button>
+                  </div>
+                </div>
+              </div>
+            )}
+            </>)}
+
+            {/* If agreement already saved — show small confirmation */}
+            {ownerAgreementSaved && (
+              <div style={{ background: 'rgba(0,0,0,0.5)', backdropFilter: 'blur(16px)', border: '1.5px solid rgba(141,198,63,0.15)', borderRadius: 16, padding: '12px 14px', display: 'flex', alignItems: 'center', gap: 10 }}>
+                <div style={{ width: 24, height: 24, borderRadius: 6, background: '#8DC63F', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#000" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+                </div>
+                <div style={{ flex: 1 }}>
+                  <span style={{ fontSize: 12, fontWeight: 700, color: '#8DC63F' }}>Rental Agreement Saved</span>
+                  <p style={{ fontSize: 10, color: 'rgba(255,255,255,0.25)', margin: '2px 0 0' }}>Update from settings menu if needed</p>
+                </div>
+              </div>
+            )}
+
+            {/* Agreement Editor Popup — from side drawer */}
+            {showAgreementEditor && (
+              <div style={{ position: 'fixed', inset: 0, zIndex: 99999, background: 'rgba(0,0,0,0.85)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 16 }}>
+                <div style={{ width: '100%', maxWidth: 420, background: '#111', border: '1.5px solid rgba(141,198,63,0.25)', borderRadius: 20, overflow: 'hidden', boxShadow: '0 20px 60px rgba(0,0,0,0.6), 0 0 20px rgba(141,198,63,0.1)', display: 'flex', flexDirection: 'column', maxHeight: '85vh' }}>
+                  <div style={{ padding: '16px 16px 12px', borderBottom: '1px solid rgba(255,255,255,0.06)', display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexShrink: 0 }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                      <span style={{ fontSize: 18 }}>📋</span>
+                      <span style={{ fontSize: 15, fontWeight: 800, color: '#fff' }}>Update Rental Agreement</span>
+                    </div>
+                    <button onClick={() => setShowAgreementEditor(false)} style={{ width: 32, height: 32, borderRadius: '50%', background: '#8DC63F', border: 'none', color: '#000', fontSize: 14, fontWeight: 900, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>✕</button>
+                  </div>
+                  <div style={{ display: 'flex', gap: 0, flexShrink: 0 }}>
+                    <button onClick={() => setAgreementEditTab('local')} style={{ flex: 1, padding: '12px 0', background: agreementEditTab === 'local' ? 'rgba(255,215,0,0.08)' : 'transparent', border: 'none', borderBottom: agreementEditTab === 'local' ? '2px solid #FFD700' : '2px solid transparent', color: agreementEditTab === 'local' ? '#FFD700' : 'rgba(255,255,255,0.3)', fontSize: 13, fontWeight: 800, cursor: 'pointer', fontFamily: 'inherit' }}>🇮🇩 Local</button>
+                    <button onClick={() => setAgreementEditTab('tourist')} style={{ flex: 1, padding: '12px 0', background: agreementEditTab === 'tourist' ? 'rgba(255,215,0,0.08)' : 'transparent', border: 'none', borderBottom: agreementEditTab === 'tourist' ? '2px solid #FFD700' : '2px solid transparent', color: agreementEditTab === 'tourist' ? '#FFD700' : 'rgba(255,255,255,0.3)', fontSize: 13, fontWeight: 800, cursor: 'pointer', fontFamily: 'inherit' }}>✈️ Tourist</button>
+                  </div>
+                  <div style={{ flex: 1, padding: '12px 16px', overflowY: 'auto' }}>
+                    <textarea value={agreementEditTab === 'local' ? editLocalTerms : editTouristTerms} onChange={e => agreementEditTab === 'local' ? setEditLocalTerms(e.target.value) : setEditTouristTerms(e.target.value)} style={{ width: '100%', minHeight: 250, background: 'rgba(0,0,0,0.3)', border: '1px solid rgba(255,215,0,0.15)', borderRadius: 12, padding: 12, color: 'rgba(255,255,255,0.7)', fontSize: 13, fontWeight: 500, lineHeight: 1.6, resize: 'vertical', fontFamily: 'inherit', outline: 'none', boxSizing: 'border-box' }} />
+                  </div>
+                  <div style={{ padding: '8px 16px 16px', flexShrink: 0 }}>
+                    <button onClick={() => {
+                      try {
+                        const p = JSON.parse(localStorage.getItem('indoo_rental_owner') || '{}')
+                        p.rentalAgreement = { local: editLocalTerms, tourist: editTouristTerms, accepted: true }
+                        localStorage.setItem('indoo_rental_owner', JSON.stringify(p))
+                      } catch {}
+                      setShowAgreementEditor(false)
+                    }} style={{ width: '100%', padding: '13px 0', borderRadius: 12, background: '#8DC63F', border: 'none', color: '#000', fontSize: 14, fontWeight: 800, cursor: 'pointer', fontFamily: 'inherit', boxShadow: '0 4px 16px rgba(141,198,63,0.3)' }}>Save Agreement</button>
+                  </div>
+                </div>
+              </div>
+            )}
+
+          </div>
+        )}
 
         {/* ═══ STEP 2: PREVIEW ═══ */}
         {step === 3 && (
@@ -578,6 +1023,175 @@ export default function MotorbikeListingForm({ open, onClose, onSubmit }) {
           </div>
         )}
       </div>
+
+      {/* My Listings Popup */}
+      {showMyListings && (
+        <div style={{ position: 'fixed', inset: 0, zIndex: 99999, backgroundImage: 'url(https://ik.imagekit.io/nepgaxllc/ChatGPT%20Image%20Apr%2018,%202026,%2011_13_56%20PM.png)', backgroundSize: 'cover', backgroundPosition: 'center', display: 'flex', flexDirection: 'column' }}>
+          <div style={{ position: 'absolute', inset: 0, background: 'rgba(0,0,0,0.55)', pointerEvents: 'none' }} />
+          {/* Header */}
+          <div style={{ padding: '16px 16px 12px', borderBottom: '1px solid rgba(255,255,255,0.06)', display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexShrink: 0, position: 'relative', zIndex: 1 }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+              <span style={{ fontSize: 18 }}>📦</span>
+              <div>
+                <span style={{ fontSize: 15, fontWeight: 800, color: '#fff' }}>My Listings</span>
+                <span style={{ fontSize: 11, color: 'rgba(255,255,255,0.25)', marginLeft: 8 }}>{myListings.length} total</span>
+              </div>
+            </div>
+            <button onClick={() => setShowMyListings(false)} style={{ width: 32, height: 32, borderRadius: '50%', background: '#8DC63F', border: 'none', color: '#000', fontSize: 14, fontWeight: 900, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>✕</button>
+          </div>
+
+          {/* Listings */}
+          <div style={{ flex: 1, overflowY: 'auto', padding: '12px 16px', position: 'relative', zIndex: 1 }}>
+            {myListings.length === 0 ? (
+              <div style={{ textAlign: 'center', padding: '60px 20px' }}>
+                <span style={{ fontSize: 40, display: 'block', marginBottom: 16 }}>🏍️</span>
+                <span style={{ fontSize: 14, fontWeight: 700, color: 'rgba(255,255,255,0.3)' }}>No listings yet</span>
+                <p style={{ fontSize: 12, color: 'rgba(255,255,255,0.15)', marginTop: 4 }}>Your published listings will appear here</p>
+              </div>
+            ) : (
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 12, paddingTop: 140 }}>
+                {myListings.map((l, i) => (
+                  <div key={l.ref || i} style={{ background: 'rgba(0,0,0,0.5)', backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)', border: '1.5px solid rgba(141,198,63,0.15)', borderRadius: 16, overflow: 'hidden', boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.04), 0 4px 16px rgba(0,0,0,0.3)' }}>
+                    {/* Card top — image (tappable) + info */}
+                    <div style={{ display: 'flex', gap: 12, padding: 12 }}>
+                      {l.image ? (
+                        <img src={l.image} alt="" onClick={() => setPreviewListingIdx(i)} style={{ width: 80, height: 60, objectFit: 'cover', borderRadius: 10, flexShrink: 0, cursor: 'pointer', border: '1.5px solid rgba(255,215,0,0.2)', transition: 'border-color 0.2s' }} />
+                      ) : (
+                        <div onClick={() => setPreviewListingIdx(i)} style={{ width: 80, height: 60, borderRadius: 10, background: 'rgba(255,255,255,0.04)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, fontSize: 24, cursor: 'pointer' }}>🏍️</div>
+                      )}
+                      <div style={{ flex: 1, minWidth: 0 }}>
+                        <div style={{ fontSize: 14, fontWeight: 800, color: '#fff', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{l.title || 'Untitled'}</div>
+                        <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.3)', marginTop: 2 }}>{l.extra_fields?.make} {l.extra_fields?.model} · {l.extra_fields?.cc}cc</div>
+                        <div style={{ fontSize: 13, fontWeight: 800, color: '#8DC63F', marginTop: 4 }}>
+                          {l.price_day ? `Rp ${l.price_day}/day` : 'No price set'}
+                        </div>
+                      </div>
+                      {/* Status badge */}
+                      <div style={{ padding: '4px 10px', borderRadius: 8, background: l.status === 'live' ? 'rgba(141,198,63,0.12)' : 'rgba(239,68,68,0.15)', border: `1px solid ${l.status === 'live' ? 'rgba(141,198,63,0.3)' : 'rgba(239,68,68,0.3)'}`, alignSelf: 'flex-start', animation: l.status === 'live' ? 'liveGlow 2s ease-in-out infinite' : 'none' }}>
+                        <span style={{ fontSize: 9, fontWeight: 800, color: l.status === 'live' ? '#8DC63F' : '#EF4444', letterSpacing: '0.05em', textTransform: 'uppercase', animation: l.status === 'live' ? 'livePulse 2s ease-in-out infinite' : 'none' }}>{l.status === 'live' ? '● Live' : '○ Offline'}</span>
+                      </div>
+                    </div>
+
+                    {/* Card bottom — actions */}
+                    <div style={{ display: 'flex', gap: 6, padding: '8px 10px' }}>
+                      {/* Toggle live/offline */}
+                      <button onClick={() => {
+                        const updated = [...myListings]
+                        updated[i] = { ...updated[i], status: updated[i].status === 'live' ? 'offline' : 'live' }
+                        setMyListings(updated)
+                        localStorage.setItem('indoo_my_listings', JSON.stringify(updated))
+                      }} style={{ flex: 1, padding: '9px 0', background: '#FFD700', border: 'none', borderRadius: 10, color: '#000', fontSize: 10, fontWeight: 800, cursor: 'pointer', fontFamily: 'inherit', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 3, boxShadow: '0 2px 6px rgba(255,215,0,0.3)' }}>
+                        {l.status === 'live' ? '⏸ Offline' : '▶ Live'}
+                      </button>
+                      {/* Edit */}
+                      <button onClick={() => { setShowMyListings(false); onClose('edit', l) }} style={{ flex: 1, padding: '9px 0', background: '#8DC63F', border: 'none', borderRadius: 10, color: '#000', fontSize: 10, fontWeight: 800, cursor: 'pointer', fontFamily: 'inherit', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 3, boxShadow: '0 2px 6px rgba(141,198,63,0.3)' }}>
+                        ✎ Edit
+                      </button>
+                      {/* Delete */}
+                      <button onClick={() => {
+                        const updated = myListings.filter((_, j) => j !== i)
+                        setMyListings(updated)
+                        localStorage.setItem('indoo_my_listings', JSON.stringify(updated))
+                      }} style={{ padding: '9px 12px', background: 'rgba(239,68,68,0.08)', border: '1px solid rgba(239,68,68,0.2)', borderRadius: 10, color: '#EF4444', fontSize: 10, fontWeight: 800, cursor: 'pointer', fontFamily: 'inherit', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 3, boxShadow: 'inset 0 0 8px rgba(239,68,68,0.05)' }}>
+                        🗑
+                      </button>
+                    </div>
+
+                    {/* Ref + date */}
+                    <div style={{ padding: '6px 12px 8px', display: 'flex', justifyContent: 'space-between' }}>
+                      <span style={{ fontSize: 9, fontWeight: 700, color: 'rgba(141,198,63,0.4)' }}>{l.ref}</span>
+                      <span style={{ fontSize: 9, color: 'rgba(255,255,255,0.15)' }}>{l.created_at ? new Date(l.created_at).toLocaleDateString() : ''}</span>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+
+          {/* Listing Preview Card */}
+          {previewListingIdx !== null && myListings[previewListingIdx] && (() => {
+            const pl = myListings[previewListingIdx]
+            return (
+              <div style={{ position: 'fixed', inset: 0, zIndex: 999999, backgroundImage: 'url(https://ik.imagekit.io/nepgaxllc/ChatGPT%20Image%20Apr%2018,%202026,%2011_13_56%20PM.png)', backgroundSize: 'cover', backgroundPosition: 'center', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 16 }} onClick={() => setPreviewListingIdx(null)}>
+                <div style={{ position: 'absolute', inset: 0, background: 'rgba(0,0,0,0.6)', pointerEvents: 'none' }} />
+                {/* Container window */}
+                <div onClick={e => e.stopPropagation()} style={{
+                  width: '100%', maxWidth: 380,
+                  background: 'rgba(0,0,0,0.6)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)',
+                  border: '1.5px solid rgba(141,198,63,0.2)', borderRadius: 20,
+                  overflow: 'hidden',
+                  boxShadow: '0 20px 60px rgba(0,0,0,0.5), 0 0 20px rgba(141,198,63,0.1), inset 0 1px 0 rgba(255,255,255,0.04)',
+                }}>
+                  {/* Header bar */}
+                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '12px 14px', borderBottom: '1px solid rgba(255,255,255,0.06)' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                      <span style={{ padding: '4px 10px', borderRadius: 6, background: pl.status === 'live' ? 'rgba(141,198,63,0.12)' : 'rgba(239,68,68,0.15)', border: `1px solid ${pl.status === 'live' ? 'rgba(141,198,63,0.25)' : 'rgba(239,68,68,0.3)'}`, fontSize: 9, fontWeight: 800, color: pl.status === 'live' ? '#8DC63F' : '#EF4444', letterSpacing: '0.04em', animation: pl.status === 'live' ? 'livePulse 2s ease-in-out infinite' : 'none' }}>{pl.status === 'live' ? '● LIVE' : '○ OFFLINE'}</span>
+                      <span style={{ fontSize: 10, fontWeight: 700, color: 'rgba(255,215,0,0.5)' }}>{pl.ref}</span>
+                    </div>
+                    <button onClick={() => setPreviewListingIdx(null)} style={{ width: 30, height: 30, borderRadius: '50%', background: '#8DC63F', border: 'none', color: '#000', fontSize: 13, fontWeight: 900, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>✕</button>
+                  </div>
+
+                  {/* Image — full width, 16:9 */}
+                  {pl.image ? (
+                    <img src={pl.image} alt="" style={{ width: '100%', aspectRatio: '16/9', objectFit: 'cover', display: 'block' }} />
+                  ) : (
+                    <div style={{ width: '100%', aspectRatio: '16/9', background: 'rgba(255,255,255,0.02)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 48 }}>🏍️</div>
+                  )}
+
+                  {/* Info section */}
+                  <div style={{ padding: '14px 14px 10px' }}>
+                    {/* Make & Model */}
+                    <div style={{ fontSize: 18, fontWeight: 900, color: '#fff', letterSpacing: '-0.02em' }}>{pl.extra_fields?.make} <span style={{ color: '#8DC63F' }}>{pl.extra_fields?.model}</span></div>
+                    <div style={{ display: 'flex', gap: 6, marginTop: 6, flexWrap: 'wrap' }}>
+                      {pl.extra_fields?.cc && <span style={{ padding: '3px 8px', borderRadius: 6, background: 'rgba(255,255,255,0.04)', fontSize: 10, fontWeight: 700, color: 'rgba(255,255,255,0.4)' }}>{pl.extra_fields.cc}cc</span>}
+                      {pl.extra_fields?.year && <span style={{ padding: '3px 8px', borderRadius: 6, background: 'rgba(255,255,255,0.04)', fontSize: 10, fontWeight: 700, color: 'rgba(255,255,255,0.4)' }}>{pl.extra_fields.year}</span>}
+                      {pl.extra_fields?.transmission && <span style={{ padding: '3px 8px', borderRadius: 6, background: 'rgba(255,255,255,0.04)', fontSize: 10, fontWeight: 700, color: 'rgba(255,255,255,0.4)' }}>{pl.extra_fields.transmission}</span>}
+                      {pl.condition && <span style={{ padding: '3px 8px', borderRadius: 6, background: 'rgba(141,198,63,0.08)', border: '1px solid rgba(141,198,63,0.15)', fontSize: 10, fontWeight: 700, color: '#8DC63F' }}>{pl.condition}</span>}
+                    </div>
+                  </div>
+
+                  {/* Pricing — 3 equal columns */}
+                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', padding: '0 14px 14px', gap: 8 }}>
+                    {[
+                      { label: '1 Day', price: pl.price_day },
+                      { label: '1 Week', price: pl.price_week },
+                      { label: '1 Month', price: pl.price_month },
+                    ].map((p, pi) => (
+                      <div key={pi} style={{ padding: '10px 6px', background: 'rgba(0,0,0,0.3)', border: '1px solid rgba(141,198,63,0.1)', borderRadius: 12, textAlign: 'center', boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.03)' }}>
+                        <div style={{ fontSize: 8, fontWeight: 700, color: 'rgba(255,255,255,0.25)', letterSpacing: '0.06em', marginBottom: 4 }}>{p.label.toUpperCase()}</div>
+                        <div style={{ fontSize: 13, fontWeight: 900, color: p.price ? '#8DC63F' : 'rgba(255,255,255,0.15)', whiteSpace: 'nowrap' }}>{p.price ? `Rp ${p.price}` : '—'}</div>
+                      </div>
+                    ))}
+                  </div>
+
+                  {/* Action buttons */}
+                  <div style={{ display: 'flex', gap: 8, padding: '0 14px 14px' }}>
+                    <button onClick={() => {
+                      const updated = [...myListings]
+                      updated[previewListingIdx] = { ...updated[previewListingIdx], status: updated[previewListingIdx].status === 'live' ? 'offline' : 'live' }
+                      setMyListings(updated)
+                      localStorage.setItem('indoo_my_listings', JSON.stringify(updated))
+                    }} style={{ flex: 1, padding: '11px 0', borderRadius: 12, background: '#FFD700', border: 'none', color: '#000', fontSize: 12, fontWeight: 800, cursor: 'pointer', fontFamily: 'inherit', boxShadow: '0 2px 8px rgba(255,215,0,0.3)' }}>
+                      {pl.status === 'live' ? '⏸ Go Offline' : '▶ Go Live'}
+                    </button>
+                    <button onClick={() => { setPreviewListingIdx(null); setShowMyListings(false); onClose('edit', pl) }} style={{ flex: 1, padding: '11px 0', borderRadius: 12, background: '#8DC63F', border: 'none', color: '#000', fontSize: 12, fontWeight: 800, cursor: 'pointer', fontFamily: 'inherit', boxShadow: '0 2px 8px rgba(141,198,63,0.3)' }}>
+                      ✎ Edit
+                    </button>
+                    <button onClick={() => {
+                      const updated = myListings.filter((_, j) => j !== previewListingIdx)
+                      setMyListings(updated)
+                      localStorage.setItem('indoo_my_listings', JSON.stringify(updated))
+                      setPreviewListingIdx(null)
+                    }} style={{ padding: '11px 14px', borderRadius: 12, background: 'rgba(239,68,68,0.1)', border: '1px solid rgba(239,68,68,0.2)', color: '#EF4444', fontSize: 12, fontWeight: 800, cursor: 'pointer', fontFamily: 'inherit' }}>
+                      🗑
+                    </button>
+                  </div>
+                </div>
+              </div>
+            )
+          })()}
+        </div>
+      )}
 
       {step < 4 && (
         <FormFooter step={step} onNext={() => step === 3 ? handleSubmit() : setStep(s => s + 1)} onDraft={() => {}} canNext={step === 0 ? !!(make && model && cc) : step === 2 ? !!daily : true} submitting={submitting} nextLabel={step === 3 ? 'Publish Listing' : step === 2 ? 'Preview →' : step === 1 ? 'Set Pricing →' : 'Next →'} />
