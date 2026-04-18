@@ -365,6 +365,7 @@ export default function RentalSearchScreen({ onClose }) {
   const [priceSort, setPriceSort] = useState('')
   const [cardImgIdx, setCardImgIdx] = useState({})
   const [flippedCards, setFlippedCards] = useState({})
+  const [cardCorner, setCardCorner] = useState({}) // { [id]: 'details' | 'gallery' | 'reviews' | null }
 
   // Merge demo listings with owner-published live listings
   const ownerListings = (() => {
@@ -636,48 +637,117 @@ export default function RentalSearchScreen({ onClose }) {
                 }}>
                   <div style={{ position: 'absolute', top: 0, left: '10%', right: '10%', height: 1, background: 'linear-gradient(90deg, transparent, rgba(141,198,63,0.2), transparent)', pointerEvents: 'none', zIndex: 2 }} />
 
-                  {/* Image section — corner buttons for image switching */}
-                  <div onClick={() => setSelected(l)} style={{ position: 'relative', width: '100%', aspectRatio: '16/9', overflow: 'hidden', background: '#0a0a0a', cursor: 'pointer' }}>
-                    <img src={imgs[currentImg]} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block', transition: 'opacity 0.25s' }} />
+                  {/* Image section — 4 corner buttons transform content */}
+                  {(() => {
+                    const activeCorner = cardCorner[l.id] || null
+                    const cornerBtn = (pos, icon, label, cornerId) => {
+                      const isActive = activeCorner === cornerId
+                      return (
+                        <button onClick={e => { e.stopPropagation(); setCardCorner(p => ({...p,[l.id]: isActive ? null : cornerId})) }} style={{
+                          position: 'absolute', ...pos, width: 30, height: 30, borderRadius: '50%',
+                          background: isActive ? '#FFD700' : 'rgba(0,0,0,0.45)',
+                          backdropFilter: 'blur(6px)', border: isActive ? 'none' : '2px solid rgba(255,215,0,0.3)',
+                          display: 'flex', alignItems: 'center', justifyContent: 'center',
+                          cursor: 'pointer', zIndex: 6, padding: 0,
+                          boxShadow: isActive ? '0 0 12px rgba(255,215,0,0.5)' : '0 0 6px rgba(255,215,0,0.15)',
+                          transition: 'all 0.25s', color: isActive ? '#000' : '#FFD700',
+                          fontSize: 13,
+                        }}>{icon}</button>
+                      )
+                    }
 
-                    {l.isOwnerListing && <div style={{ position:'absolute',top:'50%',left:8,transform:'translateY(-50%)',padding:'3px 8px',background:'#8DC63F',borderRadius:6,fontSize:8,fontWeight:900,color:'#000',letterSpacing:'0.04em',zIndex:3 }}>YOUR LISTING</div>}
-                    {l.extra_fields?.withDriver && <div style={{ position:'absolute',top:'50%',right:8,transform:'translateY(-50%)',width:26,height:26,borderRadius:'50%',background:'rgba(0,0,0,0.5)',backdropFilter:'blur(8px)',border:'1.5px solid rgba(141,198,63,0.3)',display:'flex',alignItems:'center',justifyContent:'center',color:'#8DC63F',zIndex:3 }}><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3"/></svg></div>}
+                    return (
+                    <div onClick={() => !activeCorner && setSelected(l)} style={{ position: 'relative', width: '100%', aspectRatio: '16/9', overflow: 'hidden', background: '#0a0a0a', cursor: activeCorner ? 'default' : 'pointer' }}>
 
-                    {/* 4 Corner image buttons */}
-                    {imgs.length > 1 && (() => {
-                      const cornerStyle = (isActive) => ({
-                        width: 28, height: 28, borderRadius: '50%',
-                        background: isActive ? '#8DC63F' : 'rgba(0,0,0,0.4)',
-                        backdropFilter: 'blur(6px)',
-                        border: isActive ? '2px solid #8DC63F' : '2px solid rgba(255,255,255,0.15)',
-                        display: 'flex', alignItems: 'center', justifyContent: 'center',
-                        cursor: 'pointer', zIndex: 5, padding: 0,
-                        boxShadow: isActive ? '0 0 10px rgba(141,198,63,0.4)' : 'none',
-                        transition: 'all 0.2s',
-                      })
-                      const dotStyle = (isActive) => ({
-                        width: 8, height: 8, borderRadius: '50%',
-                        background: isActive ? '#000' : 'rgba(255,255,255,0.5)',
-                      })
-                      // Map corners: TL=0(main), TR=1, BL=2, BR=3
-                      const positions = [
-                        { top: 8, left: 8 },
-                        { top: 8, right: 8 },
-                        { bottom: 8, left: 8 },
-                        { bottom: 8, right: 8 },
-                      ]
-                      return positions.slice(0, Math.min(imgs.length, 4)).map((pos, pi) => (
-                        <button key={pi} onClick={e => { e.stopPropagation(); setCardImgIdx(p => ({...p,[l.id]:pi})) }} style={{ position: 'absolute', ...pos, ...cornerStyle(currentImg === pi) }}>
-                          <div style={dotStyle(currentImg === pi)} />
-                        </button>
-                      ))
-                    })()}
+                      {/* Default: Main image */}
+                      {!activeCorner && (
+                        <>
+                          <img src={imgs[currentImg]} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }} />
+                          {l.isOwnerListing && <div style={{ position:'absolute',top:'50%',left:'50%',transform:'translate(-50%,-50%)',padding:'4px 12px',background:'#8DC63F',borderRadius:8,fontSize:9,fontWeight:900,color:'#000',letterSpacing:'0.04em',zIndex:3,opacity:0.9 }}>YOUR LISTING</div>}
+                          {l.extra_fields?.withDriver && <div style={{ position:'absolute',bottom:8,left:'50%',transform:'translateX(-50%)',padding:'3px 10px',background:'rgba(0,0,0,0.5)',backdropFilter:'blur(8px)',border:'1px solid rgba(141,198,63,0.3)',borderRadius:8,display:'flex',alignItems:'center',gap:4,zIndex:3 }}><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="#8DC63F" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3"/></svg><span style={{fontSize:9,fontWeight:700,color:'#8DC63F'}}>Driver</span></div>}
+                        </>
+                      )}
 
-                    {/* Flip button — center bottom */}
-                    <button onClick={e => { e.stopPropagation(); setFlippedCards(p => ({...p,[l.id]:true})) }} style={{ position:'absolute',bottom:8,left:'50%',transform:'translateX(-50%)',width:34,height:34,borderRadius:'50%',background:'rgba(0,0,0,0.5)',backdropFilter:'blur(8px)',border:'2px solid #8DC63F',display:'flex',alignItems:'center',justifyContent:'center',cursor:'pointer',zIndex:5,animation:'flipGlow 2s ease-in-out infinite',padding:0 }}>
-                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#8DC63F" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d="M18.9 8a8.1 8.1 0 0 0-2.2-3.8A8 8 0 0 0 4 12c0 2.2.5 3.9 1.3 5.3"/><path d="M12 4a8 8 0 0 1 8 8c0 2.5-.7 4.2-1.6 5.5"/><path d="M8 12a4 4 0 0 1 8 0c0 1.4-.3 2.5-.8 3.4"/><path d="M12 8a4 4 0 0 0-4 4c0 1.8.5 3.2 1.2 4.2"/><path d="M12 12v8"/></svg>
-                    </button>
-                  </div>
+                      {/* Corner: Details */}
+                      {activeCorner === 'details' && (
+                        <div style={{ width:'100%',height:'100%',background:'rgba(0,0,0,0.8)',backdropFilter:'blur(16px)',padding:'14px',display:'flex',flexDirection:'column',justifyContent:'center',gap:8,animation:'fadeIn 0.25s ease' }}>
+                          <div style={{fontSize:15,fontWeight:900,color:'#FFD700'}}>Vehicle Details</div>
+                          <div style={{display:'flex',flexWrap:'wrap',gap:5}}>
+                            {l.extra_fields?.brand && <span style={{padding:'4px 10px',background:'rgba(255,215,0,0.08)',border:'1px solid rgba(255,215,0,0.2)',borderRadius:8,fontSize:11,fontWeight:700,color:'#FFD700'}}>{l.extra_fields.brand}</span>}
+                            {l.extra_fields?.model && <span style={{padding:'4px 10px',background:'rgba(255,255,255,0.04)',border:'1px solid rgba(255,255,255,0.08)',borderRadius:8,fontSize:11,fontWeight:700,color:'rgba(255,255,255,0.6)'}}>{l.extra_fields.model}</span>}
+                            {l.extra_fields?.year && <span style={{padding:'4px 10px',background:'rgba(255,255,255,0.04)',border:'1px solid rgba(255,255,255,0.08)',borderRadius:8,fontSize:11,fontWeight:700,color:'rgba(255,255,255,0.5)'}}>{l.extra_fields.year}</span>}
+                            {l.extra_fields?.cc && <span style={{padding:'4px 10px',background:'rgba(255,255,255,0.04)',border:'1px solid rgba(255,255,255,0.08)',borderRadius:8,fontSize:11,fontWeight:700,color:'rgba(255,255,255,0.5)'}}>{l.extra_fields.cc}cc</span>}
+                            {l.extra_fields?.transmission && <span style={{padding:'4px 10px',background:'rgba(255,255,255,0.04)',border:'1px solid rgba(255,255,255,0.08)',borderRadius:8,fontSize:11,fontWeight:700,color:'rgba(255,255,255,0.5)'}}>{l.extra_fields.transmission}</span>}
+                            {l.extra_fields?.seats && <span style={{padding:'4px 10px',background:'rgba(255,255,255,0.04)',border:'1px solid rgba(255,255,255,0.08)',borderRadius:8,fontSize:11,fontWeight:700,color:'rgba(255,255,255,0.5)'}}>{l.extra_fields.seats} seats</span>}
+                            {l.extra_fields?.withDriver && <span style={{padding:'4px 10px',background:'rgba(141,198,63,0.08)',border:'1px solid rgba(141,198,63,0.2)',borderRadius:8,fontSize:11,fontWeight:700,color:'#8DC63F'}}>🚗 Driver</span>}
+                          </div>
+                          {l.features?.length > 0 && <div style={{display:'flex',flexWrap:'wrap',gap:4,marginTop:2}}>{l.features.slice(0,6).map((f,fi) => <span key={fi} style={{fontSize:10,color:'rgba(255,255,255,0.4)',fontWeight:600}}>✓ {f}</span>)}</div>}
+                        </div>
+                      )}
+
+                      {/* Corner: Gallery */}
+                      {activeCorner === 'gallery' && (
+                        <div style={{ width:'100%',height:'100%',background:'rgba(0,0,0,0.85)',padding:'10px',display:'grid',gridTemplateColumns:'repeat(3,1fr)',gap:6,alignContent:'center',animation:'fadeIn 0.25s ease' }}>
+                          {imgs.slice(0,6).map((img,gi) => (
+                            <div key={gi} onClick={e => { e.stopPropagation(); setCardImgIdx(p => ({...p,[l.id]:gi})); setCardCorner(p => ({...p,[l.id]:null})) }} style={{
+                              borderRadius:8,overflow:'hidden',cursor:'pointer',aspectRatio:'1',
+                              border: currentImg===gi ? '2px solid #FFD700' : '2px solid rgba(255,255,255,0.08)',
+                              boxShadow: currentImg===gi ? '0 0 8px rgba(255,215,0,0.3)' : 'none',
+                              transition:'all 0.2s',
+                            }}>
+                              <img src={img} alt="" style={{width:'100%',height:'100%',objectFit:'cover',display:'block'}} />
+                            </div>
+                          ))}
+                        </div>
+                      )}
+
+                      {/* Corner: Reviews */}
+                      {activeCorner === 'reviews' && (
+                        <div style={{ width:'100%',height:'100%',background:'rgba(0,0,0,0.8)',backdropFilter:'blur(16px)',padding:'14px',display:'flex',flexDirection:'column',justifyContent:'center',gap:8,animation:'fadeIn 0.25s ease' }}>
+                          <div style={{display:'flex',alignItems:'center',gap:6}}>
+                            <span style={{fontSize:28,fontWeight:900,color:'#FFD700'}}>{l.rating||'—'}</span>
+                            <div>
+                              <div style={{display:'flex',gap:2}}>{[1,2,3,4,5].map(s => <span key={s} style={{fontSize:14,color:s<=Math.round(l.rating||0)?'#FFD700':'rgba(255,255,255,0.1)'}}>★</span>)}</div>
+                              <div style={{fontSize:10,color:'rgba(255,255,255,0.3)',marginTop:2}}>{l.review_count} reviews</div>
+                            </div>
+                          </div>
+                          {/* Demo reviews */}
+                          <div style={{display:'flex',flexDirection:'column',gap:6,marginTop:4}}>
+                            {[
+                              {name:'Made W.',text:'Great condition, very clean!',stars:5},
+                              {name:'Sarah L.',text:'Good value for the price.',stars:4},
+                            ].map((r,ri) => (
+                              <div key={ri} style={{padding:'8px 10px',background:'rgba(255,255,255,0.03)',borderRadius:10,border:'1px solid rgba(255,255,255,0.04)'}}>
+                                <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:3}}>
+                                  <span style={{fontSize:11,fontWeight:700,color:'rgba(255,255,255,0.6)'}}>{r.name}</span>
+                                  <span style={{fontSize:10,color:'#FFD700'}}>{Array(r.stars).fill('★').join('')}</span>
+                                </div>
+                                <div style={{fontSize:11,color:'rgba(255,255,255,0.35)',lineHeight:1.3}}>{r.text}</div>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+
+                      {/* 4 Yellow corner buttons — always visible */}
+                      {cornerBtn({top:8,left:8},'📋','Details','details')}
+                      {cornerBtn({top:8,right:8},'🖼️','Gallery','gallery')}
+                      {cornerBtn({bottom:8,left:8},'⭐','Reviews','reviews')}
+                      <button onClick={e => { e.stopPropagation(); setFlippedCards(p => ({...p,[l.id]:true})) }} style={{
+                        position:'absolute',bottom:8,right:8,width:30,height:30,borderRadius:'50%',
+                        background:'rgba(0,0,0,0.45)',backdropFilter:'blur(6px)',border:'2px solid #8DC63F',
+                        display:'flex',alignItems:'center',justifyContent:'center',
+                        cursor:'pointer',zIndex:6,padding:0,
+                        animation:'flipGlow 2s ease-in-out infinite',
+                        color:'#8DC63F',fontSize:13,
+                      }}>
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#8DC63F" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M18.9 8a8.1 8.1 0 0 0-2.2-3.8A8 8 0 0 0 4 12c0 2.2.5 3.9 1.3 5.3"/><path d="M12 4a8 8 0 0 1 8 8c0 2.5-.7 4.2-1.6 5.5"/><path d="M8 12a4 4 0 0 1 8 0c0 1.4-.3 2.5-.8 3.4"/><path d="M12 8a4 4 0 0 0-4 4c0 1.8.5 3.2 1.2 4.2"/><path d="M12 12v8"/></svg>
+                      </button>
+
+                      <style>{`@keyframes fadeIn { from { opacity:0 } to { opacity:1 } }`}</style>
+                    </div>
+                    )
+                  })()}
 
                   {/* Front info */}
                   <div onClick={() => setSelected(l)} style={{ padding:'12px 14px 14px',display:'flex',flexDirection:'column',gap:6,cursor:'pointer' }}>
