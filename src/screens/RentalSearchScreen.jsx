@@ -499,7 +499,7 @@ export default function RentalSearchScreen({ onClose }) {
     return (
       <VehicleDirectory
         vehicleType={vehicleType}
-        onSelectModel={(model) => { setSelectedModel(model); setActiveFilter([vehicleType]); setSearch(model.name); setView('browse') }}
+        onSelectModel={(model) => { setSelectedModel(model); setActiveFilter([vehicleType]); setSearch(model.name.split(' ')[0]); setView('browse') }}
         onBack={() => setView('vehicles')}
       />
     )
