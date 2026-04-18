@@ -17,9 +17,10 @@ import RentalRenterSignUpScreen from './RentalRenterSignUpScreen'
 import SectionCTAButton from '@/components/ui/SectionCTAButton'
 import { hasVisitedSection, markSectionVisited } from '@/services/sectionVisitService'
 import PriceCalculator from '@/components/rentals/PriceCalculator'
+import { RentalChat, RentalBookingFlow } from '@/domains/rentals/components/RentalBooking'
 import styles from './RentalSearchScreen.module.css'
 
-function RentalDetail({ listing, onClose, onChat }) {
+function RentalDetail({ listing, onClose, onChat, onBook }) {
   if (!listing) return null
 
   const extraEntries = listing.extra_fields
@@ -101,14 +102,19 @@ function RentalDetail({ listing, onClose, onChat }) {
         </div>
       </div>
 
-      {/* Chat CTA */}
-      <button className={styles.chatBtn} onClick={() => onChat?.(listing)}>
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-          <path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/>
-        </svg>
-        Chat with Owner
-      </button>
-      <span className={styles.commissionNote}>10% service fee · Secure in-app booking</span>
+      {/* Action buttons */}
+      <div style={{ display: 'flex', gap: 10, padding: '0 16px 8px' }}>
+        <button className={styles.chatBtn} onClick={() => onChat?.(listing)} style={{ flex: 1 }}>
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/>
+          </svg>
+          Chat
+        </button>
+        <button onClick={() => onBook?.(listing)} style={{ flex: 1, padding: '14px 0', background: '#FFD700', border: 'none', borderRadius: 14, color: '#000', fontSize: 14, fontWeight: 800, cursor: 'pointer', fontFamily: 'inherit', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6, boxShadow: '0 2px 10px rgba(255,215,0,0.3)' }}>
+          🏍️ Book Now
+        </button>
+      </div>
+      <span className={styles.commissionNote}>10% deposit to confirm · Pay balance on pickup</span>
     </div>
   )
 }
@@ -316,10 +322,44 @@ export default function RentalSearchScreen({ onClose }) {
   const [rentalCategoryOpen, setRentalListingOpen] = useState(false)
   const [renterSignUpOpen, setRenterSignUpOpen] = useState(false)
   const [calcVehicle, setCalcVehicle] = useState(null)
+  const [chatListing, setChatListing] = useState(null)
+  const [bookingListing, setBookingListing] = useState(null)
+
+  // Merge demo listings with owner-published live listings
+  const ownerListings = (() => {
+    try {
+      return JSON.parse(localStorage.getItem('indoo_my_listings') || '[]')
+        .filter(l => l.status === 'live')
+        .map(l => ({
+          id: l.ref,
+          title: l.title,
+          description: l.description || '',
+          category: l.category || 'Motorcycles',
+          sub_category: l.extra_fields?.transmission || l.category || 'Matic',
+          city: l.city || '',
+          price_day: Number(String(l.price_day).replace(/\./g, '')) || 0,
+          price_week: Number(String(l.price_week).replace(/\./g, '')) || 0,
+          price_month: Number(String(l.price_month).replace(/\./g, '')) || 0,
+          condition: l.condition?.toLowerCase().replace(' ', '_') || 'good',
+          status: 'active',
+          owner_type: 'owner',
+          images: l.images || (l.image ? [l.image] : []),
+          features: [l.extra_fields?.cc && `${l.extra_fields.cc}cc`, l.extra_fields?.transmission, l.extra_fields?.fuelType].filter(Boolean),
+          rating: (4 + Math.random()).toFixed(1),
+          review_count: Math.floor(Math.random() * 20),
+          view_count: Math.floor(Math.random() * 200) + 10,
+          extra_fields: l.extra_fields,
+          isOwnerListing: true,
+        }))
+    } catch { return [] }
+  })()
 
   let listings = search.trim()
     ? searchListings(search)
     : category !== 'all' ? getListingsByCategory(category) : getListings()
+
+  // Add owner listings to the pool
+  listings = [...ownerListings, ...listings]
 
   if (activeFilter && !search.trim() && category === 'all') {
     listings = listings.filter(l => activeFilter.includes(l.category) || activeFilter.includes(l.sub_category))
@@ -327,6 +367,17 @@ export default function RentalSearchScreen({ onClose }) {
 
   if (search.trim() && category !== 'all') {
     listings = listings.filter(l => l.category === category)
+  }
+
+  // Also filter owner listings by search
+  if (search.trim()) {
+    const q = search.toLowerCase()
+    listings = listings.filter(l =>
+      l.title?.toLowerCase().includes(q) ||
+      l.description?.toLowerCase().includes(q) ||
+      l.category?.toLowerCase().includes(q) ||
+      l.city?.toLowerCase().includes(q)
+    )
   }
 
   // Modal screens — always rendered regardless of view
@@ -352,7 +403,13 @@ export default function RentalSearchScreen({ onClose }) {
     />
     {rentalCategoryOpen && <RentalCategoryRouter
       open={rentalCategoryOpen}
-      onClose={() => setRentalListingOpen(false)}
+      onClose={(action) => {
+        setRentalListingOpen(false)
+        if (action === 'viewMarketplace') {
+          setActiveFilter(['Motorcycles'])
+          setView('browse')
+        }
+      }}
       onSubmit={async (listing) => { console.log('[rental] New listing:', listing) }}
     />}
   </>
@@ -495,7 +552,8 @@ export default function RentalSearchScreen({ onClose }) {
           {listings.length === 0 && <div className={styles.empty}>No rentals found</div>}
 
           {listings.map(l => (
-            <button key={l.id} className={styles.card} onClick={() => setSelected(l)}>
+            <button key={l.id} className={styles.card} onClick={() => setSelected(l)} style={{ position: 'relative' }}>
+              {l.isOwnerListing && <div style={{ position: 'absolute', top: 6, left: 6, padding: '2px 6px', background: '#8DC63F', borderRadius: 4, fontSize: 7, fontWeight: 900, color: '#000', letterSpacing: '0.04em', zIndex: 2 }}>YOUR LISTING</div>}
               <img src={l.images?.[0]} alt="" className={styles.cardImg} />
               <div className={styles.cardBody}>
                 <span className={styles.cardTitle}>{l.title}</span>
@@ -520,7 +578,13 @@ export default function RentalSearchScreen({ onClose }) {
       </div>
 
       {/* Detail view */}
-      {selected && <RentalDetail listing={selected} onClose={() => setSelected(null)} />}
+      {selected && <RentalDetail listing={selected} onClose={() => setSelected(null)} onChat={(l) => { setSelected(null); setChatListing(l) }} onBook={(l) => { setSelected(null); setBookingListing(l) }} />}
+
+      {/* Chat window */}
+      {chatListing && <RentalChat listing={chatListing} onClose={() => setChatListing(null)} onBook={() => { setChatListing(null); setBookingListing(chatListing) }} />}
+
+      {/* Booking flow */}
+      {bookingListing && <RentalBookingFlow listing={bookingListing} onClose={() => setBookingListing(null)} onConfirm={() => setBookingListing(null)} />}
       <RentalDashboard open={dashboardOpen} onClose={() => setDashboardOpen(false)} />
       <PriceCalculator vehicle={calcVehicle} onClose={() => setCalcVehicle(null)} />
       {modals}

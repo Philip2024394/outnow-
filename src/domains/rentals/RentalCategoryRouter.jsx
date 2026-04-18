@@ -36,10 +36,13 @@ export default function RentalCategoryRouter({ open, onClose, onSubmit }) {
 
   const handleFormClose = (action, listing) => {
     if (action === 'edit' && listing) {
-      // Close form, then reopen with edit data after a tick
       setSelectedCat(null)
       setEditListingData(listing)
       setTimeout(() => setSelectedCat('motorbike'), 50)
+    } else if (action === 'viewMarketplace') {
+      setSelectedCat(null)
+      setEditListingData(null)
+      onClose('viewMarketplace')
     } else {
       setSelectedCat(null)
       setEditListingData(null)
