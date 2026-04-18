@@ -92,6 +92,7 @@ export default function MarketplaceCartScreen({ open, onClose, onWriteReview }) 
   const [paymentProofs, setPaymentProofs] = useState({}) // sellerId -> url
   const [address, setAddress] = useState('')
   const [notes, setNotes] = useState('')
+  const [submitting, setSubmitting] = useState(false)
 
   if (!open) return null
 
@@ -129,8 +130,6 @@ export default function MarketplaceCartScreen({ open, onClose, onWriteReview }) 
     const url = prompt('Paste payment proof screenshot URL:')
     if (url?.trim()) setPaymentProofs(prev => ({ ...prev, [sellerId]: url.trim() }))
   }
-
-  const [submitting, setSubmitting] = useState(false)
 
   const handleConfirmAll = async () => {
     if (!user?.id) { setCheckoutStep('done'); return }

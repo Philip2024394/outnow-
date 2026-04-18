@@ -1,0 +1,157 @@
+/* ── Screen ─────────────────────────────────────────────────────────────────── */
+.screen {
+  position: fixed; inset: 0; z-index: 9800;
+  background: #080808; background-size: cover; background-position: center;
+  display: flex;
+}
+.screen::before {
+  content: '';
+  position: fixed; inset: 0;
+  background: rgba(0,0,0,0.55);
+  backdrop-filter: blur(3px); -webkit-backdrop-filter: blur(3px);
+  pointer-events: none; z-index: 0;
+}
+
+/* ── Side panel — EchoCommercePanel style ───────────────────────────────────── */
+.panel {
+  position: fixed; top: 90px; right: 0;
+  width: 280px; height: calc(100% - 90px);
+  background: #FAFAFA;
+  border-left: 1px solid rgba(245,158,11,0.2);
+  z-index: 200;
+  transform: translateX(100%);
+  transition: transform 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+  display: flex; flex-direction: column;
+  pointer-events: none;
+}
+.panelOpen { transform: translateX(0); pointer-events: all; }
+
+.panelTab {
+  position: absolute; left: -36px; top: 50%;
+  transform: translateY(-50%);
+  width: 36px;
+  background: #F59E0B; border: none;
+  border-radius: 10px 0 0 10px;
+  color: #1a1a1a; font-size: 18px; font-weight: 900;
+  cursor: pointer;
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  padding: 10px 0; gap: 4px;
+  pointer-events: all; font-family: inherit;
+  box-shadow: -4px 0 16px rgba(245,158,11,0.25);
+}
+.panelTabLabel {
+  font-size: 9px; font-weight: 800;
+  letter-spacing: 0.04em;
+  writing-mode: vertical-rl;
+  text-orientation: mixed;
+  transform: rotate(180deg);
+}
+
+.panelInner {
+  flex: 1; overflow-y: auto;
+  padding: 16px 14px 32px;
+  display: flex; flex-direction: column; gap: 12px;
+}
+.panelHeader { display: flex; align-items: baseline; gap: 5px; }
+.panelTitle { font-size: 16px; font-weight: 900; color: #F59E0B; letter-spacing: 0.08em; }
+.panelSub { font-size: 13px; font-weight: 700; color: #666; }
+
+.panelBtn {
+  display: flex; align-items: center; gap: 10px;
+  padding: 12px 14px; width: 100%;
+  background: rgba(245,158,11,0.06);
+  border: 1px solid rgba(245,158,11,0.15);
+  border-radius: 12px;
+  color: #333; font-size: 13px; font-weight: 700;
+  font-family: inherit; cursor: pointer;
+  transition: all 0.2s; text-align: left;
+}
+.panelBtn:hover { background: rgba(245,158,11,0.12); border-color: rgba(245,158,11,0.3); }
+.panelBtn:active { transform: scale(0.97); }
+
+/* ── Main content ──────────────────────────────────────────────────────────── */
+.main {
+  flex: 1;
+  display: flex; flex-direction: column;
+  padding-right: 0;
+  overflow-y: auto;
+  position: relative; z-index: 1;
+}
+
+/* Header */
+.header {
+  display: flex; align-items: center; gap: 10px;
+  padding: 8px 14px 0;
+  flex-shrink: 0;
+}
+.headerLogo {
+  height: 35px; margin-top: 8px;
+  object-fit: contain; flex-shrink: 0;
+  flex: 1; object-position: left;
+}
+.closeBtn {
+  width: 34px; height: 34px;
+  display: flex; align-items: center; justify-content: center;
+  background: rgba(255,255,255,0.06);
+  border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 50%; color: rgba(255,255,255,0.6);
+  cursor: pointer; flex-shrink: 0;
+}
+
+/* Hero */
+.hero {
+  padding: 40px 24px 20px;
+}
+.heroTitle {
+  font-size: 32px; font-weight: 900; color: #fff; margin: 0;
+  line-height: 1.1; text-shadow: 0 2px 20px rgba(0,0,0,0.5);
+}
+.heroSub {
+  font-size: 15px; color: rgba(255,255,255,0.6); margin: 12px 0 0;
+  line-height: 1.5; max-width: 340px;
+}
+
+/* Options */
+.options {
+  padding: 0 24px;
+  display: flex; flex-direction: column; gap: 14px;
+}
+.optionCard {
+  display: flex; align-items: center; gap: 16px;
+  padding: 20px 18px;
+  background: rgba(0,0,0,0.55);
+  backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
+  border: 1.5px solid rgba(255,255,255,0.08);
+  border-radius: 18px;
+  cursor: pointer; font-family: inherit; text-align: left;
+  transition: all 0.25s;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.3);
+}
+.optionCard:hover {
+  border-color: rgba(141,198,63,0.4);
+  box-shadow: 0 0 20px rgba(141,198,63,0.15), 0 4px 16px rgba(0,0,0,0.3);
+  transform: translateY(-2px);
+}
+.optionCard:active { transform: scale(0.98); }
+
+.optionIcon {
+  width: 56px; height: 56px;
+  display: flex; align-items: center; justify-content: center;
+  background: rgba(141,198,63,0.1);
+  border: 1px solid rgba(141,198,63,0.2);
+  border-radius: 14px;
+  flex-shrink: 0;
+}
+.optionText { flex: 1; display: flex; flex-direction: column; gap: 4px; }
+.optionTitle { font-size: 17px; font-weight: 800; color: #fff; }
+.optionDesc { font-size: 12px; color: rgba(255,255,255,0.45); line-height: 1.4; }
+.optionArrow { color: rgba(255,255,255,0.25); flex-shrink: 0; }
+
+/* Footer */
+.footerNote {
+  padding: 24px;
+  font-size: 12px; font-weight: 600;
+  color: rgba(141,198,63,0.6);
+  text-align: center;
+}

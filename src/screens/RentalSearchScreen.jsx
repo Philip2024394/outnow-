@@ -11,6 +11,9 @@ import {
 } from '@/services/rentalService'
 import { getDirectory } from '@/services/vehicleDirectoryService'
 import RentalDashboard from '@/components/rentals/RentalDashboard'
+import RentalSignUpScreen from './RentalSignUpScreen'
+import RentalCategoryRouter from '@/domains/rentals/RentalCategoryRouter'
+import RentalRenterSignUpScreen from './RentalRenterSignUpScreen'
 import SectionCTAButton from '@/components/ui/SectionCTAButton'
 import { hasVisitedSection, markSectionVisited } from '@/services/sectionVisitService'
 import PriceCalculator from '@/components/rentals/PriceCalculator'
@@ -112,56 +115,26 @@ function RentalDetail({ listing, onClose, onChat }) {
 
 const LANDING_BG = 'https://ik.imagekit.io/nepgaxllc/Untitledsdfasdfdddfsdfsdsdfsdfadsasda.png?updatedAt=1776095672208'
 
-function RentalLanding({ onEnter, onClose, onDashboard }) {
-  const [panelOpen, setPanelOpen] = useState(false)
+function RentalLanding({ onEnter, onClose, onDashboard, onSignUp }) {
   return (
     <div className={styles.landing}>
-      {/* Side panel — exact EchoCommercePanel style */}
-      <div className={`${styles.sideNav} ${panelOpen ? styles.sideNavOpen : ''}`}>
-        {/* Pull tab */}
-        <button className={styles.sideNavTab} onClick={() => setPanelOpen(v => !v)} title={panelOpen ? 'Close panel' : 'Open rentals panel'}>
-          {panelOpen ? '›' : '‹'}
-          {!panelOpen && <span className={styles.sideNavTabLabel}>Rent</span>}
+      {/* Floating side nav — right edge */}
+      <div className={styles.floatNav}>
+        <button className={styles.floatNavBtn} onClick={onClose}>
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+          <span>Home</span>
         </button>
-
-        <div className={styles.sideNavInner}>
-          {/* Header */}
-          <div className={styles.sideNavHeader}>
-            <div className={styles.sideNavHeaderLeft}>
-              <span className={styles.sideNavEcho}>🏷️ INDOO</span>
-              <span className={styles.sideNavCommerce}>Rentals</span>
-            </div>
-          </div>
-
-          {/* Stats */}
-          <div className={styles.sideNavStats}>
-            <div className={styles.sideNavStat}><span className={styles.sideNavStatIcon}>📦</span><span className={styles.sideNavStatVal}>0</span><span className={styles.sideNavStatLabel}>Listings</span></div>
-            <div className={styles.sideNavStat}><span className={styles.sideNavStatIcon}>👁</span><span className={styles.sideNavStatVal}>0</span><span className={styles.sideNavStatLabel}>Views</span></div>
-            <div className={styles.sideNavStat}><span className={styles.sideNavStatIcon}>💬</span><span className={styles.sideNavStatVal}>0</span><span className={styles.sideNavStatLabel}>Enquiries</span></div>
-            <div className={styles.sideNavStat}><span className={styles.sideNavStatIcon}>📋</span><span className={styles.sideNavStatVal}>0</span><span className={styles.sideNavStatLabel}>Bookings</span></div>
-          </div>
-
-          {/* Action buttons */}
-          <button className={`${styles.sideNavBtn} ${styles.sideNavBtnAccent}`} onClick={() => { setPanelOpen(false); onDashboard() }}>
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-            List Your Rental
-          </button>
-          <button className={styles.sideNavBtn} onClick={() => { setPanelOpen(false); onEnter() }}>
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-            Browse Rentals
-          </button>
-          <button className={styles.sideNavBtn} onClick={() => { setPanelOpen(false); onClose() }}>
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
-            Back to Home
-          </button>
-        </div>
+        <button className={`${styles.floatNavBtn} ${styles.floatNavBtnAccent}`} onClick={onSignUp}>
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="8.5" cy="7" r="4"/><line x1="20" y1="8" x2="20" y2="14"/><line x1="23" y1="11" x2="17" y2="11"/></svg>
+          <span>Sign Up</span>
+        </button>
       </div>
 
       {/* Main content area */}
       <div className={styles.landingMain}>
-        {/* Header — brand logo */}
+        {/* Header — brand text */}
         <div className={styles.landingHeader}>
-          <img src="https://ik.imagekit.io/nepgaxllc/Untitledfsdsd-removebg-preview.png" alt="Indoo Rentals" className={styles.landingLogo} />
+          <span className={styles.landingBrandText}><span>INDOO</span><span className={styles.landingBrandGreen}>RENTALS</span></span>
         </div>
 
         {/* Search bar */}
@@ -273,11 +246,15 @@ function SubCategoryLanding({ bg, title, tagline, buttons, onSelect, onBack }) {
   return (
     <div className={styles.landing} style={{ backgroundImage: `url("${bg}")` }}>
       <div className={styles.landingOverlay} />
-      <button className={styles.landingBack} onClick={onBack}>
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-          <polyline points="15 18 9 12 15 6"/>
-        </svg>
-      </button>
+      {/* Header — brand name left, back button right */}
+      <div className={styles.subHeader}>
+        <span className={styles.subHeaderBrand}>IND<span className={styles.subHeaderGreen}>OO</span> RENTALS</span>
+        <button className={styles.subHeaderBack} onClick={onBack}>
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#000" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+            <polyline points="15 18 9 12 15 6"/>
+          </svg>
+        </button>
+      </div>
       <div className={styles.landingContent}>
         <h1 className={styles.landingTitle}>{title}</h1>
         <p className={styles.landingSub}>{tagline}</p>
@@ -335,6 +312,9 @@ export default function RentalSearchScreen({ onClose }) {
   const [selectedModel, setSelectedModel] = useState(null)
   const [selected, setSelected] = useState(null)
   const [dashboardOpen, setDashboardOpen] = useState(false)
+  const [rentalSignUpOpen, setRentalSignUpOpen] = useState(false)
+  const [rentalCategoryOpen, setRentalListingOpen] = useState(false)
+  const [renterSignUpOpen, setRenterSignUpOpen] = useState(false)
   const [calcVehicle, setCalcVehicle] = useState(null)
 
   let listings = search.trim()
@@ -349,8 +329,39 @@ export default function RentalSearchScreen({ onClose }) {
     listings = listings.filter(l => l.category === category)
   }
 
+  // Modal screens — always rendered regardless of view
+  const modals = <>
+    <RentalSignUpScreen
+      open={rentalSignUpOpen}
+      onClose={() => setRentalSignUpOpen(false)}
+      onListRental={() => { setRentalSignUpOpen(false); setRentalListingOpen(true) }}
+      onRentItems={() => {
+        setRentalSignUpOpen(false)
+        const profile = JSON.parse(localStorage.getItem('indoo_profile') || '{}')
+        if (profile.rentalUnlocked) {
+          markSectionVisited('rentals'); setView('categories')
+        } else {
+          setRenterSignUpOpen(true)
+        }
+      }}
+    />
+    <RentalRenterSignUpScreen
+      open={renterSignUpOpen}
+      onClose={() => setRenterSignUpOpen(false)}
+      onComplete={() => { setRenterSignUpOpen(false); markSectionVisited('rentals'); setView('categories') }}
+    />
+    <RentalCategoryRouter
+      open={rentalCategoryOpen}
+      onClose={() => setRentalListingOpen(false)}
+      onSubmit={async (listing) => { console.log('[rental] New listing:', listing) }}
+    />
+  </>
+
   if (view === 'landing') {
-    return <RentalLanding onEnter={() => { markSectionVisited('rentals'); setView('categories') }} onClose={onClose} onDashboard={() => { markSectionVisited('rentals'); setDashboardOpen(true) }} />
+    return <div>
+      <RentalLanding onEnter={() => { markSectionVisited('rentals'); setView('categories') }} onClose={onClose} onDashboard={() => { markSectionVisited('rentals'); setDashboardOpen(true) }} onSignUp={() => setRentalSignUpOpen(true)} />
+      {modals}
+    </div>
   }
 
   if (view === 'categories') {
@@ -511,7 +522,13 @@ export default function RentalSearchScreen({ onClose }) {
       {/* Detail view */}
       {selected && <RentalDetail listing={selected} onClose={() => setSelected(null)} />}
       <RentalDashboard open={dashboardOpen} onClose={() => setDashboardOpen(false)} />
+      <RentalCategoryRouter
+        open={rentalCategoryOpen}
+        onClose={() => setRentalListingOpen(false)}
+        onSubmit={async (listing) => { console.log('[rental] New listing:', listing) }}
+      />
       <PriceCalculator vehicle={calcVehicle} onClose={() => setCalcVehicle(null)} />
+      {modals}
     </div>
   )
 }

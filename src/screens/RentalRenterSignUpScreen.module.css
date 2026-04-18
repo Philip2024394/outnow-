@@ -1,0 +1,96 @@
+.screen { position: fixed; inset: 0; z-index: 9850; background: #080808; background-size: cover; background-position: center; display: flex; }
+.overlay { position: absolute; inset: 0; background: rgba(0,0,0,0.6); backdrop-filter: blur(3px); -webkit-backdrop-filter: blur(3px); pointer-events: none; z-index: 0; }
+.main { flex: 1; display: flex; flex-direction: column; position: relative; z-index: 1; overflow-y: auto; }
+
+/* Header */
+.header { display: flex; align-items: center; gap: 10px; padding: 8px 14px 0; flex-shrink: 0; }
+.headerLogo { height: 35px; margin-top: 8px; object-fit: contain; flex: 1; object-position: left; }
+.closeBtn { width: 34px; height: 34px; display: flex; align-items: center; justify-content: center; background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.1); border-radius: 50%; color: rgba(255,255,255,0.6); cursor: pointer; }
+
+/* Content */
+.content { flex: 1; padding: 16px 20px 100px; display: flex; flex-direction: column; }
+
+/* Hero */
+.hero { padding: 20px 0 16px; }
+.heroTitle { font-size: 28px; font-weight: 900; color: #fff; margin: 0; line-height: 1.1; text-shadow: 0 2px 16px rgba(0,0,0,0.5); }
+.heroSub { font-size: 14px; color: rgba(255,255,255,0.5); margin: 10px 0 0; line-height: 1.5; max-width: 320px; }
+
+/* Form */
+.form { display: flex; flex-direction: column; gap: 14px; }
+.field { display: flex; flex-direction: column; gap: 5px; }
+.label { font-size: 12px; font-weight: 700; color: rgba(255,255,255,0.4); text-transform: uppercase; letter-spacing: 0.03em; }
+.input {
+  padding: 14px 16px;
+  background: rgba(0,0,0,0.6);
+  backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
+  border: 1.5px solid rgba(255,255,255,0.08);
+  border-radius: 12px;
+  color: #fff; font-size: 15px; font-family: inherit; outline: none;
+}
+.input::placeholder { color: rgba(255,255,255,0.22); }
+.input:focus { border-color: rgba(141,198,63,0.4); }
+.passwordWrap { position: relative; display: flex; }
+.passwordWrap .input { flex: 1; padding-right: 44px; }
+.eyeBtn { position: absolute; right: 12px; top: 50%; transform: translateY(-50%); background: none; border: none; font-size: 16px; cursor: pointer; }
+
+.errorSmall { font-size: 11px; color: #EF4444; font-weight: 600; }
+.matchSmall { font-size: 11px; color: #8DC63F; font-weight: 600; }
+.error { padding: 10px 14px; background: rgba(239,68,68,0.1); border: 1px solid rgba(239,68,68,0.2); border-radius: 10px; color: #EF4444; font-size: 13px; font-weight: 600; }
+
+.submitBtn {
+  padding: 16px;
+  background: #8DC63F; border: none; border-radius: 12px;
+  color: #000; font-size: 16px; font-weight: 800;
+  cursor: pointer; font-family: inherit;
+  box-shadow: 0 4px 20px rgba(141,198,63,0.3);
+  transition: all 0.15s;
+}
+.submitBtn:disabled { opacity: 0.4; cursor: not-allowed; }
+.submitBtn:hover:not(:disabled) { box-shadow: 0 6px 28px rgba(141,198,63,0.45); transform: translateY(-1px); }
+
+.switchBtn {
+  background: none; border: none;
+  color: rgba(255,255,255,0.4); font-size: 13px; font-weight: 600;
+  cursor: pointer; font-family: inherit; text-align: center; padding: 8px;
+}
+.switchBtn:hover { color: #8DC63F; }
+
+/* Interest banner list — matches RentalListingScreen category banners */
+.interestList { display: flex; flex-direction: column; gap: 10px; }
+
+.interestBanner {
+  position: relative;
+  display: flex; align-items: center;
+  padding: 16px 14px; gap: 14px;
+  background: rgba(0,0,0,0.45);
+  backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
+  border: 1.5px solid rgba(255,255,255,0.06);
+  border-radius: 16px;
+  cursor: pointer; font-family: inherit; text-align: left;
+  transition: all 0.25s;
+  min-height: 80px;
+}
+.interestBanner:hover { border-color: rgba(255,255,255,0.15); background: rgba(0,0,0,0.5); }
+.interestBanner:active { transform: scale(0.98); }
+.interestBannerActive {
+  border-color: #8DC63F;
+  background: rgba(141,198,63,0.06);
+  box-shadow: 0 0 20px rgba(141,198,63,0.12), inset 0 0 0 1px rgba(141,198,63,0.15);
+}
+
+.interestBannerLeft { flex: 1; display: flex; flex-direction: column; gap: 4px; min-width: 0; }
+.interestBannerTitle { font-size: 16px; font-weight: 800; color: #fff; }
+.interestBannerDesc { font-size: 12px; color: rgba(255,255,255,0.4); line-height: 1.4; }
+
+.interestBannerItems { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 4px; }
+.interestBannerItem { padding: 2px 8px; background: rgba(141,198,63,0.1); border: 1px solid rgba(141,198,63,0.2); border-radius: 6px; font-size: 10px; font-weight: 700; color: #8DC63F; }
+
+.interestBannerImg { width: 64px; height: 64px; object-fit: contain; flex-shrink: 0; filter: drop-shadow(0 2px 8px rgba(0,0,0,0.3)); }
+.interestBannerEmoji { font-size: 40px; flex-shrink: 0; width: 64px; text-align: center; }
+.interestBannerCheck { position: absolute; top: 10px; right: 10px; width: 22px; height: 22px; background: #8DC63F; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 800; color: #000; }
+
+/* Done */
+.done { display: flex; flex-direction: column; align-items: center; gap: 12px; padding: 60px 20px; text-align: center; }
+.doneIcon { font-size: 48px; }
+.doneTitle { font-size: 24px; font-weight: 900; color: #fff; margin: 0; }
+.doneSub { font-size: 14px; color: rgba(255,255,255,0.5); max-width: 280px; line-height: 1.5; }

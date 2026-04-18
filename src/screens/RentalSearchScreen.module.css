@@ -5,114 +5,64 @@
   display: flex;
 }
 
-/* ── Side panel — exact copy of EchoCommercePanel styling ──────────────────── */
-.sideNav {
-  position: fixed;
-  top: 0; right: 0;
-  width: 280px; height: 100%;
-  background: #FAFAFA;
-  border-left: 1px solid rgba(141,198,63,0.2);
-  z-index: 200;
-  transform: translateX(100%);
-  transition: transform 0.35s cubic-bezier(0.4, 0, 0.2, 1);
-  display: flex; flex-direction: column;
-  pointer-events: none;
-}
-.sideNavOpen { transform: translateX(0); pointer-events: all; }
-
-/* Pull tab — sticks out left */
-.sideNavTab {
-  position: absolute;
-  left: -36px; top: 50%;
+/* ── Floating side nav pill — single container, two buttons ─────────────────── */
+.floatNav {
+  position: fixed; top: 50%; right: 10px; z-index: 200;
   transform: translateY(-50%);
-  width: 36px;
-  background: #8DC63F;
-  border: none;
-  border-radius: 10px 0 0 10px;
-  color: #1a1a1a;
-  font-size: 18px; font-weight: 900;
-  cursor: pointer;
   display: flex; flex-direction: column;
-  align-items: center; justify-content: center;
-  padding: 10px 0; gap: 4px;
-  pointer-events: all;
-  font-family: inherit;
-  box-shadow: -4px 0 16px rgba(141,198,63,0.25);
+  background: rgba(0,0,0,0.65);
+  backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px);
+  border: 1.5px solid rgba(255,255,255,0.1);
+  border-radius: 18px;
+  padding: 6px;
+  gap: 8px;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.08);
 }
-.sideNavTabLabel {
-  font-size: 9px; font-weight: 800;
-  letter-spacing: 0.04em;
-  writing-mode: vertical-rl;
-  text-orientation: mixed;
-  transform: rotate(180deg);
-}
-
-/* Inner scroll area */
-.sideNavInner {
-  flex: 1; overflow-y: auto;
-  padding: 16px 14px 32px;
-  display: flex; flex-direction: column;
-  gap: 12px;
-}
-.sideNavInner::-webkit-scrollbar { width: 4px; }
-.sideNavInner::-webkit-scrollbar-thumb { background: rgba(141,198,63,0.3); border-radius: 2px; }
-
-/* Header */
-.sideNavHeader { display: flex; align-items: center; justify-content: space-between; }
-.sideNavHeaderLeft { display: flex; align-items: baseline; gap: 5px; }
-.sideNavEcho { font-size: 16px; font-weight: 900; color: #8DC63F; letter-spacing: 0.08em; }
-.sideNavCommerce { font-size: 13px; font-weight: 700; color: #666; }
-
-/* Stats — 2x2 grid */
-.sideNavStats { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
-.sideNavStat {
-  background: rgba(0,0,0,0.75);
-  border: 1px solid rgba(255,255,255,0.06);
-  border-radius: 10px;
-  padding: 10px 8px;
-  display: flex; flex-direction: column;
-  align-items: center; gap: 2px;
-}
-.sideNavStatIcon { font-size: 14px; }
-.sideNavStatVal { font-size: 16px; font-weight: 900; color: #fff; }
-.sideNavStatLabel { font-size: 9px; font-weight: 700; color: rgba(255,255,255,0.4); text-transform: uppercase; }
-
-/* Action buttons */
-.sideNavBtn {
-  display: flex; align-items: center; gap: 10px;
-  padding: 12px 14px; width: 100%;
-  background: rgba(141,198,63,0.06);
-  border: 1px solid rgba(141,198,63,0.15);
+.floatNavBtn {
+  display: flex; flex-direction: column; align-items: center; gap: 3px;
+  width: 46px; padding: 10px 4px;
+  background: rgba(255,255,255,0.08);
+  border: 1px solid rgba(255,255,255,0.12);
+  color: rgba(255,255,255,0.7);
+  font-size: 8px; font-weight: 700; font-family: inherit;
+  cursor: pointer; transition: all 0.2s;
   border-radius: 12px;
-  color: #333; font-size: 13px; font-weight: 700;
-  font-family: inherit; cursor: pointer;
-  transition: all 0.2s; text-align: left;
 }
-.sideNavBtn svg { flex-shrink: 0; }
-.sideNavBtn:hover { background: rgba(141,198,63,0.12); border-color: rgba(141,198,63,0.3); }
-.sideNavBtn:active { transform: scale(0.97); }
-.sideNavBtnAccent { background: #8DC63F; border-color: #8DC63F; color: #000; }
-.sideNavBtnAccent:hover { background: #7AB635; }
+.floatNavBtn:hover { background: rgba(255,255,255,0.15); border-color: rgba(255,255,255,0.25); color: #fff; }
+.floatNavBtn:active { transform: scale(0.9); }
+.floatNavBtnAccent {
+  background: #8DC63F;
+  border-color: #8DC63F;
+  color: #000;
+}
+.floatNavBtnAccent:hover { background: #7AB635; border-color: #7AB635; }
 
-/* Main content — fills left of pull tab */
+/* Main content */
 .landingMain {
   flex: 1;
   display: flex; flex-direction: column;
-  padding-right: 40px;
   overflow-y: auto;
 }
 
 /* Header — brand logo */
 .landingHeader {
   display: flex; align-items: center; gap: 10px;
-  padding: 8px 14px 0;
-  margin-right: -38px;
+  padding: 16px 20px 0;
   flex-shrink: 0;
 }
-.landingLogo {
-  height: 35px; margin-top: 8px;
-  object-fit: contain; flex-shrink: 0;
-  flex: 1; object-position: left;
+.landingBrandText {
+  font-size: 32px; font-weight: 900; color: #fff;
+  letter-spacing: 0.06em;
+  text-shadow: 0 3px 16px rgba(0,0,0,0.7), 0 0 30px rgba(0,0,0,0.4);
+  line-height: 1.1;
+  display: flex; flex-direction: column;
+}
+.landingBrandGreen {
+  color: #8DC63F;
+  font-size: 16px;
+  letter-spacing: 0.2em;
+  margin-left: 6px;
+  margin-top: 2px;
 }
 
 /* Search bar — black bg, matching marketplace */
@@ -157,6 +107,26 @@
 .landingBtn:hover { box-shadow: 0 6px 32px rgba(141,198,63,0.45); transform: translateY(-1px); }
 
 /* Vehicle type buttons */
+/* Sub-category header — brand left, back right */
+.subHeader {
+  position: absolute; top: 0; left: 0; right: 0; z-index: 3;
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 16px 16px 0;
+}
+.subHeaderBrand {
+  font-size: 18px; font-weight: 900; color: #fff;
+  letter-spacing: 0.06em;
+  text-shadow: 0 2px 10px rgba(0,0,0,0.6);
+}
+.subHeaderGreen { color: #8DC63F; }
+.subHeaderBack {
+  width: 36px; height: 36px; border-radius: 50%;
+  background: #8DC63F; border: none;
+  display: flex; align-items: center; justify-content: center;
+  cursor: pointer;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.3);
+}
+
 .vehicleBtns { display: flex; gap: 10px; margin-top: 8px; width: 100%; }
 .vehicleBtn {
   flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center;
@@ -295,14 +265,12 @@
   position: relative;
   display: flex; flex-direction: column; align-items: center; justify-content: flex-end;
   gap: 4px; padding: 14px 12px;
-  background: rgba(255,255,255,0.03);
-  backdrop-filter: blur(12px) saturate(1.4);
-  -webkit-backdrop-filter: blur(12px) saturate(1.4);
-  border: 1.5px solid rgba(255,255,255,0.06);
+  background: rgba(0,0,0,0.3);
+  border: 1.5px solid rgba(255,255,255,0.08);
   border-radius: 16px;
   cursor: pointer; font-family: inherit; text-align: center;
   transition: all 0.2s ease;
-  box-shadow: inset 0 1px 0 rgba(255,255,255,0.05), 0 2px 10px rgba(0,0,0,0.2);
+  box-shadow: 0 2px 10px rgba(0,0,0,0.2);
   min-height: 220px;
   overflow: hidden;
 }
@@ -323,7 +291,8 @@
 .catTileImg {
   position: absolute; inset: 0;
   width: 100%; height: 100%;
-  object-fit: cover; border-radius: 14px;
+  object-fit: cover;
+  image-rendering: auto;
 }
 .catTileEmoji { font-size: 36px; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.3)); }
 .catTileLabel { position: relative; z-index: 1; font-size: 18px; font-weight: 900; color: #fff; text-shadow: 0 2px 10px rgba(0,0,0,0.9), 0 0 20px rgba(0,0,0,0.7); }
