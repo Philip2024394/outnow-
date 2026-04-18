@@ -127,7 +127,7 @@ export default function OwnerProfileForm({ open, onClose, onComplete }) {
                 { icon: '✅', text: 'FREE to join', sub: 'No monthly fees, no sign-up cost' },
                 { icon: '🎁', text: 'First order — zero commission', sub: 'Your first customer is on us' },
                 { icon: '💰', text: 'After that — 10% per order', sub: 'Only pay when you earn' },
-                { icon: '📊', text: 'Credit limit — Rp 50.000', sub: 'Increases with your order history' },
+                { icon: '📊', text: 'Track your earnings', sub: 'Wallet dashboard with full history' },
               ].map((item, i) => (
                 <div key={i} style={{ display: 'flex', gap: 12, alignItems: 'flex-start' }}>
                   <span style={{ fontSize: 20, flexShrink: 0, marginTop: 1 }}>{item.icon}</span>
