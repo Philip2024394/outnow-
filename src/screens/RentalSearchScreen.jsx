@@ -496,7 +496,7 @@ export default function RentalSearchScreen({ onClose }) {
     return (
       <VehicleDirectory
         vehicleType={vehicleType}
-        onSelectModel={(model) => { setSelectedModel(model); setActiveFilter([vehicleType]); setView('browse') }}
+        onSelectModel={(model) => { setSelectedModel(model); setActiveFilter([vehicleType]); setSearch(model.name); setView('browse') }}
         onBack={() => setView('vehicles')}
       />
     )
@@ -553,70 +553,164 @@ export default function RentalSearchScreen({ onClose }) {
     )
   }
 
+  const [showFilter, setShowFilter] = useState(false)
+  const [priceSort, setPriceSort] = useState('') // '', 'low', 'high'
+  const [cardImgIdx, setCardImgIdx] = useState({}) // track which image each card shows
+
+  let sortedListings = [...listings]
+  if (priceSort === 'low') sortedListings.sort((a, b) => (a.price_day || 0) - (b.price_day || 0))
+  if (priceSort === 'high') sortedListings.sort((a, b) => (b.price_day || 0) - (a.price_day || 0))
+
   return (
     <div className={styles.page}>
-      {/* Header */}
-      <div className={styles.header}>
-        <button className={styles.backBtn} onClick={() => {
-          if (vehicleType) { setView('vehicleDir'); return }
-          setView('categories')
-        }}>
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-            <polyline points="15 18 9 12 15 6"/>
-          </svg>
-        </button>
-        <div className={styles.searchWrap}>
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.3)" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-            <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
-          </svg>
-          <input className={styles.searchInput} value={search} onChange={e => setSearch(e.target.value)} placeholder="Search rentals..." />
-          {search && <button className={styles.searchClear} onClick={() => setSearch('')}>✕</button>}
+      {/* Header — search bar + filter */}
+      <div style={{ padding: '14px 14px 0', flexShrink: 0 }}>
+        <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
+          <button onClick={() => { if (vehicleType) { setView('vehicleDir'); return } setView('categories') }} style={{ width: 36, height: 36, borderRadius: '50%', background: '#8DC63F', border: 'none', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', flexShrink: 0, boxShadow: '0 2px 8px rgba(141,198,63,0.3)' }}>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#000" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+          </button>
+          <div style={{ flex: 1, display: 'flex', alignItems: 'center', padding: '0 14px', background: 'rgba(255,255,255,0.04)', border: '1.5px solid rgba(255,255,255,0.08)', borderRadius: 14, height: 40 }}>
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.3)" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+            <input value={search} onChange={e => setSearch(e.target.value)} placeholder="Search rentals..." style={{ flex: 1, background: 'none', border: 'none', color: '#fff', fontSize: 13, fontWeight: 500, fontFamily: 'inherit', outline: 'none', padding: '0 10px' }} />
+            {search && <button onClick={() => setSearch('')} style={{ background: 'none', border: 'none', color: 'rgba(255,255,255,0.3)', fontSize: 14, cursor: 'pointer', padding: 0 }}>✕</button>}
+          </div>
+          <button onClick={() => setShowFilter(!showFilter)} style={{ width: 36, height: 36, borderRadius: 12, background: showFilter ? '#8DC63F' : 'rgba(255,255,255,0.04)', border: showFilter ? 'none' : '1.5px solid rgba(255,255,255,0.08)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', flexShrink: 0, color: showFilter ? '#000' : 'rgba(255,255,255,0.4)' }}>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="4" y1="21" x2="4" y2="14"/><line x1="4" y1="10" x2="4" y2="3"/><line x1="12" y1="21" x2="12" y2="12"/><line x1="12" y1="8" x2="12" y2="3"/><line x1="20" y1="21" x2="20" y2="16"/><line x1="20" y1="12" x2="20" y2="3"/><line x1="1" y1="14" x2="7" y2="14"/><line x1="9" y1="8" x2="15" y2="8"/><line x1="17" y1="16" x2="23" y2="16"/></svg>
+          </button>
+        </div>
+
+        {/* Filter panel */}
+        {showFilter && (
+          <div style={{ display: 'flex', gap: 6, padding: '10px 0 4px', overflowX: 'auto', scrollbarWidth: 'none' }}>
+            {[
+              { id: '', label: 'All' },
+              { id: 'low', label: 'Price: Low → High' },
+              { id: 'high', label: 'Price: High → Low' },
+            ].map(f => (
+              <button key={f.id} onClick={() => setPriceSort(f.id)} style={{ padding: '6px 14px', borderRadius: 10, background: priceSort === f.id ? '#8DC63F' : 'rgba(255,255,255,0.04)', border: priceSort === f.id ? 'none' : '1px solid rgba(255,255,255,0.06)', color: priceSort === f.id ? '#000' : 'rgba(255,255,255,0.4)', fontSize: 11, fontWeight: 700, cursor: 'pointer', fontFamily: 'inherit', whiteSpace: 'nowrap', flexShrink: 0 }}>
+                {f.label}
+              </button>
+            ))}
+            {RENTAL_CATEGORIES.filter(c => c.id !== 'all').map(c => (
+              <button key={c.id} onClick={() => { setCategory(category === c.id ? 'all' : c.id); setSearch('') }} style={{ padding: '6px 14px', borderRadius: 10, background: category === c.id ? 'rgba(141,198,63,0.12)' : 'rgba(255,255,255,0.04)', border: category === c.id ? '1px solid rgba(141,198,63,0.3)' : '1px solid rgba(255,255,255,0.06)', color: category === c.id ? '#8DC63F' : 'rgba(255,255,255,0.35)', fontSize: 11, fontWeight: 700, cursor: 'pointer', fontFamily: 'inherit', whiteSpace: 'nowrap', flexShrink: 0 }}>
+                {c.emoji} {c.label}
+              </button>
+            ))}
+          </div>
+        )}
+
+        {/* Results count */}
+        <div style={{ padding: '8px 0 4px', fontSize: 11, color: 'rgba(255,255,255,0.2)', fontWeight: 600 }}>
+          {sortedListings.length} rental{sortedListings.length !== 1 ? 's' : ''} found
         </div>
       </div>
 
-      {/* Category chips */}
-      <div className={styles.categories}>
-        {RENTAL_CATEGORIES.map(c => (
-          <button key={c.id} className={`${styles.catChip} ${category === c.id ? styles.catChipActive : ''}`} onClick={() => { setCategory(c.id); setSearch('') }}>
-            {c.emoji} {c.label}
-          </button>
-        ))}
-      </div>
-
-      {/* Grid */}
+      {/* Premium listing cards */}
       <div className={styles.body}>
-        <div className={styles.grid}>
-          {listings.length === 0 && <div className={styles.empty}>No rentals found</div>}
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
+          {sortedListings.length === 0 && <div className={styles.empty}>No rentals found</div>}
 
-          {listings.map(l => (
-            <button key={l.id} className={styles.card} onClick={() => setSelected(l)} style={{ position: 'relative' }}>
-              {l.isOwnerListing && <div style={{ position: 'absolute', top: 6, left: 6, padding: '2px 6px', background: '#8DC63F', borderRadius: 4, fontSize: 7, fontWeight: 900, color: '#000', letterSpacing: '0.04em', zIndex: 2 }}>YOUR LISTING</div>}
-              <img src={l.images?.[0]} alt="" className={styles.cardImg} />
-              {/* Driver available icon */}
-              {l.extra_fields?.withDriver && (
-                <div className={styles.cardDriverIcon} title="Driver available">
-                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3"/></svg>
+          {sortedListings.map(l => {
+            const imgs = l.images?.length ? l.images : [l.image || '']
+            const currentImg = cardImgIdx[l.id] || 0
+            return (
+            <button key={l.id} onClick={() => setSelected(l)} style={{
+              display: 'flex', flexDirection: 'column', width: '100%',
+              background: 'rgba(0,0,0,0.5)', backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)',
+              border: '1.5px solid rgba(141,198,63,0.08)', borderRadius: 20,
+              overflow: 'hidden', cursor: 'pointer', fontFamily: 'inherit', textAlign: 'left',
+              transition: 'all 0.3s cubic-bezier(0.4,0,0.2,1)', position: 'relative',
+              boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.04), 0 4px 20px rgba(0,0,0,0.3)',
+            }}>
+              {/* Top accent */}
+              <div style={{ position: 'absolute', top: 0, left: '10%', right: '10%', height: 1, background: 'linear-gradient(90deg, transparent, rgba(141,198,63,0.2), transparent)', pointerEvents: 'none', zIndex: 2 }} />
+
+              {/* Image carousel section */}
+              <div style={{ position: 'relative', width: '100%', aspectRatio: '16/9', overflow: 'hidden', background: '#0a0a0a' }}>
+                <img src={imgs[currentImg]} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block', transition: 'opacity 0.3s' }} />
+
+                {/* Image dots — if multiple images */}
+                {imgs.length > 1 && (
+                  <div style={{ position: 'absolute', bottom: 8, left: '50%', transform: 'translateX(-50%)', display: 'flex', gap: 4, zIndex: 3 }}>
+                    {imgs.slice(0, 5).map((_, di) => (
+                      <div key={di} onClick={e => { e.stopPropagation(); setCardImgIdx(p => ({ ...p, [l.id]: di })) }} style={{
+                        width: currentImg === di ? 16 : 6, height: 6, borderRadius: 3,
+                        background: currentImg === di ? '#8DC63F' : 'rgba(255,255,255,0.3)',
+                        transition: 'all 0.2s', cursor: 'pointer',
+                        boxShadow: currentImg === di ? '0 0 6px rgba(141,198,63,0.5)' : 'none',
+                      }} />
+                    ))}
+                  </div>
+                )}
+
+                {/* YOUR LISTING badge */}
+                {l.isOwnerListing && (
+                  <div style={{ position: 'absolute', top: 10, left: 10, padding: '3px 8px', background: '#8DC63F', borderRadius: 6, fontSize: 8, fontWeight: 900, color: '#000', letterSpacing: '0.04em', zIndex: 3 }}>YOUR LISTING</div>
+                )}
+
+                {/* Rating badge — top right */}
+                <div style={{ position: 'absolute', top: 10, right: 10, padding: '4px 8px', background: 'rgba(0,0,0,0.5)', backdropFilter: 'blur(8px)', borderRadius: 8, display: 'flex', alignItems: 'center', gap: 3, zIndex: 3 }}>
+                  <span style={{ fontSize: 11, color: '#FFD700', fontWeight: 800 }}>★ {l.rating || '—'}</span>
+                  <span style={{ fontSize: 9, color: 'rgba(255,255,255,0.3)' }}>({l.review_count})</span>
                 </div>
-              )}
-              <div className={styles.cardBody}>
-                <span className={styles.cardTitle}>{l.title}</span>
-                <div className={styles.cardMeta}>
-                  <span className={styles.cardCategory}>{l.sub_category}</span>
-                  <span className={styles.cardCondition}>{getConditionLabel(l.condition)}</span>
-                  <span className={styles.cardCity}>{l.city}</span>
+
+                {/* Driver icon */}
+                {l.extra_fields?.withDriver && (
+                  <div style={{ position: 'absolute', bottom: 10, right: 10, width: 28, height: 28, borderRadius: '50%', background: 'rgba(0,0,0,0.5)', backdropFilter: 'blur(8px)', border: '1.5px solid rgba(141,198,63,0.3)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#8DC63F', zIndex: 3, boxShadow: '0 0 8px rgba(141,198,63,0.15)' }}>
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3"/></svg>
+                  </div>
+                )}
+
+                {/* Image count badge */}
+                {imgs.length > 1 && (
+                  <div style={{ position: 'absolute', bottom: 10, left: 10, padding: '3px 8px', background: 'rgba(0,0,0,0.5)', backdropFilter: 'blur(8px)', borderRadius: 6, display: 'flex', alignItems: 'center', gap: 4, zIndex: 3 }}>
+                    <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.5)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+                    <span style={{ fontSize: 9, fontWeight: 700, color: 'rgba(255,255,255,0.5)' }}>{imgs.length}</span>
+                  </div>
+                )}
+              </div>
+
+              {/* Info section */}
+              <div style={{ padding: '12px 14px 14px', display: 'flex', flexDirection: 'column', gap: 6 }}>
+                {/* Title + city */}
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 8 }}>
+                  <div style={{ flex: 1, minWidth: 0 }}>
+                    <div style={{ fontSize: 16, fontWeight: 900, color: '#fff', letterSpacing: '-0.01em', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{l.title}</div>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginTop: 3 }}>
+                      <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.25)" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>
+                      <span style={{ fontSize: 11, color: 'rgba(255,255,255,0.3)', fontWeight: 600 }}>{l.city || 'Indonesia'}</span>
+                    </div>
+                  </div>
+                  {/* Views */}
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 3, flexShrink: 0 }}>
+                    <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.15)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+                    <span style={{ fontSize: 9, color: 'rgba(255,255,255,0.15)', fontWeight: 600 }}>{l.view_count}</span>
+                  </div>
                 </div>
-                <div className={styles.cardPrices}>
-                  <span className={styles.cardPriceMain}>{fmtIDR(l.price_day)}</span>
-                  <span className={styles.cardPricePer}>/ day</span>
-                  {l.price_month && <span className={styles.cardPriceSub}>{fmtIDR(l.price_month)} / month</span>}
+
+                {/* Spec chips */}
+                <div style={{ display: 'flex', gap: 4, flexWrap: 'wrap' }}>
+                  <span style={{ padding: '3px 8px', background: 'rgba(141,198,63,0.08)', border: '1px solid rgba(141,198,63,0.15)', borderRadius: 6, fontSize: 10, fontWeight: 700, color: '#8DC63F' }}>{l.sub_category || l.category}</span>
+                  <span style={{ padding: '3px 8px', background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.06)', borderRadius: 6, fontSize: 10, fontWeight: 700, color: 'rgba(255,255,255,0.4)' }}>{getConditionLabel(l.condition)}</span>
+                  {l.features?.slice(0, 2).map((f, fi) => (
+                    <span key={fi} style={{ padding: '3px 8px', background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.06)', borderRadius: 6, fontSize: 10, fontWeight: 700, color: 'rgba(255,255,255,0.35)' }}>{f}</span>
+                  ))}
                 </div>
-                <div className={styles.cardFooter}>
-                  <span className={styles.cardRating}>★ {l.rating || '-'} ({l.review_count})</span>
-                  <span className={styles.cardViews}>{l.view_count} views</span>
+
+                {/* Price row */}
+                <div style={{ display: 'flex', alignItems: 'baseline', justifyContent: 'space-between', marginTop: 2 }}>
+                  <div style={{ display: 'flex', alignItems: 'baseline', gap: 3 }}>
+                    <span style={{ fontSize: 10, fontWeight: 700, color: 'rgba(141,198,63,0.6)' }}>Rp</span>
+                    <span style={{ fontSize: 22, fontWeight: 900, color: '#8DC63F', letterSpacing: '-0.02em' }}>{fmtIDR(l.price_day).replace('Rp ', '')}</span>
+                    <span style={{ fontSize: 11, color: 'rgba(255,255,255,0.25)', fontWeight: 600 }}>/day</span>
+                  </div>
+                  {l.price_month > 0 && (
+                    <span style={{ fontSize: 11, color: 'rgba(255,255,255,0.2)', fontWeight: 600 }}>{fmtIDR(l.price_month)}/mo</span>
+                  )}
                 </div>
               </div>
             </button>
-          ))}
+          )})}
         </div>
       </div>
 
