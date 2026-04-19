@@ -643,37 +643,19 @@ export default function RentalSearchScreen({ onClose }) {
 
                     {l.isOwnerListing && <div style={{ position:'absolute',top:'50%',left:8,transform:'translateY(-50%)',padding:'3px 8px',background:'#8DC63F',borderRadius:6,fontSize:8,fontWeight:900,color:'#000',letterSpacing:'0.04em',zIndex:3 }}>YOUR LISTING</div>}
                     {l.extra_fields?.withDriver && <div style={{ position:'absolute',top:'50%',right:8,transform:'translateY(-50%)',width:26,height:26,borderRadius:'50%',background:'rgba(0,0,0,0.5)',backdropFilter:'blur(8px)',border:'1.5px solid rgba(141,198,63,0.3)',display:'flex',alignItems:'center',justifyContent:'center',color:'#8DC63F',zIndex:3 }}><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3"/></svg></div>}
-                    </div>{/* close inner clip div */}
 
-                    {/* 4 Corner image buttons */}
-                    {imgs.length > 1 && (() => {
-                      const cornerStyle = (isActive) => ({
-                        width: 28, height: 28, borderRadius: '50%',
-                        background: isActive ? '#8DC63F' : 'rgba(0,0,0,0.4)',
-                        backdropFilter: 'blur(6px)',
-                        border: isActive ? '2px solid #8DC63F' : '2px solid rgba(255,255,255,0.15)',
-                        display: 'flex', alignItems: 'center', justifyContent: 'center',
-                        cursor: 'pointer', zIndex: 5, padding: 0,
-                        boxShadow: isActive ? '0 0 10px rgba(141,198,63,0.4)' : 'none',
-                        transition: 'all 0.2s',
-                      })
-                      const dotStyle = (isActive) => ({
-                        width: 8, height: 8, borderRadius: '50%',
-                        background: isActive ? '#000' : 'rgba(255,255,255,0.5)',
-                      })
-                      // Map corners: TL=0(main), TR=1, BL=2, BR=3
-                      const positions = [
-                        { top: 8, left: 8 },
-                        { top: 8, right: 8 },
-                        { bottom: 8, left: 8 },
-                        { bottom: 8, right: 8 },
-                      ]
-                      return positions.slice(0, Math.min(imgs.length, 4)).map((pos, pi) => (
-                        <button key={pi} onClick={e => { e.stopPropagation(); setCardImgIdx(p => ({...p,[l.id]:pi})) }} style={{ position: 'absolute', ...pos, ...cornerStyle(currentImg === pi) }}>
-                          <div style={dotStyle(currentImg === pi)} />
-                        </button>
-                      ))
-                    })()}
+                    {/* Left/Right arrows */}
+                    {imgs.length > 1 && <>
+                      <button onClick={e => { e.stopPropagation(); setCardImgIdx(p => ({...p,[l.id]:(currentImg - 1 + imgs.length) % imgs.length})) }} style={{ position:'absolute',left:8,top:'50%',transform:'translateY(-50%)',width:28,height:28,borderRadius:'50%',background:'rgba(0,0,0,0.4)',backdropFilter:'blur(6px)',border:'1px solid rgba(255,255,255,0.15)',display:'flex',alignItems:'center',justifyContent:'center',cursor:'pointer',zIndex:4,padding:0,color:'rgba(255,255,255,0.6)' }}>
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+                      </button>
+                      <button onClick={e => { e.stopPropagation(); setCardImgIdx(p => ({...p,[l.id]:(currentImg + 1) % imgs.length})) }} style={{ position:'absolute',right:8,top:'50%',transform:'translateY(-50%)',width:28,height:28,borderRadius:'50%',background:'rgba(0,0,0,0.4)',backdropFilter:'blur(6px)',border:'1px solid rgba(255,255,255,0.15)',display:'flex',alignItems:'center',justifyContent:'center',cursor:'pointer',zIndex:4,padding:0,color:'rgba(255,255,255,0.6)' }}>
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+                      </button>
+                      {/* Image counter */}
+                      <div style={{ position:'absolute',top:8,right:8,padding:'3px 8px',background:'rgba(0,0,0,0.4)',backdropFilter:'blur(6px)',borderRadius:6,fontSize:10,fontWeight:700,color:'rgba(255,255,255,0.5)',zIndex:3 }}>{currentImg + 1}/{imgs.length}</div>
+                    </>}
+                    </div>{/* close inner clip div */}
 
                     {/* Flip button — center bottom */}
                     <button onClick={e => { e.stopPropagation(); setFlippedCards(p => ({...p,[l.id]:true})) }} style={{ position:'absolute',bottom:-34,left:'50%',transform:'translateX(-50%)',width:68,height:68,borderRadius:'50%',background:'rgba(0,0,0,0.6)',backdropFilter:'blur(12px)',border:'3px solid rgba(255,255,255,0.2)',display:'flex',alignItems:'center',justifyContent:'center',cursor:'pointer',zIndex:10,padding:0 }}>
@@ -683,10 +665,8 @@ export default function RentalSearchScreen({ onClose }) {
 
                   {/* Front info */}
                   <div onClick={() => setSelected(l)} style={{ padding:'14px 14px 14px',display:'flex',flexDirection:'column',gap:6,cursor:'pointer' }}>
-                    {/* Brand + specs row — beside fingerprint button */}
+                    {/* Brand + specs row */}
                     <div style={{ display:'flex',alignItems:'center',gap:10,marginTop:0 }}>
-                      {/* Spacer for fingerprint button area */}
-                      <div style={{width:40}} />
                       <div style={{flex:1}}>
                         <div style={{fontSize:17,fontWeight:900,color:'#fff',letterSpacing:'-0.01em'}}>{l.extra_fields?.brand || l.title?.split(' ')[0] || l.title}</div>
                         <div style={{fontSize:11,color:'rgba(255,255,255,0.35)',fontWeight:600,marginTop:2}}>{[l.extra_fields?.cc && `${l.extra_fields.cc}cc`, l.extra_fields?.year, l.extra_fields?.transmission].filter(Boolean).join(' · ') || l.sub_category}</div>
