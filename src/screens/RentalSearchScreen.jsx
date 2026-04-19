@@ -337,13 +337,45 @@ function RentalCategories({ onSelect, onBack, onDashboard }) {
         </button>
       </div>
       <div className={styles.catGrid}>
-        {CATEGORY_TILES.map(c => (
-          <button key={c.id} className={styles.catTile} onClick={() => onSelect(c)}>
-            {c.img
-              ? <img src={c.img} alt={c.label} className={styles.catTileImg} />
-              : <span className={styles.catTileEmoji}>{c.emoji}</span>
-            }
-            <span className={styles.catTileLabel}>{c.label}</span>
+        {[
+          { ...CATEGORY_TILES[0], icon: '🏍️', accent: '#8DC63F', count: '2,400+' },
+          { ...CATEGORY_TILES[1], icon: '🏠', accent: '#3B82F6', count: '850+' },
+          { ...CATEGORY_TILES[2], icon: '👗', accent: '#EC4899', count: '320+' },
+          { ...CATEGORY_TILES[3], icon: '📷', accent: '#F59E0B', count: '180+' },
+          { ...CATEGORY_TILES[4], icon: '🔊', accent: '#8B5CF6', count: '95+' },
+          { ...CATEGORY_TILES[5], icon: '🎉', accent: '#EF4444', count: '210+' },
+        ].map(c => (
+          <button key={c.id} onClick={() => onSelect(c)} style={{
+            position: 'relative', display: 'flex', flexDirection: 'column',
+            padding: '18px 14px', minHeight: 160,
+            background: 'rgba(0,0,0,0.45)', backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)',
+            border: `1.5px solid ${c.accent}20`, borderRadius: 18,
+            cursor: 'pointer', fontFamily: 'inherit', textAlign: 'left',
+            overflow: 'hidden', transition: 'all 0.3s',
+            boxShadow: `inset 0 1px 0 rgba(255,255,255,0.04), 0 4px 20px rgba(0,0,0,0.3)`,
+          }}>
+            {/* Accent line top */}
+            <div style={{ position: 'absolute', top: 0, left: '15%', right: '15%', height: 2, background: `linear-gradient(90deg, transparent, ${c.accent}60, transparent)`, pointerEvents: 'none' }} />
+
+            {/* Icon */}
+            <div style={{ width: 48, height: 48, borderRadius: 14, background: `${c.accent}12`, border: `1px solid ${c.accent}25`, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 24, marginBottom: 12 }}>
+              {c.icon}
+            </div>
+
+            {/* Label */}
+            <div style={{ fontSize: 17, fontWeight: 900, color: '#fff', marginBottom: 3 }}>{c.label}</div>
+            <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.35)', fontWeight: 600, lineHeight: 1.3, marginBottom: 10 }}>{c.desc}</div>
+
+            {/* Bottom row */}
+            <div style={{ marginTop: 'auto', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+              <span style={{ fontSize: 10, fontWeight: 700, color: c.accent, opacity: 0.7 }}>{c.count} listings</span>
+              <div style={{ width: 26, height: 26, borderRadius: '50%', background: c.accent, display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: `0 2px 8px ${c.accent}40` }}>
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#000" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+              </div>
+            </div>
+
+            {/* Glow background */}
+            <div style={{ position: 'absolute', bottom: -20, right: -20, width: 80, height: 80, borderRadius: '50%', background: `${c.accent}08`, filter: 'blur(20px)', pointerEvents: 'none' }} />
           </button>
         ))}
       </div>
