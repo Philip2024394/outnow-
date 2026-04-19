@@ -140,7 +140,7 @@ function RentalLanding({ onEnter, onClose, onDashboard, onSignUp }) {
       <div className={styles.landingMain}>
         {/* Header — brand text */}
         <div className={styles.landingHeader}>
-          <span className={styles.landingBrandText}><span>INDOO</span><span className={styles.landingBrandGreen}>RENTALS</span></span>
+          <span className={styles.landingBrandText}><span>INDOO</span><span className={styles.landingBrandGreen}>DEALS</span></span>
         </div>
 
         {/* Search bar */}
@@ -153,8 +153,8 @@ function RentalLanding({ onEnter, onClose, onDashboard, onSignUp }) {
 
         {/* Hero content — pushed to bottom */}
         <div className={styles.landingContent}>
-          <h1 className={styles.landingTitle}>Indoo Rentals</h1>
-          <p className={styles.landingSub}>Motors, cars, villas, cameras, sound systems and more — rent anything you need</p>
+          <h1 className={styles.landingTitle}>Indoo Deals</h1>
+          <p className={styles.landingSub}>Rentals & Sales — motors, cars, villas, equipment and more</p>
           <button className={styles.landingBtn} onClick={onEnter}>
             Let's Go Rent
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
@@ -321,8 +321,8 @@ function RentalCategories({ onSelect, onBack, onDashboard }) {
     <div className={styles.catPage}>
       <div className={styles.catHeader}>
         <div>
-          <h1 className={styles.catHeroTitle}>Indoo Rentals</h1>
-          <p className={styles.catHeroSub}>Rent anything, anywhere in Indonesia</p>
+          <h1 className={styles.catHeroTitle}>Indoo Deals</h1>
+          <p className={styles.catHeroSub}>Rentals & Sales across Indonesia</p>
         </div>
         <button onClick={onBack} style={{ width:36, height:36, borderRadius:'50%', background:'#8DC63F', border:'none', display:'flex', alignItems:'center', justifyContent:'center', cursor:'pointer', boxShadow:'0 2px 10px rgba(0,0,0,0.3)', flexShrink:0 }}>
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#000" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
