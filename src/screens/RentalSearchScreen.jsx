@@ -633,15 +633,10 @@ export default function RentalSearchScreen({ onClose }) {
       {/* Header — market title + search bar + filter */}
       <div style={{ padding: '14px 14px 0', flexShrink: 0 }}>
         <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
-          <span style={{ fontSize: 15, fontWeight: 900, color: '#fff', flexShrink: 0, cursor: 'pointer' }} onClick={() => { if (vehicleType) { setView('vehicleDir'); return } setView('categories') }}>
-            {vehicleType === 'Motorcycles' ? '🏍️ Bike' : vehicleType === 'Cars' ? '🚗 Car' : vehicleType === 'Trucks' ? '🚛 Truck' : vehicleType === 'Buses' ? '🚌 Bus' : '📦'} <span style={{ color: '#8DC63F' }}>Market</span>
+          <span style={{ fontSize: 19, fontWeight: 900, color: '#fff', flex: 1, cursor: 'pointer', letterSpacing: '-0.02em' }} onClick={() => { if (vehicleType) { setView('vehicleDir'); return } setView('categories') }}>
+            {vehicleType === 'Motorcycles' ? 'Bike ' : vehicleType === 'Cars' ? 'Car ' : vehicleType === 'Trucks' ? 'Truck ' : vehicleType === 'Buses' ? 'Bus ' : ''}<span style={{ color: '#8DC63F' }}>Market</span>
           </span>
-          <div style={{ flex: 1, display: 'flex', alignItems: 'center', padding: '0 14px', background: 'rgba(255,255,255,0.04)', border: '1.5px solid rgba(255,255,255,0.08)', borderRadius: 14, height: 40 }}>
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.3)" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-            <input value={search} onChange={e => setSearch(e.target.value)} placeholder="Search rentals..." style={{ flex: 1, background: 'none', border: 'none', color: '#fff', fontSize: 13, fontWeight: 500, fontFamily: 'inherit', outline: 'none', padding: '0 10px' }} />
-            {search && <button onClick={() => setSearch('')} style={{ background: 'none', border: 'none', color: 'rgba(255,255,255,0.3)', fontSize: 14, cursor: 'pointer', padding: 0 }}>✕</button>}
-          </div>
-          <button onClick={() => setShowFilter(!showFilter)} style={{ width: 36, height: 36, borderRadius: 12, background: showFilter ? '#8DC63F' : 'rgba(255,255,255,0.04)', border: showFilter ? 'none' : '1.5px solid rgba(255,255,255,0.08)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', flexShrink: 0, color: showFilter ? '#000' : 'rgba(255,255,255,0.4)' }}>
+          <button onClick={() => setShowFilter(!showFilter)} style={{ width: 36, height: 36, borderRadius: 12, background: '#8DC63F', border: 'none', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', flexShrink: 0, color: '#000', boxShadow: '0 2px 8px rgba(141,198,63,0.3)' }}>
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="4" y1="21" x2="4" y2="14"/><line x1="4" y1="10" x2="4" y2="3"/><line x1="12" y1="21" x2="12" y2="12"/><line x1="12" y1="8" x2="12" y2="3"/><line x1="20" y1="21" x2="20" y2="16"/><line x1="20" y1="12" x2="20" y2="3"/><line x1="1" y1="14" x2="7" y2="14"/><line x1="9" y1="8" x2="15" y2="8"/><line x1="17" y1="16" x2="23" y2="16"/></svg>
           </button>
         </div>
@@ -687,6 +682,7 @@ export default function RentalSearchScreen({ onClose }) {
           { id: 'home', label: 'Home', icon: <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>, color: '#fff', action: () => { if (vehicleType) { setView('vehicleDir') } else { setView('categories') } } },
           { id: 'rent', label: 'Rental', icon: <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 2l-2 2m-7.61 7.61a5.5 5.5 0 1 1-7.778 7.778 5.5 5.5 0 0 1 7.777-7.777zm0 0L15.5 7.5m0 0l3 3L22 7l-3-3m-3.5 3.5L19 4"/></svg>, color: '#8DC63F', action: () => setListingMode(listingMode === 'rent' ? 'all' : 'rent') },
           { id: 'sale', label: 'Selling', icon: <span style={{ fontSize: 16 }}>💰</span>, color: '#FFD700', action: () => setListingMode(listingMode === 'sale' ? 'all' : 'sale') },
+          { id: 'user', label: 'Account', icon: <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>, color: '#fff', action: () => setRentalSignUpOpen(true) },
         ].map(btn => {
           const isActive = (btn.id === 'rent' && listingMode === 'rent') || (btn.id === 'sale' && listingMode === 'sale')
           return (
@@ -706,7 +702,7 @@ export default function RentalSearchScreen({ onClose }) {
       </div>
 
       {/* Premium listing cards */}
-      <div className={styles.body} style={{ paddingRight: 66 }}>
+      <div className={styles.body} style={{ paddingRight: 66, paddingTop: 90 }}>
         <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
           {sortedListings.length === 0 && <div className={styles.empty}>No rentals found</div>}
 
