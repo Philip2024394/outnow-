@@ -219,7 +219,7 @@ function VehicleDirectory({ vehicleType, onSelectModel, onBack }) {
       <div className={styles.dirHero}>
         <h1 className={styles.dirHeroTitle}>{title} Rentals</h1>
         <p className={styles.dirHeroSub}>
-          {isBike ? 'Find your perfect ride in Indonesia' : isTruck ? 'Heavy-duty vehicles for every job' : isBus ? 'Group travel made easy' : 'Drive in comfort across the island'}
+          {(() => { const c = (() => { try { return JSON.parse(localStorage.getItem('indoo_rental_owner') || '{}').city } catch { return '' } })() || 'your city'; return isBike ? `Find your perfect ride in ${c}` : isTruck ? `Heavy-duty vehicles in ${c}` : isBus ? `Group travel in ${c}` : `Drive in comfort in ${c}` })()}
         </p>
       </div>
       <div className={styles.dirBody}>
@@ -253,16 +253,16 @@ function VehicleDirectory({ vehicleType, onSelectModel, onBack }) {
                 {/* Price range */}
                 {v.priceFrom && (
                   <div style={{ display: 'flex', alignItems: 'baseline', gap: 4, marginTop: 2 }}>
-                    <span style={{ fontSize: 13, fontWeight: 900, color: '#8DC63F' }}>Rp {v.priceFrom.toLocaleString('id-ID')}</span>
-                    <span style={{ fontSize: 11, color: 'rgba(255,255,255,0.25)' }}>-</span>
-                    <span style={{ fontSize: 13, fontWeight: 900, color: '#8DC63F' }}>{v.priceTo.toLocaleString('id-ID')}</span>
-                    <span style={{ fontSize: 10, fontWeight: 700, color: 'rgba(255,255,255,0.3)' }}>/ Day</span>
+                    <span style={{ fontSize: 14, fontWeight: 900, color: '#8DC63F' }}>Rp {(v.priceFrom/1000).toFixed(0)}k</span>
+                    <span style={{ fontSize: 12, color: 'rgba(255,255,255,0.3)' }}>-</span>
+                    <span style={{ fontSize: 14, fontWeight: 900, color: '#8DC63F' }}>{(v.priceTo/1000).toFixed(0)}k</span>
+                    <span style={{ fontSize: 11, fontWeight: 700, color: 'rgba(255,255,255,0.35)' }}>/ Day</span>
                   </div>
                 )}
                 {/* Listings badge — below price */}
                 <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginTop: 4 }}>
-                  <span style={{ fontSize: 11, fontWeight: 800, color: '#FFD700' }}>{v.listings}</span>
-                  <span style={{ fontSize: 9, fontWeight: 600, color: 'rgba(255,255,255,0.25)' }}>listed</span>
+                  <span style={{ fontSize: 12, fontWeight: 800, color: '#FFD700' }}>{v.listings}</span>
+                  <span style={{ fontSize: 10, fontWeight: 600, color: 'rgba(255,255,255,0.3)' }}>Available Now</span>
                 </div>
               </div>
 
@@ -291,7 +291,7 @@ function SubCategoryLanding({ bg, title, tagline, buttons, onSelect, onBack }) {
       <div className={styles.landingOverlay} />
       {/* Header — brand name left, back button right */}
       <div className={styles.subHeader}>
-        <span className={styles.subHeaderBrand}>IND<span className={styles.subHeaderGreen}>OO</span> RENTALS</span>
+        <div />
         <button className={styles.subHeaderBack} onClick={onBack}>
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#000" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
             <polyline points="15 18 9 12 15 6"/>
@@ -549,7 +549,7 @@ export default function RentalSearchScreen({ onClose }) {
     return (
       <SubCategoryLanding
         bg={VEHICLES_BG}
-        title="Rent Vehicles"
+        title="Vehicles"
         tagline="Find your perfect ride"
         buttons={[
           { img: 'https://ik.imagekit.io/nepgaxllc/Sleek%20green%20and%20black%20scooter%20setup.png?updatedAt=1775634845237', label: 'Bike', filter: 'Motorcycles' },
@@ -630,13 +630,12 @@ export default function RentalSearchScreen({ onClose }) {
 
   return (
     <div className={styles.page}>
-      {/* Header — logo + search bar + filter */}
+      {/* Header — market title + search bar + filter */}
       <div style={{ padding: '14px 14px 0', flexShrink: 0 }}>
         <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
-          <button onClick={() => { if (vehicleType) { setView('vehicleDir'); return } setView('categories') }} style={{ width: 36, height: 36, borderRadius: '50%', background: '#8DC63F', border: 'none', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', flexShrink: 0, boxShadow: '0 2px 8px rgba(141,198,63,0.3)' }}>
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#000" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
-          </button>
-          <img src="https://ik.imagekit.io/nepgaxllc/Untitledfsdsd-removebg-preview.png" alt="" style={{ width: 28, height: 28, objectFit: 'contain', flexShrink: 0, filter: 'drop-shadow(0 1px 4px rgba(0,0,0,0.3))' }} />
+          <span style={{ fontSize: 15, fontWeight: 900, color: '#fff', flexShrink: 0, cursor: 'pointer' }} onClick={() => { if (vehicleType) { setView('vehicleDir'); return } setView('categories') }}>
+            {vehicleType === 'Motorcycles' ? '🏍️ Bike' : vehicleType === 'Cars' ? '🚗 Car' : vehicleType === 'Trucks' ? '🚛 Truck' : vehicleType === 'Buses' ? '🚌 Bus' : '📦'} <span style={{ color: '#8DC63F' }}>Market</span>
+          </span>
           <div style={{ flex: 1, display: 'flex', alignItems: 'center', padding: '0 14px', background: 'rgba(255,255,255,0.04)', border: '1.5px solid rgba(255,255,255,0.08)', borderRadius: 14, height: 40 }}>
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.3)" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
             <input value={search} onChange={e => setSearch(e.target.value)} placeholder="Search rentals..." style={{ flex: 1, background: 'none', border: 'none', color: '#fff', fontSize: 13, fontWeight: 500, fontFamily: 'inherit', outline: 'none', padding: '0 10px' }} />
@@ -667,11 +666,8 @@ export default function RentalSearchScreen({ onClose }) {
           </div>
         )}
 
-        {/* Market title + results count */}
-        <div style={{ padding: '6px 0 4px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-          <span style={{ fontSize: 13, fontWeight: 800, color: 'rgba(255,255,255,0.5)' }}>
-            {vehicleType === 'Motorcycles' ? '🏍️ Bike' : vehicleType === 'Cars' ? '🚗 Car' : vehicleType === 'Trucks' ? '🚛 Truck' : vehicleType === 'Buses' ? '🚌 Bus' : '📦'} Market
-          </span>
+        {/* Results count */}
+        <div style={{ padding: '6px 0 4px' }}>
           <span style={{ fontSize: 10, color: 'rgba(255,255,255,0.2)', fontWeight: 600 }}>
             {sortedListings.filter(l => listingMode === 'sale' ? !!l.buy_now : listingMode === 'rent' ? !l.buy_now : true).length} {listingMode === 'sale' ? 'for sale' : listingMode === 'rent' ? 'for rent' : 'available'}
           </span>
@@ -710,7 +706,7 @@ export default function RentalSearchScreen({ onClose }) {
       </div>
 
       {/* Premium listing cards */}
-      <div className={styles.body} style={{ paddingRight: 58 }}>
+      <div className={styles.body} style={{ paddingRight: 66 }}>
         <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
           {sortedListings.length === 0 && <div className={styles.empty}>No rentals found</div>}
 
