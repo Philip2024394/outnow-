@@ -606,7 +606,7 @@ export default function RentalSearchScreen({ onClose }) {
             {vehicleType === 'Motorcycles' ? '🏍️ Bike' : vehicleType === 'Cars' ? '🚗 Car' : vehicleType === 'Trucks' ? '🚛 Truck' : vehicleType === 'Buses' ? '🚌 Bus' : '📦'} Market
           </span>
           <span style={{ fontSize: 10, color: 'rgba(255,255,255,0.2)', fontWeight: 600 }}>
-            {sortedListings.filter(l => listingMode === 'sale' ? l.buy_now : true).length} {listingMode === 'sale' ? 'for sale' : 'available'}
+            {sortedListings.filter(l => listingMode === 'sale' ? !!l.buy_now : listingMode === 'rent' ? !l.buy_now : true).length} {listingMode === 'sale' ? 'for sale' : listingMode === 'rent' ? 'for rent' : 'available'}
           </span>
         </div>
       </div>
@@ -645,7 +645,7 @@ export default function RentalSearchScreen({ onClose }) {
           {sortedListings.length === 0 && <div className={styles.empty}>No rentals found</div>}
 
           <style>{`@keyframes flipGlow { 0%,100% { box-shadow: 0 0 8px rgba(141,198,63,0.3); } 50% { box-shadow: 0 0 18px rgba(141,198,63,0.6), 0 0 30px rgba(141,198,63,0.2); } }`}</style>
-          {sortedListings.filter(l => listingMode === 'sale' ? !!l.buy_now : listingMode === 'rent' ? true : true).map(l => {
+          {sortedListings.filter(l => listingMode === 'sale' ? !!l.buy_now : listingMode === 'rent' ? !l.buy_now : true).map(l => {
             const imgs = l.images?.length ? l.images : [l.image || '']
             const currentImg = cardImgIdx[l.id] || 0
             const isFlipped = !!flippedCards[l.id]
