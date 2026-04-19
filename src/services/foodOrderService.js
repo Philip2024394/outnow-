@@ -15,6 +15,8 @@
  */
 import { supabase } from '@/lib/supabase'
 import { fetchNearbyDrivers, setDriverBusy } from './bookingService'
+import { processCommission } from './walletService'
+import { recordCommission } from './commissionService'
 
 // ── Order status pipeline ─────────────────────────────────────────────────────
 export const ORDER_STATUSES = [
@@ -246,12 +248,21 @@ export async function confirmPaymentReceived(orderId) {
     .eq('id', orderId)
 }
 
-/** Update order status. Frees driver when delivered/cancelled. */
-export async function updateFoodOrderStatus(orderId, status, driverId = null) {
+/** Update order status. Frees driver when delivered/cancelled. Records commission on delivery. */
+export async function updateFoodOrderStatus(orderId, status, driverId = null, orderData = null) {
   if (!supabase || String(orderId).startsWith('local-')) return
   await supabase.from('food_orders').update({ status }).eq('id', orderId)
   if ((status === 'delivered' || status === 'cancelled') && driverId) {
     await setDriverBusy(driverId, false, 'booking')
+  }
+  // Record 10% commission when food order is delivered
+  if (status === 'delivered' && orderData) {
+    const sellerId = orderData.restaurant_id || orderData.seller_id || 'default'
+    const orderAmount = orderData.total || orderData.subtotal || 0
+    if (orderAmount > 0) {
+      processCommission(sellerId, 'food', orderId, orderAmount).catch(() => {})
+      recordCommission({ sellerId, orderId, type: 'restaurant', amount: orderAmount }).catch(() => {})
+    }
   }
 }
 

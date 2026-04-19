@@ -6,6 +6,7 @@
 import { useState, useEffect, useCallback } from 'react'
 import { useAuth } from '@/hooks/useAuth'
 import { getSellerBalance, getSellerCommissions, fmtIDR } from '@/services/commissionService'
+import CommissionPaymentScreen from './CommissionPaymentScreen'
 import styles from './RestaurantCommissionScreen.module.css'
 
 const STATUS_CONFIG = {
@@ -33,6 +34,7 @@ export default function RestaurantCommissionScreen({ onClose, onUpgrade }) {
   const [commissions, setCommissions] = useState([])
   const [loading, setLoading]       = useState(true)
   const [tab, setTab]               = useState('unpaid')
+  const [paymentOpen, setPaymentOpen] = useState(false)
 
   const load = useCallback(async () => {
     setLoading(true)
@@ -110,14 +112,12 @@ export default function RestaurantCommissionScreen({ onClose, onUpgrade }) {
                 Pay your outstanding commission to restore full chat access with customers.
               </p>
               <div className={styles.payActions}>
-                <a
+                <button
                   className={styles.btnPay}
-                  href="https://indoo.id/pay-commission"
-                  target="_blank"
-                  rel="noopener noreferrer"
+                  onClick={() => setPaymentOpen(true)}
                 >
                   💳 Pay {fmtIDR(balance.totalOwed)}
-                </a>
+                </button>
                 <button className={styles.btnUpgrade} onClick={onUpgrade}>
                   ⭐ Upgrade — Skip commissions
                 </button>
@@ -206,6 +206,7 @@ export default function RestaurantCommissionScreen({ onClose, onUpgrade }) {
         </div>
 
       </div>
+      <CommissionPaymentScreen open={paymentOpen} onClose={() => setPaymentOpen(false)} />
     </div>
   )
 }
