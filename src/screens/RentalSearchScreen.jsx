@@ -18,9 +18,10 @@ import SectionCTAButton from '@/components/ui/SectionCTAButton'
 import { hasVisitedSection, markSectionVisited } from '@/services/sectionVisitService'
 import PriceCalculator from '@/components/rentals/PriceCalculator'
 import { RentalChat, RentalBookingFlow } from '@/domains/rentals/components/RentalBooking'
+import { ReviewsPopup, getAvgRating } from '@/components/reviews/ReviewSystem'
 import styles from './RentalSearchScreen.module.css'
 
-function RentalDetail({ listing, onClose, onChat, onBook }) {
+function RentalDetail({ listing, onClose, onChat, onBook, onReview }) {
   if (!listing) return null
 
   const extraEntries = listing.extra_fields
@@ -114,7 +115,12 @@ function RentalDetail({ listing, onClose, onChat, onBook }) {
           🏍️ Book Now
         </button>
       </div>
-      <span className={styles.commissionNote}>10% deposit to confirm · Pay balance on pickup</span>
+      <span className={styles.commissionNote}>Rentals & Sales · Indoo Done Deal</span>
+
+      {/* Reviews button */}
+      <button onClick={() => onReview?.(listing)} style={{ width: 'calc(100% - 32px)', margin: '8px 16px', padding: '12px 0', borderRadius: 14, background: 'rgba(255,215,0,0.06)', border: '1px solid rgba(255,215,0,0.15)', color: '#FFD700', fontSize: 13, fontWeight: 800, cursor: 'pointer', fontFamily: 'inherit', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6 }}>
+        ⭐ Reviews ({listing.review_count || 0})
+      </button>
     </div>
   )
 }
@@ -384,6 +390,7 @@ export default function RentalSearchScreen({ onClose }) {
   const [cardImgIdx, setCardImgIdx] = useState({})
   const [flippedCards, setFlippedCards] = useState({})
   const [listingMode, setListingMode] = useState('all') // 'all' | 'rent' | 'sale'
+  const [reviewListing, setReviewListing] = useState(null)
 
   // Merge demo listings with owner-published live listings
   const ownerListings = (() => {
@@ -861,7 +868,10 @@ export default function RentalSearchScreen({ onClose }) {
       </div>
 
       {/* Detail view */}
-      {selected && <RentalDetail listing={selected} onClose={() => setSelected(null)} onChat={(l) => { setSelected(null); setChatListing(l) }} onBook={(l) => { setSelected(null); setBookingListing(l) }} />}
+      {selected && <RentalDetail listing={selected} onClose={() => setSelected(null)} onChat={(l) => { setSelected(null); setChatListing(l) }} onBook={(l) => { setSelected(null); setBookingListing(l) }} onReview={(l) => { setSelected(null); setReviewListing(l) }} />}
+
+      {/* Reviews popup */}
+      {reviewListing && <ReviewsPopup open={true} onClose={() => setReviewListing(null)} listingRef={reviewListing.ref || reviewListing.id} listingTitle={reviewListing.title} />}
 
       {/* Chat window */}
       {chatListing && <RentalChat listing={chatListing} onClose={() => setChatListing(null)} onBook={() => { setChatListing(null); setBookingListing(chatListing) }} />}
