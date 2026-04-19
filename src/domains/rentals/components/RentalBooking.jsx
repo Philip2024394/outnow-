@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { createPortal } from 'react-dom'
 import { checkSpam, recordStrike, isUserBanned, getWarningMessage } from '@/utils/spamFilter'
 import { processCommission, COMMISSION_RATE } from '@/services/walletService'
+import RentalCalendar from '@/components/calendar/RentalCalendar'
 
 function fmtPrice(n) {
   if (!n) return '—'
@@ -126,6 +127,7 @@ export function RentalBookingFlow({ listing, onClose, onConfirm }) {
   const [wantDelivery, setWantDelivery] = useState(false)
   const [wantAirport, setWantAirport] = useState(false)
   const [wantDriver, setWantDriver] = useState(false)
+  const [showCalendar, setShowCalendar] = useState(false)
   const [step, setStep] = useState(0) // 0: form, 1: processing, 2: confirmed
   const [bookingRef] = useState(() => 'IND-' + Math.random().toString(36).substring(2, 6).toUpperCase() + Math.floor(1000 + Math.random() * 9000))
 
@@ -202,12 +204,25 @@ export function RentalBookingFlow({ listing, onClose, onConfirm }) {
               {showErrors && !whatsapp.trim() && <span style={{ fontSize: 10, color: '#EF4444', fontWeight: 700, marginTop: 4, display: 'block' }}>WhatsApp number is required</span>}
             </div>
 
-            {/* Pickup date */}
+            {/* Pickup date — calendar */}
             <div>
               <label style={{ fontSize: 11, fontWeight: 700, color: 'rgba(255,255,255,0.45)', display: 'block', marginBottom: 5 }}>Pickup Date <span style={{ color: '#EF4444' }}>*</span></label>
-              <input type="date" value={pickupDate} onChange={e => setPickupDate(e.target.value)} style={{ ...inputStyle, borderColor: showErrors && !pickupDate ? '#EF4444' : 'rgba(255,255,255,0.08)' }} />
+              <button onClick={() => setShowCalendar(true)} style={{ ...inputStyle, display: 'flex', alignItems: 'center', gap: 10, cursor: 'pointer', borderColor: showErrors && !pickupDate ? '#EF4444' : 'rgba(255,255,255,0.08)' }}>
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke={pickupDate ? '#8DC63F' : 'rgba(255,255,255,0.25)'} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+                <span style={{ color: pickupDate ? '#fff' : 'rgba(255,255,255,0.2)', fontSize: 14 }}>{pickupDate || 'Select date from calendar'}</span>
+              </button>
               {showErrors && !pickupDate && <span style={{ fontSize: 10, color: '#EF4444', fontWeight: 700, marginTop: 4, display: 'block' }}>Pickup date is required</span>}
             </div>
+
+            {/* Calendar popup */}
+            <RentalCalendar
+              open={showCalendar}
+              onClose={() => setShowCalendar(false)}
+              listingRef={listing.ref || listing.id}
+              listingTitle={listing.title}
+              mode="view"
+              onSelectDate={(date) => { setPickupDate(date); setShowCalendar(false) }}
+            />
 
             {/* Duration + live price */}
             <div>
