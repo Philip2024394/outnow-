@@ -419,7 +419,7 @@ export default function BusListingForm({ open, onClose, onSubmit, editListing })
 
             {/* Drawer footer */}
             <div style={{ padding: '16px', borderTop: '1px solid rgba(255,255,255,0.04)', textAlign: 'center' }}>
-              <span style={{ fontSize: 10, color: 'rgba(255,255,255,0.15)', fontWeight: 600 }}>Indoo Rentals v1.0</span>
+              <span style={{ fontSize: 10, color: 'rgba(255,255,255,0.15)', fontWeight: 600 }}>Indoo Done Deal v1.0</span>
             </div>
           </div>
         </>

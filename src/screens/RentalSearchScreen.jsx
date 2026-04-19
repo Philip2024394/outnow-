@@ -343,12 +343,12 @@ function RentalCategories({ onSelect, onBack, onDashboard }) {
       </div>
       <div className={styles.catGrid}>
         {[
-          { ...CATEGORY_TILES[0], icon: null, heroImg: 'https://ik.imagekit.io/nepgaxllc/ChatGPT%20Image%20Apr%2019,%202026,%2006_37_03%20PM.png', accent: '#8DC63F', count: '2,400+' },
-          { ...CATEGORY_TILES[1], icon: '🏠', accent: '#3B82F6', count: '850+' },
-          { ...CATEGORY_TILES[2], icon: '👗', accent: '#EC4899', count: '320+' },
-          { ...CATEGORY_TILES[3], icon: '📷', accent: '#F59E0B', count: '180+' },
-          { ...CATEGORY_TILES[4], icon: '🔊', accent: '#8B5CF6', count: '95+' },
-          { ...CATEGORY_TILES[5], icon: '🎉', accent: '#EF4444', count: '210+' },
+          { ...CATEGORY_TILES[0], icon: null, heroImg: 'https://ik.imagekit.io/nepgaxllc/ChatGPT%20Image%20Apr%2019,%202026,%2006_37_03%20PM.png', accent: '#8DC63F', count: '2,400+', descOverride: 'Cars, Motorcycles, Trucks & Buses' },
+          { ...CATEGORY_TILES[1], icon: null, heroImg: 'https://ik.imagekit.io/nepgaxllc/ChatGPT%20Image%20Apr%2019,%202026,%2006_47_26%20PM.png', accent: '#8DC63F', count: '850+', descOverride: 'Villa, House, Factory & Kos' },
+          { ...CATEGORY_TILES[2], icon: null, heroImg: 'https://ik.imagekit.io/nepgaxllc/Apr%2019,%202026,%2006_51_09%20PM.png', accent: '#8DC63F', count: '320+' },
+          { ...CATEGORY_TILES[3], icon: null, heroImg: 'https://ik.imagekit.io/nepgaxllc/ChatGPT%20Image%20Apr%2019,%202026,%2006_54_22%20PM.png', accent: '#8DC63F', count: '180+' },
+          { ...CATEGORY_TILES[4], icon: null, heroImg: 'https://ik.imagekit.io/nepgaxllc/ChatGPT%20Image%20Apr%2019,%202026,%2006_56_14%20PM.png', accent: '#8DC63F', count: '95+' },
+          { ...CATEGORY_TILES[5], icon: null, heroImg: 'https://ik.imagekit.io/nepgaxllc/ChatGPT%20Image%20Apr%2019,%202026,%2006_58_47%20PM.png', accent: '#8DC63F', count: '210+' },
         ].map(c => (
           <button key={c.id} onClick={() => !selectedId && handleSelect(c)} style={{
             position: 'relative', display: 'flex', flexDirection: 'column',
@@ -360,7 +360,8 @@ function RentalCategories({ onSelect, onBack, onDashboard }) {
             cursor: selectedId ? 'default' : 'pointer', fontFamily: 'inherit', textAlign: 'left',
             overflow: 'hidden', transition: 'all 0.3s',
             boxShadow: selectedId === c.id ? '0 0 20px rgba(141,198,63,0.2), inset 0 1px 0 rgba(141,198,63,0.1)' : 'inset 0 1px 0 rgba(255,255,255,0.04), 0 4px 20px rgba(0,0,0,0.3)',
-            opacity: selectedId && selectedId !== c.id ? 0.4 : 1,
+            opacity: selectedId && selectedId !== c.id ? 0 : 1,
+            transform: selectedId && selectedId !== c.id ? 'scale(0.95)' : 'scale(1)',
           }}>
             {/* Accent line top */}
             <div style={{ position: 'absolute', top: 0, left: '15%', right: '15%', height: 2, background: `linear-gradient(90deg, transparent, ${c.accent}60, transparent)`, pointerEvents: 'none' }} />
@@ -376,8 +377,14 @@ function RentalCategories({ onSelect, onBack, onDashboard }) {
 
             {/* Label */}
             <div style={{ fontSize: 17, fontWeight: 900, color: '#fff', marginBottom: 3 }}>{c.label}</div>
-            <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.35)', fontWeight: 600, lineHeight: 1.3, marginBottom: 10 }}>{c.desc}</div>
+            <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.35)', fontWeight: 600, lineHeight: 1.3, marginBottom: 10 }}>{c.descOverride || c.desc}</div>
 
+
+            {/* View text — bottom right */}
+            <div style={{ position: 'absolute', bottom: 10, right: 12, display: 'flex', alignItems: 'center', gap: 4, zIndex: 1 }}>
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#8DC63F" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+              <span style={{ fontSize: 10, fontWeight: 600, color: '#8DC63F' }}>View</span>
+            </div>
 
             {/* Glow background */}
             <div style={{ position: 'absolute', bottom: -20, right: -20, width: 80, height: 80, borderRadius: '50%', background: `${c.accent}08`, filter: 'blur(20px)', pointerEvents: 'none' }} />

@@ -77,7 +77,7 @@ export default function OwnerProfileForm({ open, onClose, onComplete }) {
               <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="#000" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
             </div>
             <h1 style={{ fontSize: 24, fontWeight: 900, color: '#fff', margin: 0 }}>Account Activated</h1>
-            <p style={{ fontSize: 16, fontWeight: 700, color: '#8DC63F', margin: 0 }}>Welcome to Indoo Rentals</p>
+            <p style={{ fontSize: 16, fontWeight: 700, color: '#8DC63F', margin: 0 }}>Welcome to Indoo Done Deal</p>
             <button onClick={() => { setProcessing(false); setActivated(false); setShowPlanSelect(true) }} style={{ marginTop: 16, padding: '14px 40px', background: '#8DC63F', border: 'none', borderRadius: 14, color: '#000', fontSize: 16, fontWeight: 800, cursor: 'pointer', fontFamily: 'inherit', boxShadow: '0 4px 20px rgba(141,198,63,0.3)' }}>
               Continue →
             </button>

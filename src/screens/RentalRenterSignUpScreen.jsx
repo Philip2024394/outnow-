@@ -128,7 +128,7 @@ export default function RentalRenterSignUpScreen({ open, onClose, onComplete }) 
       <div className={styles.main}>
         {/* Header */}
         <div className={styles.header}>
-          <img src={MARKET_LOGO} alt="Indoo Rentals" className={styles.headerLogo} />
+          <img src={MARKET_LOGO} alt="Indoo Done Deal" className={styles.headerLogo} />
           <button className={styles.closeBtn} onClick={onClose}>
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
           </button>
@@ -142,7 +142,7 @@ export default function RentalRenterSignUpScreen({ open, onClose, onComplete }) 
             <>
               <div className={styles.hero}>
                 <h1 className={styles.heroTitle}>{isLogin ? 'Welcome Back' : 'Create Account'}</h1>
-                <p className={styles.heroSub}>{isLogin ? 'Sign in to access Indoo Rentals' : 'One-time sign up to unlock Indoo Rentals — always available after'}</p>
+                <p className={styles.heroSub}>{isLogin ? 'Sign in to access Indoo Done Deal' : 'One-time sign up to unlock Indoo Done Deal — always available after'}</p>
               </div>
 
               <div className={styles.form}>
@@ -228,7 +228,7 @@ export default function RentalRenterSignUpScreen({ open, onClose, onComplete }) 
             <div className={styles.done}>
               <span className={styles.doneIcon}>🎉</span>
               <h2 className={styles.doneTitle}>You're In!</h2>
-              <p className={styles.doneSub}>Your Indoo Rentals account is unlocked. Browse motors, cars, villas and more.</p>
+              <p className={styles.doneSub}>Your Indoo Done Deal account is unlocked. Browse motors, cars, villas and more.</p>
               <button className={styles.submitBtn} onClick={() => { onComplete?.(); onClose?.() }}>
                 Browse Rentals →
               </button>
