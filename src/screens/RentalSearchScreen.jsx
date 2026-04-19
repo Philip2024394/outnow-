@@ -674,8 +674,8 @@ export default function RentalSearchScreen({ onClose }) {
                     })()}
 
                     {/* Flip button — center bottom */}
-                    <button onClick={e => { e.stopPropagation(); setFlippedCards(p => ({...p,[l.id]:true})) }} style={{ position:'absolute',bottom:8,left:'50%',transform:'translateX(-50%)',width:34,height:34,borderRadius:'50%',background:'rgba(0,0,0,0.5)',backdropFilter:'blur(8px)',border:'2px solid #8DC63F',display:'flex',alignItems:'center',justifyContent:'center',cursor:'pointer',zIndex:5,animation:'flipGlow 2s ease-in-out infinite',padding:0 }}>
-                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#8DC63F" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d="M18.9 8a8.1 8.1 0 0 0-2.2-3.8A8 8 0 0 0 4 12c0 2.2.5 3.9 1.3 5.3"/><path d="M12 4a8 8 0 0 1 8 8c0 2.5-.7 4.2-1.6 5.5"/><path d="M8 12a4 4 0 0 1 8 0c0 1.4-.3 2.5-.8 3.4"/><path d="M12 8a4 4 0 0 0-4 4c0 1.8.5 3.2 1.2 4.2"/><path d="M12 12v8"/></svg>
+                    <button onClick={e => { e.stopPropagation(); setFlippedCards(p => ({...p,[l.id]:true})) }} style={{ position:'absolute',bottom:-34,left:'50%',transform:'translateX(-50%)',width:68,height:68,borderRadius:'50%',background:'rgba(0,0,0,0.6)',backdropFilter:'blur(12px)',border:'3px solid #8DC63F',display:'flex',alignItems:'center',justifyContent:'center',cursor:'pointer',zIndex:10,animation:'flipGlow 2s ease-in-out infinite',padding:0 }}>
+                      <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#8DC63F" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M18.9 8a8.1 8.1 0 0 0-2.2-3.8A8 8 0 0 0 4 12c0 2.2.5 3.9 1.3 5.3"/><path d="M12 4a8 8 0 0 1 8 8c0 2.5-.7 4.2-1.6 5.5"/><path d="M8 12a4 4 0 0 1 8 0c0 1.4-.3 2.5-.8 3.4"/><path d="M12 8a4 4 0 0 0-4 4c0 1.8.5 3.2 1.2 4.2"/><path d="M12 12v8"/></svg>
                     </button>
                   </div>
 
