@@ -319,8 +319,8 @@ export default function MarketplaceChatScreen({ open, onClose, contact, onViewPr
 
   // Filtered drawer conversations
   const filteredConvs = conversations.filter(c =>
-    c.name.toLowerCase().includes(drawerSearch.toLowerCase()) ||
-    c.lastMsg.toLowerCase().includes(drawerSearch.toLowerCase())
+    (c.name || '').toLowerCase().includes(drawerSearch.toLowerCase()) ||
+    (c.lastMsg || c.lastMessage || '').toLowerCase().includes(drawerSearch.toLowerCase())
   )
 
   const myRole = isSeller ? 'seller' : 'buyer'

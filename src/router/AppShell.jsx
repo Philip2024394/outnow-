@@ -776,22 +776,12 @@ export default function AppShell({ returnParams, triggerGoLive }) {
       </Suspense>
 
       <Suspense fallback={<LazyFallback />}>
-      {foodOpen && !foodBrowseOpen && (
-        <CategoryDiscoveryScreen
-          onClose={() => setFoodOpen(false)}
-          onSelectCategory={(cat, restaurantId) => {
-            setFoodCategory(cat)
-            setFoodScrollToId(restaurantId ?? null)
-            setFoodBrowseOpen(true)
-          }}
-        />
-      )}
-      {foodOpen && foodBrowseOpen && (
+      {foodOpen && (
         <RestaurantBrowseScreen
           category={foodCategory}
           scrollToId={foodScrollToId}
           onBackToCategories={() => setFoodBrowseOpen(false)}
-          onClose={() => { setFoodBrowseOpen(false); setFoodOpen(false) }}
+          onClose={() => { setFoodBrowseOpen(false); setFoodOpen(false); setDockVisible(true); setActiveSection('default') }}
           onOrderViaChat={handleOrderViaChat}
         />
       )}
@@ -1330,7 +1320,7 @@ export default function AppShell({ returnParams, triggerGoLive }) {
       )}
 
       {/* Side nav — visible on marketplace with orange theme */}
-      {(!rideOpen || rideOnLanding) && (!massageOpen || massageOnLanding) && (!datingGridOpen || datingOnLanding) && activeTab !== 'rentals' && activeTab !== 'chat' && !shopOpen && <BottomNav
+      {(!rideOpen || rideOnLanding) && (!massageOpen || massageOnLanding) && (!datingGridOpen || datingOnLanding) && activeTab !== 'rentals' && activeTab !== 'chat' && !shopOpen && !foodOpen && <BottomNav
           isGuest={isGuest}
           dockVisible={dockVisible}
           theme={(() => {

@@ -19,7 +19,7 @@ function FoodLanding({ onBrowse, onRegister, onClose }) {
         </svg>
       </button>
       <div className={styles.landingContent}>
-        <h1 className={styles.landingTitle}>Indoo Street</h1>
+        <h1 className={styles.landingTitle}><span style={{ color: '#fff' }}>IND</span><span style={{ color: '#8DC63F' }}>OO</span><span style={{ color: 'rgba(255,255,255,0.5)', fontWeight: 700, fontSize: '0.55em', marginLeft: 8 }}>STREET</span></h1>
         <p className={styles.landingSub}>Discover street food, warung & restaurants near you</p>
         <button className={styles.landingBtn} onClick={onBrowse}>
           Order Food
@@ -64,9 +64,9 @@ const DEMO_RESTAURANTS = [
     featured_this_week: true, dine_in_discount: 10, status: 'approved',
     bank: { name: 'BCA', account_number: '1234 5678 90', account_holder: 'Sari Warung Jogja' },
     menu_items: [
-      { id: 1,  name: 'Nasi Gudeg Komplit',  price: 28000, prep_time_min: 10, category: 'Main',   description: 'Jackfruit curry, egg, chicken, krecek on white rice', photo_url: null, is_available: true },
-      { id: 2,  name: 'Nasi Gudeg Telur',    price: 18000, prep_time_min: 8,  category: 'Main',   description: 'Jackfruit curry with egg — the classic', photo_url: null, is_available: true },
-      { id: 3,  name: 'Nasi Gudeg Ayam',     price: 25000, prep_time_min: 10, category: 'Main',   description: 'Shredded slow-cooked chicken, jackfruit, rice', photo_url: null, is_available: true },
+      { id: 1,  name: 'Nasi Gudeg Komplit',  price: 28000, prep_time_min: 10, category: 'Main',   description: 'Jackfruit curry, egg, chicken, krecek on white rice', photo_url: 'https://images.unsplash.com/photo-1512058564366-18510be2db19?w=400', is_available: true },
+      { id: 2,  name: 'Nasi Gudeg Telur',    price: 18000, prep_time_min: 8,  category: 'Main',   description: 'Jackfruit curry with egg — the classic', photo_url: 'https://images.unsplash.com/photo-1504674900247-0877df9cc836?w=400', is_available: true },
+      { id: 3,  name: 'Nasi Gudeg Ayam',     price: 25000, prep_time_min: 10, category: 'Main',   description: 'Shredded slow-cooked chicken, jackfruit, rice', photo_url: 'https://images.unsplash.com/photo-1555939594-58d7cb561ad1?w=400', is_available: true },
       { id: 4,  name: 'Krecek Sapi',         price: 12000, prep_time_min: 5,  category: 'Sides',  description: 'Crispy beef skin in spicy coconut sauce', photo_url: null, is_available: true },
       { id: 5,  name: 'Tempe Bacem',         price: 8000,  prep_time_min: 3,  category: 'Sides',  description: 'Sweet Javanese braised tempeh', photo_url: null, is_available: true },
       { id: 6,  name: 'Tahu Goreng',         price: 6000,  prep_time_min: 3,  category: 'Sides',  description: 'Crispy deep-fried tofu', photo_url: null, is_available: true },
@@ -89,9 +89,9 @@ const DEMO_RESTAURANTS = [
     featured_this_week: false, dine_in_discount: 15, status: 'approved',
     bank: { name: 'Mandiri', account_number: '1100 0987 6543', account_holder: 'Harto Wijaya' },
     menu_items: [
-      { id: 20, name: 'Nasi Goreng Istimewa', price: 28000, prep_time_min: 12, category: 'Main',   description: 'Charcoal wok, egg, chicken, vegetables, shrimp paste', photo_url: null, is_available: true },
-      { id: 21, name: 'Nasi Goreng Seafood',  price: 35000, prep_time_min: 15, category: 'Main',   description: 'Prawns, squid, crab meat — full seafood loaded', photo_url: null, is_available: true },
-      { id: 22, name: 'Nasi Goreng Kampung',  price: 20000, prep_time_min: 10, category: 'Main',   description: 'Village style — anchovies, egg, chilli', photo_url: null, is_available: true },
+      { id: 20, name: 'Nasi Goreng Istimewa', price: 28000, prep_time_min: 12, category: 'Main',   description: 'Charcoal wok, egg, chicken, vegetables, shrimp paste', photo_url: 'https://images.unsplash.com/photo-1512058564366-18510be2db19?w=400', is_available: true },
+      { id: 21, name: 'Nasi Goreng Seafood',  price: 35000, prep_time_min: 15, category: 'Main',   description: 'Prawns, squid, crab meat — full seafood loaded', photo_url: 'https://images.unsplash.com/photo-1559339352-11d035aa65de?w=400', is_available: true },
+      { id: 22, name: 'Nasi Goreng Kampung',  price: 20000, prep_time_min: 10, category: 'Main',   description: 'Village style — anchovies, egg, chilli', photo_url: 'https://images.unsplash.com/photo-1504674900247-0877df9cc836?w=400', is_available: true },
       { id: 23, name: 'Nasi Goreng Pete',     price: 22000, prep_time_min: 10, category: 'Main',   description: 'Stinky beans fried rice — bold flavour lovers only', photo_url: null, is_available: true },
       { id: 24, name: 'Sate Ayam 5pcs',       price: 18000, prep_time_min: 10, category: 'Sides',  description: 'Charcoal chicken satay with peanut sauce', photo_url: null, is_available: true },
       { id: 25, name: 'Kerupuk Kampung',      price: 3000,  prep_time_min: 1,  category: 'Sides',  description: 'Homestyle crackers', photo_url: null, is_available: true },
@@ -113,9 +113,9 @@ const DEMO_RESTAURANTS = [
     featured_this_week: false, status: 'approved',
     bank: { name: 'BRI', account_number: '0096 0100 2233 5566', account_holder: 'Iyem Sukarti' },
     menu_items: [
-      { id: 30, name: 'Bubur Ayam Komplit',   price: 22000, prep_time_min: 8,  category: 'Main',   description: 'Rice porridge, shredded chicken, century egg, crispy shallots, ginger broth', photo_url: null, is_available: true },
-      { id: 31, name: 'Bubur Ayam Polos',     price: 14000, prep_time_min: 6,  category: 'Main',   description: 'Plain rice porridge with chicken, soy sauce, crackers', photo_url: null, is_available: true },
-      { id: 32, name: 'Bubur Kacang Hijau',   price: 12000, prep_time_min: 5,  category: 'Main',   description: 'Mung bean sweet porridge with coconut milk', photo_url: null, is_available: true },
+      { id: 30, name: 'Bubur Ayam Komplit',   price: 22000, prep_time_min: 8,  category: 'Main',   description: 'Rice porridge, shredded chicken, century egg, crispy shallots, ginger broth', photo_url: 'https://images.unsplash.com/photo-1512058564366-18510be2db19?w=400', is_available: true },
+      { id: 31, name: 'Bubur Ayam Polos',     price: 14000, prep_time_min: 6,  category: 'Main',   description: 'Plain rice porridge with chicken, soy sauce, crackers', photo_url: 'https://images.unsplash.com/photo-1512058564366-18510be2db19?w=400', is_available: true },
+      { id: 32, name: 'Bubur Kacang Hijau',   price: 12000, prep_time_min: 5,  category: 'Main',   description: 'Mung bean sweet porridge with coconut milk', photo_url: 'https://images.unsplash.com/photo-1504674900247-0877df9cc836?w=400', is_available: true },
       { id: 33, name: 'Cakwe',                price: 8000,  prep_time_min: 2,  category: 'Sides',  description: 'Crispy fried dough — dunk it in the porridge', photo_url: null, is_available: true },
       { id: 34, name: 'Telur Asin',           price: 6000,  prep_time_min: 1,  category: 'Sides',  description: 'Salted duck egg', photo_url: null, is_available: true },
       { id: 35, name: 'Kopi Tubruk',          price: 7000,  prep_time_min: 3,  category: 'Drinks', description: 'Traditional Indonesian black coffee — grounds included', photo_url: null, is_available: true },
@@ -135,9 +135,9 @@ const DEMO_RESTAURANTS = [
     featured_this_week: false, status: 'approved',
     bank: { name: 'BNI', account_number: '0441 2233 4455', account_holder: 'Sari Rasa Padang' },
     menu_items: [
-      { id: 40, name: 'Rendang Daging Sapi',  price: 45000, prep_time_min: 5,  category: 'Main',   description: 'Dry-cooked beef in coconut milk & spices — 4 hrs slow cooked', photo_url: null, is_available: true },
-      { id: 41, name: 'Ayam Pop',             price: 30000, prep_time_min: 5,  category: 'Main',   description: 'White coconut milk poached chicken, sambal hijau', photo_url: null, is_available: true },
-      { id: 42, name: 'Gulai Ikan',           price: 32000, prep_time_min: 5,  category: 'Main',   description: 'Fish curry in turmeric coconut gravy', photo_url: null, is_available: true },
+      { id: 40, name: 'Rendang Daging Sapi',  price: 45000, prep_time_min: 5,  category: 'Main',   description: 'Dry-cooked beef in coconut milk & spices — 4 hrs slow cooked', photo_url: 'https://images.unsplash.com/photo-1555939594-58d7cb561ad1?w=400', is_available: true },
+      { id: 41, name: 'Ayam Pop',             price: 30000, prep_time_min: 5,  category: 'Main',   description: 'White coconut milk poached chicken, sambal hijau', photo_url: 'https://images.unsplash.com/photo-1555939594-58d7cb561ad1?w=400', is_available: true },
+      { id: 42, name: 'Gulai Ikan',           price: 32000, prep_time_min: 5,  category: 'Main',   description: 'Fish curry in turmeric coconut gravy', photo_url: 'https://images.unsplash.com/photo-1559339352-11d035aa65de?w=400', is_available: true },
       { id: 43, name: 'Nasi Putih',           price: 5000,  prep_time_min: 1,  category: 'Main',   description: 'Steamed white rice', photo_url: null, is_available: true },
       { id: 44, name: 'Gulai Daun Singkong',  price: 10000, prep_time_min: 3,  category: 'Sides',  description: 'Cassava leaves in coconut curry', photo_url: null, is_available: true },
       { id: 45, name: 'Perkedel Jagung',      price: 8000,  prep_time_min: 3,  category: 'Sides',  description: 'Crispy corn fritters', photo_url: null, is_available: true },
@@ -162,9 +162,9 @@ const DEMO_RESTAURANTS = [
     featured_this_week: false, status: 'approved',
     bank: { name: 'BCA', account_number: '7788 9900 1122', account_holder: 'Budi Santoso' },
     menu_items: [
-      { id: 6,  name: 'Bakso Spesial',  price: 22000, prep_time_min: 8,  category: 'Main',   description: 'Giant meatball, noodles, broth', photo_url: null, is_available: true },
-      { id: 7,  name: 'Bakso Biasa',    price: 15000, prep_time_min: 7,  category: 'Main',   description: 'Regular meatball soup', photo_url: null, is_available: true },
-      { id: 8,  name: 'Mie Goreng',     price: 18000, prep_time_min: 10, category: 'Main',   description: 'Fried noodles', photo_url: null, is_available: true },
+      { id: 6,  name: 'Bakso Spesial',  price: 22000, prep_time_min: 8,  category: 'Main',   description: 'Giant meatball, noodles, broth', photo_url: 'https://images.unsplash.com/photo-1569718212165-3a8278d5f624?w=400', is_available: true },
+      { id: 7,  name: 'Bakso Biasa',    price: 15000, prep_time_min: 7,  category: 'Main',   description: 'Regular meatball soup', photo_url: 'https://images.unsplash.com/photo-1569718212165-3a8278d5f624?w=400', is_available: true },
+      { id: 8,  name: 'Mie Goreng',     price: 18000, prep_time_min: 10, category: 'Main',   description: 'Fried noodles', photo_url: 'https://images.unsplash.com/photo-1569718212165-3a8278d5f624?w=400', is_available: true },
       { id: 9,  name: 'Es Campur',      price: 8000,  prep_time_min: 3,  category: 'Drinks', description: 'Mixed ice dessert', photo_url: null, is_available: true },
     ],
   },
@@ -183,9 +183,9 @@ const DEMO_RESTAURANTS = [
     featured_this_week: true, status: 'approved',
     bank: { name: 'Mandiri', account_number: '1420 0055 6677', account_holder: 'Rina Ayam Geprek' },
     menu_items: [
-      { id: 10, name: 'Ayam Geprek L5',  price: 25000, prep_time_min: 12, category: 'Main',   description: 'Medium spicy + rice', photo_url: null, is_available: true },
-      { id: 11, name: 'Ayam Geprek L10', price: 25000, prep_time_min: 12, category: 'Main',   description: 'Max heat — challenge!', photo_url: null, is_available: true },
-      { id: 12, name: 'Tahu Tempe',      price: 8000,  prep_time_min: 5,  category: 'Sides',  description: 'Fried tofu & tempeh', photo_url: null, is_available: true },
+      { id: 10, name: 'Ayam Geprek L5',  price: 25000, prep_time_min: 12, category: 'Main',   description: 'Medium spicy + rice', photo_url: 'https://images.unsplash.com/photo-1555939594-58d7cb561ad1?w=400', is_available: true },
+      { id: 11, name: 'Ayam Geprek L10', price: 25000, prep_time_min: 12, category: 'Main',   description: 'Max heat — challenge!', photo_url: 'https://images.unsplash.com/photo-1555939594-58d7cb561ad1?w=400', is_available: true },
+      { id: 12, name: 'Tahu Tempe',      price: 8000,  prep_time_min: 5,  category: 'Sides',  description: 'Fried tofu & tempeh', photo_url: 'https://images.unsplash.com/photo-1504674900247-0877df9cc836?w=400', is_available: true },
       { id: 13, name: 'Es Teh Tarik',    price: 7000,  prep_time_min: 2,  category: 'Drinks', description: 'Pulled milk tea', photo_url: null, is_available: true },
     ],
   },
@@ -204,9 +204,9 @@ const DEMO_RESTAURANTS = [
     featured_this_week: true, dine_in_discount: 10, status: 'approved',
     bank: { name: 'BCA', account_number: '3344 5566 7788', account_holder: 'Bejo Seafood Resto' },
     menu_items: [
-      { id: 50, name: 'Udang Bakar Madu',    price: 85000, prep_time_min: 15, category: 'Main',   description: 'Honey-glazed grilled prawns, butter garlic sauce', photo_url: null, is_available: true },
-      { id: 51, name: 'Cumi Goreng Tepung',  price: 55000, prep_time_min: 12, category: 'Main',   description: 'Crispy battered squid rings, chilli mayo', photo_url: null, is_available: true },
-      { id: 52, name: 'Ikan Bakar Bumbu Bali', price: 75000, prep_time_min: 18, category: 'Main', description: 'Whole grilled snapper, Balinese spice paste', photo_url: null, is_available: true },
+      { id: 50, name: 'Udang Bakar Madu',    price: 85000, prep_time_min: 15, category: 'Main',   description: 'Honey-glazed grilled prawns, butter garlic sauce', photo_url: 'https://images.unsplash.com/photo-1559339352-11d035aa65de?w=400', is_available: true },
+      { id: 51, name: 'Cumi Goreng Tepung',  price: 55000, prep_time_min: 12, category: 'Main',   description: 'Crispy battered squid rings, chilli mayo', photo_url: 'https://images.unsplash.com/photo-1559339352-11d035aa65de?w=400', is_available: true },
+      { id: 52, name: 'Ikan Bakar Bumbu Bali', price: 75000, prep_time_min: 18, category: 'Main', description: 'Whole grilled snapper, Balinese spice paste', photo_url: 'https://images.unsplash.com/photo-1559339352-11d035aa65de?w=400', is_available: true },
       { id: 53, name: 'Kepiting Saus Tiram', price: 120000, prep_time_min: 20, category: 'Main',  description: 'Blue crab in oyster sauce, wok-fried to order', photo_url: null, is_available: true },
       { id: 54, name: 'Nasi Putih',          price:   5000, prep_time_min: 2,  category: 'Sides', description: 'Steamed white rice', photo_url: null, is_available: true },
       { id: 55, name: 'Kangkung Belacan',    price:  18000, prep_time_min: 8,  category: 'Sides', description: 'Stir-fried water spinach, shrimp paste', photo_url: null, is_available: true },
@@ -231,9 +231,9 @@ const DEMO_RESTAURANTS = [
     featured_this_week: false, dine_in_discount: 0, status: 'approved',
     bank: { name: 'BNI', account_number: '0812 3344 5566', account_holder: 'Steak 48 Jogja' },
     menu_items: [
-      { id: 60, name: 'Ribeye 200g',         price: 185000, prep_time_min: 20, category: 'Main',   description: 'Australian grain-fed ribeye, choice of sauce & side', photo_url: null, is_available: true },
-      { id: 61, name: 'Sirloin 180g',        price: 155000, prep_time_min: 18, category: 'Main',   description: 'Lean, tender sirloin. Best medium-rare.', photo_url: null, is_available: true },
-      { id: 62, name: 'Beef Burger Komplit',  price:  65000, prep_time_min: 15, category: 'Main',   description: 'Double patty, cheddar, caramelised onion, house sauce', photo_url: null, is_available: true },
+      { id: 60, name: 'Ribeye 200g',         price: 185000, prep_time_min: 20, category: 'Main',   description: 'Australian grain-fed ribeye, choice of sauce & side', photo_url: 'https://images.unsplash.com/photo-1555939594-58d7cb561ad1?w=400', is_available: true },
+      { id: 61, name: 'Sirloin 180g',        price: 155000, prep_time_min: 18, category: 'Main',   description: 'Lean, tender sirloin. Best medium-rare.', photo_url: 'https://images.unsplash.com/photo-1555939594-58d7cb561ad1?w=400', is_available: true },
+      { id: 62, name: 'Beef Burger Komplit',  price:  65000, prep_time_min: 15, category: 'Main',   description: 'Double patty, cheddar, caramelised onion, house sauce', photo_url: 'https://images.unsplash.com/photo-1568901346375-23c9450c58cd?w=400', is_available: true },
       { id: 63, name: 'Chicken Cordon Bleu', price:  75000, prep_time_min: 18, category: 'Main',   description: 'Stuffed chicken, ham, Swiss cheese, brown sauce', photo_url: null, is_available: true },
       { id: 64, name: 'Pasta Carbonara',     price:  55000, prep_time_min: 12, category: 'Main',   description: 'Spaghetti, guanciale, pecorino, egg yolk', photo_url: null, is_available: true },
       { id: 65, name: 'Truffle Fries',       price:  35000, prep_time_min: 8,  category: 'Sides',  description: 'Crispy fries, truffle oil, parmesan, parsley', photo_url: null, is_available: true },
@@ -257,9 +257,9 @@ const DEMO_RESTAURANTS = [
     featured_this_week: true, dine_in_discount: 0, status: 'approved',
     bank: { name: 'BCA', account_number: '5566 7788 9900', account_holder: 'Kopi Klotok Maguwo' },
     menu_items: [
-      { id: 70, name: 'Kopi Joss',           price: 12000, prep_time_min: 5,  category: 'Drinks', description: 'Black coffee with charcoal — the legendary Jogja drink', photo_url: null, is_available: true },
-      { id: 71, name: 'Kopi Susu Gula Aren', price: 18000, prep_time_min: 5,  category: 'Drinks', description: 'Espresso, palm sugar syrup, fresh milk over ice', photo_url: null, is_available: true },
-      { id: 72, name: 'Matcha Latte',        price: 22000, prep_time_min: 4,  category: 'Drinks', description: 'Ceremonial matcha, oat milk, light sweetness', photo_url: null, is_available: true },
+      { id: 70, name: 'Kopi Joss',           price: 12000, prep_time_min: 5,  category: 'Drinks', description: 'Black coffee with charcoal — the legendary Jogja drink', photo_url: 'https://images.unsplash.com/photo-1544145945-f90425340c7e?w=400', is_available: true },
+      { id: 71, name: 'Kopi Susu Gula Aren', price: 18000, prep_time_min: 5,  category: 'Drinks', description: 'Espresso, palm sugar syrup, fresh milk over ice', photo_url: 'https://images.unsplash.com/photo-1544145945-f90425340c7e?w=400', is_available: true },
+      { id: 72, name: 'Matcha Latte',        price: 22000, prep_time_min: 4,  category: 'Drinks', description: 'Ceremonial matcha, oat milk, light sweetness', photo_url: 'https://images.unsplash.com/photo-1544145945-f90425340c7e?w=400', is_available: true },
       { id: 73, name: 'Teh Tarik Spesial',   price: 15000, prep_time_min: 4,  category: 'Drinks', description: 'Pulled milk tea, frothy, rich — two mugs minimum', photo_url: null, is_available: true },
       { id: 74, name: 'Es Kopi Vietnam',     price: 20000, prep_time_min: 5,  category: 'Drinks', description: 'Drip coffee, condensed milk, crushed ice', photo_url: null, is_available: true },
       { id: 75, name: 'Roti Bakar Keju',     price: 22000, prep_time_min: 8,  category: 'Food',   description: 'Toasted bread, butter, condensed milk, cheese', photo_url: null, is_available: true },
@@ -283,9 +283,9 @@ const DEMO_RESTAURANTS = [
     featured_this_week: false, dine_in_discount: 0, status: 'approved',
     bank: { name: 'BRI', account_number: '0096 0100 7788 4321', account_holder: 'Sabar Supriyanto' },
     menu_items: [
-      { id: 80, name: 'Sate Kambing 10pcs',  price: 55000, prep_time_min: 15, category: 'Main',   description: 'Goat satay, charcoal grilled, kecap manis, sambal', photo_url: null, is_available: true },
-      { id: 81, name: 'Sate Ayam 10pcs',     price: 35000, prep_time_min: 12, category: 'Main',   description: 'Chicken satay, peanut sauce, lontong', photo_url: null, is_available: true },
-      { id: 82, name: 'Gule Kambing',        price: 35000, prep_time_min: 5,  category: 'Main',   description: 'Spiced goat curry, warm & rich, eat with lontong', photo_url: null, is_available: true },
+      { id: 80, name: 'Sate Kambing 10pcs',  price: 55000, prep_time_min: 15, category: 'Main',   description: 'Goat satay, charcoal grilled, kecap manis, sambal', photo_url: 'https://images.unsplash.com/photo-1504674900247-0877df9cc836?w=400', is_available: true },
+      { id: 81, name: 'Sate Ayam 10pcs',     price: 35000, prep_time_min: 12, category: 'Main',   description: 'Chicken satay, peanut sauce, lontong', photo_url: 'https://images.unsplash.com/photo-1504674900247-0877df9cc836?w=400', is_available: true },
+      { id: 82, name: 'Gule Kambing',        price: 35000, prep_time_min: 5,  category: 'Main',   description: 'Spiced goat curry, warm & rich, eat with lontong', photo_url: 'https://images.unsplash.com/photo-1555939594-58d7cb561ad1?w=400', is_available: true },
       { id: 83, name: 'Tongseng Kambing',    price: 38000, prep_time_min: 8,  category: 'Main',   description: 'Goat in sweet spiced coconut broth, cabbage, tomato', photo_url: null, is_available: true },
       { id: 84, name: 'Lontong',             price:  5000, prep_time_min: 1,  category: 'Sides',  description: 'Compressed rice cake — perfect with satay', photo_url: null, is_available: true },
       { id: 85, name: 'Kerupuk',             price:  3000, prep_time_min: 1,  category: 'Sides',  description: 'Prawn crackers', photo_url: null, is_available: true },
@@ -372,7 +372,6 @@ function Stars({ rating }) {
 // ── Main component ────────────────────────────────────────────────────────────
 export default function RestaurantBrowseScreen({ onClose, onBackToCategories, category, scrollToId, onOrderViaChat }) {
   const [showLanding, setShowLanding] = useState(true)
-  const [showVideo, setShowVideo] = useState(false)
   const [restaurants,    setRestaurants]    = useState([])
   const [loading,        setLoading]        = useState(true)
   const [activeIndex,    setActiveIndex]    = useState(0)
@@ -459,44 +458,25 @@ export default function RestaurantBrowseScreen({ onClose, onBackToCategories, ca
   const catEmoji  = category ? category.emoji  : '🍽'
   const catColor  = category ? category.color  : '#8DC63F'
 
-  if (showLanding) return (
-    <FoodLanding
-      onBrowse={() => { markSectionVisited('food'); setShowLanding(false); setShowVideo(true) }}
-      onRegister={() => { markSectionVisited('food'); setShowLanding(false) }}
-      onClose={onClose}
-    />
-  )
+  return (<>
+    <div style={{ display: showLanding ? undefined : 'none' }}>
+      <FoodLanding
+        onBrowse={() => { markSectionVisited('food'); setShowLanding(false) }}
+        onRegister={() => { markSectionVisited('food'); setShowLanding(false) }}
+        onClose={onClose}
+      />
+    </div>
 
-  if (showVideo) return (
-    <div className={styles.videoPage}>
-      <div className={styles.videoCard} onClick={() => setShowVideo(false)}>
-        <video
-          src="https://ik.imagekit.io/nepgaxllc/street%20food.mp4?updatedAt=1776064212346"
-          className={styles.videoPlayer}
-          autoPlay
-          loop
-          muted
-          playsInline
-        />
-        <div className={styles.videoOverlay}>
-          <h2 className={styles.videoTitle}>Indoo Street</h2>
-          <p className={styles.videoSub}>Tap to explore street food</p>
+    {loading && !showLanding && (
+      <div className={styles.screen}>
+        <div className={styles.loadingWrap}>
+          <div className={styles.loadingSpinner} style={{ borderTopColor: catColor }} />
+          <p className={styles.loadingText}>INDOO STREET — finding {catLabel.toLowerCase()} near you…</p>
         </div>
       </div>
-    </div>
-  )
+    )}
 
-  if (loading) return (
-    <div className={styles.screen}>
-      <div className={styles.loadingWrap}>
-        <div className={styles.loadingSpinner} style={{ borderTopColor: catColor }} />
-        <p className={styles.loadingText}>MAKAN — finding {catLabel.toLowerCase()} near you…</p>
-      </div>
-    </div>
-  )
-
-  return (
-    <div className={styles.screen}>
+    <div className={styles.screen} style={{ display: showLanding || loading ? 'none' : undefined }}>
 
       {/* Fixed header */}
       <div className={styles.header}>
@@ -512,7 +492,7 @@ export default function RestaurantBrowseScreen({ onClose, onBackToCategories, ca
 
         <div className={styles.headerCenter}>
           <span className={styles.headerTitle}>
-            {catEmoji} {catLabel}
+            <span style={{ color: '#fff' }}>IND</span><span style={{ color: '#8DC63F' }}>OO</span><span style={{ color: 'rgba(255,255,255,0.5)', fontWeight: 700, fontSize: '0.7em', marginLeft: 6 }}>STREET</span>
           </span>
           <span className={styles.headerSub}>
             {enriched.filter(r => !r.isDivider).length} restaurants near you
@@ -560,6 +540,33 @@ export default function RestaurantBrowseScreen({ onClose, onBackToCategories, ca
         )}
       </div>
 
+      {/* Floating footer nav */}
+      <div style={{
+        position: 'fixed', bottom: 16, left: '50%', transform: 'translateX(-50%)',
+        zIndex: 99998, display: 'flex', alignItems: 'center', gap: 6,
+        background: 'rgba(0,0,0,0.45)', backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)',
+        border: '1px solid rgba(255,255,255,0.06)', borderRadius: 30, padding: '6px 8px',
+      }}>
+        {[
+          { label: 'Home', icon: <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>, action: onClose },
+          { label: 'Orders', icon: <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>, action: () => {} },
+          { label: 'Alerts', icon: <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 01-3.46 0"/></svg>, action: () => {}, badge: true },
+          { label: 'Profile', icon: <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>, action: () => {} },
+        ].map((btn, i) => (
+          <button key={i} onClick={btn.action} style={{
+            display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
+            gap: 2, padding: '8px 16px', borderRadius: 22,
+            background: btn.active ? 'rgba(141,198,63,0.12)' : 'transparent',
+            border: 'none', cursor: 'pointer',
+            color: btn.active ? '#8DC63F' : 'rgba(255,255,255,0.45)',
+            transition: 'all 0.2s',
+          }}>
+            {btn.icon}
+            <span style={{ fontSize: 9, fontWeight: 700, letterSpacing: '0.03em' }}>{btn.label}</span>
+          </button>
+        ))}
+      </div>
+
       {/* Menu sheet */}
       {menuRestaurant && (
         <RestaurantMenuSheet
@@ -569,7 +576,7 @@ export default function RestaurantBrowseScreen({ onClose, onBackToCategories, ca
         />
       )}
     </div>
-  )
+  </>)
 }
 
 // ── Restaurant card ───────────────────────────────────────────────────────────

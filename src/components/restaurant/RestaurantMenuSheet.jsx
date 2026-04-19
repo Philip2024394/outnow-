@@ -5,6 +5,48 @@ import PaymentCard from './PaymentCard'
 
 function fmtRp(n) { return `Rp ${Number(n).toLocaleString('id-ID')}` }
 
+// ── Demo food orders seed ──────────────────────────────────────────────────────
+const DEMO_FOOD_ORDERS = [
+  { id: 'food-001', restaurant: 'Warung Mak Beng', items: [{name: 'Nasi Goreng', qty: 2, price: 25000}], total: 60000, delivery: 10000, status: 'delivered', created_at: '2026-04-19T10:00:00Z' },
+  { id: 'food-002', restaurant: 'Babi Guling Pak Malen', items: [{name: 'Babi Guling Set', qty: 1, price: 45000}], total: 55000, delivery: 10000, status: 'preparing', created_at: '2026-04-20T08:30:00Z' },
+  { id: 'food-003', restaurant: 'Ayam Betutu Men Tempeh', items: [{name: 'Ayam Betutu', qty: 1, price: 55000}, {name: 'Es Jeruk', qty: 2, price: 8000}], total: 81000, delivery: 10000, status: 'pending', created_at: '2026-04-20T09:00:00Z' },
+]
+
+function seedDemoOrders() {
+  const existing = localStorage.getItem('indoo_food_orders')
+  if (!existing) {
+    localStorage.setItem('indoo_food_orders', JSON.stringify(DEMO_FOOD_ORDERS))
+    return DEMO_FOOD_ORDERS
+  }
+  return JSON.parse(existing)
+}
+
+function getFoodOrders() {
+  return seedDemoOrders()
+}
+
+function saveFoodOrders(orders) {
+  localStorage.setItem('indoo_food_orders', JSON.stringify(orders))
+}
+
+const STATUS_COLORS = {
+  pending: '#F59E0B',
+  awaiting_payment: '#F59E0B',
+  preparing: '#3B82F6',
+  on_delivery: '#8B5CF6',
+  delivered: '#22C55E',
+  cancelled: '#EF4444',
+}
+
+const STATUS_LABELS = {
+  pending: 'Pending',
+  awaiting_payment: 'Awaiting Payment',
+  preparing: 'Preparing',
+  on_delivery: 'On Delivery',
+  delivered: 'Delivered',
+  cancelled: 'Cancelled',
+}
+
 const EVENT_LABELS = {
   live_music:    '🎵 Live Music',
   birthday_setup:'🎂 Birthday Setup',
@@ -79,6 +121,14 @@ export default function RestaurantMenuSheet({ restaurant, onClose, onOrderViaCha
   const [promosOpen,     setPromosOpen]     = useState(false)
   const [locating,       setLocating]       = useState(false)
   const [paymentData,    setPaymentData]    = useState(null)  // { total, orderRef }
+  const [ordersOpen,     setOrdersOpen]     = useState(false)
+  const [foodOrders,     setFoodOrders]     = useState([])
+  const [orderProcessing, setOrderProcessing] = useState(false)
+  const [orderConfirm,   setOrderConfirm]   = useState(null)   // { id, total, estimatedMin }
+  const [reviewOrder,    setReviewOrder]    = useState(null)    // order to review
+  const [reviewStars,    setReviewStars]    = useState(0)
+  const [reviewComment,  setReviewComment]  = useState('')
+  const [toast,          setToast]          = useState(null)
 
   const feedRef     = useRef(null)
   const itemRefs    = useRef([])
@@ -97,6 +147,16 @@ export default function RestaurantMenuSheet({ restaurant, onClose, onOrderViaCha
     if (cart.length > 0) localStorage.setItem(CART_KEY, JSON.stringify({ cart, ts: Date.now() }))
     else localStorage.removeItem(CART_KEY)
   }, [cart]) // eslint-disable-line react-hooks/exhaustive-deps
+
+  // Load food orders on mount (seeds demo if empty)
+  useEffect(() => { setFoodOrders(getFoodOrders()) }, [])
+
+  // Toast auto-dismiss
+  useEffect(() => {
+    if (!toast) return
+    const t = setTimeout(() => setToast(null), 3000)
+    return () => clearTimeout(t)
+  }, [toast])
 
   // Filter items by active category
   const visibleItems = activeCategory
@@ -172,58 +232,72 @@ export default function RestaurantMenuSheet({ restaurant, onClose, onOrderViaCha
     )
   }
 
-  // ── Order handler — in-app chat first, WhatsApp fallback ──
+  // ── Cancel a pending order ──
+  const handleCancelOrder = (orderId) => {
+    const orders = getFoodOrders().map(o =>
+      o.id === orderId && (o.status === 'pending' || o.status === 'awaiting_payment')
+        ? { ...o, status: 'cancelled' }
+        : o
+    )
+    saveFoodOrders(orders)
+    setFoodOrders(orders)
+    setToast('Order cancelled')
+  }
+
+  // ── Submit review for delivered order ──
+  const handleSubmitReview = () => {
+    if (!reviewStars || !reviewOrder) return
+    const reviews = JSON.parse(localStorage.getItem('indoo_food_reviews') || '[]')
+    reviews.push({
+      order_id: reviewOrder.id,
+      restaurant: reviewOrder.restaurant,
+      stars: reviewStars,
+      comment: reviewComment.trim() || null,
+      created_at: new Date().toISOString(),
+    })
+    localStorage.setItem('indoo_food_reviews', JSON.stringify(reviews))
+    setReviewOrder(null)
+    setReviewStars(0)
+    setReviewComment('')
+    setToast('Thank you for your review!')
+  }
+
+  // ── Order handler — Place Order with processing animation ──
   const handleOrder = () => {
     if (!showAddrInput) { setShowAddrInput(true); return }
-    const ref = `#MAKAN_${Date.now().toString().slice(-8)}`
 
-    // ── In-app chat path ──
-    if (onOrderViaChat) {
-      const orderItems = cart.map(i => ({
-        name:    i.name,
-        qty:     i.qty,
-        price:   i.price,
-        note:    i.note ?? null,
-      }))
-      onOrderViaChat({
-        restaurant,
-        items:       orderItems,
-        subtotal:    foodTotal,
-        deliveryFee: deliveryFare ?? 0,
-        total:       grandTotal,
-        notes:       address ? `Deliver to: ${address}` : '',
-        ref,
+    // Show processing animation
+    setCartExpanded(false)
+    setOrderProcessing(true)
+
+    setTimeout(() => {
+      const orderId = `FOOD-${String(Math.floor(1000 + Math.random() * 9000))}`
+      const order = {
+        id: orderId,
+        restaurant: restaurant.name,
+        items: cart.map(i => ({ name: i.name, qty: i.qty, price: i.price })),
+        total: grandTotal,
+        delivery: deliveryFare ?? 10000,
+        status: 'pending',
+        address: address || null,
+        created_at: new Date().toISOString(),
+      }
+
+      const orders = getFoodOrders()
+      orders.unshift(order)
+      saveFoodOrders(orders)
+      setFoodOrders(orders)
+
+      setOrderProcessing(false)
+      setOrderConfirm({
+        id: orderId,
+        total: grandTotal,
+        estimatedMin: maxPrepMin + 20,
       })
-      setCartExpanded(false)
+
       setCart([])
       setShowAddrInput(false)
-      return
-    }
-
-    // ── WhatsApp fallback ──
-    const { msg } = buildWhatsAppMessage(restaurant, cart, address, deliveryFare, maxPrepMin)
-    window.open(`https://wa.me/${restaurant.phone}?text=${encodeURIComponent(msg)}`, '_blank')
-    // Record pending review — 1 per restaurant per 24 h
-    const reviewKey = `makan_review_${restaurant.id}`
-    const lastReview = JSON.parse(localStorage.getItem(reviewKey) || 'null')
-    if (!lastReview || Date.now() - lastReview.ts > 24 * 60 * 60 * 1000) {
-      localStorage.setItem(reviewKey, JSON.stringify({
-        restaurantId:   restaurant.id,
-        restaurantName: restaurant.name,
-        orderRef:       ref,
-        ts:             Date.now(),
-        reviewed:       false,
-      }))
-      window.dispatchEvent(new CustomEvent('makan:review-pending', {
-        detail: { restaurantId: restaurant.id, restaurantName: restaurant.name, orderRef: ref }
-      }))
-    }
-
-    const hasBank = restaurant.bank_name && restaurant.bank_account_number && restaurant.bank_account_holder
-    if (hasBank) {
-      setPaymentData({ total: grandTotal, orderRef: ref })
-      setCartExpanded(false)
-    }
+    }, 2500)
   }
 
   useEffect(() => () => clearTimeout(collapseRef.current), [])
@@ -426,6 +500,44 @@ export default function RestaurantMenuSheet({ restaurant, onClose, onOrderViaCha
             <span className={styles.panelLabel}>Follow</span>
           </button>
         )}
+
+        {/* My Orders */}
+        <button
+          className={styles.panelBtn}
+          onClick={() => { setFoodOrders(getFoodOrders()); setOrdersOpen(true) }}
+          title="My Orders"
+        >
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M16 4h2a2 2 0 012 2v14a2 2 0 01-2 2H6a2 2 0 01-2-2V6a2 2 0 012-2h2"/>
+            <rect x="8" y="2" width="8" height="4" rx="1" ry="1"/>
+            <line x1="8" y1="10" x2="16" y2="10"/>
+            <line x1="8" y1="14" x2="16" y2="14"/>
+            <line x1="8" y1="18" x2="12" y2="18"/>
+          </svg>
+          <span className={styles.panelLabel}>Orders</span>
+        </button>
+      </div>
+
+      {/* ── Now in the Kitchen ── */}
+      <div style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '8px 14px', flexShrink: 0, background: 'rgba(0,0,0,0.4)', backdropFilter: 'blur(8px)', borderBottom: '1px solid rgba(255,255,255,0.04)' }}>
+        <div style={{ display: 'flex' }}>
+          {[
+            'https://i.pravatar.cc/100?img=1',
+            'https://i.pravatar.cc/100?img=5',
+            'https://i.pravatar.cc/100?img=9',
+            'https://i.pravatar.cc/100?img=14',
+            'https://i.pravatar.cc/100?img=20',
+            'https://i.pravatar.cc/100?img=25',
+            'https://i.pravatar.cc/100?img=33',
+          ].map((url, i) => (
+            <img key={i} src={url} alt="" style={{ width: 28, height: 28, borderRadius: '50%', border: '2px solid #0a0a0a', marginLeft: i === 0 ? 0 : -8, objectFit: 'cover', position: 'relative', zIndex: 7 - i }} />
+          ))}
+          <div style={{ width: 28, height: 28, borderRadius: '50%', background: 'rgba(141,198,63,0.15)', border: '2px solid #0a0a0a', marginLeft: -8, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 9, fontWeight: 900, color: '#8DC63F' }}>
+            +{Math.floor(40 + Math.random() * 140)}
+          </div>
+        </div>
+        <span style={{ fontSize: 12, fontWeight: 700, color: 'rgba(255,255,255,0.4)' }}>Now in the Kitchen</span>
+        <span style={{ width: 6, height: 6, borderRadius: '50%', background: '#8DC63F', marginLeft: 'auto', flexShrink: 0, animation: 'pulse 2s ease-in-out infinite' }} />
       </div>
 
       {/* ── Full-screen snap-scroll menu feed ── */}
@@ -539,6 +651,152 @@ export default function RestaurantMenuSheet({ restaurant, onClose, onOrderViaCha
           orderRef={paymentData.orderRef}
           onDone={() => setPaymentData(null)}
         />
+      )}
+
+      {/* ── My Orders slide-up panel ── */}
+      {ordersOpen && (
+        <div className={styles.panelBackdrop} onClick={() => setOrdersOpen(false)}>
+          <div className={styles.ordersPanel} onClick={e => e.stopPropagation()}>
+            <h3 className={styles.infoPanelTitle}>My Orders</h3>
+            <p className={styles.infoPanelSub}>Your food order history</p>
+
+            {foodOrders.length === 0 ? (
+              <p style={{ color: '#444', fontSize: 13, textAlign: 'center', padding: 20 }}>No orders yet</p>
+            ) : (
+              foodOrders.map(order => (
+                <div key={order.id} className={styles.orderCard}>
+                  <div className={styles.orderCardHeader}>
+                    <span className={styles.orderRestName}>{order.restaurant}</span>
+                    <span
+                      className={styles.orderStatusBadge}
+                      style={{ background: `${STATUS_COLORS[order.status] ?? '#666'}20`, color: STATUS_COLORS[order.status] ?? '#666', border: `1px solid ${STATUS_COLORS[order.status] ?? '#666'}40` }}
+                    >
+                      {STATUS_LABELS[order.status] ?? order.status}
+                    </span>
+                  </div>
+                  <div className={styles.orderItems}>
+                    {order.items.map((it, idx) => (
+                      <span key={idx} className={styles.orderItemLine}>{it.qty}x {it.name}</span>
+                    ))}
+                  </div>
+                  <div className={styles.orderCardFooter}>
+                    <span className={styles.orderTotal}>{fmtRp(order.total)}</span>
+                    <span className={styles.orderDate}>{new Date(order.created_at).toLocaleDateString('id-ID', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' })}</span>
+                  </div>
+                  {/* Cancel button for pending/awaiting_payment */}
+                  {(order.status === 'pending' || order.status === 'awaiting_payment') && (
+                    <button
+                      className={styles.orderCancelBtn}
+                      onClick={() => handleCancelOrder(order.id)}
+                    >
+                      Cancel Order
+                    </button>
+                  )}
+                  {/* Review button for delivered orders */}
+                  {order.status === 'delivered' && !JSON.parse(localStorage.getItem('indoo_food_reviews') || '[]').some(r => r.order_id === order.id) && (
+                    <button
+                      className={styles.orderReviewBtn}
+                      onClick={() => { setReviewOrder(order); setReviewStars(0); setReviewComment('') }}
+                    >
+                      Rate this order
+                    </button>
+                  )}
+                </div>
+              ))
+            )}
+          </div>
+        </div>
+      )}
+
+      {/* ── Order processing overlay ── */}
+      {orderProcessing && (
+        <div className={styles.processingOverlay}>
+          <div className={styles.processingCard}>
+            <div className={styles.processingSpinner} />
+            <h3 className={styles.processingTitle}>Placing your order...</h3>
+            <p className={styles.processingSub}>Sending to {restaurant.name}</p>
+          </div>
+        </div>
+      )}
+
+      {/* ── Order confirmation overlay ── */}
+      {orderConfirm && (
+        <div className={styles.processingOverlay} onClick={() => setOrderConfirm(null)}>
+          <div className={styles.confirmCard} onClick={e => e.stopPropagation()}>
+            <div className={styles.confirmCheck}>
+              <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#22C55E" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/>
+              </svg>
+            </div>
+            <h3 className={styles.confirmTitle}>Order Confirmed!</h3>
+            <p className={styles.confirmOrderId}>{orderConfirm.id}</p>
+            <div className={styles.confirmDetails}>
+              <div className={styles.confirmRow}>
+                <span>Total</span>
+                <span style={{ color: '#F59E0B', fontWeight: 900 }}>{fmtRp(orderConfirm.total)}</span>
+              </div>
+              <div className={styles.confirmRow}>
+                <span>Est. Delivery</span>
+                <span style={{ fontWeight: 800 }}>{orderConfirm.estimatedMin} min</span>
+              </div>
+            </div>
+            <button className={styles.confirmDoneBtn} onClick={() => setOrderConfirm(null)}>
+              Done
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* ── Review modal ── */}
+      {reviewOrder && (
+        <div className={styles.processingOverlay} onClick={() => setReviewOrder(null)}>
+          <div className={styles.confirmCard} onClick={e => e.stopPropagation()}>
+            <h3 className={styles.confirmTitle}>Rate Your Order</h3>
+            <p className={styles.infoPanelSub} style={{ textAlign: 'center' }}>{reviewOrder.restaurant}</p>
+            <div className={styles.reviewStarsRow}>
+              {[1,2,3,4,5].map(n => (
+                <button
+                  key={n}
+                  className={styles.reviewStarBtn}
+                  style={{ color: n <= reviewStars ? '#F59E0B' : 'rgba(255,255,255,0.15)' }}
+                  onClick={() => setReviewStars(n)}
+                >
+                  ★
+                </button>
+              ))}
+            </div>
+            <textarea
+              className={styles.reviewCommentInput}
+              placeholder="Tell us about your experience (optional)"
+              value={reviewComment}
+              onChange={e => setReviewComment(e.target.value)}
+              rows={3}
+              maxLength={300}
+            />
+            <button
+              className={styles.confirmDoneBtn}
+              onClick={handleSubmitReview}
+              disabled={!reviewStars}
+              style={{ opacity: reviewStars ? 1 : 0.4 }}
+            >
+              Submit Review
+            </button>
+            <button
+              className={styles.orderCancelBtn}
+              onClick={() => setReviewOrder(null)}
+              style={{ marginTop: 4 }}
+            >
+              Skip
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* ── Toast notification ── */}
+      {toast && (
+        <div className={styles.toastNotif}>
+          {toast}
+        </div>
       )}
 
       {/* ── Socials left drawer ── */}

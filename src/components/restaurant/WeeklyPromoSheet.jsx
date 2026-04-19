@@ -146,7 +146,7 @@ export default function WeeklyPromoSheet({ onClose, restaurant }) {
         {/* Header */}
         <div className={styles.header}>
           <div className={styles.headerTop}>
-            <span className={styles.logo}>MAKAN</span>
+            <span className={styles.logo}>IND<span style={{ color: '#8DC63F' }}>OO</span> STREET</span>
             <button className={styles.closeBtn} onClick={onClose}>✕</button>
           </div>
           <h2 className={styles.title}>This Week's Deals</h2>
@@ -167,7 +167,7 @@ export default function WeeklyPromoSheet({ onClose, restaurant }) {
           ))}
         </div>
 
-        <p className={styles.footer}>MAKAN by Indoo · Weekly Deals</p>
+        <p className={styles.footer}>INDOO STREET · Weekly Deals</p>
       </div>
     </div>
   )

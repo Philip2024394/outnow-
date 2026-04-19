@@ -420,7 +420,7 @@ function CategoryCard({ cat, isActive, videoRef: videoRefCallback, onClick, view
       <div className={styles.cardBottom}>
         <span className={styles.tagline}>{cat.tagline}</span>
         <h2 className={styles.categoryName}>{cat.label}</h2>
-        <button className={styles.explorBtn} style={{ background: '#F59E0B' }} onClick={onClick}>
+        <button className={styles.explorBtn} style={{ background: '#8DC63F' }} onClick={onClick}>
           <span>
             <span>Explore {cat.label}</span>
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
@@ -430,7 +430,7 @@ function CategoryCard({ cat, isActive, videoRef: videoRefCallback, onClick, view
         </button>
       </div>
 
-      <div className={styles.activeStrip} style={{ background: '#F59E0B', opacity: isActive ? 1 : 0 }} />
+      <div className={styles.activeStrip} style={{ background: '#8DC63F', opacity: isActive ? 1 : 0 }} />
     </div>
   )
 }
