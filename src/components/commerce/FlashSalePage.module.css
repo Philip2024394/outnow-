@@ -12,6 +12,10 @@
 }
 .page > * { position: relative; z-index: 1; }
 
+:global {
+  @keyframes tickerScroll { 0% { transform: translateX(100%); } 100% { transform: translateX(-100%); } }
+}
+
 /* ── Header — brand logo + close ───────────────────────────────────────────── */
 .header {
   display: flex; align-items: center; justify-content: space-between;
@@ -120,14 +124,14 @@
 .cardImg { width: 100%; aspect-ratio: 1; object-fit: cover; display: block; }
 .cardImgPlaceholder { width: 100%; aspect-ratio: 1; display: flex; align-items: center; justify-content: center; font-size: 36px; background: rgba(255,255,255,0.03); }
 .cardDiscount { position: absolute; top: 8px; left: 8px; background: #FFE500; color: #000; font-size: 11px; font-weight: 900; padding: 3px 8px; border-radius: 6px; box-shadow: 0 0 10px rgba(255,229,0,0.6); }
-.cardTimer { position: absolute; bottom: 8px; right: 8px; background: rgba(0,0,0,0.7); backdrop-filter: blur(6px); color: #EF4444; font-size: 10px; font-weight: 800; font-family: 'SF Mono', 'Fira Code', monospace; padding: 3px 7px; border-radius: 6px; border: 1px solid rgba(239,68,68,0.3); }
+.cardTimer { position: absolute; bottom: 8px; right: 8px; background: rgba(0,0,0,0.7); backdrop-filter: blur(6px); color: #EF4444; font-size: 12px; font-weight: 800; font-family: 'SF Mono', 'Fira Code', monospace; padding: 3px 7px; border-radius: 6px; border: 1px solid rgba(239,68,68,0.3); }
 
 .cardInfo { padding: 10px 12px 12px; display: flex; flex-direction: column; gap: 3px; }
-.cardBrand { font-size: 11px; font-weight: 700; color: rgba(255,255,255,0.3); text-transform: uppercase; letter-spacing: 0.04em; }
-.cardName { font-size: 13px; font-weight: 800; color: #fff; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.cardBrand { font-size: 12px; font-weight: 700; color: rgba(255,255,255,0.3); text-transform: uppercase; letter-spacing: 0.04em; }
+.cardName { font-size: 14px; font-weight: 900; color: #fff; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .cardPrices { display: flex; align-items: baseline; gap: 6px; }
-.cardSalePrice { font-size: 15px; font-weight: 900; color: #EF4444; }
-.cardOrigPrice { font-size: 11px; font-weight: 600; color: rgba(255,255,255,0.25); text-decoration: line-through; }
+.cardSalePrice { font-size: 16px; font-weight: 900; color: #EF4444; }
+.cardOrigPrice { font-size: 12px; font-weight: 600; color: rgba(255,255,255,0.25); text-decoration: line-through; }
 
 /* Stock progress bar */
 .cardStock { display: flex; align-items: center; gap: 6px; margin-top: 4px; }

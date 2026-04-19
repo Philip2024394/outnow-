@@ -453,11 +453,11 @@ const GROUPS = [
     label: 'COMMISSION SYSTEM',
     color: '#FF9500',
     items: [
-      { id: 'seller_commission_screen',      label: '💰 Seller Commission Dashboard (5%)' },
+      { id: 'seller_commission_screen',      label: '💰 Seller Commission Dashboard (10%)' },
       { id: 'restaurant_commission_screen',  label: '🍽️ Restaurant Commission Dashboard (10%)' },
       { id: 'delivery_options_sheet',        label: '🚚 Delivery Options Sheet' },
       { id: 'commission_banner',             label: '🟠 Commission Banner (seller)' },
-      { id: 'chat_seller_locked',            label: '🔒 Chat — Marketplace Seller Locked (5%)' },
+      { id: 'chat_seller_locked',            label: '🔒 Chat — Marketplace Seller Locked (10%)' },
       { id: 'chat_restaurant_locked',        label: '🔒 Chat — Restaurant Owner Locked (10%)' },
       { id: 'chat_commission_pending',       label: '📋 Chat — Completed Order (pending commission)' },
       { id: 'seller_blocked_modal',          label: '🚫 Seller Blocked Modal' },
@@ -531,7 +531,7 @@ export default function DevPanel() {
     if (id === 'toastSuccess') { setActive(null); showToast('Saved successfully!', 'success'); return }
     if (id === 'toastError')   { setActive(null); showToast('Something went wrong. Try again.', 'error'); return }
     if (id === 'toastInfo')    { setActive(null); showToast('Feature available for Pro members.', 'info'); return }
-    if (id === 'toast_commission_recorded') { setActive(null); showToast('Commission recorded — Rp 61.250 (5%) due within 72 hours', 'info'); return }
+    if (id === 'toast_commission_recorded') { setActive(null); showToast('Commission recorded — Rp 122.500 (10%) due within 72 hours', 'info'); return }
     if (id === 'toast_commission_paid')     { setActive(null); showToast('Commission paid — chat unlocked!', 'success'); return }
     if (id === 'toast_seller_blocked')      { setActive(null); showToast('Account blocked for commission avoidance', 'error'); return }
     if (id === 'langToast')   { setShowLangToast(true);  setPanelOpen(false); return }

@@ -74,7 +74,7 @@ export default function AuctionAdminTab() {
         </div>
         <div className={styles.stat}>
           <span className={styles.statVal} style={{ color: '#8DC63F' }}>{fmtIDR(stats.totalCommission)}</span>
-          <span className={styles.statLabel}>Commission (5%)</span>
+          <span className={styles.statLabel}>Commission (10%)</span>
         </div>
       </div>
 

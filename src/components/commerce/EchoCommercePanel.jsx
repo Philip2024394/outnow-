@@ -438,7 +438,7 @@ export default function EchoCommercePanel({ userId, businessName, open: external
                       startTime: Date.now(),
                       endTime: Date.now() + dur * 3600000,
                     })
-                    alert(`Auction started for ${p.name}\nStart: Rp ${Number(startPrice).toLocaleString('id-ID')}\n${reserve ? 'Reserve: Rp ' + Number(reserve).toLocaleString('id-ID') : '⚠️ No Reserve — sells to highest bidder'}\n${buyNowPr ? 'Buy Now: Rp ' + Number(buyNowPr).toLocaleString('id-ID') : 'No Buy Now'}\nDuration: ${dur} hours\nPrice includes delivery · 5% commission on sale`)
+                    alert(`Auction started for ${p.name}\nStart: Rp ${Number(startPrice).toLocaleString('id-ID')}\n${reserve ? 'Reserve: Rp ' + Number(reserve).toLocaleString('id-ID') : '⚠️ No Reserve — sells to highest bidder'}\n${buyNowPr ? 'Buy Now: Rp ' + Number(buyNowPr).toLocaleString('id-ID') : 'No Buy Now'}\nDuration: ${dur} hours\nPrice includes delivery · 10% commission on sale`)
                   }}
                 >
                   <span className={styles.deliveryPricingName}>{p.name} — {fmtIDR(p.price)}</span>

@@ -5,7 +5,7 @@
 import { useState, useEffect } from 'react'
 import { createPortal } from 'react-dom'
 import { useAuth } from '@/hooks/useAuth'
-import { fetchProducts, toggleProductActive } from '@/services/commerceService'
+import { fetchProducts, toggleProductActive, deleteProduct } from '@/services/commerceService'
 import { DEMO_PRODUCTS } from '@/services/commerceService'
 import styles from './SellerProductsScreen.module.css'
 
@@ -42,6 +42,18 @@ export default function SellerProductsScreen({ open, onClose, onAddProduct, onEd
   }, [open, user?.id])
 
   if (!open) return null
+
+  const handleDelete = (id, name) => {
+    if (!window.confirm(`Delete "${name}"? This cannot be undone.`)) return
+    setProducts(prev => prev.filter(p => p.id !== id))
+    deleteProduct(id).catch(() => {})
+    // Also remove from localStorage
+    try {
+      const key = 'indoo_seller_products'
+      const existing = JSON.parse(localStorage.getItem(key) || '[]')
+      localStorage.setItem(key, JSON.stringify(existing.filter(p => p.id !== id)))
+    } catch {}
+  }
 
   const toggleLive = (id) => {
     setProducts(prev => prev.map(p => p.id === id ? { ...p, active: !p.active } : p))
@@ -167,6 +179,20 @@ export default function SellerProductsScreen({ open, onClose, onAddProduct, onEd
               )}
               {/* Edit */}
               <button className={styles.editBtn} onClick={() => onEditProduct?.(p)}>Edit</button>
+              {/* Delete */}
+              <button
+                className={styles.editBtn}
+                style={{
+                  width: 30, height: 30, padding: 0, borderRadius: '50%',
+                  background: 'rgba(239,68,68,0.12)', border: '1px solid rgba(239,68,68,0.3)',
+                  color: '#EF4444', display: 'flex', alignItems: 'center', justifyContent: 'center',
+                  cursor: 'pointer', flexShrink: 0,
+                }}
+                title="Delete product"
+                onClick={() => handleDelete(p.id, p.name)}
+              >
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2"/></svg>
+              </button>
             </div>
           </div>
         ))}

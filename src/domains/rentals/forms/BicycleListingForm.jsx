@@ -319,8 +319,8 @@ export default function BicycleListingForm({ open, onClose, onSubmit, editListin
 
   const priceChange = (k, v) => { if (k === 'hourly') setHourly(v); if (k === 'daily') setDaily(v); if (k === 'weekly') setWeekly(v); if (k === 'deposit') setDeposit(v); if (k === 'lateFee') setLateFee(v) }
 
-  /* ── Wallet commission calc (5% platform fee) ── */
-  const commission = daily ? Math.round(Number(String(daily).replace(/\./g, '')) * 0.05) : 0
+  /* ── Wallet commission calc (10% platform fee) ── */
+  const commission = daily ? Math.round(Number(String(daily).replace(/\./g, '')) * 0.10) : 0
 
   const handleSubmit = async () => {
     if (isSpam(title) || isSpam(desc)) { alert('Listing blocked by spam filter.'); return }
@@ -389,7 +389,7 @@ export default function BicycleListingForm({ open, onClose, onSubmit, editListin
             <div style={{ flex: 1, padding: '12px 10px', overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: 8 }}>
               {[
                 { icon: '🚲', label: 'My Listings', sub: `${myListings.length} listing${myListings.length !== 1 ? 's' : ''}`, action: () => { setShowDrawer(false); setShowMyListings(true) } },
-                { icon: '💰', label: 'Wallet & Commission', sub: `5% platform fee${commission ? ` · ~Rp ${commission.toLocaleString('id-ID')}/day` : ''}` },
+                { icon: '💰', label: 'Wallet & Commission', sub: `10% platform fee${commission ? ` · ~Rp ${commission.toLocaleString('id-ID')}/day` : ''}` },
                 { icon: '📋', label: 'Rental Agreement', sub: 'Update local & tourist terms', action: () => { setShowDrawer(false); setShowAgreementEditor(true) } },
                 { icon: '📅', label: 'Booking Calendar', sub: 'View & manage bookings' },
                 { icon: '📊', label: 'Rental Shop Stats', sub: 'Views, bookings & revenue' },
@@ -483,7 +483,7 @@ export default function BicycleListingForm({ open, onClose, onSubmit, editListin
             {/* Wallet commission info */}
             {commission > 0 && (
               <div style={{ padding: '10px 16px', background: 'rgba(255,215,0,0.06)', border: '1px solid rgba(255,215,0,0.15)', borderRadius: 10, marginBottom: 16, width: '100%', maxWidth: 280 }}>
-                <div style={{ fontSize: 11, fontWeight: 700, color: '#FFD700' }}>Platform Commission: 5%</div>
+                <div style={{ fontSize: 11, fontWeight: 700, color: '#FFD700' }}>Platform Commission: 10%</div>
                 <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.3)', marginTop: 2 }}>~Rp {commission.toLocaleString('id-ID')} per daily rental goes to Indoo wallet</div>
               </div>
             )}
@@ -866,7 +866,7 @@ export default function BicycleListingForm({ open, onClose, onSubmit, editListin
               {/* Wallet commission preview */}
               {daily && (
                 <div style={{ marginTop: 8, padding: '8px 10px', background: 'rgba(255,215,0,0.04)', border: '1px solid rgba(255,215,0,0.1)', borderRadius: 10 }}>
-                  <div style={{ fontSize: 10, fontWeight: 700, color: 'rgba(255,215,0,0.6)' }}>Platform Commission (5%)</div>
+                  <div style={{ fontSize: 10, fontWeight: 700, color: 'rgba(255,215,0,0.6)' }}>Platform Commission (10%)</div>
                   <div style={{ fontSize: 12, fontWeight: 800, color: '#FFD700', marginTop: 2 }}>Rp {commission.toLocaleString('id-ID')}/day to Indoo wallet</div>
                   <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.2)', marginTop: 2 }}>You receive: Rp {(Number(String(daily).replace(/\./g, '')) - commission).toLocaleString('id-ID')}/day</div>
                 </div>

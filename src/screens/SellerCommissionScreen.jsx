@@ -130,13 +130,13 @@ export default function SellerCommissionScreen({ onClose, onUpgrade }) {
           )}
         </div>
 
-        {/* What is 5% commission */}
+        {/* What is 10% commission */}
         <div className={styles.infoCard}>
           <span className={styles.infoIcon}>ℹ️</span>
           <div className={styles.infoBody}>
             <span className={styles.infoTitle}>How commission works</span>
             <p className={styles.infoText}>
-              Indoo charges a <strong>5% commission</strong> on every completed sale.
+              Indoo charges a <strong>10% commission</strong> on every completed sale.
               You have <strong>72 hours</strong> after marking "Payment Received" to settle.
               Unpaid commissions lock your chat reply — buyers can still reach you.
             </p>

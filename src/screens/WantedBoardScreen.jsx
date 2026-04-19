@@ -38,7 +38,7 @@ function timeAgo(iso) {
   return `${d}d ago`
 }
 
-export default function WantedBoardScreen({ open, onClose, onOpenChat }) {
+export default function WantedBoardScreen({ open, onClose, onOpenChat, onAlerts, onProfile }) {
   const { user, userProfile } = useAuth()
   const [items, setItems] = useState([])
   const [loading, setLoading] = useState(true)
@@ -154,6 +154,7 @@ export default function WantedBoardScreen({ open, onClose, onOpenChat }) {
             <span className={styles.emptySub}>Be the first to post what you need</span>
           </div>
         )}
+        {filtered.length > 0 && <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.35)', fontWeight: 600, marginBottom: 8, letterSpacing: '0.02em' }}>{filtered.length} wanted post{filtered.length !== 1 ? 's' : ''}</div>}
         {filtered.map(w => (
           <div key={w.id} className={styles.card}>
             <div className={styles.cardHeader}>
@@ -164,7 +165,7 @@ export default function WantedBoardScreen({ open, onClose, onOpenChat }) {
                 }
                 <div className={styles.cardUserInfo}>
                   <span className={styles.cardUserName}>{w.user?.display_name ?? 'User'}</span>
-                  <span className={styles.cardTime}>{timeAgo(w.created_at)}{w.city ? ` · 📍 ${w.city}` : ''}</span>
+                  <span className={styles.cardTime}>{timeAgo(w.created_at)}{w.city ? ` · ${w.city}` : ''}</span>
                 </div>
               </div>
               <div className={styles.cardBadges}>
@@ -186,6 +187,38 @@ export default function WantedBoardScreen({ open, onClose, onOpenChat }) {
               )}
             </div>
           </div>
+        ))}
+        {/* Bottom spacer for footer nav */}
+        <div style={{ height: 80 }} />
+      </div>
+
+      {/* Floating footer nav */}
+      <div style={{
+        position: 'fixed', bottom: 16, left: '50%', transform: 'translateX(-50%)',
+        zIndex: 99998, display: 'flex', alignItems: 'center', gap: 6,
+        background: 'rgba(0,0,0,0.45)', backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)',
+        border: '1px solid rgba(255,255,255,0.06)', borderRadius: 30, padding: '6px 8px',
+      }}>
+        {[
+          { label: 'Home', icon: <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>, action: onClose },
+          { label: 'Wanted', active: true, icon: <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>, action: () => {} },
+          { label: 'Alerts', icon: <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 01-3.46 0"/></svg>, action: () => onAlerts?.(), badge: true },
+          { label: 'Profile', icon: <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>, action: () => onProfile?.() },
+        ].map((btn, i) => (
+          <button key={i} onClick={btn.action} style={{
+            display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
+            gap: 2, padding: '8px 16px', borderRadius: 22,
+            background: btn.active ? 'rgba(141,198,63,0.12)' : 'transparent',
+            border: 'none', cursor: 'pointer',
+            color: btn.active ? '#8DC63F' : 'rgba(255,255,255,0.45)',
+            transition: 'all 0.2s',
+          }}>
+            <div style={{ position: 'relative' }}>
+              {btn.icon}
+              {btn.badge && <span style={{ position: 'absolute', top: -2, right: -2, width: 7, height: 7, borderRadius: '50%', background: '#EF4444', border: '1.5px solid #0e0e0e' }} />}
+            </div>
+            <span style={{ fontSize: 9, fontWeight: 700, letterSpacing: '0.03em' }}>{btn.label}</span>
+          </button>
         ))}
       </div>
     </div>,

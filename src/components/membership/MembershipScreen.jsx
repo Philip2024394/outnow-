@@ -66,7 +66,7 @@ const CONFIGS = {
   },
 
   // market, bike_ride, car_ride, restaurant removed —
-  // those sections use the per-transaction commission system (5% / 10%)
+  // those sections use the per-transaction commission system (10%)
   // and no longer require a monthly subscription.
 }
 

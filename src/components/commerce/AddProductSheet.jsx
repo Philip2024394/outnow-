@@ -3,7 +3,7 @@
  * Covers: images, name, category, description, price, stock, variations,
  * shipping weight/dimensions, condition, and pre-order toggle.
  */
-import { useState } from 'react'
+import { useState, useRef } from 'react'
 import { createPortal } from 'react-dom'
 import { supabase } from '@/lib/supabase'
 import { saveProduct } from '@/services/commerceService'
@@ -86,15 +86,23 @@ export default function AddProductSheet({ open, onClose, onSaved, userId, editPr
 
   const [section, setSection] = useState('basic')
   const [saving, setSaving] = useState(false)
+  const fileInputRef = useRef(null)
 
   if (!open) return null
 
   const toggleCarrier = (id) => setCarriers(prev => prev.includes(id) ? prev.filter(c => c !== id) : [...prev, id])
 
   const handleImageAdd = () => {
-    // In production this would open a file picker / camera
-    const url = prompt('Paste image URL (or use camera in production):')
-    if (url?.trim()) setImages(prev => [...prev, url.trim()].slice(0, 9))
+    fileInputRef.current?.click()
+  }
+
+  const handleFileSelected = (e) => {
+    const file = e.target.files?.[0]
+    if (!file) return
+    const blobUrl = URL.createObjectURL(file)
+    setImages(prev => [...prev, blobUrl].slice(0, 9))
+    // Reset input so the same file can be re-selected if needed
+    e.target.value = ''
   }
 
   const handleSave = async (asDraft = false) => {
@@ -179,6 +187,13 @@ export default function AddProductSheet({ open, onClose, onSaved, userId, editPr
               {/* Images */}
               <div className={styles.field}>
                 <label className={styles.label}>Product Images <span className={styles.hint}>(up to 9, first = cover)</span></label>
+                <input
+                  ref={fileInputRef}
+                  type="file"
+                  accept="image/*"
+                  style={{ display: 'none' }}
+                  onChange={handleFileSelected}
+                />
                 <div className={styles.imageGrid}>
                   {images.map((img, i) => (
                     <div key={i} className={styles.imageThumb}>

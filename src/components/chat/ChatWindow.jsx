@@ -422,7 +422,7 @@ export default function ChatWindow({ conversation: conv, allConversations = [], 
     } catch { /* silent */ }
 
     // Record commission and lock seller chat when payment is confirmed
-    // food chat → 10% restaurant rate, all others → 5% marketplace rate
+    // food chat → 10% restaurant rate, all others → 10% marketplace rate
     if (newStatus === 'complete' && isSeller && order) {
       const sellerId = user?.uid ?? user?.id
       const commType = theme === 'food' ? 'restaurant' : 'marketplace'

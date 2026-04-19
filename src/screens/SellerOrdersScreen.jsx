@@ -17,6 +17,8 @@ const STATUS_COLORS = {
   shipped:          { bg: '#8DC63F',               border: '#8DC63F', text: '#fff', glow: true },
   delivered:        { bg: 'rgba(52,199,89,0.15)',  border: '#34C759', text: '#34C759' },
   payment_failed:   { bg: '#EF4444',              border: '#EF4444', text: '#fff' },
+  rejected:         { bg: 'rgba(239,68,68,0.15)', border: '#EF4444', text: '#EF4444' },
+  cancelled:        { bg: 'rgba(239,68,68,0.15)', border: '#EF4444', text: '#EF4444' },
 }
 
 const CARRIERS = [
@@ -155,12 +157,26 @@ export default function SellerOrdersScreen({ open, onClose, onOpenChat }) {
   if (!open) return null
 
   const filtered = filter === 'all' ? orders : orders.filter(o => o.status === filter)
-  const counts = { all: orders.length, awaiting_payment: orders.filter(o => o.status === 'awaiting_payment').length, pending: orders.filter(o => o.status === 'pending').length, confirmed: orders.filter(o => o.status === 'confirmed').length, shipped: orders.filter(o => o.status === 'shipped').length, delivered: orders.filter(o => o.status === 'delivered').length, payment_failed: orders.filter(o => o.status === 'payment_failed').length }
+  const counts = { all: orders.length, awaiting_payment: orders.filter(o => o.status === 'awaiting_payment').length, pending: orders.filter(o => o.status === 'pending').length, confirmed: orders.filter(o => o.status === 'confirmed').length, shipped: orders.filter(o => o.status === 'shipped').length, delivered: orders.filter(o => o.status === 'delivered').length, payment_failed: orders.filter(o => o.status === 'payment_failed').length, rejected: orders.filter(o => o.status === 'rejected').length, cancelled: orders.filter(o => o.status === 'cancelled').length }
 
   const advanceOrder = (id, currentStatus) => {
     const nextIdx = STATUS_FLOW.indexOf(currentStatus) + 1
     if (nextIdx >= STATUS_FLOW.length) return
     setOrders(prev => prev.map(o => o.id === id ? { ...o, status: STATUS_FLOW[nextIdx] } : o))
+  }
+
+  const rejectOrder = (id) => {
+    if (!window.confirm('Reject this order? The buyer will be notified.')) return
+    setOrders(prev => prev.map(o => o.id === id ? { ...o, status: 'rejected' } : o))
+    setSelectedOrder(prev => prev ? { ...prev, status: 'rejected' } : prev)
+    updateOrderStatus(id, 'rejected').catch(() => {})
+  }
+
+  const cancelOrder = (id) => {
+    if (!window.confirm('Cancel this order? This cannot be undone.')) return
+    setOrders(prev => prev.map(o => o.id === id ? { ...o, status: 'cancelled' } : o))
+    setSelectedOrder(prev => prev ? { ...prev, status: 'cancelled' } : prev)
+    updateOrderStatus(id, 'cancelled').catch(() => {})
   }
 
   const sendTracking = (orderId) => {
@@ -200,7 +216,7 @@ export default function SellerOrdersScreen({ open, onClose, onOpenChat }) {
           {/* Status + timers */}
           <div className={styles.detailStatus}>
             <span className={`${styles.detailStatusBadge} ${color.glow ? styles.statusGlow : ''}`} style={{ background: color.bg, color: color.text }}>
-              {o.status === 'awaiting_payment' ? 'Awaiting Payment' : o.status === 'payment_failed' ? 'Payment Failed' : o.status}
+              {o.status === 'awaiting_payment' ? 'Awaiting Payment' : o.status === 'payment_failed' ? 'Payment Failed' : o.status === 'rejected' ? 'Rejected' : o.status === 'cancelled' ? 'Cancelled' : o.status}
             </span>
             {needsShipping(o) && <ShipCountdown orderedAt={o.orderedAt} />}
           </div>
@@ -291,6 +307,36 @@ export default function SellerOrdersScreen({ open, onClose, onOpenChat }) {
               Confirm Order
             </button>
           )}
+
+          {/* Reject button for pending orders */}
+          {o.status === 'pending' && (
+            <button
+              style={{
+                width: '100%', padding: '14px 0', marginTop: 8,
+                background: 'transparent', border: '1.5px solid rgba(239,68,68,0.4)',
+                borderRadius: 14, color: '#EF4444', fontSize: 14, fontWeight: 700,
+                cursor: 'pointer', fontFamily: 'inherit',
+              }}
+              onClick={() => rejectOrder(o.id)}
+            >
+              Reject Order
+            </button>
+          )}
+
+          {/* Cancel button for confirmed orders */}
+          {o.status === 'confirmed' && (
+            <button
+              style={{
+                width: '100%', padding: '14px 0', marginTop: 12,
+                background: 'transparent', border: '1.5px solid rgba(239,68,68,0.4)',
+                borderRadius: 14, color: '#EF4444', fontSize: 14, fontWeight: 700,
+                cursor: 'pointer', fontFamily: 'inherit',
+              }}
+              onClick={() => cancelOrder(o.id)}
+            >
+              Cancel Order
+            </button>
+          )}
         </div>
 
         {/* Payment proof preview modal */}
@@ -316,7 +362,7 @@ export default function SellerOrdersScreen({ open, onClose, onOpenChat }) {
       </div>
 
       <div className={styles.tabs}>
-        {['all', 'awaiting_payment', 'pending', 'confirmed', 'shipped', 'delivered', 'payment_failed'].map(t => (
+        {['all', 'awaiting_payment', 'pending', 'confirmed', 'shipped', 'delivered', 'rejected', 'cancelled', 'payment_failed'].map(t => (
           <button key={t} className={`${styles.tab} ${filter === t ? styles.tabActive : ''}`} onClick={() => setFilter(t)}>
             {t === 'all' ? 'All' : t === 'awaiting_payment' ? 'Awaiting Pay' : t === 'payment_failed' ? 'Failed' : t.charAt(0).toUpperCase() + t.slice(1)} ({counts[t]})
           </button>
@@ -337,7 +383,7 @@ export default function SellerOrdersScreen({ open, onClose, onOpenChat }) {
               </div>
               <div className={styles.cardRight}>
                 <span className={`${styles.cardStatus} ${color.glow ? styles.statusGlow : ''}`} style={{ background: color.bg, borderColor: color.border, color: color.text }}>
-                  {order.status === 'awaiting_payment' ? 'Awaiting Pay' : order.status === 'payment_failed' ? 'Failed' : order.status}
+                  {order.status === 'awaiting_payment' ? 'Awaiting Pay' : order.status === 'payment_failed' ? 'Failed' : order.status === 'rejected' ? 'Rejected' : order.status === 'cancelled' ? 'Cancelled' : order.status}
                 </span>
                 {awaitingPayment(order) && order.paymentDeadline && (
                   <PaymentCountdown deadline={order.paymentDeadline} onExpired={() => handlePaymentExpired(order.id)} />

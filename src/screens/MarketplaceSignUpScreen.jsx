@@ -358,7 +358,7 @@ export default function MarketplaceSignUpScreen({ open, onClose, onComplete }) {
                 <div className={styles.doneFeature}><span>📊</span> Sales analytics dashboard</div>
                 <div className={styles.doneFeature}><span>🚚</span> Order & shipping management</div>
                 <div className={styles.doneFeature}><span>⚡</span> Flash sales & auctions</div>
-                <div className={styles.doneFeature}><span>💰</span> 5% commission per sale</div>
+                <div className={styles.doneFeature}><span>💰</span> 10% commission per sale</div>
               </div>
             )}
             {!isSeller && (
@@ -431,7 +431,7 @@ export default function MarketplaceSignUpScreen({ open, onClose, onComplete }) {
               <p>Buyers must provide accurate delivery information and complete payment within the specified timeframe. Disputes should be raised within 48 hours of delivery.</p>
 
               <p className={styles.termsSection}><strong>5. Commission & Fees</strong></p>
-              <p>Sellers pay a 5% commission on each completed sale. Commission is due within 72 hours of order completion. Failure to pay may result in account restrictions.</p>
+              <p>Sellers pay a 10% commission on each completed sale. Commission is due within 72 hours of order completion. Failure to pay may result in account restrictions.</p>
 
               <p className={styles.termsSection}><strong>6. Prohibited Items</strong></p>
               <p>Illegal goods, counterfeit products, weapons, drugs, and any items prohibited by Indonesian law may not be listed. Violations will result in immediate account termination.</p>

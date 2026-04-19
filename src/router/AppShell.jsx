@@ -1285,8 +1285,8 @@ export default function AppShell({ returnParams, triggerGoLive }) {
       <Suspense fallback={null}>
         <MarketplaceCartScreen open={marketCartOpen} onClose={() => setMarketCartOpen(false)} onWriteReview={(order) => { setWriteReviewOrder(order); setWriteReviewOpen(true) }} />
         <BuyerDashboardScreen open={buyerDashOpen} onClose={() => setBuyerDashOpen(false)} onOpenChat={(c) => { setMarketChatContact(c); setMarketChatOpen(true) }} onWriteReview={(order) => { setWriteReviewOrder(order); setWriteReviewOpen(true) }} />
-        <UsedGoodsScreen open={usedGoodsOpen} onClose={() => setUsedGoodsOpen(false)} onOpenChat={(c) => { setMarketChatContact(c); setMarketChatOpen(true) }} />
-        <WantedBoardScreen open={wantedBoardOpen} onClose={() => setWantedBoardOpen(false)} onOpenChat={(c) => { setMarketChatContact(c); setMarketChatOpen(true) }} />
+        <UsedGoodsScreen open={usedGoodsOpen} onClose={() => setUsedGoodsOpen(false)} onOpenChat={(c) => { setMarketChatContact(c); setMarketChatOpen(true) }} onAlerts={() => setMarketNotifOpen(true)} onProfile={() => setMarketProfileOpen(true)} />
+        <WantedBoardScreen open={wantedBoardOpen} onClose={() => setWantedBoardOpen(false)} onOpenChat={(c) => { setMarketChatContact(c); setMarketChatOpen(true) }} onAlerts={() => setMarketNotifOpen(true)} onProfile={() => setMarketProfileOpen(true)} />
       </Suspense>
 
       {/* Seller Reviews */}

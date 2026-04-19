@@ -28,13 +28,14 @@ function timeAgo(ts) {
   return `${Math.floor(diff / 3600000)}h ago`
 }
 
-export default function AuctionPage({ open, onClose }) {
+export default function AuctionPage({ open, onClose, onOpenUsedGoods, onAlerts, onProfile }) {
   const { user } = useAuth()
   const [auctions, setAuctions] = useState([])
   const [selected, setSelected] = useState(null)
   const [bidAmount, setBidAmount] = useState('')
   const [bidError, setBidError] = useState('')
   const [shareOpen, setShareOpen] = useState(null) // auction id when share menu open
+  const [auctionTab, setAuctionTab] = useState('live') // live | upcoming | finished
   const [tick, setTick] = useState(0)
   const [productPreview, setProductPreview] = useState(null)
   const timerRef = useRef(null)
@@ -108,24 +109,46 @@ export default function AuctionPage({ open, onClose }) {
         </button>
       </div>
 
+      {/* Live bid feed — running text with fire icon */}
+      <div style={{ overflow: 'hidden', padding: '8px 14px', flexShrink: 0, display: 'flex', alignItems: 'center', gap: 8, background: 'rgba(0,0,0,0.4)', backdropFilter: 'blur(12px)', WebkitBackdropFilter: 'blur(12px)', borderBottom: '1px solid rgba(255,255,255,0.06)' }}>
+        <span style={{ fontSize: 16, flexShrink: 0 }}>🔥</span>
+        <div style={{ overflow: 'hidden', flex: 1 }}>
+          <div style={{ display: 'flex', animation: 'tickerScroll 25s linear infinite', whiteSpace: 'nowrap', gap: 40 }}>
+            {(allBids.length > 0
+              ? [...allBids, ...allBids].map(b => `${b.buyerName} bid ${fmtIDR(b.amount)} on ${b.productName} · ${timeAgo(b.time)}`)
+              : ['Wireless Earbuds Pro starting Rp 262k', 'Leather Crossbody Bag from Rp 840k', 'Slim Card Wallet only Rp 272k', 'Bid now for exclusive deals!', 'Wireless Earbuds Pro starting Rp 262k', 'Leather Crossbody Bag from Rp 840k', 'Slim Card Wallet only Rp 272k', 'Bid now for exclusive deals!']
+            ).map((t, i) => (
+              <span key={i} style={{ fontSize: 12, fontWeight: 600, color: 'rgba(255,255,255,0.4)', display: 'flex', alignItems: 'center', gap: 5 }}>
+                <span style={{ width: 6, height: 6, borderRadius: '50%', background: allBids.length > 0 ? '#EF4444' : '#8DC63F', flexShrink: 0 }} />{t}
+              </span>
+            ))}
+          </div>
+        </div>
+      </div>
+
+      {/* Auction toggle tabs */}
+      <div style={{ display: 'flex', gap: 0, padding: '0 14px', borderBottom: '1px solid rgba(255,255,255,0.06)', flexShrink: 0 }}>
+        {[
+          { id: 'live', label: '🔴 Live', count: liveAuctions.length },
+          { id: 'upcoming', label: '⏰ Upcoming', count: auctions.filter(a => a.status === AUCTION_STATUS.SCHEDULED).length },
+          { id: 'finished', label: '✅ Finished', count: endedAuctions.length },
+        ].map(tab => (
+          <button key={tab.id} onClick={() => setAuctionTab(tab.id)} style={{
+            flex: 1, padding: '10px 4px', background: 'none', border: 'none',
+            borderBottom: auctionTab === tab.id ? '2px solid #F59E0B' : '2px solid transparent',
+            color: auctionTab === tab.id ? '#F59E0B' : 'rgba(255,255,255,0.35)',
+            fontSize: 13, fontWeight: 800, cursor: 'pointer', fontFamily: 'inherit',
+            textAlign: 'center', whiteSpace: 'nowrap',
+          }}>
+            {tab.label} {tab.count > 0 && <span style={{ fontSize: 11, opacity: 0.7 }}>({tab.count})</span>}
+          </button>
+        ))}
+      </div>
+
       {/* Banned banner */}
       {banned && (
         <div className={styles.bannedBanner}>
           You are currently banned from auctions due to non-payment. You can browse but not bid.
-        </div>
-      )}
-
-      {/* Live bid feed */}
-      {allBids.length > 0 && (
-        <div className={styles.feedBar}>
-          <span className={styles.feedIcon}>🔥</span>
-          <div className={styles.feedScroll}>
-            {allBids.map(b => (
-              <span key={b.id} className={styles.feedItem}>
-                <strong>{b.buyerName}</strong> bid {fmtIDR(b.amount)} on {b.productName} — {timeAgo(b.time)}
-              </span>
-            ))}
-          </div>
         </div>
       )}
 
@@ -228,10 +251,10 @@ export default function AuctionPage({ open, onClose }) {
             </div>
           )}
 
-          {/* 5% commission info */}
+          {/* 10% commission info */}
           {detail.status === AUCTION_STATUS.PAID && detail.commission && (
             <div className={styles.commissionNote}>
-              5% commission: {fmtIDR(detail.commission)} · Seller receives: {fmtIDR(detail.currentPrice - detail.commission)}
+              10% commission: {fmtIDR(detail.commission)} · Seller receives: {fmtIDR(detail.currentPrice - detail.commission)}
             </div>
           )}
 
@@ -270,66 +293,50 @@ export default function AuctionPage({ open, onClose }) {
       ) : (
         /* Grid view — all auctions */
         <div className={styles.body}>
-          {liveAuctions.length === 0 && endedAuctions.length === 0 && (
-            <div className={styles.empty}>
-              <span style={{ fontSize: 40, opacity: 0.3 }}>🔨</span>
-              <span>No auctions right now</span>
-              <span className={styles.emptySub}>Sellers can start auctions from their dashboard</span>
-            </div>
-          )}
+          {/* Tab content */}
+          {(() => {
+            const tabAuctions = auctionTab === 'live' ? liveAuctions
+              : auctionTab === 'upcoming' ? auctions.filter(a => a.status === AUCTION_STATUS.SCHEDULED)
+              : endedAuctions
 
-          {liveAuctions.length > 0 && (
-            <>
-              <div className={styles.sectionLabelRow}>
-                <span className={styles.sectionLabel}>🔴 Live Now</span>
-                <span className={styles.liveCount}>{liveAuctions.length} live</span>
+            if (tabAuctions.length === 0) return (
+              <div className={styles.empty}>
+                <span style={{ fontSize: 40, opacity: 0.3 }}>{auctionTab === 'live' ? '🔴' : auctionTab === 'upcoming' ? '⏰' : '✅'}</span>
+                <span>{auctionTab === 'live' ? 'No live auctions right now' : auctionTab === 'upcoming' ? 'No upcoming auctions scheduled' : 'No finished auctions yet'}</span>
+                <span className={styles.emptySub}>{auctionTab === 'live' ? 'Sellers can start auctions from their dashboard' : auctionTab === 'upcoming' ? 'Check back soon for new auctions' : 'Finished auctions will appear here'}</span>
               </div>
+            )
+
+            return (
               <div className={styles.grid}>
-                {liveAuctions.map(a => (
-                  <div key={a.id} className={styles.auctionCard} onClick={() => setSelected(a)}>
+                {tabAuctions.map(a => (
+                  <div key={a.id} className={`${styles.auctionCard} ${auctionTab === 'finished' ? styles.cardEnded : ''}`} onClick={() => setSelected(a)}>
                     <div className={styles.cardImgWrap}>
                       {a.productImage ? <img src={a.productImage} alt="" className={styles.cardImg} /> : <div className={styles.cardImgPlaceholder}>📦</div>}
-                      <span className={styles.cardLive}>LIVE</span>
-                      <span className={styles.cardTimer}>{formatTimer(a.endTime - Date.now())}</span>
-                      {/* Fingerprint — view product details */}
-                      <button className={styles.fingerprintBtn} onClick={(e) => { e.stopPropagation(); setProductPreview(a) }}>
-                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                          <path d="M2 12C2 6.5 6.5 2 12 2a10 10 0 0 1 8 4"/><path d="M5 19.5C5.5 18 6 15 6 12c0-3.5 2.5-6 6-6 1 0 2 .2 3 .5"/><path d="M12 12c0 4-1 8-4 12"/><path d="M12 12c0 5 2 9.5 6 12"/><path d="M12 12c0-2 1-4 3-5.5"/><path d="M2 17a10 10 0 0 0 4.5 4.5"/>
-                        </svg>
-                      </button>
+                      {auctionTab === 'live' && <span className={styles.cardLive}>LIVE</span>}
+                      {auctionTab === 'live' && <span className={styles.cardTimer}>{formatTimer(a.endTime - Date.now())}</span>}
+                      {auctionTab === 'upcoming' && <span className={styles.cardStatus}>⏰ Upcoming</span>}
+                      {auctionTab === 'finished' && <span className={styles.cardStatus}>{a.status === AUCTION_STATUS.PAID ? '✅ Sold' : a.status === AUCTION_STATUS.AWAITING_PAYMENT ? '⏳ Awaiting' : '⏹ Ended'}</span>}
+                      {auctionTab === 'live' && (
+                        <button className={styles.fingerprintBtn} onClick={(e) => { e.stopPropagation(); setProductPreview(a) }}>
+                          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                            <path d="M2 12C2 6.5 6.5 2 12 2a10 10 0 0 1 8 4"/><path d="M5 19.5C5.5 18 6 15 6 12c0-3.5 2.5-6 6-6 1 0 2 .2 3 .5"/><path d="M12 12c0 4-1 8-4 12"/><path d="M12 12c0 5 2 9.5 6 12"/><path d="M12 12c0-2 1-4 3-5.5"/><path d="M2 17a10 10 0 0 0 4.5 4.5"/>
+                          </svg>
+                        </button>
+                      )}
                     </div>
                     <div className={styles.cardInfo}>
                       <span className={styles.cardName}>{a.productName}</span>
                       <div className={styles.cardPriceRow}>
                         <span className={styles.cardPrice}>{fmtIDR(a.currentPrice)}</span>
-                        <span className={styles.cardBids}>{a.bidCount} bids</span>
+                        {a.bidCount > 0 && <span className={styles.cardBids}>{a.bidCount} bids</span>}
                       </div>
                     </div>
                   </div>
                 ))}
               </div>
-            </>
-          )}
-
-          {endedAuctions.length > 0 && (
-            <>
-              <div className={styles.sectionLabel}>Recently Ended</div>
-              <div className={styles.grid}>
-                {endedAuctions.map(a => (
-                  <button key={a.id} className={`${styles.auctionCard} ${styles.cardEnded}`} onClick={() => setSelected(a)}>
-                    <div className={styles.cardImgWrap}>
-                      {a.productImage ? <img src={a.productImage} alt="" className={styles.cardImg} /> : <div className={styles.cardImgPlaceholder}>📦</div>}
-                      <span className={styles.cardStatus}>{a.status === AUCTION_STATUS.PAID ? '✅ Sold' : a.status === AUCTION_STATUS.AWAITING_PAYMENT ? '⏳ Awaiting' : '⏹ Ended'}</span>
-                    </div>
-                    <div className={styles.cardInfo}>
-                      <span className={styles.cardName}>{a.productName}</span>
-                      <span className={styles.cardPrice}>{fmtIDR(a.currentPrice)}</span>
-                    </div>
-                  </button>
-                ))}
-              </div>
-            </>
-          )}
+            )
+          })()}
         </div>
       )}
 
@@ -447,6 +454,34 @@ export default function AuctionPage({ open, onClose }) {
         </div>
         )
       })()}
+
+      {/* Floating footer nav */}
+      <div style={{
+        position: 'fixed', bottom: 16, left: '50%', transform: 'translateX(-50%)',
+        zIndex: 100001, display: 'flex', alignItems: 'center', gap: 6,
+        background: 'rgba(0,0,0,0.45)', backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)',
+        border: '1px solid rgba(255,255,255,0.06)', borderRadius: 30, padding: '6px 8px',
+      }}>
+        {[
+          { label: 'Home', icon: <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>, action: onClose },
+          { label: 'Used', icon: <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 12a9 9 0 11-6.22-8.56"/><path d="M21 3v6h-6"/></svg>, action: () => onOpenUsedGoods?.() },
+          { label: 'Alerts', icon: <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 01-3.46 0"/></svg>, action: () => onAlerts?.(), badge: true },
+          { label: 'Profile', icon: <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>, action: () => onProfile?.() },
+        ].map((btn, i) => (
+          <button key={i} onClick={btn.action} style={{
+            display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
+            gap: 2, padding: '8px 16px', borderRadius: 22,
+            background: 'transparent', border: 'none', cursor: 'pointer',
+            color: 'rgba(255,255,255,0.45)', transition: 'all 0.2s',
+          }}>
+            <div style={{ position: 'relative' }}>
+              {btn.icon}
+              {btn.badge && <span style={{ position: 'absolute', top: -2, right: -2, width: 7, height: 7, borderRadius: '50%', background: '#EF4444', border: '1.5px solid #0e0e0e' }} />}
+            </div>
+            <span style={{ fontSize: 9, fontWeight: 700, letterSpacing: '0.03em' }}>{btn.label}</span>
+          </button>
+        ))}
+      </div>
     </div>,
     document.body
   )

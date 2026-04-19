@@ -1,7 +1,7 @@
 /**
  * CommissionsAdminTab
  * Admin view of the commission system.
- * - Marketplace sellers  → 5%  per completed order
+ * - Marketplace sellers  → 10% per completed order
  * - Restaurant owners    → 10% per completed order
  * - 72-hour payment window — auto-posted to overdue by DB cron
  * - Chat lock + account block for non-payers
@@ -61,7 +61,7 @@ const BLOCKED_ACCOUNTS = DEMO.filter(c => c.blocked).map(c => ({
 const STATUS_TABS = ['all', 'pending', 'overdue', 'paid', 'blocked']
 const TYPE_FILTERS = [
   { key: 'all',         label: 'All Types' },
-  { key: 'marketplace', label: '🛍️ Marketplace', rate: '5%'  },
+  { key: 'marketplace', label: '🛍️ Marketplace', rate: '10%' },
   { key: 'restaurant',  label: '🍽️ Restaurant',   rate: '10%' },
   { key: 'driver_bike', label: '🚲 Bike Driver',  rate: '10%' },
   { key: 'driver_car',  label: '🚗 Car Driver',   rate: '10%' },
@@ -335,7 +335,7 @@ export default function CommissionsAdminTab() {
               <div className={styles.blockedLeft}>
                 <span className={styles.blockedName}>{b.seller}</span>
                 <span className={`${styles.typePill} ${b.commission_type === 'restaurant' ? styles.typePillFood : styles.typePillMarket}`}>
-                  {b.commission_type === 'restaurant' ? '🍽️ 10%' : '🛍️ 5%'}
+                  {b.commission_type === 'restaurant' ? '🍽️ 10%' : '🛍️ 10%'}
                 </span>
               </div>
               <div className={styles.blockedMid}>
@@ -390,7 +390,7 @@ export default function CommissionsAdminTab() {
                         {c.commission_type === 'restaurant'  && '🍽️ 10%'}
                         {c.commission_type === 'driver_bike' && '🚲 10%'}
                         {c.commission_type === 'driver_car'  && '🚗 10%'}
-                        {c.commission_type === 'marketplace' && '🛍️ 5%'}
+                        {c.commission_type === 'marketplace' && '🛍️ 10%'}
                       </span>
                     </td>
                     <td className={styles.refCell}>{c.orderRef}</td>

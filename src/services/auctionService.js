@@ -9,13 +9,13 @@
  * - Winner has 1 hour to upload payment proof after auction ends
  * - Auction only truly completes when payment proof is received
  * - Non-payment = auction ban (30d / 90d / permanent)
- * - Admin takes 5% commission from final price
+ * - Admin takes 10% commission from final price
  * - Second chance goes to runner-up on forfeit
  */
 import { supabase } from '@/lib/supabase'
 
 // ── Commission rate ──────────────────────────────────────────────────────────
-export const AUCTION_COMMISSION_RATE = 0.05 // 5%
+export const AUCTION_COMMISSION_RATE = 0.10 // 10%
 
 // ── Tiered bid increments (min/max per bid) ──────────────────────────────────
 const BID_TIERS = [
@@ -129,6 +129,92 @@ export const DEMO_AUCTIONS = [
     bids: [
       { id: 'b6', buyerId: 'u2', buyerName: 'Andi P.', amount: 95000, time: now - 60000 },
       { id: 'b7', buyerId: 'u5', buyerName: 'Rina K.', amount: 85000, time: now - 180000 },
+    ],
+  },
+  {
+    id: 'auc-3',
+    productId: 'demo-2',
+    productName: 'Leather Crossbody Bag',
+    productImage: 'https://ik.imagekit.io/nepgaxllc/Untitleddsadasaaasss.png',
+    description: 'Genuine full-grain leather, brass hardware, adjustable strap. Handcrafted in Jakarta.',
+    material: 'Genuine Leather',
+    weight: '650g', dimensions: '26 × 18 × 8 cm', condition: 'new', itemCondition: 'new_unused', rating: 4.8,
+    sellerId: 'seller-2',
+    sellerName: 'Kulit Asli',
+    startPrice: 50000,
+    reservePrice: 800000,
+    buyNowPrice: 1100000,
+    currentPrice: 420000,
+    bidCount: 18,
+    startTime: now - 3 * 3600000,
+    endTime: now + 3 * 3600000,
+    pausedTimeLeft: null,
+    status: AUCTION_STATUS.LIVE,
+    deliveryIncluded: true,
+    winnerId: null, winnerName: null, paymentDeadline: null,
+    buyNowBuyerId: null, buyNowDeadline: null,
+    commission: null,
+    bids: [
+      { id: 'b8', buyerId: 'u3', buyerName: 'Dewi S.', amount: 420000, time: now - 90000 },
+      { id: 'b9', buyerId: 'u1', buyerName: 'Sarah M.', amount: 400000, time: now - 240000 },
+      { id: 'b10', buyerId: 'u6', buyerName: 'Maya L.', amount: 375000, time: now - 480000 },
+    ],
+  },
+  {
+    id: 'auc-4',
+    productId: 'demo-5',
+    productName: 'Bifold Leather Wallet',
+    productImage: 'https://ik.imagekit.io/nepgaxllc/Untitleddsadasaaassssdasdcxcasdasdadfssdf.png',
+    description: 'Classic bifold with 8 card slots, ID window and bill compartment.',
+    material: 'Genuine Leather',
+    weight: '150g', dimensions: '11 × 9.5 × 1.2 cm', condition: 'new', itemCondition: 'new_unused', rating: 4.2,
+    sellerId: 'seller-2',
+    sellerName: 'Kulit Asli',
+    startPrice: 10000,
+    reservePrice: 200000,
+    buyNowPrice: 400000,
+    currentPrice: 310000,
+    bidCount: 32,
+    startTime: now - 5 * 3600000,
+    endTime: now - 1 * 3600000,
+    pausedTimeLeft: null,
+    status: AUCTION_STATUS.PAID,
+    deliveryIncluded: true,
+    winnerId: 'u3', winnerName: 'Dewi S.', paymentDeadline: null,
+    buyNowBuyerId: null, buyNowDeadline: null,
+    commission: 15500,
+    bids: [
+      { id: 'b11', buyerId: 'u3', buyerName: 'Dewi S.', amount: 310000, time: now - 1.1 * 3600000 },
+      { id: 'b12', buyerId: 'u2', buyerName: 'Andi P.', amount: 295000, time: now - 1.3 * 3600000 },
+      { id: 'b13', buyerId: 'u5', buyerName: 'Rina K.', amount: 280000, time: now - 1.5 * 3600000 },
+    ],
+  },
+  {
+    id: 'auc-5',
+    productId: 'demo-6',
+    productName: 'Leather Keychain',
+    productImage: 'https://ik.imagekit.io/nepgaxllc/Untitledzxczxczxczx.png',
+    description: 'Hand-stitched leather keychain. Personalised initials available.',
+    material: 'Full-grain leather',
+    weight: '25g', dimensions: '8 × 3 cm', condition: 'new', itemCondition: 'new_unused', rating: 4.0,
+    sellerId: 'seller-2',
+    sellerName: 'Kulit Asli',
+    startPrice: 5000,
+    reservePrice: 50000,
+    buyNowPrice: 80000,
+    currentPrice: 72000,
+    bidCount: 14,
+    startTime: now - 6 * 3600000,
+    endTime: now - 2 * 3600000,
+    pausedTimeLeft: null,
+    status: AUCTION_STATUS.PAID,
+    deliveryIncluded: true,
+    winnerId: 'u1', winnerName: 'Sarah M.', paymentDeadline: null,
+    buyNowBuyerId: null, buyNowDeadline: null,
+    commission: 3600,
+    bids: [
+      { id: 'b14', buyerId: 'u1', buyerName: 'Sarah M.', amount: 72000, time: now - 2.2 * 3600000 },
+      { id: 'b15', buyerId: 'u4', buyerName: 'Budi R.', amount: 65000, time: now - 2.5 * 3600000 },
     ],
   },
 ]

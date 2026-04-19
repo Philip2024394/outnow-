@@ -5,6 +5,7 @@ import { DEMO_BUSINESS_SELLERS } from '@/demo/mockData'
 import { sortProducts, sortSellers } from '@/utils/searchAlgorithm'
 import { DEMO_PRODUCTS } from '@/services/commerceService'
 import SellerProfileSheet from '@/components/commerce/SellerProfileSheet'
+import ProductDetailSheet from '@/components/commerce/ProductDetailSheet'
 import RecommendationBanner from '@/components/commerce/RecommendationBanner'
 import FlashSalePage from '@/components/commerce/FlashSalePage'
 import AuctionPage from '@/components/commerce/AuctionPage'
@@ -109,12 +110,12 @@ function ProductCard({ product, onClick, isFirstNewShopProduct, isPowerSellerPro
           : <div className={styles.cardImgFallback} style={{ fontSize:28, color:'rgba(255,255,255,0.15)' }}>📦</div>
         }
         {hasSale && (
-          <span style={{ position:'absolute', top:4, right:4, padding:'2px 6px', borderRadius:4, background:'rgba(239,68,68,0.9)', color:'#fff', fontSize:9, fontWeight:800 }}>
+          <span style={{ position:'absolute', top:4, right:4, padding:'2px 6px', borderRadius:4, background:'rgba(239,68,68,0.9)', color:'#fff', fontSize:11, fontWeight:800 }}>
             -{discount}%
           </span>
         )}
         {product.stock === 0 && (
-          <span style={{ position:'absolute', bottom:4, left:4, padding:'2px 6px', borderRadius:4, background:'rgba(0,0,0,0.7)', color:'#ef4444', fontSize:9, fontWeight:700 }}>
+          <span style={{ position:'absolute', bottom:4, left:4, padding:'2px 6px', borderRadius:4, background:'rgba(0,0,0,0.7)', color:'#ef4444', fontSize:11, fontWeight:700 }}>
             Sold Out
           </span>
         )}
@@ -148,15 +149,15 @@ function ProductCard({ product, onClick, isFirstNewShopProduct, isPowerSellerPro
         <div style={{ padding:'2px 0', display:'flex', alignItems:'baseline', gap:4 }}>
           {hasSale ? (
             <>
-              <span style={{ fontSize:12, fontWeight:800, color:'#FFE500', fontFamily:'monospace' }}>{fmtRp(salePrice)}</span>
-              <span style={{ fontSize:9, textDecoration:'line-through', color:'rgba(255,255,255,0.3)' }}>{fmtRp(price)}</span>
+              <span style={{ fontSize:16, fontWeight:900, color:'#FFE500', fontFamily:'monospace' }}>{fmtRp(salePrice)}</span>
+              <span style={{ fontSize:12, textDecoration:'line-through', color:'rgba(255,255,255,0.3)' }}>{fmtRp(price)}</span>
             </>
           ) : (
-            <span style={{ fontSize:12, fontWeight:800, color:'#8DC63F', fontFamily:'monospace' }}>{fmtRp(price)}</span>
+            <span style={{ fontSize:16, fontWeight:900, color:'#8DC63F', fontFamily:'monospace' }}>{fmtRp(price)}</span>
           )}
         </div>
         {sellerName && (
-          <div style={{ fontSize:9, color:'rgba(255,255,255,0.3)', whiteSpace:'nowrap', overflow:'hidden', textOverflow:'ellipsis' }}>
+          <div style={{ fontSize:12, color:'rgba(255,255,255,0.3)', whiteSpace:'nowrap', overflow:'hidden', textOverflow:'ellipsis' }}>
             {sellerName}{product.profiles?.city ? ` · ${product.profiles.city}` : ''}
           </div>
         )}
@@ -251,6 +252,7 @@ export default function ShopSearchScreen({ onClose, userCity, userCountry, giftF
   const [searchFocused, setSearchFocused] = useState(false)
   const [buyerProfileOpen, setBuyerProfileOpen] = useState(false)
   const [ordersOpen, setOrdersOpen] = useState(false)
+  const [selectedProduct, setSelectedProduct] = useState(null)
   const inputRef = useRef(null)
 
   const activeCat = SEARCH_CATEGORIES.find(c => c.id === activeCategory) ?? SEARCH_CATEGORIES[0]
@@ -382,10 +384,10 @@ export default function ShopSearchScreen({ onClose, userCity, userCountry, giftF
 
       {/* Live order ticker */}
       <div style={{ overflow: 'hidden', padding: '6px 14px', flexShrink: 0 }}>
-        <div style={{ display: 'flex', animation: 'tickerScroll 20s linear infinite', whiteSpace: 'nowrap', gap: 30 }}>
-          {['Sarah bought Leather Bag · 2m ago', 'Andi booked Honda Vario · 5m ago', 'Rizky won Auction · 8m ago', 'Wayan listed Sound System · 12m ago', 'Sari sold Villa Package · 15m ago'].map((t, i) => (
-            <span key={i} style={{ fontSize: 11, fontWeight: 600, color: 'rgba(255,255,255,0.35)', display: 'flex', alignItems: 'center', gap: 5 }}>
-              <span style={{ width: 5, height: 5, borderRadius: '50%', background: '#8DC63F', flexShrink: 0 }} />{t}
+        <div style={{ display: 'flex', animation: 'tickerScroll 25s linear infinite', whiteSpace: 'nowrap', gap: 40 }}>
+          {['Sarah bought Leather Bag · 2m ago', 'Andi booked Honda Vario · 5m ago', 'Rizky won Auction · 8m ago', 'Wayan listed Sound System · 12m ago', 'Sari sold Villa Package · 15m ago', 'Sarah bought Leather Bag · 2m ago', 'Andi booked Honda Vario · 5m ago', 'Rizky won Auction · 8m ago'].map((t, i) => (
+            <span key={i} style={{ fontSize: 12, fontWeight: 600, color: 'rgba(255,255,255,0.4)', display: 'flex', alignItems: 'center', gap: 5 }}>
+              <span style={{ width: 6, height: 6, borderRadius: '50%', background: '#8DC63F', flexShrink: 0 }} />{t}
             </span>
           ))}
         </div>
@@ -487,10 +489,10 @@ export default function ShopSearchScreen({ onClose, userCity, userCountry, giftF
 
       {/* ── Live order ticker ── */}
       <div style={{ overflow: 'hidden', padding: '6px 14px', flexShrink: 0 }}>
-        <div style={{ display: 'flex', animation: 'tickerScroll 20s linear infinite', whiteSpace: 'nowrap', gap: 30 }}>
-          {['Sarah bought Leather Bag · 2m ago', 'Andi booked Honda Vario · 5m ago', 'Rizky won Auction · 8m ago', 'Wayan listed Sound System · 12m ago', 'Sari sold Villa Package · 15m ago'].map((t, i) => (
-            <span key={i} style={{ fontSize: 11, fontWeight: 600, color: 'rgba(255,255,255,0.35)', display: 'flex', alignItems: 'center', gap: 5 }}>
-              <span style={{ width: 5, height: 5, borderRadius: '50%', background: '#8DC63F', flexShrink: 0 }} />{t}
+        <div style={{ display: 'flex', animation: 'tickerScroll 25s linear infinite', whiteSpace: 'nowrap', gap: 40 }}>
+          {['Sarah bought Leather Bag · 2m ago', 'Andi booked Honda Vario · 5m ago', 'Rizky won Auction · 8m ago', 'Wayan listed Sound System · 12m ago', 'Sari sold Villa Package · 15m ago', 'Sarah bought Leather Bag · 2m ago', 'Andi booked Honda Vario · 5m ago', 'Rizky won Auction · 8m ago'].map((t, i) => (
+            <span key={i} style={{ fontSize: 12, fontWeight: 600, color: 'rgba(255,255,255,0.4)', display: 'flex', alignItems: 'center', gap: 5 }}>
+              <span style={{ width: 6, height: 6, borderRadius: '50%', background: '#8DC63F', flexShrink: 0 }} />{t}
             </span>
           ))}
         </div>
@@ -515,12 +517,6 @@ export default function ShopSearchScreen({ onClose, userCity, userCountry, giftF
           onClick={() => { setAuctionOpen(true); setFlashSaleOpen(false) }}
         >
           🔨 Auctions
-        </button>
-        <button
-          className={styles.mainTab}
-          onClick={() => onOpenUsedGoods?.()}
-        >
-          🔄 Used
         </button>
       </div>
 
@@ -626,14 +622,7 @@ export default function ShopSearchScreen({ onClose, userCity, userCountry, giftF
 
               acc.push(
                 <ProductCard key={p.id} product={cardProduct} isFirstNewShopProduct={isFirstNew} isPowerSellerProduct={isFirstPower} onAuctionTap={handleAuctionTap} onClick={(prod) => {
-                  const seller = sellers.find(s => s.id === prod.user_id) ?? {
-                    id: prod.user_id,
-                    displayName: prod.profiles?.display_name ?? 'Seller',
-                    photoURL: prod.profiles?.photo_url ?? null,
-                    city: prod.profiles?.city ?? null,
-                    country: prod.profiles?.country ?? null,
-                  }
-                  handleSellerClick(seller)
+                  setSelectedProduct(prod)
                 }} />
               )
               return acc
@@ -681,11 +670,26 @@ export default function ShopSearchScreen({ onClose, userCity, userCountry, giftF
       onClose={() => setFlashSaleOpen(false)}
       onOrderViaChat={onOrderViaChat}
       onMakeOffer={onMakeOffer}
+      onOpenAuction={() => setAuctionOpen(true)}
+      onOpenProducts={() => { setFlashSaleOpen(false); setAuctionOpen(false) }}
+      onAlerts={() => onAlerts?.()}
+      onProfile={() => setBuyerProfileOpen(true)}
     />
     <AuctionPage
       open={auctionOpen}
       onClose={() => setAuctionOpen(false)}
+      onOpenUsedGoods={() => onOpenUsedGoods?.()}
+      onAlerts={() => onAlerts?.()}
+      onProfile={() => setBuyerProfileOpen(true)}
     />
+    {selectedProduct && (
+      <ProductDetailSheet
+        product={selectedProduct}
+        onClose={() => setSelectedProduct(null)}
+        onOrderViaChat={onOrderViaChat}
+        onMakeOffer={onMakeOffer}
+      />
+    )}
     <BuyerProfileSheet
       open={buyerProfileOpen}
       onClose={() => setBuyerProfileOpen(false)}
@@ -701,7 +705,7 @@ export default function ShopSearchScreen({ onClose, userCity, userCountry, giftF
     }}>
       {[
         { label: 'Home', active: showLanding, icon: <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>, action: onClose },
-        { label: 'Search', active: false, icon: <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>, action: () => { setShowLanding(true); onLandingChange?.(true) } },
+        { label: 'Used', active: false, icon: <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 12a9 9 0 11-6.22-8.56"/><path d="M21 3v6h-6"/></svg>, action: () => onOpenUsedGoods?.() },
         { label: 'Alerts', active: false, icon: <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 01-3.46 0"/></svg>, action: () => onAlerts?.(), badge: true },
         { label: 'Profile', active: false, icon: <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>, action: () => setBuyerProfileOpen(true) },
       ].map((btn, i) => (

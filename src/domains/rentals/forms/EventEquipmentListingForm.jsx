@@ -202,12 +202,12 @@ function spamCheck(title, desc) {
 function WalletCommission({ daily, perEvent }) {
   const price = Number(String(daily || perEvent || '0').replace(/\./g, ''))
   if (!price) return null
-  const commission = Math.round(price * 0.05)
+  const commission = Math.round(price * 0.10)
   const youGet = price - commission
   return (
     <div style={{ padding: '10px 14px', background: 'rgba(141,198,63,0.06)', border: '1px solid rgba(141,198,63,0.12)', borderRadius: 12, marginTop: 8 }}>
       <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 11, color: 'rgba(255,255,255,0.3)', fontWeight: 600 }}>
-        <span>Platform fee (5%)</span>
+        <span>Platform fee (10%)</span>
         <span>Rp {commission.toLocaleString('id-ID')}</span>
       </div>
       <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 13, color: '#8DC63F', fontWeight: 800, marginTop: 4 }}>

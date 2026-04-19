@@ -53,7 +53,7 @@ export default function SellerWalletScreen({ open, onClose }) {
           <span className={styles.balanceValue} style={{ color: '#34C759' }}>{fmtRp(totalEarnings)}</span>
         </div>
         <div className={styles.balanceCard}>
-          <span className={styles.balanceLabel}>Commission (5%)</span>
+          <span className={styles.balanceLabel}>Commission (10%)</span>
           <span className={styles.balanceValue} style={{ color: '#FF9500' }}>{fmtRp(totalCommission)}</span>
         </div>
         <div className={styles.balanceCard}>
