@@ -161,8 +161,8 @@ function RentalLanding({ onEnter, onClose, onDashboard, onSignUp }) {
         <div className={styles.landingContent}>
           <h1 className={styles.landingTitle}>Indoo Done Deal</h1>
           <p className={styles.landingSub}>Rentals & Sales — motors, cars, villas, equipment and more</p>
-          <button className={styles.landingBtn} onClick={onSignUp}>
-            Get Started
+          <button className={styles.landingBtn} onClick={onEnter}>
+            Browse Deals
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
               <polyline points="9 18 15 12 9 6"/>
             </svg>
@@ -373,6 +373,21 @@ export default function RentalSearchScreen({ onClose }) {
   const [flippedCards, setFlippedCards] = useState({})
   const [listingMode, setListingMode] = useState('all') // 'all' | 'rent' | 'sale'
   const [reviewListing, setReviewListing] = useState(null)
+  const [pendingAction, setPendingAction] = useState(null) // { type: 'book'|'chat', listing }
+
+  // Check if user has account before allowing book/chat
+  const hasAccount = () => {
+    try { return !!localStorage.getItem('indoo_profile') || !!localStorage.getItem('indoo_rental_owner') } catch { return false }
+  }
+  const requireAccount = (type, listing) => {
+    if (hasAccount()) {
+      if (type === 'book') setBookingListing(listing)
+      else if (type === 'chat') setChatListing(listing)
+    } else {
+      setPendingAction({ type, listing })
+      setRentalSignUpOpen(true)
+    }
+  }
 
   // Merge demo listings with owner-published live listings
   const ownerListings = (() => {
@@ -433,7 +448,16 @@ export default function RentalSearchScreen({ onClose }) {
   const modals = <>
     <RentalSignUpScreen
       open={rentalSignUpOpen}
-      onClose={() => setRentalSignUpOpen(false)}
+      onClose={() => {
+        setRentalSignUpOpen(false)
+        // Resume pending action after sign up
+        if (pendingAction) {
+          const { type, listing } = pendingAction
+          setPendingAction(null)
+          if (type === 'book') setBookingListing(listing)
+          else if (type === 'chat') setChatListing(listing)
+        }
+      }}
       onListRental={() => { setRentalSignUpOpen(false); setRentalListingOpen(true) }}
       onSellItem={() => { setRentalSignUpOpen(false); setRentalListingOpen(true) }}
       onBuyItem={() => { setRentalSignUpOpen(false); markSectionVisited('rentals'); setListingMode('sale'); setView('categories') }}
@@ -742,7 +766,7 @@ export default function RentalSearchScreen({ onClose }) {
                           <span style={{fontSize:22,fontWeight:900,color:'#8DC63F',letterSpacing:'-0.02em'}}>{fmtIDR(l.price_day).replace('Rp ','')}</span>
                           <span style={{fontSize:11,color:'rgba(255,255,255,0.25)',fontWeight:600}}>/day</span>
                         </div>
-                        <button onClick={e => { e.stopPropagation(); setBookingListing(l) }} style={{ padding:'8px 16px',borderRadius:10,background:'#8DC63F',border:'none',color:'#000',fontSize:11,fontWeight:800,cursor:'pointer',fontFamily:'inherit',boxShadow:'0 2px 8px rgba(141,198,63,0.3)',flexShrink:0 }}>
+                        <button onClick={e => { e.stopPropagation(); requireAccount('book', l) }} style={{ padding:'8px 16px',borderRadius:10,background:'#8DC63F',border:'none',color:'#000',fontSize:11,fontWeight:800,cursor:'pointer',fontFamily:'inherit',boxShadow:'0 2px 8px rgba(141,198,63,0.3)',flexShrink:0 }}>
                           Book Now
                         </button>
                       </div>
@@ -795,11 +819,11 @@ export default function RentalSearchScreen({ onClose }) {
                         {(typeof l.buy_now === 'object' && l.buy_now.negotiable) && <div style={{ fontSize: 10, color: 'rgba(255,215,0,0.4)', marginTop: 4, fontWeight: 600 }}>Price is negotiable</div>}
                       </div>
                       <div style={{ display: 'flex', gap: 8 }}>
-                        <button onClick={e => { e.stopPropagation(); setFlippedCards(p => ({...p,[l.id]:false})); setChatListing(l) }} style={{ flex: 1, padding: '11px 0', borderRadius: 12, background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.1)', color: '#fff', fontSize: 13, fontWeight: 800, cursor: 'pointer', fontFamily: 'inherit', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6 }}>
+                        <button onClick={e => { e.stopPropagation(); setFlippedCards(p => ({...p,[l.id]:false})); requireAccount('chat', l) }} style={{ flex: 1, padding: '11px 0', borderRadius: 12, background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.1)', color: '#fff', fontSize: 13, fontWeight: 800, cursor: 'pointer', fontFamily: 'inherit', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6 }}>
                           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>
                           Chat
                         </button>
-                        <button onClick={e => { e.stopPropagation(); setFlippedCards(p => ({...p,[l.id]:false})); setBookingListing({...l, _buyMode: true}) }} style={{ flex: 1, padding: '11px 0', borderRadius: 12, background: '#FFD700', border: 'none', color: '#000', fontSize: 13, fontWeight: 800, cursor: 'pointer', fontFamily: 'inherit', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6, boxShadow: '0 2px 10px rgba(255,215,0,0.3)' }}>
+                        <button onClick={e => { e.stopPropagation(); setFlippedCards(p => ({...p,[l.id]:false})); requireAccount('book', {...l, _buyMode: true}) }} style={{ flex: 1, padding: '11px 0', borderRadius: 12, background: '#FFD700', border: 'none', color: '#000', fontSize: 13, fontWeight: 800, cursor: 'pointer', fontFamily: 'inherit', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6, boxShadow: '0 2px 10px rgba(255,215,0,0.3)' }}>
                           💰 Buy Now
                         </button>
                       </div>
@@ -819,7 +843,7 @@ export default function RentalSearchScreen({ onClose }) {
                         ))}
                       </div>
                       <div style={{ display: 'flex', gap: 8 }}>
-                        <button onClick={e => { e.stopPropagation(); setFlippedCards(p => ({...p,[l.id]:false})); setChatListing(l) }} style={{ flex: 1, padding: '11px 0', borderRadius: 12, background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.1)', color: '#fff', fontSize: 13, fontWeight: 800, cursor: 'pointer', fontFamily: 'inherit', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6 }}>
+                        <button onClick={e => { e.stopPropagation(); setFlippedCards(p => ({...p,[l.id]:false})); requireAccount('chat', l) }} style={{ flex: 1, padding: '11px 0', borderRadius: 12, background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.1)', color: '#fff', fontSize: 13, fontWeight: 800, cursor: 'pointer', fontFamily: 'inherit', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6 }}>
                           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>
                           Chat
                         </button>
@@ -838,7 +862,7 @@ export default function RentalSearchScreen({ onClose }) {
       </div>
 
       {/* Detail view */}
-      {selected && <RentalDetail listing={selected} onClose={() => setSelected(null)} onChat={(l) => { setSelected(null); setChatListing(l) }} onBook={(l) => { setSelected(null); setBookingListing(l) }} onReview={(l) => { setSelected(null); setReviewListing(l) }} />}
+      {selected && <RentalDetail listing={selected} onClose={() => setSelected(null)} onChat={(l) => { setSelected(null); requireAccount('chat', l) }} onBook={(l) => { setSelected(null); requireAccount('book', l) }} onReview={(l) => { setSelected(null); setReviewListing(l) }} />}
 
       {/* Reviews popup */}
       {reviewListing && <ReviewsPopup open={true} onClose={() => setReviewListing(null)} listingRef={reviewListing.ref || reviewListing.id} listingTitle={reviewListing.title} />}
