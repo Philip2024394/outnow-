@@ -85,7 +85,7 @@ export function RentalChat({ listing, onClose, onBook }) {
   if (!listing) return null
 
   return createPortal(
-    <div style={{ position: 'fixed', inset: 0, zIndex: 99998, background: '#0d0d0f', display: 'flex', flexDirection: 'column' }}>
+    <div style={{ position: 'fixed', inset: 0, zIndex: 99998, background: "#000 url('https://ik.imagekit.io/nepgaxllc/Untitledbbbcdfsdf.png?updatedAt=1776626023030') center / cover no-repeat", display: 'flex', flexDirection: 'column' }}>
       {/* Header */}
       <div style={{ padding: '14px 16px', borderBottom: '1px solid rgba(255,255,255,0.06)', display: 'flex', alignItems: 'center', gap: 12, flexShrink: 0 }}>
         <button onClick={onClose} style={{ width: 34, height: 34, borderRadius: '50%', background: '#8DC63F', border: 'none', color: '#000', fontSize: 14, fontWeight: 900, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>

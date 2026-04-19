@@ -11,6 +11,10 @@
  */
 
 import { supabase } from '@/lib/supabase'
+import {
+  notifyCommissionAdded,
+  notifyAccountCapped,
+} from '@/services/notificationService'
 
 const WALLET_KEY = 'indoo_wallet'
 export const COMMISSION_RATE = 0.10
@@ -88,7 +92,7 @@ export function getWalletSync(userId = 'default') {
 export function getWarningLevel(userId = 'default') {
   const w = getLocalWallet(userId)
   const ratio = w.debtLimit > 0 ? w.commissionOwed / w.debtLimit : 0
-  if (ratio >= 1) return { level: LEVEL_RED, message: `Orders paused — Pay Rp ${fmtK(w.commissionOwed)} to continue`, paused: true }
+  if (ratio >= 1) return { level: LEVEL_RED, message: `Account capped — pay Rp ${fmtK(w.commissionOwed)} to resume receiving orders`, paused: true }
   if (ratio >= 0.8) return { level: LEVEL_ORANGE, message: `Please clear balance — Rp ${fmtK(w.commissionOwed)} due`, paused: false }
   if (ratio >= 0.5) return { level: LEVEL_YELLOW, message: `Top up soon — Rp ${fmtK(w.commissionOwed)} commission due`, paused: false }
   return { level: LEVEL_GREEN, message: w.commissionOwed > 0 ? `Commission due: Rp ${fmtK(w.commissionOwed)}` : 'Wallet clear', paused: false }
@@ -149,7 +153,16 @@ export async function processCommission(userId = 'default', service, orderId, or
   w.debtLimit = calcDebtLimit(w.totalOrders)
   w.transactions.push({ id: `tx_${Date.now()}`, type: 'commission_owed', service, orderId, amount: orderAmount, commission, paid: fromWallet, owed: remaining, note: fromWallet > 0 ? `Rp ${fmtK(fromWallet)} from wallet, Rp ${fmtK(remaining)} owed` : `Rp ${fmtK(remaining)} added to debt`, date: new Date().toISOString() })
   saveLocalWallet(userId, w)
-  return { success: w.commissionOwed < w.debtLimit, free: false, deducted: false, commission, owed: w.commissionOwed, paused: w.commissionOwed >= w.debtLimit }
+
+  const capped = w.commissionOwed >= w.debtLimit
+
+  // Fire commission notifications (non-blocking)
+  notifyCommissionAdded(userId, String(orderId), commission, w.commissionOwed).catch(() => {})
+  if (capped) {
+    notifyAccountCapped(userId, w.commissionOwed, w.debtLimit).catch(() => {})
+  }
+
+  return { success: true, free: false, deducted: false, commission, owed: w.commissionOwed, capped, paused: capped }
 }
 
 // ── Top up wallet ───────────────────────────────────────────────────────────

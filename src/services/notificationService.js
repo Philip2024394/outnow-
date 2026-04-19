@@ -235,6 +235,136 @@ export function notifyMassageAdmin(toUserId, { title, body }) {
   })
 }
 
+// ── Commission / marketplace ─────────────────────────────────────────────────
+
+const INDOO_NOTIF_KEY = 'indoo_notifications'
+const COMMISSION_SPAM_KEY = 'indoo_commission_spam'
+
+function fmtAmount(n) {
+  if (n >= 1000000) return (n / 1000000).toFixed(1).replace('.0', '') + 'jt'
+  return Number(n ?? 0).toLocaleString('id-ID')
+}
+
+/**
+ * Anti-spam gate — returns true if the notification should be SKIPPED.
+ * Rules:
+ *  1. Same type to same user in last 24h → skip
+ *  2. Current hour 21:00–06:59 → skip (office hours only)
+ *  3. Max 4 commission notifications per seller per week → skip
+ */
+function shouldSkipCommissionNotif(userId, type) {
+  try {
+    const now = new Date()
+    const hour = now.getHours()
+    if (hour >= 21 || hour < 7) return true
+
+    const store = JSON.parse(localStorage.getItem(COMMISSION_SPAM_KEY) || '{}')
+    const key = `${userId}_${type}`
+    const userWeekKey = `${userId}__week`
+
+    // Same type within 24h
+    if (store[key] && (now.getTime() - store[key]) < 24 * 3600000) return true
+
+    // Max 4 per week
+    const weekEntries = store[userWeekKey] || []
+    const oneWeekAgo = now.getTime() - 7 * 24 * 3600000
+    const recent = weekEntries.filter(ts => ts > oneWeekAgo)
+    if (recent.length >= 4) return true
+
+    // Record this send
+    store[key] = now.getTime()
+    store[userWeekKey] = [...recent, now.getTime()]
+    localStorage.setItem(COMMISSION_SPAM_KEY, JSON.stringify(store))
+  } catch { /* localStorage unavailable — allow send */ }
+  return false
+}
+
+function saveLocalNotification(userId, notif) {
+  try {
+    const all = JSON.parse(localStorage.getItem(INDOO_NOTIF_KEY) || '[]')
+    all.unshift({ ...notif, user_id: userId })
+    // keep last 200
+    if (all.length > 200) all.length = 200
+    localStorage.setItem(INDOO_NOTIF_KEY, JSON.stringify(all))
+  } catch {}
+}
+
+/** Notify seller when commission is added from a completed order */
+export async function notifyCommissionAdded(userId, orderRef, commissionAmount, totalOwed) {
+  if (shouldSkipCommissionNotif(userId, 'commission_added')) return
+  const notif = {
+    id: `NOTIF_${Date.now()}_${Math.random().toString(36).slice(2, 7)}`,
+    type: 'commission_added',
+    title: 'Commission added',
+    body: `Order ${orderRef} completed. 10% commission (Rp ${fmtAmount(commissionAmount)}) added. Total owed: Rp ${fmtAmount(totalOwed)}`,
+    read: false,
+    created_at: new Date().toISOString(),
+  }
+  saveLocalNotification(userId, notif)
+  return send(userId, { type: notif.type, title: notif.title, body: notif.body, data: { action: 'open_wallet' } })
+}
+
+/** Notify seller 48h before commission due date */
+export async function notifyCommissionDueSoon(userId, amount, dueDate) {
+  if (shouldSkipCommissionNotif(userId, 'commission_due_soon')) return
+  const notif = {
+    id: `NOTIF_${Date.now()}_${Math.random().toString(36).slice(2, 7)}`,
+    type: 'commission_due_soon',
+    title: 'Commission payment due soon',
+    body: `Commission payment of Rp ${fmtAmount(amount)} due in 48 hours. Tap to pay.`,
+    read: false,
+    created_at: new Date().toISOString(),
+  }
+  saveLocalNotification(userId, notif)
+  return send(userId, { type: notif.type, title: notif.title, body: notif.body, data: { action: 'open_wallet', dueDate } })
+}
+
+/** Notify seller when commission is overdue (72h passed) */
+export async function notifyCommissionOverdue(userId, amount) {
+  if (shouldSkipCommissionNotif(userId, 'commission_overdue')) return
+  const notif = {
+    id: `NOTIF_${Date.now()}_${Math.random().toString(36).slice(2, 7)}`,
+    type: 'commission_overdue',
+    title: 'Commission overdue',
+    body: `Commission overdue. Pay Rp ${fmtAmount(amount)} to avoid account restrictions.`,
+    read: false,
+    created_at: new Date().toISOString(),
+  }
+  saveLocalNotification(userId, notif)
+  return send(userId, { type: notif.type, title: notif.title, body: notif.body, data: { action: 'open_wallet' } })
+}
+
+/** Notify seller when account is capped */
+export async function notifyAccountCapped(userId, amount, debtLimit) {
+  if (shouldSkipCommissionNotif(userId, 'account_capped')) return
+  const toPay = amount - debtLimit + 1 // minimum to get below limit
+  const notif = {
+    id: `NOTIF_${Date.now()}_${Math.random().toString(36).slice(2, 7)}`,
+    type: 'account_capped',
+    title: 'Account capped',
+    body: `Your account is capped at Rp ${fmtAmount(debtLimit)}. Pay Rp ${fmtAmount(toPay > 0 ? toPay : amount)} to resume receiving orders.`,
+    read: false,
+    created_at: new Date().toISOString(),
+  }
+  saveLocalNotification(userId, notif)
+  return send(userId, { type: notif.type, title: notif.title, body: notif.body, data: { action: 'open_wallet' } })
+}
+
+/** Notify seller when payment confirmed */
+export async function notifyCommissionPaid(userId, amount) {
+  if (shouldSkipCommissionNotif(userId, 'commission_paid')) return
+  const notif = {
+    id: `NOTIF_${Date.now()}_${Math.random().toString(36).slice(2, 7)}`,
+    type: 'commission_paid',
+    title: 'Payment confirmed',
+    body: `Payment of Rp ${fmtAmount(amount)} confirmed. Your account is active.`,
+    read: false,
+    created_at: new Date().toISOString(),
+  }
+  saveLocalNotification(userId, notif)
+  return send(userId, { type: notif.type, title: notif.title, body: notif.body, data: { action: 'open_wallet' } })
+}
+
 // ── Date suggestions (admin) ──────────────────────────────────────────────────
 
 export function notifyDateSuggestionAccepted(toUserId, { ideaTitle }) {

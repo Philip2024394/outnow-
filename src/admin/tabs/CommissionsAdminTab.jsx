@@ -10,7 +10,27 @@ import { useState, useEffect } from 'react'
 import { supabase } from '@/lib/supabase'
 import { markSellerCommissionsPaid, blockAccount, unblockAccount } from '@/services/commissionService'
 import { setSellerChatBlock } from '@/services/marketplaceChatService'
+import { notifyCommissionDueSoon } from '@/services/notificationService'
 import styles from './CommissionsAdminTab.module.css'
+
+const REMINDER_SENT_KEY = 'indoo_reminder_sent'
+
+function getReminderSent(sellerId) {
+  try {
+    const store = JSON.parse(localStorage.getItem(REMINDER_SENT_KEY) || '{}')
+    const ts = store[sellerId]
+    if (ts && (Date.now() - ts) < 24 * 3600000) return true
+  } catch {}
+  return false
+}
+
+function setReminderSent(sellerId) {
+  try {
+    const store = JSON.parse(localStorage.getItem(REMINDER_SENT_KEY) || '{}')
+    store[sellerId] = Date.now()
+    localStorage.setItem(REMINDER_SENT_KEY, JSON.stringify(store))
+  } catch {}
+}
 
 function fmtRp(n) { return `Rp ${Number(n ?? 0).toLocaleString('id-ID')}` }
 
@@ -79,6 +99,23 @@ export default function CommissionsAdminTab() {
     { id:'pp2', seller_id:'s2', seller_name:'Warung Sari Rasa', amount:8100, screenshot_url:'https://picsum.photos/seed/proof2/400/600', status:'pending_review', created_at:hAgo(3) },
   ])
   const [proofPreview, setProofPreview] = useState(null)
+  const [reminderSent, setReminderSentState] = useState(() => {
+    try {
+      const store = JSON.parse(localStorage.getItem(REMINDER_SENT_KEY) || '{}')
+      const recent = {}
+      for (const [k, v] of Object.entries(store)) {
+        if (Date.now() - v < 24 * 3600000) recent[k] = true
+      }
+      return recent
+    } catch { return {} }
+  })
+
+  const handleSendReminder = async (sellerId, amount) => {
+    const dueDate = new Date(Date.now() + 48 * 3600000).toISOString()
+    await notifyCommissionDueSoon(sellerId, amount, dueDate)
+    setReminderSentState(s => ({ ...s, [sellerId]: true }))
+    setReminderSent(sellerId)
+  }
 
   useEffect(() => {
     if (!supabase) return
@@ -423,6 +460,21 @@ export default function CommissionsAdminTab() {
                             <button className={styles.btnPay} onClick={() => markPaid(c.id)}>
                               Mark Paid
                             </button>
+                            {reminderSent[c.sellerId] ? (
+                              <span style={{ fontSize:11, color:'rgba(255,255,255,0.4)', fontStyle:'italic', padding:'4px 8px' }}>Sent</span>
+                            ) : (
+                              <button
+                                style={{
+                                  padding:'4px 10px', borderRadius:6, fontSize:11, fontWeight:700, cursor:'pointer',
+                                  background:'transparent', border:'1px solid #34C759', color:'#34C759',
+                                  display:'inline-flex', alignItems:'center', gap:4, fontFamily:'inherit',
+                                }}
+                                onClick={() => handleSendReminder(c.sellerId, c.amount)}
+                              >
+                                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+                                Remind
+                              </button>
+                            )}
                             {c.status === 'overdue' && (
                               <button className={styles.btnBlock} onClick={() => markBlocked(c.id)}>
                                 Block

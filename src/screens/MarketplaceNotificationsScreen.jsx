@@ -44,26 +44,63 @@ export default function MarketplaceNotificationsScreen({ open, onClose, onOpenRe
   const [notifications, setNotifications] = useState(DEMO_NOTIFICATIONS)
   const [filter, setFilter] = useState('all')
 
+  // Load commission notifications from localStorage (indoo_notifications)
+  useEffect(() => {
+    if (!open) return
+    try {
+      const stored = JSON.parse(localStorage.getItem('indoo_notifications') || '[]')
+      const uid = user?.id
+      const localNotifs = stored
+        .filter(n => !uid || n.user_id === uid || n.user_id === 'default')
+        .map(n => ({
+          id: n.id,
+          type: mapNotifType(n.type),
+          icon: mapNotifIcon(n.type),
+          title: n.title,
+          body: n.body,
+          time: formatTime(n.created_at),
+          read: n.read ?? false,
+        }))
+      if (localNotifs.length) {
+        setNotifications(prev => {
+          const ids = new Set(prev.map(p => p.id))
+          const merged = [...prev]
+          for (const n of localNotifs) {
+            if (!ids.has(n.id)) merged.push(n)
+          }
+          merged.sort((a, b) => (b.time < a.time ? -1 : 1))
+          return merged
+        })
+      }
+    } catch {}
+  }, [open, user?.id])
+
   useEffect(() => {
     if (!open || !user?.id || !supabase) return
     supabase
       .from('notifications')
       .select('*')
       .eq('user_id', user.id)
-      .in('type', ['gift_order', 'gift_update', 'gift_received', 'massage_booking', 'massage_confirmed', 'massage_commission', 'massage_admin', 'market_message', 'system'])
+      .in('type', ['gift_order', 'gift_update', 'gift_received', 'massage_booking', 'massage_confirmed', 'massage_commission', 'massage_admin', 'market_message', 'system', 'commission_added', 'commission_due_soon', 'commission_overdue', 'account_capped', 'commission_paid'])
       .order('created_at', { ascending: false })
       .limit(50)
       .then(({ data }) => {
         if (data?.length) {
-          setNotifications(data.map(n => ({
-            id: n.id,
-            type: mapNotifType(n.type),
-            icon: mapNotifIcon(n.type),
-            title: n.title,
-            body: n.body,
-            time: formatTime(n.created_at),
-            read: n.read,
-          })))
+          setNotifications(prev => {
+            const mapped = data.map(n => ({
+              id: n.id,
+              type: mapNotifType(n.type),
+              icon: mapNotifIcon(n.type),
+              title: n.title,
+              body: n.body,
+              time: formatTime(n.created_at),
+              read: n.read,
+            }))
+            const ids = new Set(mapped.map(m => m.id))
+            // keep local-only notifs that aren't in Supabase
+            const localOnly = prev.filter(p => !ids.has(p.id))
+            return [...mapped, ...localOnly]
+          })
         }
       })
   }, [open, user?.id])
@@ -149,12 +186,18 @@ function mapNotifType(type) {
   if (['gift_order', 'gift_update'].includes(type)) return 'orders'
   if (['massage_booking', 'massage_confirmed'].includes(type)) return 'orders'
   if (['massage_commission'].includes(type)) return 'commission'
+  if (['commission_added', 'commission_due_soon', 'commission_overdue', 'account_capped', 'commission_paid'].includes(type)) return 'commission'
   if (['market_message'].includes(type)) return 'messages'
   return 'system'
 }
 
 function mapNotifIcon(type) {
-  const map = { gift_order: '📦', gift_update: '🚚', massage_booking: '📦', massage_confirmed: '✅', massage_commission: '💰', market_message: '💬' }
+  const map = {
+    gift_order: '📦', gift_update: '🚚', massage_booking: '📦', massage_confirmed: '✅',
+    massage_commission: '💰', market_message: '💬',
+    commission_added: '💰', commission_due_soon: '⏰', commission_overdue: '🔴',
+    account_capped: '🚫', commission_paid: '✅',
+  }
   return map[type] || '🔔'
 }
 

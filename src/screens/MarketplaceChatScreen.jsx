@@ -268,90 +268,32 @@ export default function MarketplaceChatScreen({ open, onClose, contact }) {
         </div>
       )}
 
-      {/* Place Order — 10% booking fee */}
+      {/* Place Order button — no fee for buyers */}
       {!depositPaid && !isSeller && (
         <div style={{ padding: '8px 16px', borderTop: '1px solid rgba(255,255,255,0.04)' }}>
-          <button onClick={() => setShowDepositFlow(true)} style={{ width: '100%', padding: '12px 0', background: '#8DC63F', border: 'none', borderRadius: 12, color: '#000', fontSize: 13, fontWeight: 800, cursor: 'pointer', fontFamily: 'inherit', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8, boxShadow: '0 2px 10px rgba(141,198,63,0.3)' }}>
-            🛒 Place Order — 10% Booking Fee to Confirm
+          <button onClick={() => {
+            setDepositPaid(true)
+            setMessages(prev => [...prev, {
+              id: `sys_${Date.now()}`,
+              from: 'system',
+              text: '✅ Order placed! Seller has been notified. They will contact you to arrange delivery.',
+              time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+            }])
+          }} style={{ width: '100%', padding: '14px 0', background: '#8DC63F', border: 'none', borderRadius: 14, color: '#000', fontSize: 14, fontWeight: 900, cursor: 'pointer', fontFamily: 'inherit', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8, boxShadow: '0 4px 16px rgba(141,198,63,0.3)' }}>
+            🛒 Place Order
           </button>
         </div>
       )}
 
-      {/* Order confirmed + WhatsApp */}
+      {/* Order confirmed */}
       {depositPaid && !isSeller && (
-        <div style={{ padding: '8px 16px', borderTop: '1px solid rgba(37,211,102,0.1)' }}>
-          <div style={{ padding: '10px 14px', background: 'rgba(37,211,102,0.08)', border: '1px solid rgba(37,211,102,0.2)', borderRadius: 12, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8 }}>
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="#25D366"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/><path d="M12 2C6.477 2 2 6.477 2 12c0 1.89.525 3.66 1.438 5.168L2 22l4.832-1.438A9.955 9.955 0 0012 22c5.523 0 10-4.477 10-10S17.523 2 12 2z"/></svg>
-            <span style={{ fontSize: 12, fontWeight: 800, color: '#25D366' }}>Order Confirmed — WhatsApp available for delivery details</span>
+        <div style={{ padding: '8px 16px', borderTop: '1px solid rgba(141,198,63,0.1)' }}>
+          <div style={{ padding: '10px 14px', background: 'rgba(141,198,63,0.08)', border: '1px solid rgba(141,198,63,0.15)', borderRadius: 12, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8 }}>
+            <span style={{ fontSize: 12, fontWeight: 800, color: '#8DC63F' }}>✅ Order Placed — Seller has been notified</span>
           </div>
         </div>
       )}
 
-      {/* Deposit flow popup */}
-      {showDepositFlow && (
-        <div style={{ position: 'fixed', inset: 0, zIndex: 99999, background: 'rgba(0,0,0,0.85)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 16 }}>
-          <div style={{ width: '100%', maxWidth: 380, background: '#111', border: '1.5px solid rgba(255,215,0,0.2)', borderRadius: 20, overflow: 'hidden', boxShadow: '0 20px 60px rgba(0,0,0,0.5)' }}>
-            {/* Header */}
-            <div style={{ padding: '16px', borderBottom: '1px solid rgba(255,255,255,0.06)', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-              <span style={{ fontSize: 15, fontWeight: 800, color: '#fff' }}>Confirm Your Order</span>
-              <button onClick={() => setShowDepositFlow(false)} style={{ width: 30, height: 30, borderRadius: '50%', background: '#EF4444', border: 'none', color: '#fff', fontSize: 12, fontWeight: 900, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>✕</button>
-            </div>
-
-            <div style={{ padding: '16px' }}>
-              <p style={{ fontSize: 12, color: 'rgba(255,255,255,0.4)', margin: '0 0 14px', lineHeight: 1.5 }}>
-                Pay a 10% booking fee to confirm your order. This secures the item and the seller will be notified. You'll also get the seller's WhatsApp for delivery details.
-              </p>
-
-              {/* Payment methods */}
-              <div style={{ background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.06)', borderRadius: 12, padding: '12px', marginBottom: 14 }}>
-                <div style={{ fontSize: 11, fontWeight: 800, color: '#fff', marginBottom: 8 }}>Pay via:</div>
-                {[
-                  { method: 'Bank BCA', detail: '1234 5678 90 · Indoo Indonesia' },
-                  { method: 'GoPay / OVO', detail: '0812-3456-7890' },
-                  { method: 'QRIS', detail: 'Scan QR at checkout' },
-                ].map((p, i) => (
-                  <div key={i} style={{ display: 'flex', justifyContent: 'space-between', padding: '6px 0', borderBottom: i < 2 ? '1px solid rgba(255,255,255,0.04)' : 'none' }}>
-                    <span style={{ fontSize: 11, fontWeight: 700, color: '#FFD700' }}>{p.method}</span>
-                    <span style={{ fontSize: 10, color: 'rgba(255,255,255,0.3)' }}>{p.detail}</span>
-                  </div>
-                ))}
-              </div>
-
-              {/* Upload proof */}
-              {depositProof ? (
-                <div style={{ position: 'relative', marginBottom: 14 }}>
-                  <img src={depositProof} alt="" style={{ width: '100%', maxHeight: 150, objectFit: 'contain', borderRadius: 10, background: 'rgba(255,255,255,0.02)' }} />
-                  <button onClick={() => setDepositProof(null)} style={{ position: 'absolute', top: 4, right: 4, width: 22, height: 22, borderRadius: '50%', background: '#EF4444', border: 'none', color: '#fff', fontSize: 9, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>✕</button>
-                </div>
-              ) : (
-                <button onClick={() => {
-                  const inp = document.createElement('input')
-                  inp.type = 'file'; inp.accept = 'image/*'
-                  inp.onchange = e => { const f = e.target.files?.[0]; if (f) setDepositProof(URL.createObjectURL(f)) }
-                  inp.click()
-                }} style={{ width: '100%', padding: '20px', borderRadius: 12, border: '2px dashed rgba(255,215,0,0.15)', background: 'rgba(255,215,0,0.03)', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 6, cursor: 'pointer', marginBottom: 14 }}>
-                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#FFD700" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
-                  <span style={{ fontSize: 11, fontWeight: 700, color: '#FFD700' }}>Upload Payment Proof</span>
-                </button>
-              )}
-
-              <button onClick={() => {
-                if (!depositProof) return
-                setDepositPaid(true)
-                setShowDepositFlow(false)
-                setMessages(prev => [...prev, {
-                  id: `sys_${Date.now()}`,
-                  from: 'system',
-                  text: '✅ Order confirmed! Booking fee received. Seller has been notified. WhatsApp contact is now available for delivery arrangements.',
-                  time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-                }])
-              }} disabled={!depositProof} style={{ width: '100%', padding: '14px', borderRadius: 14, background: depositProof ? '#8DC63F' : 'rgba(255,255,255,0.06)', border: 'none', color: depositProof ? '#000' : 'rgba(255,255,255,0.2)', fontSize: 14, fontWeight: 800, cursor: depositProof ? 'pointer' : 'not-allowed', fontFamily: 'inherit' }}>
-                Confirm Order
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
 
       {/* Locked camera modal */}
       {showLockedModal && (
