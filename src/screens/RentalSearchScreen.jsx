@@ -714,24 +714,30 @@ export default function RentalSearchScreen({ onClose }) {
                       <span style={{fontSize:11,color:'rgba(255,255,255,0.25)',fontWeight:600}}>{l.city||'Indonesia'}</span>
                       <span style={{marginLeft:'auto',fontSize:10,color:'rgba(255,255,255,0.15)'}}>👁 {l.view_count}</span>
                     </div>
-                    <div style={{display:'flex',alignItems:'center',justifyContent:'space-between',marginTop:2}}>
-                      <div style={{display:'flex',alignItems:'baseline',gap:3}}><span style={{fontSize:10,fontWeight:700,color:'rgba(141,198,63,0.6)'}}>Rp</span><span style={{fontSize:22,fontWeight:900,color:'#8DC63F',letterSpacing:'-0.02em'}}>{fmtIDR(l.price_day).replace('Rp ','')}</span><span style={{fontSize:11,color:'rgba(255,255,255,0.25)',fontWeight:600}}>/day</span></div>
-                      <div style={{display:'flex',gap:6,flexShrink:0}}>
-                        <button onClick={e => { e.stopPropagation(); setBookingListing(l) }} style={{ padding:'8px 14px',borderRadius:10,background:'#8DC63F',border:'none',color:'#000',fontSize:11,fontWeight:800,cursor:'pointer',fontFamily:'inherit',boxShadow:'0 2px 8px rgba(141,198,63,0.3)' }}>
-                          Rent
-                        </button>
-                        {l.buy_now && (
-                          <button onClick={e => { e.stopPropagation(); setBookingListing({...l, _buyMode: true}) }} style={{ padding:'8px 14px',borderRadius:10,background:'#FFD700',border:'none',color:'#000',fontSize:11,fontWeight:800,cursor:'pointer',fontFamily:'inherit',boxShadow:'0 2px 8px rgba(255,215,0,0.3)' }}>
-                            Buy
+                    {/* Price + action — depends on card type */}
+                    {l.buy_now ? (
+                      <>
+                        <div style={{display:'flex',alignItems:'center',justifyContent:'space-between',marginTop:2}}>
+                          <div style={{display:'flex',alignItems:'baseline',gap:3}}>
+                            <span style={{fontSize:10,fontWeight:700,color:'rgba(255,215,0,0.6)'}}>Rp</span>
+                            <span style={{fontSize:22,fontWeight:900,color:'#FFD700',letterSpacing:'-0.02em'}}>{fmtIDR(Number(String(typeof l.buy_now === 'object' ? l.buy_now.price : l.buy_now).replace(/\./g,''))).replace('Rp ','')}</span>
+                          </div>
+                          <button onClick={e => { e.stopPropagation(); setBookingListing({...l, _buyMode: true}) }} style={{ padding:'8px 16px',borderRadius:10,background:'#FFD700',border:'none',color:'#000',fontSize:11,fontWeight:800,cursor:'pointer',fontFamily:'inherit',boxShadow:'0 2px 8px rgba(255,215,0,0.3)',flexShrink:0 }}>
+                            Buy Now
                           </button>
-                        )}
-                      </div>
-                    </div>
-                    {l.buy_now && (
-                      <div style={{display:'flex',alignItems:'baseline',gap:4,marginTop:4}}>
-                        <span style={{fontSize:9,fontWeight:700,color:'rgba(255,215,0,0.5)'}}>Buy Now:</span>
-                        <span style={{fontSize:14,fontWeight:900,color:'#FFD700'}}>{fmtIDR(Number(String(typeof l.buy_now === 'object' ? l.buy_now.price : l.buy_now).replace(/\./g,'')))}</span>
-                        {(typeof l.buy_now === 'object' && l.buy_now.negotiable) && <span style={{fontSize:9,color:'rgba(255,215,0,0.4)',fontWeight:600}}>· Negotiable</span>}
+                        </div>
+                        {(typeof l.buy_now === 'object' && l.buy_now.negotiable) && <span style={{fontSize:10,color:'rgba(255,215,0,0.4)',fontWeight:600,marginTop:2}}>Price is negotiable</span>}
+                      </>
+                    ) : (
+                      <div style={{display:'flex',alignItems:'center',justifyContent:'space-between',marginTop:2}}>
+                        <div style={{display:'flex',alignItems:'baseline',gap:3}}>
+                          <span style={{fontSize:10,fontWeight:700,color:'rgba(141,198,63,0.6)'}}>Rp</span>
+                          <span style={{fontSize:22,fontWeight:900,color:'#8DC63F',letterSpacing:'-0.02em'}}>{fmtIDR(l.price_day).replace('Rp ','')}</span>
+                          <span style={{fontSize:11,color:'rgba(255,255,255,0.25)',fontWeight:600}}>/day</span>
+                        </div>
+                        <button onClick={e => { e.stopPropagation(); setBookingListing(l) }} style={{ padding:'8px 16px',borderRadius:10,background:'#8DC63F',border:'none',color:'#000',fontSize:11,fontWeight:800,cursor:'pointer',fontFamily:'inherit',boxShadow:'0 2px 8px rgba(141,198,63,0.3)',flexShrink:0 }}>
+                          Book Now
+                        </button>
                       </div>
                     )}
                   </div>
