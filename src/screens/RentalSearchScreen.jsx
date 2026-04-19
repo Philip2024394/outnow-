@@ -680,13 +680,23 @@ export default function RentalSearchScreen({ onClose }) {
                   </div>
 
                   {/* Front info */}
-                  <div onClick={() => setSelected(l)} style={{ padding:'12px 14px 14px',display:'flex',flexDirection:'column',gap:6,cursor:'pointer' }}>
-                    {/* Title */}
-                    <div style={{fontSize:17,fontWeight:900,color:'#fff',letterSpacing:'-0.01em',overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap'}}>{l.title}</div>
-                    {/* City + rating on same line */}
-                    <div style={{ display:'flex',alignItems:'center',justifyContent:'space-between' }}>
-                      <div style={{display:'flex',alignItems:'center',gap:4}}><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.3)" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg><span style={{fontSize:12,color:'rgba(255,255,255,0.35)',fontWeight:600}}>{l.city||'Indonesia'}</span></div>
-                      <div style={{display:'flex',alignItems:'center',gap:4,flexShrink:0}}><span style={{fontSize:12,color:'#FFD700',fontWeight:800}}>★ {l.rating||'—'}</span><span style={{fontSize:10,color:'rgba(255,255,255,0.3)'}}>({l.review_count})</span><span style={{marginLeft:6,fontSize:10,color:'rgba(255,255,255,0.15)'}}>👁 {l.view_count}</span></div>
+                  <div onClick={() => setSelected(l)} style={{ padding:'14px 14px 14px',display:'flex',flexDirection:'column',gap:6,cursor:'pointer' }}>
+                    {/* Brand + specs row — beside fingerprint button */}
+                    <div style={{ display:'flex',alignItems:'center',gap:10,marginTop:16 }}>
+                      {/* Spacer for fingerprint button area */}
+                      <div style={{width:40}} />
+                      <div style={{flex:1}}>
+                        <div style={{fontSize:17,fontWeight:900,color:'#fff',letterSpacing:'-0.01em'}}>{l.extra_fields?.brand || l.title?.split(' ')[0] || l.title}</div>
+                        <div style={{fontSize:11,color:'rgba(255,255,255,0.35)',fontWeight:600,marginTop:2}}>{[l.extra_fields?.cc && `${l.extra_fields.cc}cc`, l.extra_fields?.year, l.extra_fields?.transmission].filter(Boolean).join(' · ') || l.sub_category}</div>
+                      </div>
+                      <div style={{display:'flex',alignItems:'center',gap:4,flexShrink:0}}><span style={{fontSize:12,color:'#FFD700',fontWeight:800}}>★ {l.rating||'—'}</span><span style={{fontSize:10,color:'rgba(255,255,255,0.3)'}}>({l.review_count})</span></div>
+                    </div>
+                    {/* Title + city */}
+                    <div style={{fontSize:13,fontWeight:700,color:'rgba(255,255,255,0.5)',overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap'}}>{l.title}</div>
+                    <div style={{ display:'flex',alignItems:'center',gap:4 }}>
+                      <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.25)" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>
+                      <span style={{fontSize:11,color:'rgba(255,255,255,0.25)',fontWeight:600}}>{l.city||'Indonesia'}</span>
+                      <span style={{marginLeft:'auto',fontSize:10,color:'rgba(255,255,255,0.15)'}}>👁 {l.view_count}</span>
                     </div>
                     <div style={{display:'flex',alignItems:'center',justifyContent:'space-between',marginTop:2}}>
                       <div style={{display:'flex',alignItems:'baseline',gap:3}}><span style={{fontSize:10,fontWeight:700,color:'rgba(141,198,63,0.6)'}}>Rp</span><span style={{fontSize:22,fontWeight:900,color:'#8DC63F',letterSpacing:'-0.02em'}}>{fmtIDR(l.price_day).replace('Rp ','')}</span><span style={{fontSize:11,color:'rgba(255,255,255,0.25)',fontWeight:600}}>/day</span></div>
