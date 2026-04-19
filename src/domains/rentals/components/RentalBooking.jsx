@@ -123,6 +123,9 @@ export function RentalBookingFlow({ listing, onClose, onConfirm }) {
   const [pickupDate, setPickupDate] = useState('')
   const [notes, setNotes] = useState('')
   const [showErrors, setShowErrors] = useState(false)
+  const [wantDelivery, setWantDelivery] = useState(false)
+  const [wantAirport, setWantAirport] = useState(false)
+  const [wantDriver, setWantDriver] = useState(false)
   const [step, setStep] = useState(0) // 0: form, 1: processing, 2: confirmed
   const [bookingRef] = useState(() => 'IND-' + Math.random().toString(36).substring(2, 6).toUpperCase() + Math.floor(1000 + Math.random() * 9000))
 
@@ -135,8 +138,17 @@ export function RentalBookingFlow({ listing, onClose, onConfirm }) {
   const pricePerDay = Number(String(listing.price_day).replace(/\./g, '')) || 0
   const pricePerWeek = Number(String(listing.price_week).replace(/\./g, '')) || 0
   const pricePerMonth = Number(String(listing.price_month).replace(/\./g, '')) || 0
-  const total = days >= 30 && pricePerMonth ? Math.round(pricePerMonth * (days / 30)) : days >= 7 && pricePerWeek ? Math.round(pricePerWeek * (days / 7)) : pricePerDay * days
+  const rentalTotal = days >= 30 && pricePerMonth ? Math.round(pricePerMonth * (days / 30)) : days >= 7 && pricePerWeek ? Math.round(pricePerWeek * (days / 7)) : pricePerDay * days
   const rateUsed = days >= 30 && pricePerMonth ? 'monthly' : days >= 7 && pricePerWeek ? 'weekly' : 'daily'
+  const ef = listing.extra_fields || {}
+  const hasDelivery = ef.delivery
+  const hasAirport = ef.airportDropoff
+  const hasDriver = ef.withDriver
+  const deliveryPrice = ef.deliveryFee === 'Free' ? 0 : Number(String(ef.deliveryFee || '0').replace(/\./g, ''))
+  const airportPrice = ef.airportFee === 'Free' ? 0 : Number(String(ef.airportFee || '0').replace(/\./g, ''))
+  const driverPrice = Number(String(ef.driverFee || '0').replace(/\./g, '')) * days
+  const addOnsTotal = (wantDelivery ? deliveryPrice : 0) + (wantAirport ? airportPrice : 0) + (wantDriver ? driverPrice : 0)
+  const total = rentalTotal + addOnsTotal
   const canSubmit = name.trim() && whatsapp.trim() && pickupDate
   const inputStyle = { width: '100%', padding: '12px 14px', background: 'rgba(255,255,255,0.04)', border: '1.5px solid rgba(255,255,255,0.08)', borderRadius: 12, color: '#fff', fontSize: 14, fontFamily: 'inherit', outline: 'none', boxSizing: 'border-box' }
 
@@ -208,22 +220,113 @@ export function RentalBookingFlow({ listing, onClose, onConfirm }) {
               </div>
             </div>
 
+            {/* Add-on services */}
+            {(hasDelivery || hasAirport || hasDriver) && (
+              <div>
+                <label style={{ fontSize: 11, fontWeight: 700, color: 'rgba(255,255,255,0.45)', display: 'block', marginBottom: 8 }}>Additional Services</label>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+                  {hasDelivery && (
+                    <button onClick={() => setWantDelivery(!wantDelivery)} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%', padding: '10px 12px', background: wantDelivery ? 'rgba(141,198,63,0.06)' : 'rgba(255,255,255,0.02)', border: wantDelivery ? '1.5px solid rgba(141,198,63,0.2)' : '1.5px solid rgba(255,255,255,0.06)', borderRadius: 12, cursor: 'pointer', fontFamily: 'inherit', transition: 'all 0.2s' }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                        <span style={{ fontSize: 16 }}>🏨</span>
+                        <div style={{ textAlign: 'left' }}>
+                          <div style={{ fontSize: 12, fontWeight: 700, color: wantDelivery ? '#fff' : 'rgba(255,255,255,0.5)' }}>Hotel / Villa Drop Off</div>
+                          <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.25)', marginTop: 1 }}>{deliveryPrice === 0 ? 'Free' : fmtPrice(deliveryPrice)}</div>
+                        </div>
+                      </div>
+                      <div style={{ width: 20, height: 20, borderRadius: 6, background: wantDelivery ? '#8DC63F' : 'transparent', border: wantDelivery ? 'none' : '2px solid rgba(255,255,255,0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                        {wantDelivery && <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#000" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"/></svg>}
+                      </div>
+                    </button>
+                  )}
+                  {hasAirport && (
+                    <button onClick={() => setWantAirport(!wantAirport)} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%', padding: '10px 12px', background: wantAirport ? 'rgba(141,198,63,0.06)' : 'rgba(255,255,255,0.02)', border: wantAirport ? '1.5px solid rgba(141,198,63,0.2)' : '1.5px solid rgba(255,255,255,0.06)', borderRadius: 12, cursor: 'pointer', fontFamily: 'inherit', transition: 'all 0.2s' }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                        <span style={{ fontSize: 16 }}>✈️</span>
+                        <div style={{ textAlign: 'left' }}>
+                          <div style={{ fontSize: 12, fontWeight: 700, color: wantAirport ? '#fff' : 'rgba(255,255,255,0.5)' }}>Airport Drop Off</div>
+                          <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.25)', marginTop: 1 }}>{airportPrice === 0 ? 'Free' : fmtPrice(airportPrice)}</div>
+                        </div>
+                      </div>
+                      <div style={{ width: 20, height: 20, borderRadius: 6, background: wantAirport ? '#8DC63F' : 'transparent', border: wantAirport ? 'none' : '2px solid rgba(255,255,255,0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                        {wantAirport && <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#000" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"/></svg>}
+                      </div>
+                    </button>
+                  )}
+                  {hasDriver && (
+                    <button onClick={() => setWantDriver(!wantDriver)} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%', padding: '10px 12px', background: wantDriver ? 'rgba(141,198,63,0.06)' : 'rgba(255,255,255,0.02)', border: wantDriver ? '1.5px solid rgba(141,198,63,0.2)' : '1.5px solid rgba(255,255,255,0.06)', borderRadius: 12, cursor: 'pointer', fontFamily: 'inherit', transition: 'all 0.2s' }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                        <span style={{ fontSize: 16 }}>🚗</span>
+                        <div style={{ textAlign: 'left' }}>
+                          <div style={{ fontSize: 12, fontWeight: 700, color: wantDriver ? '#fff' : 'rgba(255,255,255,0.5)' }}>With Driver</div>
+                          <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.25)', marginTop: 1 }}>{fmtPrice(Number(String(ef.driverFee || '0').replace(/\./g, '')))}/day</div>
+                        </div>
+                      </div>
+                      <div style={{ width: 20, height: 20, borderRadius: 6, background: wantDriver ? '#8DC63F' : 'transparent', border: wantDriver ? 'none' : '2px solid rgba(255,255,255,0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                        {wantDriver && <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#000" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"/></svg>}
+                      </div>
+                    </button>
+                  )}
+                </div>
+              </div>
+            )}
+
+            {/* Included with rental */}
+            {(ef.helmets && ef.helmets !== '0') && (
+              <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
+                <span style={{ padding: '4px 10px', background: 'rgba(141,198,63,0.06)', border: '1px solid rgba(141,198,63,0.12)', borderRadius: 8, fontSize: 10, fontWeight: 700, color: 'rgba(141,198,63,0.6)' }}>⛑️ {ef.helmets} Helmet{Number(ef.helmets) > 1 ? 's' : ''}</span>
+                {ef.insurance && <span style={{ padding: '4px 10px', background: 'rgba(141,198,63,0.06)', border: '1px solid rgba(141,198,63,0.12)', borderRadius: 8, fontSize: 10, fontWeight: 700, color: 'rgba(141,198,63,0.6)' }}>🛡️ Insured</span>}
+                {ef.phoneHolder && <span style={{ padding: '4px 10px', background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.06)', borderRadius: 8, fontSize: 10, fontWeight: 700, color: 'rgba(255,255,255,0.3)' }}>📱 Phone Stand</span>}
+                {ef.usbCharger && <span style={{ padding: '4px 10px', background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.06)', borderRadius: 8, fontSize: 10, fontWeight: 700, color: 'rgba(255,255,255,0.3)' }}>🔌 USB</span>}
+              </div>
+            )}
+
             {/* Price breakdown */}
-            <div style={{ padding: '14px', background: 'rgba(0,0,0,0.3)', borderRadius: 14, border: '1px solid rgba(141,198,63,0.1)' }}>
+            <div style={{ padding: '14px', background: 'rgba(0,0,0,0.3)', borderRadius: 14, border: '1px solid rgba(255,215,0,0.08)' }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 6 }}>
-                <span style={{ fontSize: 12, color: 'rgba(255,255,255,0.4)' }}>{fmtPrice(pricePerDay)} × {days} day{days > 1 ? 's' : ''}</span>
-                <span style={{ fontSize: 12, fontWeight: 700, color: 'rgba(255,255,255,0.6)' }}>{fmtPrice(pricePerDay * days)}</span>
+                <span style={{ fontSize: 12, color: 'rgba(255,255,255,0.4)' }}>Rental: {fmtPrice(pricePerDay)} × {days} day{days > 1 ? 's' : ''}</span>
+                <span style={{ fontSize: 12, fontWeight: 700, color: 'rgba(255,255,255,0.6)' }}>{fmtPrice(rentalTotal)}</span>
               </div>
               {rateUsed !== 'daily' && (
                 <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 6 }}>
                   <span style={{ fontSize: 11, color: 'rgba(141,198,63,0.5)' }}>✓ {rateUsed} rate applied</span>
-                  <span style={{ fontSize: 11, fontWeight: 700, color: '#8DC63F' }}>Save {fmtPrice(pricePerDay * days - total)}</span>
+                  <span style={{ fontSize: 11, fontWeight: 700, color: '#8DC63F' }}>Save {fmtPrice(pricePerDay * days - rentalTotal)}</span>
                 </div>
               )}
-              <div style={{ height: 1, background: 'rgba(255,255,255,0.04)', margin: '8px 0' }} />
+              {wantDelivery && deliveryPrice > 0 && (
+                <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 4 }}>
+                  <span style={{ fontSize: 11, color: 'rgba(255,255,255,0.35)' }}>🏨 Hotel Drop Off</span>
+                  <span style={{ fontSize: 11, fontWeight: 700, color: 'rgba(255,255,255,0.5)' }}>{fmtPrice(deliveryPrice)}</span>
+                </div>
+              )}
+              {wantDelivery && deliveryPrice === 0 && (
+                <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 4 }}>
+                  <span style={{ fontSize: 11, color: 'rgba(141,198,63,0.5)' }}>🏨 Hotel Drop Off</span>
+                  <span style={{ fontSize: 11, fontWeight: 700, color: '#8DC63F' }}>Free</span>
+                </div>
+              )}
+              {wantAirport && airportPrice > 0 && (
+                <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 4 }}>
+                  <span style={{ fontSize: 11, color: 'rgba(255,255,255,0.35)' }}>✈️ Airport Drop Off</span>
+                  <span style={{ fontSize: 11, fontWeight: 700, color: 'rgba(255,255,255,0.5)' }}>{fmtPrice(airportPrice)}</span>
+                </div>
+              )}
+              {wantAirport && airportPrice === 0 && (
+                <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 4 }}>
+                  <span style={{ fontSize: 11, color: 'rgba(141,198,63,0.5)' }}>✈️ Airport Drop Off</span>
+                  <span style={{ fontSize: 11, fontWeight: 700, color: '#8DC63F' }}>Free</span>
+                </div>
+              )}
+              {wantDriver && (
+                <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 4 }}>
+                  <span style={{ fontSize: 11, color: 'rgba(255,255,255,0.35)' }}>🚗 Driver × {days} day{days > 1 ? 's' : ''}</span>
+                  <span style={{ fontSize: 11, fontWeight: 700, color: 'rgba(255,255,255,0.5)' }}>{fmtPrice(driverPrice)}</span>
+                </div>
+              )}
+              <div style={{ height: 1, background: 'rgba(255,215,0,0.08)', margin: '8px 0' }} />
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline' }}>
                 <span style={{ fontSize: 13, fontWeight: 800, color: '#fff' }}>Estimated Total</span>
-                <span style={{ fontSize: 20, fontWeight: 900, color: '#8DC63F' }}>{fmtPrice(total)}</span>
+                <span style={{ fontSize: 22, fontWeight: 900, color: '#FFD700' }}>{fmtPrice(total)}</span>
               </div>
             </div>
 
