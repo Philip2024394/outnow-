@@ -219,13 +219,7 @@
 
 /* Listings badge — bottom left */
 .dirCardBadge {
-  position: absolute; bottom: 10px; left: 10px; z-index: 3;
-  display: flex; align-items: center; gap: 3px;
-  padding: 3px 8px;
-  background: rgba(0,0,0,0.5); backdrop-filter: blur(8px);
-  border: 1px solid rgba(141,198,63,0.2);
-  border-radius: 8px;
-  animation: pulseGlow 3s ease-in-out infinite;
+  display: none;
 }
 .dirCardBadgeNum {
   font-size: 12px; font-weight: 900; color: #8DC63F;

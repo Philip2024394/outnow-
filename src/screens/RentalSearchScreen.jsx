@@ -229,12 +229,6 @@ function VehicleDirectory({ vehicleType, onSelectModel, onBack }) {
               {/* Top accent line */}
               <div className={styles.dirCardAccent} />
 
-              {/* Listings count badge */}
-              <div className={styles.dirCardBadge}>
-                <span className={styles.dirCardBadgeNum}>{v.listings}</span>
-                <span className={styles.dirCardBadgeLabel}>listed</span>
-              </div>
-
               {/* Vehicle image — floating with shadow */}
               <div className={styles.dirCardImgWrap}>
                 {v.image ? (
@@ -256,20 +250,20 @@ function VehicleDirectory({ vehicleType, onSelectModel, onBack }) {
                   {v.seats && <span className={styles.dirCardChip}>{v.seats} seat{v.seats > 1 ? 's' : ''}</span>}
                   {v.payload && <span className={styles.dirCardChip}>{v.payload}</span>}
                 </div>
-                {/* Price bar */}
+                {/* Price range */}
                 {v.priceFrom && (
-                  <div className={styles.dirCardPriceBar}>
-                    <div className={styles.dirCardPriceLeft}>
-                      <span className={styles.dirCardPriceCurrency}>Rp</span>
-                      <span className={styles.dirCardPriceValue}>{(v.priceFrom/1000).toFixed(0)}k</span>
-                    </div>
-                    <div className={styles.dirCardPriceDivider} />
-                    <div className={styles.dirCardPriceRight}>
-                      <span className={styles.dirCardPriceTo}>{(v.priceTo/1000).toFixed(0)}k</span>
-                      <span className={styles.dirCardPriceDay}>/day</span>
-                    </div>
+                  <div style={{ display: 'flex', alignItems: 'baseline', gap: 4, marginTop: 2 }}>
+                    <span style={{ fontSize: 13, fontWeight: 900, color: '#8DC63F' }}>Rp {v.priceFrom.toLocaleString('id-ID')}</span>
+                    <span style={{ fontSize: 11, color: 'rgba(255,255,255,0.25)' }}>-</span>
+                    <span style={{ fontSize: 13, fontWeight: 900, color: '#8DC63F' }}>{v.priceTo.toLocaleString('id-ID')}</span>
+                    <span style={{ fontSize: 10, fontWeight: 700, color: 'rgba(255,255,255,0.3)' }}>/ Day</span>
                   </div>
                 )}
+                {/* Listings badge — below price */}
+                <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginTop: 4 }}>
+                  <span style={{ fontSize: 11, fontWeight: 800, color: '#FFD700' }}>{v.listings}</span>
+                  <span style={{ fontSize: 9, fontWeight: 600, color: 'rgba(255,255,255,0.25)' }}>listed</span>
+                </div>
               </div>
 
               {/* Driver available icon — bottom right (cars, buses, trucks only) */}
