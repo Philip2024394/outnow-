@@ -38,6 +38,7 @@ const TRANS = ['Automatic', 'Manual', 'Semi-Auto']
 const FUEL_POLICY = ['Fuel Included', 'Return Full', 'Pay Per Use']
 const FUEL_TYPE = ['Petrol', 'Electric']
 const CONDITIONS = ['New', 'Like New', 'Good', 'Fair']
+const BRAKES = ['Drum', 'Disc', 'ABS', 'CBS (Combi Brake)', 'ABS + CBS']
 const COLORS = ['Black', 'White', 'Red', 'Blue', 'Green', 'Yellow', 'Silver', 'Grey', 'Orange', 'Matte Black', 'Brown', 'Custom']
 const COLOR_HEX = { Black: '#111', White: '#eee', Red: '#e53e3e', Blue: '#3b82f6', Green: '#22c55e', Yellow: '#eab308', Silver: '#a8a8a8', Grey: '#6b6b6b', Orange: '#f97316', 'Matte Black': '#1a1a1a', Brown: '#8b5e3c', Custom: '#8DC63F' }
 const LICENSE = ['SIM C', 'International License', 'No License Required']
@@ -273,6 +274,8 @@ export default function MotorbikeListingForm({ open, onClose, onSubmit, editList
   const [editingFuelPolicy, setEditingFuelPolicy] = useState(false)
   const [editingLicense, setEditingLicense] = useState(false)
   const [editingMinRental, setEditingMinRental] = useState(false)
+  const [brakes, setBrakes] = useState(ef.brakes || '')
+  const [editingBrakes, setEditingBrakes] = useState(false)
   const [editingColor, setEditingColor] = useState(false)
   const [showDrawer, setShowDrawer] = useState(false)
   const [showMyListings, setShowMyListings] = useState(false)
@@ -329,7 +332,7 @@ export default function MotorbikeListingForm({ open, onClose, onSubmit, editList
       images: [mainImage, ...thumbs].filter(Boolean),
       price_day: daily, price_week: weekly, price_month: monthly,
       condition, buy_now: buyNow ? { price: buyNowPrice, negotiable } : null,
-      extra_fields: { make, model, year, cc, transmission: trans, fuelType, colors: color, plateNo, insurance, fuelPolicy, condition, mileage, helmets, raincoat, delivery, deliveryFee, airportDropoff, airportFee, sideBox, phoneHolder, usbCharger, minAge, license, whatsapp, deposit, lateFee },
+      extra_fields: { make, model, year, cc, transmission: trans, fuelType, brakes, colors: color, plateNo, insurance, fuelPolicy, condition, mileage, helmets, raincoat, delivery, deliveryFee, airportDropoff, airportFee, sideBox, phoneHolder, usbCharger, minAge, license, whatsapp, deposit, lateFee },
       status: 'live',
       created_at: new Date().toISOString(),
     }
@@ -624,6 +627,8 @@ export default function MotorbikeListingForm({ open, onClose, onSubmit, editList
               <PickerField label="Fuel" value={fuelType} onChange={setFuelType} options={FUEL_TYPE} placeholder="Petrol" editing={editingFuel} setEditing={setEditingFuel} styles={styles} />
 
               <PickerField label="Condition" value={condition} onChange={setCondition} options={CONDITIONS} placeholder="Good" editing={editingCondition} setEditing={setEditingCondition} styles={styles} />
+
+              <PickerField label="Brakes" value={brakes} onChange={setBrakes} options={BRAKES} placeholder="ABS" editing={editingBrakes} setEditing={setEditingBrakes} styles={styles} />
 
               <div className={styles.inlineField}>
                 <span className={styles.inlineLabel}>Plate No</span>
