@@ -679,16 +679,16 @@ export default function RentalSearchScreen({ onClose }) {
                     {l.buy_now && <div style={{ position:'absolute',top:8,right:8,padding:'4px 10px',background:'#FFD700',borderRadius:8,fontSize:9,fontWeight:900,color:'#000',letterSpacing:'0.03em',zIndex:3,boxShadow:'0 2px 8px rgba(255,215,0,0.3)' }}>FOR SALE</div>}
                     {l.extra_fields?.withDriver && <div style={{ position:'absolute',top:'50%',right:8,transform:'translateY(-50%)',width:26,height:26,borderRadius:'50%',background:'rgba(0,0,0,0.5)',backdropFilter:'blur(8px)',border:'1.5px solid rgba(141,198,63,0.3)',display:'flex',alignItems:'center',justifyContent:'center',color:'#8DC63F',zIndex:3 }}><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3"/></svg></div>}
 
-                    {/* Left/Right arrows */}
+                    {/* Left/Right arrows — black, only if 2+ images */}
                     {imgs.length > 1 && <>
-                      <button onClick={e => { e.stopPropagation(); setCardImgIdx(p => ({...p,[l.id]:(currentImg - 1 + imgs.length) % imgs.length})) }} style={{ position:'absolute',left:8,top:'50%',transform:'translateY(-50%)',width:28,height:28,borderRadius:'50%',background:'rgba(0,0,0,0.4)',backdropFilter:'blur(6px)',border:'1px solid rgba(255,255,255,0.15)',display:'flex',alignItems:'center',justifyContent:'center',cursor:'pointer',zIndex:4,padding:0,color:'rgba(255,255,255,0.6)' }}>
+                      <button onClick={e => { e.stopPropagation(); setCardImgIdx(p => ({...p,[l.id]:(currentImg - 1 + imgs.length) % imgs.length})) }} style={{ position:'absolute',left:8,top:'50%',transform:'translateY(-50%)',width:28,height:28,borderRadius:'50%',background:'#000',border:'none',display:'flex',alignItems:'center',justifyContent:'center',cursor:'pointer',zIndex:4,padding:0,color:'#fff',boxShadow:'0 2px 6px rgba(0,0,0,0.4)' }}>
                         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
                       </button>
-                      <button onClick={e => { e.stopPropagation(); setCardImgIdx(p => ({...p,[l.id]:(currentImg + 1) % imgs.length})) }} style={{ position:'absolute',right:8,top:'50%',transform:'translateY(-50%)',width:28,height:28,borderRadius:'50%',background:'rgba(0,0,0,0.4)',backdropFilter:'blur(6px)',border:'1px solid rgba(255,255,255,0.15)',display:'flex',alignItems:'center',justifyContent:'center',cursor:'pointer',zIndex:4,padding:0,color:'rgba(255,255,255,0.6)' }}>
+                      <button onClick={e => { e.stopPropagation(); setCardImgIdx(p => ({...p,[l.id]:(currentImg + 1) % imgs.length})) }} style={{ position:'absolute',right:8,top:'50%',transform:'translateY(-50%)',width:28,height:28,borderRadius:'50%',background:'#000',border:'none',display:'flex',alignItems:'center',justifyContent:'center',cursor:'pointer',zIndex:4,padding:0,color:'#fff',boxShadow:'0 2px 6px rgba(0,0,0,0.4)' }}>
                         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
                       </button>
                       {/* Image counter */}
-                      <div style={{ position:'absolute',top:8,right:8,padding:'3px 8px',background:'rgba(0,0,0,0.4)',backdropFilter:'blur(6px)',borderRadius:6,fontSize:10,fontWeight:700,color:'rgba(255,255,255,0.5)',zIndex:3 }}>{currentImg + 1}/{imgs.length}</div>
+                      <div style={{ position:'absolute',top:8,right:8,padding:'3px 8px',background:'rgba(0,0,0,0.5)',borderRadius:6,fontSize:10,fontWeight:700,color:'rgba(255,255,255,0.6)',zIndex:3 }}>{currentImg + 1}/{imgs.length}</div>
                     </>}
                     </div>{/* close inner clip div */}
 
