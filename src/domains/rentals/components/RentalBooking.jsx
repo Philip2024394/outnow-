@@ -115,55 +115,23 @@ export function RentalChat({ listing, onClose, onBook }) {
   )
 }
 
-// Booking Flow
+// Booking Flow — collects customer details then opens chat
 export function RentalBookingFlow({ listing, onClose, onConfirm }) {
+  const [name, setName] = useState('')
+  const [whatsapp, setWhatsapp] = useState('')
   const [days, setDays] = useState(1)
-  const [pickupDate, setPickupDate] = useState('')
-  const [step, setStep] = useState(0) // 0: select dates, 1: payment, 2: upload proof, 3: confirmed
-  const [paymentProof, setPaymentProof] = useState(null)
-  const [processing, setProcessing] = useState(false)
+  const [notes, setNotes] = useState('')
 
   if (!listing) return null
 
-  const pricePerDay = Number(String(listing.price_day).replace(/\./g, '')) || 0
-  const totalRental = pricePerDay * days
-  const deposit = Math.round(totalRental * COMMISSION_RATE)
-  const balanceDue = totalRental - deposit
-
-  const handleConfirmBooking = () => {
-    setProcessing(true)
-    setTimeout(() => {
-      setProcessing(false)
-      setStep(3)
-      // Save booking
-      try {
-        const bookings = JSON.parse(localStorage.getItem('indoo_rental_bookings') || '[]')
-        bookings.push({
-          id: 'BK-' + Math.random().toString(36).substring(2, 6).toUpperCase() + Math.floor(1000 + Math.random() * 9000),
-          listing_ref: listing.ref || listing.id,
-          listing_title: listing.title,
-          days,
-          pickup_date: pickupDate,
-          total: totalRental,
-          deposit,
-          balance: balanceDue,
-          status: 'confirmed',
-          created_at: new Date().toISOString(),
-        })
-        localStorage.setItem('indoo_rental_bookings', JSON.stringify(bookings))
-        // Process commission via wallet system
-        const ownerId = listing.extra_fields?.ownerId || 'default'
-        processCommission(ownerId, 'rental', listing.ref || listing.id, totalRental)
-      } catch {}
-    }, 3000)
-  }
+  const canSubmit = name.trim() && whatsapp.trim()
 
   return createPortal(
     <div style={{ position: 'fixed', inset: 0, zIndex: 99999, background: 'rgba(0,0,0,0.85)', backdropFilter: 'blur(12px)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 16 }}>
-      <div style={{ width: '100%', maxWidth: 400, background: 'rgba(0,0,0,0.7)', backdropFilter: 'blur(20px)', border: '1.5px solid rgba(141,198,63,0.2)', borderRadius: 20, overflow: 'hidden', boxShadow: '0 20px 60px rgba(0,0,0,0.5), 0 0 20px rgba(141,198,63,0.1)' }}>
+      <div style={{ width: '100%', maxWidth: 400, maxHeight: '90vh', overflowY: 'auto', background: 'rgba(0,0,0,0.7)', backdropFilter: 'blur(20px)', border: '1.5px solid rgba(141,198,63,0.2)', borderRadius: 20, boxShadow: '0 20px 60px rgba(0,0,0,0.5), 0 0 20px rgba(141,198,63,0.1)', scrollbarWidth: 'none' }}>
 
         {/* Header */}
-        <div style={{ padding: '16px', borderBottom: '1px solid rgba(255,255,255,0.06)', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+        <div style={{ padding: '16px', borderBottom: '1px solid rgba(255,255,255,0.06)', display: 'flex', alignItems: 'center', justifyContent: 'space-between', position: 'sticky', top: 0, background: 'rgba(0,0,0,0.8)', zIndex: 2 }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
             <span style={{ fontSize: 18 }}>🏍️</span>
             <span style={{ fontSize: 15, fontWeight: 800, color: '#fff' }}>Book Rental</span>
@@ -171,167 +139,57 @@ export function RentalBookingFlow({ listing, onClose, onConfirm }) {
           <button onClick={onClose} style={{ width: 30, height: 30, borderRadius: '50%', background: '#EF4444', border: 'none', color: '#fff', fontSize: 12, fontWeight: 900, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>✕</button>
         </div>
 
-        {/* Step 0: Select dates */}
-        {step === 0 && (
-          <div style={{ padding: '16px' }}>
-            {/* Listing summary */}
-            <div style={{ display: 'flex', gap: 12, marginBottom: 16, padding: '12px', background: 'rgba(255,255,255,0.03)', borderRadius: 12 }}>
-              {listing.images?.[0] && <img src={listing.images[0]} alt="" style={{ width: 60, height: 45, objectFit: 'cover', borderRadius: 8 }} />}
-              <div>
-                <div style={{ fontSize: 13, fontWeight: 800, color: '#fff' }}>{listing.title}</div>
-                <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.3)', marginTop: 2 }}>{fmtPrice(pricePerDay)} / day</div>
-              </div>
+        <div style={{ padding: '16px' }}>
+          {/* Vehicle image + info */}
+          <div style={{ display: 'flex', gap: 12, marginBottom: 16, padding: '12px', background: 'rgba(255,255,255,0.03)', borderRadius: 14, border: '1px solid rgba(255,255,255,0.04)' }}>
+            {listing.images?.[0] && <img src={listing.images[0]} alt="" style={{ width: 80, height: 60, objectFit: 'cover', borderRadius: 10 }} />}
+            <div style={{ flex: 1, minWidth: 0 }}>
+              <div style={{ fontSize: 14, fontWeight: 800, color: '#fff', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{listing.title}</div>
+              <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.3)', marginTop: 2 }}>📍 {listing.city || 'Indonesia'}</div>
+              <div style={{ fontSize: 14, fontWeight: 900, color: '#8DC63F', marginTop: 4 }}>{fmtPrice(Number(String(listing.price_day).replace(/\./g, '')) || 0)}/day</div>
             </div>
+          </div>
 
-            {/* Pickup date */}
-            <div style={{ marginBottom: 12 }}>
-              <label style={{ fontSize: 11, fontWeight: 700, color: 'rgba(255,255,255,0.4)', display: 'block', marginBottom: 6 }}>Pickup Date</label>
-              <input type="date" value={pickupDate} onChange={e => setPickupDate(e.target.value)} style={{ width: '100%', padding: '12px', background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 12, color: '#fff', fontSize: 14, fontFamily: 'inherit', outline: 'none', boxSizing: 'border-box' }} />
+          {/* Customer details form */}
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 12, marginBottom: 16 }}>
+            <div>
+              <label style={{ fontSize: 11, fontWeight: 700, color: 'rgba(255,255,255,0.4)', display: 'block', marginBottom: 6 }}>Your Name</label>
+              <input value={name} onChange={e => setName(e.target.value)} placeholder="Full name" style={{ width: '100%', padding: '12px 14px', background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 12, color: '#fff', fontSize: 14, fontFamily: 'inherit', outline: 'none', boxSizing: 'border-box' }} />
             </div>
-
-            {/* Duration */}
-            <div style={{ marginBottom: 16 }}>
+            <div>
+              <label style={{ fontSize: 11, fontWeight: 700, color: 'rgba(255,255,255,0.4)', display: 'block', marginBottom: 6 }}>WhatsApp Number</label>
+              <input value={whatsapp} onChange={e => setWhatsapp(e.target.value)} placeholder="08123456789" type="tel" style={{ width: '100%', padding: '12px 14px', background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 12, color: '#fff', fontSize: 14, fontFamily: 'inherit', outline: 'none', boxSizing: 'border-box' }} />
+            </div>
+            <div>
               <label style={{ fontSize: 11, fontWeight: 700, color: 'rgba(255,255,255,0.4)', display: 'block', marginBottom: 6 }}>Rental Duration</label>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
-                <button onClick={() => setDays(Math.max(1, days - 1))} style={{ width: 36, height: 36, borderRadius: '50%', background: '#FFD700', border: 'none', color: '#000', fontSize: 18, fontWeight: 900, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>−</button>
-                <span style={{ fontSize: 24, fontWeight: 900, color: '#fff', minWidth: 40, textAlign: 'center' }}>{days}</span>
-                <button onClick={() => setDays(days + 1)} style={{ width: 36, height: 36, borderRadius: '50%', background: '#FFD700', border: 'none', color: '#000', fontSize: 18, fontWeight: 900, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>+</button>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
+                <button onClick={() => setDays(Math.max(1, days - 1))} style={{ width: 34, height: 34, borderRadius: '50%', background: '#FFD700', border: 'none', color: '#000', fontSize: 16, fontWeight: 900, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>−</button>
+                <span style={{ fontSize: 22, fontWeight: 900, color: '#fff', minWidth: 30, textAlign: 'center' }}>{days}</span>
+                <button onClick={() => setDays(days + 1)} style={{ width: 34, height: 34, borderRadius: '50%', background: '#FFD700', border: 'none', color: '#000', fontSize: 16, fontWeight: 900, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>+</button>
                 <span style={{ fontSize: 13, color: 'rgba(255,255,255,0.4)', fontWeight: 600 }}>day{days > 1 ? 's' : ''}</span>
               </div>
             </div>
-
-            {/* Price breakdown */}
-            <div style={{ background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.06)', borderRadius: 14, padding: '14px', marginBottom: 16 }}>
-              <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 8 }}>
-                <span style={{ fontSize: 12, color: 'rgba(255,255,255,0.4)' }}>{fmtPrice(pricePerDay)} × {days} day{days > 1 ? 's' : ''}</span>
-                <span style={{ fontSize: 12, fontWeight: 700, color: '#fff' }}>{fmtPrice(totalRental)}</span>
-              </div>
-              <div style={{ height: 1, background: 'rgba(255,255,255,0.04)', margin: '8px 0' }} />
-              <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 6 }}>
-                <span style={{ fontSize: 12, fontWeight: 700, color: '#FFD700' }}>Deposit (10%) — Pay Now</span>
-                <span style={{ fontSize: 14, fontWeight: 900, color: '#FFD700' }}>{fmtPrice(deposit)}</span>
-              </div>
-              <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                <span style={{ fontSize: 12, color: 'rgba(255,255,255,0.3)' }}>Balance — Pay Owner on Pickup</span>
-                <span style={{ fontSize: 12, fontWeight: 700, color: 'rgba(255,255,255,0.5)' }}>{fmtPrice(balanceDue)}</span>
-              </div>
+            <div>
+              <label style={{ fontSize: 11, fontWeight: 700, color: 'rgba(255,255,255,0.4)', display: 'block', marginBottom: 6 }}>Additional Details <span style={{ color: 'rgba(255,255,255,0.15)' }}>(optional)</span></label>
+              <textarea value={notes} onChange={e => setNotes(e.target.value)} placeholder="Pickup location, special requests..." rows={3} style={{ width: '100%', padding: '12px 14px', background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 12, color: '#fff', fontSize: 13, fontFamily: 'inherit', outline: 'none', resize: 'none', boxSizing: 'border-box' }} />
             </div>
-
-            <button onClick={() => setStep(1)} disabled={!pickupDate} style={{ width: '100%', padding: '14px', borderRadius: 14, background: pickupDate ? '#8DC63F' : 'rgba(255,255,255,0.06)', border: 'none', color: pickupDate ? '#000' : 'rgba(255,255,255,0.2)', fontSize: 15, fontWeight: 800, cursor: pickupDate ? 'pointer' : 'not-allowed', fontFamily: 'inherit' }}>
-              Continue to Payment →
-            </button>
           </div>
-        )}
 
-        {/* Step 1: Payment details */}
-        {step === 1 && (
-          <div style={{ padding: '16px' }}>
-            <div style={{ textAlign: 'center', marginBottom: 16 }}>
-              <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.3)', marginBottom: 4 }}>Deposit Amount</div>
-              <div style={{ fontSize: 32, fontWeight: 900, color: '#FFD700' }}>{fmtPrice(deposit)}</div>
-            </div>
+          {/* Info text */}
+          <p style={{ fontSize: 11, color: 'rgba(255,255,255,0.25)', lineHeight: 1.5, margin: '0 0 14px', textAlign: 'center' }}>
+            Your details will be sent to the rental company via chat to process your booking.
+          </p>
 
-            <div style={{ background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.06)', borderRadius: 14, padding: '14px', marginBottom: 16 }}>
-              <div style={{ fontSize: 12, fontWeight: 800, color: '#fff', marginBottom: 10 }}>Pay via Transfer or E-Wallet:</div>
-              {[
-                { method: 'Bank BCA', detail: '1234 5678 90 · Indoo Indonesia' },
-                { method: 'GoPay / OVO', detail: '0812-3456-7890' },
-                { method: 'QRIS', detail: 'Scan QR code at checkout' },
-              ].map((p, i) => (
-                <div key={i} style={{ display: 'flex', justifyContent: 'space-between', padding: '8px 0', borderBottom: i < 2 ? '1px solid rgba(255,255,255,0.04)' : 'none' }}>
-                  <span style={{ fontSize: 12, fontWeight: 700, color: '#8DC63F' }}>{p.method}</span>
-                  <span style={{ fontSize: 11, color: 'rgba(255,255,255,0.4)' }}>{p.detail}</span>
-                </div>
-              ))}
-            </div>
+          {/* Submit */}
+          <button onClick={() => { onConfirm?.({ name, whatsapp, days, notes }); onClose() }} disabled={!canSubmit} style={{ width: '100%', padding: '14px 0', borderRadius: 14, background: canSubmit ? '#8DC63F' : 'rgba(255,255,255,0.06)', border: 'none', color: canSubmit ? '#000' : 'rgba(255,255,255,0.2)', fontSize: 15, fontWeight: 800, cursor: canSubmit ? 'pointer' : 'not-allowed', fontFamily: 'inherit', boxShadow: canSubmit ? '0 4px 16px rgba(141,198,63,0.3)' : 'none', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8 }}>
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke={canSubmit ? '#000' : 'rgba(255,255,255,0.2)'} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>
+            Send Booking Request
+          </button>
 
-            <p style={{ fontSize: 10, color: 'rgba(255,255,255,0.2)', textAlign: 'center', margin: '0 0 12px' }}>After payment, upload proof to confirm your booking</p>
-
-            <button onClick={() => setStep(2)} style={{ width: '100%', padding: '14px', borderRadius: 14, background: '#FFD700', border: 'none', color: '#000', fontSize: 15, fontWeight: 800, cursor: 'pointer', fontFamily: 'inherit' }}>
-              I've Paid — Upload Proof →
-            </button>
-          </div>
-        )}
-
-        {/* Step 2: Upload proof */}
-        {step === 2 && (
-          <div style={{ padding: '16px' }}>
-            <div style={{ textAlign: 'center', marginBottom: 16 }}>
-              <div style={{ fontSize: 14, fontWeight: 800, color: '#fff' }}>Upload Payment Proof</div>
-              <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.3)', marginTop: 4 }}>Screenshot of transfer or e-wallet receipt</div>
-            </div>
-
-            {paymentProof ? (
-              <div style={{ position: 'relative', marginBottom: 16 }}>
-                <img src={paymentProof} alt="" style={{ width: '100%', maxHeight: 200, objectFit: 'contain', borderRadius: 12, background: 'rgba(255,255,255,0.02)' }} />
-                <button onClick={() => setPaymentProof(null)} style={{ position: 'absolute', top: 6, right: 6, width: 24, height: 24, borderRadius: '50%', background: '#EF4444', border: 'none', color: '#fff', fontSize: 10, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>✕</button>
-              </div>
-            ) : (
-              <button onClick={() => {
-                const inp = document.createElement('input')
-                inp.type = 'file'; inp.accept = 'image/*'
-                inp.onchange = e => {
-                  const f = e.target.files?.[0]
-                  if (f) setPaymentProof(URL.createObjectURL(f))
-                }
-                inp.click()
-              }} style={{ width: '100%', aspectRatio: '16/9', borderRadius: 14, border: '2px dashed rgba(141,198,63,0.2)', background: 'rgba(141,198,63,0.03)', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 8, cursor: 'pointer', marginBottom: 16 }}>
-                <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#8DC63F" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
-                <span style={{ fontSize: 12, fontWeight: 700, color: '#8DC63F' }}>Tap to Upload</span>
-              </button>
-            )}
-
-            <button onClick={handleConfirmBooking} disabled={!paymentProof || processing} style={{ width: '100%', padding: '14px', borderRadius: 14, background: paymentProof ? '#8DC63F' : 'rgba(255,255,255,0.06)', border: 'none', color: paymentProof ? '#000' : 'rgba(255,255,255,0.2)', fontSize: 15, fontWeight: 800, cursor: paymentProof ? 'pointer' : 'not-allowed', fontFamily: 'inherit' }}>
-              {processing ? 'Confirming...' : 'Confirm Booking'}
-            </button>
-          </div>
-        )}
-
-        {/* Step 3: Confirmed — WhatsApp unlocked */}
-        {step === 3 && (() => {
-          const ownerWa = listing.extra_fields?.whatsapp || (() => { try { return JSON.parse(localStorage.getItem('indoo_rental_owner') || '{}').whatsapp } catch { return '' } })() || '08123456789'
-          const waLink = `https://wa.me/${ownerWa.replace(/^0/, '62').replace(/[^0-9]/g, '')}?text=${encodeURIComponent(`Hi, I've booked your ${listing.title} for ${days} day(s) starting ${pickupDate}. Booking confirmed via Indoo Rentals.`)}`
-          return (
-          <div style={{ padding: '20px 16px', textAlign: 'center' }}>
-            <div style={{ width: 70, height: 70, borderRadius: '50%', background: '#8DC63F', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 16px', boxShadow: '0 0 30px rgba(141,198,63,0.4)' }}>
-              <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="#000" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
-            </div>
-            <h2 style={{ fontSize: 20, fontWeight: 900, color: '#fff', margin: '0 0 6px' }}>Booking Confirmed!</h2>
-            <p style={{ fontSize: 12, color: '#8DC63F', fontWeight: 700, margin: '0 0 4px' }}>Deposit of {fmtPrice(deposit)} received</p>
-            <p style={{ fontSize: 11, color: 'rgba(255,255,255,0.3)', margin: '0 0 14px' }}>Pay {fmtPrice(balanceDue)} directly to owner on pickup</p>
-
-            {/* Booking summary */}
-            <div style={{ background: 'rgba(255,255,255,0.03)', borderRadius: 12, padding: '12px', marginBottom: 12, textAlign: 'left' }}>
-              <div style={{ fontSize: 12, fontWeight: 700, color: '#fff', marginBottom: 6 }}>{listing.title}</div>
-              <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.3)' }}>Pickup: {pickupDate} · {days} day{days > 1 ? 's' : ''}</div>
-              <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.3)', marginTop: 2 }}>Total: {fmtPrice(totalRental)}</div>
-            </div>
-
-            {/* WhatsApp unlocked */}
-            <div style={{ background: 'rgba(37,211,102,0.08)', border: '1.5px solid rgba(37,211,102,0.25)', borderRadius: 14, padding: '14px', marginBottom: 12 }}>
-              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6, marginBottom: 8 }}>
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#25D366" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
-                <span style={{ fontSize: 12, fontWeight: 800, color: '#25D366' }}>WhatsApp Unlocked</span>
-              </div>
-              <div style={{ fontSize: 18, fontWeight: 900, color: '#fff', letterSpacing: '0.02em', marginBottom: 8 }}>{ownerWa}</div>
-              <a href={waLink} target="_blank" rel="noopener noreferrer" style={{
-                display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8,
-                width: '100%', padding: '12px 0', borderRadius: 12,
-                background: '#25D366', border: 'none', color: '#fff',
-                fontSize: 14, fontWeight: 800, cursor: 'pointer', fontFamily: 'inherit',
-                textDecoration: 'none', boxShadow: '0 2px 10px rgba(37,211,102,0.3)',
-              }}>
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="#fff"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/><path d="M12 2C6.477 2 2 6.477 2 12c0 1.89.525 3.66 1.438 5.168L2 22l4.832-1.438A9.955 9.955 0 0012 22c5.523 0 10-4.477 10-10S17.523 2 12 2z"/></svg>
-                Chat on WhatsApp
-              </a>
-            </div>
-
-            <button onClick={() => { onConfirm?.(); onClose() }} style={{ width: '100%', padding: '14px', borderRadius: 14, background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)', color: 'rgba(255,255,255,0.5)', fontSize: 14, fontWeight: 700, cursor: 'pointer', fontFamily: 'inherit' }}>
-              Done
-            </button>
-          </div>
-          )
-        })()}
+          <button onClick={onClose} style={{ width: '100%', marginTop: 8, padding: '11px 0', borderRadius: 14, background: 'none', border: '1px solid rgba(255,255,255,0.06)', color: 'rgba(255,255,255,0.3)', fontSize: 12, fontWeight: 700, cursor: 'pointer', fontFamily: 'inherit' }}>
+            Cancel
+          </button>
+        </div>
       </div>
     </div>,
     document.body

@@ -673,8 +673,6 @@ export default function RentalSearchScreen({ onClose }) {
                       </div>
                       <div style={{display:'flex',alignItems:'center',gap:4,flexShrink:0}}><span style={{fontSize:12,color:'#FFD700',fontWeight:800}}>★ {l.rating||'—'}</span><span style={{fontSize:10,color:'rgba(255,255,255,0.3)'}}>({l.review_count})</span></div>
                     </div>
-                    {/* Title + city */}
-                    <div style={{fontSize:13,fontWeight:700,color:'rgba(255,255,255,0.5)',overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap'}}>{l.title}</div>
                     <div style={{ display:'flex',alignItems:'center',gap:4 }}>
                       <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.25)" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>
                       <span style={{fontSize:11,color:'rgba(255,255,255,0.25)',fontWeight:600}}>{l.city||'Indonesia'}</span>
