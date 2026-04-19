@@ -684,7 +684,7 @@ export default function RentalSearchScreen({ onClose }) {
                   {/* Front info */}
                   <div onClick={() => setSelected(l)} style={{ padding:'14px 14px 14px',display:'flex',flexDirection:'column',gap:6,cursor:'pointer' }}>
                     {/* Brand + specs row — beside fingerprint button */}
-                    <div style={{ display:'flex',alignItems:'center',gap:10,marginTop:16 }}>
+                    <div style={{ display:'flex',alignItems:'center',gap:10,marginTop:0 }}>
                       {/* Spacer for fingerprint button area */}
                       <div style={{width:40}} />
                       <div style={{flex:1}}>
