@@ -140,7 +140,7 @@ function RentalLanding({ onEnter, onClose, onDashboard, onSignUp, onListRental, 
       <div className={styles.landingMain}>
         {/* Header — brand text */}
         <div className={styles.landingHeader}>
-          <span className={styles.landingBrandText}><span>INDOO</span><span className={styles.landingBrandGreen}>DEALS</span></span>
+          <span className={styles.landingBrandText}><span>INDOO</span><span className={styles.landingBrandGreen}>DONE DEAL</span></span>
         </div>
 
         {/* Slogan */}
@@ -177,7 +177,7 @@ function RentalLanding({ onEnter, onClose, onDashboard, onSignUp, onListRental, 
         <div style={{ padding: '16px 20px 0' }}>
           <div className={styles.landingSearchWrap} onClick={onEnter} style={{ cursor: 'pointer' }}>
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#8DC63F" strokeWidth="2.5" strokeLinecap="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-            <input className={styles.landingSearchInput} placeholder="Search deals..." readOnly onClick={onEnter} />
+            <input className={styles.landingSearchInput} placeholder="Search done deals..." readOnly onClick={onEnter} />
           </div>
         </div>
       </div>
@@ -339,7 +339,7 @@ function RentalCategories({ onSelect, onBack, onDashboard }) {
     <div className={styles.catPage}>
       <div className={styles.catHeader}>
         <div>
-          <h1 className={styles.catHeroTitle}>Indoo Deals</h1>
+          <h1 className={styles.catHeroTitle}>Indoo Done Deal</h1>
           <p className={styles.catHeroSub}>Rentals & Sales across Indonesia</p>
         </div>
         <button onClick={onBack} style={{ width:36, height:36, borderRadius:'50%', background:'#8DC63F', border:'none', display:'flex', alignItems:'center', justifyContent:'center', cursor:'pointer', boxShadow:'0 2px 10px rgba(0,0,0,0.3)', flexShrink:0 }}>
