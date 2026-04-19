@@ -1,9 +1,7 @@
 /* ── Screen — same bg + glass as main marketplace ──────────────────────────── */
 .screen {
   position: fixed; inset: 0;
-  background: #080808;
-  background-image: url('https://ik.imagekit.io/nepgaxllc/ChatGPT%20Image%20Apr%2017,%202026,%2002_20_12%20AM.png');
-  background-size: cover; background-position: center;
+  background: #000 url('https://ik.imagekit.io/nepgaxllc/Untitledaaw.png') center / 100% 100% no-repeat;
   z-index: 9800;
   display: flex; flex-direction: column;
   overflow-y: auto; overflow-x: hidden;
@@ -12,13 +10,13 @@
 .screen::before {
   content: '';
   position: fixed; inset: 0;
-  background: rgba(0,0,0,0.5);
+  background: rgba(0,0,0,0.3);
   backdrop-filter: blur(3px); -webkit-backdrop-filter: blur(3px);
   pointer-events: none; z-index: 0;
 }
 .screen > * { position: relative; z-index: 1; }
 .screen::-webkit-scrollbar { width: 3px; }
-.screen::-webkit-scrollbar-thumb { background: rgba(245,158,11,0.2); border-radius: 2px; }
+.screen::-webkit-scrollbar-thumb { background: rgba(141,198,63,0.2); border-radius: 2px; }
 
 /* ── Header — exact same as main marketplace ───────────────────────────────── */
 .header {
@@ -56,7 +54,7 @@
   border-color: rgba(255,255,255,0.2);
   box-shadow: inset 0 1px 0 rgba(255,255,255,0.1), 0 0 0 3px rgba(255,255,255,0.05);
 }
-.searchWrap svg { color: #F59E0B; flex-shrink: 0; }
+.searchWrap svg { color: #8DC63F; flex-shrink: 0; }
 .searchInput { flex: 1; background: none; border: none; outline: none; color: #fff; font-size: 13px; font-family: inherit; }
 .searchInput::placeholder { color: rgba(255,255,255,0.22); }
 
@@ -77,8 +75,8 @@
   text-align: center; white-space: nowrap;
 }
 .mainTabActive {
-  color: #F59E0B;
-  border-bottom-color: #F59E0B;
+  color: #8DC63F;
+  border-bottom-color: #8DC63F;
 }
 
 /* ── Category chips ────────────────────────────────────────────────────────── */
@@ -93,7 +91,7 @@
   font-size: 12px; font-weight: 700;
   cursor: pointer; white-space: nowrap; font-family: inherit;
 }
-.chipActive { background: rgba(245,158,11,0.12); border-color: rgba(245,158,11,0.3); color: #F59E0B; }
+.chipActive { background: rgba(141,198,63,0.12); border-color: rgba(141,198,63,0.3); color: #8DC63F; }
 
 /* ── Content ───────────────────────────────────────────────────────────────── */
 .content { flex: 1; padding: 8px 14px 100px; }
@@ -112,13 +110,13 @@
   border-radius: 14px; overflow: hidden;
   transition: border-color 0.3s, box-shadow 0.3s, transform 0.2s;
 }
-.card:hover { border-color: rgba(245,158,11,0.3); box-shadow: 0 0 14px rgba(245,158,11,0.12); transform: scale(1.02); }
+.card:hover { border-color: rgba(141,198,63,0.3); box-shadow: 0 0 14px rgba(141,198,63,0.12); transform: scale(1.02); }
 
 .cardImgWrap { position: relative; aspect-ratio: 1; background: #0a0a0a; }
 .cardImg { width: 100%; height: 100%; object-fit: cover; }
 .condBadge {
   position: absolute; top: 8px; left: 8px;
-  padding: 3px 8px; background: #F59E0B; color: #000;
+  padding: 3px 8px; background: #8DC63F; color: #000;
   font-size: 10px; font-weight: 800; border-radius: 6px; text-transform: uppercase;
 }
 
@@ -127,14 +125,14 @@
   font-size: 13px; font-weight: 700; color: #fff; line-height: 1.3;
   display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;
 }
-.cardPrice { font-size: 14px; font-weight: 800; color: #F59E0B; }
+.cardPrice { font-size: 14px; font-weight: 800; color: #8DC63F; }
 .cardSeller { font-size: 11px; color: rgba(255,255,255,0.35); }
 
 .cardBtn {
   margin: 6px 10px 10px; padding: 8px;
-  background: rgba(245,158,11,0.12);
-  border: 1px solid rgba(245,158,11,0.3);
-  border-radius: 8px; color: #F59E0B;
+  background: rgba(141,198,63,0.12);
+  border: 1px solid rgba(141,198,63,0.3);
+  border-radius: 8px; color: #8DC63F;
   font-size: 12px; font-weight: 700;
   cursor: pointer; font-family: inherit;
 }

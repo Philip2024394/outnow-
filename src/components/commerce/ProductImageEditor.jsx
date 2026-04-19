@@ -168,7 +168,7 @@ export default function ProductImageEditor({ initialUrl = null, initialImages = 
                   onClick={() => setActiveIdx(i)}
                   style={{
                     width:56, height:56, borderRadius:8, overflow:'hidden', padding:0,
-                    border: i === activeIdx ? '2px solid #F59E0B' : '2px solid rgba(255,255,255,0.1)',
+                    border: i === activeIdx ? '2px solid #8DC63F' : '2px solid rgba(255,255,255,0.1)',
                     cursor:'pointer', background:'#111',
                   }}
                 >
@@ -258,7 +258,7 @@ export default function ProductImageEditor({ initialUrl = null, initialImages = 
                 <button onClick={() => updateActive({ offsetX: Math.max(0, active.offsetX - STEP) })}
                   style={dpadStyle}>◀</button>
                 <button onClick={() => updateActive({ offsetX: 50, offsetY: 50, zoom: 100 })}
-                  style={{ ...dpadStyle, fontSize:9, fontWeight:800, color:'#F59E0B' }}>RST</button>
+                  style={{ ...dpadStyle, fontSize:9, fontWeight:800, color:'#8DC63F' }}>RST</button>
                 <button onClick={() => updateActive({ offsetX: Math.min(100, active.offsetX + STEP) })}
                   style={dpadStyle}>▶</button>
 
@@ -271,7 +271,7 @@ export default function ProductImageEditor({ initialUrl = null, initialImages = 
               <div style={{ marginLeft:16, fontSize:10, color:'rgba(255,255,255,0.3)', lineHeight:1.6 }}>
                 <div>X: {active.offsetX}%</div>
                 <div>Y: {active.offsetY}%</div>
-                <div style={{ marginTop:4, color:'rgba(245,158,11,0.5)' }}>RST = reset</div>
+                <div style={{ marginTop:4, color:'rgba(141,198,63,0.5)' }}>RST = reset</div>
               </div>
             </div>
           </div>

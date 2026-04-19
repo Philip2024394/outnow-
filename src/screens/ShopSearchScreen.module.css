@@ -2,22 +2,19 @@
 .screen {
   position: fixed;
   inset: 0;
-  background: #080808;
-  background-image: url('https://ik.imagekit.io/nepgaxllc/ChatGPT%20Image%20Apr%2017,%202026,%2002_20_12%20AM.png');
-  background-size: cover;
-  background-position: center;
+  background: #000 url('https://ik.imagekit.io/nepgaxllc/Untitledbbbcdfsdf.png') center / 100% 100% no-repeat;
   z-index: 120;
   display: flex;
   flex-direction: column;
   overflow-y: auto;
   overflow-x: hidden;
-  padding-right: 52px; /* clear the right-side nav panel (48px panel + 4px gap) */
+  padding-right: 0;
 }
 .screen::before {
   content: '';
   position: fixed;
   inset: 0;
-  background: rgba(0,0,0,0.5);
+  background: rgba(0,0,0,0.3);
   backdrop-filter: blur(3px);
   -webkit-backdrop-filter: blur(3px);
   pointer-events: none;
@@ -26,7 +23,7 @@
 .screen > * { position: relative; z-index: 1; }
 
 .screen::-webkit-scrollbar { width: 3px; }
-.screen::-webkit-scrollbar-thumb { background: rgba(245,158,11,0.2); border-radius: 2px; }
+.screen::-webkit-scrollbar-thumb { background: rgba(141,198,63,0.2); border-radius: 2px; }
 
 /* ── Gift context chip ──────────────────────────────────────────────────── */
 .giftChip {
@@ -106,8 +103,7 @@
   display: flex;
   align-items: center;
   gap: 10px;
-  padding: 0 14px 0;
-  margin-right: -38px; /* extend header into the panel gap so Account button sits far right */
+  padding: 10px 14px 0;
   flex-shrink: 0;
 }
 
@@ -149,7 +145,7 @@
 }
 
 .searchIcon {
-  color: #F59E0B;
+  color: #8DC63F;
   display: flex;
   align-items: center;
   flex-shrink: 0;
@@ -210,7 +206,7 @@
   transition: color 0.15s, border-color 0.15s;
 }
 
-.headerIconBtn:hover { color: #F59E0B; border-color: rgba(245,158,11,0.3); }
+.headerIconBtn:hover { color: #8DC63F; border-color: rgba(141,198,63,0.3); }
 
 .profileBtn {
   display: flex;
@@ -221,13 +217,13 @@
   background: rgba(0,0,0,0.8);
   border: 1.5px solid rgba(255,255,255,0.1);
   border-radius: 10px;
-  color: #F59E0B;
+  color: #8DC63F;
   cursor: pointer;
   flex-shrink: 0;
   font-family: inherit;
   transition: all 0.15s;
 }
-.profileBtn:hover { background: rgba(0,0,0,0.9); border-color: rgba(245,158,11,0.3); }
+.profileBtn:hover { background: rgba(0,0,0,0.9); border-color: rgba(141,198,63,0.3); }
 .profileBtnLabel { font-size: 8px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.5px; }
 
 /* ── Search row (below logo) ── */
@@ -265,12 +261,12 @@
 }
 
 .mainTabActive {
-  color: #F59E0B;
-  border-bottom-color: #F59E0B;
+  color: #8DC63F;
+  border-bottom-color: #8DC63F;
 }
 
 /* Products/Sellers section headers */
-.sectionHeader { font-size: 16px; font-weight: 900; color: #fff; padding: 8px 14px 4px; }
+.sectionHeader { font-size: 20px; font-weight: 900; color: #fff; padding: 10px 14px 6px; }
 
 /* Filter button (right of search bar) */
 .filterInlineBtn {
@@ -280,7 +276,7 @@
   width: 32px;
   height: 32px;
   border-radius: 8px;
-  background: #F59E0B;
+  background: #8DC63F;
   border: none;
   color: #000;
   cursor: pointer;
@@ -298,7 +294,7 @@
   width: 6px;
   height: 6px;
   border-radius: 50%;
-  background: #F59E0B;
+  background: #8DC63F;
 }
 
 .filterRow {
@@ -309,7 +305,7 @@
 .echo {
   font-size: 13px;
   font-weight: 900;
-  color: #F59E0B;
+  color: #8DC63F;
   letter-spacing: 0.1em;
 }
 
@@ -349,7 +345,7 @@
   width: 6px;
   height: 6px;
   border-radius: 50%;
-  background: #F59E0B;
+  background: #8DC63F;
   position: absolute;
   top: 4px;
   right: 4px;
@@ -423,7 +419,7 @@
   outline: none;
 }
 
-.filterInput:focus { border-color: rgba(245,158,11,0.4); }
+.filterInput:focus { border-color: rgba(141,198,63,0.4); }
 .filterInput::placeholder { color: rgba(255,255,255,0.2); }
 
 .filterChips {
@@ -448,8 +444,8 @@
 }
 
 .filterChipActive {
-  background: #F59E0B;
-  border-color: #F59E0B;
+  background: #8DC63F;
+  border-color: #8DC63F;
   color: #000;
 }
 
@@ -511,7 +507,7 @@
 .auctionBtn:hover { border-color: rgba(255,255,255,0.2); background: rgba(255,255,255,0.1); }
 
 .auctionIcon { font-size: 16px; }
-.auctionText { font-size: 13px; font-weight: 800; color: #F59E0B; flex: 1; text-align: left; }
+.auctionText { font-size: 13px; font-weight: 800; color: #8DC63F; flex: 1; text-align: left; }
 .auctionLive { font-size: 9px; font-weight: 900; color: #EF4444; background: rgba(239,68,68,0.12); border: 1px solid rgba(239,68,68,0.3); border-radius: 6px; padding: 2px 8px; letter-spacing: 0.08em; animation: livePulse 2s ease-in-out infinite; }
 
 .flashSaleIcon { font-size: 18px; }
@@ -559,9 +555,9 @@
 .localBadge {
   font-size: 10px;
   font-weight: 700;
-  color: #F59E0B;
-  background: rgba(245,158,11,0.1);
-  border: 1px solid rgba(245,158,11,0.22);
+  color: #8DC63F;
+  background: rgba(141,198,63,0.1);
+  border: 1px solid rgba(141,198,63,0.22);
   border-radius: 20px;
   padding: 2px 7px;
 }
@@ -585,7 +581,7 @@
   background: rgba(0,0,0,0.6);
   backdrop-filter: blur(16px);
   -webkit-backdrop-filter: blur(16px);
-  border: 1.5px solid rgba(245,158,11,0.08);
+  border: 1.5px solid rgba(141,198,63,0.08);
   border-radius: 16px;
   overflow: hidden;
   cursor: pointer;
@@ -601,15 +597,15 @@
 .card::before {
   content: '';
   position: absolute; top: 0; left: 15%; right: 15%; height: 1px;
-  background: linear-gradient(90deg, transparent, rgba(245,158,11,0.2), transparent);
+  background: linear-gradient(90deg, transparent, rgba(141,198,63,0.2), transparent);
   pointer-events: none; z-index: 2;
 }
 
 .card:hover,
 .card:active {
-  border-color: rgba(245,158,11,0.25);
+  border-color: rgba(141,198,63,0.25);
   transform: translateY(-3px) scale(1.01);
-  box-shadow: inset 0 1px 0 rgba(255,255,255,0.06), 0 12px 32px rgba(0,0,0,0.4), 0 0 16px rgba(245,158,11,0.06);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.06), 0 12px 32px rgba(0,0,0,0.4), 0 0 16px rgba(141,198,63,0.06);
 }
 
 .cardImgWrap {
@@ -637,8 +633,8 @@
   justify-content: center;
   font-size: 26px;
   font-weight: 900;
-  color: #F59E0B;
-  background: rgba(245,158,11,0.04);
+  color: #8DC63F;
+  background: rgba(141,198,63,0.04);
 }
 
 /* ── Auction overlay on seller/product cards ── */
@@ -756,7 +752,7 @@
   font-weight: 800;
   padding: 2px 5px;
   border-radius: 20px;
-  background: rgba(245,158,11,0.85);
+  background: rgba(141,198,63,0.85);
   color: #000;
   text-transform: capitalize;
 }
@@ -769,7 +765,7 @@
 }
 
 .cardName {
-  font-size: 12px;
+  font-size: 13px;
   font-weight: 900;
   color: #fff;
   overflow: hidden;
@@ -779,9 +775,9 @@
 }
 
 .cardCat {
-  font-size: 9px;
-  color: #F59E0B;
-  font-weight: 800;
+  font-size: 11px;
+  color: rgba(255,255,255,0.5);
+  font-weight: 700;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -789,7 +785,7 @@
 }
 
 .cardCity {
-  font-size: 8px; color: rgba(255,255,255,0.2); font-weight: 600;
+  font-size: 11px; color: rgba(255,255,255,0.3); font-weight: 600;
   display: block;
 }
 
@@ -848,8 +844,8 @@
   align-items: flex-start;
   gap: 10px;
   padding: 11px 14px;
-  background: linear-gradient(90deg, rgba(245,158,11,0.13) 0%, rgba(141,198,63,0.08) 100%);
-  border-bottom: 1px solid rgba(245,158,11,0.22);
+  background: linear-gradient(90deg, rgba(141,198,63,0.13) 0%, rgba(141,198,63,0.08) 100%);
+  border-bottom: 1px solid rgba(141,198,63,0.22);
   flex-shrink: 0;
 }
 
@@ -869,7 +865,7 @@
 .wishlistBannerText strong {
   font-size: 12px;
   font-weight: 800;
-  color: #F59E0B;
+  color: #8DC63F;
 }
 
 .wishlistBannerText span {
@@ -898,7 +894,7 @@
 }
 .landingOverlay {
   position: absolute; inset: 0;
-  background: linear-gradient(to top, rgba(0,0,0,0.85) 0%, rgba(0,0,0,0.3) 40%, rgba(0,0,0,0.1) 70%, transparent 100%);
+  background: none;
   pointer-events: none;
 }
 .landingHeader {
@@ -909,28 +905,75 @@
 /* ── Landing page section cards ─────────────────────────────────────────────── */
 .landingCards {
   position: relative; z-index: 2;
-  display: grid; grid-template-columns: 1fr 1fr;
-  gap: 12px; padding: 20px 24px 12px;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+  padding: 12px 10px;
 }
 .landingCard {
+  position: relative;
   display: flex; flex-direction: column; align-items: center; justify-content: center;
-  gap: 6px; padding: 22px 12px;
-  background: rgba(0,0,0,0.55);
-  backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px);
-  border: 1.5px solid rgba(255,255,255,0.08);
-  border-radius: 16px;
+  gap: 4px; padding: 10px 6px;
+  background: none;
+  border: none;
+  border-radius: 0;
   cursor: pointer; font-family: inherit;
-  transition: transform 0.2s ease, border-color 0.3s ease, box-shadow 0.3s ease;
+  width: 100%;
+  box-sizing: border-box;
+  transition: transform 0.25s cubic-bezier(0.34,1.2,0.64,1);
+  -webkit-tap-highlight-color: transparent;
 }
 .landingCard:hover {
-  border-color: rgba(141,198,63,0.4);
-  box-shadow: 0 0 20px rgba(141,198,63,0.15);
-  transform: scale(1.03);
+  transform: scale(1.08) translateY(-3px);
 }
-.landingCard:active { transform: scale(0.96); }
-.landingCardIcon { font-size: 32px; filter: drop-shadow(0 2px 6px rgba(0,0,0,0.4)); }
-.landingCardTitle { font-size: 14px; font-weight: 800; color: #fff; }
-.landingCardSub { font-size: 11px; color: rgba(255,255,255,0.4); font-weight: 600; }
+.landingCard:active { transform: scale(0.93); }
+.landingCardIcon {
+  width: 60px; height: 60px;
+  border-radius: 50%;
+  background: rgba(0,0,0,0.4);
+  backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
+  border: 1.5px solid rgba(141,198,63,0.2);
+  display: flex; align-items: center; justify-content: center;
+  box-shadow: 0 0 20px rgba(141,198,63,0.1), inset 0 1px 0 rgba(255,255,255,0.06);
+  animation: iconFloat 3s ease-in-out infinite;
+  position: relative;
+}
+.landingCardIcon::after {
+  content: '';
+  position: absolute;
+  bottom: -8px; left: 20%; right: 20%;
+  height: 6px;
+  background: radial-gradient(ellipse, rgba(0,0,0,0.3) 0%, transparent 70%);
+  border-radius: 50%;
+  filter: blur(4px);
+  animation: iconShadow 3s ease-in-out infinite;
+}
+@keyframes iconFloat {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-5px); }
+}
+@keyframes iconShadow {
+  0%, 100% { transform: scaleX(1); opacity: 0.6; }
+  50% { transform: scaleX(0.7); opacity: 0.3; }
+}
+.landingCard:nth-child(1) .landingCardIcon { animation-delay: 0s; }
+.landingCard:nth-child(2) .landingCardIcon { animation-delay: 0.3s; }
+.landingCard:nth-child(3) .landingCardIcon { animation-delay: 0.6s; }
+.landingCard:nth-child(4) .landingCardIcon { animation-delay: 0.9s; }
+.landingCard:nth-child(5) .landingCardIcon { animation-delay: 1.2s; }
+.landingCard:nth-child(6) .landingCardIcon { animation-delay: 1.5s; }
+.landingCardTitle { font-size: 19px; font-weight: 900; color: #fff; text-align: center; letter-spacing: 0.02em; -webkit-text-stroke: 1px #8DC63F; text-shadow: 0 2px 8px rgba(0,0,0,0.8); }
+.landingCardSub { font-size: 11px; color: rgba(255,255,255,0.5); font-weight: 600; text-align: center; }
+.landingCardLabel {
+  display: flex; flex-direction: column; align-items: center; gap: 3px;
+  margin-top: 6px;
+  padding: 6px 12px;
+  background: rgba(0,0,0,0.4);
+  backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255,255,255,0.06);
+  border-radius: 14px;
+  width: 100%;
+}
 
 .landingFooter {
   position: relative; z-index: 2;
@@ -947,7 +990,7 @@
   border: 1.5px solid rgba(255,255,255,0.1); border-radius: 10px;
   padding: 0 14px; height: 42px;
 }
-.landingSearchIcon { color: #F59E0B; display: flex; align-items: center; flex-shrink: 0; }
+.landingSearchIcon { color: #8DC63F; display: flex; align-items: center; flex-shrink: 0; }
 .landingSearchInput {
   flex: 1; background: none; border: none; outline: none;
   color: #fff; font-size: 13px; font-family: inherit; cursor: pointer;
@@ -977,13 +1020,14 @@
   text-shadow: 0 2px 20px rgba(0,0,0,0.5); line-height: 1.1;
 }
 .landingSub {
-  font-size: 14px; color: rgba(255,255,255,0.55); margin: 0;
+  font-size: 15px; color: #fff; margin: 0;
   line-height: 1.5; max-width: 300px;
+  text-shadow: 0 2px 8px rgba(0,0,0,0.8), 0 0 20px rgba(0,0,0,0.5);
 }
 .landingBtn {
   display: flex; align-items: center; justify-content: center; gap: 8px;
   width: fit-content; padding: 14px 32px; margin-top: 8px;
-  background: #F59E0B; border: none; border-radius: 14px;
+  background: #8DC63F; border: none; border-radius: 14px;
   color: #000; font-size: 16px; font-weight: 900; font-family: inherit;
   cursor: pointer; transition: background 0.15s;
 }
@@ -998,4 +1042,12 @@
   cursor: pointer; transition: all 0.15s;
 }
 .landingBtnOutline:hover { border-color: rgba(255,255,255,0.4); color: #fff; }
+
+/* ── Landing card animations (global so inline styles can reference them) ── */
+:global {
+  @keyframes cardShine { 0% { transform: translateX(-120%) rotate(25deg); } 100% { transform: translateX(300%) rotate(25deg); } }
+  @keyframes pulseGlow { 0%,100% { box-shadow: 0 0 6px rgba(141,198,63,0.1); } 50% { box-shadow: 0 0 16px rgba(141,198,63,0.3); } }
+  @keyframes livePulse { 0%,100% { opacity: 1; } 50% { opacity: 0.3; } }
+  @keyframes tickerScroll { 0% { transform: translateX(100%); } 100% { transform: translateX(-100%); } }
+}
 

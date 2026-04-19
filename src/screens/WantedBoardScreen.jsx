@@ -90,6 +90,7 @@ export default function WantedBoardScreen({ open, onClose, onOpenChat }) {
 
   return createPortal(
     <div className={styles.screen}>
+      <div style={{ position: 'fixed', top: 6, left: 6, zIndex: 99990, display: 'flex', alignItems: 'center', gap: 6, pointerEvents: 'none' }}><div style={{ width: 28, height: 28, borderRadius: '50%', background: '#8DC63F', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 11, fontWeight: 900, color: '#000', boxShadow: '0 2px 8px rgba(141,198,63,0.4)' }}>M6</div><span style={{ fontSize: 9, fontWeight: 800, color: 'rgba(141,198,63,0.6)' }}>WANTED</span></div>
       {/* Header */}
       <div className={styles.header}>
         <button className={styles.backBtn} onClick={onClose}>
@@ -127,8 +128,9 @@ export default function WantedBoardScreen({ open, onClose, onOpenChat }) {
             <input className={styles.formInput} value={targetPrice} onChange={e => setTargetPrice(e.target.value.replace(/\D/g, ''))} placeholder="Target price (Rp)" type="text" inputMode="numeric" />
             <input className={styles.formInput} value={city} onChange={e => setCity(e.target.value)} placeholder="City" />
           </div>
-          <input className={styles.formInput} value={imageUrl} onChange={e => setImageUrl(e.target.value)} placeholder="Image URL (optional)" />
-          <button className={styles.formSubmit} onClick={handleSubmit} disabled={!title.trim() || submitting}>
+          <input className={styles.formInput} value={imageUrl} onChange={e => setImageUrl(e.target.value)} placeholder="Image URL (required)" style={!imageUrl.trim() ? { borderColor: 'rgba(239,68,68,0.3)' } : {}} />
+          {!imageUrl.trim() && <span style={{ fontSize: 11, color: '#EF4444', fontWeight: 600 }}>At least 1 image is required</span>}
+          <button className={styles.formSubmit} onClick={handleSubmit} disabled={!title.trim() || !imageUrl.trim() || submitting}>
             {submitting ? 'Posting...' : 'Post to Wanted Board'}
           </button>
         </div>

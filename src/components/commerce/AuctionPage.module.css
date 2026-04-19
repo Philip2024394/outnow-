@@ -1,13 +1,13 @@
-.page { position: fixed; inset: 0; z-index: 400; display: flex; flex-direction: column; overflow: hidden; background: #000 url('https://ik.imagekit.io/nepgaxllc/Untitledasdasdaaaaaaasdasd.png') center/cover no-repeat; }
-.page::before { content: ''; position: fixed; inset: 0; background: rgba(0,0,0,0.5); backdrop-filter: blur(3px); -webkit-backdrop-filter: blur(3px); pointer-events: none; z-index: 0; }
+.page { position: fixed; inset: 0; z-index: 100000; display: flex; flex-direction: column; overflow: hidden; background: #000 url('https://ik.imagekit.io/nepgaxllc/ChatGPT%20Image%20Apr%2020,%202026,%2012_07_45%20AM.png') center/cover no-repeat; }
+.page::before { content: ''; position: fixed; inset: 0; background: rgba(0,0,0,0.3); backdrop-filter: blur(3px); -webkit-backdrop-filter: blur(3px); pointer-events: none; z-index: 0; }
 .page > * { position: relative; z-index: 1; }
 
-.header { display: flex; align-items: center; justify-content: space-between; padding: 14px 16px; background: rgba(0,0,0,0.6); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); border-bottom: 2px solid #F59E0B; box-shadow: 0 2px 16px rgba(245,158,11,0.2); flex-shrink: 0; }
+.header { display: flex; align-items: center; justify-content: space-between; padding: 14px 16px; background: rgba(0,0,0,0.6); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); border-bottom: 2px solid #8DC63F; box-shadow: 0 2px 16px rgba(141,198,63,0.2); flex-shrink: 0; }
 .backBtn { width: 36px; height: 36px; border-radius: 50%; background: rgba(255,255,255,0.08); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); border: 1px solid rgba(255,255,255,0.12); color: rgba(255,255,255,0.7); display: flex; align-items: center; justify-content: center; cursor: pointer; }
 .headerLeft { display: flex; align-items: center; gap: 6px; flex: 1; }
 .sectionLabelRow { display: flex; align-items: center; justify-content: space-between; padding: 8px 0 6px; }
 .headerIcon { font-size: 22px; }
-.headerTitle { font-size: 18px; font-weight: 900; color: #F59E0B; text-shadow: 0 1px 8px rgba(0,0,0,0.5); }
+.headerTitle { font-size: 18px; font-weight: 900; color: #8DC63F; text-shadow: 0 1px 8px rgba(0,0,0,0.5); }
 .liveCount { font-size: 11px; font-weight: 800; color: #EF4444; background: rgba(239,68,68,0.15); backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px); border: 1px solid rgba(239,68,68,0.3); border-radius: 8px; padding: 4px 10px; animation: livePulse 2s ease-in-out infinite; }
 @keyframes livePulse { 0%,100% { opacity:1; } 50% { opacity:0.5; } }
 
@@ -18,12 +18,12 @@
 .feedScroll { display: flex; gap: 20px; overflow-x: auto; scrollbar-width: none; }
 .feedScroll::-webkit-scrollbar { height: 0; }
 .feedItem { font-size: 11px; color: rgba(255,255,255,0.5); white-space: nowrap; flex-shrink: 0; text-shadow: 0 1px 3px rgba(0,0,0,0.4); }
-.feedItem strong { color: #F59E0B; font-weight: 700; }
+.feedItem strong { color: #8DC63F; font-weight: 700; }
 
 /* Body / grid */
 .body { flex: 1; overflow-y: auto; padding: 12px 16px 32px; }
 .body::-webkit-scrollbar { width: 3px; }
-.body::-webkit-scrollbar-thumb { background: rgba(245,158,11,0.2); border-radius: 2px; }
+.body::-webkit-scrollbar-thumb { background: rgba(141,198,63,0.2); border-radius: 2px; }
 
 .empty { display: flex; flex-direction: column; align-items: center; gap: 8px; padding: 60px 20px; text-align: center; color: rgba(255,255,255,0.4); font-size: 14px; text-shadow: 0 1px 4px rgba(0,0,0,0.5); }
 .emptySub { font-size: 12px; color: rgba(255,255,255,0.3); }
@@ -34,7 +34,7 @@
 
 /* Auction cards — black glass */
 .auctionCard { border-radius: 14px; overflow: hidden; border: 1px solid rgba(255,255,255,0.1); cursor: pointer; text-align: left; font-family: inherit; background: rgba(0,0,0,0.55); backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px); transition: border-color 0.15s, transform 0.15s; }
-.auctionCard:hover { border-color: rgba(245,158,11,0.4); transform: translateY(-2px); }
+.auctionCard:hover { border-color: rgba(141,198,63,0.4); transform: translateY(-2px); }
 .cardEnded { opacity: 0.7; }
 
 .cardImgWrap { position: relative; }
@@ -63,13 +63,13 @@
   transition: background 0.15s, border-color 0.15s;
 }
 
-.fingerprintBtn:hover { background: rgba(245,158,11,0.3); border-color: rgba(245,158,11,0.5); }
+.fingerprintBtn:hover { background: rgba(141,198,63,0.3); border-color: rgba(141,198,63,0.5); }
 
 .cardInfo { padding: 10px 12px; display: flex; flex-direction: column; gap: 3px; }
 .cardName { font-size: 13px; font-weight: 800; color: #fff; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; text-shadow: 0 1px 4px rgba(0,0,0,0.4); }
 .cardSeller { font-size: 10px; color: rgba(255,255,255,0.4); }
 .cardPriceRow { display: flex; justify-content: space-between; align-items: center; margin-top: 2px; }
-.cardPrice { font-size: 14px; font-weight: 900; color: #F59E0B; text-shadow: 0 1px 6px rgba(0,0,0,0.4); }
+.cardPrice { font-size: 14px; font-weight: 900; color: #8DC63F; text-shadow: 0 1px 6px rgba(0,0,0,0.4); }
 .cardBids { font-size: 10px; color: rgba(255,255,255,0.4); }
 
 /* Detail view */
@@ -98,14 +98,14 @@
   transition: background 0.15s, border-color 0.15s, box-shadow 0.15s;
 }
 
-.detailFingerprintBtn:hover { background: rgba(245,158,11,0.3); border-color: rgba(245,158,11,0.5); box-shadow: 0 0 10px rgba(245,158,11,0.2); }
+.detailFingerprintBtn:hover { background: rgba(141,198,63,0.3); border-color: rgba(141,198,63,0.5); box-shadow: 0 0 10px rgba(141,198,63,0.2); }
 .detailImg { width: 70px; height: 70px; border-radius: 10px; object-fit: cover; flex-shrink: 0; border: 1px solid rgba(255,255,255,0.08); }
 .detailInfo { display: flex; flex-direction: column; gap: 3px; }
 .detailName { font-size: 16px; font-weight: 900; color: #fff; text-shadow: 0 1px 6px rgba(0,0,0,0.5); }
 .detailSeller { font-size: 12px; color: rgba(255,255,255,0.45); }
 .detailSellerHidden { font-size: 10px; color: rgba(255,255,255,0.25); font-style: italic; }
 .viewProductBtn { background: rgba(255,255,255,0.06); backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px); border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; color: rgba(255,255,255,0.5); font-size: 10px; font-weight: 700; padding: 5px 10px; cursor: pointer; font-family: inherit; margin-top: 6px; width: fit-content; transition: color 0.15s, border-color 0.15s; }
-.viewProductBtn:hover { color: #F59E0B; border-color: rgba(245,158,11,0.3); }
+.viewProductBtn:hover { color: #8DC63F; border-color: rgba(141,198,63,0.3); }
 .detailCondition { font-size: 11px; font-weight: 700; color: rgba(255,255,255,0.6); }
 .reserveInCard { font-size: 10px; font-weight: 800; color: #FBBF24; margin-top: 2px; }
 .noReserveInCard { font-size: 10px; font-weight: 800; color: #8DC63F; margin-top: 2px; }
@@ -114,8 +114,8 @@
 .priceBlock { display: flex; justify-content: space-between; padding: 24px 16px; border: 2px solid #000; border-radius: 14px; margin-bottom: 12px; position: relative; overflow: hidden; animation: bidGlow 2.5s ease-in-out infinite; min-height: 80px; }
 
 @keyframes bidGlow {
-  0%, 100% { box-shadow: 0 0 8px rgba(0,0,0,0.6), 0 0 16px rgba(245,158,11,0.1); }
-  50% { box-shadow: 0 0 12px rgba(0,0,0,0.8), 0 0 24px rgba(245,158,11,0.2), 0 0 36px rgba(245,158,11,0.08); }
+  0%, 100% { box-shadow: 0 0 8px rgba(0,0,0,0.6), 0 0 16px rgba(141,198,63,0.1); }
+  50% { box-shadow: 0 0 12px rgba(0,0,0,0.8), 0 0 24px rgba(141,198,63,0.2), 0 0 36px rgba(141,198,63,0.08); }
 }
 .priceBlock::before { content: ''; position: absolute; inset: 0; background: url('https://ik.imagekit.io/nepgaxllc/ChatGPT%20Image%20Apr%2015,%202026,%2009_40_34%20PM.png?updatedAt=1776264052312') center/cover no-repeat; z-index: 0; }
 .priceBlock::after { content: ''; position: absolute; inset: 0; background: rgba(0,0,0,0.55); z-index: 1; }
@@ -132,18 +132,18 @@
 
 /* Bid section — black glass */
 .bidSection { display: flex; flex-direction: column; gap: 8px; margin-bottom: 14px; padding: 14px; background: rgba(0,0,0,0.5); backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px); border: 1px solid rgba(255,255,255,0.08); border-radius: 14px; }
-.bidInputWrap { display: flex; align-items: center; background: rgba(255,255,255,0.06); border: 1.5px solid rgba(245,158,11,0.25); border-radius: 12px; padding: 0 14px; height: 50px; }
-.bidInputWrap:focus-within { border-color: #F59E0B; }
+.bidInputWrap { display: flex; align-items: center; background: rgba(255,255,255,0.06); border: 1.5px solid rgba(141,198,63,0.25); border-radius: 12px; padding: 0 14px; height: 50px; }
+.bidInputWrap:focus-within { border-color: #8DC63F; }
 .bidRp { font-size: 14px; font-weight: 700; color: rgba(255,255,255,0.4); margin-right: 8px; }
 .bidInput { background: none; border: none; color: #fff; font-size: 20px; font-weight: 900; font-family: inherit; width: 100%; outline: none; }
 .bidInput::placeholder { color: rgba(255,255,255,0.15); }
 .bidInput::-webkit-inner-spin-button, .bidInput::-webkit-outer-spin-button { -webkit-appearance: none; }
-.bidBtn { padding: 14px; background: #F59E0B; border: none; border-radius: 12px; color: #000; font-size: 15px; font-weight: 900; cursor: pointer; font-family: inherit; box-shadow: 0 4px 16px rgba(245,158,11,0.4); animation: bidBtnHeartbeat 2.5s ease-in-out infinite; }
+.bidBtn { padding: 14px; background: #8DC63F; border: none; border-radius: 12px; color: #000; font-size: 15px; font-weight: 900; cursor: pointer; font-family: inherit; box-shadow: 0 4px 16px rgba(141,198,63,0.4); animation: bidBtnHeartbeat 2.5s ease-in-out infinite; }
 .bidBtn:hover { background: #FBBF24; }
 
 @keyframes bidBtnHeartbeat {
-  0%, 100% { box-shadow: 0 4px 16px rgba(245,158,11,0.3); transform: scale(1); }
-  50% { box-shadow: 0 4px 24px rgba(245,158,11,0.5), 0 0 20px rgba(245,158,11,0.3); transform: scale(1.02); }
+  0%, 100% { box-shadow: 0 4px 16px rgba(141,198,63,0.3); transform: scale(1); }
+  50% { box-shadow: 0 4px 24px rgba(141,198,63,0.5), 0 0 20px rgba(141,198,63,0.3); transform: scale(1.02); }
 }
 .bidError { font-size: 11px; color: #EF4444; font-weight: 600; }
 .bidLimits { display: flex; justify-content: space-between; font-size: 10px; color: rgba(255,255,255,0.3); }
@@ -156,9 +156,9 @@
 .buyNowBtn:hover { opacity: 0.9; }
 
 /* Buy Now payment banner */
-.buyNowBanner { display: flex; align-items: flex-start; gap: 10px; padding: 14px; background: rgba(0,0,0,0.55); backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px); border: 1px solid rgba(245,158,11,0.25); border-radius: 12px; margin-bottom: 14px; }
+.buyNowBanner { display: flex; align-items: flex-start; gap: 10px; padding: 14px; background: rgba(0,0,0,0.55); backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px); border: 1px solid rgba(141,198,63,0.25); border-radius: 12px; margin-bottom: 14px; }
 .buyNowBannerIcon { font-size: 24px; flex-shrink: 0; }
-.buyNowBannerTitle { display: block; font-size: 14px; font-weight: 800; color: #F59E0B; }
+.buyNowBannerTitle { display: block; font-size: 14px; font-weight: 800; color: #8DC63F; }
 .buyNowBannerTimer { display: block; font-size: 16px; font-weight: 900; color: #EF4444; font-family: monospace; margin-top: 2px; }
 .buyNowBannerNote { display: block; font-size: 10px; color: rgba(255,255,255,0.35); margin-top: 4px; }
 
@@ -166,9 +166,9 @@
 .commissionNote { padding: 8px 12px; background: rgba(0,0,0,0.4); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); border: 1px solid rgba(255,255,255,0.06); border-radius: 8px; color: rgba(255,255,255,0.4); font-size: 10px; font-weight: 600; text-align: center; margin-bottom: 12px; }
 
 /* Winner / status banners — black glass */
-.winnerBanner { display: flex; align-items: center; gap: 10px; padding: 14px; background: rgba(0,0,0,0.55); backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px); border: 1px solid rgba(245,158,11,0.2); border-radius: 12px; margin-bottom: 14px; }
+.winnerBanner { display: flex; align-items: center; gap: 10px; padding: 14px; background: rgba(0,0,0,0.55); backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px); border: 1px solid rgba(141,198,63,0.2); border-radius: 12px; margin-bottom: 14px; }
 .winnerIcon { font-size: 28px; }
-.winnerName { font-size: 15px; font-weight: 900; color: #F59E0B; display: block; text-shadow: 0 1px 6px rgba(0,0,0,0.4); }
+.winnerName { font-size: 15px; font-weight: 900; color: #8DC63F; display: block; text-shadow: 0 1px 6px rgba(0,0,0,0.4); }
 .winnerSub { font-size: 11px; color: rgba(255,255,255,0.5); }
 .paidBanner { padding: 12px; background: rgba(0,0,0,0.5); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); border: 1px solid rgba(141,198,63,0.25); border-radius: 12px; color: #8DC63F; font-size: 13px; font-weight: 700; text-align: center; margin-bottom: 14px; }
 .unsoldBanner { padding: 12px; background: rgba(0,0,0,0.5); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.1); border-radius: 12px; color: rgba(255,255,255,0.4); font-size: 13px; font-weight: 700; text-align: center; margin-bottom: 14px; }
@@ -180,21 +180,21 @@
 .bidRow:last-child { border-bottom: none; }
 
 /* Top bidder — glowing border */
-.bidRowTop { padding: 10px 12px; margin: 0 -12px 4px; border-radius: 10px; border: 1.5px solid rgba(245,158,11,0.4); background: rgba(245,158,11,0.06); box-shadow: 0 0 12px rgba(245,158,11,0.15), inset 0 0 8px rgba(245,158,11,0.05); animation: topBidGlow 2.5s ease-in-out infinite; }
-@keyframes topBidGlow { 0%,100% { box-shadow: 0 0 12px rgba(245,158,11,0.15), inset 0 0 8px rgba(245,158,11,0.05); } 50% { box-shadow: 0 0 20px rgba(245,158,11,0.3), inset 0 0 12px rgba(245,158,11,0.08); } }
+.bidRowTop { padding: 10px 12px; margin: 0 -12px 4px; border-radius: 10px; border: 1.5px solid rgba(141,198,63,0.4); background: rgba(141,198,63,0.06); box-shadow: 0 0 12px rgba(141,198,63,0.15), inset 0 0 8px rgba(141,198,63,0.05); animation: topBidGlow 2.5s ease-in-out infinite; }
+@keyframes topBidGlow { 0%,100% { box-shadow: 0 0 12px rgba(141,198,63,0.15), inset 0 0 8px rgba(141,198,63,0.05); } 50% { box-shadow: 0 0 20px rgba(141,198,63,0.3), inset 0 0 12px rgba(141,198,63,0.08); } }
 
 .topBidderCrown { font-size: 14px; flex-shrink: 0; }
 
 .bidRowName { font-size: 12px; font-weight: 700; color: rgba(255,255,255,0.65); flex: 1; }
-.bidRowTop .bidRowName { color: #F59E0B; font-weight: 800; }
-.bidRowAmount { font-size: 13px; font-weight: 800; color: #F59E0B; }
+.bidRowTop .bidRowName { color: #8DC63F; font-weight: 800; }
+.bidRowAmount { font-size: 13px; font-weight: 800; color: #8DC63F; }
 .bidRowTop .bidRowAmount { font-size: 14px; font-weight: 900; }
 .bidRowTime { font-size: 10px; color: rgba(255,255,255,0.3); }
 
 /* ── Product preview popup ── */
 .previewBackdrop { position: fixed; inset: 0; background: rgba(0,0,0,0.75); display: flex; align-items: center; justify-content: center; z-index: 500; backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px); padding: 20px; }
 
-.previewModal { width: 100%; max-width: 380px; max-height: 85vh; background: rgba(0,0,0,0.7); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); border: 1.5px solid rgba(245,158,11,0.35); border-radius: 20px; overflow: hidden; position: relative; animation: previewIn 0.2s cubic-bezier(0.32,0.72,0,1) forwards; box-shadow: 0 0 20px rgba(245,158,11,0.2), 0 0 40px rgba(245,158,11,0.08), inset 0 0 1px rgba(245,158,11,0.15); overflow-y: auto; }
+.previewModal { width: 100%; max-width: 380px; max-height: 85vh; background: rgba(0,0,0,0.7); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); border: 1.5px solid rgba(141,198,63,0.35); border-radius: 20px; overflow: hidden; position: relative; animation: previewIn 0.2s cubic-bezier(0.32,0.72,0,1) forwards; box-shadow: 0 0 20px rgba(141,198,63,0.2), 0 0 40px rgba(141,198,63,0.08), inset 0 0 1px rgba(141,198,63,0.15); overflow-y: auto; }
 @keyframes previewIn { from { transform: scale(0.92); opacity: 0; } to { transform: scale(1); opacity: 1; } }
 
 /* X close button removed — using footer Close button instead */
@@ -204,7 +204,7 @@
 
 /* Image overlays */
 .previewBidCount { position: absolute; top: 10px; left: 10px; font-size: 11px; font-weight: 800; color: #fff; background: rgba(0,0,0,0.6); backdrop-filter: blur(6px); padding: 4px 10px; border-radius: 6px; }
-.previewRating { position: absolute; top: 10px; right: 10px; font-size: 12px; font-weight: 800; color: #F59E0B; background: rgba(0,0,0,0.6); backdrop-filter: blur(6px); padding: 4px 10px; border-radius: 6px; }
+.previewRating { position: absolute; top: 10px; right: 10px; font-size: 12px; font-weight: 800; color: #8DC63F; background: rgba(0,0,0,0.6); backdrop-filter: blur(6px); padding: 4px 10px; border-radius: 6px; }
 .previewAuctionBadge { position: absolute; top: 10px; right: 10px; font-size: 10px; font-weight: 900; color: #FFE500; background: rgba(0,0,0,0.6); backdrop-filter: blur(6px); padding: 4px 10px; border-radius: 6px; letter-spacing: 0.04em; text-transform: uppercase; }
 
 .previewImgNameWrap { position: absolute; bottom: 10px; left: 10px; max-width: 65%; display: flex; flex-direction: column; gap: 3px; }
@@ -213,7 +213,7 @@
 .previewImgReserve { font-size: 10px; font-weight: 700; color: rgba(255,255,255,0.7); text-shadow: 0 1px 4px rgba(0,0,0,0.6); }
 
 .previewShare { position: absolute; bottom: 10px; right: 10px; width: 36px; height: 36px; border-radius: 50%; background: rgba(0,0,0,0.6); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); display: flex; align-items: center; justify-content: center; cursor: pointer; border: 1px solid rgba(255,255,255,0.2); transition: background 0.15s; }
-.previewShare:hover { background: rgba(245,158,11,0.2); border-color: rgba(245,158,11,0.4); }
+.previewShare:hover { background: rgba(141,198,63,0.2); border-color: rgba(141,198,63,0.4); }
 
 .shareMenu { position: absolute; bottom: 50px; right: 10px; background: rgba(0,0,0,0.85); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); border: 1px solid rgba(255,255,255,0.12); border-radius: 12px; overflow: hidden; z-index: 10; min-width: 150px; }
 .shareItem { display: flex; align-items: center; gap: 8px; padding: 10px 14px; color: rgba(255,255,255,0.7); font-size: 13px; font-weight: 600; text-decoration: none; font-family: inherit; transition: background 0.1s; border-bottom: 1px solid rgba(255,255,255,0.05); }
@@ -229,7 +229,7 @@
 
 .previewLabel { font-size: 11px; font-weight: 600; color: rgba(255,255,255,0.35); }
 .previewPrice { font-weight: 700; color: rgba(255,255,255,0.5); }
-.previewPriceCurrent { font-weight: 900; font-size: 16px; color: #F59E0B; }
+.previewPriceCurrent { font-weight: 900; font-size: 16px; color: #8DC63F; }
 
 /* Product specs below image */
 .previewSpec { display: flex; justify-content: space-between; font-size: 13px; }
@@ -242,10 +242,10 @@
 /* Seller button — orange, disabled during live */
 .previewBtnRow { display: flex; gap: 8px; align-items: center; margin-top: 4px; }
 .previewSellerBtn { flex: 1; padding: 13px; background: rgba(239,68,68,0.15); border: 1.5px solid rgba(239,68,68,0.3); border-radius: 12px; color: #EF4444; font-size: 13px; font-weight: 800; cursor: default; font-family: inherit; }
-.previewSellerBtnActive { flex: 1; padding: 13px; background: #F59E0B; border: none; border-radius: 12px; color: #000; font-size: 14px; font-weight: 900; cursor: pointer; font-family: inherit; box-shadow: 0 4px 12px rgba(245,158,11,0.3); }
+.previewSellerBtnActive { flex: 1; padding: 13px; background: #8DC63F; border: none; border-radius: 12px; color: #000; font-size: 14px; font-weight: 900; cursor: pointer; font-family: inherit; box-shadow: 0 4px 12px rgba(141,198,63,0.3); }
 
 .previewReserveChip { color: #FBBF24 !important; border-color: rgba(251,191,36,0.25) !important; background: rgba(251,191,36,0.08) !important; }
 .previewNoReserveChip { color: #8DC63F !important; border-color: rgba(141,198,63,0.25) !important; background: rgba(141,198,63,0.08) !important; }
 
-.previewCloseBtn { width: 40px; height: 40px; flex-shrink: 0; background: #F59E0B; border: none; border-radius: 50%; color: #000; font-size: 16px; font-weight: 900; cursor: pointer; font-family: inherit; display: flex; align-items: center; justify-content: center; transition: background 0.15s; }
+.previewCloseBtn { width: 40px; height: 40px; flex-shrink: 0; background: #8DC63F; border: none; border-radius: 50%; color: #000; font-size: 16px; font-weight: 900; cursor: pointer; font-family: inherit; display: flex; align-items: center; justify-content: center; transition: background 0.15s; }
 .previewCloseBtn:hover { background: #D97706; }

@@ -27,8 +27,7 @@ export default function RentalCategoryRouter({ open, onClose, onSubmit }) {
   const [selectedCat, setSelectedCat] = useState(null)
   const [editListingData, setEditListingData] = useState(null)
   const [listingMarket, setListingMarket] = useState(null) // 'rental' | 'selling'
-  // DEV/ADMIN: always show owner profile. Production: () => !!localStorage.getItem('indoo_rental_owner')
-  const [ownerDone, setOwnerDone] = useState(false)
+  const [ownerDone, setOwnerDone] = useState(() => !!localStorage.getItem('indoo_rental_owner'))
 
   if (!open) return null
 

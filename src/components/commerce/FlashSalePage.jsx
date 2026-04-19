@@ -64,9 +64,10 @@ export default function FlashSalePage({ open, onClose, allProducts, onOrderViaCh
 
   return createPortal(
     <div className={styles.page}>
+      <div style={{ position: 'fixed', top: 6, left: 6, zIndex: 99990, display: 'flex', alignItems: 'center', gap: 6, pointerEvents: 'none' }}><div style={{ width: 28, height: 28, borderRadius: '50%', background: '#8DC63F', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 11, fontWeight: 900, color: '#000', boxShadow: '0 2px 8px rgba(141,198,63,0.4)' }}>M3</div><span style={{ fontSize: 9, fontWeight: 800, color: 'rgba(141,198,63,0.6)' }}>FLASH SALE</span></div>
       {/* Header — brand logo + close */}
       <div className={styles.header}>
-        <img src={MARKET_LOGO} alt="Indoo Market" className={styles.headerLogo} />
+        <span style={{ fontSize: 16, fontWeight: 900, color: '#fff', letterSpacing: '0.04em' }}>IND<span style={{ color: '#8DC63F' }}>OO</span> <span style={{ fontWeight: 700, fontSize: 12, color: 'rgba(255,255,255,0.5)' }}>MARKET</span> <span style={{ fontWeight: 700, fontSize: 12, color: 'rgba(255,255,255,0.35)' }}>· FLASH SALE</span></span>
         <button className={styles.closeBtn} onClick={onClose}>
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
         </button>

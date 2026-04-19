@@ -51,7 +51,7 @@
   color: rgba(255,255,255,0.45); font-size: 11px; font-weight: 700;
   cursor: pointer; font-family: inherit;
 }
-.tabActive { background: rgba(0,0,0,0.85); border-color: #F59E0B; color: #F59E0B; }
+.tabActive { background: rgba(0,0,0,0.85); border-color: #8DC63F; color: #8DC63F; }
 
 /* List */
 .list {
@@ -59,7 +59,7 @@
   display: flex; flex-direction: column; gap: 10px;
 }
 .list::-webkit-scrollbar { width: 3px; }
-.list::-webkit-scrollbar-thumb { background: rgba(245,158,11,0.2); border-radius: 2px; }
+.list::-webkit-scrollbar-thumb { background: rgba(141,198,63,0.2); border-radius: 2px; }
 
 .empty {
   display: flex; flex-direction: column; align-items: center; gap: 8px;
@@ -75,7 +75,7 @@
 }
 .cardUnreplied {
   background: rgba(0,0,0,0.7); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
-  border-color: rgba(245,158,11,0.15);
+  border-color: rgba(141,198,63,0.15);
 }
 
 .cardHeader { display: flex; align-items: center; gap: 10px; }
@@ -84,23 +84,23 @@
 .buyerName { font-size: 13px; font-weight: 700; color: #fff; }
 .cardDate { font-size: 10px; color: rgba(255,255,255,0.25); flex-shrink: 0; }
 
-.cardProduct { font-size: 11px; color: #F59E0B; font-weight: 600; }
+.cardProduct { font-size: 11px; color: #8DC63F; font-weight: 600; }
 .cardText { font-size: 13px; color: rgba(255,255,255,0.65); line-height: 1.5; margin: 0; }
 
 /* Seller reply box */
 .replyBox {
   padding: 10px 12px;
-  background: rgba(245,158,11,0.06); border: 1px solid rgba(245,158,11,0.15);
-  border-radius: 10px; border-left: 3px solid #F59E0B;
+  background: rgba(141,198,63,0.06); border: 1px solid rgba(141,198,63,0.15);
+  border-radius: 10px; border-left: 3px solid #8DC63F;
 }
-.replyLabel { font-size: 10px; font-weight: 700; color: #F59E0B; display: block; margin-bottom: 4px; }
+.replyLabel { font-size: 10px; font-weight: 700; color: #8DC63F; display: block; margin-bottom: 4px; }
 .replyText { font-size: 12px; color: rgba(255,255,255,0.6); line-height: 1.5; margin: 0; }
 
 /* Reply button */
 .replyBtn {
   align-self: flex-start; padding: 7px 14px;
-  background: rgba(245,158,11,0.1); border: 1px solid rgba(245,158,11,0.3);
-  border-radius: 8px; color: #F59E0B; font-size: 11px; font-weight: 700;
+  background: rgba(141,198,63,0.1); border: 1px solid rgba(141,198,63,0.3);
+  border-radius: 8px; color: #8DC63F; font-size: 11px; font-weight: 700;
   cursor: pointer; font-family: inherit;
 }
 
@@ -112,7 +112,7 @@
   border-radius: 10px; color: #fff; font-size: 13px; font-family: inherit;
   outline: none; resize: none;
 }
-.replyTextarea:focus { border-color: #F59E0B; }
+.replyTextarea:focus { border-color: #8DC63F; }
 .replyTextarea::placeholder { color: rgba(255,255,255,0.25); }
 
 .replyActions { display: flex; gap: 8px; justify-content: flex-end; }
@@ -123,7 +123,7 @@
   cursor: pointer; font-family: inherit;
 }
 .replySubmitBtn {
-  padding: 7px 16px; background: #F59E0B; border: none; border-radius: 8px;
+  padding: 7px 16px; background: #8DC63F; border: none; border-radius: 8px;
   color: #000; font-size: 12px; font-weight: 800;
   cursor: pointer; font-family: inherit;
 }

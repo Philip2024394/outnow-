@@ -26,7 +26,7 @@
   z-index: 0;
 }
 
-.bgInitial { font-size: 80px; font-weight: 900; color: rgba(245,158,11,0.15); }
+.bgInitial { font-size: 80px; font-weight: 900; color: rgba(141,198,63,0.15); }
 
 .bgGrad {
   position: absolute;
@@ -74,7 +74,7 @@
   right: 14px;
   z-index: 20;
   background: #0a0a0a;
-  border: 1.5px solid rgba(245,158,11,0.4);
+  border: 1.5px solid rgba(141,198,63,0.4);
   border-radius: 28px;
   padding: 6px;
   display: flex;
@@ -98,9 +98,9 @@
 }
 
 .sidePanelBtnActive {
-  border-color: #F59E0B;
-  color: #F59E0B;
-  background: rgba(245,158,11,0.12);
+  border-color: #8DC63F;
+  color: #8DC63F;
+  background: rgba(141,198,63,0.12);
 }
 
 /* Bottom overlay */
@@ -126,9 +126,9 @@
   gap: 4px;
   font-size: 11px;
   font-weight: 800;
-  color: #F59E0B;
-  background: rgba(245,158,11,0.12);
-  border: 1px solid rgba(245,158,11,0.3);
+  color: #8DC63F;
+  background: rgba(141,198,63,0.12);
+  border: 1px solid rgba(141,198,63,0.3);
   border-radius: 20px;
   padding: 3px 12px;
   width: fit-content;
@@ -182,7 +182,7 @@
 .tabTitle {
   font-size: 14px;
   font-weight: 800;
-  color: #F59E0B;
+  color: #8DC63F;
   display: block;
   margin-bottom: 6px;
 }
@@ -190,10 +190,10 @@
 .viewAllBtn {
   width: 100%;
   padding: 10px;
-  background: rgba(245,158,11,0.1);
-  border: 1px solid rgba(245,158,11,0.25);
+  background: rgba(141,198,63,0.1);
+  border: 1px solid rgba(141,198,63,0.25);
   border-radius: 8px;
-  color: #F59E0B;
+  color: #8DC63F;
   font-size: 12px;
   font-weight: 800;
   cursor: pointer;
@@ -202,7 +202,7 @@
   transition: background 0.15s;
 }
 
-.viewAllBtn:hover { background: rgba(245,158,11,0.18); }
+.viewAllBtn:hover { background: rgba(141,198,63,0.18); }
 
 .emptyText {
   font-size: 12px;
@@ -228,7 +228,7 @@
 .orderProduct { font-size: 13px; font-weight: 700; color: rgba(255,255,255,0.85); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .orderDate { font-size: 10px; color: rgba(255,255,255,0.3); }
 .orderRight { display: flex; flex-direction: column; align-items: flex-end; gap: 2px; flex-shrink: 0; }
-.orderTotal { font-size: 13px; font-weight: 800; color: #F59E0B; }
+.orderTotal { font-size: 13px; font-weight: 800; color: #8DC63F; }
 .orderStatus { font-size: 10px; font-weight: 700; text-transform: capitalize; }
 
 /* Recently viewed grid */
@@ -274,7 +274,7 @@
 }
 
 .viewedName { font-size: 11px; font-weight: 700; color: rgba(255,255,255,0.75); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.viewedPrice { font-size: 11px; font-weight: 800; color: #F59E0B; }
+.viewedPrice { font-size: 11px; font-weight: 800; color: #8DC63F; }
 
 /* Sections */
 .wishlistSection, .safeTradeSection { display: flex; flex-direction: column; gap: 6px; }

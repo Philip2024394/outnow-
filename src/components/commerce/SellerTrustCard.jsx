@@ -51,7 +51,7 @@ export default function SellerTrustCard({ open, onClose, seller }) {
   if (totalOrders >= 100) badges.push({ label: 'Top Seller', color: '#FFE500', bg: 'rgba(255,229,0,0.1)' })
   if (responseTime && responseTime <= 30) badges.push({ label: 'Fast Responder', color: '#8DC63F', bg: 'rgba(141,198,63,0.08)' })
   if (safeTrade.enabled) badges.push({ label: 'Safe Trade', color: '#60A5FA', bg: 'rgba(96,165,250,0.08)' })
-  if (seller.verified) badges.push({ label: 'Verified', color: '#F59E0B', bg: 'rgba(245,158,11,0.08)' })
+  if (seller.verified) badges.push({ label: 'Verified', color: '#8DC63F', bg: 'rgba(141,198,63,0.08)' })
 
   // Format member since
   let memberText = null

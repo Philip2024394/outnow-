@@ -22,7 +22,7 @@
   background: rgba(10,10,10,0.9);
   backdrop-filter: blur(20px);
   -webkit-backdrop-filter: blur(20px);
-  border-left: 3px solid #F59E0B;
+  border-left: 3px solid #8DC63F;
   display: flex;
   flex-direction: column;
   animation: slideIn 0.25s cubic-bezier(0.32,0.72,0,1) forwards;
@@ -77,8 +77,8 @@
 }
 .content::-webkit-scrollbar { width: 4px; }
 .content::-webkit-scrollbar-track { background: transparent; }
-.content::-webkit-scrollbar-thumb { background: rgba(245,158,11,0.4); border-radius: 2px; }
-.content::-webkit-scrollbar-thumb:hover { background: #F59E0B; }
+.content::-webkit-scrollbar-thumb { background: rgba(141,198,63,0.4); border-radius: 2px; }
+.content::-webkit-scrollbar-thumb:hover { background: #8DC63F; }
 
 /* ── Status card ── */
 .statusCard {
@@ -120,13 +120,13 @@
   width: 32px;
   height: 32px;
   border-radius: 8px;
-  background: rgba(245,158,11,0.1);
-  border: 1px solid rgba(245,158,11,0.2);
+  background: rgba(141,198,63,0.1);
+  border: 1px solid rgba(141,198,63,0.2);
   display: flex;
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
-  color: #F59E0B;
+  color: #8DC63F;
 }
 
 .infoBody {
@@ -196,21 +196,21 @@
   width: 5px;
   height: 5px;
   border-radius: 50%;
-  background: rgba(245,158,11,0.5);
+  background: rgba(141,198,63,0.5);
 }
 
 /* ── Notes ── */
 .notesBlock {
   padding: 14px;
-  background: rgba(245,158,11,0.05);
-  border: 1px solid rgba(245,158,11,0.15);
+  background: rgba(141,198,63,0.05);
+  border: 1px solid rgba(141,198,63,0.15);
   border-radius: 10px;
 }
 
 .notesLabel {
   font-size: 10px;
   font-weight: 700;
-  color: #F59E0B;
+  color: #8DC63F;
   text-transform: uppercase;
   letter-spacing: 0.06em;
   display: block;
@@ -236,7 +236,7 @@
 .termsLink {
   background: none;
   border: none;
-  color: rgba(245,158,11,0.6);
+  color: rgba(141,198,63,0.6);
   font-size: 11px;
   font-weight: 600;
   cursor: pointer;
@@ -249,7 +249,7 @@
   margin-top: auto;
 }
 
-.termsLink:hover { color: #F59E0B; }
+.termsLink:hover { color: #8DC63F; }
 
 /* ── Full Terms & Conditions panel ── */
 .termsPanel {
@@ -345,7 +345,7 @@
 }
 
 .termsList li::marker {
-  color: rgba(245,158,11,0.4);
+  color: rgba(141,198,63,0.4);
 }
 
 .termsFooter {

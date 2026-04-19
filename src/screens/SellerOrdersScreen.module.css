@@ -33,7 +33,7 @@
   color: rgba(255,255,255,0.45); font-size: 12px; font-weight: 700;
   cursor: pointer; font-family: inherit;
 }
-.tabActive { background: rgba(0,0,0,0.85); border-color: #F59E0B; color: #F59E0B; }
+.tabActive { background: rgba(0,0,0,0.85); border-color: #8DC63F; color: #8DC63F; }
 
 /* List */
 .list {
@@ -52,12 +52,12 @@
   cursor: pointer; font-family: inherit; text-align: left; width: 100%;
   transition: border-color 0.15s;
 }
-.card:active { border-color: rgba(245,158,11,0.3); }
+.card:active { border-color: rgba(141,198,63,0.3); }
 .cardThumb { width: 52px; height: 52px; border-radius: 8px; object-fit: cover; flex-shrink: 0; }
 .cardBody { flex: 1; display: flex; flex-direction: column; gap: 2px; min-width: 0; }
 .cardProduct { font-size: 13px; font-weight: 700; color: #fff; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .cardMeta { font-size: 11px; color: rgba(255,255,255,0.4); }
-.cardTotal { font-size: 13px; font-weight: 800; color: #F59E0B; font-family: monospace; }
+.cardTotal { font-size: 13px; font-weight: 800; color: #8DC63F; font-family: monospace; }
 .cardRight { display: flex; flex-direction: column; align-items: flex-end; gap: 6px; flex-shrink: 0; }
 .cardStatus {
   font-size: 10px; font-weight: 700; padding: 3px 10px;
@@ -91,7 +91,7 @@
   font-size: 13px; font-weight: 800; padding: 5px 16px;
   border-radius: 20px; text-transform: capitalize;
 }
-.countdown { font-size: 14px; font-weight: 900; color: #F59E0B; font-family: monospace; }
+.countdown { font-size: 14px; font-weight: 900; color: #8DC63F; font-family: monospace; }
 .countdownUrgent { color: #EF4444; animation: blink 1s infinite; }
 @keyframes blink { 0%,100%{opacity:1} 50%{opacity:0.4} }
 
@@ -100,7 +100,7 @@
   display: flex; flex-direction: column; align-items: flex-end; gap: 2px;
 }
 .paymentTimerLabel { font-size: 9px; color: rgba(255,255,255,0.35); font-weight: 600; }
-.paymentTimerValue { font-size: 13px; font-weight: 900; color: #F59E0B; font-family: monospace; }
+.paymentTimerValue { font-size: 13px; font-weight: 900; color: #8DC63F; font-family: monospace; }
 .timerWarning { color: #FF9500; }
 .timerUrgent { color: #EF4444; animation: blink 1s infinite; }
 .timerExpired { color: #EF4444; opacity: 0.6; }
@@ -117,7 +117,7 @@
 .detailProductInfo { flex: 1; display: flex; flex-direction: column; gap: 4px; }
 .detailProductName { font-size: 15px; font-weight: 700; color: #fff; }
 .detailProductPrice { font-size: 13px; color: rgba(255,255,255,0.5); font-family: monospace; }
-.detailProductTotal { font-size: 16px; font-weight: 900; color: #F59E0B; font-family: monospace; }
+.detailProductTotal { font-size: 16px; font-weight: 900; color: #8DC63F; font-family: monospace; }
 
 /* Section */
 .detailSection {
@@ -125,7 +125,7 @@
   background: rgba(0,0,0,0.7); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
   border: 1.5px solid rgba(255,255,255,0.08); border-radius: 12px;
 }
-.detailSectionTitle { font-size: 12px; font-weight: 800; color: #F59E0B; text-transform: uppercase; letter-spacing: 0.05em; }
+.detailSectionTitle { font-size: 12px; font-weight: 800; color: #8DC63F; text-transform: uppercase; letter-spacing: 0.05em; }
 .detailSectionSub { font-size: 11px; color: rgba(255,255,255,0.35); }
 .detailMeta { font-size: 12px; color: rgba(255,255,255,0.5); }
 
@@ -136,7 +136,7 @@
   border-radius: 10px; cursor: pointer; font-family: inherit;
 }
 .paymentThumb img { width: 48px; height: 64px; object-fit: cover; border-radius: 6px; }
-.paymentThumbLabel { font-size: 12px; color: #F59E0B; font-weight: 600; }
+.paymentThumbLabel { font-size: 12px; color: #8DC63F; font-weight: 600; }
 
 /* Buyer */
 .buyerRow { display: flex; gap: 12px; align-items: center; }
@@ -148,8 +148,8 @@
 
 .chatBtn {
   display: flex; align-items: center; gap: 8px;
-  padding: 10px 16px; background: rgba(245,158,11,0.1); border: 1px solid rgba(245,158,11,0.3);
-  border-radius: 10px; color: #F59E0B; font-size: 13px; font-weight: 700;
+  padding: 10px 16px; background: rgba(141,198,63,0.1); border: 1px solid rgba(141,198,63,0.3);
+  border-radius: 10px; color: #8DC63F; font-size: 13px; font-weight: 700;
   cursor: pointer; font-family: inherit; align-self: flex-start;
 }
 
@@ -161,11 +161,11 @@
   border: 1.5px solid rgba(255,255,255,0.08); border-radius: 10px;
   cursor: pointer; font-family: inherit; transition: all 0.15s;
 }
-.carrierBtnOn { border-color: #F59E0B; background: rgba(245,158,11,0.08); }
+.carrierBtnOn { border-color: #8DC63F; background: rgba(141,198,63,0.08); }
 .carrierLogo { height: 20px; width: auto; object-fit: contain; }
 .carrierEmoji { font-size: 18px; }
 .carrierLabel { font-size: 9px; font-weight: 700; color: rgba(255,255,255,0.5); text-align: center; }
-.carrierBtnOn .carrierLabel { color: #F59E0B; }
+.carrierBtnOn .carrierLabel { color: #8DC63F; }
 
 /* Tracking input */
 .trackingRow { display: flex; gap: 8px; }
@@ -174,7 +174,7 @@
   background: rgba(0,0,0,0.6); border: 1.5px solid rgba(255,255,255,0.1);
   border-radius: 10px; color: #fff; font-size: 13px; font-family: monospace; outline: none;
 }
-.trackingInput:focus { border-color: #F59E0B; }
+.trackingInput:focus { border-color: #8DC63F; }
 .trackingInput::placeholder { color: rgba(255,255,255,0.2); }
 .sendTrackingBtn {
   padding: 10px 16px; background: #8DC63F; border: none; border-radius: 10px;

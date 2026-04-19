@@ -2,7 +2,7 @@
  * RentalSearchScreen — browse rental listings by category.
  * Search bar + category chips + 2-col grid.
  * Tap card → full detail view with WhatsApp CTA.
- * Theme: green #8DC63F
+ * Theme: gold #8DC63F
  */
 import { useState, useEffect } from 'react'
 import {
@@ -19,108 +19,157 @@ import { hasVisitedSection, markSectionVisited } from '@/services/sectionVisitSe
 import PriceCalculator from '@/components/rentals/PriceCalculator'
 import { RentalChat, RentalBookingFlow } from '@/domains/rentals/components/RentalBooking'
 import { ReviewsPopup, getAvgRating } from '@/components/reviews/ReviewSystem'
+import MyBookingsScreen from './MyBookingsScreen'
+import SavedItemsScreen, { saveItem, isItemSaved } from './SavedItemsScreen'
+import MyListingsScreen from './MyListingsScreen'
+import IndooWallet from '@/components/wallet/IndooWallet'
+import RentalCalendar from '@/components/calendar/RentalCalendar'
+import SettingsScreen from './SettingsScreen'
+import MessagesScreen from './MessagesScreen'
+import ProfileScreen2 from './ProfileScreen2'
+import { seedMockData } from '@/utils/mockData'
 import styles from './RentalSearchScreen.module.css'
 
 function RentalDetail({ listing, onClose, onChat, onBook, onReview }) {
+  const [saved, setSaved] = useState(() => isItemSaved(listing?.id))
   if (!listing) return null
 
-  const extraEntries = listing.extra_fields
-    ? Object.entries(listing.extra_fields).filter(([, v]) => v !== null && v !== false && v !== '')
-    : []
+  const fmtK = n => !n ? '—' : n >= 1000000 ? (n/1000000).toFixed(1).replace('.0','') + 'jt' : n >= 1000 ? Math.round(n/1000) + 'k' : n
+
+  const handleSave = () => {
+    if (saved) return
+    saveItem({ id: listing.id, title: listing.title, city: listing.city, price: listing.price_day || listing.buy_now, image: listing.images?.[0], category: listing.category })
+    setSaved(true)
+  }
+
+  const helmetCount = listing.extra_fields?.helmet_count || (listing.features?.some(f => /helm/i.test(f)) ? 1 : 0)
+  const hasRaincoat = listing.features?.some(f => /rain|jas hujan/i.test(f))
+  const hasDropOff = listing.extra_fields?.delivery_available || listing.features?.some(f => /deliver|drop|antar/i.test(f))
 
   return (
-    <div className={styles.detailOverlay}>
-      <div className={styles.detailHeader}>
-        <button className={styles.backBtn} onClick={onClose}>
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-            <polyline points="15 18 9 12 15 6"/>
-          </svg>
-        </button>
-        <span className={styles.detailTitle}>{listing.title}</span>
+    <div style={{ position: 'fixed', inset: 0, zIndex: 9998, display: 'flex', flexDirection: 'column', fontFamily: 'inherit' }}>
+      <PageBadge num="8b" label="Product Detail" />
+
+      {/* Full-bleed background image */}
+      <div style={{ position: 'absolute', inset: 0, zIndex: 0 }}>
+        <img src={listing.images?.[0]} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }} />
+        {/* Bottom gradient for panel readability */}
+        <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, height: '70%', background: 'linear-gradient(transparent, rgba(0,0,0,0.85))', pointerEvents: 'none' }} />
       </div>
 
-      <div className={styles.detailBody}>
-        <img src={listing.images?.[0]} alt="" className={styles.detailImg} />
+      {/* Floating top buttons */}
+      <div style={{ position: 'relative', zIndex: 2, display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '14px 16px' }}>
+        <button onClick={onClose} style={{ width: 40, height: 40, borderRadius: '50%', background: 'rgba(0,0,0,0.4)', backdropFilter: 'blur(8px)', border: 'none', color: '#fff', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+        </button>
+        <button onClick={handleSave} style={{ width: 40, height: 40, borderRadius: '50%', background: 'rgba(0,0,0,0.4)', backdropFilter: 'blur(8px)', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+          <svg width="18" height="18" viewBox="0 0 24 24" fill={saved ? '#EF4444' : 'none'} stroke={saved ? '#EF4444' : '#fff'} strokeWidth="2.5"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+        </button>
+      </div>
 
-        <div className={styles.detailContent}>
-          <div>
-            <div className={styles.detailName}>{listing.title}</div>
-            <div className={styles.detailAddress}>{listing.address} · {listing.city}</div>
-          </div>
-
-          {/* Prices */}
-          <div className={styles.detailPriceRow}>
-            <div className={`${styles.priceBox} ${!listing.price_day ? styles.priceBoxEmpty : ''}`}>
-              <span className={styles.priceBoxVal}>{fmtIDR(listing.price_day)}</span>
-              <span className={styles.priceBoxLabel}>Per Day</span>
-            </div>
-            <div className={`${styles.priceBox} ${!listing.price_week ? styles.priceBoxEmpty : ''}`}>
-              <span className={styles.priceBoxVal}>{fmtIDR(listing.price_week)}</span>
-              <span className={styles.priceBoxLabel}>Per Week</span>
-            </div>
-            <div className={`${styles.priceBox} ${!listing.price_month ? styles.priceBoxEmpty : ''}`}>
-              <span className={styles.priceBoxVal}>{fmtIDR(listing.price_month)}</span>
-              <span className={styles.priceBoxLabel}>Per Month</span>
-            </div>
-          </div>
-
-          {/* Meta badges */}
-          <div className={styles.detailMeta}>
-            <span className={`${styles.metaChip} ${styles.metaCondition}`}>{getConditionLabel(listing.condition)}</span>
-            <span className={`${styles.metaChip} ${styles.metaOwner}`}>{listing.owner_type === 'agent' ? 'Agent' : 'Owner'}</span>
-            <span className={`${styles.metaChip} ${styles.metaCategory}`}>{listing.category} · {listing.sub_category}</span>
-          </div>
-
-          {/* Description */}
-          <div className={styles.detailDesc}>{listing.description}</div>
-
-          {/* Features */}
-          {listing.features?.length > 0 && (
-            <div className={styles.detailSection}>
-              <span className={styles.detailSectionTitle}>Features</span>
-              <div className={styles.featureList}>
-                {listing.features.map((f, i) => (
-                  <span key={i} className={styles.featureChip}>{f}</span>
-                ))}
-              </div>
-            </div>
-          )}
-
-          {/* Extra fields */}
-          {extraEntries.length > 0 && (
-            <div className={styles.detailSection}>
-              <span className={styles.detailSectionTitle}>Specifications</span>
-              <div className={styles.extraGrid}>
-                {extraEntries.map(([k, v]) => (
-                  <div key={k} className={styles.extraItem}>
-                    <span className={styles.extraKey}>{k.replace(/_/g, ' ')}: </span>
-                    {typeof v === 'boolean' ? 'Yes' : String(v)}
-                  </div>
-                ))}
-              </div>
-            </div>
-          )}
+      {/* Floating badges on image */}
+      <div style={{ position: 'relative', zIndex: 2, flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'flex-end', padding: '0 16px 8px' }}>
+        <div style={{ display: 'flex', gap: 8, marginBottom: 8 }}>
+          {listing.rating && <span style={{ padding: '4px 10px', borderRadius: 10, background: 'rgba(0,0,0,0.5)', backdropFilter: 'blur(8px)', fontSize: 12, fontWeight: 800, color: '#FFD700' }}>★ {listing.rating}{listing.review_count ? <span style={{ color: 'rgba(255,255,255,0.4)' }}> ({listing.review_count})</span> : ''}</span>}
+          {listing.extra_fields?.transmission && <span style={{ padding: '4px 10px', borderRadius: 10, background: 'rgba(0,0,0,0.5)', backdropFilter: 'blur(8px)', fontSize: 12, fontWeight: 800, color: '#fff', textTransform: 'capitalize' }}>{listing.extra_fields.transmission === 'matic' ? 'Automatic' : listing.extra_fields.transmission}</span>}
+          <span style={{ padding: '4px 10px', borderRadius: 10, background: 'rgba(0,0,0,0.5)', backdropFilter: 'blur(8px)', fontSize: 12, fontWeight: 800, color: '#8DC63F' }}>{getConditionLabel(listing.condition)}</span>
         </div>
       </div>
 
-      {/* Action buttons */}
-      <div style={{ display: 'flex', gap: 10, padding: '0 16px 8px' }}>
-        <button className={styles.chatBtn} onClick={() => onChat?.(listing)} style={{ flex: 1 }}>
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-            <path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/>
-          </svg>
-          Chat
-        </button>
-        <button onClick={() => onBook?.(listing)} style={{ flex: 1, padding: '14px 0', background: '#FFD700', border: 'none', borderRadius: 14, color: '#000', fontSize: 14, fontWeight: 800, cursor: 'pointer', fontFamily: 'inherit', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6, boxShadow: '0 2px 10px rgba(255,215,0,0.3)' }}>
-          🏍️ Book Now
+      {/* Glass info panel — bottom */}
+      <div style={{
+        position: 'relative', zIndex: 2,
+        background: 'rgba(0,0,0,0.6)', backdropFilter: 'blur(24px)', WebkitBackdropFilter: 'blur(24px)',
+        borderTop: '1.5px solid rgba(141,198,63,0.1)',
+        borderRadius: '24px 24px 0 0',
+        padding: '20px 16px 16px',
+        maxHeight: '55%', overflowY: 'auto',
+      }}>
+        {/* Green glow line */}
+        <div style={{ position: 'absolute', top: 0, left: '10%', right: '10%', height: 1, background: 'linear-gradient(90deg, transparent, rgba(141,198,63,0.3), transparent)', pointerEvents: 'none' }} />
+        {/* Pull indicator */}
+        <div style={{ width: 36, height: 4, borderRadius: 2, background: 'rgba(255,255,255,0.15)', margin: '0 auto 16px' }} />
+
+        {/* Brand + Price row */}
+        <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', marginBottom: 6 }}>
+          <div style={{ flex: 1, minWidth: 0 }}>
+            <div style={{ fontSize: 22, fontWeight: 900, color: '#fff', letterSpacing: '-0.02em' }}>
+              {listing.extra_fields?.brand ? `${listing.extra_fields.brand} ${listing.extra_fields.model || ''}`.trim() : listing.title}
+            </div>
+            <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.35)', fontWeight: 600, marginTop: 3 }}>
+              {listing.extra_fields?.cc
+                ? [listing.extra_fields.cc && `${listing.extra_fields.cc}cc`, listing.extra_fields.year, listing.extra_fields.transmission].filter(Boolean).join(' · ')
+                : listing.category
+              }
+            </div>
+          </div>
+          <div style={{ textAlign: 'right', flexShrink: 0 }}>
+            <div style={{ fontSize: 24, fontWeight: 900, color: '#8DC63F', fontFamily: 'monospace' }}>{fmtK(listing.price_day)}</div>
+            <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.3)', fontWeight: 600 }}>/day</div>
+          </div>
+        </div>
+
+        {/* Location */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: 5, marginBottom: 14 }}>
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="#EF4444" stroke="none"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5a2.5 2.5 0 010-5 2.5 2.5 0 010 5z"/></svg>
+          <span style={{ fontSize: 12, color: 'rgba(255,255,255,0.4)', fontWeight: 600 }}>{listing.city || 'Indonesia'}</span>
+        </div>
+
+        {/* Includes row — helmets, raincoat, drop off */}
+        {(helmetCount > 0 || hasRaincoat || hasDropOff) && (
+          <div style={{ display: 'flex', alignItems: 'center', gap: 14, marginBottom: 14, padding: '10px 12px', background: 'rgba(141,198,63,0.04)', borderRadius: 12, border: '1px solid rgba(141,198,63,0.1)' }}>
+            {helmetCount > 0 && <span style={{ display: 'flex', alignItems: 'center', gap: 4, fontSize: 12, fontWeight: 700, color: 'rgba(255,255,255,0.5)' }}><img src="https://ik.imagekit.io/nepgaxllc/Untitleddsdssss-removebg-preview.png" alt="" style={{ width: 16, height: 16, objectFit: 'contain' }} />x{helmetCount}</span>}
+            {hasRaincoat && <span style={{ display: 'flex', alignItems: 'center', gap: 4, fontSize: 12, fontWeight: 700, color: 'rgba(255,255,255,0.5)' }}><img src="https://ik.imagekit.io/nepgaxllc/Untitleddsdssssdd-removebg-preview.png" alt="" style={{ width: 16, height: 16, objectFit: 'contain' }} />x1</span>}
+            {hasDropOff && <span style={{ display: 'flex', alignItems: 'center', gap: 4, fontSize: 12, fontWeight: 700, color: 'rgba(255,255,255,0.5)' }}><img src="https://ik.imagekit.io/nepgaxllc/Untitleddsdssssddss-removebg-preview.png" alt="" style={{ width: 22, height: 22, objectFit: 'contain' }} />Drop off</span>}
+          </div>
+        )}
+
+        {/* Price grid */}
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 8, marginBottom: 14 }}>
+          {[
+            { label: 'DAY', price: listing.price_day },
+            { label: 'WEEK', price: listing.price_week },
+            { label: 'MONTH', price: listing.price_month },
+          ].map((p, i) => (
+            <div key={i} style={{ padding: '10px 6px', background: 'rgba(0,0,0,0.3)', border: '1px solid rgba(141,198,63,0.1)', borderRadius: 12, textAlign: 'center' }}>
+              <div style={{ fontSize: 9, fontWeight: 700, color: 'rgba(255,255,255,0.3)', letterSpacing: '0.05em', marginBottom: 3 }}>{p.label}</div>
+              <div style={{ fontSize: 15, fontWeight: 900, color: p.price ? '#8DC63F' : 'rgba(255,255,255,0.15)' }}>{p.price ? fmtK(p.price) : '—'}</div>
+            </div>
+          ))}
+        </div>
+
+        {/* Description */}
+        {listing.description && (
+          <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.4)', lineHeight: 1.6, marginBottom: 14 }}>
+            {listing.description}
+          </div>
+        )}
+
+        {/* Features */}
+        {listing.features?.length > 0 && (
+          <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6, marginBottom: 14 }}>
+            {listing.features.map((f, i) => (
+              <span key={i} style={{ padding: '4px 10px', borderRadius: 8, background: 'rgba(141,198,63,0.06)', border: '1px solid rgba(141,198,63,0.12)', fontSize: 11, fontWeight: 700, color: 'rgba(255,255,255,0.45)' }}>{f}</span>
+            ))}
+          </div>
+        )}
+
+        {/* Action buttons */}
+        <div style={{ display: 'flex', gap: 10, marginBottom: 8 }}>
+          <button onClick={() => onChat?.(listing)} style={{ flex: 1, padding: '14px 0', borderRadius: 14, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)', color: '#fff', fontSize: 14, fontWeight: 800, cursor: 'pointer', fontFamily: 'inherit', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6 }}>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>
+            Chat
+          </button>
+          <button onClick={() => onBook?.(listing)} style={{ flex: 1, padding: '14px 0', borderRadius: 14, background: '#8DC63F', border: 'none', color: '#000', fontSize: 14, fontWeight: 900, cursor: 'pointer', fontFamily: 'inherit', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6, boxShadow: '0 4px 20px rgba(141,198,63,0.3)' }}>
+            🔑 Book Now
+          </button>
+        </div>
+
+        {/* Reviews */}
+        <button onClick={() => onReview?.(listing)} style={{ width: '100%', padding: '12px 0', borderRadius: 14, background: 'rgba(255,215,0,0.04)', border: '1px solid rgba(255,215,0,0.12)', color: '#FFD700', fontSize: 13, fontWeight: 800, cursor: 'pointer', fontFamily: 'inherit', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6 }}>
+          ⭐ Reviews ({listing.review_count || 0})
         </button>
       </div>
-      <span className={styles.commissionNote}>Rentals & Sales · Indoo Done Deal</span>
-
-      {/* Reviews button */}
-      <button onClick={() => onReview?.(listing)} style={{ width: 'calc(100% - 32px)', margin: '8px 16px', padding: '12px 0', borderRadius: 14, background: 'rgba(255,215,0,0.06)', border: '1px solid rgba(255,215,0,0.15)', color: '#FFD700', fontSize: 13, fontWeight: 800, cursor: 'pointer', fontFamily: 'inherit', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6 }}>
-        ⭐ Reviews ({listing.review_count || 0})
-      </button>
     </div>
   )
 }
@@ -132,13 +181,13 @@ function RentalLanding({ onEnter, onClose, onDashboard, onSignUp }) {
     <div className={styles.landing}>
       {/* Floating side nav — right edge */}
       <div className={styles.floatNav}>
-        <button className={styles.floatNavBtn} onClick={onClose}>
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
-          <span>Home</span>
+        <button className={styles.floatNavBtn} onClick={onClose} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 2 }}>
+          <img src="https://ik.imagekit.io/nepgaxllc/Untitledsssaa-removebg-preview.png" alt="" style={{ width: 40, height: 40, objectFit: 'contain' }} />
+          <span style={{ fontSize: 8, fontWeight: 800, letterSpacing: '0.03em' }}>Home</span>
         </button>
-        <button className={`${styles.floatNavBtn} ${styles.floatNavBtnAccent}`} onClick={onSignUp}>
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="8.5" cy="7" r="4"/><line x1="20" y1="8" x2="20" y2="14"/><line x1="23" y1="11" x2="17" y2="11"/></svg>
-          <span>Sign Up</span>
+        <button className={`${styles.floatNavBtn} ${styles.floatNavBtnAccent}`} onClick={onSignUp} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 2 }}>
+          <img src="https://ik.imagekit.io/nepgaxllc/Untitledsssaaddd-removebg-preview.png" alt="" style={{ width: 40, height: 40, objectFit: 'contain' }} />
+          <span style={{ fontSize: 8, fontWeight: 800, letterSpacing: '0.03em' }}>Profile</span>
         </button>
       </div>
 
@@ -389,6 +438,16 @@ function RentalCategories({ onSelect, onBack, onDashboard }) {
   )
 }
 
+// DEV: Page number badge for easy reference
+function PageBadge({ num, label }) {
+  return (
+    <div style={{ position: 'fixed', top: 6, left: 6, zIndex: 99990, display: 'flex', alignItems: 'center', gap: 6, pointerEvents: 'none' }}>
+      <div style={{ width: 28, height: 28, borderRadius: '50%', background: '#8DC63F', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 12, fontWeight: 900, color: '#000', boxShadow: '0 2px 8px rgba(141,198,63,0.4)' }}>{num}</div>
+      <span style={{ fontSize: 9, fontWeight: 800, color: 'rgba(141,198,63,0.6)', letterSpacing: '0.03em', textTransform: 'uppercase' }}>{label}</span>
+    </div>
+  )
+}
+
 export default function RentalSearchScreen({ onClose }) {
   usePreloadImages()
   const [view, setView] = useState('landing')
@@ -407,12 +466,30 @@ export default function RentalSearchScreen({ onClose }) {
   const [bookingListing, setBookingListing] = useState(null)
   const [showFilter, setShowFilter] = useState(false)
   const [priceSort, setPriceSort] = useState('')
+  const [filterCity, setFilterCity] = useState('')
+  const [filterCondition, setFilterCondition] = useState('')
+  const [filterPriceMin, setFilterPriceMin] = useState('')
+  const [filterPriceMax, setFilterPriceMax] = useState('')
+  const [filterHeroFlipped, setFilterHeroFlipped] = useState(false)
+  const [filterPreviewIdx, setFilterPreviewIdx] = useState(0)
   const [cardImgIdx, setCardImgIdx] = useState({})
   const [flippedCards, setFlippedCards] = useState({})
   const [listingMode, setListingMode] = useState('all') // 'all' | 'rent' | 'sale'
   const [reviewListing, setReviewListing] = useState(null)
   const [showUserDrawer, setShowUserDrawer] = useState(false)
   const [pendingAction, setPendingAction] = useState(null) // { type: 'book'|'chat', listing }
+  const [showMyBookings, setShowMyBookings] = useState(false)
+  const [showSavedItems, setShowSavedItems] = useState(false)
+  const [showMyListings, setShowMyListings] = useState(false)
+  const [showWallet, setShowWallet] = useState(false)
+  const [showCalendar, setShowCalendar] = useState(false)
+  const [showSettings, setShowSettings] = useState(false)
+  const [showMessages, setShowMessages] = useState(false)
+  const [showProfile, setShowProfile] = useState(false)
+  const [savedToggle, setSavedToggle] = useState(0) // force re-render on save
+
+  // Seed mock/demo data on first mount (version-gated inside seedMockData)
+  useEffect(() => { seedMockData() }, [])
 
   // Check if user has account before allowing book/chat
   const hasAccount = () => {
@@ -428,13 +505,18 @@ export default function RentalSearchScreen({ onClose }) {
     }
   }
 
-  // Merge demo listings with owner-published live listings
+  // Merge demo listings with owner-published live listings (all categories)
+  const ALL_LISTING_KEYS = ['indoo_my_listings', 'indoo_my_car_listings', 'indoo_my_truck_listings', 'indoo_my_bus_listings', 'indoo_event_listings', 'indoo_my_property_listings', 'indoo_my_bicycle_listings']
   const ownerListings = (() => {
     try {
-      return JSON.parse(localStorage.getItem('indoo_my_listings') || '[]')
+      const allRaw = []
+      for (const key of ALL_LISTING_KEYS) {
+        try { allRaw.push(...JSON.parse(localStorage.getItem(key) || '[]')) } catch {}
+      }
+      return allRaw
         .filter(l => l.status === 'live')
         .map(l => ({
-          id: l.ref,
+          id: l.ref || l.id,
           title: l.title,
           description: l.description || '',
           category: l.category || 'Motorcycles',
@@ -447,11 +529,13 @@ export default function RentalSearchScreen({ onClose }) {
           status: 'active',
           owner_type: 'owner',
           images: l.images || (l.image ? [l.image] : []),
-          features: [l.extra_fields?.cc && `${l.extra_fields.cc}cc`, l.extra_fields?.transmission, l.extra_fields?.fuelType].filter(Boolean),
-          rating: (4 + Math.random()).toFixed(1),
-          review_count: Math.floor(Math.random() * 20),
+          features: l.features?.length ? l.features : [l.extra_fields?.cc && `${l.extra_fields.cc}cc`, l.extra_fields?.transmission, l.extra_fields?.fuelType].filter(Boolean),
+          rating: l.rating || (4 + Math.random()).toFixed(1),
+          review_count: l.review_count || Math.floor(Math.random() * 20),
           view_count: Math.floor(Math.random() * 200) + 10,
+          ref: l.ref || l.id,
           extra_fields: l.extra_fields,
+          buy_now: l.buy_now || null,
           isOwnerListing: true,
         }))
     } catch { return [] }
@@ -525,13 +609,15 @@ export default function RentalSearchScreen({ onClose }) {
 
   if (view === 'landing') {
     return <div>
+      <PageBadge num={1} label="Landing" />
       <RentalLanding onEnter={() => { markSectionVisited('rentals'); setView('categories') }} onClose={onClose} onDashboard={() => { markSectionVisited('rentals'); setDashboardOpen(true) }} onSignUp={() => setRentalSignUpOpen(true)} />
       {modals}
     </div>
   }
 
   if (view === 'categories') {
-    return (
+    return (<>
+      <PageBadge num={2} label="Categories" />
       <RentalCategories
         onSelect={(c) => {
           if (c.id === 'Vehicles') { setView('vehicles'); return }
@@ -543,11 +629,12 @@ export default function RentalSearchScreen({ onClose }) {
         onBack={() => setView('landing')}
         onDashboard={() => setDashboardOpen(true)}
       />
-    )
+    </>)
   }
 
   if (view === 'vehicles') {
-    return (
+    return (<>
+      <PageBadge num={3} label="Vehicles" />
       <SubCategoryLanding
         bg={VEHICLES_BG}
         title="Vehicles"
@@ -561,21 +648,23 @@ export default function RentalSearchScreen({ onClose }) {
         onSelect={(type) => { setVehicleType(type); setView('vehicleDir') }}
         onBack={() => setView('categories')}
       />
-    )
+    </>)
   }
 
   if (view === 'vehicleDir' && vehicleType) {
-    return (
+    return (<>
+      <PageBadge num={4} label="Directory" />
       <VehicleDirectory
         vehicleType={vehicleType}
         onSelectModel={(model) => { setSelectedModel(model); setActiveFilter([vehicleType]); setSearch(model.name.split(' ')[0]); setView('browse') }}
         onBack={() => setView('vehicles')}
       />
-    )
+    </>)
   }
 
   if (view === 'property') {
-    return (
+    return (<>
+      <PageBadge num={5} label="Property" />
       <SubCategoryLanding
         bg={PROPERTY_BG}
         title="Rent Property"
@@ -589,11 +678,12 @@ export default function RentalSearchScreen({ onClose }) {
         onSelect={(type) => { setActiveFilter([type]); setView('browse') }}
         onBack={() => setView('categories')}
       />
-    )
+    </>)
   }
 
   if (view === 'equipment') {
-    return (
+    return (<>
+      <PageBadge num={6} label="Equipment" />
       <SubCategoryLanding
         bg={EQUIPMENT_BG}
         title="Rent Equipment"
@@ -606,11 +696,12 @@ export default function RentalSearchScreen({ onClose }) {
         onSelect={(type) => { setActiveFilter([type, 'Electronics', 'Audio & Sound', 'Party & Event']); setView('browse') }}
         onBack={() => setView('categories')}
       />
-    )
+    </>)
   }
 
   if (view === 'fashion') {
-    return (
+    return (<>
+      <PageBadge num={7} label="Fashion" />
       <SubCategoryLanding
         bg={FASHION_BG}
         title="Rent Fashion"
@@ -622,82 +713,309 @@ export default function RentalSearchScreen({ onClose }) {
         onSelect={(type) => { setActiveFilter([type, 'Fashion']); setView('browse') }}
         onBack={() => setView('categories')}
       />
-    )
+    </>)
   }
 
   let sortedListings = [...listings]
+  // Apply advanced filters
+  if (filterCity) sortedListings = sortedListings.filter(l => l.city?.toLowerCase().includes(filterCity.toLowerCase()))
+  if (filterCondition) sortedListings = sortedListings.filter(l => (l.condition || '').toLowerCase().includes(filterCondition.toLowerCase()))
+  if (filterPriceMin) sortedListings = sortedListings.filter(l => (l.price_day || l.buy_now || 0) >= Number(filterPriceMin))
+  if (filterPriceMax) sortedListings = sortedListings.filter(l => (l.price_day || l.buy_now || 0) <= Number(filterPriceMax))
   if (priceSort === 'low') sortedListings.sort((a, b) => (a.price_day || 0) - (b.price_day || 0))
   if (priceSort === 'high') sortedListings.sort((a, b) => (b.price_day || 0) - (a.price_day || 0))
 
   return (
-    <div className={styles.page}>
+    <div className={styles.page} style={vehicleType === 'Cars' ? { backgroundImage: "url('https://ik.imagekit.io/nepgaxllc/ChatGPT%20Image%20Apr%2019,%202026,%2011_05_34%20PM.png')" } : undefined}>
       {/* Header — market title + search bar + filter */}
       <div style={{ padding: '14px 14px 0', flexShrink: 0 }}>
         <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
-          <span style={{ fontSize: 19, fontWeight: 900, color: '#fff', flex: 1, cursor: 'pointer', letterSpacing: '-0.02em' }} onClick={() => { if (vehicleType) { setView('vehicleDir'); return } setView('categories') }}>
-            {vehicleType === 'Motorcycles' ? 'Bike ' : vehicleType === 'Cars' ? 'Car ' : vehicleType === 'Trucks' ? 'Truck ' : vehicleType === 'Buses' ? 'Bus ' : ''}<span style={{ color: '#8DC63F' }}>Market</span>
-          </span>
-          <button onClick={() => setShowFilter(!showFilter)} style={{ width: 36, height: 36, borderRadius: 12, background: '#8DC63F', border: 'none', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', flexShrink: 0, color: '#000', boxShadow: '0 2px 8px rgba(141,198,63,0.3)' }}>
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="4" y1="21" x2="4" y2="14"/><line x1="4" y1="10" x2="4" y2="3"/><line x1="12" y1="21" x2="12" y2="12"/><line x1="12" y1="8" x2="12" y2="3"/><line x1="20" y1="21" x2="20" y2="16"/><line x1="20" y1="12" x2="20" y2="3"/><line x1="1" y1="14" x2="7" y2="14"/><line x1="9" y1="8" x2="15" y2="8"/><line x1="17" y1="16" x2="23" y2="16"/></svg>
+          <div style={{ flex: 1, cursor: 'pointer' }} onClick={() => { if (vehicleType) { setView('vehicleDir'); return } setView('categories') }}>
+            <span style={{ fontSize: 38, fontWeight: 900, color: '#fff', letterSpacing: '-0.02em', display: 'block' }}>
+              {vehicleType === 'Motorcycles' ? 'Bike ' : vehicleType === 'Cars' ? 'Car ' : vehicleType === 'Trucks' ? 'Truck ' : vehicleType === 'Buses' ? 'Bus ' : ''}<span style={{ color: '#8DC63F' }}>Market</span>
+            </span>
+            <span style={{ fontSize: 11, fontWeight: 600, color: 'rgba(255,255,255,0.35)', letterSpacing: '0.04em', marginTop: 2, display: 'block' }}>Indonesia's Largest Marketplace · Buy · Sell · Rentals</span>
+          </div>
+          <button onClick={() => setShowFilter(true)} style={{ width: 40, height: 40, borderRadius: '50%', background: '#8DC63F', border: 'none', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', flexShrink: 0, boxShadow: '0 2px 10px rgba(141,198,63,0.3)' }}>
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="#000" stroke="none"><path d="M3 4h18v2H3zm3 5h12v2H6zm3 5h6v2H9z"/></svg>
           </button>
         </div>
 
-        {/* Filter panel */}
-        {showFilter && (
-          <div style={{ display: 'flex', gap: 6, padding: '10px 0 4px', overflowX: 'auto', scrollbarWidth: 'none' }}>
-            {[
-              { id: '', label: 'All' },
-              { id: 'low', label: 'Price: Low → High' },
-              { id: 'high', label: 'Price: High → Low' },
-            ].map(f => (
-              <button key={f.id} onClick={() => setPriceSort(f.id)} style={{ padding: '6px 14px', borderRadius: 10, background: priceSort === f.id ? '#8DC63F' : 'rgba(255,255,255,0.04)', border: priceSort === f.id ? 'none' : '1px solid rgba(255,255,255,0.06)', color: priceSort === f.id ? '#000' : 'rgba(255,255,255,0.4)', fontSize: 11, fontWeight: 700, cursor: 'pointer', fontFamily: 'inherit', whiteSpace: 'nowrap', flexShrink: 0 }}>
-                {f.label}
-              </button>
-            ))}
-            {RENTAL_CATEGORIES.filter(c => c.id !== 'all').map(c => (
-              <button key={c.id} onClick={() => { setCategory(category === c.id ? 'all' : c.id); setSearch('') }} style={{ padding: '6px 14px', borderRadius: 10, background: category === c.id ? 'rgba(141,198,63,0.12)' : 'rgba(255,255,255,0.04)', border: category === c.id ? '1px solid rgba(141,198,63,0.3)' : '1px solid rgba(255,255,255,0.06)', color: category === c.id ? '#8DC63F' : 'rgba(255,255,255,0.35)', fontSize: 11, fontWeight: 700, cursor: 'pointer', fontFamily: 'inherit', whiteSpace: 'nowrap', flexShrink: 0 }}>
-                {c.emoji} {c.label}
-              </button>
-            ))}
-          </div>
-        )}
+        {/* Filter overlay — full screen with flip hero + filter fields */}
+        {showFilter && (() => {
+          const previewListing = sortedListings[filterPreviewIdx % Math.max(sortedListings.length, 1)] || sortedListings[0]
+          const previewImgs = previewListing?.images?.length ? previewListing.images : [previewListing?.image || '']
+          const hasActiveFilters = filterCity || filterCondition || filterPriceMin || filterPriceMax || priceSort || category !== 'all'
+          const activeCount = [filterCity, filterCondition, filterPriceMin, filterPriceMax, priceSort, category !== 'all' ? category : ''].filter(Boolean).length
+          const fmtK = n => n >= 1000000 ? (n/1000000).toFixed(1).replace('.0','') + 'jt' : n >= 1000 ? Math.round(n/1000) + 'k' : n
 
-        {/* Results count */}
-        <div style={{ padding: '6px 0 4px' }}>
-          <span style={{ fontSize: 10, color: 'rgba(255,255,255,0.2)', fontWeight: 600 }}>
-            {sortedListings.filter(l => listingMode === 'sale' ? !!l.buy_now : listingMode === 'rent' ? !l.buy_now : true).length} {listingMode === 'sale' ? 'for sale' : listingMode === 'rent' ? 'for rent' : 'available'}
-          </span>
-        </div>
+          return (
+          <div style={{ position: 'fixed', inset: 0, zIndex: 9990, background: 'linear-gradient(180deg, #0a0a0c 0%, #0d0d0f 40%, #0a0a0c 100%)', display: 'flex', flexDirection: 'column', fontFamily: 'inherit' }}>
+            <PageBadge num="8a" label="Filter" />
+            <style>{`@keyframes filterFlip { from { transform: rotateY(0) } to { transform: rotateY(180deg) } } @keyframes filterSlideUp { from { transform: translateY(30px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }`}</style>
+
+            {/* Header */}
+            <div style={{ padding: '14px 16px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexShrink: 0, position: 'relative' }}>
+              <div style={{ position: 'absolute', top: 0, left: '10%', right: '10%', height: 1, background: 'linear-gradient(90deg, transparent, rgba(141,198,63,0.3), transparent)' }} />
+              <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                <span style={{ fontSize: 18 }}>🔍</span>
+                <span style={{ fontSize: 16, fontWeight: 900, color: '#fff' }}>Filter & Search</span>
+                {activeCount > 0 && <span style={{ padding: '2px 8px', borderRadius: 10, background: '#8DC63F', fontSize: 10, fontWeight: 900, color: '#000' }}>{activeCount}</span>}
+              </div>
+              <button onClick={() => setShowFilter(false)} style={{ width: 32, height: 32, borderRadius: '50%', background: '#8DC63F', border: 'none', color: '#000', fontSize: 13, fontWeight: 900, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>✕</button>
+            </div>
+
+            <div style={{ flex: 1, overflowY: 'auto', padding: '0 16px 20px' }}>
+
+              {/* ═══ HERO FLIP CARD — preview listing ═══ */}
+              {previewListing && (
+                <div style={{ perspective: 1000, marginBottom: 16, animation: 'filterSlideUp 0.3s ease' }}>
+                  <div style={{
+                    position: 'relative', width: '100%', minHeight: 200,
+                    transition: 'transform 0.6s cubic-bezier(0.4,0,0.2,1)',
+                    transformStyle: 'preserve-3d',
+                    transform: filterHeroFlipped ? 'rotateY(180deg)' : 'rotateY(0)',
+                  }}>
+                    {/* ── FRONT: Image ── */}
+                    <div style={{
+                      backfaceVisibility: 'hidden', WebkitBackfaceVisibility: 'hidden',
+                      width: '100%', borderRadius: 20, overflow: 'hidden',
+                      background: 'rgba(0,0,0,0.5)', backdropFilter: 'blur(16px)',
+                      border: '1.5px solid rgba(141,198,63,0.12)',
+                      boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.04), 0 8px 32px rgba(0,0,0,0.4)',
+                      position: filterHeroFlipped ? 'absolute' : 'relative', inset: 0,
+                    }}>
+                      <div style={{ position: 'absolute', top: 0, left: '10%', right: '10%', height: 1, background: 'linear-gradient(90deg, transparent, rgba(141,198,63,0.2), transparent)', zIndex: 2 }} />
+                      <div style={{ position: 'relative', width: '100%', aspectRatio: '16/9', overflow: 'hidden' }}>
+                        <img src={previewImgs[0]} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                        <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, height: '50%', background: 'linear-gradient(transparent, rgba(0,0,0,0.8))', pointerEvents: 'none' }} />
+
+                        {/* Badges */}
+                        {!previewListing.buy_now && <div style={{ position: 'absolute', top: 10, left: 10, padding: '4px 10px', background: '#8DC63F', borderRadius: 8, fontSize: 9, fontWeight: 900, color: '#000', zIndex: 3 }}>FOR RENT</div>}
+                        {previewListing.buy_now && <div style={{ position: 'absolute', top: 10, left: 10, padding: '4px 10px', background: '#FFD700', borderRadius: 8, fontSize: 9, fontWeight: 900, color: '#000', zIndex: 3 }}>FOR SALE</div>}
+
+                        {/* Title overlay */}
+                        <div style={{ position: 'absolute', bottom: 10, left: 12, right: 60, zIndex: 3 }}>
+                          <div style={{ fontSize: 15, fontWeight: 900, color: '#fff', textShadow: '0 1px 4px rgba(0,0,0,0.5)' }}>{previewListing.title}</div>
+                          <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.5)', fontWeight: 600, marginTop: 2 }}>{previewListing.city}</div>
+                        </div>
+
+                        {/* Price badge */}
+                        <div style={{ position: 'absolute', bottom: 10, right: 10, padding: '6px 12px', background: 'rgba(0,0,0,0.6)', backdropFilter: 'blur(8px)', borderRadius: 10, border: '1px solid rgba(141,198,63,0.2)', zIndex: 3 }}>
+                          <span style={{ fontSize: 14, fontWeight: 900, color: '#8DC63F' }}>Rp {fmtK(previewListing.price_day || previewListing.buy_now || 0)}</span>
+                          {previewListing.price_day && <span style={{ fontSize: 9, color: 'rgba(255,255,255,0.3)', fontWeight: 600 }}>/day</span>}
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* ── BACK: Details/Specs ── */}
+                    <div style={{
+                      backfaceVisibility: 'hidden', WebkitBackfaceVisibility: 'hidden',
+                      transform: 'rotateY(180deg)',
+                      width: '100%', borderRadius: 20, overflow: 'hidden',
+                      background: 'rgba(0,0,0,0.7)', backdropFilter: 'blur(20px)',
+                      border: '1.5px solid rgba(141,198,63,0.12)',
+                      boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.04), 0 8px 32px rgba(0,0,0,0.4)',
+                      position: 'absolute', inset: 0, padding: '16px',
+                    }}>
+                      <div style={{ position: 'absolute', top: 0, left: '10%', right: '10%', height: 1, background: 'linear-gradient(90deg, transparent, rgba(141,198,63,0.2), transparent)' }} />
+
+                      <div style={{ fontSize: 15, fontWeight: 900, color: '#fff', marginBottom: 8 }}>{previewListing.title}</div>
+                      <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.3)', marginBottom: 12 }}>{previewListing.city} · {previewListing.category}</div>
+
+                      {/* Prices grid */}
+                      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 8, marginBottom: 12 }}>
+                        {[
+                          { label: 'Day', val: previewListing.price_day },
+                          { label: 'Week', val: previewListing.price_week },
+                          { label: 'Month', val: previewListing.price_month },
+                        ].map(p => (
+                          <div key={p.label} style={{ padding: '8px 6px', background: 'rgba(141,198,63,0.06)', borderRadius: 10, border: '1px solid rgba(141,198,63,0.1)', textAlign: 'center' }}>
+                            <div style={{ fontSize: 13, fontWeight: 900, color: p.val ? '#8DC63F' : 'rgba(255,255,255,0.15)' }}>{p.val ? `Rp ${fmtK(p.val)}` : '—'}</div>
+                            <div style={{ fontSize: 8, color: 'rgba(255,255,255,0.25)', fontWeight: 700, marginTop: 2 }}>{p.label}</div>
+                          </div>
+                        ))}
+                      </div>
+
+                      {/* Specs from extra_fields */}
+                      {previewListing.extra_fields && (
+                        <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6, marginBottom: 10 }}>
+                          {Object.entries(previewListing.extra_fields).filter(([,v]) => v && v !== false).slice(0, 6).map(([k,v]) => (
+                            <span key={k} style={{ padding: '3px 8px', borderRadius: 6, background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)', fontSize: 9, fontWeight: 700, color: 'rgba(255,255,255,0.4)' }}>
+                              {typeof v === 'boolean' ? k.replace(/_/g, ' ') : `${k.replace(/_/g, ' ')}: ${v}`}
+                            </span>
+                          ))}
+                        </div>
+                      )}
+
+                      {/* Features */}
+                      {previewListing.features?.length > 0 && (
+                        <div style={{ display: 'flex', flexWrap: 'wrap', gap: 4 }}>
+                          {previewListing.features.slice(0, 5).map((f, i) => (
+                            <span key={i} style={{ padding: '3px 8px', borderRadius: 6, background: 'rgba(141,198,63,0.06)', border: '1px solid rgba(141,198,63,0.12)', fontSize: 9, fontWeight: 700, color: '#8DC63F' }}>{f}</span>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                  </div>
+
+                  {/* Flip + nav buttons */}
+                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 12, marginTop: 12 }}>
+                    <button onClick={() => setFilterPreviewIdx(p => Math.max(0, p - 1))} style={{ width: 34, height: 34, borderRadius: '50%', background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)', color: 'rgba(255,255,255,0.4)', fontSize: 14, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><polyline points="15 18 9 12 15 6"/></svg>
+                    </button>
+                    <button onClick={() => setFilterHeroFlipped(p => !p)} style={{ width: 48, height: 48, borderRadius: '50%', background: 'rgba(0,0,0,0.6)', backdropFilter: 'blur(12px)', border: '2px solid rgba(141,198,63,0.2)', color: '#8DC63F', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 4px 16px rgba(0,0,0,0.4)' }}>
+                      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M16 3h5v5"/><path d="M8 3H3v5"/><path d="M21 3l-7 7"/><path d="M3 3l7 7"/><path d="M16 21h5v-5"/><path d="M8 21H3v-5"/><path d="M21 21l-7-7"/><path d="M3 21l7-7"/></svg>
+                    </button>
+                    <button onClick={() => setFilterPreviewIdx(p => p + 1)} style={{ width: 34, height: 34, borderRadius: '50%', background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)', color: 'rgba(255,255,255,0.4)', fontSize: 14, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><polyline points="9 18 15 12 9 6"/></svg>
+                    </button>
+                  </div>
+                  <div style={{ textAlign: 'center', marginTop: 6 }}>
+                    <span style={{ fontSize: 9, color: 'rgba(255,255,255,0.15)', fontWeight: 600 }}>Flip to view details · Swipe to browse</span>
+                  </div>
+                </div>
+              )}
+
+              {/* ═══ FILTER FIELDS ═══ */}
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 12, animation: 'filterSlideUp 0.4s ease 0.1s both' }}>
+
+                {/* Sort */}
+                <div style={{ padding: '14px', background: 'rgba(0,0,0,0.4)', backdropFilter: 'blur(12px)', border: '1.5px solid rgba(141,198,63,0.08)', borderRadius: 16, boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.04), 0 4px 16px rgba(0,0,0,0.3)' }}>
+                  <div style={{ fontSize: 10, fontWeight: 800, color: 'rgba(141,198,63,0.6)', letterSpacing: '0.05em', marginBottom: 8, textTransform: 'uppercase' }}>Sort By</div>
+                  <div style={{ display: 'flex', gap: 6 }}>
+                    {[
+                      { id: '', label: 'Default' },
+                      { id: 'low', label: 'Price Low' },
+                      { id: 'high', label: 'Price High' },
+                    ].map(f => (
+                      <button key={f.id} onClick={() => setPriceSort(f.id)} style={{
+                        flex: 1, padding: '10px 0', borderRadius: 10, border: 'none', cursor: 'pointer', fontFamily: 'inherit',
+                        background: priceSort === f.id ? '#8DC63F' : 'rgba(255,255,255,0.04)',
+                        color: priceSort === f.id ? '#000' : 'rgba(255,255,255,0.4)',
+                        fontSize: 11, fontWeight: 800,
+                        boxShadow: priceSort === f.id ? '0 2px 10px rgba(141,198,63,0.3)' : 'none',
+                      }}>{f.label}</button>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Category */}
+                <div style={{ padding: '14px', background: 'rgba(0,0,0,0.4)', backdropFilter: 'blur(12px)', border: '1.5px solid rgba(141,198,63,0.08)', borderRadius: 16, boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.04), 0 4px 16px rgba(0,0,0,0.3)' }}>
+                  <div style={{ fontSize: 10, fontWeight: 800, color: 'rgba(141,198,63,0.6)', letterSpacing: '0.05em', marginBottom: 8, textTransform: 'uppercase' }}>Category</div>
+                  <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
+                    {RENTAL_CATEGORIES.map(c => (
+                      <button key={c.id} onClick={() => { setCategory(category === c.id ? 'all' : c.id); setSearch('') }} style={{
+                        padding: '8px 14px', borderRadius: 10, cursor: 'pointer', fontFamily: 'inherit',
+                        background: category === c.id ? 'rgba(141,198,63,0.15)' : 'rgba(255,255,255,0.04)',
+                        border: category === c.id ? '1px solid rgba(141,198,63,0.3)' : '1px solid rgba(255,255,255,0.06)',
+                        color: category === c.id ? '#8DC63F' : 'rgba(255,255,255,0.35)',
+                        fontSize: 11, fontWeight: 700,
+                      }}>{c.emoji} {c.label}</button>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Price Range */}
+                <div style={{ padding: '14px', background: 'rgba(0,0,0,0.4)', backdropFilter: 'blur(12px)', border: '1.5px solid rgba(141,198,63,0.08)', borderRadius: 16, boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.04), 0 4px 16px rgba(0,0,0,0.3)' }}>
+                  <div style={{ fontSize: 10, fontWeight: 800, color: 'rgba(141,198,63,0.6)', letterSpacing: '0.05em', marginBottom: 8, textTransform: 'uppercase' }}>Price Range (per day)</div>
+                  <div style={{ display: 'flex', gap: 10, alignItems: 'center' }}>
+                    <div style={{ flex: 1 }}>
+                      <div style={{ fontSize: 9, color: 'rgba(255,255,255,0.2)', fontWeight: 600, marginBottom: 4 }}>MIN</div>
+                      <input type="number" placeholder="50.000" value={filterPriceMin} onChange={e => setFilterPriceMin(e.target.value)} style={{ width: '100%', padding: '10px 12px', borderRadius: 10, background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)', color: '#fff', fontSize: 13, fontWeight: 700, fontFamily: 'inherit', outline: 'none' }} />
+                    </div>
+                    <span style={{ color: 'rgba(255,255,255,0.15)', fontSize: 16, fontWeight: 700, marginTop: 16 }}>—</span>
+                    <div style={{ flex: 1 }}>
+                      <div style={{ fontSize: 9, color: 'rgba(255,255,255,0.2)', fontWeight: 600, marginBottom: 4 }}>MAX</div>
+                      <input type="number" placeholder="500.000" value={filterPriceMax} onChange={e => setFilterPriceMax(e.target.value)} style={{ width: '100%', padding: '10px 12px', borderRadius: 10, background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)', color: '#fff', fontSize: 13, fontWeight: 700, fontFamily: 'inherit', outline: 'none' }} />
+                    </div>
+                  </div>
+                </div>
+
+                {/* Condition */}
+                <div style={{ padding: '14px', background: 'rgba(0,0,0,0.4)', backdropFilter: 'blur(12px)', border: '1.5px solid rgba(141,198,63,0.08)', borderRadius: 16, boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.04), 0 4px 16px rgba(0,0,0,0.3)' }}>
+                  <div style={{ fontSize: 10, fontWeight: 800, color: 'rgba(141,198,63,0.6)', letterSpacing: '0.05em', marginBottom: 8, textTransform: 'uppercase' }}>Condition</div>
+                  <div style={{ display: 'flex', gap: 6 }}>
+                    {[
+                      { id: '', label: 'All' },
+                      { id: 'new', label: 'New' },
+                      { id: 'like_new', label: 'Like New' },
+                      { id: 'good', label: 'Good' },
+                      { id: 'fair', label: 'Fair' },
+                    ].map(c => (
+                      <button key={c.id} onClick={() => setFilterCondition(filterCondition === c.id ? '' : c.id)} style={{
+                        flex: 1, padding: '10px 0', borderRadius: 10, border: 'none', cursor: 'pointer', fontFamily: 'inherit',
+                        background: filterCondition === c.id ? '#8DC63F' : 'rgba(255,255,255,0.04)',
+                        color: filterCondition === c.id ? '#000' : 'rgba(255,255,255,0.4)',
+                        fontSize: 10, fontWeight: 800,
+                        boxShadow: filterCondition === c.id ? '0 2px 10px rgba(141,198,63,0.3)' : 'none',
+                      }}>{c.label}</button>
+                    ))}
+                  </div>
+                </div>
+
+                {/* City */}
+                <div style={{ padding: '14px', background: 'rgba(0,0,0,0.4)', backdropFilter: 'blur(12px)', border: '1.5px solid rgba(141,198,63,0.08)', borderRadius: 16, boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.04), 0 4px 16px rgba(0,0,0,0.3)' }}>
+                  <div style={{ fontSize: 10, fontWeight: 800, color: 'rgba(141,198,63,0.6)', letterSpacing: '0.05em', marginBottom: 8, textTransform: 'uppercase' }}>Location</div>
+                  <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
+                    {['', 'Canggu', 'Seminyak', 'Kuta', 'Ubud', 'Denpasar', 'Uluwatu', 'Kerobokan'].map(c => (
+                      <button key={c} onClick={() => setFilterCity(filterCity === c ? '' : c)} style={{
+                        padding: '8px 14px', borderRadius: 10, cursor: 'pointer', fontFamily: 'inherit',
+                        background: filterCity === c ? 'rgba(141,198,63,0.15)' : 'rgba(255,255,255,0.04)',
+                        border: filterCity === c ? '1px solid rgba(141,198,63,0.3)' : '1px solid rgba(255,255,255,0.06)',
+                        color: filterCity === c ? '#8DC63F' : 'rgba(255,255,255,0.35)',
+                        fontSize: 11, fontWeight: 700,
+                      }}>{c || 'All'}</button>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Bottom action bar */}
+            <div style={{ padding: '12px 16px', borderTop: '1px solid rgba(255,255,255,0.06)', display: 'flex', gap: 10 }}>
+              {hasActiveFilters && (
+                <button onClick={() => { setPriceSort(''); setCategory('all'); setFilterCity(''); setFilterCondition(''); setFilterPriceMin(''); setFilterPriceMax('') }} style={{ flex: 1, padding: '14px 0', borderRadius: 14, background: 'rgba(239,68,68,0.08)', border: '1px solid rgba(239,68,68,0.2)', color: '#EF4444', fontSize: 13, fontWeight: 800, cursor: 'pointer', fontFamily: 'inherit' }}>
+                  Clear All
+                </button>
+              )}
+              <button onClick={() => { setShowFilter(false); setFilterHeroFlipped(false) }} style={{ flex: 2, padding: '14px 0', borderRadius: 14, background: '#8DC63F', border: 'none', color: '#000', fontSize: 14, fontWeight: 900, cursor: 'pointer', fontFamily: 'inherit', boxShadow: '0 4px 20px rgba(141,198,63,0.3)', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6 }}>
+                Show {sortedListings.filter(l => listingMode === 'sale' ? !!l.buy_now : listingMode === 'rent' ? !l.buy_now : true).length} Results
+              </button>
+            </div>
+          </div>
+          )
+        })()}
+
       </div>
 
-      {/* Floating side nav — right edge, touch-friendly */}
+      {/* Floating side nav — with labels */}
+      {/* Floating side nav — bare icons, no container */}
       <div style={{
-        position: 'fixed', right: 8, top: '50%', transform: 'translateY(-50%)',
-        display: 'flex', flexDirection: 'column', gap: 8, zIndex: 200,
-        padding: '10px 6px', borderRadius: 18,
-        background: 'rgba(0,0,0,0.55)', backdropFilter: 'blur(14px)',
-        border: '1px solid rgba(255,255,255,0.06)',
-        boxShadow: '0 4px 24px rgba(0,0,0,0.5)',
+        position: 'fixed', right: 6, top: '50%', transform: 'translateY(-50%)',
+        display: 'flex', flexDirection: 'column', gap: 10, zIndex: 200,
+        padding: '10px 6px', borderRadius: 24,
+        background: 'rgba(0,0,0,0.45)', backdropFilter: 'blur(12px)',
+        border: '1px solid rgba(255,255,255,0.05)',
       }}>
         {[
-          { id: 'home', label: 'Home', icon: <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>, color: '#fff', action: () => { if (vehicleType) { setView('vehicleDir') } else { setView('categories') } } },
-          { id: 'rent', label: 'Rental', icon: <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 2l-2 2m-7.61 7.61a5.5 5.5 0 1 1-7.778 7.778 5.5 5.5 0 0 1 7.777-7.777zm0 0L15.5 7.5m0 0l3 3L22 7l-3-3m-3.5 3.5L19 4"/></svg>, color: '#8DC63F', action: () => setListingMode(listingMode === 'rent' ? 'all' : 'rent') },
-          { id: 'sale', label: 'Selling', icon: <span style={{ fontSize: 16 }}>💰</span>, color: '#FFD700', action: () => setListingMode(listingMode === 'sale' ? 'all' : 'sale') },
-          { id: 'user', label: 'Account', icon: <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>, color: '#fff', action: () => setShowUserDrawer(true) },
+          { id: 'home', label: 'Home', icon: <img src="https://ik.imagekit.io/nepgaxllc/Untitledsssaa-removebg-preview.png" alt="" style={{ width: 40, height: 40, objectFit: 'contain' }} />, action: () => { if (vehicleType) { setView('vehicleDir') } else { setView('categories') } } },
+          { id: 'rent', label: 'Rent', icon: <img src="https://ik.imagekit.io/nepgaxllc/Untitledsssaadddddd-removebg-preview.png" alt="" style={{ width: 40, height: 40, objectFit: 'contain' }} />, action: () => setListingMode(listingMode === 'rent' ? 'all' : 'rent') },
+          { id: 'sale', label: 'Buy', icon: <img src="https://ik.imagekit.io/nepgaxllc/Untitledsssaadddddddd-removebg-preview.png" alt="" style={{ width: 40, height: 40, objectFit: 'contain' }} />, action: () => setListingMode(listingMode === 'sale' ? 'all' : 'sale') },
+          { id: 'user', label: 'Profile', icon: <img src="https://ik.imagekit.io/nepgaxllc/Untitledsssaaddd-removebg-preview.png" alt="" style={{ width: 40, height: 40, objectFit: 'contain' }} />, action: () => setShowUserDrawer(true) },
         ].map(btn => {
           const isActive = (btn.id === 'rent' && listingMode === 'rent') || (btn.id === 'sale' && listingMode === 'sale')
           return (
           <button key={btn.id} onClick={btn.action} style={{
-            width: 44, minHeight: 52, borderRadius: 12,
-            background: isActive ? (btn.id === 'sale' ? '#FFD700' : '#8DC63F') : 'rgba(255,255,255,0.04)',
-            border: isActive ? 'none' : '1px solid rgba(255,255,255,0.08)',
-            color: isActive ? '#000' : btn.color,
+            width: 44, minHeight: 54, borderRadius: 12,
+            background: 'none', border: 'none',
+            color: isActive ? (btn.id === 'sale' ? '#FFD700' : '#8DC63F') : '#fff',
             display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 2,
-            cursor: 'pointer', padding: '6px 0', transition: 'all 0.2s', fontFamily: 'inherit',
-            boxShadow: isActive ? `0 0 12px ${btn.id === 'sale' ? 'rgba(255,215,0,0.3)' : 'rgba(141,198,63,0.3)'}` : 'none',
+            cursor: 'pointer', padding: 0, transition: 'all 0.2s',
+            filter: isActive ? `drop-shadow(0 0 8px ${btn.id === 'sale' ? 'rgba(255,215,0,0.6)' : 'rgba(141,198,63,0.6)'})` : 'drop-shadow(0 1px 4px rgba(0,0,0,0.8))',
           }}>
             {btn.icon}
-            <span style={{ fontSize: 7, fontWeight: 700, letterSpacing: '0.03em' }}>{btn.label}</span>
+            <span style={{ fontSize: 8, fontWeight: 800, letterSpacing: '0.03em', color: isActive ? (btn.id === 'sale' ? '#FFD700' : '#8DC63F') : 'rgba(255,255,255,0.6)' }}>{btn.label}</span>
           </button>
         )})}
       </div>
@@ -733,17 +1051,17 @@ export default function RentalSearchScreen({ onClose }) {
               const isOwner = !!localStorage.getItem('indoo_rental_owner')
               const allItems = [
                 // Both
-                { icon: '👤', label: 'My Profile', sub: 'View and edit your details', role: 'both', action: () => { setShowUserDrawer(false); setRentalSignUpOpen(true) } },
-                { icon: '💬', label: 'Messages', sub: 'Chat with owners & renters', role: 'both', action: () => setShowUserDrawer(false) },
-                { icon: '⚙️', label: 'Settings', sub: 'Preferences and notifications', role: 'both', action: () => setShowUserDrawer(false) },
+                { icon: '👤', label: 'My Profile', sub: 'View and edit your details', role: 'both', action: () => { setShowUserDrawer(false); setShowProfile(true) } },
+                { icon: '💬', label: 'Messages', sub: 'Chat with owners & renters', role: 'both', action: () => { setShowUserDrawer(false); setShowMessages(true) } },
+                { icon: '⚙️', label: 'Settings', sub: 'Preferences and notifications', role: 'both', action: () => { setShowUserDrawer(false); setShowSettings(true) } },
                 // Buyer only
-                { icon: '📦', label: 'My Bookings', sub: 'View your rental bookings', role: 'buyer', action: () => setShowUserDrawer(false) },
-                { icon: '⭐', label: 'My Reviews', sub: 'Reviews you have written', role: 'buyer', action: () => setShowUserDrawer(false) },
-                { icon: '❤️', label: 'Saved Items', sub: 'Your favourite listings', role: 'buyer', action: () => setShowUserDrawer(false) },
+                { icon: '📦', label: 'My Bookings', sub: 'View your rental bookings', role: 'buyer', action: () => { setShowUserDrawer(false); setShowMyBookings(true) } },
+                { icon: '⭐', label: 'My Reviews', sub: 'Reviews you have written', role: 'buyer', action: () => { setShowUserDrawer(false); setReviewListing({ ref: 'my_reviews', title: 'My Reviews' }) } },
+                { icon: '❤️', label: 'Saved Items', sub: 'Your favourite listings', role: 'buyer', action: () => { setShowUserDrawer(false); setShowSavedItems(true) } },
                 // Seller only
-                { icon: '📋', label: 'My Listings', sub: 'Manage your rental & sale listings', role: 'seller', action: () => { setShowUserDrawer(false); setRentalListingOpen(true) } },
-                { icon: '💰', label: 'Wallet', sub: 'Balance, commission & transactions', role: 'seller', action: () => setShowUserDrawer(false) },
-                { icon: '📅', label: 'Calendar', sub: 'Manage booking availability', role: 'seller', action: () => setShowUserDrawer(false) },
+                { icon: '📋', label: 'My Listings', sub: 'Manage your rental & sale listings', role: 'seller', action: () => { setShowUserDrawer(false); setShowMyListings(true) } },
+                { icon: '💰', label: 'Wallet', sub: 'Balance, commission & transactions', role: 'seller', action: () => { setShowUserDrawer(false); setShowWallet(true) } },
+                { icon: '📅', label: 'Calendar', sub: 'Manage booking availability', role: 'seller', action: () => { setShowUserDrawer(false); setShowCalendar(true) } },
                 { icon: '📊', label: 'Analytics', sub: 'Views, bookings & revenue', role: 'seller', action: () => setShowUserDrawer(false) },
                 { icon: '📋', label: 'List a Rental', sub: 'Start earning with your vehicle', role: 'seller', action: () => { setShowUserDrawer(false); setRentalListingOpen(true) } },
                 { icon: '💰', label: 'Sell an Item', sub: 'Put your vehicle up for sale', role: 'seller', action: () => { setShowUserDrawer(false); setRentalListingOpen(true) } },
@@ -771,22 +1089,22 @@ export default function RentalSearchScreen({ onClose }) {
                 const isOwner = !!localStorage.getItem('indoo_rental_owner')
                 return [
                   // Both — always show
-                  { icon: '👤', label: 'My Profile', sub: 'View and edit your details', show: true, action: () => { setShowUserDrawer(false); setRentalSignUpOpen(true) } },
-                  { icon: '💬', label: 'Messages', sub: 'Chat with owners & renters', show: true, action: () => setShowUserDrawer(false) },
+                  { icon: '👤', label: 'My Profile', sub: 'View and edit your details', show: true, action: () => { setShowUserDrawer(false); setShowProfile(true) } },
+                  { icon: '💬', label: 'Messages', sub: 'Chat with owners & renters', show: true, action: () => { setShowUserDrawer(false); setShowMessages(true) } },
                   // Buyer
-                  { icon: '📦', label: 'My Bookings', sub: 'View your rental bookings', show: true, action: () => setShowUserDrawer(false) },
-                  { icon: '⭐', label: 'My Reviews', sub: 'Reviews you have written', show: true, action: () => setShowUserDrawer(false) },
-                  { icon: '❤️', label: 'Saved Items', sub: 'Your favourite listings', show: true, action: () => setShowUserDrawer(false) },
+                  { icon: '📦', label: 'My Bookings', sub: 'View your rental bookings', show: true, action: () => { setShowUserDrawer(false); setShowMyBookings(true) } },
+                  { icon: '⭐', label: 'My Reviews', sub: 'Reviews you have written', show: true, action: () => { setShowUserDrawer(false); setReviewListing({ ref: 'my_reviews', title: 'My Reviews' }) } },
+                  { icon: '❤️', label: 'Saved Items', sub: 'Your favourite listings', show: true, action: () => { setShowUserDrawer(false); setShowSavedItems(true) } },
                   // Seller — only if owner
-                  { icon: '📋', label: 'My Listings', sub: 'Manage your rental & sale listings', show: isOwner, action: () => { setShowUserDrawer(false); setRentalListingOpen(true) } },
-                  { icon: '💰', label: 'Wallet', sub: 'Balance, commission & transactions', show: isOwner, action: () => setShowUserDrawer(false) },
-                  { icon: '📅', label: 'Calendar', sub: 'Manage booking availability', show: isOwner, action: () => setShowUserDrawer(false) },
+                  { icon: '📋', label: 'My Listings', sub: 'Manage your rental & sale listings', show: isOwner, action: () => { setShowUserDrawer(false); setShowMyListings(true) } },
+                  { icon: '💰', label: 'Wallet', sub: 'Balance, commission & transactions', show: isOwner, action: () => { setShowUserDrawer(false); setShowWallet(true) } },
+                  { icon: '📅', label: 'Calendar', sub: 'Manage booking availability', show: isOwner, action: () => { setShowUserDrawer(false); setShowCalendar(true) } },
                   { icon: '📊', label: 'Analytics', sub: 'Views, bookings & revenue', show: isOwner, action: () => setShowUserDrawer(false) },
                   // Actions — seller
                   { icon: '🔑', label: 'List a Rental', sub: 'Start earning with your vehicle', show: isOwner, accent: '#8DC63F', action: () => { setShowUserDrawer(false); setRentalListingOpen(true) } },
                   { icon: '💰', label: 'Sell an Item', sub: 'Put your vehicle up for sale', show: isOwner, accent: '#FFD700', action: () => { setShowUserDrawer(false); setRentalListingOpen(true) } },
                   // Settings — always
-                  { icon: '⚙️', label: 'Settings', sub: 'Preferences and notifications', show: true, action: () => setShowUserDrawer(false) },
+                  { icon: '⚙️', label: 'Settings', sub: 'Preferences and notifications', show: true, action: () => { setShowUserDrawer(false); setShowSettings(true) } },
                 ].filter(i => i.show)
               })().map((item, i) => (
                 <button key={i} onClick={item.action} style={{
@@ -817,193 +1135,122 @@ export default function RentalSearchScreen({ onClose }) {
         </>
       )}
 
-      {/* Premium listing cards */}
+      <PageBadge num={8} label="Browse" />
+      {/* 2-column product grid — matches marketplace layout */}
       <div className={styles.body} style={{ paddingRight: 66, paddingTop: 90 }}>
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
-          {sortedListings.length === 0 && <div className={styles.empty}>No rentals found</div>}
-
-          <style>{`@keyframes flipGlow { 0%,100% { box-shadow: 0 0 8px rgba(141,198,63,0.3); } 50% { box-shadow: 0 0 18px rgba(141,198,63,0.6), 0 0 30px rgba(141,198,63,0.2); } }`}</style>
+        <style>{`
+          @keyframes rentalCardIn { from { opacity: 0; transform: translateY(12px) scale(0.97); } to { opacity: 1; transform: translateY(0) scale(1); } }
+        `}</style>
+        {sortedListings.length === 0 && <div className={styles.empty}>No rentals found</div>}
+        <div className={styles.grid}>
           {sortedListings.filter(l => listingMode === 'sale' ? !!l.buy_now : listingMode === 'rent' ? !l.buy_now : true).map(l => {
             const imgs = l.images?.length ? l.images : [l.image || '']
-            const currentImg = cardImgIdx[l.id] || 0
-            const isFlipped = !!flippedCards[l.id]
+            const fmtK = n => n >= 1000000 ? (n/1000000).toFixed(1).replace('.0','') + 'jt' : n >= 1000 ? Math.round(n/1000) + 'k' : n
+            const price = l.buy_now ? (typeof l.buy_now === 'object' ? l.buy_now.price : l.buy_now) : l.price_day
             return (
-            <div key={l.id} style={{ perspective: 1000, width: '100%' }}>
-              <div style={{
-                position: 'relative', width: '100%', minHeight: isFlipped ? 260 : 'auto',
-                transition: 'transform 0.6s cubic-bezier(0.4,0,0.2,1)',
-                transformStyle: 'preserve-3d',
-                transform: isFlipped ? 'rotateY(180deg)' : 'rotateY(0)',
-              }}>
+            <button key={l.id} onClick={() => setSelected(l)} style={{
+              background: 'rgba(0,0,0,0.5)', backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)',
+              border: '1.5px solid rgba(141,198,63,0.08)', borderRadius: 20,
+              overflow: 'hidden', cursor: 'pointer', textAlign: 'left', fontFamily: 'inherit',
+              display: 'flex', flexDirection: 'column', position: 'relative', padding: 0, width: '100%',
+              boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.04), 0 4px 20px rgba(0,0,0,0.3)',
+              animation: 'rentalCardIn 0.4s ease both',
+              transition: 'transform 0.2s ease',
+              WebkitTapHighlightColor: 'transparent',
+            }}
+            onPointerDown={e => e.currentTarget.style.transform = 'scale(0.98)'}
+            onPointerUp={e => e.currentTarget.style.transform = 'scale(1)'}
+            onPointerLeave={e => e.currentTarget.style.transform = 'scale(1)'}
+            >
+              {/* Green glow line */}
+              <div style={{ position: 'absolute', top: 0, left: '10%', right: '10%', height: 1, background: 'linear-gradient(90deg, transparent, rgba(141,198,63,0.2), transparent)', pointerEvents: 'none', zIndex: 2 }} />
 
-                {/* ══ FRONT SIDE ══ */}
-                <div style={{
-                  backfaceVisibility: 'hidden', WebkitBackfaceVisibility: 'hidden',
-                  width: '100%', display: 'flex', flexDirection: 'column',
-                  background: 'rgba(0,0,0,0.5)', backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)',
-                  border: '1.5px solid rgba(141,198,63,0.08)', borderRadius: 20,
-                  overflow: 'hidden', fontFamily: 'inherit', textAlign: 'left',
-                  boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.04), 0 4px 20px rgba(0,0,0,0.3)',
-                  position: isFlipped ? 'absolute' : 'relative', inset: isFlipped ? 0 : undefined,
-                }}>
-                  <div style={{ position: 'absolute', top: 0, left: '10%', right: '10%', height: 1, background: 'linear-gradient(90deg, transparent, rgba(141,198,63,0.2), transparent)', pointerEvents: 'none', zIndex: 2 }} />
+              {/* 16:9 image */}
+              <div style={{ position: 'relative', width: '100%', aspectRatio: '16/9', background: '#0a0a0a', overflow: 'hidden', borderRadius: '18px 18px 0 0' }}>
+                {imgs[0] ? (
+                  <img src={imgs[0]} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }} />
+                ) : (
+                  <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 36, color: 'rgba(255,255,255,0.08)' }}>🏍️</div>
+                )}
+                {/* Bottom gradient */}
+                <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, height: '50%', background: 'linear-gradient(transparent, rgba(0,0,0,0.7))', pointerEvents: 'none' }} />
 
-                  {/* Image section — corner buttons for image switching */}
-                  <div onClick={() => setSelected(l)} style={{ position: 'relative', width: '100%', aspectRatio: '16/9', overflow: 'visible', background: '#0a0a0a', cursor: 'pointer' }}>
-                    <div style={{ position: 'absolute', inset: 0, overflow: 'hidden', borderRadius: '18px 18px 0 0' }}>
-                    <img src={imgs[currentImg]} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block', transition: 'opacity 0.25s' }} />
+                {/* City badge with red pin */}
+                <span style={{ position: 'absolute', top: 10, left: 10, padding: '4px 10px', borderRadius: 8, background: 'rgba(0,0,0,0.5)', backdropFilter: 'blur(6px)', color: '#fff', fontSize: 10, fontWeight: 800, letterSpacing: '0.02em', display: 'flex', alignItems: 'center', gap: 4 }}>
+                  <svg width="10" height="10" viewBox="0 0 24 24" fill="#EF4444" stroke="none"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5a2.5 2.5 0 010-5 2.5 2.5 0 010 5z"/></svg>
+                  {l.city?.split(',')[0] || 'Indonesia'}
+                </span>
 
-                    {l.isOwnerListing && <div style={{ position:'absolute',top:8,left:8,padding:'3px 8px',background:'#8DC63F',borderRadius:6,fontSize:8,fontWeight:900,color:'#000',letterSpacing:'0.04em',zIndex:3 }}>{listingMode === 'sale' ? 'YOUR SALE' : 'YOUR RENTAL'}</div>}
-                    {!l.buy_now && <div style={{ position:'absolute',top:8,left:8,padding:'4px 10px',background:'#8DC63F',borderRadius:8,fontSize:9,fontWeight:900,color:'#000',letterSpacing:'0.03em',zIndex:3,boxShadow:'0 2px 8px rgba(141,198,63,0.3)' }}>FOR RENT</div>}
-                    {l.buy_now && <div style={{ position:'absolute',top:8,left:8,padding:'4px 10px',background:'#FFD700',borderRadius:8,fontSize:9,fontWeight:900,color:'#000',letterSpacing:'0.03em',zIndex:3,boxShadow:'0 2px 8px rgba(255,215,0,0.3)' }}>FOR SALE</div>}
-                    {l.extra_fields?.withDriver && <div style={{ position:'absolute',top:'50%',right:8,transform:'translateY(-50%)',width:26,height:26,borderRadius:'50%',background:'rgba(0,0,0,0.5)',backdropFilter:'blur(8px)',border:'1.5px solid rgba(141,198,63,0.3)',display:'flex',alignItems:'center',justifyContent:'center',color:'#8DC63F',zIndex:3 }}><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3"/></svg></div>}
+                {/* Heart save */}
+                <button onClick={e => { e.stopPropagation(); if (isItemSaved(l.id)) return; saveItem({ id: l.id, title: l.title, city: l.city, price: l.price_day || l.buy_now, image: imgs[0], category: l.category }); setSavedToggle(p => p + 1) }} style={{ position: 'absolute', top: 10, right: 10, width: 34, height: 34, borderRadius: '50%', background: 'rgba(0,0,0,0.35)', backdropFilter: 'blur(6px)', border: 'none', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', zIndex: 3, padding: 0 }}>
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill={isItemSaved(l.id) ? '#EF4444' : 'none'} stroke={isItemSaved(l.id) ? '#EF4444' : '#fff'} strokeWidth="2.5"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+                </button>
 
-                    {/* Left/Right arrows — black, only if 2+ images */}
-                    {imgs.length > 1 && <>
-                      <button onClick={e => { e.stopPropagation(); setCardImgIdx(p => ({...p,[l.id]:(currentImg - 1 + imgs.length) % imgs.length})) }} style={{ position:'absolute',left:8,top:'50%',transform:'translateY(-50%)',width:28,height:28,borderRadius:'50%',background:'#000',border:'none',display:'flex',alignItems:'center',justifyContent:'center',cursor:'pointer',zIndex:4,padding:0,color:'#fff',boxShadow:'0 2px 6px rgba(0,0,0,0.4)' }}>
-                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
-                      </button>
-                      <button onClick={e => { e.stopPropagation(); setCardImgIdx(p => ({...p,[l.id]:(currentImg + 1) % imgs.length})) }} style={{ position:'absolute',right:8,top:'50%',transform:'translateY(-50%)',width:28,height:28,borderRadius:'50%',background:'#000',border:'none',display:'flex',alignItems:'center',justifyContent:'center',cursor:'pointer',zIndex:4,padding:0,color:'#fff',boxShadow:'0 2px 6px rgba(0,0,0,0.4)' }}>
-                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
-                      </button>
-                      {/* Image counter */}
-                      <div style={{ position:'absolute',top:8,right:8,padding:'3px 8px',background:'rgba(0,0,0,0.5)',borderRadius:6,fontSize:10,fontWeight:700,color:'rgba(255,255,255,0.6)',zIndex:3 }}>{currentImg + 1}/{imgs.length}</div>
-                    </>}
-                    </div>{/* close inner clip div */}
+                {/* Rating badge */}
+                {l.rating && <span style={{ position: 'absolute', bottom: 10, left: 10, padding: '3px 8px', borderRadius: 8, background: 'rgba(0,0,0,0.5)', backdropFilter: 'blur(6px)', fontSize: 11, fontWeight: 800, color: '#FFD700', zIndex: 3 }}>★ {l.rating}{l.review_count ? <span style={{ color: 'rgba(255,255,255,0.4)', fontWeight: 600 }}> ({l.review_count})</span> : ''}</span>}
 
-                    {/* Flip button — center bottom */}
-                    <button onClick={e => { e.stopPropagation(); setFlippedCards(p => ({...p,[l.id]:true})) }} style={{ position:'absolute',bottom:-34,left:'50%',transform:'translateX(-50%)',width:68,height:68,borderRadius:'50%',background:'rgba(0,0,0,0.6)',backdropFilter:'blur(12px)',border:'3px solid rgba(255,255,255,0.2)',display:'flex',alignItems:'center',justifyContent:'center',cursor:'pointer',zIndex:10,padding:0 }}>
-                      <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.4)" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M18.9 8a8.1 8.1 0 0 0-2.2-3.8A8 8 0 0 0 4 12c0 2.2.5 3.9 1.3 5.3"/><path d="M12 4a8 8 0 0 1 8 8c0 2.5-.7 4.2-1.6 5.5"/><path d="M8 12a4 4 0 0 1 8 0c0 1.4-.3 2.5-.8 3.4"/><path d="M12 8a4 4 0 0 0-4 4c0 1.8.5 3.2 1.2 4.2"/><path d="M12 12v8"/></svg>
-                    </button>
-                  </div>
-
-                  {/* Front info */}
-                  <div onClick={() => setSelected(l)} style={{ padding:'14px 14px 14px',display:'flex',flexDirection:'column',gap:6,cursor:'pointer' }}>
-                    {/* Brand + specs row */}
-                    <div style={{ display:'flex',alignItems:'center',gap:10,marginTop:0 }}>
-                      <div style={{flex:1}}>
-                        <div style={{fontSize:17,fontWeight:900,color:'#fff',letterSpacing:'-0.01em'}}>{l.extra_fields?.brand || l.title?.split(' ')[0] || l.title}</div>
-                        <div style={{fontSize:11,color:'rgba(255,255,255,0.35)',fontWeight:600,marginTop:2}}>{[l.extra_fields?.cc && `${l.extra_fields.cc}cc`, l.extra_fields?.year, l.extra_fields?.transmission].filter(Boolean).join(' · ') || l.sub_category}</div>
-                      </div>
-                      <div style={{display:'flex',alignItems:'center',gap:4,flexShrink:0}}><span style={{fontSize:12,color:'#FFD700',fontWeight:800}}>★ {l.rating||'—'}</span><span style={{fontSize:10,color:'rgba(255,255,255,0.3)'}}>({l.review_count})</span></div>
-                    </div>
-                    <div style={{ display:'flex',alignItems:'center',gap:4 }}>
-                      <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.25)" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>
-                      <span style={{fontSize:11,color:'rgba(255,255,255,0.25)',fontWeight:600}}>{l.city||'Indonesia'}</span>
-                      <span style={{marginLeft:'auto',fontSize:10,color:'rgba(255,255,255,0.15)'}}>👁 {l.view_count}</span>
-                    </div>
-                    {/* Price + action — depends on card type */}
-                    {l.buy_now ? (
-                      <>
-                        <div style={{display:'flex',alignItems:'center',justifyContent:'space-between',marginTop:2}}>
-                          <div style={{display:'flex',alignItems:'baseline',gap:3}}>
-                            <span style={{fontSize:10,fontWeight:700,color:'rgba(255,215,0,0.6)'}}>Rp</span>
-                            <span style={{fontSize:22,fontWeight:900,color:'#FFD700',letterSpacing:'-0.02em'}}>{fmtIDR(Number(String(typeof l.buy_now === 'object' ? l.buy_now.price : l.buy_now).replace(/\./g,''))).replace('Rp ','')}</span>
-                          </div>
-                          <button onClick={e => { e.stopPropagation(); setBookingListing({...l, _buyMode: true}) }} style={{ padding:'8px 16px',borderRadius:10,background:'#FFD700',border:'none',color:'#000',fontSize:11,fontWeight:800,cursor:'pointer',fontFamily:'inherit',boxShadow:'0 2px 8px rgba(255,215,0,0.3)',flexShrink:0 }}>
-                            Buy Now
-                          </button>
-                        </div>
-                        {(typeof l.buy_now === 'object' && l.buy_now.negotiable) && <span style={{fontSize:10,color:'rgba(255,215,0,0.4)',fontWeight:600,marginTop:2}}>Price is negotiable</span>}
-                      </>
-                    ) : (
-                      <div style={{display:'flex',alignItems:'center',justifyContent:'space-between',marginTop:2}}>
-                        <div style={{display:'flex',alignItems:'baseline',gap:3}}>
-                          <span style={{fontSize:10,fontWeight:700,color:'rgba(141,198,63,0.6)'}}>Rp</span>
-                          <span style={{fontSize:22,fontWeight:900,color:'#8DC63F',letterSpacing:'-0.02em'}}>{fmtIDR(l.price_day).replace('Rp ','')}</span>
-                          <span style={{fontSize:11,color:'rgba(255,255,255,0.25)',fontWeight:600}}>/day</span>
-                        </div>
-                        <button onClick={e => { e.stopPropagation(); requireAccount('book', l) }} style={{ padding:'8px 16px',borderRadius:10,background:'#8DC63F',border:'none',color:'#000',fontSize:11,fontWeight:800,cursor:'pointer',fontFamily:'inherit',boxShadow:'0 2px 8px rgba(141,198,63,0.3)',flexShrink:0 }}>
-                          Book Now
-                        </button>
-                      </div>
-                    )}
-                  </div>
-                </div>
-
-                {/* ══ BACK SIDE ══ */}
-                <div style={{
-                  backfaceVisibility: 'hidden', WebkitBackfaceVisibility: 'hidden',
-                  transform: 'rotateY(180deg)',
-                  position: 'absolute', inset: 0, width: '100%',
-                  background: 'rgba(0,0,0,0.7)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)',
-                  border: '1.5px solid rgba(141,198,63,0.15)', borderRadius: 20,
-                  overflow: 'hidden', fontFamily: 'inherit', textAlign: 'left',
-                  boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.04), 0 4px 20px rgba(0,0,0,0.4), 0 0 16px rgba(141,198,63,0.08)',
-                  display: 'flex', flexDirection: 'column', padding: '16px',
-                }}>
-                  <div style={{ position: 'absolute', top: 0, left: '10%', right: '10%', height: 1, background: 'linear-gradient(90deg, transparent, rgba(141,198,63,0.3), transparent)', pointerEvents: 'none' }} />
-
-                  {/* Back header */}
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 10 }}>
-                    <div>
-                      <div style={{ fontSize: 18, fontWeight: 900, color: '#fff', letterSpacing: '-0.01em' }}>{l.title}</div>
-                      <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.3)', marginTop: 2 }}>📍 {l.city || 'Indonesia'}</div>
-                    </div>
-                    {/* Flip back button */}
-                    <button onClick={e => { e.stopPropagation(); setFlippedCards(p => ({...p,[l.id]:false})) }} style={{ width: 30, height: 30, borderRadius: '50%', background: '#8DC63F', border: 'none', color: '#000', fontSize: 12, fontWeight: 900, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>✕</button>
-                  </div>
-
-                  {/* Spec chips */}
-                  <div style={{ display: 'flex', gap: 5, flexWrap: 'wrap', marginBottom: 10 }}>
-                    <span style={{ padding: '4px 10px', background: 'rgba(141,198,63,0.08)', border: '1px solid rgba(141,198,63,0.15)', borderRadius: 8, fontSize: 11, fontWeight: 700, color: '#8DC63F' }}>{l.sub_category || l.category}</span>
-                    <span style={{ padding: '4px 10px', background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.06)', borderRadius: 8, fontSize: 11, fontWeight: 700, color: 'rgba(255,255,255,0.45)' }}>{getConditionLabel(l.condition)}</span>
-                    {l.features?.slice(0, 4).map((f, fi) => <span key={fi} style={{ padding: '4px 10px', background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.06)', borderRadius: 8, fontSize: 11, fontWeight: 700, color: 'rgba(255,255,255,0.4)' }}>{f}</span>)}
-                    {l.extra_fields?.withDriver && <span style={{ padding: '4px 10px', background: 'rgba(141,198,63,0.08)', border: '1px solid rgba(141,198,63,0.15)', borderRadius: 8, fontSize: 11, fontWeight: 700, color: '#8DC63F' }}>🚗 Driver</span>}
-                  </div>
-
-                  {/* Description */}
-                  <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.5)', lineHeight: 1.5, flex: 1, overflow: 'hidden', marginBottom: 12 }}>
-                    {l.description?.slice(0, 150)}{l.description?.length > 150 ? '...' : ''}
-                  </div>
-
-                  {/* Price section — rental or selling */}
-                  {l.buy_now ? (
-                    <>
-                      <div style={{ padding: '12px', background: 'rgba(255,215,0,0.04)', border: '1px solid rgba(255,215,0,0.1)', borderRadius: 12, marginBottom: 12, textAlign: 'center' }}>
-                        <div style={{ fontSize: 9, fontWeight: 700, color: 'rgba(255,215,0,0.4)', letterSpacing: '0.05em', marginBottom: 4 }}>SELLING PRICE</div>
-                        <div style={{ fontSize: 22, fontWeight: 900, color: '#FFD700' }}>{fmtIDR(Number(String(typeof l.buy_now === 'object' ? l.buy_now.price : l.buy_now).replace(/\./g,'')))}</div>
-                        {(typeof l.buy_now === 'object' && l.buy_now.negotiable) && <div style={{ fontSize: 10, color: 'rgba(255,215,0,0.4)', marginTop: 4, fontWeight: 600 }}>Price is negotiable</div>}
-                      </div>
-                      <div style={{ display: 'flex', gap: 8 }}>
-                        <button onClick={e => { e.stopPropagation(); setFlippedCards(p => ({...p,[l.id]:false})); requireAccount('chat', l) }} style={{ flex: 1, padding: '11px 0', borderRadius: 12, background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.1)', color: '#fff', fontSize: 13, fontWeight: 800, cursor: 'pointer', fontFamily: 'inherit', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6 }}>
-                          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>
-                          Chat
-                        </button>
-                        <button onClick={e => { e.stopPropagation(); setFlippedCards(p => ({...p,[l.id]:false})); requireAccount('book', {...l, _buyMode: true}) }} style={{ flex: 1, padding: '11px 0', borderRadius: 12, background: '#FFD700', border: 'none', color: '#000', fontSize: 13, fontWeight: 800, cursor: 'pointer', fontFamily: 'inherit', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6, boxShadow: '0 2px 10px rgba(255,215,0,0.3)' }}>
-                          💰 Buy Now
-                        </button>
-                      </div>
-                    </>
-                  ) : (
-                    <>
-                      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 6, marginBottom: 12 }}>
-                        {[
-                          { label: 'DAY', price: l.price_day },
-                          { label: 'WEEK', price: l.price_week },
-                          { label: 'MONTH', price: l.price_month },
-                        ].map((p, pi) => (
-                          <div key={pi} style={{ padding: '10px 6px', background: 'rgba(0,0,0,0.3)', border: '1px solid rgba(141,198,63,0.1)', borderRadius: 10, textAlign: 'center', minHeight: 48, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
-                            <div style={{ fontSize: 9, fontWeight: 700, color: 'rgba(255,255,255,0.3)', letterSpacing: '0.05em', marginBottom: 3 }}>{p.label}</div>
-                            <div style={{ fontSize: 13, fontWeight: 900, color: p.price ? '#8DC63F' : 'rgba(255,255,255,0.15)', whiteSpace: 'nowrap' }}>{p.price ? fmtIDR(p.price) : '—'}</div>
-                          </div>
-                        ))}
-                      </div>
-                      <div style={{ display: 'flex', gap: 8 }}>
-                        <button onClick={e => { e.stopPropagation(); setFlippedCards(p => ({...p,[l.id]:false})); requireAccount('chat', l) }} style={{ flex: 1, padding: '11px 0', borderRadius: 12, background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.1)', color: '#fff', fontSize: 13, fontWeight: 800, cursor: 'pointer', fontFamily: 'inherit', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6 }}>
-                          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>
-                          Chat
-                        </button>
-                        <button onClick={e => { e.stopPropagation(); setFlippedCards(p => ({...p,[l.id]:false})); setBookingListing(l) }} style={{ flex: 1, padding: '11px 0', borderRadius: 12, background: '#8DC63F', border: 'none', color: '#000', fontSize: 13, fontWeight: 800, cursor: 'pointer', fontFamily: 'inherit', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6, boxShadow: '0 2px 10px rgba(141,198,63,0.3)' }}>
-                          🔑 Book Now
-                        </button>
-                      </div>
-                    </>
-                  )}
-                </div>
+                {/* Transmission badge */}
+                {l.extra_fields?.transmission && <span style={{ position: 'absolute', bottom: 10, right: 10, padding: '3px 8px', borderRadius: 8, background: 'rgba(0,0,0,0.5)', backdropFilter: 'blur(6px)', color: '#fff', fontSize: 10, fontWeight: 800, zIndex: 3, textTransform: 'capitalize' }}>{l.extra_fields.transmission === 'matic' ? 'Automatic' : l.extra_fields.transmission === 'manual' ? 'Manual' : l.extra_fields.transmission}</span>}
 
               </div>
-            </div>
+
+              {/* Card body — brand + specs + price + features */}
+              <div style={{ padding: '12px 14px 14px' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                  <div style={{ flex: 1, minWidth: 0 }}>
+                    {/* Brand / Title */}
+                    <div style={{ fontSize: 16, fontWeight: 900, color: '#fff', letterSpacing: '-0.01em', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                      {l.extra_fields?.brand ? `${l.extra_fields.brand} ${l.extra_fields.model || ''}`.trim() : l.title}
+                    </div>
+                    {/* Specs line */}
+                    <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.35)', fontWeight: 600, marginTop: 2, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                      {l.extra_fields?.cc
+                        ? [l.extra_fields.cc && `${l.extra_fields.cc}cc`, l.extra_fields.year, l.extra_fields.transmission].filter(Boolean).join(' · ')
+                        : `${l.category}${l.city ? ` · ${l.city}` : ''}`
+                      }
+                    </div>
+                  </div>
+                  {/* Price — right side */}
+                  <div style={{ textAlign: 'right', flexShrink: 0 }}>
+                    <div style={{ fontSize: 18, fontWeight: 900, color: l.buy_now ? '#FFD700' : '#8DC63F', letterSpacing: '-0.02em', fontFamily: 'monospace' }}>
+                      {price ? fmtK(Number(String(price).replace(/\./g, ''))) : '—'}
+                    </div>
+                    <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.3)', fontWeight: 600, marginTop: 1 }}>
+                      {l.buy_now ? 'asking' : '/day'}
+                    </div>
+                  </div>
+                </div>
+                {/* Includes line — helmets + raincoat + drop off icons */}
+                {(() => {
+                  const helmetCount = l.extra_fields?.helmet_count || (l.features?.some(f => /helm/i.test(f)) ? 1 : 0)
+                  const hasRaincoat = l.features?.some(f => /rain|jas hujan/i.test(f))
+                  const hasDropOff = l.extra_fields?.delivery_available || l.features?.some(f => /deliver|drop|antar/i.test(f))
+                  if (!helmetCount && !hasRaincoat && !hasDropOff) return null
+                  return (
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginTop: 8 }}>
+                      {helmetCount > 0 && (
+                        <span style={{ display: 'flex', alignItems: 'center', gap: 4, fontSize: 11, fontWeight: 700, color: 'rgba(255,255,255,0.45)' }}>
+                          <img src="https://ik.imagekit.io/nepgaxllc/Untitleddsdssss-removebg-preview.png" alt="" style={{ width: 15, height: 15, objectFit: 'contain' }} />
+                          x{helmetCount}
+                        </span>
+                      )}
+                      {hasRaincoat && (
+                        <span style={{ display: 'flex', alignItems: 'center', gap: 4, fontSize: 11, fontWeight: 700, color: 'rgba(255,255,255,0.45)' }}>
+                          <img src="https://ik.imagekit.io/nepgaxllc/Untitleddsdssssdd-removebg-preview.png" alt="" style={{ width: 15, height: 15, objectFit: 'contain' }} />
+                          x1
+                        </span>
+                      )}
+                      {hasDropOff && (
+                        <span style={{ display: 'flex', alignItems: 'center', gap: 4, fontSize: 11, fontWeight: 700, color: 'rgba(255,255,255,0.45)' }}>
+                          <img src="https://ik.imagekit.io/nepgaxllc/Untitleddsdssssddss-removebg-preview.png" alt="" style={{ width: 22, height: 22, objectFit: 'contain' }} />
+                          Drop off
+                        </span>
+                      )}
+                    </div>
+                  )
+                })()}
+              </div>
+            </button>
           )})}
         </div>
       </div>
@@ -1021,6 +1268,14 @@ export default function RentalSearchScreen({ onClose }) {
       {bookingListing && <RentalBookingFlow listing={bookingListing} onClose={() => setBookingListing(null)} onConfirm={() => setBookingListing(null)} />}
       <RentalDashboard open={dashboardOpen} onClose={() => setDashboardOpen(false)} />
       <PriceCalculator vehicle={calcVehicle} onClose={() => setCalcVehicle(null)} />
+      <MyBookingsScreen open={showMyBookings} onClose={() => setShowMyBookings(false)} />
+      <SavedItemsScreen open={showSavedItems} onClose={() => setShowSavedItems(false)} />
+      <MyListingsScreen open={showMyListings} onClose={() => setShowMyListings(false)} />
+      <IndooWallet open={showWallet} onClose={() => setShowWallet(false)} />
+      <RentalCalendar open={showCalendar} onClose={() => setShowCalendar(false)} listingRef="owner_calendar" listingTitle="My Availability" mode="owner" />
+      <ProfileScreen2 open={showProfile} onClose={() => setShowProfile(false)} />
+      <SettingsScreen open={showSettings} onClose={() => setShowSettings(false)} />
+      <MessagesScreen open={showMessages} onClose={() => setShowMessages(false)} onOpenChat={(conv) => { setShowMessages(false); setChatListing(conv) }} />
       {modals}
     </div>
   )

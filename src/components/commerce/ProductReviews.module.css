@@ -16,10 +16,10 @@
 
 .writeBtn {
   padding: 6px 14px;
-  background: rgba(245,158,11,0.12);
-  border: 1px solid rgba(245,158,11,0.3);
+  background: rgba(141,198,63,0.12);
+  border: 1px solid rgba(141,198,63,0.3);
   border-radius: 8px;
-  color: #F59E0B;
+  color: #8DC63F;
   font-size: 11px;
   font-weight: 800;
   cursor: pointer;
@@ -28,7 +28,7 @@
   transition: background 0.15s;
 }
 
-.writeBtn:hover { background: rgba(245,158,11,0.2); }
+.writeBtn:hover { background: rgba(141,198,63,0.2); }
 
 .summaryLeft {
   display: flex;
@@ -39,7 +39,7 @@
 .avgRating {
   font-size: 28px;
   font-weight: 900;
-  color: #F59E0B;
+  color: #8DC63F;
 }
 
 .summaryMeta {
@@ -77,14 +77,14 @@
   width: 28px;
   height: 28px;
   border-radius: 50%;
-  background: rgba(245,158,11,0.12);
-  border: 1px solid rgba(245,158,11,0.25);
+  background: rgba(141,198,63,0.12);
+  border: 1px solid rgba(141,198,63,0.25);
   display: flex;
   align-items: center;
   justify-content: center;
   font-size: 12px;
   font-weight: 900;
-  color: #F59E0B;
+  color: #8DC63F;
   flex-shrink: 0;
 }
 
@@ -136,8 +136,8 @@
 /* Seller reply */
 .sellerReply {
   padding: 8px 10px;
-  background: rgba(245,158,11,0.04);
-  border-left: 2px solid rgba(245,158,11,0.3);
+  background: rgba(141,198,63,0.04);
+  border-left: 2px solid rgba(141,198,63,0.3);
   border-radius: 0 8px 8px 0;
   margin-top: 2px;
 }
@@ -145,7 +145,7 @@
 .replyLabel {
   font-size: 9px;
   font-weight: 700;
-  color: #F59E0B;
+  color: #8DC63F;
   text-transform: uppercase;
   letter-spacing: 0.05em;
   display: block;
@@ -173,4 +173,4 @@
   transition: color 0.15s, border-color 0.15s;
 }
 
-.showAllBtn:hover { color: #F59E0B; border-color: rgba(245,158,11,0.3); }
+.showAllBtn:hover { color: #8DC63F; border-color: rgba(141,198,63,0.3); }

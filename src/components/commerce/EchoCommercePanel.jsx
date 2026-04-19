@@ -456,7 +456,7 @@ export default function EchoCommercePanel({ userId, businessName, open: external
                   <div style={{ display: 'flex', gap: 8, fontSize: 10, color: 'rgba(255,255,255,0.4)', alignItems: 'center' }}>
                     <span>Current: {fmtIDR(a.currentPrice)}</span>
                     <span>{a.bidCount} bids</span>
-                    <span style={{ color: a.status === AUCTION_STATUS.LIVE ? '#8DC63F' : a.status === AUCTION_STATUS.PAID ? '#F59E0B' : '#EF4444', fontWeight: 700 }}>
+                    <span style={{ color: a.status === AUCTION_STATUS.LIVE ? '#8DC63F' : a.status === AUCTION_STATUS.PAID ? '#8DC63F' : '#EF4444', fontWeight: 700 }}>
                       {a.status}
                     </span>
                   </div>
@@ -464,7 +464,7 @@ export default function EchoCommercePanel({ userId, businessName, open: external
                     <div style={{ display: 'flex', gap: 6, marginTop: 4 }}>
                       <button
                         className={styles.flashToggle}
-                        style={{ width: 'auto', padding: '2px 8px', fontSize: 9, color: '#F59E0B', borderColor: 'rgba(245,158,11,0.3)' }}
+                        style={{ width: 'auto', padding: '2px 8px', fontSize: 9, color: '#8DC63F', borderColor: 'rgba(141,198,63,0.3)' }}
                         onClick={() => {
                           const price = prompt('New starting price (Rp):', a.startPrice)
                           if (price && !isNaN(price)) {

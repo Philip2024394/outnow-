@@ -53,7 +53,7 @@ export default function SellerProfileSheet({ seller, onClose, onOpenChat, onOrde
     seller.instagram && { key: 'instagram', label: 'Instagram', sub: `@${seller.instagram}`,                     href: `https://instagram.com/${seller.instagram}`,  color: '#E4405F', icon: 'ig'  },
     seller.tiktok    && { key: 'tiktok',    label: 'TikTok',    sub: `@${seller.tiktok}`,                         href: `https://tiktok.com/@${seller.tiktok}`,       color: '#fff',    icon: 'tt'  },
     seller.facebook  && { key: 'facebook',  label: 'Facebook',  sub: seller.facebook,                             href: `https://facebook.com/${seller.facebook}`,    color: '#1877F2', icon: 'fb'  },
-    seller.website   && { key: 'website',   label: 'Website',   sub: seller.website.replace(/^https?:\/\//, ''),  href: seller.website,                              color: '#F59E0B', icon: 'web' },
+    seller.website   && { key: 'website',   label: 'Website',   sub: seller.website.replace(/^https?:\/\//, ''),  href: seller.website,                              color: '#8DC63F', icon: 'web' },
   ].filter(Boolean)
 
   const openTime  = seller.openTime  ?? '9:00 AM'

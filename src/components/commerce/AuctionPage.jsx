@@ -94,6 +94,7 @@ export default function AuctionPage({ open, onClose }) {
 
   return createPortal(
     <div className={styles.page}>
+      <div style={{ position: 'fixed', top: 6, left: 6, zIndex: 99990, display: 'flex', alignItems: 'center', gap: 6, pointerEvents: 'none' }}><div style={{ width: 28, height: 28, borderRadius: '50%', background: '#8DC63F', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 11, fontWeight: 900, color: '#000', boxShadow: '0 2px 8px rgba(141,198,63,0.4)' }}>M4</div><span style={{ fontSize: 9, fontWeight: 800, color: 'rgba(141,198,63,0.6)' }}>AUCTION</span></div>
       {/* Header */}
       <div className={styles.header}>
         <div className={styles.headerLeft}>

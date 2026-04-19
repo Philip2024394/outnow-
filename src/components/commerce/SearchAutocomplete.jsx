@@ -34,6 +34,17 @@ function clearRecentSearches() {
   localStorage.removeItem(RECENT_KEY)
 }
 
+function highlightMatch(text, query) {
+  if (!query) return text
+  const escaped = query.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
+  const parts = text.split(new RegExp(`(${escaped})`, 'gi'))
+  return parts.map((part, i) =>
+    part.toLowerCase() === query.toLowerCase()
+      ? <strong key={i}>{part}</strong>
+      : part
+  )
+}
+
 export default function SearchAutocomplete({ query, products, onSelect, visible }) {
   const [recent, setRecent] = useState([])
 
@@ -64,9 +75,7 @@ export default function SearchAutocomplete({ query, products, onSelect, visible 
           {uniqueSuggestions.map((s, i) => (
             <button key={`s-${i}`} className={styles.item} onClick={() => onSelect(s)}>
               <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.25)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-              <span className={styles.itemText} dangerouslySetInnerHTML={{
-                __html: s.replace(new RegExp(`(${q})`, 'gi'), '<strong>$1</strong>')
-              }} />
+              <span className={styles.itemText}>{highlightMatch(s, q)}</span>
             </button>
           ))}
         </div>

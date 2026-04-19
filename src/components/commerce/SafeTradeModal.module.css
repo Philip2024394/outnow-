@@ -25,9 +25,9 @@
   position: relative;
   animation: scaleIn 0.2s cubic-bezier(0.32,0.72,0,1) forwards;
   /* Orange top border with running glow */
-  border: 1px solid rgba(245,158,11,0.2);
-  border-top: 2px solid #F59E0B;
-  box-shadow: 0 -4px 20px rgba(245,158,11,0.25), 0 -1px 8px rgba(245,158,11,0.4);
+  border: 1px solid rgba(141,198,63,0.2);
+  border-top: 2px solid #8DC63F;
+  box-shadow: 0 -4px 20px rgba(141,198,63,0.25), 0 -1px 8px rgba(141,198,63,0.4);
 }
 
 /* Background image */
@@ -68,7 +68,7 @@
   left: -50%;
   width: 50%;
   height: 100%;
-  background: linear-gradient(90deg, transparent, #F59E0B, #FBBF24, #F59E0B, transparent);
+  background: linear-gradient(90deg, transparent, #8DC63F, #FBBF24, #8DC63F, transparent);
   animation: runningGlow 2.5s ease-in-out infinite;
 }
 
@@ -90,7 +90,7 @@
 }
 
 .modalInner::-webkit-scrollbar { width: 3px; }
-.modalInner::-webkit-scrollbar-thumb { background: rgba(245,158,11,0.2); border-radius: 2px; }
+.modalInner::-webkit-scrollbar-thumb { background: rgba(141,198,63,0.2); border-radius: 2px; }
 
 .closeBtn {
   position: absolute;
@@ -183,9 +183,9 @@
   width: 26px;
   height: 26px;
   border-radius: 50%;
-  background: rgba(245,158,11,0.15);
-  border: 1px solid rgba(245,158,11,0.35);
-  color: #F59E0B;
+  background: rgba(141,198,63,0.15);
+  border: 1px solid rgba(141,198,63,0.35);
+  color: #8DC63F;
   font-size: 12px;
   font-weight: 900;
   display: flex;
@@ -343,7 +343,7 @@
 .methodFee {
   font-size: 10px;
   font-weight: 700;
-  color: #F59E0B;
+  color: #8DC63F;
 }
 
 /* ── Benefits list ── */
@@ -406,10 +406,10 @@
 .requestBtn {
   width: 100%;
   padding: 13px;
-  background: rgba(245,158,11,0.12);
-  border: 1.5px solid rgba(245,158,11,0.35);
+  background: rgba(141,198,63,0.12);
+  border: 1.5px solid rgba(141,198,63,0.35);
   border-radius: 12px;
-  color: #F59E0B;
+  color: #8DC63F;
   font-size: 13px;
   font-weight: 800;
   cursor: pointer;
@@ -417,7 +417,7 @@
   transition: background 0.15s;
 }
 
-.requestBtn:hover { background: rgba(245,158,11,0.2); }
+.requestBtn:hover { background: rgba(141,198,63,0.2); }
 
 .requestBtn:disabled {
   background: rgba(141,198,63,0.08);
@@ -433,13 +433,13 @@
   gap: 8px;
   padding: 14px 24px 20px;
   font-size: 11px;
-  color: rgba(245,158,11,0.7);
+  color: rgba(141,198,63,0.7);
   line-height: 1.6;
   border-top: 1px solid rgba(255,255,255,0.05);
 }
 
 .recommendIcon {
   flex-shrink: 0;
-  color: #F59E0B;
+  color: #8DC63F;
   margin-top: 1px;
 }

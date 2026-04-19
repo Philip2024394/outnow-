@@ -44,6 +44,7 @@ export const DEMO_PRODUCTS = [
     id: 'demo-2', name: 'Leather Crossbody Bag', weight_grams: 650, dimensions: '26 x 18 x 8 cm', price: 1200000, currency: 'IDR',
     category: 'bags', stock: 5, active: true, isNew: true, condition: 'new',
     dispatch_time: '2-3 business days', brand_name: 'Kulit Asli',
+    flashSale: { active: true, discountPercent: 30, endsAt: Date.now() + 8 * 60 * 60 * 1000 },
     safeTrade: { enabled: true, paypal: true, escrow: false },
     custom_branding: 'Yes — Custom packaging',
     image: 'https://ik.imagekit.io/nepgaxllc/Untitleddsadasaaasss.png',
@@ -78,6 +79,7 @@ export const DEMO_PRODUCTS = [
   {
     id: 'demo-3', name: 'Leather Tote Bag', price: 850000, currency: 'IDR',
     category: 'bags', stock: 8, active: true, condition: 'like_new', dispatch_time: '3-5 business days', brand_name: 'Kulit Asli',
+    flashSale: { active: true, discountPercent: 20, endsAt: Date.now() + 5 * 60 * 60 * 1000 },
     image: 'https://ik.imagekit.io/nepgaxllc/Untitleddsadasaaassssdasdcxc.png',
     description: 'Spacious tote in full-grain leather. Perfect for work or weekend. Handcrafted in Bali.',
     specs: {
@@ -136,6 +138,7 @@ export const DEMO_PRODUCTS = [
   {
     id: 'demo-5', name: 'Bifold Leather Wallet', price: 450000, currency: 'IDR',
     category: 'bags', stock: 15, active: true, condition: 'good', dispatch_time: '1 business day', brand_name: 'Kulit Asli',
+    flashSale: { active: true, discountPercent: 35, endsAt: Date.now() + 4 * 60 * 60 * 1000 },
     image: 'https://ik.imagekit.io/nepgaxllc/Untitleddsadasaaassssdasdcxcasdasdadfssdf.png',
     description: 'Classic bifold with 8 card slots, ID window and bill compartment.',
     specs: {
@@ -165,6 +168,7 @@ export const DEMO_PRODUCTS = [
   {
     id: 'demo-6', name: 'Leather Keychain', price: 95000, currency: 'IDR',
     category: 'handmade', stock: 40, active: true, condition: 'fair', dispatch_time: '2-4 weeks (made to order)',
+    flashSale: { active: true, discountPercent: 40, endsAt: Date.now() + 2 * 60 * 60 * 1000 },
     custom_branding: 'Yes — Logo printing available',
     image: 'https://ik.imagekit.io/nepgaxllc/Untitledzxczxczxczx.png',
     description: 'Hand-stitched leather keychain. Personalised initials available.',

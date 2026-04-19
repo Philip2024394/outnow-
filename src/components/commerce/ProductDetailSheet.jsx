@@ -306,11 +306,11 @@ export default function ProductDetailSheet({ product, onClose, sellerWa, sellerN
                             aria-label={label}
                             style={{
                               width: 36, height: 36, borderRadius: '50%', padding: 0,
-                              border: isActive ? '2px solid #F59E0B' : '2px solid rgba(255,255,255,0.15)',
+                              border: isActive ? '2px solid #8DC63F' : '2px solid rgba(255,255,255,0.15)',
                               background: 'transparent', cursor: 'pointer',
                               display: 'flex', alignItems: 'center', justifyContent: 'center',
                               transition: 'border-color 0.15s, box-shadow 0.15s',
-                              boxShadow: isActive ? '0 0 0 3px rgba(245,158,11,0.25)' : 'none',
+                              boxShadow: isActive ? '0 0 0 3px rgba(141,198,63,0.25)' : 'none',
                             }}
                           >
                             <span style={{
@@ -399,7 +399,7 @@ export default function ProductDetailSheet({ product, onClose, sellerWa, sellerN
                     </div>
                   ) : (
                     <button onClick={handleAddToCart} disabled={(product.stock ?? 0) === 0}
-                      style={{ height:42, padding:'0 14px', borderRadius:10, background:'rgba(245,158,11,0.15)', border:'1px solid rgba(245,158,11,0.35)', color:'#F59E0B', fontSize:12, fontWeight:800, cursor:'pointer', fontFamily:'inherit', whiteSpace:'nowrap', opacity:(product.stock ?? 0) === 0 ? 0.3 : 1 }}>
+                      style={{ height:42, padding:'0 14px', borderRadius:10, background:'rgba(141,198,63,0.15)', border:'1px solid rgba(141,198,63,0.35)', color:'#8DC63F', fontSize:12, fontWeight:800, cursor:'pointer', fontFamily:'inherit', whiteSpace:'nowrap', opacity:(product.stock ?? 0) === 0 ? 0.3 : 1 }}>
                       <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.3" strokeLinecap="round" strokeLinejoin="round" style={{ marginRight:4, verticalAlign:'middle' }}>
                         <circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/>
                       </svg>

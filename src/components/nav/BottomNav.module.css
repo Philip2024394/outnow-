@@ -417,23 +417,22 @@
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 3px;
-  padding: 8px 4px 6px;
-  border-radius: 14px;
-  background: rgba(255, 255, 255, 0.04);
-  border: 1.5px solid rgba(255, 255, 255, 0.1);
-  color: rgba(255, 255, 255, 0.4);
+  gap: 2px;
+  padding: 4px 0;
+  border-radius: 0;
+  background: none;
+  border: none;
+  color: rgba(255, 255, 255, 0.5);
   cursor: pointer;
   font-family: inherit;
   -webkit-tap-highlight-color: transparent;
-  transition: transform 0.12s, background 0.15s, border-color 0.15s, color 0.15s;
+  transition: transform 0.12s, color 0.15s;
+  filter: drop-shadow(0 1px 3px rgba(0,0,0,0.6));
 }
 .homeBtn:active { transform: scale(0.88); }
 .homeBtnActive {
-  background: rgba(141, 198, 63, 0.15);
-  border-color: #8DC63F;
   color: #8DC63F;
-  box-shadow: 0 0 12px rgba(141, 198, 63, 0.3);
+  filter: drop-shadow(0 0 6px rgba(141, 198, 63, 0.4));
 }
 .homeBtnLabel {
   font-size: 8px;
@@ -595,10 +594,8 @@
 }
 
 .homeBtnMarketActive {
-  background: rgba(245,158,11,0.15);
-  border-color: #F59E0B;
-  color: #F59E0B;
-  box-shadow: 0 0 12px rgba(245,158,11,0.3);
+  color: #8DC63F;
+  filter: drop-shadow(0 0 6px rgba(141,198,63,0.4));
 }
 
 .marketBtn {

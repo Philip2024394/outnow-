@@ -11,12 +11,38 @@ function fmtPrice(n) {
 
 // Rental Chat Window
 export function RentalChat({ listing, onClose, onBook }) {
-  const [messages, setMessages] = useState([
-    { from: 'system', text: `Welcome! Ask the owner about "${listing?.title}". Phone numbers and contact details are blocked until booking is confirmed.`, time: new Date() },
-  ])
+  const chatKey = `indoo_chat_${listing?.ref || listing?.id || 'default'}`
+  const [messages, setMessages] = useState(() => {
+    try {
+      const saved = JSON.parse(localStorage.getItem(chatKey) || '[]')
+      if (saved.length) return saved.map(m => ({ ...m, time: new Date(m.time) }))
+    } catch {}
+    return [{ from: 'system', text: `Welcome! Ask the owner about "${listing?.title}". Phone numbers and contact details are blocked until booking is confirmed.`, time: new Date() }]
+  })
   const [input, setInput] = useState('')
   const [spamWarning, setSpamWarning] = useState('')
   const [banned, setBanned] = useState(false)
+
+  // Persist messages + save to chat history index
+  const persistMessages = (msgs) => {
+    try {
+      localStorage.setItem(chatKey, JSON.stringify(msgs))
+      // Update chat history index for Messages inbox
+      const history = JSON.parse(localStorage.getItem('indoo_chat_history') || '[]')
+      const existing = history.findIndex(h => h.listingId === (listing?.ref || listing?.id))
+      const entry = {
+        listingId: listing?.ref || listing?.id,
+        title: listing?.title || 'Chat',
+        image: listing?.images?.[0] || listing?.image || '',
+        lastMessage: msgs[msgs.length - 1]?.text || '',
+        lastTime: new Date().toISOString(),
+        unread: false,
+      }
+      if (existing >= 0) history[existing] = entry
+      else history.unshift(entry)
+      localStorage.setItem('indoo_chat_history', JSON.stringify(history))
+    } catch {}
+  }
 
   const sendMessage = () => {
     if (!input.trim()) return
@@ -33,7 +59,10 @@ export function RentalChat({ listing, onClose, onBook }) {
       setTimeout(() => setSpamWarning(''), 5000)
       return
     }
-    setMessages(prev => [...prev, { from: 'user', text: input.trim(), time: new Date() }])
+    const newMsg = { from: 'user', text: input.trim(), time: new Date() }
+    const updated = [...messages, newMsg]
+    setMessages(updated)
+    persistMessages(updated)
     setInput('')
     // Simulate owner reply
     setTimeout(() => {
@@ -44,7 +73,12 @@ export function RentalChat({ listing, onClose, onBook }) {
         'Yes, it\'s in great condition. Recently serviced.',
         'I can do a small discount for weekly rental.',
       ]
-      setMessages(prev => [...prev, { from: 'owner', text: replies[Math.floor(Math.random() * replies.length)], time: new Date() }])
+      const replyMsg = { from: 'owner', text: replies[Math.floor(Math.random() * replies.length)], time: new Date() }
+      setMessages(prev => {
+        const all = [...prev, replyMsg]
+        persistMessages(all)
+        return all
+      })
     }, 1500)
   }
 
@@ -379,8 +413,30 @@ export function RentalBookingFlow({ listing, onClose, onConfirm }) {
             // Save booking
             try {
               const bookings = JSON.parse(localStorage.getItem('indoo_rental_bookings') || '[]')
-              bookings.push({ ref: bookingRef, listing_ref: listing.ref || listing.id, listing_title: listing.title, name, whatsapp, days, pickupDate, notes, total, status: 'pending', created_at: new Date().toISOString() })
+              bookings.push({ ref: bookingRef, listing_ref: listing.ref || listing.id, listing_title: listing.title, title: listing.title, image: listing.images?.[0] || listing.image || '', name, whatsapp, days, pickupDate, notes, total, totalPrice: total, status: 'pending', created_at: new Date().toISOString() })
               localStorage.setItem('indoo_rental_bookings', JSON.stringify(bookings))
+              // Process commission via wallet
+              processCommission('default', 'rentals', bookingRef, total).catch(() => {})
+              // Auto-mark booked dates on calendar
+              if (pickupDate && days) {
+                try {
+                  const calKey = `indoo_booked_dates_${listing.ref || listing.id}`
+                  const booked = JSON.parse(localStorage.getItem(calKey) || '[]')
+                  const start = new Date(pickupDate)
+                  for (let d = 0; d < days; d++) {
+                    const dt = new Date(start); dt.setDate(dt.getDate() + d)
+                    const dateStr = dt.toISOString().split('T')[0]
+                    if (!booked.includes(dateStr)) booked.push(dateStr)
+                  }
+                  localStorage.setItem(calKey, JSON.stringify(booked))
+                } catch {}
+              }
+              // Save notification for seller
+              try {
+                const notifs = JSON.parse(localStorage.getItem('indoo_notifications') || '[]')
+                notifs.unshift({ id: `notif_${Date.now()}`, type: 'booking', title: 'New Booking Request', message: `${name} wants to ${isBuyMode ? 'buy' : 'rent'} "${listing.title}"`, ref: bookingRef, read: false, created_at: new Date().toISOString() })
+                localStorage.setItem('indoo_notifications', JSON.stringify(notifs))
+              } catch {}
             } catch {}
             setTimeout(() => setStep(2), 4000)
           }} style={{ width: '100%', padding: '15px 0', borderRadius: 14, background: '#8DC63F', border: 'none', color: '#000', fontSize: 15, fontWeight: 800, cursor: 'pointer', fontFamily: 'inherit', boxShadow: '0 4px 20px rgba(141,198,63,0.3)', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8 }}>

@@ -2,7 +2,7 @@
  * IndooWallet — universal wallet UI for all services
  * Shows balance, commission owed, warning level, top-up, transaction history
  */
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { createPortal } from 'react-dom'
 import {
   getWalletSummary, topUpWallet, getTransactions, fmtIDR, COMMISSION_RATE,
@@ -10,17 +10,25 @@ import {
 
 export default function IndooWallet({ open, onClose, userId = 'default' }) {
   const [summary, setSummary] = useState(() => getWalletSummary(userId))
-  const [transactions, setTransactions] = useState(() => getTransactions(userId))
+  const [transactions, setTransactions] = useState([])
   const [showTopUp, setShowTopUp] = useState(false)
   const [topUpAmount, setTopUpAmount] = useState('')
   const [topUpProof, setTopUpProof] = useState(null)
   const [tab, setTab] = useState('wallet') // wallet | history
 
+  // Load transactions (async) when opened or tab switches to history
+  useEffect(() => {
+    if (open) {
+      setSummary(getWalletSummary(userId))
+      getTransactions(userId).then(data => setTransactions(Array.isArray(data) ? data : []))
+    }
+  }, [open, userId])
+
   if (!open) return null
 
   const refresh = () => {
     setSummary(getWalletSummary(userId))
-    setTransactions(getTransactions(userId))
+    getTransactions(userId).then(data => setTransactions(Array.isArray(data) ? data : []))
   }
 
   const handleTopUp = () => {
@@ -33,7 +41,7 @@ export default function IndooWallet({ open, onClose, userId = 'default' }) {
     refresh()
   }
 
-  const warnColor = { green: '#8DC63F', yellow: '#FFD700', orange: '#F59E0B', red: '#EF4444' }[summary.warning.level]
+  const warnColor = { green: '#8DC63F', yellow: '#FFD700', orange: '#8DC63F', red: '#EF4444' }[summary.warning.level]
 
   return createPortal(
     <div style={{ position: 'fixed', inset: 0, zIndex: 99998, background: '#0d0d0f', display: 'flex', flexDirection: 'column' }}>

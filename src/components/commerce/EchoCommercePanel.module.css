@@ -6,7 +6,7 @@
   width: 280px;
   height: calc(100% - 90px);
   background: #FAFAFA;
-  border-left: 1px solid rgba(245,158,11,0.2);
+  border-left: 1px solid rgba(141,198,63,0.2);
   z-index: 200;
   transform: translateX(100%);
   transition: transform 0.35s cubic-bezier(0.4, 0, 0.2, 1);
@@ -27,7 +27,7 @@
   top: 50%;
   transform: translateY(-50%);
   width: 36px;
-  background: #F59E0B;
+  background: #8DC63F;
   border: none;
   border-radius: 10px 0 0 10px;
   color: #1a1a1a;
@@ -42,7 +42,7 @@
   gap: 4px;
   pointer-events: all;
   font-family: inherit;
-  box-shadow: -4px 0 16px rgba(245,158,11,0.25);
+  box-shadow: -4px 0 16px rgba(141,198,63,0.25);
 }
 
 .tabLabel {
@@ -66,7 +66,7 @@
 
 .inner::-webkit-scrollbar { width: 4px; }
 .inner::-webkit-scrollbar-track { background: transparent; }
-.inner::-webkit-scrollbar-thumb { background: rgba(245,158,11,0.3); border-radius: 2px; }
+.inner::-webkit-scrollbar-thumb { background: rgba(141,198,63,0.3); border-radius: 2px; }
 
 /* ── Header ─────────────────────────────────────────────────────────────── */
 .header {
@@ -84,7 +84,7 @@
 .echo {
   font-size: 16px;
   font-weight: 900;
-  color: #F59E0B;
+  color: #8DC63F;
   letter-spacing: 0.08em;
 }
 
@@ -105,9 +105,9 @@
 }
 
 .headerCatalogBtn {
-  background: rgba(245,158,11,0.12);
-  border: 1px solid rgba(245,158,11,0.3);
-  color: #F59E0B;
+  background: rgba(141,198,63,0.12);
+  border: 1px solid rgba(141,198,63,0.3);
+  color: #8DC63F;
   font-size: 11px;
   font-weight: 700;
   padding: 5px 10px;
@@ -117,7 +117,7 @@
 }
 
 .headerCatalogBtn:hover {
-  background: rgba(245,158,11,0.22);
+  background: rgba(141,198,63,0.22);
 }
 
 /* ── Business name ──────────────────────────────────────────────────────── */
@@ -127,7 +127,7 @@
   color: rgba(255,255,255,0.85);
   text-align: center;
   padding: 4px 8px;
-  background: rgba(245,158,11,0.07);
+  background: rgba(141,198,63,0.07);
   border-radius: 8px;
 }
 
@@ -179,9 +179,9 @@
 
 .sectionTabActive {
   background: rgba(0,0,0,0.85);
-  border-color: #F59E0B;
-  color: #F59E0B;
-  box-shadow: 0 0 8px rgba(245,158,11,0.2);
+  border-color: #8DC63F;
+  color: #8DC63F;
+  box-shadow: 0 0 8px rgba(141,198,63,0.2);
 }
 
 /* ── List / scroll container ─────────────────────────────────────────────── */
@@ -256,9 +256,9 @@
 .orderTime { color: #bbb; }
 
 .advanceBtn {
-  background: rgba(245,158,11,0.1);
-  border: 1px solid rgba(245,158,11,0.25);
-  color: #F59E0B;
+  background: rgba(141,198,63,0.1);
+  border: 1px solid rgba(141,198,63,0.25);
+  color: #8DC63F;
   font-size: 10px;
   font-weight: 700;
   padding: 5px 8px;
@@ -270,17 +270,17 @@
 }
 
 .advanceBtn:hover {
-  background: rgba(245,158,11,0.2);
+  background: rgba(141,198,63,0.2);
 }
 
 /* ── Product row ─────────────────────────────────────────────────────────── */
 .addProductBtn {
   width: 100%;
   padding: 10px;
-  background: rgba(245,158,11,0.1);
-  border: 1px dashed rgba(245,158,11,0.35);
+  background: rgba(141,198,63,0.1);
+  border: 1px dashed rgba(141,198,63,0.35);
   border-radius: 10px;
-  color: #F59E0B;
+  color: #8DC63F;
   font-size: 12px;
   font-weight: 700;
   cursor: pointer;
@@ -321,7 +321,7 @@
 }
 
 .productName  { font-size: 11px; font-weight: 700; color: #fff; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.productPrice { font-size: 11px; color: #F59E0B; font-weight: 700; }
+.productPrice { font-size: 11px; color: #8DC63F; font-weight: 700; }
 .productStock { font-size: 10px; color: rgba(255,255,255,0.4); }
 
 .toggleActive {
@@ -339,16 +339,16 @@
 .toggleOff { background: #f5f5f5; border-color: #ccc; color: #999; }
 
 /* Bulk actions */
-.bulkBar { display: flex; align-items: center; gap: 6px; padding: 8px 10px; background: rgba(245,158,11,0.08); border: 1px solid rgba(245,158,11,0.2); border-radius: 8px; margin-bottom: 6px; }
-.bulkCount { font-size: 11px; font-weight: 700; color: #F59E0B; flex: 1; }
-.bulkBtn { padding: 4px 10px; background: #F59E0B; border: none; border-radius: 6px; color: #000; font-size: 10px; font-weight: 800; cursor: pointer; font-family: inherit; }
+.bulkBar { display: flex; align-items: center; gap: 6px; padding: 8px 10px; background: rgba(141,198,63,0.08); border: 1px solid rgba(141,198,63,0.2); border-radius: 8px; margin-bottom: 6px; }
+.bulkCount { font-size: 11px; font-weight: 700; color: #8DC63F; flex: 1; }
+.bulkBtn { padding: 4px 10px; background: #8DC63F; border: none; border-radius: 6px; color: #000; font-size: 10px; font-weight: 800; cursor: pointer; font-family: inherit; }
 .bulkBtnClear { padding: 4px 8px; background: none; border: 1px solid #ddd; border-radius: 6px; color: #999; font-size: 10px; font-weight: 600; cursor: pointer; font-family: inherit; }
 
 .trackingInfo { padding: 4px 0; }
 .trackingLabel { font-size: 10px; font-weight: 700; color: #818CF8; font-family: monospace; }
 
-.orderCheck { accent-color: #F59E0B; width: 14px; height: 14px; flex-shrink: 0; cursor: pointer; }
-.orderCardSelected { border-color: rgba(245,158,11,0.3) !important; background: rgba(245,158,11,0.04) !important; }
+.orderCheck { accent-color: #8DC63F; width: 14px; height: 14px; flex-shrink: 0; cursor: pointer; }
+.orderCardSelected { border-color: rgba(141,198,63,0.3) !important; background: rgba(141,198,63,0.04) !important; }
 
 .productActions { display: flex; flex-direction: column; gap: 4px; flex-shrink: 0; }
 
@@ -393,7 +393,7 @@
 }
 
 .shippingCheck {
-  accent-color: #F59E0B;
+  accent-color: #8DC63F;
   width: 15px;
   height: 15px;
   flex-shrink: 0;
@@ -414,10 +414,10 @@
   margin-top: 4px;
   width: 100%;
   padding: 10px;
-  background: rgba(245,158,11,0.15);
-  border: 1px solid rgba(245,158,11,0.4);
+  background: rgba(141,198,63,0.15);
+  border: 1px solid rgba(141,198,63,0.4);
   border-radius: 10px;
-  color: #F59E0B;
+  color: #8DC63F;
   font-size: 12px;
   font-weight: 800;
   cursor: pointer;
@@ -425,7 +425,7 @@
 }
 
 .saveShippingBtn:hover {
-  background: rgba(245,158,11,0.25);
+  background: rgba(141,198,63,0.25);
 }
 
 /* ── Per-product delivery pricing ─────────────────────────────────────────── */
@@ -464,7 +464,7 @@
 
 .deliveryPricingArrow {
   font-size: 14px;
-  color: #F59E0B;
+  color: #8DC63F;
   flex-shrink: 0;
 }
 

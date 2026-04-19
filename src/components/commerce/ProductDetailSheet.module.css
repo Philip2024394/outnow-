@@ -106,7 +106,7 @@
   right: 14px;
   z-index: 20;
   background: #0a0a0a;
-  border: 1.5px solid rgba(245,158,11,0.4);
+  border: 1.5px solid rgba(141,198,63,0.4);
   border-radius: 28px;
   padding: 6px;
   display: flex;
@@ -130,16 +130,16 @@
 }
 
 .sidePanelBtnActive {
-  border-color: #F59E0B;
-  color: #F59E0B;
-  background: rgba(245,158,11,0.12);
+  border-color: #8DC63F;
+  color: #8DC63F;
+  background: rgba(141,198,63,0.12);
 }
 
 .sidePanelCartBtn {
   width: 40px;
   height: 40px;
   border-radius: 50%;
-  background: #F59E0B;
+  background: #8DC63F;
   border: none;
   color: #000;
   display: flex;
@@ -147,7 +147,7 @@
   justify-content: center;
   cursor: pointer;
   position: relative;
-  box-shadow: 0 2px 10px rgba(245,158,11,0.5);
+  box-shadow: 0 2px 10px rgba(141,198,63,0.5);
   transition: background 0.15s;
 }
 
@@ -187,8 +187,8 @@
 .qtyCompact {
   display: flex;
   align-items: center;
-  background: rgba(245,158,11,0.12);
-  border: 1.5px solid #F59E0B;
+  background: rgba(141,198,63,0.12);
+  border: 1.5px solid #8DC63F;
   border-radius: 10px;
   overflow: hidden;
   flex-shrink: 0;
@@ -199,7 +199,7 @@
   height: 44px;
   background: none;
   border: none;
-  color: #F59E0B;
+  color: #8DC63F;
   font-size: 18px;
   font-weight: 300;
   cursor: pointer;
@@ -211,7 +211,7 @@
   justify-content: center;
 }
 
-.qtyCompactBtn:hover { background: rgba(245,158,11,0.15); }
+.qtyCompactBtn:hover { background: rgba(141,198,63,0.15); }
 
 .qtyCompactNum {
   min-width: 28px;
@@ -219,8 +219,8 @@
   font-size: 14px;
   font-weight: 900;
   color: #fff;
-  border-left: 1px solid rgba(245,158,11,0.3);
-  border-right: 1px solid rgba(245,158,11,0.3);
+  border-left: 1px solid rgba(141,198,63,0.3);
+  border-right: 1px solid rgba(141,198,63,0.3);
   padding: 0 4px;
   height: 44px;
   display: flex;
@@ -274,9 +274,9 @@
 .category {
   font-size: 11px;
   font-weight: 700;
-  color: #F59E0B;
-  background: rgba(245,158,11,0.12);
-  border: 1px solid rgba(245,158,11,0.3);
+  color: #8DC63F;
+  background: rgba(141,198,63,0.12);
+  border: 1px solid rgba(141,198,63,0.3);
   border-radius: 20px;
   padding: 3px 10px;
 }
@@ -293,7 +293,7 @@
 .price {
   font-size: 26px;
   font-weight: 900;
-  color: #F59E0B;
+  color: #8DC63F;
   margin-top: -4px;
 }
 
@@ -362,7 +362,7 @@
 }
 
 .variantSelected {
-  color: #F59E0B;
+  color: #8DC63F;
   text-transform: none;
   font-weight: 800;
 }
@@ -391,9 +391,9 @@
 }
 
 .variantBtnActive {
-  background: rgba(245,158,11,0.18);
-  border-color: #F59E0B;
-  color: #F59E0B;
+  background: rgba(141,198,63,0.18);
+  border-color: #8DC63F;
+  color: #8DC63F;
 }
 
 /* ── Color swatch button ─────────────────────────────────────────────────── */
@@ -421,9 +421,9 @@
 }
 
 .swatchDotActive {
-  border-color: #F59E0B;
+  border-color: #8DC63F;
   transform: scale(1.15);
-  box-shadow: 0 0 0 3px rgba(245,158,11,0.4);
+  box-shadow: 0 0 0 3px rgba(141,198,63,0.4);
 }
 
 /* ── Stock ───────────────────────────────────────────────────────────────── */
@@ -551,7 +551,7 @@
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;
-  border-right: 1px solid rgba(245,158,11,0.2);
+  border-right: 1px solid rgba(141,198,63,0.2);
 }
 
 /* Frosted glass overlay — same pattern as notifications screen */
@@ -585,7 +585,7 @@
 .specsPanelTitle {
   font-size: 16px;
   font-weight: 800;
-  color: #F59E0B;
+  color: #8DC63F;
   letter-spacing: 0.02em;
   text-shadow: 0 1px 8px rgba(0,0,0,0.5);
 }
@@ -620,7 +620,7 @@
 
 .specsList::-webkit-scrollbar { width: 3px; }
 .specsList::-webkit-scrollbar-track { background: transparent; }
-.specsList::-webkit-scrollbar-thumb { background: rgba(245,158,11,0.25); border-radius: 2px; }
+.specsList::-webkit-scrollbar-thumb { background: rgba(141,198,63,0.25); border-radius: 2px; }
 
 .specsItem {
   display: flex;
@@ -667,7 +667,7 @@
   gap: 8px;
   width: 100%;
   padding: 15px 14px;
-  background: #F59E0B;
+  background: #8DC63F;
   border: none;
   border-radius: 14px;
   color: #000;
@@ -675,7 +675,7 @@
   font-weight: 900;
   font-family: inherit;
   cursor: pointer;
-  box-shadow: 0 4px 16px rgba(245,158,11,0.4);
+  box-shadow: 0 4px 16px rgba(141,198,63,0.4);
   transition: background 0.15s;
   margin-top: 4px;
 }
@@ -696,10 +696,10 @@
   gap: 8px;
   width: 100%;
   padding: 15px 14px;
-  background: rgba(245,158,11,0.18);
-  border: 1.5px solid #F59E0B;
+  background: rgba(141,198,63,0.18);
+  border: 1.5px solid #8DC63F;
   border-radius: 14px;
-  color: #F59E0B;
+  color: #8DC63F;
   font-size: 14px;
   font-weight: 900;
   font-family: inherit;
@@ -708,16 +708,16 @@
   margin-top: 4px;
 }
 
-.addCartBtnInCart:hover { background: rgba(245,158,11,0.26); }
+.addCartBtnInCart:hover { background: rgba(141,198,63,0.26); }
 
 /* Small inline "Add Cart" button — sits right of WhatsApp in ctaRow */
 .addCartSmall {
   height: 44px;
   padding: 0 14px;
-  background: rgba(245, 158, 11, 0.12);
-  border: 1.5px solid #F59E0B;
+  background: rgba(141, 198, 63, 0.12);
+  border: 1.5px solid #8DC63F;
   border-radius: 10px;
-  color: #F59E0B;
+  color: #8DC63F;
   font-size: 11px;
   font-weight: 900;
   cursor: pointer;
@@ -727,7 +727,7 @@
   transition: background 0.12s;
 }
 
-.addCartSmall:hover { background: rgba(245, 158, 11, 0.22); }
+.addCartSmall:hover { background: rgba(141, 198, 63, 0.22); }
 
 .addCartSmall:disabled {
   border-color: rgba(255, 255, 255, 0.1);
@@ -766,7 +766,7 @@
   gap: 9px;
   width: 100%;
   padding: 15px 14px;
-  background: #F59E0B;
+  background: #8DC63F;
   border: none;
   border-radius: 14px;
   color: #000;
@@ -775,7 +775,7 @@
   text-decoration: none;
   font-family: inherit;
   cursor: pointer;
-  box-shadow: 0 4px 16px rgba(245,158,11,0.4);
+  box-shadow: 0 4px 16px rgba(141,198,63,0.4);
   transition: background 0.15s;
   margin-top: 4px;
 }

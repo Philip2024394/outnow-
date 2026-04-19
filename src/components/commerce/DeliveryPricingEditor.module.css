@@ -97,7 +97,7 @@
   font-size: 12px; font-weight: 700; cursor: pointer; font-family: inherit;
   text-align: center; transition: color 0.15s;
 }
-.tabActive { color: #F59E0B; border-bottom-color: #F59E0B; }
+.tabActive { color: #8DC63F; border-bottom-color: #8DC63F; }
 
 /* ── Body ── */
 .body {
@@ -109,7 +109,7 @@
   display: flex; align-items: center; justify-content: space-between;
   padding: 12px 20px; border-bottom: 1px solid rgba(255,255,255,0.04); gap: 10px;
 }
-.carrierOn { background: rgba(245,158,11,0.03); }
+.carrierOn { background: rgba(141,198,63,0.03); }
 
 .carrierToggle {
   display: flex; align-items: center; gap: 10px; cursor: pointer; flex: 1; min-width: 0;
@@ -121,7 +121,7 @@
   display: flex; align-items: center; justify-content: center;
   font-size: 12px; color: #000; flex-shrink: 0; transition: all 0.15s;
 }
-.checkOn { background: #F59E0B; border-color: #F59E0B; }
+.checkOn { background: #8DC63F; border-color: #8DC63F; }
 
 .carrierName {
   font-size: 13px; font-weight: 700; color: rgba(255,255,255,0.75);
@@ -133,7 +133,7 @@
   display: block;
   font-size: 9px;
   font-weight: 600;
-  color: #F59E0B;
+  color: #8DC63F;
   opacity: 0.6;
   margin-top: 1px;
 }
@@ -172,7 +172,7 @@
   font-family: inherit; outline: none; width: 100%; box-sizing: border-box;
 }
 .textInput::placeholder { color: rgba(255,255,255,0.2); }
-.textInput:focus { border-color: rgba(245,158,11,0.4); }
+.textInput:focus { border-color: rgba(141,198,63,0.4); }
 
 .selectInput {
   background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1);
@@ -182,11 +182,11 @@
 .selectInput option { background: #222; color: #fff; }
 
 .addBtn {
-  padding: 10px; background: rgba(245,158,11,0.12); border: 1px solid rgba(245,158,11,0.3);
-  border-radius: 8px; color: #F59E0B; font-size: 13px; font-weight: 700;
+  padding: 10px; background: rgba(141,198,63,0.12); border: 1px solid rgba(141,198,63,0.3);
+  border-radius: 8px; color: #8DC63F; font-size: 13px; font-weight: 700;
   cursor: pointer; font-family: inherit; transition: background 0.15s;
 }
-.addBtn:hover { background: rgba(245,158,11,0.2); }
+.addBtn:hover { background: rgba(141,198,63,0.2); }
 .addBtn:disabled { opacity: 0.3; cursor: default; }
 
 /* ── Custom carrier list ── */
@@ -215,7 +215,7 @@
 .customName { font-size: 13px; font-weight: 700; color: rgba(255,255,255,0.75); }
 .customCat { font-size: 10px; color: rgba(255,255,255,0.3); text-transform: uppercase; }
 
-.customPrice { font-size: 13px; font-weight: 800; color: #F59E0B; flex-shrink: 0; }
+.customPrice { font-size: 13px; font-weight: 800; color: #8DC63F; flex-shrink: 0; }
 
 .exportInfo { flex: 1; display: flex; flex-direction: column; gap: 2px; }
 .exportCountry { font-size: 13px; font-weight: 700; color: rgba(255,255,255,0.75); }
@@ -237,7 +237,7 @@
 }
 
 .saveBtn {
-  padding: 12px 28px; background: #F59E0B; color: #000;
+  padding: 12px 28px; background: #8DC63F; color: #000;
   font-size: 14px; font-weight: 800; border: none; border-radius: 10px;
   cursor: pointer; font-family: inherit; transition: background 0.15s;
 }

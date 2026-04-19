@@ -29,9 +29,9 @@
 }
 
 .cartBadgeOpen .cartBadgeTop {
-  border-color: rgba(245, 158, 11, 0.55);
-  background: rgba(245, 158, 11, 0.12);
-  color: #F59E0B;
+  border-color: rgba(141, 198, 63, 0.55);
+  background: rgba(141, 198, 63, 0.12);
+  color: #8DC63F;
 }
 
 /* Item count badge */
@@ -42,7 +42,7 @@
   width: 18px;
   height: 18px;
   border-radius: 50%;
-  background: #F59E0B;
+  background: #8DC63F;
   color: #000;
   font-size: 10px;
   font-weight: 900;
@@ -61,7 +61,7 @@
 .cartDropdown {
   margin-top: 8px;
   background: rgba(12, 12, 12, 0.97);
-  border: 1px solid rgba(245, 158, 11, 0.2);
+  border: 1px solid rgba(141, 198, 63, 0.2);
   border-radius: 18px;
   padding: 14px;
   width: 248px;
@@ -93,7 +93,7 @@
 .cartQty {
   font-size: 11px;
   font-weight: 900;
-  color: #F59E0B;
+  color: #8DC63F;
   flex-shrink: 0;
   width: 22px;
 }
@@ -132,9 +132,9 @@
   width: 22px;
   height: 22px;
   border-radius: 50%;
-  background: rgba(245, 158, 11, 0.1);
-  border: 1.5px solid rgba(245, 158, 11, 0.3);
-  color: #F59E0B;
+  background: rgba(141, 198, 63, 0.1);
+  border: 1.5px solid rgba(141, 198, 63, 0.3);
+  color: #8DC63F;
   font-size: 13px;
   line-height: 1;
   display: flex;
@@ -145,7 +145,7 @@
   transition: background 0.12s;
 }
 
-.cartQtyBtn:hover { background: rgba(245, 158, 11, 0.22); }
+.cartQtyBtn:hover { background: rgba(141, 198, 63, 0.22); }
 
 .cartQtyBtnDel {
   border-color: rgba(239, 68, 68, 0.35);
@@ -185,7 +185,7 @@
 .cartTotalVal {
   font-size: 16px;
   font-weight: 900;
-  color: #F59E0B;
+  color: #8DC63F;
 }
 
 /* ── Notes input ─────────────────────────────────────────────────────────── */
@@ -203,7 +203,7 @@
 }
 
 .notesInput::placeholder { color: rgba(255, 255, 255, 0.25); }
-.notesInput:focus { border-color: rgba(245, 158, 11, 0.4); }
+.notesInput:focus { border-color: rgba(141, 198, 63, 0.4); }
 
 /* ── Address row ─────────────────────────────────────────────────────────── */
 .addrWrap {
@@ -230,15 +230,15 @@
   outline: none;
 }
 
-.addrInput:focus { border-color: rgba(245, 158, 11, 0.4); }
+.addrInput:focus { border-color: rgba(141, 198, 63, 0.4); }
 
 .locateBtn {
   width: 32px;
   height: 32px;
   border-radius: 8px;
-  background: rgba(245, 158, 11, 0.1);
-  border: 1px solid rgba(245, 158, 11, 0.3);
-  color: #F59E0B;
+  background: rgba(141, 198, 63, 0.1);
+  border: 1px solid rgba(141, 198, 63, 0.3);
+  color: #8DC63F;
   font-size: 14px;
   display: flex;
   align-items: center;
@@ -253,7 +253,7 @@
 .orderBtn {
   width: 100%;
   padding: 12px;
-  background: #F59E0B;
+  background: #8DC63F;
   border: none;
   border-radius: 12px;
   color: #000;
@@ -261,7 +261,7 @@
   font-weight: 900;
   cursor: pointer;
   font-family: inherit;
-  box-shadow: 0 4px 16px rgba(245, 158, 11, 0.4);
+  box-shadow: 0 4px 16px rgba(141, 198, 63, 0.4);
   transition: background 0.15s;
 }
 

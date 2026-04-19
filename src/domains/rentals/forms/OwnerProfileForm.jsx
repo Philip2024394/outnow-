@@ -184,7 +184,7 @@ export default function OwnerProfileForm({ open, onClose, onComplete }) {
       },
       {
         id: 'standard', name: 'Cruiser', tagline: 'Ride With Confidence', price: '49.000', color: '#3B82F6', commission: '5%',
-        commColor: '#F59E0B', commBg: 'rgba(245,158,11,0.08)', commBorder: 'rgba(245,158,11,0.2)',
+        commColor: '#8DC63F', commBg: 'rgba(141,198,63,0.08)', commBorder: 'rgba(141,198,63,0.2)',
         contact: 'WhatsApp direct', badge: null, stars: 3, img: 'https://ik.imagekit.io/nepgaxllc/ChatGPT%20Image%20Apr%2019,%202026,%2012_06_08%20AM.png',
         features: [
           { t: 'Up to 10 listings', y: true },

@@ -33,7 +33,7 @@
 .listingDeleteBtn { padding: 6px 12px; border-radius: 6px; font-size: 10px; font-weight: 700; font-family: inherit; background: rgba(239,68,68,0.08); border: 1px solid rgba(239,68,68,0.15); color: #EF4444; cursor: pointer; }
 .statusBadge { font-size: 9px; font-weight: 800; padding: 3px 8px; border-radius: 4px; text-align: center; }
 .statusActive { background: rgba(141,198,63,0.1); color: #8DC63F; }
-.statusPaused { background: rgba(245,158,11,0.1); color: #F59E0B; }
+.statusPaused { background: rgba(141,198,63,0.1); color: #8DC63F; }
 
 /* ── Form ── */
 .formOverlay { position: fixed; inset: 0; z-index: 400; background: rgba(0,0,0,0.8); backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px); display: flex; align-items: center; justify-content: center; padding: 16px; }

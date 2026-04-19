@@ -16,12 +16,12 @@ import SectionCTAButton from '@/components/ui/SectionCTAButton'
 import { hasVisitedSection, markSectionVisited } from '@/services/sectionVisitService'
 import styles from './ShopSearchScreen.module.css'
 
-const MARKET_LANDING_BG = 'https://ik.imagekit.io/nepgaxllc/ChatGPT%20Image%20Apr%2017,%202026,%2002_19_47%20AM.png'
+const MARKET_LANDING_BG = 'https://ik.imagekit.io/nepgaxllc/UntitledsssaaddddddddDADSASDSDASSSsdfsdf.png'
 
 // ─────────────────────────────────────────────────────────────────────────────
 // ShopSearchScreen — header search bar + category chips + 3-col seller grid
 // Click seller card → full-screen business page
-// Theme: gold #F59E0B
+// Theme: gold #8DC63F
 // ─────────────────────────────────────────────────────────────────────────────
 
 const SEARCH_CATEGORIES = [
@@ -152,7 +152,7 @@ function ProductCard({ product, onClick, isFirstNewShopProduct, isPowerSellerPro
               <span style={{ fontSize:9, textDecoration:'line-through', color:'rgba(255,255,255,0.3)' }}>{fmtRp(price)}</span>
             </>
           ) : (
-            <span style={{ fontSize:12, fontWeight:800, color:'#F59E0B', fontFamily:'monospace' }}>{fmtRp(price)}</span>
+            <span style={{ fontSize:12, fontWeight:800, color:'#8DC63F', fontFamily:'monospace' }}>{fmtRp(price)}</span>
           )}
         </div>
         {sellerName && (
@@ -217,6 +217,16 @@ function SellerCard({ seller, onClick, onAuctionTap }) {
         )}
       </div>
     </button>
+  )
+}
+
+// DEV: Page badge
+function MktBadge({ num, label }) {
+  return (
+    <div style={{ position: 'fixed', top: 6, left: 6, zIndex: 99990, display: 'flex', alignItems: 'center', gap: 6, pointerEvents: 'none' }}>
+      <div style={{ width: 28, height: 28, borderRadius: '50%', background: '#8DC63F', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 12, fontWeight: 900, color: '#000', boxShadow: '0 2px 8px rgba(141,198,63,0.4)' }}>{num}</div>
+      <span style={{ fontSize: 9, fontWeight: 800, color: 'rgba(141,198,63,0.6)', letterSpacing: '0.03em', textTransform: 'uppercase' }}>{label}</span>
+    </div>
   )
 }
 
@@ -347,13 +357,16 @@ export default function ShopSearchScreen({ onClose, userCity, userCountry, giftF
     setAuctionOpen(true)
   }
 
-  if (showLanding) return (
-    <div className={styles.landingPage} style={{ backgroundImage: `url("${MARKET_LANDING_BG}")` }}>
+  return (
+    <>
+    {/* ── Landing page (M1) — hidden via display:none instead of unmounting ── */}
+    <div className={styles.landingPage} style={{ backgroundImage: `url("${MARKET_LANDING_BG}")`, display: showLanding ? undefined : 'none' }}>
+      <MktBadge num="M1" label="Market Landing" />
       <div className={styles.landingOverlay} />
 
       {/* Header: brand logo + search bar */}
       <div className={styles.landingHeader}>
-        <img src="https://ik.imagekit.io/nepgaxllc/Untitledfsdsd-removebg-preview.png" alt="Indoo Market" className={styles.landingHeaderLogo} />
+        <span style={{ fontSize: 28, fontWeight: 900, color: '#fff', letterSpacing: '0.04em', flexShrink: 0 }}>IND<span style={{ color: '#8DC63F' }}>OO</span> <span style={{ fontWeight: 700, fontSize: 16, color: 'rgba(255,255,255,0.5)' }}>MARKET</span></span>
         <div className={styles.landingSearchWrap}>
           <svg className={styles.landingSearchIcon} width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
             <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
@@ -367,28 +380,40 @@ export default function ShopSearchScreen({ onClose, userCity, userCountry, giftF
         </div>
       </div>
 
+      {/* Live order ticker */}
+      <div style={{ overflow: 'hidden', padding: '6px 14px', flexShrink: 0 }}>
+        <div style={{ display: 'flex', animation: 'tickerScroll 20s linear infinite', whiteSpace: 'nowrap', gap: 30 }}>
+          {['Sarah bought Leather Bag · 2m ago', 'Andi booked Honda Vario · 5m ago', 'Rizky won Auction · 8m ago', 'Wayan listed Sound System · 12m ago', 'Sari sold Villa Package · 15m ago'].map((t, i) => (
+            <span key={i} style={{ fontSize: 11, fontWeight: 600, color: 'rgba(255,255,255,0.35)', display: 'flex', alignItems: 'center', gap: 5 }}>
+              <span style={{ width: 5, height: 5, borderRadius: '50%', background: '#8DC63F', flexShrink: 0 }} />{t}
+            </span>
+          ))}
+        </div>
+      </div>
+
       {/* Market section cards */}
       <div className={styles.landingCards}>
-        <button className={styles.landingCard} onClick={() => { markSectionVisited('marketplace'); setShowLanding(false); onLandingChange?.(false) }}>
-          <span className={styles.landingCardIcon}>✨</span>
-          <span className={styles.landingCardTitle}>New Products</span>
-          <span className={styles.landingCardSub}>Brand new goods</span>
-        </button>
-        <button className={styles.landingCard} onClick={() => onOpenUsedGoods?.()}>
-          <span className={styles.landingCardIcon}>🔄</span>
-          <span className={styles.landingCardTitle}>Used Goods</span>
-          <span className={styles.landingCardSub}>Pre-owned deals</span>
-        </button>
-        <button className={styles.landingCard} onClick={() => onOpenWanted?.()}>
-          <span className={styles.landingCardIcon}>👀</span>
-          <span className={styles.landingCardTitle}>Wanted</span>
-          <span className={styles.landingCardSub}>Post what you need</span>
-        </button>
-        <button className={styles.landingCard} onClick={() => { markSectionVisited('marketplace'); setShowLanding(false); onLandingChange?.(false) }}>
-          <span className={styles.landingCardIcon}>🛍️</span>
-          <span className={styles.landingCardTitle}>Shop All</span>
-          <span className={styles.landingCardSub}>Browse everything</span>
-        </button>
+        {[
+          { label: 'New', count: '24 items', onClick: () => { markSectionVisited('marketplace'); setShowLanding(false); onLandingChange?.(false) } },
+          { label: 'Used', count: '12 deals', onClick: () => onOpenUsedGoods?.() },
+          { label: 'Wanted', count: '8 requests', onClick: () => onOpenWanted?.() },
+          { label: 'Shop', count: 'Browse', onClick: () => { markSectionVisited('marketplace'); setShowLanding(false); onLandingChange?.(false) } },
+          { label: 'Flash', count: '3 LIVE', live: true, onClick: () => { markSectionVisited('marketplace'); setShowLanding(false); onLandingChange?.(false); requestAnimationFrame(() => setFlashSaleOpen(true)) } },
+          { label: 'Auction', count: '2 LIVE', live: true, onClick: () => { markSectionVisited('marketplace'); setShowLanding(false); onLandingChange?.(false); requestAnimationFrame(() => setAuctionOpen(true)) } },
+        ].map((item, i) => (
+          <button key={i} className={styles.landingCard} onClick={item.onClick}>
+            <span className={styles.landingCardIcon}>
+              <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 10a2 2 0 0 0-2 2c0 1.5.8 3.3 2 5"/><path d="M6 12a6 6 0 0 1 12 0c0 2.5-.5 5-2 7.5"/><path d="M8 15c-.5-1-.8-2.3-.8-3a4.8 4.8 0 0 1 9.6 0"/><path d="M2 12C2 6.5 6.5 2 12 2s10 4.5 10 10c0 3-1 6-2.5 8.5"/><path d="M4 20c1-2.5 2-5.5 2-8"/></svg>
+            </span>
+            <div className={styles.landingCardLabel}>
+              <span className={styles.landingCardTitle}>{item.label}</span>
+              <span style={{ padding: '2px 8px', borderRadius: 6, background: item.live ? 'rgba(239,68,68,0.15)' : 'rgba(255,215,0,0.12)', fontSize: 11, fontWeight: 800, color: item.live ? '#EF4444' : '#FFD700', display: 'flex', alignItems: 'center', gap: 4 }}>
+                {item.live && <span style={{ width: 5, height: 5, borderRadius: '50%', background: '#EF4444', animation: 'livePulse 1.5s ease-in-out infinite' }} />}
+                {item.count}
+              </span>
+            </div>
+          </button>
+        ))}
       </div>
 
       {/* Footer content — pushed to very bottom */}
@@ -397,11 +422,10 @@ export default function ShopSearchScreen({ onClose, userCity, userCountry, giftF
       </div>
 
     </div>
-  )
 
-  return (
-    <>
-    <div className={styles.screen}>
+    {/* ── Products grid (M2) — hidden via display:none instead of unmounting ── */}
+    <div className={styles.screen} style={{ display: showLanding ? 'none' : undefined }}>
+      <MktBadge num="M2" label="Products Grid" />
 
       {/* ── Gift context chip ── */}
       {giftFor && (
@@ -418,15 +442,9 @@ export default function ShopSearchScreen({ onClose, userCity, userCountry, giftF
         </div>
       )}
 
-      {/* ── Header: logo + settings icon ── */}
+      {/* ── Header: logo left + home button right ── */}
       <div className={styles.header}>
-        <img src="https://ik.imagekit.io/nepgaxllc/Untitledfsdsd-removebg-preview.png" alt="Indoo Market" className={styles.headerLogo} />
-        <button className={styles.profileBtn} onClick={() => setBuyerProfileOpen(true)} title="My Profile">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
-            <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/>
-          </svg>
-          <span className={styles.profileBtnLabel}>Account</span>
-        </button>
+        <span style={{ fontSize: 28, fontWeight: 900, letterSpacing: '-0.01em' }}><span style={{ color: '#fff' }}>IND</span><span style={{ color: '#8DC63F' }}>OO</span><span style={{ fontWeight: 700, fontSize: 16, color: 'rgba(255,255,255,0.5)', marginLeft: 8 }}>MARKET</span></span>
       </div>
 
       {/* ── Search bar + filter ── */}
@@ -465,6 +483,17 @@ export default function ShopSearchScreen({ onClose, userCity, userCountry, giftF
             <span className={styles.filterInlineDot} />
           )}
         </button>
+      </div>
+
+      {/* ── Live order ticker ── */}
+      <div style={{ overflow: 'hidden', padding: '6px 14px', flexShrink: 0 }}>
+        <div style={{ display: 'flex', animation: 'tickerScroll 20s linear infinite', whiteSpace: 'nowrap', gap: 30 }}>
+          {['Sarah bought Leather Bag · 2m ago', 'Andi booked Honda Vario · 5m ago', 'Rizky won Auction · 8m ago', 'Wayan listed Sound System · 12m ago', 'Sari sold Villa Package · 15m ago'].map((t, i) => (
+            <span key={i} style={{ fontSize: 11, fontWeight: 600, color: 'rgba(255,255,255,0.35)', display: 'flex', alignItems: 'center', gap: 5 }}>
+              <span style={{ width: 5, height: 5, borderRadius: '50%', background: '#8DC63F', flexShrink: 0 }} />{t}
+            </span>
+          ))}
+        </div>
       </div>
 
       {/* ── 3 Tabs: Products / Flash Sale / Auctions ── */}
@@ -561,8 +590,8 @@ export default function ShopSearchScreen({ onClose, userCity, userCountry, giftF
               style={{
                 padding:'5px 10px', fontSize:10, fontWeight:700, cursor:'pointer',
                 border:'none', fontFamily:'inherit',
-                background: viewMode === m.id ? 'rgba(245,158,11,0.2)' : 'transparent',
-                color: viewMode === m.id ? '#F59E0B' : 'rgba(255,255,255,0.35)',
+                background: viewMode === m.id ? 'rgba(141,198,63,0.2)' : 'transparent',
+                color: viewMode === m.id ? '#8DC63F' : 'rgba(255,255,255,0.35)',
               }}
             >{m.label}</button>
           ))}
@@ -574,7 +603,7 @@ export default function ShopSearchScreen({ onClose, userCity, userCountry, giftF
       {(viewMode === 'all' || viewMode === 'products') && filteredProducts.length > 0 && (
         <>
           {viewMode === 'all' && (
-            <div style={{ padding:'8px 16px 4px', fontSize:12, fontWeight:800, color:'#F59E0B' }}>
+            <div style={{ padding:'10px 16px 6px', fontSize:20, fontWeight:900, color:'#fff' }}>
               Products
             </div>
           )}
@@ -617,7 +646,7 @@ export default function ShopSearchScreen({ onClose, userCity, userCountry, giftF
       {(viewMode === 'all' || viewMode === 'sellers') && (
         <>
           {viewMode === 'all' && filteredProducts.length > 0 && (
-            <div style={{ padding:'12px 16px 4px', fontSize:12, fontWeight:800, color:'#A78BFA' }}>
+            <div style={{ padding:'10px 16px 6px', fontSize:20, fontWeight:900, color:'#fff' }}>
               Sellers
             </div>
           )}
@@ -661,6 +690,37 @@ export default function ShopSearchScreen({ onClose, userCity, userCountry, giftF
       open={buyerProfileOpen}
       onClose={() => setBuyerProfileOpen(false)}
     />
+
+    {/* Floating footer nav — soft glass design */}
+    <div style={{
+      position: 'fixed', bottom: 16, left: '50%', transform: 'translateX(-50%)',
+      zIndex: 99998, display: 'flex', alignItems: 'center', gap: 6,
+      background: 'rgba(0,0,0,0.45)', backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)',
+      border: '1px solid rgba(255,255,255,0.06)',
+      borderRadius: 30, padding: '6px 8px',
+    }}>
+      {[
+        { label: 'Home', active: showLanding, icon: <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>, action: onClose },
+        { label: 'Search', active: false, icon: <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>, action: () => { setShowLanding(true); onLandingChange?.(true) } },
+        { label: 'Alerts', active: false, icon: <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 01-3.46 0"/></svg>, action: () => onAlerts?.(), badge: true },
+        { label: 'Profile', active: false, icon: <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>, action: () => setBuyerProfileOpen(true) },
+      ].map((btn, i) => (
+        <button key={i} onClick={btn.action} style={{
+          display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
+          gap: 2, padding: '8px 16px', borderRadius: 22,
+          background: btn.active ? 'rgba(141,198,63,0.12)' : 'transparent',
+          border: 'none', cursor: 'pointer',
+          color: btn.active ? '#8DC63F' : 'rgba(255,255,255,0.45)',
+          transition: 'all 0.2s',
+        }}>
+          <div style={{ position: 'relative' }}>
+            {btn.icon}
+            {btn.badge && <span style={{ position: 'absolute', top: -2, right: -2, width: 7, height: 7, borderRadius: '50%', background: '#EF4444', border: '1.5px solid #0e0e0e' }} />}
+          </div>
+          <span style={{ fontSize: 9, fontWeight: 700, letterSpacing: '0.03em' }}>{btn.label}</span>
+        </button>
+      ))}
+    </div>
     </>
   )
 }

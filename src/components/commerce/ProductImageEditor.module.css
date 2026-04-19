@@ -14,7 +14,7 @@
   width: 100%;
   max-width: 560px;
   background: #0a0a0a;
-  border: 1.5px solid rgba(245,158,11,0.35);
+  border: 1.5px solid rgba(141,198,63,0.35);
   border-bottom: none;
   border-radius: 22px 22px 0 0;
   padding: 0 0 40px;
@@ -33,13 +33,13 @@
   align-items: center;
   justify-content: space-between;
   padding: 18px 18px 14px;
-  border-bottom: 1px solid rgba(245,158,11,0.12);
+  border-bottom: 1px solid rgba(141,198,63,0.12);
 }
 
 .title {
   font-size: 15px;
   font-weight: 800;
-  color: #F59E0B;
+  color: #8DC63F;
 }
 
 .cancelBtn {
@@ -156,7 +156,7 @@
 
 .slider {
   flex: 1;
-  accent-color: #F59E0B;
+  accent-color: #8DC63F;
   height: 4px;
   cursor: pointer;
 }
@@ -164,7 +164,7 @@
 .sliderVal {
   font-size: 11px;
   font-weight: 700;
-  color: #F59E0B;
+  color: #8DC63F;
   width: 36px;
   text-align: right;
   flex-shrink: 0;
@@ -207,14 +207,14 @@
 
 .wmInput:focus {
   outline: none;
-  border-color: rgba(245,158,11,0.4);
+  border-color: rgba(141,198,63,0.4);
 }
 
 .wmInput::placeholder { color: rgba(255,255,255,0.25); }
 
 .wmHint {
   font-size: 11px;
-  color: rgba(245,158,11,0.55);
+  color: rgba(141,198,63,0.55);
   margin: 0;
 }
 
@@ -223,7 +223,7 @@
   margin: 16px 18px 0;
   width: calc(100% - 36px);
   padding: 15px;
-  background: #F59E0B;
+  background: #8DC63F;
   border: none;
   border-radius: 14px;
   color: #000;
@@ -231,7 +231,7 @@
   font-weight: 900;
   cursor: pointer;
   font-family: inherit;
-  box-shadow: 0 4px 16px rgba(245,158,11,0.35);
+  box-shadow: 0 4px 16px rgba(141,198,63,0.35);
   transition: background 0.15s;
 }
 

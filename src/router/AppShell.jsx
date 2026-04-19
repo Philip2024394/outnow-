@@ -239,6 +239,7 @@ export default function AppShell({ returnParams, triggerGoLive }) {
   const [indooWalletOpen, setIndooWalletOpen] = useState(false)
   const [sellerAnalyticsOpen, setSellerAnalyticsOpen] = useState(false)
   const [marketChatOpen, setMarketChatOpen] = useState(false)
+  const [marketChatContact, setMarketChatContact] = useState(null)
   const [marketProfileOpen, setMarketProfileOpen] = useState(false)
   const [marketNotifOpen, setMarketNotifOpen] = useState(false)
   const [marketCartOpen, setMarketCartOpen] = useState(false)
@@ -1329,7 +1330,7 @@ export default function AppShell({ returnParams, triggerGoLive }) {
       )}
 
       {/* Side nav — visible on marketplace with orange theme */}
-      {(!rideOpen || rideOnLanding) && (!massageOpen || massageOnLanding) && (!datingGridOpen || datingOnLanding) && activeTab !== 'rentals' && activeTab !== 'chat' && <BottomNav
+      {(!rideOpen || rideOnLanding) && (!massageOpen || massageOnLanding) && (!datingGridOpen || datingOnLanding) && activeTab !== 'rentals' && activeTab !== 'chat' && !shopOpen && <BottomNav
           isGuest={isGuest}
           dockVisible={dockVisible}
           theme={(() => {
