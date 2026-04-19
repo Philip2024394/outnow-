@@ -20,7 +20,7 @@ export default function RentalSignUpScreen({ open, onClose, onListRental, onRent
       <div className={styles.main}>
         {/* Header — brand logo */}
         <div className={styles.header}>
-          <img src={MARKET_LOGO} alt="Indoo Done Deal" className={styles.headerLogo} />
+          <span style={{ fontSize: 16, fontWeight: 900, color: '#fff' }}>Indoo <span style={{ color: '#8DC63F' }}>Done Deal</span></span>
           <button className={styles.closeBtn} onClick={onClose}>
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
           </button>

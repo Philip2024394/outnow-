@@ -592,12 +592,13 @@ export default function RentalSearchScreen({ onClose }) {
 
   return (
     <div className={styles.page}>
-      {/* Header — search bar + filter */}
+      {/* Header — logo + search bar + filter */}
       <div style={{ padding: '14px 14px 0', flexShrink: 0 }}>
         <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
           <button onClick={() => { if (vehicleType) { setView('vehicleDir'); return } setView('categories') }} style={{ width: 36, height: 36, borderRadius: '50%', background: '#8DC63F', border: 'none', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', flexShrink: 0, boxShadow: '0 2px 8px rgba(141,198,63,0.3)' }}>
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#000" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
           </button>
+          <img src="https://ik.imagekit.io/nepgaxllc/Untitledfsdsd-removebg-preview.png" alt="" style={{ width: 28, height: 28, objectFit: 'contain', flexShrink: 0, filter: 'drop-shadow(0 1px 4px rgba(0,0,0,0.3))' }} />
           <div style={{ flex: 1, display: 'flex', alignItems: 'center', padding: '0 14px', background: 'rgba(255,255,255,0.04)', border: '1.5px solid rgba(255,255,255,0.08)', borderRadius: 14, height: 40 }}>
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.3)" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
             <input value={search} onChange={e => setSearch(e.target.value)} placeholder="Search rentals..." style={{ flex: 1, background: 'none', border: 'none', color: '#fff', fontSize: 13, fontWeight: 500, fontFamily: 'inherit', outline: 'none', padding: '0 10px' }} />
