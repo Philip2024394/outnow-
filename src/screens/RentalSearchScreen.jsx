@@ -611,36 +611,39 @@ export default function RentalSearchScreen({ onClose }) {
         </div>
       </div>
 
-      {/* Floating side nav — right edge */}
+      {/* Floating side nav — right edge, touch-friendly */}
       <div style={{
-        position: 'fixed', right: 6, top: '50%', transform: 'translateY(-50%)',
-        display: 'flex', flexDirection: 'column', gap: 6, zIndex: 200,
-        padding: '8px 5px', borderRadius: 16,
-        background: 'rgba(0,0,0,0.5)', backdropFilter: 'blur(12px)',
+        position: 'fixed', right: 8, top: '50%', transform: 'translateY(-50%)',
+        display: 'flex', flexDirection: 'column', gap: 8, zIndex: 200,
+        padding: '10px 6px', borderRadius: 18,
+        background: 'rgba(0,0,0,0.55)', backdropFilter: 'blur(14px)',
         border: '1px solid rgba(255,255,255,0.06)',
-        boxShadow: '0 4px 20px rgba(0,0,0,0.4)',
+        boxShadow: '0 4px 24px rgba(0,0,0,0.5)',
       }}>
         {[
-          { id: 'home', icon: <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>, color: '#fff', action: () => { if (vehicleType) { setView('vehicleDir') } else { setView('categories') } } },
-          { id: 'rent', icon: <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 2l-2 2m-7.61 7.61a5.5 5.5 0 1 1-7.778 7.778 5.5 5.5 0 0 1 7.777-7.777zm0 0L15.5 7.5m0 0l3 3L22 7l-3-3m-3.5 3.5L19 4"/></svg>, color: '#8DC63F', action: () => setListingMode(listingMode === 'rent' ? 'all' : 'rent') },
-          { id: 'sale', icon: <span style={{ fontSize: 14 }}>💰</span>, color: '#FFD700', action: () => setListingMode(listingMode === 'sale' ? 'all' : 'sale') },
-        ].map(btn => (
+          { id: 'home', label: 'Home', icon: <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>, color: '#fff', action: () => { if (vehicleType) { setView('vehicleDir') } else { setView('categories') } } },
+          { id: 'rent', label: 'Rental', icon: <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 2l-2 2m-7.61 7.61a5.5 5.5 0 1 1-7.778 7.778 5.5 5.5 0 0 1 7.777-7.777zm0 0L15.5 7.5m0 0l3 3L22 7l-3-3m-3.5 3.5L19 4"/></svg>, color: '#8DC63F', action: () => setListingMode(listingMode === 'rent' ? 'all' : 'rent') },
+          { id: 'sale', label: 'Selling', icon: <span style={{ fontSize: 16 }}>💰</span>, color: '#FFD700', action: () => setListingMode(listingMode === 'sale' ? 'all' : 'sale') },
+        ].map(btn => {
+          const isActive = (btn.id === 'rent' && listingMode === 'rent') || (btn.id === 'sale' && listingMode === 'sale')
+          return (
           <button key={btn.id} onClick={btn.action} style={{
-            width: 36, height: 36, borderRadius: 10,
-            background: (btn.id === 'rent' && listingMode === 'rent') ? '#8DC63F' : (btn.id === 'sale' && listingMode === 'sale') ? '#FFD700' : 'rgba(255,255,255,0.04)',
-            border: (btn.id === 'rent' && listingMode === 'rent') || (btn.id === 'sale' && listingMode === 'sale') ? 'none' : '1px solid rgba(255,255,255,0.08)',
-            color: (btn.id === 'rent' && listingMode === 'rent') || (btn.id === 'sale' && listingMode === 'sale') ? '#000' : btn.color,
-            display: 'flex', alignItems: 'center', justifyContent: 'center',
-            cursor: 'pointer', padding: 0, transition: 'all 0.2s',
-            boxShadow: (btn.id === 'rent' && listingMode === 'rent') ? '0 0 10px rgba(141,198,63,0.3)' : (btn.id === 'sale' && listingMode === 'sale') ? '0 0 10px rgba(255,215,0,0.3)' : 'none',
+            width: 44, minHeight: 52, borderRadius: 12,
+            background: isActive ? (btn.id === 'sale' ? '#FFD700' : '#8DC63F') : 'rgba(255,255,255,0.04)',
+            border: isActive ? 'none' : '1px solid rgba(255,255,255,0.08)',
+            color: isActive ? '#000' : btn.color,
+            display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 2,
+            cursor: 'pointer', padding: '6px 0', transition: 'all 0.2s', fontFamily: 'inherit',
+            boxShadow: isActive ? `0 0 12px ${btn.id === 'sale' ? 'rgba(255,215,0,0.3)' : 'rgba(141,198,63,0.3)'}` : 'none',
           }}>
             {btn.icon}
+            <span style={{ fontSize: 7, fontWeight: 700, letterSpacing: '0.03em' }}>{btn.label}</span>
           </button>
-        ))}
+        )})}
       </div>
 
       {/* Premium listing cards */}
-      <div className={styles.body} style={{ paddingRight: 50 }}>
+      <div className={styles.body} style={{ paddingRight: 58 }}>
         <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
           {sortedListings.length === 0 && <div className={styles.empty}>No rentals found</div>}
 
@@ -779,30 +782,49 @@ export default function RentalSearchScreen({ onClose }) {
                     {l.description?.slice(0, 150)}{l.description?.length > 150 ? '...' : ''}
                   </div>
 
-                  {/* Price grid — equal columns */}
-                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 6, marginBottom: 12 }}>
-                    {[
-                      { label: 'DAY', price: l.price_day },
-                      { label: 'WEEK', price: l.price_week },
-                      { label: 'MONTH', price: l.price_month },
-                    ].map((p, pi) => (
-                      <div key={pi} style={{ padding: '10px 6px', background: 'rgba(0,0,0,0.3)', border: '1px solid rgba(141,198,63,0.1)', borderRadius: 10, textAlign: 'center', minHeight: 48, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
-                        <div style={{ fontSize: 9, fontWeight: 700, color: 'rgba(255,255,255,0.3)', letterSpacing: '0.05em', marginBottom: 3 }}>{p.label}</div>
-                        <div style={{ fontSize: 13, fontWeight: 900, color: p.price ? '#8DC63F' : 'rgba(255,255,255,0.15)', whiteSpace: 'nowrap' }}>{p.price ? fmtIDR(p.price) : '—'}</div>
+                  {/* Price section — rental or selling */}
+                  {l.buy_now ? (
+                    <>
+                      <div style={{ padding: '12px', background: 'rgba(255,215,0,0.04)', border: '1px solid rgba(255,215,0,0.1)', borderRadius: 12, marginBottom: 12, textAlign: 'center' }}>
+                        <div style={{ fontSize: 9, fontWeight: 700, color: 'rgba(255,215,0,0.4)', letterSpacing: '0.05em', marginBottom: 4 }}>SELLING PRICE</div>
+                        <div style={{ fontSize: 22, fontWeight: 900, color: '#FFD700' }}>{fmtIDR(Number(String(typeof l.buy_now === 'object' ? l.buy_now.price : l.buy_now).replace(/\./g,'')))}</div>
+                        {(typeof l.buy_now === 'object' && l.buy_now.negotiable) && <div style={{ fontSize: 10, color: 'rgba(255,215,0,0.4)', marginTop: 4, fontWeight: 600 }}>Price is negotiable</div>}
                       </div>
-                    ))}
-                  </div>
-
-                  {/* Action buttons */}
-                  <div style={{ display: 'flex', gap: 8 }}>
-                    <button onClick={e => { e.stopPropagation(); setFlippedCards(p => ({...p,[l.id]:false})); setChatListing(l) }} style={{ flex: 1, padding: '11px 0', borderRadius: 12, background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.1)', color: '#fff', fontSize: 13, fontWeight: 800, cursor: 'pointer', fontFamily: 'inherit', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6 }}>
-                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>
-                      Chat
-                    </button>
-                    <button onClick={e => { e.stopPropagation(); setFlippedCards(p => ({...p,[l.id]:false})); setBookingListing(l) }} style={{ flex: 1, padding: '11px 0', borderRadius: 12, background: '#8DC63F', border: 'none', color: '#000', fontSize: 13, fontWeight: 800, cursor: 'pointer', fontFamily: 'inherit', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6, boxShadow: '0 2px 10px rgba(141,198,63,0.3)' }}>
-                      🏍️ Book Now
-                    </button>
-                  </div>
+                      <div style={{ display: 'flex', gap: 8 }}>
+                        <button onClick={e => { e.stopPropagation(); setFlippedCards(p => ({...p,[l.id]:false})); setChatListing(l) }} style={{ flex: 1, padding: '11px 0', borderRadius: 12, background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.1)', color: '#fff', fontSize: 13, fontWeight: 800, cursor: 'pointer', fontFamily: 'inherit', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6 }}>
+                          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>
+                          Chat
+                        </button>
+                        <button onClick={e => { e.stopPropagation(); setFlippedCards(p => ({...p,[l.id]:false})); setBookingListing({...l, _buyMode: true}) }} style={{ flex: 1, padding: '11px 0', borderRadius: 12, background: '#FFD700', border: 'none', color: '#000', fontSize: 13, fontWeight: 800, cursor: 'pointer', fontFamily: 'inherit', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6, boxShadow: '0 2px 10px rgba(255,215,0,0.3)' }}>
+                          💰 Buy Now
+                        </button>
+                      </div>
+                    </>
+                  ) : (
+                    <>
+                      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 6, marginBottom: 12 }}>
+                        {[
+                          { label: 'DAY', price: l.price_day },
+                          { label: 'WEEK', price: l.price_week },
+                          { label: 'MONTH', price: l.price_month },
+                        ].map((p, pi) => (
+                          <div key={pi} style={{ padding: '10px 6px', background: 'rgba(0,0,0,0.3)', border: '1px solid rgba(141,198,63,0.1)', borderRadius: 10, textAlign: 'center', minHeight: 48, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
+                            <div style={{ fontSize: 9, fontWeight: 700, color: 'rgba(255,255,255,0.3)', letterSpacing: '0.05em', marginBottom: 3 }}>{p.label}</div>
+                            <div style={{ fontSize: 13, fontWeight: 900, color: p.price ? '#8DC63F' : 'rgba(255,255,255,0.15)', whiteSpace: 'nowrap' }}>{p.price ? fmtIDR(p.price) : '—'}</div>
+                          </div>
+                        ))}
+                      </div>
+                      <div style={{ display: 'flex', gap: 8 }}>
+                        <button onClick={e => { e.stopPropagation(); setFlippedCards(p => ({...p,[l.id]:false})); setChatListing(l) }} style={{ flex: 1, padding: '11px 0', borderRadius: 12, background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.1)', color: '#fff', fontSize: 13, fontWeight: 800, cursor: 'pointer', fontFamily: 'inherit', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6 }}>
+                          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>
+                          Chat
+                        </button>
+                        <button onClick={e => { e.stopPropagation(); setFlippedCards(p => ({...p,[l.id]:false})); setBookingListing(l) }} style={{ flex: 1, padding: '11px 0', borderRadius: 12, background: '#8DC63F', border: 'none', color: '#000', fontSize: 13, fontWeight: 800, cursor: 'pointer', fontFamily: 'inherit', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6, boxShadow: '0 2px 10px rgba(141,198,63,0.3)' }}>
+                          🔑 Book Now
+                        </button>
+                      </div>
+                    </>
+                  )}
                 </div>
 
               </div>
