@@ -600,33 +600,47 @@ export default function RentalSearchScreen({ onClose }) {
           </div>
         )}
 
-        {/* Rent / Buy toggle */}
-        <div style={{ display: 'flex', gap: 0, marginTop: 8, background: 'rgba(255,255,255,0.03)', borderRadius: 12, padding: 3, border: '1px solid rgba(255,255,255,0.06)' }}>
-          {[
-            { id: 'all', label: 'All', icon: '🔍' },
-            { id: 'rent', label: 'For Rent', icon: '🔑' },
-            { id: 'sale', label: 'For Sale', icon: '💰' },
-          ].map(m => (
-            <button key={m.id} onClick={() => setListingMode(m.id)} style={{
-              flex: 1, padding: '8px 0', borderRadius: 10, border: 'none',
-              background: listingMode === m.id ? (m.id === 'sale' ? '#FFD700' : '#8DC63F') : 'transparent',
-              color: listingMode === m.id ? '#000' : 'rgba(255,255,255,0.35)',
-              fontSize: 12, fontWeight: 800, cursor: 'pointer', fontFamily: 'inherit',
-              transition: 'all 0.2s',
-            }}>
-              {m.icon} {m.label}
-            </button>
-          ))}
-        </div>
-
-        {/* Results count */}
-        <div style={{ padding: '8px 0 4px', fontSize: 11, color: 'rgba(255,255,255,0.2)', fontWeight: 600 }}>
-          {sortedListings.filter(l => listingMode === 'sale' ? l.buy_now : listingMode === 'rent' ? true : true).length} {listingMode === 'sale' ? 'for sale' : 'rental'}{sortedListings.filter(l => listingMode === 'sale' ? l.buy_now : true).length !== 1 ? 's' : ''} found
+        {/* Market title + results count */}
+        <div style={{ padding: '6px 0 4px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+          <span style={{ fontSize: 13, fontWeight: 800, color: 'rgba(255,255,255,0.5)' }}>
+            {vehicleType === 'Motorcycles' ? '🏍️ Bike' : vehicleType === 'Cars' ? '🚗 Car' : vehicleType === 'Trucks' ? '🚛 Truck' : vehicleType === 'Buses' ? '🚌 Bus' : '📦'} Market
+          </span>
+          <span style={{ fontSize: 10, color: 'rgba(255,255,255,0.2)', fontWeight: 600 }}>
+            {sortedListings.filter(l => listingMode === 'sale' ? l.buy_now : true).length} {listingMode === 'sale' ? 'for sale' : 'available'}
+          </span>
         </div>
       </div>
 
+      {/* Floating side nav — right edge */}
+      <div style={{
+        position: 'fixed', right: 6, top: '50%', transform: 'translateY(-50%)',
+        display: 'flex', flexDirection: 'column', gap: 6, zIndex: 200,
+        padding: '8px 5px', borderRadius: 16,
+        background: 'rgba(0,0,0,0.5)', backdropFilter: 'blur(12px)',
+        border: '1px solid rgba(255,255,255,0.06)',
+        boxShadow: '0 4px 20px rgba(0,0,0,0.4)',
+      }}>
+        {[
+          { id: 'home', icon: <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>, color: '#fff', action: () => { if (vehicleType) { setView('vehicleDir') } else { setView('categories') } } },
+          { id: 'rent', icon: <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 2l-2 2m-7.61 7.61a5.5 5.5 0 1 1-7.778 7.778 5.5 5.5 0 0 1 7.777-7.777zm0 0L15.5 7.5m0 0l3 3L22 7l-3-3m-3.5 3.5L19 4"/></svg>, color: '#8DC63F', action: () => setListingMode(listingMode === 'rent' ? 'all' : 'rent') },
+          { id: 'sale', icon: <span style={{ fontSize: 14 }}>💰</span>, color: '#FFD700', action: () => setListingMode(listingMode === 'sale' ? 'all' : 'sale') },
+        ].map(btn => (
+          <button key={btn.id} onClick={btn.action} style={{
+            width: 36, height: 36, borderRadius: 10,
+            background: (btn.id === 'rent' && listingMode === 'rent') ? '#8DC63F' : (btn.id === 'sale' && listingMode === 'sale') ? '#FFD700' : 'rgba(255,255,255,0.04)',
+            border: (btn.id === 'rent' && listingMode === 'rent') || (btn.id === 'sale' && listingMode === 'sale') ? 'none' : '1px solid rgba(255,255,255,0.08)',
+            color: (btn.id === 'rent' && listingMode === 'rent') || (btn.id === 'sale' && listingMode === 'sale') ? '#000' : btn.color,
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+            cursor: 'pointer', padding: 0, transition: 'all 0.2s',
+            boxShadow: (btn.id === 'rent' && listingMode === 'rent') ? '0 0 10px rgba(141,198,63,0.3)' : (btn.id === 'sale' && listingMode === 'sale') ? '0 0 10px rgba(255,215,0,0.3)' : 'none',
+          }}>
+            {btn.icon}
+          </button>
+        ))}
+      </div>
+
       {/* Premium listing cards */}
-      <div className={styles.body}>
+      <div className={styles.body} style={{ paddingRight: 50 }}>
         <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
           {sortedListings.length === 0 && <div className={styles.empty}>No rentals found</div>}
 
