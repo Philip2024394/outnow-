@@ -150,8 +150,10 @@ export function RentalBookingFlow({ listing, onClose, onConfirm }) {
   const airportPrice = ef.airportFee === 'Free' ? 0 : Number(String(ef.airportFee || '0').replace(/\./g, ''))
   const driverPrice = Number(String(ef.driverFee || '0').replace(/\./g, '')) * days
   const addOnsTotal = (wantDelivery ? deliveryPrice : 0) + (wantAirport ? airportPrice : 0) + (wantDriver ? driverPrice : 0)
-  const total = rentalTotal + addOnsTotal
-  const canSubmit = name.trim() && whatsapp.trim() && pickupDate
+  const isBuyMode = !!listing._buyMode
+  const buyPrice = typeof listing.buy_now === 'object' ? Number(String(listing.buy_now.price || '0').replace(/\./g, '')) : Number(String(listing.buy_now || '0').replace(/\./g, ''))
+  const total = isBuyMode ? buyPrice : rentalTotal + addOnsTotal
+  const canSubmit = name.trim() && whatsapp.trim() && (isBuyMode || pickupDate)
   const inputStyle = { width: '100%', padding: '12px 14px', background: 'rgba(255,255,255,0.04)', border: '1.5px solid rgba(255,255,255,0.08)', borderRadius: 12, color: '#fff', fontSize: 14, fontFamily: 'inherit', outline: 'none', boxSizing: 'border-box' }
 
   return createPortal(
@@ -167,8 +169,8 @@ export function RentalBookingFlow({ listing, onClose, onConfirm }) {
         {/* Header */}
         <div style={{ padding: '14px 16px', borderBottom: '1px solid rgba(255,255,255,0.06)', display: 'flex', alignItems: 'center', justifyContent: 'space-between', position: 'sticky', top: 0, background: 'rgba(0,0,0,0.6)', backdropFilter: 'blur(16px)', zIndex: 2, borderRadius: '22px 22px 0 0' }}>
           <div>
-            <div style={{ fontSize: 16, fontWeight: 900, color: '#fff' }}>Booking Request</div>
-            <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.25)', marginTop: 1 }}>Complete your details to proceed</div>
+            <div style={{ fontSize: 16, fontWeight: 900, color: isBuyMode ? '#FFD700' : '#fff' }}>{isBuyMode ? 'Purchase Inquiry' : 'Booking Request'}</div>
+            <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.25)', marginTop: 1 }}>{isBuyMode ? 'Interested in buying this vehicle' : 'Complete your details to proceed'}</div>
           </div>
           <button onClick={onClose} style={{ width: 30, height: 30, borderRadius: '50%', background: '#EF4444', border: 'none', color: '#fff', fontSize: 12, fontWeight: 900, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>✕</button>
         </div>
@@ -204,6 +206,17 @@ export function RentalBookingFlow({ listing, onClose, onConfirm }) {
               {showErrors && !whatsapp.trim() && <span style={{ fontSize: 10, color: '#EF4444', fontWeight: 700, marginTop: 4, display: 'block' }}>WhatsApp number is required</span>}
             </div>
 
+            {/* Buy mode: show price */}
+            {isBuyMode && (
+              <div style={{ padding: '14px', background: 'rgba(255,215,0,0.04)', borderRadius: 14, border: '1px solid rgba(255,215,0,0.12)', textAlign: 'center' }}>
+                <div style={{ fontSize: 10, fontWeight: 700, color: 'rgba(255,215,0,0.5)', marginBottom: 4 }}>ASKING PRICE</div>
+                <div style={{ fontSize: 26, fontWeight: 900, color: '#FFD700' }}>{fmtPrice(buyPrice)}</div>
+                {typeof listing.buy_now === 'object' && listing.buy_now.negotiable && <div style={{ fontSize: 11, color: 'rgba(255,215,0,0.4)', marginTop: 4, fontWeight: 600 }}>Price is negotiable</div>}
+              </div>
+            )}
+
+            {/* Rental fields — only in rent mode */}
+            {!isBuyMode && <>
             {/* Pickup date — calendar */}
             <div>
               <label style={{ fontSize: 11, fontWeight: 700, color: 'rgba(255,255,255,0.45)', display: 'block', marginBottom: 5 }}>Pickup Date <span style={{ color: '#EF4444' }}>*</span></label>
@@ -345,16 +358,18 @@ export function RentalBookingFlow({ listing, onClose, onConfirm }) {
               </div>
             </div>
 
+            </>}
+
             {/* Notes */}
             <div>
-              <label style={{ fontSize: 11, fontWeight: 700, color: 'rgba(255,255,255,0.45)', display: 'block', marginBottom: 5 }}>Special Requests <span style={{ color: 'rgba(255,255,255,0.15)' }}>(optional)</span></label>
+              <label style={{ fontSize: 11, fontWeight: 700, color: 'rgba(255,255,255,0.45)', display: 'block', marginBottom: 5 }}>{isBuyMode ? 'Message to Seller' : 'Special Requests'} <span style={{ color: 'rgba(255,255,255,0.15)' }}>(optional)</span></label>
               <textarea value={notes} onChange={e => setNotes(e.target.value)} placeholder="Pickup location, helmet size, delivery to hotel..." rows={3} style={{ ...inputStyle, resize: 'none', fontSize: 13 }} />
             </div>
           </div>
 
           {/* Info */}
           <p style={{ fontSize: 10, color: 'rgba(255,255,255,0.2)', lineHeight: 1.5, margin: '14px 0', textAlign: 'center' }}>
-            Your booking request will be sent to the rental company. They will contact you via chat to confirm availability and arrange your rental.
+            {isBuyMode ? 'Your purchase inquiry will be sent to the owner. They will contact you to discuss the sale.' : 'Your booking request will be sent to the rental company. They will contact you via chat to confirm availability and arrange your rental.'}
           </p>
 
           {/* Submit */}
@@ -369,7 +384,7 @@ export function RentalBookingFlow({ listing, onClose, onConfirm }) {
             } catch {}
             setTimeout(() => setStep(2), 4000)
           }} style={{ width: '100%', padding: '15px 0', borderRadius: 14, background: '#8DC63F', border: 'none', color: '#000', fontSize: 15, fontWeight: 800, cursor: 'pointer', fontFamily: 'inherit', boxShadow: '0 4px 20px rgba(141,198,63,0.3)', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8 }}>
-            Send Booking Request
+            {isBuyMode ? 'Send Purchase Inquiry' : 'Send Booking Request'}
           </button>
 
           <button onClick={onClose} style={{ width: '100%', marginTop: 8, padding: '11px 0', borderRadius: 14, background: 'none', border: 'none', color: 'rgba(255,255,255,0.2)', fontSize: 12, fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit' }}>

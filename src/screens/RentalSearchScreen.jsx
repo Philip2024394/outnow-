@@ -365,6 +365,7 @@ export default function RentalSearchScreen({ onClose }) {
   const [priceSort, setPriceSort] = useState('')
   const [cardImgIdx, setCardImgIdx] = useState({})
   const [flippedCards, setFlippedCards] = useState({})
+  const [listingMode, setListingMode] = useState('all') // 'all' | 'rent' | 'sale'
 
   // Merge demo listings with owner-published live listings
   const ownerListings = (() => {
@@ -599,9 +600,28 @@ export default function RentalSearchScreen({ onClose }) {
           </div>
         )}
 
+        {/* Rent / Buy toggle */}
+        <div style={{ display: 'flex', gap: 0, marginTop: 8, background: 'rgba(255,255,255,0.03)', borderRadius: 12, padding: 3, border: '1px solid rgba(255,255,255,0.06)' }}>
+          {[
+            { id: 'all', label: 'All', icon: '🔍' },
+            { id: 'rent', label: 'For Rent', icon: '🔑' },
+            { id: 'sale', label: 'For Sale', icon: '💰' },
+          ].map(m => (
+            <button key={m.id} onClick={() => setListingMode(m.id)} style={{
+              flex: 1, padding: '8px 0', borderRadius: 10, border: 'none',
+              background: listingMode === m.id ? (m.id === 'sale' ? '#FFD700' : '#8DC63F') : 'transparent',
+              color: listingMode === m.id ? '#000' : 'rgba(255,255,255,0.35)',
+              fontSize: 12, fontWeight: 800, cursor: 'pointer', fontFamily: 'inherit',
+              transition: 'all 0.2s',
+            }}>
+              {m.icon} {m.label}
+            </button>
+          ))}
+        </div>
+
         {/* Results count */}
         <div style={{ padding: '8px 0 4px', fontSize: 11, color: 'rgba(255,255,255,0.2)', fontWeight: 600 }}>
-          {sortedListings.length} rental{sortedListings.length !== 1 ? 's' : ''} found
+          {sortedListings.filter(l => listingMode === 'sale' ? l.buy_now : listingMode === 'rent' ? true : true).length} {listingMode === 'sale' ? 'for sale' : 'rental'}{sortedListings.filter(l => listingMode === 'sale' ? l.buy_now : true).length !== 1 ? 's' : ''} found
         </div>
       </div>
 
@@ -611,7 +631,7 @@ export default function RentalSearchScreen({ onClose }) {
           {sortedListings.length === 0 && <div className={styles.empty}>No rentals found</div>}
 
           <style>{`@keyframes flipGlow { 0%,100% { box-shadow: 0 0 8px rgba(141,198,63,0.3); } 50% { box-shadow: 0 0 18px rgba(141,198,63,0.6), 0 0 30px rgba(141,198,63,0.2); } }`}</style>
-          {sortedListings.map(l => {
+          {sortedListings.filter(l => listingMode === 'sale' ? !!l.buy_now : listingMode === 'rent' ? true : true).map(l => {
             const imgs = l.images?.length ? l.images : [l.image || '']
             const currentImg = cardImgIdx[l.id] || 0
             const isFlipped = !!flippedCards[l.id]
@@ -641,7 +661,8 @@ export default function RentalSearchScreen({ onClose }) {
                     <div style={{ position: 'absolute', inset: 0, overflow: 'hidden', borderRadius: '18px 18px 0 0' }}>
                     <img src={imgs[currentImg]} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block', transition: 'opacity 0.25s' }} />
 
-                    {l.isOwnerListing && <div style={{ position:'absolute',top:'50%',left:8,transform:'translateY(-50%)',padding:'3px 8px',background:'#8DC63F',borderRadius:6,fontSize:8,fontWeight:900,color:'#000',letterSpacing:'0.04em',zIndex:3 }}>YOUR LISTING</div>}
+                    {l.isOwnerListing && <div style={{ position:'absolute',top:8,left:8,padding:'3px 8px',background:'#8DC63F',borderRadius:6,fontSize:8,fontWeight:900,color:'#000',letterSpacing:'0.04em',zIndex:3 }}>YOUR LISTING</div>}
+                    {l.buy_now && <div style={{ position:'absolute',top:8,right:8,padding:'4px 10px',background:'#FFD700',borderRadius:8,fontSize:9,fontWeight:900,color:'#000',letterSpacing:'0.03em',zIndex:3,boxShadow:'0 2px 8px rgba(255,215,0,0.3)' }}>FOR SALE</div>}
                     {l.extra_fields?.withDriver && <div style={{ position:'absolute',top:'50%',right:8,transform:'translateY(-50%)',width:26,height:26,borderRadius:'50%',background:'rgba(0,0,0,0.5)',backdropFilter:'blur(8px)',border:'1.5px solid rgba(141,198,63,0.3)',display:'flex',alignItems:'center',justifyContent:'center',color:'#8DC63F',zIndex:3 }}><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3"/></svg></div>}
 
                     {/* Left/Right arrows */}
@@ -680,10 +701,24 @@ export default function RentalSearchScreen({ onClose }) {
                     </div>
                     <div style={{display:'flex',alignItems:'center',justifyContent:'space-between',marginTop:2}}>
                       <div style={{display:'flex',alignItems:'baseline',gap:3}}><span style={{fontSize:10,fontWeight:700,color:'rgba(141,198,63,0.6)'}}>Rp</span><span style={{fontSize:22,fontWeight:900,color:'#8DC63F',letterSpacing:'-0.02em'}}>{fmtIDR(l.price_day).replace('Rp ','')}</span><span style={{fontSize:11,color:'rgba(255,255,255,0.25)',fontWeight:600}}>/day</span></div>
-                      <button onClick={e => { e.stopPropagation(); setBookingListing(l) }} style={{ padding:'8px 16px',borderRadius:10,background:'#8DC63F',border:'none',color:'#000',fontSize:12,fontWeight:800,cursor:'pointer',fontFamily:'inherit',display:'flex',alignItems:'center',gap:5,boxShadow:'0 2px 8px rgba(141,198,63,0.3)',flexShrink:0 }}>
-                        Book Now
-                      </button>
+                      <div style={{display:'flex',gap:6,flexShrink:0}}>
+                        <button onClick={e => { e.stopPropagation(); setBookingListing(l) }} style={{ padding:'8px 14px',borderRadius:10,background:'#8DC63F',border:'none',color:'#000',fontSize:11,fontWeight:800,cursor:'pointer',fontFamily:'inherit',boxShadow:'0 2px 8px rgba(141,198,63,0.3)' }}>
+                          Rent
+                        </button>
+                        {l.buy_now && (
+                          <button onClick={e => { e.stopPropagation(); setBookingListing({...l, _buyMode: true}) }} style={{ padding:'8px 14px',borderRadius:10,background:'#FFD700',border:'none',color:'#000',fontSize:11,fontWeight:800,cursor:'pointer',fontFamily:'inherit',boxShadow:'0 2px 8px rgba(255,215,0,0.3)' }}>
+                            Buy
+                          </button>
+                        )}
+                      </div>
                     </div>
+                    {l.buy_now && (
+                      <div style={{display:'flex',alignItems:'baseline',gap:4,marginTop:4}}>
+                        <span style={{fontSize:9,fontWeight:700,color:'rgba(255,215,0,0.5)'}}>Buy Now:</span>
+                        <span style={{fontSize:14,fontWeight:900,color:'#FFD700'}}>{fmtIDR(Number(String(typeof l.buy_now === 'object' ? l.buy_now.price : l.buy_now).replace(/\./g,'')))}</span>
+                        {(typeof l.buy_now === 'object' && l.buy_now.negotiable) && <span style={{fontSize:9,color:'rgba(255,215,0,0.4)',fontWeight:600}}>· Negotiable</span>}
+                      </div>
+                    )}
                   </div>
                 </div>
 
