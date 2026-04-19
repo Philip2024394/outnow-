@@ -453,14 +453,11 @@ export default function RentalSearchScreen({ onClose }) {
       open={rentalSignUpOpen}
       onClose={() => setRentalSignUpOpen(false)}
       onListRental={() => { setRentalSignUpOpen(false); setRentalListingOpen(true) }}
+      onSellItem={() => { setRentalSignUpOpen(false); setRentalListingOpen(true) }}
+      onBuyItem={() => { setRentalSignUpOpen(false); markSectionVisited('rentals'); setListingMode('sale'); setView('categories') }}
       onRentItems={() => {
         setRentalSignUpOpen(false)
-        const profile = JSON.parse(localStorage.getItem('indoo_profile') || '{}')
-        if (profile.rentalUnlocked) {
-          markSectionVisited('rentals'); setView('categories')
-        } else {
-          setRenterSignUpOpen(true)
-        }
+        markSectionVisited('rentals'); setListingMode('rent'); setView('categories')
       }}
     />
     <RentalRenterSignUpScreen
