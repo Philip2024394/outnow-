@@ -743,17 +743,19 @@ export default function RentalSearchScreen({ onClose }) {
                 <button key={i} onClick={item.action} style={{
                   display: 'flex', alignItems: 'center', gap: 12, width: '100%',
                   padding: '14px 12px',
-                  background: 'rgba(0,0,0,0.4)', backdropFilter: 'blur(12px)', WebkitBackdropFilter: 'blur(12px)',
-                  border: '1.5px solid rgba(141,198,63,0.08)', borderRadius: 14,
+                  background: 'linear-gradient(145deg, rgba(30,30,35,0.9) 0%, rgba(15,15,18,0.95) 100%)',
+                  border: '1px solid rgba(255,255,255,0.06)', borderRadius: 14,
                   cursor: 'pointer', textAlign: 'left', fontFamily: 'inherit', transition: 'all 0.2s',
-                  boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.03)',
+                  boxShadow: '0 4px 12px rgba(0,0,0,0.4), 0 1px 0 rgba(255,255,255,0.04) inset, 0 -2px 6px rgba(0,0,0,0.3) inset',
                 }}>
-                  <span style={{ fontSize: 20 }}>{item.icon}</span>
+                  <div style={{ width: 36, height: 36, borderRadius: 10, background: 'linear-gradient(145deg, rgba(40,40,45,1) 0%, rgba(20,20,22,1) 100%)', border: '1px solid rgba(255,255,255,0.06)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, boxShadow: '0 2px 6px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.06)' }}>
+                    <span style={{ fontSize: 18 }}>{item.icon}</span>
+                  </div>
                   <div style={{ flex: 1 }}>
                     <div style={{ fontSize: 13, fontWeight: 700, color: '#fff' }}>{item.label}</div>
-                    <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.25)', marginTop: 2 }}>{item.sub}</div>
+                    <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.2)', marginTop: 2 }}>{item.sub}</div>
                   </div>
-                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="rgba(141,198,63,0.3)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="rgba(141,198,63,0.4)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
                 </button>
               ))}
             </div>
