@@ -122,8 +122,15 @@ export function RentalBookingFlow({ listing, onClose, onConfirm }) {
   const [days, setDays] = useState(1)
   const [pickupDate, setPickupDate] = useState('')
   const [notes, setNotes] = useState('')
+  const [showErrors, setShowErrors] = useState(false)
+  const [step, setStep] = useState(0) // 0: form, 1: processing, 2: confirmed
+  const [bookingRef] = useState(() => 'IND-' + Math.random().toString(36).substring(2, 6).toUpperCase() + Math.floor(1000 + Math.random() * 9000))
 
   if (!listing) return null
+
+  // Check if business is likely closed (after 9pm or before 7am)
+  const hour = new Date().getHours()
+  const isClosed = hour >= 21 || hour < 7
 
   const pricePerDay = Number(String(listing.price_day).replace(/\./g, '')) || 0
   const pricePerWeek = Number(String(listing.price_week).replace(/\./g, '')) || 0
@@ -135,7 +142,8 @@ export function RentalBookingFlow({ listing, onClose, onConfirm }) {
 
   return createPortal(
     <div style={{ position: 'fixed', inset: 0, zIndex: 99999, background: 'rgba(0,0,0,0.88)', backdropFilter: 'blur(16px)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 14 }}>
-      <div style={{ width: '100%', maxWidth: 400, maxHeight: '92vh', overflowY: 'auto', background: 'rgba(10,10,15,0.95)', border: '1.5px solid rgba(141,198,63,0.15)', borderRadius: 22, boxShadow: '0 24px 64px rgba(0,0,0,0.6), 0 0 24px rgba(141,198,63,0.08), inset 0 1px 0 rgba(255,255,255,0.04)', scrollbarWidth: 'none' }}>
+      <div style={{ width: '100%', maxWidth: 400, maxHeight: '92vh', overflowY: 'auto', background: step >= 1 ? 'none' : 'rgba(10,10,15,0.95)', backgroundImage: step >= 1 ? 'url(https://ik.imagekit.io/nepgaxllc/Untitledsadasdadsaa.png?updatedAt=1776480383268)' : 'none', backgroundSize: 'cover', backgroundPosition: 'center', border: '1.5px solid rgba(141,198,63,0.15)', borderRadius: 22, boxShadow: '0 24px 64px rgba(0,0,0,0.6), 0 0 24px rgba(141,198,63,0.08), inset 0 1px 0 rgba(255,255,255,0.04)', scrollbarWidth: 'none', position: 'relative' }}>
+        {step >= 1 && <div style={{ position: 'absolute', inset: 0, background: 'rgba(0,0,0,0.6)', borderRadius: 22, pointerEvents: 'none' }} />}
 
         {/* Header */}
         <div style={{ padding: '14px 16px', borderBottom: '1px solid rgba(255,255,255,0.06)', display: 'flex', alignItems: 'center', justifyContent: 'space-between', position: 'sticky', top: 0, background: 'rgba(10,10,15,0.95)', zIndex: 2, borderRadius: '22px 22px 0 0' }}>
@@ -146,6 +154,7 @@ export function RentalBookingFlow({ listing, onClose, onConfirm }) {
           <button onClick={onClose} style={{ width: 30, height: 30, borderRadius: '50%', background: '#EF4444', border: 'none', color: '#fff', fontSize: 12, fontWeight: 900, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>✕</button>
         </div>
 
+        {step === 0 && (<>
         <div style={{ padding: '14px 16px 18px' }}>
           {/* Vehicle card */}
           <div style={{ display: 'flex', gap: 12, padding: '14px', background: 'rgba(141,198,63,0.03)', borderRadius: 16, border: '1px solid rgba(141,198,63,0.1)', marginBottom: 16 }}>
@@ -165,19 +174,22 @@ export function RentalBookingFlow({ listing, onClose, onConfirm }) {
             {/* Name */}
             <div>
               <label style={{ fontSize: 11, fontWeight: 700, color: 'rgba(255,255,255,0.45)', display: 'block', marginBottom: 5 }}>Full Name <span style={{ color: '#EF4444' }}>*</span></label>
-              <input value={name} onChange={e => setName(e.target.value)} placeholder="Enter your full name" style={inputStyle} />
+              <input value={name} onChange={e => setName(e.target.value)} placeholder="Enter your full name" style={{ ...inputStyle, borderColor: showErrors && !name.trim() ? '#EF4444' : 'rgba(255,255,255,0.08)' }} />
+              {showErrors && !name.trim() && <span style={{ fontSize: 10, color: '#EF4444', fontWeight: 700, marginTop: 4, display: 'block' }}>Name is required</span>}
             </div>
 
             {/* WhatsApp */}
             <div>
               <label style={{ fontSize: 11, fontWeight: 700, color: 'rgba(255,255,255,0.45)', display: 'block', marginBottom: 5 }}>WhatsApp <span style={{ color: '#EF4444' }}>*</span></label>
-              <input value={whatsapp} onChange={e => setWhatsapp(e.target.value)} placeholder="08123456789" type="tel" style={inputStyle} />
+              <input value={whatsapp} onChange={e => setWhatsapp(e.target.value)} placeholder="08123456789" type="tel" style={{ ...inputStyle, borderColor: showErrors && !whatsapp.trim() ? '#EF4444' : 'rgba(255,255,255,0.08)' }} />
+              {showErrors && !whatsapp.trim() && <span style={{ fontSize: 10, color: '#EF4444', fontWeight: 700, marginTop: 4, display: 'block' }}>WhatsApp number is required</span>}
             </div>
 
             {/* Pickup date */}
             <div>
               <label style={{ fontSize: 11, fontWeight: 700, color: 'rgba(255,255,255,0.45)', display: 'block', marginBottom: 5 }}>Pickup Date <span style={{ color: '#EF4444' }}>*</span></label>
-              <input type="date" value={pickupDate} onChange={e => setPickupDate(e.target.value)} style={inputStyle} />
+              <input type="date" value={pickupDate} onChange={e => setPickupDate(e.target.value)} style={{ ...inputStyle, borderColor: showErrors && !pickupDate ? '#EF4444' : 'rgba(255,255,255,0.08)' }} />
+              {showErrors && !pickupDate && <span style={{ fontSize: 10, color: '#EF4444', fontWeight: 700, marginTop: 4, display: 'block' }}>Pickup date is required</span>}
             </div>
 
             {/* Duration + live price */}
@@ -223,7 +235,17 @@ export function RentalBookingFlow({ listing, onClose, onConfirm }) {
           </p>
 
           {/* Submit */}
-          <button onClick={() => { onConfirm?.({ name, whatsapp, days, pickupDate, notes, total }); onClose() }} disabled={!canSubmit} style={{ width: '100%', padding: '15px 0', borderRadius: 14, background: canSubmit ? '#8DC63F' : 'rgba(255,255,255,0.04)', border: 'none', color: canSubmit ? '#000' : 'rgba(255,255,255,0.15)', fontSize: 15, fontWeight: 800, cursor: canSubmit ? 'pointer' : 'not-allowed', fontFamily: 'inherit', boxShadow: canSubmit ? '0 4px 20px rgba(141,198,63,0.3)' : 'none', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8, transition: 'all 0.2s' }}>
+          <button onClick={() => {
+            if (!canSubmit) { setShowErrors(true); return }
+            setStep(1)
+            // Save booking
+            try {
+              const bookings = JSON.parse(localStorage.getItem('indoo_rental_bookings') || '[]')
+              bookings.push({ ref: bookingRef, listing_ref: listing.ref || listing.id, listing_title: listing.title, name, whatsapp, days, pickupDate, notes, total, status: 'pending', created_at: new Date().toISOString() })
+              localStorage.setItem('indoo_rental_bookings', JSON.stringify(bookings))
+            } catch {}
+            setTimeout(() => setStep(2), 4000)
+          }} style={{ width: '100%', padding: '15px 0', borderRadius: 14, background: '#8DC63F', border: 'none', color: '#000', fontSize: 15, fontWeight: 800, cursor: 'pointer', fontFamily: 'inherit', boxShadow: '0 4px 20px rgba(141,198,63,0.3)', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8 }}>
             Send Booking Request
           </button>
 
@@ -231,6 +253,77 @@ export function RentalBookingFlow({ listing, onClose, onConfirm }) {
             Cancel
           </button>
         </div>
+        </>)}
+
+        {/* ═══ STEP 1: Processing ═══ */}
+        {step === 1 && (
+          <div style={{ padding: '40px 20px', textAlign: 'center', position: 'relative', zIndex: 1 }}>
+            <style>{`@keyframes bookPing { 0% { transform: scale(1); opacity: 1; } 50% { transform: scale(1.6); opacity: 0; } 100% { transform: scale(1); opacity: 0; } } @keyframes bookDot { 0%,80%,100% { transform: scale(0); } 40% { transform: scale(1); } }`}</style>
+            <div style={{ position: 'relative', width: 80, height: 80, margin: '0 auto 24px' }}>
+              <div style={{ position: 'absolute', inset: 0, borderRadius: '50%', border: '3px solid #8DC63F', animation: 'bookPing 2s ease-in-out infinite' }} />
+              <div style={{ position: 'absolute', inset: 10, borderRadius: '50%', border: '2px solid rgba(141,198,63,0.3)', animation: 'bookPing 2s ease-in-out infinite 0.5s' }} />
+              <div style={{ position: 'absolute', inset: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 28 }}>📋</div>
+            </div>
+            <h2 style={{ fontSize: 20, fontWeight: 900, color: '#fff', margin: '0 0 8px' }}>Booking Processing</h2>
+            <p style={{ fontSize: 13, color: 'rgba(255,255,255,0.4)', margin: 0, fontWeight: 600 }}>Please wait...</p>
+            <div style={{ display: 'flex', gap: 6, justifyContent: 'center', marginTop: 16 }}>
+              {[0,1,2].map(i => <div key={i} style={{ width: 8, height: 8, borderRadius: '50%', background: '#8DC63F', animation: `bookDot 1.4s ease-in-out infinite ${i * 0.16}s` }} />)}
+            </div>
+            <p style={{ fontSize: 10, color: 'rgba(141,198,63,0.4)', marginTop: 16, fontWeight: 600 }}>REF: {bookingRef}</p>
+          </div>
+        )}
+
+        {/* ═══ STEP 2: Confirmed ═══ */}
+        {step === 2 && (
+          <div style={{ padding: '30px 20px', textAlign: 'center', position: 'relative', zIndex: 1 }}>
+            <style>{`@keyframes confirmIn { from { opacity: 0; transform: scale(0.9); } to { opacity: 1; transform: scale(1); } }`}</style>
+            <div style={{ animation: 'confirmIn 0.5s ease' }}>
+              <div style={{ width: 70, height: 70, borderRadius: '50%', background: '#8DC63F', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 16px', boxShadow: '0 0 30px rgba(141,198,63,0.4)' }}>
+                <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="#000" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+              </div>
+
+              <h2 style={{ fontSize: 20, fontWeight: 900, color: '#fff', margin: '0 0 6px' }}>Booking Request Sent</h2>
+
+              {isClosed ? (
+                <p style={{ fontSize: 13, color: 'rgba(255,255,255,0.5)', margin: '0 0 16px', lineHeight: 1.5 }}>
+                  The rental company is currently closed. Your booking has been received and they will contact you when the office reopens.
+                </p>
+              ) : (
+                <p style={{ fontSize: 13, color: 'rgba(255,255,255,0.5)', margin: '0 0 16px', lineHeight: 1.5 }}>
+                  Your booking has been sent to the rental company. They will be in contact shortly to confirm your rental.
+                </p>
+              )}
+
+              {/* Booking summary */}
+              <div style={{ padding: '14px', background: 'rgba(255,255,255,0.03)', borderRadius: 14, border: '1px solid rgba(255,255,255,0.06)', marginBottom: 14, textAlign: 'left' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 }}>
+                  <span style={{ fontSize: 10, fontWeight: 800, color: '#8DC63F', letterSpacing: '0.04em' }}>BOOKING REF</span>
+                  <span style={{ fontSize: 13, fontWeight: 900, color: '#FFD700', letterSpacing: '0.02em' }}>{bookingRef}</span>
+                </div>
+                <div style={{ height: 1, background: 'rgba(255,255,255,0.04)', margin: '6px 0' }} />
+                <div style={{ fontSize: 13, fontWeight: 800, color: '#fff', marginBottom: 4 }}>{listing.title}</div>
+                <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.3)' }}>📍 {listing.city || 'Indonesia'}</div>
+                <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.3)', marginTop: 4 }}>📅 {pickupDate} · {days} day{days > 1 ? 's' : ''}</div>
+                <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.3)', marginTop: 2 }}>👤 {name} · 📱 {whatsapp}</div>
+                <div style={{ height: 1, background: 'rgba(255,255,255,0.04)', margin: '8px 0' }} />
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline' }}>
+                  <span style={{ fontSize: 12, fontWeight: 700, color: 'rgba(255,255,255,0.5)' }}>Estimated Total</span>
+                  <span style={{ fontSize: 18, fontWeight: 900, color: '#8DC63F' }}>{fmtPrice(total)}</span>
+                </div>
+              </div>
+
+              {isClosed && (
+                <div style={{ padding: '10px 14px', background: 'rgba(255,215,0,0.06)', border: '1px solid rgba(255,215,0,0.15)', borderRadius: 10, marginBottom: 14 }}>
+                  <span style={{ fontSize: 11, fontWeight: 700, color: '#FFD700' }}>🕐 Office hours: 07:00 - 21:00</span>
+                </div>
+              )}
+
+              <button onClick={() => { onConfirm?.({ ref: bookingRef, name, whatsapp, days, pickupDate, notes, total }); onClose() }} style={{ width: '100%', padding: '14px 0', borderRadius: 14, background: '#8DC63F', border: 'none', color: '#000', fontSize: 15, fontWeight: 800, cursor: 'pointer', fontFamily: 'inherit', boxShadow: '0 4px 16px rgba(141,198,63,0.3)' }}>
+                Done
+              </button>
+            </div>
+          </div>
+        )}
       </div>
     </div>,
     document.body
