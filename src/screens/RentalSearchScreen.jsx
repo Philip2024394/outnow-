@@ -728,31 +728,80 @@ export default function RentalSearchScreen({ onClose }) {
               <button onClick={() => setShowUserDrawer(false)} style={{ width: 32, height: 32, borderRadius: '50%', background: '#8DC63F', border: 'none', color: '#000', fontSize: 14, fontWeight: 900, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>✕</button>
             </div>
 
-            {/* Menu items */}
+            {/* DEV: Role toggle — remove for production */}
+            {(() => {
+              const isOwner = !!localStorage.getItem('indoo_rental_owner')
+              const allItems = [
+                // Both
+                { icon: '👤', label: 'My Profile', sub: 'View and edit your details', role: 'both', action: () => { setShowUserDrawer(false); setRentalSignUpOpen(true) } },
+                { icon: '💬', label: 'Messages', sub: 'Chat with owners & renters', role: 'both', action: () => setShowUserDrawer(false) },
+                { icon: '⚙️', label: 'Settings', sub: 'Preferences and notifications', role: 'both', action: () => setShowUserDrawer(false) },
+                // Buyer only
+                { icon: '📦', label: 'My Bookings', sub: 'View your rental bookings', role: 'buyer', action: () => setShowUserDrawer(false) },
+                { icon: '⭐', label: 'My Reviews', sub: 'Reviews you have written', role: 'buyer', action: () => setShowUserDrawer(false) },
+                { icon: '❤️', label: 'Saved Items', sub: 'Your favourite listings', role: 'buyer', action: () => setShowUserDrawer(false) },
+                // Seller only
+                { icon: '📋', label: 'My Listings', sub: 'Manage your rental & sale listings', role: 'seller', action: () => { setShowUserDrawer(false); setRentalListingOpen(true) } },
+                { icon: '💰', label: 'Wallet', sub: 'Balance, commission & transactions', role: 'seller', action: () => setShowUserDrawer(false) },
+                { icon: '📅', label: 'Calendar', sub: 'Manage booking availability', role: 'seller', action: () => setShowUserDrawer(false) },
+                { icon: '📊', label: 'Analytics', sub: 'Views, bookings & revenue', role: 'seller', action: () => setShowUserDrawer(false) },
+                { icon: '📋', label: 'List a Rental', sub: 'Start earning with your vehicle', role: 'seller', action: () => { setShowUserDrawer(false); setRentalListingOpen(true) } },
+                { icon: '💰', label: 'Sell an Item', sub: 'Put your vehicle up for sale', role: 'seller', action: () => { setShowUserDrawer(false); setRentalListingOpen(true) } },
+              ]
+              // DEV: show all. Production: filter by isOwner
+              const visibleItems = allItems // Production: allItems.filter(i => i.role === 'both' || (isOwner ? i.role === 'seller' : i.role === 'buyer'))
+              return null // rendered below
+            })()}
+
+            {/* Menu items — smart based on role */}
             <div style={{ flex: 1, padding: '12px 10px', overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: 8 }}>
-              {[
-                { icon: '👤', label: 'My Profile', sub: 'View and edit your details', action: () => { setShowUserDrawer(false); setRentalSignUpOpen(true) } },
-                { icon: '📦', label: 'My Bookings', sub: 'View your rental bookings', action: () => setShowUserDrawer(false) },
-                { icon: '💬', label: 'Messages', sub: 'Chat with owners', action: () => setShowUserDrawer(false) },
-                { icon: '⭐', label: 'My Reviews', sub: 'Reviews you have written', action: () => setShowUserDrawer(false) },
-                { icon: '❤️', label: 'Saved Items', sub: 'Your favourite listings', action: () => setShowUserDrawer(false) },
-                { icon: '💰', label: 'Wallet', sub: 'Balance and transactions', action: () => setShowUserDrawer(false) },
-                { icon: '⚙️', label: 'Settings', sub: 'Preferences and notifications', action: () => setShowUserDrawer(false) },
-                { icon: '📋', label: 'List a Rental', sub: 'Start earning with your vehicle', action: () => { setShowUserDrawer(false); setRentalListingOpen(true) } },
-              ].map((item, i) => (
+              {/* Role badge — DEV toggle */}
+              {(() => {
+                const isOwner = !!localStorage.getItem('indoo_rental_owner')
+                return (
+                  <div style={{ display: 'flex', gap: 4, marginBottom: 4 }}>
+                    <div style={{ padding: '4px 10px', borderRadius: 8, background: 'rgba(141,198,63,0.08)', border: '1px solid rgba(141,198,63,0.15)', fontSize: 9, fontWeight: 700, color: '#8DC63F' }}>
+                      {isOwner ? '👤 Owner Account' : '👤 Buyer Account'}
+                    </div>
+                    {isOwner && <div style={{ padding: '4px 10px', borderRadius: 8, background: 'rgba(255,215,0,0.06)', border: '1px solid rgba(255,215,0,0.15)', fontSize: 9, fontWeight: 700, color: '#FFD700' }}>+ Buyer</div>}
+                  </div>
+                )
+              })()}
+              {(() => {
+                const isOwner = !!localStorage.getItem('indoo_rental_owner')
+                return [
+                  // Both — always show
+                  { icon: '👤', label: 'My Profile', sub: 'View and edit your details', show: true, action: () => { setShowUserDrawer(false); setRentalSignUpOpen(true) } },
+                  { icon: '💬', label: 'Messages', sub: 'Chat with owners & renters', show: true, action: () => setShowUserDrawer(false) },
+                  // Buyer
+                  { icon: '📦', label: 'My Bookings', sub: 'View your rental bookings', show: true, action: () => setShowUserDrawer(false) },
+                  { icon: '⭐', label: 'My Reviews', sub: 'Reviews you have written', show: true, action: () => setShowUserDrawer(false) },
+                  { icon: '❤️', label: 'Saved Items', sub: 'Your favourite listings', show: true, action: () => setShowUserDrawer(false) },
+                  // Seller — only if owner
+                  { icon: '📋', label: 'My Listings', sub: 'Manage your rental & sale listings', show: isOwner, action: () => { setShowUserDrawer(false); setRentalListingOpen(true) } },
+                  { icon: '💰', label: 'Wallet', sub: 'Balance, commission & transactions', show: isOwner, action: () => setShowUserDrawer(false) },
+                  { icon: '📅', label: 'Calendar', sub: 'Manage booking availability', show: isOwner, action: () => setShowUserDrawer(false) },
+                  { icon: '📊', label: 'Analytics', sub: 'Views, bookings & revenue', show: isOwner, action: () => setShowUserDrawer(false) },
+                  // Actions — seller
+                  { icon: '🔑', label: 'List a Rental', sub: 'Start earning with your vehicle', show: isOwner, accent: '#8DC63F', action: () => { setShowUserDrawer(false); setRentalListingOpen(true) } },
+                  { icon: '💰', label: 'Sell an Item', sub: 'Put your vehicle up for sale', show: isOwner, accent: '#FFD700', action: () => { setShowUserDrawer(false); setRentalListingOpen(true) } },
+                  // Settings — always
+                  { icon: '⚙️', label: 'Settings', sub: 'Preferences and notifications', show: true, action: () => setShowUserDrawer(false) },
+                ].filter(i => i.show)
+              })().map((item, i) => (
                 <button key={i} onClick={item.action} style={{
                   display: 'flex', alignItems: 'center', gap: 12, width: '100%',
                   padding: '14px 12px',
                   background: 'linear-gradient(145deg, rgba(30,30,35,0.9) 0%, rgba(15,15,18,0.95) 100%)',
-                  border: '1px solid rgba(255,255,255,0.06)', borderRadius: 14,
+                  border: item.accent ? `1px solid ${item.accent}30` : '1px solid rgba(255,255,255,0.06)', borderRadius: 14,
                   cursor: 'pointer', textAlign: 'left', fontFamily: 'inherit', transition: 'all 0.2s',
-                  boxShadow: '0 4px 12px rgba(0,0,0,0.4), 0 1px 0 rgba(255,255,255,0.04) inset, 0 -2px 6px rgba(0,0,0,0.3) inset',
+                  boxShadow: item.accent ? `0 4px 12px rgba(0,0,0,0.4), 0 0 8px ${item.accent}15` : '0 4px 12px rgba(0,0,0,0.4), 0 1px 0 rgba(255,255,255,0.04) inset, 0 -2px 6px rgba(0,0,0,0.3) inset',
                 }}>
                   <div style={{ width: 36, height: 36, borderRadius: 10, background: 'linear-gradient(145deg, rgba(40,40,45,1) 0%, rgba(20,20,22,1) 100%)', border: '1px solid rgba(255,255,255,0.06)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, boxShadow: '0 2px 6px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.06)' }}>
                     <span style={{ fontSize: 18 }}>{item.icon}</span>
                   </div>
                   <div style={{ flex: 1 }}>
-                    <div style={{ fontSize: 13, fontWeight: 700, color: '#fff' }}>{item.label}</div>
+                    <div style={{ fontSize: 13, fontWeight: 700, color: item.accent || '#fff' }}>{item.label}</div>
                     <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.2)', marginTop: 2 }}>{item.sub}</div>
                   </div>
                   <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="rgba(141,198,63,0.4)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
