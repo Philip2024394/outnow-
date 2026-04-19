@@ -121,7 +121,7 @@ function RentalDetail({ listing, onClose, onChat, onBook }) {
 
 const LANDING_BG = 'https://ik.imagekit.io/nepgaxllc/Untitledsdfasdfdddfsdfsdsdfsdfadsasda.png?updatedAt=1776095672208'
 
-function RentalLanding({ onEnter, onClose, onDashboard, onSignUp }) {
+function RentalLanding({ onEnter, onClose, onDashboard, onSignUp, onListRental, onSellItem, onBuyItem, onRentItem }) {
   return (
     <div className={styles.landing}>
       {/* Floating side nav — right edge */}
@@ -143,24 +143,42 @@ function RentalLanding({ onEnter, onClose, onDashboard, onSignUp }) {
           <span className={styles.landingBrandText}><span>INDOO</span><span className={styles.landingBrandGreen}>DEALS</span></span>
         </div>
 
-        {/* Search bar */}
-        <div className={styles.landingSearchRow}>
-          <div className={styles.landingSearchWrap}>
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#8DC63F" strokeWidth="2.5" strokeLinecap="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-            <input className={styles.landingSearchInput} placeholder="Search rentals..." readOnly onClick={onEnter} />
-          </div>
+        {/* Slogan */}
+        <p style={{ textAlign: 'center', fontSize: 13, color: 'rgba(255,255,255,0.35)', fontWeight: 600, margin: '0 0 20px', letterSpacing: '0.03em' }}>RENTALS & SALES</p>
+
+        {/* 4 Action buttons */}
+        <div style={{ padding: '0 20px', display: 'flex', flexDirection: 'column', gap: 10 }}>
+          {[
+            { icon: '🔑', label: 'List a Rental', sub: 'List your vehicle or property for rent', color: '#8DC63F', borderColor: 'rgba(141,198,63,0.2)', action: onListRental || onSignUp },
+            { icon: '💰', label: 'Sell an Item', sub: 'Put your vehicle or equipment up for sale', color: '#FFD700', borderColor: 'rgba(255,215,0,0.15)', action: onSellItem || onSignUp },
+            { icon: '🛒', label: 'Buy an Item', sub: 'Browse vehicles and equipment for sale', color: '#FFD700', borderColor: 'rgba(255,215,0,0.15)', action: onBuyItem || onEnter },
+            { icon: '🏍️', label: 'Rent an Item', sub: 'Find motors, cars, villas to rent', color: '#8DC63F', borderColor: 'rgba(141,198,63,0.2)', action: onRentItem || onEnter },
+          ].map((btn, i) => (
+            <button key={i} onClick={btn.action} style={{
+              display: 'flex', alignItems: 'center', gap: 14, width: '100%',
+              padding: '14px 16px',
+              background: 'rgba(0,0,0,0.4)', backdropFilter: 'blur(12px)', WebkitBackdropFilter: 'blur(12px)',
+              border: `1.5px solid ${btn.borderColor}`, borderRadius: 16,
+              cursor: 'pointer', fontFamily: 'inherit', textAlign: 'left',
+              transition: 'all 0.25s',
+              boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.03)',
+            }}>
+              <div style={{ width: 44, height: 44, borderRadius: 12, background: `${btn.color}10`, border: `1px solid ${btn.color}30`, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 22, flexShrink: 0 }}>{btn.icon}</div>
+              <div style={{ flex: 1 }}>
+                <div style={{ fontSize: 15, fontWeight: 800, color: btn.color }}>{btn.label}</div>
+                <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.3)', marginTop: 2 }}>{btn.sub}</div>
+              </div>
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke={`${btn.color}66`} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+            </button>
+          ))}
         </div>
 
-        {/* Hero content — pushed to bottom */}
-        <div className={styles.landingContent}>
-          <h1 className={styles.landingTitle}>Indoo Deals</h1>
-          <p className={styles.landingSub}>Rentals & Sales — motors, cars, villas, equipment and more</p>
-          <button className={styles.landingBtn} onClick={onEnter}>
-            Let's Go Rent
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-              <polyline points="9 18 15 12 9 6"/>
-            </svg>
-          </button>
+        {/* Search bar — bottom */}
+        <div style={{ padding: '16px 20px 0' }}>
+          <div className={styles.landingSearchWrap} onClick={onEnter} style={{ cursor: 'pointer' }}>
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#8DC63F" strokeWidth="2.5" strokeLinecap="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+            <input className={styles.landingSearchInput} placeholder="Search deals..." readOnly onClick={onEnter} />
+          </div>
         </div>
       </div>
     </div>
@@ -458,7 +476,16 @@ export default function RentalSearchScreen({ onClose }) {
 
   if (view === 'landing') {
     return <div>
-      <RentalLanding onEnter={() => { markSectionVisited('rentals'); setView('categories') }} onClose={onClose} onDashboard={() => { markSectionVisited('rentals'); setDashboardOpen(true) }} onSignUp={() => setRentalSignUpOpen(true)} />
+      <RentalLanding
+        onEnter={() => { markSectionVisited('rentals'); setView('categories') }}
+        onClose={onClose}
+        onDashboard={() => { markSectionVisited('rentals'); setDashboardOpen(true) }}
+        onSignUp={() => setRentalSignUpOpen(true)}
+        onListRental={() => { setRentalSignUpOpen(true) }}
+        onSellItem={() => { setRentalSignUpOpen(true) }}
+        onBuyItem={() => { markSectionVisited('rentals'); setListingMode('sale'); setView('categories') }}
+        onRentItem={() => { markSectionVisited('rentals'); setListingMode('rent'); setView('categories') }}
+      />
       {modals}
     </div>
   }
