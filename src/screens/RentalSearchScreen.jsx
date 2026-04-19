@@ -411,6 +411,7 @@ export default function RentalSearchScreen({ onClose }) {
   const [flippedCards, setFlippedCards] = useState({})
   const [listingMode, setListingMode] = useState('all') // 'all' | 'rent' | 'sale'
   const [reviewListing, setReviewListing] = useState(null)
+  const [showUserDrawer, setShowUserDrawer] = useState(false)
   const [pendingAction, setPendingAction] = useState(null) // { type: 'book'|'chat', listing }
 
   // Check if user has account before allowing book/chat
@@ -682,7 +683,7 @@ export default function RentalSearchScreen({ onClose }) {
           { id: 'home', label: 'Home', icon: <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>, color: '#fff', action: () => { if (vehicleType) { setView('vehicleDir') } else { setView('categories') } } },
           { id: 'rent', label: 'Rental', icon: <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 2l-2 2m-7.61 7.61a5.5 5.5 0 1 1-7.778 7.778 5.5 5.5 0 0 1 7.777-7.777zm0 0L15.5 7.5m0 0l3 3L22 7l-3-3m-3.5 3.5L19 4"/></svg>, color: '#8DC63F', action: () => setListingMode(listingMode === 'rent' ? 'all' : 'rent') },
           { id: 'sale', label: 'Selling', icon: <span style={{ fontSize: 16 }}>💰</span>, color: '#FFD700', action: () => setListingMode(listingMode === 'sale' ? 'all' : 'sale') },
-          { id: 'user', label: 'Account', icon: <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>, color: '#fff', action: () => setRentalSignUpOpen(true) },
+          { id: 'user', label: 'Account', icon: <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>, color: '#fff', action: () => setShowUserDrawer(true) },
         ].map(btn => {
           const isActive = (btn.id === 'rent' && listingMode === 'rent') || (btn.id === 'sale' && listingMode === 'sale')
           return (
@@ -700,6 +701,70 @@ export default function RentalSearchScreen({ onClose }) {
           </button>
         )})}
       </div>
+
+      {/* User Account Side Drawer */}
+      {showUserDrawer && (
+        <>
+          <div onClick={() => setShowUserDrawer(false)} style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.4)', backdropFilter: 'blur(8px)', WebkitBackdropFilter: 'blur(8px)', zIndex: 9998 }} />
+          <div style={{
+            position: 'fixed', top: 0, right: 0, bottom: 0, width: '70%',
+            background: 'rgba(0,0,0,0.7)', backdropFilter: 'blur(24px)', WebkitBackdropFilter: 'blur(24px)',
+            borderLeft: '1.5px solid rgba(141,198,63,0.15)',
+            boxShadow: '-10px 0 40px rgba(0,0,0,0.5), 0 0 20px rgba(141,198,63,0.06)',
+            zIndex: 9999, display: 'flex', flexDirection: 'column',
+            animation: 'slideInRight 0.25s ease',
+          }}>
+            <style>{`@keyframes slideInRight { from { transform: translateX(100%) } to { transform: translateX(0) } }`}</style>
+            <div style={{ position: 'absolute', top: 0, left: 0, bottom: 0, width: 2, background: 'linear-gradient(180deg, transparent, #8DC63F 30%, #8DC63F 70%, transparent)', pointerEvents: 'none', boxShadow: '0 0 12px rgba(141,198,63,0.4)' }} />
+
+            {/* Header */}
+            <div style={{ padding: '20px 16px', borderBottom: '1px solid rgba(255,255,255,0.06)', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                <div style={{ width: 36, height: 36, borderRadius: '50%', background: 'rgba(141,198,63,0.1)', border: '1px solid rgba(141,198,63,0.2)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#8DC63F" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+                </div>
+                <span style={{ fontSize: 16, fontWeight: 800, color: '#fff' }}>Account</span>
+              </div>
+              <button onClick={() => setShowUserDrawer(false)} style={{ width: 32, height: 32, borderRadius: '50%', background: '#8DC63F', border: 'none', color: '#000', fontSize: 14, fontWeight: 900, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>✕</button>
+            </div>
+
+            {/* Menu items */}
+            <div style={{ flex: 1, padding: '12px 10px', overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: 8 }}>
+              {[
+                { icon: '👤', label: 'My Profile', sub: 'View and edit your details', action: () => { setShowUserDrawer(false); setRentalSignUpOpen(true) } },
+                { icon: '📦', label: 'My Bookings', sub: 'View your rental bookings', action: () => setShowUserDrawer(false) },
+                { icon: '💬', label: 'Messages', sub: 'Chat with owners', action: () => setShowUserDrawer(false) },
+                { icon: '⭐', label: 'My Reviews', sub: 'Reviews you have written', action: () => setShowUserDrawer(false) },
+                { icon: '❤️', label: 'Saved Items', sub: 'Your favourite listings', action: () => setShowUserDrawer(false) },
+                { icon: '💰', label: 'Wallet', sub: 'Balance and transactions', action: () => setShowUserDrawer(false) },
+                { icon: '⚙️', label: 'Settings', sub: 'Preferences and notifications', action: () => setShowUserDrawer(false) },
+                { icon: '📋', label: 'List a Rental', sub: 'Start earning with your vehicle', action: () => { setShowUserDrawer(false); setRentalListingOpen(true) } },
+              ].map((item, i) => (
+                <button key={i} onClick={item.action} style={{
+                  display: 'flex', alignItems: 'center', gap: 12, width: '100%',
+                  padding: '14px 12px',
+                  background: 'rgba(0,0,0,0.4)', backdropFilter: 'blur(12px)', WebkitBackdropFilter: 'blur(12px)',
+                  border: '1.5px solid rgba(141,198,63,0.08)', borderRadius: 14,
+                  cursor: 'pointer', textAlign: 'left', fontFamily: 'inherit', transition: 'all 0.2s',
+                  boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.03)',
+                }}>
+                  <span style={{ fontSize: 20 }}>{item.icon}</span>
+                  <div style={{ flex: 1 }}>
+                    <div style={{ fontSize: 13, fontWeight: 700, color: '#fff' }}>{item.label}</div>
+                    <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.25)', marginTop: 2 }}>{item.sub}</div>
+                  </div>
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="rgba(141,198,63,0.3)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+                </button>
+              ))}
+            </div>
+
+            {/* Footer */}
+            <div style={{ padding: '14px 16px', borderTop: '1px solid rgba(255,255,255,0.04)', textAlign: 'center' }}>
+              <span style={{ fontSize: 10, color: 'rgba(255,255,255,0.12)', fontWeight: 600 }}>Indoo Done Deal v1.0</span>
+            </div>
+          </div>
+        </>
+      )}
 
       {/* Premium listing cards */}
       <div className={styles.body} style={{ paddingRight: 66, paddingTop: 90 }}>
