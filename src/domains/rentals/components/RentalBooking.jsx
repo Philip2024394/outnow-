@@ -141,12 +141,17 @@ export function RentalBookingFlow({ listing, onClose, onConfirm }) {
   const inputStyle = { width: '100%', padding: '12px 14px', background: 'rgba(255,255,255,0.04)', border: '1.5px solid rgba(255,255,255,0.08)', borderRadius: 12, color: '#fff', fontSize: 14, fontFamily: 'inherit', outline: 'none', boxSizing: 'border-box' }
 
   return createPortal(
-    <div style={{ position: 'fixed', inset: 0, zIndex: 99999, background: 'rgba(0,0,0,0.88)', backdropFilter: 'blur(16px)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 14 }}>
-      <div style={{ width: '100%', maxWidth: 400, maxHeight: '92vh', overflowY: 'auto', background: step >= 1 ? 'none' : 'rgba(10,10,15,0.95)', backgroundImage: step >= 1 ? 'url(https://ik.imagekit.io/nepgaxllc/Untitledsadasdadsaa.png?updatedAt=1776480383268)' : 'none', backgroundSize: 'cover', backgroundPosition: 'center', border: '1.5px solid rgba(141,198,63,0.15)', borderRadius: 22, boxShadow: '0 24px 64px rgba(0,0,0,0.6), 0 0 24px rgba(141,198,63,0.08), inset 0 1px 0 rgba(255,255,255,0.04)', scrollbarWidth: 'none', position: 'relative' }}>
-        {step >= 1 && <div style={{ position: 'absolute', inset: 0, background: 'rgba(0,0,0,0.6)', borderRadius: 22, pointerEvents: 'none' }} />}
+    <div style={{ position: 'fixed', inset: 0, zIndex: 99999, backgroundImage: 'url(https://ik.imagekit.io/nepgaxllc/Untitledsadasdadsaa.png?updatedAt=1776480383268)', backgroundSize: 'cover', backgroundPosition: 'center', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 14 }}>
+      <div style={{ position: 'absolute', inset: 0, background: 'rgba(0,0,0,0.55)', pointerEvents: 'none' }} />
+      <div style={{ width: '100%', maxWidth: 400, maxHeight: '92vh', overflowY: 'auto',
+        background: 'rgba(0,0,0,0.5)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)',
+        border: '1.5px solid rgba(255,215,0,0.15)', borderRadius: 22,
+        boxShadow: '0 24px 64px rgba(0,0,0,0.6), 0 0 30px rgba(255,215,0,0.08), 0 0 60px rgba(255,215,0,0.04), inset 0 1px 0 rgba(255,255,255,0.04)',
+        scrollbarWidth: 'none', position: 'relative', zIndex: 1,
+      }}>
 
         {/* Header */}
-        <div style={{ padding: '14px 16px', borderBottom: '1px solid rgba(255,255,255,0.06)', display: 'flex', alignItems: 'center', justifyContent: 'space-between', position: 'sticky', top: 0, background: 'rgba(10,10,15,0.95)', zIndex: 2, borderRadius: '22px 22px 0 0' }}>
+        <div style={{ padding: '14px 16px', borderBottom: '1px solid rgba(255,255,255,0.06)', display: 'flex', alignItems: 'center', justifyContent: 'space-between', position: 'sticky', top: 0, background: 'rgba(0,0,0,0.6)', backdropFilter: 'blur(16px)', zIndex: 2, borderRadius: '22px 22px 0 0' }}>
           <div>
             <div style={{ fontSize: 16, fontWeight: 900, color: '#fff' }}>Booking Request</div>
             <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.25)', marginTop: 1 }}>Complete your details to proceed</div>
