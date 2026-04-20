@@ -25,6 +25,11 @@ const _ukHour = parseInt(
 )
 export const _isUKLateNight = _ukHour >= 0 && _ukHour < 7
 
+export const _LDN = (dlat, dlng) => ({
+  lat: 51.5074 + dlat, lng: -0.1278 + dlng,
+  fuzzedLat: 51.5074 + dlat + 0.002, fuzzedLng: -0.1278 + dlng + 0.002,
+})
+
 export function tonight(hour = 20, minute = 0) {
   const d = new Date()
   d.setHours(hour, minute, 0, 0)
