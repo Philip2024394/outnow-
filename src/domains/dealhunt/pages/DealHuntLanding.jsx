@@ -212,7 +212,9 @@ function DealSlide({ deal, isActive, onClaim, onChat, onViewSeller, onOpenMenu }
 // ── Main TikTok-style feed ────────────────────────────────────────────────────
 export default function DealHuntLanding({ open, onClose, onSelectDeal, onCreateDeal, onViewSeller }) {
   const [activeIndex, setActiveIndex] = useState(0)
+  const [userTouched, setUserTouched] = useState(false)
   const containerRef = useRef(null)
+  const autoScrollRef = useRef(null)
   const deals = DEMO_DEALS
 
   const handleScroll = useCallback(() => {
@@ -222,10 +224,38 @@ export default function DealHuntLanding({ open, onClose, onSelectDeal, onCreateD
     if (idx !== activeIndex && idx >= 0 && idx < deals.length) setActiveIndex(idx)
   }, [activeIndex, deals.length])
 
+  // Auto-scroll through all deals once on first load, stop when user touches
+  useEffect(() => {
+    if (!open || userTouched) return
+    let current = 0
+    autoScrollRef.current = setInterval(() => {
+      current++
+      if (current >= deals.length) {
+        clearInterval(autoScrollRef.current)
+        // Scroll back to first deal
+        containerRef.current?.scrollTo({ top: 0, behavior: 'smooth' })
+        return
+      }
+      containerRef.current?.scrollTo({
+        top: current * window.innerHeight,
+        behavior: 'smooth',
+      })
+    }, 3000) // 3 seconds per deal
+    return () => clearInterval(autoScrollRef.current)
+  }, [open, userTouched, deals.length])
+
+  // Stop auto-scroll on any touch
+  const handleTouch = useCallback(() => {
+    if (!userTouched) {
+      setUserTouched(true)
+      clearInterval(autoScrollRef.current)
+    }
+  }, [userTouched])
+
   if (!open) return null
 
   return createPortal(
-    <div className={styles.screen}>
+    <div className={styles.screen} onTouchStart={handleTouch} onMouseDown={handleTouch}>
       {/* Back button */}
       <button className={styles.backBtn} onClick={onClose}>
         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
@@ -242,13 +272,6 @@ export default function DealHuntLanding({ open, onClose, onSelectDeal, onCreateD
         <span className={styles.headerCategory}>{DOMAIN_LABELS[deals[activeIndex]?.domain] ?? ''}</span>
         <span className={styles.headerDot}>·</span>
         <span className={styles.headerCity}>{deals[activeIndex]?.city ?? 'Indonesia'}</span>
-      </div>
-
-      {/* Dot indicator — right side */}
-      <div className={styles.dots}>
-        {deals.map((_, i) => (
-          <div key={i} className={`${styles.dot} ${i === activeIndex ? styles.dotActive : ''}`} />
-        ))}
       </div>
 
       {/* Snap-scroll vertical feed */}
