@@ -1,4 +1,4 @@
-import { useRef } from 'react'
+import { useRef, useState } from 'react'
 import styles from './RestaurantMenuSheet.module.css'
 import { fmtRp } from './menuSheetConstants'
 
@@ -24,6 +24,7 @@ export default function OrderConfirmOverlay({
   setFoodOrders,
 }) {
   const fileInputRef = useRef(null)
+  const [showTracking, setShowTracking] = useState(false)
 
   if (!orderConfirm) return null
 
@@ -222,7 +223,7 @@ export default function OrderConfirmOverlay({
                   </div>
                 </div>
 
-                <button className={styles.confirmDoneBtn} onClick={handleOpenTracking} style={{ background: 'linear-gradient(135deg, #8DC63F 0%, #6BA530 100%)' }}>
+                <button className={styles.confirmDoneBtn} onClick={() => setShowTracking(true)} style={{ background: 'linear-gradient(135deg, #8DC63F 0%, #6BA530 100%)' }}>
                   Track Order
                 </button>
                 <button className={styles.orderCancelBtn} onClick={() => {
@@ -257,6 +258,66 @@ export default function OrderConfirmOverlay({
         )}
 
       </div>
+
+      {/* ── Driver tracking overlay ── */}
+      {showTracking && assignedDriver && (
+        <div style={{
+          position: 'fixed', inset: 0, zIndex: 200,
+          background: 'rgba(0,0,0,0.95)',
+          display: 'flex', flexDirection: 'column',
+        }}>
+          {/* Header */}
+          <div style={{ padding: '14px 16px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', borderBottom: '1px solid rgba(255,255,255,0.08)' }}>
+            <div>
+              <div style={{ fontSize: 16, fontWeight: 900, color: '#fff' }}>Order Tracking</div>
+              <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.5)' }}>{assignedDriver.display_name ?? assignedDriver.name} is on the way</div>
+            </div>
+            <button onClick={() => setShowTracking(false)} style={{ width: 32, height: 32, borderRadius: '50%', background: 'rgba(255,255,255,0.08)', border: 'none', color: '#fff', fontSize: 14, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>✕</button>
+          </div>
+
+          {/* Driver info card */}
+          <div style={{ padding: '12px 16px', display: 'flex', alignItems: 'center', gap: 12, background: 'rgba(141,198,63,0.06)', borderBottom: '1px solid rgba(255,255,255,0.06)' }}>
+            <div style={{ width: 48, height: 48, borderRadius: '50%', background: 'rgba(141,198,63,0.15)', border: '2px solid rgba(141,198,63,0.4)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 22 }}>🏍️</div>
+            <div style={{ flex: 1 }}>
+              <div style={{ fontSize: 14, fontWeight: 800, color: '#fff' }}>{assignedDriver.display_name ?? assignedDriver.name}</div>
+              <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.5)' }}>{assignedDriver.vehicle_model ?? assignedDriver.vehicle ?? 'Honda Beat'} · {assignedDriver.plate ?? 'AB 1234 CD'}</div>
+            </div>
+            <a href={`tel:${assignedDriver.phone ?? '081234567890'}`} style={{ width: 40, height: 40, borderRadius: '50%', background: '#8DC63F', display: 'flex', alignItems: 'center', justifyContent: 'center', textDecoration: 'none' }}>
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="#000" stroke="none"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07 19.5 19.5 0 01-6-6 19.79 19.79 0 01-3.07-8.67A2 2 0 014.11 2h3a2 2 0 012 1.72c.127.96.361 1.903.7 2.81a2 2 0 01-.45 2.11L8.09 9.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0122 16.92z"/></svg>
+            </a>
+          </div>
+
+          {/* Status timeline */}
+          <div style={{ padding: '16px', display: 'flex', flexDirection: 'column', gap: 16 }}>
+            {[
+              { label: 'Order Confirmed', icon: '✅', done: true },
+              { label: 'Driver Heading to Restaurant', icon: '🏍️', done: true },
+              { label: 'Picking Up Your Food', icon: '🍽️', done: false, active: true },
+              { label: 'On the Way to You', icon: '📦', done: false },
+              { label: 'Delivered', icon: '🎉', done: false },
+            ].map((step, i) => (
+              <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+                <div style={{
+                  width: 36, height: 36, borderRadius: '50%',
+                  background: step.done ? 'rgba(141,198,63,0.2)' : step.active ? 'rgba(255,215,0,0.15)' : 'rgba(255,255,255,0.05)',
+                  border: `2px solid ${step.done ? '#8DC63F' : step.active ? '#FFD700' : 'rgba(255,255,255,0.1)'}`,
+                  display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 16,
+                }}>{step.icon}</div>
+                <span style={{
+                  fontSize: 13, fontWeight: step.active ? 800 : 600,
+                  color: step.done ? '#8DC63F' : step.active ? '#FFD700' : 'rgba(255,255,255,0.35)',
+                }}>{step.label}{step.active ? ' ···' : ''}</span>
+              </div>
+            ))}
+          </div>
+
+          {/* ETA */}
+          <div style={{ padding: '0 16px', textAlign: 'center' }}>
+            <div style={{ fontSize: 28, fontWeight: 900, color: '#FFD700' }}>~{orderConfirm.estimatedMin} min</div>
+            <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.4)' }}>Estimated delivery time</div>
+          </div>
+        </div>
+      )}
     </div>
   )
 }

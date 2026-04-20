@@ -164,6 +164,11 @@ export default function RestaurantMenuSheet({ restaurant, onClose, onOrderViaCha
   const maxPrepMin  = cart.length > 0
     ? Math.max(...cart.map(i => i.prep_time_min ?? 0))
     : 0
+  const avgPrepTime = cart.length > 0
+    ? Math.round(cart.reduce((sum, item) => sum + (item.prep_time_min ?? 15), 0) / cart.length)
+    : 15
+  const deliveryMinutes = orderType === 'delivery' ? Math.round(5 + ((deliveryFare ?? 15000) / 4000)) : 0
+  const eta = avgPrepTime + deliveryMinutes
   const qtyFor = (id) => cart.find(c => c.id === id)?.qty ?? 0
 
   // ── Jump to category in feed ──
@@ -521,6 +526,9 @@ export default function RestaurantMenuSheet({ restaurant, onClose, onOrderViaCha
                 {orderType !== 'delivery' ? fmtRp(grandTotal) : deliveryFare !== null ? fmtRp(grandTotal) : `${fmtRp(cartTotal)} + delivery`}
               </span>
             </div>
+            <span style={{ fontSize: 11, color: 'rgba(255,255,255,0.5)', marginTop: 2, display: 'block', textAlign: 'center' }}>
+              ⏱ Estimated {eta} min {orderType === 'delivery' ? `(${avgPrepTime} prep + ${deliveryMinutes} delivery)` : '(prep time)'}
+            </span>
 
             {/* Order type toggle — Delivery / Dine In / Pickup */}
             <div style={{ display: 'flex', gap: 6, marginBottom: 10 }}>
@@ -574,7 +582,9 @@ export default function RestaurantMenuSheet({ restaurant, onClose, onOrderViaCha
             <button className={styles.orderBtn} onClick={handleOrder}>
               {showAddrInput
                 ? onOrderViaChat ? '💬 Send Order via Chat' : '📲 Send Order via WhatsApp'
-                : 'Order Now →'}
+                : orderType === 'delivery'
+                  ? `Order Now · ~${eta} min →`
+                  : `Order Now · ~${avgPrepTime} min →`}
             </button>
           </div>
         )}
