@@ -192,14 +192,14 @@
   flex: 1; overflow-y: scroll;
   scroll-snap-type: y mandatory;
   -webkit-overflow-scrolling: touch;
-  padding-bottom: 80px;
+  padding-bottom: 0;
 }
 .feed::-webkit-scrollbar { display: none; }
-.emptyFeed { height: calc(100dvh - 80px); display: flex; align-items: center; justify-content: center; font-size: 14px; color: #333; font-weight: 700; }
+.emptyFeed { height: 100dvh; display: flex; align-items: center; justify-content: center; font-size: 14px; color: #333; font-weight: 700; }
 
 /* ── Menu item card ──────────────────────────────────────────────────────────── */
 .itemCard {
-  position: relative; height: calc(100dvh - 80px);
+  position: relative; height: 100dvh;
   scroll-snap-align: start;
   display: flex; flex-direction: column; justify-content: flex-end;
   overflow: hidden;
@@ -259,7 +259,7 @@
 
 /* ── Floating category grid ──────────────────────────────────────────────────── */
 .drawerBackdrop {
-  position: fixed; inset: 0; z-index: 100;
+  position: fixed; inset: 0; z-index: 9550;
   background: rgba(0,0,0,0.4);
 }
 
