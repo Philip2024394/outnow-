@@ -164,31 +164,8 @@ export default function BottomNav({ activeTab = 'map', userPhotoURL, userName, i
       )}
 
 
-      {/* Section register — only shows when in a section, not on home, hidden in marketplace/seller theme */}
-      {activeSection !== 'default' && !showBuyerBtns && !showSellerBtns && (() => {
-        const btn = SECTION_BTNS[activeSection] || SECTION_BTNS.default
-        const isRides = activeSection === 'rides'
-        const rideImg = rideType === 'car'
-          ? 'https://ik.imagekit.io/nepgaxllc/Sporty%20green%20and%20black%20hatchback.png?updatedAt=1775634925566'
-          : 'https://ik.imagekit.io/nepgaxllc/Sleek%20green%20and%20black%20scooter%20setup.png?updatedAt=1775634845237'
-        return (
-          <button
-            className={styles.sectionBtn}
-            onClick={onSectionRegister}
-            aria-label={btn.label}
-          >
-            {isRides ? (
-              <img src={rideImg} alt="" className={styles.sectionBtnImg} />
-            ) : (
-              <span className={styles.sectionBtnIcon}>{btn.icon}</span>
-            )}
-            <span className={styles.sectionBtnLabel}>{btn.label}</span>
-          </button>
-        )
-      })()}
-
-      {/* Live + Toggle — hidden on landing pages, marketplace theme, and seller theme */}
-      {!onLanding && !showBuyerBtns && !showSellerBtns && <>
+      {/* Live — hidden on landing pages, marketplace theme, and seller theme */}
+      {!onLanding && !showBuyerBtns && !showSellerBtns && (
         <button
           className={`${styles.liveBtn} ${indooLiveActive ? styles.liveBtnActive : ''}`}
           onClick={onIndooLive}
@@ -203,23 +180,7 @@ export default function BottomNav({ activeTab = 'map', userPhotoURL, userName, i
           </svg>
           <span className={styles.liveBtnLabel}>Live</span>
         </button>
-
-        <button
-          className={`${styles.dockToggleBtn} ${dockVisible ? styles.dockToggleActive : ''}`}
-          onClick={onToggleDock}
-          aria-label="Toggle menu"
-        >
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
-            {dockVisible ? (
-              <><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/>
-                <rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></>
-            ) : (
-              <><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></>
-            )}
-          </svg>
-          <span className={styles.dockToggleLabel}>{dockVisible ? 'Hide' : 'Menu'}</span>
-        </button>
-      </>}
+      )}
 
       {/* Profile avatar — hold 3s to toggle driver online/offline, hidden in marketplace/seller theme */}
       {!showBuyerBtns && !showSellerBtns && <button
