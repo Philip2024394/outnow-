@@ -278,7 +278,10 @@ function DealSlide({ deal, isActive, onClaim, onChat, onViewSeller, onOpenMenu }
 }
 
 // ── Main TikTok-style feed ────────────────────────────────────────────────────
+const LANDING_BG = 'https://ik.imagekit.io/nepgaxllc/ChatGPT%20Image%20Apr%2020,%202026,%2011_03_28%20PM.png'
+
 export default function DealHuntLanding({ open, onClose, onSelectDeal, onCreateDeal, onViewSeller }) {
+  const [showLanding, setShowLanding] = useState(true)
   const [activeIndex, setActiveIndex] = useState(0)
   const [userTouched, setUserTouched] = useState(false)
   const containerRef = useRef(null)
@@ -324,18 +327,45 @@ export default function DealHuntLanding({ open, onClose, onSelectDeal, onCreateD
 
   return createPortal(
     <div className={styles.screen} onTouchStart={handleTouch} onMouseDown={handleTouch}>
+
+      {/* ── Landing splash ── */}
+      {showLanding && (
+        <div className={styles.landingSplash}>
+          <img src={LANDING_BG} alt="" className={styles.landingBgImg} />
+          <div className={styles.landingOverlay} />
+
+          <button className={styles.landingClose} onClick={onClose}>
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2.5" strokeLinecap="round"><path d="M18 6L6 18M6 6l12 12"/></svg>
+          </button>
+
+          <div className={styles.landingContent}>
+            <h1 className={styles.landingTitle}>DEAL <span>HUNT</span></h1>
+            <p className={styles.landingSub}>Get the best deals across all categories — food, products, services & more</p>
+            <button className={styles.landingBtn} onClick={() => setShowLanding(false)}>
+              Start Hunting 🔥
+            </button>
+            <button className={styles.landingSellerBtn} onClick={() => { setShowLanding(false); onCreateDeal?.() }}>
+              I'm a seller — Post a deal
+            </button>
+          </div>
+        </div>
+      )}
+
       {/* Back button */}
-      <button className={styles.backBtn} onClick={onClose}>
+      {!showLanding && <button className={styles.backBtn} onClick={onClose}>
         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
           <path d="M19 12H5M12 5l-7 7 7 7"/>
         </svg>
-      </button>
+      </button>}
 
       {/* Title + category/city context */}
-      <div className={styles.headerTitle}>
+      {!showLanding && <div className={styles.headerTitle}>
         <span className={styles.headerBrand}>DEAL <span style={{ color: '#8DC63F' }}>HUNT</span></span>
         <span className={styles.headerLive}>● LIVE</span>
-      </div>
+      </div>}
+
+      {/* Hide feed + header sub when landing is showing */}
+      {showLanding && <style>{`.${styles.headerSub}, .${styles.feed}, .${styles.fab} { display: none !important; }`}</style>}
       <div className={styles.headerSub}>
         <span className={styles.headerCategory}>{DOMAIN_LABELS[deals[activeIndex]?.domain] ?? ''}</span>
         <span className={styles.headerDot}>·</span>

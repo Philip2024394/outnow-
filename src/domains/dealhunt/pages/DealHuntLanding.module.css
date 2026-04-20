@@ -6,6 +6,70 @@
   overflow: hidden;
 }
 
+/* ── Landing splash ── */
+.landingSplash {
+  position: absolute; inset: 0; z-index: 30;
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: flex-end;
+  overflow: hidden;
+}
+.landingBgImg {
+  position: absolute; inset: 0;
+  width: 100%; height: 100%;
+  object-fit: cover; object-position: center top;
+}
+.landingOverlay {
+  position: absolute; inset: 0;
+  background: linear-gradient(
+    to bottom,
+    rgba(0,0,0,0) 0%,
+    rgba(0,0,0,0.1) 40%,
+    rgba(0,0,0,0.7) 70%,
+    rgba(0,0,0,0.95) 100%
+  );
+}
+.landingClose {
+  position: absolute; top: calc(env(safe-area-inset-top, 0px) + 12px); right: 14px;
+  z-index: 31; width: 36px; height: 36px; border-radius: 50%;
+  background: rgba(0,0,0,0.4); backdrop-filter: blur(8px);
+  border: 1px solid rgba(255,255,255,0.12);
+  display: flex; align-items: center; justify-content: center;
+  cursor: pointer;
+}
+.landingContent {
+  position: relative; z-index: 31;
+  padding: 0 24px 40px;
+  display: flex; flex-direction: column; align-items: center;
+  gap: 12px; text-align: center; width: 100%;
+}
+.landingTitle {
+  font-size: 36px; font-weight: 900; color: #fff;
+  letter-spacing: 0.04em; margin: 0;
+  text-shadow: 0 4px 20px rgba(0,0,0,0.6);
+}
+.landingTitle span { color: #8DC63F; }
+.landingSub {
+  font-size: 15px; color: rgba(255,255,255,0.75);
+  line-height: 1.5; margin: 0; max-width: 320px;
+  text-shadow: 0 2px 8px rgba(0,0,0,0.6);
+}
+.landingBtn {
+  width: 100%; max-width: 320px; padding: 16px;
+  border-radius: 14px; background: #8DC63F; border: none;
+  color: #000; font-size: 18px; font-weight: 900;
+  cursor: pointer; font-family: inherit;
+  box-shadow: 0 4px 24px rgba(141,198,63,0.5);
+  margin-top: 8px;
+}
+.landingBtn:active { transform: scale(0.97); }
+.landingSellerBtn {
+  background: none; border: 1px solid rgba(255,255,255,0.2);
+  border-radius: 12px; padding: 12px 24px;
+  color: rgba(255,255,255,0.6); font-size: 13px; font-weight: 700;
+  cursor: pointer; font-family: inherit;
+}
+.landingSellerBtn:active { background: rgba(255,255,255,0.05); }
+
 /* ── Back button ── */
 .backBtn {
   position: fixed; top: calc(env(safe-area-inset-top, 0px) + 12px); left: 14px;
@@ -443,11 +507,12 @@
   top: calc(env(safe-area-inset-top, 0px) + 64px);
   bottom: calc(env(safe-area-inset-bottom, 0px) + 16px);
   left: 12px;
-  width: 148px;
+  width: 160px;
   display: grid; grid-template-columns: 1fr 1fr;
   gap: 8px; align-content: start;
-  overflow-y: auto; scrollbar-width: none;
-  padding: 4px;
+  overflow-y: auto; overflow-x: visible;
+  scrollbar-width: none;
+  padding: 6px;
   animation: drawerFloatIn 0.25s ease;
 }
 .drawerPanel::-webkit-scrollbar { display: none; }
