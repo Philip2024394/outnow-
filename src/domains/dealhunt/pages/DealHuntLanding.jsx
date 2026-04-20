@@ -129,7 +129,6 @@ function DealSlide({ deal, isActive, onClaim, onChat }) {
         <div className={styles.priceRow}>
           <span className={styles.dealPrice}>{fmtRp(deal.deal_price)}</span>
           <span className={styles.origPrice}>{fmtRp(deal.original_price)}</span>
-          <span className={styles.saveBadge}>Hemat {fmtRp(deal.original_price - deal.deal_price)}</span>
         </div>
 
         {/* Progress bar */}
