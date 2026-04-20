@@ -618,9 +618,9 @@
   top: calc(env(safe-area-inset-top, 0px) + 64px);
   bottom: calc(env(safe-area-inset-bottom, 0px) + 16px);
   left: 12px;
-  width: 160px;
-  display: grid; grid-template-columns: 1fr 1fr;
-  gap: 8px; align-content: start;
+  width: 170px;
+  display: flex; flex-direction: column;
+  gap: 6px; align-content: start;
   overflow-y: auto; overflow-x: visible;
   scrollbar-width: none;
   padding: 6px;
@@ -631,32 +631,66 @@
   from { opacity: 0; transform: translateX(-18px) scale(0.95); }
   to { opacity: 1; transform: none; }
 }
+
+/* Category card with image */
 .drawerCard {
-  aspect-ratio: 1;
   display: flex; flex-direction: column;
-  align-items: center; justify-content: center; gap: 4px;
-  background: rgba(12,12,12,0.82);
+  align-items: center; gap: 4px;
+  background: rgba(12,12,12,0.85);
   backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px);
-  border: 1px solid rgba(255,255,255,0.08);
-  border-radius: 16px; cursor: pointer;
-  padding: 6px 4px; font-family: inherit;
-  transition: transform 0.12s, background 0.15s;
+  border: 1.5px solid rgba(255,255,255,0.08);
+  border-radius: 14px; cursor: pointer;
+  padding: 0; font-family: inherit; overflow: hidden;
+  transition: transform 0.12s, border-color 0.2s;
+  width: 100%;
 }
-.drawerCard:active {
-  transform: scale(0.93);
-  background: rgba(141,198,63,0.12);
-  border-color: rgba(141,198,63,0.4);
+.drawerCard:active { transform: scale(0.96); }
+.drawerCardActive {
+  border-color: rgba(141,198,63,0.5);
+  box-shadow: 0 0 12px rgba(141,198,63,0.15);
 }
 .drawerCardImg {
-  width: 42px; height: 42px; border-radius: 10px;
-  object-fit: cover;
+  width: 100%; height: 80px;
+  object-fit: cover; display: block;
 }
 .drawerCardName {
-  font-size: 9px; font-weight: 800; color: rgba(255,255,255,0.75);
-  text-align: center; line-height: 1.2; padding: 0 2px;
-  display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical;
-  overflow: hidden;
+  font-size: 11px; font-weight: 800; color: #fff;
+  text-align: center; padding: 4px 6px 6px;
+  text-shadow: 0 1px 4px rgba(0,0,0,0.5);
 }
-.drawerCardPrice {
-  font-size: 9px; font-weight: 700; color: #8DC63F;
+
+/* Expanded dish list under a category */
+.drawerDishes {
+  display: flex; flex-direction: column; gap: 2px;
+  padding: 0 0 4px;
+  animation: dishSlide 0.2s ease;
+}
+@keyframes dishSlide {
+  from { opacity: 0; max-height: 0; }
+  to { opacity: 1; max-height: 300px; }
+}
+.drawerDish {
+  display: flex; align-items: center; gap: 6px;
+  padding: 8px 10px;
+  background: rgba(255,255,255,0.04);
+  border: none; border-radius: 10px;
+  cursor: pointer; font-family: inherit;
+  transition: background 0.15s;
+}
+.drawerDish:active { background: rgba(141,198,63,0.1); }
+.drawerDishName {
+  flex: 1; font-size: 10px; font-weight: 700; color: rgba(255,255,255,0.8);
+  text-align: left; min-width: 0;
+  overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+}
+.drawerDishPrice {
+  font-size: 10px; font-weight: 800; color: #FFD700;
+  flex-shrink: 0;
+}
+.drawerDishAdd {
+  width: 18px; height: 18px; border-radius: 50%;
+  background: #8DC63F; color: #000;
+  font-size: 12px; font-weight: 900;
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0; line-height: 1;
 }

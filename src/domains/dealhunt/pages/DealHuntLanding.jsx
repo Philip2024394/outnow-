@@ -99,21 +99,98 @@ function useCountdown(endTime) {
 // ── Single full-screen deal slide ─────────────────────────────────────────────
 function fmtRpShort(n) { return n >= 1000000 ? `${(n/1000000).toFixed(1).replace('.0','')}jt` : `Rp${(n??0).toLocaleString('id-ID')}` }
 
+// ── Mock owner menus using real category images ───────────────────────────────
+const MOCK_OWNER_MENU = [
+  {
+    catId: 'noodles', label: 'Noodles', image: 'https://ik.imagekit.io/nepgaxllc/ChatGPT%20Image%20Apr%2021,%202026,%2001_35_10%20AM.png?updatedAt=1776710128590',
+    dishes: [
+      { id: 'n1', name: 'Mie Goreng Jawa', price: 28000 },
+      { id: 'n2', name: 'Mie Ayam Bakso', price: 25000 },
+      { id: 'n3', name: 'Kwetiau Seafood', price: 35000 },
+    ],
+  },
+  {
+    catId: 'rice', label: 'Rice', image: 'https://ik.imagekit.io/nepgaxllc/ChatGPT%20Image%20Apr%2021,%202026,%2001_36_12%20AM.png?updatedAt=1776710188384',
+    dishes: [
+      { id: 'r1', name: 'Nasi Goreng Spesial', price: 35000 },
+      { id: 'r2', name: 'Nasi Campur Bali', price: 32000 },
+      { id: 'r3', name: 'Nasi Uduk Komplit', price: 22000 },
+    ],
+  },
+  {
+    catId: 'fried_chicken', label: 'Chicken', image: 'https://ik.imagekit.io/nepgaxllc/ChatGPT%20Image%20Apr%2021,%202026,%2001_58_16%20AM.png',
+    dishes: [
+      { id: 'c1', name: 'Ayam Geprek Sambal', price: 25000 },
+      { id: 'c2', name: 'Ayam Bakar Madu', price: 30000 },
+      { id: 'c3', name: 'Chicken Katsu', price: 28000 },
+    ],
+  },
+  {
+    catId: 'satay', label: 'Satay', image: 'https://ik.imagekit.io/nepgaxllc/ChatGPT%20Image%20Apr%2021,%202026,%2002_03_59%20AM.png',
+    dishes: [
+      { id: 's1', name: 'Sate Ayam 10pcs', price: 25000 },
+      { id: 's2', name: 'Sate Kambing 10pcs', price: 35000 },
+    ],
+  },
+  {
+    catId: 'soups', label: 'Soups', image: 'https://ik.imagekit.io/nepgaxllc/ChatGPT%20Image%20Apr%2021,%202026,%2001_55_38%20AM.png',
+    dishes: [
+      { id: 'sp1', name: 'Soto Ayam', price: 22000 },
+      { id: 'sp2', name: 'Bakso Jumbo', price: 25000 },
+      { id: 'sp3', name: 'Sop Buntut', price: 45000 },
+    ],
+  },
+  {
+    catId: 'tea_coffee', label: 'Drinks', image: 'https://ik.imagekit.io/nepgaxllc/ChatGPT%20Image%20Apr%2021,%202026,%2002_00_14%20AM.png',
+    dishes: [
+      { id: 'd1', name: 'Es Teh Manis', price: 5000 },
+      { id: 'd2', name: 'Kopi Susu', price: 15000 },
+      { id: 'd3', name: 'Es Jeruk Segar', price: 8000 },
+    ],
+  },
+  {
+    catId: 'desserts', label: 'Desserts', image: 'https://ik.imagekit.io/nepgaxllc/ChatGPT%20Image%20Apr%2021,%202026,%2002_02_58%20AM.png',
+    dishes: [
+      { id: 'ds1', name: 'Es Campur', price: 12000 },
+      { id: 'ds2', name: 'Pisang Goreng Keju', price: 15000 },
+    ],
+  },
+]
+
 // ── Seller menu/catalogue left-side drawer ────────────────────────────────────
 function SellerDrawer({ deal, open, onClose, onAddItem }) {
-  const items = SELLER_ITEMS[deal.seller_name] ?? SELLER_ITEMS._default
+  const [expandedCat, setExpandedCat] = useState(null)
+  const menu = MOCK_OWNER_MENU
 
   if (!open) return null
 
   return (
     <div className={styles.drawerBackdrop} onClick={onClose}>
       <div className={styles.drawerPanel} onClick={e => e.stopPropagation()}>
-        {items.map(item => (
-          <button key={item.id} className={styles.drawerCard} onClick={() => onAddItem?.(item, deal)}>
-            <img src={item.image} alt="" className={styles.drawerCardImg} />
-            <span className={styles.drawerCardName}>{item.name}</span>
-            <span className={styles.drawerCardPrice}>{fmtRpShort(item.price)}</span>
-          </button>
+        {menu.map(cat => (
+          <div key={cat.catId}>
+            {/* Category card with image */}
+            <button
+              className={`${styles.drawerCard} ${expandedCat === cat.catId ? styles.drawerCardActive : ''}`}
+              onClick={() => setExpandedCat(expandedCat === cat.catId ? null : cat.catId)}
+            >
+              <img src={cat.image} alt="" className={styles.drawerCardImg} />
+              <span className={styles.drawerCardName}>{cat.label}</span>
+            </button>
+
+            {/* Expanded dishes under this category */}
+            {expandedCat === cat.catId && (
+              <div className={styles.drawerDishes}>
+                {cat.dishes.map(dish => (
+                  <button key={dish.id} className={styles.drawerDish} onClick={() => onAddItem?.(dish, deal)}>
+                    <span className={styles.drawerDishName}>{dish.name}</span>
+                    <span className={styles.drawerDishPrice}>{fmtRpShort(dish.price)}</span>
+                    <span className={styles.drawerDishAdd}>+</span>
+                  </button>
+                ))}
+              </div>
+            )}
+          </div>
         ))}
       </div>
     </div>
