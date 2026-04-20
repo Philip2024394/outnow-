@@ -393,9 +393,6 @@ export default function DealHuntLanding({ open, onClose, onSelectDeal, onCreateD
             <button className={styles.landingBtn} onClick={() => setShowLanding(false)}>
               Start Hunting 🔥
             </button>
-            <button className={styles.landingSellerBtn} onClick={() => { setShowLanding(false); onCreateDeal?.() }}>
-              I'm a seller — Post a deal
-            </button>
           </div>
         </div>
       )}
