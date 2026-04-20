@@ -451,12 +451,12 @@ export default function ShopSearchScreen({ onClose, userCity, userCountry, giftF
       {/* 6 Landscape cards */}
       <div style={{ flex: 1, overflowY: 'auto', padding: '0 16px 24px', display: 'flex', flexDirection: 'column', gap: 12, position: 'relative', zIndex: 1 }}>
         {[
-          { label: 'New Products', sub: 'Brand new goods from verified sellers', count: '24 items', rating: 4.8, icon: '✨', onClick: () => { setShowCategories(false) } },
-          { label: 'Used Goods', sub: 'Pre-owned deals at great prices', count: '12 deals', rating: 4.6, icon: '🔄', onClick: () => { setShowCategories(false); onOpenUsedGoods?.() } },
-          { label: 'Wanted Board', sub: 'Post what you need — sellers come to you', count: '8 requests', rating: 4.7, icon: '👀', onClick: () => { setShowCategories(false); onOpenWanted?.() } },
-          { label: 'Flash Sale', sub: 'Limited time deals with huge discounts', count: '3 LIVE', live: true, rating: 4.9, icon: '⚡', onClick: () => { setShowCategories(false); requestAnimationFrame(() => setFlashSaleOpen(true)) } },
-          { label: 'Auction', sub: 'Bid & win — live auctions happening now', count: '2 LIVE', live: true, rating: 4.8, icon: '🔨', onClick: () => { setShowCategories(false); requestAnimationFrame(() => setAuctionOpen(true)) } },
-          { label: 'Shop All', sub: 'Browse the full marketplace catalog', count: 'Browse', rating: 4.7, icon: '🛍️', onClick: () => { setShowCategories(false) } },
+          { label: 'New Products', sub: 'Brand new goods from verified sellers', count: '24 items', rating: 4.8, icon: '✨', onClick: () => { setShowCategories(false); setShowLanding(false) } },
+          { label: 'Used Goods', sub: 'Pre-owned deals at great prices', count: '12 deals', rating: 4.6, icon: '🔄', onClick: () => { setShowCategories(false); setShowLanding(false); onOpenUsedGoods?.() } },
+          { label: 'Wanted Board', sub: 'Post what you need — sellers come to you', count: '8 requests', rating: 4.7, icon: '👀', onClick: () => { setShowCategories(false); setShowLanding(false); onOpenWanted?.() } },
+          { label: 'Flash Sale', sub: 'Limited time deals with huge discounts', count: '3 LIVE', live: true, rating: 4.9, icon: '⚡', onClick: () => { setShowCategories(false); setShowLanding(false); requestAnimationFrame(() => setFlashSaleOpen(true)) } },
+          { label: 'Auction', sub: 'Bid & win — live auctions happening now', count: '2 LIVE', live: true, rating: 4.8, icon: '🔨', onClick: () => { setShowCategories(false); setShowLanding(false); requestAnimationFrame(() => setAuctionOpen(true)) } },
+          { label: 'Shop All', sub: 'Browse the full marketplace catalog', count: 'Browse', rating: 4.7, icon: '🛍️', onClick: () => { setShowCategories(false); setShowLanding(false) } },
         ].map((item, i) => (
           <button key={i} onClick={item.onClick} style={{
             display: 'flex', flexDirection: 'row', alignItems: 'center', gap: 14,
