@@ -233,7 +233,7 @@
 }
 .itemBottom {
   position: relative; z-index: 2;
-  padding: 0 20px calc(env(safe-area-inset-bottom, 0px) + 28px);
+  padding: 0 20px calc(env(safe-area-inset-bottom, 0px) + 60px);
   display: flex; flex-direction: column; gap: 8px;
 }
 .itemName { font-size: 30px; font-weight: 900; color: #fff; letter-spacing: -0.03em; line-height: 1.1; margin: 0; }
