@@ -112,11 +112,6 @@ function DealSlide({ deal, isActive, onClaim, onChat }) {
 
       {/* Bottom overlay — deal info */}
       <div className={styles.slideBottom}>
-        {/* Domain pill */}
-        <span className={styles.domainPill} style={{ background: `${DOMAIN_COLORS[deal.domain] ?? '#8DC63F'}22`, borderColor: `${DOMAIN_COLORS[deal.domain] ?? '#8DC63F'}55`, color: DOMAIN_COLORS[deal.domain] ?? '#8DC63F' }}>
-          {DOMAIN_LABELS[deal.domain] ?? deal.domain}
-        </span>
-
         {/* Title */}
         <h2 className={styles.slideTitle}>{deal.title}</h2>
 
@@ -128,7 +123,6 @@ function DealSlide({ deal, isActive, onClaim, onChat }) {
           <img src={deal.seller_photo ?? 'https://i.pravatar.cc/40'} alt="" className={styles.sellerThumb} />
           <span className={styles.sellerName}>{deal.seller_name}</span>
           {deal.seller_rating && <span className={styles.sellerRating}>★ {deal.seller_rating}</span>}
-          <span className={styles.sellerCity}>📍 {deal.city}</span>
         </div>
 
         {/* Price row */}
@@ -203,10 +197,15 @@ export default function DealHuntLanding({ open, onClose, onSelectDeal, onCreateD
         </svg>
       </button>
 
-      {/* Title */}
+      {/* Title + category/city context */}
       <div className={styles.headerTitle}>
         <span className={styles.headerBrand}>DEAL <span style={{ color: '#8DC63F' }}>HUNT</span></span>
         <span className={styles.headerLive}>● LIVE</span>
+      </div>
+      <div className={styles.headerSub}>
+        <span className={styles.headerCategory}>{DOMAIN_LABELS[deals[activeIndex]?.domain] ?? ''}</span>
+        <span className={styles.headerDot}>·</span>
+        <span className={styles.headerCity}>{deals[activeIndex]?.city ?? 'Indonesia'}</span>
       </div>
 
       {/* Dot indicator — right side */}
