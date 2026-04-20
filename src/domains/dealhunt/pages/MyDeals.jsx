@@ -20,7 +20,7 @@ const formatRupiah = (n) => 'Rp' + n.toLocaleString('id-ID');
 
 const formatDate = (ts) => {
   const d = new Date(ts);
-  const months = ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Agu', 'Sep', 'Okt', 'Nov', 'Des'];
+  const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
   return `${d.getDate()} ${months[d.getMonth()]} ${d.getFullYear()}`;
 };
 
@@ -33,15 +33,15 @@ const formatCountdown = (expiresAt) => {
   if (h >= 24) {
     const d = Math.floor(h / 24);
     const remH = h % 24;
-    return { text: `Sisa ${d}h ${remH}j ${m}m`, urgent: false };
+    return { text: `Remaining ${d}d ${remH}h ${m}m`, urgent: false };
   }
-  return { text: `Sisa ${h}j ${m}m ${sec}d`, urgent: true };
+  return { text: `Remaining ${h}h ${m}m ${sec}s`, urgent: true };
 };
 
 const TABS = [
-  { key: 'active', label: 'Aktif' },
-  { key: 'redeemed', label: 'Digunakan' },
-  { key: 'expired', label: 'Kadaluarsa' },
+  { key: 'active', label: 'Active' },
+  { key: 'redeemed', label: 'Redeemed' },
+  { key: 'expired', label: 'Expired' },
 ];
 
 /* -------------------------------------------------- */
@@ -90,10 +90,10 @@ export default function MyDeals({ open, onClose, userId }) {
       <div className={s.container}>
         {/* Header */}
         <div className={s.header}>
-          <button className={s.backBtn} onClick={onClose} aria-label="Kembali">
+          <button className={s.backBtn} onClick={onClose} aria-label="Back">
             &#8592;
           </button>
-          <span className={s.headerTitle}>Deal Saya</span>
+          <span className={s.headerTitle}>My Deals</span>
         </div>
 
         {/* Tab bar */}
@@ -196,30 +196,30 @@ function DealCard({ claim, copiedId, onCopy, onUseDeal }) {
         className={`${s.voucherBox} ${!isActive ? s.voucherBoxMuted : ''}`}
         onClick={() => onCopy(voucher_code, claim.id)}
       >
-        <div className={s.voucherLabel}>Kode Voucher</div>
+        <div className={s.voucherLabel}>Voucher Code</div>
         <div className={s.voucherCode}>{voucher_code}</div>
         {isActive && expires_at && (
-          <div className={s.voucherExpiry}>Berlaku hingga {formatDate(expires_at)}</div>
+          <div className={s.voucherExpiry}>Valid until {formatDate(expires_at)}</div>
         )}
         {copiedId === claim.id ? (
-          <span className={s.copiedToast}>Tersalin!</span>
+          <span className={s.copiedToast}>Copied!</span>
         ) : (
-          isActive && <span className={s.copyHint}>Tap untuk salin</span>
+          isActive && <span className={s.copyHint}>Tap to copy</span>
         )}
       </div>
 
       {/* Status-specific content */}
       {isRedeemed && (
         <>
-          <div className={`${s.badge} ${s.badgeRedeemed}`}>&#10003; Sudah Digunakan</div>
+          <div className={`${s.badge} ${s.badgeRedeemed}`}>&#10003; Already Used</div>
           {redeemed_at && (
-            <div className={s.redeemedDate}>Digunakan pada {formatDate(redeemed_at)}</div>
+            <div className={s.redeemedDate}>Redeemed on {formatDate(redeemed_at)}</div>
           )}
         </>
       )}
 
       {isExpired && (
-        <div className={`${s.badge} ${s.badgeExpired}`}>&#10005; Kadaluarsa</div>
+        <div className={`${s.badge} ${s.badgeExpired}`}>&#10005; Expired</div>
       )}
 
       {/* Countdown */}
@@ -233,7 +233,7 @@ function DealCard({ claim, copiedId, onCopy, onUseDeal }) {
       {isActive && (
         <div className={s.actions}>
           <button className={s.btnUse} onClick={onUseDeal}>
-            Gunakan Deal
+            Use Deal
           </button>
           <button className={s.btnChat}>Chat</button>
         </div>
@@ -247,9 +247,9 @@ function DealCard({ claim, copiedId, onCopy, onUseDeal }) {
 /* -------------------------------------------------- */
 function EmptyState({ tab }) {
   const msgs = {
-    active: { icon: '\uD83C\uDFF7\uFE0F', text: 'Belum ada deal \u2014 mulai berburu!' },
-    redeemed: { icon: '\u2705', text: 'Belum ada deal yang digunakan' },
-    expired: { icon: '\u23F3', text: 'Tidak ada deal kadaluarsa' },
+    active: { icon: '\uD83C\uDFF7\uFE0F', text: 'No deals yet \u2014 start hunting!' },
+    redeemed: { icon: '\u2705', text: 'No redeemed deals yet' },
+    expired: { icon: '\u23F3', text: 'No expired deals' },
   };
   const m = msgs[tab] || msgs.active;
   return (
@@ -268,7 +268,7 @@ function UseDealSheet({ claim, copiedId, onCopy, onClose, onMarkUsed }) {
     <div className={s.sheetBackdrop} onClick={onClose}>
       <div className={s.sheet} onClick={(e) => e.stopPropagation()}>
         <div className={s.sheetHandle} />
-        <div className={s.sheetTitle}>Gunakan Deal</div>
+        <div className={s.sheetTitle}>Use Deal</div>
 
         <div
           className={s.sheetVoucherBox}
@@ -276,16 +276,16 @@ function UseDealSheet({ claim, copiedId, onCopy, onClose, onMarkUsed }) {
         >
           <div className={s.sheetVoucherCode}>{claim.voucher_code}</div>
           <div className={s.sheetCopyHint}>
-            {copiedId === claim.id + '-sheet' ? 'Tersalin!' : 'Tap untuk salin kode'}
+            {copiedId === claim.id + '-sheet' ? 'Copied!' : 'Tap to copy code'}
           </div>
         </div>
 
         <div className={s.sheetInstruction}>
-          Tunjukkan kode ini ke penjual untuk menukarkan deal Anda.
+          Show this code to the seller to redeem your deal.
         </div>
 
         <button className={s.btnMarkUsed} onClick={onMarkUsed}>
-          Tandai Sudah Digunakan
+          Mark as Used
         </button>
       </div>
     </div>
@@ -299,17 +299,17 @@ function ConfirmDialog({ claim, onCancel, onConfirm }) {
   return (
     <div className={s.confirmBackdrop}>
       <div className={s.confirmDialog}>
-        <div className={s.confirmTitle}>Tandai sebagai digunakan?</div>
+        <div className={s.confirmTitle}>Mark as used?</div>
         <div className={s.confirmText}>
-          Deal &ldquo;{claim.deal.title}&rdquo; akan ditandai sudah digunakan. Tindakan ini tidak
-          dapat dibatalkan.
+          Deal &ldquo;{claim.deal.title}&rdquo; will be marked as used. This action cannot
+          be undone.
         </div>
         <div className={s.confirmActions}>
           <button className={s.btnConfirmCancel} onClick={onCancel}>
-            Batal
+            Cancel
           </button>
           <button className={s.btnConfirmYes} onClick={onConfirm}>
-            Ya, Sudah Digunakan
+            Yes, Mark as Used
           </button>
         </div>
       </div>

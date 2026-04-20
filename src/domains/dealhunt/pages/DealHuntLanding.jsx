@@ -43,7 +43,7 @@ function useCountdown(endTime) {
 }
 
 // ── Single full-screen deal slide ─────────────────────────────────────────────
-function DealSlide({ deal, isActive, onClaim, onChat, onViewSeller }) {
+function DealSlide({ deal, isActive, onClaim, onChat, onViewSeller, onOpenMenu }) {
   const { h, m, s, expired, urgent } = useCountdown(deal.end_time)
   const pct = Math.round((deal.quantity_claimed / deal.quantity_available) * 100)
   const discount = Math.round((1 - deal.deal_price / deal.original_price) * 100)
@@ -76,7 +76,14 @@ function DealSlide({ deal, isActive, onClaim, onChat, onViewSeller }) {
           <span>{dealReviews.length || ''}</span>
           <span>Reviews</span>
         </button>
-        <button className={styles.sideBtn} onClick={() => { try { navigator.share?.({ title: deal.title, text: `${deal.title} cuma ${fmtRp(deal.deal_price)}! 🔥`, url: window.location.href }) } catch {} }}>
+        <button className={styles.sideBtn} onClick={() => onOpenMenu?.(deal)}>
+          <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/>
+            <rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/>
+          </svg>
+          <span>Menu</span>
+        </button>
+        <button className={styles.sideBtn} onClick={() => { try { navigator.share?.({ title: deal.title, text: `${deal.title} only ${fmtRp(deal.deal_price)}! 🔥`, url: window.location.href }) } catch {} }}>
           <svg width="26" height="26" viewBox="0 0 24 24" fill="#fff" stroke="none"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><path d="M8.59 13.51l6.83 3.98M15.41 6.51l-6.82 3.98" stroke="#fff" strokeWidth="1.5"/></svg>
           <span>Share</span>
         </button>
@@ -154,11 +161,6 @@ function DealSlide({ deal, isActive, onClaim, onChat, onViewSeller }) {
           <span className={styles.sellerName}>{deal.seller_name}</span>
           {deal.seller_rating && <span className={styles.sellerRating}>★ {deal.seller_rating}</span>}
         </div>
-
-        {/* View seller's full menu/products */}
-        <button className={styles.viewSellerLink} onClick={() => onViewSeller?.(deal)}>
-          {deal.domain === 'food' ? 'See full menu' : deal.domain === 'massage' ? 'See all services' : 'More from this seller'} →
-        </button>
 
         {/* Price row */}
         <div className={styles.priceRow}>
@@ -258,7 +260,7 @@ export default function DealHuntLanding({ open, onClose, onSelectDeal, onCreateD
             isActive={i === activeIndex}
             onClaim={(d) => onSelectDeal?.(d)}
             onChat={(d) => onSelectDeal?.(d)}
-            onViewSeller={(d) => onViewSeller?.(d)}
+            onOpenMenu={(d) => onViewSeller?.(d)}
           />
         ))}
       </div>

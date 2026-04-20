@@ -9,29 +9,29 @@ import styles from './CreateDeal.module.css'
    ══════════════════════════════════════════════════════════════════════════════ */
 
 const CATEGORIES = [
-  { key: 'food',        icon: '\uD83C\uDF7D\uFE0F', label: 'Makanan' },
+  { key: 'food',        icon: '\uD83C\uDF7D\uFE0F', label: 'Food' },
   { key: 'marketplace', icon: '\uD83D\uDECD\uFE0F', label: 'Marketplace' },
   { key: 'massage',     icon: '\uD83D\uDC86',       label: 'Massage' },
   { key: 'rentals',     icon: '\uD83D\uDE97',       label: 'Rental' },
-  { key: 'rides',       icon: '\uD83C\uDFCD\uFE0F', label: 'Ojek' },
-  { key: 'property',    icon: '\uD83C\uDFE0',       label: 'Properti' },
+  { key: 'rides',       icon: '\uD83C\uDFCD\uFE0F', label: 'Rides' },
+  { key: 'property',    icon: '\uD83C\uDFE0',       label: 'Property' },
 ]
 
 const SUB_CATEGORIES = {
-  food:        ['Nasi', 'Mie & Bakso', 'Ayam', 'Seafood', 'Minuman', 'Snack', 'Kopi', 'Lainnya'],
-  marketplace: ['Fashion', 'Elektronik', 'Kecantikan', 'Rumah Tangga', 'Olahraga', 'Lainnya'],
-  massage:     ['Full Body', 'Reflexi', 'Couple', 'Spa Package', 'Lainnya'],
-  rentals:     ['Motor', 'Mobil', 'Sepeda', 'Audio', 'Properti', 'Lainnya'],
-  rides:       ['Ojek Motor', 'Taksi Mobil', 'Bandara', 'Lainnya'],
-  property:    ['Kos', 'Villa', 'Apartemen', 'Lainnya'],
+  food:        ['Rice', 'Noodles & Meatball', 'Chicken', 'Seafood', 'Drinks', 'Snack', 'Coffee', 'Other'],
+  marketplace: ['Fashion', 'Electronics', 'Beauty', 'Home & Living', 'Sports', 'Other'],
+  massage:     ['Full Body', 'Reflexology', 'Couple', 'Spa Package', 'Other'],
+  rentals:     ['Motorcycle', 'Car', 'Bicycle', 'Audio', 'Property', 'Other'],
+  rides:       ['Motorcycle Ride', 'Car Taxi', 'Airport', 'Other'],
+  property:    ['Boarding House', 'Villa', 'Apartment', 'Other'],
 }
 
 const QUICK_DURATIONS = [
-  { label: '3 Jam',  hours: 3 },
-  { label: '6 Jam',  hours: 6 },
-  { label: '1 Hari', hours: 24 },
-  { label: '3 Hari', hours: 72 },
-  { label: '7 Hari', hours: 168 },
+  { label: '3 Hours',  hours: 3 },
+  { label: '6 Hours',  hours: 6 },
+  { label: '1 Day', hours: 24 },
+  { label: '3 Days', hours: 72 },
+  { label: '7 Days', hours: 168 },
 ]
 
 const MAX_IMAGES = 5
@@ -49,9 +49,9 @@ const MIN_DISCOUNT = {
 const DEFAULT_MIN_DISCOUNT = 10
 
 const DEAL_TYPES = [
-  { key: 'eat_in',   label: 'Makan di Tempat' },
+  { key: 'eat_in',   label: 'Eat In' },
   { key: 'delivery', label: 'Delivery' },
-  { key: 'pickup',   label: 'Ambil Sendiri' },
+  { key: 'pickup',   label: 'Pick Up' },
 ]
 
 function toLocalDatetime(date) {
@@ -121,7 +121,7 @@ export default function CreateDeal({ open, onClose, onSaved, userId }) {
       const url = await uploadImage(file, 'deals')
       setImages(prev => [...prev, { file, url }])
     } catch (err) {
-      showToast(err.message || 'Gagal upload gambar', 'error')
+      showToast(err.message || 'Failed to upload image', 'error')
     }
     setUploading(false)
   }
@@ -146,21 +146,21 @@ export default function CreateDeal({ open, onClose, onSaved, userId }) {
   /* ── Validation ── */
   const validate = () => {
     const errs = {}
-    if (!title.trim()) errs.title = 'Judul wajib diisi'
-    if (images.length === 0) errs.images = 'Minimal 1 gambar'
-    if (!category) errs.category = 'Pilih kategori'
-    if (!origNum || origNum <= 0) errs.originalPrice = 'Harga normal wajib diisi'
-    if (!dealNum || dealNum <= 0) errs.dealPrice = 'Harga deal wajib diisi'
-    if (dealNum >= origNum) errs.dealPrice = 'Harga deal harus lebih murah'
+    if (!title.trim()) errs.title = 'Title is required'
+    if (images.length === 0) errs.images = 'At least 1 image required'
+    if (!category) errs.category = 'Select a category'
+    if (!origNum || origNum <= 0) errs.originalPrice = 'Original price is required'
+    if (!dealNum || dealNum <= 0) errs.dealPrice = 'Deal price is required'
+    if (dealNum >= origNum) errs.dealPrice = 'Deal price must be lower'
     const catLabel = CATEGORIES.find(c => c.key === category)?.label || category
     const reqMin = MIN_DISCOUNT[category] || DEFAULT_MIN_DISCOUNT
-    if (discountValid && discount < reqMin) errs.dealPrice = `Minimum diskon untuk ${catLabel} adalah ${reqMin}%`
-    if (discountValid && discount > 90) errs.dealPrice = 'Diskon maksimal 90%'
-    if (!quantity || Number(quantity) < 5) errs.quantity = 'Minimum 5 deal per posting'
+    if (discountValid && discount < reqMin) errs.dealPrice = `Minimum discount for ${catLabel} is ${reqMin}%`
+    if (discountValid && discount > 90) errs.dealPrice = 'Maximum discount is 90%'
+    if (!quantity || Number(quantity) < 5) errs.quantity = 'Minimum 5 deals per post'
     const st = new Date(startTime)
     const et = new Date(endTime)
-    if (et <= st) errs.endTime = 'Harus setelah waktu mulai'
-    if (et - st > MAX_DEAL_DAYS * 86400000) errs.endTime = 'Maksimal 7 hari dari mulai'
+    if (et <= st) errs.endTime = 'Must be after start time'
+    if (et - st > MAX_DEAL_DAYS * 86400000) errs.endTime = 'Maximum 7 days from start'
     setErrors(errs)
     return Object.keys(errs).length === 0
   }
@@ -192,13 +192,13 @@ export default function CreateDeal({ open, onClose, onSaved, userId }) {
       }
 
       const result = await createDeal(dealData)
-      if (!result) throw new Error('Gagal membuat deal')
+      if (!result) throw new Error('Failed to create deal')
 
-      showToast('Deal berhasil dipasang!', 'success')
+      showToast('Deal posted successfully!', 'success')
       onSaved?.(result)
       setTimeout(() => onClose?.(), 600)
     } catch (err) {
-      showToast(err.message || 'Terjadi kesalahan', 'error')
+      showToast(err.message || 'Something went wrong', 'error')
     }
     setSubmitting(false)
   }
@@ -216,7 +216,7 @@ export default function CreateDeal({ open, onClose, onSaved, userId }) {
 
       {/* Header */}
       <div className={styles.header}>
-        <span className={styles.headerTitle}>Buat Deal Baru</span>
+        <span className={styles.headerTitle}>Create New Deal</span>
         <button className={styles.closeBtn} onClick={onClose}>&times;</button>
       </div>
 
@@ -225,8 +225,8 @@ export default function CreateDeal({ open, onClose, onSaved, userId }) {
 
         {/* ── 1. Image Upload ── */}
         <div className={styles.card}>
-          <h3 className={styles.cardTitle}>Foto Deal</h3>
-          <p className={styles.cardSub}>Tambahkan hingga 5 foto. Foto pertama jadi thumbnail.</p>
+          <h3 className={styles.cardTitle}>Deal Photos</h3>
+          <p className={styles.cardSub}>Add up to 5 photos. The first photo will be the thumbnail.</p>
           <div className={styles.imageGrid}>
             {images.map((img, i) => (
               <div key={i} className={`${styles.imageSlot} ${i === 0 ? styles.imageSlotMain : ''}`}>
@@ -242,7 +242,7 @@ export default function CreateDeal({ open, onClose, onSaved, userId }) {
                 ) : (
                   <>
                     <span>+</span>
-                    <span className={styles.imageAddLabel}>Tambah</span>
+                    <span className={styles.imageAddLabel}>Add</span>
                   </>
                 )}
                 <input
@@ -261,8 +261,8 @@ export default function CreateDeal({ open, onClose, onSaved, userId }) {
 
         {/* ── 2. Category Selector ── */}
         <div className={styles.card}>
-          <h3 className={styles.cardTitle}>Kategori</h3>
-          <p className={styles.cardSub}>Pilih kategori deal kamu</p>
+          <h3 className={styles.cardTitle}>Category</h3>
+          <p className={styles.cardSub}>Choose your deal category</p>
           <div className={styles.catGrid}>
             {CATEGORIES.map(cat => (
               <button
@@ -281,14 +281,14 @@ export default function CreateDeal({ open, onClose, onSaved, userId }) {
         {/* ── 3. Sub-category ── */}
         {subCats.length > 0 && (
           <div className={styles.card}>
-            <h3 className={styles.cardTitle}>Sub-kategori</h3>
-            <p className={styles.cardSub}>{catObj?.label} &mdash; pilih jenis lebih spesifik</p>
+            <h3 className={styles.cardTitle}>Sub-category</h3>
+            <p className={styles.cardSub}>{catObj?.label} &mdash; choose a more specific type</p>
             <select
               className={styles.select}
               value={subCategory}
               onChange={e => setSubCategory(e.target.value)}
             >
-              <option value="">-- Pilih sub-kategori --</option>
+              <option value="">-- Select sub-category --</option>
               {subCats.map(sc => (
                 <option key={sc} value={sc.toLowerCase().replace(/\s+/g, '_')}>{sc}</option>
               ))}
@@ -298,8 +298,8 @@ export default function CreateDeal({ open, onClose, onSaved, userId }) {
 
         {/* ── 3b. Deal Type Selector ── */}
         <div className={styles.card}>
-          <h3 className={styles.cardTitle}>Tipe Deal</h3>
-          <p className={styles.cardSub}>Pilih cara pelanggan mendapatkan deal</p>
+          <h3 className={styles.cardTitle}>Deal Type</h3>
+          <p className={styles.cardSub}>Choose how customers get this deal</p>
           <div className={styles.catGrid}>
             {DEAL_TYPES.map(dt => (
               <button
@@ -313,7 +313,7 @@ export default function CreateDeal({ open, onClose, onSaved, userId }) {
           </div>
           {dealType === 'eat_in' && (
             <div className={styles.cardSub} style={{ marginTop: 8, fontStyle: 'italic', color: '#e67e22' }}>
-              Voucher berlaku hari ini saja
+              Voucher valid today only
             </div>
           )}
           {dealType === 'delivery' && (
@@ -323,19 +323,19 @@ export default function CreateDeal({ open, onClose, onSaved, userId }) {
                 checked={indooRide}
                 onChange={e => setIndooRide(e.target.checked)}
               />
-              Kirim dengan Indoo Ride (diskon Rp5.000)
+              Ship with Indoo Ride (Rp5,000 discount)
             </label>
           )}
         </div>
 
         {/* ── 4. Deal Title ── */}
         <div className={styles.card}>
-          <label className={styles.label}>Judul Deal</label>
+          <label className={styles.label}>Deal Title</label>
           <input
             className={styles.input}
             value={title}
             onChange={e => { if (e.target.value.length <= MAX_TITLE) setTitle(e.target.value) }}
-            placeholder="Judul deal yang menarik..."
+            placeholder="Catchy deal title..."
             maxLength={MAX_TITLE}
           />
           <div className={`${styles.charCount} ${title.length > MAX_TITLE - 10 ? styles.charCountWarn : ''}`}>
@@ -346,12 +346,12 @@ export default function CreateDeal({ open, onClose, onSaved, userId }) {
 
         {/* ── 5. Description ── */}
         <div className={styles.card}>
-          <label className={styles.label}>Deskripsi</label>
+          <label className={styles.label}>Description</label>
           <textarea
             className={styles.textarea}
             value={description}
             onChange={e => { if (e.target.value.length <= MAX_DESC) setDescription(e.target.value) }}
-            placeholder="Jelaskan deal kamu secara detail..."
+            placeholder="Describe your deal in detail..."
             maxLength={MAX_DESC}
             rows={4}
           />
@@ -362,11 +362,11 @@ export default function CreateDeal({ open, onClose, onSaved, userId }) {
 
         {/* ── 6. Price Section ── */}
         <div className={styles.card}>
-          <h3 className={styles.cardTitle}>Harga</h3>
-          <p className={styles.cardSub}>Tetapkan harga normal dan harga deal</p>
+          <h3 className={styles.cardTitle}>Price</h3>
+          <p className={styles.cardSub}>Set the original price and deal price</p>
           <div className={styles.priceRow}>
             <div className={styles.priceField}>
-              <label className={styles.label}>Harga Normal</label>
+              <label className={styles.label}>Original Price</label>
               <div className={styles.priceInputWrap}>
                 <span className={styles.pricePrefix}>Rp</span>
                 <input
@@ -381,7 +381,7 @@ export default function CreateDeal({ open, onClose, onSaved, userId }) {
               {errors.originalPrice && <div className={styles.error}>{errors.originalPrice}</div>}
             </div>
             <div className={styles.priceField}>
-              <label className={styles.label}>Harga Deal</label>
+              <label className={styles.label}>Deal Price</label>
               <div className={styles.priceInputWrap}>
                 <span className={styles.pricePrefix}>Rp</span>
                 <input
@@ -401,19 +401,19 @@ export default function CreateDeal({ open, onClose, onSaved, userId }) {
           {origNum > 0 && dealNum > 0 && (
             discountBad ? (
               <span className={`${styles.discountBadge} ${styles.discountError}`}>
-                Harga deal harus lebih murah dari harga normal!
+                Deal price must be lower than original price!
               </span>
             ) : discountTooLow ? (
               <span className={`${styles.discountBadge} ${styles.discountError}`}>
-                Diskon {discount}% &mdash; minimum diskon untuk {catObj?.label || category} adalah {minDiscount}%
+                Discount {discount}% &mdash; minimum discount for {catObj?.label || category} is {minDiscount}%
               </span>
             ) : discountTooHigh ? (
               <span className={`${styles.discountBadge} ${styles.discountWarn}`}>
-                Diskon {discount}%! Wow, yakin segitu?
+                Discount {discount}%! Wow, are you sure?
               </span>
             ) : (
               <span className={`${styles.discountBadge} ${styles.discountGreen}`}>
-                Diskon {discount}%!
+                Discount {discount}%!
               </span>
             )
           )}
@@ -423,7 +423,7 @@ export default function CreateDeal({ open, onClose, onSaved, userId }) {
         <div className={styles.card}>
           <div className={styles.numberRow}>
             <div className={styles.numberField}>
-              <label className={styles.label}>Jumlah tersedia</label>
+              <label className={styles.label}>Quantity available</label>
               <input
                 className={styles.input}
                 type="number"
@@ -436,7 +436,7 @@ export default function CreateDeal({ open, onClose, onSaved, userId }) {
               {errors.quantity && <div className={styles.error}>{errors.quantity}</div>}
             </div>
             <div className={styles.numberField}>
-              <label className={styles.label}>Maks per pengguna</label>
+              <label className={styles.label}>Max per user</label>
               <input
                 className={styles.input}
                 type="number"
@@ -452,11 +452,11 @@ export default function CreateDeal({ open, onClose, onSaved, userId }) {
 
         {/* ── 8. Duration ── */}
         <div className={styles.card}>
-          <h3 className={styles.cardTitle}>Durasi Deal</h3>
-          <p className={styles.cardSub}>Kapan deal dimulai dan berakhir (maks 7 hari)</p>
+          <h3 className={styles.cardTitle}>Deal Duration</h3>
+          <p className={styles.cardSub}>When the deal starts and ends (max 7 days)</p>
           <div className={styles.dateRow}>
             <div className={styles.dateField}>
-              <label className={styles.label}>Mulai</label>
+              <label className={styles.label}>Start</label>
               <input
                 className={styles.input}
                 type="datetime-local"
@@ -468,7 +468,7 @@ export default function CreateDeal({ open, onClose, onSaved, userId }) {
               />
             </div>
             <div className={styles.dateField}>
-              <label className={styles.label}>Berakhir</label>
+              <label className={styles.label}>End</label>
               <input
                 className={styles.input}
                 type="datetime-local"
@@ -497,20 +497,20 @@ export default function CreateDeal({ open, onClose, onSaved, userId }) {
 
         {/* ── 9. Terms ── */}
         <div className={styles.card}>
-          <label className={styles.label}>Syarat &amp; Ketentuan (opsional)</label>
+          <label className={styles.label}>Terms &amp; Conditions (optional)</label>
           <textarea
             className={styles.textarea}
             value={terms}
             onChange={e => setTerms(e.target.value)}
-            placeholder="Contoh: Berlaku dine-in saja, tidak bisa digabung promo lain..."
+            placeholder="Example: Dine-in only, cannot be combined with other promos..."
             rows={3}
           />
         </div>
 
         {/* ── 10. Preview Card ── */}
         <div className={styles.card}>
-          <h3 className={styles.cardTitle}>Preview Deal</h3>
-          <p className={styles.cardSub}>Tampilan deal kamu di feed</p>
+          <h3 className={styles.cardTitle}>Deal Preview</h3>
+          <p className={styles.cardSub}>How your deal will look in the feed</p>
 
           <div className={styles.preview}>
             {images.length > 0 ? (
@@ -522,7 +522,7 @@ export default function CreateDeal({ open, onClose, onSaved, userId }) {
               {catObj && (
                 <span className={styles.previewCat}>{catObj.icon} {catObj.label}</span>
               )}
-              <h4 className={styles.previewTitle}>{title || 'Judul deal kamu...'}</h4>
+              <h4 className={styles.previewTitle}>{title || 'Your deal title...'}</h4>
               <div className={styles.previewPrices}>
                 {dealNum > 0 && (
                   <span className={styles.previewDealPrice}>Rp {formatRp(dealNum)}</span>
@@ -536,7 +536,7 @@ export default function CreateDeal({ open, onClose, onSaved, userId }) {
               </div>
               <div className={styles.previewMeta}>
                 {quantity && Number(quantity) > 0
-                  ? `${quantity} tersedia`
+                  ? `${quantity} available`
                   : ''}
                 {subCategory ? ` \u00B7 ${subCategory.replace(/_/g, ' ')}` : ''}
               </div>
@@ -553,7 +553,7 @@ export default function CreateDeal({ open, onClose, onSaved, userId }) {
           onClick={handleSubmit}
           disabled={submitting}
         >
-          {submitting ? 'Memproses...' : 'Pasang Deal \uD83D\uDD25'}
+          {submitting ? 'Processing...' : 'Post Deal \uD83D\uDD25'}
         </button>
       </div>
 

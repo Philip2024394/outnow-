@@ -127,7 +127,7 @@ export default function DealDetail({ deal, open, onClose, onClaim, onChat }) {
       navigator.clipboard?.writeText(url)
       setShowShareSheet(false)
     } else if (method === 'whatsapp') {
-      const text = encodeURIComponent(`Cek deal ini di Indoo! ${title} cuma ${formatRp(price)}! \uD83D\uDD25`)
+      const text = encodeURIComponent(`Check this deal on Indoo! ${title} only ${formatRp(price)}! \uD83D\uDD25`)
       window.open(`https://wa.me/?text=${text}%20${encodeURIComponent(url)}`, '_blank')
       setShowShareSheet(false)
     } else if (method === 'instagram') {
@@ -202,14 +202,14 @@ export default function DealDetail({ deal, open, onClose, onClaim, onChat }) {
             <span className={styles.dealPrice}>{formatRp(dealPrice)}</span>
             <span className={styles.originalPrice}>{formatRp(originalPrice)}</span>
             {savings > 0 && (
-              <span className={styles.savingsPill}>Hemat {formatRp(savings)}</span>
+              <span className={styles.savingsPill}>Save {formatRp(savings)}</span>
             )}
           </div>
 
           {/* Countdown */}
           <div className={`${styles.countdownBar} ${urgent ? styles.flash : ''}`}>
             <span className={styles.countdownLabel}>
-              {expired ? 'Deal berakhir' : 'Berakhir dalam'}
+              {expired ? 'Deal Ended' : 'Ends in'}
             </span>
             <span className={styles.countdownDigits}>
               {expired
@@ -238,12 +238,12 @@ export default function DealDetail({ deal, open, onClose, onClaim, onChat }) {
               />
             </div>
             <div className={styles.progressText}>
-              <span>{claimed} dari {totalSlots} diklaim</span>
+              <span>{claimed} of {totalSlots} claimed</span>
               {almostGone && !soldOut && (
-                <span className={styles.urgentLabel}>Segera Habis!</span>
+                <span className={styles.urgentLabel}>Almost Gone!</span>
               )}
               {soldOut && (
-                <span className={styles.urgentLabel}>Habis!</span>
+                <span className={styles.urgentLabel}>Sold Out!</span>
               )}
             </div>
           </div>
@@ -263,7 +263,7 @@ export default function DealDetail({ deal, open, onClose, onClaim, onChat }) {
                 </div>
               </div>
               <button className={styles.chatSellerBtn} onClick={() => onChat?.(seller)}>
-                Chat Penjual
+                Chat Seller
               </button>
             </div>
           )}
@@ -271,7 +271,7 @@ export default function DealDetail({ deal, open, onClose, onClaim, onChat }) {
           {/* Description */}
           {description && (
             <div className={styles.descSection}>
-              <div className={styles.descLabel}>Deskripsi</div>
+              <div className={styles.descLabel}>Description</div>
               <div className={styles.descText}>{description}</div>
             </div>
           )}
@@ -283,7 +283,7 @@ export default function DealDetail({ deal, open, onClose, onClaim, onChat }) {
                 className={styles.termsToggle}
                 onClick={() => setTermsOpen(v => !v)}
               >
-                <span className={styles.termsLabel}>Syarat &amp; Ketentuan</span>
+                <span className={styles.termsLabel}>Terms &amp; Conditions</span>
                 <span className={`${styles.termsArrow} ${termsOpen ? styles.open : ''}`}>
                   &#9660;
                 </span>
@@ -297,7 +297,7 @@ export default function DealDetail({ deal, open, onClose, onClaim, onChat }) {
           {/* Social proof */}
           {viewers > 0 && (
             <div className={styles.socialProof}>
-              <span>{viewers}</span> orang melihat deal ini
+              <span>{viewers}</span> people viewing this deal
             </div>
           )}
         </div>
@@ -313,12 +313,12 @@ export default function DealDetail({ deal, open, onClose, onClaim, onChat }) {
           {soldOut
             ? 'Sold Out'
             : expired
-              ? 'Deal Berakhir'
+              ? 'Deal Ended'
               : (
                 <>
-                  <span>{'\uD83D\uDD25'} Claim Sekarang</span>
+                  <span>{'\uD83D\uDD25'} Claim Now</span>
                   {remainingSlots > 0 && (
-                    <span className={styles.remaining}>(Sisa {remainingSlots})</span>
+                    <span className={styles.remaining}>(Remaining {remainingSlots})</span>
                   )}
                 </>
               )}
@@ -330,7 +330,7 @@ export default function DealDetail({ deal, open, onClose, onClaim, onChat }) {
         <>
           <div className={styles.sheetBackdrop} onClick={() => setShowShareSheet(false)} />
           <div className={styles.shareSheet}>
-            <div className={styles.shareSheetTitle}>Bagikan Deal</div>
+            <div className={styles.shareSheetTitle}>Share Deal</div>
             <div className={styles.shareOptions}>
               <button className={styles.shareOption} onClick={() => handleShare('copy')}>
                 <span className={`${styles.shareOptionIcon} ${styles.copy}`}>{'\uD83D\uDD17'}</span>
@@ -361,7 +361,7 @@ export default function DealDetail({ deal, open, onClose, onClaim, onChat }) {
 
             {!claimSuccess ? (
               <>
-                <div className={styles.claimSheetTitle}>Konfirmasi Claim</div>
+                <div className={styles.claimSheetTitle}>Confirm Claim</div>
                 <div className={styles.claimSummary}>
                   {image && (
                     <img className={styles.claimThumb} src={image} alt={title} />
@@ -372,26 +372,26 @@ export default function DealDetail({ deal, open, onClose, onClaim, onChat }) {
                   </div>
                 </div>
                 <div className={styles.claimVoucherNote}>
-                  Voucher berlaku 7 hari
+                  Voucher valid for 7 days
                 </div>
                 <div className={styles.claimActions}>
                   <button
                     className={styles.cancelBtn}
                     onClick={() => setShowClaimModal(false)}
                   >
-                    Batal
+                    Cancel
                   </button>
                   <button className={styles.confirmBtn} onClick={handleConfirmClaim}>
-                    Ya, Claim Deal
+                    Yes, Claim Deal
                   </button>
                 </div>
               </>
             ) : (
               <div className={styles.successState}>
                 <div className={styles.confetti}>{'\uD83C\uDF89'}</div>
-                <div className={styles.successTitle}>Deal Berhasil Diclaim!</div>
+                <div className={styles.successTitle}>Deal Claimed Successfully!</div>
                 <div className={styles.voucherCode}>{voucherCode}</div>
-                <div className={styles.voucherLabel}>Kode Voucher Kamu</div>
+                <div className={styles.voucherLabel}>Your Voucher Code</div>
                 <button
                   className={styles.myDealsLink}
                   onClick={() => {
@@ -399,7 +399,7 @@ export default function DealDetail({ deal, open, onClose, onClaim, onChat }) {
                     onClose?.()
                   }}
                 >
-                  Lihat di My Deals
+                  View in My Deals
                 </button>
               </div>
             )}

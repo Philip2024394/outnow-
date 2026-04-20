@@ -38,7 +38,7 @@ export default function QuickReviewSheet({ open, onClose, deal, userId, onSubmit
           stars,
           photo_url: photoUrl || photoPreview,
           caption,
-          reviewer_name: 'Kamu',
+          reviewer_name: 'You',
           created_at: new Date().toISOString(),
         }
         onSubmitted?.(mock)
@@ -85,7 +85,7 @@ export default function QuickReviewSheet({ open, onClose, deal, userId, onSubmit
             <img src={deal.images[0]} alt="" className={styles.dealThumb} />
           )}
           <div>
-            <h3 className={styles.sheetTitle}>Gimana dealnya?</h3>
+            <h3 className={styles.sheetTitle}>How was the deal?</h3>
             <p className={styles.dealName}>{deal.title}</p>
           </div>
         </div>
@@ -123,7 +123,7 @@ export default function QuickReviewSheet({ open, onClose, deal, userId, onSubmit
               <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/>
               <circle cx="12" cy="13" r="4"/>
             </svg>
-            <span>Tambah Foto</span>
+            <span>Add Photo</span>
           </button>
         )}
 
@@ -131,7 +131,7 @@ export default function QuickReviewSheet({ open, onClose, deal, userId, onSubmit
         <input
           type="text"
           className={styles.captionInput}
-          placeholder="Tulis review singkat..."
+          placeholder="Write a short review..."
           maxLength={100}
           value={caption}
           onChange={e => setCaption(e.target.value)}
@@ -143,11 +143,11 @@ export default function QuickReviewSheet({ open, onClose, deal, userId, onSubmit
           disabled={!stars || submitting}
           onClick={handleSubmit}
         >
-          {submitting ? 'Mengirim...' : 'Kirim Review ⭐'}
+          {submitting ? 'Submitting...' : 'Submit Review ⭐'}
         </button>
 
         {/* Skip */}
-        <button className={styles.skipBtn} onClick={resetAndClose}>Lewati</button>
+        <button className={styles.skipBtn} onClick={resetAndClose}>Skip</button>
       </div>
     </div>
   )
