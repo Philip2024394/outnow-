@@ -10,6 +10,7 @@ import {
 } from '@/services/rentalListingService'
 import { getBookings, updateBookingStatus } from '@/services/rentalTrackingService'
 import RentalTrackingMap from './RentalTrackingMap'
+import PostDealWidget from '@/domains/dealhunt/components/PostDealWidget'
 import styles from './RentalDashboard.module.css'
 
 function Toggle({ value, onChange }) {
@@ -302,6 +303,7 @@ export default function RentalDashboard({ open, onClose }) {
   const [showForm, setShowForm] = useState(false)
   const [bookings, setBookings] = useState([])
   const [trackingBooking, setTrackingBooking] = useState(null)
+  const [dealHuntOpen, setDealHuntOpen] = useState(false)
 
   useEffect(() => {
     if (open) {
@@ -422,6 +424,12 @@ export default function RentalDashboard({ open, onClose }) {
 
       {showForm && <ListingForm onSubmit={handleCreate} onClose={() => setShowForm(false)} />}
       {trackingBooking && <RentalTrackingMap booking={trackingBooking} onClose={() => setTrackingBooking(null)} />}
+
+      {/* Deal Hunt — Post a Deal button */}
+      <button onClick={() => setDealHuntOpen(true)} style={{ position: 'fixed', bottom: 80, right: 16, zIndex: 200, display: 'flex', alignItems: 'center', gap: 8, padding: '12px 20px', borderRadius: 14, background: '#8DC63F', border: 'none', color: '#000', fontSize: 14, fontWeight: 900, cursor: 'pointer', fontFamily: 'inherit', boxShadow: '0 4px 20px rgba(141,198,63,0.4)' }}>
+        🔥 Post a Deal
+      </button>
+      <PostDealWidget open={dealHuntOpen} onClose={() => setDealHuntOpen(false)} domain="rentals" sellerItems={[]} sellerId={null} sellerName="Rental Owner" />
     </div>,
     document.body
   )

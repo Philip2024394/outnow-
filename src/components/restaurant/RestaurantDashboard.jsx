@@ -8,6 +8,7 @@ import {
   ensurePickupCode,
   confirmPaymentReceived,
 } from '@/services/foodOrderService'
+import PostDealWidget from '@/domains/dealhunt/components/PostDealWidget'
 
 const FOOD_CATEGORIES = [
   { id: 'rice',       label: '🍚 Rice Dishes'  },
@@ -69,6 +70,7 @@ export default function RestaurantDashboard({ userId, onClose }) {
   const [toast,        setToast]        = useState(null)
   const [stockPhotos,  setStockPhotos]  = useState(DEMO_STOCK_PHOTOS)
   const [buyingPhoto,  setBuyingPhoto]  = useState(null)
+  const [dealHuntOpen, setDealHuntOpen] = useState(false)
 
   // ── Profile fields ──
   const [name,           setName]           = useState('')
@@ -392,6 +394,7 @@ export default function RestaurantDashboard({ userId, onClose }) {
           { id: 'menu',     label: '🍽 Menu'     },
           { id: 'photos',   label: '📸 Cover'    },
           { id: 'orders',   label: '📦 Orders'   },
+          { id: 'dealhunt', label: '🔥 Deal Hunt' },
         ].map(t => (
           <button key={t.id}
             className={`${styles.tabBtn} ${tab === t.id ? styles.tabActive : ''}`}
@@ -787,6 +790,20 @@ export default function RestaurantDashboard({ userId, onClose }) {
           </div>
         </div>
       )}
+
+      {/* ── Deal Hunt tab ── */}
+      {tab === 'dealhunt' && (
+        <div className={styles.form} style={{ padding: 20, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 16, textAlign: 'center' }}>
+          <span style={{ fontSize: 48 }}>🔥</span>
+          <h3 style={{ fontSize: 20, fontWeight: 900, color: '#fff', margin: 0 }}>Deal Hunt</h3>
+          <p style={{ fontSize: 13, color: 'rgba(255,255,255,0.5)', margin: 0, maxWidth: 280 }}>Post time-limited deals from your menu. Attract new customers with exclusive discounts.</p>
+          <button onClick={() => setDealHuntOpen(true)} style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '14px 28px', borderRadius: 14, background: '#8DC63F', border: 'none', color: '#000', fontSize: 16, fontWeight: 900, cursor: 'pointer', fontFamily: 'inherit', boxShadow: '0 4px 20px rgba(141,198,63,0.4)' }}>
+            🔥 Post a Deal
+          </button>
+        </div>
+      )}
+
+      <PostDealWidget open={dealHuntOpen} onClose={() => setDealHuntOpen(false)} domain="food" sellerItems={[]} sellerId={userId} sellerName={name || 'Seller'} />
 
       {/* ── Toast ── */}
       {toast && <div className={styles.toast}>{toast}</div>}

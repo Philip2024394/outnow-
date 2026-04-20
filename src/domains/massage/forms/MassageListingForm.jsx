@@ -11,6 +11,7 @@ import {
   MassageSettingsDrawer, MassageProcessingStep, MassageSuccessStep,
 } from './MassageFormComponents'
 import MassageMyListingsPanel from './MassageMyListingsPanel'
+import PostDealWidget from '@/domains/dealhunt/components/PostDealWidget'
 
 /* ══════════════════════════════════════════════════════════════════════════════
    MAIN FORM
@@ -18,6 +19,7 @@ import MassageMyListingsPanel from './MassageMyListingsPanel'
 export default function MassageListingForm({ open, onClose, onSubmit, editListing }) {
   const isEditing = !!editListing
   const listingRef = useMemo(() => editListing?.ref || generateRef(), [editListing])
+  const [dealHuntOpen, setDealHuntOpen] = useState(false)
   const ef = editListing?.extra_fields || {}
 
   /* ── state ── */
@@ -165,130 +167,16 @@ export default function MassageListingForm({ open, onClose, onSubmit, editListin
       </div>
 
       {/* ══ Side Drawer ══ */}
-      {showDrawer && (
-        <>
-          <div onClick={() => setShowDrawer(false)} style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.4)', backdropFilter: 'blur(8px)', WebkitBackdropFilter: 'blur(8px)', zIndex: 9998 }} />
-          <div style={{
-            position: 'fixed', top: 0, right: 0, bottom: 0, width: '70%',
-            background: 'rgba(0,0,0,0.7)', backdropFilter: 'blur(24px)', WebkitBackdropFilter: 'blur(24px)',
-            borderLeft: '1.5px solid rgba(141,198,63,0.2)',
-            boxShadow: '-10px 0 40px rgba(0,0,0,0.5), 0 0 20px rgba(141,198,63,0.08)',
-            zIndex: 9999, display: 'flex', flexDirection: 'column',
-            animation: 'slideInRight 0.25s ease',
-          }}>
-            <style>{`@keyframes slideInRight { from { transform: translateX(100%) } to { transform: translateX(0) } }
-@keyframes livePulse { 0%, 100% { opacity: 1; text-shadow: 0 0 6px rgba(141,198,63,0.8); } 50% { opacity: 0.5; text-shadow: 0 0 2px rgba(141,198,63,0.2); } }
-@keyframes liveGlow { 0%, 100% { box-shadow: 0 0 8px rgba(141,198,63,0.4), inset 0 0 4px rgba(141,198,63,0.1); } 50% { box-shadow: 0 0 16px rgba(141,198,63,0.6), inset 0 0 8px rgba(141,198,63,0.15); } }`}</style>
-            <div style={{ position: 'absolute', top: 0, left: 0, bottom: 0, width: 2, background: 'linear-gradient(180deg, transparent, #8DC63F 30%, #8DC63F 70%, transparent)', pointerEvents: 'none', boxShadow: '0 0 12px rgba(141,198,63,0.4)' }} />
-
-            <div style={{ padding: '20px 16px', borderBottom: '1px solid rgba(255,255,255,0.06)', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#8DC63F" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
-                <span style={{ fontSize: 16, fontWeight: 800, color: '#fff' }}>Settings</span>
-              </div>
-              <button onClick={() => setShowDrawer(false)} style={{ width: 32, height: 32, borderRadius: '50%', background: '#8DC63F', border: 'none', color: '#000', fontSize: 14, fontWeight: 900, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>X</button>
-            </div>
-
-            <div style={{ flex: 1, padding: '12px 10px', overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: 8 }}>
-              {[
-                { icon: '💆', label: 'My Listings', sub: `${myListings.length} listing${myListings.length !== 1 ? 's' : ''}`, action: () => { setShowDrawer(false); setShowMyListings(true) } },
-                { icon: '📊', label: 'Booking Stats', sub: 'Views, bookings & revenue' },
-                { icon: '📋', label: 'Terms of Service', sub: 'Policies & conditions' },
-              ].map((item, i) => (
-                <button key={i} onClick={() => { if (item.action) item.action(); else setShowDrawer(false) }} style={{
-                  display: 'flex', alignItems: 'center', gap: 12, width: '100%',
-                  padding: '14px 12px',
-                  background: 'rgba(0,0,0,0.4)', backdropFilter: 'blur(12px)', WebkitBackdropFilter: 'blur(12px)',
-                  border: '1.5px solid rgba(141,198,63,0.12)', borderRadius: 14,
-                  cursor: 'pointer', textAlign: 'left', fontFamily: 'inherit', transition: 'all 0.2s',
-                  boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.03), 0 2px 8px rgba(0,0,0,0.2)',
-                }}>
-                  <span style={{ fontSize: 24 }}>{item.icon}</span>
-                  <div style={{ flex: 1 }}>
-                    <div style={{ fontSize: 14, fontWeight: 700, color: '#fff' }}>{item.label}</div>
-                    <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.3)', marginTop: 2 }}>{item.sub}</div>
-                  </div>
-                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="rgba(141,198,63,0.4)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
-                </button>
-              ))}
-            </div>
-
-            <div style={{ padding: '16px', borderTop: '1px solid rgba(255,255,255,0.04)', textAlign: 'center' }}>
-              <span style={{ fontSize: 10, color: 'rgba(255,255,255,0.15)', fontWeight: 600 }}>Indoo Massage v1.0</span>
-            </div>
-          </div>
-        </>
-      )}
+      <MassageSettingsDrawer showDrawer={showDrawer} setShowDrawer={setShowDrawer} myListings={myListings} setShowMyListings={setShowMyListings} />
 
       {/* ══ Content ══ */}
       <div className={styles.content} style={{ paddingTop: 97 }}>
 
         {/* ═══ STEP 4: ENTERING MARKETPLACE — ping animation ═══ */}
-        {step === 4 && (
-          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', minHeight: '70vh', textAlign: 'center', padding: 40, position: 'relative' }}>
-            <style>{`
-              @keyframes ping { 0% { transform: scale(1); opacity: 1; } 50% { transform: scale(1.8); opacity: 0; } 100% { transform: scale(1); opacity: 0; } }
-              @keyframes pulseRing { 0% { transform: scale(0.8); opacity: 0.6; } 50% { transform: scale(1.4); opacity: 0; } 100% { transform: scale(0.8); opacity: 0; } }
-              @keyframes dotBounce { 0%, 80%, 100% { transform: scale(0); } 40% { transform: scale(1); } }
-            `}</style>
-            <div style={{ position: 'relative', width: 100, height: 100, marginBottom: 30 }}>
-              <div style={{ position: 'absolute', inset: 0, borderRadius: '50%', border: '3px solid #8DC63F', animation: 'ping 2s ease-in-out infinite' }} />
-              <div style={{ position: 'absolute', inset: 10, borderRadius: '50%', border: '2px solid rgba(141,198,63,0.4)', animation: 'pulseRing 2s ease-in-out infinite 0.5s' }} />
-              <div style={{ position: 'absolute', inset: 20, borderRadius: '50%', border: '2px solid rgba(141,198,63,0.2)', animation: 'pulseRing 2s ease-in-out infinite 1s' }} />
-              <div style={{ position: 'absolute', inset: 0, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                <span style={{ fontSize: 36 }}>{mode === 'home' ? '💆' : '🏢'}</span>
-              </div>
-            </div>
-            <h2 style={{ fontSize: 22, fontWeight: 900, color: '#fff', margin: '0 0 8px' }}>
-              {isEditing ? 'Updating Listing' : 'Entering Marketplace'}
-            </h2>
-            <p style={{ fontSize: 14, color: 'rgba(255,255,255,0.4)', margin: 0, fontWeight: 600 }}>
-              {isEditing ? 'Saving your changes...' : 'Setting up your listing...'}
-            </p>
-            <div style={{ display: 'flex', gap: 6, marginTop: 20 }}>
-              {[0, 1, 2].map(i => (
-                <div key={i} style={{ width: 8, height: 8, borderRadius: '50%', background: '#8DC63F', animation: `dotBounce 1.4s ease-in-out infinite ${i * 0.16}s` }} />
-              ))}
-            </div>
-            <p style={{ fontSize: 10, color: 'rgba(141,198,63,0.4)', marginTop: 20, fontWeight: 600, letterSpacing: '0.04em' }}>REF: {listingRef}</p>
-          </div>
-        )}
+        {step === 4 && <MassageProcessingStep isEditing={isEditing} mode={mode} listingRef={listingRef} />}
 
         {/* ═══ STEP 5: SUCCESS ═══ */}
-        {step === 5 && (
-          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', minHeight: '70vh', textAlign: 'center', padding: 40, animation: 'fadeInScale 0.5s ease' }}>
-            <style>{`@keyframes fadeInScale { from { opacity: 0; transform: scale(0.9); } to { opacity: 1; transform: scale(1); } }`}</style>
-            <div style={{ width: 80, height: 80, borderRadius: '50%', background: '#8DC63F', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 0 40px rgba(141,198,63,0.4)', marginBottom: 24 }}>
-              <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#000" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
-            </div>
-            <h2 style={{ fontSize: 24, fontWeight: 900, color: '#fff', margin: '0 0 8px' }}>
-              {isEditing ? 'Listing Updated!' : "You're Live!"}
-            </h2>
-            <p style={{ fontSize: 14, color: '#8DC63F', margin: '0 0 4px', fontWeight: 700 }}>
-              {isEditing ? 'Your changes are now live on the marketplace' : mode === 'home' ? 'Your therapist profile is now on the marketplace' : 'Your spa is now on the marketplace'}
-            </p>
-            <p style={{ fontSize: 11, color: 'rgba(255,255,255,0.3)', margin: '0 0 30px' }}>REF: {listingRef}</p>
-
-            <div style={{ padding: '14px 20px', background: 'rgba(0,0,0,0.4)', backdropFilter: 'blur(12px)', border: '1px solid rgba(141,198,63,0.15)', borderRadius: 14, marginBottom: 24, width: '100%', maxWidth: 280 }}>
-              <div style={{ fontSize: 16, fontWeight: 800, color: '#fff' }}>{displayTitle}</div>
-              <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.4)', marginTop: 4 }}>{city} {mode === 'home' ? `· ${massageTypes.slice(0, 2).join(', ')}` : `· ${spaType}`}</div>
-              {lowestPrice > 0 && <div style={{ fontSize: 18, fontWeight: 900, color: '#8DC63F', marginTop: 8 }}>From Rp {Number(lowestPrice).toLocaleString('id-ID')}</div>}
-            </div>
-
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 10, width: '100%', maxWidth: 280 }}>
-              <button onClick={() => { onClose('viewMarketplace') }} style={{ width: '100%', padding: '14px 0', borderRadius: 14, background: '#8DC63F', border: 'none', color: '#000', fontSize: 15, fontWeight: 800, cursor: 'pointer', fontFamily: 'inherit', boxShadow: '0 4px 20px rgba(141,198,63,0.3)', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8 }}>
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#000" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-                View Live on Marketplace
-              </button>
-              <button onClick={() => { setMyListings(JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]')); setShowMyListings(true) }} style={{ width: '100%', padding: '12px 0', borderRadius: 14, background: 'rgba(255,215,0,0.1)', border: '1.5px solid rgba(255,215,0,0.25)', color: '#FFD700', fontSize: 13, fontWeight: 800, cursor: 'pointer', fontFamily: 'inherit' }}>
-                View My Listings
-              </button>
-              <button onClick={onClose} style={{ width: '100%', padding: '12px 0', borderRadius: 14, background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)', color: 'rgba(255,255,255,0.5)', fontSize: 13, fontWeight: 700, cursor: 'pointer', fontFamily: 'inherit' }}>
-                Done
-              </button>
-            </div>
-          </div>
-        )}
+        {step === 5 && <MassageSuccessStep isEditing={isEditing} mode={mode} listingRef={listingRef} displayTitle={displayTitle} city={city} massageTypes={massageTypes} spaType={spaType} lowestPrice={lowestPrice} onClose={onClose} setMyListings={setMyListings} setShowMyListings={setShowMyListings} />}
 
         {/* ═══ STEP 0: PROFILE / SPA DETAILS ═══ */}
         {step === 0 && (
@@ -717,6 +605,14 @@ export default function MassageListingForm({ open, onClose, onSubmit, editListin
           nextLabel={step === 3 ? 'Publish Listing' : step === 2 ? 'Preview' : step === 1 ? 'Review Pricing' : 'Next'}
         />
       )}
+
+      {/* Deal Hunt — Post a Deal button */}
+      {step === 0 && (
+        <button onClick={() => setDealHuntOpen(true)} style={{ position: 'fixed', bottom: 80, right: 16, zIndex: 200, display: 'flex', alignItems: 'center', gap: 8, padding: '12px 20px', borderRadius: 14, background: '#8DC63F', border: 'none', color: '#000', fontSize: 14, fontWeight: 900, cursor: 'pointer', fontFamily: 'inherit', boxShadow: '0 4px 20px rgba(141,198,63,0.4)' }}>
+          🔥 Post a Deal
+        </button>
+      )}
+      <PostDealWidget open={dealHuntOpen} onClose={() => setDealHuntOpen(false)} domain="massage" sellerItems={[]} sellerId={null} sellerName="Therapist" />
     </div>,
     document.body
   )
