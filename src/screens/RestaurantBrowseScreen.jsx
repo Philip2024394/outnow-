@@ -379,6 +379,25 @@ function Stars({ rating }) {
   )
 }
 
+// ── Favorite helpers ──────────────────────────────────────────────────────────
+function getFavorites() {
+  return JSON.parse(localStorage.getItem('indoo_fav_restaurants') || '[]')
+}
+
+function isFavorite(restaurantId) {
+  return getFavorites().some(f => f.id === restaurantId)
+}
+
+function toggleFavorite(restaurant) {
+  const favs = getFavorites()
+  const exists = favs.some(f => f.id === restaurant.id)
+  const updated = exists
+    ? favs.filter(f => f.id !== restaurant.id)
+    : [...favs, { id: restaurant.id, name: restaurant.name, image: restaurant.cover_url, cuisine: restaurant.cuisine_type }]
+  localStorage.setItem('indoo_fav_restaurants', JSON.stringify(updated))
+  return updated
+}
+
 // ── Main component ────────────────────────────────────────────────────────────
 export default function RestaurantBrowseScreen({ onClose, onBackToCategories, category, scrollToId, onOrderViaChat }) {
   const [showLanding, setShowLanding] = useState(true)
@@ -387,6 +406,8 @@ export default function RestaurantBrowseScreen({ onClose, onBackToCategories, ca
   const [activeIndex,    setActiveIndex]    = useState(0)
   const [menuRestaurant, setMenuRestaurant] = useState(null)
   const [tick,           setTick]           = useState(0)
+  const [showFavOnly,    setShowFavOnly]    = useState(false)
+  const [favTick,        setFavTick]        = useState(0)
   const containerRef = useRef(null)
   const { coords }   = useGeolocation()
 
@@ -442,9 +463,12 @@ export default function RestaurantBrowseScreen({ onClose, onBackToCategories, ca
   const divider = { isDivider: true, label: dividerLabel }
 
   // Flatten: primary → divider (only if secondary exists) → secondary
+  // Apply favorites filter if active
+  void favTick // re-render when favorites change
+  const applyFavFilter = (list) => showFavOnly ? list.filter(r => isFavorite(r.id)) : list
   const enriched = secondary.length
-    ? [...primary, divider, ...secondary]
-    : primary
+    ? [...applyFavFilter(primary), divider, ...applyFavFilter(secondary)].filter(r => r.isDivider ? applyFavFilter(secondary).length > 0 : true)
+    : applyFavFilter(primary)
 
   // Track visible card on scroll
   const handleScroll = () => {
@@ -502,6 +526,27 @@ export default function RestaurantBrowseScreen({ onClose, onBackToCategories, ca
 
       </div>
 
+      {/* Favorites filter pill */}
+      <div style={{
+        position: 'fixed', top: 52, left: '50%', transform: 'translateX(-50%)',
+        zIndex: 99992, display: 'flex', gap: 6,
+      }}>
+        <button onClick={() => setShowFavOnly(false)} style={{
+          padding: '6px 14px', borderRadius: 20, fontSize: 11, fontWeight: 800, cursor: 'pointer', fontFamily: 'inherit',
+          background: !showFavOnly ? 'rgba(141,198,63,0.15)' : 'rgba(255,255,255,0.04)',
+          border: `1.5px solid ${!showFavOnly ? 'rgba(141,198,63,0.4)' : 'rgba(255,255,255,0.08)'}`,
+          color: !showFavOnly ? '#8DC63F' : 'rgba(255,255,255,0.5)',
+          backdropFilter: 'blur(12px)',
+        }}>All</button>
+        <button onClick={() => setShowFavOnly(true)} style={{
+          padding: '6px 14px', borderRadius: 20, fontSize: 11, fontWeight: 800, cursor: 'pointer', fontFamily: 'inherit',
+          background: showFavOnly ? 'rgba(141,198,63,0.15)' : 'rgba(255,255,255,0.04)',
+          border: `1.5px solid ${showFavOnly ? 'rgba(141,198,63,0.4)' : 'rgba(255,255,255,0.08)'}`,
+          color: showFavOnly ? '#8DC63F' : 'rgba(255,255,255,0.5)',
+          backdropFilter: 'blur(12px)',
+        }}>❤️ Favorites</button>
+      </div>
+
       {/* Scroll dots — dividers don't get a dot */}
       <div className={styles.dots}>
         {enriched.map((r, i) => r.isDivider ? null : (
@@ -528,6 +573,8 @@ export default function RestaurantBrowseScreen({ onClose, onBackToCategories, ca
               restaurant={r}
               isActive={i === activeIndex}
               onOpenMenu={() => setMenuRestaurant(r)}
+              onToggleFavorite={() => { toggleFavorite(r); setFavTick(t => t + 1) }}
+              isFav={isFavorite(r.id)}
             />
           )
         )}
@@ -573,7 +620,7 @@ export default function RestaurantBrowseScreen({ onClose, onBackToCategories, ca
 }
 
 // ── Restaurant card ───────────────────────────────────────────────────────────
-function RestaurantCard({ restaurant: r, onOpenMenu }) {
+function RestaurantCard({ restaurant: r, onOpenMenu, onToggleFavorite, isFav }) {
   const [openTime, closeTime] = (r.opening_hours ?? '').split('–')
   const countdown = !r.is_open ? fmtCountdown(secsUntilOpen(r.opening_hours)) : null
 
@@ -604,6 +651,22 @@ function RestaurantCard({ restaurant: r, onOpenMenu }) {
           }
         </span>
 
+        {/* Favorite heart */}
+        <button
+          onClick={(e) => { e.stopPropagation(); onToggleFavorite?.() }}
+          style={{
+            background: 'rgba(0,0,0,0.4)', backdropFilter: 'blur(8px)',
+            border: '1px solid rgba(255,255,255,0.1)', borderRadius: '50%',
+            width: 36, height: 36, display: 'flex', alignItems: 'center', justifyContent: 'center',
+            cursor: 'pointer', fontSize: 18, padding: 0, marginLeft: 'auto',
+            transition: 'transform 0.2s',
+          }}
+          title={isFav ? 'Remove from favorites' : 'Add to favorites'}
+        >
+          <span style={{ color: isFav ? '#ef4444' : 'rgba(255,255,255,0.5)', transition: 'color 0.2s' }}>
+            {isFav ? '❤️' : '🤍'}
+          </span>
+        </button>
       </div>
 
       {/* Bottom info — clean and sparse */}

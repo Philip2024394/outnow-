@@ -2,7 +2,7 @@ import styles from './RestaurantMenuSheet.module.css'
 import { fmtRp, CATEGORY_GRADIENTS } from './menuSheetConstants'
 
 // ── Menu item card — full-screen ──────────────────────────────────────────────
-export default function MenuItemCard({ item, qty, onAdd, onRemove, itemRef }) {
+export default function MenuItemCard({ item, qty, onAdd, onRemove, onCustomize, itemRef, badge }) {
   const bg = item.photo_url
     ? `url("${item.photo_url}")`
     : CATEGORY_GRADIENTS[item.category] ?? 'linear-gradient(160deg, #1a1200 0%, #0d0d0d 100%)'
@@ -12,6 +12,16 @@ export default function MenuItemCard({ item, qty, onAdd, onRemove, itemRef }) {
       {/* Background */}
       <div className={styles.itemBg} style={{ backgroundImage: bg }} />
       <div className={styles.itemOverlay} />
+
+      {/* Badge banner top-right */}
+      {badge && (
+        <div style={{
+          position: 'absolute', top: 8, right: 8, zIndex: 3,
+          width: 60, height: 60,
+        }}>
+          <img src={badge.image} alt={badge.label} style={{ width: '100%', height: '100%', objectFit: 'contain', filter: 'drop-shadow(0 2px 6px rgba(0,0,0,0.5))' }} />
+        </div>
+      )}
 
       {/* Category pill top-left */}
       {item.category && (
@@ -47,9 +57,20 @@ export default function MenuItemCard({ item, qty, onAdd, onRemove, itemRef }) {
                 <button className={styles.qtyBtn} onClick={onAdd}>+</button>
               </div>
             ) : (
-              <button className={styles.addBtn} onClick={onAdd}>
-                + Add
-              </button>
+              <div style={{ display: 'flex', gap: 6 }}>
+                <button className={styles.addBtn} onClick={onAdd}>
+                  + Add
+                </button>
+                {onCustomize && (
+                  <button
+                    className={styles.addBtn}
+                    onClick={() => onCustomize(item)}
+                    style={{ background: 'rgba(255,255,255,0.12)', color: '#fff', minWidth: 0, padding: '0 12px' }}
+                  >
+                    ⚙
+                  </button>
+                )}
+              </div>
             )
           )}
         </div>

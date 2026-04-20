@@ -7,6 +7,7 @@ export default function OrdersPanel({
   onClose,
   onCancelOrder,
   onReviewOrder,
+  onReorder,
 }) {
   return (
     <div className={styles.panelBackdrop} onClick={onClose}>
@@ -53,6 +54,21 @@ export default function OrdersPanel({
                   onClick={() => onReviewOrder(order)}
                 >
                   Rate this order
+                </button>
+              )}
+              {/* Reorder button for completed/delivered orders */}
+              {(order.status === 'delivered' || order.status === 'completed') && onReorder && (
+                <button
+                  onClick={() => onReorder(order.items)}
+                  style={{
+                    width: '100%', marginTop: 6, padding: '9px 0', borderRadius: 10,
+                    background: 'transparent',
+                    border: '1.5px solid rgba(141,198,63,0.5)',
+                    color: '#8DC63F', fontSize: 12, fontWeight: 800,
+                    cursor: 'pointer', fontFamily: 'inherit',
+                  }}
+                >
+                  🔄 Order Again
                 </button>
               )}
             </div>

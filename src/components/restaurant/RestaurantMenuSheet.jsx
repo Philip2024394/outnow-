@@ -6,12 +6,14 @@ import FoodOrderStatus from '@/components/orders/FoodOrderStatus'
 import { createFoodOrder, searchFoodDrivers } from '@/services/foodOrderService'
 import { fmtRp, getFoodOrders, saveFoodOrders } from './menuSheetConstants'
 import MenuItemCard from './MenuItemCard'
+import { FREE_ITEM_BADGES } from '@/constants/restaurantPromos'
 import OrderConfirmOverlay from './OrderConfirmOverlay'
 import OrdersPanel from './OrdersPanel'
 import CategoryDrawer from './CategoryDrawer'
 import EventsDrawer from './EventsDrawer'
 import SocialsDrawer from './SocialsDrawer'
 import ReviewModal from './ReviewModal'
+import CustomizeSheet from './CustomizeSheet'
 
 // ── Main component ────────────────────────────────────────────────────────────
 export default function RestaurantMenuSheet({ restaurant, onClose, onOrderViaChat }) {
@@ -38,12 +40,14 @@ export default function RestaurantMenuSheet({ restaurant, onClose, onOrderViaCha
   const [reviewStars,    setReviewStars]    = useState(0)
   const [reviewComment,  setReviewComment]  = useState('')
   const [toast,          setToast]          = useState(null)
+  const [orderType,      setOrderType]      = useState('delivery')
   const [paymentStep,    setPaymentStep]    = useState(false)   // show payment step on confirmation
   const [paymentProofFile, setPaymentProofFile] = useState(null)
   const [paymentSubmitted, setPaymentSubmitted] = useState(false)
   const [driverSearching, setDriverSearching] = useState(false)
   const [assignedDriver,  setAssignedDriver]  = useState(null)
   const [trackingOrder,   setTrackingOrder]   = useState(null)
+  const [customizeItem,   setCustomizeItem]   = useState(null)
 
   const feedRef     = useRef(null)
   const itemRefs    = useRef([])
@@ -72,6 +76,28 @@ export default function RestaurantMenuSheet({ restaurant, onClose, onOrderViaCha
     const t = setTimeout(() => setToast(null), 3000)
     return () => clearTimeout(t)
   }, [toast])
+
+  // ── Dish badges from localStorage ──
+  const [dishBadges, setDishBadges] = useState([])
+  useEffect(() => {
+    try {
+      const sellerId = restaurant.user_id ?? restaurant.id
+      const saved = JSON.parse(localStorage.getItem(`indoo_dish_badges_${sellerId}`) || '[]')
+      setDishBadges(saved)
+    } catch {}
+  }, [restaurant])
+
+  // ── Daily specials from localStorage ──
+  const [todaySpecial, setTodaySpecial] = useState(null)
+  useEffect(() => {
+    try {
+      const sellerId = restaurant.user_id ?? restaurant.id
+      const saved = JSON.parse(localStorage.getItem(`indoo_daily_specials_${sellerId}`) || '[]')
+      const today = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'][new Date().getDay()]
+      const special = saved.find(s => s.day === today && s.enabled && s.dishName)
+      setTodaySpecial(special)
+    } catch {}
+  }, [restaurant])
 
   // Filter items by active category
   const visibleItems = activeCategory
@@ -107,7 +133,7 @@ export default function RestaurantMenuSheet({ restaurant, onClose, onOrderViaCha
 
   const cartCount   = cart.reduce((s, i) => s + i.qty, 0)
   const cartTotal   = cart.reduce((s, i) => s + i.price * i.qty, 0)
-  const deliveryFare = restaurant.deliveryFare ?? null
+  const deliveryFare = orderType === 'delivery' ? (restaurant.deliveryFare ?? null) : 0
   const grandTotal  = cartTotal + (deliveryFare ?? 0)
   const maxPrepMin  = cart.length > 0
     ? Math.max(...cart.map(i => i.prep_time_min ?? 0))
@@ -322,9 +348,10 @@ export default function RestaurantMenuSheet({ restaurant, onClose, onOrderViaCha
         restaurant: restaurant.name,
         items: cart.map(i => ({ name: i.name, qty: i.qty, price: i.price })),
         total: grandTotal,
-        delivery: deliveryFare ?? 10000,
+        delivery: deliveryFare ?? (orderType === 'delivery' ? 10000 : 0),
+        order_type: orderType,
         status: 'pending',
-        address: address || null,
+        address: orderType === 'delivery' ? (address || null) : null,
         created_at: new Date().toISOString(),
       }
 
@@ -439,25 +466,54 @@ export default function RestaurantMenuSheet({ restaurant, onClose, onOrderViaCha
               </div>
             )}
 
-            {/* Delivery fare — always shown */}
+            {/* Delivery / Dine-in / Pickup fare line */}
             <div className={styles.cartMeta}>
-              <span className={styles.cartMetaIcon}>🛵</span>
-              <span className={styles.cartMetaLabel}>Delivery</span>
+              <span className={styles.cartMetaIcon}>{orderType === 'delivery' ? '🛵' : orderType === 'dinein' ? '🍽️' : '🏪'}</span>
+              <span className={styles.cartMetaLabel}>
+                {orderType === 'delivery' ? 'Delivery' : orderType === 'dinein' ? 'Dine In' : 'Pickup'}
+              </span>
               <span className={styles.cartMetaValue}>
-                {deliveryFare !== null ? fmtRp(deliveryFare) : 'Calculating…'}
+                {orderType === 'delivery'
+                  ? (deliveryFare !== null ? fmtRp(deliveryFare) : 'Calculating…')
+                  : 'Free'}
               </span>
             </div>
+
+            {/* Dine-in discount badge */}
+            {orderType === 'dinein' && restaurant.dine_in_discount > 0 && (
+              <div style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '6px 0', fontSize: 11, fontWeight: 800, color: '#8DC63F' }}>
+                <span>🎉</span>
+                <span>{restaurant.dine_in_discount}% dine-in discount available</span>
+              </div>
+            )}
 
             <div className={styles.cartDivider} />
 
             <div className={styles.cartTotal}>
               <span>Total est.</span>
               <span style={{ color: '#F59E0B' }}>
-                {deliveryFare !== null ? fmtRp(grandTotal) : `${fmtRp(cartTotal)} + delivery`}
+                {orderType !== 'delivery' ? fmtRp(grandTotal) : deliveryFare !== null ? fmtRp(grandTotal) : `${fmtRp(cartTotal)} + delivery`}
               </span>
             </div>
 
-            {showAddrInput && (
+            {/* Order type toggle — Delivery / Dine In / Pickup */}
+            <div style={{ display: 'flex', gap: 6, marginBottom: 10 }}>
+              {[
+                { id: 'delivery', label: '🛵 Delivery' },
+                { id: 'dinein', label: '🍽️ Dine In' },
+                { id: 'pickup', label: '🏪 Pickup' },
+              ].map(opt => (
+                <button key={opt.id} onClick={() => setOrderType(opt.id)} style={{
+                  flex: 1, padding: '8px 4px', borderRadius: 10,
+                  background: orderType === opt.id ? 'rgba(141,198,63,0.15)' : 'rgba(255,255,255,0.04)',
+                  border: `1.5px solid ${orderType === opt.id ? 'rgba(141,198,63,0.4)' : 'rgba(255,255,255,0.08)'}`,
+                  color: orderType === opt.id ? '#8DC63F' : 'rgba(255,255,255,0.5)',
+                  fontSize: 11, fontWeight: 800, cursor: 'pointer', fontFamily: 'inherit',
+                }}>{opt.label}</button>
+              ))}
+            </div>
+
+            {showAddrInput && orderType === 'delivery' && (
               <div className={styles.addrWrap} onClick={e => e.stopPropagation()}>
                 <input
                   className={styles.addrInput}
@@ -474,6 +530,18 @@ export default function RestaurantMenuSheet({ restaurant, onClose, onOrderViaCha
                 >
                   {locating ? '…' : '🎯'}
                 </button>
+              </div>
+            )}
+
+            {showAddrInput && orderType === 'dinein' && (
+              <div style={{ padding: '10px 0', fontSize: 12, fontWeight: 700, color: 'rgba(255,255,255,0.5)', textAlign: 'center' }}>
+                🍽️ Walk-in / Eat at restaurant
+              </div>
+            )}
+
+            {showAddrInput && orderType === 'pickup' && (
+              <div style={{ padding: '10px 0', fontSize: 12, fontWeight: 700, color: 'rgba(255,255,255,0.5)', textAlign: 'center' }}>
+                🏪 Pick up at restaurant
               </div>
             )}
 
@@ -586,21 +654,45 @@ export default function RestaurantMenuSheet({ restaurant, onClose, onOrderViaCha
         <span style={{ width: 6, height: 6, borderRadius: '50%', background: '#8DC63F', marginLeft: 'auto', flexShrink: 0, animation: 'pulse 2s ease-in-out infinite' }} />
       </div>
 
+      {/* ── Today's special banner ── */}
+      {todaySpecial && (
+        <div style={{
+          position: 'absolute', top: 'calc(env(safe-area-inset-top) + 60px)', left: 12, right: 12,
+          zIndex: 15, padding: '10px 14px', borderRadius: 14,
+          background: 'rgba(141,198,63,0.12)', border: '1px solid rgba(141,198,63,0.3)',
+          backdropFilter: 'blur(12px)',
+          display: 'flex', alignItems: 'center', gap: 10,
+          animation: 'fadeIn 0.3s ease',
+        }}>
+          <span style={{ fontSize: 24 }}>🔥</span>
+          <div>
+            <div style={{ fontSize: 13, fontWeight: 900, color: '#8DC63F' }}>Today's Special: {todaySpecial.name}</div>
+            <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.6)' }}>{todaySpecial.dishName} — {todaySpecial.offerId?.replace('_', ' ')?.replace('discount ', '')}</div>
+          </div>
+        </div>
+      )}
+
       {/* ── Full-screen snap-scroll menu feed ── */}
       <div className={styles.feed} ref={feedRef}>
         {visibleItems.length === 0 ? (
           <div className={styles.emptyFeed}>No items in this category</div>
         ) : (
-          visibleItems.map((item, i) => (
-            <MenuItemCard
-              key={item.id}
-              item={item}
-              qty={qtyFor(item.id)}
-              onAdd={() => addToCart(item)}
-              onRemove={() => removeFromCart(item.id)}
-              itemRef={el => { itemRefs.current[i] = el }}
-            />
-          ))
+          visibleItems.map((item, i) => {
+            const itemBadge = dishBadges.find(b => b.dishId === item.id)
+            const badgeData = itemBadge ? FREE_ITEM_BADGES.find(fb => fb.id === itemBadge.badgeId) : null
+            return (
+              <MenuItemCard
+                key={item.id}
+                item={item}
+                qty={qtyFor(item.id)}
+                onAdd={() => addToCart(item)}
+                onRemove={() => removeFromCart(item.id)}
+                onCustomize={(itm) => setCustomizeItem(itm)}
+                itemRef={el => { itemRefs.current[i] = el }}
+                badge={badgeData}
+              />
+            )
+          })
         )}
       </div>
 
@@ -644,6 +736,12 @@ export default function RestaurantMenuSheet({ restaurant, onClose, onOrderViaCha
           onClose={() => setOrdersOpen(false)}
           onCancelOrder={handleCancelOrder}
           onReviewOrder={(order) => { setReviewOrder(order); setReviewStars(0); setReviewComment('') }}
+          onReorder={(items) => {
+            items.forEach(item => addToCart(item))
+            setCartExpanded(true)
+            setOrdersOpen(false)
+            setToast('Previous order added to cart!')
+          }}
         />
       )}
 
@@ -678,6 +776,17 @@ export default function RestaurantMenuSheet({ restaurant, onClose, onOrderViaCha
         getFoodOrders={getFoodOrders}
         saveFoodOrders={saveFoodOrders}
         setFoodOrders={setFoodOrders}
+      />
+
+      {/* ── Customize sheet ── */}
+      <CustomizeSheet
+        open={!!customizeItem}
+        item={customizeItem}
+        onClose={() => setCustomizeItem(null)}
+        onConfirm={(customized) => {
+          addToCart({ ...customized.item, price: customized.totalPrice, customization: customized })
+          setCustomizeItem(null)
+        }}
       />
 
       {/* ── Review modal ── */}
