@@ -89,6 +89,14 @@ export default function RestaurantDashboard({ userId, onClose }) {
     DAILY_PROMO_TEMPLATES.map(t => ({ day: t.day, name: t.name, dishId: '', dishName: '', offerId: '', enabled: true }))
   )
 
+  // ── Happy Hour fields ──
+  const [happyHourEnabled, setHappyHourEnabled] = useState(false)
+  const [happyHourStart,   setHappyHourStart]   = useState('14:00')
+  const [happyHourEnd,     setHappyHourEnd]     = useState('17:00')
+  const [happyHourDays,    setHappyHourDays]    = useState(['Monday','Tuesday','Wednesday','Thursday','Friday'])
+  const [happyHourDishes,  setHappyHourDishes]  = useState([])
+  const [happyHourOffer,   setHappyHourOffer]   = useState('discount_25')
+
   // ── Profile fields ──
   const [name,           setName]           = useState('')
   const [cuisine,        setCuisine]        = useState('')
@@ -204,6 +212,15 @@ export default function RestaurantDashboard({ userId, onClose }) {
     try {
       const savedSpecials = JSON.parse(localStorage.getItem(`indoo_daily_specials_${userId}`) || 'null')
       if (savedSpecials) setDailySpecials(savedSpecials)
+      const savedHappy = JSON.parse(localStorage.getItem(`indoo_happy_hour_${userId}`) || 'null')
+      if (savedHappy) {
+        setHappyHourEnabled(savedHappy.enabled ?? false)
+        setHappyHourStart(savedHappy.start ?? '14:00')
+        setHappyHourEnd(savedHappy.end ?? '17:00')
+        setHappyHourDays(savedHappy.days ?? ['Monday','Tuesday','Wednesday','Thursday','Friday'])
+        setHappyHourDishes(savedHappy.dishes ?? [])
+        setHappyHourOffer(savedHappy.offer ?? 'discount_25')
+      }
     } catch { /* ignore */ }
   }, [userId])
 
@@ -1227,6 +1244,81 @@ export default function RestaurantDashboard({ userId, onClose }) {
           >
             💾 Save Daily Specials
           </button>
+
+          {/* ── Section 4: Happy Hour ── */}
+          <div style={{ borderTop: '1px solid rgba(255,255,255,0.06)', marginTop: 20, paddingTop: 20 }}>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12 }}>
+              <div>
+                <h3 style={{ fontSize: 18, fontWeight: 900, color: '#fff', margin: 0 }}>⏰ Happy Hour</h3>
+                <p style={{ fontSize: 12, color: 'rgba(255,255,255,0.4)', margin: '4px 0 0' }}>Time-based discounts on selected dishes</p>
+              </div>
+              <button onClick={() => setHappyHourEnabled(e => !e)} style={{ width: 48, height: 28, borderRadius: 14, background: happyHourEnabled ? '#8DC63F' : 'rgba(255,255,255,0.1)', border: 'none', cursor: 'pointer', position: 'relative', transition: 'background 0.2s' }}>
+                <span style={{ position: 'absolute', top: 2, left: happyHourEnabled ? 22 : 2, width: 24, height: 24, borderRadius: '50%', background: '#fff', transition: 'left 0.2s', boxShadow: '0 1px 4px rgba(0,0,0,0.3)' }} />
+              </button>
+            </div>
+
+            {happyHourEnabled && (
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
+                {/* Time window */}
+                <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                  <div style={{ flex: 1 }}>
+                    <label style={{ fontSize: 11, fontWeight: 700, color: 'rgba(255,255,255,0.5)', display: 'block', marginBottom: 4 }}>Start</label>
+                    <input type="time" value={happyHourStart} onChange={e => setHappyHourStart(e.target.value)} style={{ width: '100%', padding: '10px 12px', borderRadius: 10, background: 'rgba(0,0,0,0.4)', border: '1px solid rgba(255,255,255,0.1)', color: '#fff', fontSize: 14, fontFamily: 'inherit' }} />
+                  </div>
+                  <span style={{ color: 'rgba(255,255,255,0.3)', fontSize: 16, marginTop: 18 }}>→</span>
+                  <div style={{ flex: 1 }}>
+                    <label style={{ fontSize: 11, fontWeight: 700, color: 'rgba(255,255,255,0.5)', display: 'block', marginBottom: 4 }}>End</label>
+                    <input type="time" value={happyHourEnd} onChange={e => setHappyHourEnd(e.target.value)} style={{ width: '100%', padding: '10px 12px', borderRadius: 10, background: 'rgba(0,0,0,0.4)', border: '1px solid rgba(255,255,255,0.1)', color: '#fff', fontSize: 14, fontFamily: 'inherit' }} />
+                  </div>
+                </div>
+
+                {/* Active days */}
+                <div>
+                  <label style={{ fontSize: 11, fontWeight: 700, color: 'rgba(255,255,255,0.5)', display: 'block', marginBottom: 6 }}>Active Days</label>
+                  <div style={{ display: 'flex', gap: 4, flexWrap: 'wrap' }}>
+                    {DAYS_OF_WEEK.map(day => (
+                      <button key={day} onClick={() => setHappyHourDays(prev => prev.includes(day) ? prev.filter(d => d !== day) : [...prev, day])} style={{ padding: '6px 10px', borderRadius: 8, background: happyHourDays.includes(day) ? 'rgba(141,198,63,0.15)' : 'rgba(255,255,255,0.04)', border: `1px solid ${happyHourDays.includes(day) ? 'rgba(141,198,63,0.4)' : 'rgba(255,255,255,0.08)'}`, color: happyHourDays.includes(day) ? '#8DC63F' : 'rgba(255,255,255,0.4)', fontSize: 11, fontWeight: 800, cursor: 'pointer', fontFamily: 'inherit' }}>
+                        {day.slice(0, 3)}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Offer type */}
+                <div>
+                  <label style={{ fontSize: 11, fontWeight: 700, color: 'rgba(255,255,255,0.5)', display: 'block', marginBottom: 6 }}>Discount / Offer</label>
+                  <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
+                    {PROMO_OFFERS.slice(0, 6).map(o => (
+                      <button key={o.id} onClick={() => setHappyHourOffer(o.id)} style={{ padding: '6px 12px', borderRadius: 8, background: happyHourOffer === o.id ? 'rgba(141,198,63,0.15)' : 'rgba(255,255,255,0.04)', border: `1px solid ${happyHourOffer === o.id ? 'rgba(141,198,63,0.4)' : 'rgba(255,255,255,0.08)'}`, color: happyHourOffer === o.id ? '#8DC63F' : 'rgba(255,255,255,0.5)', fontSize: 11, fontWeight: 800, cursor: 'pointer', fontFamily: 'inherit' }}>
+                        {o.label}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Select dishes */}
+                <div>
+                  <label style={{ fontSize: 11, fontWeight: 700, color: 'rgba(255,255,255,0.5)', display: 'block', marginBottom: 6 }}>Select Dishes (tap to toggle)</label>
+                  <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap', maxHeight: 120, overflowY: 'auto' }}>
+                    {menuItems.map(item => (
+                      <button key={item.id} onClick={() => setHappyHourDishes(prev => prev.includes(item.id) ? prev.filter(d => d !== item.id) : [...prev, item.id])} style={{ padding: '6px 10px', borderRadius: 8, background: happyHourDishes.includes(item.id) ? 'rgba(255,215,0,0.12)' : 'rgba(255,255,255,0.04)', border: `1px solid ${happyHourDishes.includes(item.id) ? 'rgba(255,215,0,0.4)' : 'rgba(255,255,255,0.08)'}`, color: happyHourDishes.includes(item.id) ? '#FFD700' : 'rgba(255,255,255,0.5)', fontSize: 10, fontWeight: 700, cursor: 'pointer', fontFamily: 'inherit' }}>
+                        {item.name}
+                      </button>
+                    ))}
+                    {menuItems.length === 0 && <span style={{ fontSize: 11, color: 'rgba(255,255,255,0.3)' }}>Add menu items first</span>}
+                  </div>
+                </div>
+
+                {/* Save */}
+                <button onClick={() => {
+                  localStorage.setItem(`indoo_happy_hour_${userId}`, JSON.stringify({ enabled: true, start: happyHourStart, end: happyHourEnd, days: happyHourDays, dishes: happyHourDishes, offer: happyHourOffer }))
+                  showToast('Happy hour saved ✓')
+                }} style={{ padding: '14px 28px', borderRadius: 14, background: '#8DC63F', border: 'none', color: '#000', fontSize: 16, fontWeight: 900, cursor: 'pointer', fontFamily: 'inherit', boxShadow: '0 4px 20px rgba(141,198,63,0.4)' }}>
+                  ⏰ Save Happy Hour
+                </button>
+              </div>
+            )}
+          </div>
         </div>
       )}
 
