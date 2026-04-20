@@ -517,15 +517,15 @@ export default function RestaurantBrowseScreen({ onClose, onBackToCategories, ca
       <div style={{ position: 'fixed', top: 6, left: 6, zIndex: 99990, display: 'flex', alignItems: 'center', gap: 6, pointerEvents: 'none' }}><div style={{ width: 28, height: 28, borderRadius: '50%', background: '#8DC63F', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 11, fontWeight: 900, color: '#000', boxShadow: '0 2px 8px rgba(141,198,63,0.4)' }}>F2</div><span style={{ fontSize: 9, fontWeight: 800, color: 'rgba(141,198,63,0.6)' }}>FOOD BROWSE</span></div>
       {/* Fixed header */}
       <div className={styles.header}>
+        <button onClick={onClose} style={{ width: 36, height: 36, borderRadius: '50%', background: 'rgba(0,0,0,0.4)', backdropFilter: 'blur(8px)', border: '1px solid rgba(255,255,255,0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', flexShrink: 0 }}>
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M19 12H5M12 5l-7 7 7 7"/></svg>
+        </button>
         <div className={styles.headerCenter}>
-          <span className={styles.headerTitle}>
-            <span style={{ background: 'linear-gradient(90deg, #fff 0%, #fff 58%, #8DC63F 58%, #8DC63F 100%)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text' }}>INDOO</span><span style={{ color: 'rgba(255,255,255,0.5)', fontWeight: 700, fontSize: '0.7em', marginLeft: 6 }}>STREET</span>
-          </span>
+          <span className={styles.headerTitle}>{catLabel}</span>
           <span className={styles.headerSub}>
             {enriched.filter(r => !r.isDivider).length} restaurants near you
           </span>
         </div>
-
       </div>
 
       {/* Favorites filter pill */}
