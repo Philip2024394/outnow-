@@ -109,15 +109,45 @@
   line-height: 1.5; margin: 0; max-width: 320px;
   text-shadow: 0 2px 8px rgba(0,0,0,0.6);
 }
+.landingBtnWrap {
+  position: relative; width: 100%; max-width: 320px; margin-top: 8px;
+}
 .landingBtn {
-  width: 100%; max-width: 320px; padding: 16px;
+  width: 100%; padding: 16px;
   border-radius: 14px; background: #8DC63F; border: none;
   color: #000; font-size: 18px; font-weight: 900;
   cursor: pointer; font-family: inherit;
   box-shadow: 0 4px 24px rgba(141,198,63,0.5);
-  margin-top: 8px;
+  position: relative; z-index: 1;
 }
 .landingBtn:active { transform: scale(0.97); }
+
+/* Fire particles floating up from button */
+.fireParticles {
+  position: absolute; bottom: 100%; left: 0; right: 0;
+  height: 80px; pointer-events: none; overflow: hidden;
+}
+.fireParticle {
+  position: absolute; bottom: 0;
+  width: 8px; height: 8px; border-radius: 50%;
+  background: #F97316;
+  opacity: 0;
+  animation: fireFloat 2.5s ease-out infinite;
+  animation-delay: calc(var(--i) * 0.4s);
+}
+.fireParticle:nth-child(1) { left: 15%; width: 6px; height: 6px; background: #FBBF24; }
+.fireParticle:nth-child(2) { left: 35%; width: 8px; height: 8px; background: #F97316; }
+.fireParticle:nth-child(3) { left: 55%; width: 5px; height: 5px; background: #EF4444; }
+.fireParticle:nth-child(4) { left: 72%; width: 7px; height: 7px; background: #FBBF24; }
+.fireParticle:nth-child(5) { left: 25%; width: 6px; height: 6px; background: #EF4444; }
+.fireParticle:nth-child(6) { left: 82%; width: 5px; height: 5px; background: #F97316; }
+
+@keyframes fireFloat {
+  0% { transform: translateY(0) scale(1); opacity: 0; }
+  10% { opacity: 0.9; }
+  50% { opacity: 0.6; }
+  100% { transform: translateY(-70px) scale(0.2); opacity: 0; }
+}
 .landingSellerBtn {
   background: none; border: 1px solid rgba(255,255,255,0.2);
   border-radius: 12px; padding: 12px 24px;

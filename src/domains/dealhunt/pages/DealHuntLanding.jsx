@@ -391,9 +391,16 @@ export default function DealHuntLanding({ open, onClose, onSelectDeal, onCreateD
           <div className={styles.landingContent}>
             <h1 className={styles.landingTitle}>DEAL <span>HUNT</span></h1>
             <p className={styles.landingSub}>Get the best deals across all categories — food, products, services & more</p>
-            <button className={styles.landingBtn} onClick={() => setShowLanding(false)}>
-              Start Hunting 🔥
-            </button>
+            <div className={styles.landingBtnWrap}>
+              <div className={styles.fireParticles}>
+                {[...Array(6)].map((_, i) => (
+                  <span key={i} className={styles.fireParticle} style={{ '--i': i }} />
+                ))}
+              </div>
+              <button className={styles.landingBtn} onClick={() => setShowLanding(false)}>
+                Start Hunting 🔥
+              </button>
+            </div>
           </div>
         </div>
       )}
