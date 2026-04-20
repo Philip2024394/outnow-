@@ -1,0 +1,333 @@
+.wrap {
+  padding: 24px 28px;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  min-height: 100%;
+}
+
+/* ── Summary cards ── */
+.summaryRow {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 14px;
+}
+
+.summaryCard {
+  background: rgba(255,255,255,0.03);
+  border: 1px solid rgba(255,255,255,0.07);
+  border-radius: 14px;
+  padding: 16px 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.summaryLabel {
+  font-size: 11px;
+  font-weight: 600;
+  color: rgba(255,255,255,0.35);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.summaryValue {
+  font-size: 22px;
+  font-weight: 900;
+  font-family: monospace;
+  letter-spacing: -0.02em;
+}
+
+.summarySub {
+  font-size: 11px;
+  color: rgba(255,255,255,0.25);
+}
+
+/* ── Filters row ── */
+.filtersRow {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.filterSelect {
+  padding: 7px 14px;
+  background: rgba(255,255,255,0.04);
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 10px;
+  color: rgba(255,255,255,0.7);
+  font-size: 13px;
+  font-family: inherit;
+  cursor: pointer;
+  outline: none;
+}
+
+.filterSelect option {
+  background: #1a1a2e;
+  color: #fff;
+}
+
+.searchInput {
+  flex: 1;
+  min-width: 180px;
+  padding: 7px 14px;
+  background: rgba(255,255,255,0.04);
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 10px;
+  color: rgba(255,255,255,0.8);
+  font-size: 13px;
+  font-family: inherit;
+  outline: none;
+}
+
+.searchInput::placeholder {
+  color: rgba(255,255,255,0.25);
+}
+
+/* ── Table ── */
+.tableWrap {
+  overflow-x: auto;
+  border-radius: 14px;
+  border: 1px solid rgba(255,255,255,0.07);
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+}
+
+.table thead tr {
+  background: rgba(255,255,255,0.03);
+  border-bottom: 1px solid rgba(255,255,255,0.07);
+}
+
+.table th {
+  padding: 11px 14px;
+  text-align: left;
+  font-size: 11px;
+  font-weight: 700;
+  color: rgba(255,255,255,0.3);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  white-space: nowrap;
+}
+
+.table tbody tr {
+  border-bottom: 1px solid rgba(255,255,255,0.04);
+  transition: background 0.1s;
+}
+
+.table tbody tr:last-child { border-bottom: none; }
+.table tbody tr:hover { background: rgba(255,255,255,0.025); }
+
+.table td {
+  padding: 11px 14px;
+  color: rgba(255,255,255,0.7);
+  vertical-align: middle;
+}
+
+/* ── Thumb ── */
+.thumb {
+  width: 44px;
+  height: 44px;
+  border-radius: 8px;
+  object-fit: cover;
+  border: 1px solid rgba(255,255,255,0.08);
+}
+
+/* ── Title cell ── */
+.titleCell {
+  min-width: 140px;
+}
+
+.dealTitle {
+  display: block;
+  font-weight: 600;
+  color: rgba(255,255,255,0.85);
+  font-size: 13px;
+}
+
+.dealSeller {
+  display: block;
+  font-size: 11px;
+  color: rgba(255,255,255,0.35);
+  margin-top: 2px;
+}
+
+/* ── Domain pill ── */
+.domainPill {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 3px 9px;
+  border-radius: 20px;
+  font-size: 11px;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.domainFood {
+  background: rgba(232,69,140,0.12);
+  border: 1px solid rgba(232,69,140,0.25);
+  color: #E8458C;
+}
+
+.domainMarketplace {
+  background: rgba(168,85,247,0.12);
+  border: 1px solid rgba(168,85,247,0.25);
+  color: #A855F7;
+}
+
+.domainServices {
+  background: rgba(96,165,250,0.1);
+  border: 1px solid rgba(96,165,250,0.2);
+  color: #60a5fa;
+}
+
+.domainBeauty {
+  background: rgba(244,114,182,0.1);
+  border: 1px solid rgba(244,114,182,0.2);
+  color: #f472b6;
+}
+
+.domainEntertainment {
+  background: rgba(251,191,36,0.1);
+  border: 1px solid rgba(251,191,36,0.2);
+  color: #fbbf24;
+}
+
+/* ── Price cells ── */
+.priceCell {
+  white-space: nowrap;
+}
+
+.priceOriginal {
+  font-size: 11px;
+  color: rgba(255,255,255,0.3);
+  text-decoration: line-through;
+}
+
+.priceDeal {
+  font-size: 13px;
+  font-weight: 800;
+  color: #34C759;
+  font-family: monospace;
+}
+
+.discountBadge {
+  display: inline-block;
+  padding: 2px 7px;
+  border-radius: 6px;
+  font-size: 11px;
+  font-weight: 800;
+  font-family: monospace;
+  background: rgba(255,59,48,0.12);
+  border: 1px solid rgba(255,59,48,0.25);
+  color: #FF3B30;
+}
+
+/* ── Claims cell ── */
+.claimsCell {
+  font-family: monospace;
+  font-size: 13px;
+  white-space: nowrap;
+}
+
+.claimsCurrent {
+  font-weight: 700;
+  color: rgba(255,255,255,0.85);
+}
+
+.claimsTotal {
+  color: rgba(255,255,255,0.3);
+}
+
+/* ── Status pills ── */
+.statusPill {
+  display: inline-block;
+  padding: 3px 9px;
+  border-radius: 20px;
+  font-size: 11px;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.statusActive {
+  background: rgba(52,199,89,0.1);
+  border: 1px solid rgba(52,199,89,0.2);
+  color: #34C759;
+}
+
+.statusExpired {
+  background: rgba(255,255,255,0.05);
+  border: 1px solid rgba(255,255,255,0.1);
+  color: rgba(255,255,255,0.4);
+}
+
+.statusSoldOut {
+  background: rgba(255,59,48,0.12);
+  border: 1px solid rgba(255,59,48,0.3);
+  color: #FF3B30;
+}
+
+.statusCancelled {
+  background: rgba(251,191,36,0.1);
+  border: 1px solid rgba(251,191,36,0.25);
+  color: #fbbf24;
+}
+
+/* ── Action buttons ── */
+.actionBtns {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+}
+
+.btnView {
+  padding: 5px 10px;
+  background: rgba(0,229,255,0.1);
+  border: 1px solid rgba(0,229,255,0.25);
+  border-radius: 7px;
+  color: #00E5FF;
+  font-size: 11px;
+  font-weight: 700;
+  font-family: inherit;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.btnPause {
+  padding: 5px 10px;
+  background: rgba(255,149,0,0.1);
+  border: 1px solid rgba(255,149,0,0.25);
+  border-radius: 7px;
+  color: #FF9500;
+  font-size: 11px;
+  font-weight: 700;
+  font-family: inherit;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.btnCancel {
+  padding: 5px 10px;
+  background: rgba(255,59,48,0.1);
+  border: 1px solid rgba(255,59,48,0.25);
+  border-radius: 7px;
+  color: #FF3B30;
+  font-size: 11px;
+  font-weight: 700;
+  font-family: inherit;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+/* ── Empty state ── */
+.emptyRow {
+  padding: 32px !important;
+  text-align: center;
+  color: rgba(255,255,255,0.2) !important;
+  font-size: 13px;
+}

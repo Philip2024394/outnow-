@@ -18,6 +18,42 @@ const DEMO_DEALS = [
 const DOMAIN_COLORS = { food: '#F97316', marketplace: '#8DC63F', massage: '#A855F7', rentals: '#3B82F6', rides: '#EAB308' }
 const DOMAIN_LABELS = { food: 'Makanan', marketplace: 'Market', massage: 'Massage', rentals: 'Rental', rides: 'Ojek' }
 
+// ── Mock menu/catalogue items per seller ──────────────────────────────────────
+const SELLER_ITEMS = {
+  'Warung Bu Sari': [
+    { id: 'm1', name: 'Nasi Goreng Spesial', price: 35000, image: 'https://picsum.photos/seed/ng1/200/200', category: 'Rice' },
+    { id: 'm2', name: 'Mie Goreng Jawa', price: 30000, image: 'https://picsum.photos/seed/mg1/200/200', category: 'Noodles' },
+    { id: 'm3', name: 'Ayam Penyet', price: 28000, image: 'https://picsum.photos/seed/ap1/200/200', category: 'Chicken' },
+    { id: 'm4', name: 'Es Teh Manis', price: 5000, image: 'https://picsum.photos/seed/et1/200/200', category: 'Drinks' },
+    { id: 'm5', name: 'Es Jeruk Segar', price: 8000, image: 'https://picsum.photos/seed/ej1/200/200', category: 'Drinks' },
+    { id: 'm6', name: 'Soto Ayam', price: 25000, image: 'https://picsum.photos/seed/sa1/200/200', category: 'Soup' },
+  ],
+  'Bakso Pak Budi': [
+    { id: 'm7', name: 'Bakso Jumbo', price: 25000, image: 'https://picsum.photos/seed/bk1/200/200', category: 'Bakso' },
+    { id: 'm8', name: 'Bakso Urat', price: 30000, image: 'https://picsum.photos/seed/bu1/200/200', category: 'Bakso' },
+    { id: 'm9', name: 'Mie Ayam', price: 20000, image: 'https://picsum.photos/seed/ma1/200/200', category: 'Noodles' },
+    { id: 'm10', name: 'Es Teh', price: 5000, image: 'https://picsum.photos/seed/et2/200/200', category: 'Drinks' },
+  ],
+  'Kulit Asli': [
+    { id: 'p1', name: 'Leather Wallet', price: 250000, image: 'https://picsum.photos/seed/lw1/200/200', category: 'Wallets' },
+    { id: 'p2', name: 'Leather Belt', price: 180000, image: 'https://picsum.photos/seed/lb1/200/200', category: 'Belts' },
+    { id: 'p3', name: 'Card Holder', price: 120000, image: 'https://picsum.photos/seed/ch1/200/200', category: 'Accessories' },
+    { id: 'p4', name: 'Keychain Leather', price: 45000, image: 'https://picsum.photos/seed/kl1/200/200', category: 'Accessories' },
+    { id: 'p5', name: 'Laptop Sleeve', price: 350000, image: 'https://picsum.photos/seed/ls1/200/200', category: 'Bags' },
+  ],
+  'TechMax ID': [
+    { id: 'p6', name: 'Wireless Earbuds Pro', price: 450000, image: 'https://picsum.photos/seed/we1/200/200', category: 'Audio' },
+    { id: 'p7', name: 'USB-C Hub 7in1', price: 285000, image: 'https://picsum.photos/seed/uh1/200/200', category: 'Accessories' },
+    { id: 'p8', name: 'Phone Stand Magnetic', price: 95000, image: 'https://picsum.photos/seed/ps1/200/200', category: 'Accessories' },
+    { id: 'p9', name: 'Portable Charger 20K', price: 320000, image: 'https://picsum.photos/seed/pc1/200/200', category: 'Power' },
+  ],
+  _default: [
+    { id: 'g1', name: 'Service Package A', price: 150000, image: 'https://picsum.photos/seed/sp1/200/200', category: 'Services' },
+    { id: 'g2', name: 'Service Package B', price: 250000, image: 'https://picsum.photos/seed/sp2/200/200', category: 'Services' },
+    { id: 'g3', name: 'Premium Package', price: 400000, image: 'https://picsum.photos/seed/sp3/200/200', category: 'Premium' },
+  ],
+}
+
 const DEMO_REVIEW_DATA = [
   { id: 'r1', deal_title: 'Nasi Goreng Spesial', stars: 5, photo_url: 'https://picsum.photos/seed/rev1/200/200', caption: 'Enak banget! Porsi besar', reviewer_name: 'Sari', created_at: new Date(Date.now() - 86400000).toISOString() },
   { id: 'r2', deal_title: 'Nasi Goreng Spesial', stars: 4, photo_url: 'https://picsum.photos/seed/rev2/200/200', caption: 'Sambalnya mantap', reviewer_name: 'Budi', created_at: new Date(Date.now() - 172800000).toISOString() },
@@ -43,6 +79,51 @@ function useCountdown(endTime) {
 }
 
 // ── Single full-screen deal slide ─────────────────────────────────────────────
+function fmtRpShort(n) { return n >= 1000000 ? `${(n/1000000).toFixed(1).replace('.0','')}jt` : `Rp${(n??0).toLocaleString('id-ID')}` }
+
+// ── Seller menu/catalogue drawer ──────────────────────────────────────────────
+function SellerDrawer({ deal, open, onClose, onAddItem }) {
+  const items = SELLER_ITEMS[deal.seller_name] ?? SELLER_ITEMS._default
+  const isFood = deal.domain === 'food'
+  const title = isFood ? 'Menu' : 'Catalogue'
+  const categories = [...new Set(items.map(i => i.category))]
+
+  if (!open) return null
+
+  return (
+    <div className={styles.drawerOverlay} onClick={onClose}>
+      <div className={styles.drawer} onClick={e => e.stopPropagation()}>
+        <div className={styles.drawerHandle}><span /></div>
+        <div className={styles.drawerHeader}>
+          <div>
+            <span className={styles.drawerTitle}>{title}</span>
+            <span className={styles.drawerSeller}>{deal.seller_name}</span>
+          </div>
+          <button className={styles.drawerClose} onClick={onClose}>✕</button>
+        </div>
+
+        <div className={styles.drawerBody}>
+          {categories.map(cat => (
+            <div key={cat}>
+              <h4 className={styles.drawerCatLabel}>{cat}</h4>
+              <div className={styles.drawerGrid}>
+                {items.filter(i => i.category === cat).map(item => (
+                  <button key={item.id} className={styles.drawerItem} onClick={() => onAddItem?.(item, deal)}>
+                    <img src={item.image} alt="" className={styles.drawerItemImg} />
+                    <span className={styles.drawerItemName}>{item.name}</span>
+                    <span className={styles.drawerItemPrice}>{fmtRpShort(item.price)}</span>
+                    <span className={styles.drawerAddBtn}>+</span>
+                  </button>
+                ))}
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+  )
+}
+
 function DealSlide({ deal, isActive, onClaim, onChat, onViewSeller, onOpenMenu }) {
   const { h, m, s, expired, urgent } = useCountdown(deal.end_time)
   const pct = Math.round((deal.quantity_claimed / deal.quantity_available) * 100)
@@ -50,6 +131,7 @@ function DealSlide({ deal, isActive, onClaim, onChat, onViewSeller, onOpenMenu }
   const almostGone = pct >= 80
   const dealReviews = useMemo(() => DEMO_REVIEW_DATA.filter(r => r.deal_title === deal.title), [deal.title])
   const [reviewsOpen, setReviewsOpen] = useState(false)
+  const [menuOpen, setMenuOpen] = useState(false)
 
   return (
     <div className={styles.slide}>
@@ -76,12 +158,12 @@ function DealSlide({ deal, isActive, onClaim, onChat, onViewSeller, onOpenMenu }
           <span>{dealReviews.length || ''}</span>
           <span>Reviews</span>
         </button>
-        <button className={styles.sideBtn} onClick={() => onOpenMenu?.(deal)}>
+        <button className={styles.sideBtn} onClick={() => setMenuOpen(true)}>
           <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
             <rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/>
             <rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/>
           </svg>
-          <span>Menu</span>
+          <span>{deal.domain === 'food' ? 'Menu' : 'Catalogue'}</span>
         </button>
         <button className={styles.sideBtn} onClick={() => { try { navigator.share?.({ title: deal.title, text: `${deal.title} only ${fmtRp(deal.deal_price)}! 🔥`, url: window.location.href }) } catch {} }}>
           <svg width="26" height="26" viewBox="0 0 24 24" fill="#fff" stroke="none"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><path d="M8.59 13.51l6.83 3.98M15.41 6.51l-6.82 3.98" stroke="#fff" strokeWidth="1.5"/></svg>
@@ -205,6 +287,14 @@ function DealSlide({ deal, isActive, onClaim, onChat, onViewSeller, onOpenMenu }
         {/* Social proof */}
         <p className={styles.socialProof}>{Math.floor(Math.random() * 200 + 50)} people viewing this deal</p>
       </div>
+
+      {/* Seller menu/catalogue drawer */}
+      <SellerDrawer
+        deal={deal}
+        open={menuOpen}
+        onClose={() => setMenuOpen(false)}
+        onAddItem={(item, d) => { setMenuOpen(false); onChat?.(d) }}
+      />
     </div>
   )
 }

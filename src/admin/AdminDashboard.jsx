@@ -22,6 +22,7 @@ import WalletAdminTab from './tabs/WalletAdminTab'
 import MassageAdminTab from './tabs/MassageAdminTab'
 import ViolationsTab from './tabs/ViolationsTab'
 import PlaceSuggestionsTab from './tabs/PlaceSuggestionsTab'
+import DealHuntAdminTab from './tabs/DealHuntAdminTab'
 
 const LOGO = 'https://ik.imagekit.io/dateme/Logo%20with%20green%20map%20pin%20element.png'
 
@@ -49,6 +50,7 @@ const NAV = [
   { id: 'marketing',    icon: '📢', label: 'Marketing'    },
   { id: 'violations',   icon: '🛡️', label: 'Violations',  alert: true },
   { id: 'places',       icon: '📍', label: 'Places' },
+  { id: 'dealhunt',     icon: '🔥', label: 'Deal Hunt' },
 ]
 
 export default function AdminDashboard({ onLogout }) {
@@ -184,6 +186,7 @@ export default function AdminDashboard({ onLogout }) {
           {tab === 'massage'     && <MassageAdminTab />}
           {tab === 'violations'  && <ViolationsTab />}
           {tab === 'places'      && <PlaceSuggestionsTab />}
+          {tab === 'dealhunt'    && <DealHuntAdminTab />}
         </div>
       </div>
     </div>
