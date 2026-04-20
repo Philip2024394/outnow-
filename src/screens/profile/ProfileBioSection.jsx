@@ -11,13 +11,11 @@
  * // TODO: split into smaller per-category sections when dependencies are untangled
  */
 import { useRef } from 'react'
-import { ACTIVITY_TYPES, ACTIVITY_CATEGORIES } from '@/firebase/collections'
 import { LOOKING_FOR_OPTIONS, LANGUAGE_FLAGS, subCategoryText } from '@/utils/lookingForLabels'
-import { TRADE_ROLE_GROUPS } from '@/components/ui/TradeRoleSheet'
-import { WORLD_CUISINES } from '@/components/ui/CuisineSheet'
-import { SHOP_TYPE_OPTIONS } from '@/components/ui/ShopTypeSheet'
-import { getCategoryCopy } from '@/constants/categoryCopy'
 import DriverDocumentUpload from '@/components/driver/DriverDocumentUpload'
+import ProfileDatingFields from './ProfileDatingFields'
+import ProfileMakerFields from './ProfileMakerFields'
+import ProfileStatusSection from './ProfileStatusSection'
 import OnlineToggle from '@/components/driver/OnlineToggle'
 import styles from '../ProfileScreen.module.css'
 
@@ -658,72 +656,13 @@ export default function ProfileBioSection({
 
         {/* Dating profile fields */}
         {lookingFor === 'dating' && (
-          <>
-            <div className={styles.fieldRow}>
-              <div className={styles.fieldLabelRow}>
-                <label className={styles.fieldLabel}>Looking for</label>
-                <HelpTip text="What kind of connection are you hoping to make? Be honest — it helps everyone find the right match." />
-              </div>
-              <button type="button" className={styles.lookingForTrigger} onClick={() => setRelGoalOpen(true)}>
-                {relationshipGoal
-                  ? (() => {
-                      const opt = DATING_REL_GOAL_OPTIONS.find(o => o.value === relationshipGoal)
-                      return opt ? <span>{opt.emoji} {opt.label}</span> : <span>{relationshipGoal}</span>
-                    })()
-                  : <span className={styles.lookingForPlaceholder}>Tap to choose…</span>
-                }
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                  <polyline points="6 9 12 15 18 9" />
-                </svg>
-              </button>
-            </div>
-
-            <div className={styles.fieldRow}>
-              <div className={styles.fieldLabelRow}>
-                <label className={styles.fieldLabel}>Star Sign</label>
-                <HelpTip text="Your star sign is shown on your dating profile — optional but adds a personal touch." />
-              </div>
-              <button type="button" className={styles.lookingForTrigger} onClick={() => setStarSignOpen(true)}>
-                {starSign
-                  ? (() => {
-                      const s = DATING_STAR_SIGNS.find(o => o.value === starSign)
-                      return s ? <span>{s.emoji} {s.label}</span> : <span>{starSign}</span>
-                    })()
-                  : <span className={styles.lookingForPlaceholder}>Tap to choose…</span>
-                }
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                  <polyline points="6 9 12 15 18 9" />
-                </svg>
-              </button>
-              {starSign && (
-                <button type="button" className={styles.brandQuickBtn} onClick={() => setStarSign('')}>✕ Clear</button>
-              )}
-            </div>
-
-            <div className={styles.fieldRow}>
-              <div className={styles.fieldLabelRow}>
-                <label className={styles.fieldLabel}>Height</label>
-                <HelpTip text="Your height is shown as a chip on your dating card — optional." />
-              </div>
-              <input className={styles.fieldInput} value={height} onChange={e => setHeight(e.target.value)} placeholder="e.g. 172 cm or 5ft 7" />
-            </div>
-
-            <div className={styles.fieldRow}>
-              <div className={styles.fieldLabelRow}>
-                <label className={styles.fieldLabel}>Deal Breakers</label>
-                <HelpTip text="Be upfront about what you can't compromise on — it saves everyone time." />
-              </div>
-              <textarea
-                className={styles.fieldInput}
-                value={dealBreakers}
-                onChange={e => setDealBreakers(e.target.value.slice(0, 200))}
-                placeholder="e.g. No smokers, must love dogs…"
-                rows={3}
-                style={{ resize: 'none', lineHeight: 1.5 }}
-              />
-              <span style={{ fontSize: 11, color: 'rgba(255,255,255,0.3)', marginTop: 4 }}>{dealBreakers.length}/200</span>
-            </div>
-          </>
+          <ProfileDatingFields
+            relationshipGoal={relationshipGoal} setRelGoalOpen={setRelGoalOpen}
+            starSign={starSign} setStarSign={setStarSign} setStarSignOpen={setStarSignOpen}
+            height={height} setHeight={setHeight}
+            dealBreakers={dealBreakers} setDealBreakers={setDealBreakers}
+            HelpTip={HelpTip}
+          />
         )}
 
         {/* ── Voice Intro ── */}
@@ -850,314 +789,30 @@ export default function ProfileBioSection({
 
         {/* ── Maker / business fields ── */}
         {MAKER_CATEGORIES.includes(lookingFor) && (
-          <>
-            <div className={styles.fieldRow}>
-              <div className={styles.fieldLabelRow}>
-                <label className={styles.fieldLabel}>I am here to</label>
-                <HelpTip text="Are you selling products or services, buying, or both? This helps people understand your intent straight away." />
-              </div>
-              <button type="button" className={styles.lookingForTrigger} onClick={() => setTradeRoleOpen(true)}>
-                {tradeRole
-                  ? (() => {
-                      const opt = TRADE_ROLE_GROUPS.flatMap(g => g.options).find(o => o.value === tradeRole)
-                      return opt ? <span>{opt.emoji} {opt.label}</span> : <span>{tradeRole}</span>
-                    })()
-                  : <span className={styles.lookingForPlaceholder}>Tap to choose…</span>
-                }
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                  <polyline points="6 9 12 15 18 9" />
-                </svg>
-              </button>
-            </div>
-
-            {getCategoryCopy(lookingFor).pageType !== null && (
-              <div className={styles.fieldRow}>
-                <div className={styles.fieldLabelRow}>
-                  <label className={styles.fieldLabel}>Profile Tab Type</label>
-                  <HelpTip text="Choose what your profile tab shows visitors — your products, services, or a menu." />
-                </div>
-                <button type="button" className={styles.lookingForTrigger} onClick={() => setShopTypeOpen(true)}>
-                  {(() => {
-                    const effective = shopType ?? getCategoryCopy(lookingFor).pageType
-                    const opt = SHOP_TYPE_OPTIONS.find(o => o.value === effective)
-                    return opt ? <span>{opt.emoji} {opt.label}</span> : <span className={styles.lookingForPlaceholder}>Tap to choose…</span>
-                  })()}
-                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                    <polyline points="6 9 12 15 18 9" />
-                  </svg>
-                </button>
-                {shopType && (
-                  <button type="button" className={styles.brandQuickBtn} onClick={() => setShopType(null)}>↩ Reset to default</button>
-                )}
-              </div>
-            )}
-
-            {['restaurant','catering','bar_nightclub','hotel_accom','fresh_produce','food_drink'].includes(lookingFor) && (
-              <div className={styles.fieldRow}>
-                <div className={styles.fieldLabelRow}>
-                  <label className={styles.fieldLabel}>Cuisine Type</label>
-                  <HelpTip text="Let people know what type of food or cuisine you specialise in." />
-                </div>
-                <button type="button" className={styles.lookingForTrigger} onClick={() => setCuisineOpen(true)}>
-                  {cuisineType
-                    ? (() => {
-                        const c = WORLD_CUISINES.find(x => x.value === cuisineType)
-                        return c ? <span>{c.emoji} {c.label}</span> : <span>{cuisineType}</span>
-                      })()
-                    : <span className={styles.lookingForPlaceholder}>Select cuisine…</span>
-                  }
-                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                    <polyline points="6 9 12 15 18 9" />
-                  </svg>
-                </button>
-                {cuisineType && (
-                  <button type="button" className={styles.brandQuickBtn} onClick={() => setCuisineType(null)}>✕ Clear</button>
-                )}
-              </div>
-            )}
-
-            {['handmade','craft_supplies','art_craft','fashion','buy_sell'].includes(lookingFor) && (
-              <div className={styles.fieldRow}>
-                <div className={styles.fieldLabelRow}>
-                  <label className={styles.fieldLabel}>Target Audience</label>
-                  <HelpTip text="Who are your products made for?" />
-                </div>
-                <div className={styles.selectWrap}>
-                  <select
-                    className={styles.fieldSelect}
-                    value={Array.isArray(targetAudience) ? (targetAudience[0] ?? '') : (targetAudience ?? '')}
-                    onChange={e => setTargetAudience(e.target.value ? [e.target.value] : [])}
-                  >
-                    <option value="">Select audience…</option>
-                    <option value="all">All Ages</option>
-                    <option value="women">Women</option>
-                    <option value="men">Men</option>
-                    <option value="children">Children</option>
-                    <option value="gifts">Gifts</option>
-                    <option value="teens">Teens</option>
-                    <option value="babies">Babies &amp; Toddlers</option>
-                    <option value="elderly">Elderly</option>
-                    <option value="unisex">Unisex</option>
-                  </select>
-                  <svg className={styles.selectArrow} width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                    <polyline points="6 9 12 15 18 9" />
-                  </svg>
-                </div>
-              </div>
-            )}
-
-            <div className={styles.fieldRow}>
-              <div className={styles.fieldLabelRow}>
-                <label className={styles.fieldLabel}>Brand Name</label>
-                <HelpTip text="Type your brand name, or choose a quick option below." />
-              </div>
-              <input
-                className={styles.fieldInput}
-                value={brandName}
-                onChange={e => setBrandName(e.target.value)}
-                placeholder="Type your brand name…"
-                maxLength={50}
-              />
-              <div className={styles.brandQuickRow}>
-                {['Unbranded', 'On Request'].map(opt => (
-                  <button
-                    key={opt}
-                    type="button"
-                    className={`${styles.brandQuickBtn} ${brandName === opt ? styles.brandQuickBtnActive : ''}`}
-                    onClick={() => setBrandName(brandName === opt ? '' : opt)}
-                  >
-                    {opt}
-                  </button>
-                ))}
-              </div>
-            </div>
-
-            <div className={styles.fieldRow}>
-              <div className={styles.fieldLabelRow}>
-                <label className={styles.fieldLabel}>Price Range</label>
-                <HelpTip text="Set a min and max price so visitors know what to expect before reaching out." />
-              </div>
-              <div className={styles.priceRangeRow}>
-                <input className={styles.fieldInput} value={priceMin} onChange={e => setPriceMin(e.target.value)} placeholder="Min price" maxLength={30} />
-                <span className={styles.priceRangeSep}>–</span>
-                <input className={styles.fieldInput} value={priceMax} onChange={e => setPriceMax(e.target.value)} placeholder="Max price" maxLength={30} />
-              </div>
-            </div>
-
-            <div className={styles.fieldRow}>
-              <div className={styles.fieldLabelRow}>
-                <label className={styles.fieldLabel}>Market</label>
-                <HelpTip text="Let people know whether you sell locally, export internationally, or both." />
-              </div>
-              <div className={styles.selectWrap}>
-                <select className={styles.fieldSelect} value={market} onChange={e => setMarket(e.target.value)}>
-                  <option value="">Select market…</option>
-                  <option value="Local">Local</option>
-                  <option value="Export">Export</option>
-                  <option value="Local & Export">Local &amp; Export</option>
-                </select>
-                <svg className={styles.selectArrow} width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                  <polyline points="6 9 12 15 18 9" />
-                </svg>
-              </div>
-            </div>
-
-            {/* Business Hours */}
-            <div className={styles.fieldRow}>
-              <div className={styles.fieldLabelRow}>
-                <label className={styles.fieldLabel}>Business Hours</label>
-                <HelpTip text="Set your hours for each day. Outside these hours your status shows as Invite Out automatically." />
-              </div>
-              <div className={styles.hoursGrid}>
-                {DAYS.map(day => {
-                  const h = businessHours[day] ?? DEFAULT_HOURS
-                  return (
-                    <div key={day} className={styles.hoursRow}>
-                      <span className={`${styles.hoursDay} ${h.closed ? styles.hoursDayClosed : ''}`}>{day}</span>
-                      {h.closed ? (
-                        <span className={styles.hoursClosedLabel}>Closed</span>
-                      ) : (
-                        <>
-                          <input type="time" className={styles.hoursInput} value={h.open} onChange={e => updateHour(day, 'open', e.target.value)} />
-                          <span className={styles.hoursSep}>–</span>
-                          <input type="time" className={styles.hoursInput} value={h.close} onChange={e => updateHour(day, 'close', e.target.value)} />
-                        </>
-                      )}
-                      <button
-                        type="button"
-                        className={`${styles.hoursClosedBtn} ${h.closed ? styles.hoursClosedBtnActive : ''}`}
-                        onClick={() => updateHour(day, 'closed', !h.closed)}
-                      >
-                        {h.closed ? 'Open' : 'Closed'}
-                      </button>
-                    </div>
-                  )
-                })}
-              </div>
-              <p className={styles.hoursHint}>
-                Outside these hours your status will automatically show as <strong>Invite Out</strong>
-              </p>
-            </div>
-          </>
+          <ProfileMakerFields
+            lookingFor={lookingFor}
+            tradeRole={tradeRole} setTradeRoleOpen={setTradeRoleOpen}
+            shopType={shopType} setShopType={setShopType} setShopTypeOpen={setShopTypeOpen}
+            cuisineType={cuisineType} setCuisineType={setCuisineType} setCuisineOpen={setCuisineOpen}
+            targetAudience={targetAudience} setTargetAudience={setTargetAudience}
+            brandName={brandName} setBrandName={setBrandName}
+            priceMin={priceMin} setPriceMin={setPriceMin}
+            priceMax={priceMax} setPriceMax={setPriceMax}
+            market={market} setMarket={setMarket}
+            businessHours={businessHours} setBusinessHours={setBusinessHours}
+            HelpTip={HelpTip}
+          />
         )}
       </div>
 
-      {/* ── Let's Meet With accordion — non-maker, non-driver ── */}
-      {lookingFor && !MAKER_CATEGORIES.includes(lookingFor) && lookingFor !== 'car_taxi' && lookingFor !== 'bike_ride' && (
-        <div className={styles.section}>
-          <div className={styles.sectionLabelRow}>
-            <span className={styles.sectionLabel}>Let's Meet With</span>
-            <HelpTip text="Pick what best describes your plans. People with matching interests will find you on the map." />
-          </div>
-          <div className={styles.accordionList}>
-            {ACTIVITY_CATEGORIES.map(cat => {
-              const items = ACTIVITY_TYPES.filter(a => a.category === cat.id)
-              if (!items.length) return null
-              const isOpen   = expandedCategory === cat.id
-              const selected = items.find(a => a.id === selectedActivity)
-              return (
-                <div key={cat.id} className={`${styles.accordionItem} ${selected ? styles.accordionItemSelected : ''}`}>
-                  <button
-                    className={styles.accordionHeader}
-                    onClick={() => setExpandedCategory(isOpen ? null : cat.id)}
-                  >
-                    <span className={styles.accordionLabel}>{cat.label}</span>
-                    {selected && <span className={styles.accordionPick}>{selected.label}</span>}
-                    <svg
-                      className={`${styles.accordionChevron} ${isOpen ? styles.chevronOpen : ''}`}
-                      width="16" height="16" viewBox="0 0 24 24" fill="none"
-                      stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"
-                    >
-                      <polyline points="6 9 12 15 18 9" />
-                    </svg>
-                  </button>
-                  {isOpen && (
-                    <div className={styles.accordionBody}>
-                      {items.map(a => (
-                        <button
-                          key={a.id}
-                          className={`${styles.accordionChip} ${selectedActivity === a.id ? styles.accordionChipActive : ''}`}
-                          onClick={() => {
-                            setSelectedActivity(prev => prev === a.id ? null : a.id)
-                            setExpandedCategory(null)
-                          }}
-                        >
-                          {a.label}
-                        </button>
-                      ))}
-                    </div>
-                  )}
-                </div>
-              )
-            })}
-          </div>
-        </div>
-      )}
-
-      {/* ── Set Your Status ── */}
-      <div className={styles.section}>
-        <div className={styles.sectionLabelRow}>
-          <span className={styles.sectionLabel}>Set Your Status</span>
-          <HelpTip text="Let people know if you're ready to meet. I'm Out — you're out right now. Invite Out — you want someone to invite you out. Later Out — set a time for when you'll be going out." />
-        </div>
-        <p className={styles.activityHint}>Let people know you're available — your status is set when you save your profile</p>
-
-        <div className={styles.particleContainer}>
-          {particles.map(p => (
-            <span
-              key={p.id}
-              className={styles.particle}
-              style={{ left: p.left, animationDuration: p.dur, animationDelay: p.delay }}
-            >
-              {p.char}
-            </span>
-          ))}
-
-          <div className={styles.statusBtnRow}>
-            <button
-              className={`${styles.statusBtn} ${pendingStatus === 'im_out' ? styles.statusBtnGreen : mySession?.status === 'active' && !pendingStatus ? styles.statusBtnGreen : ''}`}
-              onClick={() => handleStatusClick('im_out')}
-            >
-              <span className={`${styles.statusDot} ${styles.statusDotGreen}`}>
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-                  <path d="M12 10a2 2 0 0 0-2 2c0 1.02-.1 2.51-.26 4"/><path d="M14 13.12c0 2.38 0 6.38-1 8.88"/><path d="M17.29 21.02c.12-.6.43-2.3.5-3.02"/><path d="M2 12a10 10 0 0 1 18-6"/><path d="M2 16h.01"/><path d="M21.8 16c.2-2 .131-5.354 0-6"/><path d="M5 19.5C5.5 18 6 15 6 12a6 6 0 0 1 .34-2"/><path d="M8.65 22c.21-.66.45-1.32.57-2"/><path d="M9 6.8a6 6 0 0 1 9 5.2v2"/>
-                </svg>
-              </span>
-              <span className={styles.statusBtnLabel}>I&apos;m Out</span>
-            </button>
-            <button
-              className={`${styles.statusBtn} ${pendingStatus === 'invite_out' ? styles.statusBtnYellow : mySession?.status === 'invite_out' && !pendingStatus ? styles.statusBtnYellow : ''}`}
-              onClick={() => handleStatusClick('invite_out')}
-            >
-              <span className={`${styles.statusDot} ${styles.statusDotYellow}`}>
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-                  <path d="M12 10a2 2 0 0 0-2 2c0 1.02-.1 2.51-.26 4"/><path d="M14 13.12c0 2.38 0 6.38-1 8.88"/><path d="M17.29 21.02c.12-.6.43-2.3.5-3.02"/><path d="M2 12a10 10 0 0 1 18-6"/><path d="M2 16h.01"/><path d="M21.8 16c.2-2 .131-5.354 0-6"/><path d="M5 19.5C5.5 18 6 15 6 12a6 6 0 0 1 .34-2"/><path d="M8.65 22c.21-.66.45-1.32.57-2"/><path d="M9 6.8a6 6 0 0 1 9 5.2v2"/>
-                </svg>
-              </span>
-              <span className={styles.statusBtnLabel}>Invite Out</span>
-            </button>
-            <button
-              className={`${styles.statusBtn} ${pendingStatus === 'later_out' ? styles.statusBtnOrange : mySession?.status === 'scheduled' && !pendingStatus ? styles.statusBtnOrange : ''}`}
-              onClick={() => handleStatusClick('later_out')}
-            >
-              <span className={`${styles.statusDot} ${styles.statusDotOrange}`}>
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-                  <path d="M12 10a2 2 0 0 0-2 2c0 1.02-.1 2.51-.26 4"/><path d="M14 13.12c0 2.38 0 6.38-1 8.88"/><path d="M17.29 21.02c.12-.6.43-2.3.5-3.02"/><path d="M2 12a10 10 0 0 1 18-6"/><path d="M2 16h.01"/><path d="M21.8 16c.2-2 .131-5.354 0-6"/><path d="M5 19.5C5.5 18 6 15 6 12a6 6 0 0 1 .34-2"/><path d="M8.65 22c.21-.66.45-1.32.57-2"/><path d="M9 6.8a6 6 0 0 1 9 5.2v2"/>
-                </svg>
-              </span>
-              <span className={styles.statusBtnLabel}>Later Out</span>
-            </button>
-          </div>
-        </div>
-
-        {pendingStatus && (
-          <p className={styles.statusSelectedNote}>
-            {pendingStatus === 'im_out'     && '🚀 You\'ll be set live — save your profile to continue to location setup'}
-            {pendingStatus === 'invite_out' && '💌 You\'ll appear as wanting an invite — save your profile to confirm'}
-            {pendingStatus === 'later_out'  && '🕐 You\'re going out later — save your profile to set your time & place'}
-          </p>
-        )}
-      </div>
+      <ProfileStatusSection
+        lookingFor={lookingFor} makerCategories={MAKER_CATEGORIES}
+        selectedActivity={selectedActivity} setSelectedActivity={setSelectedActivity}
+        expandedCategory={expandedCategory} setExpandedCategory={setExpandedCategory}
+        pendingStatus={pendingStatus} particles={particles}
+        handleStatusClick={handleStatusClick} mySession={mySession}
+        HelpTip={HelpTip}
+      />
     </>
   )
 }

@@ -23,6 +23,8 @@ import { isSellerOpen, getNextOpenTime, formatCountdown as fmtHoursCountdown } f
 import BankDetailsCard from '@/components/orders/BankDetailsCard'
 import PaymentVerificationCard from '@/components/orders/PaymentVerificationCard'
 import OrderProcessingOverlay from '@/components/orders/OrderProcessingOverlay'
+import ChatHeader from './ChatHeader'
+import CommissionLockBanner from './CommissionLockBanner'
 import styles from './ChatWindow.module.css'
 
 const IS_DEMO = import.meta.env.VITE_DEMO_MODE === 'true'
@@ -638,88 +640,16 @@ export default function ChatWindow({ conversation: conv, allConversations = [], 
     <div className={`${styles.window} ${themeConfig ? styles[themeConfig.windowClass] : ''}`}>
 
       {/* ── Header ── */}
-      <div className={`${styles.header} ${themeConfig ? styles[themeConfig.headerClass] : ''}`}>
-        {/* Left: avatar + name + online status */}
-        <div className={styles.headerUser}>
-          <div className={styles.headerAvatar}>
-            {conv.photoURL
-              ? <img src={conv.photoURL} alt={conv.displayName} className={styles.headerAvatarImg} />
-              : <span className={styles.headerAvatarEmoji}>{conv.emoji}</span>
-            }
-            {/* Presence dot — green online, red offline */}
-            <span className={`${styles.presenceDot} ${isOnline ? styles.presenceDotOnline : styles.presenceDotOffline}`} />
-          </div>
-          <div className={styles.headerInfo}>
-            <span className={styles.headerName}>{conv.displayName}</span>
-            {/* Online / Offline label */}
-            <span className={`${styles.presenceLabel} ${isOnline ? styles.presenceLabelOnline : styles.presenceLabelOffline}`}>
-              {isOnline ? 'Online' : 'Offline'}
-            </span>
-          </div>
-        </div>
-
-        <div className={styles.headerRight}>
-
-          {/* Chat switcher — only if there are other convs */}
-          {otherConvs.length > 0 && (
-            <button
-              className={`${styles.switcherBtn} ${switcherOpen ? styles.switcherBtnActive : ''}`}
-              onClick={() => setSwitcherOpen(v => !v)}
-              aria-label="Switch chat"
-            >
-              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
-                <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
-              </svg>
-              <span>{otherConvs.length}</span>
-              {otherConvs.some(c => c.unread > 0) && <span className={styles.switcherBadge} />}
-            </button>
-          )}
-
-          {/* ID Check button */}
-          {videoAvailable && videoPhase === 'idle' && (
-            <button
-              className={styles.idCheckBtn}
-              onClick={sendVideoRequest}
-              aria-label="Request live ID check"
-            >
-              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
-                <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
-              </svg>
-              <span>ID Check</span>
-            </button>
-          )}
-
-          {/* Share contact button */}
-          <button
-            className={styles.shareBtn}
-            onClick={() => setShareOpen(true)}
-            aria-label="Share contact"
-          >
-            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
-              <circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/>
-              <line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/>
-              <line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/>
-            </svg>
-            <span>Share</span>
-          </button>
-
-          {/* Back button */}
-          <button className={styles.backBtn} onClick={onBack} aria-label="Back">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-              <polyline points="9 18 15 12 9 6"/>
-            </svg>
-          </button>
-        </div>
-
-        {/* Chat notice — social details behind paywall */}
-        {isDatingTheme && (
-          <div className={styles.headerNoticeRow}>
-            {contactUnlocked
-              ? '✅ Contact details unlocked'
-              : '💬 Free chat · Unlock to view social details'}
-          </div>
-        )}
-      </div>
+      <ChatHeader
+        conv={conv} isOnline={isOnline}
+        switcherOpen={switcherOpen} setSwitcherOpen={setSwitcherOpen}
+        otherConvs={otherConvs}
+        videoAvailable={videoAvailable} videoPhase={videoPhase}
+        sendVideoRequest={sendVideoRequest}
+        setShareOpen={setShareOpen} onBack={onBack}
+        isDatingTheme={isDatingTheme} contactUnlocked={contactUnlocked}
+        themeConfig={themeConfig}
+      />
 
       {/* ── Chat switcher slide-out panel ── */}
       {switcherOpen && (
@@ -1013,90 +943,13 @@ export default function ChatWindow({ conversation: conv, allConversations = [], 
 
       {/* ── Commission lock banner with payment flow (seller only) ── */}
       {commissionLocked && isSeller && (
-        <div style={{
-          padding:'14px 16px', background:'linear-gradient(135deg, rgba(239,68,68,0.12), rgba(245,158,11,0.08))',
-          borderTop:'1px solid rgba(239,68,68,0.25)', display:'flex', flexDirection:'column', gap:10,
-        }}>
-          <div style={{ display:'flex', alignItems:'center', gap:8 }}>
-            <span style={{ fontSize:20 }}>💰</span>
-            <div>
-              <div style={{ fontSize:13, fontWeight:800, color:'#f59e0b' }}>Commission Due</div>
-              <div style={{ fontSize:11, color:'rgba(255,255,255,0.5)' }}>
-                Pay to unlock chat and continue selling
-              </div>
-            </div>
-          </div>
-
-          {commissionBalance && (
-            <div style={{
-              display:'flex', gap:8, flexWrap:'wrap',
-            }}>
-              <div style={{ flex:1, minWidth:100, padding:'8px 12px', borderRadius:8, background:'rgba(0,0,0,0.3)', textAlign:'center' }}>
-                <div style={{ fontSize:16, fontWeight:800, color:'#ef4444', fontFamily:'monospace' }}>
-                  Rp {commissionBalance.totalOwed.toLocaleString('id-ID')}
-                </div>
-                <div style={{ fontSize:10, color:'rgba(255,255,255,0.35)', marginTop:2 }}>Amount Due</div>
-              </div>
-              <div style={{ flex:1, minWidth:100, padding:'8px 12px', borderRadius:8, background:'rgba(0,0,0,0.3)', textAlign:'center' }}>
-                <div style={{ fontSize:16, fontWeight:800, color:'#f59e0b', fontFamily:'monospace' }}>
-                  {commissionBalance.pendingCount + commissionBalance.overdueCount}
-                </div>
-                <div style={{ fontSize:10, color:'rgba(255,255,255,0.35)', marginTop:2 }}>Unpaid Orders</div>
-              </div>
-            </div>
-          )}
-
-          {/* Admin bank details for commission payment */}
-          <div style={{
-            padding:'10px 12px', borderRadius:8, background:'rgba(0,229,255,0.06)',
-            border:'1px solid rgba(0,229,255,0.15)',
-          }}>
-            <div style={{ fontSize:11, fontWeight:700, color:'#00E5FF', marginBottom:6 }}>Transfer commission to:</div>
-            <div style={{ display:'flex', justifyContent:'space-between', fontSize:12, color:'rgba(255,255,255,0.7)', marginBottom:3 }}>
-              <span style={{ color:'rgba(255,255,255,0.4)' }}>Bank</span>
-              <span style={{ fontWeight:700 }}>BCA</span>
-            </div>
-            <div style={{ display:'flex', justifyContent:'space-between', fontSize:12, color:'rgba(255,255,255,0.7)', marginBottom:3, cursor:'pointer' }}
-              onClick={() => navigator.clipboard?.writeText('8720839201')}>
-              <span style={{ color:'rgba(255,255,255,0.4)' }}>Account</span>
-              <span style={{ fontWeight:700, fontFamily:'monospace' }}>8720839201 <span style={{ fontSize:9, color:'rgba(0,229,255,0.5)' }}>copy</span></span>
-            </div>
-            <div style={{ display:'flex', justifyContent:'space-between', fontSize:12, color:'rgba(255,255,255,0.7)' }}>
-              <span style={{ color:'rgba(255,255,255,0.4)' }}>Name</span>
-              <span style={{ fontWeight:700 }}>Indoo Admin</span>
-            </div>
-          </div>
-
-          {!commissionProofSent ? (
-            <>
-              <input ref={commissionProofRef} type="file" accept="image/*" capture="environment"
-                style={{ display:'none' }} onChange={handleCommissionProofUpload} />
-              <button
-                onClick={() => commissionProofRef.current?.click()}
-                disabled={commissionProofUploading}
-                style={{
-                  padding:'12px 0', borderRadius:10, width:'100%',
-                  background: commissionProofUploading ? 'rgba(255,255,255,0.05)' : 'rgba(34,197,94,0.15)',
-                  border:'1px solid rgba(34,197,94,0.3)', color:'#22c55e',
-                  fontSize:14, fontWeight:800, cursor: commissionProofUploading ? 'default' : 'pointer',
-                  fontFamily:'inherit',
-                }}
-              >
-                {commissionProofUploading ? 'Uploading...' : 'Upload Payment Screenshot & Send to Admin'}
-              </button>
-            </>
-          ) : (
-            <div style={{
-              padding:'12px 16px', borderRadius:10, textAlign:'center',
-              background:'rgba(34,197,94,0.1)', border:'1px solid rgba(34,197,94,0.25)',
-            }}>
-              <div style={{ fontSize:13, fontWeight:800, color:'#22c55e' }}>Payment proof sent to admin</div>
-              <div style={{ fontSize:11, color:'rgba(255,255,255,0.4)', marginTop:4 }}>
-                Your chat will unlock once admin verifies your payment. Buyer messages continue loading below.
-              </div>
-            </div>
-          )}
-        </div>
+        <CommissionLockBanner
+          commissionBalance={commissionBalance}
+          commissionProofSent={commissionProofSent}
+          commissionProofUploading={commissionProofUploading}
+          commissionProofRef={commissionProofRef}
+          handleCommissionProofUpload={handleCommissionProofUpload}
+        />
       )}
 
       {/* ── Blocked banner ── */}

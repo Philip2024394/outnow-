@@ -430,7 +430,9 @@ export default function ShopSearchScreen({ onClose, userCity, userCountry, giftF
     {/* ── Categories page (M1b) ── */}
     <div style={{
       position: 'fixed', inset: 0, zIndex: 120,
-      background: 'linear-gradient(180deg, #0a0a0c 0%, #0d0d0f 50%, #0a0a0c 100%)',
+      background: '#0a0a0c',
+      backgroundImage: 'url("https://ik.imagekit.io/nepgaxllc/UntitledsssaaddddddddDADSASDSDASSSsdfsdf.png?updatedAt=1776625639213")',
+      backgroundSize: 'cover', backgroundPosition: 'center', backgroundRepeat: 'no-repeat',
       display: showCategories ? 'flex' : 'none', flexDirection: 'column', overflow: 'hidden',
     }}>
       <MktBadge num="M1b" label="Categories" />
@@ -458,12 +460,12 @@ export default function ShopSearchScreen({ onClose, userCity, userCountry, giftF
         ].map((item, i) => (
           <button key={i} onClick={item.onClick} style={{
             display: 'flex', flexDirection: 'row', alignItems: 'center', gap: 14,
-            padding: '18px 16px', width: '100%',
-            background: 'rgba(0,0,0,0.45)', backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)',
-            border: '1.5px solid rgba(141,198,63,0.08)', borderRadius: 20,
+            padding: '18px 16px', width: '100%', boxSizing: 'border-box',
+            background: 'rgba(0,0,0,0.65)', backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)',
+            border: '1.5px solid rgba(141,198,63,0.12)', borderRadius: 20,
             cursor: 'pointer', fontFamily: 'inherit', textAlign: 'left',
             position: 'relative', overflow: 'hidden',
-            boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.04), 0 4px 20px rgba(0,0,0,0.3)',
+            boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.06), 0 4px 20px rgba(0,0,0,0.4)',
             transition: 'transform 0.25s cubic-bezier(0.34,1.2,0.64,1), border-color 0.3s',
             WebkitTapHighlightColor: 'transparent',
           }}
@@ -480,18 +482,18 @@ export default function ShopSearchScreen({ onClose, userCity, userCountry, giftF
             </div>
 
             {/* Text */}
-            <div style={{ flex: 1, minWidth: 0 }}>
+            <div style={{ flex: 1, minWidth: 0, overflow: 'hidden' }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 3 }}>
-                <span style={{ fontSize: 17, fontWeight: 900, color: '#fff' }}>{item.label}</span>
-                <span style={{ fontSize: 12, fontWeight: 800, color: '#FFD700' }}>★ {item.rating}</span>
+                <span style={{ fontSize: 17, fontWeight: 900, color: '#fff', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{item.label}</span>
+                <span style={{ fontSize: 12, fontWeight: 800, color: '#FFD700', flexShrink: 0 }}>★ {item.rating}</span>
               </div>
-              <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.35)', fontWeight: 600, marginBottom: 6 }}>{item.sub}</div>
+              <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.45)', fontWeight: 600, marginBottom: 6, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{item.sub}</div>
               <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                <span style={{ padding: '3px 10px', borderRadius: 8, background: item.live ? 'rgba(239,68,68,0.12)' : 'rgba(141,198,63,0.1)', border: item.live ? '1px solid rgba(239,68,68,0.25)' : '1px solid rgba(141,198,63,0.2)', fontSize: 11, fontWeight: 800, color: item.live ? '#EF4444' : '#8DC63F', display: 'flex', alignItems: 'center', gap: 4 }}>
+                <span style={{ padding: '3px 10px', borderRadius: 8, background: item.live ? 'rgba(239,68,68,0.12)' : 'rgba(141,198,63,0.1)', border: item.live ? '1px solid rgba(239,68,68,0.25)' : '1px solid rgba(141,198,63,0.2)', fontSize: 11, fontWeight: 800, color: item.live ? '#EF4444' : '#8DC63F', display: 'flex', alignItems: 'center', gap: 4, flexShrink: 0 }}>
                   {item.live && <span style={{ width: 5, height: 5, borderRadius: '50%', background: '#EF4444', animation: 'livePulse 1.5s ease-in-out infinite' }} />}
                   {item.count}
                 </span>
-                <span style={{ display: 'flex', alignItems: 'center', gap: 3 }}>
+                <span style={{ display: 'flex', alignItems: 'center', gap: 3, flexShrink: 0 }}>
                   <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#8DC63F" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
                   <span style={{ fontSize: 11, fontWeight: 700, color: '#8DC63F' }}>Enter</span>
                 </span>

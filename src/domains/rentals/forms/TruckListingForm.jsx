@@ -5,147 +5,13 @@ import { TextField, NumberField, SelectField, PillSelect, ToggleField, TextArea,
 import styles from '../rentalFormStyles.module.css'
 import showroomStyles from './MotorbikeShowroom.module.css'
 import { PickerField, SettingsDrawer, ProcessingStep, SuccessStep, MyListingsPanel, RentalTermsSection, AgreementEditorPopup, FormHeader } from './shared/ListingFormShared'
-
-/* ══════════════════════════════════════════════════════════════════════════════
-   TRUCK BRANDS DATABASE
-   ══════════════════════════════════════════════════════════════════════════════ */
-const TRUCK_BRANDS = {
-  'Suzuki':   ['Carry Pickup'],
-  'Daihatsu': ['Gran Max'],
-  'Isuzu':    ['Elf', 'Traga', 'Giga'],
-  'Mitsubishi': ['Colt Diesel', 'L300', 'Fuso'],
-  'Toyota':   ['Hilux', 'Dyna'],
-  'Hino':     ['Dutro', 'Ranger', '500'],
-  'UD Trucks': ['Kuzer', 'Quester'],
-}
-
-const ALL_MODELS = Object.entries(TRUCK_BRANDS).flatMap(([brand, models]) => models.map(m => ({ brand, model: m })))
-function findBrandByModel(v) { if (!v) return ''; const q = v.toLowerCase(); const m = ALL_MODELS.find(x => x.model.toLowerCase() === q || x.model.toLowerCase().startsWith(q)); return m?.brand ?? '' }
-function getModelSuggestions(v) { if (!v || v.length < 2) return []; const q = v.toLowerCase(); return ALL_MODELS.filter(m => m.model.toLowerCase().includes(q)).slice(0, 6) }
-
-const CC_OPTIONS = ['1500','2400','2500','2800','3000','3900','4000','4600','5000','5200','5900','6400','7700','8000','10000','12000']
-const TRANS = ['Manual', 'Automatic', 'Semi-Auto']
-const FUEL_POLICY = ['Fuel Included', 'Return Full', 'Pay Per Use']
-const FUEL_TYPE = ['Diesel', 'Petrol']
-const CONDITIONS = ['New', 'Like New', 'Good', 'Fair']
-const COLORS = ['White', 'Blue', 'Red', 'Yellow', 'Silver', 'Grey', 'Green', 'Orange', 'Black', 'Custom']
-const COLOR_HEX = { Black: '#111', White: '#eee', Red: '#e53e3e', Blue: '#3b82f6', Green: '#22c55e', Yellow: '#eab308', Silver: '#a8a8a8', Grey: '#6b6b6b', Orange: '#f97316', Custom: '#8DC63F' }
-const LICENSE = ['SIM B1 (Truck)', 'SIM B2 (Heavy)', 'International']
-const MIN_RENTAL = ['1 day', '2 days', '3 days', '1 week', '1 month']
-const PAYLOAD_OPTIONS = ['500kg', '750kg', '1 ton', '2.5 ton', '5 ton', '8 ton', '10 ton+']
-const TRUCK_TYPES = ['Pickup', 'Box Truck', 'Flatbed', 'Dump Truck', 'Double Cab', 'Refrigerated', 'Tanker']
-const BOX_SIZES = ['S', 'M', 'L', 'XL']
-const INSURANCE_OPTIONS = ['Cargo Insurance', 'Vehicle Insurance', 'Third Party', 'None']
-
-function generateRef() { return 'TRCK-' + Math.random().toString(36).substring(2, 6).toUpperCase() + Math.floor(1000 + Math.random() * 9000) }
-
-
-
-/* ══════════════════════════════════════════════════════════════════════════════
-   TRUCK SHOWROOM — Stage with lighting, swipeable carousel, stat badges
-   ══════════════════════════════════════════════════════════════════════════════ */
-function TruckShowroom({ brand, model, payload, truckType, onSelectTruck }) {
-  const scrollRef = useRef(null)
-  const [activeIdx, setActiveIdx] = useState(0)
-  const lastFilledRef = useRef(-1)
-  const totalTrucks = TRUCK_DIRECTORY.length
-
-  // Triple the array for infinite loop effect
-  const displayTrucks = [...TRUCK_DIRECTORY, ...TRUCK_DIRECTORY, ...TRUCK_DIRECTORY]
-
-  // Start in the middle set on mount
-  useEffect(() => {
-    if (scrollRef.current) {
-      scrollRef.current.scrollLeft = totalTrucks * scrollRef.current.offsetWidth
-    }
-  }, [])
-
-  const handleScroll = () => {
-    if (!scrollRef.current) return
-    const el = scrollRef.current
-    const idx = Math.round(el.scrollLeft / el.offsetWidth)
-    const realIdx = idx % totalTrucks
-    setActiveIdx(realIdx)
-
-    // Auto-fill on swipe
-    if (realIdx !== lastFilledRef.current && TRUCK_DIRECTORY[realIdx]) {
-      lastFilledRef.current = realIdx
-      onSelectTruck?.(TRUCK_DIRECTORY[realIdx])
-    }
-
-    // Loop: if scrolled to start or end, jump to middle set
-    if (idx <= 2) {
-      el.scrollLeft = (totalTrucks + idx) * el.offsetWidth
-    } else if (idx >= totalTrucks * 2 - 2) {
-      el.scrollLeft = (totalTrucks + (idx - totalTrucks * 2)) * el.offsetWidth
-    }
-  }
-
-  const currentTruck = TRUCK_DIRECTORY[activeIdx]
-  const isSelected = currentTruck && brand && model && currentTruck.name.toLowerCase().includes(model.toLowerCase())
-
-  return (
-    <div className={showroomStyles.stage}>
-
-      <div className={showroomStyles.spotlightCenter} />
-      <div className={showroomStyles.spotlightLeft} />
-      <div className={showroomStyles.spotlightRight} />
-
-      {/* Truck carousel — all trucks, swipeable */}
-      <div ref={scrollRef} className={showroomStyles.carousel} onScroll={handleScroll}>
-        {displayTrucks.map((truck, i) => (
-          <div key={`${truck.id}-${i}`} className={showroomStyles.bikeSlide} onClick={() => onSelectTruck?.(truck)}>
-            <img src={truck.image} alt={truck.name} className={showroomStyles.bikeImg} style={{ height: 120, maxWidth: '80%', marginTop: 30 }} />
-            <div className={showroomStyles.floorGlow} />
-          </div>
-        ))}
-      </div>
-
-      {/* Tap to select hint */}
-      {!isSelected && (
-        <div style={{ textAlign: 'center', padding: '0 0 4px', fontSize: 11, color: 'rgba(141,198,63,0.4)', fontWeight: 600 }}>
-          ← Swipe to browse · Tap to select →
-        </div>
-      )}
-
-      {/* Truck name + specs in one container */}
-      <div className={showroomStyles.bikeName}>
-        <span className={showroomStyles.bikeNameBrand}>{currentTruck?.name.split(' ')[0] ?? ''}</span>
-        <span className={showroomStyles.bikeNameModel}>{currentTruck?.name.split(' ').slice(1).join(' ') ?? ''}</span>
-        <div style={{ fontSize: 13, fontWeight: 600, color: 'rgba(255,255,255,0.45)', marginTop: 4 }}>{currentTruck?.cc}cc · {currentTruck?.type} · {currentTruck?.payload}</div>
-      </div>
-
-
-    </div>
-  )
-}
-
-/* ══════════════════════════════════════════════════════════════════════════════
-   INCLUDED ITEMS — visual cards for truck equipment
-   ══════════════════════════════════════════════════════════════════════════════ */
-function IncludedBundle({ tarpaulin, ropeSet, toolKit, gps, dashCam }) {
-  const items = [
-    { icon: '🛡️', label: 'Tarpaulin', value: tarpaulin, sub: tarpaulin ? 'Included' : 'Not included' },
-    { icon: '🪢', label: 'Rope Set', value: ropeSet, sub: ropeSet ? 'Included' : 'Not included' },
-    { icon: '🔧', label: 'Tool Kit', value: toolKit, sub: toolKit ? 'Included' : 'Not included' },
-    { icon: '📡', label: 'GPS Tracker', value: gps, sub: gps ? 'Included' : 'Not included' },
-    { icon: '📹', label: 'Dash Cam', value: dashCam, sub: dashCam ? 'Included' : 'Not included' },
-  ]
-  return (
-    <div className={showroomStyles.bundleGrid}>
-      {items.map(item => {
-        const active = item.value && item.value !== '0' && item.value !== false
-        return (
-          <div key={item.label} className={`${showroomStyles.bundleCard} ${active ? showroomStyles.bundleCardActive : ''}`}>
-            <span className={showroomStyles.bundleIcon}>{item.icon}</span>
-            <span className={showroomStyles.bundleLabel}>{item.label}</span>
-            <span className={showroomStyles.bundleSub}>{item.sub}</span>
-          </div>
-        )
-      })}
-    </div>
-  )
-}
+import {
+  TRUCK_BRANDS, ALL_MODELS, findBrandByModel, getModelSuggestions,
+  CC_OPTIONS, TRANS, FUEL_POLICY, FUEL_TYPE, CONDITIONS, COLORS, COLOR_HEX,
+  LICENSE, MIN_RENTAL, PAYLOAD_OPTIONS, TRUCK_TYPES, BOX_SIZES, INSURANCE_OPTIONS,
+  generateRef, DEMO_TRUCK_LISTINGS, TruckShowroom, IncludedBundle,
+} from './TruckFormComponents'
+import TruckMyListingsPanel from './TruckMyListingsPanel'
 
 /* ══════════════════════════════════════════════════════════════════════════════
    MAIN FORM
@@ -236,15 +102,10 @@ export default function TruckListingForm({ open, onClose, onSubmit, editListing 
   const [showMyListings, setShowMyListings] = useState(false)
   const [previewListingIdx, setPreviewListingIdx] = useState(null)
   const [editingListing, setEditingListing] = useState(null)
-  const DEMO_LISTINGS = [
-    { ref: 'TRCK-XK2F4821', category: 'Trucks', title: 'Isuzu Traga Box 2800cc 2024', image: 'https://ik.imagekit.io/nepgaxllc/00000000dddsasdsadsdfsdfasdaasdasdasada-removebg-preview.png?updatedAt=1776113199000', price_day: '450.000', price_week: '2.800.000', price_month: '9.500.000', condition: 'Like New', status: 'live', created_at: '2026-04-15T10:30:00Z', extra_fields: { make: 'Isuzu', model: 'Traga', cc: '2800', year: '2024', transmission: 'Manual', payload: '2.5 ton', truckType: 'Box Truck' } },
-    { ref: 'TRCK-MN7P3295', category: 'Trucks', title: 'Mitsubishi Colt Diesel 4000cc 2023', image: 'https://ik.imagekit.io/nepgaxllc/00000000dddsasdsadsdfsdfasdaasdasda-removebg-preview.png?updatedAt=1776112890251', price_day: '600.000', price_week: '3.500.000', price_month: '12.000.000', condition: 'Good', status: 'live', created_at: '2026-04-12T08:15:00Z', extra_fields: { make: 'Mitsubishi', model: 'Colt Diesel', cc: '4000', year: '2023', transmission: 'Manual', payload: '5 ton', truckType: 'Box Truck' } },
-    { ref: 'TRCK-RT4K6738', category: 'Trucks', title: 'Suzuki Carry Pickup 1500cc 2024', image: 'https://ik.imagekit.io/nepgaxllc/00000000dddsasdsadsdfsdfasdaasd-removebg-preview.png?updatedAt=1776112751249', price_day: '250.000', price_week: '1.500.000', price_month: '5.000.000', condition: 'New', status: 'offline', created_at: '2026-04-10T14:20:00Z', extra_fields: { make: 'Suzuki', model: 'Carry Pickup', cc: '1500', year: '2024', transmission: 'Manual', payload: '750kg', truckType: 'Pickup' } },
-  ]
   const [myListings, setMyListings] = useState(() => {
     try {
       const saved = JSON.parse(localStorage.getItem('indoo_my_truck_listings') || '[]')
-      return saved.length > 0 ? saved : DEMO_LISTINGS
+      return saved.length > 0 ? saved : DEMO_TRUCK_LISTINGS
     } catch { return DEMO_LISTINGS }
   })
   const brandInputRef = useRef(null)
@@ -824,172 +685,14 @@ export default function TruckListingForm({ open, onClose, onSubmit, editListing 
 
       {/* My Listings Popup */}
       {showMyListings && (
-        <div style={{ position: 'fixed', inset: 0, zIndex: 99999, backgroundImage: 'url(https://ik.imagekit.io/nepgaxllc/ChatGPT%20Image%20Apr%2019,%202026,%2003_45_34%20AM.png?updatedAt=1776545159845)', backgroundSize: 'cover', backgroundPosition: 'center', display: 'flex', flexDirection: 'column' }}>
-          <div style={{ position: 'absolute', inset: 0, background: 'rgba(0,0,0,0.55)', pointerEvents: 'none' }} />
-          {/* Header */}
-          <div style={{ padding: '16px 16px 12px', borderBottom: '1px solid rgba(255,255,255,0.06)', display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexShrink: 0, position: 'relative', zIndex: 1 }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-              <span style={{ fontSize: 18 }}>🚛</span>
-              <div>
-                <span style={{ fontSize: 15, fontWeight: 800, color: '#fff' }}>My Truck Listings</span>
-                <span style={{ fontSize: 11, color: 'rgba(255,255,255,0.25)', marginLeft: 8 }}>{myListings.length} total</span>
-              </div>
-            </div>
-            <button onClick={() => setShowMyListings(false)} style={{ width: 32, height: 32, borderRadius: '50%', background: '#8DC63F', border: 'none', color: '#000', fontSize: 14, fontWeight: 900, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>✕</button>
-          </div>
-
-          {/* Listings */}
-          <div style={{ flex: 1, overflowY: 'auto', padding: '12px 16px', position: 'relative', zIndex: 1 }}>
-            {myListings.length === 0 ? (
-              <div style={{ textAlign: 'center', padding: '60px 20px' }}>
-                <span style={{ fontSize: 40, display: 'block', marginBottom: 16 }}>🚛</span>
-                <span style={{ fontSize: 14, fontWeight: 700, color: 'rgba(255,255,255,0.3)' }}>No listings yet</span>
-                <p style={{ fontSize: 12, color: 'rgba(255,255,255,0.15)', marginTop: 4 }}>Your published truck listings will appear here</p>
-              </div>
-            ) : (
-              <div style={{ display: 'flex', flexDirection: 'column', gap: 12, paddingTop: 140 }}>
-                {myListings.map((l, i) => (
-                  <div key={l.ref || i} style={{ background: 'rgba(0,0,0,0.5)', backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)', border: '1.5px solid rgba(141,198,63,0.15)', borderRadius: 16, overflow: 'hidden', boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.04), 0 4px 16px rgba(0,0,0,0.3)' }}>
-                    {/* Card top — image (tappable) + info */}
-                    <div style={{ display: 'flex', gap: 12, padding: 12 }}>
-                      {l.image ? (
-                        <img src={l.image} alt="" onClick={() => setPreviewListingIdx(i)} style={{ width: 80, height: 60, objectFit: 'cover', borderRadius: 10, flexShrink: 0, cursor: 'pointer', border: '1.5px solid rgba(255,215,0,0.2)', transition: 'border-color 0.2s' }} />
-                      ) : (
-                        <div onClick={() => setPreviewListingIdx(i)} style={{ width: 80, height: 60, borderRadius: 10, background: 'rgba(255,255,255,0.04)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, fontSize: 24, cursor: 'pointer' }}>🚛</div>
-                      )}
-                      <div style={{ flex: 1, minWidth: 0 }}>
-                        <div style={{ fontSize: 14, fontWeight: 800, color: '#fff', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{l.title || 'Untitled'}</div>
-                        <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.3)', marginTop: 2 }}>{l.extra_fields?.make} {l.extra_fields?.model} · {l.extra_fields?.payload}</div>
-                        <div style={{ fontSize: 13, fontWeight: 800, color: '#8DC63F', marginTop: 4 }}>
-                          {l.price_day ? `Rp ${l.price_day}/day` : 'No price set'}
-                        </div>
-                      </div>
-                      {/* Status badge */}
-                      <div style={{ padding: '4px 10px', borderRadius: 8, background: l.status === 'live' ? 'rgba(141,198,63,0.12)' : 'rgba(239,68,68,0.15)', border: `1px solid ${l.status === 'live' ? 'rgba(141,198,63,0.3)' : 'rgba(239,68,68,0.3)'}`, alignSelf: 'flex-start', animation: l.status === 'live' ? 'liveGlow 2s ease-in-out infinite' : 'none' }}>
-                        <span style={{ fontSize: 9, fontWeight: 800, color: l.status === 'live' ? '#8DC63F' : '#EF4444', letterSpacing: '0.05em', textTransform: 'uppercase', animation: l.status === 'live' ? 'livePulse 2s ease-in-out infinite' : 'none' }}>{l.status === 'live' ? '● Live' : '○ Offline'}</span>
-                      </div>
-                    </div>
-
-                    {/* Card bottom — actions */}
-                    <div style={{ display: 'flex', gap: 6, padding: '8px 10px' }}>
-                      {/* Toggle live/offline */}
-                      <button onClick={() => {
-                        const updated = [...myListings]
-                        updated[i] = { ...updated[i], status: updated[i].status === 'live' ? 'offline' : 'live' }
-                        setMyListings(updated)
-                        localStorage.setItem('indoo_my_truck_listings', JSON.stringify(updated))
-                      }} style={{ flex: 1, padding: '9px 0', background: '#FFD700', border: 'none', borderRadius: 10, color: '#000', fontSize: 10, fontWeight: 800, cursor: 'pointer', fontFamily: 'inherit', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 3, boxShadow: '0 2px 6px rgba(255,215,0,0.3)' }}>
-                        {l.status === 'live' ? '⏸ Offline' : '▶ Live'}
-                      </button>
-                      {/* Edit */}
-                      <button onClick={() => { setShowMyListings(false); onClose('edit', l) }} style={{ flex: 1, padding: '9px 0', background: '#8DC63F', border: 'none', borderRadius: 10, color: '#000', fontSize: 10, fontWeight: 800, cursor: 'pointer', fontFamily: 'inherit', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 3, boxShadow: '0 2px 6px rgba(141,198,63,0.3)' }}>
-                        ✎ Edit
-                      </button>
-                      {/* Delete */}
-                      <button onClick={() => {
-                        const updated = myListings.filter((_, j) => j !== i)
-                        setMyListings(updated)
-                        localStorage.setItem('indoo_my_truck_listings', JSON.stringify(updated))
-                      }} style={{ padding: '9px 12px', background: 'rgba(239,68,68,0.08)', border: '1px solid rgba(239,68,68,0.2)', borderRadius: 10, color: '#EF4444', fontSize: 10, fontWeight: 800, cursor: 'pointer', fontFamily: 'inherit', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 3, boxShadow: 'inset 0 0 8px rgba(239,68,68,0.05)' }}>
-                        🗑
-                      </button>
-                    </div>
-
-                    {/* Ref + date */}
-                    <div style={{ padding: '6px 12px 8px', display: 'flex', justifyContent: 'space-between' }}>
-                      <span style={{ fontSize: 9, fontWeight: 700, color: 'rgba(141,198,63,0.4)' }}>{l.ref}</span>
-                      <span style={{ fontSize: 9, color: 'rgba(255,255,255,0.15)' }}>{l.created_at ? new Date(l.created_at).toLocaleDateString() : ''}</span>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            )}
-          </div>
-
-          {/* Listing Preview Card */}
-          {previewListingIdx !== null && myListings[previewListingIdx] && (() => {
-            const pl = myListings[previewListingIdx]
-            return (
-              <div style={{ position: 'fixed', inset: 0, zIndex: 999999, backgroundImage: 'url(https://ik.imagekit.io/nepgaxllc/ChatGPT%20Image%20Apr%2019,%202026,%2003_45_34%20AM.png?updatedAt=1776545159845)', backgroundSize: 'cover', backgroundPosition: 'center', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 16 }} onClick={() => setPreviewListingIdx(null)}>
-                <div style={{ position: 'absolute', inset: 0, background: 'rgba(0,0,0,0.6)', pointerEvents: 'none' }} />
-                {/* Container window */}
-                <div onClick={e => e.stopPropagation()} style={{
-                  width: '100%', maxWidth: 380,
-                  background: 'rgba(0,0,0,0.6)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)',
-                  border: '1.5px solid rgba(141,198,63,0.2)', borderRadius: 20,
-                  overflow: 'hidden',
-                  boxShadow: '0 20px 60px rgba(0,0,0,0.5), 0 0 20px rgba(141,198,63,0.1), inset 0 1px 0 rgba(255,255,255,0.04)',
-                }}>
-                  {/* Header bar */}
-                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '12px 14px', borderBottom: '1px solid rgba(255,255,255,0.06)' }}>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                      <span style={{ padding: '4px 10px', borderRadius: 6, background: pl.status === 'live' ? 'rgba(141,198,63,0.12)' : 'rgba(239,68,68,0.15)', border: `1px solid ${pl.status === 'live' ? 'rgba(141,198,63,0.25)' : 'rgba(239,68,68,0.3)'}`, fontSize: 9, fontWeight: 800, color: pl.status === 'live' ? '#8DC63F' : '#EF4444', letterSpacing: '0.04em', animation: pl.status === 'live' ? 'livePulse 2s ease-in-out infinite' : 'none' }}>{pl.status === 'live' ? '● LIVE' : '○ OFFLINE'}</span>
-                      <span style={{ fontSize: 10, fontWeight: 700, color: 'rgba(255,215,0,0.5)' }}>{pl.ref}</span>
-                    </div>
-                    <button onClick={() => setPreviewListingIdx(null)} style={{ width: 30, height: 30, borderRadius: '50%', background: '#8DC63F', border: 'none', color: '#000', fontSize: 13, fontWeight: 900, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>✕</button>
-                  </div>
-
-                  {/* Image — full width, 16:9 */}
-                  {pl.image ? (
-                    <img src={pl.image} alt="" style={{ width: '100%', aspectRatio: '16/9', objectFit: 'cover', display: 'block' }} />
-                  ) : (
-                    <div style={{ width: '100%', aspectRatio: '16/9', background: 'rgba(255,255,255,0.02)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 48 }}>🚛</div>
-                  )}
-
-                  {/* Info section */}
-                  <div style={{ padding: '14px 14px 10px' }}>
-                    {/* Make & Model */}
-                    <div style={{ fontSize: 18, fontWeight: 900, color: '#fff', letterSpacing: '-0.02em' }}>{pl.extra_fields?.make} <span style={{ color: '#8DC63F' }}>{pl.extra_fields?.model}</span></div>
-                    <div style={{ display: 'flex', gap: 6, marginTop: 6, flexWrap: 'wrap' }}>
-                      {pl.extra_fields?.cc && <span style={{ padding: '3px 8px', borderRadius: 6, background: 'rgba(255,255,255,0.04)', fontSize: 10, fontWeight: 700, color: 'rgba(255,255,255,0.4)' }}>{pl.extra_fields.cc}cc</span>}
-                      {pl.extra_fields?.year && <span style={{ padding: '3px 8px', borderRadius: 6, background: 'rgba(255,255,255,0.04)', fontSize: 10, fontWeight: 700, color: 'rgba(255,255,255,0.4)' }}>{pl.extra_fields.year}</span>}
-                      {pl.extra_fields?.payload && <span style={{ padding: '3px 8px', borderRadius: 6, background: 'rgba(255,255,255,0.04)', fontSize: 10, fontWeight: 700, color: 'rgba(255,255,255,0.4)' }}>{pl.extra_fields.payload}</span>}
-                      {pl.extra_fields?.truckType && <span style={{ padding: '3px 8px', borderRadius: 6, background: 'rgba(255,255,255,0.04)', fontSize: 10, fontWeight: 700, color: 'rgba(255,255,255,0.4)' }}>{pl.extra_fields.truckType}</span>}
-                      {pl.condition && <span style={{ padding: '3px 8px', borderRadius: 6, background: 'rgba(141,198,63,0.08)', border: '1px solid rgba(141,198,63,0.15)', fontSize: 10, fontWeight: 700, color: '#8DC63F' }}>{pl.condition}</span>}
-                    </div>
-                  </div>
-
-                  {/* Pricing — 3 equal columns */}
-                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', padding: '0 14px 14px', gap: 8 }}>
-                    {[
-                      { label: '1 Day', price: pl.price_day },
-                      { label: '1 Week', price: pl.price_week },
-                      { label: '1 Month', price: pl.price_month },
-                    ].map((p, pi) => (
-                      <div key={pi} style={{ padding: '10px 6px', background: 'rgba(0,0,0,0.3)', border: '1px solid rgba(141,198,63,0.1)', borderRadius: 12, textAlign: 'center', boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.03)' }}>
-                        <div style={{ fontSize: 8, fontWeight: 700, color: 'rgba(255,255,255,0.25)', letterSpacing: '0.06em', marginBottom: 4 }}>{p.label.toUpperCase()}</div>
-                        <div style={{ fontSize: 13, fontWeight: 900, color: p.price ? '#8DC63F' : 'rgba(255,255,255,0.15)', whiteSpace: 'nowrap' }}>{p.price ? `Rp ${p.price}` : '—'}</div>
-                      </div>
-                    ))}
-                  </div>
-
-                  {/* Action buttons */}
-                  <div style={{ display: 'flex', gap: 8, padding: '0 14px 14px' }}>
-                    <button onClick={() => {
-                      const updated = [...myListings]
-                      updated[previewListingIdx] = { ...updated[previewListingIdx], status: updated[previewListingIdx].status === 'live' ? 'offline' : 'live' }
-                      setMyListings(updated)
-                      localStorage.setItem('indoo_my_truck_listings', JSON.stringify(updated))
-                    }} style={{ flex: 1, padding: '11px 0', borderRadius: 12, background: '#FFD700', border: 'none', color: '#000', fontSize: 12, fontWeight: 800, cursor: 'pointer', fontFamily: 'inherit', boxShadow: '0 2px 8px rgba(255,215,0,0.3)' }}>
-                      {pl.status === 'live' ? '⏸ Go Offline' : '▶ Go Live'}
-                    </button>
-                    <button onClick={() => { setPreviewListingIdx(null); setShowMyListings(false); onClose('edit', pl) }} style={{ flex: 1, padding: '11px 0', borderRadius: 12, background: '#8DC63F', border: 'none', color: '#000', fontSize: 12, fontWeight: 800, cursor: 'pointer', fontFamily: 'inherit', boxShadow: '0 2px 8px rgba(141,198,63,0.3)' }}>
-                      ✎ Edit
-                    </button>
-                    <button onClick={() => {
-                      const updated = myListings.filter((_, j) => j !== previewListingIdx)
-                      setMyListings(updated)
-                      localStorage.setItem('indoo_my_truck_listings', JSON.stringify(updated))
-                      setPreviewListingIdx(null)
-                    }} style={{ padding: '11px 14px', borderRadius: 12, background: 'rgba(239,68,68,0.1)', border: '1px solid rgba(239,68,68,0.2)', color: '#EF4444', fontSize: 12, fontWeight: 800, cursor: 'pointer', fontFamily: 'inherit' }}>
-                      🗑
-                    </button>
-                  </div>
-                </div>
-              </div>
-            )
-          })()}
-        </div>
+        <TruckMyListingsPanel
+          myListings={myListings}
+          setMyListings={setMyListings}
+          previewListingIdx={previewListingIdx}
+          setPreviewListingIdx={setPreviewListingIdx}
+          setShowMyListings={setShowMyListings}
+          onClose={onClose}
+        />
       )}
 
       {step <= 3 && (

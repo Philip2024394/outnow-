@@ -4,107 +4,14 @@ import WeeklyPromoSheet from './WeeklyPromoSheet'
 import PaymentCard from './PaymentCard'
 import FoodOrderStatus from '@/components/orders/FoodOrderStatus'
 import { createFoodOrder, searchFoodDrivers } from '@/services/foodOrderService'
-
-function fmtRp(n) { return `Rp ${Number(n).toLocaleString('id-ID')}` }
-
-// ── Demo food orders seed ──────────────────────────────────────────────────────
-const DEMO_FOOD_ORDERS = [
-  { id: 'food-001', restaurant: 'Warung Mak Beng', items: [{name: 'Nasi Goreng', qty: 2, price: 25000}], total: 60000, delivery: 10000, status: 'delivered', created_at: '2026-04-19T10:00:00Z' },
-  { id: 'food-002', restaurant: 'Babi Guling Pak Malen', items: [{name: 'Babi Guling Set', qty: 1, price: 45000}], total: 55000, delivery: 10000, status: 'preparing', created_at: '2026-04-20T08:30:00Z' },
-  { id: 'food-003', restaurant: 'Ayam Betutu Men Tempeh', items: [{name: 'Ayam Betutu', qty: 1, price: 55000}, {name: 'Es Jeruk', qty: 2, price: 8000}], total: 81000, delivery: 10000, status: 'pending', created_at: '2026-04-20T09:00:00Z' },
-]
-
-function seedDemoOrders() {
-  const existing = localStorage.getItem('indoo_food_orders')
-  if (!existing) {
-    localStorage.setItem('indoo_food_orders', JSON.stringify(DEMO_FOOD_ORDERS))
-    return DEMO_FOOD_ORDERS
-  }
-  return JSON.parse(existing)
-}
-
-function getFoodOrders() {
-  return seedDemoOrders()
-}
-
-function saveFoodOrders(orders) {
-  localStorage.setItem('indoo_food_orders', JSON.stringify(orders))
-}
-
-const STATUS_COLORS = {
-  pending: '#F59E0B',
-  awaiting_payment: '#F59E0B',
-  preparing: '#3B82F6',
-  on_delivery: '#8B5CF6',
-  delivered: '#22C55E',
-  cancelled: '#EF4444',
-}
-
-const STATUS_LABELS = {
-  pending: 'Pending',
-  awaiting_payment: 'Awaiting Payment',
-  preparing: 'Preparing',
-  on_delivery: 'On Delivery',
-  delivered: 'Delivered',
-  cancelled: 'Cancelled',
-}
-
-const EVENT_LABELS = {
-  live_music:    '🎵 Live Music',
-  birthday_setup:'🎂 Birthday Setup',
-  private_room:  '🚪 Private Room',
-  sound_system:  '🎤 Sound System',
-  party_package: '🥂 Party Packages',
-  wedding:       '💍 Weddings',
-}
-
-const CATEGORY_EMOJIS = {
-  'Main':     '🍽',
-  'Drinks':   '🥤',
-  'Snacks':   '🍿',
-  'Sides':    '🥗',
-  'Desserts': '🧁',
-  'Rice':     '🍚',
-  'Noodles':  '🍜',
-  'Grilled':  '🔥',
-  'Seafood':  '🦐',
-  'Breakfast':'🌅',
-  'Soup':     '🍲',
-  'Salad':    '🥗',
-}
-
-const CATEGORY_GRADIENTS = {
-  'Main':     'linear-gradient(160deg, #1a0d00 0%, #0d0d0d 100%)',
-  'Drinks':   'linear-gradient(160deg, #000d1a 0%, #0d0d0d 100%)',
-  'Snacks':   'linear-gradient(160deg, #0d1a00 0%, #0d0d0d 100%)',
-  'Sides':    'linear-gradient(160deg, #1a1500 0%, #0d0d0d 100%)',
-  'Desserts': 'linear-gradient(160deg, #1a0015 0%, #0d0d0d 100%)',
-}
-
-function buildWhatsAppMessage(restaurant, cart, address, deliveryFare, maxPrepMin) {
-  const lines = cart.map(i => {
-    let line = `• ${i.name} × ${i.qty} — ${fmtRp(i.price * i.qty)}`
-    if (i.prep_time_min) line += ` (${i.prep_time_min} min prep)`
-    if (i.note?.trim())  line += `\n   📝 ${i.note.trim()}`
-    return line
-  })
-  const foodTotal  = cart.reduce((s, i) => s + i.price * i.qty, 0)
-  const grandTotal = foodTotal + (deliveryFare ?? 0)
-  const ref        = `#MAKAN_${Date.now().toString().slice(-8)}`
-  const msg = [
-    `🍽 *Order from ${restaurant.name}*`,
-    `MAKAN by Indoo — ${ref}`,
-    '———————————————',
-    ...lines,
-    '———————————————',
-    maxPrepMin > 0 ? `⏱ Est. prep time: ${maxPrepMin} min` : '',
-    `🍴 Food total: ${fmtRp(foodTotal)}`,
-    deliveryFare != null ? `🛵 Est. delivery: ~${fmtRp(deliveryFare)}` : '🛵 Delivery: calculating',
-    `💰 *Est. total: ~${fmtRp(grandTotal)}*`,
-    address ? `📍 Deliver to: ${address}` : '',
-  ].filter(Boolean).join('\n')
-  return { msg, ref }
-}
+import { fmtRp, getFoodOrders, saveFoodOrders } from './menuSheetConstants'
+import MenuItemCard from './MenuItemCard'
+import OrderConfirmOverlay from './OrderConfirmOverlay'
+import OrdersPanel from './OrdersPanel'
+import CategoryDrawer from './CategoryDrawer'
+import EventsDrawer from './EventsDrawer'
+import SocialsDrawer from './SocialsDrawer'
+import ReviewModal from './ReviewModal'
 
 // ── Main component ────────────────────────────────────────────────────────────
 export default function RestaurantMenuSheet({ restaurant, onClose, onOrderViaChat }) {
@@ -271,8 +178,6 @@ export default function RestaurantMenuSheet({ restaurant, onClose, onOrderViaCha
   }
 
   // ── Payment proof upload + driver assignment ──
-  const fileInputRef = useRef(null)
-
   const handlePaymentProofUpload = (e) => {
     const file = e.target.files?.[0]
     if (file) setPaymentProofFile(file)
@@ -701,84 +606,22 @@ export default function RestaurantMenuSheet({ restaurant, onClose, onOrderViaCha
 
       {/* ── Category floating grid (left side) ── */}
       {drawerOpen && (
-        <div className={styles.drawerBackdrop} onClick={() => setDrawerOpen(false)}>
-          <div className={styles.drawerGrid} onClick={e => e.stopPropagation()}>
-            {/* All items */}
-            <button
-              className={`${styles.drawerCat} ${!activeCategory ? styles.drawerCatActive : ''}`}
-              onClick={() => jumpToCategory(null)}
-            >
-              <span className={styles.drawerCatEmoji}>🍽</span>
-              <span className={styles.drawerCatName}>All</span>
-              <span className={styles.drawerCatCount}>{items.length}</span>
-            </button>
-
-            {categories.map(cat => (
-              <button
-                key={cat}
-                className={`${styles.drawerCat} ${activeCategory === cat ? styles.drawerCatActive : ''}`}
-                onClick={() => jumpToCategory(cat)}
-              >
-                <span className={styles.drawerCatEmoji}>{CATEGORY_EMOJIS[cat] ?? '🍽'}</span>
-                <span className={styles.drawerCatName}>{cat}</span>
-                <span className={styles.drawerCatCount}>{items.filter(i => i.category === cat).length}</span>
-              </button>
-            ))}
-          </div>
-        </div>
+        <CategoryDrawer
+          items={items}
+          categories={categories}
+          activeCategory={activeCategory}
+          onClose={() => setDrawerOpen(false)}
+          onJumpToCategory={jumpToCategory}
+        />
       )}
 
       {/* ── Events / venue left drawer ── */}
       {eventsOpen && (
-        <div className={styles.panelBackdrop} onClick={() => setEventsOpen(false)}>
-          <div className={styles.infoPanel} onClick={e => e.stopPropagation()}>
-            <h3 className={styles.infoPanelTitle}>Events & Venue</h3>
-            <p className={styles.infoPanelSub}>{restaurant.name}</p>
-
-            {restaurant.seating_capacity && (
-              <div className={styles.infoRow}>
-                <span className={styles.infoIcon}>🪑</span>
-                <div className={styles.infoText}>
-                  <span className={styles.infoLabel}>Seating Capacity</span>
-                  <span className={styles.infoValue}>Up to {restaurant.seating_capacity} guests</span>
-                </div>
-              </div>
-            )}
-
-            {restaurant.catering_available && (
-              <div className={styles.infoRow}>
-                <span className={styles.infoIcon}>🍽</span>
-                <div className={styles.infoText}>
-                  <span className={styles.infoLabel}>Catering</span>
-                  <span className={styles.infoValue}>Available for external events</span>
-                </div>
-              </div>
-            )}
-
-            {restaurant.event_features?.map(f => (
-              <div key={f} className={styles.infoRow}>
-                <span className={styles.infoIcon}>{EVENT_LABELS[f]?.split(' ')[0] ?? '✓'}</span>
-                <div className={styles.infoText}>
-                  <span className={styles.infoValue}>{EVENT_LABELS[f]?.split(' ').slice(1).join(' ') ?? f}</span>
-                </div>
-              </div>
-            ))}
-
-            <button
-              className={styles.eventEnquiryBtn}
-              onClick={() => {
-                if (onOrderViaChat) {
-                  onOrderViaChat({ restaurant, items: [], subtotal: 0, deliveryFee: 0, total: 0, notes: 'Event enquiry — please send details about availability and packages.', ref: `#EVENT_${Date.now().toString().slice(-6)}` })
-                } else {
-                  const msg = `Hi ${restaurant.name}, I'd like to enquire about hosting an event at your venue. Please send me details about availability and packages.`
-                  window.open(`https://wa.me/${restaurant.phone}?text=${encodeURIComponent(msg)}`, '_blank')
-                }
-              }}
-            >
-              💬 Enquire via Chat
-            </button>
-          </div>
-        </div>
+        <EventsDrawer
+          restaurant={restaurant}
+          onClose={() => setEventsOpen(false)}
+          onOrderViaChat={onOrderViaChat}
+        />
       )}
 
       {/* ── Weekly promos sheet ── */}
@@ -796,57 +639,12 @@ export default function RestaurantMenuSheet({ restaurant, onClose, onOrderViaCha
 
       {/* ── My Orders slide-up panel ── */}
       {ordersOpen && (
-        <div className={styles.panelBackdrop} onClick={() => setOrdersOpen(false)}>
-          <div className={styles.ordersPanel} onClick={e => e.stopPropagation()}>
-            <h3 className={styles.infoPanelTitle}>My Orders</h3>
-            <p className={styles.infoPanelSub}>Your food order history</p>
-
-            {foodOrders.length === 0 ? (
-              <p style={{ color: '#444', fontSize: 13, textAlign: 'center', padding: 20 }}>No orders yet</p>
-            ) : (
-              foodOrders.map(order => (
-                <div key={order.id} className={styles.orderCard}>
-                  <div className={styles.orderCardHeader}>
-                    <span className={styles.orderRestName}>{order.restaurant}</span>
-                    <span
-                      className={styles.orderStatusBadge}
-                      style={{ background: `${STATUS_COLORS[order.status] ?? '#666'}20`, color: STATUS_COLORS[order.status] ?? '#666', border: `1px solid ${STATUS_COLORS[order.status] ?? '#666'}40` }}
-                    >
-                      {STATUS_LABELS[order.status] ?? order.status}
-                    </span>
-                  </div>
-                  <div className={styles.orderItems}>
-                    {order.items.map((it, idx) => (
-                      <span key={idx} className={styles.orderItemLine}>{it.qty}x {it.name}</span>
-                    ))}
-                  </div>
-                  <div className={styles.orderCardFooter}>
-                    <span className={styles.orderTotal}>{fmtRp(order.total)}</span>
-                    <span className={styles.orderDate}>{new Date(order.created_at).toLocaleDateString('id-ID', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' })}</span>
-                  </div>
-                  {/* Cancel button for pending/awaiting_payment */}
-                  {(order.status === 'pending' || order.status === 'awaiting_payment') && (
-                    <button
-                      className={styles.orderCancelBtn}
-                      onClick={() => handleCancelOrder(order.id)}
-                    >
-                      Cancel Order
-                    </button>
-                  )}
-                  {/* Review button for delivered orders */}
-                  {order.status === 'delivered' && !JSON.parse(localStorage.getItem('indoo_food_reviews') || '[]').some(r => r.order_id === order.id) && (
-                    <button
-                      className={styles.orderReviewBtn}
-                      onClick={() => { setReviewOrder(order); setReviewStars(0); setReviewComment('') }}
-                    >
-                      Rate this order
-                    </button>
-                  )}
-                </div>
-              ))
-            )}
-          </div>
-        </div>
+        <OrdersPanel
+          foodOrders={foodOrders}
+          onClose={() => setOrdersOpen(false)}
+          onCancelOrder={handleCancelOrder}
+          onReviewOrder={(order) => { setReviewOrder(order); setReviewStars(0); setReviewComment('') }}
+        />
       )}
 
       {/* ── Order processing overlay ── */}
@@ -861,283 +659,37 @@ export default function RestaurantMenuSheet({ restaurant, onClose, onOrderViaCha
       )}
 
       {/* ── Order confirmation overlay with payment flow ── */}
-      {orderConfirm && (
-        <div className={styles.processingOverlay} onClick={() => { if (!paymentStep) setOrderConfirm(null) }}>
-          <div className={styles.confirmCard} onClick={e => e.stopPropagation()} style={{ maxHeight: '85vh', overflowY: 'auto' }}>
-
-            {/* Step 1: Confirmation */}
-            {!paymentStep && !paymentSubmitted && (
-              <>
-                <div className={styles.confirmCheck}>
-                  <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#22C55E" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                    <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/>
-                  </svg>
-                </div>
-                <h3 className={styles.confirmTitle}>Order Confirmed!</h3>
-                <p className={styles.confirmOrderId}>{orderConfirm.id}</p>
-                <div className={styles.confirmDetails}>
-                  <div className={styles.confirmRow}>
-                    <span>Total</span>
-                    <span style={{ color: '#F59E0B', fontWeight: 900 }}>{fmtRp(orderConfirm.total)}</span>
-                  </div>
-                  <div className={styles.confirmRow}>
-                    <span>Est. Delivery</span>
-                    <span style={{ fontWeight: 800 }}>{orderConfirm.estimatedMin} min</span>
-                  </div>
-                </div>
-                {/* Payment method selector */}
-                <div style={{ display: 'flex', gap: 10, width: '100%', marginTop: 4 }}>
-                  <button onClick={() => setPaymentStep(true)} style={{
-                    flex: 1, padding: '14px 8px', borderRadius: 16,
-                    background: 'rgba(0,0,0,0.4)', backdropFilter: 'blur(12px)',
-                    border: '1.5px solid rgba(141,198,63,0.2)',
-                    display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 6,
-                    cursor: 'pointer', fontFamily: 'inherit',
-                  }}>
-                    <span style={{ fontSize: 24 }}>🏦</span>
-                    <span style={{ fontSize: 13, fontWeight: 800, color: '#fff' }}>Bank Transfer</span>
-                    <span style={{ fontSize: 10, color: 'rgba(255,255,255,0.35)' }}>Pay restaurant direct</span>
-                  </button>
-                  <button onClick={() => {
-                    // COD — skip payment, go straight to driver assignment
-                    const orders = getFoodOrders()
-                    const updated = orders.map(o =>
-                      o.id === orderConfirm.id ? { ...o, status: 'cod_pending', payment_method: 'cod' } : o
-                    )
-                    saveFoodOrders(updated)
-                    setFoodOrders(updated)
-                    setPaymentSubmitted(true)
-                    handleSubmitPayment()
-                  }} style={{
-                    flex: 1, padding: '14px 8px', borderRadius: 16,
-                    background: 'rgba(0,0,0,0.4)', backdropFilter: 'blur(12px)',
-                    border: '1.5px solid rgba(255,215,0,0.2)',
-                    display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 6,
-                    cursor: 'pointer', fontFamily: 'inherit',
-                  }}>
-                    <span style={{ fontSize: 24 }}>💵</span>
-                    <span style={{ fontSize: 13, fontWeight: 800, color: '#fff' }}>COD</span>
-                    <span style={{ fontSize: 10, color: 'rgba(255,255,255,0.35)' }}>Cash on Delivery</span>
-                  </button>
-                </div>
-                <button className={styles.orderCancelBtn} onClick={() => setOrderConfirm(null)} style={{ marginTop: 8 }}>
-                  Cancel
-                </button>
-              </>
-            )}
-
-            {/* Step 2: Payment details + screenshot upload */}
-            {paymentStep && !paymentSubmitted && (
-              <>
-                <h3 className={styles.confirmTitle} style={{ marginTop: 4 }}>Bank Transfer</h3>
-                <p className={styles.confirmOrderId}>{orderConfirm.id}</p>
-
-                {/* Bank details card */}
-                <div style={{
-                  background: 'rgba(255,255,255,0.06)', borderRadius: 14,
-                  border: '1px solid rgba(255,255,255,0.08)', padding: '14px 16px',
-                  margin: '12px 0', width: '100%',
-                }}>
-                  {(restaurant.bank_name || restaurant.bank?.name) ? (
-                    <>
-                      <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 8 }}>
-                        <span style={{ fontSize: 11, color: 'rgba(255,255,255,0.5)', fontWeight: 700 }}>Bank</span>
-                        <span style={{ fontSize: 13, color: '#fff', fontWeight: 800 }}>{restaurant.bank_name ?? restaurant.bank?.name}</span>
-                      </div>
-                      <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 8 }}>
-                        <span style={{ fontSize: 11, color: 'rgba(255,255,255,0.5)', fontWeight: 700 }}>Account</span>
-                        <span style={{ fontSize: 13, color: '#F59E0B', fontWeight: 900, letterSpacing: '0.05em' }}>{restaurant.bank_account_number ?? restaurant.account_number ?? restaurant.bank?.account_number}</span>
-                      </div>
-                      <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                        <span style={{ fontSize: 11, color: 'rgba(255,255,255,0.5)', fontWeight: 700 }}>Name</span>
-                        <span style={{ fontSize: 13, color: '#fff', fontWeight: 700 }}>{restaurant.bank_account_holder ?? restaurant.account_holder ?? restaurant.bank?.account_holder}</span>
-                      </div>
-                    </>
-                  ) : (
-                    <p style={{ fontSize: 12, color: 'rgba(255,255,255,0.45)', textAlign: 'center', margin: 0 }}>
-                      Contact restaurant for payment details
-                    </p>
-                  )}
-                </div>
-
-                <div style={{ display: 'flex', justifyContent: 'space-between', width: '100%', padding: '0 4px', marginBottom: 12 }}>
-                  <span style={{ fontSize: 12, color: 'rgba(255,255,255,0.5)', fontWeight: 700 }}>Transfer Amount</span>
-                  <span style={{ fontSize: 15, color: '#F59E0B', fontWeight: 900 }}>{fmtRp(orderConfirm.total)}</span>
-                </div>
-
-                {/* Screenshot upload */}
-                <input
-                  ref={fileInputRef}
-                  type="file"
-                  accept="image/*"
-                  style={{ display: 'none' }}
-                  onChange={handlePaymentProofUpload}
-                />
-                <button
-                  className={styles.confirmDoneBtn}
-                  onClick={() => fileInputRef.current?.click()}
-                  style={{
-                    background: paymentProofFile
-                      ? 'linear-gradient(135deg, #22C55E 0%, #16A34A 100%)'
-                      : 'rgba(255,255,255,0.08)',
-                    border: paymentProofFile ? 'none' : '1px dashed rgba(255,255,255,0.2)',
-                    marginBottom: 8,
-                  }}
-                >
-                  {paymentProofFile ? `Screenshot: ${paymentProofFile.name.slice(0, 25)}` : 'Upload Payment Screenshot'}
-                </button>
-
-                <button
-                  className={styles.confirmDoneBtn}
-                  onClick={handleSubmitPayment}
-                  disabled={driverSearching}
-                  style={{
-                    background: 'linear-gradient(135deg, #F59E0B 0%, #D97706 100%)',
-                    opacity: driverSearching ? 0.6 : 1,
-                  }}
-                >
-                  {driverSearching ? 'Submitting...' : 'Submit Payment'}
-                </button>
-
-                <button className={styles.orderCancelBtn} onClick={() => setPaymentStep(false)} style={{ marginTop: 4 }}>
-                  Back
-                </button>
-              </>
-            )}
-
-            {/* Step 3: Payment submitted — driver assignment */}
-            {paymentSubmitted && (
-              <>
-                {driverSearching ? (
-                  <>
-                    <div className={styles.processingSpinner} />
-                    <h3 className={styles.confirmTitle}>Searching for driver...</h3>
-                    <p style={{ color: 'rgba(255,255,255,0.5)', fontSize: 12, textAlign: 'center' }}>
-                      Finding a nearby driver for your order
-                    </p>
-                  </>
-                ) : assignedDriver ? (
-                  <>
-                    <div className={styles.confirmCheck}>
-                      <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#22C55E" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                        <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/>
-                      </svg>
-                    </div>
-                    <h3 className={styles.confirmTitle}>Driver Assigned!</h3>
-                    <p style={{ color: 'rgba(255,255,255,0.5)', fontSize: 12, textAlign: 'center', marginBottom: 8 }}>
-                      Heading to restaurant
-                    </p>
-
-                    {/* Driver info card */}
-                    <div style={{
-                      background: 'rgba(255,255,255,0.06)', borderRadius: 14,
-                      border: '1px solid rgba(141,198,63,0.2)', padding: '14px 16px',
-                      margin: '8px 0', width: '100%',
-                    }}>
-                      <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-                        <div style={{
-                          width: 44, height: 44, borderRadius: '50%',
-                          background: 'rgba(141,198,63,0.15)', display: 'flex',
-                          alignItems: 'center', justifyContent: 'center', fontSize: 20,
-                        }}>
-                          🏍️
-                        </div>
-                        <div>
-                          <div style={{ fontSize: 14, fontWeight: 800, color: '#fff' }}>
-                            {assignedDriver.display_name ?? assignedDriver.name}
-                          </div>
-                          <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.4)', fontWeight: 600 }}>
-                            {assignedDriver.vehicle_model ?? assignedDriver.vehicle ?? 'Motorcycle'}
-                          </div>
-                          <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.35)' }}>
-                            {assignedDriver.phone}
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-
-                    <button className={styles.confirmDoneBtn} onClick={handleOpenTracking} style={{ background: 'linear-gradient(135deg, #8DC63F 0%, #6BA530 100%)' }}>
-                      Track Order
-                    </button>
-                    <button className={styles.orderCancelBtn} onClick={() => {
-                      setOrderConfirm(null)
-                      setPaymentStep(false)
-                      setPaymentSubmitted(false)
-                      setAssignedDriver(null)
-                      setPaymentProofFile(null)
-                    }} style={{ marginTop: 4 }}>
-                      Close
-                    </button>
-                  </>
-                ) : (
-                  <>
-                    <h3 className={styles.confirmTitle}>Payment Submitted</h3>
-                    <p style={{ color: 'rgba(255,255,255,0.5)', fontSize: 12, textAlign: 'center' }}>
-                      Waiting for restaurant confirmation
-                    </p>
-                    <button className={styles.confirmDoneBtn} onClick={handleSubmitPayment}>
-                      Retry Driver Search
-                    </button>
-                    <button className={styles.orderCancelBtn} onClick={() => {
-                      setOrderConfirm(null)
-                      setPaymentStep(false)
-                      setPaymentSubmitted(false)
-                    }} style={{ marginTop: 4 }}>
-                      Close
-                    </button>
-                  </>
-                )}
-              </>
-            )}
-
-          </div>
-        </div>
-      )}
+      <OrderConfirmOverlay
+        orderConfirm={orderConfirm}
+        setOrderConfirm={setOrderConfirm}
+        paymentStep={paymentStep}
+        setPaymentStep={setPaymentStep}
+        paymentSubmitted={paymentSubmitted}
+        setPaymentSubmitted={setPaymentSubmitted}
+        driverSearching={driverSearching}
+        assignedDriver={assignedDriver}
+        setAssignedDriver={setAssignedDriver}
+        paymentProofFile={paymentProofFile}
+        setPaymentProofFile={setPaymentProofFile}
+        restaurant={restaurant}
+        handleSubmitPayment={handleSubmitPayment}
+        handlePaymentProofUpload={handlePaymentProofUpload}
+        handleOpenTracking={handleOpenTracking}
+        getFoodOrders={getFoodOrders}
+        saveFoodOrders={saveFoodOrders}
+        setFoodOrders={setFoodOrders}
+      />
 
       {/* ── Review modal ── */}
-      {reviewOrder && (
-        <div className={styles.processingOverlay} onClick={() => setReviewOrder(null)}>
-          <div className={styles.confirmCard} onClick={e => e.stopPropagation()}>
-            <h3 className={styles.confirmTitle}>Rate Your Order</h3>
-            <p className={styles.infoPanelSub} style={{ textAlign: 'center' }}>{reviewOrder.restaurant}</p>
-            <div className={styles.reviewStarsRow}>
-              {[1,2,3,4,5].map(n => (
-                <button
-                  key={n}
-                  className={styles.reviewStarBtn}
-                  style={{ color: n <= reviewStars ? '#F59E0B' : 'rgba(255,255,255,0.15)' }}
-                  onClick={() => setReviewStars(n)}
-                >
-                  ★
-                </button>
-              ))}
-            </div>
-            <textarea
-              className={styles.reviewCommentInput}
-              placeholder="Tell us about your experience (optional)"
-              value={reviewComment}
-              onChange={e => setReviewComment(e.target.value)}
-              rows={3}
-              maxLength={300}
-            />
-            <button
-              className={styles.confirmDoneBtn}
-              onClick={handleSubmitReview}
-              disabled={!reviewStars}
-              style={{ opacity: reviewStars ? 1 : 0.4 }}
-            >
-              Submit Review
-            </button>
-            <button
-              className={styles.orderCancelBtn}
-              onClick={() => setReviewOrder(null)}
-              style={{ marginTop: 4 }}
-            >
-              Skip
-            </button>
-          </div>
-        </div>
-      )}
+      <ReviewModal
+        reviewOrder={reviewOrder}
+        reviewStars={reviewStars}
+        setReviewStars={setReviewStars}
+        reviewComment={reviewComment}
+        setReviewComment={setReviewComment}
+        onSubmit={handleSubmitReview}
+        onClose={() => setReviewOrder(null)}
+      />
 
       {/* ── Toast notification ── */}
       {toast && (
@@ -1148,96 +700,11 @@ export default function RestaurantMenuSheet({ restaurant, onClose, onOrderViaCha
 
       {/* ── Socials left drawer ── */}
       {socialsOpen && (
-        <div className={styles.panelBackdrop} onClick={() => setSocialsOpen(false)}>
-          <div className={styles.infoPanel} onClick={e => e.stopPropagation()}>
-            <h3 className={styles.infoPanelTitle}>Follow Us</h3>
-            <p className={styles.infoPanelSub}>{restaurant.name}</p>
-
-            {restaurant.instagram && (
-              <a className={styles.socialLink} href={`https://instagram.com/${restaurant.instagram}`} target="_blank" rel="noreferrer">
-                <span className={styles.socialIcon}>📸</span>
-                <span className={styles.socialName}>Instagram</span>
-                <span className={styles.socialHandle}>@{restaurant.instagram}</span>
-              </a>
-            )}
-            {restaurant.tiktok && (
-              <a className={styles.socialLink} href={`https://tiktok.com/@${restaurant.tiktok}`} target="_blank" rel="noreferrer">
-                <span className={styles.socialIcon}>🎵</span>
-                <span className={styles.socialName}>TikTok</span>
-                <span className={styles.socialHandle}>@{restaurant.tiktok}</span>
-              </a>
-            )}
-            {restaurant.facebook && (
-              <a className={styles.socialLink} href={`https://facebook.com/${restaurant.facebook}`} target="_blank" rel="noreferrer">
-                <span className={styles.socialIcon}>👥</span>
-                <span className={styles.socialName}>Facebook</span>
-                <span className={styles.socialHandle}>{restaurant.facebook}</span>
-              </a>
-            )}
-
-            {!restaurant.instagram && !restaurant.tiktok && !restaurant.facebook && (
-              <p className={styles.noSocials}>No social links added yet.</p>
-            )}
-          </div>
-        </div>
+        <SocialsDrawer
+          restaurant={restaurant}
+          onClose={() => setSocialsOpen(false)}
+        />
       )}
-    </div>
-  )
-}
-
-// ── Menu item card — full-screen ──────────────────────────────────────────────
-function MenuItemCard({ item, qty, onAdd, onRemove, itemRef }) {
-  const bg = item.photo_url
-    ? `url("${item.photo_url}")`
-    : CATEGORY_GRADIENTS[item.category] ?? 'linear-gradient(160deg, #1a1200 0%, #0d0d0d 100%)'
-
-  return (
-    <div className={styles.itemCard} ref={itemRef}>
-      {/* Background */}
-      <div className={styles.itemBg} style={{ backgroundImage: bg }} />
-      <div className={styles.itemOverlay} />
-
-      {/* Category pill top-left */}
-      {item.category && (
-        <div className={styles.itemCatPill}>{item.category}</div>
-      )}
-
-      {/* Prep time top-right */}
-      {item.prep_time_min && (
-        <div className={styles.itemPrep}>⏱ {item.prep_time_min} min</div>
-      )}
-
-      {/* Sold out overlay */}
-      {item.is_available === false && (
-        <div className={styles.soldOutOverlay}>
-          <span className={styles.soldOutText}>Sold Out</span>
-        </div>
-      )}
-
-      {/* Bottom content */}
-      <div className={styles.itemBottom}>
-        <h2 className={styles.itemName}>{item.name}</h2>
-        {item.description && (
-          <p className={styles.itemDesc}>{item.description}</p>
-        )}
-        <div className={styles.itemFooter}>
-          <span className={styles.itemPrice}>{fmtRp(item.price)}</span>
-
-          {item.is_available !== false && (
-            qty > 0 ? (
-              <div className={styles.qtyControl}>
-                <button className={styles.qtyBtn} onClick={onRemove}>−</button>
-                <span className={styles.qtyNum}>{qty}</span>
-                <button className={styles.qtyBtn} onClick={onAdd}>+</button>
-              </div>
-            ) : (
-              <button className={styles.addBtn} onClick={onAdd}>
-                + Add
-              </button>
-            )
-          )}
-        </div>
-      </div>
     </div>
   )
 }

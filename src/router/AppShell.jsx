@@ -22,7 +22,6 @@ import ProfileStrip from '@/components/map/ProfileStrip'
 import BoostBanner from '@/components/ui/BoostBanner'
 import StatusCheckInBanner from '@/components/status/StatusCheckInBanner'
 import { useStatusCheckIn } from '@/hooks/useStatusCheckIn'
-import BottomNav from '@/components/nav/BottomNav'
 import SectionGateSheet, { checkSectionAccess } from '@/components/ui/SectionGateSheet'
 import GoLiveSheet from '@/components/golive/GoLiveSheet'
 import ActiveSessionBar from '@/components/session/ActiveSessionBar'
@@ -53,14 +52,15 @@ import TimeBackground from '@/components/ui/TimeBackground'
 import FloatingIcons from '@/components/home/FloatingIcons'
 import IntentGrid from '@/components/ui/IntentGrid'
 import ReviewPrompt from '@/components/restaurant/ReviewPrompt'
-import DriverRegistration from '@/components/driver/DriverRegistration'
-import TherapistRegistration from '@/domains/massage/components/TherapistRegistration'
+import { buildOrderConversation, buildOfferConversation, buildChatConversation, buildIntroText } from './orderChatHandlers'
+import AppShellBottomNav from './AppShellBottomNav'
+import MarketplaceOverlays from './MarketplaceOverlays'
 
 import '@/styles/map.css'
 import styles from './AppShell.module.css'
 import {
   ChatScreen, ProfileScreen, BookingScreen, ShopSearchScreen,
-  DatingBubbleScreen, CategoryDiscoveryScreen, RestaurantBrowseScreen,
+  DatingBubbleScreen, RestaurantBrowseScreen,
   QAFeedScreen, VibeBlastPage, NotificationsScreen, RideHistoryScreen,
   LikedMeScreen, LikedProfilesScreen, BlockedUsersScreen,
   RentalSearchScreen, MassageScreen, OrderHistoryScreen, IncomingGiftsScreen,
@@ -68,11 +68,7 @@ import {
   PaymentGate, ReportSheet, ContactUnlockSheet, CityResultsSheet,
   CompanyBrowsePanel, DateIdeasSheet, UpgradeSheet, SpotClaimSheet,
   MySpotScreen, VibeCheckSheet, IndooNewsSheet, RatingSheet,
-  ReviewsSection, DevPanel, MarketplaceSignUpScreen, AddProductSheet,
-  SellerOrdersScreen, SellerWalletScreen, IndooWallet, SellerAnalytics,
-  MarketplaceNotificationsScreen, MarketplaceCartScreen, BuyerDashboardScreen,
-  UsedGoodsScreen, WantedBoardScreen, SellerReviewsScreen, WriteReviewScreen,
-  SellerProductsScreen, MarketplaceChatScreen, LazyFallback,
+  ReviewsSection, DevPanel, LazyFallback,
 } from './appShellLazy'
 
 
@@ -336,109 +332,14 @@ export default function AppShell({ returnParams, triggerGoLive }) {
   const showToast = (message, type = 'info') => setToast({ message, type })
 
   // ── Order via chat — shared handler for marketplace + restaurant ─────────────
-  // Called by ProductDetailSheet, SellerProfileSheet, RestaurantMenuSheet.
-  // Builds a pendingConv with an injected orderCard message then opens chat tab.
-  const handleOrderViaChat = ({ product, restaurant, variantStr, qty, items, subtotal, deliveryFee, total, notes, ref, sellerName, sellerId, seller }) => {
-    const isRestaurant = !!restaurant
-    const targetId     = isRestaurant ? (restaurant.id ?? restaurant.user_id) : (sellerId ?? seller?.id)
-    const targetName   = isRestaurant ? restaurant.name : (sellerName ?? seller?.brandName ?? seller?.displayName ?? 'Seller')
-    const targetPhoto  = isRestaurant ? (restaurant.photo ?? restaurant.image ?? null) : (seller?.photoURL ?? null)
-    const convId       = `order-${isRestaurant ? 'restaurant' : 'marketplace'}-${targetId}`
-    const orderRef     = ref ?? `#${isRestaurant ? 'MAKAN' : 'SHOP'}_${Date.now().toString().slice(-8)}`
-
-    // Build items array for marketplace single-product orders
-    const orderItems = items ?? (product ? [{
-      name:    product.name,
-      qty:     qty ?? 1,
-      price:   product.price ?? 0,
-      variant: variantStr ?? null,
-    }] : [])
-
-    const orderSubtotal = subtotal ?? orderItems.reduce((s, i) => s + (i.price * i.qty), 0)
-    const orderTotal    = total    ?? orderSubtotal + (deliveryFee ?? 0)
-
-    const orderCard = {
-      type:        isRestaurant ? 'restaurant' : 'marketplace',
-      ref:         orderRef,
-      sellerName:  targetName,
-      sellerId:    targetId,
-      items:       orderItems,
-      subtotal:    orderSubtotal,
-      deliveryFee: deliveryFee ?? null,
-      total:       orderTotal,
-      notes:       notes ?? '',
-      status:      'pending',
-      updatedAt:   Date.now(),
-      safeTrade:       product?.safeTrade ?? null,
-      cashOnDelivery:  product?.cashOnDelivery ?? false,
-    }
-
-    const openingMsg = {
-      id:        `order-${Date.now()}`,
-      senderId:  user?.id ?? 'me',
-      fromMe:    true,
-      orderCard,
-      time:      Date.now(),
-    }
-
-    setPendingConv({
-      id:              convId,
-      userId:          targetId,
-      displayName:     targetName,
-      photoURL:        targetPhoto,
-      emoji:           isRestaurant ? '🍽️' : '🛍️',
-      online:          true,
-      status:          'free',
-      openedAt:        Date.now(),
-      lastMessage:     `${isRestaurant ? '🍽️' : '🛍️'} Order ${orderRef}`,
-      lastMessageTime: Date.now(),
-      unread:          0,
-      messages:        [openingMsg],
-    })
+  const handleOrderViaChat = (params) => {
+    setPendingConv(buildOrderConversation({ ...params, userId: user?.id }))
     setActiveTab('chat')
   }
 
   // ── Make an Offer — creates a chat conversation with an offer card ──
-  const handleMakeOffer = ({ product, qty, offerPrice, listedPrice, totalOffer, message, sellerName, sellerId }) => {
-    const targetId   = sellerId
-    const targetName = sellerName ?? 'Seller'
-    const convId     = `offer-marketplace-${targetId}-${Date.now()}`
-    const offerRef   = `#OFFER_${Date.now().toString().slice(-8)}`
-
-    const offerCard = {
-      ref:          offerRef,
-      productName:  product?.name ?? 'Product',
-      productImage: product?.image ?? null,
-      qty,
-      offerPrice,
-      listedPrice,
-      totalOffer,
-      message:      message ?? '',
-      status:       'pending',
-      updatedAt:    Date.now(),
-    }
-
-    const openingMsg = {
-      id:       `offer-${Date.now()}`,
-      senderId: user?.id ?? 'me',
-      fromMe:   true,
-      offerCard,
-      time:     Date.now(),
-    }
-
-    setPendingConv({
-      id:              convId,
-      userId:          targetId,
-      displayName:     targetName,
-      emoji:           '💰',
-      online:          true,
-      status:          'free',
-      openedAt:        Date.now(),
-      lastMessage:     `💰 Offer ${offerRef}`,
-      lastMessageTime: Date.now(),
-      unread:          0,
-      messages:        [openingMsg],
-    })
+  const handleMakeOffer = (params) => {
+    setPendingConv(buildOfferConversation({ ...params, userId: user?.id }))
     setActiveTab('chat')
   }
 
@@ -510,26 +411,8 @@ export default function AppShell({ returnParams, triggerGoLive }) {
         onLandingChange={(onLanding) => { setDatingOnLanding(onLanding); if (!onLanding) setDockVisible(false) }}
         onOpenDateIdeas={(s) => { setDatingGridOpen(false); setDateIdeasTarget(s); setDateIdeasOpen(true) }}
         onConnect={(session) => {
-          closeOverlay()
-          setDatingGridOpen(false)
-          setFoodOpen(false)
-          setRideOpen(false)
-          setPendingConv({
-            id: `dating-${session.userId ?? session.id}`,
-            userId: session.userId ?? session.id,
-            displayName: session.displayName ?? 'New Match',
-            photoURL: session.photoURL ?? null,
-            age: session.age ?? null,
-            area: session.area ?? session.city ?? null,
-            emoji: '💕',
-            online: true,
-            status: 'free',
-            openedAt: Date.now(),
-            lastMessage: null,
-            lastMessageTime: Date.now(),
-            unread: 0,
-            messages: [],
-          })
+          closeOverlay(); setDatingGridOpen(false); setFoodOpen(false); setRideOpen(false)
+          setPendingConv(buildChatConversation({ userId: session.userId ?? session.id, displayName: session.displayName, photoURL: session.photoURL, age: session.age, area: session.area ?? session.city, emoji: '💕' }))
           setActiveTab('chat')
         }}
       />
@@ -634,28 +517,9 @@ export default function AppShell({ returnParams, triggerGoLive }) {
           session={acceptedMeetSession}
           onTapToChat={() => {
             const _src = sessions.find(s => s.id === acceptedMeetSession.sessionId)
-            closeOverlay()
-            setDatingGridOpen(false)
-            setFoodOpen(false)
-            setRideOpen(false)
-            setPendingConv({
-              id: `meet-${acceptedMeetSession.sessionId ?? acceptedMeetSession.id}`,
-              userId: acceptedMeetSession.fromUserId ?? 'unknown',
-              displayName: acceptedMeetSession.fromDisplayName ?? 'New Match',
-              photoURL: acceptedMeetSession.fromPhotoURL ?? null,
-              age: _src?.age ?? null,
-              area: _src?.area ?? _src?.city ?? null,
-              emoji: '💌',
-              online: true,
-              status: 'free',
-              openedAt: Date.now(),
-              lastMessage: null,
-              lastMessageTime: Date.now(),
-              unread: 0,
-              messages: [],
-            })
-            setActiveTab('chat')
-            clearAccepted()
+            closeOverlay(); setDatingGridOpen(false); setFoodOpen(false); setRideOpen(false)
+            setPendingConv({ ...buildChatConversation({ userId: acceptedMeetSession.fromUserId ?? 'unknown', displayName: acceptedMeetSession.fromDisplayName, photoURL: acceptedMeetSession.fromPhotoURL, age: _src?.age, area: _src?.area ?? _src?.city, emoji: '💌' }), id: `meet-${acceptedMeetSession.sessionId ?? acceptedMeetSession.id}` })
+            setActiveTab('chat'); clearAccepted()
           }}
           onDismiss={clearAccepted}
         />
@@ -666,22 +530,7 @@ export default function AppShell({ returnParams, triggerGoLive }) {
           invite={dateInvite}
           onAccept={(inv) => {
             clearDateInvite()
-            setPendingConv({
-              id: `date-${inv.from_user_id}`,
-              userId: inv.from_user_id,
-              displayName: inv.profiles?.display_name ?? 'New Match',
-              photoURL: inv.profiles?.photo_url ?? null,
-              age: inv.profiles?.age ?? null,
-              area: inv.profiles?.city ?? null,
-              emoji: '💕',
-              online: true,
-              status: 'free',
-              openedAt: Date.now(),
-              lastMessage: null,
-              lastMessageTime: Date.now(),
-              unread: 0,
-              messages: [],
-            })
+            setPendingConv({ ...buildChatConversation({ userId: inv.from_user_id, displayName: inv.profiles?.display_name, photoURL: inv.profiles?.photo_url, age: inv.profiles?.age, area: inv.profiles?.city, emoji: '💕' }), id: `date-${inv.from_user_id}` })
             setActiveTab('chat')
           }}
           onDismiss={clearDateInvite}
@@ -797,60 +646,15 @@ export default function AppShell({ returnParams, triggerGoLive }) {
         onConnect={(session, firstMessage) => {
           closeOverlay()
           setDatingGridOpen(false)
-          // Use user's typed message if provided, otherwise build auto-intro
-          let openingText = firstMessage ?? null
-          if (!openingText) {
-            const myName    = userProfile?.displayName ?? user?.displayName ?? 'Someone'
-            const myAge     = userProfile?.age ?? null
-            const myCountry = userProfile?.country ?? null
-            const myFor     = userProfile?.lookingFor ?? session.lookingFor ?? null
-            const lookingForLabel = myFor
-              ? myFor.replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase())
-              : null
-            const introParts = [
-              `Hi! I'm ${myName}`,
-              myAge     ? `${myAge} years old` : null,
-              myCountry ? `from ${myCountry}`  : null,
-              lookingForLabel ? `looking for ${lookingForLabel}` : null,
-            ].filter(Boolean)
-            openingText = introParts.join(', ') + ' 👋'
-          }
-          const openingMsg = {
-            id:       `intro-${Date.now()}`,
-            senderId: user?.id ?? 'me',
-            text:     openingText,
-            time:     Date.now(),
-            fromMe:   true,
-          }
+          const openingText = firstMessage ?? buildIntroText({ ...userProfile, lookingFor: userProfile?.lookingFor ?? session.lookingFor }, user)
+          const openingMsg = { id: `intro-${Date.now()}`, senderId: user?.id ?? 'me', text: openingText, time: Date.now(), fromMe: true }
           const convId = `dating-${session.userId ?? session.id}`
           setPendingConv(prev => {
-            // If same conv already open (re-open from connected state), keep messages
             if (prev?.id === convId) {
               const alreadyHas = prev.messages?.some(m => m.text === openingText)
-              return {
-                ...prev,
-                openedAt: prev.openedAt ?? Date.now(),
-                messages: alreadyHas || !firstMessage ? prev.messages : [...(prev.messages ?? []), openingMsg],
-                lastMessage: openingText,
-                lastMessageTime: Date.now(),
-              }
+              return { ...prev, openedAt: prev.openedAt ?? Date.now(), messages: alreadyHas || !firstMessage ? prev.messages : [...(prev.messages ?? []), openingMsg], lastMessage: openingText, lastMessageTime: Date.now() }
             }
-            return {
-              id: convId,
-              userId: session.userId ?? session.id,
-              displayName: session.displayName ?? 'New Match',
-              photoURL: session.photoURL ?? null,
-              age: session.age ?? null,
-              area: session.area ?? session.city ?? null,
-              emoji: '💕',
-              online: true,
-              status: 'free',
-              openedAt: Date.now(),
-              lastMessage: openingText,
-              lastMessageTime: Date.now(),
-              unread: 0,
-              messages: [openingMsg],
-            }
+            return buildChatConversation({ userId: session.userId ?? session.id, displayName: session.displayName, photoURL: session.photoURL, age: session.age, area: session.area ?? session.city, emoji: '💕', lastMessage: openingText, messages: [openingMsg] })
           })
           setActiveTab('chat')
         }}
@@ -880,20 +684,7 @@ export default function AppShell({ returnParams, triggerGoLive }) {
           onOpenRideHistory={() => { setNotifOpen(false); setRideHistoryOpen(true) }}
           onOpenChat={(sender) => {
             setNotifOpen(false)
-            setPendingConv({
-              id:              `notif-${sender.fromUserId ?? Date.now()}`,
-              userId:          sender.fromUserId ?? null,
-              displayName:     sender.displayName ?? 'New Message',
-              photoURL:        sender.photoURL ?? null,
-              emoji:           '💬',
-              online:          true,
-              status:          'free',
-              openedAt:        Date.now(),
-              lastMessage:     null,
-              lastMessageTime: Date.now(),
-              unread:          0,
-              messages:        [],
-            })
+            setPendingConv({ ...buildChatConversation({ userId: sender.fromUserId, displayName: sender.displayName ?? 'New Message', photoURL: sender.photoURL, emoji: '💬' }), id: `notif-${sender.fromUserId ?? Date.now()}` })
             setActiveTab('chat')
           }}
           stripProps={{
@@ -1058,37 +849,13 @@ export default function AppShell({ returnParams, triggerGoLive }) {
         targetUserId={null}
         onConnect={(profile) => {
           setIndooLiveOpen(false)
-          // Reuse the dating card connect flow — profile shape is compatible
-          const session = {
-            userId:      profile.userId,
-            displayName: profile.displayName,
-            photoURL:    profile.photoURL ?? null,
-            age:         profile.age ?? null,
-            area:        profile.city ?? profile.area ?? null,
-          }
-          const myName    = userProfile?.displayName ?? user?.displayName ?? 'Someone'
+          const myName = userProfile?.displayName ?? user?.displayName ?? 'Someone'
           const openingText = `Hi ${profile.displayName?.split(' ')[0] ?? 'there'}! I found you on Indoo Live 👋 I'm ${myName}`
-          const openingMsg = {
-            id:       `intro-${Date.now()}`,
-            senderId: user?.id ?? 'me',
-            text:     openingText,
-            time:     Date.now(),
-            fromMe:   true,
-          }
+          const openingMsg = { id: `intro-${Date.now()}`, senderId: user?.id ?? 'me', text: openingText, time: Date.now(), fromMe: true }
           const convId = `live-${profile.userId}`
           setPendingConv(prev => {
             if (prev?.id === convId) return prev
-            return {
-              id: convId,
-              ...session,
-              emoji: '💬',
-              online: true,
-              status: 'free',
-              openedAt: Date.now(),
-              lastMessage: openingText,
-              lastMessageTime: Date.now(),
-              messages: [openingMsg],
-            }
+            return { ...buildChatConversation({ userId: profile.userId, displayName: profile.displayName, photoURL: profile.photoURL, age: profile.age, area: profile.city ?? profile.area, emoji: '💬', lastMessage: openingText, messages: [openingMsg] }), id: convId }
           })
           setActiveTab('chat')
         }}
@@ -1181,98 +948,31 @@ export default function AppShell({ returnParams, triggerGoLive }) {
         }}
       />
 
-      <DriverRegistration open={driverRegOpen} onClose={() => setDriverRegOpen(false)} driverType={rideVehicleType === 'car_taxi' ? 'car' : 'bike'} />
-      <TherapistRegistration open={therapistRegOpen} onClose={() => setTherapistRegOpen(false)} />
-      <Suspense fallback={null}>
-        <MarketplaceSignUpScreen open={marketplaceSignUpOpen} onClose={() => setMarketplaceSignUpOpen(false)} onComplete={({ role }) => {
-          setMarketplaceSignUpOpen(false)
-          // Store role on profile
-          if (userProfile) {
-            userProfile.marketplaceSetup = true
-            userProfile.marketplaceRole = role
-          }
-          // Open marketplace product grid for all roles
-          setShopOpen(true); setMarketplaceLanding(false); setDockVisible(false)
-        }} />
-      </Suspense>
-
-      {/* Add Product sheet — opened from seller side nav */}
-      <Suspense fallback={null}>
-        <AddProductSheet
-          open={addProductOpen}
-          onClose={() => setAddProductOpen(false)}
-          onSaved={() => setAddProductOpen(false)}
-          userId={user?.id ?? user?.uid}
-        />
-      </Suspense>
-
-      {/* Seller Orders — opened from seller side nav */}
-      <Suspense fallback={null}>
-        <SellerOrdersScreen open={sellerOrdersOpen} onClose={() => setSellerOrdersOpen(false)} onOpenChat={() => setMarketChatOpen(true)} />
-      </Suspense>
-
-      {/* Indoo Universal Wallet */}
-      <Suspense fallback={null}>
-        <IndooWallet open={indooWalletOpen} onClose={() => setIndooWalletOpen(false)} />
-      </Suspense>
-
-      {/* Seller Wallet (legacy) — opened from seller side nav */}
-      <Suspense fallback={null}>
-        <SellerWalletScreen open={sellerWalletOpen} onClose={() => setSellerWalletOpen(false)} />
-      </Suspense>
-
-      {/* Seller Analytics — opened from seller side nav */}
-      <Suspense fallback={null}>
-        <SellerAnalytics open={sellerAnalyticsOpen} onClose={() => setSellerAnalyticsOpen(false)} />
-      </Suspense>
-
-      {/* Marketplace Notifications */}
-      <Suspense fallback={null}>
-        <MarketplaceNotificationsScreen open={marketNotifOpen} onClose={() => setMarketNotifOpen(false)} onOpenReviews={() => { setMarketNotifOpen(false); setSellerReviewsOpen(true) }} onOpenOrders={() => { setMarketNotifOpen(false); setSellerOrdersOpen(true) }} />
-      </Suspense>
-
-      {/* Marketplace Cart */}
-      <Suspense fallback={null}>
-        <MarketplaceCartScreen open={marketCartOpen} onClose={() => setMarketCartOpen(false)} onWriteReview={(order) => { setWriteReviewOrder(order); setWriteReviewOpen(true) }} />
-        <BuyerDashboardScreen open={buyerDashOpen} onClose={() => setBuyerDashOpen(false)} onOpenChat={(c) => { setMarketChatContact(c); setMarketChatOpen(true) }} onWriteReview={(order) => { setWriteReviewOrder(order); setWriteReviewOpen(true) }} />
-        <UsedGoodsScreen open={usedGoodsOpen} onClose={() => setUsedGoodsOpen(false)} onOpenChat={(c) => { setMarketChatContact(c); setMarketChatOpen(true) }} onAlerts={() => setMarketNotifOpen(true)} onProfile={() => setMarketProfileOpen(true)} />
-        <WantedBoardScreen open={wantedBoardOpen} onClose={() => setWantedBoardOpen(false)} onOpenChat={(c) => { setMarketChatContact(c); setMarketChatOpen(true) }} onAlerts={() => setMarketNotifOpen(true)} onProfile={() => setMarketProfileOpen(true)} />
-      </Suspense>
-
-      {/* Seller Reviews */}
-      <Suspense fallback={null}>
-        <SellerReviewsScreen open={sellerReviewsOpen} onClose={() => setSellerReviewsOpen(false)} />
-      </Suspense>
-
-      {/* Write Review */}
-      <Suspense fallback={null}>
-        <WriteReviewScreen open={writeReviewOpen} onClose={() => { setWriteReviewOpen(false); setWriteReviewOrder(null) }} order={writeReviewOrder} />
-      </Suspense>
-
-      {/* Seller Products */}
-      <Suspense fallback={null}>
-        <SellerProductsScreen
-          open={sellerProductsOpen}
-          onClose={() => setSellerProductsOpen(false)}
-          onAddProduct={() => { setAddProductOpen(true) }}
-          onEditProduct={(p) => { setAddProductOpen(true) }}
-        />
-      </Suspense>
-
-      {/* Marketplace Chat */}
-      <Suspense fallback={null}>
-        <MarketplaceChatScreen open={marketChatOpen} onClose={() => setMarketChatOpen(false)} />
-      </Suspense>
-
-      {/* Marketplace Profile overlay — portaled to body */}
-      {marketProfileOpen && createPortal(
-        <div style={{ position: 'fixed', inset: 0, zIndex: 9800 }}>
-          <Suspense fallback={null}>
-            <ProfileScreen onClose={() => setMarketProfileOpen(false)} onOpenSettings={() => { setMarketProfileOpen(false); setSettingsOpen(true) }} />
-          </Suspense>
-        </div>,
-        document.body
-      )}
+      <MarketplaceOverlays
+        userProfile={userProfile} user={user} rideVehicleType={rideVehicleType}
+        driverRegOpen={driverRegOpen} therapistRegOpen={therapistRegOpen}
+        marketplaceSignUpOpen={marketplaceSignUpOpen} addProductOpen={addProductOpen}
+        sellerOrdersOpen={sellerOrdersOpen} sellerWalletOpen={sellerWalletOpen}
+        indooWalletOpen={indooWalletOpen} sellerAnalyticsOpen={sellerAnalyticsOpen}
+        marketNotifOpen={marketNotifOpen} marketCartOpen={marketCartOpen}
+        buyerDashOpen={buyerDashOpen} usedGoodsOpen={usedGoodsOpen}
+        wantedBoardOpen={wantedBoardOpen} sellerReviewsOpen={sellerReviewsOpen}
+        writeReviewOpen={writeReviewOpen} writeReviewOrder={writeReviewOrder}
+        sellerProductsOpen={sellerProductsOpen} marketChatOpen={marketChatOpen}
+        marketProfileOpen={marketProfileOpen}
+        setDriverRegOpen={setDriverRegOpen} setTherapistRegOpen={setTherapistRegOpen}
+        setMarketplaceSignUpOpen={setMarketplaceSignUpOpen} setAddProductOpen={setAddProductOpen}
+        setSellerOrdersOpen={setSellerOrdersOpen} setSellerWalletOpen={setSellerWalletOpen}
+        setIndooWalletOpen={setIndooWalletOpen} setSellerAnalyticsOpen={setSellerAnalyticsOpen}
+        setMarketNotifOpen={setMarketNotifOpen} setMarketCartOpen={setMarketCartOpen}
+        setBuyerDashOpen={setBuyerDashOpen} setUsedGoodsOpen={setUsedGoodsOpen}
+        setWantedBoardOpen={setWantedBoardOpen} setSellerReviewsOpen={setSellerReviewsOpen}
+        setWriteReviewOpen={setWriteReviewOpen} setWriteReviewOrder={setWriteReviewOrder}
+        setSellerProductsOpen={setSellerProductsOpen} setMarketChatOpen={setMarketChatOpen}
+        setMarketChatContact={setMarketChatContact} setMarketProfileOpen={setMarketProfileOpen}
+        setSettingsOpen={setSettingsOpen} setShopOpen={setShopOpen}
+        setMarketplaceLanding={setMarketplaceLanding} setDockVisible={setDockVisible}
+      />
 
       {/* Dev panel — home page only */}
       {activeTab === 'map' && !shopOpen && !foodOpen && !rideOpen && !massageOpen && !datingGridOpen && (
@@ -1280,116 +980,35 @@ export default function AppShell({ returnParams, triggerGoLive }) {
       )}
 
       {/* Side nav — visible on marketplace with orange theme */}
-      {(!rideOpen || rideOnLanding) && (!massageOpen || massageOnLanding) && (!datingGridOpen || datingOnLanding) && activeTab !== 'rentals' && activeTab !== 'chat' && !shopOpen && !foodOpen && <BottomNav
-          isGuest={isGuest}
-          dockVisible={dockVisible}
-          theme={(() => {
-            if (!shopOpen) return 'default'
-            if (shopOpen && marketplaceLanding) return 'marketplace'
-            const role = userProfile?.marketplaceRole || JSON.parse(localStorage.getItem('indoo_profile') || '{}').marketplaceRole
-            if (role === 'both') return 'both'
-            if (role === 'seller') return 'seller'
-            return 'buyer'
-          })()}
-          onChat={() => { setMarketChatOpen(true) }}
-          onAlerts={() => { shopOpen ? setMarketNotifOpen(true) : setNotifOpen(true) }}
-          onProfile={() => { setMarketProfileOpen(true) }}
-          onCart={() => { shopOpen ? setMarketCartOpen(true) : setOrderHistoryOpen(true) }}
-          onSignUp={() => { setMarketplaceSignUpOpen(true) }}
-          onAddProduct={() => { setAddProductOpen(true) }}
-          onOrders={() => { setSellerOrdersOpen(true) }}
-          onAnalytics={() => { setSellerAnalyticsOpen(true) }}
-          onMyShop={() => { setSellerProductsOpen(true) }}
-          onWallet={() => { setIndooWalletOpen(true) }}
-          onDashboard={() => { setBuyerDashOpen(true) }}
-          onToggleDock={() => setDockVisible(v => !v)}
-          activeSection={activeSection}
-          rideType={rideVehicleType === 'car_taxi' ? 'car' : 'bike'}
-          onSectionRegister={() => {
-            if (isGuest) { triggerGate(); return }
-            if (activeSection === 'rides')       { setDriverRegOpen(true) }
-            if (activeSection === 'marketplace') { setShopOpen(true); setMarketplaceLanding(true) }
-            if (activeSection === 'food')        { setFoodOpen(true) }
-            if (activeSection === 'dating')      { setDatingIntentOpen(true) }
-            if (activeSection === 'rentals')     { setActiveTab('rentals') }
-            if (activeSection === 'massage')     { setTherapistRegOpen(true) }
-            if (activeSection === 'default')     { setDriverRegOpen(true) }
-          }}
-          onHome={() => {
-            // Close ALL overlay screens first
-            setSellerOrdersOpen(false)
-            setSellerWalletOpen(false)
-            setSellerAnalyticsOpen(false)
-            setAddProductOpen(false)
-            setMarketChatOpen(false)
-            setMarketProfileOpen(false)
-            setMarketNotifOpen(false)
-            setMarketCartOpen(false)
-            setSellerReviewsOpen(false)
-            setWriteReviewOpen(false)
-            setWriteReviewOrder(null)
-            setSellerProductsOpen(false)
-            setNotifOpen(false)
-            setOrderHistoryOpen(false)
-            setMarketplaceSignUpOpen(false)
-            setSellerDashOpen(false)
-            // Close all sections
-            setShopOpen(false)
-            setMarketplaceLanding(true)
-            setRideOpen(false)
-            setRideOnLanding(true)
-            setFoodOpen(false)
-            setFoodBrowseOpen(false)
-            setDatingIntentOpen(false)
-            setDatingGridOpen(false)
-            setDatingOnLanding(true)
-            setMassageOpen(false)
-            setMassageOnLanding(true)
-            // Go home
-            setActiveSection('default')
-            setDockVisible(true)
-            setActiveTab('map')
-          }}
-          activeTab={activeTab}
-          onChange={(tab) => {
-            if (isGuest && tab !== 'map') { triggerGate(); return }
-            setActiveTab(tab)
-            if (tab === 'map') {
-              setDockVisible(true)
-              setCompanyPanelOpen(false)
-            }
-          }}
-          unreadChats={0}
-          userPhotoURL={userProfile?.photoURL ?? null}
-          userName={userProfile?.displayName ?? 'You'}
-          isLive={!!mySession}
-          isInviteOut={!mySession && !!inviteOut}
-          onProfileTap={() => { if (isGuest) { triggerGate(); return } setActiveTab('profile') }}
-          onDiscoverNow={()    => openDiscoveryList('now')}
-          onDiscoverInvite={() => openDiscoveryList('invite')}
-          outNowCount={categorySessions.filter(s => s.status !== 'invite_out').length}
-          inviteOutCount={categorySessions.filter(s => s.status === 'invite_out').length}
-          newNowCount={newNowCount}
-          newInviteCount={newInviteCount}
-          onDateIdeas={() => setDateIdeasOpen(true)}
-          dateIdeasActive={dateIdeasOpen}
-          onSOS={() => setSosOpen(true)}
-          onIndooLive={() => setIndooLiveOpen(true)}
-          indooLiveActive={indooLiveOpen}
+      {(!rideOpen || rideOnLanding) && (!massageOpen || massageOnLanding) && (!datingGridOpen || datingOnLanding) && activeTab !== 'rentals' && activeTab !== 'chat' && !shopOpen && !foodOpen && <AppShellBottomNav
+          isGuest={isGuest} triggerGate={triggerGate} dockVisible={dockVisible}
+          shopOpen={shopOpen} marketplaceLanding={marketplaceLanding}
+          userProfile={userProfile} user={user} categorySessions={categorySessions}
+          activeSection={activeSection} rideVehicleType={rideVehicleType}
+          activeTab={activeTab} inviteOut={inviteOut} mySession={mySession}
+          newNowCount={newNowCount} newInviteCount={newInviteCount}
+          dateIdeasOpen={dateIdeasOpen} indooLiveOpen={indooLiveOpen}
           driverOnline={driverOnline}
-          onToggleDriverStatus={() => {
-            if (driverOnline === null) return
-            const next = !driverOnline
-            setDriverOnline(next)
-            localStorage.setItem('indoo_driver_online', String(next))
-            if (supabase && (user?.id ?? user?.uid)) {
-              supabase
-                .from('profiles')
-                .update({ driver_online: next })
-                .eq('id', user.id ?? user.uid)
-                .then(() => {})
-            }
-          }}
+          setMarketChatOpen={setMarketChatOpen} setMarketNotifOpen={setMarketNotifOpen}
+          setNotifOpen={setNotifOpen} setMarketProfileOpen={setMarketProfileOpen}
+          setMarketCartOpen={setMarketCartOpen} setOrderHistoryOpen={setOrderHistoryOpen}
+          setMarketplaceSignUpOpen={setMarketplaceSignUpOpen} setAddProductOpen={setAddProductOpen}
+          setSellerOrdersOpen={setSellerOrdersOpen} setSellerAnalyticsOpen={setSellerAnalyticsOpen}
+          setSellerProductsOpen={setSellerProductsOpen} setIndooWalletOpen={setIndooWalletOpen}
+          setBuyerDashOpen={setBuyerDashOpen} setDockVisible={setDockVisible}
+          setDriverRegOpen={setDriverRegOpen} setShopOpen={setShopOpen}
+          setMarketplaceLanding={setMarketplaceLanding} setFoodOpen={setFoodOpen}
+          setFoodBrowseOpen={setFoodBrowseOpen} setDatingIntentOpen={setDatingIntentOpen}
+          setDatingGridOpen={setDatingGridOpen} setDatingOnLanding={setDatingOnLanding}
+          setMassageOpen={setMassageOpen} setMassageOnLanding={setMassageOnLanding}
+          setRideOpen={setRideOpen} setRideOnLanding={setRideOnLanding}
+          setActiveSection={setActiveSection} setActiveTab={setActiveTab}
+          setCompanyPanelOpen={setCompanyPanelOpen} setSellerDashOpen={setSellerDashOpen}
+          setSellerWalletOpen={setSellerWalletOpen} setWriteReviewOpen={setWriteReviewOpen}
+          setWriteReviewOrder={setWriteReviewOrder} setSellerReviewsOpen={setSellerReviewsOpen}
+          setTherapistRegOpen={setTherapistRegOpen} setDateIdeasOpen={setDateIdeasOpen}
+          setIndooLiveOpen={setIndooLiveOpen} setSosOpen={setSosOpen}
+          setDriverOnline={setDriverOnline} openDiscoveryList={openDiscoveryList}
         />}
     </div>
   )

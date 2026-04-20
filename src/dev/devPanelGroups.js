@@ -1,0 +1,163 @@
+/**
+ * DEV PANEL — Menu group definitions
+ * Each group appears as a collapsible section in the side panel.
+ */
+
+export const GROUPS = [
+  {
+    label: '⚡ QUICK LINKS',
+    color: '#F59E0B',
+    items: [
+      { id: 'setLocation', label: '📍 Set Location' },
+    ],
+  },
+  {
+    label: 'ONBOARDING',
+    color: '#8DC63F',
+    items: [
+      { id: 'landing',     label: '🏠 Landing Screen' },
+      { id: 'joinPhone',   label: '📱 Join — Phone Step' },
+      { id: 'joinOtp',     label: '🔐 Join — OTP Step' },
+      { id: 'joinProfile', label: '👤 Join — Profile Step' },
+      { id: 'langToast',   label: '🌐 Language Toast' },
+      { id: 'pwa',         label: '📲 Add to Home Screen' },
+      { id: 'dateIdeas',   label: '💕 Date Ideas Drawer' },
+    ],
+  },
+  {
+    label: 'TOAST',
+    color: '#8DC63F',
+    items: [
+      { id: 'toastSuccess', label: '✅ Toast — Success' },
+      { id: 'toastError',   label: '❌ Toast — Error' },
+      { id: 'toastInfo',    label: 'ℹ️ Toast — Info' },
+    ],
+  },
+  {
+    label: 'MODALS',
+    color: '#FF6B6B',
+    items: [
+      { id: 'sos',        label: '🆘 SOS Modal' },
+      { id: 'report',     label: '🚩 Report Sheet' },
+      { id: 'upgrade',    label: '⭐ Upgrade Sheet' },
+      { id: 'unlockGate', label: '🔒 Chat Unlock Gate' },
+    ],
+  },
+  {
+    label: 'SCREENS',
+    color: '#A78BFA',
+    items: [
+      { id: 'chat',          label: '💬 Chat Screen' },
+      { id: 'chat_dating',   label: '💕 Chat — Dating' },
+      { id: 'chat_market',   label: '🛍️ Chat — Market' },
+      { id: 'chat_food',     label: '🍽️ Chat — Food' },
+      { id: 'match',         label: '❤️ Dating / Match Screen' },
+      { id: 'vibeBlaster',   label: '⚡ Vibe Blaster' },
+      { id: 'qaFeed',        label: '💬 Q&A Live Feed' },
+      { id: 'notifications', label: '🔔 Notifications Screen' },
+      { id: 'likedMe',       label: '👀 Liked Me Screen' },
+      { id: 'profile',       label: '👤 Profile Screen' },
+    ],
+  },
+  {
+    label: 'FOOD DELIVERY',
+    color: '#E8458C',
+    items: [
+      { id: 'driverSearching',   label: '🔍 Finding Driver — Searching'  },
+      { id: 'driverFound',       label: '✅ Finding Driver — Found'      },
+      { id: 'restaurantMenu',    label: '🍽️ Restaurant Menu'             },
+      { id: 'paymentTransfer',   label: '💳 Payment Transfer Screen'     },
+      { id: 'paymentSubmitted',  label: '🧾 Payment Submitted (waiting)' },
+      { id: 'driverAlert',       label: '🏍️ Driver Order Alert'          },
+      { id: 'foodOrderStatus',   label: '📦 Order Status Card'           },
+      { id: 'driverRideIncoming',  label: '🔔 Driver — Incoming Ride Request' },
+      { id: 'driverWarningMissed',  label: '⚠️ Driver Warning — Missed Booking'   },
+      { id: 'driverWarningDeclined', label: '⚠️ Driver Warning — Declined Booking' },
+    ],
+  },
+  {
+    label: 'CHAT CHECKOUT',
+    color: '#34D399',
+    items: [
+      { id: 'orderCard_market',   label: '🛍️ Order Card — Marketplace (pending)' },
+      { id: 'orderCard_food',     label: '🍽️ Order Card — Restaurant (confirmed)' },
+      { id: 'chat_order_market',  label: '💬 Chat + Market Order Card' },
+      { id: 'chat_order_food',    label: '💬 Chat + Food Order Card' },
+      { id: 'sellerProfile',      label: '🏪 Seller Profile Sheet' },
+      { id: 'shopSearch',         label: '🔍 Shop Search Screen' },
+      { id: 'restaurantBrowse',   label: '🍜 Restaurant Browse Screen' },
+      { id: 'restaurantMenuChat', label: '📋 Restaurant Menu (chat order)' },
+    ],
+  },
+  {
+    label: 'MARKETPLACE',
+    color: '#F59E0B',
+    items: [
+      { id: 'buyerProfile',       label: '👤 Buyer Profile Sheet' },
+      { id: 'flashSale',          label: '⚡ Flash Sale Page' },
+      { id: 'auctionPage',        label: '🔨 Auction Page' },
+      { id: 'safeTrade',          label: '🛡️ Safe Trade Modal' },
+      { id: 'sellerTrust',        label: '📊 Seller Trust Card' },
+      { id: 'sellerAnalytics',    label: '📈 Seller Analytics' },
+      { id: 'sellerVerify',       label: '🆔 Seller Verification' },
+      { id: 'productReviews',     label: '⭐ Product Reviews Page' },
+      { id: 'makeOffer',          label: '💰 Make an Offer Sheet' },
+      { id: 'gateDating',         label: '💕 Gate: Dating Setup' },
+      { id: 'gateMarketplace',    label: '🛍️ Gate: Marketplace Setup' },
+      { id: 'purchaseHistory',    label: '📋 Purchase History' },
+      { id: 'orderProcessing',    label: '⏳ Order Processing Overlay' },
+    ],
+  },
+  {
+    label: 'COMMISSION SYSTEM',
+    color: '#FF9500',
+    items: [
+      { id: 'seller_commission_screen',      label: '💰 Seller Commission Dashboard (10%)' },
+      { id: 'restaurant_commission_screen',  label: '🍽️ Restaurant Commission Dashboard (10%)' },
+      { id: 'delivery_options_sheet',        label: '🚚 Delivery Options Sheet' },
+      { id: 'commission_banner',             label: '🟠 Commission Banner (seller)' },
+      { id: 'chat_seller_locked',            label: '🔒 Chat — Marketplace Seller Locked (10%)' },
+      { id: 'chat_restaurant_locked',        label: '🔒 Chat — Restaurant Owner Locked (10%)' },
+      { id: 'chat_commission_pending',       label: '📋 Chat — Completed Order (pending commission)' },
+      { id: 'seller_blocked_modal',          label: '🚫 Seller Blocked Modal' },
+      { id: 'toast_commission_recorded',     label: '💰 Toast — Commission Recorded' },
+      { id: 'toast_commission_paid',         label: '✅ Toast — Commission Paid' },
+      { id: 'toast_seller_blocked',          label: '🚫 Toast — Seller Blocked' },
+    ],
+  },
+  {
+    label: 'DRIVER COMMISSION',
+    color: '#34C759',
+    items: [
+      { id: 'driver_trip_end_declare',   label: '🏁 Trip End — Declare Outcome' },
+      { id: 'driver_trip_end_reason',    label: '✗ Trip End — Cancel Reason' },
+      { id: 'driver_trip_end_complete',  label: '✅ Trip End — Recorded' },
+      { id: 'driver_sign_in_gate',       label: '🔒 Sign-in Gate — Commission Due' },
+      { id: 'driver_sign_in_submitted',  label: '📤 Sign-in Gate — Proof Submitted' },
+      { id: 'driver_cash_float',         label: '💵 Cash Float — Go Online' },
+      { id: 'driver_cash_float_filled',  label: '💵 Cash Float — Rp 150.000 Declared' },
+    ],
+  },
+  {
+    label: 'RESTAURANT PAYMENT FLOW',
+    color: '#E8458C',
+    items: [
+      { id: 'payment_method_selector',       label: '💳 Payment Method Selector' },
+      { id: 'bank_transfer_card_awaiting',   label: '⏳ Bank Transfer Card — Awaiting Proof' },
+      { id: 'bank_transfer_card_uploaded',   label: '📤 Bank Transfer Card — Proof Uploaded' },
+      { id: 'bank_transfer_card_confirmed',  label: '✅ Bank Transfer Card — Confirmed' },
+      { id: 'restaurant_order_alert_cod',    label: '🍽️ Restaurant Order Alert — COD' },
+      { id: 'restaurant_order_alert_bank',   label: '🏦 Restaurant Order Alert — Bank Transfer' },
+      { id: 'restaurant_payment_confirm',    label: '📤 Restaurant Payment Confirm Sheet' },
+      { id: 'restaurant_qr_sheet',           label: '📷 Restaurant QR Sheet — Pre-scan' },
+      { id: 'restaurant_qr_sheet_scanned',   label: '✅ Restaurant QR Sheet — Scanned' },
+    ],
+  },
+  {
+    label: 'MEMBERSHIP',
+    color: '#FF6BA3',
+    items: [
+      { id: 'membership_dating', label: '💕 Dating Membership' },
+    ],
+  },
+]
