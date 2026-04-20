@@ -284,6 +284,15 @@ export default function DealHuntLanding({ open, onClose, onSelectDeal, onCreateD
   const [showLanding, setShowLanding] = useState(true)
   const [activeIndex, setActiveIndex] = useState(0)
   const [userTouched, setUserTouched] = useState(false)
+
+  // Reset to landing page every time Deal Hunt opens
+  useEffect(() => {
+    if (open) {
+      setShowLanding(true)
+      setActiveIndex(0)
+      setUserTouched(false)
+    }
+  }, [open])
   const containerRef = useRef(null)
   const autoScrollRef = useRef(null)
   const deals = DEMO_DEALS
