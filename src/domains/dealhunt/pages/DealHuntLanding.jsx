@@ -190,7 +190,7 @@ export default function DealHuntLanding({ open, onClose, onSelectDeal, onCreateD
 
       {/* Title */}
       <div className={styles.headerTitle}>
-        <span className={styles.headerBrand}>DEAL HUNT</span>
+        <span className={styles.headerBrand}>DEAL <span style={{ color: '#8DC63F' }}>HUNT</span></span>
         <span className={styles.headerLive}>● LIVE</span>
       </div>
 
