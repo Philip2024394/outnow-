@@ -354,7 +354,7 @@ export default function AppShell({ returnParams, triggerGoLive }) {
       <TimeBackground />
 
       {/* Floating activity icons — visible when dock is on */}
-      {dockVisible && !rideOpen && !massageOpen && !shopOpen && !foodOpen && !datingGridOpen && activeTab === 'map' && (
+      {dockVisible && !rideOpen && !massageOpen && !shopOpen && !foodOpen && !datingGridOpen && !dealHuntOpen && activeTab === 'map' && (
         <FloatingIcons
           sessions={visibleSessions}
           serviceCounts={serviceUnreadCounts}
