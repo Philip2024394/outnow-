@@ -80,6 +80,9 @@ function DealSlide({ deal, isActive, onClaim, onChat }) {
 
       {/* Bottom overlay — deal info */}
       <div className={styles.slideBottom}>
+        {/* Review carousel — above product name */}
+        <DealReviewCarousel dealTitle={deal.title} sellerId={deal.seller_id} reviews={dealReviews} />
+
         {/* Domain pill */}
         <span className={styles.domainPill} style={{ background: `${DOMAIN_COLORS[deal.domain] ?? '#8DC63F'}22`, borderColor: `${DOMAIN_COLORS[deal.domain] ?? '#8DC63F'}55`, color: DOMAIN_COLORS[deal.domain] ?? '#8DC63F' }}>
           {DOMAIN_LABELS[deal.domain] ?? deal.domain}
@@ -130,9 +133,6 @@ function DealSlide({ deal, isActive, onClaim, onChat }) {
             {expired ? 'EXPIRED' : `${String(h).padStart(2,'0')}:${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`}
           </span>
         </div>
-
-        {/* Review carousel */}
-        <DealReviewCarousel dealTitle={deal.title} sellerId={deal.seller_id} reviews={dealReviews} />
 
         {/* Claim button */}
         <button
