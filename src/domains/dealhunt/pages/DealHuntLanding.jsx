@@ -15,6 +15,24 @@ const DEMO_DEALS = [
   { id: 'd8', title: 'Couple Massage + Sauna', domain: 'massage', sub: 'Paket romantis 120 menit untuk berdua, include sauna & teh herbal', seller_name: 'Bali Spa', seller_photo: 'https://i.pravatar.cc/80?img=44', seller_rating: 4.9, original_price: 500000, deal_price: 299000, quantity_available: 10, quantity_claimed: 8, end_time: Date.now() + 1.5*3600000, images: ['https://picsum.photos/seed/couple/1080/1920'], city: 'Bali', is_hot: true },
 ]
 
+const DISCOUNT_IMAGES = {
+  10: 'https://ik.imagekit.io/nepgaxllc/Untitledsdaaa-removebg-preview.png',
+  15: 'https://ik.imagekit.io/nepgaxllc/Untitledsdaaad-removebg-preview.png',
+  20: 'https://ik.imagekit.io/nepgaxllc/Untitledsdaaada-removebg-preview.png',
+  25: 'https://ik.imagekit.io/nepgaxllc/Untitledsdaaadaf-removebg-preview.png',
+  30: 'https://ik.imagekit.io/nepgaxllc/Untitledsdaaadafd-removebg-preview.png',
+  35: 'https://ik.imagekit.io/nepgaxllc/Untitledsdaaadafde-removebg-preview.png',
+  40: 'https://ik.imagekit.io/nepgaxllc/Untitledsdaaadafdedd-removebg-preview.png',
+  45: 'https://ik.imagekit.io/nepgaxllc/6789.png',
+  50: 'https://ik.imagekit.io/nepgaxllc/Untitledttt-removebg-preview.png',
+}
+
+function getDiscountImage(pct) {
+  const tiers = [10, 15, 20, 25, 30, 35, 40, 45, 50]
+  const closest = tiers.reduce((prev, curr) => Math.abs(curr - pct) < Math.abs(prev - pct) ? curr : prev)
+  return DISCOUNT_IMAGES[closest]
+}
+
 const DOMAIN_COLORS = { food: '#F97316', marketplace: '#8DC63F', massage: '#A855F7', rentals: '#3B82F6', rides: '#EAB308' }
 const DOMAIN_LABELS = { food: 'Makanan', marketplace: 'Market', massage: 'Massage', rentals: 'Rental', rides: 'Ojek' }
 
@@ -118,7 +136,9 @@ function DealSlide({ deal, isActive, onClaim, onChat, onViewSeller, onOpenMenu }
       <div className={styles.slideScrim} />
 
       {/* Discount badge — top right */}
-      <div className={styles.discountBadge}>-{discount}%</div>
+      <div className={styles.discountBadge}>
+        <img src={getDiscountImage(discount)} alt={`-${discount}%`} className={styles.discountImg} />
+      </div>
 
       {/* HOT badge — top left */}
       {deal.is_hot && <div className={styles.hotBadge}>🔥 HOT</div>}

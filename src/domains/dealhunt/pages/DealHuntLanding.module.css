@@ -386,8 +386,8 @@
   display: flex; align-items: baseline; gap: 6px;
 }
 .dealPrice {
-  font-size: 24px; font-weight: 900; color: #8DC63F;
-  text-shadow: 0 2px 12px rgba(141,198,63,0.5), 0 0 20px rgba(0,0,0,0.6);
+  font-size: 24px; font-weight: 900; color: #FFD700;
+  text-shadow: 0 0 10px rgba(255,215,0,0.5), 0 0 20px rgba(255,215,0,0.25), 0 2px 8px rgba(0,0,0,0.6);
 }
 .origPrice {
   font-size: 14px; color: rgba(255,255,255,0.45);
