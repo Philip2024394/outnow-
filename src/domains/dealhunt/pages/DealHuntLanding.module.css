@@ -17,8 +17,7 @@
 .landingBgImg {
   position: absolute; inset: 0;
   width: 100%; height: 100%;
-  object-fit: contain; object-position: center center;
-  background: #1a6b1a;
+  object-fit: cover; object-position: center top;
 }
 .landingOverlay {
   position: absolute; inset: 0;
