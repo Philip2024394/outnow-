@@ -72,6 +72,12 @@ export default function RestaurantDashboard({ userId, onClose }) {
   const [buyingPhoto,  setBuyingPhoto]  = useState(null)
   const [dealHuntOpen, setDealHuntOpen] = useState(false)
 
+  // ── Rewards tab fields ──
+  const [rewardEnabled,   setRewardEnabled]   = useState(false)
+  const [rewardMinOrder,  setRewardMinOrder]  = useState('50000')
+  const [rewardDiscount,  setRewardDiscount]  = useState(10)
+  const [rewardValidity,  setRewardValidity]  = useState(7)
+
   // ── Profile fields ──
   const [name,           setName]           = useState('')
   const [cuisine,        setCuisine]        = useState('')
@@ -164,6 +170,19 @@ export default function RestaurantDashboard({ userId, onClose }) {
   }, [userId])
 
   useEffect(() => { load() }, [load])
+
+  // ── Load reward settings from localStorage ──
+  useEffect(() => {
+    try {
+      const saved = JSON.parse(localStorage.getItem(`indoo_reward_settings_${userId}`) || 'null')
+      if (saved) {
+        setRewardEnabled(saved.enabled ?? false)
+        setRewardMinOrder(saved.minOrder ? String(saved.minOrder) : '50000')
+        setRewardDiscount(saved.discount ?? 10)
+        setRewardValidity(saved.validity ?? 7)
+      }
+    } catch { /* ignore */ }
+  }, [userId])
 
   useEffect(() => {
     if (!supabase) return
@@ -395,6 +414,7 @@ export default function RestaurantDashboard({ userId, onClose }) {
           { id: 'photos',   label: '📸 Cover'    },
           { id: 'orders',   label: '📦 Orders'   },
           { id: 'dealhunt', label: '🔥 Deal Hunt' },
+          { id: 'rewards',  label: '🎁 Rewards' },
         ].map(t => (
           <button key={t.id}
             className={`${styles.tabBtn} ${tab === t.id ? styles.tabActive : ''}`}
@@ -799,6 +819,141 @@ export default function RestaurantDashboard({ userId, onClose }) {
           <p style={{ fontSize: 13, color: 'rgba(255,255,255,0.5)', margin: 0, maxWidth: 280 }}>Post time-limited deals from your menu. Attract new customers with exclusive discounts.</p>
           <button onClick={() => setDealHuntOpen(true)} style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '14px 28px', borderRadius: 14, background: '#8DC63F', border: 'none', color: '#000', fontSize: 16, fontWeight: 900, cursor: 'pointer', fontFamily: 'inherit', boxShadow: '0 4px 20px rgba(141,198,63,0.4)' }}>
             🔥 Post a Deal
+          </button>
+        </div>
+      )}
+
+      {/* ══════════════════════════════════════════════════════════════════════
+          REWARDS TAB
+      ══════════════════════════════════════════════════════════════════════ */}
+      {tab === 'rewards' && (
+        <div className={styles.form} style={{ padding: 20, display: 'flex', flexDirection: 'column', gap: 18 }}>
+          <div style={{ textAlign: 'center', marginBottom: 4 }}>
+            <span style={{ fontSize: 40 }}>🎁</span>
+            <h3 style={{ fontSize: 20, fontWeight: 900, color: '#fff', margin: '6px 0 2px' }}>Auto Reward Vouchers</h3>
+            <p style={{ fontSize: 12, color: 'rgba(255,255,255,0.45)', margin: 0 }}>Automatically send eat-in discount vouchers to customers after they complete an order</p>
+          </div>
+
+          {/* Toggle */}
+          <Toggle label="Auto-send eat-in voucher after orders" value={rewardEnabled} onChange={setRewardEnabled} />
+
+          {rewardEnabled && (<>
+            {/* Minimum order */}
+            <div className={styles.fieldGroup}>
+              <label className={styles.label}>Minimum order amount</label>
+              <div style={{ position: 'relative' }}>
+                <span style={{ position: 'absolute', left: 14, top: '50%', transform: 'translateY(-50%)', fontSize: 14, fontWeight: 700, color: 'rgba(255,255,255,0.4)' }}>Rp</span>
+                <input
+                  className={styles.input}
+                  type="number"
+                  value={rewardMinOrder}
+                  onChange={e => setRewardMinOrder(e.target.value)}
+                  placeholder="50000"
+                  style={{ paddingLeft: 42 }}
+                />
+              </div>
+            </div>
+
+            {/* Discount tier cards */}
+            <div className={styles.fieldGroup}>
+              <label className={styles.label}>Select discount tier</label>
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
+                {[
+                  { pct: 10, img: 'https://ik.imagekit.io/nepgaxllc/Untitledcccc-removebg-preview.png?updatedAt=1775721239226' },
+                  { pct: 15, img: 'https://ik.imagekit.io/nepgaxllc/dsasdasdasdasaaaaaa-removebg-preview.png?updatedAt=1775721303992' },
+                  { pct: 20, img: 'https://ik.imagekit.io/nepgaxllc/Untitledbbbbbbbbbbb-removebg-preview.png?updatedAt=1775721392211' },
+                  { pct: 25, img: 'https://ik.imagekit.io/nepgaxllc/Untitledxcvzcvzxcvzxc-removebg-preview.png?updatedAt=1775721470030' },
+                ].map(tier => (
+                  <button
+                    key={tier.pct}
+                    onClick={() => setRewardDiscount(tier.pct)}
+                    style={{
+                      background: 'rgba(255,255,255,0.04)',
+                      border: rewardDiscount === tier.pct ? '2px solid #8DC63F' : '2px solid rgba(255,255,255,0.08)',
+                      borderRadius: 14,
+                      padding: 8,
+                      cursor: 'pointer',
+                      display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 6,
+                      transition: 'border-color 0.2s',
+                    }}
+                  >
+                    <img src={tier.img} alt={`${tier.pct}% off`} style={{ width: '100%', height: 100, objectFit: 'contain', borderRadius: 10 }} />
+                    <span style={{ fontSize: 15, fontWeight: 900, color: rewardDiscount === tier.pct ? '#8DC63F' : 'rgba(255,255,255,0.6)' }}>{tier.pct}% Off</span>
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* Voucher validity */}
+            <div className={styles.fieldGroup}>
+              <label className={styles.label}>Voucher validity</label>
+              <select className={styles.select} value={rewardValidity} onChange={e => setRewardValidity(Number(e.target.value))}>
+                <option value={3}>3 days</option>
+                <option value={7}>7 days</option>
+                <option value={14}>14 days</option>
+              </select>
+            </div>
+
+            {/* Preview */}
+            <div style={{
+              background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.08)',
+              borderRadius: 16, padding: 16, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 8,
+            }}>
+              <span style={{ fontSize: 11, fontWeight: 700, color: 'rgba(255,255,255,0.35)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Customer Preview</span>
+              <div style={{ fontSize: 12, fontWeight: 700, color: 'rgba(255,255,255,0.5)', marginBottom: 2 }}>
+                🎁 Thank you! Here's a reward from {name || 'Your Restaurant'}
+              </div>
+              <img
+                src={{
+                  10: 'https://ik.imagekit.io/nepgaxllc/Untitledcccc-removebg-preview.png?updatedAt=1775721239226',
+                  15: 'https://ik.imagekit.io/nepgaxllc/dsasdasdasdasaaaaaa-removebg-preview.png?updatedAt=1775721303992',
+                  20: 'https://ik.imagekit.io/nepgaxllc/Untitledbbbbbbbbbbb-removebg-preview.png?updatedAt=1775721392211',
+                  25: 'https://ik.imagekit.io/nepgaxllc/Untitledxcvzcvzxcvzxc-removebg-preview.png?updatedAt=1775721470030',
+                }[rewardDiscount]}
+                alt={`${rewardDiscount}% off`}
+                style={{ width: '85%', maxWidth: 260, borderRadius: 14, objectFit: 'contain' }}
+              />
+              <div style={{
+                padding: '10px 16px', borderRadius: 12,
+                background: 'rgba(141,198,63,0.1)', border: '1px solid rgba(141,198,63,0.25)',
+                textAlign: 'center', width: '85%', maxWidth: 260,
+              }}>
+                <div style={{ fontSize: 14, fontWeight: 900, color: '#8DC63F' }}>{rewardDiscount}% Off Eat-In</div>
+                <div style={{
+                  margin: '6px 0', padding: '6px 12px', borderRadius: 8,
+                  background: 'rgba(0,0,0,0.3)', border: '1px dashed rgba(141,198,63,0.4)',
+                  fontFamily: 'monospace', fontSize: 16, fontWeight: 900, color: '#fff',
+                  letterSpacing: '0.1em',
+                }}>EATIN-XXXXXX</div>
+                <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.4)' }}>
+                  Valid for {rewardValidity} days after order
+                </div>
+              </div>
+            </div>
+          </>)}
+
+          {/* Save button */}
+          <button
+            onClick={() => {
+              const settings = {
+                enabled: rewardEnabled,
+                minOrder: Number(rewardMinOrder) || 50000,
+                discount: rewardDiscount,
+                validity: rewardValidity,
+              }
+              localStorage.setItem(`indoo_reward_settings_${userId}`, JSON.stringify(settings))
+              showToast('Reward settings saved ✓')
+            }}
+            style={{
+              padding: '14px 28px', borderRadius: 14,
+              background: '#8DC63F', border: 'none',
+              color: '#000', fontSize: 16, fontWeight: 900,
+              cursor: 'pointer', fontFamily: 'inherit',
+              boxShadow: '0 4px 20px rgba(141,198,63,0.4)',
+              opacity: 1,
+            }}
+          >
+            💾 Save Reward Settings
           </button>
         </div>
       )}

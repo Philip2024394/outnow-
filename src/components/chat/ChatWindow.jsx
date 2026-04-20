@@ -446,6 +446,37 @@ export default function ChatWindow({ conversation: conv, allConversations = [], 
       }
     }
 
+    // Auto-send eat-in reward voucher if restaurant has rewards enabled
+    if (newStatus === 'complete') {
+      try {
+        const rewardSettings = JSON.parse(localStorage.getItem(`indoo_reward_settings_${user?.uid ?? user?.id}`) || 'null')
+        if (rewardSettings?.enabled && order?.total >= rewardSettings.minOrder) {
+          const voucherCode = `EATIN-${Math.random().toString(36).substring(2, 8).toUpperCase()}`
+          const expiresAt = new Date(Date.now() + (rewardSettings.validity ?? 7) * 86400000).toISOString()
+          const REWARD_IMAGES = {
+            10: 'https://ik.imagekit.io/nepgaxllc/Untitledcccc-removebg-preview.png?updatedAt=1775721239226',
+            15: 'https://ik.imagekit.io/nepgaxllc/dsasdasdasdasaaaaaa-removebg-preview.png?updatedAt=1775721303992',
+            20: 'https://ik.imagekit.io/nepgaxllc/Untitledbbbbbbbbbbb-removebg-preview.png?updatedAt=1775721392211',
+            25: 'https://ik.imagekit.io/nepgaxllc/Untitledxcvzcvzxcvzxc-removebg-preview.png?updatedAt=1775721470030',
+          }
+          const rewardMsg = {
+            id: `reward-${Date.now()}`,
+            isRewardVoucher: true,
+            discountPct: rewardSettings.discount,
+            bannerImage: REWARD_IMAGES[rewardSettings.discount] ?? REWARD_IMAGES[10],
+            voucherCode,
+            expiresAt,
+            sellerName: conv.displayName,
+            time: Date.now(),
+          }
+          setTimeout(() => {
+            setMessages(prev => [...prev, rewardMsg])
+            onConvUpdate?.({ lastMessage: `🎁 ${rewardSettings.discount}% eat-in voucher sent`, lastMessageTime: Date.now() })
+          }, 2000) // 2s delay so it feels natural after completion
+        }
+      } catch {}
+    }
+
     // Inject cancelled banner into chat
     if (newStatus === 'cancelled') {
       const cancelBanner = {
@@ -816,6 +847,36 @@ export default function ChatWindow({ conversation: conv, allConversations = [], 
                   cancelCount={msg.cancelCount}
                   onVerify={(decision) => handlePaymentVerify(msg.id, decision)}
                 />
+              ) : msg.isRewardVoucher ? (
+                <div style={{
+                  width: '100%', padding: '12px 0',
+                  display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 8,
+                }}>
+                  <div style={{ fontSize: 12, fontWeight: 700, color: 'rgba(255,255,255,0.5)', marginBottom: 2 }}>
+                    🎁 Thank you! Here's a reward from {msg.sellerName}
+                  </div>
+                  <img
+                    src={msg.bannerImage}
+                    alt={`${msg.discountPct}% off`}
+                    style={{ width: '85%', maxWidth: 300, borderRadius: 14, objectFit: 'contain' }}
+                  />
+                  <div style={{
+                    padding: '10px 16px', borderRadius: 12,
+                    background: 'rgba(141,198,63,0.1)', border: '1px solid rgba(141,198,63,0.25)',
+                    textAlign: 'center', width: '85%', maxWidth: 300,
+                  }}>
+                    <div style={{ fontSize: 14, fontWeight: 900, color: '#8DC63F' }}>{msg.discountPct}% Off Eat-In</div>
+                    <div style={{
+                      margin: '6px 0', padding: '6px 12px', borderRadius: 8,
+                      background: 'rgba(0,0,0,0.3)', border: '1px dashed rgba(141,198,63,0.4)',
+                      fontFamily: 'monospace', fontSize: 16, fontWeight: 900, color: '#fff',
+                      letterSpacing: '0.1em',
+                    }}>{msg.voucherCode}</div>
+                    <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.4)' }}>
+                      Valid until {new Date(msg.expiresAt).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })}
+                    </div>
+                  </div>
+                </div>
               ) : msg.isCancelBanner ? (
                 <div style={{
                   width: '100%', padding: '12px 0',
