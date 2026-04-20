@@ -1026,7 +1026,7 @@ export default function AppShell({ returnParams, triggerGoLive }) {
       )}
 
       {/* Side nav — visible on marketplace with orange theme */}
-      {(!rideOpen || rideOnLanding) && (!massageOpen || massageOnLanding) && (!datingGridOpen || datingOnLanding) && activeTab !== 'rentals' && activeTab !== 'chat' && !shopOpen && !foodOpen && <AppShellBottomNav
+      {(!rideOpen || rideOnLanding) && (!massageOpen || massageOnLanding) && (!datingGridOpen || datingOnLanding) && activeTab !== 'rentals' && activeTab !== 'chat' && !shopOpen && !foodOpen && !dealHuntOpen && <AppShellBottomNav
           isGuest={isGuest} triggerGate={triggerGate} dockVisible={dockVisible}
           shopOpen={shopOpen} marketplaceLanding={marketplaceLanding}
           userProfile={userProfile} user={user} categorySessions={categorySessions}
