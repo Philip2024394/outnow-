@@ -9,10 +9,10 @@
 }
 
 .dockInner {
-  display: flex;
-  align-items: flex-start;
-  justify-content: space-between;
-  gap: 4px;
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 8px 0;
+  justify-items: center;
   pointer-events: all;
   padding: 0;
 }
@@ -32,8 +32,6 @@
   font-family: inherit;
   -webkit-tap-highlight-color: transparent;
   min-width: 0;
-  flex: 1;
-  max-width: 64px;
 }
 
 .dockBtn:active .iconWrap {
