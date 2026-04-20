@@ -174,6 +174,15 @@ export default function DealHuntLanding({ open, onClose, onSelectDeal, onCreateD
         </svg>
       </button>
 
+      {/* Location badge — top left, shows current deal's city */}
+      <div className={styles.locationBadge}>
+        <img src="https://ik.imagekit.io/nepgaxllc/Untitledbbbcdfsdfasdas-removebg-preview.png" alt="" className={styles.locationIcon} />
+        <div className={styles.locationText}>
+          <span className={styles.locationCity}>{deals[activeIndex]?.city ?? 'Indonesia'}</span>
+          <span className={styles.locationCountry}>Indonesia</span>
+        </div>
+      </div>
+
       {/* Title */}
       <div className={styles.headerTitle}>
         <span className={styles.headerBrand}>DEAL HUNT</span>
