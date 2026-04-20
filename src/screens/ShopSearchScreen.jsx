@@ -449,7 +449,7 @@ export default function ShopSearchScreen({ onClose, userCity, userCountry, giftF
       <p style={{ padding: '0 16px', fontSize: 13, color: 'rgba(255,255,255,0.5)', fontWeight: 600, margin: '0 0 12px', position: 'relative', zIndex: 1 }}>Buy · Sell · Trade — choose a category</p>
 
       {/* 6 Landscape cards */}
-      <div style={{ flex: 1, overflowY: 'auto', padding: '0 16px 80px', display: 'flex', flexDirection: 'column', gap: 12, position: 'relative', zIndex: 1 }}>
+      <div style={{ flex: 1, overflowY: 'auto', padding: '0 16px 24px', display: 'flex', flexDirection: 'column', gap: 12, position: 'relative', zIndex: 1 }}>
         {[
           { label: 'New Products', sub: 'Brand new goods from verified sellers', count: '24 items', rating: 4.8, icon: '✨', onClick: () => { setShowCategories(false) } },
           { label: 'Used Goods', sub: 'Pre-owned deals at great prices', count: '12 deals', rating: 4.6, icon: '🔄', onClick: () => { setShowCategories(false); onOpenUsedGoods?.() } },
@@ -503,33 +503,6 @@ export default function ShopSearchScreen({ onClose, userCity, userCountry, giftF
         ))}
       </div>
 
-      {/* Footer nav */}
-      <div style={{
-        position: 'fixed', bottom: 16, left: '50%', transform: 'translateX(-50%)',
-        zIndex: 99998, display: 'flex', alignItems: 'center', gap: 6,
-        background: 'rgba(0,0,0,0.45)', backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)',
-        border: '1px solid rgba(255,255,255,0.06)', borderRadius: 30, padding: '6px 8px',
-      }}>
-        {[
-          { label: 'Home', icon: <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>, action: () => { setShowCategories(false); setShowLanding(true); onLandingChange?.(true) } },
-          { label: 'Used', icon: <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 12a9 9 0 11-6.22-8.56"/><path d="M21 3v6h-6"/></svg>, action: () => { setShowCategories(false); onOpenUsedGoods?.() } },
-          { label: 'Alerts', icon: <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 01-3.46 0"/></svg>, action: () => onAlerts?.(), badge: true },
-          { label: 'Profile', icon: <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>, action: () => setBuyerProfileOpen(true) },
-        ].map((btn, i) => (
-          <button key={i} onClick={btn.action} style={{
-            display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
-            gap: 2, padding: '8px 16px', borderRadius: 22,
-            background: 'transparent', border: 'none', cursor: 'pointer',
-            color: 'rgba(255,255,255,0.45)', transition: 'all 0.2s',
-          }}>
-            <div style={{ position: 'relative' }}>
-              {btn.icon}
-              {btn.badge && <span style={{ position: 'absolute', top: -2, right: -2, width: 7, height: 7, borderRadius: '50%', background: '#EF4444', border: '1.5px solid #0e0e0e' }} />}
-            </div>
-            <span style={{ fontSize: 9, fontWeight: 700, letterSpacing: '0.03em' }}>{btn.label}</span>
-          </button>
-        ))}
-      </div>
     </div>
 
     {/* ── Products grid (M2) — hidden via display:none instead of unmounting ── */}
