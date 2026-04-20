@@ -526,24 +526,23 @@ export default function ChatWindow({ conversation: conv, allConversations = [], 
       orderId: orderMsg?.id ?? null,
       time: Date.now(),
     }
-    // Try to fetch seller's actual bank details from Supabase
+    // Try to fetch seller's actual bank details + QRIS from Supabase
     if (supabase && (user?.uid ?? user?.id)) {
-      supabase.from('seller_bank_details')
-        .select('bank_name, account_number, account_name')
-        .eq('user_id', user.uid ?? user.id)
-        .single()
-        .then(({ data }) => {
-          if (data) {
-            bankMsg.bankDetails = {
-              bankName: data.bank_name,
-              accountNumber: data.account_number,
-              accountName: data.account_name,
-              reference: orderRef,
-            }
-          }
-          setMessages(prev => [...prev, bankMsg])
-        })
-        .catch(() => setMessages(prev => [...prev, bankMsg]))
+      const sellerId = user.uid ?? user.id
+      Promise.all([
+        supabase.from('seller_bank_details').select('bank_name, account_number, account_name').eq('user_id', sellerId).single(),
+        supabase.from('restaurants').select('qris_image, bank_name, bank_account_number, bank_account_holder').eq('user_id', sellerId).single(),
+      ]).then(([bankRes, restRes]) => {
+        const bank = bankRes.data
+        const rest = restRes.data
+        if (bank) {
+          bankMsg.bankDetails = { bankName: bank.bank_name, accountNumber: bank.account_number, accountName: bank.account_name, reference: orderRef }
+        } else if (rest?.bank_name) {
+          bankMsg.bankDetails = { bankName: rest.bank_name, accountNumber: rest.bank_account_number, accountName: rest.bank_account_holder, reference: orderRef }
+        }
+        if (rest?.qris_image) bankMsg.qrisImage = rest.qris_image
+        setMessages(prev => [...prev, bankMsg])
+      }).catch(() => setMessages(prev => [...prev, bankMsg]))
     } else {
       setMessages(prev => [...prev, bankMsg])
     }
@@ -830,12 +829,21 @@ export default function ChatWindow({ conversation: conv, allConversations = [], 
                   onRespond={(decision, counterPrice) => handleOfferRespond(msg.id, decision, counterPrice)}
                 />
               ) : msg.isBankDetails ? (
-                <BankDetailsCard
-                  bankDetails={msg.bankDetails}
-                  fromMe={msg.fromMe}
-                  orderId={msg.orderId}
-                  onScreenshotUploaded={handleScreenshotUploaded}
-                />
+                <>
+                  <BankDetailsCard
+                    bankDetails={msg.bankDetails}
+                    fromMe={msg.fromMe}
+                    orderId={msg.orderId}
+                    onScreenshotUploaded={handleScreenshotUploaded}
+                  />
+                  {msg.qrisImage && (
+                    <div style={{ marginTop: 8, padding: 12, borderRadius: 14, background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(141,198,63,0.2)', textAlign: 'center' }}>
+                      <div style={{ fontSize: 12, fontWeight: 800, color: '#8DC63F', marginBottom: 8 }}>📱 Scan to Pay (QRIS)</div>
+                      <img src={msg.qrisImage} alt="QRIS" style={{ width: 160, height: 160, objectFit: 'contain', borderRadius: 12, background: '#fff', padding: 6 }} />
+                      <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.4)', marginTop: 6 }}>Works with GoPay, OVO, DANA & all banks</div>
+                    </div>
+                  )}
+                </>
               ) : msg.isPaymentVerification ? (
                 <PaymentVerificationCard
                   screenshotUrl={msg.screenshotUrl}

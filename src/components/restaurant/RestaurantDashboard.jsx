@@ -122,6 +122,8 @@ export default function RestaurantDashboard({ userId, onClose }) {
   const [bankName,            setBankName]            = useState('')
   const [bankAccount,         setBankAccount]         = useState('')
   const [bankHolder,          setBankHolder]          = useState('')
+  const [qrisImage,            setQrisImage]            = useState(null)
+  const [qrisUploading,        setQrisUploading]        = useState(false)
   const [instagram,           setInstagram]           = useState('')
   const [tiktok,              setTiktok]              = useState('')
   const [facebook,            setFacebook]            = useState('')
@@ -177,6 +179,7 @@ export default function RestaurantDashboard({ userId, onClose }) {
       setBankName(data.bank_name ?? '')
       setBankAccount(data.bank_account_number ?? '')
       setBankHolder(data.bank_account_holder ?? '')
+      setQrisImage(data.qris_image ?? null)
       setInstagram(data.instagram ?? '')
       setTiktok(data.tiktok ?? '')
       setFacebook(data.facebook ?? '')
@@ -330,6 +333,7 @@ export default function RestaurantDashboard({ userId, onClose }) {
       repeat_discount_percent: repeatDiscount    ? Number(repeatDiscount)    : null,
       repeat_discount_days:    repeatWindowDays  ? Number(repeatWindowDays)  : null,
       accepts_dating_orders:   acceptsDatingOrders,
+      qris_image:              qrisImage || null,
       updated_at: new Date().toISOString(),
     }).eq('id', restaurant.id)
     showToast('Business details saved ✓')
@@ -593,6 +597,48 @@ export default function RestaurantDashboard({ userId, onClose }) {
                     <span className={styles.bankPreviewNum}>{bankAccount}</span>
                     <span className={styles.bankPreviewHolder}>{bankHolder}</span>
                   </div>
+                )}
+              </Section>
+
+              <Section title="QRIS Payment Code" hint="Upload your QRIS code so customers can pay you directly via any payment app">
+                {qrisImage ? (
+                  <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 10 }}>
+                    <img src={qrisImage} alt="QRIS Code" style={{ width: 200, height: 200, objectFit: 'contain', borderRadius: 16, border: '2px solid rgba(141,198,63,0.3)', background: '#fff', padding: 8 }} />
+                    <div style={{ display: 'flex', gap: 8 }}>
+                      <button onClick={() => setQrisImage(null)} style={{ padding: '8px 16px', borderRadius: 10, background: 'rgba(239,68,68,0.12)', border: '1px solid rgba(239,68,68,0.3)', color: '#EF4444', fontSize: 12, fontWeight: 700, cursor: 'pointer', fontFamily: 'inherit' }}>Remove</button>
+                      <label style={{ padding: '8px 16px', borderRadius: 10, background: 'rgba(141,198,63,0.12)', border: '1px solid rgba(141,198,63,0.3)', color: '#8DC63F', fontSize: 12, fontWeight: 700, cursor: 'pointer' }}>
+                        Change
+                        <input type="file" accept="image/*" style={{ display: 'none' }} onChange={async (e) => {
+                          const file = e.target.files?.[0]; if (!file) return
+                          e.target.value = ''
+                          setQrisUploading(true)
+                          try {
+                            const { uploadImage } = await import('@/lib/uploadImage')
+                            const url = await uploadImage(file, 'qris-codes')
+                            setQrisImage(url)
+                          } catch { showToast('Upload failed') }
+                          setQrisUploading(false)
+                        }} />
+                      </label>
+                    </div>
+                  </div>
+                ) : (
+                  <label style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 10, padding: '24px 16px', borderRadius: 16, border: '2px dashed rgba(141,198,63,0.3)', background: 'rgba(141,198,63,0.04)', cursor: 'pointer', textAlign: 'center' }}>
+                    <span style={{ fontSize: 36 }}>📱</span>
+                    <span style={{ fontSize: 14, fontWeight: 800, color: '#8DC63F' }}>{qrisUploading ? 'Uploading...' : 'Upload QRIS Code'}</span>
+                    <span style={{ fontSize: 11, color: 'rgba(255,255,255,0.4)' }}>Works with GoPay, OVO, DANA, ShopeePay, BCA, BRI & all banks</span>
+                    <input type="file" accept="image/*" style={{ display: 'none' }} onChange={async (e) => {
+                      const file = e.target.files?.[0]; if (!file) return
+                      e.target.value = ''
+                      setQrisUploading(true)
+                      try {
+                        const { uploadImage } = await import('@/lib/uploadImage')
+                        const url = await uploadImage(file, 'qris-codes')
+                        setQrisImage(url)
+                      } catch { showToast('Upload failed') }
+                      setQrisUploading(false)
+                    }} />
+                  </label>
                 )}
               </Section>
 
