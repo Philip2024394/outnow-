@@ -3,6 +3,7 @@ import { supabase } from '@/lib/supabase'
 import { useGeolocation } from '@/hooks/useGeolocation'
 import { haversineKm } from '@/utils/distance'
 import RestaurantMenuSheet from '@/components/restaurant/RestaurantMenuSheet'
+import VendorOnboarding from '@/components/restaurant/VendorOnboarding'
 import SectionCTAButton from '@/components/ui/SectionCTAButton'
 import { hasVisitedSection, markSectionVisited } from '@/services/sectionVisitService'
 import styles from './RestaurantBrowseScreen.module.css'
@@ -401,6 +402,7 @@ function toggleFavorite(restaurant) {
 // ── Main component ────────────────────────────────────────────────────────────
 export default function RestaurantBrowseScreen({ onClose, onBackToCategories, category, scrollToId, onOrderViaChat }) {
   const [showLanding, setShowLanding] = useState(true)
+  const [vendorOnboardOpen, setVendorOnboardOpen] = useState(false)
   const [restaurants,    setRestaurants]    = useState([])
   const [loading,        setLoading]        = useState(true)
   const [activeIndex,    setActiveIndex]    = useState(0)
@@ -496,7 +498,7 @@ export default function RestaurantBrowseScreen({ onClose, onBackToCategories, ca
     <div style={{ display: showLanding ? undefined : 'none' }}>
       <FoodLanding
         onBrowse={() => { markSectionVisited('food'); setShowLanding(false) }}
-        onRegister={() => { markSectionVisited('food'); setShowLanding(false) }}
+        onRegister={() => { markSectionVisited('food'); setVendorOnboardOpen(true) }}
         onClose={onClose}
       />
     </div>
@@ -615,6 +617,17 @@ export default function RestaurantBrowseScreen({ onClose, onBackToCategories, ca
           onOrderViaChat={onOrderViaChat ?? null}
         />
       )}
+
+      {/* Vendor onboarding wizard */}
+      <VendorOnboarding
+        open={vendorOnboardOpen}
+        onClose={() => setVendorOnboardOpen(false)}
+        onComplete={(data) => {
+          setVendorOnboardOpen(false)
+          setShowLanding(false)
+        }}
+        userId={null}
+      />
     </div>
   </>)
 }

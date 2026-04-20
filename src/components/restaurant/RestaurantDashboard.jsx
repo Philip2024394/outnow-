@@ -9,6 +9,7 @@ import {
   confirmPaymentReceived,
 } from '@/services/foodOrderService'
 import PostDealWidget from '@/domains/dealhunt/components/PostDealWidget'
+import VendorAnalytics from './VendorAnalytics'
 import { FREE_ITEM_BADGES, DAILY_PROMO_TEMPLATES, PROMO_OFFERS, DAYS_OF_WEEK } from '@/constants/restaurantPromos'
 
 const FOOD_CATEGORIES = [
@@ -459,6 +460,7 @@ export default function RestaurantDashboard({ userId, onClose }) {
           { id: 'orders',   label: '📦 Orders'   },
           { id: 'dealhunt', label: '🔥 Deal Hunt' },
           { id: 'rewards',  label: '🎁 Promos' },
+          { id: 'analytics', label: '📊 Analytics' },
         ].map(t => (
           <button key={t.id}
             className={`${styles.tabBtn} ${tab === t.id ? styles.tabActive : ''}`}
@@ -1365,6 +1367,15 @@ export default function RestaurantDashboard({ userId, onClose }) {
               </div>
             )}
           </div>
+        </div>
+      )}
+
+      {/* ══════════════════════════════════════════════════════════════════════
+          ANALYTICS TAB
+      ══════════════════════════════════════════════════════════════════════ */}
+      {tab === 'analytics' && (
+        <div className={styles.form} style={{ padding: 16 }}>
+          <VendorAnalytics restaurantId={restaurant?.id} userId={userId} />
         </div>
       )}
 
