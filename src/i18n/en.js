@@ -41,7 +41,7 @@ export default {
   'icons.street':  'The Street',
   'icons.dating':  'Dating',
   'icons.car':     'Car',
-  'icons.shop':    'Shop',
+  'icons.shop':    'Market',
   'icons.massage': 'Massage',
   'icons.rentals': 'Rentals',
 

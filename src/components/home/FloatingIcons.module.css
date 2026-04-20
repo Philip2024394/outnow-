@@ -76,20 +76,26 @@
   filter: drop-shadow(0 1px 4px rgba(0,0,0,0.5));
 }
 
-/* Label under each circle */
-.dockLabel {
-  font-size: 11px;
-  font-weight: 800;
-  color: rgba(255, 255, 255, 0.85);
-  letter-spacing: 0.02em;
-  line-height: 1.1;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  max-width: 72px;
-  text-align: center;
+/* Arched SVG text inside circle */
+.arcLabel {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
   pointer-events: none;
-  text-shadow: 0 1px 6px rgba(0,0,0,0.9), 0 0 12px rgba(0,0,0,0.6);
+}
+.arcLabel text {
+  fill: rgba(255, 255, 255, 0.9);
+  font-size: 9px;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+/* Hidden — label now inside circle as arched text */
+.dockLabel {
+  display: none;
 }
 
 /* Live session count badge — top right of circle */

@@ -51,6 +51,17 @@ export default function FloatingIcons({ sessions = [], serviceCounts = {}, onSel
                     alt={icon.label}
                     className={icon.vehicle ? styles.dockImgVehicle : styles.dockImgSquare}
                   />
+                  {/* Arched label inside circle */}
+                  <svg className={styles.arcLabel} viewBox="0 0 68 68" xmlns="http://www.w3.org/2000/svg">
+                    <defs>
+                      <path id={`arc-${icon.id}`} d="M 10,34 a 24,24 0 0,0 48,0" transform="rotate(180,34,34)" />
+                    </defs>
+                    <text>
+                      <textPath href={`#arc-${icon.id}`} startOffset="50%" textAnchor="middle">
+                        {t(icon.labelKey)}
+                      </textPath>
+                    </text>
+                  </svg>
                   {/* Red notification badge — takes priority over session count */}
                   {(serviceCounts[icon.id] ?? 0) > 0 ? (
                     <span className={styles.notifBadge}>{serviceCounts[icon.id]}</span>
@@ -58,7 +69,6 @@ export default function FloatingIcons({ sessions = [], serviceCounts = {}, onSel
                     <span className={styles.badge}>{count}</span>
                   ) : null}
                 </div>
-                <span className={styles.dockLabel}>{t(icon.labelKey)}</span>
               </button>
             )
           })}
