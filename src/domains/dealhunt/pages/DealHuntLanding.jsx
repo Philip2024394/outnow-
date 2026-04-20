@@ -91,7 +91,7 @@ function DealSlide({ deal, isActive, onClaim, onChat }) {
               <button className={styles.reviewsClose} onClick={() => setReviewsOpen(false)}>✕</button>
             </div>
             {dealReviews.length === 0 ? (
-              <p className={styles.reviewsEmpty}>Belum ada review untuk deal ini</p>
+              <p className={styles.reviewsEmpty}>No reviews for this deal yet</p>
             ) : (
               <div className={styles.reviewsList}>
                 {dealReviews.map(r => (
@@ -143,8 +143,8 @@ function DealSlide({ deal, isActive, onClaim, onChat }) {
             />
           </div>
           <div className={styles.progressInfo}>
-            <span>{deal.quantity_claimed} dari {deal.quantity_available} diklaim</span>
-            {almostGone && <span className={styles.almostGone}>Segera Habis!</span>}
+            <span>{deal.quantity_claimed} of {deal.quantity_available} claimed</span>
+            {almostGone && <span className={styles.almostGone}>Almost Gone!</span>}
           </div>
         </div>
 
@@ -162,11 +162,11 @@ function DealSlide({ deal, isActive, onClaim, onChat }) {
           onClick={() => !expired && pct < 100 && onClaim?.(deal)}
           disabled={expired || pct >= 100}
         >
-          {pct >= 100 ? 'Habis!' : expired ? 'Deal Berakhir' : `🔥 Claim Sekarang — ${fmtRp(deal.deal_price)}`}
+          {pct >= 100 ? 'Sold Out!' : expired ? 'Deal Ended' : `🔥 Claim Now — ${fmtRp(deal.deal_price)}`}
         </button>
 
         {/* Social proof */}
-        <p className={styles.socialProof}>{Math.floor(Math.random() * 200 + 50)} orang melihat deal ini</p>
+        <p className={styles.socialProof}>{Math.floor(Math.random() * 200 + 50)} people viewing this deal</p>
       </div>
     </div>
   )
