@@ -94,7 +94,7 @@
   pointer-events: none;
 }
 .arcLabel text {
-  fill: rgba(255, 255, 255, 0.92);
+  fill: #8DC63F;
   font-size: 13px;
   font-weight: 800;
   letter-spacing: 0.05em;
