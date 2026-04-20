@@ -177,7 +177,7 @@ export default function DealHuntLanding({ open, onClose, onSelectDeal, onCreateD
       {/* Location badge — top left, shows current deal's city */}
       <div className={styles.locationBadge}>
         <div className={styles.locationPin}>
-          <svg width="22" height="22" viewBox="0 0 24 24" fill="#8DC63F" stroke="none">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="#EF4444" stroke="none">
             <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5a2.5 2.5 0 010-5 2.5 2.5 0 010 5z"/>
           </svg>
         </div>

@@ -41,14 +41,14 @@
 }
 .locationLine {
   display: block;
-  height: 2px;
+  height: 3.5px;
   background: #8DC63F;
-  border-radius: 1px;
-  margin: 2px 0;
-  width: calc(100% + 28px);
-  margin-left: -28px;
+  border-radius: 2px;
+  margin: 3px 0;
+  width: calc(100% + 46px);
+  margin-left: -46px;
   position: relative; z-index: 1;
-  box-shadow: 0 0 6px rgba(141,198,63,0.4);
+  box-shadow: 0 0 8px rgba(141,198,63,0.5);
 }
 .locationCountry {
   font-size: 13px; font-weight: 700; color: rgba(255,255,255,0.55);
