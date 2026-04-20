@@ -1,336 +1,199 @@
-import React, { useState, useMemo, useEffect, useRef, useCallback } from 'react';
-import { createPortal } from 'react-dom';
-import styles from './DealHuntLanding.module.css';
+import { useState, useEffect, useRef, useCallback } from 'react'
+import { createPortal } from 'react-dom'
+import styles from './DealHuntLanding.module.css'
 
-// Component imports — will gracefully degrade if not yet built
-let DealCard, DealFilters, CountdownTimer;
-try { DealCard = require('../components/DealCard').default; } catch { DealCard = null; }
-try { DealFilters = require('../components/DealFilters').default; } catch { DealFilters = null; }
-try { CountdownTimer = require('../components/CountdownTimer').default; } catch { CountdownTimer = null; }
-
-// Hook import — fallback to demo data
-let useDeals;
-try { useDeals = require('../hooks/useDeals').default; } catch { useDeals = null; }
-
-// ── Demo data ──────────────────────────────────────────────
+// ── Demo deals with larger images ─────────────────────────────────────────────
 const DEMO_DEALS = [
-  { id: 'd1', title: 'Nasi Goreng Spesial', domain: 'food', seller_name: 'Warung Bu Sari', original_price: 35000, deal_price: 19000, quantity_available: 50, quantity_claimed: 38, end_time: Date.now() + 3*3600000, images: ['https://picsum.photos/seed/deal1/400/300'], city: 'Yogyakarta', is_hot: true },
-  { id: 'd2', title: 'Leather Wallet Handmade', domain: 'marketplace', seller_name: 'Kulit Asli', original_price: 250000, deal_price: 149000, quantity_available: 20, quantity_claimed: 14, end_time: Date.now() + 5*3600000, images: ['https://picsum.photos/seed/deal2/400/300'], city: 'Jakarta' },
-  { id: 'd3', title: 'Full Body Massage 90min', domain: 'massage', seller_name: 'Zen Spa Jogja', original_price: 200000, deal_price: 120000, quantity_available: 15, quantity_claimed: 11, end_time: Date.now() + 2*3600000, images: ['https://picsum.photos/seed/deal3/400/300'], city: 'Yogyakarta', is_hot: true },
-  { id: 'd4', title: 'Honda Vario 125 Sewa Harian', domain: 'rentals', seller_name: 'Jogja Rental', original_price: 100000, deal_price: 65000, quantity_available: 8, quantity_claimed: 5, end_time: Date.now() + 7*3600000, images: ['https://picsum.photos/seed/deal4/400/300'], city: 'Yogyakarta' },
-  { id: 'd5', title: 'Bakso Jumbo + Es Teh', domain: 'food', seller_name: 'Bakso Pak Budi', original_price: 25000, deal_price: 15000, quantity_available: 100, quantity_claimed: 87, end_time: Date.now() + 1*3600000, images: ['https://picsum.photos/seed/deal5/400/300'], city: 'Semarang', is_hot: true },
-  { id: 'd6', title: 'Wireless Earbuds Pro', domain: 'marketplace', seller_name: 'TechMax ID', original_price: 450000, deal_price: 279000, quantity_available: 30, quantity_claimed: 12, end_time: Date.now() + 6*3600000, images: ['https://picsum.photos/seed/deal6/400/300'], city: 'Jakarta' },
-  { id: 'd7', title: 'Ojek Bandara Jogja', domain: 'rides', seller_name: 'GoJek Partner', original_price: 80000, deal_price: 45000, quantity_available: 25, quantity_claimed: 18, end_time: Date.now() + 4*3600000, images: ['https://picsum.photos/seed/deal7/400/300'], city: 'Yogyakarta' },
-  { id: 'd8', title: 'Couple Massage + Sauna', domain: 'massage', seller_name: 'Bali Spa', original_price: 500000, deal_price: 299000, quantity_available: 10, quantity_claimed: 8, end_time: Date.now() + 1.5*3600000, images: ['https://picsum.photos/seed/deal8/400/300'], city: 'Bali', is_hot: true },
-];
+  { id: 'd1', title: 'Nasi Goreng Spesial', domain: 'food', sub: 'Nasi goreng kampung dengan telur mata sapi, kerupuk, dan acar segar', seller_name: 'Warung Bu Sari', seller_photo: 'https://i.pravatar.cc/80?img=1', seller_rating: 4.8, original_price: 35000, deal_price: 19000, quantity_available: 50, quantity_claimed: 38, end_time: Date.now() + 3*3600000, images: ['https://picsum.photos/seed/nasgor/1080/1920'], city: 'Yogyakarta', is_hot: true },
+  { id: 'd2', title: 'Leather Wallet Handmade', domain: 'marketplace', sub: 'Dompet kulit asli buatan tangan, jahitan rapi, tahan lama', seller_name: 'Kulit Asli', seller_photo: 'https://i.pravatar.cc/80?img=5', seller_rating: 4.6, original_price: 250000, deal_price: 149000, quantity_available: 20, quantity_claimed: 14, end_time: Date.now() + 5*3600000, images: ['https://picsum.photos/seed/wallet/1080/1920'], city: 'Jakarta' },
+  { id: 'd3', title: 'Full Body Massage 90min', domain: 'massage', sub: 'Relaksasi total dengan aromaterapi dan hot stone pilihan', seller_name: 'Zen Spa Jogja', seller_photo: 'https://i.pravatar.cc/80?img=9', seller_rating: 4.9, original_price: 200000, deal_price: 120000, quantity_available: 15, quantity_claimed: 11, end_time: Date.now() + 2*3600000, images: ['https://picsum.photos/seed/massage/1080/1920'], city: 'Yogyakarta', is_hot: true },
+  { id: 'd4', title: 'Honda Vario 125 Sewa Harian', domain: 'rentals', sub: 'Motor matic terawat, helm & jas hujan gratis, antar jemput', seller_name: 'Jogja Rental', seller_photo: 'https://i.pravatar.cc/80?img=14', seller_rating: 4.7, original_price: 100000, deal_price: 65000, quantity_available: 8, quantity_claimed: 5, end_time: Date.now() + 7*3600000, images: ['https://picsum.photos/seed/vario/1080/1920'], city: 'Yogyakarta' },
+  { id: 'd5', title: 'Bakso Jumbo + Es Teh', domain: 'food', sub: 'Bakso urat jumbo dengan kuah kaldu sapi spesial, es teh manis', seller_name: 'Bakso Pak Budi', seller_photo: 'https://i.pravatar.cc/80?img=20', seller_rating: 4.8, original_price: 25000, deal_price: 15000, quantity_available: 100, quantity_claimed: 87, end_time: Date.now() + 1*3600000, images: ['https://picsum.photos/seed/bakso/1080/1920'], city: 'Semarang', is_hot: true },
+  { id: 'd6', title: 'Wireless Earbuds Pro', domain: 'marketplace', sub: 'TWS noise cancelling, 30 jam battery, waterproof IPX5', seller_name: 'TechMax ID', seller_photo: 'https://i.pravatar.cc/80?img=25', seller_rating: 4.5, original_price: 450000, deal_price: 279000, quantity_available: 30, quantity_claimed: 12, end_time: Date.now() + 6*3600000, images: ['https://picsum.photos/seed/earbuds/1080/1920'], city: 'Jakarta' },
+  { id: 'd7', title: 'Ojek Bandara Jogja', domain: 'rides', sub: 'Antar jemput bandara Adisucipto, motor bersih, driver ramah', seller_name: 'IndooRide Partner', seller_photo: 'https://i.pravatar.cc/80?img=33', seller_rating: 4.6, original_price: 80000, deal_price: 45000, quantity_available: 25, quantity_claimed: 18, end_time: Date.now() + 4*3600000, images: ['https://picsum.photos/seed/ojek/1080/1920'], city: 'Yogyakarta' },
+  { id: 'd8', title: 'Couple Massage + Sauna', domain: 'massage', sub: 'Paket romantis 120 menit untuk berdua, include sauna & teh herbal', seller_name: 'Bali Spa', seller_photo: 'https://i.pravatar.cc/80?img=44', seller_rating: 4.9, original_price: 500000, deal_price: 299000, quantity_available: 10, quantity_claimed: 8, end_time: Date.now() + 1.5*3600000, images: ['https://picsum.photos/seed/couple/1080/1920'], city: 'Bali', is_hot: true },
+]
 
-// ── Categories ─────────────────────────────────────────────
-const CATEGORIES = [
-  { key: 'all', label: 'Semua' },
-  { key: 'food', label: '\u{1F37D}\uFE0F Food' },
-  { key: 'marketplace', label: '\u{1F6CD}\uFE0F Market' },
-  { key: 'massage', label: '\u{1F486} Massage' },
-  { key: 'rentals', label: '\u{1F697} Rentals' },
-  { key: 'rides', label: '\u{1F3CD}\uFE0F Rides' },
-];
+const DOMAIN_COLORS = { food: '#F97316', marketplace: '#8DC63F', massage: '#A855F7', rentals: '#3B82F6', rides: '#EAB308' }
+const DOMAIN_LABELS = { food: '🍽️ Makanan', marketplace: '🛍️ Market', massage: '💆 Massage', rentals: '🚗 Rental', rides: '🏍️ Ojek' }
 
-// ── Sort options ───────────────────────────────────────────
-const SORT_OPTIONS = [
-  { value: 'ending_soon', label: 'Segera Berakhir' },
-  { value: 'newest', label: 'Terbaru' },
-  { value: 'biggest_discount', label: 'Diskon Terbesar' },
-  { value: 'lowest_price', label: 'Harga Terendah' },
-];
+function fmtRp(n) { return `Rp${(n ?? 0).toLocaleString('id-ID')}` }
 
-// ── Inline countdown (fallback if CountdownTimer missing) ─
-function InlineCountdown({ targetTime }) {
-  const [remaining, setRemaining] = useState('');
-
+// ── Countdown hook ────────────────────────────────────────────────────────────
+function useCountdown(endTime) {
+  const [now, setNow] = useState(Date.now())
   useEffect(() => {
-    function tick() {
-      const diff = Math.max(0, targetTime - Date.now());
-      const h = String(Math.floor(diff / 3600000)).padStart(2, '0');
-      const m = String(Math.floor((diff % 3600000) / 60000)).padStart(2, '0');
-      const s = String(Math.floor((diff % 60000) / 1000)).padStart(2, '0');
-      setRemaining(`${h}:${m}:${s}`);
-    }
-    tick();
-    const id = setInterval(tick, 1000);
-    return () => clearInterval(id);
-  }, [targetTime]);
-
-  return <span className={styles.countdownTime}>{remaining}</span>;
+    const id = setInterval(() => setNow(Date.now()), 1000)
+    return () => clearInterval(id)
+  }, [])
+  const diff = Math.max(0, endTime - now)
+  const h = Math.floor(diff / 3600000)
+  const m = Math.floor((diff % 3600000) / 60000)
+  const s = Math.floor((diff % 60000) / 1000)
+  return { h, m, s, expired: diff <= 0, urgent: diff < 3600000 && diff > 0 }
 }
 
-// ── Fallback DealCard ──────────────────────────────────────
-function FallbackDealCard({ deal, onTap }) {
-  const pct = Math.round(((deal.original_price - deal.deal_price) / deal.original_price) * 100);
-  const claimed = Math.round((deal.quantity_claimed / deal.quantity_available) * 100);
+// ── Single full-screen deal slide ─────────────────────────────────────────────
+function DealSlide({ deal, isActive, onClaim, onChat }) {
+  const { h, m, s, expired, urgent } = useCountdown(deal.end_time)
+  const pct = Math.round((deal.quantity_claimed / deal.quantity_available) * 100)
+  const discount = Math.round((1 - deal.deal_price / deal.original_price) * 100)
+  const almostGone = pct >= 80
 
   return (
-    <div
-      onClick={onTap}
-      style={{
-        background: 'rgba(255,255,255,0.04)',
-        borderRadius: 12,
-        overflow: 'hidden',
-        cursor: 'pointer',
-        border: '1px solid rgba(255,255,255,0.06)',
-        transition: 'transform 0.2s',
-      }}
-    >
-      <div style={{ position: 'relative' }}>
-        <img
-          src={deal.images?.[0] || 'https://picsum.photos/400/300'}
-          alt={deal.title}
-          style={{ width: '100%', height: 130, objectFit: 'cover', display: 'block' }}
-          loading="lazy"
-        />
-        {deal.is_hot && (
-          <span style={{
-            position: 'absolute', top: 6, left: 6,
-            background: '#e53935', color: '#fff', fontSize: 10,
-            fontWeight: 700, padding: '2px 7px', borderRadius: 4,
-          }}>
-            SEGERA HABIS
-          </span>
-        )}
-        <span style={{
-          position: 'absolute', top: 6, right: 6,
-          background: '#8DC63F', color: '#000', fontSize: 11,
-          fontWeight: 800, padding: '2px 7px', borderRadius: 4,
-        }}>
-          -{pct}%
-        </span>
+    <div className={styles.slide}>
+      {/* Full-screen background image */}
+      <div className={styles.slideBg} style={{ backgroundImage: `url("${deal.images?.[0] ?? ''}")` }} />
+      <div className={styles.slideScrim} />
+
+      {/* Discount badge — top right */}
+      <div className={styles.discountBadge}>-{discount}%</div>
+
+      {/* HOT badge — top left */}
+      {deal.is_hot && <div className={styles.hotBadge}>🔥 HOT</div>}
+
+      {/* Right-side action buttons (TikTok style) */}
+      <div className={styles.sideActions}>
+        <button className={styles.sideBtn} onClick={() => onChat?.(deal)}>
+          <svg width="26" height="26" viewBox="0 0 24 24" fill="#fff" stroke="none"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+          <span>Chat</span>
+        </button>
+        <button className={styles.sideBtn} onClick={() => { try { navigator.share?.({ title: deal.title, text: `${deal.title} cuma ${fmtRp(deal.deal_price)}! 🔥`, url: window.location.href }) } catch {} }}>
+          <svg width="26" height="26" viewBox="0 0 24 24" fill="#fff" stroke="none"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><path d="M8.59 13.51l6.83 3.98M15.41 6.51l-6.82 3.98" stroke="#fff" strokeWidth="1.5"/></svg>
+          <span>Share</span>
+        </button>
+        <div className={styles.sideBtn}>
+          <img src={deal.seller_photo ?? 'https://i.pravatar.cc/80'} alt="" className={styles.sellerAvatar} />
+          <span>{deal.seller_name?.split(' ')[0]}</span>
+        </div>
       </div>
-      <div style={{ padding: '10px 10px 12px' }}>
-        <div style={{ fontSize: 13, fontWeight: 700, color: '#eee', marginBottom: 4, lineHeight: 1.3,
-          overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-          {deal.title}
+
+      {/* Bottom overlay — deal info */}
+      <div className={styles.slideBottom}>
+        {/* Domain pill */}
+        <span className={styles.domainPill} style={{ background: `${DOMAIN_COLORS[deal.domain] ?? '#8DC63F'}22`, borderColor: `${DOMAIN_COLORS[deal.domain] ?? '#8DC63F'}55`, color: DOMAIN_COLORS[deal.domain] ?? '#8DC63F' }}>
+          {DOMAIN_LABELS[deal.domain] ?? deal.domain}
+        </span>
+
+        {/* Title */}
+        <h2 className={styles.slideTitle}>{deal.title}</h2>
+
+        {/* Description */}
+        <p className={styles.slideSub}>{deal.sub}</p>
+
+        {/* Seller + location */}
+        <div className={styles.sellerRow}>
+          <img src={deal.seller_photo ?? 'https://i.pravatar.cc/40'} alt="" className={styles.sellerThumb} />
+          <span className={styles.sellerName}>{deal.seller_name}</span>
+          {deal.seller_rating && <span className={styles.sellerRating}>★ {deal.seller_rating}</span>}
+          <span className={styles.sellerCity}>📍 {deal.city}</span>
         </div>
-        <div style={{ fontSize: 11, color: '#888', marginBottom: 6 }}>{deal.seller_name}</div>
-        <div style={{ display: 'flex', alignItems: 'baseline', gap: 6 }}>
-          <span style={{ fontSize: 15, fontWeight: 800, color: '#8DC63F' }}>
-            Rp{deal.deal_price.toLocaleString('id-ID')}
+
+        {/* Price row */}
+        <div className={styles.priceRow}>
+          <span className={styles.dealPrice}>{fmtRp(deal.deal_price)}</span>
+          <span className={styles.origPrice}>{fmtRp(deal.original_price)}</span>
+          <span className={styles.saveBadge}>Hemat {fmtRp(deal.original_price - deal.deal_price)}</span>
+        </div>
+
+        {/* Progress bar */}
+        <div className={styles.progressWrap}>
+          <div className={styles.progressTrack}>
+            <div
+              className={styles.progressFill}
+              style={{
+                width: `${pct}%`,
+                background: pct > 80 ? '#EF4444' : pct > 50 ? '#F59E0B' : '#8DC63F',
+              }}
+            />
+          </div>
+          <div className={styles.progressInfo}>
+            <span>{deal.quantity_claimed} dari {deal.quantity_available} diklaim</span>
+            {almostGone && <span className={styles.almostGone}>Segera Habis!</span>}
+          </div>
+        </div>
+
+        {/* Countdown */}
+        <div className={`${styles.countdown} ${urgent ? styles.countdownUrgent : ''}`}>
+          <span>⏰</span>
+          <span className={styles.countdownDigits}>
+            {expired ? 'EXPIRED' : `${String(h).padStart(2,'0')}:${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`}
           </span>
-          <span style={{ fontSize: 11, color: '#666', textDecoration: 'line-through' }}>
-            Rp{deal.original_price.toLocaleString('id-ID')}
-          </span>
         </div>
-        {/* Claim progress bar */}
-        <div style={{
-          marginTop: 8, background: 'rgba(255,255,255,0.06)', borderRadius: 6,
-          height: 6, overflow: 'hidden', position: 'relative',
-        }}>
-          <div style={{
-            width: `${claimed}%`, height: '100%', borderRadius: 6,
-            background: claimed > 75 ? '#e53935' : '#8DC63F',
-            transition: 'width 0.6s ease',
-          }} />
-        </div>
-        <div style={{ fontSize: 10, color: '#777', marginTop: 4 }}>
-          {deal.quantity_claimed}/{deal.quantity_available} terjual
-        </div>
+
+        {/* Claim button */}
+        <button
+          className={`${styles.claimBtn} ${expired || pct >= 100 ? styles.claimBtnDisabled : ''}`}
+          onClick={() => !expired && pct < 100 && onClaim?.(deal)}
+          disabled={expired || pct >= 100}
+        >
+          {pct >= 100 ? 'Habis!' : expired ? 'Deal Berakhir' : `🔥 Claim Sekarang — ${fmtRp(deal.deal_price)}`}
+        </button>
+
+        {/* Social proof */}
+        <p className={styles.socialProof}>{Math.floor(Math.random() * 200 + 50)} orang melihat deal ini</p>
       </div>
     </div>
-  );
+  )
 }
 
-// ════════════════════════════════════════════════════════════
-// DealHuntLanding
-// ════════════════════════════════════════════════════════════
+// ── Main TikTok-style feed ────────────────────────────────────────────────────
 export default function DealHuntLanding({ open, onClose, onSelectDeal, onCreateDeal }) {
-  const [activeCategory, setActiveCategory] = useState('all');
-  const [sortBy, setSortBy] = useState('ending_soon');
-  const [searchOpen, setSearchOpen] = useState(false);
-  const [searchQuery, setSearchQuery] = useState('');
-  const searchInputRef = useRef(null);
-  const categoryScrollRef = useRef(null);
+  const [activeIndex, setActiveIndex] = useState(0)
+  const containerRef = useRef(null)
+  const deals = DEMO_DEALS
 
-  // Try hook, fall back to demo data
-  const hookData = useDeals ? useDeals() : null;
-  const rawDeals = hookData?.deals || DEMO_DEALS;
+  const handleScroll = useCallback(() => {
+    const el = containerRef.current
+    if (!el) return
+    const idx = Math.round(el.scrollTop / el.clientHeight)
+    if (idx !== activeIndex && idx >= 0 && idx < deals.length) setActiveIndex(idx)
+  }, [activeIndex, deals.length])
 
-  // Batch expiry = earliest end_time among deals
-  const batchExpiry = useMemo(() => {
-    if (!rawDeals.length) return Date.now() + 3600000;
-    return Math.min(...rawDeals.map(d => d.end_time));
-  }, [rawDeals]);
+  if (!open) return null
 
-  // Filter & sort
-  const deals = useMemo(() => {
-    let list = [...rawDeals];
-
-    // Category filter
-    if (activeCategory !== 'all') {
-      list = list.filter(d => d.domain === activeCategory);
-    }
-
-    // Search filter
-    if (searchQuery.trim()) {
-      const q = searchQuery.toLowerCase();
-      list = list.filter(d =>
-        d.title.toLowerCase().includes(q) ||
-        d.seller_name.toLowerCase().includes(q) ||
-        d.city?.toLowerCase().includes(q)
-      );
-    }
-
-    // Sort
-    switch (sortBy) {
-      case 'ending_soon':
-        list.sort((a, b) => a.end_time - b.end_time);
-        break;
-      case 'newest':
-        list.sort((a, b) => b.end_time - a.end_time);
-        break;
-      case 'biggest_discount':
-        list.sort((a, b) => {
-          const dA = (a.original_price - a.deal_price) / a.original_price;
-          const dB = (b.original_price - b.deal_price) / b.original_price;
-          return dB - dA;
-        });
-        break;
-      case 'lowest_price':
-        list.sort((a, b) => a.deal_price - b.deal_price);
-        break;
-      default:
-        break;
-    }
-
-    return list;
-  }, [rawDeals, activeCategory, sortBy, searchQuery]);
-
-  // Auto-focus search input
-  useEffect(() => {
-    if (searchOpen && searchInputRef.current) {
-      searchInputRef.current.focus();
-    }
-  }, [searchOpen]);
-
-  const handleCategoryTap = useCallback((key) => {
-    setActiveCategory(key);
-  }, []);
-
-  // Don't render when closed
-  if (!open) return null;
-
-  const CardComponent = DealCard || FallbackDealCard;
-
-  const content = (
-    <div className={styles.overlay}>
-      <div className={styles.container}>
-        {/* ── Header ── */}
-        <header className={styles.header}>
-          <button className={styles.backBtn} onClick={onClose} aria-label="Kembali">
-            &#8592;
-          </button>
-          <span className={styles.brandTitle}>INDOO DEAL HUNT</span>
-          <button className={styles.searchBtn} onClick={() => setSearchOpen(true)} aria-label="Cari">
-            &#128269;
-          </button>
-        </header>
-
-        {/* ── Countdown Banner ── */}
-        <div className={styles.countdownBanner}>
-          <span className={styles.fireIcon}>&#128293;</span>
-          <span className={styles.countdownLabel}>Berakhir dalam</span>
-          {CountdownTimer
-            ? <CountdownTimer targetTime={batchExpiry} className={styles.countdownTime} />
-            : <InlineCountdown targetTime={batchExpiry} />
-          }
-          <span className={styles.fireIcon}>&#128293;</span>
-        </div>
-
-        {/* ── Category Pills ── */}
-        <div className={styles.categoryScroll} ref={categoryScrollRef}>
-          {CATEGORIES.map(cat => (
-            <button
-              key={cat.key}
-              className={`${styles.categoryPill} ${activeCategory === cat.key ? styles.categoryPillActive : ''}`}
-              onClick={() => handleCategoryTap(cat.key)}
-            >
-              {cat.label}
-            </button>
-          ))}
-        </div>
-
-        {/* ── DealFilters (external) or inline Sort Bar ── */}
-        {DealFilters ? (
-          <DealFilters
-            sortBy={sortBy}
-            onSortChange={setSortBy}
-            category={activeCategory}
-            onCategoryChange={setActiveCategory}
-          />
-        ) : (
-          <div className={styles.sortBar}>
-            <span className={styles.sortLabel}>Urutkan:</span>
-            <select
-              className={styles.sortSelect}
-              value={sortBy}
-              onChange={e => setSortBy(e.target.value)}
-            >
-              {SORT_OPTIONS.map(opt => (
-                <option key={opt.value} value={opt.value}>{opt.label}</option>
-              ))}
-            </select>
-          </div>
-        )}
-
-        {/* ── Deal Grid / Empty State ── */}
-        {deals.length > 0 ? (
-          <div className={styles.dealGrid}>
-            {deals.map((deal, i) => (
-              <div
-                key={deal.id}
-                className={styles.cardWrap}
-                style={{ animationDelay: `${0.04 * (i + 1)}s` }}
-              >
-                <CardComponent
-                  deal={deal}
-                  onTap={() => onSelectDeal?.(deal)}
-                />
-              </div>
-            ))}
-          </div>
-        ) : (
-          <div className={styles.emptyState}>
-            <div className={styles.emptyIllustration}>&#128722;</div>
-            <div className={styles.emptyTitle}>Belum ada deal</div>
-            <div className={styles.emptySubtitle}>Cek lagi nanti ya!</div>
-          </div>
-        )}
-      </div>
-
-      {/* ── FAB ── */}
-      <button className={styles.fab} onClick={onCreateDeal} aria-label="Buat deal baru">
-        &#43;
+  return createPortal(
+    <div className={styles.screen}>
+      {/* Back button */}
+      <button className={styles.backBtn} onClick={onClose}>
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+          <path d="M19 12H5M12 5l-7 7 7 7"/>
+        </svg>
       </button>
 
-      {/* ── Search Overlay ── */}
-      {searchOpen && (
-        <div className={styles.searchOverlay}>
-          <div className={styles.searchInputWrap}>
-            <input
-              ref={searchInputRef}
-              className={styles.searchInput}
-              type="text"
-              placeholder="Cari deal, toko, atau kota..."
-              value={searchQuery}
-              onChange={e => setSearchQuery(e.target.value)}
-            />
-            <button
-              className={styles.searchClose}
-              onClick={() => { setSearchOpen(false); setSearchQuery(''); }}
-            >
-              Batal
-            </button>
-          </div>
-        </div>
-      )}
-    </div>
-  );
+      {/* Title */}
+      <div className={styles.headerTitle}>
+        <span className={styles.headerBrand}>DEAL HUNT</span>
+        <span className={styles.headerLive}>● LIVE</span>
+      </div>
 
-  return createPortal(content, document.body);
+      {/* Dot indicator — right side */}
+      <div className={styles.dots}>
+        {deals.map((_, i) => (
+          <div key={i} className={`${styles.dot} ${i === activeIndex ? styles.dotActive : ''}`} />
+        ))}
+      </div>
+
+      {/* Snap-scroll vertical feed */}
+      <div className={styles.feed} ref={containerRef} onScroll={handleScroll}>
+        {deals.map((deal, i) => (
+          <DealSlide
+            key={deal.id}
+            deal={deal}
+            isActive={i === activeIndex}
+            onClaim={(d) => onSelectDeal?.(d)}
+            onChat={(d) => onSelectDeal?.(d)}
+          />
+        ))}
+      </div>
+
+      {/* FAB — create deal */}
+      <button className={styles.fab} onClick={onCreateDeal}>
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#000" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+          <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
+        </svg>
+      </button>
+    </div>,
+    document.body
+  )
 }
