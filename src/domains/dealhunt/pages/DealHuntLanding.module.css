@@ -69,19 +69,19 @@
 
 /* Running ticker */
 .landingTicker {
-  overflow: hidden; margin-top: 4px;
+  overflow: hidden; margin-top: 6px;
 }
 .landingTickerInner {
-  display: flex; white-space: nowrap; gap: 36px;
-  animation: tickerScroll 25s linear infinite;
+  display: flex; white-space: nowrap; gap: 40px;
+  animation: tickerScroll 35s linear infinite;
 }
 .landingTickerItem {
-  font-size: 11px; font-weight: 600; color: rgba(255,255,255,0.45);
-  display: flex; align-items: center; gap: 5px;
+  font-size: 13px; font-weight: 700; color: rgba(255,255,255,0.75);
+  display: flex; align-items: center; gap: 6px;
+  text-shadow: 0 1px 6px rgba(0,0,0,0.8);
 }
-.landingTickerDot {
-  width: 5px; height: 5px; border-radius: 50%;
-  background: #8DC63F; flex-shrink: 0;
+.landingTickerIcon {
+  font-size: 15px; flex-shrink: 0;
 }
 
 .landingClose {

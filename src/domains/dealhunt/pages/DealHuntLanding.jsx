@@ -354,9 +354,18 @@ export default function DealHuntLanding({ open, onClose, onSelectDeal, onCreateD
             {/* Running text ticker */}
             <div className={styles.landingTicker}>
               <div className={styles.landingTickerInner}>
-                {['Sarah claimed Nasi Goreng deal · 2m ago', 'Budi grabbed Leather Wallet · 5m ago', '87% claimed on Bakso Jumbo!', 'New massage deal just dropped · 1m ago', 'Wireless Earbuds 38% off · ending soon', 'Sarah claimed Nasi Goreng deal · 2m ago', 'Budi grabbed Leather Wallet · 5m ago', '87% claimed on Bakso Jumbo!'].map((t, i) => (
+                {[
+                  { icon: '🔥', text: 'Sarah claimed Nasi Goreng deal · 2m ago' },
+                  { icon: '💰', text: 'Budi grabbed Leather Wallet · 5m ago' },
+                  { icon: '⚡', text: '87% claimed on Bakso Jumbo!' },
+                  { icon: '🆕', text: 'New massage deal just dropped · 1m ago' },
+                  { icon: '%', text: 'Wireless Earbuds 38% off · ending soon' },
+                  { icon: '🔥', text: 'Couple Massage 40% off · 8 claimed' },
+                  { icon: '💰', text: 'Honda Vario rental deal · 35% off' },
+                  { icon: '⚡', text: 'Flash deal on Ojek Bandara!' },
+                ].map((t, i) => (
                   <span key={i} className={styles.landingTickerItem}>
-                    <span className={styles.landingTickerDot} />{t}
+                    <span className={styles.landingTickerIcon}>{t.icon}</span>{t.text}
                   </span>
                 ))}
               </div>
