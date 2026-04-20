@@ -234,6 +234,7 @@ function MktBadge({ num, label }) {
 // ── Main screen ───────────────────────────────────────────────────────────────
 export default function ShopSearchScreen({ onClose, userCity, userCountry, giftFor, onGiftDismiss, wishlistMode = false, onWishlistSelectSeller, showToast, onOrderViaChat, onMakeOffer, onLandingChange, onHome, onChat, onAlerts, onProfile, onOpenUsedGoods, onOpenWanted }) {
   const [showLanding, setShowLanding] = useState(true)
+  const [showCategories, setShowCategories] = useState(false)
   const [query,                  setQuery]                  = useState('')
   const [activeCategory,         setActiveCategory]         = useState('all')
   const [sellers,                setSellers]                = useState(DEMO_SELLERS)
@@ -366,6 +367,24 @@ export default function ShopSearchScreen({ onClose, userCity, userCountry, giftF
       <MktBadge num="M1" label="Market Landing" />
       <div className={styles.landingOverlay} />
 
+      {/* Side nav — Home + Sign Up */}
+      <div style={{
+        position: 'fixed', right: 6, top: '50%', transform: 'translateY(-50%)',
+        display: 'flex', flexDirection: 'column', gap: 10, zIndex: 200,
+        padding: '10px 6px', borderRadius: 24,
+        background: 'rgba(0,0,0,0.45)', backdropFilter: 'blur(12px)',
+        border: '1px solid rgba(255,255,255,0.05)',
+      }}>
+        <button onClick={onClose} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 2, background: 'none', border: 'none', cursor: 'pointer', padding: 0 }}>
+          <img src="https://ik.imagekit.io/nepgaxllc/Untitledsssaa-removebg-preview.png" alt="" style={{ width: 40, height: 40, objectFit: 'contain' }} />
+          <span style={{ fontSize: 8, fontWeight: 800, color: 'rgba(255,255,255,0.6)', letterSpacing: '0.03em' }}>Home</span>
+        </button>
+        <button onClick={() => setBuyerProfileOpen(true)} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 2, background: 'none', border: 'none', cursor: 'pointer', padding: 0 }}>
+          <img src="https://ik.imagekit.io/nepgaxllc/Untitledsssaaddd-removebg-preview.png" alt="" style={{ width: 40, height: 40, objectFit: 'contain' }} />
+          <span style={{ fontSize: 8, fontWeight: 800, color: 'rgba(255,255,255,0.6)', letterSpacing: '0.03em' }}>Sign Up</span>
+        </button>
+      </div>
+
       {/* Header: brand logo + search bar */}
       <div className={styles.landingHeader}>
         <span style={{ fontSize: 28, fontWeight: 900, flexShrink: 0 }}><span style={{ background: 'linear-gradient(90deg, #fff 0%, #fff 58%, #8DC63F 58%, #8DC63F 100%)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text' }}>INDOO</span> <span style={{ fontWeight: 700, fontSize: 16, color: 'rgba(255,255,255,0.5)' }}>MARKET</span></span>
@@ -393,40 +412,126 @@ export default function ShopSearchScreen({ onClose, userCity, userCountry, giftF
         </div>
       </div>
 
-      {/* Market section cards */}
-      <div className={styles.landingCards}>
+      {/* Footer — hero text + browse button */}
+      <div className={styles.landingFooter}>
+        <p className={styles.landingSub}>Buy & sell anything — fashion, electronics, handmade and more</p>
+        <button onClick={() => { markSectionVisited('marketplace'); setShowLanding(false); setShowCategories(true); onLandingChange?.(false) }} style={{
+          padding: '16px 40px', borderRadius: 16, background: '#8DC63F', border: 'none',
+          color: '#000', fontSize: 16, fontWeight: 900, cursor: 'pointer', fontFamily: 'inherit',
+          boxShadow: '0 4px 20px rgba(141,198,63,0.3)', display: 'flex', alignItems: 'center', gap: 8, marginTop: 8,
+        }}>
+          Browse Market
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+        </button>
+      </div>
+
+    </div>
+
+    {/* ── Categories page (M1b) ── */}
+    <div style={{
+      position: 'fixed', inset: 0, zIndex: 120,
+      background: 'linear-gradient(180deg, #0a0a0c 0%, #0d0d0f 50%, #0a0a0c 100%)',
+      display: showCategories ? 'flex' : 'none', flexDirection: 'column', overflow: 'hidden',
+    }}>
+      <MktBadge num="M1b" label="Categories" />
+
+      {/* Header */}
+      <div style={{ padding: '14px 16px', flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+        <span style={{ fontSize: 28, fontWeight: 900 }}><span style={{ background: 'linear-gradient(90deg, #fff 0%, #fff 58%, #8DC63F 58%, #8DC63F 100%)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text' }}>INDOO</span><span style={{ fontWeight: 700, fontSize: 16, color: 'rgba(255,255,255,0.5)', marginLeft: 8 }}>MARKET</span></span>
+        <button onClick={() => { setShowCategories(false); setShowLanding(true); onLandingChange?.(true) }} style={{ width: 36, height: 36, borderRadius: '50%', background: '#8DC63F', border: 'none', color: '#000', fontSize: 13, fontWeight: 900, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#000" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+        </button>
+      </div>
+
+      {/* Subtitle */}
+      <p style={{ padding: '0 16px', fontSize: 13, color: 'rgba(255,255,255,0.35)', fontWeight: 600, margin: '0 0 12px' }}>Buy · Sell · Trade — choose a category</p>
+
+      {/* 6 Landscape cards */}
+      <div style={{ flex: 1, overflowY: 'auto', padding: '0 16px 80px', display: 'flex', flexDirection: 'column', gap: 12 }}>
         {[
-          { label: 'New', count: '24 items', onClick: () => { markSectionVisited('marketplace'); setShowLanding(false); onLandingChange?.(false) } },
-          { label: 'Used', count: '12 deals', onClick: () => onOpenUsedGoods?.() },
-          { label: 'Wanted', count: '8 requests', onClick: () => onOpenWanted?.() },
-          { label: 'Shop', count: 'Browse', onClick: () => { markSectionVisited('marketplace'); setShowLanding(false); onLandingChange?.(false) } },
-          { label: 'Flash', count: '3 LIVE', live: true, onClick: () => { markSectionVisited('marketplace'); setShowLanding(false); onLandingChange?.(false); requestAnimationFrame(() => setFlashSaleOpen(true)) } },
-          { label: 'Auction', count: '2 LIVE', live: true, onClick: () => { markSectionVisited('marketplace'); setShowLanding(false); onLandingChange?.(false); requestAnimationFrame(() => setAuctionOpen(true)) } },
+          { label: 'New Products', sub: 'Brand new goods from verified sellers', count: '24 items', rating: 4.8, icon: '✨', onClick: () => { setShowCategories(false) } },
+          { label: 'Used Goods', sub: 'Pre-owned deals at great prices', count: '12 deals', rating: 4.6, icon: '🔄', onClick: () => { setShowCategories(false); onOpenUsedGoods?.() } },
+          { label: 'Wanted Board', sub: 'Post what you need — sellers come to you', count: '8 requests', rating: 4.7, icon: '👀', onClick: () => { setShowCategories(false); onOpenWanted?.() } },
+          { label: 'Flash Sale', sub: 'Limited time deals with huge discounts', count: '3 LIVE', live: true, rating: 4.9, icon: '⚡', onClick: () => { setShowCategories(false); requestAnimationFrame(() => setFlashSaleOpen(true)) } },
+          { label: 'Auction', sub: 'Bid & win — live auctions happening now', count: '2 LIVE', live: true, rating: 4.8, icon: '🔨', onClick: () => { setShowCategories(false); requestAnimationFrame(() => setAuctionOpen(true)) } },
+          { label: 'Shop All', sub: 'Browse the full marketplace catalog', count: 'Browse', rating: 4.7, icon: '🛍️', onClick: () => { setShowCategories(false) } },
         ].map((item, i) => (
-          <button key={i} className={styles.landingCard} onClick={item.onClick}>
-            <span className={styles.landingCardIcon}>
-              <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 10a2 2 0 0 0-2 2c0 1.5.8 3.3 2 5"/><path d="M6 12a6 6 0 0 1 12 0c0 2.5-.5 5-2 7.5"/><path d="M8 15c-.5-1-.8-2.3-.8-3a4.8 4.8 0 0 1 9.6 0"/><path d="M2 12C2 6.5 6.5 2 12 2s10 4.5 10 10c0 3-1 6-2.5 8.5"/><path d="M4 20c1-2.5 2-5.5 2-8"/></svg>
-            </span>
-            <div className={styles.landingCardLabel}>
-              <span className={styles.landingCardTitle}>{item.label}</span>
-              <span style={{ padding: '2px 8px', borderRadius: 6, background: item.live ? 'rgba(239,68,68,0.15)' : 'rgba(255,215,0,0.12)', fontSize: 11, fontWeight: 800, color: item.live ? '#EF4444' : '#FFD700', display: 'flex', alignItems: 'center', gap: 4 }}>
-                {item.live && <span style={{ width: 5, height: 5, borderRadius: '50%', background: '#EF4444', animation: 'livePulse 1.5s ease-in-out infinite' }} />}
-                {item.count}
-              </span>
+          <button key={i} onClick={item.onClick} style={{
+            display: 'flex', flexDirection: 'row', alignItems: 'center', gap: 14,
+            padding: '18px 16px', width: '100%',
+            background: 'rgba(0,0,0,0.45)', backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)',
+            border: '1.5px solid rgba(141,198,63,0.08)', borderRadius: 20,
+            cursor: 'pointer', fontFamily: 'inherit', textAlign: 'left',
+            position: 'relative', overflow: 'hidden',
+            boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.04), 0 4px 20px rgba(0,0,0,0.3)',
+            transition: 'transform 0.25s cubic-bezier(0.34,1.2,0.64,1), border-color 0.3s',
+            WebkitTapHighlightColor: 'transparent',
+          }}
+          onPointerDown={e => e.currentTarget.style.transform = 'scale(0.97)'}
+          onPointerUp={e => e.currentTarget.style.transform = 'scale(1)'}
+          onPointerLeave={e => e.currentTarget.style.transform = 'scale(1)'}
+          >
+            {/* Glow line */}
+            <div style={{ position: 'absolute', top: 0, left: '10%', right: '10%', height: 1.5, background: 'linear-gradient(90deg, transparent, rgba(141,198,63,0.25), transparent)', pointerEvents: 'none' }} />
+
+            {/* Icon */}
+            <div style={{ width: 56, height: 56, borderRadius: '50%', background: 'rgba(141,198,63,0.08)', border: '1.5px solid rgba(141,198,63,0.2)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 24, flexShrink: 0, boxShadow: '0 0 16px rgba(141,198,63,0.08)' }}>
+              {item.icon}
+            </div>
+
+            {/* Text */}
+            <div style={{ flex: 1, minWidth: 0 }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 3 }}>
+                <span style={{ fontSize: 17, fontWeight: 900, color: '#fff' }}>{item.label}</span>
+                <span style={{ fontSize: 12, fontWeight: 800, color: '#FFD700' }}>★ {item.rating}</span>
+              </div>
+              <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.35)', fontWeight: 600, marginBottom: 6 }}>{item.sub}</div>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                <span style={{ padding: '3px 10px', borderRadius: 8, background: item.live ? 'rgba(239,68,68,0.12)' : 'rgba(141,198,63,0.1)', border: item.live ? '1px solid rgba(239,68,68,0.25)' : '1px solid rgba(141,198,63,0.2)', fontSize: 11, fontWeight: 800, color: item.live ? '#EF4444' : '#8DC63F', display: 'flex', alignItems: 'center', gap: 4 }}>
+                  {item.live && <span style={{ width: 5, height: 5, borderRadius: '50%', background: '#EF4444', animation: 'livePulse 1.5s ease-in-out infinite' }} />}
+                  {item.count}
+                </span>
+                <span style={{ display: 'flex', alignItems: 'center', gap: 3 }}>
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#8DC63F" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+                  <span style={{ fontSize: 11, fontWeight: 700, color: '#8DC63F' }}>Enter</span>
+                </span>
+              </div>
             </div>
           </button>
         ))}
       </div>
 
-      {/* Footer content — pushed to very bottom */}
-      <div className={styles.landingFooter}>
-        <p className={styles.landingSub}>Buy & sell anything — fashion, electronics, handmade and more</p>
+      {/* Footer nav */}
+      <div style={{
+        position: 'fixed', bottom: 16, left: '50%', transform: 'translateX(-50%)',
+        zIndex: 99998, display: 'flex', alignItems: 'center', gap: 6,
+        background: 'rgba(0,0,0,0.45)', backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)',
+        border: '1px solid rgba(255,255,255,0.06)', borderRadius: 30, padding: '6px 8px',
+      }}>
+        {[
+          { label: 'Home', icon: <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>, action: () => { setShowCategories(false); setShowLanding(true); onLandingChange?.(true) } },
+          { label: 'Used', icon: <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 12a9 9 0 11-6.22-8.56"/><path d="M21 3v6h-6"/></svg>, action: () => { setShowCategories(false); onOpenUsedGoods?.() } },
+          { label: 'Alerts', icon: <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 01-3.46 0"/></svg>, action: () => onAlerts?.(), badge: true },
+          { label: 'Profile', icon: <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>, action: () => setBuyerProfileOpen(true) },
+        ].map((btn, i) => (
+          <button key={i} onClick={btn.action} style={{
+            display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
+            gap: 2, padding: '8px 16px', borderRadius: 22,
+            background: 'transparent', border: 'none', cursor: 'pointer',
+            color: 'rgba(255,255,255,0.45)', transition: 'all 0.2s',
+          }}>
+            <div style={{ position: 'relative' }}>
+              {btn.icon}
+              {btn.badge && <span style={{ position: 'absolute', top: -2, right: -2, width: 7, height: 7, borderRadius: '50%', background: '#EF4444', border: '1.5px solid #0e0e0e' }} />}
+            </div>
+            <span style={{ fontSize: 9, fontWeight: 700, letterSpacing: '0.03em' }}>{btn.label}</span>
+          </button>
+        ))}
       </div>
-
     </div>
 
     {/* ── Products grid (M2) — hidden via display:none instead of unmounting ── */}
-    <div className={styles.screen} style={{ display: showLanding ? 'none' : undefined }}>
+    <div className={styles.screen} style={{ display: (showLanding || showCategories) ? 'none' : undefined }}>
       <MktBadge num="M2" label="Products Grid" />
 
       {/* ── Gift context chip ── */}
@@ -695,16 +800,16 @@ export default function ShopSearchScreen({ onClose, userCity, userCountry, giftF
       onClose={() => setBuyerProfileOpen(false)}
     />
 
-    {/* Floating footer nav — soft glass design */}
+    {/* Floating footer nav — soft glass design (hidden on landing + categories) */}
     <div style={{
       position: 'fixed', bottom: 16, left: '50%', transform: 'translateX(-50%)',
-      zIndex: 99998, display: 'flex', alignItems: 'center', gap: 6,
+      zIndex: 99998, display: (showLanding || showCategories) ? 'none' : 'flex', alignItems: 'center', gap: 6,
       background: 'rgba(0,0,0,0.45)', backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)',
       border: '1px solid rgba(255,255,255,0.06)',
       borderRadius: 30, padding: '6px 8px',
     }}>
       {[
-        { label: 'Home', active: showLanding, icon: <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>, action: onClose },
+        { label: 'Home', active: showLanding, icon: <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>, action: () => { setShowLanding(true); setShowCategories(false); onLandingChange?.(true) } },
         { label: 'Used', active: false, icon: <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 12a9 9 0 11-6.22-8.56"/><path d="M21 3v6h-6"/></svg>, action: () => onOpenUsedGoods?.() },
         { label: 'Alerts', active: false, icon: <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 01-3.46 0"/></svg>, action: () => onAlerts?.(), badge: true },
         { label: 'Profile', active: false, icon: <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>, action: () => setBuyerProfileOpen(true) },

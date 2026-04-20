@@ -1,4 +1,4 @@
-import { lazy, Suspense, useEffect, useMemo, useRef, useState } from 'react'
+import { Suspense, useEffect, useMemo, useRef, useState } from 'react'
 import { useAppOverlays } from './useAppOverlays'
 import { createPortal } from 'react-dom'
 import { useOverlay, OVERLAY } from '@/contexts/OverlayContext'
@@ -58,62 +58,22 @@ import TherapistRegistration from '@/domains/massage/components/TherapistRegistr
 
 import '@/styles/map.css'
 import styles from './AppShell.module.css'
-
-// ── Lazy-loaded heavy screens (only downloaded when user opens them) ──────────
-const ChatScreen              = lazy(() => import('@/screens/ChatScreen'))
-const ProfileScreen           = lazy(() => import('@/screens/ProfileScreen'))
-const BookingScreen           = lazy(() => import('@/screens/BookingScreen'))
-const ShopSearchScreen        = lazy(() => import('@/screens/ShopSearchScreen'))
-const DatingBubbleScreen      = lazy(() => import('@/components/dating/DatingBubbleScreen'))
-const CategoryDiscoveryScreen = lazy(() => import('@/screens/CategoryDiscoveryScreen'))
-const RestaurantBrowseScreen  = lazy(() => import('@/screens/RestaurantBrowseScreen'))
-const QAFeedScreen            = lazy(() => import('@/components/community/QAFeedScreen'))
-const VibeBlastPage           = lazy(() => import('@/components/vibecheck/VibeBlastPage'))
-const NotificationsScreen     = lazy(() => import('@/screens/NotificationsScreen'))
-const RideHistoryScreen       = lazy(() => import('@/screens/RideHistoryScreen'))
-const LikedMeScreen           = lazy(() => import('@/screens/LikedMeScreen'))
-const LikedProfilesScreen     = lazy(() => import('@/screens/LikedProfilesScreen'))
-const BlockedUsersScreen      = lazy(() => import('@/screens/BlockedUsersScreen'))
-const RentalSearchScreen      = lazy(() => import('@/screens/RentalSearchScreen'))
-const MassageScreen           = lazy(() => import('@/screens/MassageScreen'))
-const OrderHistoryScreen      = lazy(() => import('@/screens/OrderHistoryScreen'))
-const IncomingGiftsScreen     = lazy(() => import('@/screens/IncomingGiftsScreen'))
-const SettingsSheet           = lazy(() => import('@/components/settings/SettingsSheet'))
-const DiscoveryCard           = lazy(() => import('@/components/discovery/DiscoveryCard'))
-const DiscoveryListSheet      = lazy(() => import('@/components/discovery/DiscoveryListSheet'))
-const SOSModal                = lazy(() => import('@/components/safety/SOSModal'))
-const PaymentGate             = lazy(() => import('@/components/payment/PaymentGate'))
-const ReportSheet             = lazy(() => import('@/components/moderation/ReportSheet'))
-const ContactUnlockSheet      = lazy(() => import('@/components/payment/ContactUnlockSheet'))
-const CityResultsSheet        = lazy(() => import('@/components/map/CityResultsSheet'))
-const CompanyBrowsePanel      = lazy(() => import('@/components/map/CompanyBrowsePanel'))
-const DateIdeasSheet          = lazy(() => import('@/components/dating/DateIdeasSheet'))
-const UpgradeSheet            = lazy(() => import('@/components/premium/UpgradeSheet'))
-const SpotClaimSheet          = lazy(() => import('@/components/spots/SpotClaimSheet'))
-const MySpotScreen            = lazy(() => import('@/screens/MySpotScreen'))
-const VibeCheckSheet          = lazy(() => import('@/components/vibecheck/VibeCheckSheet'))
-const IndooNewsSheet        = lazy(() => import('@/components/news/IndooNewsSheet'))
-const RatingSheet             = lazy(() => import('@/components/session/RatingSheet'))
-const ReviewsSection          = lazy(() => import('@/components/session/ReviewsSection'))
-const DevPanel                = lazy(() => import('@/dev/DevPanel'))
-const MarketplaceSignUpScreen = lazy(() => import('@/screens/MarketplaceSignUpScreen'))
-const AddProductSheet         = lazy(() => import('@/components/commerce/AddProductSheet'))
-const SellerOrdersScreen      = lazy(() => import('@/screens/SellerOrdersScreen'))
-const SellerWalletScreen      = lazy(() => import('@/screens/SellerWalletScreen'))
-const IndooWallet             = lazy(() => import('@/components/wallet/IndooWallet'))
-const SellerAnalytics         = lazy(() => import('@/components/commerce/SellerAnalytics'))
-const MarketplaceNotificationsScreen = lazy(() => import('@/screens/MarketplaceNotificationsScreen'))
-const MarketplaceCartScreen   = lazy(() => import('@/screens/MarketplaceCartScreen'))
-const BuyerDashboardScreen    = lazy(() => import('@/screens/BuyerDashboardScreen'))
-const UsedGoodsScreen         = lazy(() => import('@/screens/UsedGoodsScreen'))
-const WantedBoardScreen       = lazy(() => import('@/screens/WantedBoardScreen'))
-const SellerReviewsScreen     = lazy(() => import('@/screens/SellerReviewsScreen'))
-const WriteReviewScreen       = lazy(() => import('@/screens/WriteReviewScreen'))
-const SellerProductsScreen    = lazy(() => import('@/screens/SellerProductsScreen'))
-const MarketplaceChatScreen   = lazy(() => import('@/screens/MarketplaceChatScreen'))
-
-// Minimal fallback for lazy screens
-const LazyFallback = () => null
+import {
+  ChatScreen, ProfileScreen, BookingScreen, ShopSearchScreen,
+  DatingBubbleScreen, CategoryDiscoveryScreen, RestaurantBrowseScreen,
+  QAFeedScreen, VibeBlastPage, NotificationsScreen, RideHistoryScreen,
+  LikedMeScreen, LikedProfilesScreen, BlockedUsersScreen,
+  RentalSearchScreen, MassageScreen, OrderHistoryScreen, IncomingGiftsScreen,
+  SettingsSheet, DiscoveryCard, DiscoveryListSheet, SOSModal,
+  PaymentGate, ReportSheet, ContactUnlockSheet, CityResultsSheet,
+  CompanyBrowsePanel, DateIdeasSheet, UpgradeSheet, SpotClaimSheet,
+  MySpotScreen, VibeCheckSheet, IndooNewsSheet, RatingSheet,
+  ReviewsSection, DevPanel, MarketplaceSignUpScreen, AddProductSheet,
+  SellerOrdersScreen, SellerWalletScreen, IndooWallet, SellerAnalytics,
+  MarketplaceNotificationsScreen, MarketplaceCartScreen, BuyerDashboardScreen,
+  UsedGoodsScreen, WantedBoardScreen, SellerReviewsScreen, WriteReviewScreen,
+  SellerProductsScreen, MarketplaceChatScreen, LazyFallback,
+} from './appShellLazy'
 
 
 export default function AppShell({ returnParams, triggerGoLive }) {
