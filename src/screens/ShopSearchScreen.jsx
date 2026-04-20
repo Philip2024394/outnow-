@@ -430,7 +430,7 @@ export default function ShopSearchScreen({ onClose, userCity, userCountry, giftF
     {/* ── Categories page (M1b) ── */}
     <div style={{
       position: 'fixed', inset: 0, zIndex: 120,
-      background: '#0a0a0c',
+      backgroundColor: '#0a0a0c',
       backgroundImage: 'url("https://ik.imagekit.io/nepgaxllc/UntitledsssaaddddddddDADSASDSDASSSsdfsdf.png?updatedAt=1776625639213")',
       backgroundSize: 'cover', backgroundPosition: 'center', backgroundRepeat: 'no-repeat',
       display: showCategories ? 'flex' : 'none', flexDirection: 'column', overflow: 'hidden',
