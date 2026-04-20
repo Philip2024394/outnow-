@@ -446,6 +446,34 @@ export default function ChatWindow({ conversation: conv, allConversations = [], 
       }
     }
 
+    // Inject cancelled banner into chat
+    if (newStatus === 'cancelled') {
+      const cancelBanner = {
+        id: `cancel-banner-${Date.now()}`,
+        isCancelBanner: true,
+        cancelledBy: isSeller ? 'seller' : 'buyer',
+        orderRef: order?.ref ?? msgId,
+        orderTotal: order?.total ?? 0,
+        time: Date.now(),
+      }
+      setMessages(prev => [...prev, cancelBanner])
+
+      // Record cancellation for admin
+      if (supabase) {
+        supabase.from('order_cancellations').insert({
+          order_ref: order?.ref ?? msgId,
+          conversation_id: conv.id,
+          buyer_id: isSeller ? (conv.otherUserId ?? conv.userId) : (user?.uid ?? user?.id),
+          seller_id: isSeller ? (user?.uid ?? user?.id) : (conv.otherUserId ?? conv.userId),
+          cancelled_by: isSeller ? 'seller' : 'buyer',
+          order_total: order?.total ?? 0,
+          reason: newStatus === 'cancelled' ? 'manual' : 'system',
+          items: JSON.stringify(order?.items ?? []),
+          created_at: new Date().toISOString(),
+        }).catch(() => {})
+      }
+    }
+
     const label = newStatus === 'confirmed' ? '✓ Order confirmed' : newStatus === 'complete' ? '✓ Order completed' : '✗ Order cancelled'
     onConvUpdate?.({ lastMessage: label, lastMessageTime: Date.now() })
   }
@@ -788,6 +816,27 @@ export default function ChatWindow({ conversation: conv, allConversations = [], 
                   cancelCount={msg.cancelCount}
                   onVerify={(decision) => handlePaymentVerify(msg.id, decision)}
                 />
+              ) : msg.isCancelBanner ? (
+                <div style={{
+                  width: '100%', padding: '12px 0',
+                  display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 8,
+                }}>
+                  <img
+                    src="https://ik.imagekit.io/nepgaxllc/Cancelled%20warning%20sign%20with%20grunge%20texture.png?updatedAt=1775813934231"
+                    alt="Cancelled"
+                    style={{ width: '80%', maxWidth: 280, borderRadius: 12, objectFit: 'contain' }}
+                  />
+                  <div style={{
+                    padding: '8px 16px', borderRadius: 10,
+                    background: 'rgba(239,68,68,0.1)', border: '1px solid rgba(239,68,68,0.25)',
+                    textAlign: 'center', width: '80%', maxWidth: 280,
+                  }}>
+                    <div style={{ fontSize: 13, fontWeight: 800, color: '#EF4444' }}>Order Cancelled</div>
+                    <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.5)', marginTop: 2 }}>
+                      Cancelled by {msg.cancelledBy === 'seller' ? 'seller' : 'buyer'} · {msg.orderRef}
+                    </div>
+                  </div>
+                </div>
               ) : msg.isContactReveal ? (
                 <div className={styles.revealCard}>
                   <div className={styles.revealHeader}>

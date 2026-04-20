@@ -23,6 +23,7 @@ import MassageAdminTab from './tabs/MassageAdminTab'
 import ViolationsTab from './tabs/ViolationsTab'
 import PlaceSuggestionsTab from './tabs/PlaceSuggestionsTab'
 import DealHuntAdminTab from './tabs/DealHuntAdminTab'
+import CancellationsTab from './tabs/CancellationsTab'
 
 const LOGO = 'https://ik.imagekit.io/dateme/Logo%20with%20green%20map%20pin%20element.png'
 
@@ -51,6 +52,7 @@ const NAV = [
   { id: 'violations',   icon: '🛡️', label: 'Violations',  alert: true },
   { id: 'places',       icon: '📍', label: 'Places' },
   { id: 'dealhunt',     icon: '🔥', label: 'Deal Hunt' },
+  { id: 'cancellations', icon: '🚫', label: 'Cancellations' },
 ]
 
 export default function AdminDashboard({ onLogout }) {
@@ -187,6 +189,7 @@ export default function AdminDashboard({ onLogout }) {
           {tab === 'violations'  && <ViolationsTab />}
           {tab === 'places'      && <PlaceSuggestionsTab />}
           {tab === 'dealhunt'    && <DealHuntAdminTab />}
+          {tab === 'cancellations' && <CancellationsTab />}
         </div>
       </div>
     </div>
