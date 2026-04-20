@@ -72,10 +72,6 @@ function DealSlide({ deal, isActive, onClaim, onChat }) {
           <svg width="26" height="26" viewBox="0 0 24 24" fill="#fff" stroke="none"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><path d="M8.59 13.51l6.83 3.98M15.41 6.51l-6.82 3.98" stroke="#fff" strokeWidth="1.5"/></svg>
           <span>Share</span>
         </button>
-        <div className={styles.sideBtn}>
-          <img src={deal.seller_photo ?? 'https://i.pravatar.cc/80'} alt="" className={styles.sellerAvatar} />
-          <span>{deal.seller_name?.split(' ')[0]}</span>
-        </div>
       </div>
 
       {/* Bottom overlay — deal info */}
