@@ -49,6 +49,7 @@ function DealSlide({ deal, isActive, onClaim, onChat }) {
   const discount = Math.round((1 - deal.deal_price / deal.original_price) * 100)
   const almostGone = pct >= 80
   const dealReviews = useMemo(() => DEMO_REVIEW_DATA.filter(r => r.deal_title === deal.title), [deal.title])
+  const [reviewsOpen, setReviewsOpen] = useState(false)
 
   return (
     <div className={styles.slide}>
@@ -68,17 +69,49 @@ function DealSlide({ deal, isActive, onClaim, onChat }) {
           <svg width="26" height="26" viewBox="0 0 24 24" fill="#fff" stroke="none"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
           <span>Chat</span>
         </button>
+        <button className={styles.sideBtn} onClick={() => setReviewsOpen(true)}>
+          <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
+          </svg>
+          <span>{dealReviews.length || ''}</span>
+          <span>Reviews</span>
+        </button>
         <button className={styles.sideBtn} onClick={() => { try { navigator.share?.({ title: deal.title, text: `${deal.title} cuma ${fmtRp(deal.deal_price)}! 🔥`, url: window.location.href }) } catch {} }}>
           <svg width="26" height="26" viewBox="0 0 24 24" fill="#fff" stroke="none"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><path d="M8.59 13.51l6.83 3.98M15.41 6.51l-6.82 3.98" stroke="#fff" strokeWidth="1.5"/></svg>
           <span>Share</span>
         </button>
       </div>
 
+      {/* Reviews panel — slides up from bottom */}
+      {reviewsOpen && (
+        <div className={styles.reviewsOverlay} onClick={() => setReviewsOpen(false)}>
+          <div className={styles.reviewsPanel} onClick={e => e.stopPropagation()}>
+            <div className={styles.reviewsHeader}>
+              <span className={styles.reviewsTitle}>Reviews ({dealReviews.length})</span>
+              <button className={styles.reviewsClose} onClick={() => setReviewsOpen(false)}>✕</button>
+            </div>
+            {dealReviews.length === 0 ? (
+              <p className={styles.reviewsEmpty}>Belum ada review untuk deal ini</p>
+            ) : (
+              <div className={styles.reviewsList}>
+                {dealReviews.map(r => (
+                  <div key={r.id} className={styles.reviewItem}>
+                    <img src={r.photo_url} alt="" className={styles.reviewImg} />
+                    <div className={styles.reviewInfo}>
+                      <div className={styles.reviewStars}>{'★'.repeat(r.stars)}{'☆'.repeat(5 - r.stars)}</div>
+                      <p className={styles.reviewCaption}>{r.caption}</p>
+                      <span className={styles.reviewerName}>— {r.reviewer_name}</span>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+
       {/* Bottom overlay — deal info */}
       <div className={styles.slideBottom}>
-        {/* Review carousel — above product name */}
-        <DealReviewCarousel dealTitle={deal.title} sellerId={deal.seller_id} reviews={dealReviews} />
-
         {/* Domain pill */}
         <span className={styles.domainPill} style={{ background: `${DOMAIN_COLORS[deal.domain] ?? '#8DC63F'}22`, borderColor: `${DOMAIN_COLORS[deal.domain] ?? '#8DC63F'}55`, color: DOMAIN_COLORS[deal.domain] ?? '#8DC63F' }}>
           {DOMAIN_LABELS[deal.domain] ?? deal.domain}
@@ -169,20 +202,6 @@ export default function DealHuntLanding({ open, onClose, onSelectDeal, onCreateD
           <path d="M19 12H5M12 5l-7 7 7 7"/>
         </svg>
       </button>
-
-      {/* Location badge — top left, shows current deal's city */}
-      <div className={styles.locationBadge}>
-        <div className={styles.locationPin}>
-          <svg width="32" height="32" viewBox="0 0 24 24" fill="#EF4444" stroke="none">
-            <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5a2.5 2.5 0 010-5 2.5 2.5 0 010 5z"/>
-          </svg>
-        </div>
-        <div className={styles.locationText}>
-          <span className={styles.locationCity}>{deals[activeIndex]?.city ?? 'Indonesia'}</span>
-          <span className={styles.locationLine} />
-          <span className={styles.locationCountry}>Indonesia</span>
-        </div>
-      </div>
 
       {/* Title */}
       <div className={styles.headerTitle}>
