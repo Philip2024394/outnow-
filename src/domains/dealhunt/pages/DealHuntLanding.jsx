@@ -16,7 +16,7 @@ const DEMO_DEALS = [
 ]
 
 const DOMAIN_COLORS = { food: '#F97316', marketplace: '#8DC63F', massage: '#A855F7', rentals: '#3B82F6', rides: '#EAB308' }
-const DOMAIN_LABELS = { food: '🍽️ Makanan', marketplace: '🛍️ Market', massage: '💆 Massage', rentals: '🚗 Rental', rides: '🏍️ Ojek' }
+const DOMAIN_LABELS = { food: 'Makanan', marketplace: 'Market', massage: 'Massage', rentals: 'Rental', rides: 'Ojek' }
 
 const DEMO_REVIEW_DATA = [
   { id: 'r1', deal_title: 'Nasi Goreng Spesial', stars: 5, photo_url: 'https://picsum.photos/seed/rev1/200/200', caption: 'Enak banget! Porsi besar', reviewer_name: 'Sari', created_at: new Date(Date.now() - 86400000).toISOString() },
