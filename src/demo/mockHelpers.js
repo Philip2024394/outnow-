@@ -25,15 +25,16 @@ const _ukHour = parseInt(
 )
 export const _isUKLateNight = _ukHour >= 0 && _ukHour < 7
 
-export function tonight() {
+export function tonight(hour = 20, minute = 0) {
   const d = new Date()
-  d.setHours(20, 0, 0, 0)
+  d.setHours(hour, minute, 0, 0)
+  if (d.getTime() < Date.now()) d.setDate(d.getDate() + 1)
   return d.getTime()
 }
 
-export function tomorrow() {
+export function tomorrow(hour = 14, minute = 0) {
   const d = new Date()
   d.setDate(d.getDate() + 1)
-  d.setHours(14, 0, 0, 0)
+  d.setHours(hour, minute, 0, 0)
   return d.getTime()
 }

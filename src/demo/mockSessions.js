@@ -1,4 +1,4 @@
-import { offset, now, _isUKLateNight } from "./mockHelpers"
+import { offset, now, _isUKLateNight, tonight, tomorrow } from "./mockHelpers"
 
 export const DEMO_USER = {
   uid: 'demo-me',
@@ -130,15 +130,6 @@ export const DEMO_SESSIONS = _isUKLateNight ? [] : _ACTIVE_SESSIONS
 
 // Scheduled sessions — "I'm Out Later"
 // scheduledFor = ms timestamp when they go live
-function tonight(hour, minute = 0) {
-  const d = new Date(); d.setHours(hour, minute, 0, 0)
-  if (d.getTime() < Date.now()) d.setDate(d.getDate() + 1)
-  return d.getTime()
-}
-function tomorrow(hour, minute = 0) {
-  const d = new Date(); d.setDate(d.getDate() + 1); d.setHours(hour, minute, 0, 0)
-  return d.getTime()
-}
 
 export const DEMO_SCHEDULED_SESSIONS = [
   {
