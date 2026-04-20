@@ -10,15 +10,15 @@
 }
 .carousel::-webkit-scrollbar { display: none; }
 
-/* ── Thumbnail ──────────────────────────────────────────────────────────── */
+/* ── Thumbnail (round) ──────────────────────────────────────────────────── */
 .thumb {
   flex-shrink: 0;
   position: relative;
-  width: 64px;
-  height: 64px;
-  border-radius: 10px;
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
   overflow: hidden;
-  border: 1px solid rgba(255, 255, 255, 0.12);
+  border: 2px solid rgba(255, 215, 0, 0.4);
   background: rgba(255, 255, 255, 0.06);
   cursor: pointer;
   padding: 0;
@@ -31,13 +31,15 @@
 }
 .thumbStars {
   position: absolute;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  background: linear-gradient(transparent, rgba(0, 0, 0, 0.7));
-  padding: 2px 0 1px;
+  bottom: -2px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: rgba(0, 0, 0, 0.75);
+  padding: 1px 4px;
+  border-radius: 6px;
   text-align: center;
   line-height: 1;
+  white-space: nowrap;
 }
 
 /* ── Stars ───────────────────────────────────────────────────────────────── */
