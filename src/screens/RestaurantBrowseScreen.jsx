@@ -12,14 +12,29 @@ const FOOD_LANDING_BG = 'https://ik.imagekit.io/nepgaxllc/ChatGPT%20Image%20Apr%
 function FoodLanding({ onBrowse, onRegister, onClose }) {
   return (
     <div className={styles.landingPage} style={{ backgroundImage: `url("${FOOD_LANDING_BG}")` }}>
+      <div style={{ position: 'fixed', top: 6, left: 6, zIndex: 99990, display: 'flex', alignItems: 'center', gap: 6, pointerEvents: 'none' }}><div style={{ width: 28, height: 28, borderRadius: '50%', background: '#8DC63F', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 11, fontWeight: 900, color: '#000', boxShadow: '0 2px 8px rgba(141,198,63,0.4)' }}>F1</div><span style={{ fontSize: 9, fontWeight: 800, color: 'rgba(141,198,63,0.6)' }}>FOOD LANDING</span></div>
       <div className={styles.landingOverlay} />
-      <button className={styles.landingBack} onClick={onClose}>
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-          <polyline points="15 18 9 12 15 6"/>
-        </svg>
-      </button>
+
+      {/* Side nav — Home + Profile */}
+      <div style={{
+        position: 'fixed', right: 6, top: '50%', transform: 'translateY(-50%)',
+        display: 'flex', flexDirection: 'column', gap: 10, zIndex: 200,
+        padding: '10px 6px', borderRadius: 24,
+        background: 'rgba(0,0,0,0.45)', backdropFilter: 'blur(12px)',
+        border: '1px solid rgba(255,255,255,0.05)',
+      }}>
+        <button onClick={onClose} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 2, background: 'none', border: 'none', cursor: 'pointer', padding: 0 }}>
+          <img src="https://ik.imagekit.io/nepgaxllc/Untitledsssaa-removebg-preview.png" alt="" style={{ width: 40, height: 40, objectFit: 'contain' }} />
+          <span style={{ fontSize: 8, fontWeight: 800, color: 'rgba(255,255,255,0.6)', letterSpacing: '0.03em' }}>Home</span>
+        </button>
+        <button onClick={onRegister} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 2, background: 'none', border: 'none', cursor: 'pointer', padding: 0 }}>
+          <img src="https://ik.imagekit.io/nepgaxllc/Untitledsssaaddd-removebg-preview.png" alt="" style={{ width: 40, height: 40, objectFit: 'contain' }} />
+          <span style={{ fontSize: 8, fontWeight: 800, color: 'rgba(255,255,255,0.6)', letterSpacing: '0.03em' }}>Sign Up</span>
+        </button>
+      </div>
+
       <div className={styles.landingContent}>
-        <h1 className={styles.landingTitle}><span style={{ color: '#fff' }}>IND</span><span style={{ color: '#8DC63F' }}>OO</span><span style={{ color: 'rgba(255,255,255,0.5)', fontWeight: 700, fontSize: '0.55em', marginLeft: 8 }}>STREET</span></h1>
+        <h1 className={styles.landingTitle} style={{ textAlign: 'left' }}>IND<span style={{ color: '#8DC63F' }}>OO</span> <span style={{ fontSize: '0.55em', fontWeight: 700, color: 'rgba(255,255,255,0.5)' }}>STREET FOOD</span></h1>
         <p className={styles.landingSub}>Discover street food, warung & restaurants near you</p>
         <button className={styles.landingBtn} onClick={onBrowse}>
           Order Food
@@ -27,11 +42,6 @@ function FoodLanding({ onBrowse, onRegister, onClose }) {
             <polyline points="9 18 15 12 9 6"/>
           </svg>
         </button>
-        <SectionCTAButton
-          section="restaurant"
-          className={styles.landingBtnOutline}
-          onReady={onRegister}
-        />
       </div>
     </div>
   )
@@ -478,18 +488,9 @@ export default function RestaurantBrowseScreen({ onClose, onBackToCategories, ca
 
     <div className={styles.screen} style={{ display: showLanding || loading ? 'none' : undefined }}>
 
+      <div style={{ position: 'fixed', top: 6, left: 6, zIndex: 99990, display: 'flex', alignItems: 'center', gap: 6, pointerEvents: 'none' }}><div style={{ width: 28, height: 28, borderRadius: '50%', background: '#8DC63F', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 11, fontWeight: 900, color: '#000', boxShadow: '0 2px 8px rgba(141,198,63,0.4)' }}>F2</div><span style={{ fontSize: 9, fontWeight: 800, color: 'rgba(141,198,63,0.6)' }}>FOOD BROWSE</span></div>
       {/* Fixed header */}
       <div className={styles.header}>
-        <button
-          className={styles.backBtn}
-          onClick={onBackToCategories ?? onClose}
-          aria-label="Back"
-        >
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-            <path d="M19 12H5M12 5l-7 7 7 7"/>
-          </svg>
-        </button>
-
         <div className={styles.headerCenter}>
           <span className={styles.headerTitle}>
             <span style={{ color: '#fff' }}>IND</span><span style={{ color: '#8DC63F' }}>OO</span><span style={{ color: 'rgba(255,255,255,0.5)', fontWeight: 700, fontSize: '0.7em', marginLeft: 6 }}>STREET</span>
@@ -499,14 +500,6 @@ export default function RestaurantBrowseScreen({ onClose, onBackToCategories, ca
           </span>
         </div>
 
-        <div className={styles.headerRight}>
-          <img
-            src="https://ik.imagekit.io/nepgaxllc/Motorcyclist%20approaching%20motorcycle%20near%20Borobudur.png"
-            alt=""
-            className={styles.headerHeroImg}
-            aria-hidden="true"
-          />
-        </div>
       </div>
 
       {/* Scroll dots — dividers don't get a dot */}
@@ -655,9 +648,9 @@ function RestaurantCard({ restaurant: r, onOpenMenu }) {
           {r.is_open ? 'View Menu & Order' : '⏰ Closed'}
         </button>
 
-        <div className={styles.cardFooter}>
+        <div className={styles.cardFooter} style={{ background: 'none' }}>
           <span className={styles.footerDot} />
-          <span>MAKAN by Indoo</span>
+          <span>INDOO STREET</span>
           <span className={styles.footerDot} />
         </div>
       </div>
