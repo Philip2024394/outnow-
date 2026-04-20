@@ -42,8 +42,8 @@
 /* Circle container for icon */
 .iconWrap {
   position: relative;
-  width: 68px;
-  height: 68px;
+  width: 72px;
+  height: 72px;
   border-radius: 50%;
   background: rgba(10, 10, 14, 0.75);
   backdrop-filter: blur(16px) saturate(1.6);
@@ -58,42 +58,50 @@
     0 4px 16px rgba(0,0,0,0.4);
 }
 
-/* Vehicle images (bike, car) — wider aspect */
+/* Vehicle images (bike, car) — offset left, overlapping edge */
 .dockImgVehicle {
-  width: 50px;
-  height: 36px;
+  position: absolute;
+  left: -8px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 48px;
+  height: 34px;
   object-fit: contain;
   pointer-events: none;
-  filter: drop-shadow(0 1px 4px rgba(0,0,0,0.5));
+  filter: drop-shadow(0 2px 6px rgba(0,0,0,0.6));
 }
 
-/* Square icons (food, dating, shopping, massage) */
+/* Square icons — offset left, overlapping edge */
 .dockImgSquare {
+  position: absolute;
+  left: -6px;
+  top: 50%;
+  transform: translateY(-50%);
   width: 42px;
   height: 42px;
   object-fit: contain;
   pointer-events: none;
-  filter: drop-shadow(0 1px 4px rgba(0,0,0,0.5));
+  filter: drop-shadow(0 2px 6px rgba(0,0,0,0.6));
 }
 
-/* Arched SVG text inside circle */
+/* Arched SVG text on the right half of circle */
 .arcLabel {
   position: absolute;
-  bottom: 0;
+  top: 0;
   left: 0;
   width: 100%;
   height: 100%;
   pointer-events: none;
 }
 .arcLabel text {
-  fill: rgba(255, 255, 255, 0.9);
-  font-size: 9px;
+  fill: rgba(255, 255, 255, 0.92);
+  font-size: 11px;
   font-weight: 800;
-  letter-spacing: 0.06em;
+  letter-spacing: 0.05em;
   text-transform: uppercase;
 }
 
-/* Hidden — label now inside circle as arched text */
+/* Hidden — label now arched inside circle */
 .dockLabel {
   display: none;
 }

@@ -46,15 +46,16 @@ export default function FloatingIcons({ sessions = [], serviceCounts = {}, onSel
                 aria-label={icon.label}
               >
                 <div className={styles.iconWrap}>
+                  {/* Icon — offset left, overlapping circle edge */}
                   <img
                     src={icon.img}
                     alt={icon.label}
                     className={icon.vehicle ? styles.dockImgVehicle : styles.dockImgSquare}
                   />
-                  {/* Arched label inside circle */}
-                  <svg className={styles.arcLabel} viewBox="0 0 68 68" xmlns="http://www.w3.org/2000/svg">
+                  {/* Arched text on the right half */}
+                  <svg className={styles.arcLabel} viewBox="0 0 80 80" xmlns="http://www.w3.org/2000/svg">
                     <defs>
-                      <path id={`arc-${icon.id}`} d="M 10,34 a 24,24 0 0,0 48,0" transform="rotate(180,34,34)" />
+                      <path id={`arc-${icon.id}`} d="M 40,8 a 32,32 0 0,1 0,64" />
                     </defs>
                     <text>
                       <textPath href={`#arc-${icon.id}`} startOffset="50%" textAnchor="middle">
