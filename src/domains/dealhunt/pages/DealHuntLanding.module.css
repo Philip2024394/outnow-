@@ -1,0 +1,332 @@
+/* ========================================
+   DealHuntLanding — Dark glass aesthetic
+   Shopee Flash Sale + Grab Deals hybrid
+   ======================================== */
+
+/* --- Overlay & Container --- */
+.overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 9500;
+  background: #0d0d0d;
+  overflow-y: auto;
+  overflow-x: hidden;
+  -webkit-overflow-scrolling: touch;
+  scroll-behavior: smooth;
+}
+
+.container {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  max-width: 600px;
+  margin: 0 auto;
+  padding-bottom: 100px;
+}
+
+/* --- Header --- */
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 16px;
+  background: rgba(20, 20, 20, 0.92);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  border-bottom: 1px solid rgba(141, 198, 63, 0.15);
+}
+
+.backBtn,
+.searchBtn {
+  background: none;
+  border: none;
+  color: #ccc;
+  font-size: 22px;
+  padding: 6px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 8px;
+  transition: background 0.2s;
+}
+
+.backBtn:active,
+.searchBtn:active {
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.brandTitle {
+  font-size: 18px;
+  font-weight: 800;
+  letter-spacing: 1.5px;
+  background: linear-gradient(135deg, #8DC63F 0%, #b8e86a 50%, #8DC63F 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* --- Countdown Banner --- */
+.countdownBanner {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  background: linear-gradient(90deg, #d32f2f 0%, #e65100 100%);
+  padding: 10px 16px;
+  font-size: 14px;
+  font-weight: 700;
+  color: #fff;
+  letter-spacing: 0.5px;
+}
+
+.countdownLabel {
+  opacity: 0.9;
+}
+
+.countdownTime {
+  font-family: 'Courier New', monospace;
+  font-size: 16px;
+  background: rgba(0, 0, 0, 0.3);
+  padding: 3px 10px;
+  border-radius: 4px;
+  letter-spacing: 2px;
+}
+
+.fireIcon {
+  font-size: 16px;
+  animation: pulse 1s ease-in-out infinite alternate;
+}
+
+@keyframes pulse {
+  from { transform: scale(1); }
+  to { transform: scale(1.25); }
+}
+
+/* --- Category Pills --- */
+.categoryScroll {
+  display: flex;
+  gap: 8px;
+  padding: 12px 16px;
+  overflow-x: auto;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+.categoryScroll::-webkit-scrollbar {
+  display: none;
+}
+
+.categoryPill {
+  flex-shrink: 0;
+  padding: 7px 16px;
+  border-radius: 20px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  background: rgba(255, 255, 255, 0.06);
+  color: #aaa;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.25s ease;
+  white-space: nowrap;
+}
+
+.categoryPill:active {
+  transform: scale(0.95);
+}
+
+.categoryPillActive {
+  background: rgba(141, 198, 63, 0.18);
+  border-color: #8DC63F;
+  color: #8DC63F;
+}
+
+/* --- Sort Bar --- */
+.sortBar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 16px 4px;
+}
+
+.sortLabel {
+  font-size: 13px;
+  color: #777;
+  font-weight: 600;
+}
+
+.sortSelect {
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 8px;
+  color: #ccc;
+  font-size: 13px;
+  padding: 6px 12px;
+  cursor: pointer;
+  outline: none;
+  font-weight: 500;
+}
+
+.sortSelect option {
+  background: #1a1a1a;
+  color: #ccc;
+}
+
+/* --- Deal Grid --- */
+.dealGrid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  padding: 12px 12px 0;
+}
+
+/* Staggered card animation */
+.cardWrap {
+  opacity: 0;
+  transform: translateY(24px);
+  animation: cardIn 0.4s ease-out forwards;
+}
+
+.cardWrap:nth-child(1) { animation-delay: 0.04s; }
+.cardWrap:nth-child(2) { animation-delay: 0.08s; }
+.cardWrap:nth-child(3) { animation-delay: 0.12s; }
+.cardWrap:nth-child(4) { animation-delay: 0.16s; }
+.cardWrap:nth-child(5) { animation-delay: 0.20s; }
+.cardWrap:nth-child(6) { animation-delay: 0.24s; }
+.cardWrap:nth-child(7) { animation-delay: 0.28s; }
+.cardWrap:nth-child(8) { animation-delay: 0.32s; }
+
+@keyframes cardIn {
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* --- Empty State --- */
+.emptyState {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 60px 24px;
+  text-align: center;
+  gap: 16px;
+}
+
+.emptyIllustration {
+  font-size: 72px;
+  opacity: 0.5;
+}
+
+.emptyTitle {
+  font-size: 16px;
+  font-weight: 700;
+  color: #888;
+}
+
+.emptySubtitle {
+  font-size: 13px;
+  color: #555;
+}
+
+/* --- FAB Button --- */
+.fab {
+  position: fixed;
+  bottom: 28px;
+  right: 24px;
+  z-index: 9510;
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  border: none;
+  background: linear-gradient(135deg, #8DC63F, #6fa030);
+  color: #fff;
+  font-size: 28px;
+  font-weight: 300;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  box-shadow: 0 4px 20px rgba(141, 198, 63, 0.4);
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.fab:active {
+  transform: scale(0.9);
+  box-shadow: 0 2px 10px rgba(141, 198, 63, 0.3);
+}
+
+/* --- Pull-to-refresh indicator --- */
+.pullIndicator {
+  text-align: center;
+  padding: 12px;
+  color: #555;
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+}
+
+/* --- Search overlay --- */
+.searchOverlay {
+  position: fixed;
+  inset: 0;
+  z-index: 9520;
+  background: rgba(0, 0, 0, 0.85);
+  backdrop-filter: blur(8px);
+  display: flex;
+  flex-direction: column;
+  padding: 16px;
+}
+
+.searchInputWrap {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 12px;
+}
+
+.searchInput {
+  flex: 1;
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(141, 198, 63, 0.3);
+  border-radius: 10px;
+  color: #eee;
+  font-size: 15px;
+  padding: 12px 16px;
+  outline: none;
+}
+
+.searchInput::placeholder {
+  color: #666;
+}
+
+.searchClose {
+  background: none;
+  border: none;
+  color: #aaa;
+  font-size: 14px;
+  cursor: pointer;
+  padding: 8px;
+}
+
+/* --- Responsive --- */
+@media (min-width: 480px) {
+  .dealGrid {
+    gap: 14px;
+    padding: 16px;
+  }
+}
+
+@media (min-width: 768px) {
+  .dealGrid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+
+  .container {
+    max-width: 800px;
+  }
+}

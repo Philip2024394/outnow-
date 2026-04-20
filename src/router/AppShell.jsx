@@ -69,6 +69,7 @@ import {
   CompanyBrowsePanel, DateIdeasSheet, UpgradeSheet, SpotClaimSheet,
   MySpotScreen, VibeCheckSheet, IndooNewsSheet, RatingSheet,
   ReviewsSection, DevPanel, LazyFallback,
+  DealHuntLanding, DealDetail, CreateDealPage, MyDealsPage,
 } from './appShellLazy'
 
 
@@ -213,6 +214,10 @@ export default function AppShell({ returnParams, triggerGoLive }) {
   const [sectionGate, setSectionGate] = useState(null) // 'dating' | 'marketplace' | null
   const [rideVehicleType, setRideVehicleType] = useState('bike_ride') // 'bike_ride' | 'car_taxi'
   const [giftForSession, setGiftForSession] = useState(null)
+  const [dealHuntOpen, setDealHuntOpen] = useState(false)
+  const [dealDetailOpen, setDealDetailOpen] = useState(null)
+  const [createDealOpen, setCreateDealOpen] = useState(false)
+  const [myDealsOpen, setMyDealsOpen] = useState(false)
 
   // Send new users (no display name yet) straight to profile setup
 
@@ -365,6 +370,7 @@ export default function AppShell({ returnParams, triggerGoLive }) {
           }}
           onMassageClick={() => { if (isGuest) { triggerGate(); return } setDockVisible(false); setActiveSection('massage'); setMassageOpen(true) }}
           onRentalsClick={() => { if (isGuest) { triggerGate(); return } setDockVisible(false); setActiveSection('rentals'); setActiveTab('rentals') }}
+          onDealHuntClick={() => { setDealHuntOpen(true) }}
         />
       )}
 
@@ -973,6 +979,46 @@ export default function AppShell({ returnParams, triggerGoLive }) {
         setSettingsOpen={setSettingsOpen} setShopOpen={setShopOpen}
         setMarketplaceLanding={setMarketplaceLanding} setDockVisible={setDockVisible}
       />
+
+      {/* ── Deal Hunt ── */}
+      <Suspense fallback={null}>
+        <DealHuntLanding
+          open={dealHuntOpen}
+          onClose={() => setDealHuntOpen(false)}
+          onSelectDeal={(deal) => { setDealDetailOpen(deal) }}
+          onCreateDeal={() => setCreateDealOpen(true)}
+        />
+        {dealDetailOpen && (
+          <DealDetail
+            deal={dealDetailOpen}
+            open={!!dealDetailOpen}
+            onClose={() => setDealDetailOpen(null)}
+            onClaim={() => {}}
+            onChat={() => {
+              setDealDetailOpen(null)
+              setDealHuntOpen(false)
+              setPendingConv(buildChatConversation({
+                userId: dealDetailOpen.seller_id ?? 'deal-seller',
+                displayName: dealDetailOpen.seller_name ?? 'Seller',
+                emoji: '🔥',
+                lastMessage: `🔥 Deal: ${dealDetailOpen.title}`,
+              }))
+              setActiveTab('chat')
+            }}
+          />
+        )}
+        <CreateDealPage
+          open={createDealOpen}
+          onClose={() => setCreateDealOpen(false)}
+          onSaved={() => setCreateDealOpen(false)}
+          userId={user?.id ?? user?.uid}
+        />
+        <MyDealsPage
+          open={myDealsOpen}
+          onClose={() => setMyDealsOpen(false)}
+          userId={user?.id ?? user?.uid}
+        />
+      </Suspense>
 
       {/* Dev panel — home page only */}
       {activeTab === 'map' && !shopOpen && !foodOpen && !rideOpen && !massageOpen && !datingGridOpen && (

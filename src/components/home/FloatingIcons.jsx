@@ -12,9 +12,10 @@ const ICONS = [
   { id: 'shopping',   labelKey: 'icons.shop',    img: 'https://ik.imagekit.io/nepgaxllc/Untitledsadasdasdasdasddfssdfasdasd-removebg-preview.png',  vehicle: false },
   { id: 'massage',    labelKey: 'icons.massage', img: 'https://ik.imagekit.io/nepgaxllc/Untitledsadasdasdasdasddfssdfasdasdfsasdfsdffasdf-removebg-preview.png', vehicle: false },
   { id: 'rentals',    labelKey: 'icons.rentals', img: 'https://ik.imagekit.io/nepgaxllc/Untitledsadasdasdasdasddfssdfasdasdfsasdfsdffasdf-removebg-preview.png', vehicle: false },
+  { id: 'dealhunt',   labelKey: 'icons.deals',   img: 'https://ik.imagekit.io/nepgaxllc/Untitledsadasdasdasdasddfssdfasdasd-removebg-preview.png', vehicle: false },
 ]
 
-export default function FloatingIcons({ sessions = [], serviceCounts = {}, onSelectSession, onFoodClick, onRideClick, onShoppingClick, onDatingClick, onMassageClick, onRentalsClick }) {
+export default function FloatingIcons({ sessions = [], serviceCounts = {}, onSelectSession, onFoodClick, onRideClick, onShoppingClick, onDatingClick, onMassageClick, onRentalsClick, onDealHuntClick }) {
   const { t } = useLanguage()
   const [activeActivity, setActiveActivity] = useState(null)
 
@@ -26,6 +27,7 @@ export default function FloatingIcons({ sessions = [], serviceCounts = {}, onSel
     if (icon.id === 'dating' && onDatingClick)                                { onDatingClick();   return }
     if (icon.id === 'massage' && onMassageClick)                              { onMassageClick();  return }
     if (icon.id === 'rentals' && onRentalsClick)                              { onRentalsClick();  return }
+    if (icon.id === 'dealhunt' && onDealHuntClick)                            { onDealHuntClick(); return }
     setActiveActivity(icon)
   }
 

@@ -44,6 +44,7 @@ export default {
   'icons.shop':    'Market',
   'icons.massage': 'Massage',
   'icons.rentals': 'Rentals',
+  'icons.deals':   'Deals',
 
   // Map header
   'header.signIn': 'Sign In',
