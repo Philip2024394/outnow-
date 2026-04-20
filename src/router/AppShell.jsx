@@ -987,6 +987,13 @@ export default function AppShell({ returnParams, triggerGoLive }) {
           onClose={() => setDealHuntOpen(false)}
           onSelectDeal={(deal) => { setDealDetailOpen(deal) }}
           onCreateDeal={() => setCreateDealOpen(true)}
+          onViewSeller={(deal) => {
+            setDealHuntOpen(false)
+            if (deal.domain === 'food') { setFoodOpen(true) }
+            else if (deal.domain === 'massage') { setMassageOpen(true); setMassageOnLanding(false) }
+            else if (deal.domain === 'rentals') { setActiveTab('rentals') }
+            else { setShopOpen(true); setMarketplaceLanding(false); setDockVisible(false) }
+          }}
         />
         {dealDetailOpen && (
           <DealDetail

@@ -43,7 +43,7 @@ function useCountdown(endTime) {
 }
 
 // ── Single full-screen deal slide ─────────────────────────────────────────────
-function DealSlide({ deal, isActive, onClaim, onChat }) {
+function DealSlide({ deal, isActive, onClaim, onChat, onViewSeller }) {
   const { h, m, s, expired, urgent } = useCountdown(deal.end_time)
   const pct = Math.round((deal.quantity_claimed / deal.quantity_available) * 100)
   const discount = Math.round((1 - deal.deal_price / deal.original_price) * 100)
@@ -155,6 +155,11 @@ function DealSlide({ deal, isActive, onClaim, onChat }) {
           {deal.seller_rating && <span className={styles.sellerRating}>★ {deal.seller_rating}</span>}
         </div>
 
+        {/* View seller's full menu/products */}
+        <button className={styles.viewSellerLink} onClick={() => onViewSeller?.(deal)}>
+          {deal.domain === 'food' ? 'See full menu' : deal.domain === 'massage' ? 'See all services' : 'More from this seller'} →
+        </button>
+
         {/* Price row */}
         <div className={styles.priceRow}>
           <span className={styles.dealPrice}>{fmtRp(deal.deal_price)}</span>
@@ -203,7 +208,7 @@ function DealSlide({ deal, isActive, onClaim, onChat }) {
 }
 
 // ── Main TikTok-style feed ────────────────────────────────────────────────────
-export default function DealHuntLanding({ open, onClose, onSelectDeal, onCreateDeal }) {
+export default function DealHuntLanding({ open, onClose, onSelectDeal, onCreateDeal, onViewSeller }) {
   const [activeIndex, setActiveIndex] = useState(0)
   const containerRef = useRef(null)
   const deals = DEMO_DEALS
@@ -253,6 +258,7 @@ export default function DealHuntLanding({ open, onClose, onSelectDeal, onCreateD
             isActive={i === activeIndex}
             onClaim={(d) => onSelectDeal?.(d)}
             onChat={(d) => onSelectDeal?.(d)}
+            onViewSeller={(d) => onViewSeller?.(d)}
           />
         ))}
       </div>
