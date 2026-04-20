@@ -1,3 +1,4 @@
+import { createPortal } from 'react-dom'
 import { usePWA } from '@/hooks/usePWA'
 import styles from './AddToHomeScreenBanner.module.css'
 
@@ -8,7 +9,7 @@ export default function AddToHomeScreenBanner({ _forceVisible = false }) {
 
   if (!canShowBanner && !_forceVisible) return null
 
-  return (
+  return createPortal(
     <div className={styles.overlay}>
       <div className={styles.card}>
         {/* Logo */}
@@ -44,6 +45,7 @@ export default function AddToHomeScreenBanner({ _forceVisible = false }) {
           </button>
         </div>
       </div>
-    </div>
+    </div>,
+    document.body
   )
 }
