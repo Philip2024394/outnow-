@@ -789,9 +789,9 @@ export default function RentalSearchScreen({ onClose }) {
                 </span>
 
                 {/* Heart save */}
-                <button onClick={e => { e.stopPropagation(); if (isItemSaved(l.id)) return; saveItem({ id: l.id, title: l.title, city: l.city, price: l.price_day || l.buy_now, image: imgs[0], category: l.category }); setSavedToggle(p => p + 1) }} style={{ position: 'absolute', top: 10, right: 10, width: 34, height: 34, borderRadius: '50%', background: 'rgba(0,0,0,0.35)', backdropFilter: 'blur(6px)', border: 'none', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', zIndex: 3, padding: 0 }}>
+                <div role="button" tabIndex={0} onClick={e => { e.stopPropagation(); if (isItemSaved(l.id)) return; saveItem({ id: l.id, title: l.title, city: l.city, price: l.price_day || l.buy_now, image: imgs[0], category: l.category }); setSavedToggle(p => p + 1) }} style={{ position: 'absolute', top: 10, right: 10, width: 34, height: 34, borderRadius: '50%', background: 'rgba(0,0,0,0.35)', backdropFilter: 'blur(6px)', border: 'none', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', zIndex: 3, padding: 0 }}>
                   <svg width="16" height="16" viewBox="0 0 24 24" fill={isItemSaved(l.id) ? '#EF4444' : 'none'} stroke={isItemSaved(l.id) ? '#EF4444' : '#fff'} strokeWidth="2.5"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
-                </button>
+                </div>
 
                 {/* Rating badge */}
                 {l.rating && <span style={{ position: 'absolute', bottom: 10, left: 10, padding: '3px 8px', borderRadius: 8, background: 'rgba(0,0,0,0.5)', backdropFilter: 'blur(6px)', fontSize: 11, fontWeight: 800, color: '#FFD700', zIndex: 3 }}>★ {l.rating}{l.review_count ? <span style={{ color: 'rgba(255,255,255,0.4)', fontWeight: 600 }}> ({l.review_count})</span> : ''}</span>}
