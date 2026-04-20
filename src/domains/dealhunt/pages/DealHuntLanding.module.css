@@ -23,23 +23,39 @@
   display: flex; align-items: center; gap: 6px;
   pointer-events: none;
 }
-.locationIcon {
-  width: 56px; height: 56px; object-fit: contain;
+.locationPin {
+  width: 36px; height: 36px;
+  display: flex; align-items: center; justify-content: center;
+  position: relative; z-index: 2;
   filter: drop-shadow(0 2px 8px rgba(0,0,0,0.6));
 }
 .locationText {
   display: flex; flex-direction: column; gap: 0;
+  position: relative;
 }
 .locationCity {
-  font-size: 26px; font-weight: 800; color: #fff;
+  font-size: 20px; font-weight: 900; color: #fff;
   text-shadow: 0 2px 8px rgba(0,0,0,0.9);
-  line-height: 1.1;
+  line-height: 1.15;
+  position: relative; z-index: 2;
+}
+.locationLine {
+  display: block;
+  height: 2px;
+  background: #8DC63F;
+  border-radius: 1px;
+  margin: 2px 0;
+  width: calc(100% + 28px);
+  margin-left: -28px;
+  position: relative; z-index: 1;
+  box-shadow: 0 0 6px rgba(141,198,63,0.4);
 }
 .locationCountry {
-  font-size: 18px; font-weight: 600; color: rgba(255,255,255,0.5);
+  font-size: 13px; font-weight: 700; color: rgba(255,255,255,0.55);
   text-shadow: 0 1px 6px rgba(0,0,0,0.8);
-  text-transform: uppercase; letter-spacing: 0.06em;
+  text-transform: uppercase; letter-spacing: 0.08em;
   line-height: 1.2;
+  position: relative; z-index: 2;
 }
 
 /* ── Header title ── */
