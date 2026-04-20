@@ -61,3 +61,8 @@ CREATE INDEX idx_deals_end_time ON deals(end_time);
 CREATE INDEX idx_deals_domain ON deals(domain);
 CREATE INDEX idx_deal_claims_buyer ON deal_claims(buyer_id);
 CREATE INDEX idx_deal_claims_deal ON deal_claims(deal_id);
+
+-- Deal type, minimum discount, and Indoo Ride columns
+ALTER TABLE deals ADD COLUMN IF NOT EXISTS deal_type VARCHAR(20) DEFAULT 'pickup' CHECK (deal_type IN ('eat_in', 'delivery', 'pickup'));
+ALTER TABLE deals ADD COLUMN IF NOT EXISTS min_discount_pct DECIMAL(5,2);
+ALTER TABLE deals ADD COLUMN IF NOT EXISTS indoo_ride BOOLEAN DEFAULT FALSE;

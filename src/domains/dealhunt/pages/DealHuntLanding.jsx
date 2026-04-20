@@ -1,6 +1,7 @@
-import { useState, useEffect, useRef, useCallback } from 'react'
+import { useState, useEffect, useRef, useCallback, useMemo } from 'react'
 import { createPortal } from 'react-dom'
 import styles from './DealHuntLanding.module.css'
+import DealReviewCarousel from '../components/DealReviewCarousel'
 
 // ── Demo deals with larger images ─────────────────────────────────────────────
 const DEMO_DEALS = [
@@ -16,6 +17,14 @@ const DEMO_DEALS = [
 
 const DOMAIN_COLORS = { food: '#F97316', marketplace: '#8DC63F', massage: '#A855F7', rentals: '#3B82F6', rides: '#EAB308' }
 const DOMAIN_LABELS = { food: '🍽️ Makanan', marketplace: '🛍️ Market', massage: '💆 Massage', rentals: '🚗 Rental', rides: '🏍️ Ojek' }
+
+const DEMO_REVIEW_DATA = [
+  { id: 'r1', deal_title: 'Nasi Goreng Spesial', stars: 5, photo_url: 'https://picsum.photos/seed/rev1/200/200', caption: 'Enak banget! Porsi besar', reviewer_name: 'Sari', created_at: new Date(Date.now() - 86400000).toISOString() },
+  { id: 'r2', deal_title: 'Nasi Goreng Spesial', stars: 4, photo_url: 'https://picsum.photos/seed/rev2/200/200', caption: 'Sambalnya mantap', reviewer_name: 'Budi', created_at: new Date(Date.now() - 172800000).toISOString() },
+  { id: 'r3', deal_title: 'Leather Wallet Handmade', stars: 5, photo_url: 'https://picsum.photos/seed/rev3/200/200', caption: 'Kualitas kulit bagus', reviewer_name: 'Rina', created_at: new Date(Date.now() - 259200000).toISOString() },
+  { id: 'r4', deal_title: 'Bakso Jumbo + Es Teh', stars: 5, photo_url: 'https://picsum.photos/seed/rev4/200/200', caption: 'Bakso terenak di Semarang!', reviewer_name: 'Agus', created_at: new Date(Date.now() - 345600000).toISOString() },
+  { id: 'r5', deal_title: 'Full Body Massage 90min', stars: 4, photo_url: 'https://picsum.photos/seed/rev5/200/200', caption: 'Relax banget, recommended', reviewer_name: 'Dewi', created_at: new Date(Date.now() - 432000000).toISOString() },
+]
 
 function fmtRp(n) { return `Rp${(n ?? 0).toLocaleString('id-ID')}` }
 
@@ -39,6 +48,7 @@ function DealSlide({ deal, isActive, onClaim, onChat }) {
   const pct = Math.round((deal.quantity_claimed / deal.quantity_available) * 100)
   const discount = Math.round((1 - deal.deal_price / deal.original_price) * 100)
   const almostGone = pct >= 80
+  const dealReviews = useMemo(() => DEMO_REVIEW_DATA.filter(r => r.deal_title === deal.title), [deal.title])
 
   return (
     <div className={styles.slide}>
@@ -120,6 +130,9 @@ function DealSlide({ deal, isActive, onClaim, onChat }) {
             {expired ? 'EXPIRED' : `${String(h).padStart(2,'0')}:${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`}
           </span>
         </div>
+
+        {/* Review carousel */}
+        <DealReviewCarousel dealTitle={deal.title} sellerId={deal.seller_id} reviews={dealReviews} />
 
         {/* Claim button */}
         <button

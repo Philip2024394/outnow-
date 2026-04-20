@@ -18,6 +18,31 @@ function hoursFromNow(h) {
   return new Date(Date.now() + h * 60 * 60 * 1000).toISOString()
 }
 
+function endOfDay() {
+  const d = new Date()
+  d.setHours(23, 59, 59, 999)
+  return d.toISOString()
+}
+
+function daysFromNow(days) {
+  return new Date(Date.now() + days * 24 * 60 * 60 * 1000).toISOString()
+}
+
+function expiresAtForDealType(dealType) {
+  if (dealType === 'eat_in') return endOfDay()
+  if (dealType === 'delivery') return daysFromNow(7)
+  return daysFromNow(3) // pickup
+}
+
+const MIN_DISCOUNT_BY_CATEGORY = {
+  food: 15,
+  massage: 15,
+  marketplace: 10,
+  rentals: 10,
+  rides: 10,
+}
+const DEFAULT_MIN_DISCOUNT = 10
+
 // ── Demo deals ──────────────────────────────────────────────────────────────
 
 const DEMO_DEALS = [
@@ -133,6 +158,16 @@ const DEMO_DEALS = [
   },
 ]
 
+// ── Demo reviews ────────────────────────────────────────────────────────────
+
+const DEMO_REVIEWS = [
+  { id: 'r1', deal_title: 'Nasi Goreng Spesial', seller_id: 's1', stars: 5, photo_url: 'https://picsum.photos/seed/rev1/200/200', caption: 'Enak banget! Porsi besar', reviewer_name: 'Sari', created_at: new Date(Date.now() - 86400000).toISOString() },
+  { id: 'r2', deal_title: 'Nasi Goreng Spesial', seller_id: 's1', stars: 4, photo_url: 'https://picsum.photos/seed/rev2/200/200', caption: 'Sambalnya mantap', reviewer_name: 'Budi', created_at: new Date(Date.now() - 172800000).toISOString() },
+  { id: 'r3', deal_title: 'Leather Wallet Handmade', seller_id: 's2', stars: 5, photo_url: 'https://picsum.photos/seed/rev3/200/200', caption: 'Kualitas kulit bagus', reviewer_name: 'Rina', created_at: new Date(Date.now() - 259200000).toISOString() },
+  { id: 'r4', deal_title: 'Bakso Jumbo + Es Teh', seller_id: 's5', stars: 5, photo_url: 'https://picsum.photos/seed/rev4/200/200', caption: 'Bakso terenak di Semarang!', reviewer_name: 'Agus', created_at: new Date(Date.now() - 345600000).toISOString() },
+  { id: 'r5', deal_title: 'Full Body Massage 90min', seller_id: 's3', stars: 4, photo_url: 'https://picsum.photos/seed/rev5/200/200', caption: 'Relax banget, recommended', reviewer_name: 'Dewi', created_at: new Date(Date.now() - 432000000).toISOString() },
+]
+
 // In-memory demo claims store
 let demoClaims = []
 
@@ -204,10 +239,20 @@ export async function fetchDealById(id) {
 // ── Create deal ─────────────────────────────────────────────────────────────
 
 export async function createDeal(dealData) {
+  // Validate minimum discount per category
+  const minDiscount = MIN_DISCOUNT_BY_CATEGORY[dealData.domain] || DEFAULT_MIN_DISCOUNT
+  if (dealData.discount_pct != null && dealData.discount_pct < minDiscount) {
+    throw new Error(`Minimum diskon untuk ${dealData.domain} adalah ${minDiscount}%`)
+  }
+
+  // Ensure deal_type is set
+  const dealType = dealData.deal_type || 'pickup'
+
   if (!supabase) {
     const newDeal = {
       id: 'deal-' + Date.now(),
       ...dealData,
+      deal_type: dealType,
       quantity_claimed: 0,
       view_count: 0,
       claim_count: 0,
@@ -223,7 +268,7 @@ export async function createDeal(dealData) {
   try {
     const { data, error } = await supabase
       .from('deals')
-      .insert(dealData)
+      .insert({ ...dealData, deal_type: dealType })
       .select()
       .single()
     if (error) throw error
@@ -254,7 +299,8 @@ export async function claimDeal(dealId, buyerId) {
       status: 'active',
       claimed_at: new Date().toISOString(),
       redeemed_at: null,
-      expires_at: deal.end_time,
+      expires_at: expiresAtForDealType(deal.deal_type),
+      ...(deal.deal_type === 'eat_in' ? { is_eat_in: true } : {}),
     }
     demoClaims.push(claim)
     deal.quantity_claimed += 1
@@ -266,7 +312,7 @@ export async function claimDeal(dealId, buyerId) {
     // Check availability
     const { data: deal, error: dealErr } = await supabase
       .from('deals')
-      .select('quantity_available, quantity_claimed, quantity_per_user, end_time, status')
+      .select('quantity_available, quantity_claimed, quantity_per_user, end_time, status, deal_type')
       .eq('id', dealId)
       .single()
     if (dealErr || !deal) return { error: 'Deal tidak ditemukan' }
@@ -284,14 +330,16 @@ export async function claimDeal(dealId, buyerId) {
 
     // Insert claim
     const voucherCode = generateVoucher()
+    const claimInsert = {
+      deal_id: dealId,
+      buyer_id: buyerId,
+      voucher_code: voucherCode,
+      expires_at: expiresAtForDealType(deal.deal_type),
+    }
+    if (deal.deal_type === 'eat_in') claimInsert.is_eat_in = true
     const { data: claim, error: claimErr } = await supabase
       .from('deal_claims')
-      .insert({
-        deal_id: dealId,
-        buyer_id: buyerId,
-        voucher_code: voucherCode,
-        expires_at: deal.end_time,
-      })
+      .insert(claimInsert)
       .select()
       .single()
     if (claimErr) throw claimErr
@@ -448,4 +496,56 @@ export async function redeemDeal(claimId) {
     console.warn('[dealService] redeemDeal failed', e)
     return { error: 'Gagal redeem deal' }
   }
+}
+
+// ── Auto-redeem via geofence ───────────────────────────────────────────────
+
+export async function autoRedeemByLocation(claimId) {
+  if (!supabase) return { success: true, method: 'geofence' }
+  const { error } = await supabase.from('deal_claims')
+    .update({ status: 'redeemed', redeemed_at: new Date().toISOString(), redeem_method: 'geofence' })
+    .eq('id', claimId)
+    .eq('status', 'active')
+  return { success: !error, method: 'geofence' }
+}
+
+// ── Restore expired vouchers back to deal quantity ─────────────────────────
+
+export async function restoreExpiredVouchers() {
+  if (!supabase) return
+  const { data: expired } = await supabase.from('deal_claims')
+    .select('id, deal_id')
+    .eq('status', 'active')
+    .lt('expires_at', new Date().toISOString())
+  if (!expired?.length) return
+  for (const claim of expired) {
+    await supabase.from('deal_claims').update({ status: 'expired' }).eq('id', claim.id)
+    await supabase.rpc('decrement_deal_claimed', { p_deal_id: claim.deal_id })
+  }
+}
+
+// ── Fetch reviews for a deal (by title + seller, so reviews carry over when deal is reposted) ──
+
+export async function fetchDealReviews(dealTitle, sellerId) {
+  if (!supabase) return DEMO_REVIEWS.filter(r => r.deal_title === dealTitle)
+  const { data } = await supabase.from('deal_reviews')
+    .select('*')
+    .eq('deal_title', dealTitle)
+    .eq('seller_id', sellerId)
+    .order('created_at', { ascending: false })
+    .limit(20)
+  return data ?? []
+}
+
+// ── Submit a review ─────────────────────────────────────────────────────────
+
+export async function submitDealReview({ dealId, dealTitle, sellerId, reviewerId, reviewerName, stars, photoUrl, caption }) {
+  if (!supabase) return { id: `r-${Date.now()}`, deal_title: dealTitle, stars, photo_url: photoUrl, caption, reviewer_name: reviewerName, created_at: new Date().toISOString() }
+  const { data, error } = await supabase.from('deal_reviews').insert({
+    deal_id: dealId, deal_title: dealTitle, seller_id: sellerId,
+    reviewer_id: reviewerId, reviewer_name: reviewerName,
+    stars, photo_url: photoUrl, caption,
+  }).select().single()
+  if (error) throw error
+  return data
 }

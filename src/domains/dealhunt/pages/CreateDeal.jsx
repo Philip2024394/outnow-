@@ -39,6 +39,21 @@ const MAX_TITLE = 100
 const MAX_DESC = 500
 const MAX_DEAL_DAYS = 7
 
+const MIN_DISCOUNT = {
+  food: 15,
+  massage: 15,
+  marketplace: 10,
+  rentals: 10,
+  rides: 10,
+}
+const DEFAULT_MIN_DISCOUNT = 10
+
+const DEAL_TYPES = [
+  { key: 'eat_in',   label: 'Makan di Tempat' },
+  { key: 'delivery', label: 'Delivery' },
+  { key: 'pickup',   label: 'Ambil Sendiri' },
+]
+
 function toLocalDatetime(date) {
   const d = new Date(date)
   const offset = d.getTimezoneOffset()
@@ -65,8 +80,10 @@ export default function CreateDeal({ open, onClose, onSaved, userId }) {
   const [description, setDescription] = useState('')
   const [originalPrice, setOriginalPrice] = useState('')
   const [dealPrice, setDealPrice]     = useState('')
-  const [quantity, setQuantity]       = useState('1')
+  const [quantity, setQuantity]       = useState('5')
   const [perUser, setPerUser]         = useState('1')
+  const [dealType, setDealType]       = useState('pickup')
+  const [indooRide, setIndooRide]     = useState(true)
   const [startTime, setStartTime]     = useState(toLocalDatetime(new Date()))
   const [endTime, setEndTime]         = useState(toLocalDatetime(new Date(Date.now() + 3 * 3600000)))
   const [quickDur, setQuickDur]       = useState(3)
@@ -86,7 +103,8 @@ export default function CreateDeal({ open, onClose, onSaved, userId }) {
   const discount = origNum > 0 ? Math.round((1 - dealNum / origNum) * 100) : 0
   const discountValid = origNum > 0 && dealNum > 0 && dealNum < origNum
   const discountTooHigh = discount > 70
-  const discountTooLow = discountValid && discount < 5
+  const minDiscount = MIN_DISCOUNT[category] || DEFAULT_MIN_DISCOUNT
+  const discountTooLow = discountValid && discount < minDiscount
   const discountBad = origNum > 0 && dealNum > 0 && dealNum >= origNum
   const subCats = SUB_CATEGORIES[category] || []
   const catObj = CATEGORIES.find(c => c.key === category)
@@ -134,9 +152,11 @@ export default function CreateDeal({ open, onClose, onSaved, userId }) {
     if (!origNum || origNum <= 0) errs.originalPrice = 'Harga normal wajib diisi'
     if (!dealNum || dealNum <= 0) errs.dealPrice = 'Harga deal wajib diisi'
     if (dealNum >= origNum) errs.dealPrice = 'Harga deal harus lebih murah'
-    if (discountValid && discount < 5) errs.dealPrice = 'Diskon minimal 5%'
+    const catLabel = CATEGORIES.find(c => c.key === category)?.label || category
+    const reqMin = MIN_DISCOUNT[category] || DEFAULT_MIN_DISCOUNT
+    if (discountValid && discount < reqMin) errs.dealPrice = `Minimum diskon untuk ${catLabel} adalah ${reqMin}%`
     if (discountValid && discount > 90) errs.dealPrice = 'Diskon maksimal 90%'
-    if (!quantity || Number(quantity) < 1) errs.quantity = 'Minimal 1'
+    if (!quantity || Number(quantity) < 5) errs.quantity = 'Minimum 5 deal per posting'
     const st = new Date(startTime)
     const et = new Date(endTime)
     if (et <= st) errs.endTime = 'Harus setelah waktu mulai'
@@ -167,6 +187,8 @@ export default function CreateDeal({ open, onClose, onSaved, userId }) {
         end_time: new Date(endTime).toISOString(),
         terms: terms.trim() || null,
         redemption_method: 'voucher',
+        deal_type: dealType,
+        indoo_ride: dealType === 'delivery' ? indooRide : false,
       }
 
       const result = await createDeal(dealData)
@@ -274,6 +296,38 @@ export default function CreateDeal({ open, onClose, onSaved, userId }) {
           </div>
         )}
 
+        {/* ── 3b. Deal Type Selector ── */}
+        <div className={styles.card}>
+          <h3 className={styles.cardTitle}>Tipe Deal</h3>
+          <p className={styles.cardSub}>Pilih cara pelanggan mendapatkan deal</p>
+          <div className={styles.catGrid}>
+            {DEAL_TYPES.map(dt => (
+              <button
+                key={dt.key}
+                className={`${styles.catBtn} ${dealType === dt.key ? styles.catBtnActive : ''}`}
+                onClick={() => setDealType(dt.key)}
+              >
+                <span className={styles.catLabel}>{dt.label}</span>
+              </button>
+            ))}
+          </div>
+          {dealType === 'eat_in' && (
+            <div className={styles.cardSub} style={{ marginTop: 8, fontStyle: 'italic', color: '#e67e22' }}>
+              Voucher berlaku hari ini saja
+            </div>
+          )}
+          {dealType === 'delivery' && (
+            <label style={{ display: 'flex', alignItems: 'center', gap: 8, marginTop: 8, fontSize: 14, cursor: 'pointer' }}>
+              <input
+                type="checkbox"
+                checked={indooRide}
+                onChange={e => setIndooRide(e.target.checked)}
+              />
+              Kirim dengan Indoo Ride (diskon Rp5.000)
+            </label>
+          )}
+        </div>
+
         {/* ── 4. Deal Title ── */}
         <div className={styles.card}>
           <label className={styles.label}>Judul Deal</label>
@@ -351,7 +405,7 @@ export default function CreateDeal({ open, onClose, onSaved, userId }) {
               </span>
             ) : discountTooLow ? (
               <span className={`${styles.discountBadge} ${styles.discountError}`}>
-                Diskon {discount}% &mdash; minimal 5%
+                Diskon {discount}% &mdash; minimum diskon untuk {catObj?.label || category} adalah {minDiscount}%
               </span>
             ) : discountTooHigh ? (
               <span className={`${styles.discountBadge} ${styles.discountWarn}`}>
@@ -374,7 +428,7 @@ export default function CreateDeal({ open, onClose, onSaved, userId }) {
                 className={styles.input}
                 type="number"
                 inputMode="numeric"
-                min="1"
+                min="5"
                 value={quantity}
                 onChange={e => setQuantity(e.target.value.replace(/[^0-9]/g, ''))}
                 placeholder="10"
