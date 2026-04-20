@@ -81,44 +81,22 @@ function useCountdown(endTime) {
 // ── Single full-screen deal slide ─────────────────────────────────────────────
 function fmtRpShort(n) { return n >= 1000000 ? `${(n/1000000).toFixed(1).replace('.0','')}jt` : `Rp${(n??0).toLocaleString('id-ID')}` }
 
-// ── Seller menu/catalogue drawer ──────────────────────────────────────────────
+// ── Seller menu/catalogue left-side drawer ────────────────────────────────────
 function SellerDrawer({ deal, open, onClose, onAddItem }) {
   const items = SELLER_ITEMS[deal.seller_name] ?? SELLER_ITEMS._default
-  const isFood = deal.domain === 'food'
-  const title = isFood ? 'Menu' : 'Catalogue'
-  const categories = [...new Set(items.map(i => i.category))]
 
   if (!open) return null
 
   return (
-    <div className={styles.drawerOverlay} onClick={onClose}>
-      <div className={styles.drawer} onClick={e => e.stopPropagation()}>
-        <div className={styles.drawerHandle}><span /></div>
-        <div className={styles.drawerHeader}>
-          <div>
-            <span className={styles.drawerTitle}>{title}</span>
-            <span className={styles.drawerSeller}>{deal.seller_name}</span>
-          </div>
-          <button className={styles.drawerClose} onClick={onClose}>✕</button>
-        </div>
-
-        <div className={styles.drawerBody}>
-          {categories.map(cat => (
-            <div key={cat}>
-              <h4 className={styles.drawerCatLabel}>{cat}</h4>
-              <div className={styles.drawerGrid}>
-                {items.filter(i => i.category === cat).map(item => (
-                  <button key={item.id} className={styles.drawerItem} onClick={() => onAddItem?.(item, deal)}>
-                    <img src={item.image} alt="" className={styles.drawerItemImg} />
-                    <span className={styles.drawerItemName}>{item.name}</span>
-                    <span className={styles.drawerItemPrice}>{fmtRpShort(item.price)}</span>
-                    <span className={styles.drawerAddBtn}>+</span>
-                  </button>
-                ))}
-              </div>
-            </div>
-          ))}
-        </div>
+    <div className={styles.drawerBackdrop} onClick={onClose}>
+      <div className={styles.drawerPanel} onClick={e => e.stopPropagation()}>
+        {items.map(item => (
+          <button key={item.id} className={styles.drawerCard} onClick={() => onAddItem?.(item, deal)}>
+            <img src={item.image} alt="" className={styles.drawerCardImg} />
+            <span className={styles.drawerCardName}>{item.name}</span>
+            <span className={styles.drawerCardPrice}>{fmtRpShort(item.price)}</span>
+          </button>
+        ))}
       </div>
     </div>
   )

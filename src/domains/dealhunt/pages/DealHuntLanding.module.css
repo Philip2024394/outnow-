@@ -433,90 +433,54 @@
 }
 .fab:active { transform: scale(0.9); }
 
-/* ── Seller menu/catalogue drawer ── */
-.drawerOverlay {
+/* ── Seller menu/catalogue — left-side floating grid (same as restaurant) ── */
+.drawerBackdrop {
   position: absolute; inset: 0; z-index: 25;
-  background: rgba(0,0,0,0.5);
-  display: flex; align-items: flex-end;
-  animation: overlayFade 0.2s ease;
+  background: rgba(0,0,0,0.4);
 }
-.drawer {
-  width: 100%; max-height: 75vh;
-  background: rgba(12,12,16,0.97);
-  backdrop-filter: blur(24px) saturate(1.4);
-  -webkit-backdrop-filter: blur(24px) saturate(1.4);
-  border-top: 1px solid rgba(141,198,63,0.15);
-  border-radius: 24px 24px 0 0;
+.drawerPanel {
+  position: absolute;
+  top: calc(env(safe-area-inset-top, 0px) + 64px);
+  bottom: calc(env(safe-area-inset-bottom, 0px) + 16px);
+  left: 12px;
+  width: 148px;
+  display: grid; grid-template-columns: 1fr 1fr;
+  gap: 8px; align-content: start;
+  overflow-y: auto; scrollbar-width: none;
+  padding: 4px;
+  animation: drawerFloatIn 0.25s ease;
+}
+.drawerPanel::-webkit-scrollbar { display: none; }
+@keyframes drawerFloatIn {
+  from { opacity: 0; transform: translateX(-18px) scale(0.95); }
+  to { opacity: 1; transform: none; }
+}
+.drawerCard {
+  aspect-ratio: 1;
   display: flex; flex-direction: column;
-  animation: slideUp 0.3s cubic-bezier(0.22, 1, 0.36, 1);
+  align-items: center; justify-content: center; gap: 4px;
+  background: rgba(12,12,12,0.82);
+  backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 16px; cursor: pointer;
+  padding: 6px 4px; font-family: inherit;
+  transition: transform 0.12s, background 0.15s;
 }
-.drawerHandle {
-  display: flex; justify-content: center; padding: 10px 0 4px;
+.drawerCard:active {
+  transform: scale(0.93);
+  background: rgba(141,198,63,0.12);
+  border-color: rgba(141,198,63,0.4);
 }
-.drawerHandle span {
-  width: 36px; height: 4px; border-radius: 2px;
-  background: rgba(255,255,255,0.15);
-}
-.drawerHeader {
-  display: flex; align-items: center; justify-content: space-between;
-  padding: 4px 16px 12px;
-  border-bottom: 1px solid rgba(255,255,255,0.06);
-}
-.drawerTitle {
-  font-size: 18px; font-weight: 900; color: #fff; display: block;
-}
-.drawerSeller {
-  font-size: 12px; font-weight: 600; color: rgba(255,255,255,0.4); display: block;
-  margin-top: 2px;
-}
-.drawerClose {
-  width: 32px; height: 32px; border-radius: 50%;
-  background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.1);
-  color: rgba(255,255,255,0.6); font-size: 14px; cursor: pointer;
-  display: flex; align-items: center; justify-content: center;
-}
-.drawerBody {
-  overflow-y: auto; padding: 12px 16px 24px;
-  display: flex; flex-direction: column; gap: 16px;
-}
-.drawerCatLabel {
-  font-size: 13px; font-weight: 800; color: #8DC63F;
-  text-transform: uppercase; letter-spacing: 0.05em;
-  margin: 0 0 8px; padding-bottom: 6px;
-  border-bottom: 1px solid rgba(141,198,63,0.12);
-}
-.drawerGrid {
-  display: grid; grid-template-columns: repeat(3, 1fr);
-  gap: 10px;
-}
-.drawerItem {
-  display: flex; flex-direction: column; align-items: center;
-  gap: 4px; padding: 10px 6px;
-  background: rgba(255,255,255,0.03);
-  border: 1px solid rgba(255,255,255,0.06);
-  border-radius: 14px; cursor: pointer;
-  font-family: inherit; position: relative;
-  transition: background 0.15s;
-}
-.drawerItem:active { background: rgba(141,198,63,0.08); }
-.drawerItemImg {
-  width: 56px; height: 56px; border-radius: 12px;
+.drawerCardImg {
+  width: 42px; height: 42px; border-radius: 10px;
   object-fit: cover;
 }
-.drawerItemName {
-  font-size: 11px; font-weight: 700; color: #fff;
-  text-align: center; line-height: 1.2;
+.drawerCardName {
+  font-size: 9px; font-weight: 800; color: rgba(255,255,255,0.75);
+  text-align: center; line-height: 1.2; padding: 0 2px;
   display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical;
   overflow: hidden;
 }
-.drawerItemPrice {
-  font-size: 11px; font-weight: 800; color: #8DC63F;
-}
-.drawerAddBtn {
-  position: absolute; top: 4px; right: 4px;
-  width: 22px; height: 22px; border-radius: 50%;
-  background: #8DC63F; color: #000;
-  font-size: 14px; font-weight: 900;
-  display: flex; align-items: center; justify-content: center;
-  line-height: 1;
+.drawerCardPrice {
+  font-size: 9px; font-weight: 700; color: #8DC63F;
 }
