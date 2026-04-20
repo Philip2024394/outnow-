@@ -351,14 +351,6 @@ export default function DealHuntLanding({ open, onClose, onSelectDeal, onCreateD
             </div>
             <p className={styles.landingHeaderSub}>Best Deals In Yogyakarta</p>
 
-            {/* Search bar */}
-            <div className={styles.landingSearchBar}>
-              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.4)" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
-              </svg>
-              <input className={styles.landingSearchInput} placeholder="Search deals, food, products..." readOnly onClick={() => setShowLanding(false)} />
-            </div>
-
             {/* Running text ticker */}
             <div className={styles.landingTicker}>
               <div className={styles.landingTickerInner}>
