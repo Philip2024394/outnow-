@@ -76,16 +76,16 @@
   background-repeat: no-repeat;
 }
 
-/* Dark gradient scrim — heavier at bottom for text */
+/* Dark gradient scrim — heavy at bottom for text readability */
 .slideScrim {
   position: absolute; inset: 0;
   background: linear-gradient(
     to bottom,
-    rgba(0,0,0,0.15) 0%,
-    rgba(0,0,0,0.05) 30%,
-    rgba(0,0,0,0.3) 55%,
-    rgba(0,0,0,0.85) 85%,
-    rgba(0,0,0,0.95) 100%
+    rgba(0,0,0,0.2) 0%,
+    rgba(0,0,0,0.1) 25%,
+    rgba(0,0,0,0.5) 50%,
+    rgba(0,0,0,0.92) 80%,
+    rgba(0,0,0,0.98) 100%
   );
 }
 
@@ -129,69 +129,69 @@
   border: 2px solid #8DC63F; object-fit: cover;
 }
 
-/* ── Bottom overlay — deal info ── */
+/* ── Bottom overlay — deal info (compact) ── */
 .slideBottom {
-  position: absolute; bottom: 0; left: 0; right: 60px;
-  z-index: 5; padding: 0 16px 24px;
-  display: flex; flex-direction: column; gap: 8px;
+  position: absolute; bottom: 0; left: 0; right: 56px;
+  z-index: 5; padding: 0 14px 20px;
+  display: flex; flex-direction: column; gap: 5px;
 }
 
 .domainPill {
   align-self: flex-start;
-  padding: 3px 10px; border-radius: 6px;
-  border: 1px solid; font-size: 11px; font-weight: 800;
+  padding: 2px 8px; border-radius: 5px;
+  border: 1px solid; font-size: 10px; font-weight: 800;
 }
 
 .slideTitle {
-  font-size: 24px; font-weight: 900; color: #fff;
+  font-size: 20px; font-weight: 900; color: #fff;
   line-height: 1.15; margin: 0;
-  text-shadow: 0 2px 12px rgba(0,0,0,0.7);
+  text-shadow: 0 2px 8px rgba(0,0,0,0.9), 0 0 20px rgba(0,0,0,0.5);
 }
 
 .slideSub {
-  font-size: 13px; color: rgba(255,255,255,0.7);
-  line-height: 1.4; margin: 0;
-  display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical;
+  font-size: 12px; color: rgba(255,255,255,0.8);
+  line-height: 1.35; margin: 0;
+  display: -webkit-box; -webkit-line-clamp: 1; -webkit-box-orient: vertical;
   overflow: hidden;
+  text-shadow: 0 1px 6px rgba(0,0,0,0.8);
 }
 
 /* Seller row */
 .sellerRow {
-  display: flex; align-items: center; gap: 8px;
-  flex-wrap: wrap;
+  display: flex; align-items: center; gap: 6px;
 }
 .sellerThumb {
-  width: 24px; height: 24px; border-radius: 50%;
+  width: 20px; height: 20px; border-radius: 50%;
   object-fit: cover; border: 1px solid rgba(255,255,255,0.2);
 }
-.sellerName { font-size: 13px; font-weight: 700; color: #fff; }
-.sellerRating { font-size: 12px; font-weight: 800; color: #FFD700; }
-.sellerCity { font-size: 12px; color: rgba(255,255,255,0.5); }
+.sellerName { font-size: 12px; font-weight: 700; color: #fff; text-shadow: 0 1px 4px rgba(0,0,0,0.8); }
+.sellerRating { font-size: 11px; font-weight: 800; color: #FFD700; }
+.sellerCity { font-size: 11px; color: rgba(255,255,255,0.6); text-shadow: 0 1px 4px rgba(0,0,0,0.8); }
 
 /* ── Price row ── */
 .priceRow {
-  display: flex; align-items: baseline; gap: 8px;
-  flex-wrap: wrap;
+  display: flex; align-items: baseline; gap: 6px;
 }
 .dealPrice {
-  font-size: 28px; font-weight: 900; color: #8DC63F;
-  text-shadow: 0 2px 16px rgba(141,198,63,0.4);
+  font-size: 24px; font-weight: 900; color: #8DC63F;
+  text-shadow: 0 2px 12px rgba(141,198,63,0.5), 0 0 20px rgba(0,0,0,0.6);
 }
 .origPrice {
-  font-size: 16px; color: rgba(255,255,255,0.4);
+  font-size: 14px; color: rgba(255,255,255,0.45);
   text-decoration: line-through;
+  text-shadow: 0 1px 4px rgba(0,0,0,0.8);
 }
 .saveBadge {
-  padding: 2px 8px; border-radius: 4px;
-  background: rgba(141,198,63,0.15); border: 1px solid rgba(141,198,63,0.3);
-  font-size: 11px; font-weight: 800; color: #8DC63F;
+  padding: 2px 6px; border-radius: 4px;
+  background: rgba(141,198,63,0.2); border: 1px solid rgba(141,198,63,0.35);
+  font-size: 10px; font-weight: 800; color: #8DC63F;
 }
 
 /* ── Progress bar ── */
-.progressWrap { display: flex; flex-direction: column; gap: 4px; }
+.progressWrap { display: flex; flex-direction: column; gap: 3px; }
 .progressTrack {
-  height: 6px; border-radius: 3px;
-  background: rgba(255,255,255,0.1);
+  height: 5px; border-radius: 3px;
+  background: rgba(255,255,255,0.12);
   overflow: hidden;
 }
 .progressFill {
@@ -200,7 +200,8 @@
 }
 .progressInfo {
   display: flex; justify-content: space-between;
-  font-size: 11px; color: rgba(255,255,255,0.5); font-weight: 600;
+  font-size: 10px; color: rgba(255,255,255,0.55); font-weight: 600;
+  text-shadow: 0 1px 4px rgba(0,0,0,0.8);
 }
 .almostGone {
   color: #EF4444; font-weight: 800;
@@ -213,13 +214,15 @@
 
 /* ── Countdown ── */
 .countdown {
-  display: flex; align-items: center; gap: 6px;
-  font-size: 13px; color: rgba(255,255,255,0.6);
+  display: flex; align-items: center; gap: 5px;
+  font-size: 11px; color: rgba(255,255,255,0.6);
+  text-shadow: 0 1px 4px rgba(0,0,0,0.8);
 }
 .countdownDigits {
   font-family: 'SF Mono', 'Menlo', 'Consolas', monospace;
-  font-size: 16px; font-weight: 900; color: #fff;
+  font-size: 14px; font-weight: 900; color: #fff;
   letter-spacing: 0.05em;
+  text-shadow: 0 1px 6px rgba(0,0,0,0.9);
 }
 .countdownUrgent .countdownDigits {
   color: #EF4444;
@@ -232,9 +235,9 @@
 
 /* ── Claim button ── */
 .claimBtn {
-  width: 100%; padding: 16px; border-radius: 14px;
+  width: 100%; padding: 14px; border-radius: 12px;
   background: #8DC63F; border: none;
-  color: #000; font-size: 16px; font-weight: 900;
+  color: #000; font-size: 15px; font-weight: 900;
   cursor: pointer; font-family: inherit;
   box-shadow: 0 4px 24px rgba(141,198,63,0.4);
   transition: transform 0.15s, box-shadow 0.15s;
