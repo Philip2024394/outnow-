@@ -368,7 +368,7 @@ export default function ShopSearchScreen({ onClose, userCity, userCountry, giftF
 
       {/* Header: brand logo + search bar */}
       <div className={styles.landingHeader}>
-        <span style={{ fontSize: 28, fontWeight: 900, color: '#fff', letterSpacing: '0.04em', flexShrink: 0 }}>IND<span style={{ color: '#8DC63F' }}>OO</span> <span style={{ fontWeight: 700, fontSize: 16, color: 'rgba(255,255,255,0.5)' }}>MARKET</span></span>
+        <span style={{ fontSize: 28, fontWeight: 900, flexShrink: 0 }}><span style={{ background: 'linear-gradient(90deg, #fff 0%, #fff 58%, #8DC63F 58%, #8DC63F 100%)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text' }}>INDOO</span> <span style={{ fontWeight: 700, fontSize: 16, color: 'rgba(255,255,255,0.5)' }}>MARKET</span></span>
         <div className={styles.landingSearchWrap}>
           <svg className={styles.landingSearchIcon} width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
             <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
@@ -446,7 +446,7 @@ export default function ShopSearchScreen({ onClose, userCity, userCountry, giftF
 
       {/* ── Header: logo left + home button right ── */}
       <div className={styles.header}>
-        <span style={{ fontSize: 28, fontWeight: 900, letterSpacing: '-0.01em' }}><span style={{ color: '#fff' }}>IND</span><span style={{ color: '#8DC63F' }}>OO</span><span style={{ fontWeight: 700, fontSize: 16, color: 'rgba(255,255,255,0.5)', marginLeft: 8 }}>MARKET</span></span>
+        <span style={{ fontSize: 28, fontWeight: 900 }}><span style={{ background: 'linear-gradient(90deg, #fff 0%, #fff 58%, #8DC63F 58%, #8DC63F 100%)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text' }}>INDOO</span><span style={{ fontWeight: 700, fontSize: 16, color: 'rgba(255,255,255,0.5)', marginLeft: 8 }}>MARKET</span></span>
       </div>
 
       {/* ── Search bar + filter ── */}

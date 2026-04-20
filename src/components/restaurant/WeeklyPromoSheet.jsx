@@ -146,7 +146,7 @@ export default function WeeklyPromoSheet({ onClose, restaurant }) {
         {/* Header */}
         <div className={styles.header}>
           <div className={styles.headerTop}>
-            <span className={styles.logo}>IND<span style={{ color: '#8DC63F' }}>OO</span> STREET</span>
+            <span className={styles.logo}><span style={{ background: 'linear-gradient(90deg, #fff 0%, #fff 58%, #8DC63F 58%, #8DC63F 100%)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text' }}>INDOO</span> STREET</span>
             <button className={styles.closeBtn} onClick={onClose}>✕</button>
           </div>
           <h2 className={styles.title}>This Week's Deals</h2>

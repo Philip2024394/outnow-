@@ -34,7 +34,7 @@ function FoodLanding({ onBrowse, onRegister, onClose }) {
       </div>
 
       <div className={styles.landingContent}>
-        <h1 className={styles.landingTitle} style={{ textAlign: 'left' }}>IND<span style={{ color: '#8DC63F' }}>OO</span> <span style={{ fontSize: '0.55em', fontWeight: 700, color: 'rgba(255,255,255,0.5)' }}>STREET FOOD</span></h1>
+        <h1 className={styles.landingTitle} style={{ textAlign: 'left' }}><span style={{ background: 'linear-gradient(90deg, #fff 0%, #fff 58%, #8DC63F 58%, #8DC63F 100%)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text' }}>INDOO</span> <span style={{ fontSize: '0.55em', fontWeight: 700, color: 'rgba(255,255,255,0.5)' }}>STREET FOOD</span></h1>
         <p className={styles.landingSub}>Discover street food, warung & restaurants near you</p>
         <button className={styles.landingBtn} onClick={onBrowse}>
           Order Food
@@ -493,7 +493,7 @@ export default function RestaurantBrowseScreen({ onClose, onBackToCategories, ca
       <div className={styles.header}>
         <div className={styles.headerCenter}>
           <span className={styles.headerTitle}>
-            <span style={{ color: '#fff' }}>IND</span><span style={{ color: '#8DC63F' }}>OO</span><span style={{ color: 'rgba(255,255,255,0.5)', fontWeight: 700, fontSize: '0.7em', marginLeft: 6 }}>STREET</span>
+            <span style={{ background: 'linear-gradient(90deg, #fff 0%, #fff 58%, #8DC63F 58%, #8DC63F 100%)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text' }}>INDOO</span><span style={{ color: 'rgba(255,255,255,0.5)', fontWeight: 700, fontSize: '0.7em', marginLeft: 6 }}>STREET</span>
           </span>
           <span className={styles.headerSub}>
             {enriched.filter(r => !r.isDivider).length} restaurants near you
