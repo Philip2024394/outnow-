@@ -86,21 +86,51 @@ function DealSlide({ deal, isActive, onClaim, onChat }) {
       {reviewsOpen && (
         <div className={styles.reviewsOverlay} onClick={() => setReviewsOpen(false)}>
           <div className={styles.reviewsPanel} onClick={e => e.stopPropagation()}>
+            {/* Drag handle */}
+            <div className={styles.reviewsDragHandle}><span /></div>
+
+            {/* Header with avg rating */}
             <div className={styles.reviewsHeader}>
-              <span className={styles.reviewsTitle}>Reviews ({dealReviews.length})</span>
+              <div className={styles.reviewsHeaderLeft}>
+                <span className={styles.reviewsTitle}>Reviews</span>
+                {dealReviews.length > 0 && (
+                  <div className={styles.reviewsAvg}>
+                    <span className={styles.reviewsAvgNum}>{(dealReviews.reduce((a, r) => a + r.stars, 0) / dealReviews.length).toFixed(1)}</span>
+                    <span className={styles.reviewsAvgStars}>{'★'.repeat(Math.round(dealReviews.reduce((a, r) => a + r.stars, 0) / dealReviews.length))}</span>
+                    <span className={styles.reviewsCount}>({dealReviews.length})</span>
+                  </div>
+                )}
+              </div>
               <button className={styles.reviewsClose} onClick={() => setReviewsOpen(false)}>✕</button>
             </div>
+
+            {/* Write review link */}
+            <button className={styles.writeReviewBtn} onClick={() => { setReviewsOpen(false) }}>
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 013 3L7 19l-4 1 1-4L16.5 3.5z"/>
+              </svg>
+              <span>Write a Review</span>
+            </button>
+
+            {/* Review cards */}
             {dealReviews.length === 0 ? (
-              <p className={styles.reviewsEmpty}>No reviews for this deal yet</p>
+              <div className={styles.reviewsEmpty}>
+                <span className={styles.reviewsEmptyIcon}>⭐</span>
+                <span>No reviews yet</span>
+                <span className={styles.reviewsEmptySub}>Be the first to review this deal</span>
+              </div>
             ) : (
               <div className={styles.reviewsList}>
                 {dealReviews.map(r => (
-                  <div key={r.id} className={styles.reviewItem}>
+                  <div key={r.id} className={styles.reviewCard}>
                     <img src={r.photo_url} alt="" className={styles.reviewImg} />
-                    <div className={styles.reviewInfo}>
-                      <div className={styles.reviewStars}>{'★'.repeat(r.stars)}{'☆'.repeat(5 - r.stars)}</div>
+                    <div className={styles.reviewBody}>
+                      <div className={styles.reviewTop}>
+                        <span className={styles.reviewerName}>{r.reviewer_name}</span>
+                        <span className={styles.reviewStars}>{'★'.repeat(r.stars)}{'☆'.repeat(5 - r.stars)}</span>
+                      </div>
                       <p className={styles.reviewCaption}>{r.caption}</p>
-                      <span className={styles.reviewerName}>— {r.reviewer_name}</span>
+                      <span className={styles.reviewDate}>{new Date(r.created_at).toLocaleDateString('en-GB', { day: 'numeric', month: 'short' })}</span>
                     </div>
                   </div>
                 ))}
