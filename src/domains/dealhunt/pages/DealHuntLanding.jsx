@@ -334,6 +334,34 @@ export default function DealHuntLanding({ open, onClose, onSelectDeal, onCreateD
           <img src={LANDING_BG} alt="" className={styles.landingBgImg} />
           <div className={styles.landingOverlay} />
 
+          {/* Header */}
+          <div className={styles.landingHeader}>
+            <div className={styles.landingHeaderTop}>
+              <span className={styles.landingHeaderBrand}>DEAL <span>HUNT</span></span>
+              <span className={styles.landingHeaderLive}>● LIVE</span>
+            </div>
+            <p className={styles.landingHeaderSub}>Best Deals In Yogyakarta</p>
+
+            {/* Search bar */}
+            <div className={styles.landingSearchBar}>
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.4)" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+              </svg>
+              <input className={styles.landingSearchInput} placeholder="Search deals, food, products..." readOnly onClick={() => setShowLanding(false)} />
+            </div>
+
+            {/* Running text ticker */}
+            <div className={styles.landingTicker}>
+              <div className={styles.landingTickerInner}>
+                {['Sarah claimed Nasi Goreng deal · 2m ago', 'Budi grabbed Leather Wallet · 5m ago', '87% claimed on Bakso Jumbo!', 'New massage deal just dropped · 1m ago', 'Wireless Earbuds 38% off · ending soon', 'Sarah claimed Nasi Goreng deal · 2m ago', 'Budi grabbed Leather Wallet · 5m ago', '87% claimed on Bakso Jumbo!'].map((t, i) => (
+                  <span key={i} className={styles.landingTickerItem}>
+                    <span className={styles.landingTickerDot} />{t}
+                  </span>
+                ))}
+              </div>
+            </div>
+          </div>
+
           {/* Side nav — Home + Join */}
           <div className={styles.landingSideNav}>
             <button className={styles.landingSideBtn} onClick={onClose}>
