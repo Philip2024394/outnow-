@@ -430,15 +430,15 @@ export default function ShopSearchScreen({ onClose, userCity, userCountry, giftF
     {/* ── Categories page (M1b) ── */}
     <div style={{
       position: 'fixed', inset: 0, zIndex: 120,
-      backgroundColor: '#0a0a0c',
-      backgroundImage: 'url("https://ik.imagekit.io/nepgaxllc/UntitledsssaaddddddddDADSASDSDASSSsdfsdf.png?updatedAt=1776625639213")',
-      backgroundSize: 'cover', backgroundPosition: 'center', backgroundRepeat: 'no-repeat',
+      background: '#0a0a0c url("https://ik.imagekit.io/nepgaxllc/UntitledsssaaddddddddDADSASDSDASSSsdfsdf.png?updatedAt=1776625639213") center / cover no-repeat',
       display: showCategories ? 'flex' : 'none', flexDirection: 'column', overflow: 'hidden',
     }}>
+      {/* Dark scrim so text is readable over image */}
+      <div style={{ position: 'absolute', inset: 0, background: 'rgba(0,0,0,0.55)', pointerEvents: 'none' }} />
       <MktBadge num="M1b" label="Categories" />
 
       {/* Header */}
-      <div style={{ padding: '14px 16px', flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+      <div style={{ padding: '14px 16px', flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'space-between', position: 'relative', zIndex: 1 }}>
         <span style={{ fontSize: 28, fontWeight: 900 }}><span style={{ background: 'linear-gradient(90deg, #fff 0%, #fff 58%, #8DC63F 58%, #8DC63F 100%)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text' }}>INDOO</span><span style={{ fontWeight: 700, fontSize: 16, color: 'rgba(255,255,255,0.5)', marginLeft: 8 }}>MARKET</span></span>
         <button onClick={() => { setShowCategories(false); setShowLanding(true); onLandingChange?.(true) }} style={{ width: 36, height: 36, borderRadius: '50%', background: '#8DC63F', border: 'none', color: '#000', fontSize: 13, fontWeight: 900, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#000" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
@@ -446,10 +446,10 @@ export default function ShopSearchScreen({ onClose, userCity, userCountry, giftF
       </div>
 
       {/* Subtitle */}
-      <p style={{ padding: '0 16px', fontSize: 13, color: 'rgba(255,255,255,0.35)', fontWeight: 600, margin: '0 0 12px' }}>Buy · Sell · Trade — choose a category</p>
+      <p style={{ padding: '0 16px', fontSize: 13, color: 'rgba(255,255,255,0.5)', fontWeight: 600, margin: '0 0 12px', position: 'relative', zIndex: 1 }}>Buy · Sell · Trade — choose a category</p>
 
       {/* 6 Landscape cards */}
-      <div style={{ flex: 1, overflowY: 'auto', padding: '0 16px 80px', display: 'flex', flexDirection: 'column', gap: 12 }}>
+      <div style={{ flex: 1, overflowY: 'auto', padding: '0 16px 80px', display: 'flex', flexDirection: 'column', gap: 12, position: 'relative', zIndex: 1 }}>
         {[
           { label: 'New Products', sub: 'Brand new goods from verified sellers', count: '24 items', rating: 4.8, icon: '✨', onClick: () => { setShowCategories(false) } },
           { label: 'Used Goods', sub: 'Pre-owned deals at great prices', count: '12 deals', rating: 4.6, icon: '🔄', onClick: () => { setShowCategories(false); onOpenUsedGoods?.() } },
@@ -460,11 +460,11 @@ export default function ShopSearchScreen({ onClose, userCity, userCountry, giftF
         ].map((item, i) => (
           <button key={i} onClick={item.onClick} style={{
             display: 'flex', flexDirection: 'row', alignItems: 'center', gap: 14,
-            padding: '18px 16px', width: '100%', boxSizing: 'border-box',
-            background: 'rgba(0,0,0,0.65)', backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)',
-            border: '1.5px solid rgba(141,198,63,0.12)', borderRadius: 20,
+            padding: '16px 14px', width: '100%', boxSizing: 'border-box',
+            background: 'rgba(0,0,0,0.5)', backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)',
+            border: '1.5px solid rgba(141,198,63,0.15)', borderRadius: 16,
             cursor: 'pointer', fontFamily: 'inherit', textAlign: 'left',
-            position: 'relative', overflow: 'hidden',
+            position: 'relative',
             boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.06), 0 4px 20px rgba(0,0,0,0.4)',
             transition: 'transform 0.25s cubic-bezier(0.34,1.2,0.64,1), border-color 0.3s',
             WebkitTapHighlightColor: 'transparent',
@@ -477,19 +477,19 @@ export default function ShopSearchScreen({ onClose, userCity, userCountry, giftF
             <div style={{ position: 'absolute', top: 0, left: '10%', right: '10%', height: 1.5, background: 'linear-gradient(90deg, transparent, rgba(141,198,63,0.25), transparent)', pointerEvents: 'none' }} />
 
             {/* Icon */}
-            <div style={{ width: 56, height: 56, borderRadius: '50%', background: 'rgba(141,198,63,0.08)', border: '1.5px solid rgba(141,198,63,0.2)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 24, flexShrink: 0, boxShadow: '0 0 16px rgba(141,198,63,0.08)' }}>
+            <div style={{ width: 48, height: 48, borderRadius: '50%', background: 'rgba(141,198,63,0.1)', border: '1.5px solid rgba(141,198,63,0.25)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 22, flexShrink: 0 }}>
               {item.icon}
             </div>
 
             {/* Text */}
-            <div style={{ flex: 1, minWidth: 0, overflow: 'hidden' }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 3 }}>
-                <span style={{ fontSize: 17, fontWeight: 900, color: '#fff', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{item.label}</span>
-                <span style={{ fontSize: 12, fontWeight: 800, color: '#FFD700', flexShrink: 0 }}>★ {item.rating}</span>
+            <div style={{ flex: 1, minWidth: 0 }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 2 }}>
+                <span style={{ fontSize: 15, fontWeight: 900, color: '#fff' }}>{item.label}</span>
+                <span style={{ fontSize: 11, fontWeight: 800, color: '#FFD700', flexShrink: 0 }}>★ {item.rating}</span>
               </div>
-              <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.45)', fontWeight: 600, marginBottom: 6, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{item.sub}</div>
+              <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.5)', fontWeight: 500, marginBottom: 5, lineHeight: 1.3 }}>{item.sub}</div>
               <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                <span style={{ padding: '3px 10px', borderRadius: 8, background: item.live ? 'rgba(239,68,68,0.12)' : 'rgba(141,198,63,0.1)', border: item.live ? '1px solid rgba(239,68,68,0.25)' : '1px solid rgba(141,198,63,0.2)', fontSize: 11, fontWeight: 800, color: item.live ? '#EF4444' : '#8DC63F', display: 'flex', alignItems: 'center', gap: 4, flexShrink: 0 }}>
+                <span style={{ padding: '2px 8px', borderRadius: 6, background: item.live ? 'rgba(239,68,68,0.15)' : 'rgba(141,198,63,0.12)', border: item.live ? '1px solid rgba(239,68,68,0.3)' : '1px solid rgba(141,198,63,0.25)', fontSize: 10, fontWeight: 800, color: item.live ? '#EF4444' : '#8DC63F', display: 'flex', alignItems: 'center', gap: 4, flexShrink: 0 }}>
                   {item.live && <span style={{ width: 5, height: 5, borderRadius: '50%', background: '#EF4444', animation: 'livePulse 1.5s ease-in-out infinite' }} />}
                   {item.count}
                 </span>
