@@ -94,11 +94,12 @@
   pointer-events: none;
 }
 .arcLabel text {
-  fill: #8DC63F;
+  fill: #fff;
   font-size: 13px;
   font-weight: 800;
   letter-spacing: 0.05em;
   text-transform: uppercase;
+  filter: drop-shadow(0 0 4px rgba(141,198,63,0.7)) drop-shadow(0 0 8px rgba(141,198,63,0.35));
 }
 
 /* Hidden — label now arched inside circle */
