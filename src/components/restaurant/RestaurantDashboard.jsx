@@ -9,6 +9,7 @@ import {
   confirmPaymentReceived,
 } from '@/services/foodOrderService'
 import PostDealWidget from '@/domains/dealhunt/components/PostDealWidget'
+import { FREE_ITEM_BADGES, DAILY_PROMO_TEMPLATES, PROMO_OFFERS, DAYS_OF_WEEK } from '@/constants/restaurantPromos'
 
 const FOOD_CATEGORIES = [
   { id: 'rice',       label: '🍚 Rice Dishes'  },
@@ -77,6 +78,16 @@ export default function RestaurantDashboard({ userId, onClose }) {
   const [rewardMinOrder,  setRewardMinOrder]  = useState('50000')
   const [rewardDiscount,  setRewardDiscount]  = useState(10)
   const [rewardValidity,  setRewardValidity]  = useState(7)
+
+  // ── Dish badges fields ──
+  const [dishBadges,        setDishBadges]        = useState([])
+  const [selectedBadgeDish, setSelectedBadgeDish] = useState(null)
+  const [selectedBadgeId,   setSelectedBadgeId]   = useState(null)
+
+  // ── Daily specials fields ──
+  const [dailySpecials, setDailySpecials] = useState(() =>
+    DAILY_PROMO_TEMPLATES.map(t => ({ day: t.day, name: t.name, dishId: '', dishName: '', offerId: '', enabled: true }))
+  )
 
   // ── Profile fields ──
   const [name,           setName]           = useState('')
@@ -181,6 +192,18 @@ export default function RestaurantDashboard({ userId, onClose }) {
         setRewardDiscount(saved.discount ?? 10)
         setRewardValidity(saved.validity ?? 7)
       }
+    } catch { /* ignore */ }
+
+    // Load dish badges
+    try {
+      const savedBadges = JSON.parse(localStorage.getItem(`indoo_dish_badges_${userId}`) || '[]')
+      if (savedBadges.length) setDishBadges(savedBadges)
+    } catch { /* ignore */ }
+
+    // Load daily specials
+    try {
+      const savedSpecials = JSON.parse(localStorage.getItem(`indoo_daily_specials_${userId}`) || 'null')
+      if (savedSpecials) setDailySpecials(savedSpecials)
     } catch { /* ignore */ }
   }, [userId])
 
@@ -414,7 +437,7 @@ export default function RestaurantDashboard({ userId, onClose }) {
           { id: 'photos',   label: '📸 Cover'    },
           { id: 'orders',   label: '📦 Orders'   },
           { id: 'dealhunt', label: '🔥 Deal Hunt' },
-          { id: 'rewards',  label: '🎁 Rewards' },
+          { id: 'rewards',  label: '🎁 Promos' },
         ].map(t => (
           <button key={t.id}
             className={`${styles.tabBtn} ${tab === t.id ? styles.tabActive : ''}`}
@@ -954,6 +977,255 @@ export default function RestaurantDashboard({ userId, onClose }) {
             }}
           >
             💾 Save Reward Settings
+          </button>
+
+          {/* ── Separator ── */}
+          <div style={{ width: '100%', height: 1, background: 'rgba(255,255,255,0.08)', margin: '8px 0' }} />
+
+          {/* ══════════════════════════════════════════════════════════════════
+              SECTION 2: FREE ITEM BADGES
+          ══════════════════════════════════════════════════════════════════ */}
+          <div style={{ textAlign: 'center', marginBottom: 4 }}>
+            <span style={{ fontSize: 40 }}>🏷</span>
+            <h3 style={{ fontSize: 20, fontWeight: 900, color: '#fff', margin: '6px 0 2px' }}>Free Item Badges</h3>
+            <p style={{ fontSize: 12, color: 'rgba(255,255,255,0.45)', margin: 0 }}>Attach a free item badge to a specific dish</p>
+          </div>
+
+          {/* Step 1: Select a dish */}
+          <div className={styles.fieldGroup}>
+            <label className={styles.label}>Step 1: Select a dish</label>
+            <div style={{
+              display: 'flex', gap: 8, overflowX: 'auto', padding: '4px 0',
+              WebkitOverflowScrolling: 'touch',
+            }}>
+              {menuItems.length === 0 && (
+                <span style={{ fontSize: 12, color: 'rgba(255,255,255,0.35)' }}>No menu items yet — add dishes in the Menu tab first.</span>
+              )}
+              {menuItems.map(item => (
+                <button
+                  key={item.id}
+                  onClick={() => setSelectedBadgeDish(item)}
+                  style={{
+                    flexShrink: 0,
+                    padding: '8px 14px', borderRadius: 10, cursor: 'pointer',
+                    background: selectedBadgeDish?.id === item.id ? 'rgba(141,198,63,0.15)' : 'rgba(255,255,255,0.04)',
+                    border: selectedBadgeDish?.id === item.id ? '2px solid #8DC63F' : '2px solid rgba(255,255,255,0.08)',
+                    color: selectedBadgeDish?.id === item.id ? '#8DC63F' : 'rgba(255,255,255,0.6)',
+                    fontSize: 13, fontWeight: 700, fontFamily: 'inherit',
+                    transition: 'border-color 0.2s, color 0.2s',
+                    whiteSpace: 'nowrap',
+                  }}
+                >
+                  {item.name}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {/* Step 2: Select a badge */}
+          <div className={styles.fieldGroup}>
+            <label className={styles.label}>Step 2: Select a badge</label>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(100px, 1fr))', gap: 10 }}>
+              {FREE_ITEM_BADGES.map(badge => (
+                <button
+                  key={badge.id}
+                  onClick={() => setSelectedBadgeId(badge.id)}
+                  style={{
+                    background: selectedBadgeId === badge.id ? 'rgba(141,198,63,0.15)' : 'rgba(255,255,255,0.04)',
+                    border: selectedBadgeId === badge.id ? '2px solid #8DC63F' : '2px solid rgba(255,255,255,0.08)',
+                    borderRadius: 14, padding: 8, cursor: 'pointer',
+                    display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 6,
+                    transition: 'border-color 0.2s',
+                  }}
+                >
+                  <img src={badge.image} alt={badge.label} style={{ width: '100%', height: 70, objectFit: 'contain', borderRadius: 10 }} />
+                  <span style={{ fontSize: 11, fontWeight: 700, color: selectedBadgeId === badge.id ? '#8DC63F' : 'rgba(255,255,255,0.6)', textAlign: 'center' }}>{badge.label}</span>
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {/* Step 3: Apply badge */}
+          <button
+            onClick={() => {
+              if (!selectedBadgeDish || !selectedBadgeId) return showToast('Select both a dish and a badge')
+              const already = dishBadges.find(b => b.dishId === selectedBadgeDish.id && b.badgeId === selectedBadgeId)
+              if (already) return showToast('Badge already applied to this dish')
+              const next = [...dishBadges, { dishId: selectedBadgeDish.id, dishName: selectedBadgeDish.name, badgeId: selectedBadgeId }]
+              setDishBadges(next)
+              localStorage.setItem(`indoo_dish_badges_${userId}`, JSON.stringify(next))
+              setSelectedBadgeDish(null)
+              setSelectedBadgeId(null)
+              showToast('Badge applied ✓')
+            }}
+            disabled={!selectedBadgeDish || !selectedBadgeId}
+            style={{
+              padding: '12px 24px', borderRadius: 14,
+              background: selectedBadgeDish && selectedBadgeId ? '#8DC63F' : 'rgba(255,255,255,0.08)',
+              border: 'none',
+              color: selectedBadgeDish && selectedBadgeId ? '#000' : 'rgba(255,255,255,0.3)',
+              fontSize: 15, fontWeight: 900, cursor: 'pointer', fontFamily: 'inherit',
+              boxShadow: selectedBadgeDish && selectedBadgeId ? '0 4px 20px rgba(141,198,63,0.4)' : 'none',
+              transition: 'all 0.2s',
+            }}
+          >
+            Apply Badge
+          </button>
+
+          {/* Currently assigned badges */}
+          {dishBadges.length > 0 && (
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 8, width: '100%' }}>
+              <label className={styles.label}>Assigned Badges</label>
+              {dishBadges.map((entry, idx) => {
+                const badge = FREE_ITEM_BADGES.find(b => b.id === entry.badgeId)
+                return (
+                  <div key={idx} style={{
+                    display: 'flex', alignItems: 'center', gap: 10,
+                    background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)',
+                    borderRadius: 12, padding: '8px 12px',
+                  }}>
+                    <span style={{ flex: 1, fontSize: 13, fontWeight: 700, color: 'rgba(255,255,255,0.7)' }}>{entry.dishName}</span>
+                    <span style={{ fontSize: 12, color: 'rgba(255,255,255,0.4)' }}>→</span>
+                    {badge && <img src={badge.image} alt={badge.label} style={{ width: 36, height: 36, objectFit: 'contain', borderRadius: 6 }} />}
+                    <button
+                      onClick={() => {
+                        const next = dishBadges.filter((_, i) => i !== idx)
+                        setDishBadges(next)
+                        localStorage.setItem(`indoo_dish_badges_${userId}`, JSON.stringify(next))
+                        showToast('Badge removed')
+                      }}
+                      style={{
+                        background: 'rgba(255,80,80,0.15)', border: '1px solid rgba(255,80,80,0.3)',
+                        borderRadius: 8, padding: '4px 10px', cursor: 'pointer',
+                        color: '#ff6b6b', fontSize: 13, fontWeight: 700, fontFamily: 'inherit',
+                      }}
+                    >
+                      ✕
+                    </button>
+                  </div>
+                )
+              })}
+            </div>
+          )}
+
+          {/* ── Separator ── */}
+          <div style={{ width: '100%', height: 1, background: 'rgba(255,255,255,0.08)', margin: '8px 0' }} />
+
+          {/* ══════════════════════════════════════════════════════════════════
+              SECTION 3: DAILY SPECIALS
+          ══════════════════════════════════════════════════════════════════ */}
+          <div style={{ textAlign: 'center', marginBottom: 4 }}>
+            <span style={{ fontSize: 40 }}>📅</span>
+            <h3 style={{ fontSize: 20, fontWeight: 900, color: '#fff', margin: '6px 0 2px' }}>Daily Specials</h3>
+            <p style={{ fontSize: 12, color: 'rgba(255,255,255,0.45)', margin: 0 }}>Set a different promo for each day of the week — runs every week</p>
+          </div>
+
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 10, width: '100%' }}>
+            {dailySpecials.map((spec, idx) => {
+              const template = DAILY_PROMO_TEMPLATES.find(t => t.day === spec.day)
+              return (
+                <div key={spec.day} style={{
+                  background: spec.enabled ? 'rgba(255,255,255,0.04)' : 'rgba(255,255,255,0.02)',
+                  border: spec.enabled ? '1px solid rgba(255,255,255,0.1)' : '1px solid rgba(255,255,255,0.05)',
+                  borderRadius: 14, padding: 12,
+                  display: 'flex', flexDirection: 'column', gap: 8,
+                  opacity: spec.enabled ? 1 : 0.5,
+                  transition: 'opacity 0.2s',
+                }}>
+                  {/* Row 1: Day label + toggle */}
+                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                    <span style={{ fontSize: 14, fontWeight: 900, color: '#fff' }}>
+                      {template?.emoji} {spec.day}
+                    </span>
+                    <button
+                      onClick={() => {
+                        const next = [...dailySpecials]
+                        next[idx] = { ...next[idx], enabled: !next[idx].enabled }
+                        setDailySpecials(next)
+                      }}
+                      style={{
+                        width: 44, height: 24, borderRadius: 12, border: 'none', cursor: 'pointer',
+                        background: spec.enabled ? '#8DC63F' : 'rgba(255,255,255,0.15)',
+                        position: 'relative', transition: 'background 0.2s',
+                      }}
+                    >
+                      <span style={{
+                        position: 'absolute', top: 3, left: spec.enabled ? 23 : 3,
+                        width: 18, height: 18, borderRadius: '50%',
+                        background: '#fff', transition: 'left 0.2s',
+                        boxShadow: '0 1px 4px rgba(0,0,0,0.3)',
+                      }} />
+                    </button>
+                  </div>
+
+                  {/* Row 2: Promo name input */}
+                  <input
+                    value={spec.name}
+                    onChange={e => {
+                      const next = [...dailySpecials]
+                      next[idx] = { ...next[idx], name: e.target.value }
+                      setDailySpecials(next)
+                    }}
+                    placeholder="Promo name"
+                    className={styles.input}
+                    style={{ fontSize: 13 }}
+                  />
+
+                  {/* Row 3: Dish dropdown + Offer dropdown */}
+                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8 }}>
+                    <select
+                      className={styles.select}
+                      value={spec.dishId}
+                      onChange={e => {
+                        const dish = menuItems.find(m => String(m.id) === e.target.value)
+                        const next = [...dailySpecials]
+                        next[idx] = { ...next[idx], dishId: e.target.value, dishName: dish?.name || '' }
+                        setDailySpecials(next)
+                      }}
+                      style={{ fontSize: 12 }}
+                    >
+                      <option value="">Select dish...</option>
+                      {menuItems.map(item => (
+                        <option key={item.id} value={item.id}>{item.name}</option>
+                      ))}
+                    </select>
+
+                    <select
+                      className={styles.select}
+                      value={spec.offerId}
+                      onChange={e => {
+                        const next = [...dailySpecials]
+                        next[idx] = { ...next[idx], offerId: e.target.value }
+                        setDailySpecials(next)
+                      }}
+                      style={{ fontSize: 12 }}
+                    >
+                      <option value="">Select offer...</option>
+                      {PROMO_OFFERS.map(offer => (
+                        <option key={offer.id} value={offer.id}>{offer.label}</option>
+                      ))}
+                    </select>
+                  </div>
+                </div>
+              )
+            })}
+          </div>
+
+          {/* Save Daily Specials */}
+          <button
+            onClick={() => {
+              localStorage.setItem(`indoo_daily_specials_${userId}`, JSON.stringify(dailySpecials))
+              showToast('Daily specials saved ✓')
+            }}
+            style={{
+              padding: '14px 28px', borderRadius: 14,
+              background: '#8DC63F', border: 'none',
+              color: '#000', fontSize: 16, fontWeight: 900,
+              cursor: 'pointer', fontFamily: 'inherit',
+              boxShadow: '0 4px 20px rgba(141,198,63,0.4)',
+            }}
+          >
+            💾 Save Daily Specials
           </button>
         </div>
       )}
