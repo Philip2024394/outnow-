@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react'
 
 /**
- * Detects the user's country from their IP address using ipapi.co (free, no key).
+ * Detects the user's country from their IP address using ipwho.is (free, no key, CORS-friendly).
  * Result is cached in sessionStorage so it's only fetched once per browser session.
  * Returns null until resolved.
  */
@@ -16,10 +16,10 @@ export function useIpCountry() {
     const controller = new AbortController()
     const timer = setTimeout(() => controller.abort(), 4000) // 4s timeout
 
-    fetch('https://ipapi.co/json/', { signal: controller.signal })
+    fetch('https://ipwho.is/', { signal: controller.signal })
       .then(r => r.json())
       .then(d => {
-        const name = d?.country_name
+        const name = d?.country
         if (name) {
           sessionStorage.setItem('ip_country', name)
           setIpCountry(name)
