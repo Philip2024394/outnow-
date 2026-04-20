@@ -7,6 +7,32 @@ import { createFoodOrder, searchFoodDrivers } from '@/services/foodOrderService'
 import { fmtRp, getFoodOrders, saveFoodOrders } from './menuSheetConstants'
 import MenuItemCard from './MenuItemCard'
 import { FREE_ITEM_BADGES } from '@/constants/restaurantPromos'
+import { DISH_TAGS } from '@/constants/foodCustomizations'
+
+// Auto-detect tags from item name/description/category
+const SPICY_WORDS = ['pedas','sambal','geprek','balado','rica','cabai','chili','hot','spicy','cabe']
+const GARLIC_WORDS = ['bawang','garlic','aglio']
+const VEGGIE_WORDS = ['vegetarian','vegan','sayur','salad','gado','pecel','karedok','tahu','tempe']
+const SEAFOOD_WORDS = ['ikan','udang','kepiting','cumi','seafood','fish','shrimp','crab','squid','gurame']
+const NUT_WORDS = ['kacang','nut','almond','peanut']
+
+function getAutoTags(item) {
+  const text = `${item.name ?? ''} ${item.description ?? ''} ${item.category ?? ''}`.toLowerCase()
+  const tags = []
+  if (SPICY_WORDS.some(w => text.includes(w))) tags.push(DISH_TAGS.find(t => t.id === 'spicy'))
+  if (GARLIC_WORDS.some(w => text.includes(w))) tags.push(DISH_TAGS.find(t => t.id === 'garlic'))
+  if (VEGGIE_WORDS.some(w => text.includes(w))) tags.push(DISH_TAGS.find(t => t.id === 'vegetarian'))
+  if (SEAFOOD_WORDS.some(w => text.includes(w))) tags.push(DISH_TAGS.find(t => t.id === 'seafood_allergen'))
+  if (NUT_WORDS.some(w => text.includes(w))) tags.push(DISH_TAGS.find(t => t.id === 'nuts'))
+  // Manual tags from item.tags field if vendor sets them
+  if (item.tags) {
+    item.tags.forEach(tagId => {
+      const t = DISH_TAGS.find(dt => dt.id === tagId)
+      if (t && !tags.find(x => x?.id === t.id)) tags.push(t)
+    })
+  }
+  return tags.filter(Boolean)
+}
 import OrderConfirmOverlay from './OrderConfirmOverlay'
 import OrdersPanel from './OrdersPanel'
 import CategoryDrawer from './CategoryDrawer'
@@ -690,6 +716,7 @@ export default function RestaurantMenuSheet({ restaurant, onClose, onOrderViaCha
                 onCustomize={(itm) => setCustomizeItem(itm)}
                 itemRef={el => { itemRefs.current[i] = el }}
                 badge={badgeData}
+                tags={getAutoTags(item)}
               />
             )
           })

@@ -29,3 +29,16 @@ export const SPECIAL_REQUESTS = [
   'Less Oil', 'Less Salt', 'Less Sugar',
   'Kuah Pisah', 'Sambal Pisah', 'Nasi Setengah',
 ]
+
+export const DISH_TAGS = [
+  { id: 'spicy', label: 'Spicy', emoji: '🌶️', color: '#EF4444' },
+  { id: 'garlic', label: 'Garlic', emoji: '🧄', color: '#F59E0B' },
+  { id: 'vegetarian', label: 'Vegetarian', emoji: '🥬', color: '#22C55E' },
+  { id: 'halal', label: 'Halal', emoji: '☪️', color: '#3B82F6' },
+  { id: 'nuts', label: 'Contains Nuts', emoji: '🥜', color: '#D97706' },
+  { id: 'seafood_allergen', label: 'Seafood', emoji: '🦐', color: '#EC4899' },
+  { id: 'egg', label: 'Contains Egg', emoji: '🥚', color: '#FBBF24' },
+  { id: 'bestseller', label: 'Best Seller', emoji: '⭐', color: '#FFD700' },
+  { id: 'new_dish', label: 'New', emoji: '🆕', color: '#8DC63F' },
+  { id: 'chef_pick', label: "Chef's Pick", emoji: '👨‍🍳', color: '#A855F7' },
+]

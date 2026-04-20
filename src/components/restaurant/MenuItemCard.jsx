@@ -2,7 +2,7 @@ import styles from './RestaurantMenuSheet.module.css'
 import { fmtRp, CATEGORY_GRADIENTS } from './menuSheetConstants'
 
 // ── Menu item card — full-screen ──────────────────────────────────────────────
-export default function MenuItemCard({ item, qty, onAdd, onRemove, onCustomize, itemRef, badge }) {
+export default function MenuItemCard({ item, qty, onAdd, onRemove, onCustomize, itemRef, badge, tags }) {
   const bg = item.photo_url
     ? `url("${item.photo_url}")`
     : CATEGORY_GRADIENTS[item.category] ?? 'linear-gradient(160deg, #1a1200 0%, #0d0d0d 100%)'
@@ -43,6 +43,23 @@ export default function MenuItemCard({ item, qty, onAdd, onRemove, onCustomize, 
       {/* Bottom content */}
       <div className={styles.itemBottom}>
         <h2 className={styles.itemName}>{item.name}</h2>
+
+        {/* Dish attribute tags */}
+        {tags?.length > 0 && (
+          <div style={{ display: 'flex', gap: 5, flexWrap: 'wrap', marginBottom: 4 }}>
+            {tags.map(tag => (
+              <span key={tag.id} style={{
+                display: 'inline-flex', alignItems: 'center', gap: 3,
+                padding: '2px 8px', borderRadius: 6,
+                background: `${tag.color}18`, border: `1px solid ${tag.color}40`,
+                fontSize: 10, fontWeight: 800, color: tag.color,
+              }}>
+                {tag.emoji} {tag.label}
+              </span>
+            ))}
+          </div>
+        )}
+
         {item.description && (
           <p className={styles.itemDesc}>{item.description}</p>
         )}
