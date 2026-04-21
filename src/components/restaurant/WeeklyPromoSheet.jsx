@@ -146,10 +146,9 @@ export default function WeeklyPromoSheet({ onClose, restaurant }) {
         {/* Header */}
         <div className={styles.header}>
           <div className={styles.headerTop}>
-            <span className={styles.logo}><span style={{ background: 'linear-gradient(90deg, #fff 0%, #fff 58%, #8DC63F 58%, #8DC63F 100%)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text' }}>INDOO</span> STREET</span>
+            <h2 className={styles.title}>This Week's Deals</h2>
             <button className={styles.closeBtn} onClick={onClose}>✕</button>
           </div>
-          <h2 className={styles.title}>This Week's Deals</h2>
           <p className={styles.sub}>Tap to claim when unlocked</p>
         </div>
 
@@ -218,10 +217,10 @@ function PromoCard({ promo, status, claimed, onClaim, tick }) {
         <span className={styles.offerDetail}>{promo.detail}</span>
       </div>
 
-      {/* Restaurant + time window */}
+      {/* Time window — start & finish */}
       <div className={styles.meta}>
-        <span className={styles.restaurant}>{promo.restaurant}</span>
-        <span className={styles.timeWindow}>🕐 {promo.start} – {promo.end}</span>
+        <span className={styles.timeWindow}>Start {promo.start}</span>
+        <span className={styles.timeWindow}>Finish {promo.end}</span>
       </div>
 
       {/* Status footer */}
@@ -234,13 +233,27 @@ function PromoCard({ promo, status, claimed, onClaim, tick }) {
           </button>
         ) : status === 'soon' ? (
           <div className={styles.lockedRow}>
-            <span className={styles.lockIcon}>🔒</span>
-            <span className={styles.countdownText}>Unlocks in {fmtCountdown(soonSecs)}</span>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 8, flex: 1 }}>
+              <span className={styles.countdownBox}>{fmtCountdown(soonSecs)}</span>
+            </div>
+            <button className={styles.remindCircle} onClick={(e) => { e.stopPropagation(); alert('Reminder set! We\'ll notify you when this deal unlocks.') }} title="Remind me">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#FACC15" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/>
+                <path d="M13.73 21a2 2 0 0 1-3.46 0"/>
+              </svg>
+            </button>
           </div>
         ) : status === 'upcoming' ? (
           <div className={styles.lockedRow}>
-            <span className={styles.lockIcon}>🔒</span>
-            <span className={styles.countdownText}>Unlocks {DAY_NAMES[promo.day]} at {promo.start}</span>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 8, flex: 1 }}>
+              <span className={styles.countdownBox}>{DAY_NAMES[promo.day]} · {promo.start}</span>
+            </div>
+            <button className={styles.remindCircle} onClick={(e) => { e.stopPropagation(); alert('Reminder set! We\'ll notify you when this deal unlocks.') }} title="Remind me">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#FACC15" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/>
+                <path d="M13.73 21a2 2 0 0 1-3.46 0"/>
+              </svg>
+            </button>
           </div>
         ) : (
           <div className={styles.expiredLabel}>Expired</div>

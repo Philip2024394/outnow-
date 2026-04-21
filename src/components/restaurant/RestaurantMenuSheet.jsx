@@ -4,6 +4,7 @@ import WeeklyPromoSheet from './WeeklyPromoSheet'
 import PaymentCard from './PaymentCard'
 import FoodOrderStatus from '@/components/orders/FoodOrderStatus'
 import { createFoodOrder, searchFoodDrivers } from '@/services/foodOrderService'
+import { FOOD_CATEGORIES_FULL } from '@/constants/foodCategories'
 import { fmtRp, getFoodOrders, saveFoodOrders } from './menuSheetConstants'
 import MenuItemCard from './MenuItemCard'
 import { FREE_ITEM_BADGES } from '@/constants/restaurantPromos'
@@ -46,7 +47,11 @@ export default function RestaurantMenuSheet({ restaurant, onClose, onOrderViaCha
   const items      = restaurant.menu_items ?? []
   const categories = [...new Set(items.map(i => i.category).filter(Boolean))]
 
-  const [cart,           setCart]           = useState([])
+  const [cart,           setCart]           = useState(() => {
+    // Pre-populate demo cart for preview
+    const demoItems = (restaurant.menu_items ?? []).filter(i => i.photo_url).slice(0, 3)
+    return demoItems.length ? demoItems.map((item, i) => ({ ...item, qty: i === 0 ? 2 : 1 })) : []
+  })
   const [activeCategory, setActiveCategory] = useState(null)
   const [cartExpanded,   setCartExpanded]   = useState(false)
   const [drawerOpen,     setDrawerOpen]     = useState(false)
@@ -67,6 +72,8 @@ export default function RestaurantMenuSheet({ restaurant, onClose, onOrderViaCha
   const [reviewComment,  setReviewComment]  = useState('')
   const [toast,          setToast]          = useState(null)
   const [orderType,      setOrderType]      = useState('delivery')
+  const [paymentMethod,  setPaymentMethod]  = useState(null) // 'bank' | 'cod' | null
+  const [transactionCode, setTransactionCode] = useState('')
   const [paymentStep,    setPaymentStep]    = useState(false)   // show payment step on confirmation
   const [paymentProofFile, setPaymentProofFile] = useState(null)
   const [paymentSubmitted, setPaymentSubmitted] = useState(false)
@@ -125,10 +132,18 @@ export default function RestaurantMenuSheet({ restaurant, onClose, onOrderViaCha
     } catch {}
   }, [restaurant])
 
-  // Filter items by active category
-  const visibleItems = activeCategory
-    ? items.filter(i => i.category === activeCategory)
-    : items
+  // Filter items by active category — only show items with owner-uploaded photos
+  // Sort by popularity: featured/first items shown first (hero dish at top)
+  const visibleItems = (activeCategory
+    ? items.filter(i => i.category === activeCategory && i.photo_url)
+    : items.filter(i => i.photo_url)
+  ).sort((a, b) => {
+    // Hero dish (matches restaurant hero_dish_name) always first
+    if (a.name === restaurant.hero_dish_name) return -1
+    if (b.name === restaurant.hero_dish_name) return 1
+    // Then by price descending (premium items = popular)
+    return (b.price ?? 0) - (a.price ?? 0)
+  })
 
   // ── Cart helpers ──
   const addToCart = (item) => {
@@ -141,7 +156,7 @@ export default function RestaurantMenuSheet({ restaurant, onClose, onOrderViaCha
     // Spring open + auto-collapse after 2.5s
     setCartExpanded(true)
     clearTimeout(collapseRef.current)
-    collapseRef.current = setTimeout(() => setCartExpanded(false), 2500)
+    collapseRef.current = setTimeout(() => { setCartExpanded(false); setShowAddrInput(false) }, 2500)
   }
 
   const removeFromCart = (id) => {
@@ -364,14 +379,24 @@ export default function RestaurantMenuSheet({ restaurant, onClose, onOrderViaCha
     }
   }
 
+  const [orderReceived, setOrderReceived] = useState(false)
+  const [driverOnWay, setDriverOnWay] = useState(null) // { orderId, eta, restaurant }
+
   // ── Order handler — Place Order with processing animation ──
   const handleOrder = () => {
     if (!showAddrInput) { setShowAddrInput(true); return }
 
-    // Show processing animation
+    // Step 1: Show processing page (printer printing)
     setCartExpanded(false)
     setOrderProcessing(true)
+    setOrderReceived(false)
 
+    // Step 2: After 4.5s show "Order Received" (paper out)
+    setTimeout(() => {
+      setOrderReceived(true)
+    }, 4500)
+
+    // Step 3: After 8s, save order and show driver page
     setTimeout(() => {
       const orderId = `FOOD-${String(Math.floor(1000 + Math.random() * 9000))}`
       const order = {
@@ -381,7 +406,9 @@ export default function RestaurantMenuSheet({ restaurant, onClose, onOrderViaCha
         total: grandTotal,
         delivery: deliveryFare ?? (orderType === 'delivery' ? 10000 : 0),
         order_type: orderType,
-        status: 'pending',
+        payment_method: paymentMethod,
+        transaction_code: paymentMethod === 'bank' ? transactionCode : null,
+        status: 'driver_assigned',
         address: orderType === 'delivery' ? (address || null) : null,
         created_at: new Date().toISOString(),
       }
@@ -392,15 +419,14 @@ export default function RestaurantMenuSheet({ restaurant, onClose, onOrderViaCha
       setFoodOrders(orders)
 
       setOrderProcessing(false)
-      setOrderConfirm({
-        id: orderId,
-        total: grandTotal,
-        estimatedMin: maxPrepMin + 20,
-      })
+      setOrderReceived(false)
+      setDriverOnWay({ orderId, eta: eta + 10, restaurant: restaurant.name })
 
       setCart([])
       setShowAddrInput(false)
-    }, 2500)
+      setPaymentMethod(null)
+      setTransactionCode('')
+    }, 8000)
   }
 
   useEffect(() => () => clearTimeout(collapseRef.current), [])
@@ -410,11 +436,6 @@ export default function RestaurantMenuSheet({ restaurant, onClose, onOrderViaCha
 
       {/* ── Header ── */}
       <div className={styles.header}>
-        <button className={styles.backBtn} onClick={onClose} aria-label="Close">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-            <path d="M19 12H5M12 5l-7 7 7 7"/>
-          </svg>
-        </button>
         <div className={styles.headerInfo}>
           <span className={styles.headerName}>{restaurant.name}</span>
           {activeCategory && (
@@ -423,179 +444,264 @@ export default function RestaurantMenuSheet({ restaurant, onClose, onOrderViaCha
             </button>
           )}
         </div>
+        <button className={styles.backBtn} onClick={onClose} aria-label="Home">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+        </button>
       </div>
+
+      {/* Cart backdrop */}
+      {cartExpanded && <div className={styles.cartBackdrop} onClick={() => { setCartExpanded(false); setShowAddrInput(false) }} />}
 
       {/* ── Growing cart badge (top-right) ── */}
       <div
         className={`${styles.cartBadge} ${cartExpanded ? styles.cartBadgeOpen : ''}`}
         onClick={() => {
-          setCartExpanded(e => !e)
+          setCartExpanded(e => { if (e) setShowAddrInput(false); return !e })
           clearTimeout(collapseRef.current)
         }}
       >
         {/* Icon row */}
         <div className={styles.cartBadgeTop}>
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-            <circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/>
-            <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/>
-          </svg>
+          <img src="https://ik.imagekit.io/nepgaxllc/Untitleddasdasdasdasss-removebg-preview.png?updatedAt=1775737452452" alt="Cart" style={{ width: 28, height: 28, objectFit: 'contain' }} />
           {cartCount > 0 && <span className={styles.cartCount}>{cartCount}</span>}
         </div>
 
-        {/* Expanded: last 3 items + total + order */}
-        {cartExpanded && cart.length > 0 && (
-          <div className={styles.cartDropdown} onClick={e => e.stopPropagation()}>
-            {cart.slice(-3).map(item => (
-              <div key={item.id} className={styles.cartRowWrap}>
-                <div className={styles.cartRow}>
-                  <span className={styles.cartQty}>{item.qty}×</span>
-                  <span className={styles.cartName}>{item.name}</span>
-                  <span className={styles.cartPrice}>{fmtRp(item.price * item.qty)}</span>
-                  <button
-                    className={`${styles.cartEditBtn} ${editingNoteId === item.id ? styles.cartEditBtnActive : ''}`}
-                    onClick={() => setEditingNoteId(editingNoteId === item.id ? null : item.id)}
-                    title="Customise"
-                  >✏</button>
+      </div>
+
+      {/* ── Full-page cart ── */}
+      {cartExpanded && (
+        <div className={styles.cartPage}>
+          {/* Cart header */}
+          <div className={styles.cartPageHeader}>
+            <button className={styles.cartPageBack} onClick={() => { setCartExpanded(false); setShowAddrInput(false) }}>
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M19 12H5M12 5l-7 7 7 7"/></svg>
+            </button>
+            <div style={{ flex: 1 }}>
+              <span className={styles.cartPageTitle}>{restaurant.name}</span>
+              <span style={{ display: 'block', fontSize: 11, fontWeight: 700, color: restaurant.is_open ? '#8DC63F' : '#ef4444', marginTop: 3 }}>
+                {restaurant.is_open ? <><span style={{ display: 'inline-block', width: 7, height: 7, borderRadius: '50%', background: '#8DC63F', marginRight: 5, animation: 'pulse 1.5s ease-in-out infinite' }} />Kitchen full speed — orders dispatched on time</> : '🔴 Kitchen is closed'}
+              </span>
+            </div>
+          </div>
+
+          {/* Cart items list */}
+          <div className={styles.cartPageBody}>
+            {cart.length === 0 ? (
+              <div className={styles.cartEmpty}>Your cart is empty</div>
+            ) : (
+              <>
+                {cart.map((item, idx) => (
+                  <div key={`${item.id}-${idx}`} className={styles.cartPageItem}>
+                    <div className={styles.cartPageItemRow}>
+                      <span className={styles.cartPageQty}>{item.qty}×</span>
+                      <span className={styles.cartPageName}>{item.name}</span>
+                      <span className={styles.cartPagePrice}>{fmtRp(item.price * item.qty)}</span>
+                    </div>
+                    {/* Qty controls */}
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginTop: 6 }}>
+                      <button onClick={() => removeFromCart(item.id)} style={{ width: 30, height: 30, borderRadius: 8, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.15)', color: 'rgba(255,255,255,0.6)', fontSize: 16, fontWeight: 700, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>−</button>
+                      <span style={{ fontSize: 14, fontWeight: 900, color: '#fff', minWidth: 24, textAlign: 'center' }}>{item.qty}</span>
+                      <button onClick={() => addToCart(item)} style={{ width: 30, height: 30, borderRadius: 8, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.15)', color: 'rgba(255,255,255,0.6)', fontSize: 16, fontWeight: 700, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>+</button>
+                      <button onClick={() => setEditingNoteId(editingNoteId === item.id ? null : item.id)} style={{ marginLeft: 'auto', background: 'none', border: 'none', color: editingNoteId === item.id ? '#FACC15' : 'rgba(255,255,255,0.3)', fontSize: 14, cursor: 'pointer' }}>✏ Note</button>
+                    </div>
+                    {/* Note */}
+                    {item.note?.trim() && editingNoteId !== item.id && (
+                      <span style={{ fontSize: 12, color: 'rgba(255,255,255,0.4)', fontStyle: 'italic', marginTop: 4, display: 'block' }}>📝 {item.note}</span>
+                    )}
+                    {editingNoteId === item.id && (
+                      <div style={{ display: 'flex', gap: 8, marginTop: 8 }}>
+                        <input
+                          className={styles.cartNoteInput}
+                          placeholder="e.g. no chili, extra sauce…"
+                          value={item.note ?? ''}
+                          onChange={e => updateNote(item.id, e.target.value)}
+                          autoFocus
+                          maxLength={120}
+                        />
+                        <button className={styles.cartNoteDone} onClick={() => setEditingNoteId(null)}>Done</button>
+                      </div>
+                    )}
+                  </div>
+                ))}
+
+                {/* Divider */}
+                <div className={styles.cartDivider} style={{ margin: '16px 0' }} />
+
+                {/* Order type toggle */}
+                <div style={{ display: 'flex', gap: 8, marginBottom: 16 }}>
+                  {[
+                    { id: 'delivery', label: 'Delivery', icon: 'https://ik.imagekit.io/nepgaxllc/Sleek%20green%20and%20black%20scooter%20setup.png?updatedAt=1775634845237' },
+                    { id: 'dinein', label: '🍽️ Dine In' },
+                    { id: 'pickup', label: '🏪 Pickup' },
+                  ].map(opt => (
+                    <button key={opt.id} onClick={() => setOrderType(opt.id)} style={{
+                      flex: 1, padding: '12px 6px', borderRadius: 12,
+                      background: orderType === opt.id ? 'rgba(0,0,0,0.8)' : 'rgba(0,0,0,0.4)',
+                      border: `1.5px solid ${orderType === opt.id ? '#8DC63F' : 'rgba(255,255,255,0.08)'}`,
+                      color: orderType === opt.id ? '#fff' : 'rgba(255,255,255,0.5)',
+                      fontSize: 13, fontWeight: 800, cursor: 'pointer', fontFamily: 'inherit',
+                      display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6,
+                    }}>
+                      {opt.icon ? <img src={opt.icon} alt="" style={{ width: 32, height: 32, objectFit: 'contain' }} /> : null}
+                      {opt.label}
+                    </button>
+                  ))}
                 </div>
 
-                {/* Existing note preview */}
-                {item.note?.trim() && editingNoteId !== item.id && (
-                  <span className={styles.cartNotePreview}>📝 {item.note}</span>
-                )}
-
-                {/* Inline note editor */}
-                {editingNoteId === item.id && (
-                  <div className={styles.cartNoteWrap}>
+                {/* Delivery address */}
+                {orderType === 'delivery' && (
+                  <div className={styles.addrWrap} style={{ marginBottom: 12 }}>
                     <input
-                      className={styles.cartNoteInput}
-                      placeholder="e.g. no chili, extra sauce, less rice…"
-                      value={item.note ?? ''}
-                      onChange={e => updateNote(item.id, e.target.value)}
-                      onClick={e => e.stopPropagation()}
-                      autoFocus
-                      maxLength={120}
+                      className={styles.addrInput}
+                      placeholder="📍 Your delivery address"
+                      value={address}
+                      onChange={e => setAddress(e.target.value)}
                     />
-                    <button
-                      className={styles.cartNoteDone}
-                      onClick={() => setEditingNoteId(null)}
-                    >Done</button>
+                    <button className={styles.locateBtn} onClick={handleUseLocation} disabled={locating}>
+                      {locating ? '…' : <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>}
+                    </button>
                   </div>
                 )}
-              </div>
-            ))}
-            {cart.length > 3 && (
-              <span className={styles.cartMore}>+{cart.length - 3} more items</span>
+                {orderType === 'dinein' && (
+                  <div style={{ padding: '12px 0', fontSize: 13, fontWeight: 700, color: 'rgba(255,255,255,0.5)', textAlign: 'center' }}>🍽️ Walk-in / Eat at restaurant</div>
+                )}
+                {orderType === 'pickup' && (
+                  <div style={{ padding: '12px 0', fontSize: 13, fontWeight: 700, color: 'rgba(255,255,255,0.5)', textAlign: 'center' }}>🏪 Pick up at restaurant</div>
+                )}
+
+                {/* Summary */}
+                <div className={styles.cartDivider} style={{ margin: '8px 0' }} />
+
+                {maxPrepMin > 0 && (
+                  <div className={styles.cartMeta} style={{ padding: '6px 0' }}>
+                    <span className={styles.cartMetaIcon}>⏱</span>
+                    <span className={styles.cartMetaLabel}>Est. prep time</span>
+                    <span className={styles.cartMetaValue}>{maxPrepMin} min</span>
+                  </div>
+                )}
+
+                <div className={styles.cartMeta} style={{ padding: '6px 0' }}>
+                  <span className={styles.cartMetaIcon}>{orderType === 'delivery' ? <img src="https://ik.imagekit.io/nepgaxllc/Sleek%20green%20and%20black%20scooter%20setup.png?updatedAt=1775634845237" alt="" style={{ width: 32, height: 32, objectFit: 'contain' }} /> : orderType === 'dinein' ? '🍽️' : '🏪'}</span>
+                  <span className={styles.cartMetaLabel}>{orderType === 'delivery' ? 'Delivery' : orderType === 'dinein' ? 'Dine In' : 'Pickup'}</span>
+                  <span className={styles.cartMetaValue}>{orderType === 'delivery' ? (deliveryFare !== null ? fmtRp(deliveryFare) : 'Calculating…') : 'Free'}</span>
+                </div>
+
+                {orderType === 'dinein' && restaurant.dine_in_discount > 0 && (
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '8px 0', fontSize: 13, fontWeight: 800, color: '#8DC63F' }}>
+                    <span>🎉</span>
+                    <span>{restaurant.dine_in_discount}% dine-in discount</span>
+                  </div>
+                )}
+
+                <div className={styles.cartDivider} style={{ margin: '8px 0' }} />
+
+                {/* Payment method selection */}
+                <div style={{ marginBottom: 12 }}>
+                  <span style={{ fontSize: 13, fontWeight: 800, color: 'rgba(255,255,255,0.6)', marginBottom: 8, display: 'block' }}>Payment Method</span>
+                  <div style={{ display: 'flex', gap: 8 }}>
+                    <button onClick={() => setPaymentMethod('bank')} style={{
+                      flex: 1, padding: '14px 8px', borderRadius: 12,
+                      background: paymentMethod === 'bank' ? 'rgba(0,0,0,0.8)' : 'rgba(0,0,0,0.4)',
+                      border: `1.5px solid ${paymentMethod === 'bank' ? '#8DC63F' : 'rgba(255,255,255,0.08)'}`,
+                      color: paymentMethod === 'bank' ? '#fff' : 'rgba(255,255,255,0.5)',
+                      fontSize: 13, fontWeight: 800, cursor: 'pointer', fontFamily: 'inherit',
+                      display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 4,
+                    }}>
+                      <span style={{ fontSize: 20 }}>🏦</span>
+                      <span>Bank Transfer</span>
+                    </button>
+                    <button onClick={() => setPaymentMethod('cod')} style={{
+                      flex: 1, padding: '14px 8px', borderRadius: 12,
+                      background: paymentMethod === 'cod' ? 'rgba(0,0,0,0.8)' : 'rgba(0,0,0,0.4)',
+                      border: `1.5px solid ${paymentMethod === 'cod' ? '#8DC63F' : 'rgba(255,255,255,0.08)'}`,
+                      color: paymentMethod === 'cod' ? '#fff' : 'rgba(255,255,255,0.5)',
+                      fontSize: 13, fontWeight: 800, cursor: 'pointer', fontFamily: 'inherit',
+                      display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 4,
+                    }}>
+                      <span style={{ fontSize: 20 }}>💵</span>
+                      <span>Cash on Delivery</span>
+                    </button>
+                  </div>
+                  {paymentMethod === 'bank' && restaurant.bank && (
+                    <div style={{ marginTop: 10, padding: 14, borderRadius: 12, background: 'rgba(0,0,0,0.6)', border: '1px solid rgba(255,255,255,0.06)', fontSize: 12 }}>
+                      <div style={{ color: 'rgba(255,255,255,0.4)', marginBottom: 6 }}>Transfer to:</div>
+                      <div style={{ color: '#fff', fontWeight: 800, fontSize: 14 }}>{restaurant.bank.name} — {restaurant.bank.account_number}</div>
+                      <div style={{ color: 'rgba(255,255,255,0.5)', marginTop: 2 }}>{restaurant.bank.account_holder}</div>
+                      <div style={{ color: '#FACC15', fontWeight: 900, fontSize: 16, marginTop: 8 }}>
+                        {orderType !== 'delivery' ? fmtRp(grandTotal) : deliveryFare !== null ? fmtRp(grandTotal) : `${fmtRp(cartTotal)} + delivery`}
+                      </div>
+                      <div className={styles.cartDivider} style={{ margin: '10px 0' }} />
+                      <div style={{ color: 'rgba(255,255,255,0.4)', marginBottom: 6, fontSize: 11 }}>Enter transaction/reference code from your bank receipt:</div>
+                      <input
+                        value={transactionCode}
+                        onChange={e => setTransactionCode(e.target.value)}
+                        placeholder="e.g. TRX-123456789"
+                        style={{
+                          width: '100%', boxSizing: 'border-box',
+                          padding: '12px 14px', borderRadius: 10,
+                          background: 'rgba(0,0,0,0.5)', border: '1px solid rgba(255,255,255,0.1)',
+                          color: '#fff', fontSize: 14, fontFamily: 'inherit', fontWeight: 700,
+                          outline: 'none', letterSpacing: '0.02em',
+                        }}
+                      />
+                    </div>
+                  )}
+                </div>
+
+                <div className={styles.cartDivider} style={{ margin: '8px 0' }} />
+
+                <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 13, color: 'rgba(255,255,255,0.5)', padding: '4px 0' }}>
+                  <span>Estimated time</span>
+                  <span>{eta} min</span>
+                </div>
+
+                <div className={styles.cartTotal} style={{ padding: '8px 0' }}>
+                  <span>Total</span>
+                  <span style={{ color: '#FACC15' }}>
+                    {orderType !== 'delivery' ? fmtRp(grandTotal) : deliveryFare !== null ? fmtRp(grandTotal) : `${fmtRp(cartTotal)} + delivery`}
+                  </span>
+                </div>
+              </>
             )}
-            <div className={styles.cartDivider} />
-
-            {/* Prep time */}
-            {maxPrepMin > 0 && (
-              <div className={styles.cartMeta}>
-                <span className={styles.cartMetaIcon}>⏱</span>
-                <span className={styles.cartMetaLabel}>Est. prep time</span>
-                <span className={styles.cartMetaValue}>{maxPrepMin} min</span>
-              </div>
-            )}
-
-            {/* Delivery / Dine-in / Pickup fare line */}
-            <div className={styles.cartMeta}>
-              <span className={styles.cartMetaIcon}>{orderType === 'delivery' ? '🛵' : orderType === 'dinein' ? '🍽️' : '🏪'}</span>
-              <span className={styles.cartMetaLabel}>
-                {orderType === 'delivery' ? 'Delivery' : orderType === 'dinein' ? 'Dine In' : 'Pickup'}
-              </span>
-              <span className={styles.cartMetaValue}>
-                {orderType === 'delivery'
-                  ? (deliveryFare !== null ? fmtRp(deliveryFare) : 'Calculating…')
-                  : 'Free'}
-              </span>
-            </div>
-
-            {/* Dine-in discount badge */}
-            {orderType === 'dinein' && restaurant.dine_in_discount > 0 && (
-              <div style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '6px 0', fontSize: 11, fontWeight: 800, color: '#8DC63F' }}>
-                <span>🎉</span>
-                <span>{restaurant.dine_in_discount}% dine-in discount available</span>
-              </div>
-            )}
-
-            <div className={styles.cartDivider} />
-
-            <div className={styles.cartTotal}>
-              <span>Total est.</span>
-              <span style={{ color: '#F59E0B' }}>
-                {orderType !== 'delivery' ? fmtRp(grandTotal) : deliveryFare !== null ? fmtRp(grandTotal) : `${fmtRp(cartTotal)} + delivery`}
-              </span>
-            </div>
-            <span style={{ fontSize: 11, color: 'rgba(255,255,255,0.5)', marginTop: 2, display: 'block', textAlign: 'center' }}>
-              ⏱ Estimated {eta} min {orderType === 'delivery' ? `(${avgPrepTime} prep + ${deliveryMinutes} delivery)` : '(prep time)'}
-            </span>
-
-            {/* Order type toggle — Delivery / Dine In / Pickup */}
-            <div style={{ display: 'flex', gap: 6, marginBottom: 10 }}>
-              {[
-                { id: 'delivery', label: '🛵 Delivery' },
-                { id: 'dinein', label: '🍽️ Dine In' },
-                { id: 'pickup', label: '🏪 Pickup' },
-              ].map(opt => (
-                <button key={opt.id} onClick={() => setOrderType(opt.id)} style={{
-                  flex: 1, padding: '8px 4px', borderRadius: 10,
-                  background: orderType === opt.id ? 'rgba(141,198,63,0.15)' : 'rgba(255,255,255,0.04)',
-                  border: `1.5px solid ${orderType === opt.id ? 'rgba(141,198,63,0.4)' : 'rgba(255,255,255,0.08)'}`,
-                  color: orderType === opt.id ? '#8DC63F' : 'rgba(255,255,255,0.5)',
-                  fontSize: 11, fontWeight: 800, cursor: 'pointer', fontFamily: 'inherit',
-                }}>{opt.label}</button>
-              ))}
-            </div>
-
-            {showAddrInput && orderType === 'delivery' && (
-              <div className={styles.addrWrap} onClick={e => e.stopPropagation()}>
-                <input
-                  className={styles.addrInput}
-                  placeholder="📍 Your delivery address"
-                  value={address}
-                  onChange={e => setAddress(e.target.value)}
-                  autoFocus
-                />
-                <button
-                  className={styles.locateBtn}
-                  onClick={handleUseLocation}
-                  disabled={locating}
-                  title="Use my location"
-                >
-                  {locating ? '…' : '🎯'}
-                </button>
-              </div>
-            )}
-
-            {showAddrInput && orderType === 'dinein' && (
-              <div style={{ padding: '10px 0', fontSize: 12, fontWeight: 700, color: 'rgba(255,255,255,0.5)', textAlign: 'center' }}>
-                🍽️ Walk-in / Eat at restaurant
-              </div>
-            )}
-
-            {showAddrInput && orderType === 'pickup' && (
-              <div style={{ padding: '10px 0', fontSize: 12, fontWeight: 700, color: 'rgba(255,255,255,0.5)', textAlign: 'center' }}>
-                🏪 Pick up at restaurant
-              </div>
-            )}
-
-            <button className={styles.orderBtn} onClick={handleOrder}>
-              {showAddrInput
-                ? onOrderViaChat ? '💬 Send Order via Chat' : '📲 Send Order via WhatsApp'
-                : orderType === 'delivery'
-                  ? `Order Now · ~${eta} min →`
-                  : `Order Now · ~${avgPrepTime} min →`}
-            </button>
           </div>
-        )}
 
-        {cartExpanded && cart.length === 0 && (
-          <div className={styles.cartEmpty}>Cart is empty</div>
-        )}
-      </div>
+          {/* Fixed bottom button */}
+          {cart.length > 0 && (
+            <div className={styles.cartPageFooter}>
+              <button
+                className={styles.orderBtn}
+                style={{
+                  fontSize: 16, padding: 16, borderRadius: 16,
+                  opacity: (paymentMethod === 'cod' || (paymentMethod === 'bank' && transactionCode.trim())) ? 1 : 0.4,
+                  cursor: (paymentMethod === 'cod' || (paymentMethod === 'bank' && transactionCode.trim())) ? 'pointer' : 'not-allowed',
+                }}
+                onClick={() => {
+                  if (paymentMethod === 'cod') handleOrder()
+                  else if (paymentMethod === 'bank' && transactionCode.trim()) handleOrder()
+                }}
+              >
+                {!paymentMethod ? 'Select Payment Method' : paymentMethod === 'bank' && !transactionCode.trim() ? 'Enter Transaction Code' : 'Confirm Order'}
+              </button>
+            </div>
+          )}
+        </div>
+      )}
 
       {/* ── Right floating panel ── */}
       <div className={styles.floatingPanel}>
+        {/* Home — back to restaurant browse */}
+        <button
+          className={styles.panelBtn}
+          onClick={onClose}
+          title="Back to restaurants"
+        >
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>
+            <polyline points="9 22 9 12 15 12 15 22"/>
+          </svg>
+          <span className={styles.panelLabel}>Home</span>
+        </button>
+
         {/* Promos */}
         <button
           className={styles.panelBtn}
@@ -612,13 +718,14 @@ export default function RestaurantMenuSheet({ restaurant, onClose, onOrderViaCha
         {/* Categories */}
         <button
           className={styles.panelBtn}
-          onClick={() => setDrawerOpen(true)}
+          onClick={() => setDrawerOpen(o => !o)}
           title="Browse categories"
+          style={drawerOpen ? { boxShadow: '0 0 8px 3px rgba(250,204,21,0.35)' } : {}}
         >
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke={drawerOpen ? '#FACC15' : 'currentColor'} strokeWidth="2.5" strokeLinecap="round">
             <line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/>
           </svg>
-          <span className={styles.panelLabel}>Menu</span>
+          <span className={styles.panelLabel} style={drawerOpen ? { color: '#FACC15' } : {}}>Menu</span>
         </button>
 
         {/* Events */}
@@ -665,30 +772,10 @@ export default function RestaurantMenuSheet({ restaurant, onClose, onOrderViaCha
           </svg>
           <span className={styles.panelLabel}>Orders</span>
         </button>
+
       </div>
 
       <div style={{ position: 'fixed', top: 6, left: 6, zIndex: 99990, display: 'flex', alignItems: 'center', gap: 6, pointerEvents: 'none' }}><div style={{ width: 28, height: 28, borderRadius: '50%', background: '#8DC63F', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 11, fontWeight: 900, color: '#000', boxShadow: '0 2px 8px rgba(141,198,63,0.4)' }}>F3</div><span style={{ fontSize: 9, fontWeight: 800, color: 'rgba(141,198,63,0.6)' }}>MENU</span></div>
-      {/* ── Now in the Kitchen ── */}
-      <div style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '8px 14px', flexShrink: 0, background: 'rgba(0,0,0,0.4)', backdropFilter: 'blur(8px)', borderBottom: '1px solid rgba(255,255,255,0.04)' }}>
-        <div style={{ display: 'flex' }}>
-          {[
-            'https://i.pravatar.cc/100?img=1',
-            'https://i.pravatar.cc/100?img=5',
-            'https://i.pravatar.cc/100?img=9',
-            'https://i.pravatar.cc/100?img=14',
-            'https://i.pravatar.cc/100?img=20',
-            'https://i.pravatar.cc/100?img=25',
-            'https://i.pravatar.cc/100?img=33',
-          ].map((url, i) => (
-            <img key={i} src={url} alt="" style={{ width: 28, height: 28, borderRadius: '50%', border: '2px solid #0a0a0a', marginLeft: i === 0 ? 0 : -8, objectFit: 'cover', position: 'relative', zIndex: 7 - i }} />
-          ))}
-          <div style={{ width: 28, height: 28, borderRadius: '50%', background: 'rgba(141,198,63,0.15)', border: '2px solid #0a0a0a', marginLeft: -8, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 9, fontWeight: 900, color: '#8DC63F' }}>
-            +{Math.floor(40 + Math.random() * 140)}
-          </div>
-        </div>
-        <span style={{ fontSize: 12, fontWeight: 700, color: 'rgba(255,255,255,0.4)' }}>Now in the Kitchen</span>
-        <span style={{ width: 6, height: 6, borderRadius: '50%', background: '#8DC63F', marginLeft: 'auto', flexShrink: 0, animation: 'pulse 2s ease-in-out infinite' }} />
-      </div>
 
       {/* ── Today's special banner ── */}
       {todaySpecial && (
@@ -784,11 +871,96 @@ export default function RestaurantMenuSheet({ restaurant, onClose, onOrderViaCha
 
       {/* ── Order processing overlay ── */}
       {orderProcessing && (
-        <div className={styles.processingOverlay}>
-          <div className={styles.processingCard}>
-            <div className={styles.processingSpinner} />
-            <h3 className={styles.processingTitle}>Placing your order...</h3>
-            <p className={styles.processingSub}>Sending to {restaurant.name}</p>
+        <div style={{ position: 'fixed', inset: 0, zIndex: 9900, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
+          {/* Full-screen background image */}
+          <img
+            src={!orderReceived
+              ? 'https://ik.imagekit.io/nepgaxllc/ChatGPT%20Image%20Apr%2021,%202026,%2006_44_19%20AM.png'
+              : 'https://ik.imagekit.io/nepgaxllc/ChatGPT%20Image%20Apr%2021,%202026,%2006_43_19%20AM.png'
+            }
+            alt={!orderReceived ? 'Processing' : 'Order Received'}
+            style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover' }}
+          />
+          {/* Overlay for text readability */}
+          <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to top, rgba(0,0,0,0.7) 0%, transparent 40%, transparent 60%, rgba(0,0,0,0.5) 100%)' }} />
+          {/* Text at bottom */}
+          <div style={{ position: 'absolute', bottom: 60, left: 0, right: 0, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 12, zIndex: 2 }}>
+            {!orderReceived ? (
+              <>
+                <h3 style={{ fontSize: 22, fontWeight: 900, color: '#fff', margin: 0, textShadow: '0 2px 12px rgba(0,0,0,0.8)' }}>Processing Order</h3>
+                <div style={{ display: 'flex', gap: 8 }}>
+                  <span style={{ width: 10, height: 10, borderRadius: '50%', background: '#8DC63F', animation: 'ping 1.2s ease-in-out infinite' }} />
+                  <span style={{ width: 10, height: 10, borderRadius: '50%', background: '#8DC63F', animation: 'ping 1.2s ease-in-out 0.3s infinite' }} />
+                  <span style={{ width: 10, height: 10, borderRadius: '50%', background: '#8DC63F', animation: 'ping 1.2s ease-in-out 0.6s infinite' }} />
+                </div>
+                <p style={{ fontSize: 13, color: 'rgba(255,255,255,0.5)', margin: 0 }}>Please wait...</p>
+              </>
+            ) : (
+              <>
+                <h3 style={{ fontSize: 24, fontWeight: 900, color: '#8DC63F', margin: 0, textShadow: '0 2px 12px rgba(0,0,0,0.8)' }}>Order Received!</h3>
+                <p style={{ fontSize: 14, color: 'rgba(255,255,255,0.6)', margin: 0 }}>{restaurant.name} has your order</p>
+              </>
+            )}
+          </div>
+        </div>
+      )}
+
+      {/* ── Driver on the way — full page ── */}
+      {driverOnWay && (
+        <div style={{ position: 'fixed', inset: 0, zIndex: 9850, background: '#0a0a0a', display: 'flex', flexDirection: 'column' }}>
+          {/* Header */}
+          <div style={{ padding: 'calc(env(safe-area-inset-top, 0px) + 16px) 16px 16px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', borderBottom: '1px solid rgba(255,255,255,0.06)' }}>
+            <span style={{ fontSize: 18, fontWeight: 900, color: '#fff' }}>Order #{driverOnWay.orderId}</span>
+            <button onClick={() => setDriverOnWay(null)} style={{ background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '50%', width: 36, height: 36, display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', color: '#fff', fontSize: 14 }}>✕</button>
+          </div>
+
+          {/* Body */}
+          <div style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 20, padding: 24 }}>
+            {/* Scooter icon */}
+            <img src="https://ik.imagekit.io/nepgaxllc/Sleek%20green%20and%20black%20scooter%20setup.png?updatedAt=1775634845237" alt="Driver" style={{ width: 120, height: 120, objectFit: 'contain', animation: 'pulse 2s ease-in-out infinite' }} />
+
+            {/* Status */}
+            <div style={{ textAlign: 'center' }}>
+              <h2 style={{ fontSize: 24, fontWeight: 900, color: '#fff', margin: '0 0 8px' }}>Driver On The Way</h2>
+              <p style={{ fontSize: 14, color: 'rgba(255,255,255,0.5)', margin: 0 }}>Your order from {driverOnWay.restaurant} is being delivered</p>
+            </div>
+
+            {/* ETA */}
+            <div style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '12px 24px', borderRadius: 14, background: 'rgba(141,198,63,0.1)', border: '1px solid rgba(141,198,63,0.3)' }}>
+              <span style={{ fontSize: 16 }}>⏱</span>
+              <span style={{ fontSize: 16, fontWeight: 900, color: '#8DC63F' }}>~{driverOnWay.eta} min</span>
+            </div>
+
+            {/* Progress dots */}
+            <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginTop: 12 }}>
+              <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 4 }}>
+                <div style={{ width: 12, height: 12, borderRadius: '50%', background: '#8DC63F' }} />
+                <span style={{ fontSize: 9, color: 'rgba(255,255,255,0.4)', fontWeight: 700 }}>Confirmed</span>
+              </div>
+              <div style={{ width: 40, height: 2, background: '#8DC63F' }} />
+              <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 4 }}>
+                <div style={{ width: 12, height: 12, borderRadius: '50%', background: '#8DC63F', animation: 'ping 1.5s ease-in-out infinite' }} />
+                <span style={{ fontSize: 9, color: '#8DC63F', fontWeight: 700 }}>On The Way</span>
+              </div>
+              <div style={{ width: 40, height: 2, background: 'rgba(255,255,255,0.1)' }} />
+              <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 4 }}>
+                <div style={{ width: 12, height: 12, borderRadius: '50%', background: 'rgba(255,255,255,0.1)' }} />
+                <span style={{ fontSize: 9, color: 'rgba(255,255,255,0.3)', fontWeight: 700 }}>Delivered</span>
+              </div>
+            </div>
+
+            {/* Payment badge */}
+            <div style={{ marginTop: 16, padding: '10px 20px', borderRadius: 10, background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.06)' }}>
+              <span style={{ fontSize: 12, color: 'rgba(255,255,255,0.4)' }}>Payment: </span>
+              <span style={{ fontSize: 12, fontWeight: 800, color: '#FACC15' }}>{paymentMethod === 'bank' ? 'Bank Transfer ✓' : 'Cash on Delivery'}</span>
+            </div>
+          </div>
+
+          {/* Bottom */}
+          <div style={{ padding: '16px 16px calc(env(safe-area-inset-bottom, 0px) + 16px)', borderTop: '1px solid rgba(255,255,255,0.06)' }}>
+            <button onClick={() => setDriverOnWay(null)} style={{ width: '100%', padding: 16, borderRadius: 16, background: '#8DC63F', color: '#000', border: 'none', fontSize: 16, fontWeight: 900, cursor: 'pointer', fontFamily: 'inherit' }}>
+              Back to Menu
+            </button>
           </div>
         </div>
       )}

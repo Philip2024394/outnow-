@@ -23,11 +23,6 @@ export default function MenuItemCard({ item, qty, onAdd, onRemove, onCustomize, 
         </div>
       )}
 
-      {/* Category pill top-left */}
-      {item.category && (
-        <div className={styles.itemCatPill}>{item.category}</div>
-      )}
-
       {/* Prep time top-right */}
       {item.prep_time_min && (
         <div className={styles.itemPrep}>⏱ {item.prep_time_min} min</div>

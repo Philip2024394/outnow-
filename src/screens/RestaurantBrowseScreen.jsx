@@ -65,7 +65,7 @@ const DEMO_RESTAURANTS = [
   {
     id: 1, name: 'Warung Bu Sari', cuisine_type: 'Javanese', category: 'rice',
     address: 'Jl. Malioboro 45, Yogyakarta', city: 'Yogyakarta', lat: -7.7928, lng: 110.3657,
-    phone: '6281234567890', cover_url: null, hero_dish_url: null,
+    phone: '6281234567890', cover_url: null, hero_dish_url: 'https://images.unsplash.com/photo-1512058564366-18510be2db19?w=800',
     hero_dish_name: 'Nasi Gudeg Komplit',
     description: 'Authentic Yogyakarta gudeg since 1985. Slow-cooked overnight jackfruit curry — you taste the difference.',
     opening_hours: '07:00–21:00', is_open: true, rating: 4.8, review_count: 124,
@@ -75,16 +75,16 @@ const DEMO_RESTAURANTS = [
     featured_this_week: true, dine_in_discount: 10, status: 'approved',
     bank: { name: 'BCA', account_number: '1234 5678 90', account_holder: 'Sari Warung Jogja' },
     menu_items: [
-      { id: 1,  name: 'Nasi Gudeg Komplit',  price: 28000, prep_time_min: 10, category: 'Main',   description: 'Jackfruit curry, egg, chicken, krecek on white rice', photo_url: 'https://images.unsplash.com/photo-1512058564366-18510be2db19?w=400', is_available: true },
-      { id: 2,  name: 'Nasi Gudeg Telur',    price: 18000, prep_time_min: 8,  category: 'Main',   description: 'Jackfruit curry with egg — the classic', photo_url: 'https://images.unsplash.com/photo-1504674900247-0877df9cc836?w=400', is_available: true },
-      { id: 3,  name: 'Nasi Gudeg Ayam',     price: 25000, prep_time_min: 10, category: 'Main',   description: 'Shredded slow-cooked chicken, jackfruit, rice', photo_url: 'https://images.unsplash.com/photo-1555939594-58d7cb561ad1?w=400', is_available: true },
-      { id: 4,  name: 'Krecek Sapi',         price: 12000, prep_time_min: 5,  category: 'Sides',  description: 'Crispy beef skin in spicy coconut sauce', photo_url: null, is_available: true },
-      { id: 5,  name: 'Tempe Bacem',         price: 8000,  prep_time_min: 3,  category: 'Sides',  description: 'Sweet Javanese braised tempeh', photo_url: null, is_available: true },
-      { id: 6,  name: 'Tahu Goreng',         price: 6000,  prep_time_min: 3,  category: 'Sides',  description: 'Crispy deep-fried tofu', photo_url: null, is_available: true },
-      { id: 7,  name: 'Kerupuk Udang',       price: 4000,  prep_time_min: 1,  category: 'Sides',  description: 'Prawn crackers', photo_url: null, is_available: true },
-      { id: 8,  name: 'Es Teh Manis',        price: 5000,  prep_time_min: 2,  category: 'Drinks', description: 'Sweet iced tea — Javanese style', photo_url: null, is_available: true },
-      { id: 9,  name: 'Es Jeruk Peras',      price: 8000,  prep_time_min: 3,  category: 'Drinks', description: 'Hand-squeezed fresh orange juice', photo_url: null, is_available: true },
-      { id: 10, name: 'Wedang Jahe',         price: 7000,  prep_time_min: 3,  category: 'Drinks', description: 'Warm ginger drink — perfect with gudeg', photo_url: null, is_available: true },
+      { id: 1,  name: 'Nasi Gudeg Komplit',  price: 28000, prep_time_min: 10, category: 'Rice',           description: 'Slow-cooked overnight jackfruit curry served with a perfectly boiled egg, shredded free-range chicken, crispy krecek beef skin, and fluffy steamed white rice. A Yogyakarta classic since 1985 — every spoonful tells the story of patience and tradition passed down through three generations.', photo_url: 'https://images.unsplash.com/photo-1512058564366-18510be2db19?w=400', is_available: true },
+      { id: 2,  name: 'Nasi Gudeg Telur',    price: 18000, prep_time_min: 8,  category: 'Rice',           description: 'The classic Jogja combo — sweet jackfruit curry simmered in coconut milk for six hours, paired with a whole hard-boiled egg soaked in rich brown spice broth. Served on a bed of warm rice with sambal krecek on the side for that perfect kick of heat and crunch.', photo_url: 'https://images.unsplash.com/photo-1504674900247-0877df9cc836?w=400', is_available: true },
+      { id: 3,  name: 'Nasi Gudeg Ayam',     price: 25000, prep_time_min: 10, category: 'Rice',           description: 'Tender shredded chicken slow-cooked alongside young jackfruit in a fragrant blend of palm sugar, galangal, and bay leaves. The meat falls apart at the touch of a fork, drenched in sweet coconut gravy — a comfort dish that locals queue for before sunrise every morning.', photo_url: 'https://images.unsplash.com/photo-1555939594-58d7cb561ad1?w=400', is_available: true },
+      { id: 4,  name: 'Krecek Sapi',         price: 12000, prep_time_min: 5,  category: 'Snacks & Bites', description: 'Crispy dried beef skin braised in a fiery coconut-chilli sauce until it absorbs every drop of flavour. The texture is addictive — crunchy on the outside, slightly chewy within. A beloved Javanese side dish that transforms any plate of rice into something extraordinary and unforgettable.', photo_url: 'https://images.unsplash.com/photo-1504674900247-0877df9cc836?w=400', is_available: true },
+      { id: 5,  name: 'Tempe Bacem',         price: 8000,  prep_time_min: 3,  category: 'Gorengan',       description: 'Thick slabs of local tempeh braised in a sweet Javanese marinade of palm sugar, coriander, galangal, and bay leaves until deeply caramelised. Then lightly fried to golden perfection — crispy edges with a soft, nutty centre. The ultimate plant-based protein snack loved across all of Java.', photo_url: 'https://images.unsplash.com/photo-1555939594-58d7cb561ad1?w=400', is_available: true },
+      { id: 6,  name: 'Tahu Goreng',         price: 6000,  prep_time_min: 3,  category: 'Gorengan',       description: 'Fresh handmade tofu from the local market, deep-fried in clean oil until the outside is shatteringly crisp and golden while the inside stays silky smooth and pillowy soft. Served piping hot with a side of sweet kecap manis and sliced bird-eye chilli for dipping.', photo_url: 'https://images.unsplash.com/photo-1504674900247-0877df9cc836?w=400', is_available: true },
+      { id: 7,  name: 'Kerupuk Udang',       price: 4000,  prep_time_min: 1,  category: 'Snacks & Bites', description: 'Light, airy prawn crackers made fresh daily from a generations-old family recipe. Real shrimp pounded into tapioca starch, sun-dried on bamboo racks, then flash-fried to order so every piece puffs up crisp and full of ocean flavour. The perfect crunchy companion to any Indonesian meal.', photo_url: 'https://images.unsplash.com/photo-1555939594-58d7cb561ad1?w=400', is_available: true },
+      { id: 8,  name: 'Es Teh Manis',        price: 5000,  prep_time_min: 2,  category: 'Tea & Coffee',   description: 'Javanese sweet iced tea brewed strong from premium local tea leaves, sweetened with pure cane sugar while still hot, then poured over a generous glass of crushed ice. Simple, refreshing, and absolutely essential — the drink that every Indonesian reaches for first on a hot afternoon.', photo_url: 'https://images.unsplash.com/photo-1544145945-f90425340c7e?w=400', is_available: true },
+      { id: 9,  name: 'Es Jeruk Peras',      price: 8000,  prep_time_min: 3,  category: 'Juice & Smoothie', description: 'Hand-squeezed fresh local oranges — no concentrate, no preservatives, just pure citrus goodness served over ice with a touch of simple syrup. Each glass takes four whole oranges, pressed to order so the vitamins hit you at peak freshness. Tangy, sweet, and bursting with natural energy.', photo_url: 'https://images.unsplash.com/photo-1504674900247-0877df9cc836?w=400', is_available: true },
+      { id: 10, name: 'Wedang Jahe',         price: 7000,  prep_time_min: 3,  category: 'Tea & Coffee',   description: 'A warming traditional Javanese ginger drink made from freshly pounded young ginger root, simmered with lemongrass, pandan leaf, and palm sugar until aromatic and golden. Served steaming hot — soothes the throat, warms the belly, and pairs beautifully with gudeg on cool evening visits.', photo_url: 'https://images.unsplash.com/photo-1544145945-f90425340c7e?w=400', is_available: true },
     ],
   },
   {
@@ -100,21 +100,21 @@ const DEMO_RESTAURANTS = [
     featured_this_week: false, dine_in_discount: 15, status: 'approved',
     bank: { name: 'Mandiri', account_number: '1100 0987 6543', account_holder: 'Harto Wijaya' },
     menu_items: [
-      { id: 20, name: 'Nasi Goreng Istimewa', price: 28000, prep_time_min: 12, category: 'Main',   description: 'Charcoal wok, egg, chicken, vegetables, shrimp paste', photo_url: 'https://images.unsplash.com/photo-1512058564366-18510be2db19?w=400', is_available: true },
-      { id: 21, name: 'Nasi Goreng Seafood',  price: 35000, prep_time_min: 15, category: 'Main',   description: 'Prawns, squid, crab meat — full seafood loaded', photo_url: 'https://images.unsplash.com/photo-1559339352-11d035aa65de?w=400', is_available: true },
-      { id: 22, name: 'Nasi Goreng Kampung',  price: 20000, prep_time_min: 10, category: 'Main',   description: 'Village style — anchovies, egg, chilli', photo_url: 'https://images.unsplash.com/photo-1504674900247-0877df9cc836?w=400', is_available: true },
-      { id: 23, name: 'Nasi Goreng Pete',     price: 22000, prep_time_min: 10, category: 'Main',   description: 'Stinky beans fried rice — bold flavour lovers only', photo_url: null, is_available: true },
-      { id: 24, name: 'Sate Ayam 5pcs',       price: 18000, prep_time_min: 10, category: 'Sides',  description: 'Charcoal chicken satay with peanut sauce', photo_url: null, is_available: true },
-      { id: 25, name: 'Kerupuk Kampung',      price: 3000,  prep_time_min: 1,  category: 'Sides',  description: 'Homestyle crackers', photo_url: null, is_available: true },
-      { id: 26, name: 'Es Kelapa Muda',       price: 12000, prep_time_min: 2,  category: 'Drinks', description: 'Young coconut ice — straight from the shell', photo_url: null, is_available: true },
-      { id: 27, name: 'Es Teh Tarik',         price: 8000,  prep_time_min: 3,  category: 'Drinks', description: 'Pulled milk tea over ice', photo_url: null, is_available: true },
-      { id: 28, name: 'Jus Alpukat',          price: 12000, prep_time_min: 4,  category: 'Drinks', description: 'Thick creamy avocado juice', photo_url: null, is_available: true },
+      { id: 20, name: 'Nasi Goreng Istimewa', price: 28000, prep_time_min: 12, category: 'Rice',             description: 'Our signature charcoal wok-fired fried rice. Cooked over intense flame for that smoky aroma you can smell from the street. Topped with a fried egg, shredded chicken, fresh vegetables, and our secret homemade shrimp paste that took years to perfect.', photo_url: 'https://images.unsplash.com/photo-1512058564366-18510be2db19?w=400', is_available: true },
+      { id: 21, name: 'Nasi Goreng Seafood',  price: 35000, prep_time_min: 15, category: 'Rice',             description: 'Premium seafood fried rice loaded with fresh prawns, tender squid rings, and sweet crab meat. Every grain of rice is kissed by the charcoal wok flame and seasoned with garlic butter, fish sauce, and a touch of white pepper. The ocean on a plate.', photo_url: 'https://images.unsplash.com/photo-1559339352-11d035aa65de?w=400', is_available: true },
+      { id: 22, name: 'Nasi Goreng Kampung',  price: 20000, prep_time_min: 10, category: 'Rice',             description: 'Village-style fried rice the way your grandmother made it — simple, honest, and packed with flavour. Salted anchovies, free-range egg, bird-eye chilli, and fresh herbs from the morning market. No shortcuts, no fancy tricks, just pure Javanese soul food.', photo_url: 'https://images.unsplash.com/photo-1504674900247-0877df9cc836?w=400', is_available: true },
+      { id: 23, name: 'Nasi Goreng Pete',     price: 22000, prep_time_min: 10, category: 'Rice',             description: 'Not for the faint-hearted. Stinky beans (petai) fried with rice, sambal terasi, egg, and anchovies over charcoal heat. The bold, pungent flavour of pete combined with smoky wok breath creates something unforgettable. You either love it or you run from it.', photo_url: 'https://images.unsplash.com/photo-1512058564366-18510be2db19?w=400', is_available: true },
+      { id: 24, name: 'Sate Ayam 5pcs',       price: 18000, prep_time_min: 10, category: 'Satay & Grilled',  description: 'Five skewers of tender chicken thigh, marinated overnight in turmeric and coriander, grilled over real coconut shell charcoal until perfectly caramelised. Served with our creamy peanut sauce made fresh daily, plus lontong rice cake and pickled shallots.', photo_url: 'https://images.unsplash.com/photo-1504674900247-0877df9cc836?w=400', is_available: true },
+      { id: 25, name: 'Kerupuk Kampung',      price: 3000,  prep_time_min: 1,  category: 'Snacks & Bites',   description: 'Homestyle cassava crackers made by hand in our kitchen every morning. Sun-dried on bamboo trays then flash-fried to golden perfection. Light, airy, and impossibly crunchy — the perfect companion to any rice dish. Simple pleasures done right, the village way.', photo_url: 'https://images.unsplash.com/photo-1555939594-58d7cb561ad1?w=400', is_available: true },
+      { id: 26, name: 'Es Kelapa Muda',       price: 12000, prep_time_min: 2,  category: 'Juice & Smoothie', description: 'Fresh young coconut cracked open to order. The water is pure, sweet, and ice-cold — nature\'s electrolyte drink. We scoop the soft jelly flesh into the glass with crushed ice and a drizzle of palm sugar syrup. Maximum refreshment after a spicy meal.', photo_url: 'https://images.unsplash.com/photo-1504674900247-0877df9cc836?w=400', is_available: true },
+      { id: 27, name: 'Es Teh Tarik',         price: 8000,  prep_time_min: 3,  category: 'Tea & Coffee',     description: 'Malaysian-style pulled milk tea — premium black tea brewed strong, mixed with creamy condensed milk, then dramatically pulled between two cups to create a thick frothy top. Served over crushed ice. Rich, smooth, and dangerously addictive with every sip.', photo_url: 'https://images.unsplash.com/photo-1544145945-f90425340c7e?w=400', is_available: true },
+      { id: 28, name: 'Jus Alpukat',          price: 12000, prep_time_min: 4,  category: 'Juice & Smoothie', description: 'Thick, creamy Indonesian-style avocado juice blended with condensed milk, a shot of chocolate syrup, and crushed ice. Not a health drink — this is pure indulgence. Each glass uses one whole ripe avocado, hand-picked for perfect ripeness. Dessert in a glass.', photo_url: 'https://images.unsplash.com/photo-1504674900247-0877df9cc836?w=400', is_available: true },
     ],
   },
   {
     id: 5, name: 'Bubur Ayam Mbok Iyem', cuisine_type: 'Sundanese', category: 'rice',
     address: 'Jl. Parangtritis 8, Yogyakarta', city: 'Yogyakarta', lat: -7.8012, lng: 110.3678,
-    phone: '6281234567895', cover_url: null, hero_dish_url: null,
+    phone: '6281234567895', cover_url: null, hero_dish_url: 'https://images.unsplash.com/photo-1504674900247-0877df9cc836?w=800',
     hero_dish_name: 'Bubur Ayam Komplit',
     description: 'Morning institution since 1978. Silky rice porridge, shredded chicken, century egg. Queue forms before sunrise.',
     opening_hours: '05:30–11:00', is_open: true, rating: 4.9, review_count: 445,
@@ -136,7 +136,7 @@ const DEMO_RESTAURANTS = [
   {
     id: 6, name: 'Nasi Padang Sari Rasa', cuisine_type: 'Padang', category: 'rice',
     address: 'Jl. Solo 12, Klaten', city: 'Yogyakarta', lat: -7.7065, lng: 110.6073,
-    phone: '6281234567896', cover_url: null, hero_dish_url: null,
+    phone: '6281234567896', cover_url: null, hero_dish_url: 'https://images.unsplash.com/photo-1555939594-58d7cb561ad1?w=800',
     hero_dish_name: 'Rendang Daging Sapi',
     description: 'Authentic West Sumatran food. 23 dishes cooked fresh every morning. Rendang slow-cooked 4 hours minimum.',
     opening_hours: '08:00–20:00', is_open: true, rating: 4.6, review_count: 187,
@@ -163,7 +163,7 @@ const DEMO_RESTAURANTS = [
   {
     id: 2, name: 'Bakso Pak Budi', cuisine_type: 'Indonesian', category: 'noodles',
     address: 'Jl. Kaliurang Km 5, Sleman', city: 'Yogyakarta', lat: -7.7601, lng: 110.3831,
-    phone: '6281234567891', cover_url: null, hero_dish_url: null,
+    phone: '6281234567891', cover_url: null, hero_dish_url: 'https://images.unsplash.com/photo-1569718212165-3a8278d5f624?w=800',
     hero_dish_name: 'Bakso Spesial',
     description: 'Famous meatball soup. Made fresh every morning from scratch.',
     opening_hours: '09:00–20:00', is_open: true, rating: 4.6, review_count: 89,
@@ -184,9 +184,9 @@ const DEMO_RESTAURANTS = [
   {
     id: 3, name: 'Ayam Geprek Mbak Rina', cuisine_type: 'Indonesian', category: 'grilled',
     address: 'Jl. Parangtritis 22, Bantul', city: 'Yogyakarta', lat: -7.8347, lng: 110.3253,
-    phone: '6281234567892', cover_url: null, hero_dish_url: null,
+    phone: '6281234567892', cover_url: null, hero_dish_url: 'https://images.unsplash.com/photo-1626645738196-c2a7c87a8f58?w=800',
     hero_dish_name: 'Ayam Geprek Level 10',
-    description: 'Crispy smashed chicken. Choose your heat level 1–10. We dare you.',
+    description: 'Crispy smashed chicken — choose your heat level 1–10. We dare you.',
     opening_hours: '10:00–22:00', is_open: true, rating: 4.9, review_count: 312,
     price_from: 7000, price_to: 30000, min_order: 20000,
     catering_available: true, seating_capacity: 80,
@@ -205,7 +205,7 @@ const DEMO_RESTAURANTS = [
   {
     id: 7, name: 'Seafood Pak Dhe Bejo', cuisine_type: 'Seafood', category: 'seafood',
     address: 'Jl. Laksda Adisucipto 88, Yogyakarta', city: 'Yogyakarta', lat: -7.7822, lng: 110.4021,
-    phone: '6281234567897', cover_url: null, hero_dish_url: null,
+    phone: '6281234567897', cover_url: null, hero_dish_url: 'https://images.unsplash.com/photo-1559339352-11d035aa65de?w=800',
     hero_dish_name: 'Udang Bakar Madu',
     description: 'Freshest seafood in Yogya — delivered from Samas beach every morning. Grilled over coconut shell charcoal.',
     opening_hours: '11:00–22:00', is_open: true, rating: 4.7, review_count: 256,
@@ -232,7 +232,7 @@ const DEMO_RESTAURANTS = [
   {
     id: 8, name: 'Steak 48 Jogja', cuisine_type: 'Western', category: 'burgers',
     address: 'Jl. Magelang Km 4.5, Yogyakarta', city: 'Yogyakarta', lat: -7.7615, lng: 110.3511,
-    phone: '6281234567898', cover_url: null, hero_dish_url: null,
+    phone: '6281234567898', cover_url: null, hero_dish_url: 'https://images.unsplash.com/photo-1544025162-d76694265947?w=800',
     hero_dish_name: 'Ribeye 200g',
     description: 'Proper steaks grilled over open flame. Australian grain-fed beef. No shortcuts, no frozen imports.',
     opening_hours: '11:00–23:00', is_open: true, rating: 4.5, review_count: 178,
@@ -258,7 +258,7 @@ const DEMO_RESTAURANTS = [
   {
     id: 9, name: 'Kopi Klotok Maguwo', cuisine_type: 'Cafe', category: 'drinks',
     address: 'Jl. Maguwo 15, Sleman', city: 'Yogyakarta', lat: -7.7891, lng: 110.4234,
-    phone: '6281234567899', cover_url: null, hero_dish_url: null,
+    phone: '6281234567899', cover_url: null, hero_dish_url: 'https://images.unsplash.com/photo-1544145945-f90425340c7e?w=800',
     hero_dish_name: 'Kopi Joss',
     description: 'Iconic Jogja coffeehouse. Famous for Kopi Joss — black coffee with a glowing red charcoal dropped in. Must try.',
     opening_hours: '06:00–24:00', is_open: true, rating: 4.8, review_count: 521,
@@ -284,7 +284,7 @@ const DEMO_RESTAURANTS = [
   {
     id: 10, name: 'Sate & Gule Pak Sabar', cuisine_type: 'Javanese', category: 'street_food',
     address: 'Alun-Alun Selatan, Yogyakarta', city: 'Yogyakarta', lat: -7.8108, lng: 110.3642,
-    phone: '6281234567800', cover_url: null, hero_dish_url: null,
+    phone: '6281234567800', cover_url: null, hero_dish_url: 'https://images.unsplash.com/photo-1504674900247-0877df9cc836?w=800',
     hero_dish_name: 'Sate Kambing 10pcs',
     description: 'Street legend since 1971. Goat satay grilled to order over coconut charcoal. The smoke alone draws a crowd.',
     opening_hours: '17:00–01:00', is_open: true, rating: 4.8, review_count: 634,
@@ -517,37 +517,15 @@ export default function RestaurantBrowseScreen({ onClose, onBackToCategories, ca
       <div style={{ position: 'fixed', top: 6, left: 6, zIndex: 99990, display: 'flex', alignItems: 'center', gap: 6, pointerEvents: 'none' }}><div style={{ width: 28, height: 28, borderRadius: '50%', background: '#8DC63F', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 11, fontWeight: 900, color: '#000', boxShadow: '0 2px 8px rgba(141,198,63,0.4)' }}>F2</div><span style={{ fontSize: 9, fontWeight: 800, color: 'rgba(141,198,63,0.6)' }}>FOOD BROWSE</span></div>
       {/* Fixed header */}
       <div className={styles.header}>
-        <button onClick={onClose} style={{ width: 36, height: 36, borderRadius: '50%', background: 'rgba(0,0,0,0.4)', backdropFilter: 'blur(8px)', border: '1px solid rgba(255,255,255,0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', flexShrink: 0 }}>
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M19 12H5M12 5l-7 7 7 7"/></svg>
-        </button>
-        <div className={styles.headerCenter}>
-          <span className={styles.headerTitle}>{catLabel}</span>
-          <span className={styles.headerSub}>
-            {enriched.filter(r => !r.isDivider).length} restaurants near you
-          </span>
+        <div style={{ display: 'flex', alignItems: 'baseline', gap: 0, flex: 1 }}>
+          <span style={{ fontSize: 20, fontWeight: 900, letterSpacing: '-0.02em', display: 'inline' }}><span style={{ color: '#fff' }}>IND</span><span style={{ color: '#8DC63F', marginLeft: -2 }}>OO</span></span>
+          <span style={{ fontSize: 13, fontWeight: 700, color: 'rgba(255,255,255,0.4)', marginLeft: 5 }}>STREET FOOD</span>
         </div>
+        <button onClick={onClose} style={{ width: 36, height: 36, borderRadius: '50%', background: 'rgba(250,204,21,0.15)', backdropFilter: 'blur(8px)', border: '1px solid rgba(250,204,21,0.3)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', flexShrink: 0 }}>
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#FACC15" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+        </button>
       </div>
 
-      {/* Favorites filter pill */}
-      <div style={{
-        position: 'fixed', top: 52, left: '50%', transform: 'translateX(-50%)',
-        zIndex: 99992, display: 'flex', gap: 6,
-      }}>
-        <button onClick={() => setShowFavOnly(false)} style={{
-          padding: '6px 14px', borderRadius: 20, fontSize: 11, fontWeight: 800, cursor: 'pointer', fontFamily: 'inherit',
-          background: !showFavOnly ? 'rgba(141,198,63,0.15)' : 'rgba(255,255,255,0.04)',
-          border: `1.5px solid ${!showFavOnly ? 'rgba(141,198,63,0.4)' : 'rgba(255,255,255,0.08)'}`,
-          color: !showFavOnly ? '#8DC63F' : 'rgba(255,255,255,0.5)',
-          backdropFilter: 'blur(12px)',
-        }}>All</button>
-        <button onClick={() => setShowFavOnly(true)} style={{
-          padding: '6px 14px', borderRadius: 20, fontSize: 11, fontWeight: 800, cursor: 'pointer', fontFamily: 'inherit',
-          background: showFavOnly ? 'rgba(141,198,63,0.15)' : 'rgba(255,255,255,0.04)',
-          border: `1.5px solid ${showFavOnly ? 'rgba(141,198,63,0.4)' : 'rgba(255,255,255,0.08)'}`,
-          color: showFavOnly ? '#8DC63F' : 'rgba(255,255,255,0.5)',
-          backdropFilter: 'blur(12px)',
-        }}>❤️ Favorites</button>
-      </div>
 
       {/* Scroll dots — dividers don't get a dot */}
       <div className={styles.dots}>
@@ -637,34 +615,30 @@ function RestaurantCard({ restaurant: r, onOpenMenu, onToggleFavorite, isFav }) 
           }
         </span>
 
-        {/* Favorite heart */}
-        <button
-          onClick={(e) => { e.stopPropagation(); onToggleFavorite?.() }}
-          style={{
-            background: 'rgba(0,0,0,0.4)', backdropFilter: 'blur(8px)',
-            border: '1px solid rgba(255,255,255,0.1)', borderRadius: '50%',
-            width: 36, height: 36, display: 'flex', alignItems: 'center', justifyContent: 'center',
-            cursor: 'pointer', fontSize: 18, padding: 0, marginLeft: 'auto',
-            transition: 'transform 0.2s',
-          }}
-          title={isFav ? 'Remove from favorites' : 'Add to favorites'}
-        >
-          <span style={{ color: isFav ? '#ef4444' : 'rgba(255,255,255,0.5)', transition: 'color 0.2s' }}>
-            {isFav ? '❤️' : '🤍'}
-          </span>
-        </button>
       </div>
 
       {/* Bottom info — clean and sparse */}
       <div className={styles.cardBottom}>
-        <span className={styles.cuisinePill}>{r.cuisine_type}</span>
+        <span className={styles.cuisinePill}>{r.city || r.cuisine_type}</span>
 
-        {r.dine_in_discount > 0 && (
-          <div className={styles.dineBlock}>
-            <span className={styles.dinePct}>{r.dine_in_discount}% Off</span>
-            <span className={styles.dineLabel}>Come Dine With Us</span>
+        {/* Who's in the Kitchen */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: 8, margin: '6px 0' }}>
+          <div style={{ display: 'flex' }}>
+            {[
+              'https://i.pravatar.cc/100?img=1',
+              'https://i.pravatar.cc/100?img=5',
+              'https://i.pravatar.cc/100?img=9',
+              'https://i.pravatar.cc/100?img=14',
+              'https://i.pravatar.cc/100?img=20',
+            ].map((url, i) => (
+              <img key={i} src={url} alt="" style={{ width: 22, height: 22, borderRadius: '50%', border: '1.5px solid #0a0a0a', marginLeft: i === 0 ? 0 : -6, objectFit: 'cover' }} />
+            ))}
+            <div style={{ width: 22, height: 22, borderRadius: '50%', background: 'rgba(255,255,255,0.08)', border: '1.5px solid #0a0a0a', marginLeft: -6, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 8, fontWeight: 900, color: 'rgba(255,255,255,0.4)' }}>
+              +{Math.floor(10 + Math.random() * 50)}
+            </div>
           </div>
-        )}
+          <span style={{ fontSize: 12, fontWeight: 700, color: 'rgba(255,255,255,0.4)' }}>In the Kitchen</span>
+        </div>
 
         <h2 className={styles.restaurantName}>{r.name}</h2>
 
@@ -694,14 +668,9 @@ function RestaurantCard({ restaurant: r, onOpenMenu, onToggleFavorite, isFav }) 
           onClick={onOpenMenu}
           disabled={!r.is_open}
         >
-          {r.is_open ? 'View Menu & Order' : '⏰ Closed'}
+          {r.is_open ? 'View Menu' : '⏰ Closed'}
         </button>
 
-        <div className={styles.cardFooter} style={{ background: 'none' }}>
-          <span className={styles.footerDot} />
-          <span>INDOO STREET</span>
-          <span className={styles.footerDot} />
-        </div>
       </div>
     </div>
   )
