@@ -63,7 +63,7 @@ function calcDeliveryFare(distKm) {
 const DEMO_RESTAURANTS = [
   // ── RICE ────────────────────────────────────────────────────────────────────
   {
-    id: 1, name: 'Warung Bu Sari', cuisine_type: 'Javanese', category: 'rice',
+    id: 1, name: 'Warung Bu Sari', cuisine_type: 'Javanese', category: 'rice', vendor_type: 'restaurant',
     address: 'Jl. Malioboro 45, Yogyakarta', city: 'Yogyakarta', lat: -7.7928, lng: 110.3657,
     phone: '6281234567890', cover_url: null, hero_dish_url: 'https://images.unsplash.com/photo-1512058564366-18510be2db19?w=800',
     hero_dish_name: 'Nasi Gudeg Komplit',
