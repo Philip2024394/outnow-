@@ -1,5 +1,6 @@
 import { supabase } from '@/lib/supabase'
 import { haversineKm } from '@/utils/distance'
+import { getDriverETA } from '@/utils/googleDirections'
 
 // ── Demo fallback drivers ─────────────────────────────────────────────────────
 export const DEMO_DRIVERS = [
@@ -40,24 +41,28 @@ export async function fetchNearbyDrivers(userLat, userLng, driverType, excludeId
     if (data?.length) drivers = data
   }
 
-  return drivers
-    .map(d => {
-      const loc    = d.driver_last_location
-      const distKm = (userLat && userLng && loc?.lat && loc?.lng)
-        ? haversineKm(userLat, userLng, loc.lat, loc.lng)
-        : Math.random() * 1.8 + 0.3
-      // ETA: ~18 km/h avg city speed
-      const etaMin = Math.max(1, Math.round((distKm / 18) * 60))
-      return { ...d, distKm: Math.round(distKm * 10) / 10, etaMin }
+  // Calculate real ETA via Google Directions for each driver
+  const withETA = await Promise.all(
+    drivers.map(async d => {
+      const loc = d.driver_last_location
+      if (userLat && userLng && loc?.lat && loc?.lng) {
+        const { distKm, etaMin } = await getDriverETA(loc.lat, loc.lng, userLat, userLng)
+        return { ...d, distKm, etaMin }
+      }
+      // Fallback for drivers without location
+      const distKm = Math.round((Math.random() * 1.8 + 0.3) * 10) / 10
+      return { ...d, distKm, etaMin: Math.max(1, Math.round(distKm * 3)) }
     })
-    // Sort: available first, then fewest cancellations, then closest
-    .sort((a, b) => {
-      if (a.driver_busy !== b.driver_busy) return a.driver_busy ? 1 : -1
-      const aCancels = a.cancellation_count ?? 0
-      const bCancels = b.cancellation_count ?? 0
-      if (aCancels !== bCancels) return aCancels - bCancels
-      return a.distKm - b.distKm
-    })
+  )
+
+  // Sort: available first, then fewest cancellations, then closest
+  return withETA.sort((a, b) => {
+    if (a.driver_busy !== b.driver_busy) return a.driver_busy ? 1 : -1
+    const aCancels = a.cancellation_count ?? 0
+    const bCancels = b.cancellation_count ?? 0
+    if (aCancels !== bCancels) return aCancels - bCancels
+    return a.distKm - b.distKm
+  })
     .slice(0, 8)
 }
 

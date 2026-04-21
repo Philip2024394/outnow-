@@ -151,16 +151,26 @@ export default function BookingScreen({ onClose, initialVehicle, onLandingChange
     )
   }
 
-  // ── Fare estimate ──────────────────────────────────────────────────────────
+  // ── Fare estimate (uses Google Directions for real road distance) ────────
   const pickupCoords = pickup ?? gpsCoords
-  const distanceKm = destination && pickupCoords
-    ? Math.max(0.5, Math.round(
-        Math.sqrt(
-          Math.pow((destination.lat - pickupCoords.lat) * 111, 2) +
-          Math.pow((destination.lng - pickupCoords.lng) * 111 * Math.cos(pickupCoords.lat * Math.PI / 180), 2)
-        ) * 10
-      ) / 10)
-    : 3
+  const [distanceKm, setDistanceKm] = useState(3)
+  const [rideEtaMin, setRideEtaMin] = useState(null)
+
+  useEffect(() => {
+    if (!destination || !pickupCoords) { setDistanceKm(3); setRideEtaMin(null); return }
+    let cancelled = false
+    ;(async () => {
+      try {
+        const { getRideDistance } = await import('@/utils/googleDirections')
+        const result = await getRideDistance(pickupCoords.lat, pickupCoords.lng, destination.lat, destination.lng)
+        if (!cancelled) {
+          setDistanceKm(Math.max(0.5, result.distanceKm))
+          setRideEtaMin(result.durationMin)
+        }
+      } catch { /* fallback stays at previous value */ }
+    })()
+    return () => { cancelled = true }
+  }, [destination?.lat, destination?.lng, pickupCoords?.lat, pickupCoords?.lng])
 
   const fare = estimateFare(vehicleType ?? 'bike_ride', 'Yogyakarta', distanceKm, zones, settings)
 

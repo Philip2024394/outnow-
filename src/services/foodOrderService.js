@@ -15,6 +15,7 @@
  */
 import { supabase } from '@/lib/supabase'
 import { fetchNearbyDrivers, setDriverBusy } from './bookingService'
+import { getDeliveryRoute } from '@/utils/googleDirections'
 import { processCommission } from './walletService'
 import { recordCommission } from './commissionService'
 
@@ -49,6 +50,19 @@ export async function searchFoodDrivers(restaurantLat, restaurantLng) {
   const all = await fetchNearbyDrivers(lat, lng, 'bike_ride')
   // Filter to package-accepting, available drivers
   return all.filter(d => d.accepts_packages !== false && !d.driver_busy).slice(0, 5)
+}
+
+/**
+ * Calculate full delivery route ETA + distance using Google Directions.
+ * driver → restaurant → customer
+ *
+ * @param {{ lat: number, lng: number }} driverCoords
+ * @param {{ lat: number, lng: number }} restaurantCoords
+ * @param {{ lat: number, lng: number }} customerCoords
+ * @returns {Promise<{ toRestaurant: object, toCustomer: object, totalMin: number, totalKm: number }>}
+ */
+export async function calculateDeliveryETA(driverCoords, restaurantCoords, customerCoords) {
+  return getDeliveryRoute(driverCoords, restaurantCoords, customerCoords)
 }
 
 // ── Spam / abuse guards ───────────────────────────────────────────────────────
