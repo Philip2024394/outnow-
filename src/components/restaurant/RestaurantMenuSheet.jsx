@@ -746,11 +746,9 @@ export default function RestaurantMenuSheet({ restaurant, onClose, onOrderViaCha
                           <img onClick={() => setQrZoom(true)} src={restaurant.bank.qr_url} alt="QR" style={{ width: 56, height: 56, borderRadius: 8, border: '1px solid rgba(255,255,255,0.1)', background: '#fff', cursor: 'pointer', flexShrink: 0 }} />
                         )}
                       </div>
-                      {/* Row 2: Amount with discount */}
-                      <div style={{ display: 'flex', alignItems: 'baseline', gap: 8, marginTop: 10 }}>
-                        <span style={{ fontSize: 13, color: 'rgba(255,255,255,0.3)', textDecoration: 'line-through' }}>{fmtRp(cartTotal)}</span>
+                      {/* Row 2: Amount */}
+                      <div style={{ marginTop: 10 }}>
                         <span style={{ fontSize: 18, fontWeight: 900, color: '#FACC15' }}>{fmtRp(Math.round(cartTotal * 0.97))}</span>
-                        <span style={{ fontSize: 12, fontWeight: 800, color: '#8DC63F' }}>-3%</span>
                       </div>
                       {/* Row 3: Transaction code */}
                       <input value={transactionCode} onChange={e => setTransactionCode(e.target.value)} placeholder="Transaction code" className={styles.bankCodeInput} style={{ marginTop: 10 }} />
