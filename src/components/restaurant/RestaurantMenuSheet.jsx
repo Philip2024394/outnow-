@@ -741,10 +741,11 @@ export default function RestaurantMenuSheet({ restaurant, onClose, onOrderViaCha
                       {/* Row 1: Bank + account + QR */}
                       <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
                         <div style={{ flex: 1 }}>
-                          <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-                            <span style={{ fontSize: 16, fontWeight: 900, color: '#fff', letterSpacing: '0.02em' }}>{restaurant.bank.name} · {restaurant.bank.account_number}</span>
-                            <button onClick={() => { navigator.clipboard?.writeText(restaurant.bank.account_number); setCopyMsg(true); safeTimeout(() => setCopyMsg(false), 2000) }} style={{ padding: '2px 8px', borderRadius: 6, background: '#8DC63F', border: 'none', color: '#000', fontSize: 10, fontWeight: 800, cursor: 'pointer', fontFamily: 'inherit' }}>{copyMsg ? '✓' : 'Copy'}</button>
+                          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                            <span style={{ fontSize: 13, fontWeight: 700, color: 'rgba(255,255,255,0.5)' }}>{restaurant.bank.name}</span>
+                            <button onClick={() => { navigator.clipboard?.writeText(restaurant.bank.account_number); setCopyMsg(true); safeTimeout(() => setCopyMsg(false), 2000) }} style={{ padding: '3px 10px', borderRadius: 6, background: '#8DC63F', border: 'none', color: '#000', fontSize: 10, fontWeight: 800, cursor: 'pointer', fontFamily: 'inherit' }}>{copyMsg ? '✓ Copied' : 'Copy'}</button>
                           </div>
+                          <div style={{ fontSize: 18, fontWeight: 900, color: '#fff', letterSpacing: '0.04em', marginTop: 4 }}>{restaurant.bank.account_number}</div>
                           <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.4)', marginTop: 2 }}>{restaurant.bank.account_holder}</div>
                         </div>
                         {restaurant.bank.qr_url && (
