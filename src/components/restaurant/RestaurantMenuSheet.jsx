@@ -746,7 +746,9 @@ export default function RestaurantMenuSheet({ restaurant, onClose, onOrderViaCha
                           <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.4)', marginTop: 2 }}>{restaurant.bank.account_holder}</div>
                         </div>
                         {restaurant.bank.qr_url && (
-                          <img onClick={() => setQrZoom(true)} src={restaurant.bank.qr_url} alt="QR" style={{ width: 56, height: 56, borderRadius: 8, border: '1px solid rgba(255,255,255,0.1)', background: '#fff', cursor: 'pointer', flexShrink: 0 }} />
+                          <div onClick={() => setQrZoom(true)} style={{ flexShrink: 0, cursor: 'pointer', padding: 6, background: '#fff', borderRadius: 12, border: '2px solid rgba(141,198,63,0.3)', boxShadow: '0 2px 12px rgba(0,0,0,0.3)' }}>
+                            <img src={restaurant.bank.qr_url} alt="QR" style={{ width: 72, height: 72, borderRadius: 6, display: 'block' }} />
+                          </div>
                         )}
                       </div>
                       {/* Row 2: Amount */}
