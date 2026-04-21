@@ -663,13 +663,13 @@ export default function RestaurantMenuSheet({ restaurant, onClose, onOrderViaCha
                   </div>
                 ))}
 
-                {/* Delivery fee card */}
+                {/* Delivery / Dine In / Pickup card */}
                 {orderType === 'delivery' && (deliveryFare ?? 0) > 0 && (
                   <div className={styles.cartPageItem} style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
                     <img src="https://ik.imagekit.io/nepgaxllc/Sleek%20green%20and%20black%20scooter%20setup.png?updatedAt=1775634845237" alt="" style={{ width: 36, height: 36, objectFit: 'contain', flexShrink: 0 }} />
                     <div style={{ flex: 1 }}>
-                      <span style={{ fontSize: 14, fontWeight: 800, color: '#fff', display: 'block' }}>Delivery Fee</span>
-                      <span style={{ fontSize: 11, color: 'rgba(255,255,255,0.4)' }}>Cash to driver on arrival</span>
+                      <span style={{ fontSize: 14, fontWeight: 800, color: '#fff', display: 'block' }}>Delivery</span>
+                      <span style={{ fontSize: 11, color: 'rgba(255,255,255,0.4)' }}>~{eta} min · Cash to driver</span>
                     </div>
                     <span style={{ fontSize: 15, fontWeight: 900, color: '#FACC15' }}>{fmtRp(deliveryFare)}</span>
                   </div>
@@ -679,7 +679,7 @@ export default function RestaurantMenuSheet({ restaurant, onClose, onOrderViaCha
                     <span style={{ fontSize: 24 }}>🍽️</span>
                     <div style={{ flex: 1 }}>
                       <span style={{ fontSize: 14, fontWeight: 800, color: '#fff', display: 'block' }}>Dine In</span>
-                      <span style={{ fontSize: 11, color: 'rgba(255,255,255,0.4)' }}>Eat at restaurant</span>
+                      <span style={{ fontSize: 11, color: 'rgba(255,255,255,0.4)' }}>~{avgPrepTime} min prep · Eat at restaurant</span>
                     </div>
                     <span style={{ fontSize: 14, fontWeight: 800, color: '#8DC63F' }}>Free</span>
                   </div>
@@ -689,37 +689,11 @@ export default function RestaurantMenuSheet({ restaurant, onClose, onOrderViaCha
                     <span style={{ fontSize: 24 }}>🏪</span>
                     <div style={{ flex: 1 }}>
                       <span style={{ fontSize: 14, fontWeight: 800, color: '#fff', display: 'block' }}>Pickup</span>
-                      <span style={{ fontSize: 11, color: 'rgba(255,255,255,0.4)' }}>Collect at restaurant</span>
+                      <span style={{ fontSize: 11, color: 'rgba(255,255,255,0.4)' }}>~{avgPrepTime} min prep · Collect at restaurant</span>
                     </div>
                     <span style={{ fontSize: 14, fontWeight: 800, color: '#8DC63F' }}>Free</span>
                   </div>
                 )}
-
-                {/* Summary */}
-                <div className={styles.cartDivider} style={{ margin: '8px 0' }} />
-
-                {maxPrepMin > 0 && (
-                  <div className={styles.cartMeta} style={{ padding: '6px 0' }}>
-                    <span className={styles.cartMetaIcon}>⏱</span>
-                    <span className={styles.cartMetaLabel}>Est. prep time</span>
-                    <span className={styles.cartMetaValue}>{maxPrepMin} min</span>
-                  </div>
-                )}
-
-                <div className={styles.cartMeta} style={{ padding: '6px 0' }}>
-                  <span className={styles.cartMetaIcon}>{orderType === 'delivery' ? <img src="https://ik.imagekit.io/nepgaxllc/Sleek%20green%20and%20black%20scooter%20setup.png?updatedAt=1775634845237" alt="" style={{ width: 32, height: 32, objectFit: 'contain' }} /> : orderType === 'dinein' ? '🍽️' : '🏪'}</span>
-                  <span className={styles.cartMetaLabel}>{orderType === 'delivery' ? 'Delivery' : orderType === 'dinein' ? 'Dine In' : 'Pickup'}</span>
-                  <span className={styles.cartMetaValue}>{orderType === 'delivery' ? (deliveryFare !== null ? fmtRp(deliveryFare) : 'Calculating…') : 'Free'}</span>
-                </div>
-
-                {orderType === 'dinein' && restaurant.dine_in_discount > 0 && (
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '8px 0', fontSize: 13, fontWeight: 800, color: '#8DC63F' }}>
-                    <span>🎉</span>
-                    <span>{restaurant.dine_in_discount}% dine-in discount</span>
-                  </div>
-                )}
-
-                <div className={styles.cartDivider} style={{ margin: '8px 0' }} />
 
                 {/* Payment method selection */}
                 <div style={{ marginBottom: 12 }}>
@@ -785,11 +759,6 @@ export default function RestaurantMenuSheet({ restaurant, onClose, onOrderViaCha
                 </div>
 
                 <div className={styles.cartDivider} style={{ margin: '8px 0' }} />
-
-                <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 13, color: 'rgba(255,255,255,0.5)', padding: '4px 0' }}>
-                  <span>Estimated time</span>
-                  <span>{eta} min</span>
-                </div>
 
                 <div className={styles.cartTotal} style={{ padding: '8px 0' }}>
                   <span>Total</span>
