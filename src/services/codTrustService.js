@@ -17,15 +17,11 @@ import { supabase } from '@/lib/supabase'
 // ── Trust Levels ────────────────────────────────────────────────────────────
 
 const TRUST_LEVELS = {
-  new:      { codAllowed: false, maxCodAmount: 0,      label: 'New Account' },
-  basic:    { codAllowed: true,  maxCodAmount: 200000,  label: 'Basic Trust' },    // After 1 completed bank transfer
-  trusted:  { codAllowed: true,  maxCodAmount: 500000,  label: 'Trusted' },        // After 5 completed orders
-  verified: { codAllowed: true,  maxCodAmount: 1000000, label: 'Verified' },       // After 15 completed orders
+  new:      { codAllowed: false, maxCodAmount: 0,         label: 'New Account' },
+  verified: { codAllowed: true,  maxCodAmount: Infinity,  label: 'Verified' },     // After 1 bank transfer — no limits
 }
 
-const ORDERS_FOR_BASIC = 1    // 1 bank transfer = we know who you are
-const ORDERS_FOR_TRUSTED = 5
-const ORDERS_FOR_VERIFIED = 15
+const ORDERS_FOR_VERIFIED = 1  // 1 bank transfer = fully trusted, driver verifies via phone
 
 /**
  * Get user's trust level based on order history.
@@ -40,11 +36,7 @@ export async function getUserTrustLevel(userId) {
     .eq('status', 'delivered')
 
   const completedOrders = count ?? 0
-
-  let level = 'new'
-  if (completedOrders >= ORDERS_FOR_VERIFIED) level = 'verified'
-  else if (completedOrders >= ORDERS_FOR_TRUSTED) level = 'trusted'
-  else if (completedOrders >= ORDERS_FOR_BASIC) level = 'basic'
+  const level = completedOrders >= ORDERS_FOR_VERIFIED ? 'verified' : 'new'
 
   return { level, ...TRUST_LEVELS[level], completedOrders }
 }
@@ -60,18 +52,11 @@ export async function canUseCOD(userId, orderAmount) {
     return {
       allowed: false,
       reason: 'Complete your first order with bank transfer to unlock Cash on Delivery.',
-      ordersNeeded: ORDERS_FOR_BASIC - trust.completedOrders,
+      ordersNeeded: ORDERS_FOR_VERIFIED - trust.completedOrders,
     }
   }
 
-  if (orderAmount > trust.maxCodAmount) {
-    return {
-      allowed: false,
-      reason: `COD limit is ${fmtRp(trust.maxCodAmount)} for ${trust.label} accounts. Use bank transfer for larger orders.`,
-      maxAmount: trust.maxCodAmount,
-    }
-  }
-
+  // Verified users — no COD limits. Driver verifies via phone call.
   return { allowed: true, reason: null }
 }
 
