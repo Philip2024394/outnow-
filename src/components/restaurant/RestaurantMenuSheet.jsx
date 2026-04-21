@@ -1059,7 +1059,7 @@ export default function RestaurantMenuSheet({ restaurant, onClose, onOrderViaCha
                   ? 'https://ik.imagekit.io/nepgaxllc/ChatGPT%20Image%20Apr%2016,%202026,%2006_36_14%20PM.png?updatedAt=1776339391906'
                   : driverPhase === 'to_customer'
                     ? (DRIVER_ON_WAY_IMAGES[driverImgIdx % DRIVER_ON_WAY_IMAGES.length] ?? DRIVER_ON_WAY_IMAGES[0])
-                    : 'https://ik.imagekit.io/nepgaxllc/Rider_s%20view%20of%20a%20sport%20motorcycle%20dashboard.png?updatedAt=1776155502901'
+                    : 'https://ik.imagekit.io/nepgaxllc/Untitleddsddaadsds.png?updatedAt=1776787842452'
               }
               alt=""
               key={driverPhase === 'to_customer' ? driverImgIdx : driverPhase}
