@@ -719,44 +719,27 @@ export default function RestaurantMenuSheet({ restaurant, onClose, onOrderViaCha
                     </button>
                   </div>
                   {paymentMethod === 'bank' && restaurant.bank && (
-                    <div style={{ marginTop: 10, padding: 14, borderRadius: 12, background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.08)', fontSize: 12 }}>
-                      {/* Bank details + QR side by side */}
-                      <div style={{ display: 'flex', gap: 12 }}>
-                        {/* Left — bank details */}
+                    <div style={{ marginTop: 10, padding: 14, borderRadius: 14, background: 'rgba(0,0,0,0.6)', backdropFilter: 'blur(12px)', border: '1px solid rgba(255,255,255,0.06)' }}>
+                      {/* Row 1: Bank + account + QR */}
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
                         <div style={{ flex: 1 }}>
-                          <div style={{ color: 'rgba(255,255,255,0.4)', marginBottom: 6, fontSize: 12 }}>Transfer to:</div>
-                          <div style={{ color: '#fff', fontWeight: 800, fontSize: 15 }}>{restaurant.bank.name}</div>
-                          <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginTop: 4 }}>
-                            <span style={{ color: 'rgba(255,255,255,0.7)', fontWeight: 700, fontSize: 16 }}>{restaurant.bank.account_number}</span>
-                            <button onClick={() => { navigator.clipboard?.writeText(restaurant.bank.account_number); setCopyMsg(true); safeTimeout(() => setCopyMsg(false), 2000) }} style={{ padding: '4px 10px', borderRadius: 6, background: '#8DC63F', border: 'none', color: '#000', fontSize: 11, fontWeight: 800, cursor: 'pointer', fontFamily: 'inherit' }}>{copyMsg ? '✓ Copied' : 'Copy'}</button>
+                          <div style={{ fontSize: 14, fontWeight: 800, color: '#fff' }}>{restaurant.bank.name} · {restaurant.bank.account_number}
+                            <button onClick={() => { navigator.clipboard?.writeText(restaurant.bank.account_number); setCopyMsg(true); safeTimeout(() => setCopyMsg(false), 2000) }} style={{ marginLeft: 6, padding: '2px 8px', borderRadius: 6, background: '#8DC63F', border: 'none', color: '#000', fontSize: 10, fontWeight: 800, cursor: 'pointer', fontFamily: 'inherit', verticalAlign: 'middle' }}>{copyMsg ? '✓' : 'Copy'}</button>
                           </div>
-                          <div style={{ color: 'rgba(255,255,255,0.5)', fontSize: 13, marginTop: 4 }}>{restaurant.bank.account_holder}</div>
-                          {/* 3% discount breakdown */}
-                          <div style={{ marginTop: 10 }}>
-                            <span style={{ fontSize: 14, color: 'rgba(255,255,255,0.3)', textDecoration: 'line-through', marginRight: 8 }}>{fmtRp(cartTotal)}</span>
-                            <span style={{ color: '#FACC15', fontWeight: 900, fontSize: 20 }}>{fmtRp(Math.round(cartTotal * 0.97))}</span>
-                          </div>
-                          <span style={{ fontSize: 13, color: '#8DC63F', fontWeight: 800 }}>You save {fmtRp(Math.round(cartTotal * 0.03))} (3% off food)</span>
-                          {deliveryFare > 0 && (
-                            <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.4)', marginTop: 6 }}>+ {fmtRp(deliveryFare)} delivery fee (cash to driver)</div>
-                          )}
+                          <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.4)', marginTop: 2 }}>{restaurant.bank.account_holder}</div>
                         </div>
-                        {/* Right — QR code thumbnail */}
                         {restaurant.bank.qr_url && (
-                          <div onClick={() => setQrZoom(true)} style={{ flexShrink: 0, cursor: 'pointer' }}>
-                            <img src={restaurant.bank.qr_url} alt="QR" style={{ width: 80, height: 80, borderRadius: 10, border: '1.5px solid rgba(255,255,255,0.12)', objectFit: 'cover', background: '#fff' }} />
-                            <span style={{ display: 'block', fontSize: 8, fontWeight: 700, color: 'rgba(255,255,255,0.35)', textAlign: 'center', marginTop: 3 }}>Screenshot to scan</span>
-                          </div>
+                          <img onClick={() => setQrZoom(true)} src={restaurant.bank.qr_url} alt="QR" style={{ width: 56, height: 56, borderRadius: 8, border: '1px solid rgba(255,255,255,0.1)', background: '#fff', cursor: 'pointer', flexShrink: 0 }} />
                         )}
                       </div>
-                      <div className={styles.cartDivider} style={{ margin: '10px 0' }} />
-                      <div style={{ color: 'rgba(255,255,255,0.4)', marginBottom: 6, fontSize: 13 }}>Enter transaction/reference code:</div>
-                      <input
-                        value={transactionCode}
-                        onChange={e => setTransactionCode(e.target.value)}
-                        placeholder="e.g. TRX-123456789"
-                        className={styles.bankCodeInput}
-                      />
+                      {/* Row 2: Amount with discount */}
+                      <div style={{ display: 'flex', alignItems: 'baseline', gap: 8, marginTop: 10 }}>
+                        <span style={{ fontSize: 13, color: 'rgba(255,255,255,0.3)', textDecoration: 'line-through' }}>{fmtRp(cartTotal)}</span>
+                        <span style={{ fontSize: 18, fontWeight: 900, color: '#FACC15' }}>{fmtRp(Math.round(cartTotal * 0.97))}</span>
+                        <span style={{ fontSize: 12, fontWeight: 800, color: '#8DC63F' }}>-3%</span>
+                      </div>
+                      {/* Row 3: Transaction code */}
+                      <input value={transactionCode} onChange={e => setTransactionCode(e.target.value)} placeholder="Transaction code" className={styles.bankCodeInput} style={{ marginTop: 10 }} />
                     </div>
                   )}
 
@@ -780,9 +763,17 @@ export default function RestaurantMenuSheet({ restaurant, onClose, onOrderViaCha
                 <div className={styles.cartTotal} style={{ padding: '8px 0' }}>
                   <span>Total</span>
                   <span style={{ color: '#FACC15' }}>
-                    {orderType !== 'delivery' ? fmtRp(grandTotal) : deliveryFare !== null ? fmtRp(grandTotal) : `${fmtRp(cartTotal)} + delivery`}
+                    {paymentMethod === 'bank'
+                      ? fmtRp(Math.round(cartTotal * 0.97) + (orderType === 'delivery' ? (deliveryFare ?? 0) : 0))
+                      : fmtRp(grandTotal)
+                    }
                   </span>
                 </div>
+                {paymentMethod === 'bank' && orderType === 'delivery' && (
+                  <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.35)', textAlign: 'right', marginTop: 2 }}>
+                    {fmtRp(Math.round(cartTotal * 0.97))} bank transfer + {fmtRp(deliveryFare ?? 0)} cash to driver
+                  </div>
+                )}
               </>
             )}
           </div>
