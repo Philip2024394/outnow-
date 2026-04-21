@@ -386,6 +386,27 @@ export default function RestaurantMenuSheet({ restaurant, onClose, onOrderViaCha
   const [driverPhase, setDriverPhase] = useState('to_restaurant')
   const [driverImgIdx, setDriverImgIdx] = useState(0)
   const [bannerMsgIdx, setBannerMsgIdx] = useState(0)
+  const [processingMsgIdx, setProcessingMsgIdx] = useState(0)
+
+  const PROCESSING_MESSAGES = [
+    'Processing Order',
+    'Confirming with restaurant',
+    'Order started',
+    'Kitchen has received your order',
+    'Searching for nearby driver',
+    'Confirming driver journey',
+    'Matching best driver for you',
+    'Almost ready',
+  ]
+
+  useEffect(() => {
+    if (!orderProcessing || orderReceived) return
+    setProcessingMsgIdx(0)
+    const id = setInterval(() => {
+      setProcessingMsgIdx(i => (i + 1) % 8)
+    }, 3000)
+    return () => clearInterval(id)
+  }, [orderProcessing, orderReceived])
 
   const BANNER_MESSAGES = {
     to_restaurant: [
@@ -1042,30 +1063,16 @@ export default function RestaurantMenuSheet({ restaurant, onClose, onOrderViaCha
 
           {!orderReceived ? (
             <>
-              {/* Center — spinning ring + icon */}
-              <div style={{ position: 'absolute', top: '40%', left: '50%', transform: 'translate(-50%, -50%)', zIndex: 2, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 16 }}>
-                {/* Spinning ring */}
-                <div style={{ position: 'relative', width: 100, height: 100 }}>
-                  <div style={{ position: 'absolute', inset: 0, borderRadius: '50%', border: '3px solid rgba(255,255,255,0.08)' }} />
-                  <div style={{ position: 'absolute', inset: 0, borderRadius: '50%', border: '3px solid transparent', borderTopColor: '#8DC63F', animation: 'spin 1s linear infinite' }} />
-                  <div style={{ position: 'absolute', inset: 8, borderRadius: '50%', border: '2px solid transparent', borderTopColor: '#FACC15', animation: 'spin 1.5s linear infinite reverse' }} />
-                  <div style={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)', fontSize: 28 }}>🍽</div>
-                </div>
-                {/* Progress bar */}
-                <div style={{ width: 160, height: 4, borderRadius: 2, background: 'rgba(255,255,255,0.1)', overflow: 'hidden' }}>
-                  <div style={{ height: '100%', background: '#8DC63F', borderRadius: 2, animation: 'barLoad 2s ease-in-out infinite' }} />
-                </div>
-              </div>
 
               {/* Bottom text */}
               <div style={{ position: 'absolute', bottom: 60, left: 0, right: 0, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 10, zIndex: 2 }}>
-                <h3 style={{ fontSize: 22, fontWeight: 900, color: '#fff', margin: 0, textShadow: '0 2px 12px rgba(0,0,0,0.8)' }}>Processing Order</h3>
+                <h3 style={{ fontSize: 20, fontWeight: 900, color: '#fff', margin: 0, textShadow: '0 2px 12px rgba(0,0,0,0.8)', animation: 'fadeIn 0.5s ease' }} key={processingMsgIdx}>{PROCESSING_MESSAGES[processingMsgIdx]}</h3>
                 <div style={{ display: 'flex', gap: 12 }}>
                   <span style={{ width: 12, height: 12, borderRadius: '50%', background: '#8DC63F', animation: 'dotDance 1.8s ease-in-out infinite', boxShadow: '0 0 10px rgba(141,198,63,0.5)' }} />
                   <span style={{ width: 12, height: 12, borderRadius: '50%', background: '#8DC63F', animation: 'dotDance 1.8s ease-in-out 0.3s infinite', boxShadow: '0 0 10px rgba(141,198,63,0.5)' }} />
                   <span style={{ width: 12, height: 12, borderRadius: '50%', background: '#8DC63F', animation: 'dotDance 1.8s ease-in-out 0.6s infinite', boxShadow: '0 0 10px rgba(141,198,63,0.5)' }} />
                 </div>
-                <p style={{ fontSize: 13, color: 'rgba(255,255,255,0.5)', margin: 0, animation: 'pulse 2s ease-in-out infinite' }}>Finding your driver...</p>
+                <p style={{ fontSize: 12, color: 'rgba(255,255,255,0.4)', margin: 0 }}>{processingMsgIdx + 1} of {PROCESSING_MESSAGES.length}</p>
               </div>
             </>
           ) : (
