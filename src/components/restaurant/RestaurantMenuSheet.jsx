@@ -461,27 +461,10 @@ export default function RestaurantMenuSheet({ restaurant, onClose, onOrderViaCha
   }
 
   // Rotate driver images safely
-  // Images per vendor type + time of day
-  const vendorType = restaurant.vendor_type ?? 'restaurant' // 'restaurant' | 'street_vendor'
-  const hour = new Date().getHours()
-  const isDaytime = hour >= 6 && hour < 18
-
-  const DRIVER_PICKUP_IMAGES_RESTAURANT_DAY = [
-    'https://ik.imagekit.io/nepgaxllc/ChatGPT%20Image%20Apr%2016,%202026,%2006_36_14%20PM.png?updatedAt=1776339391906',
-    'https://ik.imagekit.io/nepgaxllc/ChatGPT%20Image%20Apr%2016,%202026,%2006_35_10%20PM.png?updatedAt=1776339327027',
-    'https://ik.imagekit.io/nepgaxllc/Rider_s%20view%20of%20a%20sport%20motorcycle%20dashboard.png?updatedAt=1776155502901',
-    'https://ik.imagekit.io/nepgaxllc/ChatGPT%20Image%20Apr%2022,%202026,%2002_55_36%20AM.png',
-    'https://ik.imagekit.io/nepgaxllc/ChatGPT%20Image%20Apr%2022,%202026,%2003_04_40%20AM.png',
-  ]
-
-  const DRIVER_PICKUP_IMAGES_RESTAURANT_NIGHT = DRIVER_PICKUP_IMAGES_RESTAURANT_DAY // TODO: add night images
-  const DRIVER_PICKUP_IMAGES_STREET_DAY = DRIVER_PICKUP_IMAGES_RESTAURANT_DAY // TODO: add street vendor images
-  const DRIVER_PICKUP_IMAGES_STREET_NIGHT = DRIVER_PICKUP_IMAGES_RESTAURANT_DAY // TODO: add street vendor night images
-
-  // Select correct image set
-  const DRIVER_PICKUP_IMAGES = vendorType === 'street_vendor'
-    ? (isDaytime ? DRIVER_PICKUP_IMAGES_STREET_DAY : DRIVER_PICKUP_IMAGES_STREET_NIGHT)
-    : (isDaytime ? DRIVER_PICKUP_IMAGES_RESTAURANT_DAY : DRIVER_PICKUP_IMAGES_RESTAURANT_NIGHT)
+  // Pickup images — will be populated per vendor type + day/night
+  // For now: empty array, single static image used in src fallback
+  const vendorType = restaurant.vendor_type ?? 'restaurant'
+  const DRIVER_PICKUP_IMAGES = [] // TODO: add images when provided
 
   // Images: driver on the way to customer (delivery)
   const DRIVER_ON_WAY_IMAGES = [
@@ -1135,7 +1118,7 @@ export default function RestaurantMenuSheet({ restaurant, onClose, onOrderViaCha
             <img
               src={
                 driverPhase === 'to_restaurant'
-                  ? (DRIVER_PICKUP_IMAGES[driverImgIdx % DRIVER_PICKUP_IMAGES.length] ?? DRIVER_PICKUP_IMAGES[0])
+                  ? (DRIVER_PICKUP_IMAGES.length > 0 ? DRIVER_PICKUP_IMAGES[driverImgIdx % DRIVER_PICKUP_IMAGES.length] : 'https://ik.imagekit.io/nepgaxllc/ChatGPT%20Image%20Apr%2016,%202026,%2006_36_14%20PM.png?updatedAt=1776339391906')
                   : driverPhase === 'to_customer'
                     ? (DRIVER_ON_WAY_IMAGES[driverImgIdx % DRIVER_ON_WAY_IMAGES.length] ?? DRIVER_ON_WAY_IMAGES[0])
                     : 'https://ik.imagekit.io/nepgaxllc/Untitleddsddaadsds.png?updatedAt=1776787842452'

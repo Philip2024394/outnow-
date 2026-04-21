@@ -594,7 +594,7 @@ export default function AppShell({ returnParams, triggerGoLive }) {
       {shopOpen && <ShopSearchScreen onClose={() => { setShopOpen(false); setDockVisible(true); setGiftForSession(null); setActiveSection('default'); setMarketplaceLanding(true) }} userCity={userProfile?.city} userCountry={userProfile?.country} giftFor={giftForSession} onGiftDismiss={() => setGiftForSession(null)} showToast={showToast} onOrderViaChat={handleOrderViaChat} onMakeOffer={handleMakeOffer} onLandingChange={(onLanding) => { setMarketplaceLanding(onLanding); if (!onLanding) setDockVisible(false) }} onHome={() => { setShopOpen(false); setDockVisible(true); setActiveSection('default'); setMarketplaceLanding(true); setActiveTab('map') }} onChat={() => { setShopOpen(false); setDockVisible(true); setActiveSection('default'); setMarketplaceLanding(true); setActiveTab('chat') }} onAlerts={() => setNotifOpen(true)} onProfile={() => { setShopOpen(false); setDockVisible(true); setActiveSection('default'); setMarketplaceLanding(true); setActiveTab('profile') }} onOpenUsedGoods={() => setUsedGoodsOpen(true)} onOpenWanted={() => setWantedBoardOpen(true)} />}
       </Suspense>
 
-      <Suspense fallback={<LazyFallback />}>
+      <Suspense fallback={<div style={{ position: 'fixed', inset: 0, background: '#0a0a0a', zIndex: 100 }} />}>
       {foodOpen && (
         <RestaurantBrowseScreen
           category={foodCategory}

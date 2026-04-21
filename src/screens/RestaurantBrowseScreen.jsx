@@ -497,7 +497,7 @@ export default function RestaurantBrowseScreen({ onClose, onBackToCategories, ca
   const catEmoji  = category ? category.emoji  : '🍽'
   const catColor  = category ? category.color  : '#8DC63F'
 
-  return (<>
+  return (<div style={{ position: 'fixed', inset: 0, background: '#0a0a0a', zIndex: 100 }}>
     <div style={{ display: showLanding ? undefined : 'none' }}>
       <FoodLanding
         onBrowse={() => { markSectionVisited('food'); setShowLanding(false) }}
@@ -583,7 +583,7 @@ export default function RestaurantBrowseScreen({ onClose, onBackToCategories, ca
         userId={null}
       />
     </div>
-  </>)
+  </div>)
 }
 
 // ── Restaurant card ───────────────────────────────────────────────────────────
