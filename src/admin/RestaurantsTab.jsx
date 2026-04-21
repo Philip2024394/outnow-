@@ -276,6 +276,17 @@ export default function RestaurantsTab() {
 
                   {isExpanded && (
                     <div className={styles.actions}>
+                      {/* Payment QR */}
+                      {r.bank?.qr_url && (
+                        <div style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '10px 0', marginBottom: 8, borderBottom: '1px solid rgba(255,255,255,0.06)' }}>
+                          <img src={r.bank.qr_url} alt="QR" onClick={() => window.open(r.bank.qr_url, '_blank')} style={{ width: 60, height: 60, borderRadius: 8, border: '1px solid rgba(255,255,255,0.1)', background: '#fff', cursor: 'pointer', objectFit: 'cover' }} />
+                          <div>
+                            <div style={{ fontSize: 12, fontWeight: 800, color: '#fff' }}>{r.bank?.name} — {r.bank?.account_number}</div>
+                            <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.4)' }}>{r.bank?.account_holder}</div>
+                            <div style={{ fontSize: 10, color: '#8DC63F', marginTop: 2 }}>Click QR to enlarge</div>
+                          </div>
+                        </div>
+                      )}
                       <button className={`${styles.btn} ${styles.btnFeature}`} onClick={() => setEditItem(r)} disabled={isBusy}>✏️ Edit</button>
                       {r.status !== 'approved' && <button className={`${styles.btn} ${styles.btnApprove}`} onClick={() => handleApprove(r.id)} disabled={isBusy}>{isBusy ? '…' : '✓ Approve'}</button>}
                       {r.status !== 'rejected' && <button className={`${styles.btn} ${styles.btnReject}`}  onClick={() => { setRejectModal(r.id); setRejectNote('') }} disabled={isBusy}>✕ Reject</button>}

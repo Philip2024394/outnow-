@@ -10,6 +10,7 @@ import {
   CC_OPTIONS, TRANS, FUEL_POLICY, FUEL_TYPE, CONDITIONS, COLORS, COLOR_HEX,
   LICENSE, MIN_RENTAL, PAYLOAD_OPTIONS, TRUCK_TYPES, BOX_SIZES, INSURANCE_OPTIONS,
   generateRef, DEMO_TRUCK_LISTINGS, TruckShowroom, IncludedBundle,
+  BoolToggleField, IncludedSection,
 } from './TruckFormComponents'
 import TruckMyListingsPanel from './TruckMyListingsPanel'
 
@@ -283,15 +284,7 @@ export default function TruckListingForm({ open, onClose, onSubmit, editListing 
               <PickerField label="Box Size" value={boxSize} onChange={setBoxSize} options={BOX_SIZES} placeholder="M" editing={editingBoxSize} setEditing={setEditingBoxSize} styles={styles} cols={4} />
 
               {/* Hydraulic lift */}
-              <div className={styles.inlineField}>
-                <span className={styles.inlineLabel}>Hydraulic Lift</span>
-                <button onClick={() => setHydraulicLift(!hydraulicLift)} style={{ background: 'none', border: 'none', color: hydraulicLift ? '#8DC63F' : 'rgba(255,255,255,0.3)', fontSize: 15, fontWeight: 700, cursor: 'pointer', fontFamily: 'inherit', padding: 0, flex: 1, textAlign: 'left' }}>
-                  {hydraulicLift ? '✓ Yes' : 'No'}
-                </button>
-                <button className={styles.inlineEditBtn} onClick={() => setHydraulicLift(!hydraulicLift)}>
-                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#FBBF24" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
-                </button>
-              </div>
+              <BoolToggleField label="Hydraulic Lift" value={hydraulicLift} onChange={setHydraulicLift} styles={styles} />
 
               <div className={styles.inlineField}>
                 <span className={styles.inlineLabel}>Year</span>
@@ -347,15 +340,7 @@ export default function TruckListingForm({ open, onClose, onSubmit, editListing 
                 <div style={{ position: 'absolute', width: 60, height: 2, background: 'linear-gradient(90deg, transparent, #8DC63F, transparent)', animation: 'runGlow 3s ease-in-out infinite' }} />
               </div>
               <div className={styles.inlineGroup}>
-                <div className={styles.inlineField}>
-                  <span className={styles.inlineLabel}>With Driver</span>
-                  <button onClick={() => setWithDriver(!withDriver)} style={{ background: 'none', border: 'none', color: withDriver ? '#8DC63F' : 'rgba(255,255,255,0.3)', fontSize: 15, fontWeight: 700, cursor: 'pointer', fontFamily: 'inherit', padding: 0, flex: 1, textAlign: 'left' }}>
-                    {withDriver ? '✓ Available' : 'No'}
-                  </button>
-                  <button className={styles.inlineEditBtn} onClick={() => setWithDriver(!withDriver)}>
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#FBBF24" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
-                  </button>
-                </div>
+                <BoolToggleField label="With Driver" value={withDriver} onChange={setWithDriver} styles={styles} />
                 {withDriver && (
                   <div className={styles.inlineField}>
                     <span className={styles.inlineLabel}>Driver Fee</span>
@@ -474,49 +459,7 @@ export default function TruckListingForm({ open, onClose, onSubmit, editListing 
             </div>
 
             {/* ── Included — glass container ── */}
-            <div style={{ background: 'rgba(0,0,0,0.6)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)', border: '1.5px solid rgba(141,198,63,0.2)', borderRadius: 20, padding: '16px 14px', boxShadow: '0 0 20px rgba(141,198,63,0.08)', position: 'relative', zIndex: 1 }}>
-              <h2 className={styles.inlineGroupTitle} style={{ paddingTop: 0, textShadow: '0 0 12px rgba(141,198,63,0.4)' }}>Included With Rental</h2>
-              <p style={{ fontSize: 11, color: 'rgba(255,255,255,0.25)', margin: '-4px 0 4px', fontWeight: 500 }}>Equipment & accessories</p>
-              <div style={{ position: 'relative', height: 2, marginBottom: 10, overflow: 'hidden' }}><div style={{ position: 'absolute', width: 60, height: 2, background: 'linear-gradient(90deg, transparent, #8DC63F, transparent)', animation: 'runGlow 3s ease-in-out infinite' }} /></div>
-            <div className={styles.inlineGroup}>
-              <div className={styles.inlineField}>
-                <span className={styles.inlineLabel}>Tarpaulin</span>
-                <button onClick={() => setTarpaulin(!tarpaulin)} style={{ background: 'none', border: 'none', color: tarpaulin ? '#8DC63F' : 'rgba(255,255,255,0.2)', fontSize: 15, fontWeight: 700, cursor: 'pointer', fontFamily: 'inherit', padding: 0, flex: 1, textAlign: 'left' }}>{tarpaulin ? '✓ Yes' : 'No'}</button>
-                <button className={styles.inlineEditBtn} onClick={() => setTarpaulin(!tarpaulin)}>
-                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#FBBF24" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
-                </button>
-              </div>
-              <div className={styles.inlineField}>
-                <span className={styles.inlineLabel}>Rope Set</span>
-                <button onClick={() => setRopeSet(!ropeSet)} style={{ background: 'none', border: 'none', color: ropeSet ? '#8DC63F' : 'rgba(255,255,255,0.2)', fontSize: 15, fontWeight: 700, cursor: 'pointer', fontFamily: 'inherit', padding: 0, flex: 1, textAlign: 'left' }}>{ropeSet ? '✓ Yes' : 'No'}</button>
-                <button className={styles.inlineEditBtn} onClick={() => setRopeSet(!ropeSet)}>
-                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#FBBF24" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
-                </button>
-              </div>
-              <div className={styles.inlineField}>
-                <span className={styles.inlineLabel}>Tool Kit</span>
-                <button onClick={() => setToolKit(!toolKit)} style={{ background: 'none', border: 'none', color: toolKit ? '#8DC63F' : 'rgba(255,255,255,0.2)', fontSize: 15, fontWeight: 700, cursor: 'pointer', fontFamily: 'inherit', padding: 0, flex: 1, textAlign: 'left' }}>{toolKit ? '✓ Yes' : 'No'}</button>
-                <button className={styles.inlineEditBtn} onClick={() => setToolKit(!toolKit)}>
-                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#FBBF24" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
-                </button>
-              </div>
-              <div className={styles.inlineField}>
-                <span className={styles.inlineLabel}>GPS Tracker</span>
-                <button onClick={() => setGps(!gps)} style={{ background: 'none', border: 'none', color: gps ? '#8DC63F' : 'rgba(255,255,255,0.2)', fontSize: 15, fontWeight: 700, cursor: 'pointer', fontFamily: 'inherit', padding: 0, flex: 1, textAlign: 'left' }}>{gps ? '✓ Yes' : 'No'}</button>
-                <button className={styles.inlineEditBtn} onClick={() => setGps(!gps)}>
-                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#FBBF24" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
-                </button>
-              </div>
-              <div className={styles.inlineField}>
-                <span className={styles.inlineLabel}>Dash Cam</span>
-                <button onClick={() => setDashCam(!dashCam)} style={{ background: 'none', border: 'none', color: dashCam ? '#8DC63F' : 'rgba(255,255,255,0.2)', fontSize: 15, fontWeight: 700, cursor: 'pointer', fontFamily: 'inherit', padding: 0, flex: 1, textAlign: 'left' }}>{dashCam ? '✓ Yes' : 'No'}</button>
-                <button className={styles.inlineEditBtn} onClick={() => setDashCam(!dashCam)}>
-                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#FBBF24" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
-                </button>
-              </div>
-            </div>
-
-            </div>
+            <IncludedSection tarpaulin={tarpaulin} setTarpaulin={setTarpaulin} ropeSet={ropeSet} setRopeSet={setRopeSet} toolKit={toolKit} setToolKit={setToolKit} gps={gps} setGps={setGps} dashCam={dashCam} setDashCam={setDashCam} styles={styles} />
 
             {/* ── Drop Off — glass container ── */}
             <div style={{ background: 'rgba(0,0,0,0.6)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)', border: '1.5px solid rgba(141,198,63,0.2)', borderRadius: 20, padding: '16px 14px', boxShadow: '0 0 20px rgba(141,198,63,0.08)', position: 'relative', zIndex: 1 }}>
@@ -525,13 +468,7 @@ export default function TruckListingForm({ open, onClose, onSubmit, editListing 
               <div style={{ position: 'relative', height: 2, marginBottom: 10, overflow: 'hidden' }}><div style={{ position: 'absolute', width: 60, height: 2, background: 'linear-gradient(90deg, transparent, #8DC63F, transparent)', animation: 'runGlow 3s ease-in-out infinite' }} /></div>
             <div className={styles.inlineGroup}>
               {/* Location Drop Off */}
-              <div className={styles.inlineField}>
-                <span className={styles.inlineLabel}>Delivery</span>
-                <button onClick={() => { setDelivery(!delivery); if (!delivery) setDeliveryFee('Free') }} style={{ background: 'none', border: 'none', color: delivery ? '#8DC63F' : 'rgba(255,255,255,0.2)', fontSize: 15, fontWeight: 700, cursor: 'pointer', fontFamily: 'inherit', padding: 0, flex: 1, textAlign: 'left' }}>{delivery ? '✓ Yes' : 'No'}</button>
-                <button className={styles.inlineEditBtn} onClick={() => { setDelivery(!delivery); if (!delivery) setDeliveryFee('Free') }}>
-                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#FBBF24" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
-                </button>
-              </div>
+              <BoolToggleField label="Delivery" value={delivery} onChange={(v) => { setDelivery(v); if (v) setDeliveryFee('Free') }} styles={styles} />
               {delivery && (
                 <div style={{ padding: '4px 0 4px 8px' }}>
                   <div style={{ display: 'flex', gap: 8, marginBottom: 8 }}>
@@ -554,13 +491,7 @@ export default function TruckListingForm({ open, onClose, onSubmit, editListing 
               )}
 
               {/* Airport / Port Drop Off */}
-              <div className={styles.inlineField}>
-                <span className={styles.inlineLabel}>Port/Depot</span>
-                <button onClick={() => { setAirportDropoff(!airportDropoff); if (!airportDropoff) setAirportFee('Free') }} style={{ background: 'none', border: 'none', color: airportDropoff ? '#8DC63F' : 'rgba(255,255,255,0.2)', fontSize: 15, fontWeight: 700, cursor: 'pointer', fontFamily: 'inherit', padding: 0, flex: 1, textAlign: 'left' }}>{airportDropoff ? '✓ Yes' : 'No'}</button>
-                <button className={styles.inlineEditBtn} onClick={() => { setAirportDropoff(!airportDropoff); if (!airportDropoff) setAirportFee('Free') }}>
-                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#FBBF24" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
-                </button>
-              </div>
+              <BoolToggleField label="Port/Depot" value={airportDropoff} onChange={(v) => { setAirportDropoff(v); if (v) setAirportFee('Free') }} styles={styles} />
               {airportDropoff && (
                 <div style={{ padding: '4px 0 4px 8px' }}>
                   <div style={{ display: 'flex', gap: 8, marginBottom: 8 }}>

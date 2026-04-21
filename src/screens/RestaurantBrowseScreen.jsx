@@ -74,7 +74,7 @@ const DEMO_RESTAURANTS = [
     catering_available: true, seating_capacity: 40,
     event_features: ['birthday_setup', 'private_room'],
     featured_this_week: true, dine_in_discount: 10, status: 'approved',
-    bank: { name: 'BCA', account_number: '1234 5678 90', account_holder: 'Sari Warung Jogja' },
+    bank: { name: 'BCA', account_number: '1234 5678 90', account_holder: 'Sari Warung Jogja', qr_url: 'https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=BCA-1234567890-SariWarung' },
     menu_items: [
       { id: 1,  name: 'Nasi Gudeg Komplit',  price: 28000, prep_time_min: 10, category: 'Rice',           description: 'Slow-cooked overnight jackfruit curry served with a perfectly boiled egg, shredded free-range chicken, crispy krecek beef skin, and fluffy steamed white rice. A Yogyakarta classic since 1985 — every spoonful tells the story of patience and tradition passed down through three generations.', photo_url: 'https://images.unsplash.com/photo-1512058564366-18510be2db19?w=400', is_available: true },
       { id: 2,  name: 'Nasi Gudeg Telur',    price: 18000, prep_time_min: 8,  category: 'Rice',           description: 'The classic Jogja combo — sweet jackfruit curry simmered in coconut milk for six hours, paired with a whole hard-boiled egg soaked in rich brown spice broth. Served on a bed of warm rice with sambal krecek on the side for that perfect kick of heat and crunch.', photo_url: 'https://images.unsplash.com/photo-1504674900247-0877df9cc836?w=400', is_available: true },
@@ -99,7 +99,7 @@ const DEMO_RESTAURANTS = [
     catering_available: false, seating_capacity: 20,
     event_features: [],
     featured_this_week: false, dine_in_discount: 15, status: 'approved',
-    bank: { name: 'Mandiri', account_number: '1100 0987 6543', account_holder: 'Harto Wijaya' },
+    bank: { name: 'Mandiri', account_number: '1100 0987 6543', account_holder: 'Harto Wijaya', qr_url: 'https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=Mandiri-11000987654-HartoWijaya' },
     menu_items: [
       { id: 20, name: 'Nasi Goreng Istimewa', price: 28000, prep_time_min: 12, category: 'Rice',             description: 'Our signature charcoal wok-fired fried rice. Cooked over intense flame for that smoky aroma you can smell from the street. Topped with a fried egg, shredded chicken, fresh vegetables, and our secret homemade shrimp paste that took years to perfect.', photo_url: 'https://images.unsplash.com/photo-1512058564366-18510be2db19?w=400', is_available: true },
       { id: 21, name: 'Nasi Goreng Seafood',  price: 35000, prep_time_min: 15, category: 'Rice',             description: 'Premium seafood fried rice loaded with fresh prawns, tender squid rings, and sweet crab meat. Every grain of rice is kissed by the charcoal wok flame and seasoned with garlic butter, fish sauce, and a touch of white pepper. The ocean on a plate.', photo_url: 'https://images.unsplash.com/photo-1559339352-11d035aa65de?w=400', is_available: true },
@@ -633,8 +633,16 @@ function RestaurantCard({ restaurant: r, onOpenMenu, onToggleFavorite, isFav }) 
             : openTime  ? `Opens ${openTime}` : 'Closed'
           }
         </span>
-
       </div>
+
+      {/* Price range under badge */}
+      {r.price_from != null && (
+        <div style={{ position: 'absolute', top: 'calc(env(safe-area-inset-top, 0px) + 105px)', left: 16, zIndex: 5 }}>
+          <span style={{ fontSize: 12, fontWeight: 800, color: '#FACC15', background: 'rgba(0,0,0,0.5)', backdropFilter: 'blur(8px)', padding: '4px 10px', borderRadius: 8, border: '1px solid rgba(250,204,21,0.2)' }}>
+            Rp {(r.price_from / 1000).toFixed(0)}k – {(r.price_to / 1000).toFixed(0)}k
+          </span>
+        </div>
+      )}
 
       {/* Bottom info — clean and sparse */}
       <div className={styles.cardBottom}>

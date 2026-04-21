@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useRef, useEffect } from 'react'
 import { driverMarkArrived, driverStartRide, driverCompleteRide } from '@/services/bookingService'
 import styles from './DriverTripScreen.module.css'
 
@@ -35,12 +35,15 @@ export default function DriverTripScreen({ booking, driverId, onCompleted, onClo
     setBusy(false)
   }
 
+  const completeTimerRef = useRef(null)
+  useEffect(() => () => clearTimeout(completeTimerRef.current), [])
+
   const handleComplete = async () => {
     setBusy(true)
     await driverCompleteRide(booking.id, driverId)
     setPhase('completed')
     setBusy(false)
-    setTimeout(() => onCompleted?.(), 2000)
+    completeTimerRef.current = setTimeout(() => onCompleted?.(), 2000)
   }
 
   return (

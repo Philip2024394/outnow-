@@ -121,6 +121,41 @@ export function TruckShowroom({ brand, model, payload, truckType, onSelectTruck 
 }
 
 /* ══════════════════════════════════════════════════════════════════════════════
+   BOOL TOGGLE FIELD — reusable inline toggle for truck form
+   ══════════════════════════════════════════════════════════════════════════════ */
+export function BoolToggleField({ label, value, onChange, styles: s }) {
+  return (
+    <div className={s.inlineField}>
+      <span className={s.inlineLabel}>{label}</span>
+      <button onClick={() => onChange(!value)} style={{ background: 'none', border: 'none', color: value ? '#8DC63F' : 'rgba(255,255,255,0.2)', fontSize: 15, fontWeight: 700, cursor: 'pointer', fontFamily: 'inherit', padding: 0, flex: 1, textAlign: 'left' }}>{value ? '✓ Yes' : 'No'}</button>
+      <button className={s.inlineEditBtn} onClick={() => onChange(!value)}>
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#FBBF24" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+      </button>
+    </div>
+  )
+}
+
+/* ══════════════════════════════════════════════════════════════════════════════
+   INCLUDED SECTION — glass container with 5 toggle fields
+   ══════════════════════════════════════════════════════════════════════════════ */
+export function IncludedSection({ tarpaulin, setTarpaulin, ropeSet, setRopeSet, toolKit, setToolKit, gps, setGps, dashCam, setDashCam, styles: s }) {
+  return (
+    <div style={{ background: 'rgba(0,0,0,0.6)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)', border: '1.5px solid rgba(141,198,63,0.2)', borderRadius: 20, padding: '16px 14px', boxShadow: '0 0 20px rgba(141,198,63,0.08)', position: 'relative', zIndex: 1 }}>
+      <h2 className={s.inlineGroupTitle} style={{ paddingTop: 0, textShadow: '0 0 12px rgba(141,198,63,0.4)' }}>Included With Rental</h2>
+      <p style={{ fontSize: 11, color: 'rgba(255,255,255,0.25)', margin: '-4px 0 4px', fontWeight: 500 }}>Equipment & accessories</p>
+      <div style={{ position: 'relative', height: 2, marginBottom: 10, overflow: 'hidden' }}><div style={{ position: 'absolute', width: 60, height: 2, background: 'linear-gradient(90deg, transparent, #8DC63F, transparent)', animation: 'runGlow 3s ease-in-out infinite' }} /></div>
+      <div className={s.inlineGroup}>
+        <BoolToggleField label="Tarpaulin" value={tarpaulin} onChange={setTarpaulin} styles={s} />
+        <BoolToggleField label="Rope Set" value={ropeSet} onChange={setRopeSet} styles={s} />
+        <BoolToggleField label="Tool Kit" value={toolKit} onChange={setToolKit} styles={s} />
+        <BoolToggleField label="GPS Tracker" value={gps} onChange={setGps} styles={s} />
+        <BoolToggleField label="Dash Cam" value={dashCam} onChange={setDashCam} styles={s} />
+      </div>
+    </div>
+  )
+}
+
+/* ══════════════════════════════════════════════════════════════════════════════
    INCLUDED ITEMS — visual cards for truck equipment
    ══════════════════════════════════════════════════════════════════════════════ */
 export function IncludedBundle({ tarpaulin, ropeSet, toolKit, gps, dashCam }) {

@@ -595,6 +595,10 @@
   0%, 100% { transform: scale(1); opacity: 1; }
   50% { transform: scale(1.8); opacity: 0.3; }
 }
+@keyframes radarPing {
+  0% { transform: scale(0.8); opacity: 1; }
+  100% { transform: scale(2.5); opacity: 0; }
+}
 @keyframes barLoad {
   0% { width: 0%; opacity: 0.5; }
   50% { width: 100%; opacity: 1; }

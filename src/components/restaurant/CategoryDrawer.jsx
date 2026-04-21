@@ -40,6 +40,8 @@ const DISPLAY_NAMES = {
   'Salad & Healthy': 'Salad',
   'Ice Cream & Gelato': 'Deserts',
   'Boba & Milk Tea': 'Ice Drinks',
+  'Satay & Grilled': 'Grilled',
+  'Tea & Coffee': 'Tea Coffee',
 }
 
 const DRAWER_CATEGORIES = [

@@ -4,13 +4,13 @@ import styles from './WeeklyPromoSheet.module.css'
 
 // ── Named deal days ───────────────────────────────────────────────────────────
 export const DEAL_DAYS = {
-  0: { name: 'Sunday Blues',     emoji: '😌', color: '#a78bfa', sub: 'Comfort food & chill vibes' },
-  1: { name: 'Monday Rush',      emoji: '⚡', color: '#38bdf8', sub: 'Beat the week with a deal'  },
-  2: { name: 'Tuesday Twos',     emoji: '2️⃣', color: '#f472b6', sub: 'Two for one, all day long'  },
-  3: { name: 'Wednesday Win',    emoji: '🏆', color: '#F59E0B', sub: 'Midweek treat, you earned it'},
-  4: { name: 'Thirsty Thursday', emoji: '🥤', color: '#fb923c', sub: 'Drinks deals & happy hours'  },
-  5: { name: 'Crunchy Friday',   emoji: '🔥', color: '#ff6b35', sub: 'Fried, grilled & bold'       },
-  6: { name: 'Saturday Live',    emoji: '🎵', color: '#F59E0B', sub: 'Live music & great food'     },
+  0: { name: 'Sunny Sunday',        emoji: '☀️', color: '#FACC15', sub: 'Bright deals for a bright day' },
+  1: { name: 'Magic Monday',        emoji: '✨', color: '#38bdf8', sub: 'Start the week with magic'     },
+  2: { name: 'Tempting Tuesday',    emoji: '😋', color: '#f472b6', sub: 'Too good to resist'            },
+  3: { name: 'Wicked Wednesday',    emoji: '😈', color: '#a78bfa', sub: 'Midweek madness deals'         },
+  4: { name: 'Throwback Thursday',  emoji: '🔙', color: '#fb923c', sub: 'Classic flavours, new prices'  },
+  5: { name: 'Crunchy Friday',      emoji: '🔥', color: '#ff6b35', sub: 'Fried, grilled & bold'         },
+  6: { name: 'Sizzling Saturday',   emoji: '🥩', color: '#8DC63F', sub: 'Hot deals, hotter food'        },
 }
 
 // ── Demo promos (replaced by Supabase when live) ──────────────────────────────

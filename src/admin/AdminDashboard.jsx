@@ -9,6 +9,7 @@ import AuctionAdminTab from './tabs/AuctionAdminTab'
 import RidesAdminTab  from './tabs/RidesAdminTab'
 import LiveMapTab     from './tabs/LiveMapTab'
 import RestaurantsTab from './RestaurantsTab'
+import FoodOrdersTab from './tabs/FoodOrdersTab'
 import DriversTab     from './DriversTab'
 import PricingTab     from './PricingTab'
 import BookingsTab    from './BookingsTab'
@@ -35,6 +36,7 @@ const NAV = [
   { id: 'marketplace',  icon: '🛍️', label: 'Market'       },
   { id: 'auctions',     icon: '🔨', label: 'Auctions'     },
   { id: 'restaurants',  icon: '🍽️', label: 'Food'         },
+  { id: 'food_orders',  icon: '📦', label: 'Food Orders'  },
   { id: 'wallets',      icon: '💳', label: 'Wallets'       },
   { id: 'commissions',  icon: '💰', label: 'Commissions'  },
   { id: 'massage',      icon: '💆', label: 'Massage'      },
@@ -172,6 +174,7 @@ export default function AdminDashboard({ onLogout }) {
           {tab === 'marketplace' && <MarketplaceAdminTab />}
           {tab === 'auctions' && <AuctionAdminTab />}
           {tab === 'restaurants' && <RestaurantsTab />}
+          {tab === 'food_orders' && <FoodOrdersTab />}
           {tab === 'rides'       && <RidesAdminTab />}
           {tab === 'map'         && <LiveMapTab />}
           {tab === 'drivers'     && <DriversTab />}

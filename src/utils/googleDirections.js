@@ -1,62 +1,54 @@
 /**
  * Google Directions API utility.
- * Returns real road distance (km) and ETA (minutes) between two GPS points.
- * Falls back to haversine + speed estimate if API fails or is unavailable.
+ * Calls Supabase Edge Function (server-side proxy) to avoid CORS.
+ * Falls back to haversine + speed estimate if API fails.
  */
 import { haversineKm } from './distance'
 
-const API_KEY = import.meta.env.VITE_GOOGLE_DIRECTIONS_KEY
+const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL
+const SUPABASE_ANON = import.meta.env.VITE_SUPABASE_ANON_KEY
+const EDGE_FN_URL = SUPABASE_URL ? `${SUPABASE_URL}/functions/v1/directions` : null
 
 /**
  * Get real driving distance and ETA between two coordinates.
- * Uses Google Directions API for accurate road-based results.
+ * Routes through Supabase Edge Function → Google Directions API.
  * Falls back to haversine estimate on failure.
- *
- * @param {number} originLat
- * @param {number} originLng
- * @param {number} destLat
- * @param {number} destLng
- * @param {'driving'|'walking'|'bicycling'} mode - travel mode (default: driving)
- * @returns {Promise<{ distanceKm: number, durationMin: number, source: 'google'|'fallback' }>}
  */
 export async function getDirections(originLat, originLng, destLat, destLng, mode = 'driving') {
-  // Validate inputs
   if (!originLat || !originLng || !destLat || !destLng) {
     return fallbackEstimate(originLat, originLng, destLat, destLng, mode)
   }
 
-  // If no API key, use fallback
-  if (!API_KEY) {
-    console.warn('[GoogleDirections] No API key — using haversine fallback')
+  if (!EDGE_FN_URL || !SUPABASE_ANON) {
     return fallbackEstimate(originLat, originLng, destLat, destLng, mode)
   }
 
   try {
-    const url = `https://maps.googleapis.com/maps/api/directions/json`
-      + `?origin=${originLat},${originLng}`
-      + `&destination=${destLat},${destLng}`
-      + `&mode=${mode}`
-      + `&key=${API_KEY}`
+    const res = await fetch(EDGE_FN_URL, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${SUPABASE_ANON}`,
+        'apikey': SUPABASE_ANON,
+      },
+      body: JSON.stringify({
+        origin: `${originLat},${originLng}`,
+        destination: `${destLat},${destLng}`,
+        mode,
+      }),
+    })
 
-    const res = await fetch(url)
+    if (!res.ok) throw new Error(`Edge function returned ${res.status}`)
+
     const data = await res.json()
 
-    if (data.status === 'OK' && data.routes?.length > 0) {
-      const leg = data.routes[0].legs[0]
-      return {
-        distanceKm: Math.round((leg.distance.value / 1000) * 10) / 10,
-        durationMin: Math.ceil(leg.duration.value / 60),
-        distanceText: leg.distance.text,
-        durationText: leg.duration.text,
-        source: 'google',
-      }
+    if (data.source === 'google' && data.distanceKm != null) {
+      return data
     }
 
-    // API returned but no valid route
-    console.warn('[GoogleDirections] No route found:', data.status)
     return fallbackEstimate(originLat, originLng, destLat, destLng, mode)
   } catch (err) {
-    console.warn('[GoogleDirections] API error, using fallback:', err.message)
+    // Silent fallback — no console spam in dev
     return fallbackEstimate(originLat, originLng, destLat, destLng, mode)
   }
 }
@@ -67,12 +59,11 @@ export async function getDirections(originLat, originLng, destLat, destLng, mode
  */
 function fallbackEstimate(originLat, originLng, destLat, destLng, mode) {
   const straightKm = haversineKm(originLat ?? 0, originLng ?? 0, destLat ?? 0, destLng ?? 0)
-  const roadKm = Math.round(straightKm * 1.3 * 10) / 10 // road factor
+  const roadKm = Math.round(straightKm * 1.3 * 10) / 10
 
-  // Speed assumptions for Indonesian traffic
   const speeds = {
-    driving: 20, // km/h — city traffic avg
-    bicycling: 15, // km/h — motorbike in traffic
+    driving: 20,
+    bicycling: 15,
     walking: 5,
   }
   const speed = speeds[mode] ?? 20
@@ -89,13 +80,6 @@ function fallbackEstimate(originLat, originLng, destLat, destLng, mode) {
 
 /**
  * Quick distance + ETA for driver matching.
- * Returns simplified result for sorting drivers.
- *
- * @param {number} driverLat
- * @param {number} driverLng
- * @param {number} destLat
- * @param {number} destLng
- * @returns {Promise<{ distKm: number, etaMin: number }>}
  */
 export async function getDriverETA(driverLat, driverLng, destLat, destLng) {
   const result = await getDirections(driverLat, driverLng, destLat, destLng, 'driving')
@@ -107,12 +91,6 @@ export async function getDriverETA(driverLat, driverLng, destLat, destLng) {
 
 /**
  * Calculate full delivery route: driver → restaurant → customer.
- * Returns both legs and total ETA.
- *
- * @param {object} driverCoords - { lat, lng }
- * @param {object} restaurantCoords - { lat, lng }
- * @param {object} customerCoords - { lat, lng }
- * @returns {Promise<{ toRestaurant: object, toCustomer: object, totalMin: number, totalKm: number }>}
  */
 export async function getDeliveryRoute(driverCoords, restaurantCoords, customerCoords) {
   const [toRestaurant, toCustomer] = await Promise.all([
@@ -130,13 +108,6 @@ export async function getDeliveryRoute(driverCoords, restaurantCoords, customerC
 
 /**
  * Calculate fare-ready distance between pickup and dropoff.
- * Returns road distance for accurate fare calculation.
- *
- * @param {number} pickupLat
- * @param {number} pickupLng
- * @param {number} dropoffLat
- * @param {number} dropoffLng
- * @returns {Promise<{ distanceKm: number, durationMin: number }>}
  */
 export async function getRideDistance(pickupLat, pickupLng, dropoffLat, dropoffLng) {
   return getDirections(pickupLat, pickupLng, dropoffLat, dropoffLng, 'driving')
