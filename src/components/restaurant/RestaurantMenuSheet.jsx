@@ -705,7 +705,9 @@ export default function RestaurantMenuSheet({ restaurant, onClose, onOrderViaCha
 
                 {/* Payment method selection */}
                 <div style={{ marginBottom: 12 }}>
-                  <span style={{ fontSize: 12, fontWeight: 700, color: 'rgba(255,255,255,0.4)', display: 'block' }}>Food payment only · Delivery fee paid to driver on arrival</span>
+                  <span style={{ fontSize: 12, fontWeight: 700, color: 'rgba(255,255,255,0.4)', display: 'block' }}>
+                    {paymentMethod === 'cod' ? 'Pay driver on arrival · Total order' : paymentMethod === 'bank' ? 'Food payment only · Delivery paid to driver on arrival' : 'Select how to pay'}
+                  </span>
                   <div style={{ height: 8 }} />
                   <div style={{ display: 'flex', gap: 8 }}>
                     <button onClick={() => setPaymentMethod('bank')} style={{
@@ -779,6 +781,12 @@ export default function RestaurantMenuSheet({ restaurant, onClose, onOrderViaCha
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '8px 0 12px' }}>
                   <span style={{ fontSize: 14, fontWeight: 800, color: '#fff' }}>Pay Driver On Delivery</span>
                   <span style={{ fontSize: 16, fontWeight: 900, color: '#FACC15' }}>{fmtRp(deliveryFare)}</span>
+                </div>
+              )}
+              {paymentMethod === 'cod' && (
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '8px 0 12px' }}>
+                  <span style={{ fontSize: 14, fontWeight: 800, color: '#fff' }}>Pay Driver On Arrival</span>
+                  <span style={{ fontSize: 16, fontWeight: 900, color: '#FACC15' }}>{fmtRp(grandTotal)}</span>
                 </div>
               )}
               <button
