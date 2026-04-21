@@ -704,6 +704,7 @@ export default function RestaurantMenuSheet({ restaurant, onClose, onOrderViaCha
                     }}>
                       <span style={{ fontSize: 20 }}>🏦</span>
                       <span>Bank Transfer</span>
+                      <span style={{ fontSize: 13, color: '#8DC63F', fontWeight: 900, animation: 'priceGlow 2s ease-in-out infinite' }}>Save 3%</span>
                     </button>
                     <button onClick={() => setPaymentMethod('cod')} style={{
                       flex: 1, padding: '14px 8px', borderRadius: 12,
@@ -723,16 +724,22 @@ export default function RestaurantMenuSheet({ restaurant, onClose, onOrderViaCha
                       <div style={{ display: 'flex', gap: 12 }}>
                         {/* Left — bank details */}
                         <div style={{ flex: 1 }}>
-                          <div style={{ color: 'rgba(255,255,255,0.35)', marginBottom: 4, fontSize: 10 }}>Transfer to:</div>
-                          <div style={{ color: '#fff', fontWeight: 800, fontSize: 13 }}>{restaurant.bank.name}</div>
-                          <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginTop: 2 }}>
-                            <span style={{ color: 'rgba(255,255,255,0.6)', fontWeight: 700, fontSize: 14 }}>{restaurant.bank.account_number}</span>
-                            <button onClick={() => { navigator.clipboard?.writeText(restaurant.bank.account_number); setCopyMsg(true); safeTimeout(() => setCopyMsg(false), 2000) }} style={{ padding: '2px 8px', borderRadius: 6, background: '#8DC63F', border: 'none', color: '#000', fontSize: 9, fontWeight: 800, cursor: 'pointer', fontFamily: 'inherit' }}>{copyMsg ? '✓ Copied' : 'Copy'}</button>
+                          <div style={{ color: 'rgba(255,255,255,0.4)', marginBottom: 6, fontSize: 12 }}>Transfer to:</div>
+                          <div style={{ color: '#fff', fontWeight: 800, fontSize: 15 }}>{restaurant.bank.name}</div>
+                          <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginTop: 4 }}>
+                            <span style={{ color: 'rgba(255,255,255,0.7)', fontWeight: 700, fontSize: 16 }}>{restaurant.bank.account_number}</span>
+                            <button onClick={() => { navigator.clipboard?.writeText(restaurant.bank.account_number); setCopyMsg(true); safeTimeout(() => setCopyMsg(false), 2000) }} style={{ padding: '4px 10px', borderRadius: 6, background: '#8DC63F', border: 'none', color: '#000', fontSize: 11, fontWeight: 800, cursor: 'pointer', fontFamily: 'inherit' }}>{copyMsg ? '✓ Copied' : 'Copy'}</button>
                           </div>
-                          <div style={{ color: 'rgba(255,255,255,0.4)', fontSize: 11, marginTop: 2 }}>{restaurant.bank.account_holder}</div>
-                          <div style={{ color: '#FACC15', fontWeight: 900, fontSize: 18, marginTop: 8 }}>
-                            {orderType !== 'delivery' ? fmtRp(grandTotal) : deliveryFare !== null ? fmtRp(grandTotal) : `${fmtRp(cartTotal)} + delivery`}
+                          <div style={{ color: 'rgba(255,255,255,0.5)', fontSize: 13, marginTop: 4 }}>{restaurant.bank.account_holder}</div>
+                          {/* 3% discount breakdown */}
+                          <div style={{ marginTop: 10 }}>
+                            <span style={{ fontSize: 14, color: 'rgba(255,255,255,0.3)', textDecoration: 'line-through', marginRight: 8 }}>{fmtRp(cartTotal)}</span>
+                            <span style={{ color: '#FACC15', fontWeight: 900, fontSize: 20 }}>{fmtRp(Math.round(cartTotal * 0.97))}</span>
                           </div>
+                          <span style={{ fontSize: 13, color: '#8DC63F', fontWeight: 800 }}>You save {fmtRp(Math.round(cartTotal * 0.03))} (3% off food)</span>
+                          {deliveryFare > 0 && (
+                            <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.4)', marginTop: 6 }}>+ {fmtRp(deliveryFare)} delivery fee (cash to driver)</div>
+                          )}
                         </div>
                         {/* Right — QR code thumbnail */}
                         {restaurant.bank.qr_url && (
@@ -743,7 +750,7 @@ export default function RestaurantMenuSheet({ restaurant, onClose, onOrderViaCha
                         )}
                       </div>
                       <div className={styles.cartDivider} style={{ margin: '10px 0' }} />
-                      <div style={{ color: 'rgba(255,255,255,0.35)', marginBottom: 6, fontSize: 11 }}>Enter transaction/reference code:</div>
+                      <div style={{ color: 'rgba(255,255,255,0.4)', marginBottom: 6, fontSize: 13 }}>Enter transaction/reference code:</div>
                       <input
                         value={transactionCode}
                         onChange={e => setTransactionCode(e.target.value)}

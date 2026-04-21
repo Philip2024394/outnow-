@@ -122,7 +122,7 @@ const DEMO_RESTAURANTS = [
     catering_available: true, seating_capacity: 60,
     event_features: ['birthday_setup'],
     featured_this_week: false, status: 'approved',
-    bank: { name: 'BRI', account_number: '0096 0100 2233 5566', account_holder: 'Iyem Sukarti' },
+    bank: { name: 'BRI', account_number: '0096 0100 2233 5566', account_holder: 'Iyem Sukarti', qr_url: 'https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=BRI-0096010022335566' },
     menu_items: [
       { id: 30, name: 'Bubur Ayam Komplit',   price: 22000, prep_time_min: 8,  category: 'Main',   description: 'Rice porridge, shredded chicken, century egg, crispy shallots, ginger broth', photo_url: 'https://images.unsplash.com/photo-1512058564366-18510be2db19?w=400', is_available: true },
       { id: 31, name: 'Bubur Ayam Polos',     price: 14000, prep_time_min: 6,  category: 'Main',   description: 'Plain rice porridge with chicken, soy sauce, crackers', photo_url: 'https://images.unsplash.com/photo-1512058564366-18510be2db19?w=400', is_available: true },
@@ -144,7 +144,7 @@ const DEMO_RESTAURANTS = [
     catering_available: true, seating_capacity: 100,
     event_features: ['birthday_setup', 'private_room', 'party_package'],
     featured_this_week: false, status: 'approved',
-    bank: { name: 'BNI', account_number: '0441 2233 4455', account_holder: 'Sari Rasa Padang' },
+    bank: { name: 'BNI', account_number: '0441 2233 4455', account_holder: 'Sari Rasa Padang', qr_url: 'https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=BNI-044122334455' },
     menu_items: [
       { id: 40, name: 'Rendang Daging Sapi',  price: 45000, prep_time_min: 5,  category: 'Main',   description: 'Dry-cooked beef in coconut milk & spices — 4 hrs slow cooked', photo_url: 'https://images.unsplash.com/photo-1555939594-58d7cb561ad1?w=400', is_available: true },
       { id: 41, name: 'Ayam Pop',             price: 30000, prep_time_min: 5,  category: 'Main',   description: 'White coconut milk poached chicken, sambal hijau', photo_url: 'https://images.unsplash.com/photo-1555939594-58d7cb561ad1?w=400', is_available: true },
@@ -171,7 +171,7 @@ const DEMO_RESTAURANTS = [
     catering_available: false, seating_capacity: 25,
     event_features: [],
     featured_this_week: false, status: 'approved',
-    bank: { name: 'BCA', account_number: '7788 9900 1122', account_holder: 'Budi Santoso' },
+    bank: { name: 'BCA', account_number: '7788 9900 1122', account_holder: 'Budi Santoso', qr_url: 'https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=BCA-77889900112' },
     menu_items: [
       { id: 6,  name: 'Bakso Spesial',  price: 22000, prep_time_min: 8,  category: 'Main',   description: 'Giant meatball, noodles, broth', photo_url: 'https://images.unsplash.com/photo-1569718212165-3a8278d5f624?w=400', is_available: true },
       { id: 7,  name: 'Bakso Biasa',    price: 15000, prep_time_min: 7,  category: 'Main',   description: 'Regular meatball soup', photo_url: 'https://images.unsplash.com/photo-1569718212165-3a8278d5f624?w=400', is_available: true },
@@ -192,7 +192,7 @@ const DEMO_RESTAURANTS = [
     catering_available: true, seating_capacity: 80,
     event_features: ['live_music', 'birthday_setup', 'sound_system', 'private_room'],
     featured_this_week: true, status: 'approved',
-    bank: { name: 'Mandiri', account_number: '1420 0055 6677', account_holder: 'Rina Ayam Geprek' },
+    bank: { name: 'Mandiri', account_number: '1420 0055 6677', account_holder: 'Rina Ayam Geprek', qr_url: 'https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=Mandiri-14200055667' },
     menu_items: [
       { id: 10, name: 'Ayam Geprek L5',  price: 25000, prep_time_min: 12, category: 'Main',   description: 'Medium spicy + rice', photo_url: 'https://images.unsplash.com/photo-1555939594-58d7cb561ad1?w=400', is_available: true },
       { id: 11, name: 'Ayam Geprek L10', price: 25000, prep_time_min: 12, category: 'Main',   description: 'Max heat — challenge!', photo_url: 'https://images.unsplash.com/photo-1555939594-58d7cb561ad1?w=400', is_available: true },
@@ -213,7 +213,7 @@ const DEMO_RESTAURANTS = [
     catering_available: true, seating_capacity: 120,
     event_features: ['birthday_setup', 'private_room', 'party_package', 'sound_system'],
     featured_this_week: true, dine_in_discount: 10, status: 'approved',
-    bank: { name: 'BCA', account_number: '3344 5566 7788', account_holder: 'Bejo Seafood Resto' },
+    bank: { name: 'BCA', account_number: '3344 5566 7788', account_holder: 'Bejo Seafood Resto', qr_url: 'https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=BCA-33445566778' },
     menu_items: [
       { id: 50, name: 'Udang Bakar Madu',    price: 85000, prep_time_min: 15, category: 'Main',   description: 'Honey-glazed grilled prawns, butter garlic sauce', photo_url: 'https://images.unsplash.com/photo-1559339352-11d035aa65de?w=400', is_available: true },
       { id: 51, name: 'Cumi Goreng Tepung',  price: 55000, prep_time_min: 12, category: 'Main',   description: 'Crispy battered squid rings, chilli mayo', photo_url: 'https://images.unsplash.com/photo-1559339352-11d035aa65de?w=400', is_available: true },
@@ -240,7 +240,7 @@ const DEMO_RESTAURANTS = [
     catering_available: false, seating_capacity: 60,
     event_features: ['birthday_setup', 'private_room'],
     featured_this_week: false, dine_in_discount: 0, status: 'approved',
-    bank: { name: 'BNI', account_number: '0812 3344 5566', account_holder: 'Steak 48 Jogja' },
+    bank: { name: 'BNI', account_number: '0812 3344 5566', account_holder: 'Steak 48 Jogja', qr_url: 'https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=BNI-08123344556' },
     menu_items: [
       { id: 60, name: 'Ribeye 200g',         price: 185000, prep_time_min: 20, category: 'Main',   description: 'Australian grain-fed ribeye, choice of sauce & side', photo_url: 'https://images.unsplash.com/photo-1555939594-58d7cb561ad1?w=400', is_available: true },
       { id: 61, name: 'Sirloin 180g',        price: 155000, prep_time_min: 18, category: 'Main',   description: 'Lean, tender sirloin. Best medium-rare.', photo_url: 'https://images.unsplash.com/photo-1555939594-58d7cb561ad1?w=400', is_available: true },
@@ -266,7 +266,7 @@ const DEMO_RESTAURANTS = [
     catering_available: false, seating_capacity: 80,
     event_features: ['live_music', 'birthday_setup'],
     featured_this_week: true, dine_in_discount: 0, status: 'approved',
-    bank: { name: 'BCA', account_number: '5566 7788 9900', account_holder: 'Kopi Klotok Maguwo' },
+    bank: { name: 'BCA', account_number: '5566 7788 9900', account_holder: 'Kopi Klotok Maguwo', qr_url: 'https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=BCA-55667788990' },
     menu_items: [
       { id: 70, name: 'Kopi Joss',           price: 12000, prep_time_min: 5,  category: 'Drinks', description: 'Black coffee with charcoal — the legendary Jogja drink', photo_url: 'https://images.unsplash.com/photo-1544145945-f90425340c7e?w=400', is_available: true },
       { id: 71, name: 'Kopi Susu Gula Aren', price: 18000, prep_time_min: 5,  category: 'Drinks', description: 'Espresso, palm sugar syrup, fresh milk over ice', photo_url: 'https://images.unsplash.com/photo-1544145945-f90425340c7e?w=400', is_available: true },
@@ -292,7 +292,7 @@ const DEMO_RESTAURANTS = [
     catering_available: true, seating_capacity: 30,
     event_features: ['birthday_setup', 'party_package'],
     featured_this_week: false, dine_in_discount: 0, status: 'approved',
-    bank: { name: 'BRI', account_number: '0096 0100 7788 4321', account_holder: 'Sabar Supriyanto' },
+    bank: { name: 'BRI', account_number: '0096 0100 7788 4321', account_holder: 'Sabar Supriyanto', qr_url: 'https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=BRI-00960100778843' },
     menu_items: [
       { id: 80, name: 'Sate Kambing 10pcs',  price: 55000, prep_time_min: 15, category: 'Main',   description: 'Goat satay, charcoal grilled, kecap manis, sambal', photo_url: 'https://images.unsplash.com/photo-1504674900247-0877df9cc836?w=400', is_available: true },
       { id: 81, name: 'Sate Ayam 10pcs',     price: 35000, prep_time_min: 12, category: 'Main',   description: 'Chicken satay, peanut sauce, lontong', photo_url: 'https://images.unsplash.com/photo-1504674900247-0877df9cc836?w=400', is_available: true },
