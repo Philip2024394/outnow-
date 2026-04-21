@@ -389,20 +389,20 @@ export default function RestaurantMenuSheet({ restaurant, onClose, onOrderViaCha
 
   const BANNER_MESSAGES = {
     to_restaurant: [
-      'Driver heading to pick up your food',
-      'Kitchen is preparing your order',
-      'Driver is making good time',
+      { text: 'Driver heading to pick up your food', speed: 35 },
+      { text: 'Kitchen is preparing your order', speed: 28 },
+      { text: 'Driver is making good time', speed: 40 },
     ],
     to_customer: [
-      'Food picked up — on the way to you',
-      'Driver is making good time',
-      'Driver has reduced speed due to traffic',
-      'Driver has stopped at traffic junction',
-      'Driver will arrive soon',
+      { text: 'Food picked up — on the way to you', speed: 38 },
+      { text: 'Driver is making good time', speed: 42 },
+      { text: 'Driver has reduced speed due to traffic', speed: 15 },
+      { text: 'Driver has stopped at traffic junction', speed: 0 },
+      { text: 'Driver will arrive soon', speed: 30 },
     ],
     arrived: [
-      'Driver just arrived — please approach to receive your food',
-      'Hey, enjoy your meal! — from the Indoo Team',
+      { text: 'Driver just arrived — please approach to receive your food', speed: 0 },
+      { text: 'Hey, enjoy your meal! — from the Indoo Team', speed: 0 },
     ],
   }
 
@@ -1103,25 +1103,35 @@ export default function RestaurantMenuSheet({ restaurant, onClose, onOrderViaCha
               <div style={{ padding: '12px 16px', borderRadius: 14, background: 'rgba(0,0,0,0.8)', backdropFilter: 'blur(12px)', border: '1px solid rgba(255,255,255,0.08)', display: 'flex', alignItems: 'center', gap: 10 }}>
                 <span style={{ width: 8, height: 8, borderRadius: '50%', background: '#8DC63F', animation: 'ping 1.5s ease-in-out infinite', flexShrink: 0 }} />
                 <span style={{ fontSize: 13, fontWeight: 800, color: '#fff', flex: 1, animation: 'fadeIn 0.5s ease' }} key={bannerMsgIdx + driverPhase}>
-                  {(BANNER_MESSAGES[driverPhase] ?? [])[bannerMsgIdx % (BANNER_MESSAGES[driverPhase]?.length ?? 1)] ?? ''}
+                  {(BANNER_MESSAGES[driverPhase] ?? [])[bannerMsgIdx % (BANNER_MESSAGES[driverPhase]?.length ?? 1)]?.text ?? ''}
                 </span>
                 {driverPhase !== 'arrived' && <span style={{ fontSize: 14, fontWeight: 900, color: '#8DC63F', flexShrink: 0 }}>~{driverOnWay?.eta ?? 0} min</span>}
               </div>
             </div>
 
-            {/* ETA + distance — bottom center */}
-            <div style={{ position: 'absolute', bottom: 16, left: 0, right: 0, zIndex: 2, display: 'flex', justifyContent: 'center' }}>
-              <div style={{ display: 'flex', gap: 12 }}>
-                <div style={{ padding: '10px 18px', borderRadius: 12, background: 'rgba(0,0,0,0.8)', backdropFilter: 'blur(8px)', border: '1px solid rgba(255,255,255,0.08)', textAlign: 'center' }}>
-                  <span style={{ fontSize: 20, fontWeight: 900, color: '#FACC15', display: 'block' }}>{driverOnWay?.eta ?? 0}</span>
-                  <span style={{ fontSize: 9, color: 'rgba(255,255,255,0.4)', fontWeight: 700 }}>MIN</span>
+            {/* ETA + distance + speed — bottom center */}
+            {(() => {
+              const currentMsg = (BANNER_MESSAGES[driverPhase] ?? [])[bannerMsgIdx % (BANNER_MESSAGES[driverPhase]?.length ?? 1)]
+              const speed = currentMsg?.speed ?? 0
+              return (
+                <div style={{ position: 'absolute', bottom: 16, left: 0, right: 0, zIndex: 2, display: 'flex', justifyContent: 'center' }}>
+                  <div style={{ display: 'flex', gap: 10 }}>
+                    <div style={{ padding: '10px 16px', borderRadius: 12, background: 'rgba(0,0,0,0.8)', backdropFilter: 'blur(8px)', border: '1px solid rgba(255,255,255,0.08)', textAlign: 'center' }}>
+                      <span style={{ fontSize: 20, fontWeight: 900, color: '#FACC15', display: 'block' }}>{driverOnWay?.eta ?? 0}</span>
+                      <span style={{ fontSize: 9, color: 'rgba(255,255,255,0.4)', fontWeight: 700 }}>MIN</span>
+                    </div>
+                    <div style={{ padding: '10px 16px', borderRadius: 12, background: 'rgba(0,0,0,0.8)', backdropFilter: 'blur(8px)', border: '1px solid rgba(255,255,255,0.08)', textAlign: 'center' }}>
+                      <span style={{ fontSize: 20, fontWeight: 900, color: '#fff', display: 'block' }}>2.3</span>
+                      <span style={{ fontSize: 9, color: 'rgba(255,255,255,0.4)', fontWeight: 700 }}>KM</span>
+                    </div>
+                    <div style={{ padding: '10px 16px', borderRadius: 12, background: 'rgba(0,0,0,0.8)', backdropFilter: 'blur(8px)', border: `1px solid ${speed > 30 ? 'rgba(141,198,63,0.2)' : speed > 0 ? 'rgba(250,204,21,0.2)' : 'rgba(255,255,255,0.08)'}`, textAlign: 'center', transition: 'border-color 0.5s' }}>
+                      <span style={{ fontSize: 20, fontWeight: 900, color: speed > 30 ? '#8DC63F' : speed > 0 ? '#FACC15' : 'rgba(255,255,255,0.3)', display: 'block', transition: 'color 0.5s' }}>{speed}</span>
+                      <span style={{ fontSize: 9, color: 'rgba(255,255,255,0.4)', fontWeight: 700 }}>KM/H</span>
+                    </div>
+                  </div>
                 </div>
-                <div style={{ padding: '10px 18px', borderRadius: 12, background: 'rgba(0,0,0,0.8)', backdropFilter: 'blur(8px)', border: '1px solid rgba(255,255,255,0.08)', textAlign: 'center' }}>
-                  <span style={{ fontSize: 20, fontWeight: 900, color: '#fff', display: 'block' }}>2.3</span>
-                  <span style={{ fontSize: 9, color: 'rgba(255,255,255,0.4)', fontWeight: 700 }}>KM</span>
-                </div>
-              </div>
-            </div>
+              )
+            })()}
           </div>
 
           {/* Bottom panel — driver info + progress */}
