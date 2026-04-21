@@ -423,7 +423,7 @@ export default function RestaurantMenuSheet({ restaurant, onClose, onOrderViaCha
 
   // ── Order handler — crash-safe with cleanup ──
   const handleOrder = () => {
-    if (!showAddrInput) { setShowAddrInput(true); return }
+    // Address is already shown at top of cart — proceed directly
 
     // Snapshot cart data BEFORE any async delays
     const orderSnapshot = {
