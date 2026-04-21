@@ -388,22 +388,27 @@ export default function RestaurantMenuSheet({ restaurant, onClose, onOrderViaCha
   const [bannerMsgIdx, setBannerMsgIdx] = useState(0)
   const [processingMsgIdx, setProcessingMsgIdx] = useState(0)
 
-  const PROCESSING_MESSAGES = [
+  // Image 1 messages — printer waiting (before kitchen confirms)
+  const PROCESSING_MESSAGES_1 = [
     'Processing Order',
-    'Confirming with restaurant',
-    'Order started',
-    'Kitchen has received your order',
+    'Sending to restaurant',
+    'Confirming with kitchen',
     'Searching for nearby driver',
-    'Confirming driver journey',
     'Matching best driver for you',
-    'Almost ready',
+  ]
+  // Image 2 messages — paper printed (kitchen confirmed)
+  const PROCESSING_MESSAGES_2 = [
+    'Order Received!',
+    'Kitchen has started your order',
+    'Driver confirmed and on the way',
   ]
 
   useEffect(() => {
-    if (!orderProcessing || orderReceived) return
+    if (!orderProcessing) return
     setProcessingMsgIdx(0)
+    const msgs = orderReceived ? PROCESSING_MESSAGES_2 : PROCESSING_MESSAGES_1
     const id = setInterval(() => {
-      setProcessingMsgIdx(i => (i + 1) % 8)
+      setProcessingMsgIdx(i => (i + 1) % msgs.length)
     }, 3000)
     return () => clearInterval(id)
   }, [orderProcessing, orderReceived])
@@ -1065,25 +1070,21 @@ export default function RestaurantMenuSheet({ restaurant, onClose, onOrderViaCha
 
               {/* Bottom text */}
               <div style={{ position: 'absolute', bottom: 60, left: 0, right: 0, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 10, zIndex: 2 }}>
-                <h3 style={{ fontSize: 20, fontWeight: 900, color: '#fff', margin: 0, textShadow: '0 2px 12px rgba(0,0,0,0.8)', animation: 'fadeIn 0.5s ease' }} key={processingMsgIdx}>{PROCESSING_MESSAGES[processingMsgIdx]}</h3>
+                {(() => {
+                  const msgs = orderReceived ? PROCESSING_MESSAGES_2 : PROCESSING_MESSAGES_1
+                  const msg = msgs[processingMsgIdx % msgs.length]
+                  return (
+                    <h3 style={{ fontSize: 20, fontWeight: 900, color: orderReceived ? '#8DC63F' : '#fff', margin: 0, textShadow: '0 2px 12px rgba(0,0,0,0.8)', animation: 'fadeIn 0.5s ease' }} key={processingMsgIdx + (orderReceived ? 'r' : 'p')}>{msg}</h3>
+                  )
+                })()}
                 <div style={{ display: 'flex', gap: 12 }}>
-                  <span style={{ width: 12, height: 12, borderRadius: '50%', background: '#8DC63F', animation: 'dotDance 1.8s ease-in-out infinite', boxShadow: '0 0 10px rgba(141,198,63,0.5)' }} />
-                  <span style={{ width: 12, height: 12, borderRadius: '50%', background: '#8DC63F', animation: 'dotDance 1.8s ease-in-out 0.3s infinite', boxShadow: '0 0 10px rgba(141,198,63,0.5)' }} />
-                  <span style={{ width: 12, height: 12, borderRadius: '50%', background: '#8DC63F', animation: 'dotDance 1.8s ease-in-out 0.6s infinite', boxShadow: '0 0 10px rgba(141,198,63,0.5)' }} />
+                  <span style={{ width: 12, height: 12, borderRadius: '50%', background: orderReceived ? '#8DC63F' : '#8DC63F', animation: 'dotDance 1.8s ease-in-out infinite', boxShadow: '0 0 10px rgba(141,198,63,0.5)' }} />
+                  <span style={{ width: 12, height: 12, borderRadius: '50%', background: orderReceived ? '#8DC63F' : '#8DC63F', animation: 'dotDance 1.8s ease-in-out 0.3s infinite', boxShadow: '0 0 10px rgba(141,198,63,0.5)' }} />
+                  <span style={{ width: 12, height: 12, borderRadius: '50%', background: orderReceived ? '#8DC63F' : '#8DC63F', animation: 'dotDance 1.8s ease-in-out 0.6s infinite', boxShadow: '0 0 10px rgba(141,198,63,0.5)' }} />
                 </div>
-                <p style={{ fontSize: 12, color: 'rgba(255,255,255,0.4)', margin: 0 }}>{processingMsgIdx + 1} of {PROCESSING_MESSAGES.length}</p>
+                <p style={{ fontSize: 12, color: 'rgba(255,255,255,0.4)', margin: 0 }}>{restaurant.name}</p>
               </div>
             </>
-          ) : (
-            /* Order received */
-            <div style={{ position: 'absolute', bottom: 60, left: 0, right: 0, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 12, zIndex: 2 }}>
-              <div style={{ width: 64, height: 64, borderRadius: '50%', background: 'rgba(141,198,63,0.15)', border: '2px solid #8DC63F', display: 'flex', alignItems: 'center', justifyContent: 'center', animation: 'pulse 1.5s ease-in-out infinite' }}>
-                <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#8DC63F" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
-              </div>
-              <h3 style={{ fontSize: 24, fontWeight: 900, color: '#8DC63F', margin: 0, textShadow: '0 2px 12px rgba(0,0,0,0.8)' }}>Order Received!</h3>
-              <p style={{ fontSize: 14, color: 'rgba(255,255,255,0.6)', margin: 0 }}>{restaurant.name} has your order</p>
-            </div>
-          )}
         </div>
       )}
 
