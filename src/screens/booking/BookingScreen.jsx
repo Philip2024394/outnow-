@@ -176,7 +176,22 @@ export default function BookingScreen({ onClose, initialVehicle, onLandingChange
     return () => { cancelled = true }
   }, [destination?.lat, destination?.lng, pickupCoords?.lat, pickupCoords?.lng])
 
-  const fare = estimateFare(vehicleType ?? 'bike_ride', 'Yogyakarta', distanceKm, zones, settings)
+  const [surgeMultiplier, setSurgeMultiplier] = useState(1.0)
+  const [surgeLabel, setSurgeLabel] = useState(null)
+
+  // Check surge pricing
+  useEffect(() => {
+    if (!pickupCoords) return
+    import('@/services/surgePricingService').then(({ getSurgeMultiplier: getSurge }) => {
+      getSurge(pickupCoords.lat, pickupCoords.lng, vehicleType ?? 'bike_ride').then(s => {
+        setSurgeMultiplier(s.multiplier)
+        setSurgeLabel(s.label)
+      })
+    }).catch(() => {})
+  }, [pickupCoords?.lat, pickupCoords?.lng, vehicleType])
+
+  const baseFare = estimateFare(vehicleType ?? 'bike_ride', 'Yogyakarta', distanceKm, zones, settings)
+  const fare = Math.round(baseFare * surgeMultiplier)
 
   // ── Find driver ────────────────────────────────────────────────────────────
   const handleFindDriver = useCallback(async () => {

@@ -487,16 +487,15 @@ export default function RestaurantMenuSheet({ restaurant, onClose, onOrderViaCha
       })
 
       // Subscribe to real delivery phase updates via Supabase
-      try {
-        const { subscribeToDeliveryPhase } = await import('@/services/deliveryTrackingService')
+      import('@/services/deliveryTrackingService').then(({ subscribeToDeliveryPhase }) => {
+        if (!mountedRef.current) return
         const unsub = subscribeToDeliveryPhase(orderId, (phase) => {
           if (!mountedRef.current) return
           if (phase === 'picked_up' || phase === 'on_the_way') setDriverPhase('to_customer')
           else if (phase === 'almost_there' || phase === 'arrived') setDriverPhase('arrived')
-          else if (phase === 'driver_nearby') { /* stay on to_restaurant */ }
         })
         timerRefs.current.push(() => unsub?.())
-      } catch { /* no Supabase — use demo fallback */ }
+      }).catch(() => { /* no Supabase — demo fallback handles it */ })
 
       // Demo fallback auto-progress (only in demo mode)
       if (import.meta.env.VITE_DEMO_MODE === 'true' || !import.meta.env.VITE_SUPABASE_URL) {
