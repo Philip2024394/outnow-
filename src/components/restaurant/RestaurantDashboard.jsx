@@ -1,5 +1,7 @@
 import { useState, useEffect, useCallback } from 'react'
 import { supabase } from '@/lib/supabase'
+import { QRCodeCanvas } from 'qrcode.react'
+import { getOrCreateQRHash, buildQRPayload } from '@/services/qrCodeService'
 import styles from './RestaurantDashboard.module.css'
 import { CUISINE_TYPES as CUISINES } from '@/constants/cuisineTypes'
 import {
@@ -135,6 +137,8 @@ export default function RestaurantDashboard({ userId, onClose }) {
   // ── Orders tab ──
   const [foodOrders,   setFoodOrders]   = useState([])
   const [pickupCode,   setPickupCode]   = useState(null)
+  const [qrPayload,    setQrPayload]    = useState(null)
+  const [qrLoading,    setQrLoading]    = useState(false)
   const [codeLoading,  setCodeLoading]  = useState(false)
 
   // ── Menu fields ──
@@ -238,6 +242,12 @@ export default function RestaurantDashboard({ userId, onClose }) {
   useEffect(() => {
     if (tab !== 'orders' || !restaurant?.id) return
     getRestaurantOrders(restaurant.id).then(setFoodOrders)
+    // Generate QR code
+    setQrLoading(true)
+    getOrCreateQRHash(restaurant.id).then(hash => {
+      setQrPayload(buildQRPayload(restaurant.id, hash))
+      setQrLoading(false)
+    }).catch(() => setQrLoading(false))
     if (!restaurant.pickup_code) {
       setCodeLoading(true)
       ensurePickupCode(restaurant.id).then(code => {
@@ -806,16 +816,28 @@ export default function RestaurantDashboard({ userId, onClose }) {
                   {/* ── Pickup code card ── */}
                   <div className={styles.pickupCodeCard}>
                     <div className={styles.pickupCodeHeader}>
-                      <span className={styles.pickupCodeTitle}>🔐 Your Pickup Code</span>
-                      <span className={styles.pickupCodeHint}>Driver enters this when collecting an order</span>
+                      <span className={styles.pickupCodeTitle}>🔐 Pickup QR Code</span>
+                      <span className={styles.pickupCodeHint}>Driver scans this when collecting an order</span>
                     </div>
-                    {codeLoading
-                      ? <div className={styles.pickupCodeValue}>Generating…</div>
-                      : <div className={styles.pickupCodeValue}>{pickupCode ?? '—'}</div>
-                    }
+                    {qrLoading ? (
+                      <div className={styles.pickupCodeValue}>Generating QR…</div>
+                    ) : qrPayload ? (
+                      <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 10 }}>
+                        <QRCodeCanvas value={qrPayload} size={180} bgColor="#ffffff" fgColor="#000000" level="H" style={{ borderRadius: 12, padding: 8, background: '#fff' }} />
+                        <button onClick={() => {
+                          const canvas = document.querySelector('.qr-download-target canvas')
+                          if (canvas) { const a = document.createElement('a'); a.download = `indoo-qr-${restaurant.id}.png`; a.href = canvas.toDataURL(); a.click() }
+                        }} style={{ padding: '8px 20px', borderRadius: 10, background: '#8DC63F', border: 'none', color: '#000', fontSize: 13, fontWeight: 800, cursor: 'pointer', fontFamily: 'inherit' }}>
+                          Download QR
+                        </button>
+                      </div>
+                    ) : (
+                      <div className={styles.pickupCodeValue}>{pickupCode ?? '—'}</div>
+                    )}
                     <p className={styles.pickupCodeNote}>
-                      Keep this code visible to your staff. The driver must enter it in the app before they can leave with the order.
+                      Print this QR and place it on your counter. The driver scans it to confirm pickup.
                     </p>
+                    {pickupCode && <p style={{ fontSize: 10, color: 'rgba(255,255,255,0.3)', textAlign: 'center' }}>Backup code: {pickupCode}</p>}
                   </div>
 
                   {/* ── Incoming orders ── */}

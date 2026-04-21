@@ -486,9 +486,23 @@ export default function RestaurantMenuSheet({ restaurant, onClose, onOrderViaCha
         rating: 4.9,
       })
 
-      // Demo auto-progress — all using safeTimeout
-      safeTimeout(() => setDriverPhase('to_customer'), 10000)
-      safeTimeout(() => setDriverPhase('arrived'), 40000)
+      // Subscribe to real delivery phase updates via Supabase
+      try {
+        const { subscribeToDeliveryPhase } = await import('@/services/deliveryTrackingService')
+        const unsub = subscribeToDeliveryPhase(orderId, (phase) => {
+          if (!mountedRef.current) return
+          if (phase === 'picked_up' || phase === 'on_the_way') setDriverPhase('to_customer')
+          else if (phase === 'almost_there' || phase === 'arrived') setDriverPhase('arrived')
+          else if (phase === 'driver_nearby') { /* stay on to_restaurant */ }
+        })
+        timerRefs.current.push(() => unsub?.())
+      } catch { /* no Supabase — use demo fallback */ }
+
+      // Demo fallback auto-progress (only in demo mode)
+      if (import.meta.env.VITE_DEMO_MODE === 'true' || !import.meta.env.VITE_SUPABASE_URL) {
+        safeTimeout(() => setDriverPhase('to_customer'), 10000)
+        safeTimeout(() => setDriverPhase('arrived'), 40000)
+      }
 
       setCart([])
       setShowAddrInput(false)

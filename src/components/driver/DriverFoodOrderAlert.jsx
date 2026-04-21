@@ -8,8 +8,9 @@
  *   3. Enter the restaurant's pickup code to confirm collection.
  *   4. Deliver and tap "Delivered".
  */
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { updateFoodOrderStatus, confirmPickupWithCode, broadcastOrderToNextDriver } from '@/services/foodOrderService'
+import { verifyQRScan } from '@/services/qrCodeService'
 import DriverWarningScreen from './DriverWarningScreen'
 import styles from './DriverFoodOrderAlert.module.css'
 
@@ -23,6 +24,46 @@ export default function DriverFoodOrderAlert({ order, driverId, onDismiss }) {
   const [pickupCode,  setPickupCode]  = useState('')
   const [codeError,   setCodeError]   = useState(null)
   const [busy,        setBusy]        = useState(false)
+  const [scanMode,    setScanMode]    = useState('qr')
+  const scannerRef = useRef(null)
+
+  // QR Scanner setup
+  useEffect(() => {
+    if (phase !== 'pickup' || scanMode !== 'qr') return
+    let scanner = null
+    ;(async () => {
+      try {
+        const { Html5Qrcode } = await import('html5-qrcode')
+        scanner = new Html5Qrcode('qr-reader')
+        scannerRef.current = scanner
+        await scanner.start(
+          { facingMode: 'environment' },
+          { fps: 10, qrbox: { width: 250, height: 250 } },
+          async (decodedText) => {
+            // QR scanned — verify it
+            setBusy(true)
+            setCodeError(null)
+            const valid = await verifyQRScan(decodedText, order.restaurant_id)
+            if (valid) {
+              await updateFoodOrderStatus(order.id, 'picked_up')
+              scanner.stop().catch(() => {})
+              setPhase('delivering')
+            } else {
+              setCodeError('Invalid QR code — wrong restaurant')
+            }
+            setBusy(false)
+          },
+          () => {} // ignore scan errors
+        )
+      } catch (err) {
+        // Camera not available — fall back to text
+        setScanMode('text')
+      }
+    })()
+    return () => {
+      if (scannerRef.current) scannerRef.current.stop().catch(() => {})
+    }
+  }, [phase, scanMode]) // eslint-disable-line react-hooks/exhaustive-deps
   const [declinedBy,  setDeclinedBy]  = useState(order?.declined_by ?? [])
   const [warningType, setWarningType] = useState(null) // null | 'missed' | 'declined'
 
@@ -197,36 +238,55 @@ export default function DriverFoodOrderAlert({ order, driverId, onDismiss }) {
           </>
         )}
 
-        {/* ── PICKUP — enter restaurant code ── */}
+        {/* ── PICKUP — scan QR or enter code ── */}
         {phase === 'pickup' && (
           <>
             <div className={styles.body}>
               <p className={styles.phaseLabel}>Pickup</p>
-              <h2 className={styles.title}>Enter Pickup Code</h2>
+              <h2 className={styles.title}>{scanMode === 'qr' ? 'Scan Restaurant QR' : 'Enter Pickup Code'}</h2>
 
-              <p className={styles.instrText}>
-                Ask restaurant staff for the <strong>6-character pickup code</strong> to confirm collection.
-              </p>
-
-              <input
-                className={`${styles.codeInput} ${codeError ? styles.codeInputError : ''}`}
-                value={pickupCode}
-                onChange={e => setPickupCode(e.target.value.toUpperCase().slice(0, 6))}
-                placeholder="AB3X7K"
-                maxLength={6}
-                autoFocus
-              />
-              {codeError && <p className={styles.codeError}>{codeError}</p>}
+              {scanMode === 'qr' ? (
+                <>
+                  <p className={styles.instrText}>
+                    Point your camera at the <strong>QR code on the restaurant counter</strong>.
+                  </p>
+                  <div id="qr-reader" style={{ width: '100%', borderRadius: 12, overflow: 'hidden', marginBottom: 10 }} />
+                  {codeError && <p className={styles.codeError}>{codeError}</p>}
+                  <button onClick={() => setScanMode('text')} style={{ background: 'none', border: 'none', color: 'rgba(255,255,255,0.4)', fontSize: 12, cursor: 'pointer', fontFamily: 'inherit', padding: '8px 0' }}>
+                    Can't scan? Enter code manually
+                  </button>
+                </>
+              ) : (
+                <>
+                  <p className={styles.instrText}>
+                    Ask restaurant staff for the <strong>6-character pickup code</strong>.
+                  </p>
+                  <input
+                    className={`${styles.codeInput} ${codeError ? styles.codeInputError : ''}`}
+                    value={pickupCode}
+                    onChange={e => setPickupCode(e.target.value.toUpperCase().slice(0, 6))}
+                    placeholder="AB3X7K"
+                    maxLength={6}
+                    autoFocus
+                  />
+                  {codeError && <p className={styles.codeError}>{codeError}</p>}
+                  <button onClick={() => setScanMode('qr')} style={{ background: 'none', border: 'none', color: '#8DC63F', fontSize: 12, cursor: 'pointer', fontFamily: 'inherit', padding: '8px 0' }}>
+                    Scan QR code instead
+                  </button>
+                </>
+              )}
             </div>
 
             <div className={styles.footer}>
-              <button
-                className={`${styles.acceptBtn} ${styles.acceptBtnStill}`}
-                onClick={handleConfirmPickup}
-                disabled={busy || pickupCode.length < 6}
-              >
-                {busy ? 'Verifying…' : 'Confirm Pickup'}
-              </button>
+              {scanMode === 'text' && (
+                <button
+                  className={`${styles.acceptBtn} ${styles.acceptBtnStill}`}
+                  onClick={handleConfirmPickup}
+                  disabled={busy || pickupCode.length < 6}
+                >
+                  {busy ? 'Verifying…' : 'Confirm Pickup'}
+                </button>
+              )}
             </div>
           </>
         )}
