@@ -1065,27 +1065,22 @@ export default function RestaurantMenuSheet({ restaurant, onClose, onOrderViaCha
           {/* Overlay */}
           <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to top, rgba(0,0,0,0.8) 0%, rgba(0,0,0,0.3) 40%, rgba(0,0,0,0.3) 60%, rgba(0,0,0,0.6) 100%)' }} />
 
-          {!orderReceived ? (
-            <>
-
-              {/* Bottom text */}
-              <div style={{ position: 'absolute', bottom: 60, left: 0, right: 0, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 10, zIndex: 2 }}>
-                {(() => {
-                  const msgs = orderReceived ? PROCESSING_MESSAGES_2 : PROCESSING_MESSAGES_1
-                  const msg = msgs[processingMsgIdx % msgs.length]
-                  return (
-                    <h3 style={{ fontSize: 20, fontWeight: 900, color: orderReceived ? '#8DC63F' : '#fff', margin: 0, textShadow: '0 2px 12px rgba(0,0,0,0.8)', animation: 'fadeIn 0.5s ease' }} key={processingMsgIdx + (orderReceived ? 'r' : 'p')}>{msg}</h3>
-                  )
-                })()}
-                <div style={{ display: 'flex', gap: 12 }}>
-                  <span style={{ width: 12, height: 12, borderRadius: '50%', background: orderReceived ? '#8DC63F' : '#8DC63F', animation: 'dotDance 1.8s ease-in-out infinite', boxShadow: '0 0 10px rgba(141,198,63,0.5)' }} />
-                  <span style={{ width: 12, height: 12, borderRadius: '50%', background: orderReceived ? '#8DC63F' : '#8DC63F', animation: 'dotDance 1.8s ease-in-out 0.3s infinite', boxShadow: '0 0 10px rgba(141,198,63,0.5)' }} />
-                  <span style={{ width: 12, height: 12, borderRadius: '50%', background: orderReceived ? '#8DC63F' : '#8DC63F', animation: 'dotDance 1.8s ease-in-out 0.6s infinite', boxShadow: '0 0 10px rgba(141,198,63,0.5)' }} />
-                </div>
-                <p style={{ fontSize: 12, color: 'rgba(255,255,255,0.4)', margin: 0 }}>{restaurant.name}</p>
-              </div>
-            </>
-          )}
+          {/* Bottom text — works for both images */}
+          <div style={{ position: 'absolute', bottom: 60, left: 0, right: 0, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 10, zIndex: 2 }}>
+            {(() => {
+              const msgs = orderReceived ? PROCESSING_MESSAGES_2 : PROCESSING_MESSAGES_1
+              const msg = msgs[processingMsgIdx % msgs.length]
+              return (
+                <h3 style={{ fontSize: 20, fontWeight: 900, color: orderReceived ? '#8DC63F' : '#fff', margin: 0, textShadow: '0 2px 12px rgba(0,0,0,0.8)', animation: 'fadeIn 0.5s ease' }} key={processingMsgIdx + (orderReceived ? 'r' : 'p')}>{msg}</h3>
+              )
+            })()}
+            <div style={{ display: 'flex', gap: 12 }}>
+              <span style={{ width: 12, height: 12, borderRadius: '50%', background: '#8DC63F', animation: 'dotDance 1.8s ease-in-out infinite', boxShadow: '0 0 10px rgba(141,198,63,0.5)' }} />
+              <span style={{ width: 12, height: 12, borderRadius: '50%', background: '#8DC63F', animation: 'dotDance 1.8s ease-in-out 0.3s infinite', boxShadow: '0 0 10px rgba(141,198,63,0.5)' }} />
+              <span style={{ width: 12, height: 12, borderRadius: '50%', background: '#8DC63F', animation: 'dotDance 1.8s ease-in-out 0.6s infinite', boxShadow: '0 0 10px rgba(141,198,63,0.5)' }} />
+            </div>
+            <p style={{ fontSize: 12, color: 'rgba(255,255,255,0.4)', margin: 0 }}>{restaurant.name}</p>
+          </div>
         </div>
       )}
 
