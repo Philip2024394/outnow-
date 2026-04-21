@@ -1051,7 +1051,7 @@ export default function RestaurantMenuSheet({ restaurant, onClose, onOrderViaCha
           </div>
 
           {/* Visual delivery tracking */}
-          <div style={{ flex: 1, position: 'relative', background: '#0a0a0a', overflow: 'hidden' }}>
+          <div style={{ flex: 1, minHeight: 0, position: 'relative', background: '#0a0a0a', overflow: 'hidden' }}>
             {/* Phase image — full screen */}
             <img
               src={
