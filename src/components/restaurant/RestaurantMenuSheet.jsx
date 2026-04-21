@@ -1112,22 +1112,8 @@ export default function RestaurantMenuSheet({ restaurant, onClose, onOrderViaCha
             </button>
           </div>
 
-          {/* Visual delivery tracking */}
+          {/* Visual delivery tracking — images will be added per stage */}
           <div style={{ flex: 1, minHeight: 0, position: 'relative', background: '#0a0a0a', overflow: 'hidden' }}>
-            {/* Phase image — full screen */}
-            <img
-              src={
-                driverPhase === 'to_restaurant'
-                  ? (DRIVER_PICKUP_IMAGES.length > 0 ? DRIVER_PICKUP_IMAGES[driverImgIdx % DRIVER_PICKUP_IMAGES.length] : 'https://ik.imagekit.io/nepgaxllc/ChatGPT%20Image%20Apr%2016,%202026,%2006_36_14%20PM.png?updatedAt=1776339391906')
-                  : driverPhase === 'to_customer'
-                    ? (DRIVER_ON_WAY_IMAGES[driverImgIdx % DRIVER_ON_WAY_IMAGES.length] ?? DRIVER_ON_WAY_IMAGES[0])
-                    : 'https://ik.imagekit.io/nepgaxllc/Untitleddsddaadsds.png?updatedAt=1776787842452'
-              }
-              alt=""
-              key={driverPhase === 'to_customer' || driverPhase === 'to_restaurant' ? `${driverPhase}-${driverImgIdx}` : driverPhase}
-              style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', animation: 'fadeIn 0.8s ease' }}
-            />
-            <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to bottom, rgba(0,0,0,0.3) 0%, transparent 30%, transparent 50%, rgba(0,0,0,0.7) 100%)' }} />
 
             {/* Status banner — top */}
             <div style={{ position: 'absolute', top: 12, left: 12, right: 12, zIndex: 2 }}>
