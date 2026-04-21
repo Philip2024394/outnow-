@@ -461,10 +461,33 @@ export default function RestaurantMenuSheet({ restaurant, onClose, onOrderViaCha
   }
 
   // Rotate driver images safely
-  // Pickup images — will be populated per vendor type + day/night
-  // For now: empty array, single static image used in src fallback
   const vendorType = restaurant.vendor_type ?? 'restaurant'
-  const DRIVER_PICKUP_IMAGES = [] // TODO: add images when provided
+
+  // Stage 1: Driver heading to restaurant (8 images with matched text + speed)
+  const STAGE1_IMAGES = [
+    { img: 'https://ik.imagekit.io/nepgaxllc/ChatGPT%20Image%20Apr%2016,%202026,%2006_36_14%20PM.png?updatedAt=1776339391906', text: 'Driver is on the way to pick up your order', speed: 38 },
+    { img: 'https://ik.imagekit.io/nepgaxllc/ChatGPT%20Image%20Apr%2016,%202026,%2006_35_10%20PM.png?updatedAt=1776339327027', text: 'Driver has clear road', speed: 45 },
+    { img: 'https://ik.imagekit.io/nepgaxllc/Rider_s%20view%20of%20a%20sport%20motorcycle%20dashboard.png?updatedAt=1776155502901', text: 'Reducing speed in built up area', speed: 18 },
+    { img: 'https://ik.imagekit.io/nepgaxllc/Up%20close%20on%20the%20green%20ride.png?updatedAt=1776062117020', text: 'Driver is making perfect time', speed: 40 },
+    { img: 'https://ik.imagekit.io/nepgaxllc/ChatGPT%20Image%20Apr%2022,%202026,%2004_06_54%20AM.png', text: 'Driver has received notification — order is being packaged', speed: 35 },
+    { img: 'https://ik.imagekit.io/nepgaxllc/ChatGPT%20Image%20Apr%2022,%202026,%2004_01_25%20AM.png', text: 'Driver has stopped at traffic lights', speed: 0 },
+    { img: 'https://ik.imagekit.io/nepgaxllc/ChatGPT%20Image%20Apr%2022,%202026,%2002_55_36%20AM.png?updatedAt=1776801354200', text: 'Driver will soon arrive at food collection', speed: 30 },
+    { img: 'https://ik.imagekit.io/nepgaxllc/ChatGPT%20Image%20Apr%2022,%202026,%2003_04_40%20AM.png?updatedAt=1776801900155', text: 'Driver has arrived on time', speed: 5 },
+  ]
+
+  // Stage 2: Driver picked up → heading to customer (5 images)
+  const STAGE2_IMAGES = [
+    { img: 'https://ik.imagekit.io/nepgaxllc/pick%204.png?updatedAt=1776800928696', text: 'Driver is picking up your order', speed: 0 },
+    { img: 'https://ik.imagekit.io/nepgaxllc/ChatGPT%20Image%20Apr%2022,%202026,%2003_36_36%20AM.png', text: 'Driver is on the way to you', speed: 38 },
+    { img: 'https://ik.imagekit.io/nepgaxllc/Speeding%20through%20the%20vibrant%20city%20streets.png?updatedAt=1776061842808', text: 'Making great progress with clear road', speed: 45 },
+    { img: 'https://ik.imagekit.io/nepgaxllc/Rider%20in%20motion%20on%20busy%20urban%20street.png?updatedAt=1776062079269', text: 'Driver will soon enter your location zone', speed: 32 },
+    { img: 'https://ik.imagekit.io/nepgaxllc/Up%20close%20on%20the%20green%20ride.png?updatedAt=1776062117020', text: 'Driver is on time', speed: 28 },
+  ]
+
+  // Stage 3: Arrived (1 image)
+  const STAGE3_IMAGES = [
+    { img: 'https://ik.imagekit.io/nepgaxllc/Untitleddsddaadsds.png?updatedAt=1776787842452', text: 'Driver has arrived with your order', speed: 0 },
+  ]
 
   // Images: driver on the way to customer (delivery)
   const DRIVER_ON_WAY_IMAGES = [
@@ -474,13 +497,21 @@ export default function RestaurantMenuSheet({ restaurant, onClose, onOrderViaCha
     'https://ik.imagekit.io/nepgaxllc/Neon%20green%20speed%20through%20city%20streets.png?updatedAt=1776062258594',
     'https://ik.imagekit.io/nepgaxllc/Up%20close%20on%20the%20green%20ride.png?updatedAt=1776062117020',
   ]
+  // Get current stage images
+  const currentStageImages = driverPhase === 'to_restaurant' ? STAGE1_IMAGES
+    : driverPhase === 'to_customer' ? STAGE2_IMAGES
+    : STAGE3_IMAGES
+
   useEffect(() => {
-    if ((driverPhase !== 'to_customer' && driverPhase !== 'to_restaurant') || !driverOnWay) return
+    if (!driverOnWay || driverPhase === 'arrived') return
     setDriverImgIdx(0)
-    const imgs = driverPhase === 'to_restaurant' ? DRIVER_PICKUP_IMAGES : DRIVER_ON_WAY_IMAGES
+    const imgs = driverPhase === 'to_restaurant' ? STAGE1_IMAGES : STAGE2_IMAGES
+    // Calculate time per image: ETA ÷ number of images (no repeats)
+    const etaMs = (driverOnWay?.eta ?? 15) * 60 * 1000
+    const timePerImage = Math.max(3000, Math.floor(etaMs / imgs.length)) // min 3s per image
     const id = setInterval(() => {
-      if (mountedRef.current) setDriverImgIdx(i => (i + 1) % imgs.length)
-    }, 4000)
+      if (mountedRef.current) setDriverImgIdx(i => { const next = i + 1; return next >= imgs.length ? i : next }) // stop at last, no repeat
+    }, timePerImage)
     return () => clearInterval(id)
   }, [driverPhase, !!driverOnWay]) // eslint-disable-line react-hooks/exhaustive-deps
 
@@ -560,12 +591,13 @@ export default function RestaurantMenuSheet({ restaurant, onClose, onOrderViaCha
         timerRefs.current.push(() => unsub?.())
       }).catch(() => { /* no Supabase — demo fallback handles it */ })
 
-      // Demo: auto-progress after full image cycles
-      // Stage 1 stays until all 5 pickup images show (5 × 4s = 20s) then loops
-      // Pickup activates after 30s, delivery after 60s, arrived after 90s
+      // Demo: auto-progress — timing matches image count
+      // Stage 1: 8 images, Stage 2: 5 images, each ~4s = 32s + 20s
       if (import.meta.env.VITE_DEMO_MODE === 'true' || !import.meta.env.VITE_SUPABASE_URL) {
-        safeTimeout(() => setDriverPhase('to_customer'), 30000)
-        safeTimeout(() => setDriverPhase('arrived'), 65000)
+        const s1Time = STAGE1_IMAGES.length * 4000  // 8 × 4s = 32s
+        const s2Time = STAGE2_IMAGES.length * 4000   // 5 × 4s = 20s
+        safeTimeout(() => setDriverPhase('to_customer'), s1Time)
+        safeTimeout(() => setDriverPhase('arrived'), s1Time + s2Time)
       }
 
       setCart([])
@@ -1112,15 +1144,23 @@ export default function RestaurantMenuSheet({ restaurant, onClose, onOrderViaCha
             </button>
           </div>
 
-          {/* Visual delivery tracking — images will be added per stage */}
+          {/* Visual delivery tracking */}
           <div style={{ flex: 1, minHeight: 0, position: 'relative', background: '#0a0a0a', overflow: 'hidden' }}>
+            {/* Stage image */}
+            <img
+              src={currentStageImages[Math.min(driverImgIdx, currentStageImages.length - 1)]?.img ?? ''}
+              alt=""
+              key={`${driverPhase}-${driverImgIdx}`}
+              style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', animation: 'fadeIn 0.8s ease' }}
+            />
+            <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to bottom, rgba(0,0,0,0.3) 0%, transparent 30%, transparent 50%, rgba(0,0,0,0.7) 100%)' }} />
 
             {/* Status banner — top */}
             <div style={{ position: 'absolute', top: 12, left: 12, right: 12, zIndex: 2 }}>
               <div style={{ padding: '12px 16px', borderRadius: 14, background: 'rgba(0,0,0,0.8)', backdropFilter: 'blur(12px)', border: '1px solid rgba(255,255,255,0.08)', display: 'flex', alignItems: 'center', gap: 10 }}>
                 <span style={{ width: 8, height: 8, borderRadius: '50%', background: '#8DC63F', animation: 'ping 1.5s ease-in-out infinite', flexShrink: 0 }} />
-                <span style={{ fontSize: 13, fontWeight: 800, color: '#fff', flex: 1, animation: 'fadeIn 0.5s ease' }} key={bannerMsgIdx + driverPhase}>
-                  {(BANNER_MESSAGES[driverPhase] ?? [])[bannerMsgIdx % (BANNER_MESSAGES[driverPhase]?.length ?? 1)]?.text ?? ''}
+                <span style={{ fontSize: 13, fontWeight: 800, color: '#fff', flex: 1, animation: 'fadeIn 0.5s ease' }} key={`${driverPhase}-${driverImgIdx}`}>
+                  {currentStageImages[Math.min(driverImgIdx, currentStageImages.length - 1)]?.text ?? ''}
                 </span>
                 {driverPhase !== 'arrived' && <span style={{ fontSize: 14, fontWeight: 900, color: '#8DC63F', flexShrink: 0 }}>~{driverOnWay?.eta ?? 0} min</span>}
               </div>
@@ -1128,8 +1168,8 @@ export default function RestaurantMenuSheet({ restaurant, onClose, onOrderViaCha
 
             {/* ETA + distance + speed — bottom center */}
             {(() => {
-              const currentMsg = (BANNER_MESSAGES[driverPhase] ?? [])[bannerMsgIdx % (BANNER_MESSAGES[driverPhase]?.length ?? 1)]
-              const speed = currentMsg?.speed ?? 0
+              const currentImg = currentStageImages[Math.min(driverImgIdx, currentStageImages.length - 1)]
+              const speed = currentImg?.speed ?? 0
               return (
                 <div style={{ position: 'absolute', bottom: 16, left: 0, right: 0, zIndex: 2, display: 'flex', justifyContent: 'center' }}>
                   <div style={{ display: 'flex', gap: 10 }}>
