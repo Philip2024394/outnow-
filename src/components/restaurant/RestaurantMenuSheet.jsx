@@ -385,7 +385,6 @@ export default function RestaurantMenuSheet({ restaurant, onClose, onOrderViaCha
   const [driverOnWay, setDriverOnWay] = useState(null)
   const [driverPhase, setDriverPhase] = useState('to_restaurant')
   const [driverImgIdx, setDriverImgIdx] = useState(0)
-  const [bannerMsgIdx, setBannerMsgIdx] = useState(0)
   const [processingMsgIdx, setProcessingMsgIdx] = useState(0)
 
   // Image 1 messages — printer waiting (before kitchen confirms)
@@ -413,34 +412,6 @@ export default function RestaurantMenuSheet({ restaurant, onClose, onOrderViaCha
     return () => clearInterval(id)
   }, [orderProcessing, orderReceived])
 
-  const BANNER_MESSAGES = {
-    to_restaurant: [
-      { text: 'Driver heading to pick up your food', speed: 35 },
-      { text: 'Kitchen is preparing your order', speed: 32 },
-      { text: 'Driver is making good time', speed: 40 },
-    ],
-    to_customer: [
-      { text: 'Food picked up — on the way to you', speed: 38 },
-      { text: 'Driver is making good time', speed: 42 },
-      { text: 'Driver has reduced speed due to traffic', speed: 15 },
-      { text: 'Driver has stopped at traffic junction', speed: 8 },
-      { text: 'Driver will arrive soon', speed: 30 },
-    ],
-    arrived: [
-      { text: 'Driver just arrived — please collect your order', speed: 0 },
-    ],
-  }
-
-  useEffect(() => {
-    if (!driverOnWay) return
-    setBannerMsgIdx(0)
-    const msgs = BANNER_MESSAGES[driverPhase] ?? []
-    if (msgs.length <= 1) return
-    const id = setInterval(() => {
-      setBannerMsgIdx(i => (i + 1) % msgs.length)
-    }, 8000)
-    return () => clearInterval(id)
-  }, [driverPhase, !!driverOnWay]) // eslint-disable-line react-hooks/exhaustive-deps
 
   // ── Master cleanup: cancel ALL pending timers on unmount ──
   const timerRefs = useRef([])
@@ -489,14 +460,6 @@ export default function RestaurantMenuSheet({ restaurant, onClose, onOrderViaCha
     { img: 'https://ik.imagekit.io/nepgaxllc/Untitleddsddaadsds.png?updatedAt=1776787842452', text: 'Driver has arrived with your order', speed: 0 },
   ]
 
-  // Images: driver on the way to customer (delivery)
-  const DRIVER_ON_WAY_IMAGES = [
-    'https://ik.imagekit.io/nepgaxllc/Motorcycle%20view%20on%20city%20street.png?updatedAt=1776062865270',
-    'https://ik.imagekit.io/nepgaxllc/Speeding%20through%20the%20vibrant%20city%20streets.png?updatedAt=1776061842808',
-    'https://ik.imagekit.io/nepgaxllc/Rider%20in%20motion%20on%20busy%20urban%20street.png?updatedAt=1776062079269',
-    'https://ik.imagekit.io/nepgaxllc/Neon%20green%20speed%20through%20city%20streets.png?updatedAt=1776062258594',
-    'https://ik.imagekit.io/nepgaxllc/Up%20close%20on%20the%20green%20ride.png?updatedAt=1776062117020',
-  ]
   // Get current stage images
   const currentStageImages = driverPhase === 'to_restaurant' ? STAGE1_IMAGES
     : driverPhase === 'to_customer' ? STAGE2_IMAGES
