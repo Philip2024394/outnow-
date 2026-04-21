@@ -1,8 +1,9 @@
 import { useState } from 'react'
+import { calculatePaymentBreakdown } from '@/services/codTrustService'
 
 /**
  * IndooPayment — shared payment selector used across ALL modules.
- * Supports: Bank Transfer (with QR), COD (Cash on Delivery/Arrival)
+ * Supports: Bank Transfer (with QR + 3% discount), COD (Cash on Delivery/Arrival)
  *
  * Props:
  * @param {number} amount - total to pay
@@ -12,7 +13,7 @@ import { useState } from 'react'
  * @param {string} confirmLabel - custom confirm button text
  * @param {boolean} disabled - disable confirm button
  */
-export default function IndooPayment({ amount, bankDetails, onConfirm, codLabel, confirmLabel, disabled }) {
+export default function IndooPayment({ amount, deliveryFee = 0, bankDetails, onConfirm, codLabel, confirmLabel, disabled, codDisabled, codDisabledReason }) {
   const [method, setMethod] = useState(null)
   const [txCode, setTxCode] = useState('')
   const [qrZoom, setQrZoom] = useState(false)
@@ -20,6 +21,11 @@ export default function IndooPayment({ amount, bankDetails, onConfirm, codLabel,
 
   const fmtRp = (n) => 'Rp ' + (n ?? 0).toLocaleString('id-ID')
   const canConfirm = method === 'cod' || (method === 'bank' && txCode.trim())
+
+  // Calculate payment breakdown for both methods
+  const foodTotal = amount - deliveryFee
+  const bankBreakdown = calculatePaymentBreakdown(foodTotal, deliveryFee, 'bank')
+  const codBreakdown = calculatePaymentBreakdown(foodTotal, deliveryFee, 'cod')
 
   return (
     <>
@@ -37,17 +43,20 @@ export default function IndooPayment({ amount, bankDetails, onConfirm, codLabel,
           }}>
             <span style={{ fontSize: 20 }}>🏦</span>
             <span>Bank Transfer</span>
+            {bankBreakdown.savings > 0 && <span style={{ fontSize: 10, color: '#8DC63F', fontWeight: 700 }}>Save {fmtRp(bankBreakdown.savings)}</span>}
           </button>
-          <button onClick={() => setMethod('cod')} style={{
+          <button onClick={() => !codDisabled && setMethod('cod')} style={{
             flex: 1, padding: '14px 8px', borderRadius: 12,
             background: '#000',
             border: `1.5px solid ${method === 'cod' ? '#8DC63F' : 'rgba(255,255,255,0.12)'}`,
-            color: method === 'cod' ? '#fff' : 'rgba(255,255,255,0.5)',
-            fontSize: 13, fontWeight: 800, cursor: 'pointer', fontFamily: 'inherit',
+            color: codDisabled ? 'rgba(255,255,255,0.2)' : method === 'cod' ? '#fff' : 'rgba(255,255,255,0.5)',
+            fontSize: 13, fontWeight: 800, cursor: codDisabled ? 'not-allowed' : 'pointer', fontFamily: 'inherit',
             display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 4,
+            opacity: codDisabled ? 0.5 : 1,
           }}>
             <span style={{ fontSize: 20 }}>💵</span>
             <span>{codLabel || 'Cash on Delivery'}</span>
+            {codDisabled && <span style={{ fontSize: 9, color: '#ef4444', fontWeight: 700, textAlign: 'center' }}>{codDisabledReason || 'Not available'}</span>}
           </button>
         </div>
       </div>
@@ -64,7 +73,19 @@ export default function IndooPayment({ amount, bankDetails, onConfirm, codLabel,
                 <button onClick={() => { navigator.clipboard?.writeText(bankDetails.account_number); setCopied(true); setTimeout(() => setCopied(false), 2000) }} style={{ padding: '2px 8px', borderRadius: 6, background: '#8DC63F', border: 'none', color: '#000', fontSize: 9, fontWeight: 800, cursor: 'pointer', fontFamily: 'inherit' }}>{copied ? '✓ Copied' : 'Copy'}</button>
               </div>
               <div style={{ color: 'rgba(255,255,255,0.4)', fontSize: 11, marginTop: 2 }}>{bankDetails.account_holder}</div>
-              <div style={{ color: '#FACC15', fontWeight: 900, fontSize: 18, marginTop: 8 }}>{fmtRp(amount)}</div>
+              {/* Transfer amount (food only — discounted) */}
+              <div style={{ marginTop: 8 }}>
+                {bankBreakdown.savings > 0 && (
+                  <span style={{ fontSize: 12, color: 'rgba(255,255,255,0.3)', textDecoration: 'line-through', marginRight: 6 }}>{fmtRp(foodTotal)}</span>
+                )}
+                <span style={{ color: '#FACC15', fontWeight: 900, fontSize: 18 }}>{fmtRp(bankBreakdown.foodAfterDiscount)}</span>
+              </div>
+              {bankBreakdown.savings > 0 && (
+                <span style={{ fontSize: 10, color: '#8DC63F', fontWeight: 700 }}>You save {fmtRp(bankBreakdown.savings)} ({bankBreakdown.discountPercent}% off)</span>
+              )}
+              {deliveryFee > 0 && (
+                <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.35)', marginTop: 4 }}>+ {fmtRp(deliveryFee)} delivery (cash to driver)</div>
+              )}
             </div>
             {bankDetails.qr_url && (
               <div onClick={() => setQrZoom(true)} style={{ flexShrink: 0, cursor: 'pointer' }}>
