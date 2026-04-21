@@ -75,6 +75,7 @@ export default function RestaurantMenuSheet({ restaurant, onClose, onOrderViaCha
   const [paymentMethod,  setPaymentMethod]  = useState(null) // 'bank' | 'cod' | null
   const [transactionCode, setTransactionCode] = useState('')
   const [qrZoom, setQrZoom] = useState(false)
+  const [copyMsg, setCopyMsg] = useState(false)
   const [paymentStep,    setPaymentStep]    = useState(false)   // show payment step on confirmation
   const [paymentProofFile, setPaymentProofFile] = useState(null)
   const [paymentSubmitted, setPaymentSubmitted] = useState(false)
@@ -713,7 +714,7 @@ export default function RestaurantMenuSheet({ restaurant, onClose, onOrderViaCha
                           <div style={{ color: '#fff', fontWeight: 800, fontSize: 13 }}>{restaurant.bank.name}</div>
                           <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginTop: 2 }}>
                             <span style={{ color: 'rgba(255,255,255,0.6)', fontWeight: 700, fontSize: 14 }}>{restaurant.bank.account_number}</span>
-                            <button onClick={() => { navigator.clipboard?.writeText(restaurant.bank.account_number); }} style={{ padding: '2px 8px', borderRadius: 6, background: '#8DC63F', border: 'none', color: '#000', fontSize: 9, fontWeight: 800, cursor: 'pointer', fontFamily: 'inherit' }}>Copy</button>
+                            <button onClick={() => { navigator.clipboard?.writeText(restaurant.bank.account_number); setCopyMsg(true); safeTimeout(() => setCopyMsg(false), 2000) }} style={{ padding: '2px 8px', borderRadius: 6, background: '#8DC63F', border: 'none', color: '#000', fontSize: 9, fontWeight: 800, cursor: 'pointer', fontFamily: 'inherit' }}>{copyMsg ? '✓ Copied' : 'Copy'}</button>
                           </div>
                           <div style={{ color: 'rgba(255,255,255,0.4)', fontSize: 11, marginTop: 2 }}>{restaurant.bank.account_holder}</div>
                           <div style={{ color: '#FACC15', fontWeight: 900, fontSize: 18, marginTop: 8 }}>
@@ -1032,10 +1033,10 @@ export default function RestaurantMenuSheet({ restaurant, onClose, onOrderViaCha
             <img
               src={
                 driverPhase === 'to_restaurant'
-                  ? 'https://ik.imagekit.io/nepgaxllc/ChatGPT%20Image%20Apr%2021,%202026,%2009_26_49%20PM.png'
+                  ? 'https://ik.imagekit.io/nepgaxllc/ChatGPT%20Image%20Apr%2016,%202026,%2006_36_14%20PM.png?updatedAt=1776339391906'
                   : driverPhase === 'to_customer'
                     ? (DRIVER_ON_WAY_IMAGES[driverImgIdx % DRIVER_ON_WAY_IMAGES.length] ?? DRIVER_ON_WAY_IMAGES[0])
-                    : 'https://ik.imagekit.io/nepgaxllc/ChatGPT%20Image%20Apr%2021,%202026,%2006_43_19%20AM.png'
+                    : 'https://ik.imagekit.io/nepgaxllc/Rider_s%20view%20of%20a%20sport%20motorcycle%20dashboard.png?updatedAt=1776155502901'
               }
               alt=""
               key={driverPhase === 'to_customer' ? driverImgIdx : driverPhase}
@@ -1048,8 +1049,8 @@ export default function RestaurantMenuSheet({ restaurant, onClose, onOrderViaCha
               <div style={{ padding: '12px 16px', borderRadius: 14, background: 'rgba(0,0,0,0.8)', backdropFilter: 'blur(12px)', border: '1px solid rgba(255,255,255,0.08)', display: 'flex', alignItems: 'center', gap: 10 }}>
                 <span style={{ width: 8, height: 8, borderRadius: '50%', background: '#8DC63F', animation: 'ping 1.5s ease-in-out infinite', flexShrink: 0 }} />
                 <span style={{ fontSize: 14, fontWeight: 800, color: '#fff', flex: 1 }}>
-                  {driverPhase === 'to_restaurant' && 'Picking up your food'}
-                  {driverPhase === 'to_customer' && 'On the way to you'}
+                  {driverPhase === 'to_restaurant' && 'Driver on the way to restaurant'}
+                  {driverPhase === 'to_customer' && 'Food picked up — on the way to you'}
                   {driverPhase === 'arrived' && 'Driver has arrived!'}
                 </span>
                 <span style={{ fontSize: 14, fontWeight: 900, color: '#8DC63F', flexShrink: 0 }}>~{driverOnWay?.eta ?? 0} min</span>

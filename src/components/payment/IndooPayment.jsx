@@ -16,6 +16,7 @@ export default function IndooPayment({ amount, bankDetails, onConfirm, codLabel,
   const [method, setMethod] = useState(null)
   const [txCode, setTxCode] = useState('')
   const [qrZoom, setQrZoom] = useState(false)
+  const [copied, setCopied] = useState(false)
 
   const fmtRp = (n) => 'Rp ' + (n ?? 0).toLocaleString('id-ID')
   const canConfirm = method === 'cod' || (method === 'bank' && txCode.trim())
@@ -60,7 +61,7 @@ export default function IndooPayment({ amount, bankDetails, onConfirm, codLabel,
               <div style={{ color: '#fff', fontWeight: 800, fontSize: 13 }}>{bankDetails.name}</div>
               <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginTop: 2 }}>
                 <span style={{ color: 'rgba(255,255,255,0.6)', fontWeight: 700, fontSize: 14 }}>{bankDetails.account_number}</span>
-                <button onClick={() => navigator.clipboard?.writeText(bankDetails.account_number)} style={{ padding: '2px 8px', borderRadius: 6, background: '#8DC63F', border: 'none', color: '#000', fontSize: 9, fontWeight: 800, cursor: 'pointer', fontFamily: 'inherit' }}>Copy</button>
+                <button onClick={() => { navigator.clipboard?.writeText(bankDetails.account_number); setCopied(true); setTimeout(() => setCopied(false), 2000) }} style={{ padding: '2px 8px', borderRadius: 6, background: '#8DC63F', border: 'none', color: '#000', fontSize: 9, fontWeight: 800, cursor: 'pointer', fontFamily: 'inherit' }}>{copied ? '✓ Copied' : 'Copy'}</button>
               </div>
               <div style={{ color: 'rgba(255,255,255,0.4)', fontSize: 11, marginTop: 2 }}>{bankDetails.account_holder}</div>
               <div style={{ color: '#FACC15', fontWeight: 900, fontSize: 18, marginTop: 8 }}>{fmtRp(amount)}</div>
