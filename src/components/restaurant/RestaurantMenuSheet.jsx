@@ -1045,10 +1045,10 @@ export default function RestaurantMenuSheet({ restaurant, onClose, onOrderViaCha
             {!orderReceived ? (
               <>
                 <h3 style={{ fontSize: 22, fontWeight: 900, color: '#fff', margin: 0, textShadow: '0 2px 12px rgba(0,0,0,0.8)' }}>Processing Order</h3>
-                <div style={{ display: 'flex', gap: 10, marginTop: 4 }}>
-                  <span style={{ width: 12, height: 12, borderRadius: '50%', background: '#8DC63F', animation: 'dotBounce 1.4s ease-in-out infinite', boxShadow: '0 0 8px rgba(141,198,63,0.5)' }} />
-                  <span style={{ width: 12, height: 12, borderRadius: '50%', background: '#8DC63F', animation: 'dotBounce 1.4s ease-in-out 0.2s infinite', boxShadow: '0 0 8px rgba(141,198,63,0.5)' }} />
-                  <span style={{ width: 12, height: 12, borderRadius: '50%', background: '#8DC63F', animation: 'dotBounce 1.4s ease-in-out 0.4s infinite', boxShadow: '0 0 8px rgba(141,198,63,0.5)' }} />
+                <div style={{ display: 'flex', gap: 12, marginTop: 6 }}>
+                  <span style={{ width: 14, height: 14, borderRadius: '50%', background: '#8DC63F', animation: 'dotDance 1.8s ease-in-out infinite', boxShadow: '0 0 12px rgba(141,198,63,0.6)' }} />
+                  <span style={{ width: 14, height: 14, borderRadius: '50%', background: '#8DC63F', animation: 'dotDance 1.8s ease-in-out 0.3s infinite', boxShadow: '0 0 12px rgba(141,198,63,0.6)' }} />
+                  <span style={{ width: 14, height: 14, borderRadius: '50%', background: '#8DC63F', animation: 'dotDance 1.8s ease-in-out 0.6s infinite', boxShadow: '0 0 12px rgba(141,198,63,0.6)' }} />
                 </div>
                 <p style={{ fontSize: 14, color: 'rgba(255,255,255,0.6)', margin: 0, animation: 'pulse 2s ease-in-out infinite' }}>Finding your driver...</p>
               </>
