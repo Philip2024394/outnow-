@@ -2,7 +2,6 @@ import { useState, useEffect, useRef } from 'react'
 import { supabase } from '@/lib/supabase'
 import { useGeolocation } from '@/hooks/useGeolocation'
 import { haversineKm } from '@/utils/distance'
-import { getDirections } from '@/utils/googleDirections'
 import RestaurantMenuSheet from '@/components/restaurant/RestaurantMenuSheet'
 import VendorOnboarding from '@/components/restaurant/VendorOnboarding'
 import SectionCTAButton from '@/components/ui/SectionCTAButton'
@@ -450,27 +449,12 @@ export default function RestaurantBrowseScreen({ onClose, onBackToCategories, ca
   const catId = category?.id
 
   // Use haversine for initial fast render, then upgrade with Google Directions
-  const [roadDistances, setRoadDistances] = useState({})
-  useEffect(() => {
-    if (!coords || !restaurants.length) return
-    let cancelled = false
-    ;(async () => {
-      const results = {}
-      await Promise.all(restaurants.map(async r => {
-        if (!r.lat || !r.lng) return
-        try {
-          const res = await getDirections(coords.lat, coords.lng, r.lat, r.lng)
-          results[r.id] = res.distanceKm
-        } catch { /* keep haversine fallback */ }
-      }))
-      if (!cancelled) setRoadDistances(results)
-    })()
-    return () => { cancelled = true }
-  }, [coords?.lat, coords?.lng, restaurants.length])
-
+  // Distance calculation — haversine for browse list (fast, no API calls)
+  // Google Directions only used when user actually places an order
   const withMeta = restaurants.map(r => {
-    const distKm = roadDistances[r.id]
-      ?? (coords && r.lat && r.lng ? Math.round(haversineKm(coords.lat, coords.lng, r.lat, r.lng) * 10) / 10 : null)
+    const distKm = coords && r.lat && r.lng
+      ? Math.round(haversineKm(coords.lat, coords.lng, r.lat, r.lng) * 10) / 10
+      : null
     return { ...r, distKm, deliveryFare: calcDeliveryFare(distKm) }
   })
 
