@@ -31,6 +31,18 @@ CREATE TABLE IF NOT EXISTS delivery_tracking (
 );
 CREATE INDEX IF NOT EXISTS idx_delivery_tracking_order ON delivery_tracking(order_id, updated_at DESC);
 
+-- Failed notifications — for SMS fallback escalation
+CREATE TABLE IF NOT EXISTS failed_notifications (
+  id          bigserial PRIMARY KEY,
+  user_id     uuid NOT NULL,
+  type        text NOT NULL,
+  booking_id  text,
+  reason      text,
+  sms_sent    boolean DEFAULT false,
+  created_at  timestamptz NOT NULL DEFAULT now()
+);
+CREATE INDEX IF NOT EXISTS idx_failed_notif_pending ON failed_notifications(sms_sent, created_at DESC) WHERE NOT sms_sent;
+
 -- Enable realtime on driver_locations and delivery_tracking
 ALTER PUBLICATION supabase_realtime ADD TABLE driver_locations;
 ALTER PUBLICATION supabase_realtime ADD TABLE delivery_tracking;

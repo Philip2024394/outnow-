@@ -42,6 +42,8 @@ import { DEMO_DATING_BUBBLES } from '@/demo/mockData'
 import { useNotifications } from '@/hooks/useNotifications'
 import { useAuth } from '@/hooks/useAuth'
 import { useGuestGate } from '@/contexts/GuestGateContext'
+import { useNativePush } from '@/hooks/useNativePush'
+import { useConnectionHealth, OfflineBanner } from '@/hooks/useConnectionHealth'
 
 import AddToHomeScreenBanner from '@/components/pwa/AddToHomeScreenBanner'
 import BottomSheet from '@/components/ui/BottomSheet'
@@ -78,6 +80,8 @@ export default function AppShell({ returnParams, triggerGoLive }) {
   const { userProfile, user } = useAuth()
   const { triggerGate } = useGuestGate()
   const isGuest = !user
+  const { isOnline, wasOffline } = useConnectionHealth()
+  useNativePush(user?.id ?? null) // Register FCM token for native push
   const { session: mySession, needsCheckIn } = useMySession()
   const { showBanner: showCheckIn, bannerReason, handleStillOut, handleLeaving } = useStatusCheckIn(mySession)
   const { incomingInterests, mutualSessions } = useInterests()
@@ -350,6 +354,8 @@ export default function AppShell({ returnParams, triggerGoLive }) {
 
   return (
     <div className={styles.shell}>
+      {/* Offline/Online banner */}
+      <OfflineBanner isOnline={isOnline} wasOffline={wasOffline} />
       {/* Time-based background fills full screen */}
       <TimeBackground />
 

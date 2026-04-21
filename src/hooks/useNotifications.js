@@ -2,6 +2,7 @@ import { useState, useEffect, useRef } from 'react'
 import { supabase } from '@/lib/supabase'
 import { useAuth } from './useAuth'
 import { usePushNotifications } from './usePushNotifications'
+import { filterExpiredNotifications } from '@/utils/offlineBuffer'
 
 function mapNotif(row) {
   return {
@@ -85,8 +86,9 @@ export function useNotifications() {
       }
       mapped.forEach(n => knownIdsRef.current.add(n.id))
 
-      setNotifications(mapped)
-      const unread = mapped.filter(n => !n.read)
+      const filtered = filterExpiredNotifications(mapped)
+      setNotifications(filtered)
+      const unread = filtered.filter(n => !n.read)
       setUnreadCount(unread.length)
 
       // Per-service unread counts — maps notification type → FloatingIcons icon ID

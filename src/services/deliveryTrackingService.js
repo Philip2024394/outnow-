@@ -4,6 +4,7 @@
  */
 import { supabase } from '@/lib/supabase'
 import { haversineKm } from '@/utils/distance'
+import { bufferLocation, flushBuffer } from '@/utils/offlineBuffer'
 
 // Phase thresholds (km)
 const NEARBY_THRESHOLD = 0.2      // 200m from restaurant
@@ -13,12 +14,32 @@ const ALMOST_THERE_THRESHOLD = 0.5 // 500m from customer
  * Update driver's GPS location (called every 10s during active delivery).
  */
 export async function updateDriverLocation(driverId, lat, lng, heading, speed) {
+  // Always buffer locally first (survives offline)
+  bufferLocation(driverId, lat, lng, heading, speed)
+
   if (!supabase) return
-  await supabase.from('driver_locations').upsert({
-    driver_id: driverId,
-    lat, lng, heading, speed,
-    updated_at: new Date().toISOString(),
-  })
+
+  try {
+    // Try to send current + flush any buffered locations
+    const buffered = flushBuffer()
+    if (buffered.length > 1) {
+      // Batch insert missed locations (skip the one we're about to upsert)
+      const older = buffered.slice(0, -1).map(b => ({
+        driver_id: b.driver_id, lat: b.lat, lng: b.lng,
+        heading: b.heading, speed: b.speed,
+        updated_at: new Date(b.timestamp).toISOString(),
+      }))
+      await supabase.from('driver_locations').upsert(older[older.length - 1]).catch(() => {})
+    }
+
+    // Upsert current location
+    await supabase.from('driver_locations').upsert({
+      driver_id: driverId, lat, lng, heading, speed,
+      updated_at: new Date().toISOString(),
+    })
+  } catch {
+    // Failed to send — stays in local buffer, will be flushed on next successful call
+  }
 }
 
 /**

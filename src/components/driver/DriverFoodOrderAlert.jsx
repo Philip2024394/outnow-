@@ -252,8 +252,8 @@ export default function DriverFoodOrderAlert({ order, driverId, onDismiss }) {
                   </p>
                   <div id="qr-reader" style={{ width: '100%', borderRadius: 12, overflow: 'hidden', marginBottom: 10 }} />
                   {codeError && <p className={styles.codeError}>{codeError}</p>}
-                  <button onClick={() => setScanMode('text')} style={{ background: 'none', border: 'none', color: 'rgba(255,255,255,0.4)', fontSize: 12, cursor: 'pointer', fontFamily: 'inherit', padding: '8px 0' }}>
-                    Can't scan? Enter code manually
+                  <button onClick={() => { if (scannerRef.current) scannerRef.current.stop().catch(() => {}); setScanMode('text') }} style={{ width: '100%', padding: '12px', borderRadius: 10, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.12)', color: '#fff', fontSize: 13, fontWeight: 700, cursor: 'pointer', fontFamily: 'inherit', marginTop: 8 }}>
+                    Enter Code Manually
                   </button>
                 </>
               ) : (
@@ -270,8 +270,8 @@ export default function DriverFoodOrderAlert({ order, driverId, onDismiss }) {
                     autoFocus
                   />
                   {codeError && <p className={styles.codeError}>{codeError}</p>}
-                  <button onClick={() => setScanMode('qr')} style={{ background: 'none', border: 'none', color: '#8DC63F', fontSize: 12, cursor: 'pointer', fontFamily: 'inherit', padding: '8px 0' }}>
-                    Scan QR code instead
+                  <button onClick={() => setScanMode('qr')} style={{ width: '100%', padding: '12px', borderRadius: 10, background: 'rgba(141,198,63,0.1)', border: '1px solid rgba(141,198,63,0.3)', color: '#8DC63F', fontSize: 13, fontWeight: 700, cursor: 'pointer', fontFamily: 'inherit', marginTop: 8 }}>
+                    Scan QR Code Instead
                   </button>
                 </>
               )}
