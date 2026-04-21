@@ -566,8 +566,8 @@ export default function RestaurantMenuSheet({ restaurant, onClose, onOrderViaCha
 
       // Demo fallback auto-progress (only in demo mode)
       if (import.meta.env.VITE_DEMO_MODE === 'true' || !import.meta.env.VITE_SUPABASE_URL) {
-        safeTimeout(() => setDriverPhase('to_customer'), 10000)
-        safeTimeout(() => setDriverPhase('arrived'), 40000)
+        safeTimeout(() => setDriverPhase('to_customer'), 25000)  // 25s: all 5 pickup images shown (4s each = 20s)
+        safeTimeout(() => setDriverPhase('arrived'), 55000)   // 55s: all 5 delivery images shown
       }
 
       setCart([])
