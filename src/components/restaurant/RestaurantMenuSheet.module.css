@@ -240,8 +240,8 @@
 .cartNoteInput:focus { border-color: rgba(141,198,63,0.45); }
 .cartNoteInput::placeholder { color: rgba(255,255,255,0.25); }
 .cartNoteDone {
-  background: rgba(141,198,63,0.15); border: 1px solid rgba(141,198,63,0.3);
-  color: #8DC63F; border-radius: 10px; font-size: 13px; font-weight: 800;
+  background: #8DC63F; border: none;
+  color: #000; border-radius: 10px; font-size: 13px; font-weight: 800;
   font-family: inherit; padding: 8px 14px; cursor: pointer; flex-shrink: 0;
 }
 
