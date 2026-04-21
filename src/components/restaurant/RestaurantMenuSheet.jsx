@@ -772,9 +772,15 @@ export default function RestaurantMenuSheet({ restaurant, onClose, onOrderViaCha
             )}
           </div>
 
-          {/* Fixed bottom button */}
+          {/* Fixed bottom */}
           {cart.length > 0 && (
             <div className={styles.cartPageFooter}>
+              {paymentMethod === 'bank' && orderType === 'delivery' && (deliveryFare ?? 0) > 0 && (
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '8px 0 12px' }}>
+                  <span style={{ fontSize: 14, fontWeight: 800, color: '#fff' }}>Pay Driver On Delivery</span>
+                  <span style={{ fontSize: 16, fontWeight: 900, color: '#FACC15' }}>{fmtRp(deliveryFare)}</span>
+                </div>
+              )}
               <button
                 className={styles.orderBtn}
                 style={{
