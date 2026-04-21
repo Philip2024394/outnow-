@@ -92,6 +92,52 @@
   flex-shrink: 0;
 }
 
+.bankCodeInput {
+  width: 100%; box-sizing: border-box;
+  padding: 14px 16px; border-radius: 12px;
+  background: #000; border: 1.5px solid #FACC15;
+  color: #fff; font-size: 15px; font-family: inherit; font-weight: 700;
+  outline: none; letter-spacing: 0.02em;
+  animation: borderHeartbeat 1.5s ease-in-out infinite;
+}
+.bankCodeInput::placeholder { color: rgba(255,255,255,0.25); }
+@keyframes borderHeartbeat {
+  0%, 100% { border-color: rgba(250,204,21,0.4); box-shadow: 0 0 0 0 rgba(250,204,21,0); }
+  25% { border-color: #FACC15; box-shadow: 0 0 12px rgba(250,204,21,0.3); }
+  50% { border-color: rgba(250,204,21,0.5); box-shadow: 0 0 4px rgba(250,204,21,0.1); }
+  75% { border-color: #FACC15; box-shadow: 0 0 12px rgba(250,204,21,0.3); }
+}
+
+/* ── Driver card ────────────────────────────────────────────────────────────── */
+.driverCard {
+  position: relative; z-index: 1;
+  display: flex; align-items: flex-start; gap: 12px;
+  padding: 16px;
+  border-radius: 20px;
+  background: linear-gradient(135deg, rgba(255,255,255,0.08) 0%, rgba(255,255,255,0.02) 100%);
+  backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+  border: 1.5px solid rgba(255,255,255,0.1);
+  box-shadow: 0 8px 32px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.06);
+  margin-bottom: 14px;
+  animation: driverSlideUp 0.4s ease;
+}
+@keyframes driverSlideUp {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.activePulse {
+  font-size: 10px; font-weight: 800; color: #FACC15;
+  padding: 3px 8px; border-radius: 6px;
+  background: rgba(250,204,21,0.1);
+  border: 1px solid rgba(250,204,21,0.3);
+  animation: activeBlink 1.2s ease-in-out infinite;
+  flex-shrink: 0;
+}
+@keyframes activeBlink {
+  0%, 100% { opacity: 1; box-shadow: 0 0 0 0 rgba(250,204,21,0); }
+  50% { opacity: 0.6; box-shadow: 0 0 8px rgba(250,204,21,0.4); }
+}
+
 .cartBackdrop {
   position: fixed; inset: 0; z-index: 9580;
   background: rgba(0,0,0,0.7);
@@ -548,6 +594,11 @@
 @keyframes ping {
   0%, 100% { transform: scale(1); opacity: 1; }
   50% { transform: scale(1.8); opacity: 0.3; }
+}
+@keyframes barLoad {
+  0% { width: 0%; opacity: 0.5; }
+  50% { width: 100%; opacity: 1; }
+  100% { width: 0%; opacity: 0.5; }
 }
 @keyframes pulse {
   0%, 100% { transform: scale(1); }

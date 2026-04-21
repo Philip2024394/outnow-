@@ -380,23 +380,27 @@ export default function RestaurantMenuSheet({ restaurant, onClose, onOrderViaCha
   }
 
   const [orderReceived, setOrderReceived] = useState(false)
-  const [driverOnWay, setDriverOnWay] = useState(null) // { orderId, eta, restaurant }
+  const [driverOnWay, setDriverOnWay] = useState(null) // { orderId, eta, restaurant, driverName, driverPlate, driverPhoto, phase }
+  const [driverPhase, setDriverPhase] = useState('to_restaurant') // 'to_restaurant' | 'to_customer' | 'arrived'
 
   // ── Order handler — Place Order with processing animation ──
   const handleOrder = () => {
     if (!showAddrInput) { setShowAddrInput(true); return }
 
-    // Step 1: Show processing page (printer printing)
+    // Step 1: Show "Processing Order" — behind the scenes: kitchen receives + finding driver
     setCartExpanded(false)
     setOrderProcessing(true)
     setOrderReceived(false)
 
-    // Step 2: After 4.5s show "Order Received" (paper out)
+    // Simulate driver search time (6-10s in demo, in production this waits for real driver match)
+    const driverSearchTime = 6000 + Math.random() * 4000
+
+    // Step 2: Driver found → show "Order Received" (paper printed)
     setTimeout(() => {
       setOrderReceived(true)
-    }, 4500)
+    }, driverSearchTime)
 
-    // Step 3: After 8s, save order and show driver page
+    // Step 3: After 4s on "Order Received" → transition to driver page
     setTimeout(() => {
       const orderId = `FOOD-${String(Math.floor(1000 + Math.random() * 9000))}`
       const order = {
@@ -420,13 +424,24 @@ export default function RestaurantMenuSheet({ restaurant, onClose, onOrderViaCha
 
       setOrderProcessing(false)
       setOrderReceived(false)
-      setDriverOnWay({ orderId, eta: eta + 10, restaurant: restaurant.name })
+      setDriverPhase('to_restaurant')
+      setDriverOnWay({
+        orderId,
+        eta: eta + 10,
+        restaurant: restaurant.name,
+        driverName: 'Agus Prasetyo',
+        driverPlate: 'AB 1234 XY',
+        driverPhoto: 'https://i.pravatar.cc/100?img=12',
+        phone: '6281234567999',
+        bikeBrand: 'Honda Vario 150',
+        rating: 4.9,
+      })
 
       setCart([])
       setShowAddrInput(false)
       setPaymentMethod(null)
       setTransactionCode('')
-    }, 8000)
+    }, driverSearchTime + 4000)
   }
 
   useEffect(() => () => clearTimeout(collapseRef.current), [])
@@ -623,26 +638,20 @@ export default function RestaurantMenuSheet({ restaurant, onClose, onOrderViaCha
                     </button>
                   </div>
                   {paymentMethod === 'bank' && restaurant.bank && (
-                    <div style={{ marginTop: 10, padding: 14, borderRadius: 12, background: 'rgba(0,0,0,0.6)', border: '1px solid rgba(255,255,255,0.06)', fontSize: 12 }}>
-                      <div style={{ color: 'rgba(255,255,255,0.4)', marginBottom: 6 }}>Transfer to:</div>
-                      <div style={{ color: '#fff', fontWeight: 800, fontSize: 14 }}>{restaurant.bank.name} — {restaurant.bank.account_number}</div>
-                      <div style={{ color: 'rgba(255,255,255,0.5)', marginTop: 2 }}>{restaurant.bank.account_holder}</div>
+                    <div style={{ marginTop: 10, padding: 14, borderRadius: 12, background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.08)', fontSize: 12 }}>
+                      <div style={{ color: 'rgba(255,255,255,0.35)', marginBottom: 6 }}>Transfer to:</div>
+                      <div style={{ color: 'rgba(255,255,255,0.7)', fontWeight: 800, fontSize: 14 }}>{restaurant.bank.name} — {restaurant.bank.account_number}</div>
+                      <div style={{ color: 'rgba(255,255,255,0.4)', marginTop: 2 }}>{restaurant.bank.account_holder}</div>
                       <div style={{ color: '#FACC15', fontWeight: 900, fontSize: 16, marginTop: 8 }}>
                         {orderType !== 'delivery' ? fmtRp(grandTotal) : deliveryFare !== null ? fmtRp(grandTotal) : `${fmtRp(cartTotal)} + delivery`}
                       </div>
                       <div className={styles.cartDivider} style={{ margin: '10px 0' }} />
-                      <div style={{ color: 'rgba(255,255,255,0.4)', marginBottom: 6, fontSize: 11 }}>Enter transaction/reference code from your bank receipt:</div>
+                      <div style={{ color: 'rgba(255,255,255,0.35)', marginBottom: 6, fontSize: 11 }}>Enter transaction/reference code from your bank receipt:</div>
                       <input
                         value={transactionCode}
                         onChange={e => setTransactionCode(e.target.value)}
                         placeholder="e.g. TRX-123456789"
-                        style={{
-                          width: '100%', boxSizing: 'border-box',
-                          padding: '12px 14px', borderRadius: 10,
-                          background: 'rgba(0,0,0,0.5)', border: '1px solid rgba(255,255,255,0.1)',
-                          color: '#fff', fontSize: 14, fontFamily: 'inherit', fontWeight: 700,
-                          outline: 'none', letterSpacing: '0.02em',
-                        }}
+                        className={styles.bankCodeInput}
                       />
                     </div>
                   )}
@@ -905,62 +914,168 @@ export default function RestaurantMenuSheet({ restaurant, onClose, onOrderViaCha
         </div>
       )}
 
-      {/* ── Driver on the way — full page ── */}
+      {/* ── Driver tracking — full page ── */}
       {driverOnWay && (
         <div style={{ position: 'fixed', inset: 0, zIndex: 9850, background: '#0a0a0a', display: 'flex', flexDirection: 'column' }}>
           {/* Header */}
-          <div style={{ padding: 'calc(env(safe-area-inset-top, 0px) + 16px) 16px 16px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', borderBottom: '1px solid rgba(255,255,255,0.06)' }}>
-            <span style={{ fontSize: 18, fontWeight: 900, color: '#fff' }}>Order #{driverOnWay.orderId}</span>
-            <button onClick={() => setDriverOnWay(null)} style={{ background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '50%', width: 36, height: 36, display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', color: '#fff', fontSize: 14 }}>✕</button>
-          </div>
-
-          {/* Body */}
-          <div style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 20, padding: 24 }}>
-            {/* Scooter icon */}
-            <img src="https://ik.imagekit.io/nepgaxllc/Sleek%20green%20and%20black%20scooter%20setup.png?updatedAt=1775634845237" alt="Driver" style={{ width: 120, height: 120, objectFit: 'contain', animation: 'pulse 2s ease-in-out infinite' }} />
-
-            {/* Status */}
-            <div style={{ textAlign: 'center' }}>
-              <h2 style={{ fontSize: 24, fontWeight: 900, color: '#fff', margin: '0 0 8px' }}>Driver On The Way</h2>
-              <p style={{ fontSize: 14, color: 'rgba(255,255,255,0.5)', margin: 0 }}>Your order from {driverOnWay.restaurant} is being delivered</p>
-            </div>
-
-            {/* ETA */}
-            <div style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '12px 24px', borderRadius: 14, background: 'rgba(141,198,63,0.1)', border: '1px solid rgba(141,198,63,0.3)' }}>
-              <span style={{ fontSize: 16 }}>⏱</span>
-              <span style={{ fontSize: 16, fontWeight: 900, color: '#8DC63F' }}>~{driverOnWay.eta} min</span>
-            </div>
-
-            {/* Progress dots */}
-            <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginTop: 12 }}>
-              <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 4 }}>
-                <div style={{ width: 12, height: 12, borderRadius: '50%', background: '#8DC63F' }} />
-                <span style={{ fontSize: 9, color: 'rgba(255,255,255,0.4)', fontWeight: 700 }}>Confirmed</span>
+          <div style={{ padding: 'calc(env(safe-area-inset-top, 0px) + 12px) 16px 12px', display: 'flex', alignItems: 'center', gap: 10, borderBottom: '1px solid rgba(255,255,255,0.06)', flexShrink: 0 }}>
+            <img src="https://ik.imagekit.io/nepgaxllc/ChatGPT%20Image%20Apr%2019,%202026,%2012_07_28%20AM.png?updatedAt=1776532065659" alt="" style={{ width: 48, height: 48, objectFit: 'contain', flexShrink: 0 }} />
+            <div style={{ flex: 1 }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                <span style={{ fontSize: 14, fontWeight: 900, color: '#fff' }}>Order #{driverOnWay.orderId}</span>
+                <span style={{ width: 7, height: 7, borderRadius: '50%', background: '#8DC63F', animation: 'ping 1.5s ease-in-out infinite', flexShrink: 0 }} />
+                <span style={{ fontSize: 9, fontWeight: 800, color: '#8DC63F', textTransform: 'uppercase', letterSpacing: '0.08em' }}>Live</span>
               </div>
-              <div style={{ width: 40, height: 2, background: '#8DC63F' }} />
-              <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 4 }}>
-                <div style={{ width: 12, height: 12, borderRadius: '50%', background: '#8DC63F', animation: 'ping 1.5s ease-in-out infinite' }} />
-                <span style={{ fontSize: 9, color: '#8DC63F', fontWeight: 700 }}>On The Way</span>
-              </div>
-              <div style={{ width: 40, height: 2, background: 'rgba(255,255,255,0.1)' }} />
-              <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 4 }}>
-                <div style={{ width: 12, height: 12, borderRadius: '50%', background: 'rgba(255,255,255,0.1)' }} />
-                <span style={{ fontSize: 9, color: 'rgba(255,255,255,0.3)', fontWeight: 700 }}>Delivered</span>
-              </div>
+              <span style={{ display: 'block', fontSize: 11, color: 'rgba(255,255,255,0.4)', marginTop: 2 }}>{driverOnWay.restaurant}</span>
             </div>
-
-            {/* Payment badge */}
-            <div style={{ marginTop: 16, padding: '10px 20px', borderRadius: 10, background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.06)' }}>
-              <span style={{ fontSize: 12, color: 'rgba(255,255,255,0.4)' }}>Payment: </span>
-              <span style={{ fontSize: 12, fontWeight: 800, color: '#FACC15' }}>{paymentMethod === 'bank' ? 'Bank Transfer ✓' : 'Cash on Delivery'}</span>
-            </div>
-          </div>
-
-          {/* Bottom */}
-          <div style={{ padding: '16px 16px calc(env(safe-area-inset-bottom, 0px) + 16px)', borderTop: '1px solid rgba(255,255,255,0.06)' }}>
-            <button onClick={() => setDriverOnWay(null)} style={{ width: '100%', padding: 16, borderRadius: 16, background: '#8DC63F', color: '#000', border: 'none', fontSize: 16, fontWeight: 900, cursor: 'pointer', fontFamily: 'inherit' }}>
-              Back to Menu
+            <button onClick={() => setDriverOnWay(null)} style={{ background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '50%', width: 36, height: 36, display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', color: '#fff', fontSize: 14, flexShrink: 0 }}>
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M19 12H5M12 5l-7 7 7 7"/></svg>
             </button>
+          </div>
+
+          {/* Visual delivery tracking */}
+          <div style={{ flex: 1, position: 'relative', background: '#0a0a0a', overflow: 'hidden' }}>
+            {/* Phase image — full screen */}
+            <img
+              src={
+                driverPhase === 'to_restaurant'
+                  ? 'https://ik.imagekit.io/nepgaxllc/ChatGPT%20Image%20Apr%2021,%202026,%2006_44_19%20AM.png'
+                  : driverPhase === 'to_customer'
+                    ? 'https://ik.imagekit.io/nepgaxllc/ChatGPT%20Image%20Apr%2021,%202026,%2006_43_19%20AM.png'
+                    : 'https://ik.imagekit.io/nepgaxllc/ChatGPT%20Image%20Apr%2021,%202026,%2006_43_19%20AM.png'
+              }
+              alt=""
+              style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', transition: 'opacity 0.5s ease' }}
+            />
+            <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to bottom, rgba(0,0,0,0.3) 0%, transparent 30%, transparent 50%, rgba(0,0,0,0.7) 100%)' }} />
+
+            {/* Status banner — top */}
+            <div style={{ position: 'absolute', top: 12, left: 12, right: 12, zIndex: 2 }}>
+              <div style={{ padding: '12px 16px', borderRadius: 14, background: 'rgba(0,0,0,0.8)', backdropFilter: 'blur(12px)', border: '1px solid rgba(255,255,255,0.08)', display: 'flex', alignItems: 'center', gap: 10 }}>
+                <span style={{ width: 8, height: 8, borderRadius: '50%', background: '#8DC63F', animation: 'ping 1.5s ease-in-out infinite', flexShrink: 0 }} />
+                <span style={{ fontSize: 14, fontWeight: 800, color: '#fff', flex: 1 }}>
+                  {driverPhase === 'to_restaurant' && 'Picking up your food'}
+                  {driverPhase === 'to_customer' && 'On the way to you'}
+                  {driverPhase === 'arrived' && 'Driver has arrived!'}
+                </span>
+                <span style={{ fontSize: 14, fontWeight: 900, color: '#8DC63F', flexShrink: 0 }}>~{driverOnWay.eta} min</span>
+              </div>
+            </div>
+
+            {/* ETA + distance — bottom center */}
+            <div style={{ position: 'absolute', bottom: 16, left: 0, right: 0, zIndex: 2, display: 'flex', justifyContent: 'center' }}>
+              <div style={{ display: 'flex', gap: 12 }}>
+                <div style={{ padding: '10px 18px', borderRadius: 12, background: 'rgba(0,0,0,0.8)', backdropFilter: 'blur(8px)', border: '1px solid rgba(255,255,255,0.08)', textAlign: 'center' }}>
+                  <span style={{ fontSize: 20, fontWeight: 900, color: '#FACC15', display: 'block' }}>{driverOnWay.eta}</span>
+                  <span style={{ fontSize: 9, color: 'rgba(255,255,255,0.4)', fontWeight: 700 }}>MIN</span>
+                </div>
+                <div style={{ padding: '10px 18px', borderRadius: 12, background: 'rgba(0,0,0,0.8)', backdropFilter: 'blur(8px)', border: '1px solid rgba(255,255,255,0.08)', textAlign: 'center' }}>
+                  <span style={{ fontSize: 20, fontWeight: 900, color: '#fff', display: 'block' }}>2.3</span>
+                  <span style={{ fontSize: 9, color: 'rgba(255,255,255,0.4)', fontWeight: 700 }}>KM</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Driver character overlay — sits between map and footer */}
+          <img src="https://ik.imagekit.io/nepgaxllc/Untitlediuooiuoifsdfsdf-removebg-preview.png?updatedAt=1775659748531" alt="" style={{ position: 'absolute', right: 10, bottom: 220, width: 120, height: 120, objectFit: 'contain', zIndex: 3, pointerEvents: 'none' }} />
+
+          {/* Bottom panel — driver info + progress */}
+          <div style={{
+            flexShrink: 0, padding: '16px', borderTop: '1px solid rgba(255,255,255,0.06)', position: 'relative', overflow: 'hidden',
+            backgroundImage: 'url(https://ik.imagekit.io/nepgaxllc/Untitledcasdasdddddd-removebg-preview.png)',
+            backgroundSize: 'cover', backgroundPosition: 'center', backgroundRepeat: 'no-repeat',
+          }}>
+            {/* Driver card */}
+            <div className={styles.driverCard}>
+              {/* Animated glow ring behind profile */}
+              <div style={{ position: 'relative', flexShrink: 0 }}>
+                <div style={{ position: 'absolute', inset: -4, borderRadius: '50%', border: '2px solid #8DC63F', animation: 'ping 2s ease-in-out infinite', opacity: 0.4 }} />
+                <img src={driverOnWay.driverPhoto} alt="" style={{ width: 56, height: 56, borderRadius: '50%', objectFit: 'cover', border: '2.5px solid #8DC63F', position: 'relative', zIndex: 1 }} />
+                <div style={{ position: 'absolute', bottom: -2, right: -2, width: 16, height: 16, borderRadius: '50%', background: '#8DC63F', border: '2px solid #0a0a0a', zIndex: 2, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                  <svg width="8" height="8" viewBox="0 0 24 24" fill="none" stroke="#000" strokeWidth="4" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+                </div>
+              </div>
+
+              <div style={{ flex: 1, minWidth: 0 }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                  <span style={{ fontSize: 16, fontWeight: 900, color: '#fff' }}>{driverOnWay.driverName}</span>
+                  <span style={{ fontSize: 11, fontWeight: 800, color: 'rgba(255,255,255,0.4)' }}>⭐ {driverOnWay.rating}</span>
+                </div>
+                <span style={{ fontSize: 11, color: 'rgba(141,198,63,0.7)', display: 'block', marginTop: 2, fontWeight: 700 }}>INDOO Verified Driver</span>
+
+                {/* Bike row */}
+                <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginTop: 8, padding: '6px 10px', borderRadius: 10, background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.06)' }}>
+                  <img src="https://ik.imagekit.io/nepgaxllc/Sleek%20green%20and%20black%20scooter%20setup.png?updatedAt=1775634845237" alt="" style={{ width: 28, height: 28, objectFit: 'contain' }} />
+                  <div style={{ flex: 1 }}>
+                    <span style={{ fontSize: 12, fontWeight: 800, color: '#fff', display: 'block' }}>{driverOnWay.bikeBrand}</span>
+                    <span style={{ fontSize: 10, color: 'rgba(255,255,255,0.35)' }}>{driverOnWay.driverPlate}</span>
+                  </div>
+                  <span className={styles.activePulse}>Active</span>
+                </div>
+              </div>
+
+              {/* Action buttons */}
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 8, flexShrink: 0 }}>
+                <a href={`tel:${driverOnWay.phone}`} style={{ width: 48, height: 48, borderRadius: 14, background: '#111', border: 'none', display: 'flex', alignItems: 'center', justifyContent: 'center', textDecoration: 'none' }}>
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
+                </a>
+                <a href={`https://wa.me/${driverOnWay.phone}`} target="_blank" rel="noreferrer" style={{ width: 48, height: 48, borderRadius: 14, background: '#8DC63F', border: 'none', display: 'flex', alignItems: 'center', justifyContent: 'center', textDecoration: 'none' }}>
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#000" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+                </a>
+              </div>
+            </div>
+
+            {/* Progress steps */}
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '0 4px', position: 'relative', zIndex: 1 }}>
+              {/* Confirmed — always done */}
+              <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 4 }}>
+                <div style={{ width: 16, height: 16, borderRadius: '50%', background: '#8DC63F', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                  <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="#000" strokeWidth="3.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+                </div>
+                <span style={{ fontSize: 8, color: '#8DC63F', fontWeight: 700 }}>Confirmed</span>
+              </div>
+              {/* Bar: Confirmed → Pickup */}
+              <div style={{ flex: 1, height: 3, borderRadius: 2, margin: '0 4px 12px', background: 'rgba(255,255,255,0.1)', overflow: 'hidden', position: 'relative' }}>
+                <div style={{ position: 'absolute', inset: 0, background: '#8DC63F', ...(driverPhase === 'to_restaurant' ? { animation: 'barLoad 1.5s ease-in-out infinite' } : driverPhase !== 'to_restaurant' ? { width: '100%' } : {}) }} />
+              </div>
+              {/* Pickup */}
+              <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 4 }}>
+                {driverPhase === 'to_customer' || driverPhase === 'arrived' ? (
+                  <div style={{ width: 16, height: 16, borderRadius: '50%', background: '#8DC63F', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                    <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="#000" strokeWidth="3.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+                  </div>
+                ) : (
+                  <div style={{ width: 12, height: 12, borderRadius: '50%', background: '#8DC63F', animation: driverPhase === 'to_restaurant' ? 'ping 1.5s ease-in-out infinite' : 'none' }} />
+                )}
+                <span style={{ fontSize: 8, color: '#8DC63F', fontWeight: 700 }}>Pickup</span>
+              </div>
+              {/* Bar: Pickup → On Way */}
+              <div style={{ flex: 1, height: 3, borderRadius: 2, margin: '0 4px 12px', background: 'rgba(255,255,255,0.1)', overflow: 'hidden', position: 'relative' }}>
+                {driverPhase === 'to_customer' && <div style={{ position: 'absolute', inset: 0, background: '#8DC63F', animation: 'barLoad 1.5s ease-in-out infinite' }} />}
+                {(driverPhase === 'arrived') && <div style={{ position: 'absolute', inset: 0, background: '#8DC63F', width: '100%' }} />}
+              </div>
+              {/* On Way */}
+              <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 4 }}>
+                {driverPhase === 'arrived' ? (
+                  <div style={{ width: 16, height: 16, borderRadius: '50%', background: '#8DC63F', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                    <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="#000" strokeWidth="3.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+                  </div>
+                ) : (
+                  <div style={{ width: 12, height: 12, borderRadius: '50%', background: driverPhase === 'to_customer' ? '#8DC63F' : 'rgba(255,255,255,0.1)', animation: driverPhase === 'to_customer' ? 'ping 1.5s ease-in-out infinite' : 'none' }} />
+                )}
+                <span style={{ fontSize: 8, color: driverPhase === 'to_customer' || driverPhase === 'arrived' ? '#8DC63F' : 'rgba(255,255,255,0.3)', fontWeight: 700 }}>On Way</span>
+              </div>
+              {/* Bar: On Way → Arrived */}
+              <div style={{ flex: 1, height: 3, borderRadius: 2, margin: '0 4px 12px', background: 'rgba(255,255,255,0.1)', overflow: 'hidden', position: 'relative' }}>
+                {driverPhase === 'arrived' && <div style={{ position: 'absolute', inset: 0, background: '#8DC63F', width: '100%' }} />}
+              </div>
+              {/* Arrived */}
+              <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 4 }}>
+                <div style={{ width: 10, height: 10, borderRadius: '50%', background: driverPhase === 'arrived' ? '#8DC63F' : 'rgba(255,255,255,0.1)' }} />
+                <span style={{ fontSize: 8, color: driverPhase === 'arrived' ? '#8DC63F' : 'rgba(255,255,255,0.3)', fontWeight: 700 }}>Arrived</span>
+              </div>
+            </div>
           </div>
         </div>
       )}
