@@ -422,8 +422,7 @@ export default function RestaurantMenuSheet({ restaurant, onClose, onOrderViaCha
       { text: 'Driver will arrive soon', speed: 30 },
     ],
     arrived: [
-      { text: 'Driver just arrived — please approach to receive your food', speed: 0 },
-      { text: 'Hey, enjoy your meal! — from the Indoo Team', speed: 0 },
+      { text: 'Driver just arrived — please collect your order', speed: 0 },
     ],
   }
 
@@ -1205,7 +1204,7 @@ export default function RestaurantMenuSheet({ restaurant, onClose, onOrderViaCha
               </div>
             </div>
 
-            {/* Progress steps */}
+            {/* Progress steps — bar fills as journey progresses */}
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '0 4px', position: 'relative', zIndex: 1 }}>
               {/* Confirmed — always done */}
               <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 4 }}>
@@ -1214,26 +1213,39 @@ export default function RestaurantMenuSheet({ restaurant, onClose, onOrderViaCha
                 </div>
                 <span style={{ fontSize: 8, color: '#8DC63F', fontWeight: 700 }}>Confirmed</span>
               </div>
-              {/* Bar: Confirmed → Pickup */}
-              <div style={{ flex: 1, height: 3, borderRadius: 2, margin: '0 4px 12px', background: 'rgba(255,255,255,0.1)', overflow: 'hidden', position: 'relative' }}>
-                <div style={{ position: 'absolute', inset: 0, background: '#8DC63F', ...(driverPhase === 'to_restaurant' ? { animation: 'barLoad 1.5s ease-in-out infinite' } : driverPhase !== 'to_restaurant' ? { width: '100%' } : {}) }} />
+
+              {/* Bar: Confirmed → Pickup (journey progress — fills gradually) */}
+              <div style={{ flex: 1, height: 4, borderRadius: 2, margin: '0 6px 12px', background: 'rgba(255,255,255,0.08)', overflow: 'hidden', position: 'relative' }}>
+                {driverPhase === 'to_restaurant' && (
+                  <div style={{ position: 'absolute', top: 0, bottom: 0, left: 0, background: 'linear-gradient(90deg, #8DC63F, #FACC15)', borderRadius: 2, animation: 'journeyFill 8s ease-in-out infinite' }} />
+                )}
+                {(driverPhase === 'to_customer' || driverPhase === 'arrived') && (
+                  <div style={{ position: 'absolute', inset: 0, background: '#8DC63F', borderRadius: 2 }} />
+                )}
               </div>
-              {/* Pickup */}
+
+              {/* Pickup — only green tick AFTER driver picks up food */}
               <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 4 }}>
                 {driverPhase === 'to_customer' || driverPhase === 'arrived' ? (
                   <div style={{ width: 16, height: 16, borderRadius: '50%', background: '#8DC63F', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                     <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="#000" strokeWidth="3.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
                   </div>
                 ) : (
-                  <div style={{ width: 12, height: 12, borderRadius: '50%', background: '#8DC63F', animation: driverPhase === 'to_restaurant' ? 'ping 1.5s ease-in-out infinite' : 'none' }} />
+                  <div style={{ width: 12, height: 12, borderRadius: '50%', background: 'rgba(255,255,255,0.1)' }} />
                 )}
-                <span style={{ fontSize: 8, color: '#8DC63F', fontWeight: 700 }}>Pickup</span>
+                <span style={{ fontSize: 8, color: driverPhase === 'to_customer' || driverPhase === 'arrived' ? '#8DC63F' : 'rgba(255,255,255,0.3)', fontWeight: 700 }}>Pickup</span>
               </div>
+
               {/* Bar: Pickup → On Way */}
-              <div style={{ flex: 1, height: 3, borderRadius: 2, margin: '0 4px 12px', background: 'rgba(255,255,255,0.1)', overflow: 'hidden', position: 'relative' }}>
-                {driverPhase === 'to_customer' && <div style={{ position: 'absolute', inset: 0, background: '#8DC63F', animation: 'barLoad 1.5s ease-in-out infinite' }} />}
-                {(driverPhase === 'arrived') && <div style={{ position: 'absolute', inset: 0, background: '#8DC63F', width: '100%' }} />}
+              <div style={{ flex: 1, height: 4, borderRadius: 2, margin: '0 6px 12px', background: 'rgba(255,255,255,0.08)', overflow: 'hidden', position: 'relative' }}>
+                {driverPhase === 'to_customer' && (
+                  <div style={{ position: 'absolute', top: 0, bottom: 0, left: 0, background: 'linear-gradient(90deg, #8DC63F, #FACC15)', borderRadius: 2, animation: 'journeyFill 8s ease-in-out infinite' }} />
+                )}
+                {driverPhase === 'arrived' && (
+                  <div style={{ position: 'absolute', inset: 0, background: '#8DC63F', borderRadius: 2 }} />
+                )}
               </div>
+
               {/* On Way */}
               <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 4 }}>
                 {driverPhase === 'arrived' ? (
@@ -1241,17 +1253,27 @@ export default function RestaurantMenuSheet({ restaurant, onClose, onOrderViaCha
                     <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="#000" strokeWidth="3.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
                   </div>
                 ) : (
-                  <div style={{ width: 12, height: 12, borderRadius: '50%', background: driverPhase === 'to_customer' ? '#8DC63F' : 'rgba(255,255,255,0.1)', animation: driverPhase === 'to_customer' ? 'ping 1.5s ease-in-out infinite' : 'none' }} />
+                  <div style={{ width: 12, height: 12, borderRadius: '50%', background: driverPhase === 'to_customer' ? 'rgba(255,255,255,0.1)' : 'rgba(255,255,255,0.1)' }} />
                 )}
-                <span style={{ fontSize: 8, color: driverPhase === 'to_customer' || driverPhase === 'arrived' ? '#8DC63F' : 'rgba(255,255,255,0.3)', fontWeight: 700 }}>On Way</span>
+                <span style={{ fontSize: 8, color: driverPhase === 'arrived' ? '#8DC63F' : 'rgba(255,255,255,0.3)', fontWeight: 700 }}>On Way</span>
               </div>
+
               {/* Bar: On Way → Arrived */}
-              <div style={{ flex: 1, height: 3, borderRadius: 2, margin: '0 4px 12px', background: 'rgba(255,255,255,0.1)', overflow: 'hidden', position: 'relative' }}>
-                {driverPhase === 'arrived' && <div style={{ position: 'absolute', inset: 0, background: '#8DC63F', width: '100%' }} />}
+              <div style={{ flex: 1, height: 4, borderRadius: 2, margin: '0 6px 12px', background: 'rgba(255,255,255,0.08)', overflow: 'hidden', position: 'relative' }}>
+                {driverPhase === 'arrived' && (
+                  <div style={{ position: 'absolute', inset: 0, background: '#8DC63F', borderRadius: 2 }} />
+                )}
               </div>
+
               {/* Arrived */}
               <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 4 }}>
-                <div style={{ width: 10, height: 10, borderRadius: '50%', background: driverPhase === 'arrived' ? '#8DC63F' : 'rgba(255,255,255,0.1)' }} />
+                {driverPhase === 'arrived' ? (
+                  <div style={{ width: 16, height: 16, borderRadius: '50%', background: '#8DC63F', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                    <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="#000" strokeWidth="3.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+                  </div>
+                ) : (
+                  <div style={{ width: 10, height: 10, borderRadius: '50%', background: 'rgba(255,255,255,0.1)' }} />
+                )}
                 <span style={{ fontSize: 8, color: driverPhase === 'arrived' ? '#8DC63F' : 'rgba(255,255,255,0.3)', fontWeight: 700 }}>Arrived</span>
               </div>
             </div>

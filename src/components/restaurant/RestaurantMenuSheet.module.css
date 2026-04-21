@@ -607,6 +607,11 @@
   80% { transform: translateY(2px) scale(0.95); opacity: 0.6; }
   100% { transform: translateY(0) scale(1); opacity: 0.5; }
 }
+@keyframes journeyFill {
+  0% { width: 10%; }
+  50% { width: 85%; }
+  100% { width: 10%; }
+}
 @keyframes barLoad {
   0% { width: 0%; opacity: 0.5; }
   50% { width: 100%; opacity: 1; }
