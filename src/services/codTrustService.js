@@ -18,14 +18,14 @@ import { supabase } from '@/lib/supabase'
 
 const TRUST_LEVELS = {
   new:      { codAllowed: false, maxCodAmount: 0,      label: 'New Account' },
-  basic:    { codAllowed: true,  maxCodAmount: 100000,  label: 'Basic Trust' },    // After 3 completed orders
-  trusted:  { codAllowed: true,  maxCodAmount: 300000,  label: 'Trusted' },        // After 10 completed orders
-  verified: { codAllowed: true,  maxCodAmount: 1000000, label: 'Verified' },       // After 25 completed orders
+  basic:    { codAllowed: true,  maxCodAmount: 200000,  label: 'Basic Trust' },    // After 1 completed bank transfer
+  trusted:  { codAllowed: true,  maxCodAmount: 500000,  label: 'Trusted' },        // After 5 completed orders
+  verified: { codAllowed: true,  maxCodAmount: 1000000, label: 'Verified' },       // After 15 completed orders
 }
 
-const ORDERS_FOR_BASIC = 3
-const ORDERS_FOR_TRUSTED = 10
-const ORDERS_FOR_VERIFIED = 25
+const ORDERS_FOR_BASIC = 1    // 1 bank transfer = we know who you are
+const ORDERS_FOR_TRUSTED = 5
+const ORDERS_FOR_VERIFIED = 15
 
 /**
  * Get user's trust level based on order history.
@@ -59,7 +59,7 @@ export async function canUseCOD(userId, orderAmount) {
   if (!trust.codAllowed) {
     return {
       allowed: false,
-      reason: `Complete ${ORDERS_FOR_BASIC} orders with bank transfer to unlock Cash on Delivery.`,
+      reason: 'Complete your first order with bank transfer to unlock Cash on Delivery.',
       ordersNeeded: ORDERS_FOR_BASIC - trust.completedOrders,
     }
   }
