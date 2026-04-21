@@ -669,7 +669,7 @@ export default function RestaurantMenuSheet({ restaurant, onClose, onOrderViaCha
                     <img src="https://ik.imagekit.io/nepgaxllc/Sleek%20green%20and%20black%20scooter%20setup.png?updatedAt=1775634845237" alt="" style={{ width: 36, height: 36, objectFit: 'contain', flexShrink: 0 }} />
                     <div style={{ flex: 1 }}>
                       <span style={{ fontSize: 14, fontWeight: 800, color: '#fff', display: 'block' }}>Delivery</span>
-                      <span style={{ fontSize: 11, color: 'rgba(255,255,255,0.4)' }}>~{eta} min · Cash to driver</span>
+                      <span style={{ fontSize: 11, color: 'rgba(255,255,255,0.4)' }}>~{eta} min · Payment To Driver</span>
                     </div>
                     <span style={{ fontSize: 15, fontWeight: 900, color: '#FACC15' }}>{fmtRp(deliveryFare)}</span>
                   </div>
@@ -695,9 +695,18 @@ export default function RestaurantMenuSheet({ restaurant, onClose, onOrderViaCha
                   </div>
                 )}
 
+                {/* Total Order */}
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '12px 0' }}>
+                  <span style={{ fontSize: 16, fontWeight: 900, color: '#fff' }}>Total Order</span>
+                  <span style={{ fontSize: 18, fontWeight: 900, color: '#FACC15' }}>{fmtRp(grandTotal)}</span>
+                </div>
+
+                <div className={styles.cartDivider} style={{ margin: '0 0 12px' }} />
+
                 {/* Payment method selection */}
                 <div style={{ marginBottom: 12 }}>
-                  <span style={{ fontSize: 13, fontWeight: 800, color: 'rgba(255,255,255,0.6)', marginBottom: 8, display: 'block' }}>Payment Method</span>
+                  <span style={{ fontSize: 12, fontWeight: 700, color: 'rgba(255,255,255,0.4)', display: 'block' }}>Food payment only · Delivery fee paid to driver on arrival</span>
+                  <div style={{ height: 8 }} />
                   <div style={{ display: 'flex', gap: 8 }}>
                     <button onClick={() => setPaymentMethod('bank')} style={{
                       flex: 1, padding: '14px 8px', borderRadius: 12,
@@ -758,20 +767,7 @@ export default function RestaurantMenuSheet({ restaurant, onClose, onOrderViaCha
                   )}
                 </div>
 
-                <div className={styles.cartDivider} style={{ margin: '8px 0' }} />
-
-                <div className={styles.cartTotal} style={{ padding: '8px 0' }}>
-                  <span>Total</span>
-                  <span style={{ color: '#FACC15' }}>
-                    {paymentMethod === 'bank'
-                      ? fmtRp(Math.round(cartTotal * 0.97) + (orderType === 'delivery' ? (deliveryFare ?? 0) : 0))
-                      : fmtRp(grandTotal)
-                    }
-                  </span>
-                </div>
-                {paymentMethod === 'bank' && orderType === 'delivery' && (
-                  <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.35)', textAlign: 'right', marginTop: 2 }}>
-                    {fmtRp(Math.round(cartTotal * 0.97))} bank transfer + {fmtRp(deliveryFare ?? 0)} cash to driver
+                <div style={{ display: 'none' }}>
                   </div>
                 )}
               </>
