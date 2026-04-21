@@ -1085,6 +1085,7 @@ export default function RestaurantMenuSheet({ restaurant, onClose, onOrderViaCha
                 <p style={{ fontSize: 12, color: 'rgba(255,255,255,0.4)', margin: 0 }}>{restaurant.name}</p>
               </div>
             </>
+          )}
         </div>
       )}
 
