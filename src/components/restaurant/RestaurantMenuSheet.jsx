@@ -1037,28 +1037,47 @@ export default function RestaurantMenuSheet({ restaurant, onClose, onOrderViaCha
             alt={!orderReceived ? 'Processing' : 'Order Received'}
             style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover' }}
           />
-          {/* Overlay for text readability */}
-          <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to top, rgba(0,0,0,0.7) 0%, transparent 40%, transparent 60%, rgba(0,0,0,0.5) 100%)' }} />
+          {/* Overlay */}
+          <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to top, rgba(0,0,0,0.8) 0%, rgba(0,0,0,0.3) 40%, rgba(0,0,0,0.3) 60%, rgba(0,0,0,0.6) 100%)' }} />
 
-          {/* Text at bottom */}
-          <div style={{ position: 'absolute', bottom: 60, left: 0, right: 0, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 12, zIndex: 2 }}>
-            {!orderReceived ? (
-              <>
-                <h3 style={{ fontSize: 22, fontWeight: 900, color: '#fff', margin: 0, textShadow: '0 2px 12px rgba(0,0,0,0.8)' }}>Processing Order</h3>
-                <div style={{ display: 'flex', gap: 12, marginTop: 6 }}>
-                  <span style={{ width: 14, height: 14, borderRadius: '50%', background: '#8DC63F', animation: 'dotDance 1.8s ease-in-out infinite', boxShadow: '0 0 12px rgba(141,198,63,0.6)' }} />
-                  <span style={{ width: 14, height: 14, borderRadius: '50%', background: '#8DC63F', animation: 'dotDance 1.8s ease-in-out 0.3s infinite', boxShadow: '0 0 12px rgba(141,198,63,0.6)' }} />
-                  <span style={{ width: 14, height: 14, borderRadius: '50%', background: '#8DC63F', animation: 'dotDance 1.8s ease-in-out 0.6s infinite', boxShadow: '0 0 12px rgba(141,198,63,0.6)' }} />
+          {!orderReceived ? (
+            <>
+              {/* Center — spinning ring + icon */}
+              <div style={{ position: 'absolute', top: '40%', left: '50%', transform: 'translate(-50%, -50%)', zIndex: 2, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 16 }}>
+                {/* Spinning ring */}
+                <div style={{ position: 'relative', width: 100, height: 100 }}>
+                  <div style={{ position: 'absolute', inset: 0, borderRadius: '50%', border: '3px solid rgba(255,255,255,0.08)' }} />
+                  <div style={{ position: 'absolute', inset: 0, borderRadius: '50%', border: '3px solid transparent', borderTopColor: '#8DC63F', animation: 'spin 1s linear infinite' }} />
+                  <div style={{ position: 'absolute', inset: 8, borderRadius: '50%', border: '2px solid transparent', borderTopColor: '#FACC15', animation: 'spin 1.5s linear infinite reverse' }} />
+                  <div style={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)', fontSize: 28 }}>🍽</div>
                 </div>
-                <p style={{ fontSize: 14, color: 'rgba(255,255,255,0.6)', margin: 0, animation: 'pulse 2s ease-in-out infinite' }}>Finding your driver...</p>
-              </>
-            ) : (
-              <>
-                <h3 style={{ fontSize: 24, fontWeight: 900, color: '#8DC63F', margin: 0, textShadow: '0 2px 12px rgba(0,0,0,0.8)' }}>Order Received!</h3>
-                <p style={{ fontSize: 14, color: 'rgba(255,255,255,0.6)', margin: 0 }}>{restaurant.name} has your order</p>
-              </>
-            )}
-          </div>
+                {/* Progress bar */}
+                <div style={{ width: 160, height: 4, borderRadius: 2, background: 'rgba(255,255,255,0.1)', overflow: 'hidden' }}>
+                  <div style={{ height: '100%', background: '#8DC63F', borderRadius: 2, animation: 'barLoad 2s ease-in-out infinite' }} />
+                </div>
+              </div>
+
+              {/* Bottom text */}
+              <div style={{ position: 'absolute', bottom: 60, left: 0, right: 0, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 10, zIndex: 2 }}>
+                <h3 style={{ fontSize: 22, fontWeight: 900, color: '#fff', margin: 0, textShadow: '0 2px 12px rgba(0,0,0,0.8)' }}>Processing Order</h3>
+                <div style={{ display: 'flex', gap: 12 }}>
+                  <span style={{ width: 12, height: 12, borderRadius: '50%', background: '#8DC63F', animation: 'dotDance 1.8s ease-in-out infinite', boxShadow: '0 0 10px rgba(141,198,63,0.5)' }} />
+                  <span style={{ width: 12, height: 12, borderRadius: '50%', background: '#8DC63F', animation: 'dotDance 1.8s ease-in-out 0.3s infinite', boxShadow: '0 0 10px rgba(141,198,63,0.5)' }} />
+                  <span style={{ width: 12, height: 12, borderRadius: '50%', background: '#8DC63F', animation: 'dotDance 1.8s ease-in-out 0.6s infinite', boxShadow: '0 0 10px rgba(141,198,63,0.5)' }} />
+                </div>
+                <p style={{ fontSize: 13, color: 'rgba(255,255,255,0.5)', margin: 0, animation: 'pulse 2s ease-in-out infinite' }}>Finding your driver...</p>
+              </div>
+            </>
+          ) : (
+            /* Order received */
+            <div style={{ position: 'absolute', bottom: 60, left: 0, right: 0, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 12, zIndex: 2 }}>
+              <div style={{ width: 64, height: 64, borderRadius: '50%', background: 'rgba(141,198,63,0.15)', border: '2px solid #8DC63F', display: 'flex', alignItems: 'center', justifyContent: 'center', animation: 'pulse 1.5s ease-in-out infinite' }}>
+                <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#8DC63F" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+              </div>
+              <h3 style={{ fontSize: 24, fontWeight: 900, color: '#8DC63F', margin: 0, textShadow: '0 2px 12px rgba(0,0,0,0.8)' }}>Order Received!</h3>
+              <p style={{ fontSize: 14, color: 'rgba(255,255,255,0.6)', margin: 0 }}>{restaurant.name} has your order</p>
+            </div>
+          )}
         </div>
       )}
 
