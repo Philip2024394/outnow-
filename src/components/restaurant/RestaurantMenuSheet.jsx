@@ -461,6 +461,16 @@ export default function RestaurantMenuSheet({ restaurant, onClose, onOrderViaCha
   }
 
   // Rotate driver images safely
+  // Images: driver heading to restaurant (daytime pickup)
+  const DRIVER_PICKUP_IMAGES = [
+    'https://ik.imagekit.io/nepgaxllc/ChatGPT%20Image%20Apr%2016,%202026,%2006_36_14%20PM.png?updatedAt=1776339391906',
+    'https://ik.imagekit.io/nepgaxllc/ChatGPT%20Image%20Apr%2016,%202026,%2006_35_10%20PM.png?updatedAt=1776339327027',
+    'https://ik.imagekit.io/nepgaxllc/Rider_s%20view%20of%20a%20sport%20motorcycle%20dashboard.png?updatedAt=1776155502901',
+    'https://ik.imagekit.io/nepgaxllc/ChatGPT%20Image%20Apr%2022,%202026,%2002_55_36%20AM.png',
+    'https://ik.imagekit.io/nepgaxllc/ChatGPT%20Image%20Apr%2022,%202026,%2003_04_40%20AM.png',
+  ]
+
+  // Images: driver on the way to customer (delivery)
   const DRIVER_ON_WAY_IMAGES = [
     'https://ik.imagekit.io/nepgaxllc/Motorcycle%20view%20on%20city%20street.png?updatedAt=1776062865270',
     'https://ik.imagekit.io/nepgaxllc/Speeding%20through%20the%20vibrant%20city%20streets.png?updatedAt=1776061842808',
@@ -469,10 +479,11 @@ export default function RestaurantMenuSheet({ restaurant, onClose, onOrderViaCha
     'https://ik.imagekit.io/nepgaxllc/Up%20close%20on%20the%20green%20ride.png?updatedAt=1776062117020',
   ]
   useEffect(() => {
-    if (driverPhase !== 'to_customer' || !driverOnWay) return
+    if ((driverPhase !== 'to_customer' && driverPhase !== 'to_restaurant') || !driverOnWay) return
     setDriverImgIdx(0)
+    const imgs = driverPhase === 'to_restaurant' ? DRIVER_PICKUP_IMAGES : DRIVER_ON_WAY_IMAGES
     const id = setInterval(() => {
-      if (mountedRef.current) setDriverImgIdx(i => (i + 1) % DRIVER_ON_WAY_IMAGES.length)
+      if (mountedRef.current) setDriverImgIdx(i => (i + 1) % imgs.length)
     }, 4000)
     return () => clearInterval(id)
   }, [driverPhase, !!driverOnWay]) // eslint-disable-line react-hooks/exhaustive-deps
@@ -1109,13 +1120,13 @@ export default function RestaurantMenuSheet({ restaurant, onClose, onOrderViaCha
             <img
               src={
                 driverPhase === 'to_restaurant'
-                  ? 'https://ik.imagekit.io/nepgaxllc/ChatGPT%20Image%20Apr%2016,%202026,%2006_36_14%20PM.png?updatedAt=1776339391906'
+                  ? (DRIVER_PICKUP_IMAGES[driverImgIdx % DRIVER_PICKUP_IMAGES.length] ?? DRIVER_PICKUP_IMAGES[0])
                   : driverPhase === 'to_customer'
                     ? (DRIVER_ON_WAY_IMAGES[driverImgIdx % DRIVER_ON_WAY_IMAGES.length] ?? DRIVER_ON_WAY_IMAGES[0])
                     : 'https://ik.imagekit.io/nepgaxllc/Untitleddsddaadsds.png?updatedAt=1776787842452'
               }
               alt=""
-              key={driverPhase === 'to_customer' ? driverImgIdx : driverPhase}
+              key={driverPhase === 'to_customer' || driverPhase === 'to_restaurant' ? `${driverPhase}-${driverImgIdx}` : driverPhase}
               style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', animation: 'fadeIn 0.8s ease' }}
             />
             <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to bottom, rgba(0,0,0,0.3) 0%, transparent 30%, transparent 50%, rgba(0,0,0,0.7) 100%)' }} />
