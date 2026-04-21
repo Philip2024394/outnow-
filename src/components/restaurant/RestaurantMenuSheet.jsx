@@ -774,9 +774,6 @@ export default function RestaurantMenuSheet({ restaurant, onClose, onOrderViaCha
                   )}
                 </div>
 
-                <div style={{ display: 'none' }}>
-                  </div>
-                )}
               </>
             )}
           </div>
