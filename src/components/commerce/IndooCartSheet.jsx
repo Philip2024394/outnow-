@@ -2,6 +2,7 @@ import { useState, useMemo } from 'react'
 import { PARCEL_CARRIERS, CARGO_CARRIERS, EXPORT_CARRIERS } from '@/services/commissionService'
 import { validateVoucher, redeemVoucher } from '@/services/voucherService'
 import { calculateCombinedShipping, fmtWeight } from '@/services/deliveryRateService'
+import IndooPayment from '@/components/payment/IndooPayment'
 import styles from './IndooCartSheet.module.css'
 
 function formatIDR(n) {
@@ -191,9 +192,14 @@ export default function IndooCartSheet({
     )
   }
 
+  const [showPayment, setShowPayment] = useState(false)
+
   function handleCheckout() {
     if (!showAddr && selected.id !== 'collect') { setShowAddr(true); return }
+    if (!showPayment) { setShowPayment(true); return }
+  }
 
+  function handlePaymentDone({ method, transactionCode }) {
     // For in-app chat order
     if (onOrderViaChat) {
       onOrderViaChat({
@@ -518,7 +524,21 @@ export default function IndooCartSheet({
           </div>
         </div>
 
+        {/* Payment section */}
+        {showPayment && (
+          <div style={{ padding: '12px 16px', borderTop: '1px solid rgba(255,255,255,0.06)' }}>
+            <IndooPayment
+              amount={total}
+              bankDetails={product?.bank ?? { name: 'BCA', account_number: '—', account_holder: 'Seller' }}
+              codLabel="Cash on Delivery"
+              confirmLabel="Place Order"
+              onConfirm={handlePaymentDone}
+            />
+          </div>
+        )}
+
         {/* Footer */}
+        {!showPayment && (
         <div className={styles.footer}>
           <button className={styles.clearBtn} onClick={() => { onClearCart(); onClose() }}>
             Clear cart
@@ -534,6 +554,7 @@ export default function IndooCartSheet({
             {showAddr ? (isBike ? 'Send Order · Direct Transfer' : 'Checkout') : 'Checkout'}
           </button>
         </div>
+        )}
 
       </div>
     </div>
