@@ -390,14 +390,14 @@ export default function RestaurantMenuSheet({ restaurant, onClose, onOrderViaCha
   const BANNER_MESSAGES = {
     to_restaurant: [
       { text: 'Driver heading to pick up your food', speed: 35 },
-      { text: 'Kitchen is preparing your order', speed: 28 },
+      { text: 'Kitchen is preparing your order', speed: 32 },
       { text: 'Driver is making good time', speed: 40 },
     ],
     to_customer: [
       { text: 'Food picked up — on the way to you', speed: 38 },
       { text: 'Driver is making good time', speed: 42 },
       { text: 'Driver has reduced speed due to traffic', speed: 15 },
-      { text: 'Driver has stopped at traffic junction', speed: 0 },
+      { text: 'Driver has stopped at traffic junction', speed: 8 },
       { text: 'Driver will arrive soon', speed: 30 },
     ],
     arrived: [
@@ -1136,9 +1136,8 @@ export default function RestaurantMenuSheet({ restaurant, onClose, onOrderViaCha
 
           {/* Bottom panel — driver info + progress */}
           <div style={{
-            flexShrink: 0, padding: '16px', borderTop: '1px solid rgba(255,255,255,0.06)', position: 'relative', overflow: 'hidden',
-            backgroundImage: 'url(https://ik.imagekit.io/nepgaxllc/Untitledcasdasdddddd-removebg-preview.png)',
-            backgroundSize: 'cover', backgroundPosition: 'center', backgroundRepeat: 'no-repeat',
+            flexShrink: 0, padding: '16px', borderTop: '1px solid rgba(255,255,255,0.06)', position: 'relative',
+            background: 'rgba(10,10,10,0.95)',
           }}>
             {/* Driver card */}
             <div className={styles.driverCard}>
