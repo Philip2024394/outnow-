@@ -663,7 +663,38 @@ export default function RestaurantMenuSheet({ restaurant, onClose, onOrderViaCha
                   </div>
                 ))}
 
-                {/* Divider */}
+                {/* Delivery fee card */}
+                {orderType === 'delivery' && (deliveryFare ?? 0) > 0 && (
+                  <div className={styles.cartPageItem} style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                    <img src="https://ik.imagekit.io/nepgaxllc/Sleek%20green%20and%20black%20scooter%20setup.png?updatedAt=1775634845237" alt="" style={{ width: 36, height: 36, objectFit: 'contain', flexShrink: 0 }} />
+                    <div style={{ flex: 1 }}>
+                      <span style={{ fontSize: 14, fontWeight: 800, color: '#fff', display: 'block' }}>Delivery Fee</span>
+                      <span style={{ fontSize: 11, color: 'rgba(255,255,255,0.4)' }}>Cash to driver on arrival</span>
+                    </div>
+                    <span style={{ fontSize: 15, fontWeight: 900, color: '#FACC15' }}>{fmtRp(deliveryFare)}</span>
+                  </div>
+                )}
+                {orderType === 'dinein' && (
+                  <div className={styles.cartPageItem} style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                    <span style={{ fontSize: 24 }}>🍽️</span>
+                    <div style={{ flex: 1 }}>
+                      <span style={{ fontSize: 14, fontWeight: 800, color: '#fff', display: 'block' }}>Dine In</span>
+                      <span style={{ fontSize: 11, color: 'rgba(255,255,255,0.4)' }}>Eat at restaurant</span>
+                    </div>
+                    <span style={{ fontSize: 14, fontWeight: 800, color: '#8DC63F' }}>Free</span>
+                  </div>
+                )}
+                {orderType === 'pickup' && (
+                  <div className={styles.cartPageItem} style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                    <span style={{ fontSize: 24 }}>🏪</span>
+                    <div style={{ flex: 1 }}>
+                      <span style={{ fontSize: 14, fontWeight: 800, color: '#fff', display: 'block' }}>Pickup</span>
+                      <span style={{ fontSize: 11, color: 'rgba(255,255,255,0.4)' }}>Collect at restaurant</span>
+                    </div>
+                    <span style={{ fontSize: 14, fontWeight: 800, color: '#8DC63F' }}>Free</span>
+                  </div>
+                )}
+
                 {/* Summary */}
                 <div className={styles.cartDivider} style={{ margin: '8px 0' }} />
 
