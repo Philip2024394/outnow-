@@ -385,6 +385,37 @@ export default function RestaurantMenuSheet({ restaurant, onClose, onOrderViaCha
   const [driverOnWay, setDriverOnWay] = useState(null)
   const [driverPhase, setDriverPhase] = useState('to_restaurant')
   const [driverImgIdx, setDriverImgIdx] = useState(0)
+  const [bannerMsgIdx, setBannerMsgIdx] = useState(0)
+
+  const BANNER_MESSAGES = {
+    to_restaurant: [
+      'Driver heading to pick up your food',
+      'Kitchen is preparing your order',
+      'Driver is making good time',
+    ],
+    to_customer: [
+      'Food picked up — on the way to you',
+      'Driver is making good time',
+      'Driver has reduced speed due to traffic',
+      'Driver has stopped at traffic junction',
+      'Driver will arrive soon',
+    ],
+    arrived: [
+      'Driver just arrived — please approach to receive your food',
+      'Hey, enjoy your meal! — from the Indoo Team',
+    ],
+  }
+
+  useEffect(() => {
+    if (!driverOnWay) return
+    setBannerMsgIdx(0)
+    const msgs = BANNER_MESSAGES[driverPhase] ?? []
+    if (msgs.length <= 1) return
+    const id = setInterval(() => {
+      setBannerMsgIdx(i => (i + 1) % msgs.length)
+    }, 8000)
+    return () => clearInterval(id)
+  }, [driverPhase, !!driverOnWay]) // eslint-disable-line react-hooks/exhaustive-deps
 
   // ── Master cleanup: cancel ALL pending timers on unmount ──
   const timerRefs = useRef([])
@@ -1014,12 +1045,12 @@ export default function RestaurantMenuSheet({ restaurant, onClose, onOrderViaCha
             {!orderReceived ? (
               <>
                 <h3 style={{ fontSize: 22, fontWeight: 900, color: '#fff', margin: 0, textShadow: '0 2px 12px rgba(0,0,0,0.8)' }}>Processing Order</h3>
-                <div style={{ display: 'flex', gap: 8 }}>
-                  <span style={{ width: 10, height: 10, borderRadius: '50%', background: '#8DC63F', animation: 'ping 1.2s ease-in-out infinite' }} />
-                  <span style={{ width: 10, height: 10, borderRadius: '50%', background: '#8DC63F', animation: 'ping 1.2s ease-in-out 0.3s infinite' }} />
-                  <span style={{ width: 10, height: 10, borderRadius: '50%', background: '#8DC63F', animation: 'ping 1.2s ease-in-out 0.6s infinite' }} />
+                <div style={{ display: 'flex', gap: 10, marginTop: 4 }}>
+                  <span style={{ width: 12, height: 12, borderRadius: '50%', background: '#8DC63F', animation: 'dotBounce 1.4s ease-in-out infinite', boxShadow: '0 0 8px rgba(141,198,63,0.5)' }} />
+                  <span style={{ width: 12, height: 12, borderRadius: '50%', background: '#8DC63F', animation: 'dotBounce 1.4s ease-in-out 0.2s infinite', boxShadow: '0 0 8px rgba(141,198,63,0.5)' }} />
+                  <span style={{ width: 12, height: 12, borderRadius: '50%', background: '#8DC63F', animation: 'dotBounce 1.4s ease-in-out 0.4s infinite', boxShadow: '0 0 8px rgba(141,198,63,0.5)' }} />
                 </div>
-                <p style={{ fontSize: 13, color: 'rgba(255,255,255,0.5)', margin: 0 }}>Finding your driver...</p>
+                <p style={{ fontSize: 14, color: 'rgba(255,255,255,0.6)', margin: 0, animation: 'pulse 2s ease-in-out infinite' }}>Finding your driver...</p>
               </>
             ) : (
               <>
@@ -1071,12 +1102,10 @@ export default function RestaurantMenuSheet({ restaurant, onClose, onOrderViaCha
             <div style={{ position: 'absolute', top: 12, left: 12, right: 12, zIndex: 2 }}>
               <div style={{ padding: '12px 16px', borderRadius: 14, background: 'rgba(0,0,0,0.8)', backdropFilter: 'blur(12px)', border: '1px solid rgba(255,255,255,0.08)', display: 'flex', alignItems: 'center', gap: 10 }}>
                 <span style={{ width: 8, height: 8, borderRadius: '50%', background: '#8DC63F', animation: 'ping 1.5s ease-in-out infinite', flexShrink: 0 }} />
-                <span style={{ fontSize: 14, fontWeight: 800, color: '#fff', flex: 1 }}>
-                  {driverPhase === 'to_restaurant' && 'Driver on the way to restaurant'}
-                  {driverPhase === 'to_customer' && 'Food picked up — on the way to you'}
-                  {driverPhase === 'arrived' && 'Driver has arrived!'}
+                <span style={{ fontSize: 13, fontWeight: 800, color: '#fff', flex: 1, animation: 'fadeIn 0.5s ease' }} key={bannerMsgIdx + driverPhase}>
+                  {(BANNER_MESSAGES[driverPhase] ?? [])[bannerMsgIdx % (BANNER_MESSAGES[driverPhase]?.length ?? 1)] ?? ''}
                 </span>
-                <span style={{ fontSize: 14, fontWeight: 900, color: '#8DC63F', flexShrink: 0 }}>~{driverOnWay?.eta ?? 0} min</span>
+                {driverPhase !== 'arrived' && <span style={{ fontSize: 14, fontWeight: 900, color: '#8DC63F', flexShrink: 0 }}>~{driverOnWay?.eta ?? 0} min</span>}
               </div>
             </div>
 
@@ -1094,9 +1123,6 @@ export default function RestaurantMenuSheet({ restaurant, onClose, onOrderViaCha
               </div>
             </div>
           </div>
-
-          {/* Driver character overlay — sits between map and footer */}
-          <img src="https://ik.imagekit.io/nepgaxllc/Untitlediuooiuoifsdfsdf-removebg-preview.png?updatedAt=1775659748531" alt="" style={{ position: 'absolute', right: 10, bottom: 220, width: 120, height: 120, objectFit: 'contain', zIndex: 3, pointerEvents: 'none' }} />
 
           {/* Bottom panel — driver info + progress */}
           <div style={{
