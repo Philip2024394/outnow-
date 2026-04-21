@@ -564,10 +564,12 @@ export default function RestaurantMenuSheet({ restaurant, onClose, onOrderViaCha
         timerRefs.current.push(() => unsub?.())
       }).catch(() => { /* no Supabase — demo fallback handles it */ })
 
-      // Demo fallback auto-progress (only in demo mode)
+      // Demo: auto-progress after full image cycles
+      // Stage 1 stays until all 5 pickup images show (5 × 4s = 20s) then loops
+      // Pickup activates after 30s, delivery after 60s, arrived after 90s
       if (import.meta.env.VITE_DEMO_MODE === 'true' || !import.meta.env.VITE_SUPABASE_URL) {
-        safeTimeout(() => setDriverPhase('to_customer'), 25000)  // 25s: all 5 pickup images shown (4s each = 20s)
-        safeTimeout(() => setDriverPhase('arrived'), 55000)   // 55s: all 5 delivery images shown
+        safeTimeout(() => setDriverPhase('to_customer'), 30000)
+        safeTimeout(() => setDriverPhase('arrived'), 65000)
       }
 
       setCart([])
