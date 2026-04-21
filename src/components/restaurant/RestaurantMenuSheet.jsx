@@ -736,6 +736,7 @@ export default function RestaurantMenuSheet({ restaurant, onClose, onOrderViaCha
                   </div>
                   {paymentMethod === 'bank' && restaurant.bank && (
                     <div style={{ marginTop: 10, padding: 14, borderRadius: 14, background: 'rgba(0,0,0,0.6)', backdropFilter: 'blur(12px)', border: '1px solid rgba(255,255,255,0.06)' }}>
+                      <span style={{ fontSize: 11, fontWeight: 800, color: '#8DC63F', marginBottom: 6, display: 'block' }}>Saved 3%</span>
                       {/* Row 1: Bank + account + QR */}
                       <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
                         <div style={{ flex: 1 }}>
@@ -749,7 +750,8 @@ export default function RestaurantMenuSheet({ restaurant, onClose, onOrderViaCha
                         )}
                       </div>
                       {/* Row 2: Amount */}
-                      <div style={{ marginTop: 10 }}>
+                      <div style={{ marginTop: 10, display: 'flex', alignItems: 'baseline', gap: 6 }}>
+                        <span style={{ fontSize: 12, fontWeight: 700, color: 'rgba(255,255,255,0.4)' }}>Food Only</span>
                         <span style={{ fontSize: 18, fontWeight: 900, color: '#FACC15' }}>{fmtRp(Math.round(cartTotal * 0.97))}</span>
                       </div>
                       {/* Row 3: Transaction code */}
