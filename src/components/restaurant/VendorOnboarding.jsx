@@ -1,7 +1,9 @@
-import { useState, useRef } from 'react'
+import { useState, useRef, useEffect } from 'react'
 import { createPortal } from 'react-dom'
 import { supabase } from '@/lib/supabase'
 import { uploadImage } from '@/lib/uploadImage'
+import { getKTPStatus } from '@/services/ktpVerificationService'
+import KTPVerification from '@/components/verification/KTPVerification'
 import styles from './VendorOnboarding.module.css'
 
 // ── Cuisine options (big icon buttons) ──────────────────────────────────────
@@ -80,6 +82,48 @@ function Toggle({ value, onChange }) {
 
 // ── Main wizard ─────────────────────────────────────────────────────────────
 export default function VendorOnboarding({ open, onClose, onComplete, userId }) {
+  const [ktpStatus, setKtpStatus] = useState(null) // null = loading
+  const [ktpOpen, setKtpOpen] = useState(false)
+
+  useEffect(() => {
+    if (!open || !userId) return
+    getKTPStatus(userId).then(s => setKtpStatus(s?.ktp_status ?? 'none'))
+  }, [open, userId])
+
+  // KTP gate — must be verified before vendor onboarding
+  if (open && ktpStatus !== null && ktpStatus !== 'approved') {
+    // Demo mode bypass
+    if (import.meta.env.VITE_DEMO_MODE !== 'true') {
+      return (
+        <>
+          {createPortal(
+            <div style={{ position: 'fixed', inset: 0, zIndex: 9800, background: '#0a0a0a', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: 32 }}>
+              <div style={{ width: 64, height: 64, borderRadius: '50%', background: 'rgba(250,204,21,0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: 16 }}>
+                <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#FACC15" strokeWidth="2" strokeLinecap="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+              </div>
+              <h2 style={{ fontSize: 20, fontWeight: 900, color: '#fff', margin: '0 0 8px', textAlign: 'center' }}>Identity Verification Required</h2>
+              <p style={{ fontSize: 13, color: 'rgba(255,255,255,0.4)', margin: '0 0 24px', textAlign: 'center', lineHeight: 1.6 }}>
+                To protect buyers and sellers, all vendors must verify their identity with KTP before listing on INDOO.
+              </p>
+              <button onClick={() => setKtpOpen(true)} style={{ padding: '14px 32px', borderRadius: 14, border: 'none', background: '#8DC63F', color: '#000', fontSize: 15, fontWeight: 900, cursor: 'pointer', marginBottom: 12 }}>
+                Verify Now
+              </button>
+              <button onClick={onClose} style={{ background: 'none', border: 'none', color: 'rgba(255,255,255,0.3)', fontSize: 13, cursor: 'pointer' }}>
+                Maybe later
+              </button>
+            </div>,
+            document.body
+          )}
+          <KTPVerification
+            open={ktpOpen}
+            onClose={() => setKtpOpen(false)}
+            onVerified={() => { setKtpOpen(false); setKtpStatus('pending') }}
+          />
+        </>
+      )
+    }
+  }
+
   const [step, setStep] = useState(0)
   const [saving, setSaving] = useState(false)
   const photoInputRef = useRef(null)

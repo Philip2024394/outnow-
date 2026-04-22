@@ -3,6 +3,21 @@ import { createPortal } from 'react-dom'
 import styles from './DealHuntLanding.module.css'
 import DealReviewCarousel from '../components/DealReviewCarousel'
 
+// ── Promo banners — full-screen, no text, random rotation ────────────────────
+const PROMO_BANNERS = [
+  'https://ik.imagekit.io/nepgaxllc/ChatGPT%20Image%20Apr%2022,%202026,%2008_41_31%20AM.png',
+  'https://ik.imagekit.io/nepgaxllc/ChatGPT%20Image%20Apr%2022,%202026,%2008_38_42%20AM.png',
+  'https://ik.imagekit.io/nepgaxllc/ChatGPT%20Image%20Apr%2022,%202026,%2008_35_03%20AM.png',
+  'https://ik.imagekit.io/nepgaxllc/ChatGPT%20Image%20Apr%2022,%202026,%2008_29_29%20AM.png',
+  'https://ik.imagekit.io/nepgaxllc/ChatGPT%20Image%20Apr%2022,%202026,%2008_46_04%20AM.png',
+  'https://ik.imagekit.io/nepgaxllc/ChatGPT%20Image%20Apr%2022,%202026,%2008_51_11%20AM.png',
+  'https://ik.imagekit.io/nepgaxllc/ChatGPT%20Image%20Apr%2022,%202026,%2008_55_19%20AM.png',
+]
+function getRandomBanner(exclude) {
+  const available = PROMO_BANNERS.filter(b => b !== exclude)
+  return available[Math.floor(Math.random() * available.length)]
+}
+
 // ── Demo deals with larger images ─────────────────────────────────────────────
 const DEMO_DEALS = [
   { id: 'd1', title: 'Nasi Goreng Spesial', domain: 'food', sub: 'Nasi goreng kampung dengan telur mata sapi, kerupuk, dan acar segar', seller_name: 'Warung Bu Sari', seller_photo: 'https://i.pravatar.cc/80?img=1', seller_rating: 4.8, original_price: 35000, deal_price: 19000, quantity_available: 50, quantity_claimed: 38, end_time: Date.now() + 3*3600000, images: ['https://picsum.photos/seed/nasgor/1080/1920'], city: 'Yogyakarta', is_hot: true },
@@ -488,7 +503,7 @@ function DealSlide({ deal, isActive, onClaim, onChat, onViewSeller, onOpenMenu }
           onClick={() => !expired && pct < 100 && onClaim?.(deal)}
           disabled={expired || pct >= 100}
         >
-          {pct >= 100 ? 'Sold Out!' : expired ? 'Deal Ended' : `🔥 Claim Now — ${fmtRp(deal.deal_price)}`}
+          {pct >= 100 ? 'Sold Out!' : expired ? 'Deal Ended' : `🔥 Get This Deal — ${fmtRp(deal.deal_price)}`}
         </button>
 
         {/* Social proof */}
@@ -512,6 +527,7 @@ const LANDING_BG = 'https://ik.imagekit.io/nepgaxllc/ChatGPT%20Image%20Apr%2020,
 export default function DealHuntLanding({ open, onClose, onSelectDeal, onCreateDeal, onViewSeller }) {
   const [showLanding, setShowLanding] = useState(true)
   const [activeIndex, setActiveIndex] = useState(0)
+  const [onBanner, setOnBanner] = useState(true) // first slide is always a banner
   const [userTouched, setUserTouched] = useState(false)
 
   // Reset to landing page every time Deal Hunt opens
@@ -526,12 +542,24 @@ export default function DealHuntLanding({ open, onClose, onSelectDeal, onCreateD
   const autoScrollRef = useRef(null)
   const deals = DEMO_DEALS
 
+  // Banner positions in the feed: 0, 11, 22, 33... (every 10 deals + 1 banner)
+  const bannerPositions = useMemo(() => {
+    const positions = new Set()
+    let feedIdx = 0
+    for (let i = 0; i < deals.length; i++) {
+      if (i % 10 === 0) { positions.add(feedIdx); feedIdx++ }
+      feedIdx++
+    }
+    return positions
+  }, [deals.length])
+
   const handleScroll = useCallback(() => {
     const el = containerRef.current
     if (!el) return
     const idx = Math.round(el.scrollTop / el.clientHeight)
-    if (idx !== activeIndex && idx >= 0 && idx < deals.length) setActiveIndex(idx)
-  }, [activeIndex, deals.length])
+    setActiveIndex(idx)
+    setOnBanner(bannerPositions.has(idx))
+  }, [bannerPositions])
 
   // Auto-scroll through all deals once on first load, stop when user touches
   useEffect(() => {
@@ -642,31 +670,82 @@ export default function DealHuntLanding({ open, onClose, onSelectDeal, onCreateD
       </button>}
 
       {/* Title + category/city context */}
-      {!showLanding && <div className={styles.headerTitle}>
+      {!showLanding && !onBanner && <div className={styles.headerTitle}>
         <span className={styles.headerBrand}>DEAL <span style={{ color: '#8DC63F' }}>HUNT</span></span>
         <span className={styles.headerLive}>● LIVE</span>
       </div>}
 
       {/* Hide feed + header sub when landing is showing */}
       {showLanding && <style>{`.${styles.headerSub}, .${styles.feed}, .${styles.fab} { display: none !important; }`}</style>}
-      <div className={styles.headerSub}>
+      <div className={styles.headerSub} style={onBanner ? { display: 'none' } : {}}>
         <span className={styles.headerCategory}>{DOMAIN_LABELS[deals[activeIndex]?.domain] ?? ''}</span>
         <span className={styles.headerDot}>·</span>
         <span className={styles.headerCity}>{deals[activeIndex]?.city ?? 'Indonesia'}</span>
       </div>
 
-      {/* Snap-scroll vertical feed */}
+      {/* Snap-scroll vertical feed with promo banners */}
       <div className={styles.feed} ref={containerRef} onScroll={handleScroll}>
-        {deals.map((deal, i) => (
-          <DealSlide
-            key={deal.id}
-            deal={deal}
-            isActive={i === activeIndex}
-            onClaim={(d) => onSelectDeal?.(d)}
-            onChat={(d) => onSelectDeal?.(d)}
-            onOpenMenu={(d) => onViewSeller?.(d)}
-          />
-        ))}
+        {(() => {
+          const items = []
+          let lastBanner = null
+          deals.forEach((deal, i) => {
+            // Insert banner at start and every 10 deals
+            if (i % 10 === 0) {
+              const banner = getRandomBanner(lastBanner)
+              lastBanner = banner
+              items.push(
+                <div key={`banner-${i}`} className={styles.slide} style={{ background: '#000' }}>
+                  {/* Banner image — full screen width, stretched to fill */}
+                  <img
+                    src={banner}
+                    alt=""
+                    style={{
+                      position: 'absolute',
+                      top: 0, left: 0,
+                      width: '100vw', height: '100%',
+                      objectFit: 'fill',
+                    }}
+                  />
+                  {/* Swipe hint — yellow arrow button, tap to scroll down */}
+                  <div style={{
+                    position: 'absolute', bottom: 50, left: 0, right: 0, zIndex: 3,
+                    display: 'flex', justifyContent: 'center',
+                    animation: 'arrowFloat 1.2s ease-in-out infinite',
+                  }}>
+                    <button
+                      onClick={() => {
+                        const el = containerRef.current
+                        if (el) el.scrollBy({ top: el.clientHeight, behavior: 'smooth' })
+                      }}
+                      style={{
+                        width: 52, height: 52, borderRadius: '50%',
+                        background: 'rgba(0,0,0,0.8)', border: '2px solid rgba(250,204,21,0.4)',
+                        display: 'flex', alignItems: 'center', justifyContent: 'center',
+                        boxShadow: '0 0 16px rgba(250,204,21,0.4)',
+                        cursor: 'pointer', padding: 0,
+                      }}
+                    >
+                      <svg width="24" height="24" viewBox="0 0 24 14" fill="#FACC15" stroke="none" style={{ filter: 'drop-shadow(0 0 6px rgba(250,204,21,0.8))' }}>
+                        <path d="M4 2l8 8 8-8 2 2-10 10L2 4z"/>
+                      </svg>
+                    </button>
+                  </div>
+                </div>
+              )
+            }
+            items.push(
+              <DealSlide
+                key={deal.id}
+                deal={deal}
+                isActive={false}
+                onClaim={(d) => onSelectDeal?.(d)}
+                onChat={(d) => onSelectDeal?.(d)}
+                onOpenMenu={(d) => onViewSeller?.(d)}
+              />
+            )
+          })
+          return items
+        })()}
       </div>
 
       {/* FAB — create deal */}

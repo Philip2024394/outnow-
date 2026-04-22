@@ -7,6 +7,7 @@
  */
 import { useState, useEffect, useRef, useCallback } from 'react'
 import { createPortal } from 'react-dom'
+import DealCheckout from './DealCheckout'
 import styles from './DealDetail.module.css'
 
 // ── helpers ──────────────────────────────────────────────
@@ -316,9 +317,9 @@ export default function DealDetail({ deal, open, onClose, onClaim, onChat }) {
               ? 'Deal Ended'
               : (
                 <>
-                  <span>{'\uD83D\uDD25'} Claim Now</span>
+                  <span>{'\uD83D\uDD25'} Get This Deal</span>
                   {remainingSlots > 0 && (
-                    <span className={styles.remaining}>(Remaining {remainingSlots})</span>
+                    <span className={styles.remaining}>({remainingSlots} left)</span>
                   )}
                 </>
               )}
@@ -349,63 +350,17 @@ export default function DealDetail({ deal, open, onClose, onClaim, onChat }) {
         </>
       )}
 
-      {/* ── Claim modal ── */}
-      {showClaimModal && (
-        <>
-          <div
-            className={styles.claimBackdrop}
-            onClick={() => { if (!claimSuccess) setShowClaimModal(false) }}
-          />
-          <div className={styles.claimSheet}>
-            <div className={styles.claimSheetHandle} />
-
-            {!claimSuccess ? (
-              <>
-                <div className={styles.claimSheetTitle}>Confirm Claim</div>
-                <div className={styles.claimSummary}>
-                  {image && (
-                    <img className={styles.claimThumb} src={image} alt={title} />
-                  )}
-                  <div className={styles.claimSummaryInfo}>
-                    <div className={styles.claimSummaryTitle}>{title}</div>
-                    <div className={styles.claimSummaryPrice}>{formatRp(dealPrice)}</div>
-                  </div>
-                </div>
-                <div className={styles.claimVoucherNote}>
-                  Voucher valid for 7 days
-                </div>
-                <div className={styles.claimActions}>
-                  <button
-                    className={styles.cancelBtn}
-                    onClick={() => setShowClaimModal(false)}
-                  >
-                    Cancel
-                  </button>
-                  <button className={styles.confirmBtn} onClick={handleConfirmClaim}>
-                    Yes, Claim Deal
-                  </button>
-                </div>
-              </>
-            ) : (
-              <div className={styles.successState}>
-                <div className={styles.confetti}>{'\uD83C\uDF89'}</div>
-                <div className={styles.successTitle}>Deal Claimed Successfully!</div>
-                <div className={styles.voucherCode}>{voucherCode}</div>
-                <div className={styles.voucherLabel}>Your Voucher Code</div>
-                <button
-                  className={styles.myDealsLink}
-                  onClick={() => {
-                    setShowClaimModal(false)
-                    onClose?.()
-                  }}
-                >
-                  View in My Deals
-                </button>
-              </div>
-            )}
-          </div>
-        </>
-      )}
+      {/* ── Checkout flow (replaces old claim modal) ── */}
+      <DealCheckout
+        deal={deal}
+        open={showClaimModal}
+        onClose={() => { setShowClaimModal(false); setClaimSuccess(false) }}
+        onSuccess={(result) => {
+          setClaimSuccess(true)
+          setVoucherCode(result.voucherCode)
+          onClaim?.(deal, result.voucherCode)
+        }}
+      />
     </>,
     document.body
   )
