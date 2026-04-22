@@ -10,10 +10,9 @@ import styles from './RestaurantBrowseScreen.module.css'
 
 const FOOD_LANDING_BG = 'https://ik.imagekit.io/nepgaxllc/ChatGPT%20Image%20Apr%2016,%202026,%2006_04_21%20PM.png'
 
-function FoodLanding({ onBrowse, onRegister, onClose }) {
+function FoodLanding({ onBrowse, onRegister, onClose, onSelectVendorType }) {
   return (
     <div className={styles.landingPage} style={{ backgroundImage: `url("${FOOD_LANDING_BG}")` }}>
-      <div style={{ position: 'fixed', top: 6, left: 6, zIndex: 99990, display: 'flex', alignItems: 'center', gap: 6, pointerEvents: 'none' }}><div style={{ width: 28, height: 28, borderRadius: '50%', background: '#8DC63F', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 11, fontWeight: 900, color: '#000', boxShadow: '0 2px 8px rgba(141,198,63,0.4)' }}>F1</div><span style={{ fontSize: 9, fontWeight: 800, color: 'rgba(141,198,63,0.6)' }}>FOOD LANDING</span></div>
       <div className={styles.landingOverlay} />
 
       {/* Side nav — Home + Profile */}
@@ -35,13 +34,39 @@ function FoodLanding({ onBrowse, onRegister, onClose }) {
       </div>
 
       <div className={styles.landingContent}>
-        <h1 className={styles.landingTitle} style={{ textAlign: 'left' }}><span style={{ background: 'linear-gradient(90deg, #fff 0%, #fff 58%, #8DC63F 58%, #8DC63F 100%)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text' }}>INDOO</span> <span style={{ fontSize: '0.55em', fontWeight: 700, color: 'rgba(255,255,255,0.5)' }}>STREET FOOD</span></h1>
-        <p className={styles.landingSub}>Discover street food, warung & restaurants near you</p>
-        <button className={styles.landingBtn} onClick={onBrowse}>
-          Order Food
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-            <polyline points="9 18 15 12 9 6"/>
-          </svg>
+        <h1 className={styles.landingTitle} style={{ textAlign: 'left' }}><span style={{ background: 'linear-gradient(90deg, #fff 0%, #fff 58%, #8DC63F 58%, #8DC63F 100%)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text' }}>INDOO</span> <span style={{ fontSize: '0.55em', fontWeight: 700, color: 'rgba(255,255,255,0.5)' }}>STREET</span></h1>
+        <p className={styles.landingSub}>What are you in the mood for?</p>
+        <div style={{ display: 'flex', gap: 12, width: '100%', maxWidth: 340 }}>
+          <button
+            onClick={() => onSelectVendorType('street_vendor')}
+            style={{
+              flex: 1, padding: '16px 12px', borderRadius: 16, border: '1.5px solid rgba(250,204,21,0.3)',
+              background: 'rgba(250,204,21,0.08)', cursor: 'pointer', display: 'flex', flexDirection: 'column',
+              alignItems: 'center', gap: 6, backdropFilter: 'blur(12px)',
+            }}
+          >
+            <span style={{ fontSize: 28 }}>🍜</span>
+            <span style={{ fontSize: 14, fontWeight: 900, color: '#FACC15' }}>Street Food</span>
+            <span style={{ fontSize: 10, color: 'rgba(255,255,255,0.4)', fontWeight: 600 }}>Quick, cheap & tasty</span>
+          </button>
+          <button
+            onClick={() => onSelectVendorType('restaurant')}
+            style={{
+              flex: 1, padding: '16px 12px', borderRadius: 16, border: '1.5px solid rgba(141,198,63,0.3)',
+              background: 'rgba(141,198,63,0.08)', cursor: 'pointer', display: 'flex', flexDirection: 'column',
+              alignItems: 'center', gap: 6, backdropFilter: 'blur(12px)',
+            }}
+          >
+            <span style={{ fontSize: 28 }}>🍽️</span>
+            <span style={{ fontSize: 14, fontWeight: 900, color: '#8DC63F' }}>Restaurant</span>
+            <span style={{ fontSize: 10, color: 'rgba(255,255,255,0.4)', fontWeight: 600 }}>Dine in & delivery</span>
+          </button>
+        </div>
+        <button
+          onClick={onBrowse}
+          style={{ marginTop: 8, background: 'none', border: 'none', color: 'rgba(255,255,255,0.3)', fontSize: 12, fontWeight: 700, cursor: 'pointer', textDecoration: 'underline' }}
+        >
+          Browse all food
         </button>
       </div>
     </div>
@@ -88,7 +113,7 @@ const DEMO_RESTAURANTS = [
     ],
   },
   {
-    id: 4, name: 'Nasi Goreng Pak Harto', cuisine_type: 'Indonesian', category: 'rice',
+    id: 4, name: 'Nasi Goreng Pak Harto', cuisine_type: 'Indonesian', category: 'rice', vendor_type: 'street_vendor',
     address: 'Jl. Kaliurang Km 3, Yogyakarta', city: 'Yogyakarta', lat: -7.7745, lng: 110.3802,
     phone: '6281234567894', cover_url: null, hero_dish_url: 'https://ik.imagekit.io/nepgaxllc/Untitledddddddddddsfsdfadsfasdfsdfsasdassdasd.png',
     hero_dish_name: 'Nasi Goreng Istimewa',
@@ -112,7 +137,7 @@ const DEMO_RESTAURANTS = [
     ],
   },
   {
-    id: 5, name: 'Bubur Ayam Mbok Iyem', cuisine_type: 'Sundanese', category: 'rice',
+    id: 5, name: 'Bubur Ayam Mbok Iyem', cuisine_type: 'Sundanese', category: 'rice', vendor_type: 'street_vendor',
     address: 'Jl. Parangtritis 8, Yogyakarta', city: 'Yogyakarta', lat: -7.8012, lng: 110.3678,
     phone: '6281234567895', cover_url: null, hero_dish_url: 'https://images.unsplash.com/photo-1504674900247-0877df9cc836?w=800',
     hero_dish_name: 'Bubur Ayam Komplit',
@@ -134,7 +159,7 @@ const DEMO_RESTAURANTS = [
     ],
   },
   {
-    id: 6, name: 'Nasi Padang Sari Rasa', cuisine_type: 'Padang', category: 'rice',
+    id: 6, name: 'Nasi Padang Sari Rasa', cuisine_type: 'Padang', category: 'rice', vendor_type: 'restaurant',
     address: 'Jl. Solo 12, Klaten', city: 'Yogyakarta', lat: -7.7065, lng: 110.6073,
     phone: '6281234567896', cover_url: null, hero_dish_url: 'https://images.unsplash.com/photo-1555939594-58d7cb561ad1?w=800',
     hero_dish_name: 'Rendang Daging Sapi',
@@ -161,7 +186,7 @@ const DEMO_RESTAURANTS = [
 
   // ── NOODLES ─────────────────────────────────────────────────────────────────
   {
-    id: 2, name: 'Bakso Pak Budi', cuisine_type: 'Indonesian', category: 'noodles',
+    id: 2, name: 'Bakso Pak Budi', cuisine_type: 'Indonesian', category: 'noodles', vendor_type: 'street_vendor',
     address: 'Jl. Kaliurang Km 5, Sleman', city: 'Yogyakarta', lat: -7.7601, lng: 110.3831,
     phone: '6281234567891', cover_url: null, hero_dish_url: 'https://images.unsplash.com/photo-1569718212165-3a8278d5f624?w=800',
     hero_dish_name: 'Bakso Spesial',
@@ -182,7 +207,7 @@ const DEMO_RESTAURANTS = [
 
   // ── GRILLED ─────────────────────────────────────────────────────────────────
   {
-    id: 3, name: 'Ayam Geprek Mbak Rina', cuisine_type: 'Indonesian', category: 'grilled',
+    id: 3, name: 'Ayam Geprek Mbak Rina', cuisine_type: 'Indonesian', category: 'grilled', vendor_type: 'street_vendor',
     address: 'Jl. Parangtritis 22, Bantul', city: 'Yogyakarta', lat: -7.8347, lng: 110.3253,
     phone: '6281234567892', cover_url: null, hero_dish_url: 'https://images.unsplash.com/photo-1626645738196-c2a7c87a8f58?w=800',
     hero_dish_name: 'Ayam Geprek Level 10',
@@ -203,7 +228,7 @@ const DEMO_RESTAURANTS = [
 
   // ── SEAFOOD ──────────────────────────────────────────────────────────────────
   {
-    id: 7, name: 'Seafood Pak Dhe Bejo', cuisine_type: 'Seafood', category: 'seafood',
+    id: 7, name: 'Seafood Pak Dhe Bejo', cuisine_type: 'Seafood', category: 'seafood', vendor_type: 'restaurant',
     address: 'Jl. Laksda Adisucipto 88, Yogyakarta', city: 'Yogyakarta', lat: -7.7822, lng: 110.4021,
     phone: '6281234567897', cover_url: null, hero_dish_url: 'https://images.unsplash.com/photo-1559339352-11d035aa65de?w=800',
     hero_dish_name: 'Udang Bakar Madu',
@@ -230,7 +255,7 @@ const DEMO_RESTAURANTS = [
 
   // ── BURGERS / WESTERN ────────────────────────────────────────────────────────
   {
-    id: 8, name: 'Steak 48 Jogja', cuisine_type: 'Western', category: 'burgers',
+    id: 8, name: 'Steak 48 Jogja', cuisine_type: 'Western', category: 'burgers', vendor_type: 'restaurant',
     address: 'Jl. Magelang Km 4.5, Yogyakarta', city: 'Yogyakarta', lat: -7.7615, lng: 110.3511,
     phone: '6281234567898', cover_url: null, hero_dish_url: 'https://images.unsplash.com/photo-1544025162-d76694265947?w=800',
     hero_dish_name: 'Ribeye 200g',
@@ -256,7 +281,7 @@ const DEMO_RESTAURANTS = [
 
   // ── DRINKS / CAFE ────────────────────────────────────────────────────────────
   {
-    id: 9, name: 'Kopi Klotok Maguwo', cuisine_type: 'Cafe', category: 'drinks',
+    id: 9, name: 'Kopi Klotok Maguwo', cuisine_type: 'Cafe', category: 'drinks', vendor_type: 'restaurant',
     address: 'Jl. Maguwo 15, Sleman', city: 'Yogyakarta', lat: -7.7891, lng: 110.4234,
     phone: '6281234567899', cover_url: null, hero_dish_url: 'https://images.unsplash.com/photo-1544145945-f90425340c7e?w=800',
     hero_dish_name: 'Kopi Joss',
@@ -282,7 +307,7 @@ const DEMO_RESTAURANTS = [
 
   // ── STREET FOOD ──────────────────────────────────────────────────────────────
   {
-    id: 10, name: 'Sate & Gule Pak Sabar', cuisine_type: 'Javanese', category: 'street_food',
+    id: 10, name: 'Sate & Gule Pak Sabar', cuisine_type: 'Javanese', category: 'street_food', vendor_type: 'street_vendor',
     address: 'Alun-Alun Selatan, Yogyakarta', city: 'Yogyakarta', lat: -7.8108, lng: 110.3642,
     phone: '6281234567800', cover_url: null, hero_dish_url: 'https://images.unsplash.com/photo-1504674900247-0877df9cc836?w=800',
     hero_dish_name: 'Sate Kambing 10pcs',
@@ -402,6 +427,7 @@ function toggleFavorite(restaurant) {
 // ── Main component ────────────────────────────────────────────────────────────
 export default function RestaurantBrowseScreen({ onClose, onBackToCategories, category, scrollToId, onOrderViaChat }) {
   const [showLanding, setShowLanding] = useState(true)
+  const [vendorFilter, setVendorFilter] = useState(null) // null = all, 'restaurant', 'street_vendor'
   const [vendorOnboardOpen, setVendorOnboardOpen] = useState(false)
   const [restaurants,    setRestaurants]    = useState([])
   const [loading,        setLoading]        = useState(true)
@@ -458,9 +484,14 @@ export default function RestaurantBrowseScreen({ onClose, onBackToCategories, ca
     return { ...r, distKm, deliveryFare: calcDeliveryFare(distKm) }
   })
 
-  const primary   = withMeta.filter(r =>  primaryForCategory(r.category, catId))
+  // Apply vendor type filter (street_vendor / restaurant / null = all)
+  const vendorFiltered = vendorFilter
+    ? withMeta.filter(r => (r.vendor_type ?? 'restaurant') === vendorFilter)
+    : withMeta
+
+  const primary   = vendorFiltered.filter(r =>  primaryForCategory(r.category, catId))
                              .sort((a, b) => scoreRestaurant(b, hour) - scoreRestaurant(a, hour))
-  const secondary = withMeta.filter(r => !primaryForCategory(r.category, catId))
+  const secondary = vendorFiltered.filter(r => !primaryForCategory(r.category, catId))
                              .sort((a, b) => scoreRestaurant(b, hour) - scoreRestaurant(a, hour))
 
   // Divider label depends on which card was tapped
@@ -500,9 +531,10 @@ export default function RestaurantBrowseScreen({ onClose, onBackToCategories, ca
   return (<div style={{ position: 'fixed', inset: 0, background: '#0a0a0a', zIndex: 100 }}>
     <div style={{ display: showLanding ? undefined : 'none' }}>
       <FoodLanding
-        onBrowse={() => { markSectionVisited('food'); setShowLanding(false) }}
+        onBrowse={() => { markSectionVisited('food'); setVendorFilter(null); setShowLanding(false) }}
         onRegister={() => { markSectionVisited('food'); setVendorOnboardOpen(true) }}
         onClose={onClose}
+        onSelectVendorType={(type) => { markSectionVisited('food'); setVendorFilter(type); setShowLanding(false) }}
       />
     </div>
 
@@ -510,23 +542,46 @@ export default function RestaurantBrowseScreen({ onClose, onBackToCategories, ca
       <div className={styles.screen}>
         <div className={styles.loadingWrap}>
           <div className={styles.loadingSpinner} style={{ borderTopColor: catColor }} />
-          <p className={styles.loadingText}>INDOO STREET — finding {catLabel.toLowerCase()} near you…</p>
+          <p className={styles.loadingText}>INDOO Street — finding {catLabel.toLowerCase()} near you…</p>
         </div>
       </div>
     )}
 
     <div className={styles.screen} style={{ display: showLanding || loading ? 'none' : undefined }}>
 
-      <div style={{ position: 'fixed', top: 6, left: 6, zIndex: 99990, display: 'flex', alignItems: 'center', gap: 6, pointerEvents: 'none' }}><div style={{ width: 28, height: 28, borderRadius: '50%', background: '#8DC63F', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 11, fontWeight: 900, color: '#000', boxShadow: '0 2px 8px rgba(141,198,63,0.4)' }}>F2</div><span style={{ fontSize: 9, fontWeight: 800, color: 'rgba(141,198,63,0.6)' }}>FOOD BROWSE</span></div>
       {/* Fixed header */}
       <div className={styles.header}>
         <div style={{ display: 'flex', alignItems: 'baseline', gap: 0, flex: 1 }}>
           <span style={{ fontSize: 20, fontWeight: 900, letterSpacing: '-0.02em', display: 'inline' }}><span style={{ color: '#fff' }}>IND</span><span style={{ color: '#8DC63F', marginLeft: -2 }}>OO</span></span>
-          <span style={{ fontSize: 13, fontWeight: 700, color: 'rgba(255,255,255,0.4)', marginLeft: 5 }}>STREET FOOD</span>
+          <span style={{ fontSize: 13, fontWeight: 700, color: 'rgba(255,255,255,0.4)', marginLeft: 5 }}>STREET</span>
         </div>
         <button onClick={onClose} style={{ width: 36, height: 36, borderRadius: '50%', background: 'rgba(250,204,21,0.15)', backdropFilter: 'blur(8px)', border: '1px solid rgba(250,204,21,0.3)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', flexShrink: 0 }}>
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#FACC15" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
         </button>
+      </div>
+
+      {/* Vendor type toggle — compact text under header */}
+      <div style={{ position: 'fixed', top: 'calc(env(safe-area-inset-top, 0px) + 48px)', left: 12, right: 70, zIndex: 200, display: 'flex', alignItems: 'center', gap: 4 }}>
+        {[
+          { id: null, label: 'All' },
+          { id: 'street_vendor', label: 'Street Food' },
+          { id: 'restaurant', label: 'Restaurant' },
+        ].map((tab, i) => (
+          <span key={tab.label} style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
+            {i > 0 && <span style={{ color: 'rgba(255,255,255,0.15)', fontSize: 10 }}>|</span>}
+            <button
+              onClick={() => setVendorFilter(tab.id)}
+              style={{
+                background: 'none', border: 'none', padding: '4px 6px', cursor: 'pointer',
+                fontSize: 11, fontWeight: vendorFilter === tab.id ? 900 : 600,
+                color: vendorFilter === tab.id ? '#8DC63F' : 'rgba(255,255,255,0.3)',
+                transition: 'all 0.2s',
+              }}
+            >
+              {tab.label}
+            </button>
+          </span>
+        ))}
       </div>
 
 
@@ -619,14 +674,6 @@ function RestaurantCard({ restaurant: r, onOpenMenu, onToggleFavorite, isFav }) 
         </span>
       </div>
 
-      {/* Price range under badge */}
-      {r.price_from != null && (
-        <div style={{ position: 'absolute', top: 'calc(env(safe-area-inset-top, 0px) + 105px)', left: 16, zIndex: 5 }}>
-          <span style={{ fontSize: 12, fontWeight: 800, color: '#FACC15', background: 'rgba(0,0,0,0.5)', backdropFilter: 'blur(8px)', padding: '4px 10px', borderRadius: 8, border: '1px solid rgba(250,204,21,0.2)' }}>
-            Rp {(r.price_from / 1000).toFixed(0)}k – {(r.price_to / 1000).toFixed(0)}k
-          </span>
-        </div>
-      )}
 
       {/* Bottom info — clean and sparse */}
       <div className={styles.cardBottom}>

@@ -2,6 +2,7 @@ import { useRef, useState, useEffect } from 'react'
 import { saveProfile, uploadAvatar } from '@/services/profileService'
 import { useAuth } from '@/hooks/useAuth'
 import { sendPhoneOTP, verifyOTP } from '@/services/authService'
+import { saveAddress } from '@/services/addressService'
 import { useLanguage } from '@/i18n'
 import styles from './JoinSheet.module.css'
 
@@ -43,10 +44,12 @@ export default function JoinSheet({ open, onClose, initialStep = 'phone' }) {
   const [otp, setOtp]             = useState('')
   const [confirmation, setConfirmation] = useState(null)
   const [name, setName]           = useState('')
+  const [address, setAddress]     = useState('')
   const [photoFile, setPhotoFile] = useState(null)
   const [photoPreview, setPhotoPreview] = useState(null)
   const [loading, setLoading]     = useState(false)
   const [error, setError]         = useState(null)
+  const [locatingAddr, setLocatingAddr] = useState(false)
 
   // ── Time-based background ──
   const [hour, setHour]           = useState(getWIBHour)
@@ -73,9 +76,9 @@ export default function JoinSheet({ open, onClose, initialStep = 'phone' }) {
   const reset = () => {
     setStep(initialStep)
     setLocalNum(''); setOtp('')
-    setConfirmation(null); setName('')
+    setConfirmation(null); setName(''); setAddress('')
     setPhotoFile(null); setPhotoPreview(null)
-    setLoading(false); setError(null)
+    setLoading(false); setError(null); setLocatingAddr(false)
   }
 
   const handleClose = () => { reset(); onClose() }
@@ -109,7 +112,35 @@ export default function JoinSheet({ open, onClose, initialStep = 'phone' }) {
     setLoading(false)
   }
 
-  // ── Profile: save name + photo ──
+  // ── GPS: auto-fill address from current location ──
+  const handleDetectAddress = () => {
+    if (!navigator.geolocation) return
+    setLocatingAddr(true)
+    navigator.geolocation.getCurrentPosition(
+      async (pos) => {
+        try {
+          const { latitude, longitude } = pos.coords
+          // Reverse geocode via Google (or fallback to coords)
+          const key = import.meta.env.VITE_GOOGLE_MAPS_API_KEY
+          if (key) {
+            const res = await fetch(`https://maps.googleapis.com/maps/api/geocode/json?latlng=${latitude},${longitude}&key=${key}&language=id`)
+            const data = await res.json()
+            if (data.results?.[0]) {
+              setAddress(data.results[0].formatted_address)
+              setLocatingAddr(false)
+              return
+            }
+          }
+          setAddress(`${latitude.toFixed(5)}, ${longitude.toFixed(5)}`)
+        } catch { /* fallback handled */ }
+        setLocatingAddr(false)
+      },
+      () => setLocatingAddr(false),
+      { enableHighAccuracy: true, timeout: 10000 }
+    )
+  }
+
+  // ── Profile: save name + photo + address ──
   const handleProfileSave = async () => {
     if (!name.trim()) return
     setLoading(true)
@@ -119,6 +150,10 @@ export default function JoinSheet({ open, onClose, initialStep = 'phone' }) {
       if (uid) {
         if (photoFile) await uploadAvatar(uid, photoFile)
         await saveProfile({ userId: uid, displayName: name.trim() })
+        // Save address if provided — available to all modules instantly
+        if (address.trim()) {
+          await saveAddress(uid, { label: 'Home', address: address.trim(), isDefault: true })
+        }
       }
       handleClose()
     } catch (err) {
@@ -313,6 +348,42 @@ export default function JoinSheet({ open, onClose, initialStep = 'phone' }) {
               maxLength={24}
               autoFocus
             />
+
+            {/* Address — one-time capture, used by all modules */}
+            <div style={{ position: 'relative', width: '100%' }}>
+              <input
+                className={styles.input}
+                type="text"
+                placeholder="Delivery address (home, office, etc.)"
+                value={address}
+                onChange={e => setAddress(e.target.value)}
+                maxLength={200}
+                style={{ paddingRight: 44 }}
+              />
+              <button
+                type="button"
+                onClick={handleDetectAddress}
+                disabled={locatingAddr}
+                style={{
+                  position: 'absolute', right: 8, top: '50%', transform: 'translateY(-50%)',
+                  width: 32, height: 32, borderRadius: 10, border: 'none',
+                  background: locatingAddr ? 'rgba(141,198,63,0.3)' : 'rgba(141,198,63,0.15)',
+                  display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer',
+                }}
+                title="Use current location"
+              >
+                {locatingAddr ? (
+                  <div style={{ width: 14, height: 14, borderRadius: '50%', border: '2px solid #8DC63F', borderTopColor: 'transparent', animation: 'spin 0.8s linear infinite' }} />
+                ) : (
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#8DC63F" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                    <circle cx="12" cy="12" r="3"/><path d="M12 2v4M12 18v4M2 12h4M18 12h4"/>
+                  </svg>
+                )}
+              </button>
+            </div>
+            <span style={{ fontSize: 10, color: 'rgba(255,255,255,0.3)', marginTop: -6, display: 'block' }}>
+              Used for food delivery, rides & parcels — you can add more later
+            </span>
 
             <button
               className={styles.primaryBtn}

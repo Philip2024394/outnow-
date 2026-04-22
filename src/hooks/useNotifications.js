@@ -31,7 +31,12 @@ export function useNotifications() {
   const knownIdsRef = useRef(new Set())
 
   useEffect(() => {
-    if (!supabase || !user) return
+    // Demo mode — show sample notification counts on module icons
+    if (!supabase || !user) {
+      setServiceUnreadCounts({ food: 2, bike_ride: 1, dating: 3, shopping: 1, car_taxi: 0, massage: 0, rentals: 0, dealhunt: 1 })
+      setUnreadCount(8)
+      return
+    }
     let mounted = true
 
     async function fetchAll(isRealtime = false) {
@@ -109,8 +114,12 @@ export function useNotifications() {
         market_review:            ['shopping'],
         massage_booking:          ['massage'],
         massage_confirmed:        ['massage'],
+        rental_booking:           ['rentals'],
+        rental_confirmed:         ['rentals'],
+        dealhunt_alert:           ['dealhunt'],
+        dealhunt_won:             ['dealhunt'],
       }
-      const svc = { bike_ride: 0, car_taxi: 0, food: 0, dating: 0, shopping: 0, massage: 0 }
+      const svc = { bike_ride: 0, car_taxi: 0, food: 0, dating: 0, shopping: 0, massage: 0, rentals: 0, dealhunt: 0 }
       unread.forEach(n => {
         const targets = SERVICE_MAP[n.type] ?? []
         targets.forEach(id => { svc[id] = (svc[id] ?? 0) + 1 })

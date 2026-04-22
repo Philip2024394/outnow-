@@ -1,7 +1,9 @@
-import { useState, useMemo, useRef } from 'react'
+import { useState, useMemo, useRef, useEffect } from 'react'
 import { createPortal } from 'react-dom'
 import { uploadImage } from '@/lib/uploadImage'
 import { createDeal } from '@/services/dealService'
+import { checkDealEligibility } from '@/services/dealEligibilityService'
+import { useAuth } from '@/hooks/useAuth'
 import styles from './CreateDeal.module.css'
 
 /* ══════════════════════════════════════════════════════════════════════════════
@@ -71,6 +73,16 @@ function formatRp(n) {
    ══════════════════════════════════════════════════════════════════════════════ */
 
 export default function CreateDeal({ open, onClose, onSaved, userId }) {
+  const { userProfile } = useAuth()
+
+  /* ── Eligibility gate ── */
+  const [eligibility, setEligibility] = useState(null) // null = loading, { eligible, reasons }
+  useEffect(() => {
+    if (!open || !userId) return
+    setEligibility(null)
+    checkDealEligibility(userId, userProfile).then(setEligibility)
+  }, [open, userId]) // eslint-disable-line react-hooks/exhaustive-deps
+
   /* ── Form state ── */
   const [images, setImages]           = useState([])       // array of { file, url }
   const [uploading, setUploading]     = useState(false)
@@ -96,6 +108,41 @@ export default function CreateDeal({ open, onClose, onSaved, userId }) {
   const fileRef = useRef(null)
 
   if (!open) return null
+
+  /* ── Eligibility gate — block form if not eligible ── */
+  if (eligibility !== null && !eligibility.eligible) {
+    return createPortal(
+      <div style={{ position: 'fixed', inset: 0, zIndex: 10000, background: '#0a0a0a', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: 32 }}>
+        <div style={{ width: 64, height: 64, borderRadius: '50%', background: 'rgba(239,68,68,0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: 20 }}>
+          <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#EF4444" strokeWidth="2" strokeLinecap="round"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>
+        </div>
+        <h2 style={{ fontSize: 20, fontWeight: 900, color: '#fff', margin: '0 0 8px', textAlign: 'center' }}>Not eligible to post deals yet</h2>
+        <p style={{ fontSize: 13, color: 'rgba(255,255,255,0.4)', margin: '0 0 24px', textAlign: 'center', lineHeight: 1.6 }}>Complete these requirements to unlock deal posting:</p>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 10, width: '100%', maxWidth: 320 }}>
+          {eligibility.reasons.map((r, i) => (
+            <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '12px 14px', borderRadius: 12, background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(239,68,68,0.15)' }}>
+              <span style={{ width: 20, height: 20, borderRadius: '50%', background: 'rgba(239,68,68,0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, fontSize: 10, color: '#EF4444', fontWeight: 900 }}>{i + 1}</span>
+              <span style={{ fontSize: 13, color: 'rgba(255,255,255,0.6)', fontWeight: 600 }}>{r}</span>
+            </div>
+          ))}
+        </div>
+        {eligibility.listings && (
+          <div style={{ marginTop: 20, padding: '12px 16px', borderRadius: 12, background: 'rgba(141,198,63,0.05)', border: '1px solid rgba(141,198,63,0.15)', width: '100%', maxWidth: 320 }}>
+            <span style={{ fontSize: 11, fontWeight: 800, color: '#8DC63F', display: 'block', marginBottom: 6 }}>Your active listings: {eligibility.listings.total}/5 needed</span>
+            <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap' }}>
+              {Object.entries(eligibility.listings.breakdown).map(([mod, count]) => (
+                <span key={mod} style={{ fontSize: 10, color: 'rgba(255,255,255,0.4)' }}>{mod}: {count}</span>
+              ))}
+            </div>
+          </div>
+        )}
+        <button onClick={onClose} style={{ marginTop: 28, padding: '12px 32px', borderRadius: 12, background: '#111', border: '1px solid rgba(255,255,255,0.1)', color: '#fff', fontSize: 14, fontWeight: 800, cursor: 'pointer' }}>
+          Go Back
+        </button>
+      </div>,
+      document.body
+    )
+  }
 
   /* ── Derived ── */
   const origNum = Number(originalPrice) || 0

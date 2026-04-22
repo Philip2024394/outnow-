@@ -358,7 +358,7 @@ export default function AppShell({ returnParams, triggerGoLive }) {
       <TimeBackground />
 
       {/* Floating activity icons — visible when dock is on */}
-      {dockVisible && !rideOpen && !massageOpen && !shopOpen && !foodOpen && !datingGridOpen && !dealHuntOpen && activeTab === 'map' && (
+      {dockVisible && activeTab === 'map' && !rideOpen && !massageOpen && !shopOpen && !foodOpen && !datingGridOpen && !dealHuntOpen && !notifOpen && !rideHistoryOpen && !settingsOpen && !countrySearchOpen && (
         <FloatingIcons
           sessions={visibleSessions}
           serviceCounts={serviceUnreadCounts}
@@ -439,7 +439,7 @@ export default function AppShell({ returnParams, triggerGoLive }) {
       <div className="map-bottom-fade" />
 
       {/* Header: logo + notifications + likes + settings — map tab only, hidden when a section with its own header is open */}
-      {activeTab === 'map' && !shopOpen && !foodOpen && !(massageOpen && !massageOnLanding) && (
+      {activeTab === 'map' && !shopOpen && !foodOpen && !(massageOpen && !massageOnLanding) && !notifOpen && !rideHistoryOpen && (
         <MapHeader
           onOpenNotifications={() => setNotifOpen(true)}
           notifCount={notifUnreadCount}
@@ -451,7 +451,7 @@ export default function AppShell({ returnParams, triggerGoLive }) {
       )}
 
       {/* Search bar + inline auto-suggest — map tab only, hidden when a section with its own search is open */}
-      {activeTab === 'map' && !shopOpen && !foodOpen && !(massageOpen && !massageOnLanding) && (
+      {activeTab === 'map' && !shopOpen && !foodOpen && !(massageOpen && !massageOnLanding) && !notifOpen && !rideHistoryOpen && (
         <MapSearchBar
           value={searchQuery}
           onChange={setSearchQuery}
@@ -1037,7 +1037,7 @@ export default function AppShell({ returnParams, triggerGoLive }) {
       )}
 
       {/* Side nav — visible on marketplace with orange theme */}
-      {(!rideOpen || rideOnLanding) && (!massageOpen || massageOnLanding) && (!datingGridOpen || datingOnLanding) && activeTab !== 'rentals' && activeTab !== 'chat' && !shopOpen && !foodOpen && !dealHuntOpen && <AppShellBottomNav
+      {(!rideOpen || rideOnLanding) && (!massageOpen || massageOnLanding) && (!datingGridOpen || datingOnLanding) && activeTab !== 'rentals' && activeTab !== 'chat' && !shopOpen && !foodOpen && !dealHuntOpen && !notifOpen && !rideHistoryOpen && <AppShellBottomNav
           isGuest={isGuest} triggerGate={triggerGate} dockVisible={dockVisible}
           shopOpen={shopOpen} marketplaceLanding={marketplaceLanding}
           userProfile={userProfile} user={user} categorySessions={categorySessions}

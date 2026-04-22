@@ -157,31 +157,163 @@ const MOCK_OWNER_MENU = [
   },
 ]
 
+// ── Domain-specific mock catalogues (used in demo mode only) ─────────────────
+const MOCK_CATALOGUES = {
+  food: MOCK_OWNER_MENU,
+  marketplace: [
+    { catId: 'bags', label: 'Bags & Wallets', dishes: [
+      { id: 'mp1', name: 'Handmade Leather Tote', price: 450000 },
+      { id: 'mp2', name: 'Canvas Sling Bag', price: 185000 },
+      { id: 'mp3', name: 'Minimalist Card Wallet', price: 95000 },
+    ]},
+    { catId: 'accessories', label: 'Accessories', dishes: [
+      { id: 'mp4', name: 'Beaded Bracelet Set', price: 65000 },
+      { id: 'mp5', name: 'Silver Ring — Handcrafted', price: 280000 },
+      { id: 'mp6', name: 'Batik Silk Scarf', price: 175000 },
+    ]},
+    { catId: 'clothing', label: 'Clothing', dishes: [
+      { id: 'mp7', name: 'Linen Oversized Shirt', price: 225000 },
+      { id: 'mp8', name: 'Batik Print Shorts', price: 145000 },
+    ]},
+  ],
+  massage: [
+    { catId: 'body', label: 'Full Body', dishes: [
+      { id: 'ms1', name: 'Traditional Javanese Massage — 60min', price: 150000 },
+      { id: 'ms2', name: 'Deep Tissue — 90min', price: 220000 },
+      { id: 'ms3', name: 'Aromatherapy — 60min', price: 180000 },
+    ]},
+    { catId: 'foot', label: 'Reflexology', dishes: [
+      { id: 'ms4', name: 'Foot Reflexology — 45min', price: 95000 },
+      { id: 'ms5', name: 'Hot Stone Feet — 60min', price: 130000 },
+    ]},
+    { catId: 'combo', label: 'Packages', dishes: [
+      { id: 'ms6', name: 'Couple Spa Package — 120min', price: 500000 },
+      { id: 'ms7', name: 'Full Day Wellness — 4hrs', price: 850000 },
+    ]},
+  ],
+  rentals: [
+    { catId: 'bikes', label: 'Motorcycles', dishes: [
+      { id: 'rn1', name: 'Honda Vario 125 — per day', price: 75000 },
+      { id: 'rn2', name: 'Yamaha NMAX — per day', price: 120000 },
+      { id: 'rn3', name: 'Honda PCX 160 — per day', price: 150000 },
+    ]},
+    { catId: 'cars', label: 'Cars', dishes: [
+      { id: 'rn4', name: 'Toyota Avanza — per day', price: 350000 },
+      { id: 'rn5', name: 'Honda Jazz — per day', price: 400000 },
+    ]},
+    { catId: 'other', label: 'Other', dishes: [
+      { id: 'rn6', name: 'Bicycle — per day', price: 35000 },
+      { id: 'rn7', name: 'Portable Speaker — per day', price: 50000 },
+    ]},
+  ],
+  rides: [
+    { catId: 'promo', label: 'Ride Promos', dishes: [
+      { id: 'rd1', name: 'Bike Ride — 5km', price: 15000 },
+      { id: 'rd2', name: 'Car Taxi — 10km', price: 45000 },
+      { id: 'rd3', name: 'Airport Transfer', price: 120000 },
+    ]},
+  ],
+  property: [
+    { catId: 'rooms', label: 'Rooms', dishes: [
+      { id: 'pr1', name: 'Kos AC — monthly', price: 1500000 },
+      { id: 'pr2', name: 'Studio Apartment — monthly', price: 3500000 },
+    ]},
+    { catId: 'villa', label: 'Villas', dishes: [
+      { id: 'pr3', name: 'Bali Villa 2BR — per night', price: 850000 },
+      { id: 'pr4', name: 'Jogja Guesthouse — per night', price: 350000 },
+    ]},
+  ],
+}
+
+function getMockCatalogue(domain) {
+  return MOCK_CATALOGUES[domain] ?? MOCK_CATALOGUES.marketplace
+}
+
 // ── Seller menu/catalogue left-side drawer ────────────────────────────────────
+// Shows real seller products/menu based on deal domain.
+// Food deals → restaurant menu items. Other deals → marketplace products. Falls back to domain mock.
 function SellerDrawer({ deal, open, onClose, onAddItem }) {
   const [expandedCat, setExpandedCat] = useState(null)
-  const menu = MOCK_OWNER_MENU
+  const [sellerItems, setSellerItems] = useState(null)
+
+  useEffect(() => {
+    if (!open || !deal) return
+    // Try to load real seller data
+    const loadItems = async () => {
+      const { supabase } = await import('@/lib/supabase')
+      if (!supabase) { setSellerItems(null); return }
+
+      if (deal.domain === 'food') {
+        // Load menu items from this seller's restaurant
+        const { data } = await supabase
+          .from('menu_items')
+          .select('*')
+          .eq('restaurant_id', deal.seller_id)
+          .eq('is_available', true)
+          .order('category')
+        if (data?.length) {
+          // Group by category
+          const grouped = {}
+          data.forEach(item => {
+            const cat = item.category || 'Other'
+            if (!grouped[cat]) grouped[cat] = { catId: cat, label: cat, dishes: [] }
+            grouped[cat].dishes.push({ id: item.id, name: item.name, price: item.price })
+          })
+          setSellerItems(Object.values(grouped))
+          return
+        }
+      } else {
+        // Load marketplace products from this seller
+        const { data } = await supabase
+          .from('marketplace_products')
+          .select('*')
+          .eq('seller_id', deal.seller_id)
+          .eq('status', 'active')
+          .order('category')
+        if (data?.length) {
+          const grouped = {}
+          data.forEach(item => {
+            const cat = item.category || 'Other'
+            if (!grouped[cat]) grouped[cat] = { catId: cat, label: cat, dishes: [] }
+            grouped[cat].dishes.push({ id: item.id, name: item.name, price: item.price })
+          })
+          setSellerItems(Object.values(grouped))
+          return
+        }
+      }
+      setSellerItems(null) // fallback to mock
+    }
+    loadItems()
+  }, [open, deal])
 
   if (!open) return null
+
+  const menu = sellerItems ?? getMockCatalogue(deal?.domain)
+  const isFood = deal?.domain === 'food'
 
   return (
     <div className={styles.drawerBackdrop} onClick={onClose}>
       <div className={styles.drawerPanel} onClick={e => e.stopPropagation()}>
+        <div style={{ padding: '12px 14px 8px', borderBottom: '1px solid rgba(255,255,255,0.06)' }}>
+          <span style={{ fontSize: 14, fontWeight: 900, color: '#fff' }}>{deal?.seller_name ?? 'Seller'}</span>
+          <span style={{ fontSize: 10, color: 'rgba(255,255,255,0.3)', display: 'block', marginTop: 2 }}>
+            {isFood ? 'Full Menu' : 'Full Catalogue'} · {menu.reduce((t, c) => t + (c.dishes?.length ?? 0), 0)} items
+          </span>
+        </div>
         {menu.map(cat => (
           <div key={cat.catId}>
-            {/* Category card with image */}
             <button
               className={`${styles.drawerCard} ${expandedCat === cat.catId ? styles.drawerCardActive : ''}`}
               onClick={() => setExpandedCat(expandedCat === cat.catId ? null : cat.catId)}
             >
-              <img src={cat.image} alt="" className={styles.drawerCardImg} />
+              {cat.image && <img src={cat.image} alt="" className={styles.drawerCardImg} />}
               <span className={styles.drawerCardName}>{cat.label}</span>
+              <span style={{ fontSize: 10, color: 'rgba(255,255,255,0.3)', marginLeft: 'auto' }}>{cat.dishes?.length ?? 0}</span>
             </button>
 
-            {/* Expanded dishes under this category */}
             {expandedCat === cat.catId && (
               <div className={styles.drawerDishes}>
-                {cat.dishes.map(dish => (
+                {(cat.dishes ?? []).map(dish => (
                   <button key={dish.id} className={styles.drawerDish} onClick={() => onAddItem?.(dish, deal)}>
                     <span className={styles.drawerDishName}>{dish.name}</span>
                     <span className={styles.drawerDishPrice}>{fmtRpShort(dish.price)}</span>

@@ -89,8 +89,8 @@
 .topBadges {
   position: absolute;
   top: calc(env(safe-area-inset-top, 0px) + 72px);
-  left: 16px; right: 16px;
-  display: flex; align-items: center; justify-content: space-between;
+  right: 16px;
+  display: flex; justify-content: flex-end;
   z-index: 5;
 }
 
@@ -98,16 +98,17 @@
   display: flex; align-items: center; gap: 5px;
   font-size: 11px; font-weight: 800; letter-spacing: 0.02em;
   padding: 5px 11px; border-radius: 100px;
-  background: rgba(0,0,0,0.5);
-  backdrop-filter: blur(8px);
-  border: 1px solid rgba(255,255,255,0.08);
+  background: rgba(0,0,0,0.65);
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(255,255,255,0.1);
+  color: #fff;
 }
 .statusDot {
-  width: 6px; height: 6px; border-radius: 50; flex-shrink: 0;
+  width: 6px; height: 6px; border-radius: 50%; flex-shrink: 0;
 }
-.statusOpen  { color: #FACC15; }
-.statusOpen .statusDot  { background: #FACC15; border-radius: 50%; box-shadow: 0 0 6px #FACC15; }
-.statusClosed { color: rgba(255,255,255,0.4); }
+.statusOpen  { color: #fff; }
+.statusOpen .statusDot  { background: #8DC63F; border-radius: 50%; box-shadow: 0 0 6px #8DC63F; }
+.statusClosed { color: rgba(255,255,255,0.5); }
 .statusClosed .statusDot { background: rgba(255,255,255,0.3); border-radius: 50%; }
 
 .dineBlock {
