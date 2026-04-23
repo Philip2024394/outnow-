@@ -140,8 +140,8 @@
 /* ── Bottom content ──────────────────────────────────────────────────────────── */
 .cardBottom {
   position: relative; z-index: 2;
-  padding: 0 24px calc(env(safe-area-inset-bottom, 0px) + 24px);
-  display: flex; flex-direction: column; gap: 10px;
+  padding: 0 24px calc(env(safe-area-inset-bottom, 0px) + 100px);
+  display: flex; flex-direction: column; align-items: flex-start; gap: 10px;
 }
 
 .cuisinePill {
@@ -170,7 +170,7 @@
 /* ── CTA ─────────────────────────────────────────────────────────────────────── */
 .menuBtn {
   position: relative;
-  width: 100%; padding: 17px; border-radius: 16px;
+  width: fit-content; padding: 14px 32px; border-radius: 14px;
   background: #8DC63F; color: #000;
   border: none; font-size: 16px; font-weight: 900;
   cursor: pointer; font-family: inherit;

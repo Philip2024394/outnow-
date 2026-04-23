@@ -154,18 +154,15 @@
 }
 .cartBadgeTop {
   position: relative;
-  width: 44px; height: 44px; border-radius: 50%;
-  background: rgba(15,15,15,0.92);
-  border: 1.5px solid rgba(250,204,21,0.4);
-  backdrop-filter: blur(12px);
+  width: 40px; height: 40px;
+  background: none;
+  border: none;
   display: flex; align-items: center; justify-content: center;
   color: #fff;
-  transition: border-color 0.2s, background 0.2s;
   flex-shrink: 0;
 }
 .cartBadgeOpen .cartBadgeTop {
-  border-color: rgba(250,204,21,0.6);
-  background: rgba(250,204,21,0.08);
+  /* no change needed */
 }
 .cartCount {
   position: absolute; top: -4px; right: -4px;
@@ -314,7 +311,7 @@
   flex: 1; overflow-y: scroll;
   scroll-snap-type: y mandatory;
   -webkit-overflow-scrolling: touch;
-  padding-bottom: 0;
+  padding-bottom: 90px;
 }
 .feed::-webkit-scrollbar { display: none; }
 .emptyFeed { height: 100dvh; display: flex; align-items: center; justify-content: center; font-size: 14px; color: #333; font-weight: 700; }
@@ -355,7 +352,7 @@
 }
 .itemBottom {
   position: relative; z-index: 2;
-  padding: 0 68px calc(env(safe-area-inset-bottom, 0px) + 60px) 16px;
+  padding: 0 68px calc(env(safe-area-inset-bottom, 0px) + 100px) 16px;
   display: flex; flex-direction: column; gap: 8px;
 }
 .itemName { font-size: 24px; font-weight: 900; color: #fff; letter-spacing: -0.03em; line-height: 1.1; margin: 0; word-wrap: break-word; }

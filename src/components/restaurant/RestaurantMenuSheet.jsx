@@ -12,6 +12,8 @@ import { DISH_TAGS } from '@/constants/foodCustomizations'
 import { STAGE1_IMAGES, STAGE2_IMAGES, STAGE3_IMAGES, FALLBACK_IMG, DEMO_INTERVAL_MS, getStageImages, preloadCinematicImages } from '@/constants/deliveryCinematic'
 import DeliveryMap from './DeliveryMap'
 import FoodDashboard from './FoodDashboard'
+import DailyDealOverlay from './DailyDealOverlay'
+import { getTodayDealForRestaurant, hasAnyDailyDeals } from '@/services/dailyDealService'
 import { getLocalDefaultAddress } from '@/services/addressService'
 
 // Auto-detect tags from item name/description/category
@@ -63,7 +65,7 @@ export default function RestaurantMenuSheet({ restaurant, onClose, onOrderViaCha
   const [socialsOpen,    setSocialsOpen]    = useState(false)
 
   // Close all side drawers — ensures only one is open at a time
-  const closeAllDrawers = () => { setDrawerOpen(false); setEventsOpen(false); setSocialsOpen(false); setPromosOpen(false); setOrdersOpen(false); setDashboardOpen(false) }
+  const closeAllDrawers = () => { setDrawerOpen(false); setEventsOpen(false); setSocialsOpen(false); setPromosOpen(false); setOrdersOpen(false); setDashboardOpen(false); setDailyDealOpen(false) }
   const [address,        setAddress]        = useState(() => getLocalDefaultAddress())
   const [showAddrInput,  setShowAddrInput]  = useState(false)
   const [editingNoteId,  setEditingNoteId]  = useState(null)
@@ -92,6 +94,9 @@ export default function RestaurantMenuSheet({ restaurant, onClose, onOrderViaCha
   const [customizeItem,   setCustomizeItem]   = useState(null)
   const [mapFullView,     setMapFullView]     = useState(false) // toggle: cinematic (false) vs map (true)
   const [dashboardOpen,   setDashboardOpen]   = useState(false)
+  const [dailyDealOpen,   setDailyDealOpen]   = useState(false)
+  const [todayDeal,       setTodayDeal]       = useState(null) // { day, items, active }
+  const [hasDailyDeals,   setHasDailyDeals]   = useState(false)
 
   const feedRef     = useRef(null)
   const itemRefs    = useRef([])
@@ -106,6 +111,12 @@ export default function RestaurantMenuSheet({ restaurant, onClose, onOrderViaCha
       if (saved && Date.now() - saved.ts < CART_TTL) setCart(saved.cart)
     } catch {}
   }, []) // eslint-disable-line react-hooks/exhaustive-deps
+
+  // Load daily deal status for this restaurant
+  useEffect(() => {
+    getTodayDealForRestaurant(restaurant.id).then(d => setTodayDeal(d))
+    hasAnyDailyDeals(restaurant.id).then(h => setHasDailyDeals(h))
+  }, [restaurant.id])
   useEffect(() => {
     if (cart.length > 0) localStorage.setItem(CART_KEY, JSON.stringify({ cart, ts: Date.now() }))
     else localStorage.removeItem(CART_KEY)
@@ -591,15 +602,15 @@ export default function RestaurantMenuSheet({ restaurant, onClose, onOrderViaCha
       <div className={styles.header}>
         <div className={styles.headerInfo}>
           <span className={styles.headerName}>{restaurant.name}</span>
+          <span style={{ fontSize: 10, color: 'rgba(255,255,255,0.4)', fontWeight: 700 }}>
+            ⏱ Prep {Math.round(items.reduce((s, i) => s + (i.prep_time_min ?? 10), 0) / (items.length || 1))}-{Math.round(items.reduce((s, i) => s + (i.prep_time_min ?? 10), 0) / (items.length || 1)) + 5} min
+          </span>
           {activeCategory && (
             <button className={styles.clearCat} onClick={() => setActiveCategory(null)}>
               {activeCategory} · All items ×
             </button>
           )}
         </div>
-        <button className={styles.backBtn} onClick={onClose} aria-label="Home">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
-        </button>
       </div>
 
       {/* Cart backdrop */}
@@ -886,31 +897,24 @@ export default function RestaurantMenuSheet({ restaurant, onClose, onOrderViaCha
 
       {/* ── Right floating panel ── */}
       <div className={styles.floatingPanel}>
-        {/* Home — back to restaurant browse */}
+        {/* Deals — state: live deal today (yellow glow), has deals but not today (normal), no deals (dimmed) */}
         <button
           className={styles.panelBtn}
-          onClick={onClose}
-          title="Back to restaurants"
+          onClick={() => {
+            if (dailyDealOpen) { setDailyDealOpen(false) } else { closeAllDrawers(); setDailyDealOpen(true) }
+          }}
+          title="Daily deals"
+          style={dailyDealOpen ? { boxShadow: '0 0 8px 3px rgba(250,204,21,0.35)' } : {}}
         >
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-            <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>
-            <polyline points="9 22 9 12 15 12 15 22"/>
-          </svg>
-          <span className={styles.panelLabel}>Home</span>
-        </button>
-
-        {/* Promos */}
-        <button
-          className={styles.panelBtn}
-          onClick={() => { if (promosOpen) { setPromosOpen(false) } else { closeAllDrawers(); setPromosOpen(true) } }}
-          title="Weekly deals"
-          style={promosOpen ? { boxShadow: '0 0 8px 3px rgba(250,204,21,0.35)' } : {}}
-        >
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke={promosOpen ? '#FACC15' : 'currentColor'} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+          {/* Pulsing dot for live deal */}
+          {todayDeal && !dailyDealOpen && (
+            <span style={{ position: 'absolute', top: 6, right: 6, width: 7, height: 7, borderRadius: '50%', background: '#FACC15', animation: 'ping 1.5s ease-in-out infinite', boxShadow: '0 0 6px #FACC15' }} />
+          )}
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke={dailyDealOpen ? '#FACC15' : 'currentColor'} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
             <path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"/>
             <line x1="7" y1="7" x2="7.01" y2="7"/>
           </svg>
-          <span className={styles.panelLabel} style={promosOpen ? { color: '#FACC15' } : {}}>Deals</span>
+          <span className={styles.panelLabel} style={dailyDealOpen ? { color: '#FACC15' } : {}}>Deals</span>
         </button>
 
         {/* Categories */}
@@ -1433,6 +1437,32 @@ export default function RestaurantMenuSheet({ restaurant, onClose, onOrderViaCha
 
       {dashboardOpen && (
         <FoodDashboard onClose={() => setDashboardOpen(false)} />
+      )}
+
+      {dailyDealOpen && (
+        todayDeal ? (
+          <DailyDealOverlay
+            restaurant={restaurant}
+            dealItems={todayDeal.items}
+            onClose={() => setDailyDealOpen(false)}
+            onAddToCart={(item) => {
+              setCart(prev => {
+                const existing = prev.find(c => c.id === item.id)
+                if (existing) return prev.map(c => c.id === item.id ? { ...c, qty: c.qty + 1 } : c)
+                return [...prev, { ...item, qty: 1 }]
+              })
+            }}
+            onViewMenu={() => { setDailyDealOpen(false); setCartExpanded(true) }}
+          />
+        ) : (
+          <DailyDealOverlay
+            restaurant={restaurant}
+            dealItems={[]}
+            onClose={() => setDailyDealOpen(false)}
+            onAddToCart={() => {}}
+            onViewMenu={() => setDailyDealOpen(false)}
+          />
+        )
       )}
     </div>
   )

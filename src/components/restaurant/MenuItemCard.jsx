@@ -37,23 +37,18 @@ export default function MenuItemCard({ item, qty, onAdd, onRemove, onCustomize, 
 
       {/* Bottom content */}
       <div className={styles.itemBottom}>
-        <h2 className={styles.itemName}>{item.name}</h2>
-
-        {/* Dish attribute tags */}
+        {/* Dish attribute icons — above name */}
         {tags?.length > 0 && (
-          <div style={{ display: 'flex', gap: 5, flexWrap: 'wrap', marginBottom: 4 }}>
+          <div style={{ display: 'flex', gap: 6, marginBottom: 4 }}>
             {tags.map(tag => (
-              <span key={tag.id} style={{
-                display: 'inline-flex', alignItems: 'center', gap: 3,
-                padding: '2px 8px', borderRadius: 6,
-                background: `${tag.color}18`, border: `1px solid ${tag.color}40`,
-                fontSize: 10, fontWeight: 800, color: tag.color,
-              }}>
-                {tag.emoji} {tag.label}
+              <span key={tag.id} style={{ fontSize: 20 }} title={tag.label}>
+                {tag.emoji}
               </span>
             ))}
           </div>
         )}
+
+        <h2 className={styles.itemName}>{item.name}</h2>
 
         {item.description && (
           <p className={styles.itemDesc}>{item.description}</p>

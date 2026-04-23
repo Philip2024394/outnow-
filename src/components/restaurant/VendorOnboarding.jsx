@@ -131,6 +131,7 @@ export default function VendorOnboarding({ open, onClose, onComplete, userId }) 
   const qrisInputRef = useRef(null)
 
   // Step 1 — Restaurant info
+  const [vendorType, setVendorType] = useState(null) // 'restaurant' | 'street_vendor'
   const [name, setName] = useState('')
   const [cuisine, setCuisine] = useState(null)
   const [photoUrl, setPhotoUrl] = useState(null)
@@ -164,9 +165,9 @@ export default function VendorOnboarding({ open, onClose, onComplete, userId }) 
 
   // ── Validation per step ─────────────────────────────────────────────────
   const canNext = () => {
-    if (step === 0) return name.trim().length > 0 && cuisine !== null
+    if (step === 0) return vendorType !== null && name.trim().length > 0 && cuisine !== null
     if (step === 1) return city.length > 0 && address.trim().length > 0
-    if (step === 2) return dishes.length >= 3
+    if (step === 2) return dishes.length >= 5
     if (step === 3) return (bank && accountNumber.trim() && accountHolder.trim()) || qrisUrl
     return true
   }
@@ -265,6 +266,7 @@ export default function VendorOnboarding({ open, onClose, onComplete, userId }) 
       const restaurantData = {
         user_id: userId,
         name: name.trim(),
+        vendor_type: vendorType ?? 'restaurant',
         cuisine_type: cuisineObj?.label ?? cuisine,
         cover_url: finalPhotoUrl,
         city,
@@ -361,25 +363,65 @@ export default function VendorOnboarding({ open, onClose, onComplete, userId }) 
 
           {/* ── STEP 1: Restaurant info ──────────────────────────────────── */}
           <div className={styles.step}>
-            <div className={styles.stepIcon}>{'\u{1F37D}\u{FE0F}'}</div>
-            <h2 className={styles.stepTitle}>Tentang Restoran</h2>
-            <p className={styles.stepSubtitle}>Tell us about your restaurant</p>
+            <img className={styles.stepHero} src="https://ik.imagekit.io/nepgaxllc/ChatGPT%20Image%20Apr%2022,%202026,%2006_35_28%20AM.png?updatedAt=1776814549960" alt="" />
+            <h2 className={styles.stepTitle}>Daftarkan Bisnis Anda</h2>
+            <p className={styles.stepSubtitle}>Register your food business on INDOO Street</p>
 
-            <div className={styles.fieldGroup}>
+            {/* Vendor type selector */}
+            <div className={styles.glassCard}>
               <label className={styles.fieldLabel}>
-                Restaurant Name
-                <HelpTip text="This is your restaurant name that customers will see. Use the name your customers already know." />
+                What type of business?
+                <HelpTip text="Choose 'Street Vendor' if you sell from a cart, warung, or kaki lima. Choose 'Restaurant' if you have a permanent building with seating." />
               </label>
+              <div style={{ display: 'flex', gap: 10 }}>
+                <button
+                  type="button"
+                  onClick={() => setVendorType('street_vendor')}
+                  style={{
+                    flex: 1, padding: '16px 10px', borderRadius: 16, border: 'none', cursor: 'pointer',
+                    background: vendorType === 'street_vendor' ? 'rgba(250,204,21,0.12)' : 'rgba(255,255,255,0.03)',
+                    outline: vendorType === 'street_vendor' ? '1.5px solid rgba(250,204,21,0.4)' : '1px solid rgba(255,255,255,0.06)',
+                    display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 6, transition: 'all 0.2s',
+                  }}
+                >
+                  <span style={{ fontSize: 32 }}>{'\u{1F35C}'}</span>
+                  <span style={{ fontSize: 13, fontWeight: 900, color: vendorType === 'street_vendor' ? '#FACC15' : 'rgba(255,255,255,0.5)' }}>Street Vendor</span>
+                  <span style={{ fontSize: 10, color: 'rgba(255,255,255,0.3)' }}>Warung, Kaki Lima, Cart</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setVendorType('restaurant')}
+                  style={{
+                    flex: 1, padding: '16px 10px', borderRadius: 16, border: 'none', cursor: 'pointer',
+                    background: vendorType === 'restaurant' ? 'rgba(141,198,63,0.12)' : 'rgba(255,255,255,0.03)',
+                    outline: vendorType === 'restaurant' ? '1.5px solid rgba(141,198,63,0.4)' : '1px solid rgba(255,255,255,0.06)',
+                    display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 6, transition: 'all 0.2s',
+                  }}
+                >
+                  <span style={{ fontSize: 32 }}>{'\u{1F37D}\u{FE0F}'}</span>
+                  <span style={{ fontSize: 13, fontWeight: 900, color: vendorType === 'restaurant' ? '#8DC63F' : 'rgba(255,255,255,0.5)' }}>Restaurant</span>
+                  <span style={{ fontSize: 10, color: 'rgba(255,255,255,0.3)' }}>Cafe, Rumah Makan</span>
+                </button>
+              </div>
+            </div>
+
+            <div className={styles.glassCard}>
+              <div className={styles.fieldGroup} style={{ marginBottom: 0 }}>
+                <label className={styles.fieldLabel}>
+                  {vendorType === 'street_vendor' ? 'Vendor Name' : 'Restaurant Name'}
+                  <HelpTip text="This is the name customers will see. Use the name your customers already know — even if it's just your name + food type." />
+                </label>
               <input
                 className={styles.input}
                 type="text"
-                placeholder="e.g. Warung Bu Sari"
+                placeholder={vendorType === 'street_vendor' ? 'e.g. Bakso Pak Budi' : 'e.g. Warung Bu Sari'}
                 value={name}
                 onChange={e => setName(e.target.value)}
               />
+              </div>
             </div>
 
-            <div className={styles.fieldGroup}>
+            <div className={styles.glassCard}>
               <label className={styles.fieldLabel}>
                 Cuisine Type
                 <HelpTip text="Pick the type of food you sell most. This helps customers find you when they search." />
@@ -399,9 +441,9 @@ export default function VendorOnboarding({ open, onClose, onComplete, userId }) 
               </div>
             </div>
 
-            <div className={styles.fieldGroup}>
+            <div className={styles.glassCard}>
               <label className={styles.fieldLabel}>
-                Restaurant Photo
+                {vendorType === 'street_vendor' ? 'Vendor Photo' : 'Restaurant Photo'}
                 <HelpTip text="Upload a photo of your restaurant or food stall. Customers love seeing where their food comes from!" />
               </label>
               <input
@@ -566,7 +608,7 @@ export default function VendorOnboarding({ open, onClose, onComplete, userId }) 
 
             {/* Help tip */}
             <div style={{ display: 'flex', justifyContent: 'center', marginBottom: 12 }}>
-              <HelpTip text="Add at least 3 dishes to get started. You can add photos and more dishes later." />
+              <HelpTip text="Add at least 5 dishes to get started. This helps customers see your full menu. You can add photos and more dishes later from your dashboard." />
             </div>
 
             {/* Dish list */}
@@ -588,7 +630,7 @@ export default function VendorOnboarding({ open, onClose, onComplete, userId }) 
 
             {/* Counter */}
             <div className={`${styles.dishCounter} ${dishes.length >= 3 ? styles.dishCounterDone : ''}`}>
-              {dishes.length}/3 dishes added {dishes.length >= 3 ? '\u2713' : ''}
+              {dishes.length}/5 dishes added {dishes.length >= 5 ? '\u2713' : `— add ${5 - dishes.length} more`}
             </div>
           </div>
 

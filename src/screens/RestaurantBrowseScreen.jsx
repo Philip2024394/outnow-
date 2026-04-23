@@ -6,11 +6,19 @@ import RestaurantMenuSheet from '@/components/restaurant/RestaurantMenuSheet'
 import VendorOnboarding from '@/components/restaurant/VendorOnboarding'
 import SectionCTAButton from '@/components/ui/SectionCTAButton'
 import { hasVisitedSection, markSectionVisited } from '@/services/sectionVisitService'
+import VendorDashboardV2 from '@/components/restaurant/VendorDashboardV2'
+import FoodFooterNav from '@/components/restaurant/FoodFooterNav'
+import FoodDashboard from '@/components/restaurant/FoodDashboard'
+import { getFoodOrders } from '@/components/restaurant/menuSheetConstants'
 import styles from './RestaurantBrowseScreen.module.css'
+
+// Footer nav button styles
+const footerBtnStyle = { display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 2, background: 'none', border: 'none', cursor: 'pointer', padding: '4px 8px', minWidth: 48 }
+const footerLabelStyle = { fontSize: 9, fontWeight: 800, color: 'rgba(255,255,255,0.4)', letterSpacing: '0.03em' }
 
 const FOOD_LANDING_BG = 'https://ik.imagekit.io/nepgaxllc/ChatGPT%20Image%20Apr%2016,%202026,%2006_04_21%20PM.png'
 
-function FoodLanding({ onBrowse, onRegister, onClose, onSelectVendorType }) {
+function FoodLanding({ onBrowse, onRegister, onClose, onSelectVendorType, onDashboard, isVendor }) {
   return (
     <div className={styles.landingPage} style={{ backgroundImage: `url("${FOOD_LANDING_BG}")` }}>
       <div className={styles.landingOverlay} />
@@ -27,10 +35,19 @@ function FoodLanding({ onBrowse, onRegister, onClose, onSelectVendorType }) {
           <img src="https://ik.imagekit.io/nepgaxllc/Untitledsssaa-removebg-preview.png" alt="" style={{ width: 40, height: 40, objectFit: 'contain' }} />
           <span style={{ fontSize: 8, fontWeight: 800, color: 'rgba(255,255,255,0.6)', letterSpacing: '0.03em' }}>Home</span>
         </button>
-        <button onClick={onRegister} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 2, background: 'none', border: 'none', cursor: 'pointer', padding: 0 }}>
-          <img src="https://ik.imagekit.io/nepgaxllc/Untitledsssaaddd-removebg-preview.png" alt="" style={{ width: 40, height: 40, objectFit: 'contain' }} />
-          <span style={{ fontSize: 8, fontWeight: 800, color: 'rgba(255,255,255,0.6)', letterSpacing: '0.03em' }}>Sign Up</span>
-        </button>
+        {isVendor ? (
+          <button onClick={onDashboard} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 2, background: 'none', border: 'none', cursor: 'pointer', padding: 0 }}>
+            <div style={{ width: 40, height: 40, borderRadius: 12, background: 'rgba(141,198,63,0.15)', border: '1px solid rgba(141,198,63,0.3)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#8DC63F" strokeWidth="2" strokeLinecap="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
+            </div>
+            <span style={{ fontSize: 7, fontWeight: 800, color: '#8DC63F', letterSpacing: '0.03em' }}>Dashboard</span>
+          </button>
+        ) : (
+          <button onClick={onRegister} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 2, background: 'none', border: 'none', cursor: 'pointer', padding: 0 }}>
+            <img src="https://ik.imagekit.io/nepgaxllc/Untitledsssaaddd-removebg-preview.png" alt="" style={{ width: 40, height: 40, objectFit: 'contain' }} />
+            <span style={{ fontSize: 8, fontWeight: 800, color: 'rgba(255,255,255,0.6)', letterSpacing: '0.03em' }}>Sign Up</span>
+          </button>
+        )}
       </div>
 
       <div className={styles.landingContent}>
@@ -429,6 +446,12 @@ export default function RestaurantBrowseScreen({ onClose, onBackToCategories, ca
   const [showLanding, setShowLanding] = useState(true)
   const [vendorFilter, setVendorFilter] = useState(null) // null = all, 'restaurant', 'street_vendor'
   const [vendorOnboardOpen, setVendorOnboardOpen] = useState(false)
+  const [vendorDashOpen, setVendorDashOpen] = useState(false)
+  const [foodOrdersOpen, setFoodOrdersOpen] = useState(false)
+  const [foodDashOpen, setFoodDashOpen] = useState(false)
+
+  // Check if current user has a registered restaurant
+  const hasVendorRestaurant = !!localStorage.getItem('indoo_vendor_restaurant')
   const [restaurants,    setRestaurants]    = useState([])
   const [loading,        setLoading]        = useState(true)
   const [activeIndex,    setActiveIndex]    = useState(0)
@@ -535,6 +558,8 @@ export default function RestaurantBrowseScreen({ onClose, onBackToCategories, ca
         onRegister={() => { markSectionVisited('food'); setVendorOnboardOpen(true) }}
         onClose={onClose}
         onSelectVendorType={(type) => { markSectionVisited('food'); setVendorFilter(type); setShowLanding(false) }}
+        isVendor={hasVendorRestaurant}
+        onDashboard={() => setVendorDashOpen(true)}
       />
     </div>
 
@@ -637,6 +662,31 @@ export default function RestaurantBrowseScreen({ onClose, onBackToCategories, ca
         }}
         userId={null}
       />
+
+      {/* Vendor dashboard — full restaurant management */}
+      {vendorDashOpen && (
+        <VendorDashboardV2
+          onClose={() => setVendorDashOpen(false)}
+        />
+      )}
+
+      {/* Customer food dashboard */}
+      {foodDashOpen && (
+        <FoodDashboard onClose={() => setFoodDashOpen(false)} />
+      )}
+
+      {/* ── Floating footer nav — shows on ALL food module pages ── */}
+      {!showLanding && !vendorDashOpen && !foodDashOpen && (
+        <FoodFooterNav
+          onHome={onClose}
+          onDeals={() => { if (showLanding) { setVendorFilter(null); setShowLanding(false) } }}
+          onCart={() => { if (showLanding) { setVendorFilter(null); setShowLanding(false) } }}
+          onMyFood={() => setFoodDashOpen(true)}
+          onVendorDash={() => setVendorDashOpen(true)}
+          isVendor={hasVendorRestaurant}
+          activeTab={showLanding ? 'home' : menuRestaurant ? 'cart' : null}
+        />
+      )}
     </div>
   </div>)
 }
