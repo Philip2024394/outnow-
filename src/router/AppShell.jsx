@@ -1045,7 +1045,7 @@ export default function AppShell({ returnParams, triggerGoLive }) {
           activeTab={activeTab} inviteOut={inviteOut} mySession={mySession}
           newNowCount={newNowCount} newInviteCount={newInviteCount}
           dateIdeasOpen={dateIdeasOpen} indooLiveOpen={indooLiveOpen}
-          driverOnline={driverOnline}
+          driverOnline={driverOnline} notifCount={notifUnreadCount}
           setMarketChatOpen={setMarketChatOpen} setMarketNotifOpen={setMarketNotifOpen}
           setNotifOpen={setNotifOpen} setMarketProfileOpen={setMarketProfileOpen}
           setMarketCartOpen={setMarketCartOpen} setOrderHistoryOpen={setOrderHistoryOpen}

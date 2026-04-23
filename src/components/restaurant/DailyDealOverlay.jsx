@@ -54,17 +54,17 @@ function DealItemCard({ item, todayTheme, qty, onQtyChange, dealDiscount }) {
       {/* Qty + remaining */}
       {!soldOut ? (
         <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 4, flexShrink: 0 }} onTouchStart={(e) => e.stopPropagation()}>
-          <div style={{ display: 'flex', alignItems: 'center' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
             <button
               onPointerDown={(e) => { e.stopPropagation() }}
               onClick={(e) => { e.stopPropagation(); e.preventDefault(); onQtyChange(-1) }}
-              style={{ width: 34, height: 32, borderRadius: '8px 0 0 8px', border: 'none', background: '#8DC63F', color: '#000', fontSize: 18, fontWeight: 900, cursor: 'pointer', zIndex: 10, touchAction: 'manipulation', WebkitTapHighlightColor: 'transparent' }}
+              style={{ width: 24, height: 24, borderRadius: '50%', border: 'none', background: '#8DC63F', color: '#000', fontSize: 16, fontWeight: 900, cursor: 'pointer', zIndex: 10, touchAction: 'manipulation', WebkitTapHighlightColor: 'transparent' }}
             >-</button>
-            <span style={{ width: 36, height: 32, display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'rgba(255,255,255,0.1)', color: '#fff', fontSize: 16, fontWeight: 900 }}>{qty}</span>
+            <span style={{ width: 34, height: 34, borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'rgba(255,255,255,0.1)', color: '#fff', fontSize: 16, fontWeight: 900 }}>{qty}</span>
             <button
               onPointerDown={(e) => { e.stopPropagation() }}
               onClick={(e) => { e.stopPropagation(); e.preventDefault(); onQtyChange(1) }}
-              style={{ width: 34, height: 32, borderRadius: '0 8px 8px 0', border: 'none', background: '#8DC63F', color: '#000', fontSize: 18, fontWeight: 900, cursor: 'pointer', zIndex: 10, touchAction: 'manipulation', WebkitTapHighlightColor: 'transparent' }}
+              style={{ width: 24, height: 24, borderRadius: '50%', border: 'none', background: '#8DC63F', color: '#000', fontSize: 16, fontWeight: 900, cursor: 'pointer', zIndex: 10, touchAction: 'manipulation', WebkitTapHighlightColor: 'transparent' }}
             >+</button>
           </div>
           <span style={{ fontSize: 12, fontWeight: 900, color: '#EF4444', animation: 'discountFlash 1.5s ease-in-out infinite' }}>
@@ -75,85 +75,57 @@ function DealItemCard({ item, todayTheme, qty, onQtyChange, dealDiscount }) {
         <span style={{ fontSize: 11, fontWeight: 900, color: '#EF4444', flexShrink: 0 }}>Sold Out</span>
       )}
     </div>
-    {/* Zoomed image — bottom sheet container, not full page */}
+    {/* Item detail — centered popup */}
     {zoomed && item.photoUrl && (
       <>
-        <div onClick={() => setZoomed(false)} style={{ position: 'fixed', inset: 0, zIndex: 99998, background: 'rgba(0,0,0,0.6)' }} />
+        <div onClick={() => setZoomed(false)} style={{ position: 'fixed', inset: 0, zIndex: 99998, background: 'rgba(0,0,0,0.7)', backdropFilter: 'blur(8px)' }} />
         <div style={{
-          position: 'fixed', bottom: 0, left: 0, right: 0, zIndex: 99999,
-          background: '#0a0a0a', borderRadius: '24px 24px 0 0',
-          borderTop: '3px solid #8DC63F',
-          maxHeight: '80vh', display: 'flex', flexDirection: 'column',
-          animation: 'slideUp 0.3s ease',
-          boxShadow: '0 -4px 20px rgba(141,198,63,0.2), 0 -8px 40px rgba(0,0,0,0.5)',
-          overflow: 'hidden',
+          position: 'fixed', top: '50%', left: '50%', transform: 'translate(-50%, -50%)',
+          width: 'calc(100% - 40px)', maxWidth: 360, zIndex: 99999,
+          background: '#0a0a0a', borderRadius: 20,
+          border: '1px solid rgba(141,198,63,0.2)',
+          overflow: 'hidden', animation: 'popIn 0.25s ease',
+          boxShadow: '0 8px 40px rgba(0,0,0,0.6)',
         }}>
-          {/* Running green light on top rim */}
-          <div style={{
-            position: 'absolute', top: 0, left: 0, right: 0, height: 3, zIndex: 10,
-            overflow: 'hidden', pointerEvents: 'none',
-          }}>
+          {/* Image */}
+          <div style={{ position: 'relative', width: '100%', height: 200 }}>
+            <img src={item.photoUrl} alt={item.itemName} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+            {/* Discount badge */}
             <div style={{
-              width: '30%', height: '100%',
-              background: 'linear-gradient(90deg, transparent, #fff, transparent)',
-              animation: 'runningLight 3s linear infinite',
-              opacity: 0.6,
-            }} />
-          </div>
-
-          {/* Image — clean, no text overlay */}
-          <div style={{ position: 'relative', width: '100%', height: 240, flexShrink: 0 }}>
-            <img src={item.photoUrl} alt={item.itemName} style={{ width: '100%', height: '100%', objectFit: 'cover', borderRadius: '20px 20px 0 0' }} />
-            {/* Discount badge — top right */}
-            <div style={{
-              position: 'absolute', top: 12, right: 12,
-              padding: '5px 12px', borderRadius: 8,
+              position: 'absolute', top: 10, right: 10,
+              padding: '4px 10px', borderRadius: 8,
               background: '#EF4444', color: '#fff',
-              fontSize: 14, fontWeight: 900,
+              fontSize: 13, fontWeight: 900,
               animation: 'discountFlash 1.5s ease-in-out infinite',
-              boxShadow: '0 0 12px rgba(239,68,68,0.5)',
             }}>
-              {item.discountPct}% OFF
+              {pct}% OFF
             </div>
-          </div>
-
-          {/* Name + rating + price — in the dark footer, not on image */}
-          <div style={{ padding: '14px 16px 0' }}>
-            <span style={{ fontSize: 18, fontWeight: 900, color: '#fff', display: 'block' }}>{item.itemName}</span>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginTop: 6 }}>
-              <span style={{ fontSize: 15, color: '#FACC15' }}>★</span>
-              <span style={{ fontSize: 15, fontWeight: 800, color: '#FACC15' }}>4.8</span>
-              <span style={{ fontSize: 13, color: 'rgba(255,255,255,0.2)' }}>·</span>
-              <span style={{ fontSize: 17, fontWeight: 900, color: '#FACC15' }}>{fmtRp(discountedPrice)}</span>
-              <span style={{ fontSize: 13, color: 'rgba(255,255,255,0.3)', textDecoration: 'line-through' }}>{fmtRp(item.originalPrice)}</span>
-            </div>
-          </div>
-
-          {/* Description */}
-          {item.description && (
-            <div style={{ padding: '8px 16px 0' }}>
-              <span style={{ fontSize: 13, color: 'rgba(255,255,255,0.45)', lineHeight: 1.5 }}>{item.description}</span>
-            </div>
-          )}
-
-          {/* Close button */}
-          <div style={{ padding: '12px 16px calc(env(safe-area-inset-bottom, 0px) + 12px)', display: 'flex', justifyContent: 'center' }}>
-            <button
-              onClick={(e) => { e.stopPropagation(); setZoomed(false) }}
-              style={{
-                width: 44, height: 44, borderRadius: '50%',
-                background: '#EF4444', border: 'none',
-                display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer',
-              }}
-            >
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2.5" strokeLinecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+            {/* Close X — top left */}
+            <button onClick={(e) => { e.stopPropagation(); setZoomed(false) }} style={{
+              position: 'absolute', top: 10, left: 10,
+              width: 32, height: 32, borderRadius: '50%',
+              background: '#EF4444', border: 'none',
+              display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer',
+            }}>
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2.5" strokeLinecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
             </button>
           </div>
+
+          {/* Name + rating + price */}
+          <div style={{ padding: '12px 14px' }}>
+            <span style={{ fontSize: 17, fontWeight: 900, color: '#fff', display: 'block' }}>{item.itemName}</span>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginTop: 4 }}>
+              <span style={{ fontSize: 14, color: '#FACC15' }}>★</span>
+              <span style={{ fontSize: 14, fontWeight: 800, color: '#FACC15' }}>4.8</span>
+              <span style={{ fontSize: 12, color: 'rgba(255,255,255,0.2)' }}>·</span>
+              <span style={{ fontSize: 16, fontWeight: 900, color: '#FACC15' }}>{fmtRp(discountedPrice)}</span>
+            </div>
+            {item.description && (
+              <span style={{ fontSize: 12, color: 'rgba(255,255,255,0.4)', display: 'block', marginTop: 6, lineHeight: 1.5 }}>{item.description}</span>
+            )}
+          </div>
         </div>
-        <style>{`
-          @keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
-          @keyframes runningLight { from { transform: translateX(-100%); } to { transform: translateX(350%); } }
-        `}</style>
+        <style>{`@keyframes popIn { from { transform: translate(-50%,-50%) scale(0.9); opacity: 0; } to { transform: translate(-50%,-50%) scale(1); opacity: 1; } }`}</style>
       </>
     )}
     </>
@@ -260,7 +232,7 @@ export default function DailyDealOverlay({ restaurant, dealItems, onClose, onAdd
         <div style={{ width: '100%', minHeight: '100vh', minHeight: '100dvh', scrollSnapAlign: 'start', position: 'relative', flexShrink: 0, display: 'flex', flexDirection: 'column' }}>
           {/* Background + slight tint */}
           <img src={todayTheme.img} alt="" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'fill' }} />
-          <div style={{ position: 'absolute', inset: 0, background: 'rgba(0,0,0,0.25)', pointerEvents: 'none' }} />
+          <div style={{ position: 'absolute', inset: 0, background: 'rgba(0,0,0,0.35)', pointerEvents: 'none' }} />
 
           {/* Top banner — restaurant name + deal theme */}
           <div style={{
@@ -303,6 +275,12 @@ export default function DailyDealOverlay({ restaurant, dealItems, onClose, onAdd
               </div>
             ) : (
               <>
+                {/* Discount + countdown bar */}
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 10, padding: '8px 16px', borderRadius: 12, background: 'rgba(0,0,0,0.4)', backdropFilter: 'blur(10px)', border: '1px solid rgba(250,204,21,0.2)' }}>
+                  <span style={{ fontSize: 16, fontWeight: 900, color: '#FACC15' }}>{todayTheme.discount}% Off</span>
+                  <span style={{ fontSize: 12, color: 'rgba(255,255,255,0.3)' }}>·</span>
+                  <span style={{ fontSize: 14, fontWeight: 900, color: '#EF4444', fontVariantNumeric: 'tabular-nums' }}>{countdown}</span>
+                </div>
                 {(dealItems ?? []).slice(0, 3).map(item => (
                   <DealItemCard
                     key={item.itemId}
@@ -384,7 +362,7 @@ export default function DailyDealOverlay({ restaurant, dealItems, onClose, onAdd
         {otherDeals.map(deal => (
           <div key={deal.id} style={{ width: '100%', minHeight: '100vh', minHeight: '100dvh', scrollSnapAlign: 'start', position: 'relative', flexShrink: 0, display: 'flex', flexDirection: 'column' }}>
             <img src={todayTheme.img} alt="" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'fill' }} />
-            <div style={{ position: 'absolute', inset: 0, background: 'rgba(0,0,0,0.25)', pointerEvents: 'none' }} />
+            <div style={{ position: 'absolute', inset: 0, background: 'rgba(0,0,0,0.35)', pointerEvents: 'none' }} />
 
             {/* Top banner */}
             <div style={{
@@ -411,27 +389,17 @@ export default function DailyDealOverlay({ restaurant, dealItems, onClose, onAdd
               </div>
             </div>
 
-            {/* Food discount bubble — center hero */}
-            <div style={{ position: 'absolute', left: '50%', top: '30%', transform: 'translateX(-50%)', zIndex: 5, animation: 'foodFloat 3.5s ease-in-out infinite' }}>
-              <div style={{ position: 'absolute', inset: -10, borderRadius: '50%', border: '2px solid #FACC15', animation: 'bikeGlow 2.5s ease-in-out infinite' }} />
-              <div style={{ position: 'absolute', inset: -20, borderRadius: '50%', border: '1px solid rgba(250,204,21,0.2)', animation: 'bikeGlow 3s ease-in-out 0.5s infinite' }} />
-              <div style={{
-                width: 110, height: 110, borderRadius: '50%',
-                background: 'rgba(0,0,0,0.5)', backdropFilter: 'blur(12px)',
-                border: '2.5px solid rgba(250,204,21,0.5)',
-                display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
-                boxShadow: '0 0 40px rgba(250,204,21,0.3), 0 0 80px rgba(250,204,21,0.1)',
-              }}>
-                <span style={{ fontSize: 32, lineHeight: 1 }}>🍽️</span>
-                <span style={{ fontSize: 26, fontWeight: 900, color: '#FACC15', marginTop: 3, lineHeight: 1 }}>{deal.discountPct ?? todayTheme.discount}%</span>
-                <span style={{ fontSize: 9, fontWeight: 800, color: 'rgba(255,255,255,0.6)', letterSpacing: '0.15em' }}>OFF</span>
-              </div>
-            </div>
 
             <div style={{ flex: 1 }} />
 
             {/* Deal content — above footer */}
             <div style={{ position: 'relative', zIndex: 2, padding: '0 16px', marginBottom: 8, display: 'flex', flexDirection: 'column', gap: 8 }}>
+              {/* Discount + countdown bar */}
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 10, padding: '8px 16px', borderRadius: 12, background: 'rgba(0,0,0,0.4)', backdropFilter: 'blur(10px)', border: '1px solid rgba(250,204,21,0.2)' }}>
+                <span style={{ fontSize: 16, fontWeight: 900, color: '#FACC15' }}>{deal.discountPct ?? todayTheme.discount}% Off</span>
+                <span style={{ fontSize: 12, color: 'rgba(255,255,255,0.3)' }}>·</span>
+                <span style={{ fontSize: 14, fontWeight: 900, color: '#EF4444', fontVariantNumeric: 'tabular-nums' }}>{countdown}</span>
+              </div>
               {(deal.items ?? []).slice(0, 3).map(item => (
                 <DealItemCard
                   key={item.itemId}

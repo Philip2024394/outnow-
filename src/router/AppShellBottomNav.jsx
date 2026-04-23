@@ -5,7 +5,7 @@ export default function AppShellBottomNav({
   isGuest, triggerGate, dockVisible, shopOpen, marketplaceLanding,
   userProfile, user, categorySessions, activeSection, rideVehicleType,
   activeTab, inviteOut, mySession, newNowCount, newInviteCount,
-  dateIdeasOpen, indooLiveOpen, driverOnline,
+  dateIdeasOpen, indooLiveOpen, driverOnline, notifCount,
   // callbacks
   setMarketChatOpen, setMarketNotifOpen, setNotifOpen,
   setMarketProfileOpen, setMarketCartOpen, setOrderHistoryOpen,
@@ -99,6 +99,7 @@ export default function AppShellBottomNav({
         }
       }}
       unreadChats={0}
+      notifCount={notifCount ?? 0}
       userPhotoURL={userProfile?.photoURL ?? null}
       userName={userProfile?.displayName ?? 'You'}
       isLive={!!mySession}

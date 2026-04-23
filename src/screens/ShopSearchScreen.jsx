@@ -401,8 +401,8 @@ export default function ShopSearchScreen({ onClose, userCity, userCountry, giftF
         </div>
       </div>
 
-      {/* Live order ticker */}
-      <div style={{ overflow: 'hidden', padding: '6px 14px', flexShrink: 0 }}>
+      {/* Live order ticker — directly under search */}
+      <div style={{ overflow: 'hidden', padding: '6px 14px', flexShrink: 0, position: 'relative', zIndex: 1 }}>
         <div style={{ display: 'flex', animation: 'tickerScroll 25s linear infinite', whiteSpace: 'nowrap', gap: 40 }}>
           {['Sarah bought Leather Bag · 2m ago', 'Andi booked Honda Vario · 5m ago', 'Rizky won Auction · 8m ago', 'Wayan listed Sound System · 12m ago', 'Sari sold Villa Package · 15m ago', 'Sarah bought Leather Bag · 2m ago', 'Andi booked Honda Vario · 5m ago', 'Rizky won Auction · 8m ago'].map((t, i) => (
             <span key={i} style={{ fontSize: 12, fontWeight: 600, color: 'rgba(255,255,255,0.4)', display: 'flex', alignItems: 'center', gap: 5 }}>
@@ -412,8 +412,12 @@ export default function ShopSearchScreen({ onClose, userCity, userCountry, giftF
         </div>
       </div>
 
+      {/* Spacer */}
+      <div style={{ flex: 1 }} />
+
       {/* Footer — hero text + browse button */}
       <div className={styles.landingFooter}>
+        <span style={{ fontSize: 28, fontWeight: 900, display: 'block', marginBottom: 6 }}><span style={{ background: 'linear-gradient(90deg, #fff 0%, #fff 58%, #8DC63F 58%, #8DC63F 100%)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text' }}>INDOO</span> <span style={{ fontWeight: 700, fontSize: 16, color: 'rgba(255,255,255,0.5)' }}>MARKET</span></span>
         <p className={styles.landingSub}>Buy & sell anything — fashion, electronics, handmade and more</p>
         <button onClick={() => { markSectionVisited('marketplace'); setShowLanding(false); setShowCategories(true); onLandingChange?.(false) }} style={{
           padding: '16px 40px', borderRadius: 16, background: '#8DC63F', border: 'none',
@@ -449,20 +453,20 @@ export default function ShopSearchScreen({ onClose, userCity, userCountry, giftF
       <p style={{ padding: '0 16px', fontSize: 13, color: 'rgba(255,255,255,0.5)', fontWeight: 600, margin: '0 0 12px', position: 'relative', zIndex: 1 }}>Buy · Sell · Trade — choose a category</p>
 
       {/* 6 Landscape cards */}
-      <div style={{ flex: 1, overflowY: 'auto', padding: '0 16px 24px', display: 'flex', flexDirection: 'column', gap: 12, position: 'relative', zIndex: 1 }}>
+      <div style={{ flex: 1, overflowY: 'auto', padding: '0 8px 24px', display: 'flex', flexDirection: 'column', gap: 10, position: 'relative', zIndex: 1 }}>
         {[
-          { label: 'New Products', sub: 'Brand new goods from verified sellers', count: '24 items', rating: 4.8, icon: '✨', onClick: () => { setShowCategories(false); setShowLanding(false) } },
-          { label: 'Used Goods', sub: 'Pre-owned deals at great prices', count: '12 deals', rating: 4.6, icon: '🔄', onClick: () => { setShowCategories(false); setShowLanding(false); onOpenUsedGoods?.() } },
-          { label: 'Wanted Board', sub: 'Post what you need — sellers come to you', count: '8 requests', rating: 4.7, icon: '👀', onClick: () => { setShowCategories(false); setShowLanding(false); onOpenWanted?.() } },
-          { label: 'Flash Sale', sub: 'Limited time deals with huge discounts', count: '3 LIVE', live: true, rating: 4.9, icon: '⚡', onClick: () => { setShowCategories(false); setShowLanding(false); requestAnimationFrame(() => setFlashSaleOpen(true)) } },
-          { label: 'Auction', sub: 'Bid & win — live auctions happening now', count: '2 LIVE', live: true, rating: 4.8, icon: '🔨', onClick: () => { setShowCategories(false); setShowLanding(false); requestAnimationFrame(() => setAuctionOpen(true)) } },
-          { label: 'Shop All', sub: 'Browse the full marketplace catalog', count: 'Browse', rating: 4.7, icon: '🛍️', onClick: () => { setShowCategories(false); setShowLanding(false) } },
+          { label: 'New Products', sub: 'Brand new goods from verified sellers', count: '24 items', rating: 4.8, img: 'https://ik.imagekit.io/nepgaxllc/ChatGPT%20Image%20Apr%2023,%202026,%2006_45_46%20AM.png?updatedAt=1776901563649', onClick: () => { setShowCategories(false); setShowLanding(false) } },
+          { label: 'Used Goods', sub: 'Pre-owned deals at great prices', count: '12 deals', rating: 4.6, img: 'https://ik.imagekit.io/nepgaxllc/ChatGPT%20Image%20Apr%2023,%202026,%2007_03_40%20AM.png?updatedAt=1776902635799', onClick: () => { setShowCategories(false); setShowLanding(false); onOpenUsedGoods?.() } },
+          { label: 'Wanted Board', sub: 'Post what you need — sellers come to you', count: '8 requests', rating: 4.7, img: 'https://ik.imagekit.io/nepgaxllc/ChatGPT%20Image%20Apr%2023,%202026,%2006_51_55%20AM.png?updatedAt=1776901931007', onClick: () => { setShowCategories(false); setShowLanding(false); onOpenWanted?.() } },
+          { label: 'Flash Sale', sub: 'Limited time deals with huge discounts', count: '3 LIVE', live: true, rating: 4.9, img: 'https://ik.imagekit.io/nepgaxllc/ChatGPT%20Image%20Apr%2023,%202026,%2007_02_31%20AM.png?updatedAt=1776902567282', onClick: () => { setShowCategories(false); setShowLanding(false); requestAnimationFrame(() => setFlashSaleOpen(true)) } },
+          { label: 'Auction', sub: 'Bid & win — live auctions happening now', count: '2 LIVE', live: true, rating: 4.8, img: 'https://ik.imagekit.io/nepgaxllc/ChatGPT%20Image%20Apr%2023,%202026,%2007_00_21%20AM.png?updatedAt=1776902437771', onClick: () => { setShowCategories(false); setShowLanding(false); requestAnimationFrame(() => setAuctionOpen(true)) } },
+          { label: 'Shop All', sub: 'Browse the full marketplace catalog', count: 'Browse', rating: 4.7, img: 'https://ik.imagekit.io/nepgaxllc/ChatGPT%20Image%20Apr%2023,%202026,%2007_05_40%20AM.png?updatedAt=1776902755549', onClick: () => { setShowCategories(false); setShowLanding(false) } },
         ].map((item, i) => (
           <button key={i} onClick={item.onClick} style={{
             display: 'flex', flexDirection: 'row', alignItems: 'center', gap: 14,
-            padding: '16px 14px', width: '100%', boxSizing: 'border-box',
+            padding: '14px 12px', width: '100%', boxSizing: 'border-box',
             background: 'rgba(0,0,0,0.5)', backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)',
-            border: '1.5px solid rgba(141,198,63,0.15)', borderRadius: 16,
+            border: item.live ? '2px solid rgba(239,68,68,0.5)' : '2px solid rgba(141,198,63,0.4)', borderRadius: 16,
             cursor: 'pointer', fontFamily: 'inherit', textAlign: 'left',
             position: 'relative',
             boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.06), 0 4px 20px rgba(0,0,0,0.4)',
@@ -473,12 +477,10 @@ export default function ShopSearchScreen({ onClose, userCity, userCountry, giftF
           onPointerUp={e => e.currentTarget.style.transform = 'scale(1)'}
           onPointerLeave={e => e.currentTarget.style.transform = 'scale(1)'}
           >
-            {/* Glow line */}
-            <div style={{ position: 'absolute', top: 0, left: '10%', right: '10%', height: 1.5, background: 'linear-gradient(90deg, transparent, rgba(141,198,63,0.25), transparent)', pointerEvents: 'none' }} />
 
             {/* Icon */}
-            <div style={{ width: 48, height: 48, borderRadius: '50%', background: 'rgba(141,198,63,0.1)', border: '1.5px solid rgba(141,198,63,0.25)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 22, flexShrink: 0 }}>
-              {item.icon}
+            <div style={{ width: 90, height: 90, borderRadius: 16, overflow: 'hidden', flexShrink: 0 }}>
+              <img src={item.img} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
             </div>
 
             {/* Text */}
@@ -493,10 +495,9 @@ export default function ShopSearchScreen({ onClose, userCity, userCountry, giftF
                   {item.live && <span style={{ width: 5, height: 5, borderRadius: '50%', background: '#EF4444', animation: 'livePulse 1.5s ease-in-out infinite' }} />}
                   {item.count}
                 </span>
-                <span style={{ display: 'flex', alignItems: 'center', gap: 3, flexShrink: 0 }}>
-                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#8DC63F" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
-                  <span style={{ fontSize: 11, fontWeight: 700, color: '#8DC63F' }}>Enter</span>
-                </span>
+                <div style={{ position: 'absolute', right: 10, bottom: 10, width: 34, height: 34, borderRadius: '50%', background: item.live ? 'rgba(239,68,68,0.2)' : 'rgba(141,198,63,0.15)', border: item.live ? '1px solid rgba(239,68,68,0.4)' : '1px solid rgba(141,198,63,0.3)', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: item.live ? '0 0 10px rgba(239,68,68,0.3)' : '0 0 10px rgba(141,198,63,0.2)' }}>
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke={item.live ? '#EF4444' : '#8DC63F'} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+                </div>
               </div>
             </div>
           </button>

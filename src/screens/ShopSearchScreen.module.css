@@ -1049,5 +1049,7 @@
   @keyframes pulseGlow { 0%,100% { box-shadow: 0 0 6px rgba(141,198,63,0.1); } 50% { box-shadow: 0 0 16px rgba(141,198,63,0.3); } }
   @keyframes livePulse { 0%,100% { opacity: 1; } 50% { opacity: 0.3; } }
   @keyframes tickerScroll { 0% { transform: translateX(100%); } 100% { transform: translateX(-100%); } }
+  @keyframes liveRunLight { from { left: -30%; } to { left: 100%; } }
+  @keyframes borderRunLight { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
 }
 

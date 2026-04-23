@@ -1078,10 +1078,11 @@ export default function RestaurantMenuSheet({ restaurant, onClose, onOrderViaCha
           onCancelOrder={handleCancelOrder}
           onReviewOrder={(order) => { setReviewOrder(order); setReviewStars(0); setReviewComment('') }}
           onReorder={(items) => {
-            items.forEach(item => addToCart(item))
-            setCartExpanded(true)
+            // Clear existing cart and load reorder items
+            setCart(items.map(item => ({ ...item, qty: item.qty ?? 1 })))
             setOrdersOpen(false)
-            setToast('Previous order added to cart!')
+            setCartExpanded(true)
+            setToast('Order loaded — confirm to place again')
           }}
         />
       )}
