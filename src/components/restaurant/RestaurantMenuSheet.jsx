@@ -15,6 +15,11 @@ import FoodDashboard from './FoodDashboard'
 import DailyDealOverlay from './DailyDealOverlay'
 import { getTodayDealForRestaurant, hasAnyDailyDeals } from '@/services/dailyDealService'
 import { getLocalDefaultAddress } from '@/services/addressService'
+import { getAvailableTimeSlots } from '@/services/preBookingService'
+import { validatePromoCode, applyPromoCode } from '@/services/promoCodeService'
+import { addToMultiCart, getMultiCartCount, getRestaurantCount } from '@/services/multiCartService'
+import LiveChatSheet from './LiveChatSheet'
+import PromoBannerPage from './PromoBannerPage'
 
 // Auto-detect tags from item name/description/category
 const SPICY_WORDS = ['pedas','sambal','geprek','balado','rica','cabai','chili','hot','spicy','cabe']
@@ -65,7 +70,7 @@ export default function RestaurantMenuSheet({ restaurant, onClose, onOrderViaCha
   const [socialsOpen,    setSocialsOpen]    = useState(false)
 
   // Close all side drawers — ensures only one is open at a time
-  const closeAllDrawers = () => { setDrawerOpen(false); setEventsOpen(false); setSocialsOpen(false); setPromosOpen(false); setOrdersOpen(false); setDashboardOpen(false); setDailyDealOpen(false) }
+  const closeAllDrawers = () => { setDrawerOpen(false); setEventsOpen(false); setSocialsOpen(false); setPromosOpen(false); setOrdersOpen(false); setDashboardOpen(false); setDailyDealOpen(false); setCuisineDrawerOpen(false); setChatOpen(false); setPromoBannerOpen2(false) }
   const [address,        setAddress]        = useState(() => getLocalDefaultAddress())
   const [showAddrInput,  setShowAddrInput]  = useState(false)
   const [editingNoteId,  setEditingNoteId]  = useState(null)
@@ -94,9 +99,20 @@ export default function RestaurantMenuSheet({ restaurant, onClose, onOrderViaCha
   const [customizeItem,   setCustomizeItem]   = useState(null)
   const [mapFullView,     setMapFullView]     = useState(false) // toggle: cinematic (false) vs map (true)
   const [dashboardOpen,   setDashboardOpen]   = useState(false)
+  const [cuisineDrawerOpen, setCuisineDrawerOpen] = useState(false)
   const [dailyDealOpen,   setDailyDealOpen]   = useState(false)
   const [todayDeal,       setTodayDeal]       = useState(null) // { day, items, active }
   const [hasDailyDeals,   setHasDailyDeals]   = useState(false)
+
+  // ── New features state ──
+  const [allergenFilter, setAllergenFilter] = useState([]) // active allergen filter IDs
+  const [scheduleMode,   setScheduleMode]   = useState(false) // scheduled delivery toggle
+  const [scheduleSlot,   setScheduleSlot]   = useState(null) // selected time slot ISO
+  const [promoCode,      setPromoCode]      = useState('')
+  const [promoResult,    setPromoResult]    = useState(null) // { valid, discountAmount, ... }
+  const [chatOpen,       setChatOpen]       = useState(false) // live chat sheet
+  const [promoBannerOpen, setPromoBannerOpen2] = useState(false) // promo banner page
+  const [multiCartCount, setMultiCartCount] = useState(0) // items in other restaurant carts
 
   const feedRef     = useRef(null)
   const itemRefs    = useRef([])
@@ -123,7 +139,7 @@ export default function RestaurantMenuSheet({ restaurant, onClose, onOrderViaCha
   }, [cart]) // eslint-disable-line react-hooks/exhaustive-deps
 
   // Load food orders on mount (seeds demo if empty)
-  useEffect(() => { setFoodOrders(getFoodOrders()) }, [])
+  useEffect(() => { setFoodOrders(getFoodOrders()); setMultiCartCount(getMultiCartCount()) }, [])
 
   // Toast auto-dismiss
   useEffect(() => {
@@ -154,12 +170,41 @@ export default function RestaurantMenuSheet({ restaurant, onClose, onOrderViaCha
     } catch {}
   }, [restaurant])
 
+  // Allergen filter IDs: 'spicy','nuts','seafood_allergen','vegetarian','halal','egg','garlic'
+  const ALLERGEN_FILTERS = [
+    { id: 'vegetarian', label: 'Vegetarian', emoji: '🥬' },
+    { id: 'halal', label: 'Halal', emoji: '☪️' },
+    { id: 'no_spicy', label: 'No Spicy', emoji: '🌶️', exclude: true },
+    { id: 'no_nuts', label: 'No Nuts', emoji: '🥜', exclude: true },
+    { id: 'no_seafood', label: 'No Seafood', emoji: '🦐', exclude: true },
+    { id: 'no_egg', label: 'No Egg', emoji: '🥚', exclude: true },
+    { id: 'no_garlic', label: 'No Garlic', emoji: '🧄', exclude: true },
+  ]
+
   // Filter items by active category — only show items with owner-uploaded photos
   // Sort by popularity: featured/first items shown first (hero dish at top)
   const visibleItems = (activeCategory
     ? items.filter(i => i.category === activeCategory && i.photo_url)
     : items.filter(i => i.photo_url)
-  ).sort((a, b) => {
+  ).filter(item => {
+    if (allergenFilter.length === 0) return true
+    const tags = getAutoTags(item)
+    const tagIds = tags.map(t => t?.id)
+    for (const filterId of allergenFilter) {
+      const filterDef = ALLERGEN_FILTERS.find(f => f.id === filterId)
+      if (!filterDef) continue
+      if (filterDef.exclude) {
+        // Exclude items that HAVE this tag
+        const tagToExclude = filterId.replace('no_', '') // no_spicy → spicy
+        const fullId = tagToExclude === 'seafood' ? 'seafood_allergen' : tagToExclude
+        if (tagIds.includes(fullId)) return false
+      } else {
+        // Include only items that HAVE this tag
+        if (!tagIds.includes(filterId)) return false
+      }
+    }
+    return true
+  }).sort((a, b) => {
     // Hero dish (matches restaurant hero_dish_name) always first
     if (a.name === restaurant.hero_dish_name) return -1
     if (b.name === restaurant.hero_dish_name) return 1
@@ -175,10 +220,9 @@ export default function RestaurantMenuSheet({ restaurant, onClose, onOrderViaCha
         ? prev.map(c => c.id === item.id ? { ...c, qty: c.qty + 1 } : c)
         : [...prev, { ...item, qty: 1 }]
     })
-    // Spring open + auto-collapse after 2.5s
-    setCartExpanded(true)
-    clearTimeout(collapseRef.current)
-    collapseRef.current = setTimeout(() => { setCartExpanded(false); setShowAddrInput(false) }, 2500)
+    // Sync to multi-cart service
+    addToMultiCart(restaurant, item)
+    setMultiCartCount(getMultiCartCount())
   }
 
   const removeFromCart = (id) => {
@@ -506,16 +550,24 @@ export default function RestaurantMenuSheet({ restaurant, onClose, onOrderViaCha
     // Address is already shown at top of cart — proceed directly
 
     // Snapshot cart data BEFORE any async delays
+    // Calculate final total with promo discount
+    const promoDiscount = promoResult?.valid ? (promoResult.discountAmount ?? 0) : 0
+    const freeDeliveryDiscount = promoResult?.isFreeDelivery ? (deliveryFare ?? 0) : 0
+    const finalTotal = Math.max(0, grandTotal - promoDiscount - freeDeliveryDiscount)
+
     const orderSnapshot = {
       items: cart.map(i => ({ name: i.name, qty: i.qty, price: i.price })),
-      total: grandTotal,
-      delivery: deliveryFare ?? (orderType === 'delivery' ? 10000 : 0),
+      total: finalTotal,
+      delivery: promoResult?.isFreeDelivery ? 0 : (deliveryFare ?? (orderType === 'delivery' ? 10000 : 0)),
       orderType,
       paymentMethod,
       transactionCode: paymentMethod === 'bank' ? transactionCode : null,
       address: orderType === 'delivery' ? (address || null) : null,
       restaurantName: restaurant.name,
       eta: eta + 10,
+      scheduled_at: scheduleMode && scheduleSlot ? scheduleSlot : null,
+      promo_code: promoResult?.valid ? promoCode : null,
+      promo_discount: promoDiscount + freeDeliveryDiscount,
     }
 
     setCartExpanded(false)
@@ -541,9 +593,12 @@ export default function RestaurantMenuSheet({ restaurant, onClose, onOrderViaCha
         order_type: orderSnapshot.orderType,
         payment_method: orderSnapshot.paymentMethod,
         transaction_code: orderSnapshot.transactionCode,
-        status: 'driver_assigned',
+        status: orderSnapshot.scheduled_at ? 'scheduled' : 'driver_assigned',
         address: orderSnapshot.address,
         created_at: new Date().toISOString(),
+        scheduled_at: orderSnapshot.scheduled_at ?? null,
+        promo_code: orderSnapshot.promo_code ?? null,
+        promo_discount: orderSnapshot.promo_discount ?? 0,
       }
 
       const orders = getFoodOrders()
@@ -598,20 +653,30 @@ export default function RestaurantMenuSheet({ restaurant, onClose, onOrderViaCha
   return (
     <div className={styles.screen}>
 
-      {/* ── Header ── */}
-      <div className={styles.header}>
-        <div className={styles.headerInfo}>
-          <span className={styles.headerName}>{restaurant.name}</span>
-          <span style={{ fontSize: 10, color: 'rgba(255,255,255,0.4)', fontWeight: 700 }}>
-            ⏱ Prep {Math.round(items.reduce((s, i) => s + (i.prep_time_min ?? 10), 0) / (items.length || 1))}-{Math.round(items.reduce((s, i) => s + (i.prep_time_min ?? 10), 0) / (items.length || 1)) + 5} min
-          </span>
+      {/* ── Header — deals style ── */}
+      <div style={{
+        position: 'fixed', top: 0, left: 0, right: 0, zIndex: 9600,
+        padding: 'calc(env(safe-area-inset-top, 0px) + 12px) 16px 12px',
+        background: '#0a0a0a', borderRadius: '0 0 16px 16px', borderBottom: '2px solid #8DC63F',
+        display: 'flex', alignItems: 'center', gap: 12, overflow: 'hidden',
+      }}>
+        {/* Running green light */}
+        <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, height: 2, overflow: 'hidden', pointerEvents: 'none' }}>
+          <div style={{ width: '30%', height: '100%', background: 'linear-gradient(90deg, transparent, #fff, transparent)', animation: 'runningLight 3s linear infinite', opacity: 0.7 }} />
+        </div>
+        <div style={{ flex: 1 }}>
+          <span style={{ fontSize: 16, fontWeight: 900, color: '#fff', display: 'block' }}>{restaurant.name}</span>
           {activeCategory && (
-            <button className={styles.clearCat} onClick={() => setActiveCategory(null)}>
+            <button onClick={() => setActiveCategory(null)} style={{ fontSize: 11, fontWeight: 700, color: '#FACC15', background: 'none', border: 'none', cursor: 'pointer', padding: 0, marginTop: 2 }}>
               {activeCategory} · All items ×
             </button>
           )}
         </div>
       </div>
+      <style>{`
+        @keyframes runningLight { from { transform: translateX(-100%); } to { transform: translateX(450%); } }
+        @keyframes runningLightVertical { from { top: -20%; } to { top: 100%; } }
+      `}</style>
 
       {/* Cart backdrop */}
       {cartExpanded && <div className={styles.cartBackdrop} onClick={() => { setCartExpanded(false); setShowAddrInput(false) }} />}
@@ -648,50 +713,119 @@ export default function RestaurantMenuSheet({ restaurant, onClose, onOrderViaCha
             </div>
           </div>
 
-          {/* Order type toggle — under header */}
-          <div style={{ display: 'flex', gap: 6, padding: '10px 16px', borderBottom: '1px solid rgba(255,255,255,0.06)', flexShrink: 0, position: 'relative', zIndex: 1 }}>
-            {[
-              { id: 'delivery', label: 'Delivery', icon: 'https://ik.imagekit.io/nepgaxllc/Sleek%20green%20and%20black%20scooter%20setup.png?updatedAt=1775634845237' },
-              { id: 'dinein', label: 'Dine In' },
-              { id: 'pickup', label: 'Pickup' },
-            ].map(opt => (
-              <button key={opt.id} onClick={() => setOrderType(opt.id)} style={{
-                flex: 1, padding: '8px 4px', borderRadius: 10,
-                background: orderType === opt.id ? '#8DC63F' : 'transparent',
-                border: 'none',
-                color: orderType === opt.id ? '#000' : 'rgba(255,255,255,0.5)',
-                fontSize: 12, fontWeight: 800, cursor: 'pointer', fontFamily: 'inherit',
-                display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 4,
-                transition: 'background 0.2s, color 0.2s',
-              }}>
-                {opt.icon ? <img src={opt.icon} alt="" style={{ width: 20, height: 20, objectFit: 'contain' }} /> : null}
-                {opt.label}
+          {/* Delivery address */}
+          <div style={{ padding: '10px 16px', flexShrink: 0, position: 'relative', zIndex: 1, borderBottom: '1px solid rgba(255,255,255,0.06)' }}>
+            <div className={styles.addrWrap}>
+              <input
+                className={styles.addrInput}
+                placeholder="📍 Your delivery address"
+                value={address}
+                onChange={e => setAddress(e.target.value)}
+              />
+              <button className={styles.locateBtn} onClick={handleUseLocation} disabled={locating}>
+                {locating ? '…' : <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>}
               </button>
-            ))}
+            </div>
           </div>
 
-          {/* Delivery context — under toggle */}
-          <div style={{ padding: '8px 16px', flexShrink: 0, position: 'relative', zIndex: 1 }}>
-            {orderType === 'delivery' && (
-              <div className={styles.addrWrap}>
-                <input
-                  className={styles.addrInput}
-                  placeholder="📍 Your delivery address"
-                  value={address}
-                  onChange={e => setAddress(e.target.value)}
-                />
-                <button className={styles.locateBtn} onClick={handleUseLocation} disabled={locating}>
-                  {locating ? '…' : <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>}
+          {/* Scheduled delivery toggle */}
+          <div style={{ padding: '8px 16px', borderBottom: '1px solid rgba(255,255,255,0.06)', flexShrink: 0 }}>
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke={scheduleMode ? '#FACC15' : 'rgba(255,255,255,0.4)'} strokeWidth="2" strokeLinecap="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                  <span style={{ fontSize: 12, fontWeight: 800, color: scheduleMode ? '#FACC15' : 'rgba(255,255,255,0.5)' }}>Schedule for later</span>
+                </div>
+                <button onClick={() => { setScheduleMode(!scheduleMode); if (scheduleMode) setScheduleSlot(null) }} style={{
+                  width: 44, height: 24, borderRadius: 12, border: 'none', cursor: 'pointer',
+                  background: scheduleMode ? '#8DC63F' : 'rgba(255,255,255,0.1)',
+                  position: 'relative', transition: 'background 0.2s',
+                }}>
+                  <div style={{
+                    width: 20, height: 20, borderRadius: '50%', background: '#fff',
+                    position: 'absolute', top: 2,
+                    left: scheduleMode ? 22 : 2,
+                    transition: 'left 0.2s',
+                    boxShadow: '0 1px 4px rgba(0,0,0,0.3)',
+                  }} />
                 </button>
               </div>
-            )}
-            {orderType === 'dinein' && (
-              <div style={{ padding: '6px 0', fontSize: 12, fontWeight: 700, color: 'rgba(255,255,255,0.4)', textAlign: 'center' }}>🍽️ Walk-in / Eat at restaurant</div>
-            )}
-            {orderType === 'pickup' && (
-              <div style={{ padding: '6px 0', fontSize: 12, fontWeight: 700, color: 'rgba(255,255,255,0.4)', textAlign: 'center' }}>🏪 Pick up at restaurant</div>
+              {scheduleMode && (
+                <div style={{ marginTop: 10 }}>
+                  <select
+                    value={scheduleSlot ?? ''}
+                    onChange={e => setScheduleSlot(e.target.value || null)}
+                    style={{
+                      width: '100%', padding: '10px 12px', borderRadius: 12,
+                      background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)',
+                      color: '#fff', fontSize: 13, fontWeight: 700, fontFamily: 'inherit',
+                      appearance: 'none', cursor: 'pointer',
+                    }}
+                  >
+                    <option value="" style={{ background: '#1a1a1a' }}>Select delivery time</option>
+                    {getAvailableTimeSlots().slice(0, 28).map(slot => (
+                      <option key={slot.value} value={slot.value} style={{ background: '#1a1a1a' }}>{slot.label}</option>
+                    ))}
+                  </select>
+                  {scheduleSlot && (
+                    <span style={{ fontSize: 11, color: '#8DC63F', fontWeight: 700, marginTop: 6, display: 'block' }}>
+                      Scheduled: {new Date(scheduleSlot).toLocaleDateString('en-GB', { weekday: 'short', day: 'numeric', month: 'short' })} at {new Date(scheduleSlot).toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' })}
+                    </span>
+                  )}
+                </div>
+              )}
+            </div>
+
+          {/* Promo code input */}
+          <div style={{ padding: '8px 16px', borderBottom: '1px solid rgba(255,255,255,0.06)', flexShrink: 0 }}>
+            <div style={{ display: 'flex', gap: 8 }}>
+              <input
+                value={promoCode}
+                onChange={e => { setPromoCode(e.target.value.toUpperCase()); setPromoResult(null) }}
+                placeholder="Promo code"
+                style={{
+                  flex: 1, padding: '10px 14px', borderRadius: 12,
+                  background: 'rgba(255,255,255,0.06)', border: `1.5px solid ${promoResult?.valid ? '#8DC63F' : promoResult?.valid === false ? '#ef4444' : 'rgba(255,255,255,0.1)'}`,
+                  color: '#fff', fontSize: 13, fontWeight: 700, fontFamily: 'inherit', outline: 'none',
+                  letterSpacing: '0.06em',
+                }}
+              />
+              <button onClick={() => {
+                const result = validatePromoCode(promoCode, cartTotal)
+                setPromoResult(result)
+                if (result.valid) applyPromoCode(promoCode)
+              }} style={{
+                padding: '10px 16px', borderRadius: 12,
+                background: promoCode.trim() ? '#8DC63F' : 'rgba(255,255,255,0.06)',
+                border: 'none', color: promoCode.trim() ? '#000' : 'rgba(255,255,255,0.3)',
+                fontSize: 12, fontWeight: 800, cursor: promoCode.trim() ? 'pointer' : 'default',
+                fontFamily: 'inherit',
+              }}>
+                Apply
+              </button>
+              <button onClick={() => { closeAllDrawers(); setPromoBannerOpen2(true) }} style={{
+                padding: '10px 12px', borderRadius: 12,
+                background: 'rgba(250,204,21,0.1)', border: '1px solid rgba(250,204,21,0.3)',
+                color: '#FACC15', fontSize: 18, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center',
+              }} title="Browse promos">
+                🏷️
+              </button>
+            </div>
+            {promoResult && (
+              <span style={{ fontSize: 11, fontWeight: 700, color: promoResult.valid ? '#8DC63F' : '#ef4444', marginTop: 6, display: 'block' }}>
+                {promoResult.valid ? `${promoResult.label} — Save ${promoResult.isFreeDelivery ? 'delivery fee' : `Rp ${promoResult.discountAmount?.toLocaleString('id-ID')}`}` : promoResult.error}
+              </span>
             )}
           </div>
+
+          {/* Multi-restaurant cart indicator */}
+          {getRestaurantCount() > 1 && (
+            <div style={{ padding: '8px 16px', borderBottom: '1px solid rgba(255,255,255,0.06)', display: 'flex', alignItems: 'center', gap: 8 }}>
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#FACC15" strokeWidth="2" strokeLinecap="round"><path d="M3 3h18v18H3z"/><path d="M3 9h18"/><path d="M9 21V9"/></svg>
+              <span style={{ fontSize: 11, fontWeight: 700, color: '#FACC15' }}>
+                {getRestaurantCount()} restaurants in cart · Orders will be placed separately
+              </span>
+            </div>
+          )}
 
           {/* Cart items list */}
           <div className={styles.cartPageBody}>
@@ -746,42 +880,46 @@ export default function RestaurantMenuSheet({ restaurant, onClose, onOrderViaCha
                   </div>
                 ))}
 
-                {/* Delivery / Dine In / Pickup card */}
-                {orderType === 'delivery' && (deliveryFare ?? 0) > 0 && (
+                {/* Delivery card */}
+                {(deliveryFare ?? 0) > 0 && (
                   <div className={styles.cartPageItem} style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
                     <img src="https://ik.imagekit.io/nepgaxllc/Sleek%20green%20and%20black%20scooter%20setup.png?updatedAt=1775634845237" alt="" style={{ width: 36, height: 36, objectFit: 'contain', flexShrink: 0 }} />
                     <div style={{ flex: 1 }}>
                       <span style={{ fontSize: 14, fontWeight: 800, color: '#fff', display: 'block' }}>Delivery</span>
                       <span style={{ fontSize: 11, color: 'rgba(255,255,255,0.4)' }}>~{eta} min · Payment To Driver</span>
                     </div>
-                    <span style={{ fontSize: 15, fontWeight: 900, color: '#FACC15' }}>{fmtRp(deliveryFare)}</span>
+                    <span style={{ fontSize: 15, fontWeight: 900, color: promoResult?.isFreeDelivery ? '#8DC63F' : '#FACC15' }}>{promoResult?.isFreeDelivery ? 'FREE' : fmtRp(deliveryFare)}</span>
                   </div>
                 )}
-                {orderType === 'dinein' && (
-                  <div className={styles.cartPageItem} style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-                    <span style={{ fontSize: 24 }}>🍽️</span>
-                    <div style={{ flex: 1 }}>
-                      <span style={{ fontSize: 14, fontWeight: 800, color: '#fff', display: 'block' }}>Dine In</span>
-                      <span style={{ fontSize: 11, color: 'rgba(255,255,255,0.4)' }}>~{avgPrepTime} min prep · Eat at restaurant</span>
-                    </div>
-                    <span style={{ fontSize: 14, fontWeight: 800, color: '#8DC63F' }}>Free</span>
+
+                {/* Promo discount line */}
+                {promoResult?.valid && promoResult.discountAmount > 0 && (
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '8px 0' }}>
+                    <span style={{ fontSize: 13, fontWeight: 700, color: '#8DC63F' }}>🏷️ {promoResult.label}</span>
+                    <span style={{ fontSize: 14, fontWeight: 900, color: '#8DC63F' }}>-{fmtRp(promoResult.discountAmount)}</span>
                   </div>
                 )}
-                {orderType === 'pickup' && (
-                  <div className={styles.cartPageItem} style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-                    <span style={{ fontSize: 24 }}>🏪</span>
-                    <div style={{ flex: 1 }}>
-                      <span style={{ fontSize: 14, fontWeight: 800, color: '#fff', display: 'block' }}>Pickup</span>
-                      <span style={{ fontSize: 11, color: 'rgba(255,255,255,0.4)' }}>~{avgPrepTime} min prep · Collect at restaurant</span>
-                    </div>
-                    <span style={{ fontSize: 14, fontWeight: 800, color: '#8DC63F' }}>Free</span>
+                {promoResult?.valid && promoResult.isFreeDelivery && (
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '8px 0' }}>
+                    <span style={{ fontSize: 13, fontWeight: 700, color: '#8DC63F' }}>🏷️ Free Delivery</span>
+                    <span style={{ fontSize: 14, fontWeight: 900, color: '#8DC63F' }}>-{fmtRp(deliveryFare ?? 0)}</span>
+                  </div>
+                )}
+
+                {/* Scheduled delivery badge */}
+                {scheduleMode && scheduleSlot && (
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '8px 0' }}>
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#FACC15" strokeWidth="2" strokeLinecap="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                    <span style={{ fontSize: 12, fontWeight: 800, color: '#FACC15' }}>
+                      Scheduled: {new Date(scheduleSlot).toLocaleDateString('en-GB', { weekday: 'short', day: 'numeric', month: 'short' })} {new Date(scheduleSlot).toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' })}
+                    </span>
                   </div>
                 )}
 
                 {/* Total Order */}
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '12px 0' }}>
                   <span style={{ fontSize: 16, fontWeight: 900, color: '#fff' }}>Total Order</span>
-                  <span style={{ fontSize: 18, fontWeight: 900, color: '#FACC15' }}>{fmtRp(grandTotal)}</span>
+                  <span style={{ fontSize: 18, fontWeight: 900, color: '#FACC15' }}>{fmtRp(Math.max(0, grandTotal - (promoResult?.valid ? (promoResult.discountAmount ?? 0) : 0) - (promoResult?.isFreeDelivery ? (deliveryFare ?? 0) : 0)))}</span>
                 </div>
 
                 <div className={styles.cartDivider} style={{ margin: '0 0 12px' }} />
@@ -864,7 +1002,7 @@ export default function RestaurantMenuSheet({ restaurant, onClose, onOrderViaCha
           {/* Fixed bottom */}
           {cart.length > 0 && (
             <div className={styles.cartPageFooter}>
-              {paymentMethod === 'bank' && orderType === 'delivery' && (deliveryFare ?? 0) > 0 && (
+              {paymentMethod === 'bank' && (deliveryFare ?? 0) > 0 && !promoResult?.isFreeDelivery && (
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '8px 0 12px' }}>
                   <span style={{ fontSize: 14, fontWeight: 800, color: '#fff' }}>Pay Driver On Delivery</span>
                   <span style={{ fontSize: 16, fontWeight: 900, color: '#FACC15' }}>{fmtRp(deliveryFare)}</span>
@@ -897,6 +1035,22 @@ export default function RestaurantMenuSheet({ restaurant, onClose, onOrderViaCha
 
       {/* ── Right floating panel ── */}
       <div className={styles.floatingPanel}>
+        {/* Cuisine — opens drawer */}
+        <button
+          className={styles.panelBtn}
+          onClick={() => { if (cuisineDrawerOpen) { setCuisineDrawerOpen(false) } else { closeAllDrawers(); setCuisineDrawerOpen(true) } }}
+          title="Browse categories"
+          style={cuisineDrawerOpen ? { boxShadow: '0 0 8px 3px rgba(250,204,21,0.35)' } : {}}
+        >
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+            <circle cx="12" cy="12" r="1"/><circle cx="12" cy="5" r="1"/><circle cx="12" cy="19" r="1"/>
+            <circle cx="5" cy="12" r="1"/><circle cx="19" cy="12" r="1"/>
+            <circle cx="5" cy="5" r="1"/><circle cx="19" cy="5" r="1"/>
+            <circle cx="5" cy="19" r="1"/><circle cx="19" cy="19" r="1"/>
+          </svg>
+          <span className={styles.panelLabel}>Cuisine</span>
+        </button>
+
         {/* Deals — state: live deal today (yellow glow), has deals but not today (normal), no deals (dimmed) */}
         <button
           className={styles.panelBtn}
@@ -991,6 +1145,33 @@ export default function RestaurantMenuSheet({ restaurant, onClose, onOrderViaCha
           <span className={styles.panelLabel} style={dashboardOpen ? { color: '#FACC15' } : {}}>My Food</span>
         </button>
 
+        {/* Chat — issue reporting */}
+        <button
+          className={styles.panelBtn}
+          onClick={() => { if (chatOpen) { setChatOpen(false) } else { closeAllDrawers(); setChatOpen(true) } }}
+          title="Live Chat / Support"
+          style={chatOpen ? { boxShadow: '0 0 8px 3px rgba(250,204,21,0.35)' } : {}}
+        >
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke={chatOpen ? '#FACC15' : 'currentColor'} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/>
+          </svg>
+          <span className={styles.panelLabel} style={chatOpen ? { color: '#FACC15' } : {}}>Chat</span>
+        </button>
+
+        {/* Promos */}
+        <button
+          className={styles.panelBtn}
+          onClick={() => { if (promoBannerOpen) { setPromoBannerOpen2(false) } else { closeAllDrawers(); setPromoBannerOpen2(true) } }}
+          title="Promo codes & banners"
+          style={promoBannerOpen ? { boxShadow: '0 0 8px 3px rgba(250,204,21,0.35)' } : {}}
+        >
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke={promoBannerOpen ? '#FACC15' : 'currentColor'} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"/>
+            <line x1="7" y1="7" x2="7.01" y2="7"/>
+          </svg>
+          <span className={styles.panelLabel} style={promoBannerOpen ? { color: '#FACC15' } : {}}>Promos</span>
+        </button>
+
       </div>
 
 
@@ -1011,6 +1192,34 @@ export default function RestaurantMenuSheet({ restaurant, onClose, onOrderViaCha
           </div>
         </div>
       )}
+
+      {/* ── Allergen / dietary filter chips ── */}
+      <div style={{
+        position: 'absolute', top: 'calc(env(safe-area-inset-top) + 56px)', left: 8, right: 54,
+        zIndex: 16, display: 'flex', gap: 6, overflowX: 'auto', padding: '4px 4px',
+        scrollbarWidth: 'none', msOverflowStyle: 'none',
+      }}>
+        {ALLERGEN_FILTERS.map(f => {
+          const active = allergenFilter.includes(f.id)
+          return (
+            <button key={f.id} onClick={() => {
+              setAllergenFilter(prev => active ? prev.filter(x => x !== f.id) : [...prev, f.id])
+            }} style={{
+              padding: '5px 10px', borderRadius: 14, whiteSpace: 'nowrap',
+              background: active ? 'rgba(141,198,63,0.2)' : 'rgba(0,0,0,0.6)',
+              backdropFilter: 'blur(8px)',
+              border: `1.5px solid ${active ? '#8DC63F' : 'rgba(255,255,255,0.1)'}`,
+              color: active ? '#8DC63F' : 'rgba(255,255,255,0.6)',
+              fontSize: 11, fontWeight: 800, cursor: 'pointer',
+              display: 'flex', alignItems: 'center', gap: 4, flexShrink: 0,
+              transition: 'all 0.15s',
+            }}>
+              <span style={{ fontSize: 13 }}>{f.emoji}</span>
+              {f.label}
+            </button>
+          )
+        })}
+      </div>
 
       {/* ── Full-screen snap-scroll menu feed ── */}
       <div className={styles.feed} ref={feedRef}>
@@ -1440,6 +1649,83 @@ export default function RestaurantMenuSheet({ restaurant, onClose, onOrderViaCha
         <FoodDashboard onClose={() => setDashboardOpen(false)} />
       )}
 
+      {/* Cuisine drawer */}
+      {cuisineDrawerOpen && (
+        <div style={{ position: 'fixed', inset: 0, zIndex: 9580, background: 'rgba(0,0,0,0.5)' }} onClick={() => setCuisineDrawerOpen(false)}>
+          <div onClick={e => e.stopPropagation()} style={{
+            position: 'absolute', top: 0, left: 0, bottom: 0, width: 210,
+            background: 'rgba(0,0,0,0.85)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)',
+            borderRight: '2px solid rgba(141,198,63,0.3)',
+            display: 'flex', flexDirection: 'column',
+            boxShadow: 'inset -1px 0 0 rgba(255,255,255,0.05), 4px 0 20px rgba(0,0,0,0.4)',
+          }}>
+            {/* Running green light on right edge */}
+            <div style={{ position: 'absolute', top: 0, right: 0, bottom: 0, width: 2, overflow: 'hidden', pointerEvents: 'none', zIndex: 2 }}>
+              <div style={{ width: '100%', height: '20%', background: 'linear-gradient(180deg, transparent, #8DC63F, #fff, #8DC63F, transparent)', animation: 'runningLightVertical 3s linear infinite', position: 'absolute' }} />
+            </div>
+
+            {/* Drawer header */}
+            <div style={{ padding: 'calc(env(safe-area-inset-top, 0px) + 12px) 12px 10px', borderBottom: '1px solid rgba(255,255,255,0.08)', flexShrink: 0 }}>
+              <span style={{ fontSize: 15, fontWeight: 900, color: '#fff', display: 'block' }}>Cuisine</span>
+              <span style={{ fontSize: 11, fontWeight: 700, color: 'rgba(255,255,255,0.35)', marginTop: 2, display: 'block' }}>{restaurant.name}</span>
+            </div>
+
+            {/* Scrollable list */}
+            <div style={{ flex: 1, overflowY: 'auto', padding: '8px 8px 100px', display: 'flex', flexDirection: 'column', gap: 4, WebkitOverflowScrolling: 'touch' }}>
+            {[
+              { id: null, label: 'All', emoji: '🍛' },
+              { id: 'rice', label: 'Rice', img: 'https://ik.imagekit.io/nepgaxllc/Untitledasdasdaaavvv-removebg-preview.png' },
+              { id: 'noodles', label: 'Noodles', img: 'https://ik.imagekit.io/nepgaxllc/Untitledasdasdaaavvvd-removebg-preview.png' },
+              { id: 'chicken', label: 'Chicken', img: 'https://ik.imagekit.io/nepgaxllc/Untitledasdasdaaavvvdddd-removebg-preview.png' },
+              { id: 'satay', label: 'Satay', img: 'https://ik.imagekit.io/nepgaxllc/Untitledasdasdaaavvvdddddasda-removebg-preview.png' },
+              { id: 'grilled', label: 'Fried Snacks', img: 'https://ik.imagekit.io/nepgaxllc/Untitledasdasdaaavvvdddddasdasss-removebg-preview.png' },
+              { id: 'seafood', label: 'Seafood', img: 'https://ik.imagekit.io/nepgaxllc/Untitledasdasdaaavvvdddddasdassss-removebg-preview.png' },
+              { id: 'soup', label: 'Soup', img: 'https://ik.imagekit.io/nepgaxllc/Untitledasdasdaaavvvdddddasdas-removebg-preview.png' },
+              { id: 'padang', label: 'Padang', img: 'https://ik.imagekit.io/nepgaxllc/Untitledasdasdaaavvvdddddasdassssddddfss-removebg-preview.png' },
+              { id: 'gudeg', label: 'Gudeg', img: 'https://ik.imagekit.io/nepgaxllc/Untitledasdasdaaavvvdddddasdassssddddfssd-removebg-preview.png' },
+              { id: 'rendang', label: 'Rendang', img: 'https://ik.imagekit.io/nepgaxllc/Untitledasdasdaaavvvdddddasdassssddddfssdss-removebg-preview.png' },
+              { id: 'duck', label: 'Duck', img: 'https://ik.imagekit.io/nepgaxllc/Untitledasdasdaaavvvdddddasdassssddddfssdssss-removebg-preview.png' },
+              { id: 'fish', label: 'Fish', img: 'https://ik.imagekit.io/nepgaxllc/Untitledasdasdaaavvvdddddasdassssddddfssdssssdd-removebg-preview.png' },
+              { id: 'tofu_tempe', label: 'Tofu & Tempe', img: 'https://ik.imagekit.io/nepgaxllc/Untitledsdasdaaaaddddsadaddsscxcccddd-removebg-preview.png' },
+              { id: 'siomay', label: 'Siomay', img: 'https://ik.imagekit.io/nepgaxllc/Untitledsdasdaaaaddddsadaddsscxcccddddd-removebg-preview.png' },
+              { id: 'ketoprak', label: 'Ketoprak', img: 'https://ik.imagekit.io/nepgaxllc/Untitledasdasdaaavvvdddddasdassssddddfssdssssddffdddd-removebg-preview.png' },
+              { id: 'porridge', label: 'Porridge', img: 'https://ik.imagekit.io/nepgaxllc/Untitledasdasdaaavvvdddddasdassssdd-removebg-preview.png' },
+              { id: 'martabak', label: 'Martabak', img: 'https://ik.imagekit.io/nepgaxllc/Untitledasdasdaaavvvdddddasdassssddddf-removebg-preview.png' },
+              { id: 'burgers', label: 'Burgers', img: 'https://ik.imagekit.io/nepgaxllc/od-removebg-preview.png' },
+              { id: 'steak', label: 'Steak', img: 'https://ik.imagekit.io/nepgaxllc/odf-removebg-preview.png' },
+              { id: 'pizza', label: 'Pizza', img: 'https://ik.imagekit.io/nepgaxllc/Untitledsdasdaaaaddddsada-removebg-preview.png' },
+              { id: 'pasta', label: 'Pasta', img: 'https://ik.imagekit.io/nepgaxllc/Untitledsdasdaaaaddddsadadd-removebg-preview.png' },
+              { id: 'japanese', label: 'Japanese', img: 'https://ik.imagekit.io/nepgaxllc/Untitledsdasdaaaaddddsadaddss-removebg-preview.png' },
+              { id: 'korean', label: 'Korean', img: 'https://ik.imagekit.io/nepgaxllc/Untitledsdasdaaaaddddsadaddsscxc-removebg-preview.png' },
+              { id: 'chinese', label: 'Chinese', img: 'https://ik.imagekit.io/nepgaxllc/Untitledsdasdaaaaddddsadaddsscxccc-removebg-preview.png' },
+              { id: 'indian', label: 'Indian', img: 'https://ik.imagekit.io/nepgaxllc/Untitledsdasdaaaaddddsadaddsscxcccdddddss-removebg-preview.png' },
+              { id: 'coffee', label: 'Tea & Coffee', img: 'https://ik.imagekit.io/nepgaxllc/Untitledsdasdaaaaddddsadaddsscxcccdddddsssda-removebg-preview.png' },
+              { id: 'juice', label: 'Juice', img: 'https://ik.imagekit.io/nepgaxllc/Untitledsdasdaaaaddddsadaddsscxcccdddddsssdaasda-removebg-preview.png' },
+              { id: 'drinks', label: 'Iced Drinks', img: 'https://ik.imagekit.io/nepgaxllc/odfs-removebg-preview.png' },
+              { id: 'traditional_drinks', label: 'Traditional', img: 'https://ik.imagekit.io/nepgaxllc/odfss-removebg-preview.png' },
+              { id: 'cakes', label: 'Cakes', img: 'https://ik.imagekit.io/nepgaxllc/odfssddasd-removebg-preview.png' },
+              { id: 'desserts', label: 'Desserts', img: 'https://ik.imagekit.io/nepgaxllc/odfssd-removebg-preview.png' },
+              { id: 'breakfast', label: 'Breakfast', img: 'https://ik.imagekit.io/nepgaxllc/Untitledsdasdaaaa-removebg-preview.png' },
+              { id: 'snacks', label: 'Snacks', img: 'https://ik.imagekit.io/nepgaxllc/Untitledsdasdaaaad-removebg-preview.png' },
+              { id: 'vegetarian', label: 'Vegetarian', img: 'https://ik.imagekit.io/nepgaxllc/odfssddasds-removebg-preview.png' },
+              { id: 'healthy', label: 'Healthy', img: 'https://ik.imagekit.io/nepgaxllc/Untitledsdasdaaaaddd-removebg-preview.png' },
+              { id: 'street_food', label: 'Street Food', emoji: '🥘' },
+            ].map(c => (
+              <button key={c.label} onClick={() => { setActiveCategory(c.id ? c.label : null); setCuisineDrawerOpen(false) }} style={{
+                display: 'flex', alignItems: 'center', gap: 10, padding: '8px 10px', borderRadius: 12,
+                background: activeCategory === c.label ? 'rgba(141,198,63,0.1)' : 'transparent',
+                border: activeCategory === c.label ? '1px solid rgba(141,198,63,0.3)' : '1px solid transparent',
+                cursor: 'pointer', width: '100%', textAlign: 'left',
+              }}>
+                {c.img ? <img src={c.img} alt="" style={{ width: 32, height: 32, objectFit: 'contain', flexShrink: 0 }} /> : <span style={{ fontSize: 22, width: 32, textAlign: 'center', flexShrink: 0 }}>{c.emoji}</span>}
+                <span style={{ fontSize: 13, fontWeight: 800, color: activeCategory === c.label ? '#8DC63F' : '#fff' }}>{c.label}</span>
+              </button>
+            ))}
+            </div>
+          </div>
+        </div>
+      )}
+
       {dailyDealOpen && (
         todayDeal ? (
           <DailyDealOverlay
@@ -1464,6 +1750,29 @@ export default function RestaurantMenuSheet({ restaurant, onClose, onOrderViaCha
             onViewMenu={() => setDailyDealOpen(false)}
           />
         )
+      )}
+
+      {/* ── Live Chat / Issue reporting ── */}
+      {chatOpen && (
+        <LiveChatSheet
+          order={foodOrders.find(o => o.status === 'delivered' || o.status === 'driver_heading') ?? foodOrders[0] ?? null}
+          onClose={() => setChatOpen(false)}
+        />
+      )}
+
+      {/* ── Promo Banner Page ── */}
+      {promoBannerOpen && (
+        <PromoBannerPage
+          onClose={() => setPromoBannerOpen2(false)}
+          onApplyCode={(code) => {
+            setPromoCode(code)
+            const result = validatePromoCode(code, cartTotal)
+            setPromoResult(result)
+            if (result.valid) applyPromoCode(code)
+            setPromoBannerOpen2(false)
+            setCartExpanded(true)
+          }}
+        />
       )}
     </div>
   )

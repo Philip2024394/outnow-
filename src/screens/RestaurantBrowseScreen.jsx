@@ -9,6 +9,8 @@ import { hasVisitedSection, markSectionVisited } from '@/services/sectionVisitSe
 import VendorDashboardV2 from '@/components/restaurant/VendorDashboardV2'
 import FoodFooterNav from '@/components/restaurant/FoodFooterNav'
 import FoodDashboard from '@/components/restaurant/FoodDashboard'
+import LiveChatSheet from '@/components/restaurant/LiveChatSheet'
+import PromoBannerPage from '@/components/restaurant/PromoBannerPage'
 import { getFoodOrders } from '@/components/restaurant/menuSheetConstants'
 import styles from './RestaurantBrowseScreen.module.css'
 
@@ -61,21 +63,19 @@ function FoodLanding({ onBrowse, onRegister, onClose, onSelectVendorType, onDash
               alignItems: 'center', gap: 6, backdropFilter: 'blur(12px)',
             }}
           >
-            <span style={{ fontSize: 28 }}>🍜</span>
+            <img src="https://ik.imagekit.io/nepgaxllc/Untitledasdasdaaavvvd-removebg-preview.png?updatedAt=1777005204904" alt="" style={{ width: 52, height: 52, objectFit: 'contain' }} />
             <span style={{ fontSize: 14, fontWeight: 900, color: '#FACC15' }}>Street Food</span>
-            <span style={{ fontSize: 10, color: 'rgba(255,255,255,0.4)', fontWeight: 600 }}>Quick, cheap & tasty</span>
           </button>
           <button
             onClick={() => onSelectVendorType('restaurant')}
             style={{
-              flex: 1, padding: '16px 12px', borderRadius: 16, border: '1.5px solid rgba(141,198,63,0.3)',
-              background: 'rgba(141,198,63,0.08)', cursor: 'pointer', display: 'flex', flexDirection: 'column',
+              flex: 1, padding: '16px 12px', borderRadius: 16, border: '1.5px solid rgba(250,204,21,0.3)',
+              background: 'rgba(250,204,21,0.08)', cursor: 'pointer', display: 'flex', flexDirection: 'column',
               alignItems: 'center', gap: 6, backdropFilter: 'blur(12px)',
             }}
           >
-            <span style={{ fontSize: 28 }}>🍽️</span>
-            <span style={{ fontSize: 14, fontWeight: 900, color: '#8DC63F' }}>Restaurant</span>
-            <span style={{ fontSize: 10, color: 'rgba(255,255,255,0.4)', fontWeight: 600 }}>Dine in & delivery</span>
+            <img src="https://ik.imagekit.io/nepgaxllc/odf-removebg-preview.png" alt="" style={{ width: 52, height: 52, objectFit: 'contain' }} />
+            <span style={{ fontSize: 14, fontWeight: 900, color: '#FACC15' }}>Restaurant</span>
           </button>
         </div>
         <button
@@ -114,6 +114,7 @@ const DEMO_RESTAURANTS = [
     catering_available: true, seating_capacity: 40,
     event_features: ['birthday_setup', 'private_room'],
     featured_this_week: true, dine_in_discount: 10, status: 'approved',
+    tour_guide_package: { min_pax: 20, price_per_pax: 25000, discount: 15, includes: 'Gudeg + rice + egg + tea', bus_parking: false },
     bank: { name: 'BCA', account_number: '1234 5678 90', account_holder: 'Sari Warung Jogja', qr_url: 'https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=BCA-1234567890-SariWarung' },
     menu_items: [
       { id: 1,  name: 'Nasi Gudeg Komplit',  price: 28000, prep_time_min: 10, category: 'Rice',           description: 'Slow-cooked overnight jackfruit curry served with a perfectly boiled egg, shredded free-range chicken, crispy krecek beef skin, and fluffy steamed white rice. A Yogyakarta classic since 1985 — every spoonful tells the story of patience and tradition passed down through three generations.', photo_url: 'https://images.unsplash.com/photo-1512058564366-18510be2db19?w=400', is_available: true },
@@ -185,6 +186,7 @@ const DEMO_RESTAURANTS = [
     catering_available: true, seating_capacity: 100,
     event_features: ['birthday_setup', 'private_room', 'party_package'],
     featured_this_week: false, status: 'approved',
+    tour_guide_package: { min_pax: 25, price_per_pax: 35000, discount: 20, includes: 'Rendang + rice + gulai + drink', bus_parking: true },
     bank: { name: 'BNI', account_number: '0441 2233 4455', account_holder: 'Sari Rasa Padang', qr_url: 'https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=BNI-044122334455' },
     menu_items: [
       { id: 40, name: 'Rendang Daging Sapi',  price: 45000, prep_time_min: 5,  category: 'Main',   description: 'Dry-cooked beef in coconut milk & spices — 4 hrs slow cooked', photo_url: 'https://images.unsplash.com/photo-1555939594-58d7cb561ad1?w=400', is_available: true },
@@ -254,6 +256,7 @@ const DEMO_RESTAURANTS = [
     catering_available: true, seating_capacity: 120,
     event_features: ['birthday_setup', 'private_room', 'party_package', 'sound_system'],
     featured_this_week: true, dine_in_discount: 10, status: 'approved',
+    tour_guide_package: { min_pax: 20, price_per_pax: 45000, discount: 15, includes: 'Seafood platter + rice + drink + dessert', bus_parking: true },
     bank: { name: 'BCA', account_number: '3344 5566 7788', account_holder: 'Bejo Seafood Resto', qr_url: 'https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=BCA-33445566778' },
     menu_items: [
       { id: 50, name: 'Udang Bakar Madu',    price: 85000, prep_time_min: 15, category: 'Main',   description: 'Honey-glazed grilled prawns, butter garlic sauce', photo_url: 'https://images.unsplash.com/photo-1559339352-11d035aa65de?w=400', is_available: true },
@@ -333,6 +336,7 @@ const DEMO_RESTAURANTS = [
     catering_available: true, seating_capacity: 30,
     event_features: ['birthday_setup', 'party_package'],
     featured_this_week: false, dine_in_discount: 0, status: 'approved',
+    tour_guide_package: { min_pax: 15, price_per_pax: 30000, discount: 10, includes: 'Sate 10pcs + lontong + tea', bus_parking: false },
     bank: { name: 'BRI', account_number: '0096 0100 7788 4321', account_holder: 'Sabar Supriyanto', qr_url: 'https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=BRI-00960100778843' },
     menu_items: [
       { id: 80, name: 'Sate Kambing 10pcs',  price: 55000, prep_time_min: 15, category: 'Main',   description: 'Goat satay, charcoal grilled, kecap manis, sambal', photo_url: 'https://images.unsplash.com/photo-1504674900247-0877df9cc836?w=400', is_available: true },
@@ -448,6 +452,8 @@ export default function RestaurantBrowseScreen({ onClose, onBackToCategories, ca
   const [vendorDashOpen, setVendorDashOpen] = useState(false)
   const [foodOrdersOpen, setFoodOrdersOpen] = useState(false)
   const [foodDashOpen, setFoodDashOpen] = useState(false)
+  const [chatOpen, setChatOpen] = useState(false)
+  const [promoBrowseOpen, setPromoBrowseOpen] = useState(false)
 
   // Check if current user has a registered restaurant
   const hasVendorRestaurant = !!localStorage.getItem('indoo_vendor_restaurant')
@@ -457,6 +463,8 @@ export default function RestaurantBrowseScreen({ onClose, onBackToCategories, ca
   const [menuRestaurant, setMenuRestaurant] = useState(null)
   const [tick,           setTick]           = useState(0)
   const [showFavOnly,    setShowFavOnly]    = useState(false)
+  const [showCuisinePicker, setShowCuisinePicker] = useState(false)
+  const [cuisineFilter, setCuisineFilter] = useState(null)
   const [favTick,        setFavTick]        = useState(0)
   const containerRef = useRef(null)
   const { coords }   = useGeolocation()
@@ -507,9 +515,9 @@ export default function RestaurantBrowseScreen({ onClose, onBackToCategories, ca
   })
 
   // Apply vendor type filter (street_vendor / restaurant / null = all)
-  const vendorFiltered = vendorFilter
-    ? withMeta.filter(r => (r.vendor_type ?? 'restaurant') === vendorFilter)
-    : withMeta
+  const vendorFiltered = withMeta
+    .filter(r => !vendorFilter || (r.vendor_type ?? 'restaurant') === vendorFilter)
+    .filter(r => !cuisineFilter || r.category === cuisineFilter || r.cuisine_type?.toLowerCase().includes(cuisineFilter.toLowerCase()))
 
   const primary   = vendorFiltered.filter(r =>  primaryForCategory(r.category, catId))
                              .sort((a, b) => scoreRestaurant(b, hour) - scoreRestaurant(a, hour))
@@ -556,7 +564,7 @@ export default function RestaurantBrowseScreen({ onClose, onBackToCategories, ca
         onBrowse={() => { markSectionVisited('food'); setVendorFilter(null); setShowLanding(false) }}
         onRegister={() => { markSectionVisited('food'); setVendorOnboardOpen(true) }}
         onClose={onClose}
-        onSelectVendorType={(type) => { markSectionVisited('food'); setVendorFilter(type); setShowLanding(false) }}
+        onSelectVendorType={(type) => { markSectionVisited('food'); setVendorFilter(type); setShowLanding(false); setShowCuisinePicker(true) }}
         isVendor={hasVendorRestaurant}
         onDashboard={() => setVendorDashOpen(true)}
       />
@@ -571,7 +579,85 @@ export default function RestaurantBrowseScreen({ onClose, onBackToCategories, ca
       </div>
     )}
 
-    <div className={styles.screen} style={{ display: showLanding || loading ? 'none' : undefined }}>
+    {/* ── Cuisine picker ── */}
+    {showCuisinePicker && (
+      <div style={{ position: 'fixed', inset: 0, zIndex: 110, background: '#0a0a0a', display: 'flex', flexDirection: 'column' }}>
+        <div style={{ padding: 'calc(env(safe-area-inset-top, 0px) + 12px) 16px 12px', flexShrink: 0 }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 12 }}>
+            <button onClick={() => { setShowCuisinePicker(false); setShowLanding(true) }} style={{ width: 36, height: 36, borderRadius: '50%', background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' }}>
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2.5" strokeLinecap="round"><path d="M19 12H5M12 5l-7 7 7 7"/></svg>
+            </button>
+            <div style={{ flex: 1 }}>
+              <span style={{ fontSize: 18, fontWeight: 900, color: '#fff', display: 'block' }}>What are you craving?</span>
+              <span style={{ fontSize: 11, color: 'rgba(255,255,255,0.4)' }}>{vendorFilter === 'street_vendor' ? 'Street Food' : 'Restaurant'}</span>
+            </div>
+          </div>
+        </div>
+        <div style={{ flex: 1, overflowY: 'auto', padding: '0 12px 100px' }}>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 10 }}>
+            {[
+              { id: null, emoji: '🍛', label: 'All Food' },
+              { id: 'rice', img: 'https://ik.imagekit.io/nepgaxllc/Untitledasdasdaaavvv-removebg-preview.png', label: 'Rice' },
+              { id: 'noodles', img: 'https://ik.imagekit.io/nepgaxllc/Untitledasdasdaaavvvd-removebg-preview.png', label: 'Noodles' },
+              { id: 'chicken', img: 'https://ik.imagekit.io/nepgaxllc/Untitledasdasdaaavvvdddd-removebg-preview.png', label: 'Chicken' },
+              { id: 'satay', img: 'https://ik.imagekit.io/nepgaxllc/Untitledasdasdaaavvvdddddasda-removebg-preview.png', label: 'Satay' },
+              { id: 'grilled', img: 'https://ik.imagekit.io/nepgaxllc/Untitledasdasdaaavvvdddddasdasss-removebg-preview.png', label: 'Fried Snacks' },
+              { id: 'seafood', img: 'https://ik.imagekit.io/nepgaxllc/Untitledasdasdaaavvvdddddasdassss-removebg-preview.png', label: 'Seafood' },
+              { id: 'tofu_tempe', img: 'https://ik.imagekit.io/nepgaxllc/Untitledsdasdaaaaddddsadaddsscxcccddd-removebg-preview.png', label: 'Tofu & Tempe' },
+              { id: 'siomay', img: 'https://ik.imagekit.io/nepgaxllc/Untitledsdasdaaaaddddsadaddsscxcccddddd-removebg-preview.png', label: 'Siomay' },
+              { id: 'ketoprak', img: 'https://ik.imagekit.io/nepgaxllc/Untitledasdasdaaavvvdddddasdassssddddfssdssssddffdddd-removebg-preview.png', label: 'Ketoprak' },
+              { id: 'burgers', img: 'https://ik.imagekit.io/nepgaxllc/od-removebg-preview.png', label: 'Burgers' },
+              { id: 'soup', img: 'https://ik.imagekit.io/nepgaxllc/Untitledasdasdaaavvvdddddasdas-removebg-preview.png', label: 'Soup' },
+              { id: 'padang', img: 'https://ik.imagekit.io/nepgaxllc/Untitledasdasdaaavvvdddddasdassssddddfss-removebg-preview.png', label: 'Padang' },
+              { id: 'gudeg', img: 'https://ik.imagekit.io/nepgaxllc/Untitledasdasdaaavvvdddddasdassssddddfssd-removebg-preview.png', label: 'Gudeg' },
+              { id: 'street_food', emoji: '🥘', label: 'Street Food' },
+              { id: 'drinks', img: 'https://ik.imagekit.io/nepgaxllc/odfs-removebg-preview.png', label: 'Iced Drinks' },
+              { id: 'traditional_drinks', img: 'https://ik.imagekit.io/nepgaxllc/odfss-removebg-preview.png', label: 'Traditional' },
+              { id: 'coffee', img: 'https://ik.imagekit.io/nepgaxllc/Untitledsdasdaaaaddddsadaddsscxcccdddddsssda-removebg-preview.png', label: 'Tea & Coffee' },
+              { id: 'juice', img: 'https://ik.imagekit.io/nepgaxllc/Untitledsdasdaaaaddddsadaddsscxcccdddddsssdaasda-removebg-preview.png', label: 'Juice' },
+              { id: 'cakes', img: 'https://ik.imagekit.io/nepgaxllc/odfssddasd-removebg-preview.png', label: 'Cakes' },
+              { id: 'desserts', img: 'https://ik.imagekit.io/nepgaxllc/odfssd-removebg-preview.png', label: 'Desserts' },
+              { id: 'porridge', img: 'https://ik.imagekit.io/nepgaxllc/Untitledasdasdaaavvvdddddasdassssdd-removebg-preview.png', label: 'Porridge' },
+              { id: 'rendang', img: 'https://ik.imagekit.io/nepgaxllc/Untitledasdasdaaavvvdddddasdassssddddfssdss-removebg-preview.png', label: 'Rendang' },
+              { id: 'duck', img: 'https://ik.imagekit.io/nepgaxllc/Untitledasdasdaaavvvdddddasdassssddddfssdssss-removebg-preview.png', label: 'Duck' },
+              { id: 'fish', img: 'https://ik.imagekit.io/nepgaxllc/Untitledasdasdaaavvvdddddasdassssddddfssdssssdd-removebg-preview.png', label: 'Fish' },
+              { id: 'pizza', img: 'https://ik.imagekit.io/nepgaxllc/Untitledsdasdaaaaddddsada-removebg-preview.png', label: 'Pizza' },
+              { id: 'pasta', img: 'https://ik.imagekit.io/nepgaxllc/Untitledsdasdaaaaddddsadadd-removebg-preview.png', label: 'Pasta' },
+              { id: 'japanese', img: 'https://ik.imagekit.io/nepgaxllc/Untitledsdasdaaaaddddsadaddss-removebg-preview.png', label: 'Japanese' },
+              { id: 'korean', img: 'https://ik.imagekit.io/nepgaxllc/Untitledsdasdaaaaddddsadaddsscxc-removebg-preview.png', label: 'Korean' },
+              { id: 'chinese', img: 'https://ik.imagekit.io/nepgaxllc/Untitledsdasdaaaaddddsadaddsscxccc-removebg-preview.png', label: 'Chinese' },
+              { id: 'indian', img: 'https://ik.imagekit.io/nepgaxllc/Untitledsdasdaaaaddddsadaddsscxcccdddddss-removebg-preview.png', label: 'Indian' },
+              { id: 'breakfast', img: 'https://ik.imagekit.io/nepgaxllc/Untitledsdasdaaaa-removebg-preview.png', label: 'Breakfast' },
+              { id: 'snacks', img: 'https://ik.imagekit.io/nepgaxllc/Untitledsdasdaaaad-removebg-preview.png', label: 'Snacks' },
+              { id: 'salad', img: 'https://ik.imagekit.io/nepgaxllc/odfssddasds-removebg-preview.png', label: 'Vegetarian' },
+              { id: 'healthy', img: 'https://ik.imagekit.io/nepgaxllc/Untitledsdasdaaaaddd-removebg-preview.png', label: 'Healthy' },
+              { id: 'steak', img: 'https://ik.imagekit.io/nepgaxllc/odf-removebg-preview.png', label: 'Steak' },
+              { id: 'martabak', img: 'https://ik.imagekit.io/nepgaxllc/Untitledasdasdaaavvvdddddasdassssddddf-removebg-preview.png', label: 'Martabak' },
+            ].map(c => (
+              <button key={c.label} onClick={() => { setCuisineFilter(c.id); setShowCuisinePicker(false) }} style={{
+                padding: '14px 8px', borderRadius: 16, border: 'none', cursor: 'pointer',
+                background: 'rgba(255,255,255,0.04)', backdropFilter: 'blur(8px)',
+                display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 6,
+                transition: 'transform 0.15s',
+              }}
+              onPointerDown={e => e.currentTarget.style.transform = 'scale(0.95)'}
+              onPointerUp={e => e.currentTarget.style.transform = 'scale(1)'}
+              onPointerLeave={e => e.currentTarget.style.transform = 'scale(1)'}
+              >
+                {c.img ? (
+                  <img src={c.img} alt="" style={{ width: 86, height: 86, objectFit: 'contain' }} />
+                ) : (
+                  <span style={{ fontSize: 32 }}>{c.emoji}</span>
+                )}
+                <span style={{ fontSize: 11, fontWeight: 800, color: '#fff' }}>{c.label}</span>
+              </button>
+            ))}
+          </div>
+        </div>
+      </div>
+    )}
+
+    <div className={styles.screen} style={{ display: showLanding || loading || showCuisinePicker ? 'none' : undefined }}>
 
       {/* Fixed header */}
       <div className={styles.header}>
@@ -675,16 +761,27 @@ export default function RestaurantBrowseScreen({ onClose, onBackToCategories, ca
       {!showLanding && !vendorDashOpen && !foodDashOpen && (
         <FoodFooterNav
           onHome={onClose}
-          onDeals={() => {
-            if (showLanding) { setVendorFilter(null); setShowLanding(false) }
-            else if (menuRestaurant) { /* deals handled inside menu sheet via side nav */ }
-            else if (enriched.length > 0) { const first = enriched.find(r => !r.isDivider); if (first) setMenuRestaurant(first) }
-          }}
+          onChat={() => setChatOpen(true)}
           onCart={() => { if (showLanding) { setVendorFilter(null); setShowLanding(false) } }}
           onMyFood={() => setFoodDashOpen(true)}
           onVendorDash={() => setVendorDashOpen(true)}
           isVendor={hasVendorRestaurant}
-          activeTab={showLanding ? 'home' : menuRestaurant ? 'cart' : null}
+          activeTab={showLanding ? 'home' : chatOpen ? 'chat' : menuRestaurant ? 'cart' : null}
+        />
+      )}
+
+      {/* Live Chat */}
+      {chatOpen && (
+        <LiveChatSheet
+          order={getFoodOrders()[0] ?? null}
+          onClose={() => setChatOpen(false)}
+        />
+      )}
+
+      {/* Promo banners */}
+      {promoBrowseOpen && (
+        <PromoBannerPage
+          onClose={() => setPromoBrowseOpen(false)}
         />
       )}
     </div>

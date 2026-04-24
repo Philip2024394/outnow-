@@ -16,7 +16,8 @@ export const DAILY_DEALS = [
     emoji: '🌅',
     discount: 25,
     color: '#FACC15',
-    img: 'https://ik.imagekit.io/nepgaxllc/ChatGPT%20Image%20Apr%2023,%202026,%2008_53_16%20AM.png?updatedAt=1776909215010',
+    slogan: 'Start your week with savings',
+    img: 'https://ik.imagekit.io/nepgaxllc/sasf.png',
   },
   {
     day: 1,
@@ -24,7 +25,8 @@ export const DAILY_DEALS = [
     emoji: '✨',
     discount: 20,
     color: '#A78BFA',
-    img: 'https://ik.imagekit.io/nepgaxllc/ChatGPT%20Image%20Apr%2023,%202026,%2007_48_02%20AM.png?updatedAt=1776905296343',
+    slogan: 'Monday magic at unreal prices',
+    img: 'https://ik.imagekit.io/nepgaxllc/sssaasssssss.png',
   },
   {
     day: 2,
@@ -32,7 +34,8 @@ export const DAILY_DEALS = [
     emoji: '🎵',
     discount: 15,
     color: '#34D399',
-    img: 'https://ik.imagekit.io/nepgaxllc/ChatGPT%20Image%20Apr%2023,%202026,%2008_47_37%20AM.png?updatedAt=1776908876816',
+    slogan: 'Groove into tasty Tuesday deals',
+    img: 'https://ik.imagekit.io/nepgaxllc/sssaasssss.png',
   },
   {
     day: 3,
@@ -40,6 +43,7 @@ export const DAILY_DEALS = [
     emoji: '🔥',
     discount: 30,
     color: '#F87171',
+    slogan: 'Wickedly good mid-week discounts',
     img: 'https://ik.imagekit.io/nepgaxllc/ChatGPT%20Image%20Apr%2023,%202026,%2007_50_12%20AM.png?updatedAt=1776905429676',
   },
   {
@@ -48,7 +52,8 @@ export const DAILY_DEALS = [
     emoji: '🥤',
     discount: 20,
     color: '#60A5FA',
-    img: 'https://ik.imagekit.io/nepgaxllc/ChatGPT%20Image%20Apr%2023,%202026,%2008_50_07%20AM.png?updatedAt=1776909023069',
+    slogan: 'Quench your cravings for less',
+    img: 'https://ik.imagekit.io/nepgaxllc/sssaasssssssdd.png',
   },
   {
     day: 5,
@@ -56,7 +61,8 @@ export const DAILY_DEALS = [
     emoji: '🍗',
     discount: 25,
     color: '#FB923C',
-    img: 'https://ik.imagekit.io/nepgaxllc/ChatGPT%20Image%20Apr%2023,%202026,%2007_48_02%20AM.png?updatedAt=1776905296343',
+    slogan: 'Crispy deals to end your week right',
+    img: 'https://ik.imagekit.io/nepgaxllc/sssaa.png',
   },
   {
     day: 6,
@@ -64,7 +70,8 @@ export const DAILY_DEALS = [
     emoji: '🥩',
     discount: 35,
     color: '#EF4444',
-    img: 'https://ik.imagekit.io/nepgaxllc/ChatGPT%20Image%20Apr%2023,%202026,%2007_43_17%20AM.png?updatedAt=1776905011381',
+    slogan: 'Sizzle into the weekend feast',
+    img: 'https://ik.imagekit.io/nepgaxllc/sssaass.png',
   },
 ]
 

@@ -196,10 +196,35 @@ const NAV_ITEMS = [
   { id: 'overview', label: 'Overview', icon: '📊' },
   { id: 'menu', label: 'Menu', icon: '🍽️' },
   { id: 'orders', label: 'Orders', icon: '📋' },
+  { id: 'events', label: 'Events & Venue', icon: '🎉' },
   { id: 'analytics', label: 'Analytics', icon: '📈' },
   { id: 'settings', label: 'Settings', icon: '⚙️' },
   { id: 'payouts', label: 'Payouts', icon: '💰' },
 ]
+
+// ── Events & Venue management constants ─────────────────────────────────────
+const EVENT_TYPES = [
+  { id: 'seating', label: 'Venue & Seating', icon: '🪑', placeholder: 'Describe your venue — seating layout, AC, ambience, parking...' },
+  { id: 'catering', label: 'Catering', icon: '🍽️', placeholder: 'What catering services do you offer — menu options, min order, delivery area...' },
+  { id: 'birthday_setup', label: 'Birthday Parties', icon: '🎂', placeholder: 'Describe your birthday packages — decorations, cake, setup, what\'s included...' },
+  { id: 'private_room', label: 'Private Room', icon: '🚪', placeholder: 'Describe your private room — capacity, amenities, minimum spend...' },
+  { id: 'party_package', label: 'Party Package', icon: '🎊', placeholder: 'Describe your party package — what\'s included, pricing tiers, add-ons...' },
+  { id: 'live_music', label: 'Live Music', icon: '🎵', placeholder: 'Describe live music at your venue — schedule, genres, booking for private events...' },
+  { id: 'sound_system', label: 'DJ & Sound System', icon: '🎧', placeholder: 'Describe your DJ/sound setup — equipment, hire options, capacity...' },
+  { id: 'wedding', label: 'Wedding', icon: '💒', placeholder: 'Describe wedding packages — capacity, decoration, catering, pricing...' },
+  { id: 'corporate', label: 'Corporate Events', icon: '💼', placeholder: 'Describe corporate packages — meeting room, projector, lunch sets...' },
+  { id: 'tour_guide', label: 'Tour Guide Package', icon: '🚌', placeholder: 'Describe your tour group deal — min pax, set menu, parking, guide discount...' },
+]
+
+const EVENTS_STORAGE_KEY = 'indoo_vendor_events'
+
+function loadVendorEvents() {
+  try { return JSON.parse(localStorage.getItem(EVENTS_STORAGE_KEY) || '{}') } catch { return {} }
+}
+
+function saveVendorEvents(data) {
+  localStorage.setItem(EVENTS_STORAGE_KEY, JSON.stringify(data))
+}
 
 // ═══════════════════════════════════════════════════════════════════════════════
 // MAIN COMPONENT
@@ -293,12 +318,13 @@ export default function VendorDashboardV2({ onClose }) {
 
   // Demo orders with full details
   const [orders, setOrders] = useState([
-    { id: 'ORD-1001', items: [{ name: 'Nasi Gudeg', qty: 2, prepTime: 10 }, { name: 'Es Teh', qty: 2, prepTime: 2 }], total: 66000, customer: 'Agus Prasetyo', phone: '6281234567890', address: 'Jl. Kaliurang Km 5', status: 'confirmed', time: '2 min ago', driverETA: 8, paymentMethod: 'bank', qrCode: 'INDOO-1001-AGS' },
-    { id: 'ORD-1002', items: [{ name: 'Bakso Jumbo', qty: 1, prepTime: 8 }, { name: 'Es Jeruk', qty: 1, prepTime: 3 }], total: 33000, customer: 'Siti Rahayu', phone: '6281234567891', address: 'Jl. Malioboro 12', status: 'preparing', time: '8 min ago', driverETA: 4, paymentMethod: 'cod', qrCode: 'INDOO-1002-STI' },
+    { id: 'ORD-1001', items: [{ name: 'Nasi Gudeg', qty: 2, prepTime: 10 }, { name: 'Es Teh', qty: 2, prepTime: 2 }], total: 66000, customer: 'Agus Prasetyo', phone: '6281234567890', address: 'Jl. Kaliurang Km 5', status: 'confirmed', time: '2 min ago', driverETA: 8, paymentMethod: 'bank', qrCode: 'INDOO-1001-AGS', paymentProof: 'https://ik.imagekit.io/nepgaxllc/ChatGPT%20Image%20Apr%2021,%202026,%2006_43_19%20AM.png?updatedAt=1776728649363' },
+    { id: 'ORD-1002', items: [{ name: 'Bakso Jumbo', qty: 1, prepTime: 8 }, { name: 'Es Jeruk', qty: 1, prepTime: 3 }], total: 33000, customer: 'Siti Rahayu', phone: '6281234567891', address: 'Jl. Malioboro 12', status: 'preparing', time: '8 min ago', driverETA: 4, paymentMethod: 'cod', qrCode: 'INDOO-1002-STI', paymentProof: null },
     { id: 'ORD-1003', items: [{ name: 'Nasi Goreng', qty: 3, prepTime: 12 }, { name: 'Sate Ayam', qty: 1, prepTime: 10 }], total: 119000, customer: 'Budi Wijaya', phone: '6281234567892', address: 'Jl. Parangtritis 45', status: 'ready', time: '15 min ago', driverETA: 1, paymentMethod: 'bank', qrCode: 'INDOO-1003-BDI' },
     { id: 'ORD-1004', items: [{ name: 'Ayam Geprek', qty: 2, prepTime: 12 }], total: 50000, customer: 'Dewi Lestari', phone: '6281234567893', address: 'Jl. Solo Km 3', status: 'completed', time: '32 min ago', driverETA: 0, paymentMethod: 'bank', qrCode: 'INDOO-1004-DWI', qrScanned: true },
   ])
   const [showQR, setShowQR] = useState(null) // order id showing QR
+  const [showPaymentProof, setShowPaymentProof] = useState(null) // order id showing proof
 
   const audioRef = useRef(null)
 
@@ -470,7 +496,10 @@ export default function VendorDashboardV2({ onClose }) {
                       <span style={{ fontSize: 15, fontWeight: 800, color: '#fff', display: 'block' }}>{o.customer}</span>
                       <span style={{ fontSize: 10, color: 'rgba(255,255,255,0.35)' }}>{o.address}</span>
                     </div>
-                    <img src={o.paymentMethod === 'bank' ? PAYMENT_ICONS.bank : PAYMENT_ICONS.cod} alt={o.paymentMethod === 'bank' ? 'Bank' : 'COD'} style={{ width: 42, height: 42, objectFit: 'contain', flexShrink: 0 }} />
+                    <button onClick={() => setShowPaymentProof(o.id)} style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 0, flexShrink: 0, position: 'relative' }}>
+                      <img src={o.paymentMethod === 'bank' ? PAYMENT_ICONS.bank : PAYMENT_ICONS.cod} alt={o.paymentMethod === 'bank' ? 'Bank' : 'COD'} style={{ width: 42, height: 42, objectFit: 'contain' }} />
+                      {o.paymentMethod === 'bank' && <div style={{ position: 'absolute', bottom: -2, right: -2, width: 14, height: 14, borderRadius: '50%', background: '#8DC63F', border: '2px solid #0a0a0a', display: 'flex', alignItems: 'center', justifyContent: 'center' }}><svg width="8" height="8" viewBox="0 0 24 24" fill="none" stroke="#000" strokeWidth="3"><circle cx="12" cy="12" r="3"/><path d="M2 12s4-8 10-8 10 8 10 8-4 8-10 8-10-8-10-8z"/></svg></div>}
+                    </button>
                   </div>
 
                   {/* Items */}
@@ -604,7 +633,10 @@ export default function VendorDashboardV2({ onClose }) {
                       <span style={{ fontSize: 15, fontWeight: 800, color: '#fff', display: 'block' }}>{o.customer}</span>
                       <span style={{ fontSize: 10, color: 'rgba(255,255,255,0.35)' }}>{o.address}</span>
                     </div>
-                    <img src={o.paymentMethod === 'bank' ? PAYMENT_ICONS.bank : PAYMENT_ICONS.cod} alt={o.paymentMethod === 'bank' ? 'Bank' : 'COD'} style={{ width: 42, height: 42, objectFit: 'contain', flexShrink: 0 }} />
+                    <button onClick={() => setShowPaymentProof(o.id)} style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 0, flexShrink: 0, position: 'relative' }}>
+                      <img src={o.paymentMethod === 'bank' ? PAYMENT_ICONS.bank : PAYMENT_ICONS.cod} alt={o.paymentMethod === 'bank' ? 'Bank' : 'COD'} style={{ width: 42, height: 42, objectFit: 'contain' }} />
+                      {o.paymentMethod === 'bank' && <div style={{ position: 'absolute', bottom: -2, right: -2, width: 14, height: 14, borderRadius: '50%', background: '#8DC63F', border: '2px solid #0a0a0a', display: 'flex', alignItems: 'center', justifyContent: 'center' }}><svg width="8" height="8" viewBox="0 0 24 24" fill="none" stroke="#000" strokeWidth="3"><circle cx="12" cy="12" r="3"/><path d="M2 12s4-8 10-8 10 8 10 8-4 8-10 8-10-8-10-8z"/></svg></div>}
+                    </button>
                   </div>
                   <div style={{ marginBottom: 10 }}>
                     {o.items.map((it, i) => <span key={i} style={{ fontSize: 14, color: 'rgba(255,255,255,0.5)', display: 'block', lineHeight: 1.6 }}>{it.qty}x {it.name}</span>)}
@@ -799,6 +831,10 @@ export default function VendorDashboardV2({ onClose }) {
             </div>
           </>
         )}
+
+        {/* ══════════ PAGE: EVENTS & VENUE ══════════ */}
+        {page === 'events' && <EventsPage />}
+
         </div>
       </div>
 
@@ -854,6 +890,62 @@ export default function VendorDashboardV2({ onClose }) {
         )
       })()}
 
+      {/* ── Payment Proof Popup ── */}
+      {showPaymentProof && (() => {
+        const order = orders.find(o => o.id === showPaymentProof)
+        if (!order) return null
+        return (
+          <div onClick={() => setShowPaymentProof(null)} style={{ position: 'fixed', inset: 0, zIndex: 10002, background: 'rgba(0,0,0,0.8)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 20 }}>
+            <div onClick={e => e.stopPropagation()} style={{ background: '#111', borderRadius: 20, padding: 20, maxWidth: 360, width: '100%', border: '1px solid rgba(255,255,255,0.08)' }}>
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 14 }}>
+                <span style={{ fontSize: 16, fontWeight: 900, color: '#fff' }}>Payment — {order.id}</span>
+                <button onClick={() => setShowPaymentProof(null)} style={{ width: 32, height: 32, borderRadius: '50%', background: '#EF4444', border: 'none', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' }}>
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2.5" strokeLinecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                </button>
+              </div>
+
+              {order.paymentMethod === 'bank' ? (
+                <>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 12 }}>
+                    <img src={PAYMENT_ICONS.bank} alt="" style={{ width: 32, height: 32, objectFit: 'contain' }} />
+                    <div>
+                      <span style={{ fontSize: 14, fontWeight: 800, color: '#8DC63F', display: 'block' }}>Bank Transfer</span>
+                      <span style={{ fontSize: 11, color: 'rgba(255,255,255,0.4)' }}>{order.customer}</span>
+                    </div>
+                    <span style={{ fontSize: 16, fontWeight: 900, color: '#FACC15', marginLeft: 'auto' }}>{fmtRp(order.total)}</span>
+                  </div>
+                  {order.paymentProof ? (
+                    <div style={{ borderRadius: 14, overflow: 'hidden', marginBottom: 12, border: '1px solid rgba(255,255,255,0.06)' }}>
+                      <img src={order.paymentProof} alt="Payment proof" style={{ width: '100%', height: 'auto', maxHeight: 300, objectFit: 'contain', background: '#000' }} />
+                    </div>
+                  ) : (
+                    <div style={{ padding: 30, textAlign: 'center', borderRadius: 14, background: 'rgba(255,255,255,0.03)', marginBottom: 12 }}>
+                      <span style={{ fontSize: 13, color: 'rgba(255,255,255,0.3)' }}>No screenshot uploaded</span>
+                    </div>
+                  )}
+                  <span style={{ fontSize: 11, color: 'rgba(255,255,255,0.3)', display: 'block', textAlign: 'center' }}>Verify the amount and sender name match before accepting</span>
+                </>
+              ) : (
+                <>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 12 }}>
+                    <img src={PAYMENT_ICONS.cod} alt="" style={{ width: 32, height: 32, objectFit: 'contain' }} />
+                    <div>
+                      <span style={{ fontSize: 14, fontWeight: 800, color: '#FACC15', display: 'block' }}>Cash on Delivery</span>
+                      <span style={{ fontSize: 11, color: 'rgba(255,255,255,0.4)' }}>{order.customer}</span>
+                    </div>
+                    <span style={{ fontSize: 16, fontWeight: 900, color: '#FACC15', marginLeft: 'auto' }}>{fmtRp(order.total)}</span>
+                  </div>
+                  <div style={{ padding: 20, textAlign: 'center', borderRadius: 14, background: 'rgba(250,204,21,0.05)', border: '1px solid rgba(250,204,21,0.15)' }}>
+                    <span style={{ fontSize: 15, fontWeight: 800, color: '#FACC15', display: 'block', marginBottom: 4 }}>Collect {fmtRp(order.total)} from driver</span>
+                    <span style={{ fontSize: 12, color: 'rgba(255,255,255,0.4)' }}>Driver will pay you cash on pickup</span>
+                  </div>
+                </>
+              )}
+            </div>
+          </div>
+        )
+      })()}
+
       {/* ── Delete Confirmation ── */}
       {deleteConfirm && (
         <div onClick={() => setDeleteConfirm(null)} style={{ position: 'fixed', inset: 0, zIndex: 10002, background: 'rgba(0,0,0,0.7)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 20 }}>
@@ -893,6 +985,213 @@ export default function VendorDashboardV2({ onClose }) {
       )}
     </div>,
     document.body
+  )
+}
+
+// ── Events & Venue management page ──────────────────────────────────────────
+function EventsPage() {
+  const [events, setEvents] = useState(() => loadVendorEvents())
+  const [editing, setEditing] = useState(null) // event type id or null
+
+  const save = (id, data) => {
+    const updated = { ...events, [id]: data }
+    setEvents(updated)
+    saveVendorEvents(updated)
+  }
+
+  const toggle = (id) => {
+    const current = events[id] ?? {}
+    save(id, { ...current, enabled: !current.enabled })
+  }
+
+  const removeImage = (eventId, imgIdx) => {
+    const current = events[eventId] ?? {}
+    const images = [...(current.images ?? [])]
+    images.splice(imgIdx, 1)
+    save(eventId, { ...current, images })
+  }
+
+  const handleImageUpload = (eventId, e) => {
+    const file = e.target.files?.[0]
+    if (!file) return
+    // Demo: use object URL (in production this uploads to ImageKit)
+    const url = URL.createObjectURL(file)
+    const current = events[eventId] ?? {}
+    const images = [...(current.images ?? [])]
+    if (images.length >= 4) return
+    images.push(url)
+    save(eventId, { ...current, images })
+  }
+
+  const inputStyle = { width: '100%', padding: '12px 14px', borderRadius: 12, border: '1px solid rgba(255,255,255,0.08)', background: 'rgba(0,0,0,0.4)', color: '#fff', fontSize: 14, outline: 'none', boxSizing: 'border-box', fontFamily: 'inherit' }
+
+  // Edit page for a specific event type
+  if (editing) {
+    const type = EVENT_TYPES.find(t => t.id === editing)
+    const data = events[editing] ?? {}
+    return (
+      <>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 16 }}>
+          <button onClick={() => setEditing(null)} style={{ width: 32, height: 32, borderRadius: 8, background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' }}>
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2.5" strokeLinecap="round"><path d="M19 12H5M12 5l-7 7 7 7"/></svg>
+          </button>
+          <h2 style={{ fontSize: 18, fontWeight: 900, color: '#fff', margin: 0, flex: 1 }}>{type?.icon} {type?.label}</h2>
+        </div>
+
+        {/* Images — up to 4 */}
+        <span style={{ fontSize: 12, fontWeight: 800, color: 'rgba(255,255,255,0.4)', display: 'block', marginBottom: 8, textTransform: 'uppercase' }}>Photos (up to 4)</span>
+        <div style={{ display: 'flex', gap: 8, marginBottom: 16, flexWrap: 'wrap' }}>
+          {(data.images ?? []).map((img, i) => (
+            <div key={i} style={{ position: 'relative', width: 72, height: 72, borderRadius: 12, overflow: 'hidden', border: '1px solid rgba(255,255,255,0.1)' }}>
+              <img src={img} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+              <button onClick={() => removeImage(editing, i)} style={{
+                position: 'absolute', top: 2, right: 2, width: 20, height: 20, borderRadius: '50%',
+                background: 'rgba(0,0,0,0.8)', border: 'none', color: '#fff', fontSize: 10, cursor: 'pointer',
+                display: 'flex', alignItems: 'center', justifyContent: 'center',
+              }}>✕</button>
+            </div>
+          ))}
+          {(data.images ?? []).length < 4 && (
+            <label style={{
+              width: 72, height: 72, borderRadius: 12, border: '1.5px dashed rgba(255,255,255,0.15)',
+              display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer',
+              color: 'rgba(255,255,255,0.3)', fontSize: 24,
+            }}>
+              +
+              <input type="file" accept="image/*" onChange={e => handleImageUpload(editing, e)} style={{ display: 'none' }} />
+            </label>
+          )}
+        </div>
+
+        {/* Description */}
+        <span style={{ fontSize: 12, fontWeight: 800, color: 'rgba(255,255,255,0.4)', display: 'block', marginBottom: 6, textTransform: 'uppercase' }}>Description</span>
+        <textarea
+          value={data.description ?? ''}
+          onChange={e => { if (e.target.value.length <= 500) save(editing, { ...data, description: e.target.value }) }}
+          placeholder={type?.placeholder}
+          style={{ ...inputStyle, height: 120, resize: 'none', lineHeight: 1.5, marginBottom: 4 }}
+        />
+        <span style={{ fontSize: 10, color: 'rgba(255,255,255,0.25)', display: 'block', marginBottom: 14 }}>{(data.description ?? '').length}/500</span>
+
+        {/* Price range */}
+        <span style={{ fontSize: 12, fontWeight: 800, color: 'rgba(255,255,255,0.4)', display: 'block', marginBottom: 6, textTransform: 'uppercase' }}>Price range (per person)</span>
+        <div style={{ display: 'flex', gap: 8, marginBottom: 16 }}>
+          <div style={{ flex: 1 }}>
+            <span style={{ fontSize: 11, color: 'rgba(255,255,255,0.3)', display: 'block', marginBottom: 4 }}>From</span>
+            <input
+              type="number"
+              value={data.priceFrom ?? ''}
+              onChange={e => save(editing, { ...data, priceFrom: Number(e.target.value) || '' })}
+              placeholder="30000"
+              style={inputStyle}
+            />
+          </div>
+          <div style={{ flex: 1 }}>
+            <span style={{ fontSize: 11, color: 'rgba(255,255,255,0.3)', display: 'block', marginBottom: 4 }}>To</span>
+            <input
+              type="number"
+              value={data.priceTo ?? ''}
+              onChange={e => save(editing, { ...data, priceTo: Number(e.target.value) || '' })}
+              placeholder="70000"
+              style={inputStyle}
+            />
+          </div>
+        </div>
+
+        {/* Min pax */}
+        <span style={{ fontSize: 12, fontWeight: 800, color: 'rgba(255,255,255,0.4)', display: 'block', marginBottom: 6, textTransform: 'uppercase' }}>Minimum group size</span>
+        <input
+          type="number"
+          value={data.minPax ?? ''}
+          onChange={e => save(editing, { ...data, minPax: Number(e.target.value) || '' })}
+          placeholder="10"
+          style={{ ...inputStyle, marginBottom: 16 }}
+        />
+
+        {/* What's included */}
+        <span style={{ fontSize: 12, fontWeight: 800, color: 'rgba(255,255,255,0.4)', display: 'block', marginBottom: 6, textTransform: 'uppercase' }}>What's included (short)</span>
+        <input
+          value={data.includes ?? ''}
+          onChange={e => save(editing, { ...data, includes: e.target.value })}
+          placeholder="e.g. Main dish + drink + dessert"
+          maxLength={80}
+          style={{ ...inputStyle, marginBottom: 16 }}
+        />
+
+        <button onClick={() => setEditing(null)} style={{
+          width: '100%', padding: '14px', borderRadius: 14, border: 'none',
+          background: '#8DC63F', color: '#000', fontSize: 14, fontWeight: 900, cursor: 'pointer',
+        }}>
+          Save & Back
+        </button>
+      </>
+    )
+  }
+
+  // Main events list
+  return (
+    <>
+      <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 6 }}>
+        <h2 style={{ fontSize: 18, fontWeight: 900, color: '#fff', margin: 0, flex: 1 }}>🎉 Events & Venue</h2>
+      </div>
+      <p style={{ fontSize: 12, color: 'rgba(255,255,255,0.4)', margin: '0 0 16px', lineHeight: 1.4 }}>
+        Enable the services you offer. Upload photos and details — customers see these on your restaurant page.
+      </p>
+
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+        {EVENT_TYPES.map(type => {
+          const data = events[type.id] ?? {}
+          const enabled = !!data.enabled
+          const hasContent = !!(data.description || (data.images ?? []).length > 0)
+          return (
+            <div key={type.id} style={{
+              padding: 14, borderRadius: 16,
+              background: 'rgba(0,0,0,0.4)', backdropFilter: 'blur(12px)',
+              border: `1px solid ${enabled ? 'rgba(141,198,63,0.2)' : 'rgba(255,255,255,0.06)'}`,
+            }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                <span style={{ fontSize: 24 }}>{type.icon}</span>
+                <div style={{ flex: 1, minWidth: 0 }}>
+                  <span style={{ fontSize: 14, fontWeight: 800, color: enabled ? '#fff' : 'rgba(255,255,255,0.5)', display: 'block' }}>{type.label}</span>
+                  {enabled && hasContent && (
+                    <span style={{ fontSize: 11, color: '#8DC63F', fontWeight: 700 }}>
+                      {(data.images ?? []).length} photos · {(data.description ?? '').length > 0 ? 'description added' : 'no description'}
+                    </span>
+                  )}
+                  {enabled && !hasContent && (
+                    <span style={{ fontSize: 11, color: '#FACC15', fontWeight: 700 }}>Enabled — tap Edit to add details</span>
+                  )}
+                </div>
+
+                {/* Toggle */}
+                <button onClick={() => toggle(type.id)} style={{
+                  width: 44, height: 24, borderRadius: 12, border: 'none', cursor: 'pointer',
+                  background: enabled ? '#8DC63F' : 'rgba(255,255,255,0.1)',
+                  position: 'relative', transition: 'background 0.2s', flexShrink: 0,
+                }}>
+                  <div style={{
+                    width: 20, height: 20, borderRadius: '50%', background: '#fff',
+                    position: 'absolute', top: 2,
+                    left: enabled ? 22 : 2,
+                    transition: 'left 0.2s',
+                    boxShadow: '0 1px 4px rgba(0,0,0,0.3)',
+                  }} />
+                </button>
+
+                {/* Edit button */}
+                {enabled && (
+                  <button onClick={() => setEditing(type.id)} style={{
+                    padding: '6px 12px', borderRadius: 8,
+                    background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.1)',
+                    color: '#8DC63F', fontSize: 12, fontWeight: 800, cursor: 'pointer',
+                  }}>Edit</button>
+                )}
+              </div>
+            </div>
+          )
+        })}
+      </div>
+    </>
   )
 }
 

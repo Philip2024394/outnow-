@@ -3,6 +3,10 @@
   "outputDirectory": "dist",
   "framework": "vite",
   "rewrites": [
+    { "source": "/vendor", "destination": "/vendor.html" },
+    { "source": "/vendor/(.*)", "destination": "/vendor.html" },
+    { "source": "/driver", "destination": "/driver.html" },
+    { "source": "/driver/(.*)", "destination": "/driver.html" },
     { "source": "/(.*)", "destination": "/" }
   ]
 }

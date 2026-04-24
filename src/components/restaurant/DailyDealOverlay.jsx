@@ -9,8 +9,9 @@ import { getAllTodayDeals } from '@/services/dailyDealService'
 
 const fmtRp = (n) => 'Rp ' + (n ?? 0).toLocaleString('id-ID')
 
-function DealItemCard({ item, todayTheme, qty, onQtyChange, dealDiscount }) {
+function DealItemCard({ item, todayTheme, qty, onQtyChange, dealDiscount, onAdd }) {
   const [zoomed, setZoomed] = useState(false)
+  const [added, setAdded] = useState(false)
   const pct = item.discountPct ?? dealDiscount ?? 0
   const discountedPrice = Math.round(item.originalPrice * (1 - pct / 100))
   const remaining = (item.quantity ?? 50) - (item.claimed ?? 0)
@@ -19,8 +20,9 @@ function DealItemCard({ item, todayTheme, qty, onQtyChange, dealDiscount }) {
   return (
     <>
     <div style={{
-      background: 'rgba(0,0,0,0.5)', backdropFilter: 'blur(12px)',
-      border: '1px solid rgba(255,255,255,0.06)', borderRadius: 14,
+      background: 'rgba(0,0,0,0.4)', backdropFilter: 'blur(14px)',
+      border: '1.5px solid rgba(141,198,63,0.3)', borderRadius: 14,
+      boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.05)',
       padding: '10px 12px',
       position: 'relative', overflow: 'hidden',
       opacity: soldOut ? 0.4 : 1,
@@ -48,37 +50,32 @@ function DealItemCard({ item, todayTheme, qty, onQtyChange, dealDiscount }) {
       <div style={{ flex: 1, minWidth: 0 }}>
         <span style={{ fontSize: 13, fontWeight: 900, color: '#fff', display: 'block', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{item.itemName}</span>
         <span style={{ fontSize: 15, fontWeight: 900, color: '#FACC15', display: 'block', marginTop: 3 }}>{fmtRp(discountedPrice)}</span>
-        <span style={{ fontSize: 10, fontWeight: 800, color: '#EF4444', display: 'block', marginTop: 2 }}>Discounted {pct}%</span>
+        <span style={{ fontSize: 14, fontWeight: 800, color: '#EF4444', display: 'block', marginTop: 2 }}>Discounted {pct}%</span>
       </div>
 
-      {/* Qty + remaining */}
-      {!soldOut ? (
-        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 4, flexShrink: 0 }} onTouchStart={(e) => e.stopPropagation()}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-            <button
-              onPointerDown={(e) => { e.stopPropagation() }}
-              onClick={(e) => { e.stopPropagation(); e.preventDefault(); onQtyChange(-1) }}
-              style={{ width: 24, height: 24, borderRadius: '50%', border: 'none', background: '#8DC63F', color: '#000', fontSize: 16, fontWeight: 900, cursor: 'pointer', zIndex: 10, touchAction: 'manipulation', WebkitTapHighlightColor: 'transparent' }}
-            >-</button>
-            <span style={{ width: 34, height: 34, borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'rgba(255,255,255,0.1)', color: '#fff', fontSize: 16, fontWeight: 900 }}>{qty}</span>
-            <button
-              onPointerDown={(e) => { e.stopPropagation() }}
-              onClick={(e) => { e.stopPropagation(); e.preventDefault(); onQtyChange(1) }}
-              style={{ width: 24, height: 24, borderRadius: '50%', border: 'none', background: '#8DC63F', color: '#000', fontSize: 16, fontWeight: 900, cursor: 'pointer', zIndex: 10, touchAction: 'manipulation', WebkitTapHighlightColor: 'transparent' }}
-            >+</button>
-          </div>
-          <span style={{ fontSize: 12, fontWeight: 900, color: '#EF4444', animation: 'discountFlash 1.5s ease-in-out infinite' }}>
-            {remaining} left
-          </span>
-        </div>
-      ) : (
-        <span style={{ fontSize: 11, fontWeight: 900, color: '#EF4444', flexShrink: 0 }}>Sold Out</span>
-      )}
+      {/* Remaining + view button */}
+      <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 4, flexShrink: 0 }}>
+        <span style={{ fontSize: 12, fontWeight: 900, color: soldOut ? '#EF4444' : '#FACC15', animation: soldOut ? 'none' : 'discountFlash 1.5s ease-in-out infinite' }}>
+          {soldOut ? 'Sold Out' : `${remaining} left`}
+        </span>
+        {!soldOut && (
+          <button
+            onClick={(e) => { e.stopPropagation(); setZoomed(true) }}
+            style={{
+              width: 32, height: 32, borderRadius: '50%', border: '1px solid rgba(141,198,63,0.3)',
+              background: 'rgba(141,198,63,0.15)', cursor: 'pointer',
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
+            }}
+          >
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#8DC63F" strokeWidth="2" strokeLinecap="round"><circle cx="12" cy="12" r="3"/><path d="M2 12s4-8 10-8 10 8 10 8-4 8-10 8-10-8-10-8z"/></svg>
+          </button>
+        )}
+      </div>
     </div>
     {/* Item detail — centered popup */}
     {zoomed && item.photoUrl && (
       <>
-        <div onClick={() => setZoomed(false)} style={{ position: 'fixed', inset: 0, zIndex: 99998, background: 'rgba(0,0,0,0.7)', backdropFilter: 'blur(8px)' }} />
+        <div onClick={() => setZoomed(false)} style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, zIndex: 99998, background: 'rgba(0,0,0,0.5)' }} />
         <div style={{
           position: 'fixed', top: '50%', left: '50%', transform: 'translate(-50%, -50%)',
           width: 'calc(100% - 40px)', maxWidth: 360, zIndex: 99999,
@@ -91,18 +88,21 @@ function DealItemCard({ item, todayTheme, qty, onQtyChange, dealDiscount }) {
           <div style={{ position: 'relative', width: '100%', height: 200 }}>
             <img src={item.photoUrl} alt={item.itemName} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
             {/* Discount badge */}
+            {/* Discount badge — top left */}
             <div style={{
-              position: 'absolute', top: 10, right: 10,
+              position: 'absolute', top: 10, left: 10,
               padding: '4px 10px', borderRadius: 8,
-              background: '#EF4444', color: '#fff',
+              background: '#FACC15', color: '#000',
               fontSize: 13, fontWeight: 900,
               animation: 'discountFlash 1.5s ease-in-out infinite',
             }}>
               {pct}% OFF
             </div>
-            {/* Close X — top left */}
+            {/* Remaining — bottom right */}
+            <span style={{ position: 'absolute', bottom: 10, right: 10, fontSize: 14, fontWeight: 900, color: '#FACC15', background: 'rgba(0,0,0,0.6)', padding: '4px 10px', borderRadius: 8 }}>{remaining} Remaining</span>
+            {/* Close X — top right */}
             <button onClick={(e) => { e.stopPropagation(); setZoomed(false) }} style={{
-              position: 'absolute', top: 10, left: 10,
+              position: 'absolute', top: 10, right: 10,
               width: 32, height: 32, borderRadius: '50%',
               background: '#EF4444', border: 'none',
               display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer',
@@ -112,17 +112,35 @@ function DealItemCard({ item, todayTheme, qty, onQtyChange, dealDiscount }) {
           </div>
 
           {/* Name + rating + price */}
-          <div style={{ padding: '12px 14px' }}>
+          <div style={{ padding: '12px 14px 0' }}>
             <span style={{ fontSize: 17, fontWeight: 900, color: '#fff', display: 'block' }}>{item.itemName}</span>
             <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginTop: 4 }}>
               <span style={{ fontSize: 14, color: '#FACC15' }}>★</span>
               <span style={{ fontSize: 14, fontWeight: 800, color: '#FACC15' }}>4.8</span>
               <span style={{ fontSize: 12, color: 'rgba(255,255,255,0.2)' }}>·</span>
               <span style={{ fontSize: 16, fontWeight: 900, color: '#FACC15' }}>{fmtRp(discountedPrice)}</span>
+              <span style={{ fontSize: 12, color: 'rgba(255,255,255,0.3)', textDecoration: 'line-through' }}>{fmtRp(item.originalPrice)}</span>
             </div>
             {item.description && (
               <span style={{ fontSize: 12, color: 'rgba(255,255,255,0.4)', display: 'block', marginTop: 6, lineHeight: 1.5 }}>{item.description}</span>
             )}
+          </div>
+
+          {/* Qty controls + Add to Cart */}
+          <div style={{ padding: '12px 14px', display: 'flex', alignItems: 'center', gap: 10 }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+              <button onClick={(e) => { e.stopPropagation(); onQtyChange(-1) }} style={{ width: 32, height: 32, borderRadius: '50%', border: 'none', background: 'rgba(255,255,255,0.12)', color: '#fff', fontSize: 18, fontWeight: 900, cursor: 'pointer' }}>-</button>
+              <span style={{ width: 36, height: 36, borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'rgba(255,255,255,0.08)', color: '#fff', fontSize: 16, fontWeight: 900 }}>{qty}</span>
+              <button onClick={(e) => { e.stopPropagation(); onQtyChange(1) }} style={{ width: 32, height: 32, borderRadius: '50%', border: 'none', background: 'rgba(255,255,255,0.12)', color: '#fff', fontSize: 18, fontWeight: 900, cursor: 'pointer' }}>+</button>
+            </div>
+            <button
+              onClick={(e) => { e.stopPropagation(); onAdd?.(item, qty); setAdded(true); setTimeout(() => { setAdded(false); setZoomed(false) }, 800) }}
+              style={{
+                flex: 1, padding: '12px', borderRadius: 12, border: 'none', cursor: 'pointer',
+                background: added ? '#FACC15' : '#8DC63F', color: '#000',
+                fontSize: 14, fontWeight: 900, transition: 'background 0.2s',
+              }}
+            >{added ? '✓ Added!' : '🛒 Add to Cart'}</button>
           </div>
         </div>
         <style>{`@keyframes popIn { from { transform: translate(-50%,-50%) scale(0.9); opacity: 0; } to { transform: translate(-50%,-50%) scale(1); opacity: 1; } }`}</style>
@@ -211,14 +229,45 @@ export default function DailyDealOverlay({ restaurant, dealItems, onClose, onAdd
 
   const hasItems = dealItems && dealItems.length > 0
   const totalCards = 1 + otherDeals.length // this restaurant + others
+  const [onSplash, setOnSplash] = useState(true)
 
   return (
-    <div style={{ position: 'fixed', inset: 0, zIndex: 9700 }}>
+    <div style={{ position: 'fixed', inset: 0, zIndex: 9700, background: '#0a0a0a' }}>
       <style>{`.deal-swipe-feed::-webkit-scrollbar { display: none; }`}</style>
+
+      {/* Cart icon — fixed top right */}
+      <div onClick={onClose} style={{ position: 'fixed', top: 'calc(env(safe-area-inset-top, 0px) + 12px)', right: 16, zIndex: 9720, cursor: 'pointer' }}>
+        <img src="https://ik.imagekit.io/nepgaxllc/Untitleddasdasdasdasss-removebg-preview.png?updatedAt=1775737452452" alt="Cart" style={{ width: 32, height: 32, objectFit: 'contain' }} />
+      </div>
+
+      {/* Floating discount balls — higher on splash, lower on deal cards */}
+      <div style={{ position: 'fixed', bottom: onSplash ? '18%' : '8%', left: 0, right: 0, height: onSplash ? '25%' : '15%', zIndex: 99000, pointerEvents: 'none', overflow: 'hidden', transition: 'bottom 0.5s, height 0.5s' }}>
+        {[
+          { pct: 30, size: 36, left: '10%', delay: '0s', dur: '3.5s', color: '#F87171' },
+          { pct: 20, size: 32, left: '28%', delay: '0.5s', dur: '3s', color: '#60A5FA' },
+          { pct: 15, size: 28, left: '48%', delay: '1s', dur: '4s', color: '#34D399' },
+          { pct: 25, size: 34, left: '68%', delay: '0.3s', dur: '3.2s', color: '#FACC15' },
+          { pct: 35, size: 30, left: '85%', delay: '0.8s', dur: '3.8s', color: '#FB923C' },
+        ].map((ball, i) => (
+          <div key={i} style={{
+            position: 'absolute', left: ball.left, bottom: '-10%',
+            width: ball.size, height: ball.size, borderRadius: '50%',
+            background: `${ball.color}25`, border: `2px solid ${ball.color}50`,
+            backdropFilter: 'blur(4px)',
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+            animation: `ballFloat ${ball.dur} ease-in-out infinite`,
+            animationDelay: ball.delay,
+            transform: 'translateX(-50%)',
+          }}>
+            <span style={{ fontSize: ball.size * 0.32, fontWeight: 900, color: ball.color, textShadow: `0 0 10px ${ball.color}80` }}>{ball.pct}%</span>
+          </div>
+        ))}
+      </div>
       {/* Vertical snap-scroll */}
       <div
         ref={scrollRef}
         className="deal-swipe-feed"
+        onScroll={() => { const el = scrollRef.current; if (el) setOnSplash(el.scrollTop < el.clientHeight * 0.5) }}
         style={{
           width: '100%', height: '100%',
           overflowX: 'hidden', overflowY: 'scroll',
@@ -228,147 +277,59 @@ export default function DailyDealOverlay({ restaurant, dealItems, onClose, onAdd
           scrollbarWidth: 'none', msOverflowStyle: 'none',
         }}
       >
-        {/* ── Card 1: Current restaurant ── */}
+        {/* ── Card 1: Hero splash — no restaurant name, just theme ── */}
         <div style={{ width: '100%', minHeight: '100vh', minHeight: '100dvh', scrollSnapAlign: 'start', position: 'relative', flexShrink: 0, display: 'flex', flexDirection: 'column' }}>
-          {/* Background + slight tint */}
-          <img src={todayTheme.img} alt="" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'fill' }} />
-          <div style={{ position: 'absolute', inset: 0, background: 'rgba(0,0,0,0.35)', pointerEvents: 'none' }} />
+          {/* Full background image */}
+          <img src={todayTheme.img} alt="" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', zIndex: 0 }} />
+          <div style={{ position: 'absolute', inset: 0, background: 'rgba(0,0,0,0.35)', pointerEvents: 'none', zIndex: 0 }} />
 
-          {/* Top banner — restaurant name + deal theme */}
+          {/* Center: hero text + profiles */}
+          <div style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', position: 'relative', zIndex: 2, padding: '0 20px' }}>
+            <span style={{ fontSize: 36, fontWeight: 900, color: '#fff', textShadow: '0 3px 20px rgba(0,0,0,0.9), 0 0 50px rgba(0,0,0,0.5)', textAlign: 'center', letterSpacing: '0.04em' }}>{todayTheme.name}</span>
+            {todayTheme.slogan && <span style={{ fontSize: 16, color: 'rgba(255,255,255,0.7)', fontWeight: 700, fontStyle: 'italic', marginTop: 10, textShadow: '0 2px 10px rgba(0,0,0,0.8)', textAlign: 'center' }}>{todayTheme.slogan}</span>}
+            <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginTop: 16 }}>
+              {avatarIds.map((id, i) => (
+                <img key={id} src={`https://i.pravatar.cc/40?img=${id}`} alt="" style={{ width: 30, height: 30, borderRadius: '50%', objectFit: 'cover', border: '2px solid #8DC63F', marginLeft: i > 0 ? -8 : 0, zIndex: 5 - i, position: 'relative' }} />
+              ))}
+              <span style={{ fontSize: 12, color: 'rgba(255,255,255,0.6)', marginLeft: 6, fontWeight: 800, textShadow: '0 1px 4px rgba(0,0,0,0.6)' }}><span style={{ color: '#8DC63F' }}>{viewerCount}</span> viewing</span>
+            </div>
+            {/* Discount badge */}
+            <span style={{ marginTop: 20, padding: '8px 24px', borderRadius: 12, background: '#FACC15', color: '#000', fontSize: 18, fontWeight: 900, animation: 'shake 0.5s ease-in-out infinite', boxShadow: '0 0 20px rgba(250,204,21,0.5)' }}>Discounts Up To {todayTheme.discount}%</span>
+          </div>
+
+          {/* Arrow button — swipe to see deals */}
           <div style={{
-            position: 'relative', zIndex: 2,
-            padding: 'calc(env(safe-area-inset-top, 0px) + 8px) 16px 8px',
-            background: 'rgba(0,0,0,0.6)', backdropFilter: 'blur(10px)', borderRadius: '0 0 16px 16px', borderBottom: '2px solid #8DC63F', overflow: 'hidden', position: 'relative',
-            display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+            position: 'absolute', bottom: 100, left: 0, right: 0, zIndex: 3,
+            display: 'flex', justifyContent: 'center',
+            animation: 'arrowFloat 1.2s ease-in-out infinite',
           }}>
-            {/* Running green light on bottom edge */}
-            <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, height: 2, overflow: 'hidden', pointerEvents: 'none' }}>
-              <div style={{ width: '30%', height: '100%', background: 'linear-gradient(90deg, transparent, #fff, transparent)', animation: 'runningLight 3s linear infinite', opacity: 0.7 }} />
-            </div>
-            <div style={{ flex: 1 }}>
-              <span style={{ fontSize: 15, fontWeight: 900, color: '#fff', display: 'block' }}>{restaurant?.name ?? 'Restaurant'}</span>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginTop: 4 }}>
-                {avatarIds.slice(0, 4).map((id, i) => (
-                  <img key={id} src={`https://i.pravatar.cc/40?img=${id}`} alt="" style={{ width: 22, height: 22, borderRadius: '50%', objectFit: 'cover', border: '1.5px solid #8DC63F', marginLeft: i > 0 ? -6 : 0, zIndex: 5 - i, position: 'relative' }} />
-                ))}
-                <span style={{ fontSize: 10, color: 'rgba(255,255,255,0.5)', marginLeft: 2 }}><span style={{ color: '#8DC63F', fontWeight: 900 }}>{viewerCount}</span> viewing</span>
-              </div>
-            </div>
-            <div style={{ textAlign: 'right', flexShrink: 0 }}>
-              <span style={{ fontSize: 9, color: 'rgba(255,255,255,0.4)', fontWeight: 700, display: 'block' }}>Deal Ends</span>
-              <span style={{ fontSize: 15, fontWeight: 900, color: '#EF4444', fontVariantNumeric: 'tabular-nums' }}>{countdown}</span>
-            </div>
-          </div>
-
-
-          {/* Spacer — pushes content to bottom */}
-          <div style={{ flex: 1 }} />
-
-          {/* Deal content — above footer */}
-          <div style={{ position: 'relative', zIndex: 2, padding: '0 16px', marginBottom: 8, display: 'flex', flexDirection: 'column', gap: 8 }}>
-            {!hasItems ? (
-              <div style={{ textAlign: 'center', padding: '20px 0' }}>
-                <span style={{ fontSize: 18, fontWeight: 900, color: '#fff', display: 'block', marginBottom: 8 }}>No deals from {restaurant?.name ?? 'this restaurant'} today</span>
-                <span style={{ fontSize: 13, color: 'rgba(255,255,255,0.4)', lineHeight: 1.5, display: 'block' }}>
-                  {otherDeals.length > 0 ? `Swipe up to see ${otherDeals.length} other deal${otherDeals.length > 1 ? 's' : ''} nearby` : 'Check back tomorrow'}
-                </span>
-              </div>
-            ) : (
-              <>
-                {/* Discount + countdown bar */}
-                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 10, padding: '8px 16px', borderRadius: 12, background: 'rgba(0,0,0,0.4)', backdropFilter: 'blur(10px)', border: '1px solid rgba(250,204,21,0.2)' }}>
-                  <span style={{ fontSize: 16, fontWeight: 900, color: '#FACC15' }}>{todayTheme.discount}% Off</span>
-                  <span style={{ fontSize: 12, color: 'rgba(255,255,255,0.3)' }}>·</span>
-                  <span style={{ fontSize: 14, fontWeight: 900, color: '#EF4444', fontVariantNumeric: 'tabular-nums' }}>{countdown}</span>
-                </div>
-                {(dealItems ?? []).slice(0, 3).map(item => (
-                  <DealItemCard
-                    key={item.itemId}
-                    item={item}
-                    todayTheme={todayTheme}
-                    qty={quantities[item.itemId] ?? 1}
-                    onQtyChange={(d) => setQty(item.itemId, d)}
-                    dealDiscount={todayTheme.discount}
-                  />
-                ))}
-              </>
-            )}
-          </div>
-
-          {/* Bottom — Add to Cart + round Close button */}
-          <div style={{ position: 'relative', zIndex: 2, padding: '12px 16px calc(env(safe-area-inset-bottom, 0px) + 12px)', display: 'flex', alignItems: 'center', gap: 10 }}>
-            {hasItems ? (
-              <div style={{ flex: 1, position: 'relative' }}>
-                {/* Fire particles */}
-                {[...Array(6)].map((_, i) => (
-                  <span key={i} style={{
-                    position: 'absolute', bottom: '100%',
-                    left: `${15 + i * 14}%`,
-                    width: 6 + (i % 3) * 2, height: 6 + (i % 3) * 2,
-                    borderRadius: '50%',
-                    background: i % 2 === 0 ? '#FACC15' : '#EF4444',
-                    animation: `fireUp ${1.2 + i * 0.3}s ease-out infinite`,
-                    animationDelay: `${i * 0.2}s`,
-                    opacity: 0, pointerEvents: 'none',
-                  }} />
-                ))}
-                <button onClick={handleAddAll} style={{ width: '100%', padding: '16px', borderRadius: 14, border: 'none', background: addedFlash ? '#FACC15' : '#8DC63F', color: '#000', fontSize: 16, fontWeight: 900, cursor: 'pointer', position: 'relative', zIndex: 1, transition: 'background 0.3s', transform: addedFlash ? 'scale(1.02)' : 'scale(1)' }}>
-                  {addedFlash ? '✓ Added to Cart!' : 'Add to Cart'}
-                </button>
-              </div>
-            ) : (
-              <button onClick={onClose} style={{ flex: 1, padding: '16px', borderRadius: 14, border: '1px solid rgba(255,255,255,0.1)', background: 'none', color: 'rgba(255,255,255,0.5)', fontSize: 14, fontWeight: 700, cursor: 'pointer' }}>
-                Back to Menu
-              </button>
-            )}
-            <button onClick={onClose} style={{ width: 48, height: 48, borderRadius: '50%', flexShrink: 0, background: '#EF4444', border: 'none', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' }}>
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2.5" strokeLinecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+            <button
+              onClick={() => { if (scrollRef.current) scrollRef.current.scrollBy({ top: scrollRef.current.clientHeight, behavior: 'smooth' }) }}
+              style={{
+                width: 48, height: 48, borderRadius: '50%',
+                background: 'rgba(0,0,0,0.8)', border: '2px solid rgba(250,204,21,0.4)',
+                display: 'flex', alignItems: 'center', justifyContent: 'center',
+                boxShadow: '0 0 14px rgba(250,204,21,0.4)', cursor: 'pointer', padding: 0,
+              }}
+            >
+              <svg width="22" height="22" viewBox="0 0 24 14" fill="#FACC15" stroke="none" style={{ filter: 'drop-shadow(0 0 6px rgba(250,204,21,0.8))' }}>
+                <path d="M4 2l8 8 8-8 2 2-10 10L2 4z"/>
+              </svg>
             </button>
           </div>
-
-          {/* Arrow button — swipe down hint */}
-          {totalCards > 1 && (
-            <div style={{
-              position: 'absolute', bottom: hasItems ? 100 : 80, left: 0, right: 0, zIndex: 3,
-              display: 'flex', justifyContent: 'center',
-              animation: 'arrowFloat 1.2s ease-in-out infinite',
-            }}>
-              <button
-                onClick={() => { if (scrollRef.current) scrollRef.current.scrollBy({ top: scrollRef.current.clientHeight, behavior: 'smooth' }) }}
-                style={{
-                  width: 48, height: 48, borderRadius: '50%',
-                  background: 'rgba(0,0,0,0.8)', border: '2px solid rgba(250,204,21,0.4)',
-                  display: 'flex', alignItems: 'center', justifyContent: 'center',
-                  boxShadow: '0 0 14px rgba(250,204,21,0.4)', cursor: 'pointer', padding: 0,
-                }}
-              >
-                <svg width="22" height="22" viewBox="0 0 24 14" fill="#FACC15" stroke="none" style={{ filter: 'drop-shadow(0 0 6px rgba(250,204,21,0.8))' }}>
-                  <path d="M4 2l8 8 8-8 2 2-10 10L2 4z"/>
-                </svg>
-              </button>
-            </div>
-          )}
-
-          {/* Swipe indicator dots — vertical right side */}
-          {totalCards > 1 && (
-            <div style={{ position: 'absolute', right: 10, top: '50%', transform: 'translateY(-50%)', zIndex: 3, display: 'flex', flexDirection: 'column', gap: 6 }}>
-              <div style={{ width: 6, height: 6, borderRadius: '50%', background: todayTheme.color, boxShadow: `0 0 6px ${todayTheme.color}` }} />
-              {otherDeals.map((_, i) => <div key={i} style={{ width: 5, height: 5, borderRadius: '50%', background: 'rgba(255,255,255,0.2)' }} />)}
-            </div>
-          )}
         </div>
 
         {/* ── Other restaurant deal cards ── */}
         {otherDeals.map(deal => (
-          <div key={deal.id} style={{ width: '100%', minHeight: '100vh', minHeight: '100dvh', scrollSnapAlign: 'start', position: 'relative', flexShrink: 0, display: 'flex', flexDirection: 'column' }}>
-            <img src={todayTheme.img} alt="" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'fill' }} />
-            <div style={{ position: 'absolute', inset: 0, background: 'rgba(0,0,0,0.35)', pointerEvents: 'none' }} />
+          <div key={deal.id} style={{ width: '100%', minHeight: '100vh', minHeight: '100dvh', scrollSnapAlign: 'start', position: 'relative', flexShrink: 0, display: 'flex', flexDirection: 'column', background: '#0a0a0a' }}>
+            <img src={todayTheme.img} alt="" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', zIndex: 0 }} />
+            <div style={{ position: 'absolute', inset: 0, background: 'rgba(0,0,0,0.35)', pointerEvents: 'none', zIndex: 0 }} />
 
-            {/* Top banner */}
+            {/* Top banner — solid dark */}
             <div style={{
-              position: 'relative', zIndex: 2,
+              position: 'relative', zIndex: 2, flexShrink: 0,
               padding: 'calc(env(safe-area-inset-top, 0px) + 8px) 16px 8px',
-              background: 'rgba(0,0,0,0.6)', backdropFilter: 'blur(10px)', borderRadius: '0 0 16px 16px', borderBottom: '2px solid #8DC63F', overflow: 'hidden', position: 'relative',
+              background: '#0a0a0a', borderRadius: '0 0 16px 16px', borderBottom: '2px solid #8DC63F', overflow: 'hidden',
               display: 'flex', alignItems: 'center', justifyContent: 'space-between',
             }}>
               <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, height: 2, overflow: 'hidden', pointerEvents: 'none' }}>
@@ -376,29 +337,28 @@ export default function DailyDealOverlay({ restaurant, dealItems, onClose, onAdd
               </div>
               <div style={{ flex: 1 }}>
                 <span style={{ fontSize: 15, fontWeight: 900, color: '#fff', display: 'block' }}>{deal.restaurant?.name ?? 'Restaurant'}</span>
-                <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginTop: 4 }}>
-                  {[11,22,33,44].map((id, i) => (
-                    <img key={id} src={`https://i.pravatar.cc/40?img=${id + (deal.restaurant_id ?? 0)}`} alt="" style={{ width: 22, height: 22, borderRadius: '50%', objectFit: 'cover', border: '1.5px solid #8DC63F', marginLeft: i > 0 ? -6 : 0, zIndex: 5 - i, position: 'relative' }} />
-                  ))}
-                  <span style={{ fontSize: 10, color: 'rgba(255,255,255,0.5)', marginLeft: 2 }}><span style={{ color: '#8DC63F', fontWeight: 900 }}>{40 + Math.floor((deal.restaurant_id ?? 1) * 7.3 % 81)}</span> viewing</span>
-                </div>
-              </div>
-              <div style={{ textAlign: 'right', flexShrink: 0 }}>
-                <span style={{ fontSize: 9, color: 'rgba(255,255,255,0.4)', fontWeight: 700, display: 'block' }}>Deal Ends</span>
-                <span style={{ fontSize: 15, fontWeight: 900, color: '#EF4444', fontVariantNumeric: 'tabular-nums' }}>{countdown}</span>
               </div>
             </div>
 
 
-            <div style={{ flex: 1 }} />
+            {/* Hero text */}
+            <div style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', position: 'relative', zIndex: 2 }}>
+              <span style={{ fontSize: 32, fontWeight: 900, color: '#fff', textShadow: '0 3px 16px rgba(0,0,0,0.9), 0 0 40px rgba(0,0,0,0.5)', textAlign: 'center', letterSpacing: '0.04em' }}>{todayTheme.name}</span>
+              {todayTheme.slogan && <span style={{ fontSize: 15, color: 'rgba(255,255,255,0.7)', fontWeight: 700, fontStyle: 'italic', marginTop: 8, textShadow: '0 2px 8px rgba(0,0,0,0.8)', textAlign: 'center' }}>{todayTheme.slogan}</span>}
+              <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginTop: 12 }}>
+                {[11,22,33,44].map((id, i) => (
+                  <img key={id} src={`https://i.pravatar.cc/40?img=${id + (deal.restaurant_id ?? 0)}`} alt="" style={{ width: 26, height: 26, borderRadius: '50%', objectFit: 'cover', border: '2px solid #8DC63F', marginLeft: i > 0 ? -8 : 0, zIndex: 5 - i, position: 'relative' }} />
+                ))}
+                <span style={{ fontSize: 11, color: 'rgba(255,255,255,0.5)', marginLeft: 4, textShadow: '0 1px 4px rgba(0,0,0,0.6)' }}><span style={{ color: '#8DC63F', fontWeight: 900 }}>{40 + Math.floor((deal.restaurant_id ?? 1) * 7.3 % 81)}</span> viewing</span>
+              </div>
+            </div>
 
-            {/* Deal content — above footer */}
-            <div style={{ position: 'relative', zIndex: 2, padding: '0 16px', marginBottom: 8, display: 'flex', flexDirection: 'column', gap: 8 }}>
-              {/* Discount + countdown bar */}
-              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 10, padding: '8px 16px', borderRadius: 12, background: 'rgba(0,0,0,0.4)', backdropFilter: 'blur(10px)', border: '1px solid rgba(250,204,21,0.2)' }}>
-                <span style={{ fontSize: 16, fontWeight: 900, color: '#FACC15' }}>{deal.discountPct ?? todayTheme.discount}% Off</span>
-                <span style={{ fontSize: 12, color: 'rgba(255,255,255,0.3)' }}>·</span>
-                <span style={{ fontSize: 14, fontWeight: 900, color: '#EF4444', fontVariantNumeric: 'tabular-nums' }}>{countdown}</span>
+            {/* Deal content — above footer panel */}
+            <div style={{ position: 'relative', zIndex: 2, padding: '0 16px', marginBottom: 90, display: 'flex', flexDirection: 'column', gap: 8 }}>
+              {/* Discount + countdown */}
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '10px 14px', borderRadius: 14, background: 'rgba(0,0,0,0.4)', backdropFilter: 'blur(14px)', border: '1px solid rgba(255,255,255,0.08)', boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.05)' }}>
+                <span style={{ padding: '6px 18px', borderRadius: 8, background: '#FACC15', color: '#000', fontSize: 16, fontWeight: 900, animation: 'shake 0.5s ease-in-out infinite', boxShadow: '0 0 16px rgba(250,204,21,0.5)' }}>{deal.discountPct ?? todayTheme.discount}% Off</span>
+                <span style={{ fontSize: 14, fontWeight: 800, color: 'rgba(255,255,255,0.4)', fontVariantNumeric: 'tabular-nums' }}>{countdown}</span>
               </div>
               {(deal.items ?? []).slice(0, 3).map(item => (
                 <DealItemCard
@@ -408,30 +368,11 @@ export default function DailyDealOverlay({ restaurant, dealItems, onClose, onAdd
                   qty={1}
                   dealDiscount={deal.discountPct ?? todayTheme.discount}
                   onQtyChange={() => {}}
+                  onAdd={() => {}}
                 />
               ))}
             </div>
 
-            {/* Add to Cart + Close button */}
-            <div style={{ position: 'relative', zIndex: 2, padding: '12px 16px calc(env(safe-area-inset-bottom, 0px) + 12px)', display: 'flex', alignItems: 'center', gap: 10 }}>
-              <div style={{ flex: 1, position: 'relative' }}>
-                {[...Array(6)].map((_, i) => (
-                  <span key={i} style={{
-                    position: 'absolute', bottom: '100%', left: `${15 + i * 14}%`,
-                    width: 6 + (i % 3) * 2, height: 6 + (i % 3) * 2, borderRadius: '50%',
-                    background: i % 2 === 0 ? '#FACC15' : '#EF4444',
-                    animation: `fireUp ${1.2 + i * 0.3}s ease-out infinite`,
-                    animationDelay: `${i * 0.2}s`, opacity: 0, pointerEvents: 'none',
-                  }} />
-                ))}
-                <button onClick={() => { /* TODO: add deal to cart + open restaurant */ }} style={{ width: '100%', padding: '16px', borderRadius: 14, border: 'none', background: '#8DC63F', color: '#000', fontSize: 16, fontWeight: 900, cursor: 'pointer', position: 'relative', zIndex: 1 }}>
-                  Add to Cart
-                </button>
-              </div>
-              <button onClick={onClose} style={{ width: 48, height: 48, borderRadius: '50%', flexShrink: 0, background: '#EF4444', border: 'none', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' }}>
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2.5" strokeLinecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
-              </button>
-            </div>
           </div>
         ))}
       </div>
@@ -439,6 +380,15 @@ export default function DailyDealOverlay({ restaurant, dealItems, onClose, onAdd
       <style>{`
         @keyframes swipeHintDown { 0%,100% { transform: translateY(0); } 50% { transform: translateY(8px); } }
         @keyframes arrowFloat { 0%,100% { transform: translateY(0); } 50% { transform: translateY(10px); } }
+        @keyframes ballFloat {
+          0% { transform: translateX(-50%) translateY(100%) scale(0.5); opacity: 0; }
+          15% { opacity: 1; transform: translateX(-50%) translateY(0) scale(1); }
+          30% { transform: translateX(calc(-50% + 10px)) translateY(-15px) scale(1.05); }
+          50% { transform: translateX(calc(-50% - 8px)) translateY(-25px) scale(0.95); }
+          70% { transform: translateX(calc(-50% + 6px)) translateY(-10px) scale(1); }
+          85% { transform: translateX(-50%) translateY(-20px) scale(1.02); opacity: 1; }
+          100% { transform: translateX(-50%) translateY(100%) scale(0.5); opacity: 0; }
+        }
         @keyframes discountFlash { 0%,100% { opacity: 1; transform: scale(1); } 50% { opacity: 0.7; transform: scale(1.08); } }
         @keyframes runningLight { from { transform: translateX(-100%); } to { transform: translateX(450%); } }
         @keyframes shake { 0%,100% { transform: rotate(0deg); } 20% { transform: rotate(-3deg); } 40% { transform: rotate(3deg); } 60% { transform: rotate(-2deg); } 80% { transform: rotate(2deg); } }

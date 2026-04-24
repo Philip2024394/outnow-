@@ -13,6 +13,11 @@ export default defineConfig({
   base: '/',
   build: {
     rollupOptions: {
+      input: {
+        main: resolve(__dirname, 'index.html'),
+        vendor: resolve(__dirname, 'vendor.html'),
+        driver: resolve(__dirname, 'driver.html'),
+      },
       output: {
         entryFileNames: 'assets/[name]-[hash].js',
         chunkFileNames: 'assets/[name]-[hash].js',

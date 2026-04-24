@@ -2,7 +2,13 @@
   "hosting": {
     "public": "dist",
     "ignore": ["firebase.json", "**/.*", "**/node_modules/**"],
-    "rewrites": [{ "source": "**", "destination": "/index.html" }],
+    "rewrites": [
+      { "source": "/vendor", "destination": "/vendor.html" },
+      { "source": "/vendor/**", "destination": "/vendor.html" },
+      { "source": "/driver", "destination": "/driver.html" },
+      { "source": "/driver/**", "destination": "/driver.html" },
+      { "source": "**", "destination": "/index.html" }
+    ],
     "headers": [
       {
         "source": "**/*.@(js|css)",
