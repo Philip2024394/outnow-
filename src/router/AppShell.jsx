@@ -440,8 +440,8 @@ export default function AppShell({ returnParams, triggerGoLive }) {
       <div className="map-top-fade" />
       <div className="map-bottom-fade" />
 
-      {/* Header: logo + notifications + likes + settings — map tab only, hidden when a section with its own header is open */}
-      {activeTab === 'map' && !shopOpen && !foodOpen && !(massageOpen && !massageOnLanding) && !notifOpen && !rideHistoryOpen && (
+      {/* Header: logo + notifications + likes + settings — map tab only, hidden when any module is open */}
+      {activeTab === 'map' && !shopOpen && !foodOpen && !rideOpen && !dealHuntOpen && !(massageOpen && !massageOnLanding) && !notifOpen && !rideHistoryOpen && (
         <MapHeader
           onOpenNotifications={() => setNotifOpen(true)}
           notifCount={notifUnreadCount}
@@ -452,8 +452,8 @@ export default function AppShell({ returnParams, triggerGoLive }) {
         />
       )}
 
-      {/* Search bar + inline auto-suggest — map tab only, hidden when a section with its own search is open */}
-      {activeTab === 'map' && !shopOpen && !foodOpen && !(massageOpen && !massageOnLanding) && !notifOpen && !rideHistoryOpen && (
+      {/* Search bar + inline auto-suggest — map tab only, hidden when a module is open */}
+      {activeTab === 'map' && !shopOpen && !foodOpen && !rideOpen && !dealHuntOpen && !(massageOpen && !massageOnLanding) && !notifOpen && !rideHistoryOpen && (
         <MapSearchBar
           value={searchQuery}
           onChange={setSearchQuery}
@@ -993,6 +993,9 @@ export default function AppShell({ returnParams, triggerGoLive }) {
           onClose={() => setDealHuntOpen(false)}
           onSelectDeal={(deal) => { setDealDetailOpen(deal) }}
           onCreateDeal={() => setPostDealOpen(true)}
+          notifCount={notifUnreadCount}
+          onNotifications={() => { setDealHuntOpen(false); setNotifOpen(true) }}
+          onProfile={() => { setDealHuntOpen(false); setActiveTab('profile') }}
           onViewSeller={(deal) => {
             setDealHuntOpen(false)
             if (deal.domain === 'food') { setFoodOpen(true) }

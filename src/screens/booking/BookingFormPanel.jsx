@@ -154,27 +154,64 @@ export default function BookingFormPanel({
 
   return (
     <div className={styles.body}>
-      <DriverMap userCoords={pickupCoords} driverType={vehicleType} selectedDriverId={null} />
+      {/* Map + side buttons */}
+      <div style={{ display: 'flex', gap: 8 }}>
+        <div style={{ flex: 1 }}>
+          <DriverMap userCoords={pickupCoords} driverType={vehicleType} selectedDriverId={null} />
+        </div>
+        {/* Side buttons — Hire + Places (standard height) */}
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 6, flexShrink: 0, justifyContent: 'center' }}>
+          <button
+            onClick={() => { setHireMode(true); setVehicleType(isBikeMode ? 'bike_hire' : 'car_hire'); setHasPickedVehicle(true) }}
+            style={{
+              width: 52, padding: '10px 0', borderRadius: 12, cursor: 'pointer',
+              backgroundColor: hireMode ? 'rgba(245,158,11,0.15)' : 'rgba(0,0,0,0.7)',
+              border: `1.5px solid ${hireMode ? '#F59E0B' : 'rgba(255,255,255,0.1)'}`,
+              display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 3,
+            }}
+          >
+            <span style={{ fontSize: 18 }}>⏱️</span>
+            <span style={{ fontSize: 8, fontWeight: 800, color: hireMode ? '#F59E0B' : 'rgba(255,255,255,0.5)' }}>Hire</span>
+          </button>
+          <button
+            onClick={() => { setHireMode(false); setDirectoryOpen(true) }}
+            style={{
+              width: 52, padding: '10px 0', borderRadius: 12, cursor: 'pointer',
+              backgroundColor: 'rgba(0,0,0,0.7)', border: '1.5px solid rgba(255,255,255,0.1)',
+              display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 3,
+            }}
+          >
+            <span style={{ fontSize: 18 }}>📍</span>
+            <span style={{ fontSize: 8, fontWeight: 800, color: 'rgba(255,255,255,0.5)' }}>Places</span>
+          </button>
+        </div>
+      </div>
 
-      {/* Vehicle tabs — bike page shows bike options only, car page shows car options only */}
-      <div className={styles.vehicleTabs}>
+      {/* Main service buttons — Ride + Package with vehicle images */}
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8 }}>
         {(!initialVehicle || initialVehicle === 'bike_ride') && (
           <>
             <button
               className={`${styles.vehicleTab} ${!hireMode && vehicleType === 'bike_ride' ? styles.vehicleTabActive : ''}`}
               onClick={() => { setHireMode(false); setVehicleType('bike_ride'); setHasPickedVehicle(true) }}
+              style={{ flexDirection: 'row', justifyContent: 'flex-start', gap: 8, padding: '10px 12px', textAlign: 'left' }}
             >
-              <span className={styles.vehicleTabLabel}>Bike Ride</span>
-              <span className={styles.vehicleTabPrice}>{formatRp(estimateFare('bike_ride', 'Yogyakarta', distanceKm, zones, settings))}</span>
-              <img src={BIKE_IMG} alt="Bike" className={styles.vehicleTabImg} />
+              <img src={BIKE_IMG} alt="" style={{ width: 40, height: 32, objectFit: 'contain', flexShrink: 0 }} />
+              <div>
+                <span className={styles.vehicleTabLabel} style={{ display: 'block' }}>Bike Ride</span>
+                <span className={styles.vehicleTabPrice}>{formatRp(estimateFare('bike_ride', 'Yogyakarta', distanceKm, zones, settings))}</span>
+              </div>
             </button>
             <button
               className={`${styles.vehicleTab} ${!hireMode && vehicleType === 'bike_parcel' ? styles.vehicleTabActive : ''}`}
               onClick={() => { setHireMode(false); setVehicleType('bike_parcel'); setHasPickedVehicle(true) }}
+              style={{ flexDirection: 'row', justifyContent: 'flex-start', gap: 8, padding: '10px 12px', textAlign: 'left' }}
             >
-              <span className={styles.vehicleTabLabel}>Bike Parcel</span>
-              <span className={styles.vehicleTabPrice}>{formatRp(estimateFare('bike_ride', 'Yogyakarta', distanceKm, zones, settings))}</span>
-              <img src={BIKE_IMG} alt="Bike Parcel" className={styles.vehicleTabImg} />
+              <img src={BIKE_IMG} alt="" style={{ width: 40, height: 32, objectFit: 'contain', flexShrink: 0 }} />
+              <div>
+                <span className={styles.vehicleTabLabel} style={{ display: 'block' }}>Package</span>
+                <span className={styles.vehicleTabPrice}>{formatRp(estimateFare('bike_ride', 'Yogyakarta', distanceKm, zones, settings))}</span>
+              </div>
             </button>
           </>
         )}
@@ -183,40 +220,27 @@ export default function BookingFormPanel({
             <button
               className={`${styles.vehicleTab} ${!hireMode && vehicleType === 'car_taxi' ? styles.vehicleTabActive : ''}`}
               onClick={() => { setHireMode(false); setVehicleType('car_taxi'); setHasPickedVehicle(true) }}
+              style={{ flexDirection: 'row', justifyContent: 'flex-start', gap: 8, padding: '10px 12px', textAlign: 'left' }}
             >
-              <span className={styles.vehicleTabLabel}>Car Taxi</span>
-              <span className={styles.vehicleTabPrice}>{formatRp(estimateFare('car_taxi', 'Yogyakarta', distanceKm, zones, settings))}</span>
-              <img src={CAR_IMG} alt="Car" className={`${styles.vehicleTabImg} ${styles.vehicleTabImgCar}`} />
+              <img src={CAR_IMG} alt="" style={{ width: 40, height: 32, objectFit: 'contain', flexShrink: 0 }} />
+              <div>
+                <span className={styles.vehicleTabLabel} style={{ display: 'block' }}>Car Ride</span>
+                <span className={styles.vehicleTabPrice}>{formatRp(estimateFare('car_taxi', 'Yogyakarta', distanceKm, zones, settings))}</span>
+              </div>
             </button>
             <button
               className={`${styles.vehicleTab} ${!hireMode && vehicleType === 'car_parcel' ? styles.vehicleTabActive : ''}`}
               onClick={() => { setHireMode(false); setVehicleType('car_parcel'); setHasPickedVehicle(true) }}
+              style={{ flexDirection: 'row', justifyContent: 'flex-start', gap: 8, padding: '10px 12px', textAlign: 'left' }}
             >
-              <span className={styles.vehicleTabLabel}>Car Package</span>
-              <span className={styles.vehicleTabPrice}>{formatRp(estimateFare('car_taxi', 'Yogyakarta', distanceKm, zones, settings))}</span>
-              <img src={CAR_IMG} alt="Car Package" className={`${styles.vehicleTabImg} ${styles.vehicleTabImgCar}`} />
+              <img src={CAR_IMG} alt="" style={{ width: 40, height: 32, objectFit: 'contain', flexShrink: 0 }} />
+              <div>
+                <span className={styles.vehicleTabLabel} style={{ display: 'block' }}>Package</span>
+                <span className={styles.vehicleTabPrice}>{formatRp(estimateFare('car_taxi', 'Yogyakarta', distanceKm, zones, settings))}</span>
+              </div>
             </button>
           </>
         )}
-
-        {/* Hire by Hour tab */}
-        <button
-          className={`${styles.vehicleTab} ${hireMode ? styles.vehicleTabActive : ''}`}
-          onClick={() => { setHireMode(true); setVehicleType(isBikeMode ? 'bike_hire' : 'car_hire'); setHasPickedVehicle(true) }}
-          style={hireMode ? { borderColor: '#F59E0B' } : {}}
-        >
-          <span className={styles.vehicleTabLabel}>⏰ Hire</span>
-          <span className={styles.vehicleTabPrice}>{formatRpStatic(hireRates.perHour)}/hr</span>
-        </button>
-
-        {/* Directory tab */}
-        <button
-          className={styles.vehicleTab}
-          onClick={() => { setHireMode(false); setDirectoryOpen(true) }}
-        >
-          <span className={styles.vehicleTabLabel}>📍 Places</span>
-          <span className={styles.vehicleTabPrice}>Fixed price</span>
-        </button>
       </div>
 
       {/* ── Hourly Hire panel ── */}
@@ -295,20 +319,18 @@ export default function BookingFormPanel({
           gpsError={gpsError}
           onGps={handleGps}
         />
-      </div>
 
-      {/* GPS mismatch warning */}
-      {showMismatch && (
-        <div className={styles.gpsMismatchWarn}>
-          ⚠️ Your pickup is {gpsMismatchKm.toFixed(1)} km from your GPS position — is this correct?
-        </div>
-      )}
+        {/* GPS mismatch warning */}
+        {showMismatch && (
+          <div className={styles.gpsMismatchWarn} style={{ margin: '8px 0 0' }}>
+            ⚠️ Your pickup is {gpsMismatchKm.toFixed(1)} km from your GPS position — is this correct?
+          </div>
+        )}
 
-      {/* Fare preview */}
-      <div className={styles.fareRow}>
-        <div className={styles.fareItem}>
-          <span className={styles.fareItemLabel}>Estimated Fare</span>
-          <span className={styles.fareItemValue}>{formatRp(fare)}</span>
+        {/* Fare — inside location container */}
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '10px 0 0', marginTop: 10, borderTop: '1px solid rgba(255,255,255,0.06)' }}>
+          <span style={{ fontSize: 13, fontWeight: 700, color: 'rgba(255,255,255,0.4)' }}>Estimated Fare</span>
+          <span style={{ fontSize: 18, fontWeight: 900, color: '#FACC15' }}>{formatRp(fare)}</span>
         </div>
       </div>
 

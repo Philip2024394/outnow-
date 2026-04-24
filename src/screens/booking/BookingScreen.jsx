@@ -404,14 +404,13 @@ const handleJourneyComplete = async () => {
   return (
     <div className={styles.screen} style={{ backgroundImage: bgImage }}>
       <div className={styles.header}>
-        <div className={styles.headerBrand}>
-          <img
-            src="https://ik.imagekit.io/nepgaxllc/Untitleddsfsdf-removebg-preview.png"
-            alt="Indoo"
-            className={styles.headerLogo}
-          />
-        </div>
-        <button className={styles.backBtn} onClick={onClose}>✕</button>
+        <span style={{ fontSize: 24, fontWeight: 900, letterSpacing: '-0.02em', flex: 1 }}>
+          <span style={{ color: '#fff' }}>IND</span><span style={{ color: '#8DC63F' }}>OO</span>
+          <span style={{ fontSize: 16, fontWeight: 800, color: 'rgba(255,255,255,0.5)', marginLeft: 8 }}>
+            {initialVehicle === 'car_taxi' ? 'CAR' : 'BIKE'}
+          </span>
+        </span>
+        <button onClick={onClose} style={{ width: 32, height: 32, borderRadius: '50%', backgroundColor: '#8DC63F', border: 'none', color: '#000', fontSize: 14, fontWeight: 900, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>✕</button>
       </div>
 
       {isGuest ? (

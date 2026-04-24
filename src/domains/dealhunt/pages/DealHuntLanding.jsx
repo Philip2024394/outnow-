@@ -687,7 +687,7 @@ function DealHuntProfile({ onCreateDeal }) {
   )
 }
 
-export default function DealHuntLanding({ open, onClose, onSelectDeal, onCreateDeal, onViewSeller }) {
+export default function DealHuntLanding({ open, onClose, onSelectDeal, onCreateDeal, onViewSeller, notifCount = 0, onNotifications, onProfile }) {
   const [showLanding, setShowLanding] = useState(true)
   const [activeIndex, setActiveIndex] = useState(0)
   const [onBanner, setOnBanner] = useState(true) // first slide is always a banner
@@ -1073,8 +1073,13 @@ export default function DealHuntLanding({ open, onClose, onSelectDeal, onCreateD
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.6)" strokeWidth="2" strokeLinecap="round"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>
             <span style={{ fontSize: 9, fontWeight: 800, color: 'rgba(255,255,255,0.4)', letterSpacing: '0.03em' }}>Chat</span>
           </button>
-          <button style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 2, background: 'none', border: 'none', cursor: 'pointer', padding: '4px 8px', minWidth: 48 }}>
+          <button onClick={() => onNotifications?.()} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 2, background: 'none', border: 'none', cursor: 'pointer', padding: '4px 8px', minWidth: 48, position: 'relative' }}>
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.6)" strokeWidth="2" strokeLinecap="round"><path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 01-3.46 0"/></svg>
+            {notifCount > 0 && (
+              <span style={{ position: 'absolute', top: -2, right: 2, minWidth: 16, height: 16, borderRadius: 8, background: '#EF4444', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '0 4px' }}>
+                <span style={{ fontSize: 9, fontWeight: 900, color: '#fff' }}>{notifCount > 99 ? '99+' : notifCount}</span>
+              </span>
+            )}
             <span style={{ fontSize: 9, fontWeight: 800, color: 'rgba(255,255,255,0.4)', letterSpacing: '0.03em' }}>Alerts</span>
           </button>
           <button onClick={() => setProfilePage('profile')} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 2, background: 'none', border: 'none', cursor: 'pointer', padding: '4px 8px', minWidth: 48 }}>
