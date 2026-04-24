@@ -23,28 +23,27 @@ function FoodLanding({ onBrowse, onRegister, onClose, onSelectVendorType, onDash
     <div className={styles.landingPage} style={{ backgroundImage: `url("${FOOD_LANDING_BG}")` }}>
       <div className={styles.landingOverlay} />
 
-      {/* Side nav — Home + Profile */}
+      {/* Side nav — standard icon buttons */}
       <div style={{
         position: 'fixed', right: 6, top: '50%', transform: 'translateY(-50%)',
         display: 'flex', flexDirection: 'column', gap: 10, zIndex: 200,
         padding: '10px 6px', borderRadius: 24,
-        background: 'rgba(0,0,0,0.45)', backdropFilter: 'blur(12px)',
-        border: '1px solid rgba(255,255,255,0.05)',
+        background: 'rgba(0,0,0,0.75)', backdropFilter: 'blur(16px)',
+        border: '1px solid rgba(255,255,255,0.08)',
+        boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.04), 0 4px 20px rgba(0,0,0,0.5)',
       }}>
-        <button onClick={onClose} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 2, background: 'none', border: 'none', cursor: 'pointer', padding: 0 }}>
-          <img src="https://ik.imagekit.io/nepgaxllc/Untitledsssaa-removebg-preview.png" alt="" style={{ width: 40, height: 40, objectFit: 'contain' }} />
+        <button onClick={onClose} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 2, background: 'none', border: 'none', cursor: 'pointer', padding: '4px 0', width: 42 }}>
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.6)" strokeWidth="2" strokeLinecap="round"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
           <span style={{ fontSize: 8, fontWeight: 800, color: 'rgba(255,255,255,0.6)', letterSpacing: '0.03em' }}>Home</span>
         </button>
         {isVendor ? (
-          <button onClick={onDashboard} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 2, background: 'none', border: 'none', cursor: 'pointer', padding: 0 }}>
-            <div style={{ width: 40, height: 40, borderRadius: 12, background: 'rgba(141,198,63,0.15)', border: '1px solid rgba(141,198,63,0.3)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#8DC63F" strokeWidth="2" strokeLinecap="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
-            </div>
-            <span style={{ fontSize: 7, fontWeight: 800, color: '#8DC63F', letterSpacing: '0.03em' }}>Dashboard</span>
+          <button onClick={onDashboard} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 2, background: 'none', border: 'none', cursor: 'pointer', padding: '4px 0', width: 42 }}>
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.6)" strokeWidth="2" strokeLinecap="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
+            <span style={{ fontSize: 8, fontWeight: 800, color: 'rgba(255,255,255,0.6)', letterSpacing: '0.03em' }}>Dashboard</span>
           </button>
         ) : (
-          <button onClick={onRegister} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 2, background: 'none', border: 'none', cursor: 'pointer', padding: 0 }}>
-            <img src="https://ik.imagekit.io/nepgaxllc/Untitledsssaaddd-removebg-preview.png" alt="" style={{ width: 40, height: 40, objectFit: 'contain' }} />
+          <button onClick={onRegister} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 2, background: 'none', border: 'none', cursor: 'pointer', padding: '4px 0', width: 42 }}>
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.6)" strokeWidth="2" strokeLinecap="round"><path d="M16 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="8.5" cy="7" r="4"/><line x1="20" y1="8" x2="20" y2="14"/><line x1="17" y1="11" x2="23" y2="11"/></svg>
             <span style={{ fontSize: 8, fontWeight: 800, color: 'rgba(255,255,255,0.6)', letterSpacing: '0.03em' }}>Sign Up</span>
           </button>
         )}
@@ -676,7 +675,11 @@ export default function RestaurantBrowseScreen({ onClose, onBackToCategories, ca
       {!showLanding && !vendorDashOpen && !foodDashOpen && (
         <FoodFooterNav
           onHome={onClose}
-          onDeals={() => { if (showLanding) { setVendorFilter(null); setShowLanding(false) } }}
+          onDeals={() => {
+            if (showLanding) { setVendorFilter(null); setShowLanding(false) }
+            else if (menuRestaurant) { /* deals handled inside menu sheet via side nav */ }
+            else if (enriched.length > 0) { const first = enriched.find(r => !r.isDivider); if (first) setMenuRestaurant(first) }
+          }}
           onCart={() => { if (showLanding) { setVendorFilter(null); setShowLanding(false) } }}
           onMyFood={() => setFoodDashOpen(true)}
           onVendorDash={() => setVendorDashOpen(true)}

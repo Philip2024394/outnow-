@@ -7,6 +7,7 @@
  */
 import { useState, useEffect, useRef } from 'react'
 import { createPortal } from 'react-dom'
+import { PAYMENT_ICONS } from '@/constants/paymentIcons'
 
 const fmtRp = (n) => 'Rp ' + (n ?? 0).toLocaleString('id-ID')
 const LOCAL_KEY = 'indoo_vendor_restaurant'
@@ -144,7 +145,7 @@ function StatCard({ label, value, color = '#8DC63F', icon }) {
       border: '1px solid rgba(255,255,255,0.08)', boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.05)',
     }}>
       <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 8 }}>
-        {icon && <span style={{ fontSize: 18 }}>{icon}</span>}
+        {icon && (typeof icon === 'string' && icon.startsWith('http') ? <img src={icon} alt="" style={{ width: 41, height: 41, objectFit: 'contain' }} /> : <span style={{ fontSize: 18 }}>{icon}</span>)}
         <span style={{ fontSize: 11, color: 'rgba(255,255,255,0.4)', fontWeight: 700, textTransform: 'uppercase' }}>{label}</span>
       </div>
       <span style={{ fontSize: 22, fontWeight: 900, color }}>{value}</span>
@@ -356,6 +357,7 @@ export default function VendorDashboardV2({ onClose }) {
       <style>{`
         @keyframes slideInRight { from { transform: translateX(100%); } to { transform: translateX(0); } }
         @keyframes flashGreen { 0%,100% { background: #8DC63F; transform: scale(1); } 50% { background: #6BA32D; transform: scale(1.02); box-shadow: 0 0 20px rgba(141,198,63,0.5); } }
+        @keyframes bellShake { 0%,100% { transform: rotate(0deg); } 15% { transform: rotate(15deg); } 30% { transform: rotate(-15deg); } 45% { transform: rotate(10deg); } 60% { transform: rotate(-10deg); } 75% { transform: rotate(5deg); } }
         @keyframes runLeftLight { 0% { top: -30%; } 100% { top: 100%; } }
       `}</style>
 
@@ -365,7 +367,7 @@ export default function VendorDashboardV2({ onClose }) {
         padding: 'calc(env(safe-area-inset-top, 0px) + 12px) 16px 12px',
         background: 'transparent', position: 'relative', zIndex: 1, flexShrink: 0,
       }}>
-        <img src="https://ik.imagekit.io/nepgaxllc/ChatGPT%20Image%20Apr%2019,%202026,%2012_07_28%20AM.png?updatedAt=1776532065659" alt="" style={{ width: 48, height: 48, objectFit: 'contain', flexShrink: 0 }} />
+        <img src="https://ik.imagekit.io/nepgaxllc/Untitledsssaaa22ss-removebg-preview.png" alt="" style={{ width: 48, height: 48, objectFit: 'contain', flexShrink: 0 }} />
         <div style={{ flex: 1 }}>
           <span style={{ fontSize: 18, fontWeight: 900, color: '#fff', letterSpacing: '-0.02em' }}>{restaurant?.name ?? 'My Restaurant'}</span>
           <span style={{ fontSize: 10, color: 'rgba(255,255,255,0.4)', fontWeight: 600, display: 'block' }}>{restaurant?.city ?? ''}{restaurant?.address ? ` · ${restaurant.address}` : ''}</span>
@@ -409,8 +411,8 @@ export default function VendorDashboardV2({ onClose }) {
               </div>
             </div>
             <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap', marginBottom: 20 }}>
-              <StatCard label="Sales" value={fmtRp(847000)} color="#FACC15" icon="💰" />
-              <StatCard label="Orders" value="23" color="#8DC63F" icon="📦" />
+              <StatCard label="Sales" value={fmtRp(847000)} color="#FACC15" icon="https://ik.imagekit.io/nepgaxllc/Untitledssscc-removebg-preview.png" />
+              <StatCard label="Orders" value="23" color="#8DC63F" icon="https://ik.imagekit.io/nepgaxllc/Untitledsssaaa22-removebg-preview.png" />
             </div>
             <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap', marginBottom: 20 }}>
               {/* Live Items — tappable */}
@@ -468,9 +470,7 @@ export default function VendorDashboardV2({ onClose }) {
                       <span style={{ fontSize: 15, fontWeight: 800, color: '#fff', display: 'block' }}>{o.customer}</span>
                       <span style={{ fontSize: 10, color: 'rgba(255,255,255,0.35)' }}>{o.address}</span>
                     </div>
-                    <span style={{ fontSize: 9, fontWeight: 800, padding: '3px 8px', borderRadius: 6, background: o.paymentMethod === 'bank' ? 'rgba(141,198,63,0.1)' : 'rgba(250,204,21,0.1)', color: o.paymentMethod === 'bank' ? '#8DC63F' : '#FACC15' }}>
-                      {o.paymentMethod === 'bank' ? 'Bank' : 'COD'}
-                    </span>
+                    <img src={o.paymentMethod === 'bank' ? PAYMENT_ICONS.bank : PAYMENT_ICONS.cod} alt={o.paymentMethod === 'bank' ? 'Bank' : 'COD'} style={{ width: 42, height: 42, objectFit: 'contain', flexShrink: 0 }} />
                   </div>
 
                   {/* Items */}
@@ -604,9 +604,7 @@ export default function VendorDashboardV2({ onClose }) {
                       <span style={{ fontSize: 15, fontWeight: 800, color: '#fff', display: 'block' }}>{o.customer}</span>
                       <span style={{ fontSize: 10, color: 'rgba(255,255,255,0.35)' }}>{o.address}</span>
                     </div>
-                    <span style={{ fontSize: 9, fontWeight: 800, padding: '3px 8px', borderRadius: 6, background: o.paymentMethod === 'bank' ? 'rgba(141,198,63,0.1)' : 'rgba(250,204,21,0.1)', color: o.paymentMethod === 'bank' ? '#8DC63F' : '#FACC15' }}>
-                      {o.paymentMethod === 'bank' ? 'Bank' : 'COD'}
-                    </span>
+                    <img src={o.paymentMethod === 'bank' ? PAYMENT_ICONS.bank : PAYMENT_ICONS.cod} alt={o.paymentMethod === 'bank' ? 'Bank' : 'COD'} style={{ width: 42, height: 42, objectFit: 'contain', flexShrink: 0 }} />
                   </div>
                   <div style={{ marginBottom: 10 }}>
                     {o.items.map((it, i) => <span key={i} style={{ fontSize: 14, color: 'rgba(255,255,255,0.5)', display: 'block', lineHeight: 1.6 }}>{it.qty}x {it.name}</span>)}
@@ -630,7 +628,7 @@ export default function VendorDashboardV2({ onClose }) {
                   </div>
                   <div style={{ marginTop: 10 }}>
                     {o.status === 'confirmed' && <button onClick={() => updateOrderStatus(o.id, 'preparing')} style={{ width: '100%', padding: '14px', borderRadius: 12, border: 'none', background: '#8DC63F', color: '#000', fontSize: 16, fontWeight: 900, cursor: 'pointer', animation: 'flashGreen 1s ease-in-out infinite' }}>✓ Accept Order</button>}
-                    {o.status === 'preparing' && <button onClick={() => updateOrderStatus(o.id, 'ready')} style={{ width: '100%', padding: '14px', borderRadius: 12, border: 'none', background: '#FACC15', color: '#000', fontSize: 16, fontWeight: 900, cursor: 'pointer' }}>🔔 Ready for Pickup</button>}
+                    {o.status === 'preparing' && <button onClick={() => updateOrderStatus(o.id, 'ready')} style={{ width: '100%', padding: '14px', borderRadius: 12, border: 'none', background: '#FACC15', color: '#000', fontSize: 16, fontWeight: 900, cursor: 'pointer' }}><span style={{ display: 'inline-block', animation: 'bellShake 0.5s ease-in-out infinite' }}>🔔</span> Ready for Pickup</button>}
                     {o.status === 'ready' && (
                       <>
                         <button onClick={() => setShowQR(o.id)} style={{ width: '100%', padding: '14px', borderRadius: 12, border: 'none', background: '#60A5FA', color: '#000', fontSize: 16, fontWeight: 900, cursor: 'pointer' }}>📱 Show QR for Driver Scan</button>
@@ -665,8 +663,8 @@ export default function VendorDashboardV2({ onClose }) {
           <>
             <SectionHeader title="Analytics" helpKey="analytics" />
             <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap', marginBottom: 20 }}>
-              <StatCard label="This Week" value={fmtRp(4250000)} color="#FACC15" icon="📊" />
-              <StatCard label="This Month" value={fmtRp(18700000)} color="#8DC63F" icon="📈" />
+              <StatCard label="This Week" value={fmtRp(4250000)} color="#FACC15" icon="https://ik.imagekit.io/nepgaxllc/Untitledsssaaa22sssdsd-removebg-preview.png" />
+              <StatCard label="This Month" value={fmtRp(18700000)} color="#8DC63F" icon="https://ik.imagekit.io/nepgaxllc/Untitledsssaaa22sssdsdddasdasd-removebg-preview.png" />
             </div>
 
             <SectionHeader title="Top Selling Items" />
@@ -714,7 +712,7 @@ export default function VendorDashboardV2({ onClose }) {
           <>
             <SectionHeader title="Payouts" helpKey="payouts" />
             <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap', marginBottom: 20 }}>
-              <StatCard label="Balance" value={fmtRp(1250000)} color="#8DC63F" icon="💰" />
+              <StatCard label="Balance" value={fmtRp(1250000)} color="#8DC63F" icon="https://ik.imagekit.io/nepgaxllc/mmmass-removebg-preview.png" />
               <StatCard label="Commission Owed" value={fmtRp(187000)} color="#EF4444" icon="📊" />
             </div>
 
@@ -898,7 +896,7 @@ export default function VendorDashboardV2({ onClose }) {
   )
 }
 
-// ── Add/Edit Item Modal ──────────────────────────────────────────────────────
+// ── Add/Edit Item — full page style ──────────────────────────────────────────
 function ItemModal({ item, onSave, onClose }) {
   const isNew = !item?.id
   const [name, setName] = useState(item?.name ?? '')
@@ -906,6 +904,7 @@ function ItemModal({ item, onSave, onClose }) {
   const [category, setCategory] = useState(item?.category ?? 'Main')
   const [description, setDescription] = useState(item?.description ?? '')
   const [photoUrl, setPhotoUrl] = useState(item?.photo_url ?? null)
+  const [prepTime, setPrepTime] = useState(item?.prep_time_min?.toString() ?? '10')
 
   const handleSave = () => {
     if (!name.trim() || !price) return
@@ -917,44 +916,68 @@ function ItemModal({ item, onSave, onClose }) {
       category,
       description: description.trim(),
       photo_url: photoUrl,
+      prep_time_min: Number(prepTime) || 10,
       is_available: item?.is_available ?? true,
     })
   }
 
+  const inputStyle = { width: '100%', padding: '14px 14px', borderRadius: 12, border: '1px solid rgba(255,255,255,0.08)', background: 'rgba(0,0,0,0.4)', backdropFilter: 'blur(12px)', color: '#fff', fontSize: 16, outline: 'none', marginBottom: 14, boxSizing: 'border-box' }
+  const labelStyle = { fontSize: 12, fontWeight: 800, color: 'rgba(255,255,255,0.4)', display: 'block', marginBottom: 6, textTransform: 'uppercase' }
+
   return createPortal(
-    <div onClick={onClose} style={{ position: 'fixed', inset: 0, zIndex: 10002, background: 'rgba(0,0,0,0.7)', display: 'flex', alignItems: 'flex-end', justifyContent: 'center' }}>
-      <div onClick={e => e.stopPropagation()} style={{
-        width: '100%', maxWidth: 480, background: '#111', borderRadius: '24px 24px 0 0',
-        borderTop: '3px solid #8DC63F', padding: '20px 16px calc(env(safe-area-inset-bottom, 0px) + 16px)',
-        maxHeight: '85vh', overflowY: 'auto',
-      }}>
-        <h3 style={{ fontSize: 18, fontWeight: 900, color: '#fff', margin: '0 0 16px' }}>{isNew ? 'Add Menu Item' : 'Edit Menu Item'}</h3>
+    <div style={{
+      position: 'fixed', inset: 0, zIndex: 10002,
+      backgroundImage: 'url(https://ik.imagekit.io/nepgaxllc/ChatGPT%20Image%20Apr%2021,%202026,%2006_43_19%20AM.png?updatedAt=1776728649363)',
+      backgroundSize: 'cover', backgroundPosition: 'center', backgroundColor: '#000',
+      display: 'flex', flexDirection: 'column', isolation: 'isolate',
+    }}>
+      {/* Glass overlay */}
+      <div style={{ position: 'absolute', inset: 0, background: 'rgba(0,0,0,0.6)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)', zIndex: 0, pointerEvents: 'none' }} />
 
-        <label style={{ fontSize: 11, fontWeight: 800, color: 'rgba(255,255,255,0.3)', display: 'block', marginBottom: 4, textTransform: 'uppercase' }}>Item Name</label>
-        <input value={name} onChange={e => setName(e.target.value)} placeholder="e.g. Nasi Goreng Spesial" style={{ width: '100%', padding: '12px 14px', borderRadius: 12, border: '1px solid rgba(255,255,255,0.08)', background: 'rgba(0,0,0,0.3)', color: '#fff', fontSize: 14, outline: 'none', marginBottom: 12, boxSizing: 'border-box' }} />
+      {/* Header */}
+      <div style={{ display: 'flex', alignItems: 'center', gap: 12, padding: 'calc(env(safe-area-inset-top, 0px) + 12px) 16px 12px', position: 'relative', zIndex: 1, flexShrink: 0 }}>
+        <button onClick={onClose} style={{ width: 36, height: 36, borderRadius: '50%', background: '#EF4444', border: 'none', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' }}>
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2.5" strokeLinecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+        </button>
+        <span style={{ fontSize: 18, fontWeight: 900, color: '#fff', flex: 1 }}>{isNew ? 'Add Menu Item' : 'Edit Menu Item'}</span>
+      </div>
 
-        <label style={{ fontSize: 11, fontWeight: 800, color: 'rgba(255,255,255,0.3)', display: 'block', marginBottom: 4, textTransform: 'uppercase' }}>Price (Rp)</label>
-        <input value={price} onChange={e => setPrice(e.target.value.replace(/\D/g, ''))} placeholder="25000" inputMode="numeric" style={{ width: '100%', padding: '12px 14px', borderRadius: 12, border: '1px solid rgba(255,255,255,0.08)', background: 'rgba(0,0,0,0.3)', color: '#fff', fontSize: 14, outline: 'none', marginBottom: 12, boxSizing: 'border-box' }} />
+      {/* Form */}
+      <div style={{ flex: 1, overflowY: 'auto', padding: '0 16px 100px', position: 'relative', zIndex: 1 }}>
 
-        <label style={{ fontSize: 11, fontWeight: 800, color: 'rgba(255,255,255,0.3)', display: 'block', marginBottom: 4, textTransform: 'uppercase' }}>Category</label>
-        <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6, marginBottom: 12 }}>
+        <label style={labelStyle}>Item Name</label>
+        <input value={name} onChange={e => setName(e.target.value)} placeholder="e.g. Nasi Goreng Spesial" style={inputStyle} />
+
+        <label style={labelStyle}>Price (Rp)</label>
+        <input value={price} onChange={e => setPrice(e.target.value.replace(/\D/g, ''))} placeholder="25000" inputMode="numeric" style={inputStyle} />
+
+        <label style={labelStyle}>Category</label>
+        <select value={category} onChange={e => setCategory(e.target.value)} style={{ ...inputStyle, appearance: 'none', cursor: 'pointer', backgroundImage: 'url("data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' width=\'12\' height=\'12\' viewBox=\'0 0 24 24\' fill=\'none\' stroke=\'%23888\' stroke-width=\'2\'%3E%3Cpath d=\'M6 9l6 6 6-6\'/%3E%3C/svg%3E")', backgroundRepeat: 'no-repeat', backgroundPosition: 'right 14px center' }}>
           {MENU_CATS.filter(c => c !== 'All').map(c => (
-            <button key={c} onClick={() => setCategory(c)} style={{
-              padding: '6px 12px', borderRadius: 8, border: 'none', cursor: 'pointer', fontSize: 11, fontWeight: 800,
-              background: category === c ? 'rgba(141,198,63,0.15)' : 'rgba(255,255,255,0.03)',
-              color: category === c ? '#8DC63F' : 'rgba(255,255,255,0.4)',
-              outline: category === c ? '1px solid rgba(141,198,63,0.3)' : '1px solid rgba(255,255,255,0.06)',
-            }}>{c}</button>
+            <option key={c} value={c}>{c}</option>
           ))}
-        </div>
+        </select>
 
-        <label style={{ fontSize: 11, fontWeight: 800, color: 'rgba(255,255,255,0.3)', display: 'block', marginBottom: 4, textTransform: 'uppercase' }}>Description (optional)</label>
-        <textarea value={description} onChange={e => setDescription(e.target.value)} placeholder="Describe your dish..." rows={3} style={{ width: '100%', padding: '12px 14px', borderRadius: 12, border: '1px solid rgba(255,255,255,0.08)', background: 'rgba(0,0,0,0.3)', color: '#fff', fontSize: 13, outline: 'none', marginBottom: 16, resize: 'none', fontFamily: 'inherit', boxSizing: 'border-box' }} />
+        <label style={labelStyle}>Prep Time (minutes)</label>
+        <input value={prepTime} onChange={e => setPrepTime(e.target.value.replace(/\D/g, ''))} placeholder="10" inputMode="numeric" style={inputStyle} />
 
-        <div style={{ display: 'flex', gap: 10 }}>
-          <button onClick={onClose} style={{ flex: 1, padding: '14px', borderRadius: 12, border: '1px solid rgba(255,255,255,0.1)', background: 'none', color: '#fff', fontSize: 14, fontWeight: 700, cursor: 'pointer' }}>Cancel</button>
-          <button onClick={handleSave} disabled={!name.trim() || !price} style={{ flex: 2, padding: '14px', borderRadius: 12, background: '#8DC63F', border: 'none', color: '#000', fontSize: 14, fontWeight: 900, cursor: 'pointer', opacity: name.trim() && price ? 1 : 0.4 }}>{isNew ? 'Add Item' : 'Save Changes'}</button>
-        </div>
+        <label style={labelStyle}>Description (optional)</label>
+        <textarea value={description} onChange={e => setDescription(e.target.value)} placeholder="Describe your dish — ingredients, flavour, portion size..." rows={4} style={{ ...inputStyle, resize: 'none', fontFamily: 'inherit', fontSize: 14, lineHeight: 1.5 }} />
+
+        <label style={labelStyle}>Photo URL (optional)</label>
+        <input value={photoUrl ?? ''} onChange={e => setPhotoUrl(e.target.value || null)} placeholder="https://..." style={inputStyle} />
+
+        {photoUrl && (
+          <div style={{ marginBottom: 14, borderRadius: 12, overflow: 'hidden', height: 140 }}>
+            <img src={photoUrl} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} onError={e => { e.currentTarget.style.display = 'none' }} />
+          </div>
+        )}
+      </div>
+
+      {/* Bottom buttons */}
+      <div style={{ padding: '12px 16px calc(env(safe-area-inset-bottom, 0px) + 12px)', display: 'flex', gap: 10, position: 'relative', zIndex: 1 }}>
+        <button onClick={onClose} style={{ flex: 1, padding: '16px', borderRadius: 14, border: '1px solid rgba(255,255,255,0.1)', background: 'none', color: '#fff', fontSize: 16, fontWeight: 700, cursor: 'pointer' }}>Cancel</button>
+        <button onClick={handleSave} disabled={!name.trim() || !price} style={{ flex: 2, padding: '16px', borderRadius: 14, background: '#8DC63F', border: 'none', color: '#000', fontSize: 16, fontWeight: 900, cursor: 'pointer', opacity: name.trim() && price ? 1 : 0.4 }}>{isNew ? 'Add Item' : 'Save Changes'}</button>
       </div>
     </div>,
     document.body
