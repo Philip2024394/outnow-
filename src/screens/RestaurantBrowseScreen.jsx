@@ -444,18 +444,18 @@ const CUISINE_BANNERS = [
   {
     id: 'banner2',
     restaurantId: 7,
-    image: 'https://images.unsplash.com/photo-1559339352-11d035aa65de?w=600',
+    image: 'https://ik.imagekit.io/nepgaxllc/ChatGPT%20Image%20Apr%2025,%202026,%2004_22_55%20AM.png',
     title: 'Seafood Pak Dhe Bejo',
-    promo: 'Free Delivery Today',
-    color: '#3B82F6',
+    promo: 'Free Juice Today',
+    color: '#8DC63F',
   },
   {
     id: 'banner3',
     restaurantId: 3,
-    image: 'https://images.unsplash.com/photo-1626645738196-c2a7c87a8f58?w=600',
+    image: 'https://ik.imagekit.io/nepgaxllc/ChatGPT%20Image%20Apr%2025,%202026,%2004_22_09%20AM.png',
     title: 'Ayam Geprek Mbak Rina',
-    promo: 'Buy 2 Get 1 Free',
-    color: '#EF4444',
+    promo: 'Free French Fries',
+    color: '#FACC15',
   },
   {
     id: 'banner4',
@@ -638,7 +638,7 @@ function CuisineGridWithBanners({ onSelect, restaurants, onOpenRestaurant }) {
 
 // ── Main component ────────────────────────────────────────────────────────────
 export default function RestaurantBrowseScreen({ onClose, onBackToCategories, category, scrollToId, onOrderViaChat }) {
-  const [showLanding, setShowLanding] = useState(true)
+  const [showLanding, setShowLanding] = useState(false) // skip landing, go straight to cuisine picker
   const [vendorFilter, setVendorFilter] = useState(null) // null = all, 'restaurant', 'street_vendor'
   const [foodOrdersOpen, setFoodOrdersOpen] = useState(false)
   const [foodDashOpen, setFoodDashOpen] = useState(false)
@@ -651,7 +651,7 @@ export default function RestaurantBrowseScreen({ onClose, onBackToCategories, ca
   const [menuRestaurant, setMenuRestaurant] = useState(null)
   const [tick,           setTick]           = useState(0)
   const [showFavOnly,    setShowFavOnly]    = useState(false)
-  const [showCuisinePicker, setShowCuisinePicker] = useState(false)
+  const [showCuisinePicker, setShowCuisinePicker] = useState(true) // show cuisine picker on entry
   const [cuisineFilter, setCuisineFilter] = useState(null)
   const [favTick,        setFavTick]        = useState(0)
   const containerRef = useRef(null)
@@ -771,17 +771,20 @@ export default function RestaurantBrowseScreen({ onClose, onBackToCategories, ca
         <img src="https://ik.imagekit.io/nepgaxllc/ChatGPT%20Image%20Apr%2021,%202026,%2006_44_19%20AM.png?updatedAt=1776728675957" alt="" style={{ position: 'absolute', inset: -20, width: 'calc(100% + 40px)', height: 'calc(100% + 40px)', objectFit: 'cover', filter: 'blur(12px)', zIndex: 0 }} />
         {/* Dark tint */}
         <div style={{ position: 'absolute', inset: 0, backgroundColor: 'rgba(0,0,0,0.6)', zIndex: 0 }} />
-        <div style={{ padding: 'calc(env(safe-area-inset-top, 0px) + 12px) 16px 12px', flexShrink: 0, position: 'relative', zIndex: 1 }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 12 }}>
-            <button onClick={() => { setShowCuisinePicker(false); setShowLanding(true) }} style={{ width: 36, height: 36, borderRadius: '50%', background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' }}>
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2.5" strokeLinecap="round"><path d="M19 12H5M12 5l-7 7 7 7"/></svg>
-            </button>
-            <div style={{ flex: 1 }}>
-              <span style={{ fontSize: 18, fontWeight: 900, color: '#fff', display: 'block' }}>What are you craving?</span>
-              <span style={{ fontSize: 11, color: 'rgba(255,255,255,0.4)' }}>{vendorFilter === 'street_vendor' ? 'Street Food' : 'Restaurant'}</span>
-            </div>
+        <div style={{
+          padding: 'calc(env(safe-area-inset-top, 0px) + 12px) 16px 14px', flexShrink: 0, position: 'relative', zIndex: 1,
+          borderBottom: '2px solid #8DC63F', borderRadius: '0 0 20px 20px',
+          overflow: 'hidden', marginBottom: 14,
+        }}>
+          {/* Running green light on bottom edge */}
+          <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, height: 2, overflow: 'hidden', pointerEvents: 'none' }}>
+            <div style={{ width: '30%', height: '100%', background: 'linear-gradient(90deg, transparent, #fff, transparent)', animation: 'cuisineRunLight 3s linear infinite', opacity: 0.8 }} />
+          </div>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 0 }}>
+            <span style={{ fontSize: 18, fontWeight: 900, color: '#fff' }}>What are you craving?</span>
           </div>
         </div>
+        <style>{`@keyframes cuisineRunLight { from { transform: translateX(-100%); } to { transform: translateX(450%); } }`}</style>
         <CuisineGridWithBanners
           onSelect={(id) => { setCuisineFilter(id); setShowCuisinePicker(false) }}
           restaurants={DEMO_RESTAURANTS}

@@ -200,7 +200,34 @@ const NAV_ITEMS = [
   { id: 'analytics', label: 'Analytics', icon: '📈' },
   { id: 'settings', label: 'Settings', icon: '⚙️' },
   { id: 'payouts', label: 'Payouts', icon: '💰' },
+  { id: 'banners', label: 'Banner Ads', icon: '📢' },
 ]
+
+// ── Banner Ad system ────────────────────────────────────────────────────────
+const BANNER_TEMPLATES = [
+  { id: 'fire', label: 'Fire Sale', img: 'https://ik.imagekit.io/nepgaxllc/ChatGPT%20Image%20Apr%2024,%202026,%2006_22_44%20PM.png', color: '#EF4444' },
+  { id: 'juice', label: 'Free Juice', img: 'https://ik.imagekit.io/nepgaxllc/ChatGPT%20Image%20Apr%2025,%202026,%2004_22_55%20AM.png', color: '#8DC63F' },
+  { id: 'fries', label: 'Free Fries', img: 'https://ik.imagekit.io/nepgaxllc/ChatGPT%20Image%20Apr%2025,%202026,%2004_22_09%20AM.png', color: '#FACC15' },
+  { id: 'street', label: 'Street Food', img: 'https://images.unsplash.com/photo-1504674900247-0877df9cc836?w=600', color: '#F59E0B' },
+  { id: 'seafood', label: 'Ocean Fresh', img: 'https://images.unsplash.com/photo-1559339352-11d035aa65de?w=600', color: '#3B82F6' },
+  { id: 'spicy', label: 'Spicy Hot', img: 'https://images.unsplash.com/photo-1626645738196-c2a7c87a8f58?w=600', color: '#DC2626' },
+]
+
+const BANNER_PRICE = 100000 // Rp 100.000 per 24 hours
+const BANNER_STORAGE = 'indoo_vendor_banners'
+const BANNER_BANK = { bank: 'BCA', number: '8810 2233 4455', holder: 'PT INDOO Indonesia' }
+
+function loadVendorBanners() {
+  try { return JSON.parse(localStorage.getItem(BANNER_STORAGE) || '[]') } catch { return [] }
+}
+function saveVendorBanner(banner) {
+  const banners = loadVendorBanners()
+  banners.unshift(banner)
+  localStorage.setItem(BANNER_STORAGE, JSON.stringify(banners))
+}
+export function getActiveBanners() {
+  return loadVendorBanners().filter(b => b.status === 'active' && new Date(b.expires_at) > new Date())
+}
 
 // ── Events & Venue management constants ─────────────────────────────────────
 const EVENT_TYPES = [
@@ -835,6 +862,9 @@ export default function VendorDashboardV2({ onClose }) {
         {/* ══════════ PAGE: EVENTS & VENUE ══════════ */}
         {page === 'events' && <EventsPage />}
 
+        {/* ══════════ PAGE: BANNER ADS ══════════ */}
+        {page === 'banners' && <BannerAdsPage restaurant={restaurant} />}
+
         </div>
       </div>
 
@@ -985,6 +1015,204 @@ export default function VendorDashboardV2({ onClose }) {
       )}
     </div>,
     document.body
+  )
+}
+
+// ── Banner Ads page ─────────────────────────────────────────────────────────
+function BannerAdsPage({ restaurant }) {
+  const [step, setStep] = useState('library') // library | promo | payment | submitted
+  const [selectedTemplate, setSelectedTemplate] = useState(null)
+  const [promoText, setPromoText] = useState('')
+  const [proofFile, setProofFile] = useState(null)
+  const [proofPreview, setProofPreview] = useState(null)
+  const [copyMsg, setCopyMsg] = useState(false)
+  const [myBanners, setMyBanners] = useState(() => loadVendorBanners())
+  const proofRef = useRef(null)
+
+  const template = BANNER_TEMPLATES.find(t => t.id === selectedTemplate)
+
+  const handleSubmit = () => {
+    if (!template || !proofPreview) return
+    const banner = {
+      id: `BAN-${Date.now().toString(36).toUpperCase()}`,
+      restaurant_id: restaurant?.id ?? 'demo',
+      restaurant_name: restaurant?.name ?? 'My Restaurant',
+      template_id: template.id,
+      template_img: template.img,
+      template_label: template.label,
+      promo_text: promoText.trim() || `${restaurant?.name ?? 'Restaurant'} — Order Now!`,
+      price: BANNER_PRICE,
+      proof_url: proofPreview,
+      status: 'pending',
+      created_at: new Date().toISOString(),
+      expires_at: new Date(Date.now() + 24 * 3600000).toISOString(),
+    }
+    saveVendorBanner(banner)
+    setMyBanners(loadVendorBanners())
+    setStep('submitted')
+  }
+
+  const inputStyle = { width: '100%', padding: '12px 14px', borderRadius: 12, border: '1px solid rgba(255,255,255,0.08)', background: 'rgba(0,0,0,0.4)', backdropFilter: 'blur(12px)', color: '#fff', fontSize: 14, outline: 'none', boxSizing: 'border-box', fontFamily: 'inherit' }
+  const cardStyle = { padding: 14, borderRadius: 16, background: 'rgba(0,0,0,0.4)', backdropFilter: 'blur(12px)', border: '1px solid rgba(255,255,255,0.08)', boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.05)' }
+
+  return (
+    <>
+      <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 6 }}>
+        {step !== 'library' && step !== 'submitted' && (
+          <button onClick={() => setStep(step === 'payment' ? 'promo' : step === 'promo' ? 'library' : 'library')} style={{ width: 32, height: 32, borderRadius: 8, background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' }}>
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2.5" strokeLinecap="round"><path d="M19 12H5M12 5l-7 7 7 7"/></svg>
+          </button>
+        )}
+        <h2 style={{ fontSize: 18, fontWeight: 900, color: '#fff', margin: 0, flex: 1 }}>📢 Banner Ads</h2>
+      </div>
+      <p style={{ fontSize: 12, color: 'rgba(255,255,255,0.4)', margin: '0 0 16px' }}>
+        {step === 'library' ? 'Select a banner style — displayed on the food browse page for 24 hours' : step === 'promo' ? 'Add your promo text' : step === 'payment' ? 'Complete payment' : 'Done!'}
+      </p>
+
+      {/* ── LIBRARY ── */}
+      {step === 'library' && (
+        <>
+          {/* Price card */}
+          <div style={{ ...cardStyle, marginBottom: 16, display: 'flex', alignItems: 'center', gap: 12 }}>
+            <span style={{ fontSize: 28 }}>💎</span>
+            <div style={{ flex: 1 }}>
+              <span style={{ fontSize: 16, fontWeight: 900, color: '#FACC15', display: 'block' }}>{fmtRp(BANNER_PRICE)} / 24 hours</span>
+              <span style={{ fontSize: 12, color: 'rgba(255,255,255,0.4)' }}>Your banner on the food browse page, rotating every 4 seconds</span>
+            </div>
+          </div>
+
+          {/* Template grid */}
+          <span style={{ fontSize: 12, fontWeight: 800, color: 'rgba(255,255,255,0.4)', display: 'block', marginBottom: 10, textTransform: 'uppercase' }}>Select Banner Style</span>
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10, marginBottom: 20 }}>
+            {BANNER_TEMPLATES.map(t => (
+              <button key={t.id} onClick={() => setSelectedTemplate(t.id)} style={{
+                borderRadius: 16, overflow: 'hidden', position: 'relative', height: 120,
+                border: selectedTemplate === t.id ? `2.5px solid ${t.color}` : '1.5px solid rgba(255,255,255,0.08)',
+                padding: 0, cursor: 'pointer', background: 'none',
+                boxShadow: selectedTemplate === t.id ? `0 0 16px ${t.color}33` : 'none',
+              }}>
+                <img src={t.img} alt="" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover' }} />
+                <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to top, rgba(0,0,0,0.85) 0%, transparent 50%)' }} />
+                {selectedTemplate === t.id && (
+                  <div style={{ position: 'absolute', top: 8, right: 8, width: 24, height: 24, borderRadius: '50%', background: t.color, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#000" strokeWidth="3" strokeLinecap="round"><polyline points="20 6 9 17 4 12"/></svg>
+                  </div>
+                )}
+                <div style={{ position: 'absolute', bottom: 8, left: 10 }}>
+                  <span style={{ fontSize: 13, fontWeight: 900, color: '#fff' }}>{t.label}</span>
+                </div>
+              </button>
+            ))}
+          </div>
+
+          {/* My banners history */}
+          {myBanners.length > 0 && (
+            <>
+              <span style={{ fontSize: 12, fontWeight: 800, color: 'rgba(255,255,255,0.4)', display: 'block', marginBottom: 10, textTransform: 'uppercase' }}>My Banner History</span>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+                {myBanners.map(b => (
+                  <div key={b.id} style={{ ...cardStyle, display: 'flex', alignItems: 'center', gap: 10 }}>
+                    <img src={b.template_img} alt="" style={{ width: 48, height: 48, borderRadius: 10, objectFit: 'cover', flexShrink: 0 }} />
+                    <div style={{ flex: 1 }}>
+                      <span style={{ fontSize: 13, fontWeight: 800, color: '#fff', display: 'block' }}>{b.template_label}</span>
+                      <span style={{ fontSize: 11, color: 'rgba(255,255,255,0.4)' }}>{new Date(b.created_at).toLocaleDateString()}</span>
+                    </div>
+                    <span style={{
+                      padding: '3px 8px', borderRadius: 6, fontSize: 10, fontWeight: 800,
+                      background: b.status === 'active' ? 'rgba(141,198,63,0.15)' : b.status === 'pending' ? 'rgba(250,204,21,0.15)' : 'rgba(239,68,68,0.15)',
+                      color: b.status === 'active' ? '#8DC63F' : b.status === 'pending' ? '#FACC15' : '#EF4444',
+                    }}>{b.status}</span>
+                  </div>
+                ))}
+              </div>
+            </>
+          )}
+
+          {/* Next button */}
+          <button onClick={() => { if (selectedTemplate) setStep('promo') }} disabled={!selectedTemplate} style={{
+            width: '100%', padding: 14, borderRadius: 14, marginTop: 16,
+            background: selectedTemplate ? '#8DC63F' : 'rgba(255,255,255,0.06)',
+            border: 'none', color: selectedTemplate ? '#000' : 'rgba(255,255,255,0.3)',
+            fontSize: 14, fontWeight: 900, cursor: selectedTemplate ? 'pointer' : 'default',
+          }}>Next — Add Promo Text</button>
+        </>
+      )}
+
+      {/* ── PROMO TEXT ── */}
+      {step === 'promo' && template && (
+        <>
+          {/* Preview */}
+          <div style={{ borderRadius: 16, overflow: 'hidden', position: 'relative', height: 160, marginBottom: 16, border: `1.5px solid ${template.color}44` }}>
+            <img src={template.img} alt="" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover' }} />
+            <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to top, rgba(0,0,0,0.9) 0%, rgba(0,0,0,0.2) 50%, transparent 100%)' }} />
+            <div style={{ position: 'absolute', bottom: 14, left: 14, right: 14 }}>
+              <span style={{ fontSize: 16, fontWeight: 900, color: '#fff', display: 'block' }}>{restaurant?.name ?? 'Your Restaurant'}</span>
+              <span style={{ fontSize: 13, fontWeight: 700, color: template.color }}>{promoText || 'Your promo text here'}</span>
+            </div>
+          </div>
+
+          <span style={{ fontSize: 12, fontWeight: 800, color: 'rgba(255,255,255,0.4)', display: 'block', marginBottom: 6, textTransform: 'uppercase' }}>Promo Text</span>
+          <input value={promoText} onChange={e => setPromoText(e.target.value)} placeholder="e.g. 20% OFF Today Only!" maxLength={40} style={{ ...inputStyle, marginBottom: 4 }} />
+          <span style={{ fontSize: 10, color: 'rgba(255,255,255,0.25)' }}>{promoText.length}/40</span>
+
+          <button onClick={() => setStep('payment')} style={{ width: '100%', padding: 14, borderRadius: 14, marginTop: 16, background: '#8DC63F', border: 'none', color: '#000', fontSize: 14, fontWeight: 900, cursor: 'pointer' }}>Next — Payment</button>
+        </>
+      )}
+
+      {/* ── PAYMENT ── */}
+      {step === 'payment' && template && (
+        <>
+          <div style={{ ...cardStyle, marginBottom: 16, textAlign: 'center' }}>
+            <span style={{ fontSize: 12, color: 'rgba(255,255,255,0.4)', display: 'block' }}>Amount</span>
+            <span style={{ fontSize: 28, fontWeight: 900, color: '#FACC15', display: 'block', marginTop: 4 }}>{fmtRp(BANNER_PRICE)}</span>
+            <span style={{ fontSize: 12, color: 'rgba(255,255,255,0.3)', display: 'block', marginTop: 4 }}>24 hours · {template.label} · {restaurant?.name ?? 'Restaurant'}</span>
+          </div>
+
+          <div style={{ ...cardStyle, marginBottom: 16 }}>
+            <span style={{ fontSize: 12, fontWeight: 800, color: 'rgba(255,255,255,0.4)', display: 'block', marginBottom: 10, textTransform: 'uppercase' }}>Transfer to</span>
+            <span style={{ fontSize: 15, fontWeight: 900, color: '#fff', display: 'block' }}>{BANNER_BANK.bank}</span>
+            <span style={{ fontSize: 18, fontWeight: 900, color: '#FACC15', letterSpacing: '0.04em', display: 'block', marginTop: 4 }}>{BANNER_BANK.number}</span>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: 4 }}>
+              <span style={{ fontSize: 12, color: 'rgba(255,255,255,0.4)' }}>{BANNER_BANK.holder}</span>
+              <button onClick={() => { navigator.clipboard?.writeText(BANNER_BANK.number); setCopyMsg(true); setTimeout(() => setCopyMsg(false), 2000) }} style={{ padding: '4px 10px', borderRadius: 6, background: copyMsg ? 'rgba(141,198,63,0.2)' : '#8DC63F', border: 'none', color: copyMsg ? '#8DC63F' : '#000', fontSize: 11, fontWeight: 800, cursor: 'pointer' }}>{copyMsg ? '✓ Copied' : 'Copy'}</button>
+            </div>
+          </div>
+
+          <div style={{ ...cardStyle, marginBottom: 16 }}>
+            <span style={{ fontSize: 12, fontWeight: 800, color: 'rgba(255,255,255,0.4)', display: 'block', marginBottom: 10, textTransform: 'uppercase' }}>Upload Payment Screenshot</span>
+            <button onClick={() => proofRef.current?.click()} style={{ width: '100%', height: 130, borderRadius: 14, border: '1.5px dashed rgba(255,255,255,0.15)', background: 'rgba(0,0,0,0.3)', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden' }}>
+              {proofPreview ? <img src={proofPreview} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} /> : (
+                <div style={{ textAlign: 'center' }}>
+                  <span style={{ fontSize: 28, display: 'block', marginBottom: 6 }}>📱</span>
+                  <span style={{ fontSize: 13, fontWeight: 700, color: 'rgba(255,255,255,0.3)' }}>Tap to upload screenshot</span>
+                </div>
+              )}
+            </button>
+            <input ref={proofRef} type="file" accept="image/*" onChange={e => { const f = e.target.files?.[0]; if (f) { setProofFile(f); setProofPreview(URL.createObjectURL(f)) } }} style={{ display: 'none' }} />
+          </div>
+
+          <button onClick={handleSubmit} disabled={!proofPreview} style={{
+            width: '100%', padding: 14, borderRadius: 14,
+            background: proofPreview ? '#8DC63F' : 'rgba(255,255,255,0.06)',
+            border: 'none', color: proofPreview ? '#000' : 'rgba(255,255,255,0.3)',
+            fontSize: 14, fontWeight: 900, cursor: proofPreview ? 'pointer' : 'default',
+          }}>Submit & Pay</button>
+        </>
+      )}
+
+      {/* ── SUBMITTED ── */}
+      {step === 'submitted' && (
+        <div style={{ ...cardStyle, textAlign: 'center', marginTop: 20 }}>
+          <div style={{ width: 64, height: 64, borderRadius: '50%', background: 'rgba(141,198,63,0.1)', border: '2px solid rgba(141,198,63,0.3)', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 16px' }}>
+            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#8DC63F" strokeWidth="2.5" strokeLinecap="round"><polyline points="20 6 9 17 4 12"/></svg>
+          </div>
+          <span style={{ fontSize: 20, fontWeight: 900, color: '#fff', display: 'block', marginBottom: 8 }}>Banner Submitted!</span>
+          <span style={{ fontSize: 13, color: 'rgba(255,255,255,0.4)', display: 'block', marginBottom: 6 }}>INDOO team will verify payment and activate your banner.</span>
+          <span style={{ fontSize: 12, color: '#8DC63F', fontWeight: 700, display: 'block', marginBottom: 16 }}>Activation: Same day during business hours</span>
+          <button onClick={() => { setStep('library'); setSelectedTemplate(null); setPromoText(''); setProofPreview(null); setProofFile(null) }} style={{ padding: '12px 32px', borderRadius: 12, background: '#8DC63F', border: 'none', color: '#000', fontSize: 14, fontWeight: 900, cursor: 'pointer' }}>Done</button>
+        </div>
+      )}
+    </>
   )
 }
 

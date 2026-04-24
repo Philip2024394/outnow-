@@ -68,6 +68,17 @@ export async function fetchNearbyDrivers(userLat, userLng, driverType, excludeId
 
 // ── Driver online/offline ─────────────────────────────────────────────────────
 export async function setDriverOnline(userId, online, coords = null) {
+  // Start/stop GPS trace recording
+  try {
+    if (online) {
+      const { startRecording } = await import('@/services/gpsTraceService')
+      startRecording(userId, 'bike')
+    } else {
+      const { stopRecording } = await import('@/services/gpsTraceService')
+      stopRecording()
+    }
+  } catch {}
+
   if (!supabase) return
   const update = {
     driver_online: online,
@@ -80,6 +91,12 @@ export async function setDriverOnline(userId, online, coords = null) {
 }
 
 export async function updateDriverLocation(userId, coords) {
+  // Record GPS trace point for road mapping
+  try {
+    const { addPoint } = await import('@/services/gpsTraceService')
+    addPoint(coords.lat, coords.lng, coords.speed ?? null, coords.heading ?? null, coords.accuracy ?? null)
+  } catch {}
+
   if (!supabase) return
   await supabase.from('profiles').update({
     driver_last_location:    { lat: coords.lat, lng: coords.lng },

@@ -28,6 +28,7 @@ import CancellationsTab from './tabs/CancellationsTab'
 import MockAccountsTab from './tabs/MockAccountsTab'
 import AdminChatTab from './tabs/AdminChatTab'
 import PublicDealsAdminTab from './tabs/PublicDealsAdminTab'
+import BlastAdminTab from './tabs/BlastAdminTab'
 
 const LOGO = 'https://ik.imagekit.io/dateme/Logo%20with%20green%20map%20pin%20element.png'
 
@@ -61,6 +62,7 @@ const NAV = [
   { id: 'mock',          icon: '🛠️', label: 'Mock Data' },
   { id: 'admin_chat',   icon: '🕵️', label: 'Chat Access' },
   { id: 'deal_approvals', icon: '✅', label: 'Deal Approvals' },
+  { id: 'blasts',         icon: '🚀', label: 'Deal Blasts' },
 ]
 
 export default function AdminDashboard({ onLogout }) {
@@ -202,6 +204,7 @@ export default function AdminDashboard({ onLogout }) {
           {tab === 'mock' && <MockAccountsTab />}
           {tab === 'admin_chat' && <AdminChatTab />}
           {tab === 'deal_approvals' && <PublicDealsAdminTab />}
+          {tab === 'blasts' && <BlastAdminTab />}
         </div>
       </div>
     </div>

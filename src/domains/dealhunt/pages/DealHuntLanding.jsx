@@ -2,6 +2,7 @@ import { useState, useEffect, useRef, useCallback, useMemo } from 'react'
 import { createPortal } from 'react-dom'
 import styles from './DealHuntLanding.module.css'
 import DealReviewCarousel from '../components/DealReviewCarousel'
+import DealBlast from './DealBlast'
 
 // ── Promo banners — full-screen, no text, random rotation ────────────────────
 const PROMO_BANNERS = [
@@ -359,37 +360,20 @@ function DealSlide({ deal, isActive, onClaim, onChat, onViewSeller, onOpenMenu }
       <div className={styles.slideBg} style={{ backgroundImage: `url("${deal.images?.[0] ?? ''}")` }} />
       <div className={styles.slideScrim} />
 
-      {/* Discount badge — top right */}
-      <div className={styles.discountBadge}>
-        <img src={getDiscountImage(discount)} alt={`-${discount}%`} className={styles.discountImg} />
-      </div>
-
-      {/* HOT badge — top left */}
-      {deal.is_hot && <div className={styles.hotBadge}>🔥 HOT</div>}
-
-      {/* Right-side action buttons (TikTok style) */}
-      <div className={styles.sideActions}>
-        <button className={styles.sideBtn} onClick={() => onChat?.(deal)}>
-          <svg width="26" height="26" viewBox="0 0 24 24" fill="#fff" stroke="none"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
-          <span>Chat</span>
+      {/* Right-side action buttons — on card edge */}
+      <div style={{
+        position: 'absolute', right: 10, top: '50%', transform: 'translateY(-50%)',
+        display: 'flex', flexDirection: 'column', gap: 14, zIndex: 5,
+      }}>
+        <button onClick={() => onChat?.(deal)} style={{ width: 44, height: 44, borderRadius: '50%', backgroundColor: 'rgba(0,0,0,0.6)', backdropFilter: 'blur(8px)', border: '1px solid rgba(255,255,255,0.12)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', flexDirection: 'column', gap: 2 }}>
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="#fff" stroke="none"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
         </button>
-        <button className={styles.sideBtn} onClick={() => setReviewsOpen(true)}>
-          <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-            <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
-          </svg>
-          <span>{dealReviews.length || ''}</span>
-          <span>Reviews</span>
+        <button onClick={() => setReviewsOpen(true)} style={{ width: 44, height: 44, borderRadius: '50%', backgroundColor: 'rgba(0,0,0,0.6)', backdropFilter: 'blur(8px)', border: '1px solid rgba(255,255,255,0.12)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', position: 'relative' }}>
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#FACC15" strokeWidth="2" strokeLinecap="round"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+          {dealReviews.length > 0 && <span style={{ position: 'absolute', top: -4, right: -4, minWidth: 16, height: 16, borderRadius: 8, backgroundColor: '#EF4444', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 9, fontWeight: 900, color: '#fff', padding: '0 3px' }}>{dealReviews.length}</span>}
         </button>
-        <button className={styles.sideBtn} onClick={() => setMenuOpen(true)}>
-          <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-            <rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/>
-            <rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/>
-          </svg>
-          <span>{deal.domain === 'food' ? 'Menu' : 'Catalogue'}</span>
-        </button>
-        <button className={styles.sideBtn} onClick={() => { try { navigator.share?.({ title: deal.title, text: `${deal.title} only ${fmtRp(deal.deal_price)}! 🔥`, url: window.location.href }) } catch {} }}>
-          <svg width="26" height="26" viewBox="0 0 24 24" fill="#fff" stroke="none"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><path d="M8.59 13.51l6.83 3.98M15.41 6.51l-6.82 3.98" stroke="#fff" strokeWidth="1.5"/></svg>
-          <span>Share</span>
+        <button onClick={() => setMenuOpen(true)} style={{ width: 44, height: 44, borderRadius: '50%', backgroundColor: 'rgba(0,0,0,0.6)', backdropFilter: 'blur(8px)', border: '1px solid rgba(255,255,255,0.12)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' }}>
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2" strokeLinecap="round"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
         </button>
       </div>
 
@@ -497,6 +481,30 @@ function DealSlide({ deal, isActive, onClaim, onChat, onViewSeller, onOpenMenu }
           </span>
         </div>
 
+        {/* Bottom action strip — WhatsApp share + Save + Location */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: 8, margin: '10px 0' }}>
+          <button onClick={(e) => {
+            e.stopPropagation()
+            const text = `🔥 ${deal.title} — ${discount}% OFF on INDOO!\nhttps://indoo.id`
+            window.open(`https://wa.me/?text=${encodeURIComponent(text)}`, '_blank')
+          }} style={{ flex: 1, padding: '10px', borderRadius: 12, backgroundColor: 'rgba(37,211,102,0.15)', border: '1px solid rgba(37,211,102,0.3)', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6 }}>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#25D366" strokeWidth="2" strokeLinecap="round"><path d="M21 11.5a8.38 8.38 0 01-.9 3.8 8.5 8.5 0 01-7.6 4.7 8.38 8.38 0 01-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 01-.9-3.8 8.5 8.5 0 014.7-7.6 8.38 8.38 0 013.8-.9h.5a8.48 8.48 0 018 8v.5z"/></svg>
+            <span style={{ fontSize: 12, fontWeight: 800, color: '#25D366' }}>Share</span>
+          </button>
+          <button onClick={(e) => {
+            e.stopPropagation()
+            const sv = JSON.parse(localStorage.getItem('indoo_saved_deals') || '[]')
+            if (!sv.some(d => d.id === deal.id)) { sv.push({ id: deal.id, title: deal.title }); localStorage.setItem('indoo_saved_deals', JSON.stringify(sv)) }
+          }} style={{ padding: '10px 14px', borderRadius: 12, backgroundColor: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.12)', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6 }}>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.7)" strokeWidth="2" strokeLinecap="round"><path d="M19 21l-7-5-7 5V5a2 2 0 012-2h10a2 2 0 012 2z"/></svg>
+            <span style={{ fontSize: 12, fontWeight: 800, color: 'rgba(255,255,255,0.7)' }}>Save</span>
+          </button>
+          <div style={{ padding: '10px 14px', borderRadius: 12, backgroundColor: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.12)', display: 'flex', alignItems: 'center', gap: 4 }}>
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#FACC15" strokeWidth="2" strokeLinecap="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+            <span style={{ fontSize: 12, fontWeight: 800, color: '#FACC15' }}>{deal.city}</span>
+          </div>
+        </div>
+
         {/* Claim button */}
         <button
           className={`${styles.claimBtn} ${expired || pct >= 100 ? styles.claimBtnDisabled : ''}`}
@@ -524,11 +532,169 @@ function DealSlide({ deal, isActive, onClaim, onChat, onViewSeller, onOpenMenu }
 // ── Main TikTok-style feed ────────────────────────────────────────────────────
 const LANDING_BG = 'https://ik.imagekit.io/nepgaxllc/ChatGPT%20Image%20Apr%2020,%202026,%2011_03_28%20PM.png'
 
+const glassCard = { backgroundColor: 'rgba(0,0,0,0.6)', backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)', border: '1px solid rgba(255,255,255,0.08)', boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.04), 0 4px 16px rgba(0,0,0,0.4)', borderRadius: 16, padding: 16 }
+const profileInput = { width: '100%', padding: '12px 14px', borderRadius: 12, backgroundColor: 'rgba(0,0,0,0.3)', border: '1px solid rgba(255,255,255,0.1)', color: '#fff', fontSize: 14, fontWeight: 600, outline: 'none', fontFamily: 'inherit', boxSizing: 'border-box' }
+
+function DealHuntProfile({ onCreateDeal }) {
+  // Load from all app sources
+  const mainProfile = JSON.parse(localStorage.getItem('indoo_profile') || '{}')
+  const ownerProfile = JSON.parse(localStorage.getItem('indoo_rental_owner') || '{}')
+  const vendorData = JSON.parse(localStorage.getItem('indoo_vendor_restaurant') || '{}')
+  const addressData = JSON.parse(localStorage.getItem('indoo_default_address') || '{}')
+  const ktpData = JSON.parse(localStorage.getItem('indoo_deal_ktp_verified') || '{}')
+  const isKtpVerified = !!ktpData.verified
+
+  // Editable state — pre-filled from merged data
+  const [name, setName] = useState(mainProfile.display_name || mainProfile.name || ownerProfile.name || vendorData.name || '')
+  const [email, setEmail] = useState(mainProfile.email || ownerProfile.email || '')
+  const [phone, setPhone] = useState(mainProfile.phone || mainProfile.whatsapp || ownerProfile.phone || vendorData.phone || '')
+  const [whatsapp, setWhatsapp] = useState(mainProfile.whatsapp || mainProfile.phone || ownerProfile.phone || '')
+  const [city, setCity] = useState(mainProfile.city || ownerProfile.city || addressData.city || vendorData.city || '')
+  const [address, setAddress] = useState(addressData.address || mainProfile.address || ownerProfile.address || vendorData.address || '')
+  const [photo, setPhoto] = useState(mainProfile.photo_url || mainProfile.photoURL || ownerProfile.photo_url || '')
+  const [saved, setSaved] = useState(false)
+  const photoRef = useRef(null)
+
+  const handlePhotoUpload = (e) => {
+    const file = e.target.files?.[0]
+    if (!file) return
+    const url = URL.createObjectURL(file)
+    setPhoto(url)
+    // Save to main profile
+    const existing = JSON.parse(localStorage.getItem('indoo_profile') || '{}')
+    existing.photo_url = url
+    localStorage.setItem('indoo_profile', JSON.stringify(existing))
+  }
+
+  const handleSave = () => {
+    const existing = JSON.parse(localStorage.getItem('indoo_profile') || '{}')
+    existing.display_name = name
+    existing.name = name
+    existing.email = email
+    existing.phone = phone
+    existing.whatsapp = whatsapp
+    existing.city = city
+    existing.address = address
+    if (photo) existing.photo_url = photo
+    localStorage.setItem('indoo_profile', JSON.stringify(existing))
+    setSaved(true)
+    setTimeout(() => setSaved(false), 2000)
+  }
+
+  return (
+    <>
+      {/* Profile photo card */}
+      <div style={{ ...glassCard, marginBottom: 16, textAlign: 'center' }}>
+        <div style={{ position: 'relative', display: 'inline-block', marginBottom: 12 }}>
+          <div style={{ width: 90, height: 90, borderRadius: '50%', backgroundColor: 'rgba(255,255,255,0.06)', overflow: 'hidden', border: `3px solid ${isKtpVerified ? '#8DC63F' : 'rgba(255,255,255,0.15)'}` }}>
+            {photo ? (
+              <img src={photo} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+            ) : (
+              <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 36 }}>👤</div>
+            )}
+          </div>
+          {/* Upload button */}
+          <button onClick={() => photoRef.current?.click()} style={{
+            position: 'absolute', bottom: 0, right: -4, width: 30, height: 30, borderRadius: '50%',
+            backgroundColor: '#8DC63F', border: '3px solid #0a0a0a', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer',
+          }}>
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#000" strokeWidth="2.5" strokeLinecap="round"><path d="M23 19a2 2 0 01-2 2H3a2 2 0 01-2-2V8a2 2 0 012-2h4l2-3h6l2 3h4a2 2 0 012 2z"/><circle cx="12" cy="13" r="4"/></svg>
+          </button>
+          <input ref={photoRef} type="file" accept=".png,.jpg,.jpeg,.webp,.heic" onChange={handlePhotoUpload} style={{ display: 'none' }} />
+        </div>
+        <span style={{ fontSize: 10, color: 'rgba(255,255,255,0.3)', display: 'block' }}>PNG, JPG, JPEG, WEBP or HEIC</span>
+      </div>
+
+      {/* KTP verification */}
+      <div style={{
+        ...glassCard, marginBottom: 16,
+        backgroundColor: isKtpVerified ? 'rgba(141,198,63,0.06)' : 'rgba(250,204,21,0.06)',
+        border: `1.5px solid ${isKtpVerified ? 'rgba(141,198,63,0.2)' : 'rgba(250,204,21,0.2)'}`,
+        display: 'flex', alignItems: 'center', gap: 10,
+      }}>
+        <span style={{ fontSize: 28 }}>{isKtpVerified ? '✅' : '🪪'}</span>
+        <div style={{ flex: 1 }}>
+          <span style={{ fontSize: 14, fontWeight: 900, color: isKtpVerified ? '#8DC63F' : '#FACC15', display: 'block' }}>
+            {isKtpVerified ? 'Identity Verified' : 'Verification Required'}
+          </span>
+          <span style={{ fontSize: 12, color: 'rgba(255,255,255,0.4)' }}>
+            {isKtpVerified ? 'KTP + Selfie confirmed' : 'Verify to post deals'}
+          </span>
+        </div>
+        {!isKtpVerified && <button onClick={() => onCreateDeal?.()} style={{ padding: '8px 14px', borderRadius: 8, backgroundColor: '#FACC15', border: 'none', color: '#000', fontSize: 12, fontWeight: 800, cursor: 'pointer' }}>Verify</button>}
+      </div>
+
+      {/* Stats */}
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 10, marginBottom: 16 }}>
+        {[
+          { label: 'Deals Posted', value: JSON.parse(localStorage.getItem('indoo_public_deals') || '[]').length, icon: '📦' },
+          { label: 'Deals Saved', value: JSON.parse(localStorage.getItem('indoo_saved_deals') || '[]').length, icon: '🔖' },
+          { label: 'Blasts Sent', value: JSON.parse(localStorage.getItem('indoo_deal_blasts') || '[]').filter(b => b.status === 'sent').length, icon: '🚀' },
+        ].map(s => (
+          <div key={s.label} style={{ ...glassCard, textAlign: 'center', padding: 12 }}>
+            <span style={{ fontSize: 16, display: 'block', marginBottom: 4 }}>{s.icon}</span>
+            <span style={{ fontSize: 20, fontWeight: 900, color: '#fff', display: 'block' }}>{s.value}</span>
+            <span style={{ fontSize: 10, fontWeight: 700, color: 'rgba(255,255,255,0.3)' }}>{s.label}</span>
+          </div>
+        ))}
+      </div>
+
+      {/* Editable fields */}
+      <div style={{ ...glassCard, marginBottom: 16 }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 14 }}>
+          <span style={{ fontSize: 18 }}>✏️</span>
+          <span style={{ fontSize: 12, fontWeight: 800, color: 'rgba(255,255,255,0.4)', textTransform: 'uppercase' }}>Edit Profile</span>
+        </div>
+
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+          <div>
+            <span style={{ fontSize: 11, fontWeight: 700, color: 'rgba(255,255,255,0.3)', display: 'block', marginBottom: 4 }}>Full Name</span>
+            <input value={name} onChange={e => setName(e.target.value)} placeholder="Your name" style={profileInput} />
+          </div>
+          <div>
+            <span style={{ fontSize: 11, fontWeight: 700, color: 'rgba(255,255,255,0.3)', display: 'block', marginBottom: 4 }}>Email</span>
+            <input value={email} onChange={e => setEmail(e.target.value)} placeholder="email@example.com" type="email" style={profileInput} />
+          </div>
+          <div>
+            <span style={{ fontSize: 11, fontWeight: 700, color: 'rgba(255,255,255,0.3)', display: 'block', marginBottom: 4 }}>Phone</span>
+            <input value={phone} onChange={e => setPhone(e.target.value)} placeholder="081234567890" type="tel" style={profileInput} />
+          </div>
+          <div>
+            <span style={{ fontSize: 11, fontWeight: 700, color: 'rgba(255,255,255,0.3)', display: 'block', marginBottom: 4 }}>WhatsApp</span>
+            <input value={whatsapp} onChange={e => setWhatsapp(e.target.value)} placeholder="081234567890" type="tel" style={profileInput} />
+          </div>
+          <div>
+            <span style={{ fontSize: 11, fontWeight: 700, color: 'rgba(255,255,255,0.3)', display: 'block', marginBottom: 4 }}>City</span>
+            <input value={city} onChange={e => setCity(e.target.value)} placeholder="Yogyakarta" style={profileInput} />
+          </div>
+          <div>
+            <span style={{ fontSize: 11, fontWeight: 700, color: 'rgba(255,255,255,0.3)', display: 'block', marginBottom: 4 }}>Address</span>
+            <input value={address} onChange={e => setAddress(e.target.value)} placeholder="Your pickup address" style={profileInput} />
+          </div>
+        </div>
+
+        <button onClick={handleSave} style={{
+          width: '100%', padding: 14, borderRadius: 14, marginTop: 14,
+          backgroundColor: saved ? 'rgba(141,198,63,0.15)' : '#8DC63F',
+          border: saved ? '1px solid #8DC63F' : 'none',
+          color: saved ? '#8DC63F' : '#000',
+          fontSize: 14, fontWeight: 900, cursor: 'pointer', fontFamily: 'inherit',
+        }}>
+          {saved ? '✓ Saved' : 'Save Profile'}
+        </button>
+      </div>
+    </>
+  )
+}
+
 export default function DealHuntLanding({ open, onClose, onSelectDeal, onCreateDeal, onViewSeller }) {
   const [showLanding, setShowLanding] = useState(true)
   const [activeIndex, setActiveIndex] = useState(0)
   const [onBanner, setOnBanner] = useState(true) // first slide is always a banner
   const [userTouched, setUserTouched] = useState(false)
+  const [blastOpen, setBlastOpen] = useState(false)
+  const [drawerOpen, setDrawerOpen] = useState(false)
+  const [profilePage, setProfilePage] = useState(null) // null | 'profile' | 'mydeals' | 'myblasts' | 'saved' | 'settings'
 
   // Reset to landing page every time Deal Hunt opens
   useEffect(() => {
@@ -662,26 +828,156 @@ export default function DealHuntLanding({ open, onClose, onSelectDeal, onCreateD
         </div>
       )}
 
-      {/* Back button */}
-      {!showLanding && <button className={styles.backBtn} onClick={onClose}>
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-          <path d="M19 12H5M12 5l-7 7 7 7"/>
-        </svg>
-      </button>}
-
-      {/* Title + category/city context */}
-      {!showLanding && !onBanner && <div className={styles.headerTitle}>
-        <span className={styles.headerBrand}>DEAL <span style={{ color: '#8DC63F' }}>HUNT</span></span>
-        <span className={styles.headerLive}>● LIVE</span>
-      </div>}
-
-      {/* Hide feed + header sub when landing is showing */}
+      {/* Hide feed + fab when landing is showing */}
       {showLanding && <style>{`.${styles.headerSub}, .${styles.feed}, .${styles.fab} { display: none !important; }`}</style>}
-      <div className={styles.headerSub} style={onBanner ? { display: 'none' } : {}}>
-        <span className={styles.headerCategory}>{DOMAIN_LABELS[deals[activeIndex]?.domain] ?? ''}</span>
-        <span className={styles.headerDot}>·</span>
-        <span className={styles.headerCity}>{deals[activeIndex]?.city ?? 'Indonesia'}</span>
-      </div>
+
+      {/* ── Dashboard (opens from footer Profile button) ── */}
+      {profilePage && (
+        <div style={{
+          position: 'fixed', inset: 0, zIndex: 9550,
+          backgroundColor: '#000',
+          backgroundImage: 'url(https://ik.imagekit.io/nepgaxllc/ChatGPT%20Image%20Apr%2020,%202026,%2011_03_28%20PM.png?updatedAt=1776701026914)',
+          backgroundSize: 'cover', backgroundPosition: 'center top',
+          display: 'flex', flexDirection: 'column', isolation: 'isolate',
+        }}>
+          {/* Glass overlay */}
+          <div style={{ position: 'absolute', inset: 0, backgroundColor: 'rgba(0,0,0,0.55)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)', zIndex: 0, pointerEvents: 'none' }} />
+
+          {/* Dashboard header — back + title + hamburger */}
+          <div style={{ padding: 'calc(env(safe-area-inset-top, 0px) + 12px) 16px 12px', display: 'flex', alignItems: 'center', gap: 12, flexShrink: 0, position: 'relative', zIndex: 1 }}>
+            <button onClick={() => setProfilePage(null)} style={{ width: 36, height: 36, borderRadius: '50%', backgroundColor: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' }}>
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2.5" strokeLinecap="round"><path d="M19 12H5M12 5l-7 7 7 7"/></svg>
+            </button>
+            <img src="https://ik.imagekit.io/nepgaxllc/ChatGPT%20Image%20Apr%2025,%202026,%2003_41_04%20AM.png" alt="Deal Hunt" style={{ width: 40, height: 40, objectFit: 'contain', flexShrink: 0 }} />
+            <span style={{ fontSize: 16, fontWeight: 900, color: '#fff', flex: 1 }}>
+              {profilePage === 'profile' ? 'My Profile' : profilePage === 'mydeals' ? 'My Deals' : profilePage === 'saved' ? 'Saved Deals' : profilePage === 'myblasts' ? 'My Blasts' : 'Settings'}
+            </span>
+            {/* Hamburger — opens drawer within dashboard */}
+            <button onClick={() => setDrawerOpen(true)} style={{ width: 36, height: 36, borderRadius: 10, backgroundColor: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' }}>
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2.5" strokeLinecap="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+            </button>
+          </div>
+
+          {/* ── Drawer inside dashboard ── */}
+          {drawerOpen && (
+            <div onClick={() => setDrawerOpen(false)} style={{ position: 'fixed', inset: 0, zIndex: 9600, backgroundColor: 'rgba(0,0,0,0.5)' }}>
+              <div onClick={e => e.stopPropagation()} style={{
+                position: 'absolute', top: 0, right: 0, bottom: 0, width: 260,
+                backgroundColor: 'rgba(0,0,0,0.9)', backdropFilter: 'blur(20px)',
+                borderLeft: '2px solid rgba(141,198,63,0.3)',
+                padding: 'calc(env(safe-area-inset-top, 0px) + 16px) 16px 20px',
+                display: 'flex', flexDirection: 'column', gap: 4,
+              }}>
+                <span style={{ fontSize: 18, fontWeight: 900, color: '#fff', marginBottom: 4 }}>Deal Hunt</span>
+                <span style={{ fontSize: 11, color: 'rgba(255,255,255,0.4)', marginBottom: 16 }}>Buy & sell locally</span>
+
+                {[
+                  { id: 'profile', icon: '👤', label: 'My Profile' },
+                  { id: 'post', icon: '➕', label: 'Post a Deal', action: () => { setDrawerOpen(false); setProfilePage(null); onCreateDeal?.() } },
+                  { id: 'mydeals', icon: '📋', label: 'My Deals' },
+                  { id: 'saved', icon: '🔖', label: 'Saved Deals' },
+                  { id: 'blast', icon: '🚀', label: 'Deal Blast', action: () => { setDrawerOpen(false); setProfilePage(null); setBlastOpen(true) } },
+                  { id: 'myblasts', icon: '📊', label: 'My Blasts' },
+                  { id: 'settings', icon: '⚙️', label: 'Settings' },
+                ].map(item => (
+                  <button key={item.id} onClick={() => {
+                    if (item.action) { item.action(); return }
+                    setProfilePage(item.id)
+                    setDrawerOpen(false)
+                  }} style={{
+                    width: '100%', padding: '12px 14px', borderRadius: 10, border: 'none', cursor: 'pointer',
+                    backgroundColor: profilePage === item.id ? 'rgba(141,198,63,0.1)' : 'transparent',
+                    color: profilePage === item.id ? '#8DC63F' : 'rgba(255,255,255,0.6)',
+                    fontSize: 14, fontWeight: 700, textAlign: 'left',
+                    display: 'flex', alignItems: 'center', gap: 10,
+                  }}>
+                    <span style={{ fontSize: 16 }}>{item.icon}</span> {item.label}
+                  </button>
+                ))}
+
+                <div style={{ borderTop: '1px solid rgba(255,255,255,0.06)', marginTop: 'auto', paddingTop: 12 }}>
+                  <button onClick={() => { setDrawerOpen(false); setProfilePage(null) }} style={{ width: '100%', padding: '12px 14px', borderRadius: 10, border: 'none', backgroundColor: 'rgba(239,68,68,0.08)', color: '#EF4444', fontSize: 14, fontWeight: 700, cursor: 'pointer', textAlign: 'left' }}>✕ Back to Feed</button>
+                </div>
+              </div>
+            </div>
+          )}
+
+          <div style={{ flex: 1, overflowY: 'auto', padding: '16px 16px 100px', position: 'relative', zIndex: 1 }}>
+
+            {/* ── PROFILE PAGE ── */}
+            {profilePage === 'profile' && <DealHuntProfile onCreateDeal={onCreateDeal} />}
+
+            {/* ── MY DEALS ── */}
+            {profilePage === 'mydeals' && (() => {
+              const myDeals = JSON.parse(localStorage.getItem('indoo_public_deals') || '[]')
+              return myDeals.length === 0 ? (
+                <div style={{ textAlign: 'center', padding: 40 }}>
+                  <span style={{ fontSize: 48, display: 'block', marginBottom: 12 }}>📦</span>
+                  <span style={{ fontSize: 14, color: 'rgba(255,255,255,0.3)' }}>No deals posted yet</span>
+                </div>
+              ) : myDeals.map(d => (
+                <div key={d.id} style={{ padding: 14, borderRadius: 14, backgroundColor: 'rgba(255,255,255,0.06)', backdropFilter: 'blur(12px)', WebkitBackdropFilter: 'blur(12px)', border: '1px solid rgba(255,255,255,0.1)', boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.05)', marginBottom: 10 }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                    <span style={{ fontSize: 14, fontWeight: 800, color: '#fff' }}>{d.title}</span>
+                    <span style={{
+                      padding: '3px 8px', borderRadius: 6, fontSize: 10, fontWeight: 800,
+                      backgroundColor: d.status === 'active' ? 'rgba(141,198,63,0.15)' : d.status === 'pending' ? 'rgba(250,204,21,0.15)' : 'rgba(239,68,68,0.15)',
+                      color: d.status === 'active' ? '#8DC63F' : d.status === 'pending' ? '#FACC15' : '#EF4444',
+                    }}>{d.status}</span>
+                  </div>
+                  <span style={{ fontSize: 12, color: 'rgba(255,255,255,0.4)', display: 'block', marginTop: 4 }}>{d.category} · Qty: {d.quantity} · {new Date(d.created_at).toLocaleDateString()}</span>
+                </div>
+              ))
+            })()}
+
+            {/* ── SAVED DEALS ── */}
+            {profilePage === 'saved' && (() => {
+              const saved = JSON.parse(localStorage.getItem('indoo_saved_deals') || '[]')
+              return saved.length === 0 ? (
+                <div style={{ textAlign: 'center', padding: 40 }}>
+                  <span style={{ fontSize: 48, display: 'block', marginBottom: 12 }}>🔖</span>
+                  <span style={{ fontSize: 14, color: 'rgba(255,255,255,0.3)' }}>No saved deals</span>
+                </div>
+              ) : saved.map(d => (
+                <div key={d.id} style={{ padding: 14, borderRadius: 14, backgroundColor: 'rgba(255,255,255,0.06)', backdropFilter: 'blur(12px)', WebkitBackdropFilter: 'blur(12px)', border: '1px solid rgba(255,255,255,0.1)', boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.05)', marginBottom: 10 }}>
+                  <span style={{ fontSize: 14, fontWeight: 800, color: '#fff' }}>{d.title}</span>
+                </div>
+              ))
+            })()}
+
+            {/* ── MY BLASTS ── */}
+            {profilePage === 'myblasts' && (() => {
+              const blasts = JSON.parse(localStorage.getItem('indoo_deal_blasts') || '[]')
+              return blasts.length === 0 ? (
+                <div style={{ textAlign: 'center', padding: 40 }}>
+                  <span style={{ fontSize: 48, display: 'block', marginBottom: 12 }}>🚀</span>
+                  <span style={{ fontSize: 14, color: 'rgba(255,255,255,0.3)' }}>No blasts yet</span>
+                </div>
+              ) : blasts.map(b => (
+                <div key={b.id} style={{ padding: 14, borderRadius: 14, backgroundColor: 'rgba(255,255,255,0.06)', backdropFilter: 'blur(12px)', WebkitBackdropFilter: 'blur(12px)', border: '1px solid rgba(255,255,255,0.1)', boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.05)', marginBottom: 10 }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                    <span style={{ fontSize: 14, fontWeight: 800, color: '#fff' }}>{b.deal_title}</span>
+                    <span style={{
+                      padding: '3px 8px', borderRadius: 6, fontSize: 10, fontWeight: 800,
+                      backgroundColor: b.status === 'sent' ? 'rgba(141,198,63,0.15)' : b.status === 'pending' ? 'rgba(250,204,21,0.15)' : 'rgba(239,68,68,0.15)',
+                      color: b.status === 'sent' ? '#8DC63F' : b.status === 'pending' ? '#FACC15' : '#EF4444',
+                    }}>{b.status}</span>
+                  </div>
+                  <span style={{ fontSize: 12, color: 'rgba(255,255,255,0.4)', display: 'block', marginTop: 4 }}>{b.package} · {b.users?.toLocaleString()} users · {b.city}</span>
+                </div>
+              ))
+            })()}
+
+            {/* ── SETTINGS ── */}
+            {profilePage === 'settings' && (
+              <div style={{ textAlign: 'center', padding: 40 }}>
+                <span style={{ fontSize: 48, display: 'block', marginBottom: 12 }}>⚙️</span>
+                <span style={{ fontSize: 14, color: 'rgba(255,255,255,0.3)' }}>Settings coming soon</span>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
 
       {/* Snap-scroll vertical feed with promo banners */}
       <div className={styles.feed} ref={containerRef} onScroll={handleScroll}>
@@ -708,7 +1004,7 @@ export default function DealHuntLanding({ open, onClose, onSelectDeal, onCreateD
                   />
                   {/* Swipe hint — yellow arrow button, tap to scroll down */}
                   <div style={{
-                    position: 'absolute', bottom: 50, left: 0, right: 0, zIndex: 3,
+                    position: 'absolute', bottom: 120, left: 0, right: 0, zIndex: 3,
                     display: 'flex', justifyContent: 'center',
                     animation: 'arrowFloat 1.2s ease-in-out infinite',
                   }}>
@@ -749,11 +1045,51 @@ export default function DealHuntLanding({ open, onClose, onSelectDeal, onCreateD
       </div>
 
       {/* FAB — create deal */}
-      <button className={styles.fab} onClick={onCreateDeal}>
-        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#000" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-          <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
-        </svg>
-      </button>
+      {!showLanding && (
+        <button onClick={onCreateDeal} className={styles.fab}>
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#000" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+            <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
+          </svg>
+        </button>
+      )}
+
+      {/* Footer nav — Home | Chat | Alerts | Profile (hidden on landing) */}
+      {!showLanding && <div style={{
+        position: 'fixed', bottom: 'calc(env(safe-area-inset-bottom, 0px) + 12px)',
+        left: 16, right: 16, zIndex: 9500,
+        background: 'rgba(0, 0, 0, 0.75)',
+        backdropFilter: 'blur(16px) saturate(1.4)',
+        WebkitBackdropFilter: 'blur(16px) saturate(1.4)',
+        border: '1.5px solid rgba(141,198,63,0.3)',
+        borderRadius: 28, padding: '12px 7px',
+        boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.04), 0 4px 20px rgba(0,0,0,0.5)',
+      }}>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-around' }}>
+          <button onClick={onClose} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 2, background: 'none', border: 'none', cursor: 'pointer', padding: '4px 8px', minWidth: 48 }}>
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.6)" strokeWidth="2" strokeLinecap="round"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+            <span style={{ fontSize: 9, fontWeight: 800, color: 'rgba(255,255,255,0.4)', letterSpacing: '0.03em' }}>Home</span>
+          </button>
+          <button style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 2, background: 'none', border: 'none', cursor: 'pointer', padding: '4px 8px', minWidth: 48 }}>
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.6)" strokeWidth="2" strokeLinecap="round"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>
+            <span style={{ fontSize: 9, fontWeight: 800, color: 'rgba(255,255,255,0.4)', letterSpacing: '0.03em' }}>Chat</span>
+          </button>
+          <button style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 2, background: 'none', border: 'none', cursor: 'pointer', padding: '4px 8px', minWidth: 48 }}>
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.6)" strokeWidth="2" strokeLinecap="round"><path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 01-3.46 0"/></svg>
+            <span style={{ fontSize: 9, fontWeight: 800, color: 'rgba(255,255,255,0.4)', letterSpacing: '0.03em' }}>Alerts</span>
+          </button>
+          <button onClick={() => setProfilePage('profile')} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 2, background: 'none', border: 'none', cursor: 'pointer', padding: '4px 8px', minWidth: 48 }}>
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke={profilePage ? '#8DC63F' : 'rgba(255,255,255,0.6)'} strokeWidth="2" strokeLinecap="round"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+            <span style={{ fontSize: 9, fontWeight: 800, color: profilePage ? '#8DC63F' : 'rgba(255,255,255,0.4)', letterSpacing: '0.03em' }}>Profile</span>
+          </button>
+        </div>
+      </div>}
+
+      {/* Deal Blast — paid promotion */}
+      <DealBlast
+        open={blastOpen}
+        onClose={() => setBlastOpen(false)}
+        deal={deals[activeIndex] ?? null}
+      />
     </div>,
     document.body
   )

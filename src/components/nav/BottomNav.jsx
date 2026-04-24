@@ -167,71 +167,26 @@ export default function BottomNav({ activeTab = 'map', userPhotoURL, userName, i
       )}
 
 
-      {/* Live — hidden on landing pages, marketplace theme, and seller theme */}
+      {/* Contact INDOO — hidden on landing pages, marketplace theme, and seller theme */}
       {!onLanding && !showBuyerBtns && !showSellerBtns && (
         <button
-          className={`${styles.liveBtn} ${indooLiveActive ? styles.liveBtnActive : ''}`}
-          onClick={onIndooLive}
-          aria-label="Indoo Live"
+          className={styles.liveBtn}
+          onClick={() => window.open('https://wa.me/6281234567890?text=Hi%20INDOO%2C%20I%20have%20a%20question', '_blank')}
+          aria-label="Contact INDOO"
         >
           <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
-            <circle cx="12" cy="12" r="2"/>
-            <path d="M16.24 7.76a6 6 0 0 1 0 8.49"/>
-            <path d="M7.76 7.76a6 6 0 0 0 0 8.49"/>
-            <path d="M19.07 4.93a10 10 0 0 1 0 14.14"/>
-            <path d="M4.93 4.93a10 10 0 0 0 0 14.14"/>
+            <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
           </svg>
-          <span className={styles.liveBtnLabel}>Live</span>
+          <span className={styles.liveBtnLabel}>Contact</span>
         </button>
       )}
 
-      {/* Profile avatar — hold 3s to toggle driver online/offline, hidden in marketplace/seller theme */}
+      {/* Profile avatar — simple tap to open profile, hidden in marketplace/seller theme */}
       {!showBuyerBtns && !showSellerBtns && <button
-        ref={holdRef}
-        className={[
-          styles.avatarTab,
-          activeTab === 'profile' ? styles.avatarTabActive : '',
-          // Driver glow takes priority over live/invite glow
-          driverOnline === true  ? styles.avatarDriverOnline  :
-          driverOnline === false ? styles.avatarDriverOffline :
-          isLive                 ? styles.avatarLive          :
-          isInviteOut            ? styles.avatarInvite        : '',
-          toggled     ? styles.avatarToggled : '',
-        ].filter(Boolean).join(' ')}
-        onClick={() => { if (!holding) onProfileTap?.() }}
-        onPointerDown={startHold}
-        onPointerUp={cancelHold}
-        onPointerLeave={cancelHold}
-        onPointerCancel={cancelHold}
-        aria-label="My profile — hold to toggle driver status"
-        style={{ touchAction: 'none' }}
+        className={`${styles.avatarTab} ${activeTab === 'profile' ? styles.avatarTabActive : ''}`}
+        onClick={() => onProfileTap?.()}
+        aria-label="My profile"
       >
-        {/* Hold progress ring — only shown while holding */}
-        {holding && (
-          <svg
-            className={styles.holdRing}
-            viewBox="0 0 44 44"
-            width="44" height="44"
-          >
-            <circle
-              cx="22" cy="22" r={RING_R}
-              fill="none"
-              stroke="rgba(255,255,255,0.08)"
-              strokeWidth="2.5"
-            />
-            <circle
-              cx="22" cy="22" r={RING_R}
-              fill="none"
-              stroke={driverOnline ? '#EF4444' : '#8DC63F'}
-              strokeWidth="2.5"
-              strokeLinecap="round"
-              strokeDasharray={RING_CIRC}
-              strokeDashoffset={dashOffset}
-              transform="rotate(-90 22 22)"
-            />
-          </svg>
-        )}
-
         <Avatar
           src={userPhotoURL ?? 'https://i.pravatar.cc/68?img=12'}
           name={userName ?? 'Me'}
@@ -239,20 +194,7 @@ export default function BottomNav({ activeTab = 'map', userPhotoURL, userName, i
           live={isLive}
           inviteOut={isInviteOut}
         />
-
-        {/* Driver status dot — only for driver accounts */}
-        {driverOnline !== null && (
-          <span className={`${styles.driverDot} ${driverOnline ? styles.driverDotOnline : styles.driverDotOffline}`} />
-        )}
-
-        {activeTab === 'profile' && !holding && (
-          <span className={styles.tabLabel}>Me</span>
-        )}
-        {holding && (
-          <span className={styles.holdLabel}>
-            {driverOnline ? 'Go Offline' : 'Go Online'}
-          </span>
-        )}
+        <span className={styles.tabLabel}>Me</span>
       </button>}
 
     </nav>,

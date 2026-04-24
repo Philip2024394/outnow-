@@ -47,9 +47,16 @@ export function isAwaitingPayment(status) {
 export async function searchFoodDrivers(restaurantLat, restaurantLng) {
   const lat = restaurantLat ?? -7.797
   const lng = restaurantLng ?? 110.370
-  const all = await fetchNearbyDrivers(lat, lng, 'bike_ride')
-  // Filter to package-accepting, available drivers
-  return all.filter(d => d.accepts_packages !== false && !d.driver_busy).slice(0, 5)
+  // Food delivery: bike first, car fallback if no bikes available
+  try {
+    const { findDriverForDelivery } = await import('./deliveryRoutingService')
+    const result = await findDriverForDelivery(lat, lng, 'food')
+    return result.drivers.slice(0, 5)
+  } catch {
+    // Fallback to direct search
+    const all = await fetchNearbyDrivers(lat, lng, 'bike_ride')
+    return all.filter(d => d.accepts_packages !== false && !d.driver_busy).slice(0, 5)
+  }
 }
 
 /**
