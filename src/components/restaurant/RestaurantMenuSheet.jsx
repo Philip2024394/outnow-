@@ -1145,19 +1145,6 @@ export default function RestaurantMenuSheet({ restaurant, onClose, onOrderViaCha
           <span className={styles.panelLabel} style={dashboardOpen ? { color: '#FACC15' } : {}}>My Food</span>
         </button>
 
-        {/* Chat — issue reporting */}
-        <button
-          className={styles.panelBtn}
-          onClick={() => { if (chatOpen) { setChatOpen(false) } else { closeAllDrawers(); setChatOpen(true) } }}
-          title="Live Chat / Support"
-          style={chatOpen ? { boxShadow: '0 0 8px 3px rgba(250,204,21,0.35)' } : {}}
-        >
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke={chatOpen ? '#FACC15' : 'currentColor'} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-            <path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/>
-          </svg>
-          <span className={styles.panelLabel} style={chatOpen ? { color: '#FACC15' } : {}}>Chat</span>
-        </button>
-
         {/* Promos */}
         <button
           className={styles.panelBtn}

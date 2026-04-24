@@ -1,120 +1,93 @@
-/* ── Round icon dock — single scrollable row below search bar ── */
+/* ── Module buttons — black container with standard buttons ── */
 .dock {
   position: fixed;
-  top: calc(var(--safe-top) + 148px);
-  left: 0;
-  right: 60px; /* flush to right-side nav panel edge */
+  top: calc(var(--safe-top) + 130px);
+  left: 8px;
+  right: 64px;
   z-index: 9999;
   pointer-events: none;
-  padding: 0 6px;
 }
 
-.dockInner {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 10px 0;
-  justify-items: center;
+.dockContainer {
+  background: rgba(0, 0, 0, 0.8);
+  backdrop-filter: blur(16px) saturate(1.4);
+  -webkit-backdrop-filter: blur(16px) saturate(1.4);
+  border: 1.5px solid rgba(255, 255, 255, 0.08);
+  border-radius: 20px;
+  padding: 14px 10px;
   pointer-events: all;
-  padding: 0;
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.5);
 }
 
-/* Each dock button — circle icon + label */
+.dockGrid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 10px 6px;
+}
+
+/* Each button */
 .dockBtn {
-  position: relative;
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: flex-start;
-  gap: 5px;
+  gap: 6px;
   padding: 0;
   background: none;
   border: none;
   cursor: pointer;
   font-family: inherit;
   -webkit-tap-highlight-color: transparent;
-  min-width: 0;
 }
 
-.dockBtn:active .iconWrap {
-  transform: scale(0.88);
+.dockBtn:active .iconBox {
+  transform: scale(0.9);
 }
 
-/* Circle container for icon */
-.iconWrap {
+/* Icon box — rounded square */
+.iconBox {
   position: relative;
-  width: 72px;
-  height: 72px;
-  border-radius: 50%;
-  background: rgba(10, 10, 14, 0.75);
-  backdrop-filter: blur(16px) saturate(1.6);
-  -webkit-backdrop-filter: blur(16px) saturate(1.6);
-  border: 1.5px solid rgba(255, 255, 255, 0.14);
+  width: 56px;
+  height: 56px;
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.1);
   display: flex;
   align-items: center;
   justify-content: center;
-  transition: transform 0.15s ease, border-color 0.2s;
-  box-shadow:
-    inset 0 1px 0 rgba(255,255,255,0.08),
-    0 4px 16px rgba(0,0,0,0.4);
+  transition: transform 0.15s ease;
 }
 
-/* Vehicle images (bike, car) — offset left, overlapping edge */
-.dockImgVehicle {
-  position: absolute;
-  left: -8px;
-  top: 50%;
-  transform: translateY(-50%);
-  width: 64px;
-  height: 50px;
+/* Icon image */
+.iconImg {
+  width: 38px;
+  height: 38px;
   object-fit: contain;
   pointer-events: none;
-  filter: drop-shadow(0 2px 6px rgba(0,0,0,0.6));
+  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.4));
 }
 
-/* Square icons — offset left, overlapping edge */
-.dockImgSquare {
-  position: absolute;
-  left: -6px;
-  top: 50%;
-  transform: translateY(-50%);
-  width: 50px;
-  height: 50px;
-  object-fit: contain;
-  pointer-events: none;
-  filter: drop-shadow(0 2px 6px rgba(0,0,0,0.6));
-}
-
-/* Arched SVG text on the right half of circle */
-.arcLabel {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  pointer-events: none;
-}
-.arcLabel text {
-  fill: #fff;
-  font-size: 13px;
+/* Text label under button */
+.iconLabel {
+  font-size: 10px;
   font-weight: 800;
-  letter-spacing: 0.05em;
-  text-transform: uppercase;
-  filter: drop-shadow(0 0 4px rgba(141,198,63,0.7)) drop-shadow(0 0 8px rgba(141,198,63,0.35));
+  color: rgba(255, 255, 255, 0.6);
+  letter-spacing: 0.02em;
+  text-align: center;
+  line-height: 1.2;
+  max-width: 64px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
-/* Hidden — label now arched inside circle */
-.dockLabel {
-  display: none;
-}
-
-/* Live session count badge — top right of circle */
+/* Session count badge */
 .badge {
   position: absolute;
-  top: -2px;
-  right: -2px;
+  top: -4px;
+  right: -4px;
   min-width: 16px;
   height: 16px;
-  background: rgba(141,198,63,0.25);
+  background: rgba(141, 198, 63, 0.25);
   color: #8DC63F;
   font-size: 8px;
   font-weight: 900;
@@ -123,7 +96,7 @@
   align-items: center;
   justify-content: center;
   padding: 0 3px;
-  border: 1.5px solid rgba(141,198,63,0.4);
+  border: 1.5px solid rgba(141, 198, 63, 0.4);
   pointer-events: none;
 }
 
@@ -143,16 +116,16 @@
   align-items: center;
   justify-content: center;
   padding: 0 4px;
-  border: 2px solid rgba(0,0,0,0.7);
-  box-shadow: 0 0 10px rgba(239,68,68,0.8), 0 2px 6px rgba(0,0,0,0.4);
+  border: 2px solid rgba(0, 0, 0, 0.7);
+  box-shadow: 0 0 10px rgba(239, 68, 68, 0.8), 0 2px 6px rgba(0, 0, 0, 0.4);
   pointer-events: none;
-  animation: notifPop 0.3s cubic-bezier(0.34,1.56,0.64,1), notifPulse 2s ease-in-out 0.3s infinite;
+  animation: notifPop 0.3s cubic-bezier(0.34, 1.56, 0.64, 1), notifPulse 2s ease-in-out 0.3s infinite;
 }
 @keyframes notifPop {
   from { transform: scale(0); opacity: 0; }
   to   { transform: scale(1); opacity: 1; }
 }
 @keyframes notifPulse {
-  0%, 100% { box-shadow: 0 0 10px rgba(239,68,68,0.8), 0 0 0 0 rgba(239,68,68,0.5); }
-  50%       { box-shadow: 0 0 14px rgba(239,68,68,0.9), 0 0 0 6px rgba(239,68,68,0); }
+  0%, 100% { box-shadow: 0 0 10px rgba(239, 68, 68, 0.8), 0 0 0 0 rgba(239, 68, 68, 0.5); }
+  50%       { box-shadow: 0 0 14px rgba(239, 68, 68, 0.9), 0 0 0 6px rgba(239, 68, 68, 0); }
 }

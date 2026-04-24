@@ -7,6 +7,8 @@
     { "source": "/vendor/(.*)", "destination": "/vendor.html" },
     { "source": "/driver", "destination": "/driver.html" },
     { "source": "/driver/(.*)", "destination": "/driver.html" },
+    { "source": "/admin", "destination": "/admin.html" },
+    { "source": "/admin/(.*)", "destination": "/admin.html" },
     { "source": "/(.*)", "destination": "/" }
   ]
 }

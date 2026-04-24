@@ -25,6 +25,9 @@ import ViolationsTab from './tabs/ViolationsTab'
 import PlaceSuggestionsTab from './tabs/PlaceSuggestionsTab'
 import DealHuntAdminTab from './tabs/DealHuntAdminTab'
 import CancellationsTab from './tabs/CancellationsTab'
+import MockAccountsTab from './tabs/MockAccountsTab'
+import AdminChatTab from './tabs/AdminChatTab'
+import PublicDealsAdminTab from './tabs/PublicDealsAdminTab'
 
 const LOGO = 'https://ik.imagekit.io/dateme/Logo%20with%20green%20map%20pin%20element.png'
 
@@ -55,6 +58,9 @@ const NAV = [
   { id: 'places',       icon: '📍', label: 'Places' },
   { id: 'dealhunt',     icon: '🔥', label: 'Deal Hunt' },
   { id: 'cancellations', icon: '🚫', label: 'Cancellations' },
+  { id: 'mock',          icon: '🛠️', label: 'Mock Data' },
+  { id: 'admin_chat',   icon: '🕵️', label: 'Chat Access' },
+  { id: 'deal_approvals', icon: '✅', label: 'Deal Approvals' },
 ]
 
 export default function AdminDashboard({ onLogout }) {
@@ -193,6 +199,9 @@ export default function AdminDashboard({ onLogout }) {
           {tab === 'places'      && <PlaceSuggestionsTab />}
           {tab === 'dealhunt'    && <DealHuntAdminTab />}
           {tab === 'cancellations' && <CancellationsTab />}
+          {tab === 'mock' && <MockAccountsTab />}
+          {tab === 'admin_chat' && <AdminChatTab />}
+          {tab === 'deal_approvals' && <PublicDealsAdminTab />}
         </div>
       </div>
     </div>

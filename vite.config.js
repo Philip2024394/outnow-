@@ -17,6 +17,7 @@ export default defineConfig({
         main: resolve(__dirname, 'index.html'),
         vendor: resolve(__dirname, 'vendor.html'),
         driver: resolve(__dirname, 'driver.html'),
+        admin: resolve(__dirname, 'admin.html'),
       },
       output: {
         entryFileNames: 'assets/[name]-[hash].js',

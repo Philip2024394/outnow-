@@ -72,6 +72,7 @@ import {
   ReviewsSection, DevPanel, LazyFallback,
   DealHuntLanding, DealDetail, CreateDealPage, MyDealsPage,
 } from './appShellLazy'
+import PostDealPublic from '@/domains/dealhunt/pages/PostDealPublic'
 
 
 export default function AppShell({ returnParams, triggerGoLive }) {
@@ -219,6 +220,7 @@ export default function AppShell({ returnParams, triggerGoLive }) {
   const [dealHuntOpen, setDealHuntOpen] = useState(false)
   const [dealDetailOpen, setDealDetailOpen] = useState(null)
   const [createDealOpen, setCreateDealOpen] = useState(false)
+  const [postDealOpen, setPostDealOpen] = useState(false)
   const [myDealsOpen, setMyDealsOpen] = useState(false)
 
   // Send new users (no display name yet) straight to profile setup
@@ -990,7 +992,7 @@ export default function AppShell({ returnParams, triggerGoLive }) {
           open={dealHuntOpen}
           onClose={() => setDealHuntOpen(false)}
           onSelectDeal={(deal) => { setDealDetailOpen(deal) }}
-          onCreateDeal={() => setCreateDealOpen(true)}
+          onCreateDeal={() => setPostDealOpen(true)}
           onViewSeller={(deal) => {
             setDealHuntOpen(false)
             if (deal.domain === 'food') { setFoodOpen(true) }
@@ -1023,6 +1025,11 @@ export default function AppShell({ returnParams, triggerGoLive }) {
           onClose={() => setCreateDealOpen(false)}
           onSaved={() => setCreateDealOpen(false)}
           userId={user?.id ?? user?.uid}
+        />
+        <PostDealPublic
+          open={postDealOpen}
+          onClose={() => setPostDealOpen(false)}
+          onPosted={() => {}}
         />
         <MyDealsPage
           open={myDealsOpen}

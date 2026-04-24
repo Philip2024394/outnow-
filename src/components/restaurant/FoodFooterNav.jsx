@@ -1,13 +1,14 @@
 /**
- * FoodFooterNav — shared floating footer for entire food module
- * Home | Chat | My Food | Vendor (if vendor)
+ * FoodFooterNav — universal floating footer for food module (customer only)
+ * Home | Chat | Notifications | Profile
+ * Same across all modules.
  */
 import { createPortal } from 'react-dom'
 
-const btnStyle = { display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 2, background: 'none', border: 'none', cursor: 'pointer', padding: '4px 8px', minWidth: 48 }
+const btnStyle = { display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 2, background: 'none', border: 'none', cursor: 'pointer', padding: '4px 8px', minWidth: 48, position: 'relative' }
 const labelStyle = { fontSize: 9, fontWeight: 800, color: 'rgba(255,255,255,0.4)', letterSpacing: '0.03em' }
 
-export default function FoodFooterNav({ onHome, onChat, onMyFood, onVendorDash, isVendor, activeTab }) {
+export default function FoodFooterNav({ onHome, onChat, onNotifications, onProfile, activeTab, notifCount = 0 }) {
   return createPortal(
     <div style={{
       position: 'fixed', bottom: 'calc(env(safe-area-inset-bottom, 0px) + 12px)',
@@ -33,19 +34,22 @@ export default function FoodFooterNav({ onHome, onChat, onMyFood, onVendorDash, 
           <span style={{ ...labelStyle, color: activeTab === 'chat' ? '#8DC63F' : 'rgba(255,255,255,0.4)' }}>Chat</span>
         </button>
 
-        {/* My Food */}
-        <button onClick={onMyFood} style={btnStyle}>
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke={activeTab === 'myfood' ? '#8DC63F' : 'rgba(255,255,255,0.6)'} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M16 4h2a2 2 0 012 2v14a2 2 0 01-2 2H6a2 2 0 01-2-2V6a2 2 0 012-2h2"/><rect x="8" y="2" width="8" height="4" rx="1"/></svg>
-          <span style={{ ...labelStyle, color: activeTab === 'myfood' ? '#8DC63F' : 'rgba(255,255,255,0.4)' }}>My Food</span>
+        {/* Notifications */}
+        <button onClick={onNotifications} style={btnStyle}>
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke={activeTab === 'notifications' ? '#8DC63F' : 'rgba(255,255,255,0.6)'} strokeWidth="2" strokeLinecap="round"><path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 01-3.46 0"/></svg>
+          {notifCount > 0 && (
+            <span style={{ position: 'absolute', top: -2, right: 2, minWidth: 16, height: 16, borderRadius: 8, background: '#EF4444', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '0 4px' }}>
+              <span style={{ fontSize: 9, fontWeight: 900, color: '#fff' }}>{notifCount > 99 ? '99+' : notifCount}</span>
+            </span>
+          )}
+          <span style={{ ...labelStyle, color: activeTab === 'notifications' ? '#8DC63F' : 'rgba(255,255,255,0.4)' }}>Alerts</span>
         </button>
 
-        {/* Vendor Dashboard */}
-        {isVendor && (
-          <button onClick={onVendorDash} style={btnStyle}>
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke={activeTab === 'vendor' ? '#8DC63F' : 'rgba(255,255,255,0.6)'} strokeWidth="2" strokeLinecap="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
-            <span style={{ ...labelStyle, color: activeTab === 'vendor' ? '#8DC63F' : 'rgba(255,255,255,0.4)' }}>Vendor</span>
-          </button>
-        )}
+        {/* Profile */}
+        <button onClick={onProfile} style={btnStyle}>
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke={activeTab === 'profile' ? '#8DC63F' : 'rgba(255,255,255,0.6)'} strokeWidth="2" strokeLinecap="round"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+          <span style={{ ...labelStyle, color: activeTab === 'profile' ? '#8DC63F' : 'rgba(255,255,255,0.4)' }}>Profile</span>
+        </button>
       </div>
     </div>,
     document.body

@@ -5,14 +5,14 @@ import { useLanguage } from '@/i18n'
 import styles from './FloatingIcons.module.css'
 
 const ICONS = [
-  { id: 'bike_ride',  labelKey: 'icons.ride',    img: 'https://ik.imagekit.io/nepgaxllc/Untitledsadasdasd-removebg-preview.png',                  vehicle: true },
-  { id: 'food',       labelKey: 'icons.street',  img: 'https://ik.imagekit.io/nepgaxllc/Untitledsadasdasdasdasddfssdf-removebg-preview.png',        vehicle: false },
-  { id: 'dating',     labelKey: 'icons.dating',  img: 'https://ik.imagekit.io/nepgaxllc/Untitledsadasdasdasdasddfssdfasdasdfsasdf-removebg-preview.png', vehicle: false },
-  { id: 'car_taxi',   labelKey: 'icons.car',     img: 'https://ik.imagekit.io/nepgaxllc/Untitledsadasdasdasdasd-removebg-preview.png',              vehicle: true },
-  { id: 'shopping',   labelKey: 'icons.shop',    img: 'https://ik.imagekit.io/nepgaxllc/Untitledsadasdasdasdasddfssdfasdasd-removebg-preview.png',  vehicle: false },
-  { id: 'massage',    labelKey: 'icons.massage', img: 'https://ik.imagekit.io/nepgaxllc/Untitledsadasdasdasdasddfssdfasdasdfsasdfsdffasdf-removebg-preview.png', vehicle: false },
-  { id: 'rentals',    labelKey: 'icons.rentals', img: 'https://ik.imagekit.io/nepgaxllc/Untitledsadasdasdasdasddfssdfasdasdfsasdfsdffasdf-removebg-preview.png', vehicle: false },
-  { id: 'dealhunt',   labelKey: 'icons.deals',   img: 'https://ik.imagekit.io/nepgaxllc/Untitledsadasdasdasdasddfssdfasdasd-removebg-preview.png', vehicle: false },
+  { id: 'bike_ride',  labelKey: 'icons.ride',    label: 'Bike Ride',    img: 'https://ik.imagekit.io/nepgaxllc/Untitledsadasdasd-removebg-preview.png',                  vehicle: true },
+  { id: 'food',       labelKey: 'icons.street',  label: 'Food',         img: 'https://ik.imagekit.io/nepgaxllc/Untitledsadasdasdasdasddfssdf-removebg-preview.png',        vehicle: false },
+  { id: 'dating',     labelKey: 'icons.dating',  label: 'Dating',       img: 'https://ik.imagekit.io/nepgaxllc/Untitledsadasdasdasdasddfssdfasdasdfsasdf-removebg-preview.png', vehicle: false },
+  { id: 'car_taxi',   labelKey: 'icons.car',     label: 'Car Ride',     img: 'https://ik.imagekit.io/nepgaxllc/Untitledsadasdasdasdasd-removebg-preview.png',              vehicle: true },
+  { id: 'shopping',   labelKey: 'icons.shop',    label: 'Market',       img: 'https://ik.imagekit.io/nepgaxllc/Untitledsadasdasdasdasddfssdfasdasd-removebg-preview.png',  vehicle: false },
+  { id: 'massage',    labelKey: 'icons.massage', label: 'Massage',      img: 'https://ik.imagekit.io/nepgaxllc/Untitledsadasdasdasdasddfssdfasdasdfsasdfsdffasdf-removebg-preview.png', vehicle: false },
+  { id: 'rentals',    labelKey: 'icons.rentals', label: 'Rentals',      img: 'https://ik.imagekit.io/nepgaxllc/Untitledsadasdasdasdasddfssdfasdasdfsasdfsdffasdf-removebg-preview.png', vehicle: false },
+  { id: 'dealhunt',   labelKey: 'icons.deals',   label: 'Deal Hunt',    img: 'https://ik.imagekit.io/nepgaxllc/Untitledsadasdasdasdasddfssdfasdasd-removebg-preview.png', vehicle: false },
 ]
 
 export default function FloatingIcons({ sessions = [], serviceCounts = {}, onSelectSession, onFoodClick, onRideClick, onShoppingClick, onDatingClick, onMassageClick, onRentalsClick, onDealHuntClick }) {
@@ -34,47 +34,38 @@ export default function FloatingIcons({ sessions = [], serviceCounts = {}, onSel
   return createPortal(
     <>
       <div className={styles.dock}>
-        <div className={styles.dockInner}>
-          {ICONS.map(icon => {
-            const count = sessions.filter(s =>
-              s.activityType === icon.id || (s.activities ?? []).includes(icon.id)
-            ).length
+        <div className={styles.dockContainer}>
+          <div className={styles.dockGrid}>
+            {ICONS.map(icon => {
+              const count = sessions.filter(s =>
+                s.activityType === icon.id || (s.activities ?? []).includes(icon.id)
+              ).length
+              const notifCount = serviceCounts[icon.id] ?? 0
 
-            return (
-              <button
-                key={icon.id}
-                className={styles.dockBtn}
-                onClick={() => handleIconClick(icon)}
-                aria-label={icon.label}
-              >
-                <div className={styles.iconWrap}>
-                  {/* Icon — offset left, overlapping circle edge */}
-                  <img
-                    src={icon.img}
-                    alt={icon.label}
-                    className={icon.vehicle ? styles.dockImgVehicle : styles.dockImgSquare}
-                  />
-                  {/* Arched text on the right half */}
-                  <svg className={styles.arcLabel} viewBox="0 0 80 80" xmlns="http://www.w3.org/2000/svg">
-                    <defs>
-                      <path id={`arc-${icon.id}`} d="M 29,8 a 32,32 0 0,1 0,64" />
-                    </defs>
-                    <text>
-                      <textPath href={`#arc-${icon.id}`} startOffset="50%" textAnchor="middle">
-                        {t(icon.labelKey)}
-                      </textPath>
-                    </text>
-                  </svg>
-                  {/* Red notification badge — takes priority over session count */}
-                  {(serviceCounts[icon.id] ?? 0) > 0 ? (
-                    <span className={styles.notifBadge}>{serviceCounts[icon.id]}</span>
-                  ) : count > 0 ? (
-                    <span className={styles.badge}>{count}</span>
-                  ) : null}
-                </div>
-              </button>
-            )
-          })}
+              return (
+                <button
+                  key={icon.id}
+                  className={styles.dockBtn}
+                  onClick={() => handleIconClick(icon)}
+                  aria-label={t(icon.labelKey)}
+                >
+                  <div className={styles.iconBox}>
+                    <img
+                      src={icon.img}
+                      alt=""
+                      className={styles.iconImg}
+                    />
+                    {notifCount > 0 ? (
+                      <span className={styles.notifBadge}>{notifCount}</span>
+                    ) : count > 0 ? (
+                      <span className={styles.badge}>{count}</span>
+                    ) : null}
+                  </div>
+                  <span className={styles.iconLabel}>{t(icon.labelKey)}</span>
+                </button>
+              )
+            })}
+          </div>
         </div>
       </div>
 
