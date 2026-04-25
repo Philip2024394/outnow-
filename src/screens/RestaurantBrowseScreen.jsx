@@ -864,7 +864,7 @@ export default function RestaurantBrowseScreen({ onClose, onBackToCategories, ca
                 </div>
                 <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12 }}>
                   <span style={{ fontSize: 13, color: '#fff', textShadow: '0 1px 4px rgba(0,0,0,0.9)' }}>Up to {today.discount}% off selected dishes</span>
-                  <span style={{ fontSize: 18, fontWeight: 900, color: today.color, textShadow: '0 1px 4px rgba(0,0,0,0.9)' }}>⏰ {hrsLeft}h {String(minsLeft).padStart(2,'0')}m {String(secsLeft).padStart(2,'0')}s</span>
+                  <span style={{ fontSize: 18, fontWeight: 900, color: today.color, textShadow: '0 1px 4px rgba(0,0,0,0.9)' }}>⏰ {hrsLeft}h {String(minsLeft).padStart(2,'0')}m</span>
                 </div>
                 <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
                   {dealItems.map((d, i) => (
@@ -874,6 +874,7 @@ export default function RestaurantBrowseScreen({ onClose, onBackToCategories, ca
                       <div style={{ width: 110, flexShrink: 0, position: 'relative' }}>
                         <img src={d.photo_url} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
                         <span style={{ position: 'absolute', top: 6, left: 6, padding: '3px 7px', borderRadius: 6, backgroundColor: today.color, fontSize: 11, fontWeight: 900, color: '#000' }}>-{today.discount}%</span>
+                        <span style={{ position: 'absolute', top: 6, right: 6, fontSize: 16 }}>{(d.restaurant.vendor_type ?? 'restaurant') === 'street_vendor' ? '🛒' : '🍽️'}</span>
                       </div>
                       <div style={{ flex: 1, padding: '10px 12px', backgroundColor: 'rgba(0,0,0,0.5)', display: 'flex', flexDirection: 'column', justifyContent: 'center', position: 'relative' }}>
                         <span style={{ fontSize: 14, fontWeight: 900, color: '#fff', display: 'block', lineHeight: 1.3 }}>{d.name}</span>
@@ -922,6 +923,7 @@ export default function RestaurantBrowseScreen({ onClose, onBackToCategories, ca
                       <div style={{ width: 100, flexShrink: 0, position: 'relative' }}>
                         <img src={d.photo_url} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
                         {d.discountPct && <span style={{ position: 'absolute', top: 6, left: 6, padding: '3px 7px', borderRadius: 6, backgroundColor: '#EF4444', fontSize: 11, fontWeight: 900, color: '#fff' }}>-{d.discountPct}%</span>}
+                        <span style={{ position: 'absolute', top: 6, right: 6, fontSize: 14 }}>{(d.restaurant?.vendor_type ?? 'restaurant') === 'street_vendor' ? '🛒' : '🍽️'}</span>
                       </div>
                       <div style={{ flex: 1, padding: '8px 12px', backgroundColor: 'rgba(0,0,0,0.5)', display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
                         <span style={{ fontSize: 14, fontWeight: 900, color: '#fff', display: 'block', lineHeight: 1.3 }}>{d.name}</span>
@@ -1156,6 +1158,7 @@ export default function RestaurantBrowseScreen({ onClose, onBackToCategories, ca
                         <span style={{ fontSize: 11, fontWeight: 900, color: '#000' }}>{fmtPrice(dish.price)}</span>
                       </div>
                       {dish.isSpicy && <span style={{ position: 'absolute', bottom: 8, left: 8, fontSize: 18 }}>🌶️</span>}
+                      <span style={{ position: 'absolute', top: 6, right: 6, fontSize: 14 }}>{(dish.restaurant.vendor_type ?? 'restaurant') === 'street_vendor' ? '🛒' : '🍽️'}</span>
                     </div>
                     {/* Info */}
                     <div style={{ padding: '10px 10px 12px', backgroundColor: 'rgba(0,0,0,0.6)' }}>
