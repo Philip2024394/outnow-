@@ -212,13 +212,19 @@ const EXTRA_CATEGORIES = [
   { id: 'sides', label: 'Sides', icon: '🍟' },
 ]
 
-// Lazy import sauce library
-let _sauceLib = null
+// Lazy import libraries
+let _sauceLib = null, _sidesLib = null
 async function getSauceLibrary() {
   if (_sauceLib) return _sauceLib
   const mod = await import('@/constants/sauceLibrary')
   _sauceLib = mod.SAUCE_LIBRARY
   return _sauceLib
+}
+async function getSidesLibrary() {
+  if (_sidesLib) return _sidesLib
+  const mod = await import('@/constants/sidesLibrary')
+  _sidesLib = mod.SIDES_LIBRARY
+  return _sidesLib
 }
 
 function loadVendorExtras() {
@@ -1059,9 +1065,10 @@ function ExtrasPage() {
   const [bundleDiscount, setBundleDiscount] = useState(() => extras.bundleDiscount ?? 0)
   const [toast, setToast] = useState(null)
   const [sauceLibrary, setSauceLibrary] = useState([])
-  const [showSaucePicker, setShowSaucePicker] = useState(false)
+  const [sidesLibrary, setSidesLibrary] = useState([])
+  const [showLibraryPicker, setShowLibraryPicker] = useState(null) // 'sauces' | 'sides' | null
 
-  useEffect(() => { getSauceLibrary().then(setSauceLibrary) }, [])
+  useEffect(() => { getSauceLibrary().then(setSauceLibrary); getSidesLibrary().then(setSidesLibrary) }, [])
 
   const categoryItems = extras[activeCategory] ?? []
 
@@ -1218,7 +1225,7 @@ function ExtrasPage() {
 
       {/* Add button */}
       <button onClick={() => {
-        if (activeCategory === 'sauces') { setShowSaucePicker(true) }
+        if (activeCategory === 'sauces' || activeCategory === 'sides') { setShowLibraryPicker(activeCategory) }
         else { setEditItem({ category: activeCategory, index: -1 }); setEditName(''); setEditPrice(''); setEditLargePrice(''); setEditHasSize(false) }
       }} style={{
         width: '100%', padding: 14, borderRadius: 14, background: '#8DC63F', border: 'none', color: '#000',
@@ -1227,65 +1234,67 @@ function ExtrasPage() {
         + Add {EXTRA_CATEGORIES.find(c => c.id === activeCategory)?.label} Item
       </button>
 
-      {/* Sauce Library Picker */}
-      {showSaucePicker && (
-        <div style={{ position: 'fixed', inset: 0, zIndex: 10003, background: 'rgba(0,0,0,0.85)', display: 'flex', flexDirection: 'column' }}>
-          <div style={{ padding: 'calc(env(safe-area-inset-top, 0px) + 12px) 16px 12px', display: 'flex', alignItems: 'center', gap: 10, flexShrink: 0, borderBottom: '1px solid rgba(255,255,255,0.06)' }}>
-            <button onClick={() => setShowSaucePicker(false)} style={{ width: 32, height: 32, borderRadius: 8, background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' }}>
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2.5" strokeLinecap="round"><path d="M19 12H5M12 5l-7 7 7 7"/></svg>
-            </button>
-            <span style={{ fontSize: 16, fontWeight: 900, color: '#fff' }}>Select Sauces</span>
-          </div>
-          <div style={{ flex: 1, overflowY: 'auto', padding: 16 }}>
-            {sauceLibrary.map(group => {
-              const enabledIds = (extras.sauces ?? []).map(s => s.id)
-              return (
+      {/* Library Picker — sauces or sides */}
+      {showLibraryPicker && (() => {
+        const lib = showLibraryPicker === 'sauces' ? sauceLibrary : sidesLibrary
+        const key = showLibraryPicker
+        const label = showLibraryPicker === 'sauces' ? 'Sauces' : 'Sides'
+        const enabledIds = (extras[key] ?? []).map(s => s.id)
+        return (
+          <div style={{ position: 'fixed', inset: 0, zIndex: 10003, background: 'rgba(0,0,0,0.85)', display: 'flex', flexDirection: 'column' }}>
+            <div style={{ padding: 'calc(env(safe-area-inset-top, 0px) + 12px) 16px 12px', display: 'flex', alignItems: 'center', gap: 10, flexShrink: 0, borderBottom: '1px solid rgba(255,255,255,0.06)' }}>
+              <button onClick={() => setShowLibraryPicker(null)} style={{ width: 32, height: 32, borderRadius: 8, background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' }}>
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2.5" strokeLinecap="round"><path d="M19 12H5M12 5l-7 7 7 7"/></svg>
+              </button>
+              <span style={{ fontSize: 16, fontWeight: 900, color: '#fff' }}>Select {label}</span>
+            </div>
+            <div style={{ flex: 1, overflowY: 'auto', padding: 16 }}>
+              {lib.map(group => (
                 <div key={group.category} style={{ marginBottom: 16 }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 8 }}>
                     <span style={{ fontSize: 18 }}>{group.icon}</span>
                     <span style={{ fontSize: 14, fontWeight: 900, color: '#fff' }}>{group.category}</span>
                   </div>
                   <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
-                    {group.items.map(sauce => {
-                      const enabled = enabledIds.includes(sauce.id)
-                      const existingItem = (extras.sauces ?? []).find(s => s.id === sauce.id)
+                    {group.items.map(item => {
+                      const enabled = enabledIds.includes(item.id)
+                      const existing = (extras[key] ?? []).find(s => s.id === item.id)
                       return (
-                        <button key={sauce.id} onClick={() => {
+                        <button key={item.id} onClick={() => {
                           const updated = { ...extras }
-                          if (!updated.sauces) updated.sauces = []
-                          if (enabled) {
-                            updated.sauces = updated.sauces.filter(s => s.id !== sauce.id)
-                          } else {
-                            updated.sauces.push({ id: sauce.id, name: sauce.name, price: sauce.defaultPrice })
-                          }
+                          if (!updated[key]) updated[key] = []
+                          if (enabled) { updated[key] = updated[key].filter(s => s.id !== item.id) }
+                          else { updated[key].push({ id: item.id, name: item.name, price: item.defaultPrice, largePrice: item.defaultLarge ?? null, hasSize: !!item.defaultLarge }) }
                           setExtras(updated)
                           saveVendorExtras(updated)
                         }} style={{
                           display: 'flex', alignItems: 'center', gap: 10, padding: '10px 12px', borderRadius: 12,
                           background: enabled ? 'rgba(141,198,63,0.1)' : 'rgba(255,255,255,0.03)',
-                          border: `1px solid ${enabled ? '#8DC63F' : 'rgba(255,255,255,0.06)'}`,
-                          cursor: 'pointer', textAlign: 'left',
+                          border: `1px solid ${enabled ? '#8DC63F' : 'rgba(255,255,255,0.06)'}`, cursor: 'pointer', textAlign: 'left',
                         }}>
                           <div style={{ width: 24, height: 24, borderRadius: 6, background: enabled ? '#8DC63F' : 'rgba(255,255,255,0.06)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
                             {enabled && <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#000" strokeWidth="3" strokeLinecap="round"><polyline points="20 6 9 17 4 12"/></svg>}
                           </div>
-                          <span style={{ fontSize: 13, fontWeight: 700, color: enabled ? '#fff' : 'rgba(255,255,255,0.5)', flex: 1 }}>{sauce.name}</span>
-                          <span style={{ fontSize: 12, fontWeight: 800, color: '#FACC15' }}>{fmtRp(existingItem?.price ?? sauce.defaultPrice)}</span>
+                          <span style={{ fontSize: 13, fontWeight: 700, color: enabled ? '#fff' : 'rgba(255,255,255,0.5)', flex: 1 }}>{item.name}</span>
+                          <div style={{ textAlign: 'right' }}>
+                            <span style={{ fontSize: 12, fontWeight: 800, color: '#FACC15', display: 'block' }}>{fmtRp(existing?.price ?? item.defaultPrice)}</span>
+                            {item.defaultLarge && <span style={{ fontSize: 10, color: 'rgba(255,255,255,0.3)' }}>L: {fmtRp(item.defaultLarge)}</span>}
+                          </div>
                         </button>
                       )
                     })}
                   </div>
                 </div>
-              )
-            })}
+              ))}
+            </div>
+            <div style={{ padding: '12px 16px', borderTop: '1px solid rgba(255,255,255,0.06)', flexShrink: 0 }}>
+              <button onClick={() => setShowLibraryPicker(null)} style={{ width: '100%', padding: 14, borderRadius: 14, background: '#8DC63F', border: 'none', color: '#000', fontSize: 14, fontWeight: 900, cursor: 'pointer' }}>
+                Done — {(extras[key] ?? []).length} {label.toLowerCase()} selected
+              </button>
+            </div>
           </div>
-          <div style={{ padding: '12px 16px', borderTop: '1px solid rgba(255,255,255,0.06)', flexShrink: 0 }}>
-            <button onClick={() => setShowSaucePicker(false)} style={{ width: '100%', padding: 14, borderRadius: 14, background: '#8DC63F', border: 'none', color: '#000', fontSize: 14, fontWeight: 900, cursor: 'pointer' }}>
-              Done — {(extras.sauces ?? []).length} sauces selected
-            </button>
-          </div>
-        </div>
-      )}
+        )
+      })()}
 
       {toast && <div style={{ position: 'fixed', bottom: 40, left: '50%', transform: 'translateX(-50%)', padding: '10px 20px', borderRadius: 12, background: '#8DC63F', color: '#000', fontSize: 14, fontWeight: 800, zIndex: 10000 }}>✓ {toast}</div>}
     </>
