@@ -620,6 +620,8 @@ export default function RestaurantBrowseScreen({ onClose, onBackToCategories, ca
   const [pickerTab, setPickerTab] = useState('cuisine') // 'cuisine' | 'deals' | 'discounts' | 'chefs'
   const [cartItems, setCartItems] = useState([]) // direct cart from dish detail
   const [cartToast, setCartToast] = useState(null) // toast message
+  const [dishNote, setDishNote] = useState('') // special request note
+  const [dishExtras, setDishExtras] = useState([]) // selected extras
   const [dishSort, setDishSort] = useState('rating') // 'price' | 'rating' | 'distance'
   const [allergenFilters, setAllergenFilters] = useState([]) // active allergen filters
   const [tick,           setTick]           = useState(0)
@@ -925,10 +927,21 @@ export default function RestaurantBrowseScreen({ onClose, onBackToCategories, ca
                         {d.discountPct && <span style={{ position: 'absolute', top: 6, left: 6, padding: '3px 7px', borderRadius: 6, backgroundColor: '#EF4444', fontSize: 11, fontWeight: 900, color: '#fff' }}>-{d.discountPct}%</span>}
                         <span style={{ position: 'absolute', top: 6, right: 6, fontSize: 14 }}>{(d.restaurant?.vendor_type ?? 'restaurant') === 'street_vendor' ? '🛒' : '🍽️'}</span>
                       </div>
-                      <div style={{ flex: 1, padding: '8px 12px', backgroundColor: 'rgba(0,0,0,0.5)', display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
+                      <div style={{ flex: 1, padding: '8px 12px', backgroundColor: 'rgba(0,0,0,0.5)', display: 'flex', flexDirection: 'column', justifyContent: 'center', position: 'relative' }}>
                         <span style={{ fontSize: 14, fontWeight: 900, color: '#fff', display: 'block', lineHeight: 1.3 }}>{d.name}</span>
-                        <span style={{ fontSize: 11, color: 'rgba(255,255,255,0.4)', marginTop: 2 }}>{d.restaurant.name}{d.endsIn ? ` · ⏰ ${d.endsIn}h` : ''}</span>
-                        <span style={{ fontSize: 14, fontWeight: 900, color: '#8DC63F', marginTop: 3 }}>{d.dealPrice ? `Rp ${(d.dealPrice/1000).toFixed(0)}k` : `Rp ${(d.price/1000).toFixed(0)}k`}</span>
+                        <span style={{ fontSize: 11, color: 'rgba(255,255,255,0.4)', marginTop: 2 }}>{d.restaurant?.name}{d.endsIn ? ` · ⏰ ${d.endsIn}h` : ''}</span>
+                        <div style={{ display: 'flex', gap: 4, marginTop: 3 }}>
+                          {(() => {
+                            const txt = (d.name+' '+(d.description??'')).toLowerCase()
+                            const t = []
+                            if (['pedas','sambal','geprek','spicy','balado','rica','cabai','cabe'].some(w => txt.includes(w))) { const hot = txt.includes('extra hot') || txt.includes('very hot') ? 3 : txt.includes('hot') || txt.includes('pedas') ? 2 : 1; t.push(<span key="s" style={{ fontSize: 14, fontWeight: 800, color: '#EF4444' }}>{'🌶️'.repeat(hot)}</span>) }
+                            if (['bawang','garlic','aglio'].some(w => txt.includes(w))) t.push(<span key="g" style={{ fontSize: 14 }}>🧄</span>)
+                            if (['vegetarian','vegan','sayur','tahu','tempe'].some(w => txt.includes(w))) t.push(<span key="v" style={{ fontSize: 14 }}>🥬</span>)
+                            if (['halal'].some(w => txt.includes(w))) t.push(<span key="h" style={{ fontSize: 14 }}>☪️</span>)
+                            return t
+                          })()}
+                        </div>
+                        <span style={{ fontSize: 15, fontWeight: 900, color: '#8DC63F', position: 'absolute', right: 12, bottom: 10 }}>{d.dealPrice ? `Rp ${(d.dealPrice/1000).toFixed(0)}k` : `Rp ${(d.price/1000).toFixed(0)}k`}</span>
                       </div>
                     </button>
                   )
@@ -1237,9 +1250,8 @@ export default function RestaurantBrowseScreen({ onClose, onBackToCategories, ca
 
       return (
         <div style={{ position: 'fixed', inset: 0, zIndex: 115, backgroundColor: '#0a0a0a', display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
-          {/* Blurred bg */}
-          <img src={dish.photo_url} alt="" style={{ position: 'absolute', inset: -20, width: 'calc(100% + 40px)', height: 'calc(100% + 40px)', objectFit: 'cover', filter: 'blur(20px)', zIndex: 0, opacity: 0.3 }} />
-          <div style={{ position: 'absolute', inset: 0, backgroundColor: 'rgba(0,0,0,0.5)', zIndex: 0 }} />
+          {/* Sizzling background — same as cuisine picker */}
+          <img src="https://ik.imagekit.io/nepgaxllc/sizzling.png" alt="" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', zIndex: 0, pointerEvents: 'none' }} />
 
           {/* Header */}
           <div style={{ padding: 'calc(env(safe-area-inset-top, 0px) + 10px) 16px 10px', display: 'flex', alignItems: 'center', gap: 10, flexShrink: 0, position: 'relative', zIndex: 1 }}>
@@ -1258,8 +1270,8 @@ export default function RestaurantBrowseScreen({ onClose, onBackToCategories, ca
           {/* Scrollable content */}
           <div ref={el => { dishScrollRef.current = el }} style={{ flex: 1, overflowY: 'auto', position: 'relative', zIndex: 1, padding: '0 0 100px' }}>
 
-            {/* Hero dish — full width */}
-            <div style={{ position: 'relative', height: 280 }}>
+            {/* Hero dish — with padding and rounded corners */}
+            <div style={{ position: 'relative', height: 260, margin: '0 14px', borderRadius: 20, overflow: 'hidden' }}>
               <img src={dish.photo_url} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
               <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to top, rgba(0,0,0,0.9) 0%, transparent 40%)' }} />
               {/* Price badge */}
@@ -1288,24 +1300,66 @@ export default function RestaurantBrowseScreen({ onClose, onBackToCategories, ca
                 <span style={{ fontSize: 22, fontWeight: 900, color: '#fff', display: 'block', lineHeight: 1.2, textShadow: '0 2px 8px rgba(0,0,0,0.8)' }}>{dish.name}</span>
                 {dish.description && <span style={{ fontSize: 12, color: 'rgba(255,255,255,0.6)', display: 'block', marginTop: 4, lineHeight: 1.4 }}>{dish.description.slice(0, 100)}</span>}
               </div>
-              {/* Add to cart — bottom right */}
+            </div>
+
+            {/* Order section — notes + extras + add to cart */}
+            <div style={{ padding: '12px 14px', position: 'relative', zIndex: 1 }}>
+              {/* Notes input */}
+              <input
+                value={dishNote}
+                onChange={e => setDishNote(e.target.value)}
+                placeholder="✏️ Special request... (no chili, extra sauce, less rice)"
+                maxLength={100}
+                style={{ width: '100%', padding: '10px 14px', borderRadius: 12, backgroundColor: 'rgba(0,0,0,0.5)', border: '1px solid rgba(255,255,255,0.1)', color: '#fff', fontSize: 13, fontWeight: 600, outline: 'none', fontFamily: 'inherit', boxSizing: 'border-box', marginBottom: 10 }}
+              />
+
+              {/* Quick extras */}
+              <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap', marginBottom: 12 }}>
+                {[
+                  { label: 'Extra Rice', price: 5000, icon: '🍚' },
+                  { label: 'Fried Egg', price: 5000, icon: '🥚' },
+                  { label: 'Extra Sambal', price: 3000, icon: '🌶️' },
+                  { label: 'Extra Cheese', price: 8000, icon: '🧀' },
+                  { label: 'Kerupuk', price: 3000, icon: '🦐' },
+                ].map(ex => {
+                  const selected = dishExtras.includes(ex.label)
+                  return (
+                    <button key={ex.label} onClick={() => setDishExtras(prev => selected ? prev.filter(e => e !== ex.label) : [...prev, ex.label])} style={{
+                      padding: '6px 10px', borderRadius: 10,
+                      backgroundColor: selected ? 'rgba(141,198,63,0.15)' : 'rgba(0,0,0,0.4)',
+                      border: `1px solid ${selected ? '#8DC63F' : 'rgba(255,255,255,0.08)'}`,
+                      color: selected ? '#8DC63F' : 'rgba(255,255,255,0.6)',
+                      fontSize: 12, fontWeight: 700, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4,
+                    }}>
+                      {ex.icon} {ex.label} +Rp {(ex.price/1000).toFixed(0)}k
+                    </button>
+                  )
+                })}
+              </div>
+
+              {/* Add to cart button */}
               <button onClick={() => {
+                const extrasCost = dishExtras.reduce((s, e) => {
+                  const ex = [{ label: 'Extra Rice', price: 5000 }, { label: 'Fried Egg', price: 5000 }, { label: 'Extra Sambal', price: 3000 }, { label: 'Extra Cheese', price: 8000 }, { label: 'Kerupuk', price: 3000 }].find(x => x.label === e)
+                  return s + (ex?.price ?? 0)
+                }, 0)
                 setCartItems(prev => {
                   const ex = prev.find(c => c.id === dish.id && c.restaurant?.id === restaurant.id)
                   if (ex) return prev.map(c => c.id === dish.id && c.restaurant?.id === restaurant.id ? { ...c, qty: c.qty + 1 } : c)
-                  return [...prev, { ...dish, restaurant, qty: 1 }]
+                  return [...prev, { ...dish, restaurant, qty: 1, note: dishNote, extras: dishExtras, extrasPrice: extrasCost }]
                 })
                 setCartToast(`${dish.name} added to cart`)
                 setTimeout(() => setCartToast(null), 2000)
+                setDishNote('')
+                setDishExtras([])
               }} style={{
-                position: 'absolute', bottom: 14, right: 14,
-                padding: '10px 16px', borderRadius: 12,
+                width: '100%', padding: '14px', borderRadius: 14,
                 backgroundColor: '#8DC63F', border: 'none', color: '#000',
-                fontSize: 13, fontWeight: 900, cursor: 'pointer', fontFamily: 'inherit',
-                display: 'flex', alignItems: 'center', gap: 6,
-                boxShadow: '0 2px 10px rgba(141,198,63,0.4)', zIndex: 2,
+                fontSize: 15, fontWeight: 900, cursor: 'pointer', fontFamily: 'inherit',
+                display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8,
+                boxShadow: '0 2px 10px rgba(141,198,63,0.4)',
               }}>
-                🛒 Add
+                🛒 Add to Cart — {fmtP(dish.price + dishExtras.reduce((s, e) => s + ([5000,5000,3000,8000,3000][[  'Extra Rice','Fried Egg','Extra Sambal','Extra Cheese','Kerupuk'].indexOf(e)] ?? 0), 0))}
               </button>
             </div>
 
