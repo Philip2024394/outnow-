@@ -467,45 +467,63 @@ const CUISINE_BANNERS = [
   },
 ]
 
-const CUISINE_ITEMS = [
-  { id: null, emoji: '🍛', label: 'All Food' },
-  { id: 'rice', img: 'https://ik.imagekit.io/nepgaxllc/Untitledasdasdaaavvv-removebg-preview.png', label: 'Rice' },
-  { id: 'noodles', img: 'https://ik.imagekit.io/nepgaxllc/Untitledasdasdaaavvvd-removebg-preview.png', label: 'Noodles' },
-  { id: 'chicken', img: 'https://ik.imagekit.io/nepgaxllc/Untitledasdasdaaavvvdddd-removebg-preview.png', label: 'Chicken' },
-  { id: 'satay', img: 'https://ik.imagekit.io/nepgaxllc/Untitledasdasdaaavvvdddddasda-removebg-preview.png', label: 'Satay' },
-  { id: 'grilled', img: 'https://ik.imagekit.io/nepgaxllc/Untitledasdasdaaavvvdddddasdasss-removebg-preview.png', label: 'Fried Snacks' },
-  { id: 'seafood', img: 'https://ik.imagekit.io/nepgaxllc/Untitledasdasdaaavvvdddddasdassss-removebg-preview.png', label: 'Seafood' },
-  { id: 'tofu_tempe', img: 'https://ik.imagekit.io/nepgaxllc/Untitledsdasdaaaaddddsadaddsscxcccddd-removebg-preview.png', label: 'Tofu & Tempe' },
-  { id: 'siomay', img: 'https://ik.imagekit.io/nepgaxllc/Untitledsdasdaaaaddddsadaddsscxcccddddd-removebg-preview.png', label: 'Siomay' },
-  { id: 'ketoprak', img: 'https://ik.imagekit.io/nepgaxllc/Untitledasdasdaaavvvdddddasdassssddddfssdssssddffdddd-removebg-preview.png', label: 'Ketoprak' },
-  { id: 'burgers', img: 'https://ik.imagekit.io/nepgaxllc/od-removebg-preview.png', label: 'Burgers' },
-  { id: 'soup', img: 'https://ik.imagekit.io/nepgaxllc/Untitledasdasdaaavvvdddddasdas-removebg-preview.png', label: 'Soup' },
-  { id: 'padang', img: 'https://ik.imagekit.io/nepgaxllc/Untitledasdasdaaavvvdddddasdassssddddfss-removebg-preview.png', label: 'Padang' },
-  { id: 'gudeg', img: 'https://ik.imagekit.io/nepgaxllc/Untitledasdasdaaavvvdddddasdassssddddfssd-removebg-preview.png', label: 'Gudeg' },
-  { id: 'street_food', emoji: '🥘', label: 'Street Food' },
-  { id: 'drinks', img: 'https://ik.imagekit.io/nepgaxllc/odfs-removebg-preview.png', label: 'Iced Drinks' },
-  { id: 'traditional_drinks', img: 'https://ik.imagekit.io/nepgaxllc/odfss-removebg-preview.png', label: 'Traditional' },
-  { id: 'coffee', img: 'https://ik.imagekit.io/nepgaxllc/Untitledsdasdaaaaddddsadaddsscxcccdddddsssda-removebg-preview.png', label: 'Tea & Coffee' },
-  { id: 'juice', img: 'https://ik.imagekit.io/nepgaxllc/Untitledsdasdaaaaddddsadaddsscxcccdddddsssdaasda-removebg-preview.png', label: 'Juice' },
-  { id: 'cakes', img: 'https://ik.imagekit.io/nepgaxllc/odfssddasd-removebg-preview.png', label: 'Cakes' },
-  { id: 'desserts', img: 'https://ik.imagekit.io/nepgaxllc/odfssd-removebg-preview.png', label: 'Desserts' },
-  { id: 'porridge', img: 'https://ik.imagekit.io/nepgaxllc/Untitledasdasdaaavvvdddddasdassssdd-removebg-preview.png', label: 'Porridge' },
-  { id: 'rendang', img: 'https://ik.imagekit.io/nepgaxllc/Untitledasdasdaaavvvdddddasdassssddddfssdss-removebg-preview.png', label: 'Rendang' },
-  { id: 'duck', img: 'https://ik.imagekit.io/nepgaxllc/Untitledasdasdaaavvvdddddasdassssddddfssdssss-removebg-preview.png', label: 'Duck' },
-  { id: 'fish', img: 'https://ik.imagekit.io/nepgaxllc/Untitledasdasdaaavvvdddddasdassssddddfssdssssdd-removebg-preview.png', label: 'Fish' },
-  { id: 'pizza', img: 'https://ik.imagekit.io/nepgaxllc/Untitledsdasdaaaaddddsada-removebg-preview.png', label: 'Pizza' },
-  { id: 'pasta', img: 'https://ik.imagekit.io/nepgaxllc/Untitledsdasdaaaaddddsadadd-removebg-preview.png', label: 'Pasta' },
-  { id: 'japanese', img: 'https://ik.imagekit.io/nepgaxllc/Untitledsdasdaaaaddddsadaddss-removebg-preview.png', label: 'Japanese' },
-  { id: 'korean', img: 'https://ik.imagekit.io/nepgaxllc/Untitledsdasdaaaaddddsadaddsscxc-removebg-preview.png', label: 'Korean' },
-  { id: 'chinese', img: 'https://ik.imagekit.io/nepgaxllc/Untitledsdasdaaaaddddsadaddsscxccc-removebg-preview.png', label: 'Chinese' },
-  { id: 'indian', img: 'https://ik.imagekit.io/nepgaxllc/Untitledsdasdaaaaddddsadaddsscxcccdddddss-removebg-preview.png', label: 'Indian' },
-  { id: 'breakfast', img: 'https://ik.imagekit.io/nepgaxllc/Untitledsdasdaaaa-removebg-preview.png', label: 'Breakfast' },
-  { id: 'snacks', img: 'https://ik.imagekit.io/nepgaxllc/Untitledsdasdaaaad-removebg-preview.png', label: 'Snacks' },
-  { id: 'salad', img: 'https://ik.imagekit.io/nepgaxllc/odfssddasds-removebg-preview.png', label: 'Vegetarian' },
-  { id: 'healthy', img: 'https://ik.imagekit.io/nepgaxllc/Untitledsdasdaaaaddd-removebg-preview.png', label: 'Healthy' },
-  { id: 'steak', img: 'https://ik.imagekit.io/nepgaxllc/odf-removebg-preview.png', label: 'Steak' },
-  { id: 'martabak', img: 'https://ik.imagekit.io/nepgaxllc/Untitledasdasdaaavvvdddddasdassssddddf-removebg-preview.png', label: 'Martabak' },
+const CUISINE_GROUPS = [
+  { country: 'All', flag: '🍛', items: [
+    { id: null, emoji: '🍛', label: 'All Food' },
+  ]},
+  { country: 'Indonesian', flag: '🇮🇩', items: [
+    { id: 'rice', img: 'https://ik.imagekit.io/nepgaxllc/Untitledasdasdaaavvv-removebg-preview.png', label: 'Rice' },
+    { id: 'noodles', img: 'https://ik.imagekit.io/nepgaxllc/Untitledasdasdaaavvvd-removebg-preview.png', label: 'Noodles' },
+    { id: 'chicken', img: 'https://ik.imagekit.io/nepgaxllc/Untitledasdasdaaavvvdddd-removebg-preview.png', label: 'Chicken' },
+    { id: 'satay', img: 'https://ik.imagekit.io/nepgaxllc/Untitledasdasdaaavvvdddddasda-removebg-preview.png', label: 'Satay' },
+    { id: 'seafood', img: 'https://ik.imagekit.io/nepgaxllc/Untitledasdasdaaavvvdddddasdassss-removebg-preview.png', label: 'Seafood' },
+    { id: 'tofu_tempe', img: 'https://ik.imagekit.io/nepgaxllc/Untitledsdasdaaaaddddsadaddsscxcccddd-removebg-preview.png', label: 'Tempe' },
+    { id: 'siomay', img: 'https://ik.imagekit.io/nepgaxllc/Untitledsdasdaaaaddddsadaddsscxcccddddd-removebg-preview.png', label: 'Siomay' },
+    { id: 'ketoprak', img: 'https://ik.imagekit.io/nepgaxllc/Untitledasdasdaaavvvdddddasdassssddddfssdssssddffdddd-removebg-preview.png', label: 'Ketoprak' },
+    { id: 'padang', img: 'https://ik.imagekit.io/nepgaxllc/Untitledasdasdaaavvvdddddasdassssddddfss-removebg-preview.png', label: 'Padang' },
+    { id: 'gudeg', img: 'https://ik.imagekit.io/nepgaxllc/Untitledasdasdaaavvvdddddasdassssddddfssd-removebg-preview.png', label: 'Gudeg' },
+    { id: 'rendang', img: 'https://ik.imagekit.io/nepgaxllc/Untitledasdasdaaavvvdddddasdassssddddfssdss-removebg-preview.png', label: 'Rendang' },
+    { id: 'soup', img: 'https://ik.imagekit.io/nepgaxllc/Untitledasdasdaaavvvdddddasdas-removebg-preview.png', label: 'Soup' },
+    { id: 'porridge', img: 'https://ik.imagekit.io/nepgaxllc/Untitledasdasdaaavvvdddddasdassssdd-removebg-preview.png', label: 'Porridge' },
+    { id: 'duck', img: 'https://ik.imagekit.io/nepgaxllc/Untitledasdasdaaavvvdddddasdassssddddfssdssss-removebg-preview.png', label: 'Duck' },
+    { id: 'fish', img: 'https://ik.imagekit.io/nepgaxllc/Untitledasdasdaaavvvdddddasdassssddddfssdssssdd-removebg-preview.png', label: 'Fish' },
+    { id: 'grilled', img: 'https://ik.imagekit.io/nepgaxllc/Untitledasdasdaaavvvdddddasdasss-removebg-preview.png', label: 'Snacks' },
+    { id: 'martabak', img: 'https://ik.imagekit.io/nepgaxllc/Untitledasdasdaaavvvdddddasdassssddddf-removebg-preview.png', label: 'Martabak' },
+  ]},
+  { country: 'Western', flag: '🍔', items: [
+    { id: 'burgers', img: 'https://ik.imagekit.io/nepgaxllc/od-removebg-preview.png', label: 'Burgers' },
+    { id: 'steak', img: 'https://ik.imagekit.io/nepgaxllc/odf-removebg-preview.png', label: 'Steak' },
+    { id: 'pizza', img: 'https://ik.imagekit.io/nepgaxllc/Untitledsdasdaaaaddddsada-removebg-preview.png', label: 'Pizza' },
+    { id: 'pasta', img: 'https://ik.imagekit.io/nepgaxllc/Untitledsdasdaaaaddddsadadd-removebg-preview.png', label: 'Pasta' },
+    { id: 'breakfast', img: 'https://ik.imagekit.io/nepgaxllc/Untitledsdasdaaaa-removebg-preview.png', label: 'Breakfast' },
+    { id: 'salad', img: 'https://ik.imagekit.io/nepgaxllc/odfssddasds-removebg-preview.png', label: 'Vegetarian' },
+    { id: 'healthy', img: 'https://ik.imagekit.io/nepgaxllc/Untitledsdasdaaaaddd-removebg-preview.png', label: 'Healthy' },
+  ]},
+  { country: 'Chinese', flag: '🇨🇳', items: [
+    { id: 'chinese', img: 'https://ik.imagekit.io/nepgaxllc/Untitledsdasdaaaaddddsadaddsscxccc-removebg-preview.png', label: 'Chinese' },
+  ]},
+  { country: 'Japanese', flag: '🇯🇵', items: [
+    { id: 'japanese', img: 'https://ik.imagekit.io/nepgaxllc/Untitledsdasdaaaaddddsadaddss-removebg-preview.png', label: 'Japanese' },
+  ]},
+  { country: 'Korean', flag: '🇰🇷', items: [
+    { id: 'korean', img: 'https://ik.imagekit.io/nepgaxllc/Untitledsdasdaaaaddddsadaddsscxc-removebg-preview.png', label: 'Korean' },
+  ]},
+  { country: 'Indian', flag: '🇮🇳', items: [
+    { id: 'indian', img: 'https://ik.imagekit.io/nepgaxllc/Untitledsdasdaaaaddddsadaddsscxcccdddddss-removebg-preview.png', label: 'Indian' },
+  ]},
+  { country: 'Drinks & Desserts', flag: '🥤', items: [
+    { id: 'drinks', img: 'https://ik.imagekit.io/nepgaxllc/odfs-removebg-preview.png', label: 'Iced Drinks' },
+    { id: 'traditional_drinks', img: 'https://ik.imagekit.io/nepgaxllc/odfss-removebg-preview.png', label: 'Traditional' },
+    { id: 'coffee', img: 'https://ik.imagekit.io/nepgaxllc/Untitledsdasdaaaaddddsadaddsscxcccdddddsssda-removebg-preview.png', label: 'Tea & Coffee' },
+    { id: 'juice', img: 'https://ik.imagekit.io/nepgaxllc/Untitledsdasdaaaaddddsadaddsscxcccdddddsssdaasda-removebg-preview.png', label: 'Juice' },
+    { id: 'cakes', img: 'https://ik.imagekit.io/nepgaxllc/odfssddasd-removebg-preview.png', label: 'Cakes' },
+    { id: 'desserts', img: 'https://ik.imagekit.io/nepgaxllc/odfssd-removebg-preview.png', label: 'Desserts' },
+    { id: 'snacks', img: 'https://ik.imagekit.io/nepgaxllc/Untitledsdasdaaaad-removebg-preview.png', label: 'Snacks' },
+  ]},
 ]
+
+// Flat list for banner insertion logic
+const CUISINE_ITEMS = CUISINE_GROUPS.flatMap(g => g.items)
 
 // Banners appear after these ROW numbers (0-based): after row 1 and row 5
 const BANNER_AFTER_ROW = [1, 5]
@@ -529,44 +547,70 @@ function CuisineGridWithBanners({ onSelect, restaurants, onOpenRestaurant }) {
   }, [])
 
   const cardStyle = {
-    padding: '14px 8px', borderRadius: 16, cursor: 'pointer',
+    padding: '6px', borderRadius: '50%', cursor: 'pointer',
     backgroundImage: 'url(https://ik.imagekit.io/nepgaxllc/Untitledsdfsssq.png)',
     backgroundSize: 'cover', backgroundPosition: 'center',
     border: '1px solid rgba(255,255,255,0.1)',
     boxShadow: '0 2px 8px rgba(0,0,0,0.3)',
-    display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 6,
-    transition: 'transform 0.15s',
+    display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
+    aspectRatio: '1', transition: 'transform 0.15s', position: 'relative', overflow: 'hidden',
   }
 
-  // Split cuisine items into rows of 3
-  const allRows = []
-  for (let i = 0; i < CUISINE_ITEMS.length; i += 3) {
-    allRows.push(CUISINE_ITEMS.slice(i, i + 3))
-  }
-
-  // Build output with banners injected
+  // Build output — grouped by country with flag headers + banners
   const output = []
+  let globalRowIdx = 0
   let bannerSlot = 0
 
-  allRows.forEach((row, rowIdx) => {
-    // Render the cuisine row
-    output.push(
-      <div key={`row-${rowIdx}`} style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 10 }}>
-        {row.map(c => (
-          <button key={c.label} onClick={() => onSelect(c.id)} style={cardStyle}
-            onPointerDown={e => e.currentTarget.style.transform = 'scale(0.95)'}
-            onPointerUp={e => e.currentTarget.style.transform = 'scale(1)'}
-            onPointerLeave={e => e.currentTarget.style.transform = 'scale(1)'}
-          >
-            {c.img ? <img src={c.img} alt="" style={{ width: 86, height: 86, objectFit: 'contain' }} /> : <span style={{ fontSize: 32 }}>{c.emoji}</span>}
-            <span style={{ fontSize: 13, fontWeight: 900, color: '#000' }}>{c.label}</span>
-          </button>
-        ))}
-      </div>
-    )
+  CUISINE_GROUPS.forEach((group, gi) => {
+    // Country header (skip for "All")
+    const slogans = {
+      'Indonesian': 'Authentic flavours from across the archipelago',
+      'Western': 'Classic comfort food & international favourites',
+      'Chinese': 'Dim sum, stir-fry & Tionghoa classics',
+      'Japanese': 'Sushi, ramen & Tokyo street food',
+      'Korean': 'BBQ, kimchi & Seoul favourites',
+      'Indian': 'Curry, naan & rich spices',
+      'Drinks & Desserts': 'Cool down with local & international treats',
+    }
+    if (group.country !== 'All') {
+      output.push(
+        <div key={`header-${gi}`} style={{ padding: '10px 4px 4px' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+            <span style={{ fontSize: 20 }}>{group.flag}</span>
+            <span style={{ fontSize: 16, fontWeight: 900, color: '#fff' }}>{group.country}</span>
+            <div style={{ flex: 1, height: 1, background: 'rgba(255,255,255,0.06)' }} />
+          </div>
+          <span style={{ fontSize: 11, fontWeight: 600, color: 'rgba(255,255,255,0.35)', marginLeft: 32, display: 'block', marginTop: 2 }}>{slogans[group.country] ?? ''}</span>
+        </div>
+      )
+    }
 
-    // Insert banner after this row?
-    if (BANNER_AFTER_ROW.includes(rowIdx)) {
+    // Cuisine items in rows of 4 (round cards fit better in 4)
+    for (let i = 0; i < group.items.length; i += 4) {
+      const row = group.items.slice(i, i + 4)
+      output.push(
+        <div key={`row-${gi}-${i}`} style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 8 }}>
+          {row.map(c => (
+            <button key={c.label} onClick={() => onSelect(c.id)} style={cardStyle}
+              onPointerDown={e => e.currentTarget.style.transform = 'scale(0.95)'}
+              onPointerUp={e => e.currentTarget.style.transform = 'scale(1)'}
+              onPointerLeave={e => e.currentTarget.style.transform = 'scale(1)'}
+            >
+              {c.img ? <img src={c.img} alt="" style={{ width: 46, height: 46, objectFit: 'contain' }} /> : <span style={{ fontSize: 22 }}>{c.emoji}</span>}
+              {/* Curved text at bottom of circle */}
+              <svg viewBox="0 0 80 80" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', pointerEvents: 'none' }}>
+                <defs><path id={`curve-${c.id ?? 'all'}`} d="M 10,55 A 32,32 0 0,0 70,55" /></defs>
+                <text fill="#000" fontSize="10" fontWeight="900" textAnchor="middle">
+                  <textPath href={`#curve-${c.id ?? 'all'}`} startOffset="50%">{c.label}</textPath>
+                </text>
+              </svg>
+            </button>
+          ))}
+        </div>
+      )
+
+      // Check for banner insertion
+      if (BANNER_AFTER_ROW.includes(globalRowIdx)) {
       const slot = bannerSlot
       const pool = slot === 0 ? CUISINE_BANNERS.slice(0, 2) : CUISINE_BANNERS.slice(2, 4)
       const b = pool[(bannerIdx[slot] ?? 0) % pool.length]
@@ -623,6 +667,9 @@ function CuisineGridWithBanners({ onSelect, restaurants, onOpenRestaurant }) {
         </div>
       )
       bannerSlot++
+    }
+
+      globalRowIdx++
     }
   })
 
@@ -783,8 +830,18 @@ export default function RestaurantBrowseScreen({ onClose, onBackToCategories, ca
           <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 0 }}>
             <span style={{ fontSize: 18, fontWeight: 900, color: '#fff' }}>What are you craving?</span>
           </div>
+          {/* Running text ticker */}
+          <div style={{ overflow: 'hidden', marginTop: 8 }}>
+            <div style={{ display: 'flex', animation: 'tickerScroll 20s linear infinite', whiteSpace: 'nowrap' }}>
+              <span style={{ fontSize: 14, fontWeight: 700, color: 'rgba(141,198,63,0.6)', paddingRight: 40 }}>🍛 Rice · 🍜 Noodles · 🍗 Chicken · 🥘 Satay · 🦐 Seafood · 🍔 Burgers · 🍕 Pizza · 🍣 Japanese · 🥟 Chinese · 🌶️ Korean · ☕ Coffee · 🧃 Juice · 🍰 Desserts · 🥩 Steak</span>
+              <span style={{ fontSize: 14, fontWeight: 700, color: 'rgba(141,198,63,0.6)', paddingRight: 40 }}>🍛 Rice · 🍜 Noodles · 🍗 Chicken · 🥘 Satay · 🦐 Seafood · 🍔 Burgers · 🍕 Pizza · 🍣 Japanese · 🥟 Chinese · 🌶️ Korean · ☕ Coffee · 🧃 Juice · 🍰 Desserts · 🥩 Steak</span>
+            </div>
+          </div>
         </div>
-        <style>{`@keyframes cuisineRunLight { from { transform: translateX(-100%); } to { transform: translateX(450%); } }`}</style>
+        <style>{`
+          @keyframes cuisineRunLight { from { transform: translateX(-100%); } to { transform: translateX(450%); } }
+          @keyframes tickerScroll { from { transform: translateX(0); } to { transform: translateX(-50%); } }
+        `}</style>
         <CuisineGridWithBanners
           onSelect={(id) => { setCuisineFilter(id); setShowCuisinePicker(false) }}
           restaurants={DEMO_RESTAURANTS}
