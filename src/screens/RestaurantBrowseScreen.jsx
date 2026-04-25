@@ -775,7 +775,17 @@ export default function RestaurantBrowseScreen({ onClose, onBackToCategories, ca
         const itemName = (item.name ?? '').toLowerCase()
         const filter = cuisineFilter.toLowerCase()
         return itemCat.includes(filter) || itemName.includes(filter) || (r.category ?? '').includes(filter) || (r.cuisine_type ?? '').toLowerCase().includes(filter)
-      }).map(item => ({ ...item, restaurant: r })))
+      }).map(item => {
+        const txt = `${item.name ?? ''} ${item.description ?? ''} ${item.category ?? ''}`.toLowerCase()
+        const tags = []
+        if (['pedas','sambal','geprek','balado','rica','cabai','chili','hot','spicy','cabe'].some(w => txt.includes(w))) tags.push({ icon: '🌶️', label: 'Spicy' })
+        if (['bawang','garlic','aglio'].some(w => txt.includes(w))) tags.push({ icon: '🧄', label: 'Garlic' })
+        if (['vegetarian','vegan','sayur','salad','gado','pecel','karedok','tahu','tempe'].some(w => txt.includes(w))) tags.push({ icon: '🥬', label: 'Vegan' })
+        if (['ikan','udang','kepiting','cumi','seafood','fish','shrimp','crab','squid','gurame'].some(w => txt.includes(w))) tags.push({ icon: '🦐', label: 'Seafood' })
+        if (['kacang','nut','almond','peanut'].some(w => txt.includes(w))) tags.push({ icon: '🥜', label: 'Nuts' })
+        if (['halal'].some(w => txt.includes(w))) tags.push({ icon: '☪️', label: 'Halal' })
+        return { ...item, isSpicy: tags.some(t => t.label === 'Spicy'), tags, restaurant: r }
+      }))
 
       const fmtPrice = (n) => 'Rp ' + (n ?? 0).toLocaleString('id-ID')
 
@@ -817,6 +827,7 @@ export default function RestaurantBrowseScreen({ onClose, onBackToCategories, ca
                       <div style={{ position: 'absolute', bottom: 8, right: 8, padding: '4px 8px', borderRadius: 8, backgroundColor: '#FACC15' }}>
                         <span style={{ fontSize: 11, fontWeight: 900, color: '#000' }}>{fmtPrice(dish.price)}</span>
                       </div>
+                      {dish.isSpicy && <span style={{ position: 'absolute', bottom: 8, left: 8, fontSize: 18 }}>🌶️</span>}
                     </div>
                     {/* Info */}
                     <div style={{ padding: '10px 10px 12px', backgroundColor: 'rgba(0,0,0,0.6)' }}>
@@ -825,8 +836,8 @@ export default function RestaurantBrowseScreen({ onClose, onBackToCategories, ca
                         <span style={{ fontSize: 11, color: 'rgba(255,255,255,0.4)' }}>{dish.restaurant.name}</span>
                         {dish.restaurant.rating && <span style={{ fontSize: 10, color: '#FACC15', fontWeight: 800 }}>★ {dish.restaurant.rating}</span>}
                       </div>
-                      {dish.restaurant.distKm != null && (
-                        <span style={{ fontSize: 10, color: '#8DC63F', fontWeight: 700, marginTop: 2, display: 'block' }}>📍 {dish.restaurant.distKm} km</span>
+                      {dish.restaurant.deliveryFare != null && (
+                        <span style={{ fontSize: 10, color: '#8DC63F', fontWeight: 700, marginTop: 2, display: 'block' }}>🏍️ Delivery {fmtPrice(dish.restaurant.deliveryFare)}</span>
                       )}
                     </div>
                   </button>
@@ -872,9 +883,6 @@ export default function RestaurantBrowseScreen({ onClose, onBackToCategories, ca
                 <span style={{ fontSize: 11, color: 'rgba(255,255,255,0.3)' }}>· {restaurant.cuisine_type}</span>
               </div>
             </div>
-            <button onClick={() => { setSelectedDish(null); setMenuRestaurant(restaurant) }} style={{ padding: '8px 14px', borderRadius: 10, backgroundColor: 'rgba(141,198,63,0.15)', border: '1px solid rgba(141,198,63,0.3)', color: '#8DC63F', fontSize: 12, fontWeight: 800, cursor: 'pointer' }}>
-              Full Menu
-            </button>
           </div>
 
           {/* Scrollable content */}
@@ -888,28 +896,50 @@ export default function RestaurantBrowseScreen({ onClose, onBackToCategories, ca
               <div style={{ position: 'absolute', top: 14, right: 14, padding: '6px 12px', borderRadius: 10, backgroundColor: '#FACC15' }}>
                 <span style={{ fontSize: 14, fontWeight: 900, color: '#000' }}>{fmtP(dish.price)}</span>
               </div>
-              {/* Dish info */}
-              <div style={{ position: 'absolute', bottom: 16, left: 16, right: 16 }}>
-                <span style={{ fontSize: 22, fontWeight: 900, color: '#fff', display: 'block', lineHeight: 1.2 }}>{dish.name}</span>
-                {dish.description && <span style={{ fontSize: 13, color: 'rgba(255,255,255,0.6)', display: 'block', marginTop: 6, lineHeight: 1.5 }}>{dish.description.slice(0, 150)}</span>}
-              </div>
-            </div>
-
-            {/* Prep time + category + add to cart */}
-            <div style={{ padding: '12px 16px', display: 'flex', alignItems: 'center', gap: 8 }}>
+              {/* Prep time — top left */}
               {dish.prep_time_min && (
-                <span style={{ padding: '4px 10px', borderRadius: 8, backgroundColor: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.08)', fontSize: 11, fontWeight: 700, color: 'rgba(255,255,255,0.5)' }}>⏱ {dish.prep_time_min} min</span>
+                <div style={{ position: 'absolute', top: 14, left: 14, padding: '4px 10px', borderRadius: 8, backgroundColor: 'rgba(0,0,0,0.7)', backdropFilter: 'blur(8px)' }}>
+                  <span style={{ fontSize: 11, fontWeight: 800, color: '#fff' }}>⏱ {dish.prep_time_min} min</span>
+                </div>
               )}
-              {dish.category && (
-                <span style={{ padding: '4px 10px', borderRadius: 8, backgroundColor: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.08)', fontSize: 11, fontWeight: 700, color: 'rgba(255,255,255,0.5)' }}>{dish.category}</span>
+              {/* Food tags — bottom left, above button */}
+              {dish.tags?.length > 0 && (
+                <div style={{ position: 'absolute', bottom: 14, left: 14, display: 'flex', gap: 4, zIndex: 2 }}>
+                  {dish.tags.map(t => (
+                    <span key={t.label} style={{ padding: '3px 8px', borderRadius: 8, backgroundColor: 'rgba(0,0,0,0.7)', backdropFilter: 'blur(8px)', fontSize: 12, display: 'flex', alignItems: 'center', gap: 3 }}>
+                      <span>{t.icon}</span>
+                      <span style={{ fontSize: 9, fontWeight: 800, color: 'rgba(255,255,255,0.7)' }}>{t.label}</span>
+                    </span>
+                  ))}
+                </div>
               )}
-              <button onClick={() => { setSelectedDish(null); setMenuRestaurant(restaurant) }} style={{
-                marginLeft: 'auto', padding: '10px 18px', borderRadius: 12,
+              {/* Dish info — above button */}
+              <div style={{ position: 'absolute', bottom: 54, left: 16, right: 16 }}>
+                <span style={{ fontSize: 22, fontWeight: 900, color: '#fff', display: 'block', lineHeight: 1.2, textShadow: '0 2px 8px rgba(0,0,0,0.8)' }}>{dish.name}</span>
+                {dish.description && <span style={{ fontSize: 12, color: 'rgba(255,255,255,0.6)', display: 'block', marginTop: 4, lineHeight: 1.4 }}>{dish.description.slice(0, 100)}</span>}
+              </div>
+              {/* Add to cart — bottom right */}
+              <button onClick={() => { setSelectedDish(null); setCuisineFilter(null); setMenuRestaurant(restaurant) }} style={{
+                position: 'absolute', bottom: 14, right: 14,
+                padding: '10px 16px', borderRadius: 12,
                 backgroundColor: '#8DC63F', border: 'none', color: '#000',
                 fontSize: 13, fontWeight: 900, cursor: 'pointer', fontFamily: 'inherit',
                 display: 'flex', alignItems: 'center', gap: 6,
+                boxShadow: '0 2px 10px rgba(141,198,63,0.4)', zIndex: 2,
               }}>
-                🛒 Add to Cart
+                🛒 Add
+              </button>
+            </div>
+
+            {/* Restaurant button */}
+            <div style={{ padding: '10px 16px' }}>
+              <button onClick={() => { setSelectedDish(null); setCuisineFilter(null); setMenuRestaurant(restaurant) }} style={{
+                width: '100%', padding: '12px 16px', borderRadius: 14,
+                backgroundColor: 'rgba(141,198,63,0.1)', border: '1.5px solid rgba(141,198,63,0.3)',
+                color: '#8DC63F', fontSize: 14, fontWeight: 900, cursor: 'pointer', fontFamily: 'inherit',
+                display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8,
+              }}>
+                🍽️ View {restaurant.name}
               </button>
             </div>
 
