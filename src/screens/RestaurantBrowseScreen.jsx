@@ -765,7 +765,82 @@ export default function RestaurantBrowseScreen({ onClose, onBackToCategories, ca
       </div>
     )}
 
-    <div className={styles.screen} style={{ display: showLanding || loading || showCuisinePicker ? 'none' : undefined }}>
+    {/* ── Dish Feed — shows when cuisine selected ── */}
+    {cuisineFilter && !showLanding && !showCuisinePicker && !menuRestaurant && (() => {
+      // Aggregate all dishes matching the cuisine filter from all restaurants
+      const allDishes = withMeta.flatMap(r => (r.menu_items ?? []).filter(item => {
+        if (!item.photo_url) return false
+        const itemCat = (item.category ?? '').toLowerCase()
+        const itemName = (item.name ?? '').toLowerCase()
+        const filter = cuisineFilter.toLowerCase()
+        return itemCat.includes(filter) || itemName.includes(filter) || (r.category ?? '').includes(filter) || (r.cuisine_type ?? '').toLowerCase().includes(filter)
+      }).map(item => ({ ...item, restaurant: r })))
+
+      const fmtPrice = (n) => 'Rp ' + (n ?? 0).toLocaleString('id-ID')
+
+      return (
+        <div style={{ position: 'fixed', inset: 0, zIndex: 105, backgroundColor: '#0a0a0a', display: 'flex', flexDirection: 'column' }}>
+          {/* Header */}
+          <div style={{ padding: 'calc(env(safe-area-inset-top, 0px) + 10px) 16px 10px', display: 'flex', alignItems: 'center', gap: 10, flexShrink: 0 }}>
+            <button onClick={() => { setCuisineFilter(null); setShowCuisinePicker(true) }} style={{ width: 34, height: 34, borderRadius: '50%', backgroundColor: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' }}>
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2.5" strokeLinecap="round"><path d="M19 12H5M12 5l-7 7 7 7"/></svg>
+            </button>
+            <span style={{ fontSize: 18, fontWeight: 900, color: '#fff', flex: 1 }}>{cuisineFilter.charAt(0).toUpperCase() + cuisineFilter.slice(1)}</span>
+            <span style={{ fontSize: 12, color: 'rgba(255,255,255,0.4)', fontWeight: 700 }}>{allDishes.length} dishes</span>
+          </div>
+
+          {/* Dish grid */}
+          <div style={{ flex: 1, overflowY: 'auto', padding: '8px 12px 100px' }}>
+            {allDishes.length === 0 ? (
+              <div style={{ textAlign: 'center', padding: '60px 20px' }}>
+                <span style={{ fontSize: 48, display: 'block', marginBottom: 12 }}>🍽️</span>
+                <span style={{ fontSize: 16, fontWeight: 900, color: '#fff', display: 'block', marginBottom: 6 }}>No dishes found</span>
+                <span style={{ fontSize: 13, color: 'rgba(255,255,255,0.4)' }}>Try a different cuisine</span>
+              </div>
+            ) : (
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 10 }}>
+                {allDishes.map((dish, i) => (
+                  <button key={`${dish.id}-${i}`} onClick={() => setMenuRestaurant(dish.restaurant)} style={{
+                    borderRadius: 16, overflow: 'hidden', position: 'relative',
+                    border: '1px solid rgba(255,255,255,0.08)', padding: 0, background: 'none', cursor: 'pointer',
+                    display: 'flex', flexDirection: 'column', textAlign: 'left',
+                  }}>
+                    {/* Dish image */}
+                    <div style={{ height: 120, position: 'relative', overflow: 'hidden' }}>
+                      <img src={dish.photo_url} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                      <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to top, rgba(0,0,0,0.7) 0%, transparent 50%)' }} />
+                      {/* Price badge */}
+                      <div style={{ position: 'absolute', bottom: 8, right: 8, padding: '4px 8px', borderRadius: 8, backgroundColor: '#8DC63F' }}>
+                        <span style={{ fontSize: 11, fontWeight: 900, color: '#000' }}>{fmtPrice(dish.price)}</span>
+                      </div>
+                    </div>
+                    {/* Info */}
+                    <div style={{ padding: '10px 10px 12px', backgroundColor: 'rgba(255,255,255,0.03)' }}>
+                      <span style={{ fontSize: 13, fontWeight: 900, color: '#fff', display: 'block', lineHeight: 1.3 }}>{dish.name}</span>
+                      <span style={{ fontSize: 11, color: 'rgba(255,255,255,0.4)', display: 'block', marginTop: 4 }}>{dish.restaurant.name}</span>
+                      {dish.restaurant.distKm != null && (
+                        <span style={{ fontSize: 10, color: '#8DC63F', fontWeight: 700, marginTop: 2, display: 'block' }}>📍 {dish.restaurant.distKm} km</span>
+                      )}
+                    </div>
+                  </button>
+                ))}
+              </div>
+            )}
+          </div>
+
+          {/* Footer nav */}
+          <FoodFooterNav
+            onHome={onClose}
+            onChat={() => setChatOpen(true)}
+            onNotifications={() => {}}
+            onProfile={() => {}}
+            activeTab={null}
+          />
+        </div>
+      )
+    })()}
+
+    <div className={styles.screen} style={{ display: showLanding || loading || showCuisinePicker || cuisineFilter ? 'none' : undefined }}>
 
       {/* Fixed header */}
       <div className={styles.header}>
