@@ -201,7 +201,23 @@ const NAV_ITEMS = [
   { id: 'settings', label: 'Settings', icon: '⚙️' },
   { id: 'payouts', label: 'Payouts', icon: '💰' },
   { id: 'banners', label: 'Banner Ads', icon: '📢' },
+  { id: 'extras', label: 'Extras & Add-ons', icon: '🍟' },
 ]
+
+// ── Extras management ───────────────────────────────────────────────────────
+const EXTRAS_STORAGE = 'indoo_vendor_extras'
+const EXTRA_CATEGORIES = [
+  { id: 'sauces', label: 'Sauces', icon: '🌶️' },
+  { id: 'drinks', label: 'Drinks', icon: '🥤' },
+  { id: 'sides', label: 'Sides', icon: '🍟' },
+]
+
+function loadVendorExtras() {
+  try { return JSON.parse(localStorage.getItem(EXTRAS_STORAGE) || '{}') } catch { return {} }
+}
+function saveVendorExtras(data) {
+  localStorage.setItem(EXTRAS_STORAGE, JSON.stringify(data))
+}
 
 // ── Banner Ad system ────────────────────────────────────────────────────────
 const BANNER_TEMPLATES = [
@@ -865,6 +881,9 @@ export default function VendorDashboardV2({ onClose }) {
         {/* ══════════ PAGE: BANNER ADS ══════════ */}
         {page === 'banners' && <BannerAdsPage restaurant={restaurant} />}
 
+        {/* ══════════ PAGE: EXTRAS & ADD-ONS ══════════ */}
+        {page === 'extras' && <ExtrasPage />}
+
         </div>
       </div>
 
@@ -1019,6 +1038,184 @@ export default function VendorDashboardV2({ onClose }) {
 }
 
 // ── Banner Ads page ─────────────────────────────────────────────────────────
+// ── Extras & Add-ons management page ────────────────────────────────────────
+function ExtrasPage() {
+  const [extras, setExtras] = useState(() => loadVendorExtras())
+  const [activeCategory, setActiveCategory] = useState('sauces')
+  const [editItem, setEditItem] = useState(null) // null or { category, index } or { category, index: -1 } for new
+  const [editName, setEditName] = useState('')
+  const [editPrice, setEditPrice] = useState('')
+  const [editLargePrice, setEditLargePrice] = useState('')
+  const [editHasSize, setEditHasSize] = useState(false)
+  const [bundleDiscount, setBundleDiscount] = useState(() => extras.bundleDiscount ?? 0)
+  const [toast, setToast] = useState(null)
+
+  const categoryItems = extras[activeCategory] ?? []
+
+  const saveItem = () => {
+    if (!editName.trim() || !editPrice) return
+    const updated = { ...extras }
+    if (!updated[activeCategory]) updated[activeCategory] = []
+    const item = {
+      name: editName.trim(),
+      price: Number(editPrice),
+      largePrice: editHasSize && editLargePrice ? Number(editLargePrice) : null,
+      hasSize: editHasSize,
+    }
+    if (editItem.index === -1) {
+      updated[activeCategory].push(item)
+    } else {
+      updated[activeCategory][editItem.index] = item
+    }
+    setExtras(updated)
+    saveVendorExtras(updated)
+    setEditItem(null)
+    setEditName(''); setEditPrice(''); setEditLargePrice(''); setEditHasSize(false)
+    setToast('Saved')
+    setTimeout(() => setToast(null), 2000)
+  }
+
+  const deleteItem = (idx) => {
+    const updated = { ...extras }
+    updated[activeCategory] = (updated[activeCategory] ?? []).filter((_, i) => i !== idx)
+    setExtras(updated)
+    saveVendorExtras(updated)
+  }
+
+  const saveBundleDiscount = (val) => {
+    setBundleDiscount(val)
+    const updated = { ...extras, bundleDiscount: val }
+    setExtras(updated)
+    saveVendorExtras(updated)
+  }
+
+  const inputStyle = { width: '100%', padding: '12px 14px', borderRadius: 12, border: '1px solid rgba(255,255,255,0.08)', background: 'rgba(0,0,0,0.4)', color: '#fff', fontSize: 14, outline: 'none', boxSizing: 'border-box', fontFamily: 'inherit' }
+
+  // Edit form
+  if (editItem) {
+    return (
+      <>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 16 }}>
+          <button onClick={() => setEditItem(null)} style={{ width: 32, height: 32, borderRadius: 8, background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' }}>
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2.5" strokeLinecap="round"><path d="M19 12H5M12 5l-7 7 7 7"/></svg>
+          </button>
+          <h2 style={{ fontSize: 18, fontWeight: 900, color: '#fff', margin: 0 }}>{editItem.index === -1 ? 'Add' : 'Edit'} {EXTRA_CATEGORIES.find(c => c.id === activeCategory)?.label} Item</h2>
+        </div>
+
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
+          <div>
+            <span style={{ fontSize: 12, fontWeight: 800, color: 'rgba(255,255,255,0.4)', display: 'block', marginBottom: 4, textTransform: 'uppercase' }}>Item Name</span>
+            <input value={editName} onChange={e => setEditName(e.target.value)} placeholder="e.g. Extra Sambal" style={inputStyle} />
+          </div>
+          <div>
+            <span style={{ fontSize: 12, fontWeight: 800, color: 'rgba(255,255,255,0.4)', display: 'block', marginBottom: 4, textTransform: 'uppercase' }}>Price (Regular)</span>
+            <input type="number" value={editPrice} onChange={e => setEditPrice(e.target.value)} placeholder="3000" style={inputStyle} />
+          </div>
+
+          {/* Size toggle */}
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+            <span style={{ fontSize: 13, fontWeight: 700, color: 'rgba(255,255,255,0.5)' }}>Offer size options (Regular / Large)</span>
+            <button onClick={() => setEditHasSize(!editHasSize)} style={{
+              width: 44, height: 24, borderRadius: 12, border: 'none', cursor: 'pointer',
+              background: editHasSize ? '#8DC63F' : 'rgba(255,255,255,0.1)',
+              position: 'relative', transition: 'background 0.2s',
+            }}>
+              <div style={{ width: 20, height: 20, borderRadius: '50%', background: '#fff', position: 'absolute', top: 2, left: editHasSize ? 22 : 2, transition: 'left 0.2s', boxShadow: '0 1px 4px rgba(0,0,0,0.3)' }} />
+            </button>
+          </div>
+
+          {editHasSize && (
+            <div>
+              <span style={{ fontSize: 12, fontWeight: 800, color: 'rgba(255,255,255,0.4)', display: 'block', marginBottom: 4, textTransform: 'uppercase' }}>Large Price</span>
+              <input type="number" value={editLargePrice} onChange={e => setEditLargePrice(e.target.value)} placeholder="5000" style={inputStyle} />
+            </div>
+          )}
+
+          <button onClick={saveItem} disabled={!editName.trim() || !editPrice} style={{
+            width: '100%', padding: 14, borderRadius: 14, background: editName.trim() && editPrice ? '#8DC63F' : 'rgba(255,255,255,0.06)',
+            border: 'none', color: editName.trim() && editPrice ? '#000' : 'rgba(255,255,255,0.3)',
+            fontSize: 14, fontWeight: 900, cursor: editName.trim() && editPrice ? 'pointer' : 'default',
+          }}>Save Item</button>
+        </div>
+      </>
+    )
+  }
+
+  return (
+    <>
+      <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 6 }}>
+        <h2 style={{ fontSize: 18, fontWeight: 900, color: '#fff', margin: 0, flex: 1 }}>🍟 Extras & Add-ons</h2>
+      </div>
+      <p style={{ fontSize: 12, color: 'rgba(255,255,255,0.4)', margin: '0 0 16px' }}>Upload your sauces, drinks, and sides. Customers add them when ordering any dish.</p>
+
+      {/* Bundle discount */}
+      <div style={{ padding: 14, borderRadius: 14, background: 'rgba(0,0,0,0.4)', border: '1px solid rgba(255,255,255,0.08)', marginBottom: 16 }}>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 6 }}>
+          <span style={{ fontSize: 13, fontWeight: 800, color: '#FACC15' }}>💰 Bundle Discount</span>
+          <span style={{ fontSize: 14, fontWeight: 900, color: '#8DC63F' }}>{bundleDiscount}% off</span>
+        </div>
+        <span style={{ fontSize: 11, color: 'rgba(255,255,255,0.4)', display: 'block', marginBottom: 8 }}>Discount applied to extras when ordered with a main dish</span>
+        <div style={{ display: 'flex', gap: 6 }}>
+          {[0, 5, 10, 15, 20].map(v => (
+            <button key={v} onClick={() => saveBundleDiscount(v)} style={{
+              flex: 1, padding: '8px 4px', borderRadius: 8,
+              background: bundleDiscount === v ? '#FACC15' : 'rgba(255,255,255,0.06)',
+              border: bundleDiscount === v ? 'none' : '1px solid rgba(255,255,255,0.08)',
+              color: bundleDiscount === v ? '#000' : 'rgba(255,255,255,0.5)',
+              fontSize: 13, fontWeight: 800, cursor: 'pointer',
+            }}>{v}%</button>
+          ))}
+        </div>
+      </div>
+
+      {/* Category tabs */}
+      <div style={{ display: 'flex', gap: 6, marginBottom: 14 }}>
+        {EXTRA_CATEGORIES.map(c => (
+          <button key={c.id} onClick={() => setActiveCategory(c.id)} style={{
+            flex: 1, padding: '10px 4px', borderRadius: 10,
+            background: activeCategory === c.id ? '#8DC63F' : 'rgba(255,255,255,0.06)',
+            border: activeCategory === c.id ? 'none' : '1px solid rgba(255,255,255,0.08)',
+            color: activeCategory === c.id ? '#000' : 'rgba(255,255,255,0.5)',
+            fontSize: 13, fontWeight: 800, cursor: 'pointer',
+          }}>{c.icon} {c.label}</button>
+        ))}
+      </div>
+
+      {/* Items list */}
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 8, marginBottom: 14 }}>
+        {categoryItems.length === 0 && (
+          <div style={{ textAlign: 'center', padding: 30, color: 'rgba(255,255,255,0.3)', fontSize: 13 }}>No {EXTRA_CATEGORIES.find(c => c.id === activeCategory)?.label.toLowerCase()} added yet</div>
+        )}
+        {categoryItems.map((item, i) => (
+          <div key={i} style={{ padding: 12, borderRadius: 14, background: 'rgba(0,0,0,0.4)', border: '1px solid rgba(255,255,255,0.08)', display: 'flex', alignItems: 'center', gap: 10 }}>
+            <div style={{ flex: 1 }}>
+              <span style={{ fontSize: 14, fontWeight: 800, color: '#fff', display: 'block' }}>{item.name}</span>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginTop: 4 }}>
+                <span style={{ fontSize: 13, fontWeight: 900, color: '#FACC15' }}>{fmtRp(item.price)}</span>
+                {item.hasSize && item.largePrice && (
+                  <span style={{ fontSize: 12, color: 'rgba(255,255,255,0.4)' }}>· Large {fmtRp(item.largePrice)}</span>
+                )}
+              </div>
+            </div>
+            <button onClick={() => { setEditItem({ category: activeCategory, index: i }); setEditName(item.name); setEditPrice(String(item.price)); setEditLargePrice(item.largePrice ? String(item.largePrice) : ''); setEditHasSize(item.hasSize ?? false) }} style={{ padding: '6px 12px', borderRadius: 8, background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.1)', color: '#8DC63F', fontSize: 11, fontWeight: 800, cursor: 'pointer' }}>Edit</button>
+            <button onClick={() => deleteItem(i)} style={{ padding: '6px 12px', borderRadius: 8, background: 'rgba(239,68,68,0.08)', border: '1px solid rgba(239,68,68,0.2)', color: '#EF4444', fontSize: 11, fontWeight: 800, cursor: 'pointer' }}>Delete</button>
+          </div>
+        ))}
+      </div>
+
+      {/* Add button */}
+      <button onClick={() => { setEditItem({ category: activeCategory, index: -1 }); setEditName(''); setEditPrice(''); setEditLargePrice(''); setEditHasSize(false) }} style={{
+        width: '100%', padding: 14, borderRadius: 14, background: '#8DC63F', border: 'none', color: '#000',
+        fontSize: 14, fontWeight: 900, cursor: 'pointer',
+      }}>
+        + Add {EXTRA_CATEGORIES.find(c => c.id === activeCategory)?.label} Item
+      </button>
+
+      {toast && <div style={{ position: 'fixed', bottom: 40, left: '50%', transform: 'translateX(-50%)', padding: '10px 20px', borderRadius: 12, background: '#8DC63F', color: '#000', fontSize: 14, fontWeight: 800, zIndex: 10000 }}>✓ {toast}</div>}
+    </>
+  )
+}
+
 function BannerAdsPage({ restaurant }) {
   const [step, setStep] = useState('library') // library | promo | payment | submitted
   const [selectedTemplate, setSelectedTemplate] = useState(null)
