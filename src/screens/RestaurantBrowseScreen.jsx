@@ -851,47 +851,74 @@ export default function RestaurantBrowseScreen({ onClose, onBackToCategories, ca
 
           {/* ── TAB: Discounts ── */}
           {pickerTab === 'discounts' && <div style={{ padding: '8px 12px' }}>
-                {/* Discounted Now */}
                 {(() => {
-                  const discountedItems = withMeta.flatMap(r => {
-                    if (!r.dine_in_discount || r.dine_in_discount <= 0) return []
+                  const allDiscounted = withMeta.flatMap(r => {
+                    const disc = r.dine_in_discount > 0 ? r.dine_in_discount : (r.featured_this_week ? 15 : 10)
                     return (r.menu_items ?? []).filter(i => i.photo_url).slice(0, 2).map(i => ({
-                      ...i, restaurant: r,
-                      discountPct: r.dine_in_discount,
-                      dealPrice: Math.round(i.price * (1 - r.dine_in_discount / 100)),
-                      endsIn: Math.floor(2 + Math.random() * 4),
+                      ...i, restaurant: r, discountPct: disc,
+                      dealPrice: Math.round(i.price * (1 - disc / 100)),
+                      endsIn: Math.floor(1 + Math.random() * 6),
                     }))
-                  }).slice(0, 6)
-                  return discountedItems.length > 0 && (
-                    <div style={{ marginTop: 12, position: 'relative', zIndex: 1 }}>
-                      <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 6 }}>
-                        <span style={{ fontSize: 24 }}>💰</span>
-                        <div>
-                          <span style={{ fontSize: 20, fontWeight: 900, color: '#FACC15', display: 'block', textShadow: '0 1px 4px rgba(0,0,0,0.9), 0 0 12px rgba(0,0,0,0.7)' }}>Discounted Now</span>
-                          <span style={{ fontSize: 13, color: '#fff', textShadow: '0 1px 4px rgba(0,0,0,0.9)' }}>Up to {Math.max(...discountedItems.map(d => d.discountPct))}% off right now</span>
-                        </div>
+                  })
+                  const flash = [...allDiscounted].sort((a, b) => a.endsIn - b.endsIn).slice(0, 5)
+                  const biggest = [...allDiscounted].sort((a, b) => b.discountPct - a.discountPct).slice(0, 5)
+                  const freeDelivery = withMeta.filter(r => r.featured_this_week).flatMap(r => (r.menu_items ?? []).filter(i => i.photo_url).slice(0, 1).map(i => ({ ...i, restaurant: r }))).slice(0, 4)
+
+                  const DCard = ({ d, onClick }) => (
+                    <button onClick={onClick} style={{ width: '100%', borderRadius: 14, overflow: 'hidden', border: '1px solid rgba(250,204,21,0.3)', padding: 0, background: 'none', cursor: 'pointer', display: 'flex', textAlign: 'left', height: 80 }}>
+                      <div style={{ width: 100, flexShrink: 0, position: 'relative' }}>
+                        <img src={d.photo_url} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                        {d.discountPct && <span style={{ position: 'absolute', top: 6, left: 6, padding: '3px 7px', borderRadius: 6, backgroundColor: '#EF4444', fontSize: 11, fontWeight: 900, color: '#fff' }}>-{d.discountPct}%</span>}
                       </div>
-                      <div style={{ display: 'flex', gap: 8, overflowX: 'auto', scrollbarWidth: 'none', paddingBottom: 4 }}>
-                        {discountedItems.map((d, i) => (
-                          <button key={`disc-${i}`} onClick={() => { setSelectedDish({ dish: { ...d, price: d.dealPrice }, restaurant: d.restaurant }); setShowCuisinePicker(false); setCuisineFilter(d.category?.toLowerCase() ?? 'all') }} style={{
-                            width: 180, flexShrink: 0, borderRadius: 12, overflow: 'hidden', border: '1px solid rgba(250,204,21,0.3)', padding: 0, background: 'none', cursor: 'pointer', textAlign: 'left',
-                          }}>
-                            <div style={{ height: 80, position: 'relative' }}>
-                              <img src={d.photo_url} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-                              <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to top, rgba(0,0,0,0.8) 0%, transparent 50%)' }} />
-                              <span style={{ position: 'absolute', top: 4, left: 4, padding: '2px 5px', borderRadius: 4, backgroundColor: '#EF4444', fontSize: 10, fontWeight: 900, color: '#fff' }}>-{d.discountPct}%</span>
-                            </div>
-                            <div style={{ padding: '5px 6px', backgroundColor: 'rgba(0,0,0,0.5)' }}>
-                              <span style={{ fontSize: 13, fontWeight: 800, color: '#fff', display: 'block', lineHeight: 1.2 }}>{d.name}</span>
-                              <span style={{ fontSize: 10, fontWeight: 900, color: '#8DC63F' }}>Rp {(d.dealPrice/1000).toFixed(0)}k</span>
-                            </div>
-                          </button>
-                        ))}
+                      <div style={{ flex: 1, padding: '8px 12px', backgroundColor: 'rgba(0,0,0,0.5)', display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
+                        <span style={{ fontSize: 14, fontWeight: 900, color: '#fff', display: 'block', lineHeight: 1.3 }}>{d.name}</span>
+                        <span style={{ fontSize: 11, color: 'rgba(255,255,255,0.4)', marginTop: 2 }}>{d.restaurant.name}{d.endsIn ? ` · ⏰ ${d.endsIn}h` : ''}</span>
+                        <span style={{ fontSize: 14, fontWeight: 900, color: '#8DC63F', marginTop: 3 }}>{d.dealPrice ? `Rp ${(d.dealPrice/1000).toFixed(0)}k` : `Rp ${(d.price/1000).toFixed(0)}k`}</span>
+                      </div>
+                    </button>
+                  )
+                  const openDish = (d) => { setSelectedDish({ dish: { ...d, price: d.dealPrice ?? d.price }, restaurant: d.restaurant }); setShowCuisinePicker(false); setCuisineFilter(d.category?.toLowerCase() ?? 'all') }
+
+                  return (<div>
+                    {/* Flash Deals */}
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 8 }}>
+                      <span style={{ fontSize: 24 }}>⚡</span>
+                      <div>
+                        <span style={{ fontSize: 20, fontWeight: 900, color: '#FACC15', display: 'block', textShadow: '0 1px 4px rgba(0,0,0,0.9), 0 0 12px rgba(0,0,0,0.7)' }}>Flash Deals</span>
+                        <span style={{ fontSize: 13, color: '#fff', textShadow: '0 1px 4px rgba(0,0,0,0.9)' }}>Ending soon — grab them now</span>
                       </div>
                     </div>
-                  )
-                })()}
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: 10, marginBottom: 20 }}>
+                      {flash.map((d, i) => <DCard key={`flash-${i}`} d={d} onClick={() => openDish(d)} />)}
+                    </div>
 
+                    {/* Biggest Savings */}
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 8 }}>
+                      <span style={{ fontSize: 24 }}>💰</span>
+                      <div>
+                        <span style={{ fontSize: 20, fontWeight: 900, color: '#FACC15', display: 'block', textShadow: '0 1px 4px rgba(0,0,0,0.9), 0 0 12px rgba(0,0,0,0.7)' }}>Biggest Savings</span>
+                        <span style={{ fontSize: 13, color: '#fff', textShadow: '0 1px 4px rgba(0,0,0,0.9)' }}>Highest discount first</span>
+                      </div>
+                    </div>
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: 10, marginBottom: 20 }}>
+                      {biggest.map((d, i) => <DCard key={`big-${i}`} d={d} onClick={() => openDish(d)} />)}
+                    </div>
+
+                    {/* Free Delivery */}
+                    {freeDelivery.length > 0 && (<>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 8 }}>
+                        <span style={{ fontSize: 24 }}>🏍️</span>
+                        <div>
+                          <span style={{ fontSize: 20, fontWeight: 900, color: '#FACC15', display: 'block', textShadow: '0 1px 4px rgba(0,0,0,0.9), 0 0 12px rgba(0,0,0,0.7)' }}>Free Delivery</span>
+                          <span style={{ fontSize: 13, color: '#fff', textShadow: '0 1px 4px rgba(0,0,0,0.9)' }}>No delivery charge today</span>
+                        </div>
+                      </div>
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: 10, marginBottom: 20 }}>
+                        {freeDelivery.map((d, i) => <DCard key={`free-${i}`} d={d} onClick={() => openDish(d)} />)}
+                      </div>
+                    </>)}
+                  </div>)
+                })()}
           </div>}
 
           {/* ── TAB: Chef's Picks ── */}
