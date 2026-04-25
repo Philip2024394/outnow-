@@ -216,20 +216,10 @@ export default function BookingScreen({ onClose, initialVehicle, onLandingChange
     }
   }, [pickupCoords, vehicleType, triedIds])
 
-  // ── Select driver → show payment first ───────────────────────────────────────
+  // ── Select driver → book directly (cash to driver, no payment screen) ─────
   const handleSelectDriver = useCallback(async (driver, serviceType = 'ride', pkgNote = '', pkgWt = '', pkgSize = '') => {
     setSheetDriver(null)
     setSelectedDriver(driver)
-    // Show payment screen before booking
-    setPaymentPending({ driver, serviceType, pkgNote, pkgWt, pkgSize })
-    setPhase('payment')
-  }, [])
-
-  // ── After payment confirmed → create booking ──────────────────────────────
-  const handlePaymentConfirmed = useCallback(async ({ method, transactionCode }) => {
-    if (!paymentPending) return
-    const { driver, serviceType, pkgNote, pkgWt, pkgSize } = paymentPending
-    setPaymentPending(null)
 
     const secs = settings.driver_timeout_seconds ?? 45
     const book = await createBooking({
@@ -246,8 +236,8 @@ export default function BookingScreen({ onClose, initialVehicle, onLandingChange
       packageWeight:   pkgWt    || null,
       packageSize:     pkgSize  || null,
       timeoutSeconds:  secs,
-      paymentMethod:   method,
-      transactionCode: transactionCode || null,
+      paymentMethod:   'cash',
+      transactionCode: null,
     })
     setBooking(book)
     setCountdown(secs)
@@ -440,40 +430,7 @@ const handleJourneyComplete = async () => {
             />
           )}
 
-          {/* Payment panel */}
-          {phase === 'payment' && paymentPending && (
-            <div style={{ position: 'fixed', inset: 0, zIndex: 100, background: '#0a0a0a', display: 'flex', flexDirection: 'column' }}>
-              <div style={{ padding: 'calc(env(safe-area-inset-top, 0px) + 16px) 16px 16px', display: 'flex', alignItems: 'center', gap: 12, borderBottom: '1px solid rgba(255,255,255,0.06)' }}>
-                <button onClick={() => { setPaymentPending(null); setPhase('choose') }} style={{ width: 36, height: 36, borderRadius: '50%', background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', color: '#fff' }}>
-                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M19 12H5M12 5l-7 7 7 7"/></svg>
-                </button>
-                <span style={{ fontSize: 18, fontWeight: 900, color: '#fff' }}>Payment</span>
-              </div>
-              <div style={{ flex: 1, overflow: 'auto', padding: 16 }}>
-                <div style={{ marginBottom: 16, padding: 14, borderRadius: 14, background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.06)' }}>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 13, color: 'rgba(255,255,255,0.5)' }}>
-                    <span>Driver</span>
-                    <span style={{ color: '#fff', fontWeight: 700 }}>{paymentPending.driver?.display_name}</span>
-                  </div>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 13, color: 'rgba(255,255,255,0.5)', marginTop: 6 }}>
-                    <span>Vehicle</span>
-                    <span style={{ color: '#fff', fontWeight: 700 }}>{paymentPending.driver?.vehicle_model}</span>
-                  </div>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 13, marginTop: 6 }}>
-                    <span style={{ color: 'rgba(255,255,255,0.5)' }}>Fare</span>
-                    <span style={{ color: '#FACC15', fontWeight: 900, fontSize: 16 }}>Rp {(fare ?? 0).toLocaleString('id-ID')}</span>
-                  </div>
-                </div>
-                <IndooPayment
-                  amount={fare}
-                  bankDetails={{ name: 'BCA', account_number: '1234 5678 90', account_holder: 'INDOO Ride Services', qr_url: 'https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=INDOO-Ride-BCA' }}
-                  codLabel="Cash to Driver"
-                  confirmLabel="Confirm Booking"
-                  onConfirm={handlePaymentConfirmed}
-                />
-              </div>
-            </div>
-          )}
+          {/* Payment removed — rides are cash to driver */}
 
           {/* Live panel: searching / choose / waiting / expired / active / cancelling / cancelled */}
           {['searching','choose','waiting','expired','active','cancelling','cancelled'].includes(phase) && (

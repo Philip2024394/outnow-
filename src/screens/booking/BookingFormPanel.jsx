@@ -342,6 +342,16 @@ export default function BookingFormPanel({
         Find a Driver
       </button>
       {!pickup && <p className={styles.fieldHint}>Set your pickup location to continue</p>}
+      {/* Demo shortcut — skip to active ride to preview Add Stop */}
+      <button onClick={() => {
+        setVehicleType(initialVehicle ?? 'bike_ride')
+        setHasPickedVehicle(true)
+        if (!pickup) { setPickup({ label: 'Demo Pickup', address: 'Jl. Malioboro 45, Yogyakarta', lat: -7.797, lng: 110.370 }); setPickupQuery('Jl. Malioboro 45') }
+        if (!destination) { setDestination({ label: 'Demo Dest', address: 'Prambanan Temple, Klaten', lat: -7.752, lng: 110.491 }); setDestQuery('Prambanan Temple') }
+        handleFindDriver()
+      }} style={{ padding: '8px 12px', borderRadius: 8, backgroundColor: 'rgba(250,204,21,0.1)', border: '1px solid rgba(250,204,21,0.2)', color: '#FACC15', fontSize: 11, fontWeight: 700, cursor: 'pointer', marginTop: 4 }}>
+        ⚡ Demo: Quick Book
+      </button>
       </>)}
 
       {/* Hire mode — find driver with pickup only */}

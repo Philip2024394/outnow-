@@ -40,6 +40,10 @@ export default function BookingLivePanel({
   onClose,
 }) {
   const [contactRevealed, setContactRevealed] = useState(false)
+  const [addStopOpen, setAddStopOpen] = useState(false)
+  const [stopQuery, setStopQuery] = useState('')
+  const [stops, setStops] = useState([]) // { address, waitMin }
+  const [stopFareExtra, setStopFareExtra] = useState(0)
 
   const availableDrivers = drivers.filter(d => !d.driver_busy)
   const busyDrivers      = drivers.filter(d => d.driver_busy)
@@ -426,19 +430,71 @@ export default function BookingLivePanel({
 
         </div>
 
-        {/* Route card */}
+        {/* Route card with add stop */}
         <div className={styles.activeRideTripCard}>
           <div className={styles.activeRideTripRow}>
             <span className={`${styles.locationDot} ${styles.locationDotGreen}`} />
             <span className={styles.activeRideTripText}>{pickup?.address ?? 'Pickup location'}</span>
           </div>
           <div className={styles.activeRideTripConnector} />
+
+          {/* Stop points */}
+          {stops.map((stop, i) => (
+            <div key={i}>
+              <div className={styles.activeRideTripRow}>
+                <span className={styles.locationDot} style={{ background: '#FACC15', border: '2px solid #0a0a0a' }} />
+                <span className={styles.activeRideTripText} style={{ color: '#FACC15' }}>{stop.address}</span>
+                <button onClick={() => setStops(prev => prev.filter((_, j) => j !== i))} style={{ background: 'none', border: 'none', color: 'rgba(255,255,255,0.3)', fontSize: 12, cursor: 'pointer', padding: '0 4px' }}>✕</button>
+              </div>
+              {stop.waitMin > 0 && (
+                <div style={{ paddingLeft: 24, fontSize: 10, color: 'rgba(255,255,255,0.3)' }}>
+                  Wait: {stop.waitMin > 3 ? `3 min free + ${stop.waitMin - 3} min × Rp 500` : `${stop.waitMin} min (free)`}
+                </div>
+              )}
+              <div className={styles.activeRideTripConnector} />
+            </div>
+          ))}
+
+          {/* Add stop toggle */}
+          {addStopOpen ? (
+            <div style={{ padding: '8px 0' }}>
+              <div style={{ display: 'flex', gap: 6 }}>
+                <input
+                  value={stopQuery}
+                  onChange={e => setStopQuery(e.target.value)}
+                  placeholder="Stop address (e.g. Indomaret)"
+                  autoFocus
+                  style={{ flex: 1, padding: '10px 12px', borderRadius: 10, backgroundColor: 'rgba(0,0,0,0.4)', border: '1px solid rgba(250,204,21,0.3)', color: '#fff', fontSize: 13, outline: 'none', fontFamily: 'inherit' }}
+                />
+                <button onClick={() => {
+                  if (stopQuery.trim() && stops.length < 2) {
+                    setStops(prev => [...prev, { address: stopQuery.trim(), waitMin: 0 }])
+                    setStopQuery('')
+                    setAddStopOpen(false)
+                    // Recalculate fare — add Rp 5000 per stop
+                    setStopFareExtra(prev => prev + 5000)
+                  }
+                }} style={{ padding: '10px 14px', borderRadius: 10, backgroundColor: '#FACC15', border: 'none', color: '#000', fontSize: 12, fontWeight: 800, cursor: 'pointer' }}>Add</button>
+              </div>
+              <button onClick={() => { setAddStopOpen(false); setStopQuery('') }} style={{ background: 'none', border: 'none', color: 'rgba(255,255,255,0.3)', fontSize: 11, cursor: 'pointer', marginTop: 6 }}>Cancel</button>
+            </div>
+          ) : stops.length < 2 && (
+            <button onClick={() => setAddStopOpen(true)} style={{
+              display: 'flex', alignItems: 'center', gap: 6, padding: '8px 0',
+              background: 'none', border: 'none', cursor: 'pointer',
+            }}>
+              <span style={{ width: 18, height: 18, borderRadius: '50%', backgroundColor: 'rgba(250,204,21,0.15)', border: '1px solid rgba(250,204,21,0.3)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 10, color: '#FACC15' }}>+</span>
+              <span style={{ fontSize: 12, fontWeight: 700, color: '#FACC15' }}>Add Stop</span>
+            </button>
+          )}
+
           <div className={styles.activeRideTripRow}>
             <span className={`${styles.locationDot} ${styles.locationDotRed}`} />
             <span className={styles.activeRideTripText}>{destination?.address ?? 'Destination'}</span>
           </div>
           <div className={styles.activeRideTripMeta}>
-            <span>{formatRp(fare)}</span>
+            <span>{formatRp(fare + stopFareExtra)}</span>
+            {stopFareExtra > 0 && <span style={{ fontSize: 10, color: '#FACC15', marginLeft: 6 }}>+{formatRp(stopFareExtra)} stops</span>}
           </div>
         </div>
 
