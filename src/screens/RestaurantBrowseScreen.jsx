@@ -615,6 +615,9 @@ export default function RestaurantBrowseScreen({ onClose, onBackToCategories, ca
   const [menuRestaurant, setMenuRestaurant] = useState(null)
   const [selectedDish, setSelectedDish] = useState(null) // { dish, restaurant }
   const [viewRestaurant, setViewRestaurant] = useState(null) // restaurant object for full card view
+  const [dishSearch, setDishSearch] = useState('') // search within dish feed
+  const [cartItems, setCartItems] = useState([]) // direct cart from dish detail
+  const [cartToast, setCartToast] = useState(null) // toast message
   const [tick,           setTick]           = useState(0)
   const [showFavOnly,    setShowFavOnly]    = useState(false)
   const [showCuisinePicker, setShowCuisinePicker] = useState(true) // show cuisine picker on entry
@@ -788,7 +791,33 @@ export default function RestaurantBrowseScreen({ onClose, onBackToCategories, ca
         return { ...item, isSpicy: tags.some(t => t.label === 'Spicy'), tags, restaurant: r }
       }))
 
+      // Filter by search
+      const filteredDishes = dishSearch.trim()
+        ? allDishes.filter(d => d.name.toLowerCase().includes(dishSearch.toLowerCase()) || d.restaurant.name.toLowerCase().includes(dishSearch.toLowerCase()))
+        : allDishes
+
       const fmtPrice = (n) => 'Rp ' + (n ?? 0).toLocaleString('id-ID')
+
+      // Add to cart handler
+      const addToCart = (dish) => {
+        setCartItems(prev => {
+          const existing = prev.find(c => c.id === dish.id && c.restaurant.id === dish.restaurant.id)
+          if (existing) return prev.map(c => c.id === dish.id && c.restaurant.id === dish.restaurant.id ? { ...c, qty: c.qty + 1 } : c)
+          return [...prev, { ...dish, qty: 1 }]
+        })
+        setCartToast(`${dish.name} added to cart`)
+        setTimeout(() => setCartToast(null), 2000)
+      }
+
+      const getQty = (dishId, restId) => cartItems.find(c => c.id === dishId && c.restaurant?.id === restId)?.qty ?? 0
+      const removeFromCart = (dishId, restId) => {
+        setCartItems(prev => {
+          const item = prev.find(c => c.id === dishId && c.restaurant?.id === restId)
+          if (!item) return prev
+          if (item.qty <= 1) return prev.filter(c => !(c.id === dishId && c.restaurant?.id === restId))
+          return prev.map(c => c.id === dishId && c.restaurant?.id === restId ? { ...c, qty: c.qty - 1 } : c)
+        })
+      }
 
       return (
         <div style={{ position: 'fixed', inset: 0, zIndex: 105, backgroundColor: '#0a0a0a', display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
@@ -796,17 +825,33 @@ export default function RestaurantBrowseScreen({ onClose, onBackToCategories, ca
           <img src="https://ik.imagekit.io/nepgaxllc/ChatGPT%20Image%20Apr%2021,%202026,%2006_44_19%20AM.png?updatedAt=1776728675957" alt="" style={{ position: 'absolute', inset: -20, width: 'calc(100% + 40px)', height: 'calc(100% + 40px)', objectFit: 'cover', filter: 'blur(12px)', zIndex: 0 }} />
           <div style={{ position: 'absolute', inset: 0, backgroundColor: 'rgba(0,0,0,0.6)', zIndex: 0 }} />
           {/* Header */}
-          <div style={{ padding: 'calc(env(safe-area-inset-top, 0px) + 10px) 16px 10px', display: 'flex', alignItems: 'center', gap: 10, flexShrink: 0, position: 'relative', zIndex: 1 }}>
-            <button onClick={() => { setCuisineFilter(null); setShowCuisinePicker(true) }} style={{ width: 34, height: 34, borderRadius: '50%', backgroundColor: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' }}>
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2.5" strokeLinecap="round"><path d="M19 12H5M12 5l-7 7 7 7"/></svg>
-            </button>
-            <span style={{ fontSize: 18, fontWeight: 900, color: '#fff', flex: 1 }}>{cuisineFilter.charAt(0).toUpperCase() + cuisineFilter.slice(1)}</span>
-            <span style={{ fontSize: 12, color: 'rgba(255,255,255,0.4)', fontWeight: 700 }}>{allDishes.length} dishes</span>
+          <div style={{ padding: 'calc(env(safe-area-inset-top, 0px) + 10px) 16px 6px', flexShrink: 0, position: 'relative', zIndex: 1 }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 8 }}>
+              <button onClick={() => { setCuisineFilter(null); setDishSearch(''); setShowCuisinePicker(true) }} style={{ width: 34, height: 34, borderRadius: '50%', backgroundColor: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' }}>
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2.5" strokeLinecap="round"><path d="M19 12H5M12 5l-7 7 7 7"/></svg>
+              </button>
+              <span style={{ fontSize: 18, fontWeight: 900, color: '#fff', flex: 1 }}>{cuisineFilter.charAt(0).toUpperCase() + cuisineFilter.slice(1)}</span>
+              {/* Cart icon */}
+              {cartItems.length > 0 && (
+                <button onClick={() => { setSelectedDish(null); setCuisineFilter(null); setMenuRestaurant(cartItems[0]?.restaurant) }} style={{ position: 'relative', width: 34, height: 34, borderRadius: '50%', backgroundColor: '#8DC63F', border: 'none', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' }}>
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#000" strokeWidth="2.5" strokeLinecap="round"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 002 1.61h9.72a2 2 0 002-1.61L23 6H6"/></svg>
+                  <span style={{ position: 'absolute', top: -4, right: -4, minWidth: 16, height: 16, borderRadius: 8, backgroundColor: '#EF4444', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 9, fontWeight: 900, color: '#fff', padding: '0 3px' }}>{cartItems.reduce((s, i) => s + i.qty, 0)}</span>
+                </button>
+              )}
+              <span style={{ fontSize: 12, color: 'rgba(255,255,255,0.4)', fontWeight: 700 }}>{filteredDishes.length}</span>
+            </div>
+            {/* Search bar */}
+            <input
+              value={dishSearch}
+              onChange={e => setDishSearch(e.target.value)}
+              placeholder="🔍 Search dishes..."
+              style={{ width: '100%', padding: '10px 14px', borderRadius: 12, backgroundColor: 'rgba(0,0,0,0.4)', border: '1px solid rgba(255,255,255,0.1)', color: '#fff', fontSize: 14, fontWeight: 600, outline: 'none', fontFamily: 'inherit', boxSizing: 'border-box' }}
+            />
           </div>
 
           {/* Dish grid */}
           <div style={{ flex: 1, overflowY: 'auto', padding: '8px 12px 100px', position: 'relative', zIndex: 1 }}>
-            {allDishes.length === 0 ? (
+            {filteredDishes.length === 0 ? (
               <div style={{ textAlign: 'center', padding: '60px 20px' }}>
                 <span style={{ fontSize: 48, display: 'block', marginBottom: 12 }}>🍽️</span>
                 <span style={{ fontSize: 16, fontWeight: 900, color: '#fff', display: 'block', marginBottom: 6 }}>No dishes found</span>
@@ -814,7 +859,7 @@ export default function RestaurantBrowseScreen({ onClose, onBackToCategories, ca
               </div>
             ) : (
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 10 }}>
-                {allDishes.map((dish, i) => (
+                {filteredDishes.map((dish, i) => (
                   <button key={`${dish.id}-${i}`} onClick={() => setSelectedDish({ dish, restaurant: dish.restaurant })} style={{
                     borderRadius: 16, overflow: 'hidden', position: 'relative',
                     border: '1px solid rgba(255,255,255,0.08)', padding: 0, background: 'none', cursor: 'pointer',
@@ -837,8 +882,23 @@ export default function RestaurantBrowseScreen({ onClose, onBackToCategories, ca
                         <span style={{ fontSize: 11, color: 'rgba(255,255,255,0.4)' }}>{dish.restaurant.name}</span>
                         {dish.restaurant.rating && <span style={{ fontSize: 10, color: '#FACC15', fontWeight: 800 }}>★ {dish.restaurant.rating}</span>}
                       </div>
-                      {dish.restaurant.deliveryFare != null && (
-                        <span style={{ fontSize: 10, color: '#8DC63F', fontWeight: 700, marginTop: 2, display: 'block' }}>🏍️ Delivery {fmtPrice(dish.restaurant.deliveryFare)}</span>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginTop: 3 }}>
+                        {dish.restaurant.deliveryFare != null && (
+                          <span style={{ fontSize: 10, color: '#8DC63F', fontWeight: 700 }}>🏍️ {fmtPrice(dish.restaurant.deliveryFare)}</span>
+                        )}
+                        <span style={{ fontSize: 10, color: 'rgba(255,255,255,0.3)' }}>~{(dish.prep_time_min ?? 15) + Math.round((dish.restaurant.distKm ?? 3) * 2.5)} min</span>
+                      </div>
+                      {/* Add to cart */}
+                      {getQty(dish.id, dish.restaurant.id) > 0 ? (
+                        <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginTop: 6 }} onClick={e => e.stopPropagation()}>
+                          <button onClick={(e) => { e.stopPropagation(); removeFromCart(dish.id, dish.restaurant.id) }} style={{ width: 28, height: 28, borderRadius: 8, backgroundColor: '#333', border: 'none', color: '#fff', fontSize: 14, fontWeight: 700, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>−</button>
+                          <span style={{ fontSize: 14, fontWeight: 900, color: '#fff', minWidth: 20, textAlign: 'center' }}>{getQty(dish.id, dish.restaurant.id)}</span>
+                          <button onClick={(e) => { e.stopPropagation(); addToCart(dish) }} style={{ width: 28, height: 28, borderRadius: 8, backgroundColor: '#8DC63F', border: 'none', color: '#000', fontSize: 14, fontWeight: 700, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>+</button>
+                        </div>
+                      ) : (
+                        <button onClick={(e) => { e.stopPropagation(); addToCart(dish) }} style={{ marginTop: 6, padding: '6px 12px', borderRadius: 8, backgroundColor: '#8DC63F', border: 'none', color: '#000', fontSize: 11, fontWeight: 900, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4 }}>
+                          🛒 Add
+                        </button>
                       )}
                     </div>
                   </button>
@@ -846,6 +906,13 @@ export default function RestaurantBrowseScreen({ onClose, onBackToCategories, ca
               </div>
             )}
           </div>
+
+          {/* Cart toast */}
+          {cartToast && (
+            <div style={{ position: 'fixed', bottom: 90, left: '50%', transform: 'translateX(-50%)', padding: '10px 20px', borderRadius: 12, backgroundColor: '#8DC63F', color: '#000', fontSize: 14, fontWeight: 800, zIndex: 9999, boxShadow: '0 4px 16px rgba(0,0,0,0.4)', animation: 'fadeIn 0.2s ease' }}>
+              ✓ {cartToast}
+            </div>
+          )}
 
           {/* Footer nav */}
           <FoodFooterNav
@@ -920,7 +987,15 @@ export default function RestaurantBrowseScreen({ onClose, onBackToCategories, ca
                 {dish.description && <span style={{ fontSize: 12, color: 'rgba(255,255,255,0.6)', display: 'block', marginTop: 4, lineHeight: 1.4 }}>{dish.description.slice(0, 100)}</span>}
               </div>
               {/* Add to cart — bottom right */}
-              <button onClick={() => { setSelectedDish(null); setCuisineFilter(null); setMenuRestaurant(restaurant) }} style={{
+              <button onClick={() => {
+                setCartItems(prev => {
+                  const ex = prev.find(c => c.id === dish.id && c.restaurant?.id === restaurant.id)
+                  if (ex) return prev.map(c => c.id === dish.id && c.restaurant?.id === restaurant.id ? { ...c, qty: c.qty + 1 } : c)
+                  return [...prev, { ...dish, restaurant, qty: 1 }]
+                })
+                setCartToast(`${dish.name} added to cart`)
+                setTimeout(() => setCartToast(null), 2000)
+              }} style={{
                 position: 'absolute', bottom: 14, right: 14,
                 padding: '10px 16px', borderRadius: 12,
                 backgroundColor: '#8DC63F', border: 'none', color: '#000',
