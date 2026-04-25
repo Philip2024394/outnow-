@@ -776,7 +776,7 @@ export default function RestaurantBrowseScreen({ onClose, onBackToCategories, ca
         <div style={{ display: 'flex', gap: 6, padding: '0 12px 8px', position: 'relative', zIndex: 1, overflowX: 'auto', scrollbarWidth: 'none' }}>
           {[
             { id: 'cuisine', label: '🍽️ Cuisine' },
-            { id: 'deals', label: '🔥 Daily Deals' },
+            { id: 'deals', label: `🔥 ${['Super Sunday','Mega Monday','Tasty Tuesday','Wicked Wednesday','Thirsty Thursday','Crunchy Friday','Sizzle Saturday'][new Date().getDay()]}` },
             { id: 'discounts', label: '💰 Discounts' },
             { id: 'chefs', label: '👨‍🍳 Chef\'s Picks' },
           ].map(t => (
@@ -813,50 +813,37 @@ export default function RestaurantBrowseScreen({ onClose, onBackToCategories, ca
             const hrsLeft = Math.floor(msLeft / 3600000)
             const minsLeft = Math.floor((msLeft % 3600000) / 60000)
             // Get 3 deal items from top restaurants
-            const dealItems = withMeta.flatMap(r => (r.menu_items ?? []).filter(i => i.photo_url).slice(0, 1).map(i => ({ ...i, restaurant: r, dealPrice: Math.round(i.price * (1 - today.discount / 100)) }))).slice(0, 3)
+            const dealItems = withMeta.flatMap(r => (r.menu_items ?? []).filter(i => i.photo_url).slice(0, 2).map(i => ({ ...i, restaurant: r, dealPrice: Math.round(i.price * (1 - today.discount / 100)) })))
 
             return (
-              <div style={{ marginBottom: 14, padding: 14, borderRadius: 16, backgroundColor: 'rgba(0,0,0,0.75)', backdropFilter: 'blur(12px)', WebkitBackdropFilter: 'blur(12px)', border: `1.5px solid ${today.color}`, position: 'relative', overflow: 'hidden' }}>
-                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 10, position: 'relative', zIndex: 1 }}>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                    <span style={{ fontSize: 24 }}>{today.icon}</span>
-                    <div>
-                      <span style={{ fontSize: 16, fontWeight: 900, color: today.color, display: 'block', textShadow: '0 1px 4px rgba(0,0,0,0.9), 0 0 12px rgba(0,0,0,0.7)' }}>{today.name}</span>
-                      <span style={{ fontSize: 13, color: '#fff', textShadow: '0 1px 4px rgba(0,0,0,0.9)' }}>Up to {today.discount}% off selected dishes</span>
-                    </div>
+              <div>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 6 }}>
+                  <span style={{ fontSize: 28 }}>{today.icon}</span>
+                  <div style={{ flex: 1 }}>
+                    <span style={{ fontSize: 20, fontWeight: 900, color: today.color, display: 'block', textShadow: '0 1px 4px rgba(0,0,0,0.9), 0 0 12px rgba(0,0,0,0.7)' }}>{today.name}</span>
                   </div>
                 </div>
-                <div style={{ display: 'flex', gap: 8, position: 'relative', zIndex: 1 }}>
-                  {dealItems.slice(0, 2).map((d, i) => (
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12 }}>
+                  <span style={{ fontSize: 13, color: '#fff', textShadow: '0 1px 4px rgba(0,0,0,0.9)' }}>Up to {today.discount}% off selected dishes</span>
+                  <span style={{ fontSize: 18, fontWeight: 900, color: today.color, textShadow: '0 1px 4px rgba(0,0,0,0.9)' }}>⏰ {hrsLeft}h {minsLeft}m</span>
+                </div>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+                  {dealItems.map((d, i) => (
                     <button key={`deal-${i}`} onClick={() => { setSelectedDish({ dish: { ...d, price: d.dealPrice }, restaurant: d.restaurant }); setShowCuisinePicker(false); setCuisineFilter(d.category?.toLowerCase() ?? 'all') }} style={{
-                      flex: 1, borderRadius: 12, overflow: 'hidden', border: '1px solid rgba(250,204,21,0.3)', padding: 0, background: 'none', cursor: 'pointer', textAlign: 'left',
+                      width: '100%', borderRadius: 14, overflow: 'hidden', border: '1px solid rgba(250,204,21,0.3)', padding: 0, background: 'none', cursor: 'pointer', display: 'flex', textAlign: 'left', height: 90,
                     }}>
-                      <div style={{ height: 100, position: 'relative' }}>
+                      <div style={{ width: 110, flexShrink: 0, position: 'relative' }}>
                         <img src={d.photo_url} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-                        <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to top, rgba(0,0,0,0.8) 0%, transparent 50%)' }} />
-                        <span style={{ position: 'absolute', top: 4, left: 4, padding: '2px 5px', borderRadius: 4, backgroundColor: today.color, fontSize: 10, fontWeight: 900, color: '#000' }}>-{today.discount}%</span>
+                        <span style={{ position: 'absolute', top: 6, left: 6, padding: '3px 7px', borderRadius: 6, backgroundColor: today.color, fontSize: 11, fontWeight: 900, color: '#000' }}>-{today.discount}%</span>
                       </div>
-                      <div style={{ padding: '4px 6px', backgroundColor: 'rgba(0,0,0,0.5)' }}>
-                        <span style={{ fontSize: 13, fontWeight: 800, color: '#fff', display: 'block', lineHeight: 1.2 }}>{d.name}</span>
-                        <span style={{ fontSize: 14, fontWeight: 900, color: today.color, marginTop: 2, display: 'block' }}>Rp {(d.dealPrice/1000).toFixed(0)}k</span>
+                      <div style={{ flex: 1, padding: '10px 12px', backgroundColor: 'rgba(0,0,0,0.5)', display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
+                        <span style={{ fontSize: 14, fontWeight: 900, color: '#fff', display: 'block', lineHeight: 1.3 }}>{d.name}</span>
+                        <span style={{ fontSize: 11, color: 'rgba(255,255,255,0.4)', marginTop: 3, display: 'block' }}>{d.restaurant.name}</span>
+                        <span style={{ fontSize: 15, fontWeight: 900, color: today.color, marginTop: 4, display: 'block' }}>Rp {(d.dealPrice/1000).toFixed(0)}k</span>
                       </div>
                     </button>
                   ))}
                 </div>
-
-                {/* Timer + running text — under daily deals */}
-                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginTop: 10, marginBottom: 4, position: 'relative', zIndex: 1 }}>
-                  <div style={{ flex: 1, overflow: 'hidden' }}>
-                    <div style={{ display: 'flex', animation: 'tickerDeal 15s linear infinite', whiteSpace: 'nowrap' }}>
-                      <span style={{ fontSize: 11, fontWeight: 700, color: 'rgba(255,255,255,0.5)', paddingRight: 30 }}>🔥 Order now and save · Limited dishes available · {today.name} special · Don't miss out</span>
-                      <span style={{ fontSize: 11, fontWeight: 700, color: 'rgba(255,255,255,0.5)', paddingRight: 30 }}>🔥 Order now and save · Limited dishes available · {today.name} special · Don't miss out</span>
-                    </div>
-                  </div>
-                  <div style={{ flexShrink: 0, padding: '4px 10px', borderRadius: 8, backgroundColor: 'rgba(0,0,0,0.5)', marginLeft: 8 }}>
-                    <span style={{ fontSize: 12, fontWeight: 900, color: today.color, textShadow: '0 1px 3px rgba(0,0,0,0.8)' }}>⏰ {hrsLeft}h {minsLeft}m</span>
-                  </div>
-                </div>
-
               </div>
             )
           })()}
@@ -880,7 +867,7 @@ export default function RestaurantBrowseScreen({ onClose, onBackToCategories, ca
                       <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 6 }}>
                         <span style={{ fontSize: 24 }}>💰</span>
                         <div>
-                          <span style={{ fontSize: 16, fontWeight: 900, color: today.color, display: 'block', textShadow: '0 1px 4px rgba(0,0,0,0.9), 0 0 12px rgba(0,0,0,0.7)' }}>Discounted Now</span>
+                          <span style={{ fontSize: 20, fontWeight: 900, color: '#FACC15', display: 'block', textShadow: '0 1px 4px rgba(0,0,0,0.9), 0 0 12px rgba(0,0,0,0.7)' }}>Discounted Now</span>
                           <span style={{ fontSize: 13, color: '#fff', textShadow: '0 1px 4px rgba(0,0,0,0.9)' }}>Up to {Math.max(...discountedItems.map(d => d.discountPct))}% off right now</span>
                         </div>
                       </div>
@@ -914,7 +901,7 @@ export default function RestaurantBrowseScreen({ onClose, onBackToCategories, ca
                   <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 6 }}>
                     <span style={{ fontSize: 24 }}>👨‍🍳</span>
                     <div>
-                      <span style={{ fontSize: 16, fontWeight: 900, color: today.color, display: 'block', textShadow: '0 1px 4px rgba(0,0,0,0.9), 0 0 12px rgba(0,0,0,0.7)' }}>Chef's Picks</span>
+                      <span style={{ fontSize: 20, fontWeight: 900, color: '#FACC15', display: 'block', textShadow: '0 1px 4px rgba(0,0,0,0.9), 0 0 12px rgba(0,0,0,0.7)' }}>Chef's Picks</span>
                       <span style={{ fontSize: 13, color: '#fff', textShadow: '0 1px 4px rgba(0,0,0,0.9)' }}>★ 4.7+ rated dishes from top kitchens</span>
                     </div>
                   </div>
