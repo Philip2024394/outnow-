@@ -8,6 +8,7 @@
 import { useState, useEffect, useRef } from 'react'
 import { createPortal } from 'react-dom'
 import { PAYMENT_ICONS } from '@/constants/paymentIcons'
+import { saveVendorExtras as saveExtrasToDb, saveBundleDiscount as saveBundleToDb, saveMenuItem as saveMenuItemToDb, deleteMenuItem as deleteMenuItemFromDb } from '@/services/vendorExtrasService'
 
 const fmtRp = (n) => 'Rp ' + (n ?? 0).toLocaleString('id-ID')
 const LOCAL_KEY = 'indoo_vendor_restaurant'
@@ -213,7 +214,7 @@ const EXTRA_CATEGORIES = [
 ]
 
 // Lazy import libraries
-let _sauceLib = null, _sidesLib = null
+let _sauceLib = null, _sidesLib = null, _drinksLib = null
 async function getSauceLibrary() {
   if (_sauceLib) return _sauceLib
   const mod = await import('@/constants/sauceLibrary')
@@ -225,6 +226,12 @@ async function getSidesLibrary() {
   const mod = await import('@/constants/sidesLibrary')
   _sidesLib = mod.SIDES_LIBRARY
   return _sidesLib
+}
+async function getDrinksLibrary() {
+  if (_drinksLib) return _drinksLib
+  const mod = await import('@/constants/drinksLibrary')
+  _drinksLib = mod.DRINKS_LIBRARY
+  return _drinksLib
 }
 
 function loadVendorExtras() {
@@ -343,13 +350,18 @@ export default function VendorDashboardV2({ onClose }) {
     setDeleteConfirm(null)
   }
 
-  const saveItem = (item) => {
+  const saveItem = async (item) => {
+    // Sync to Supabase if restaurant exists
+    if (restaurant?.id) {
+      const saved = await saveMenuItemToDb(restaurant.id, item)
+      if (saved?.id) item = { ...item, ...saved }
+    }
     setMenuItems(prev => {
       let updated
       if (prev.find(i => i.id === item.id)) {
         updated = prev.map(i => i.id === item.id ? item : i)
       } else {
-        updated = [...prev, { ...item, id: Date.now(), is_available: true }]
+        updated = [...prev, { ...item, id: item.id ?? Date.now(), is_available: true }]
       }
       persist(updated)
       return updated
@@ -897,7 +909,7 @@ export default function VendorDashboardV2({ onClose }) {
         {page === 'banners' && <BannerAdsPage restaurant={restaurant} />}
 
         {/* ══════════ PAGE: EXTRAS & ADD-ONS ══════════ */}
-        {page === 'extras' && <ExtrasPage />}
+        {page === 'extras' && <ExtrasPage restaurantId={restaurant?.id} />}
 
         </div>
       </div>
@@ -1054,7 +1066,7 @@ export default function VendorDashboardV2({ onClose }) {
 
 // ── Banner Ads page ─────────────────────────────────────────────────────────
 // ── Extras & Add-ons management page ────────────────────────────────────────
-function ExtrasPage() {
+function ExtrasPage({ restaurantId }) {
   const [extras, setExtras] = useState(() => loadVendorExtras())
   const [activeCategory, setActiveCategory] = useState('sauces')
   const [editItem, setEditItem] = useState(null)
@@ -1066,9 +1078,10 @@ function ExtrasPage() {
   const [toast, setToast] = useState(null)
   const [sauceLibrary, setSauceLibrary] = useState([])
   const [sidesLibrary, setSidesLibrary] = useState([])
-  const [showLibraryPicker, setShowLibraryPicker] = useState(null) // 'sauces' | 'sides' | null
+  const [drinksLibrary, setDrinksLibrary] = useState([])
+  const [showLibraryPicker, setShowLibraryPicker] = useState(null) // 'sauces' | 'sides' | 'drinks' | null
 
-  useEffect(() => { getSauceLibrary().then(setSauceLibrary); getSidesLibrary().then(setSidesLibrary) }, [])
+  useEffect(() => { getSauceLibrary().then(setSauceLibrary); getSidesLibrary().then(setSidesLibrary); getDrinksLibrary().then(setDrinksLibrary) }, [])
 
   const categoryItems = extras[activeCategory] ?? []
 
@@ -1089,6 +1102,7 @@ function ExtrasPage() {
     }
     setExtras(updated)
     saveVendorExtras(updated)
+    if (restaurantId) saveExtrasToDb(restaurantId, activeCategory, updated[activeCategory] ?? [])
     setEditItem(null)
     setEditName(''); setEditPrice(''); setEditLargePrice(''); setEditHasSize(false)
     setToast('Saved')
@@ -1100,6 +1114,7 @@ function ExtrasPage() {
     updated[activeCategory] = (updated[activeCategory] ?? []).filter((_, i) => i !== idx)
     setExtras(updated)
     saveVendorExtras(updated)
+    if (restaurantId) saveExtrasToDb(restaurantId, activeCategory, updated[activeCategory] ?? [])
   }
 
   const saveBundleDiscount = (val) => {
@@ -1107,6 +1122,7 @@ function ExtrasPage() {
     const updated = { ...extras, bundleDiscount: val }
     setExtras(updated)
     saveVendorExtras(updated)
+    if (restaurantId) saveBundleToDb(restaurantId, val)
   }
 
   const inputStyle = { width: '100%', padding: '12px 14px', borderRadius: 12, border: '1px solid rgba(255,255,255,0.08)', background: 'rgba(0,0,0,0.4)', color: '#fff', fontSize: 14, outline: 'none', boxSizing: 'border-box', fontFamily: 'inherit' }
@@ -1225,8 +1241,7 @@ function ExtrasPage() {
 
       {/* Add button */}
       <button onClick={() => {
-        if (activeCategory === 'sauces' || activeCategory === 'sides') { setShowLibraryPicker(activeCategory) }
-        else { setEditItem({ category: activeCategory, index: -1 }); setEditName(''); setEditPrice(''); setEditLargePrice(''); setEditHasSize(false) }
+        setShowLibraryPicker(activeCategory)
       }} style={{
         width: '100%', padding: 14, borderRadius: 14, background: '#8DC63F', border: 'none', color: '#000',
         fontSize: 14, fontWeight: 900, cursor: 'pointer',
@@ -1236,9 +1251,9 @@ function ExtrasPage() {
 
       {/* Library Picker — sauces or sides */}
       {showLibraryPicker && (() => {
-        const lib = showLibraryPicker === 'sauces' ? sauceLibrary : sidesLibrary
+        const lib = showLibraryPicker === 'sauces' ? sauceLibrary : showLibraryPicker === 'drinks' ? drinksLibrary : sidesLibrary
         const key = showLibraryPicker
-        const label = showLibraryPicker === 'sauces' ? 'Sauces' : 'Sides'
+        const label = showLibraryPicker === 'sauces' ? 'Sauces' : showLibraryPicker === 'drinks' ? 'Drinks' : 'Sides'
         const enabledIds = (extras[key] ?? []).map(s => s.id)
         return (
           <div style={{ position: 'fixed', inset: 0, zIndex: 10003, background: 'rgba(0,0,0,0.85)', display: 'flex', flexDirection: 'column' }}>
@@ -1267,6 +1282,7 @@ function ExtrasPage() {
                           else { updated[key].push({ id: item.id, name: item.name, price: item.defaultPrice, largePrice: item.defaultLarge ?? null, hasSize: !!item.defaultLarge }) }
                           setExtras(updated)
                           saveVendorExtras(updated)
+                          if (restaurantId) saveExtrasToDb(restaurantId, key, updated[key] ?? [])
                         }} style={{
                           display: 'flex', alignItems: 'center', gap: 10, padding: '10px 12px', borderRadius: 12,
                           background: enabled ? 'rgba(141,198,63,0.1)' : 'rgba(255,255,255,0.03)',
@@ -1709,11 +1725,16 @@ function EventsPage() {
 function ItemModal({ item, onSave, onClose }) {
   const isNew = !item?.id
   const [name, setName] = useState(item?.name ?? '')
+  const [originalPrice, setOriginalPrice] = useState(item?.original_price?.toString() ?? '')
   const [price, setPrice] = useState(item?.price?.toString() ?? '')
   const [category, setCategory] = useState(item?.category ?? 'Main')
   const [description, setDescription] = useState(item?.description ?? '')
   const [photoUrl, setPhotoUrl] = useState(item?.photo_url ?? null)
   const [prepTime, setPrepTime] = useState(item?.prep_time_min?.toString() ?? '10')
+
+  const discountPct = originalPrice && Number(originalPrice) > Number(price)
+    ? Math.round(((Number(originalPrice) - Number(price)) / Number(originalPrice)) * 100)
+    : 0
 
   const handleSave = () => {
     if (!name.trim() || !price) return
@@ -1721,6 +1742,7 @@ function ItemModal({ item, onSave, onClose }) {
       ...item,
       id: item?.id ?? Date.now(),
       name: name.trim(),
+      original_price: originalPrice ? Number(originalPrice) : null,
       price: Number(price),
       category,
       description: description.trim(),
@@ -1757,8 +1779,19 @@ function ItemModal({ item, onSave, onClose }) {
         <label style={labelStyle}>Item Name</label>
         <input value={name} onChange={e => setName(e.target.value)} placeholder="e.g. Nasi Goreng Spesial" style={inputStyle} />
 
-        <label style={labelStyle}>Price (Rp)</label>
+        <label style={labelStyle}>Original Price / Harga Asli (Rp) — optional</label>
+        <input value={originalPrice} onChange={e => setOriginalPrice(e.target.value.replace(/\D/g, ''))} placeholder="30000" inputMode="numeric" style={inputStyle} />
+
+        <label style={labelStyle}>Selling Price / Harga Jual (Rp)</label>
         <input value={price} onChange={e => setPrice(e.target.value.replace(/\D/g, ''))} placeholder="25000" inputMode="numeric" style={inputStyle} />
+
+        {discountPct > 0 && (
+          <div style={{ padding: '10px 14px', borderRadius: 12, background: 'rgba(141,198,63,0.1)', border: '1px solid rgba(141,198,63,0.2)', marginBottom: 14, display: 'flex', alignItems: 'center', gap: 8 }}>
+            <span style={{ padding: '3px 8px', borderRadius: 6, background: '#EF4444', color: '#fff', fontSize: 13, fontWeight: 900 }}>{discountPct}% OFF</span>
+            <span style={{ fontSize: 13, color: 'rgba(255,255,255,0.5)', textDecoration: 'line-through' }}>Rp {Number(originalPrice).toLocaleString('id-ID')}</span>
+            <span style={{ fontSize: 13, fontWeight: 900, color: '#8DC63F' }}>Rp {Number(price).toLocaleString('id-ID')}</span>
+          </div>
+        )}
 
         <label style={labelStyle}>Category</label>
         <select value={category} onChange={e => setCategory(e.target.value)} style={{ ...inputStyle, appearance: 'none', cursor: 'pointer', backgroundImage: 'url("data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' width=\'12\' height=\'12\' viewBox=\'0 0 24 24\' fill=\'none\' stroke=\'%23888\' stroke-width=\'2\'%3E%3Cpath d=\'M6 9l6 6 6-6\'/%3E%3C/svg%3E")', backgroundRepeat: 'no-repeat', backgroundPosition: 'right 14px center' }}>
