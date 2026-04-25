@@ -616,8 +616,11 @@ export default function RestaurantBrowseScreen({ onClose, onBackToCategories, ca
   const [selectedDish, setSelectedDish] = useState(null) // { dish, restaurant }
   const [viewRestaurant, setViewRestaurant] = useState(null) // restaurant object for full card view
   const [dishSearch, setDishSearch] = useState('') // search within dish feed
+  const [cuisineSearch, setCuisineSearch] = useState('') // search on cuisine picker
   const [cartItems, setCartItems] = useState([]) // direct cart from dish detail
   const [cartToast, setCartToast] = useState(null) // toast message
+  const [dishSort, setDishSort] = useState('rating') // 'price' | 'rating' | 'distance'
+  const [allergenFilters, setAllergenFilters] = useState([]) // active allergen filters
   const [tick,           setTick]           = useState(0)
   const [showFavOnly,    setShowFavOnly]    = useState(false)
   const [showCuisinePicker, setShowCuisinePicker] = useState(true) // show cuisine picker on entry
@@ -752,18 +755,72 @@ export default function RestaurantBrowseScreen({ onClose, onBackToCategories, ca
           <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 0 }}>
             <span style={{ fontSize: 18, fontWeight: 900, color: '#fff' }}>What are you craving?</span>
           </div>
-          {/* Running text ticker */}
-          <div style={{ overflow: 'hidden', marginTop: 8 }}>
-            <div style={{ display: 'flex', animation: 'tickerScroll 20s linear infinite', whiteSpace: 'nowrap' }}>
-              <span style={{ fontSize: 14, fontWeight: 700, color: 'rgba(141,198,63,0.6)', paddingRight: 40 }}>🍛 Rice · 🍜 Noodles · 🍗 Chicken · 🥘 Satay · 🦐 Seafood · 🍔 Burgers · 🍕 Pizza · 🍣 Japanese · 🥟 Chinese · 🌶️ Korean · ☕ Coffee · 🧃 Juice · 🍰 Desserts · 🥩 Steak</span>
-              <span style={{ fontSize: 14, fontWeight: 700, color: 'rgba(141,198,63,0.6)', paddingRight: 40 }}>🍛 Rice · 🍜 Noodles · 🍗 Chicken · 🥘 Satay · 🦐 Seafood · 🍔 Burgers · 🍕 Pizza · 🍣 Japanese · 🥟 Chinese · 🌶️ Korean · ☕ Coffee · 🧃 Juice · 🍰 Desserts · 🥩 Steak</span>
-            </div>
-          </div>
+          {/* Search bar */}
+          <input
+            value={cuisineSearch}
+            onChange={e => {
+              setCuisineSearch(e.target.value)
+              // If search has 2+ chars, jump to dish feed with search
+              if (e.target.value.trim().length >= 2) {
+                setCuisineFilter(e.target.value.trim())
+                setDishSearch(e.target.value.trim())
+                setShowCuisinePicker(false)
+                setCuisineSearch('')
+              }
+            }}
+            placeholder="🔍 Search any dish or restaurant..."
+            style={{ width: '100%', padding: '10px 14px', borderRadius: 12, backgroundColor: 'rgba(0,0,0,0.4)', border: '1px solid rgba(255,255,255,0.1)', color: '#fff', fontSize: 14, fontWeight: 600, outline: 'none', fontFamily: 'inherit', boxSizing: 'border-box', marginTop: 8 }}
+          />
         </div>
         <style>{`
           @keyframes cuisineRunLight { from { transform: translateX(-100%); } to { transform: translateX(450%); } }
-          @keyframes tickerScroll { from { transform: translateX(0); } to { transform: translateX(-50%); } }
         `}</style>
+
+        {/* Reorder + Popular section */}
+        <div style={{ padding: '8px 12px', position: 'relative', zIndex: 1 }}>
+          {/* Reorder shortcut */}
+          {(() => {
+            const lastOrders = JSON.parse(localStorage.getItem('indoo_food_orders') || '[]').slice(0, 3)
+            return lastOrders.length > 0 && (
+              <div style={{ marginBottom: 12 }}>
+                <span style={{ fontSize: 13, fontWeight: 900, color: '#fff', display: 'block', marginBottom: 8, padding: '0 4px' }}>🔁 Order Again</span>
+                <div style={{ display: 'flex', gap: 8, overflowX: 'auto', paddingBottom: 4 }}>
+                  {lastOrders.map(o => (
+                    <button key={o.id} onClick={() => { setCuisineFilter(o.restaurant ?? 'all'); setShowCuisinePicker(false) }} style={{
+                      padding: '8px 14px', borderRadius: 12, backgroundColor: 'rgba(0,0,0,0.5)', border: '1px solid rgba(255,255,255,0.08)',
+                      color: '#fff', fontSize: 12, fontWeight: 700, cursor: 'pointer', whiteSpace: 'nowrap', flexShrink: 0,
+                    }}>
+                      {o.restaurant ?? 'Previous Order'} · {o.items?.length ?? 0} items
+                    </button>
+                  ))}
+                </div>
+              </div>
+            )
+          })()}
+
+          {/* Popular near you */}
+          <div style={{ marginBottom: 12 }}>
+            <span style={{ fontSize: 13, fontWeight: 900, color: '#fff', display: 'block', marginBottom: 8, padding: '0 4px' }}>🔥 Popular Near You</span>
+            <div style={{ display: 'flex', gap: 8, overflowX: 'auto', paddingBottom: 4 }}>
+              {withMeta.flatMap(r => (r.menu_items ?? []).filter(i => i.photo_url).slice(0, 1).map(i => ({ ...i, restaurant: r }))).sort((a, b) => (b.restaurant.rating ?? 0) - (a.restaurant.rating ?? 0)).slice(0, 6).map((d, i) => (
+                <button key={`pop-${i}`} onClick={() => { setSelectedDish({ dish: d, restaurant: d.restaurant }); setShowCuisinePicker(false); setCuisineFilter(d.category?.toLowerCase() ?? 'all') }} style={{
+                  width: 120, flexShrink: 0, borderRadius: 14, overflow: 'hidden', border: '1px solid rgba(255,255,255,0.08)', padding: 0, background: 'none', cursor: 'pointer', textAlign: 'left',
+                }}>
+                  <div style={{ height: 80, position: 'relative' }}>
+                    <img src={d.photo_url} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                    <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to top, rgba(0,0,0,0.8) 0%, transparent 50%)' }} />
+                    <span style={{ position: 'absolute', bottom: 4, right: 4, padding: '2px 6px', borderRadius: 4, backgroundColor: '#FACC15', fontSize: 9, fontWeight: 900, color: '#000' }}>Rp {(d.price/1000).toFixed(0)}k</span>
+                  </div>
+                  <div style={{ padding: '6px 8px', backgroundColor: 'rgba(0,0,0,0.5)' }}>
+                    <span style={{ fontSize: 11, fontWeight: 800, color: '#fff', display: 'block', lineHeight: 1.2 }}>{d.name}</span>
+                    <span style={{ fontSize: 9, color: 'rgba(255,255,255,0.4)' }}>{d.restaurant.name}</span>
+                  </div>
+                </button>
+              ))}
+            </div>
+          </div>
+        </div>
+
         <CuisineGridWithBanners
           onSelect={(id) => { setCuisineFilter(id); setShowCuisinePicker(false) }}
         />
@@ -792,11 +849,39 @@ export default function RestaurantBrowseScreen({ onClose, onBackToCategories, ca
       }))
 
       // Filter by search
-      const filteredDishes = dishSearch.trim()
+      let filteredDishes = dishSearch.trim()
         ? allDishes.filter(d => d.name.toLowerCase().includes(dishSearch.toLowerCase()) || d.restaurant.name.toLowerCase().includes(dishSearch.toLowerCase()))
         : allDishes
 
+      // Allergen filters
+      const ALLERGEN_OPTS = [
+        { id: 'no_spicy', label: 'No Spicy', icon: '🌶️' },
+        { id: 'no_nuts', label: 'No Nuts', icon: '🥜' },
+        { id: 'no_seafood', label: 'No Seafood', icon: '🦐' },
+        { id: 'vegan', label: 'Vegan', icon: '🥬' },
+      ]
+      if (allergenFilters.length > 0) {
+        filteredDishes = filteredDishes.filter(d => {
+          for (const f of allergenFilters) {
+            if (f === 'no_spicy' && d.tags.some(t => t.label === 'Spicy')) return false
+            if (f === 'no_nuts' && d.tags.some(t => t.label === 'Nuts')) return false
+            if (f === 'no_seafood' && d.tags.some(t => t.label === 'Seafood')) return false
+            if (f === 'vegan' && !d.tags.some(t => t.label === 'Vegan')) return false
+          }
+          return true
+        })
+      }
+
+      // Sort
+      filteredDishes = [...filteredDishes].sort((a, b) => {
+        if (dishSort === 'price') return (a.price ?? 0) - (b.price ?? 0)
+        if (dishSort === 'distance') return (a.restaurant.distKm ?? 99) - (b.restaurant.distKm ?? 99)
+        return (b.restaurant.rating ?? 0) - (a.restaurant.rating ?? 0) // default: rating
+      })
+
       const fmtPrice = (n) => 'Rp ' + (n ?? 0).toLocaleString('id-ID')
+      const cartTotal = cartItems.reduce((s, i) => s + (i.price ?? 0) * i.qty, 0)
+      const cartCount = cartItems.reduce((s, i) => s + i.qty, 0)
 
       // Add to cart handler
       const addToCart = (dish) => {
@@ -847,6 +932,31 @@ export default function RestaurantBrowseScreen({ onClose, onBackToCategories, ca
               placeholder="🔍 Search dishes..."
               style={{ width: '100%', padding: '10px 14px', borderRadius: 12, backgroundColor: 'rgba(0,0,0,0.4)', border: '1px solid rgba(255,255,255,0.1)', color: '#fff', fontSize: 14, fontWeight: 600, outline: 'none', fontFamily: 'inherit', boxSizing: 'border-box' }}
             />
+            {/* Sort + allergen filters */}
+            <div style={{ display: 'flex', gap: 6, marginTop: 8, overflowX: 'auto', paddingBottom: 2 }}>
+              {[{ id: 'rating', label: '⭐ Rating' }, { id: 'price', label: '💰 Price' }, { id: 'distance', label: '📍 Nearest' }].map(s => (
+                <button key={s.id} onClick={() => setDishSort(s.id)} style={{
+                  padding: '5px 10px', borderRadius: 10, whiteSpace: 'nowrap', flexShrink: 0,
+                  backgroundColor: dishSort === s.id ? 'rgba(141,198,63,0.2)' : 'rgba(0,0,0,0.3)',
+                  border: `1px solid ${dishSort === s.id ? '#8DC63F' : 'rgba(255,255,255,0.08)'}`,
+                  color: dishSort === s.id ? '#8DC63F' : 'rgba(255,255,255,0.5)',
+                  fontSize: 11, fontWeight: 800, cursor: 'pointer',
+                }}>{s.label}</button>
+              ))}
+              <span style={{ width: 1, background: 'rgba(255,255,255,0.1)', margin: '0 2px', flexShrink: 0 }} />
+              {ALLERGEN_OPTS.map(f => {
+                const active = allergenFilters.includes(f.id)
+                return (
+                  <button key={f.id} onClick={() => setAllergenFilters(prev => active ? prev.filter(x => x !== f.id) : [...prev, f.id])} style={{
+                    padding: '5px 10px', borderRadius: 10, whiteSpace: 'nowrap', flexShrink: 0,
+                    backgroundColor: active ? 'rgba(239,68,68,0.15)' : 'rgba(0,0,0,0.3)',
+                    border: `1px solid ${active ? '#EF4444' : 'rgba(255,255,255,0.08)'}`,
+                    color: active ? '#EF4444' : 'rgba(255,255,255,0.5)',
+                    fontSize: 11, fontWeight: 800, cursor: 'pointer',
+                  }}>{f.icon} {f.label}</button>
+                )
+              })}
+            </div>
           </div>
 
           {/* Dish grid */}
@@ -888,6 +998,9 @@ export default function RestaurantBrowseScreen({ onClose, onBackToCategories, ca
                         )}
                         <span style={{ fontSize: 10, color: 'rgba(255,255,255,0.3)' }}>~{(dish.prep_time_min ?? 15) + Math.round((dish.restaurant.distKm ?? 3) * 2.5)} min</span>
                       </div>
+                      {dish.restaurant.min_order && dish.price < dish.restaurant.min_order && (
+                        <span style={{ fontSize: 9, color: '#F59E0B', fontWeight: 700, marginTop: 2, display: 'block' }}>Min order {fmtPrice(dish.restaurant.min_order)}</span>
+                      )}
                     </div>
                   </button>
                 ))}
@@ -895,9 +1008,26 @@ export default function RestaurantBrowseScreen({ onClose, onBackToCategories, ca
             )}
           </div>
 
+          {/* Floating cart total bar */}
+          {cartCount > 0 && (
+            <div style={{
+              position: 'fixed', bottom: 80, left: 16, right: 16, zIndex: 9510,
+              padding: '12px 16px', borderRadius: 16,
+              backgroundColor: '#8DC63F', boxShadow: '0 4px 20px rgba(141,198,63,0.4)',
+              display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+              cursor: 'pointer',
+            }} onClick={() => { if (cartItems[0]?.restaurant) { setSelectedDish(null); setCuisineFilter(null); setMenuRestaurant(cartItems[0].restaurant) } }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                <span style={{ fontSize: 16 }}>🛒</span>
+                <span style={{ fontSize: 14, fontWeight: 900, color: '#000' }}>{cartCount} item{cartCount > 1 ? 's' : ''}</span>
+              </div>
+              <span style={{ fontSize: 16, fontWeight: 900, color: '#000' }}>{fmtPrice(cartTotal)} →</span>
+            </div>
+          )}
+
           {/* Cart toast */}
           {cartToast && (
-            <div style={{ position: 'fixed', bottom: 90, left: '50%', transform: 'translateX(-50%)', padding: '10px 20px', borderRadius: 12, backgroundColor: '#8DC63F', color: '#000', fontSize: 14, fontWeight: 800, zIndex: 9999, boxShadow: '0 4px 16px rgba(0,0,0,0.4)', animation: 'fadeIn 0.2s ease' }}>
+            <div style={{ position: 'fixed', bottom: cartCount > 0 ? 140 : 90, left: '50%', transform: 'translateX(-50%)', padding: '10px 20px', borderRadius: 12, backgroundColor: '#8DC63F', color: '#000', fontSize: 14, fontWeight: 800, zIndex: 9999, boxShadow: '0 4px 16px rgba(0,0,0,0.4)', animation: 'fadeIn 0.2s ease' }}>
               ✓ {cartToast}
             </div>
           )}
