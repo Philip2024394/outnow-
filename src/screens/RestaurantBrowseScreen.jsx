@@ -888,18 +888,6 @@ export default function RestaurantBrowseScreen({ onClose, onBackToCategories, ca
                         )}
                         <span style={{ fontSize: 10, color: 'rgba(255,255,255,0.3)' }}>~{(dish.prep_time_min ?? 15) + Math.round((dish.restaurant.distKm ?? 3) * 2.5)} min</span>
                       </div>
-                      {/* Add to cart */}
-                      {getQty(dish.id, dish.restaurant.id) > 0 ? (
-                        <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginTop: 6 }} onClick={e => e.stopPropagation()}>
-                          <button onClick={(e) => { e.stopPropagation(); removeFromCart(dish.id, dish.restaurant.id) }} style={{ width: 28, height: 28, borderRadius: 8, backgroundColor: '#333', border: 'none', color: '#fff', fontSize: 14, fontWeight: 700, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>−</button>
-                          <span style={{ fontSize: 14, fontWeight: 900, color: '#fff', minWidth: 20, textAlign: 'center' }}>{getQty(dish.id, dish.restaurant.id)}</span>
-                          <button onClick={(e) => { e.stopPropagation(); addToCart(dish) }} style={{ width: 28, height: 28, borderRadius: 8, backgroundColor: '#8DC63F', border: 'none', color: '#000', fontSize: 14, fontWeight: 700, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>+</button>
-                        </div>
-                      ) : (
-                        <button onClick={(e) => { e.stopPropagation(); addToCart(dish) }} style={{ marginTop: 6, padding: '6px 12px', borderRadius: 8, backgroundColor: '#8DC63F', border: 'none', color: '#000', fontSize: 11, fontWeight: 900, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4 }}>
-                          🛒 Add
-                        </button>
-                      )}
                     </div>
                   </button>
                 ))}
@@ -929,7 +917,16 @@ export default function RestaurantBrowseScreen({ onClose, onBackToCategories, ca
     {/* ── Dish Detail Page — hero dish + restaurant's other dishes ── */}
     {selectedDish && (() => {
       const { dish, restaurant } = selectedDish
-      const otherDishes = (restaurant.menu_items ?? []).filter(d => d.id !== dish.id && d.photo_url)
+      // Show same category dishes from OTHER restaurants
+      const sameCategoryDishes = withMeta.flatMap(r => {
+        if (r.id === restaurant.id) return [] // skip same restaurant
+        return (r.menu_items ?? []).filter(d => {
+          if (!d.photo_url) return false
+          const dCat = (d.category ?? '').toLowerCase()
+          const dishCat = (dish.category ?? '').toLowerCase()
+          return dCat === dishCat || (cuisineFilter && (d.name ?? '').toLowerCase().includes(cuisineFilter.toLowerCase()))
+        }).map(d => ({ ...d, restaurant: r }))
+      }).slice(0, 8) // max 8 suggestions
       const fmtP = (n) => 'Rp ' + (n ?? 0).toLocaleString('id-ID')
       const dishScrollRef = { current: null }
 
@@ -1019,13 +1016,13 @@ export default function RestaurantBrowseScreen({ onClose, onBackToCategories, ca
               </button>
             </div>
 
-            {/* Other dishes from this restaurant */}
-            {otherDishes.length > 0 && (
+            {/* Same category dishes from other restaurants */}
+            {sameCategoryDishes.length > 0 && (
               <div style={{ padding: '0 16px' }}>
-                <span style={{ fontSize: 14, fontWeight: 900, color: '#fff', display: 'block', marginBottom: 10 }}>More from {restaurant.name}</span>
+                <span style={{ fontSize: 14, fontWeight: 900, color: '#fff', display: 'block', marginBottom: 10 }}>More {dish.category ?? cuisineFilter ?? ''} dishes</span>
                 <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 10 }}>
-                  {otherDishes.map((d, i) => (
-                    <button key={`${d.id}-${i}`} onClick={() => { setSelectedDish({ dish: d, restaurant }); dishScrollRef.current?.scrollTo({ top: 0, behavior: 'smooth' }) }} style={{
+                  {sameCategoryDishes.map((d, i) => (
+                    <button key={`${d.id}-${i}`} onClick={() => { setSelectedDish({ dish: d, restaurant: d.restaurant }); dishScrollRef.current?.scrollTo({ top: 0, behavior: 'smooth' }) }} style={{
                       borderRadius: 14, overflow: 'hidden', position: 'relative',
                       border: '1px solid rgba(255,255,255,0.08)', padding: 0, background: 'none', cursor: 'pointer',
                       display: 'flex', flexDirection: 'column', textAlign: 'left',
@@ -1039,6 +1036,7 @@ export default function RestaurantBrowseScreen({ onClose, onBackToCategories, ca
                       </div>
                       <div style={{ padding: '8px 8px 10px', backgroundColor: 'rgba(0,0,0,0.6)' }}>
                         <span style={{ fontSize: 12, fontWeight: 800, color: '#fff', display: 'block', lineHeight: 1.2 }}>{d.name}</span>
+                        <span style={{ fontSize: 10, color: 'rgba(255,255,255,0.4)', display: 'block', marginTop: 2 }}>{d.restaurant.name}</span>
                       </div>
                     </button>
                   ))}
