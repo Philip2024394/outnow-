@@ -9,6 +9,7 @@ import FoodFooterNav from '@/components/restaurant/FoodFooterNav'
 import FoodDashboard from '@/components/restaurant/FoodDashboard'
 import LiveChatSheet from '@/components/restaurant/LiveChatSheet'
 import { getRestaurantExtras } from '@/services/vendorExtrasService'
+import { getDirections } from '@/utils/googleDirections'
 import PromoBannerPage from '@/components/restaurant/PromoBannerPage'
 import { getFoodOrders } from '@/components/restaurant/menuSheetConstants'
 import styles from './RestaurantBrowseScreen.module.css'
@@ -432,6 +433,99 @@ function toggleFavorite(restaurant) {
   return updated
 }
 
+// ── Dish Reviews — expandable section ────────────────────────────────────────
+const DEMO_REVIEWS = [
+  { name: 'Rina S.', stars: 5, text: 'Porsinya besar, rasanya mantap! Sambalnya pedas pas.', date: '2 hari lalu', photos: ['https://images.unsplash.com/photo-1512058564366-18510be2db19?w=300'] },
+  { name: 'Budi P.', stars: 4, text: 'Enak sih tapi pengiriman agak lama. Makanannya masih hangat.', date: '5 hari lalu', photos: [] },
+  { name: 'Ayu M.', stars: 5, text: 'Langganan! Selalu konsisten rasanya. Recommended banget.', date: '1 minggu lalu', photos: ['https://images.unsplash.com/photo-1569058242567-93de6f36f8eb?w=300', 'https://images.unsplash.com/photo-1574484284002-952d92456975?w=300'] },
+  { name: 'Dimas R.', stars: 4, text: 'Harga terjangkau untuk porsi segini. Worth it.', date: '2 minggu lalu', photos: ['https://images.unsplash.com/photo-1455619452474-d2be8b1e70cd?w=300'] },
+]
+
+function DishReviews({ rating, reviewCount }) {
+  const [open, setOpen] = useState(false)
+  const [viewPhoto, setViewPhoto] = useState(null)
+  const stars = rating ?? 4.5
+  const count = reviewCount ?? DEMO_REVIEWS.length
+  const photoCount = DEMO_REVIEWS.reduce((s, r) => s + (r.photos?.length ?? 0), 0)
+  return (
+    <div style={{ marginBottom: 12 }}>
+      <button onClick={() => setOpen(v => !v)} style={{
+        width: '100%', padding: '12px 14px', borderRadius: 12,
+        background: 'rgba(0,0,0,0.4)', border: '1px solid rgba(255,255,255,0.08)',
+        display: 'flex', alignItems: 'center', gap: 8, cursor: 'pointer',
+      }}>
+        <span style={{ fontSize: 14, color: '#FACC15' }}>★</span>
+        <span style={{ fontSize: 14, fontWeight: 900, color: '#fff' }}>{stars}</span>
+        <span style={{ fontSize: 13, color: 'rgba(255,255,255,0.5)', flex: 1, textAlign: 'left' }}>· {count} reviews {photoCount > 0 && `· ${photoCount} photos`}</span>
+        <span style={{ fontSize: 12, color: 'rgba(255,255,255,0.3)', transform: open ? 'rotate(180deg)' : 'none', transition: 'transform 0.2s' }}>▼</span>
+      </button>
+      {open && (
+        <div style={{ marginTop: 8, display: 'flex', flexDirection: 'column', gap: 8 }}>
+          {DEMO_REVIEWS.map((r, i) => (
+            <div key={i} style={{ padding: '10px 14px', borderRadius: 12, background: 'rgba(0,0,0,0.3)', border: '1px solid rgba(255,255,255,0.05)' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 4 }}>
+                <span style={{ fontSize: 12, fontWeight: 800, color: '#fff' }}>{r.name}</span>
+                <span style={{ fontSize: 12, color: '#FACC15' }}>{'★'.repeat(r.stars)}{'☆'.repeat(5 - r.stars)}</span>
+                <span style={{ fontSize: 12, color: 'rgba(255,255,255,0.3)', marginLeft: 'auto' }}>{r.date}</span>
+              </div>
+              <span style={{ fontSize: 13, color: 'rgba(255,255,255,0.7)', lineHeight: 1.4, display: 'block' }}>{r.text}</span>
+              {r.photos?.length > 0 && (
+                <div style={{ display: 'flex', gap: 6, marginTop: 8 }}>
+                  {r.photos.map((p, j) => (
+                    <button key={j} onClick={() => setViewPhoto(p)} style={{ width: 56, height: 56, borderRadius: 8, overflow: 'hidden', border: '1px solid rgba(255,255,255,0.1)', padding: 0, cursor: 'pointer', flexShrink: 0 }}>
+                      <img src={p} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
+          ))}
+        </div>
+      )}
+
+      {/* Photo popup viewer */}
+      {viewPhoto && (
+        <div onClick={() => setViewPhoto(null)} style={{ position: 'fixed', inset: 0, zIndex: 99999, background: 'rgba(0,0,0,0.9)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 20 }}>
+          <button onClick={() => setViewPhoto(null)} style={{
+            position: 'absolute', top: 'calc(env(safe-area-inset-top, 0px) + 16px)', right: 16,
+            width: 44, height: 44, borderRadius: '50%', background: '#8DC63F', border: 'none',
+            color: '#000', fontSize: 18, fontWeight: 900, cursor: 'pointer',
+            display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1,
+          }}>✕</button>
+          <img src={viewPhoto} alt="" onClick={e => e.stopPropagation()} style={{ maxWidth: '100%', maxHeight: '80vh', borderRadius: 16, objectFit: 'contain' }} />
+        </div>
+      )}
+    </div>
+  )
+}
+
+// ── Order history — localStorage + reorder ───────────────────────────────────
+const ORDER_HISTORY_KEY = 'indoo_order_history'
+
+function saveOrderToHistory(dish, restaurant, qty, extras) {
+  const history = loadOrderHistory()
+  const entry = {
+    id: Date.now(),
+    dishId: dish.id,
+    dishName: dish.name,
+    dishPhoto: dish.photo_url,
+    price: dish.price,
+    qty,
+    extras: extras.map(e => ({ label: e.label, qty: e.qty })),
+    restaurantId: restaurant.id,
+    restaurantName: restaurant.name,
+    date: new Date().toISOString(),
+  }
+  // Keep last 20, no duplicates of same dish+restaurant
+  const filtered = history.filter(h => !(h.dishId === dish.id && h.restaurantId === restaurant.id))
+  const updated = [entry, ...filtered].slice(0, 20)
+  localStorage.setItem(ORDER_HISTORY_KEY, JSON.stringify(updated))
+}
+
+function loadOrderHistory() {
+  try { return JSON.parse(localStorage.getItem(ORDER_HISTORY_KEY) || '[]') } catch { return [] }
+}
+
 // ── Promo banners for cuisine grid ───────────────────────────────────────────
 const CUISINE_BANNERS = [
   {
@@ -624,6 +718,7 @@ export default function RestaurantBrowseScreen({ onClose, onBackToCategories, ca
   const [dishNote, setDishNote] = useState('') // special request note
   const [dishQty, setDishQty] = useState(1) // main dish quantity
   const [vendorExtras, setVendorExtras] = useState(null) // { sauces: [], drinks: [], sides: [] }
+  const [deliveryETA, setDeliveryETA] = useState(null) // { durationMin, distanceKm, deliveryFee }
   const [dishExtras, setDishExtras] = useState([]) // selected extras [{label, qty}]
   const [extrasTab, setExtrasTab] = useState('sauces') // 'sauces' | 'drinks' | 'sides'
   const [dishSort, setDishSort] = useState('rating') // 'price' | 'rating' | 'distance'
@@ -649,6 +744,29 @@ export default function RestaurantBrowseScreen({ onClose, onBackToCategories, ca
     if (!selectedDish?.restaurant?.id) { setVendorExtras(null); return }
     getRestaurantExtras(selectedDish.restaurant.id).then(setVendorExtras)
   }, [selectedDish?.restaurant?.id])
+
+  // Calculate real delivery ETA via Google Directions
+  useEffect(() => {
+    if (!selectedDish?.restaurant) { setDeliveryETA(null); return }
+    const r = selectedDish.restaurant
+    const userLat = coords?.latitude
+    const userLng = coords?.longitude
+    if (!r.lat || !r.lng) {
+      // Fallback estimate
+      const distKm = r.distKm ?? 3
+      setDeliveryETA({ durationMin: (r.menu_items?.[0]?.prep_time_min ?? 15) + Math.round(distKm * 2.5), distanceKm: distKm, deliveryFee: Math.max(5000, Math.round(distKm * 2500)) })
+      return
+    }
+    getDirections(r.lat, r.lng, userLat ?? r.lat + 0.02, userLng ?? r.lng + 0.02, 'driving').then(result => {
+      const prepMin = selectedDish.dish?.prep_time_min ?? 15
+      const distKm = result.distanceKm ?? 3
+      setDeliveryETA({
+        durationMin: prepMin + result.durationMin,
+        distanceKm: distKm,
+        deliveryFee: Math.max(5000, Math.round(distKm * 2500)),
+      })
+    })
+  }, [selectedDish?.restaurant?.id, coords?.latitude, coords?.longitude])
 
   useEffect(() => {
     const load = async () => {
@@ -1085,6 +1203,56 @@ export default function RestaurantBrowseScreen({ onClose, onBackToCategories, ca
           </div>}
 
 
+          {/* ── Recent Orders — reorder ── */}
+          {pickerTab === 'cuisine' && (() => {
+            const history = loadOrderHistory()
+            if (history.length === 0) return null
+            const fmtH = (n) => 'Rp ' + (n ?? 0).toLocaleString('id-ID').replace(/,/g, '.')
+            return (
+              <div style={{ padding: '0 12px 12px' }}>
+                <span style={{ fontSize: 14, fontWeight: 900, color: '#8DC63F', display: 'block', marginBottom: 8 }}>Recent Orders</span>
+                <div style={{ display: 'flex', gap: 10, overflowX: 'auto', scrollbarWidth: 'none', paddingBottom: 4 }}>
+                  {history.slice(0, 6).map(h => (
+                    <button key={h.id} onClick={() => {
+                      // Find the restaurant and dish in withMeta
+                      const r = withMeta.find(r => r.id === h.restaurantId)
+                      const d = r?.menu_items?.find(m => m.id === h.dishId)
+                      if (r && d) {
+                        setSelectedDish({ dish: d, restaurant: r })
+                        setShowCuisinePicker(false)
+                        setCuisineFilter(d.category?.toLowerCase() ?? 'all')
+                        setDishQty(h.qty ?? 1)
+                        setDishExtras(h.extras ?? [])
+                      }
+                    }} style={{
+                      width: 120, flexShrink: 0, borderRadius: 14, overflow: 'hidden',
+                      border: '1px solid rgba(255,255,255,0.08)', padding: 0, background: 'none', cursor: 'pointer',
+                      display: 'flex', flexDirection: 'column', textAlign: 'left',
+                    }}>
+                      <div style={{ height: 80, position: 'relative', overflow: 'hidden' }}>
+                        {h.dishPhoto ? (
+                          <img src={h.dishPhoto} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                        ) : (
+                          <div style={{ width: '100%', height: '100%', background: 'rgba(255,255,255,0.05)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                            <span style={{ fontSize: 28 }}>🍽️</span>
+                          </div>
+                        )}
+                        <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to top, rgba(0,0,0,0.7) 0%, transparent 50%)' }} />
+                        <div style={{ position: 'absolute', bottom: 4, right: 4, padding: '2px 6px', borderRadius: 6, background: '#8DC63F' }}>
+                          <span style={{ fontSize: 12, fontWeight: 900, color: '#000' }}>Reorder</span>
+                        </div>
+                      </div>
+                      <div style={{ padding: '6px 8px 8px', background: 'rgba(0,0,0,0.5)' }}>
+                        <span style={{ fontSize: 12, fontWeight: 800, color: '#fff', display: 'block', lineHeight: 1.2, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{h.dishName}</span>
+                        <span style={{ fontSize: 12, color: 'rgba(255,255,255,0.4)', display: 'block', marginTop: 2 }}>{fmtH(h.price)}</span>
+                      </div>
+                    </button>
+                  ))}
+                </div>
+              </div>
+            )
+          })()}
+
           {/* ── TAB: Cuisine ── */}
           {pickerTab === 'cuisine' && (
             <CuisineGridWithBanners
@@ -1478,7 +1646,7 @@ export default function RestaurantBrowseScreen({ onClose, onBackToCategories, ca
                       {dish.original_price && dish.original_price > dish.price && (
                         <span style={{ padding: '3px 7px', borderRadius: 6, backgroundColor: '#EF4444', fontSize: 11, fontWeight: 900, color: '#fff', flexShrink: 0 }}>{Math.round(((dish.original_price - dish.price) / dish.original_price) * 100)}% OFF</span>
                       )}
-                      <span style={{ fontSize: 11, fontWeight: 800, color: 'rgba(255,255,255,0.4)', flexShrink: 0 }}>🏍️ {(dish.prep_time_min ?? 15) + Math.round((restaurant.distKm ?? 3) * 2.5)}min</span>
+                      <span style={{ fontSize: 11, fontWeight: 800, color: 'rgba(255,255,255,0.4)', flexShrink: 0 }}>🏍️ {deliveryETA?.durationMin ?? ((dish.prep_time_min ?? 15) + Math.round((restaurant.distKm ?? 3) * 2.5))}min</span>
                     </div>
                     {dish.description && <span style={{ fontSize: 12, color: '#fff', display: 'block', marginTop: 6, lineHeight: 1.4 }}>{dish.description.slice(0, 100)}</span>}
                   </div>
@@ -1568,7 +1736,7 @@ export default function RestaurantBrowseScreen({ onClose, onBackToCategories, ca
                         )}
                         <div style={{ display: 'flex', justifyContent: 'space-between' }}>
                           <span style={{ fontSize: 12, color: 'rgba(255,255,255,0.6)' }}>Delivery</span>
-                          <span style={{ fontSize: 12, fontWeight: 700, color: 'rgba(255,255,255,0.6)' }}>{fmtP(restaurant.deliveryFare ?? Math.max(5000, Math.round((restaurant.distKm ?? 3) * 2500)))}</span>
+                          <span style={{ fontSize: 12, fontWeight: 700, color: 'rgba(255,255,255,0.6)' }}>{fmtP(deliveryETA?.deliveryFee ?? restaurant.deliveryFare ?? 8000)}</span>
                         </div>
                       </div>
                     </div>
@@ -1641,6 +1809,9 @@ export default function RestaurantBrowseScreen({ onClose, onBackToCategories, ca
                       style={{ width: '100%', padding: '10px 14px', borderRadius: 12, backgroundColor: 'rgba(0,0,0,0.5)', border: '1px solid rgba(255,255,255,0.1)', color: '#fff', fontSize: 13, fontWeight: 600, outline: 'none', fontFamily: 'inherit', boxSizing: 'border-box', marginBottom: 12, resize: 'none', lineHeight: 1.4 }}
                     />
 
+                    {/* Reviews section — expandable */}
+                    <DishReviews rating={restaurant.rating} reviewCount={restaurant.review_count} />
+
                   </div>
                 </>
               )
@@ -1667,6 +1838,7 @@ export default function RestaurantBrowseScreen({ onClose, onBackToCategories, ca
                     if (existing) return prev.map(c => c.id === dish.id && c.restaurant?.id === restaurant.id ? { ...c, qty: c.qty + dishQty } : c)
                     return [...prev, { ...dish, restaurant, qty: dishQty, note: dishNote, extras: dishExtras, extrasPrice: exCost }]
                   })
+                  saveOrderToHistory(dish, restaurant, dishQty, dishExtras)
                   setCartToast(`${dishQty}x ${dish.name} added to cart`)
                   setTimeout(() => setCartToast(null), 2000)
                   setDishNote(''); setDishExtras([]); setDishQty(1)
