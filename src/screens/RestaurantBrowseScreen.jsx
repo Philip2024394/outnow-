@@ -852,6 +852,7 @@ export default function RestaurantBrowseScreen({ onClose, onBackToCategories, ca
       const { dish, restaurant } = selectedDish
       const otherDishes = (restaurant.menu_items ?? []).filter(d => d.id !== dish.id && d.photo_url)
       const fmtP = (n) => 'Rp ' + (n ?? 0).toLocaleString('id-ID')
+      const dishScrollRef = { current: null }
 
       return (
         <div style={{ position: 'fixed', inset: 0, zIndex: 115, backgroundColor: '#0a0a0a', display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
@@ -877,7 +878,7 @@ export default function RestaurantBrowseScreen({ onClose, onBackToCategories, ca
           </div>
 
           {/* Scrollable content */}
-          <div style={{ flex: 1, overflowY: 'auto', position: 'relative', zIndex: 1, padding: '0 0 100px' }}>
+          <div ref={el => { dishScrollRef.current = el }} style={{ flex: 1, overflowY: 'auto', position: 'relative', zIndex: 1, padding: '0 0 100px' }}>
 
             {/* Hero dish — full width */}
             <div style={{ position: 'relative', height: 280 }}>
@@ -894,14 +895,22 @@ export default function RestaurantBrowseScreen({ onClose, onBackToCategories, ca
               </div>
             </div>
 
-            {/* Prep time + category */}
-            <div style={{ display: 'flex', gap: 8, padding: '12px 16px' }}>
+            {/* Prep time + category + add to cart */}
+            <div style={{ padding: '12px 16px', display: 'flex', alignItems: 'center', gap: 8 }}>
               {dish.prep_time_min && (
                 <span style={{ padding: '4px 10px', borderRadius: 8, backgroundColor: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.08)', fontSize: 11, fontWeight: 700, color: 'rgba(255,255,255,0.5)' }}>⏱ {dish.prep_time_min} min</span>
               )}
               {dish.category && (
                 <span style={{ padding: '4px 10px', borderRadius: 8, backgroundColor: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.08)', fontSize: 11, fontWeight: 700, color: 'rgba(255,255,255,0.5)' }}>{dish.category}</span>
               )}
+              <button onClick={() => { setSelectedDish(null); setMenuRestaurant(restaurant) }} style={{
+                marginLeft: 'auto', padding: '10px 18px', borderRadius: 12,
+                backgroundColor: '#8DC63F', border: 'none', color: '#000',
+                fontSize: 13, fontWeight: 900, cursor: 'pointer', fontFamily: 'inherit',
+                display: 'flex', alignItems: 'center', gap: 6,
+              }}>
+                🛒 Add to Cart
+              </button>
             </div>
 
             {/* Other dishes from this restaurant */}
@@ -910,7 +919,7 @@ export default function RestaurantBrowseScreen({ onClose, onBackToCategories, ca
                 <span style={{ fontSize: 14, fontWeight: 900, color: '#fff', display: 'block', marginBottom: 10 }}>More from {restaurant.name}</span>
                 <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 10 }}>
                   {otherDishes.map((d, i) => (
-                    <button key={`${d.id}-${i}`} onClick={() => setSelectedDish({ dish: d, restaurant })} style={{
+                    <button key={`${d.id}-${i}`} onClick={() => { setSelectedDish({ dish: d, restaurant }); dishScrollRef.current?.scrollTo({ top: 0, behavior: 'smooth' }) }} style={{
                       borderRadius: 14, overflow: 'hidden', position: 'relative',
                       border: '1px solid rgba(255,255,255,0.08)', padding: 0, background: 'none', cursor: 'pointer',
                       display: 'flex', flexDirection: 'column', textAlign: 'left',
