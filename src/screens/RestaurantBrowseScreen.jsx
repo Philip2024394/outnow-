@@ -468,9 +468,6 @@ const CUISINE_BANNERS = [
 ]
 
 const CUISINE_GROUPS = [
-  { country: 'All', flag: '🍛', items: [
-    { id: null, emoji: '🍛', label: 'All Food' },
-  ]},
   { country: 'Indonesian', flag: '🇮🇩', items: [
     { id: 'rice', img: 'https://ik.imagekit.io/nepgaxllc/Untitledasdasdaaavvv-removebg-preview.png', label: 'Rice' },
     { id: 'noodles', img: 'https://ik.imagekit.io/nepgaxllc/Untitledasdasdaaavvvd-removebg-preview.png', label: 'Noodles' },
@@ -529,14 +526,14 @@ const CUISINE_ITEMS = CUISINE_GROUPS.flatMap(g => g.items)
 function CuisineGridWithBanners({ onSelect }) {
 
 
-  const cardStyle = {
-    padding: '6px', borderRadius: '50%', cursor: 'pointer',
+  const circleStyle = {
+    width: 64, height: 64, borderRadius: '50%', cursor: 'pointer',
     backgroundImage: 'url(https://ik.imagekit.io/nepgaxllc/Untitledsdfsssq.png)',
     backgroundSize: 'cover', backgroundPosition: 'center',
     border: '1px solid rgba(255,255,255,0.1)',
     boxShadow: '0 2px 8px rgba(0,0,0,0.3)',
-    display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
-    aspectRatio: '1', transition: 'transform 0.15s', position: 'relative', overflow: 'hidden',
+    display: 'flex', alignItems: 'center', justifyContent: 'center',
+    transition: 'transform 0.15s', margin: '0 auto',
   }
 
   // Build output — grouped by country with flag headers + banners
@@ -572,19 +569,18 @@ function CuisineGridWithBanners({ onSelect }) {
       output.push(
         <div key={`row-${gi}-${i}`} style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 8 }}>
           {row.map(c => (
-            <button key={c.label} onClick={() => onSelect(c.id)} style={cardStyle}
-              onPointerDown={e => e.currentTarget.style.transform = 'scale(0.95)'}
-              onPointerUp={e => e.currentTarget.style.transform = 'scale(1)'}
-              onPointerLeave={e => e.currentTarget.style.transform = 'scale(1)'}
+            <button key={c.label} onClick={() => onSelect(c.id)} style={{
+              display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 6,
+              background: 'none', border: 'none', cursor: 'pointer', padding: 0,
+            }}
+              onPointerDown={e => { const el = e.currentTarget.firstChild; if (el) el.style.transform = 'scale(0.9)' }}
+              onPointerUp={e => { const el = e.currentTarget.firstChild; if (el) el.style.transform = 'scale(1)' }}
+              onPointerLeave={e => { const el = e.currentTarget.firstChild; if (el) el.style.transform = 'scale(1)' }}
             >
-              {c.img ? <img src={c.img} alt="" style={{ width: 46, height: 46, objectFit: 'contain' }} /> : <span style={{ fontSize: 22 }}>{c.emoji}</span>}
-              {/* Curved text at bottom of circle */}
-              <svg viewBox="0 0 80 80" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', pointerEvents: 'none' }}>
-                <defs><path id={`curve-${c.id ?? 'all'}`} d="M 10,55 A 32,32 0 0,0 70,55" /></defs>
-                <text fill="#000" fontSize="10" fontWeight="900" textAnchor="middle">
-                  <textPath href={`#curve-${c.id ?? 'all'}`} startOffset="50%">{c.label}</textPath>
-                </text>
-              </svg>
+              <div style={circleStyle}>
+                {c.img ? <img src={c.img} alt="" style={{ width: 48, height: 48, objectFit: 'contain' }} /> : <span style={{ fontSize: 26 }}>{c.emoji}</span>}
+              </div>
+              <span style={{ fontSize: 11, fontWeight: 800, color: '#fff', textAlign: 'center', lineHeight: 1.2 }}>{c.label}</span>
             </button>
           ))}
         </div>
