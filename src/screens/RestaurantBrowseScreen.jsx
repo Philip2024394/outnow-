@@ -931,14 +931,16 @@ export default function RestaurantBrowseScreen({ onClose, onBackToCategories, ca
               </button>
             </div>
 
-            {/* Full restaurant card */}
-            <div style={{ position: 'relative', height: '70vh', minHeight: 400 }}>
-              <RestaurantCard
-                restaurant={restaurant}
-                onOpenMenu={() => { setSelectedDish(null); setCuisineFilter(null); setMenuRestaurant(restaurant) }}
-                onToggleFavorite={() => { toggleFavorite(restaurant); setFavTick(t => t + 1) }}
-                isFav={isFavorite(restaurant.id)}
-              />
+            {/* Restaurant button */}
+            <div style={{ padding: '10px 16px' }}>
+              <button onClick={() => { setSelectedDish(null); setCuisineFilter(null); setMenuRestaurant(restaurant) }} style={{
+                width: '100%', padding: '12px 16px', borderRadius: 14,
+                backgroundColor: 'rgba(141,198,63,0.1)', border: '1.5px solid rgba(141,198,63,0.3)',
+                color: '#8DC63F', fontSize: 14, fontWeight: 900, cursor: 'pointer', fontFamily: 'inherit',
+                display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8,
+              }}>
+                🍽️ View {restaurant.name}
+              </button>
             </div>
 
             {/* Other dishes from this restaurant */}
