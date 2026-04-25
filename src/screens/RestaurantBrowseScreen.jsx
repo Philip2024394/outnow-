@@ -526,25 +526,8 @@ const CUISINE_GROUPS = [
 const CUISINE_ITEMS = CUISINE_GROUPS.flatMap(g => g.items)
 
 // Banners appear after these ROW numbers (0-based): after row 1 and row 5
-const BANNER_AFTER_ROW = [1, 5]
+function CuisineGridWithBanners({ onSelect }) {
 
-function CuisineGridWithBanners({ onSelect, restaurants, onOpenRestaurant }) {
-  const [expandedBanner, setExpandedBanner] = useState(null)
-  const [bannerIdx, setBannerIdx] = useState({})
-
-  useEffect(() => {
-    const id = setInterval(() => {
-      setBannerIdx(prev => {
-        const next = { ...prev }
-        BANNER_AFTER_ROW.forEach((_, i) => {
-          const pool = i === 0 ? CUISINE_BANNERS.slice(0, 2) : CUISINE_BANNERS.slice(2, 4)
-          next[i] = ((prev[i] ?? 0) + 1) % pool.length
-        })
-        return next
-      })
-    }, 4000)
-    return () => clearInterval(id)
-  }, [])
 
   const cardStyle = {
     padding: '6px', borderRadius: '50%', cursor: 'pointer',
@@ -558,8 +541,6 @@ function CuisineGridWithBanners({ onSelect, restaurants, onOpenRestaurant }) {
 
   // Build output — grouped by country with flag headers + banners
   const output = []
-  let globalRowIdx = 0
-  let bannerSlot = 0
 
   CUISINE_GROUPS.forEach((group, gi) => {
     // Country header (skip for "All")
@@ -609,67 +590,7 @@ function CuisineGridWithBanners({ onSelect, restaurants, onOpenRestaurant }) {
         </div>
       )
 
-      // Check for banner insertion
-      if (BANNER_AFTER_ROW.includes(globalRowIdx)) {
-      const slot = bannerSlot
-      const pool = slot === 0 ? CUISINE_BANNERS.slice(0, 2) : CUISINE_BANNERS.slice(2, 4)
-      const b = pool[(bannerIdx[slot] ?? 0) % pool.length]
-      const isExpanded = expandedBanner === slot
 
-      output.push(
-        <div key={`banner-${slot}`}>
-          {/* Banner row: 1 cuisine card + wide banner */}
-          <button
-            onClick={() => setExpandedBanner(isExpanded ? null : slot)}
-            style={{
-              width: '100%', height: 160, borderRadius: 16, overflow: 'hidden',
-              position: 'relative', cursor: 'pointer', border: `1.5px solid ${b.color}44`,
-              padding: 0, background: 'none', display: 'block',
-              boxShadow: `0 2px 12px ${b.color}22`,
-            }}
-          >
-            <img src={b.image} alt="" key={b.id} style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', animation: 'fadeIn 0.5s ease' }} />
-            <div style={{ position: 'absolute', top: 10, right: 10, display: 'flex', gap: 4 }}>
-              {pool.map((_, di) => (
-                <span key={di} style={{ width: 6, height: 6, borderRadius: '50%', background: di === ((bannerIdx[slot] ?? 0) % pool.length) ? '#fff' : 'rgba(255,255,255,0.3)' }} />
-              ))}
-            </div>
-            <div style={{ position: 'absolute', bottom: 10, right: 10, width: 28, height: 28, borderRadius: '50%', background: 'rgba(0,0,0,0.6)', display: 'flex', alignItems: 'center', justifyContent: 'center', transform: isExpanded ? 'rotate(90deg)' : 'rotate(0)', transition: 'transform 0.2s' }}>
-              <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2.5" strokeLinecap="round"><path d="M9 18l6-6-6-6"/></svg>
-            </div>
-          </button>
-
-          {/* Sleeve — opens down */}
-          {isExpanded && (
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 8, marginTop: 10, animation: 'fadeIn 0.25s ease' }}>
-              {CUISINE_BANNERS.map(promo => {
-                const r = restaurants.find(x => x.id === promo.restaurantId)
-                return (
-                  <button key={promo.id} onClick={() => { if (r) onOpenRestaurant(r) }} style={{
-                    width: '100%', height: 72, borderRadius: 14, overflow: 'hidden',
-                    position: 'relative', cursor: 'pointer', border: `1px solid ${promo.color}33`,
-                    padding: 0, background: 'none', display: 'block',
-                  }}>
-                    <img src={promo.image} alt="" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover' }} />
-                    <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(90deg, rgba(0,0,0,0.85) 0%, rgba(0,0,0,0.2) 70%, transparent 100%)' }} />
-                    <div style={{ position: 'absolute', bottom: 8, left: 10 }}>
-                      <span style={{ fontSize: 13, fontWeight: 900, color: '#fff', display: 'block' }}>{promo.title}</span>
-                      <span style={{ fontSize: 11, fontWeight: 700, color: promo.color }}>{promo.promo}</span>
-                    </div>
-                    <div style={{ position: 'absolute', top: '50%', right: 10, transform: 'translateY(-50%)', width: 28, height: 28, borderRadius: 8, background: promo.color, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#000" strokeWidth="2.5" strokeLinecap="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
-                    </div>
-                  </button>
-                )
-              })}
-            </div>
-          )}
-        </div>
-      )
-      bannerSlot++
-    }
-
-      globalRowIdx++
     }
   })
 
@@ -844,8 +765,6 @@ export default function RestaurantBrowseScreen({ onClose, onBackToCategories, ca
         `}</style>
         <CuisineGridWithBanners
           onSelect={(id) => { setCuisineFilter(id); setShowCuisinePicker(false) }}
-          restaurants={DEMO_RESTAURANTS}
-          onOpenRestaurant={(r) => { setCuisineFilter(null); setShowCuisinePicker(false); setMenuRestaurant(r) }}
         />
       </div>
     )}
