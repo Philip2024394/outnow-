@@ -315,42 +315,87 @@ export default function BookingLivePanel({
 
   // ── Phase: waiting ───────────────────────────────────────────────────────────
   if (phase === 'waiting') {
+    const isBike = selectedDriver?.driver_type !== 'car_taxi'
+    const processingImg = isBike
+      ? 'https://ik.imagekit.io/nepgaxllc/ChatGPT%20Image%20Apr%2021,%202026,%2006_44_19%20AM.png'
+      : 'https://ik.imagekit.io/nepgaxllc/Untitledddddddddd.png'
     return (
-      <div className={styles.body}>
-        <DriverMap userCoords={pickupCoords} driverType={vehicleType} selectedDriverId={selectedDriver?.id} />
-        <div className={styles.waitingCard}>
-          <div className={styles.waitingRow}>
-            <img src={selectedDriver?.driver_type === 'car_taxi' ? CAR_IMG : BIKE_IMG} alt="vehicle" className={styles.waitingEmojiImg} />
-            <div style={{ flex: 1 }}>
-              <p className={styles.waitingName}>{selectedDriver?.display_name}</p>
-              <p className={styles.waitingMeta}>Booking sent — waiting for response</p>
-              {selectedDriver?.vehicle_model && (
-                <p className={styles.waitingVehicle}>{selectedDriver.vehicle_color} {selectedDriver.vehicle_model} {selectedDriver.vehicle_year}</p>
-              )}
-              {selectedDriver?.plate_prefix && (
-                <p className={styles.waitingPlate}>Plate: {selectedDriver.plate_prefix} ••</p>
-              )}
+      <div style={{ position: 'fixed', inset: 0, zIndex: 9900, display: 'flex', flexDirection: 'column' }}>
+        {/* Full-screen background */}
+        <img src={processingImg} alt="" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover' }} />
+        <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to top, rgba(0,0,0,0.85) 0%, rgba(0,0,0,0.3) 40%, rgba(0,0,0,0.3) 60%, rgba(0,0,0,0.6) 100%)' }} />
+
+        {/* Bottom content */}
+        <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, padding: 20, zIndex: 2 }}>
+          {/* Driver card */}
+          <div style={{ padding: 16, borderRadius: 20, background: 'rgba(0,0,0,0.7)', backdropFilter: 'blur(16px)', border: '1px solid rgba(255,255,255,0.08)', marginBottom: 12 }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+              <div style={{ position: 'relative' }}>
+                <div style={{ position: 'absolute', inset: -4, borderRadius: '50%', border: '2px solid #FACC15', animation: 'ping 2s ease-in-out infinite', opacity: 0.4 }} />
+                <img src={selectedDriver?.photo_url ?? (isBike ? BIKE_IMG : CAR_IMG)} alt="" style={{ width: 52, height: 52, borderRadius: '50%', objectFit: 'cover', border: '2.5px solid #FACC15' }} />
+              </div>
+              <div style={{ flex: 1 }}>
+                <span style={{ fontSize: 16, fontWeight: 900, color: '#fff', display: 'block' }}>{selectedDriver?.display_name}</span>
+                <span style={{ fontSize: 12, color: '#FACC15', fontWeight: 700 }}>Connecting to driver...</span>
+                <span style={{ fontSize: 11, color: 'rgba(255,255,255,0.4)', display: 'block', marginTop: 2 }}>{selectedDriver?.vehicle_color} {selectedDriver?.vehicle_model}</span>
+              </div>
+              <div style={{ width: 48, height: 48, borderRadius: '50%', background: 'rgba(250,204,21,0.15)', border: '2px solid rgba(250,204,21,0.3)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                <span style={{ fontSize: 18, fontWeight: 900, color: '#FACC15' }}>{countdown}s</span>
+              </div>
             </div>
-            <div className={styles.countdown}>{countdown}s</div>
           </div>
-          <p className={styles.waitingNote}>⏱ Request sent to driver — they will accept or decline in-app. This will update automatically.</p>
+
+          {/* Status text */}
+          <div style={{ textAlign: 'center', marginBottom: 12 }}>
+            <div style={{ display: 'flex', justifyContent: 'center', gap: 8, marginBottom: 8 }}>
+              <span style={{ width: 10, height: 10, borderRadius: '50%', background: '#8DC63F', animation: 'dotDance 1.8s ease-in-out infinite' }} />
+              <span style={{ width: 10, height: 10, borderRadius: '50%', background: '#8DC63F', animation: 'dotDance 1.8s ease-in-out 0.3s infinite' }} />
+              <span style={{ width: 10, height: 10, borderRadius: '50%', background: '#8DC63F', animation: 'dotDance 1.8s ease-in-out 0.6s infinite' }} />
+            </div>
+            <span style={{ fontSize: 12, color: 'rgba(255,255,255,0.4)' }}>Finding the best driver for you</span>
+          </div>
+
+          <button onClick={handleTryAnother} style={{ width: '100%', padding: 14, borderRadius: 14, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)', color: 'rgba(255,255,255,0.5)', fontSize: 14, fontWeight: 800, cursor: 'pointer', fontFamily: 'inherit' }}>
+            Try Another Driver
+          </button>
         </div>
-        <div className={styles.waitingActions}>
-          <button className={styles.tryAnotherBtn} onClick={handleTryAnother}>Try Another Driver</button>
-        </div>
+        <style>{`
+          @keyframes ping { 0% { opacity: 1; } 50% { opacity: 0.3; } 100% { opacity: 1; } }
+          @keyframes dotDance { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-4px); } }
+        `}</style>
       </div>
     )
   }
 
   // ── Phase: expired ───────────────────────────────────────────────────────────
   if (phase === 'expired') {
+    const isBike = selectedDriver?.driver_type !== 'car_taxi'
+    const bgImg = isBike
+      ? 'https://ik.imagekit.io/nepgaxllc/ChatGPT%20Image%20Apr%2021,%202026,%2006_44_19%20AM.png'
+      : 'https://ik.imagekit.io/nepgaxllc/Untitledddddddddd.png'
     return (
-      <div className={styles.centered}>
-        <span className={styles.expiredIcon}>⏱</span>
-        <p className={styles.expiredTitle}>Driver didn't respond</p>
-        <p className={styles.expiredSub}>{selectedDriver?.display_name} took too long. Try the next available driver.</p>
-        <button className={styles.tryAnotherBtnLg} onClick={handleTryAnother}>📞 Try Another Driver</button>
-        <button className={styles.backToSelectBtn} onClick={() => setPhase('select')}>Start Over</button>
+      <div style={{ position: 'fixed', inset: 0, zIndex: 9900, display: 'flex', flexDirection: 'column' }}>
+        <img src={bgImg} alt="" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover' }} />
+        <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to top, rgba(0,0,0,0.9) 0%, rgba(0,0,0,0.4) 50%, rgba(0,0,0,0.5) 100%)' }} />
+        <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, padding: 24, zIndex: 2, textAlign: 'center' }}>
+          <div style={{ width: 60, height: 60, borderRadius: '50%', background: 'rgba(250,204,21,0.15)', border: '2px solid rgba(250,204,21,0.3)', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 16px' }}>
+            <span style={{ fontSize: 28 }}>🔄</span>
+          </div>
+          <h3 style={{ fontSize: 18, fontWeight: 900, color: '#fff', margin: '0 0 6px' }}>Driver is busy</h3>
+          <p style={{ fontSize: 13, color: 'rgba(255,255,255,0.5)', margin: '0 0 20px', lineHeight: 1.5 }}>Your driver is currently on another job. We're finding the next available driver for you.</p>
+          <div style={{ display: 'flex', justifyContent: 'center', gap: 8, marginBottom: 16 }}>
+            <span style={{ width: 8, height: 8, borderRadius: '50%', background: '#FACC15', animation: 'dotDance 1.4s ease-in-out infinite' }} />
+            <span style={{ width: 8, height: 8, borderRadius: '50%', background: '#FACC15', animation: 'dotDance 1.4s ease-in-out 0.2s infinite' }} />
+            <span style={{ width: 8, height: 8, borderRadius: '50%', background: '#FACC15', animation: 'dotDance 1.4s ease-in-out 0.4s infinite' }} />
+          </div>
+          <button onClick={handleTryAnother} style={{ width: '100%', padding: 16, borderRadius: 16, background: '#8DC63F', border: 'none', color: '#000', fontSize: 16, fontWeight: 900, cursor: 'pointer', fontFamily: 'inherit', marginBottom: 10 }}>
+            Find Next Driver
+          </button>
+          <button onClick={() => setPhase('select')} style={{ width: '100%', padding: 12, borderRadius: 12, background: 'none', border: '1px solid rgba(255,255,255,0.1)', color: 'rgba(255,255,255,0.4)', fontSize: 13, fontWeight: 700, cursor: 'pointer' }}>
+            Cancel
+          </button>
+        </div>
+        <style>{`@keyframes dotDance { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-4px); } }`}</style>
       </div>
     )
   }
@@ -358,161 +403,117 @@ export default function BookingLivePanel({
   // ── Phase: active ────────────────────────────────────────────────────────────
   if (phase === 'active') {
     const isBike = selectedDriver?.driver_type !== 'car_taxi'
-    const eta    = selectedDriver?.etaMin ?? Math.max(2, Math.round((selectedDriver?.distKm ?? 2) * 2.5))
+    const eta = selectedDriver?.etaMin ?? Math.max(2, Math.round((selectedDriver?.distKm ?? 2) * 2.5))
+    const activeImg = isBike
+      ? 'https://ik.imagekit.io/nepgaxllc/ChatGPT%20Image%20Apr%2022,%202026,%2006_05_25%20AM.png?updatedAt=1776812742688'
+      : 'https://ik.imagekit.io/nepgaxllc/Untitledddddddddd.png'
     return (
-      <div className={styles.body}>
+      <div style={{ position: 'fixed', inset: 0, zIndex: 9850, background: '#0a0a0a', display: 'flex', flexDirection: 'column' }}>
 
-        {/* Animated road strip */}
-        <div className={styles.rideAnimWrap}>
-          <div className={styles.rideAnimRoad}>
-            <div className={styles.rideAnimDashes} />
-            <div className={styles.rideAnimVehicle}>
-              <img
-                src={isBike ? BIKE_IMG : CAR_IMG}
-                alt="vehicle"
-                className={styles.rideAnimVehicleImg}
-              />
+        {/* Header — same as food delivery */}
+        <div style={{ padding: 'calc(env(safe-area-inset-top, 0px) + 12px) 16px 12px', display: 'flex', alignItems: 'center', gap: 10, borderBottom: '1px solid rgba(255,255,255,0.06)', flexShrink: 0 }}>
+          <img src="https://ik.imagekit.io/nepgaxllc/ChatGPT%20Image%20Apr%2019,%202026,%2012_07_28%20AM.png?updatedAt=1776532065659" alt="" style={{ width: 48, height: 48, objectFit: 'contain', flexShrink: 0 }} />
+          <div style={{ flex: 1 }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+              <span style={{ fontSize: 14, fontWeight: 900, color: '#fff' }}>INDOO {isBike ? 'Bike' : 'Car'}</span>
+              <span style={{ width: 7, height: 7, borderRadius: '50%', background: '#8DC63F', animation: 'ping 1.5s ease-in-out infinite', flexShrink: 0 }} />
+              <span style={{ fontSize: 9, fontWeight: 800, color: '#8DC63F', textTransform: 'uppercase', letterSpacing: '0.08em' }}>Live</span>
             </div>
-            <div className={styles.rideAnimDestPin}>📍</div>
+            <span style={{ display: 'block', fontSize: 11, color: 'rgba(255,255,255,0.4)', marginTop: 2 }}>{pickup?.address ?? 'Pickup'} → {destination?.address ?? 'Destination'}</span>
           </div>
-          <div className={styles.rideAnimStatus}>
-            <span className={styles.rideAnimPulse} />
-            <span className={styles.rideAnimStatusText}>Driver On the Way</span>
+          <button onClick={() => setPhase('cancelling')} style={{ background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '50%', width: 36, height: 36, display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' }}>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2.5" strokeLinecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+          </button>
+        </div>
+
+        {/* Cinematic image area */}
+        <div style={{ flex: 1, minHeight: 0, position: 'relative', overflow: 'hidden' }}>
+          <img src={activeImg} alt="" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', animation: 'fadeIn 0.8s ease' }} />
+
+          {/* Status banner — top */}
+          <div style={{ position: 'absolute', top: 12, left: 12, right: 12, zIndex: 4 }}>
+            <div style={{ padding: '12px 16px', borderRadius: 14, background: 'rgba(0,0,0,0.75)', backdropFilter: 'blur(12px)', border: '1px solid rgba(255,255,255,0.08)', display: 'flex', alignItems: 'center', gap: 10 }}>
+              <span style={{ width: 8, height: 8, borderRadius: '50%', background: '#8DC63F', animation: 'ping 1.5s ease-in-out infinite', flexShrink: 0 }} />
+              <span style={{ fontSize: 13, fontWeight: 800, color: '#fff', flex: 1 }}>Driver on the way to you</span>
+              <span style={{ fontSize: 14, fontWeight: 900, color: '#8DC63F', flexShrink: 0 }}>~{eta} min</span>
+            </div>
+          </div>
+
+          {/* Bottom stats: KM + Fare */}
+          <div style={{ position: 'absolute', bottom: 16, left: 0, right: 0, zIndex: 4, display: 'flex', justifyContent: 'center', gap: 10 }}>
+            <div style={{ padding: '10px 16px', borderRadius: 12, background: 'rgba(0,0,0,0.75)', backdropFilter: 'blur(8px)', border: '1px solid rgba(255,255,255,0.08)', textAlign: 'center' }}>
+              <span style={{ fontSize: 20, fontWeight: 900, color: '#fff', display: 'block' }}>{(selectedDriver?.distKm ?? 2.3).toFixed(1)}</span>
+              <span style={{ fontSize: 9, color: 'rgba(255,255,255,0.4)', fontWeight: 700 }}>KM</span>
+            </div>
+            <div style={{ padding: '10px 16px', borderRadius: 12, background: 'rgba(0,0,0,0.75)', backdropFilter: 'blur(8px)', border: '1px solid rgba(255,255,255,0.08)', textAlign: 'center' }}>
+              <span style={{ fontSize: 20, fontWeight: 900, color: '#FACC15', display: 'block' }}>{formatRp(fare + stopFareExtra)}</span>
+              <span style={{ fontSize: 9, color: 'rgba(255,255,255,0.4)', fontWeight: 700 }}>FARE</span>
+            </div>
           </div>
         </div>
 
-        {/* ETA + driver card */}
-        <div className={styles.activeRideCard}>
-
-          {/* ETA row */}
-          <div className={styles.activeEtaRow}>
-            <div className={styles.activeEtaBox}>
-              <span className={styles.activeEtaNum}>~{eta}</span>
-              <span className={styles.activeEtaUnit}>min</span>
+        {/* Bottom panel — driver info + progress */}
+        <div style={{ flexShrink: 0, padding: 16, borderTop: '1px solid rgba(255,255,255,0.06)', background: 'rgba(10,10,10,0.95)' }}>
+          {/* Driver card */}
+          <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 12 }}>
+            <div style={{ position: 'relative', flexShrink: 0 }}>
+              <div style={{ position: 'absolute', inset: -4, borderRadius: '50%', border: '2px solid #8DC63F', animation: 'ping 2s ease-in-out infinite', opacity: 0.4 }} />
+              <img src={selectedDriver?.photo_url ?? 'https://i.pravatar.cc/100?img=12'} alt="" style={{ width: 52, height: 52, borderRadius: '50%', objectFit: 'cover', border: '2.5px solid #8DC63F' }} />
             </div>
-            <div className={styles.activeEtaMeta}>
-              <span className={styles.activeEtaTitle}>Estimated Arrival</span>
-              <span className={styles.activeEtaSub}>No-traffic estimate · stay ready</span>
-            </div>
-          </div>
-
-          {/* Driver row */}
-          <div className={styles.activeRideDriver}>
-            <div className={styles.activeDriverAvatar}>
-              {selectedDriver?.photo_url
-                ? <img src={selectedDriver.photo_url} alt="" className={styles.activeDriverAvatarImg} />
-                : <img src={isBike ? BIKE_IMG : CAR_IMG} alt="vehicle" className={styles.activeRideVehicleImg} />}
-            </div>
-            <div className={styles.activeRideInfo}>
-              <p className={styles.activeRideName}>{selectedDriver?.display_name}</p>
-              <div className={styles.activeRideStars}>
-                {'★'.repeat(Math.floor(selectedDriver?.rating ?? 4.8))}
-                <span className={styles.activeRideRatingNum}> {selectedDriver?.rating ?? '4.8'}</span>
-                <span className={styles.activeRideTripCount}> · {(selectedDriver?.total_trips ?? 0).toLocaleString()} trips</span>
+            <div style={{ flex: 1, minWidth: 0 }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                <span style={{ fontSize: 15, fontWeight: 900, color: '#fff' }}>{selectedDriver?.display_name ?? 'Driver'}</span>
+                <span style={{ fontSize: 11, fontWeight: 800, color: 'rgba(255,255,255,0.4)' }}>⭐ {selectedDriver?.rating ?? '4.8'}</span>
               </div>
+              <span style={{ fontSize: 11, color: 'rgba(141,198,63,0.7)', display: 'block', marginTop: 2, fontWeight: 700 }}>INDOO Verified Driver</span>
+              <span style={{ fontSize: 11, color: 'rgba(255,255,255,0.35)', display: 'block', marginTop: 2 }}>{selectedDriver?.vehicle_color} {selectedDriver?.vehicle_model} · <span style={{ fontWeight: 700, color: 'rgba(255,255,255,0.5)' }}>{selectedDriver?.plate_prefix ?? ''}</span></span>
             </div>
-            {selectedDriver?.driver_phone && (
-              contactRevealed
-                ? <a href={`tel:${selectedDriver.driver_phone}`} className={styles.activeCallLink}>📞 {selectedDriver.driver_phone}</a>
-                : <button className={styles.activeCallBtn} onClick={() => setContactRevealed(true)}>📞 Call</button>
-            )}
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 6, flexShrink: 0 }}>
+              <a href={`tel:${selectedDriver?.driver_phone ?? ''}`} style={{ width: 40, height: 40, borderRadius: 12, background: '#111', border: 'none', display: 'flex', alignItems: 'center', justifyContent: 'center', textDecoration: 'none' }}>
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2.5" strokeLinecap="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
+              </a>
+              <button style={{ width: 40, height: 40, borderRadius: 12, background: '#8DC63F', border: 'none', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' }}>
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#000" strokeWidth="2.5" strokeLinecap="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+              </button>
+            </div>
           </div>
 
-          {/* Vehicle row */}
-          <div className={styles.activeVehicleRow}>
-            <span className={styles.activeVehicleText}>
-              {selectedDriver?.vehicle_color} {selectedDriver?.vehicle_model} {selectedDriver?.vehicle_year}
-            </span>
-            {selectedDriver?.plate_prefix && (
-              <span className={styles.activePlateBadge}>{selectedDriver.plate_prefix}</span>
-            )}
-          </div>
-
-        </div>
-
-        {/* Route card with add stop */}
-        <div className={styles.activeRideTripCard}>
-          <div className={styles.activeRideTripRow}>
-            <span className={`${styles.locationDot} ${styles.locationDotGreen}`} />
-            <span className={styles.activeRideTripText}>{pickup?.address ?? 'Pickup location'}</span>
-          </div>
-          <div className={styles.activeRideTripConnector} />
-
-          {/* Stop points */}
-          {stops.map((stop, i) => (
-            <div key={i}>
-              <div className={styles.activeRideTripRow}>
-                <span className={styles.locationDot} style={{ background: '#FACC15', border: '2px solid #0a0a0a' }} />
-                <span className={styles.activeRideTripText} style={{ color: '#FACC15' }}>{stop.address}</span>
-                <button onClick={() => setStops(prev => prev.filter((_, j) => j !== i))} style={{ background: 'none', border: 'none', color: 'rgba(255,255,255,0.3)', fontSize: 12, cursor: 'pointer', padding: '0 4px' }}>✕</button>
+          {/* Progress steps */}
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '0 2px' }}>
+            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 4 }}>
+              <div style={{ width: 16, height: 16, borderRadius: '50%', background: '#8DC63F', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="#000" strokeWidth="3.5" strokeLinecap="round"><polyline points="20 6 9 17 4 12"/></svg>
               </div>
-              {stop.waitMin > 0 && (
-                <div style={{ paddingLeft: 24, fontSize: 10, color: 'rgba(255,255,255,0.3)' }}>
-                  Wait: {stop.waitMin > 3 ? `3 min free + ${stop.waitMin - 3} min × Rp 500` : `${stop.waitMin} min (free)`}
-                </div>
-              )}
-              <div className={styles.activeRideTripConnector} />
+              <span style={{ fontSize: 8, color: '#8DC63F', fontWeight: 700 }}>Confirmed</span>
             </div>
-          ))}
-
-          {/* Add stop toggle */}
-          {addStopOpen ? (
-            <div style={{ padding: '8px 0' }}>
-              <div style={{ display: 'flex', gap: 6 }}>
-                <input
-                  value={stopQuery}
-                  onChange={e => setStopQuery(e.target.value)}
-                  placeholder="Stop address (e.g. Indomaret)"
-                  autoFocus
-                  style={{ flex: 1, padding: '10px 12px', borderRadius: 10, backgroundColor: 'rgba(0,0,0,0.4)', border: '1px solid rgba(250,204,21,0.3)', color: '#fff', fontSize: 13, outline: 'none', fontFamily: 'inherit' }}
-                />
-                <button onClick={() => {
-                  if (stopQuery.trim() && stops.length < 2) {
-                    setStops(prev => [...prev, { address: stopQuery.trim(), waitMin: 0 }])
-                    setStopQuery('')
-                    setAddStopOpen(false)
-                    // Recalculate fare — add Rp 5000 per stop
-                    setStopFareExtra(prev => prev + 5000)
-                  }
-                }} style={{ padding: '10px 14px', borderRadius: 10, backgroundColor: '#FACC15', border: 'none', color: '#000', fontSize: 12, fontWeight: 800, cursor: 'pointer' }}>Add</button>
-              </div>
-              <button onClick={() => { setAddStopOpen(false); setStopQuery('') }} style={{ background: 'none', border: 'none', color: 'rgba(255,255,255,0.3)', fontSize: 11, cursor: 'pointer', marginTop: 6 }}>Cancel</button>
+            <div style={{ flex: 1, height: 4, borderRadius: 2, margin: '0 6px 12px', background: 'rgba(255,255,255,0.08)', overflow: 'hidden', position: 'relative' }}>
+              <div style={{ position: 'absolute', top: 0, bottom: 0, left: 0, background: 'linear-gradient(90deg, #8DC63F, #FACC15)', borderRadius: 2, animation: 'journeyFill 8s ease-in-out infinite' }} />
             </div>
-          ) : stops.length < 2 && (
-            <button onClick={() => setAddStopOpen(true)} style={{
-              display: 'flex', alignItems: 'center', gap: 6, padding: '8px 0',
-              background: 'none', border: 'none', cursor: 'pointer',
-            }}>
-              <span style={{ width: 18, height: 18, borderRadius: '50%', backgroundColor: 'rgba(250,204,21,0.15)', border: '1px solid rgba(250,204,21,0.3)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 10, color: '#FACC15' }}>+</span>
-              <span style={{ fontSize: 12, fontWeight: 700, color: '#FACC15' }}>Add Stop</span>
-            </button>
-          )}
-
-          <div className={styles.activeRideTripRow}>
-            <span className={`${styles.locationDot} ${styles.locationDotRed}`} />
-            <span className={styles.activeRideTripText}>{destination?.address ?? 'Destination'}</span>
-          </div>
-          <div className={styles.activeRideTripMeta}>
-            <span>{formatRp(fare + stopFareExtra)}</span>
-            {stopFareExtra > 0 && <span style={{ fontSize: 10, color: '#FACC15', marginLeft: 6 }}>+{formatRp(stopFareExtra)} stops</span>}
+            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 4 }}>
+              <div style={{ width: 12, height: 12, borderRadius: '50%', background: 'rgba(255,255,255,0.1)' }} />
+              <span style={{ fontSize: 8, color: 'rgba(255,255,255,0.3)', fontWeight: 700 }}>Pickup</span>
+            </div>
+            <div style={{ flex: 1, height: 4, borderRadius: 2, margin: '0 6px 12px', background: 'rgba(255,255,255,0.08)' }} />
+            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 4 }}>
+              <div style={{ width: 12, height: 12, borderRadius: '50%', background: 'rgba(255,255,255,0.1)' }} />
+              <span style={{ fontSize: 8, color: 'rgba(255,255,255,0.3)', fontWeight: 700 }}>On Way</span>
+            </div>
+            <div style={{ flex: 1, height: 4, borderRadius: 2, margin: '0 6px 12px', background: 'rgba(255,255,255,0.08)' }} />
+            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 4 }}>
+              <div style={{ width: 10, height: 10, borderRadius: '50%', background: 'rgba(255,255,255,0.1)' }} />
+              <span style={{ fontSize: 8, color: 'rgba(255,255,255,0.3)', fontWeight: 700 }}>Arrived</span>
+            </div>
           </div>
         </div>
 
-        {/* Helmet safety reminder */}
-        <div className={styles.helmetCard}>
-          <span className={styles.helmetIcon}>🪖</span>
-          <div>
-            <p className={styles.helmetTitle}>Safety First — Helmet Required</p>
-            <p className={styles.helmetText}>
-              Fasten your helmet securely before the driver arrives. Chin strap must be clipped at all times during the ride. No exceptions.
-            </p>
-          </div>
-        </div>
-
-        <button className={styles.completeBtn} onClick={handleJourneyComplete}>✓ Journey Completed</button>
-        <button className={styles.cancelRideBtn} onClick={() => setPhase('cancelling')}>Cancel Ride</button>
+        <style>{`
+          @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+          @keyframes ping { 0% { opacity: 1; } 50% { opacity: 0.3; } 100% { opacity: 1; } }
+          @keyframes journeyFill { 0% { width: 0; } 50% { width: 100%; } 100% { width: 100%; } }
+        `}</style>
       </div>
     )
+
   }
 
   // ── Phase: cancelling ────────────────────────────────────────────────────────
