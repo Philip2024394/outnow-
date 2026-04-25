@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react'
+import { useState, useEffect, useRef, useMemo, useCallback, memo } from 'react'
 import { supabase } from '@/lib/supabase'
 import { useGeolocation } from '@/hooks/useGeolocation'
 import { haversineKm } from '@/utils/distance'
@@ -523,7 +523,7 @@ const CUISINE_GROUPS = [
 const CUISINE_ITEMS = CUISINE_GROUPS.flatMap(g => g.items)
 
 // Banners appear after these ROW numbers (0-based): after row 1 and row 5
-function CuisineGridWithBanners({ onSelect }) {
+const CuisineGridWithBanners = memo(function CuisineGridWithBanners({ onSelect }) {
 
 
   const circleStyle = {
@@ -598,7 +598,7 @@ function CuisineGridWithBanners({ onSelect }) {
       <style>{`@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }`}</style>
     </div>
   )
-}
+})
 
 // ── Main component ────────────────────────────────────────────────────────────
 export default function RestaurantBrowseScreen({ onClose, onBackToCategories, category, scrollToId, onOrderViaChat }) {
@@ -632,7 +632,7 @@ export default function RestaurantBrowseScreen({ onClose, onBackToCategories, ca
 
   // Tick every 30s so countdown timers stay live
   useEffect(() => {
-    const id = setInterval(() => setTick(t => t + 1), 30000)
+    const id = setInterval(() => setTick(t => t + 1), 1000)
     return () => clearInterval(id)
   }, [])
 
@@ -668,17 +668,18 @@ export default function RestaurantBrowseScreen({ onClose, onBackToCategories, ca
   // Use haversine for initial fast render, then upgrade with Google Directions
   // Distance calculation — haversine for browse list (fast, no API calls)
   // Google Directions only used when user actually places an order
-  const withMeta = restaurants.map(r => {
+  const withMeta = useMemo(() => restaurants.map(r => {
     const distKm = coords && r.lat && r.lng
       ? Math.round(haversineKm(coords.lat, coords.lng, r.lat, r.lng) * 10) / 10
       : null
     return { ...r, distKm, deliveryFare: calcDeliveryFare(distKm) }
-  })
+  }), [restaurants, coords?.lat, coords?.lng])
 
   // Apply vendor type filter (street_vendor / restaurant / null = all)
-  const vendorFiltered = withMeta
+  const vendorFiltered = useMemo(() => withMeta
     .filter(r => !vendorFilter || (r.vendor_type ?? 'restaurant') === vendorFilter)
-    .filter(r => !cuisineFilter || r.category === cuisineFilter || r.cuisine_type?.toLowerCase().includes(cuisineFilter.toLowerCase()))
+    .filter(r => !cuisineFilter || r.category === cuisineFilter || r.cuisine_type?.toLowerCase().includes(cuisineFilter.toLowerCase())),
+  [withMeta, vendorFilter, cuisineFilter])
 
   const primary   = vendorFiltered.filter(r =>  primaryForCategory(r.category, catId))
                              .sort((a, b) => scoreRestaurant(b, hour) - scoreRestaurant(a, hour))
@@ -749,22 +750,59 @@ export default function RestaurantBrowseScreen({ onClose, onBackToCategories, ca
           <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 0 }}>
             <span style={{ fontSize: 18, fontWeight: 900, color: '#fff' }}>What are you craving?</span>
           </div>
-          {/* Search bar */}
-          <input
-            value={cuisineSearch}
-            onChange={e => {
-              setCuisineSearch(e.target.value)
-              // If search has 2+ chars, jump to dish feed with search
-              if (e.target.value.trim().length >= 2) {
-                setCuisineFilter(e.target.value.trim())
-                setDishSearch(e.target.value.trim())
-                setShowCuisinePicker(false)
-                setCuisineSearch('')
-              }
-            }}
-            placeholder="🔍 Search any dish or restaurant..."
-            style={{ width: '100%', padding: '10px 14px', borderRadius: 12, backgroundColor: 'rgba(0,0,0,0.4)', border: '1px solid rgba(255,255,255,0.1)', color: '#fff', fontSize: 14, fontWeight: 600, outline: 'none', fontFamily: 'inherit', boxSizing: 'border-box', marginTop: 8 }}
-          />
+          {/* Search bar with autocomplete */}
+          <div style={{ position: 'relative', marginTop: 8 }}>
+            <input
+              value={cuisineSearch}
+              onChange={e => setCuisineSearch(e.target.value)}
+              placeholder="🔍 Search any dish or restaurant..."
+              style={{ width: '100%', padding: '10px 14px', borderRadius: 12, backgroundColor: 'rgba(0,0,0,0.4)', border: '1px solid rgba(255,255,255,0.1)', color: '#fff', fontSize: 14, fontWeight: 600, outline: 'none', fontFamily: 'inherit', boxSizing: 'border-box' }}
+            />
+            {cuisineSearch.trim().length >= 1 && (
+              <button onClick={() => setCuisineSearch('')} style={{ position: 'absolute', right: 10, top: '50%', transform: 'translateY(-50%)', background: 'none', border: 'none', color: 'rgba(255,255,255,0.4)', fontSize: 16, cursor: 'pointer' }}>✕</button>
+            )}
+            {/* Autocomplete dropdown */}
+            {cuisineSearch.trim().length >= 1 && (() => {
+              const q = cuisineSearch.toLowerCase().trim()
+              const dishResults = withMeta.flatMap(r => (r.menu_items ?? []).filter(i => i.photo_url && (i.name ?? '').toLowerCase().includes(q)).slice(0, 2).map(i => ({ type: 'dish', item: i, restaurant: r }))).slice(0, 5)
+              const restResults = withMeta.filter(r => (r.name ?? '').toLowerCase().includes(q) || (r.cuisine_type ?? '').toLowerCase().includes(q)).slice(0, 3).map(r => ({ type: 'restaurant', restaurant: r }))
+              const results = [...dishResults, ...restResults]
+              if (results.length === 0) return null
+              return (
+                <div style={{ position: 'absolute', top: '100%', left: 0, right: 0, marginTop: 4, borderRadius: 14, backgroundColor: 'rgba(0,0,0,0.9)', backdropFilter: 'blur(16px)', border: '1px solid rgba(255,255,255,0.1)', zIndex: 20, maxHeight: 300, overflowY: 'auto' }}>
+                  {results.map((r, i) => r.type === 'dish' ? (
+                    <button key={`s-d-${i}`} onClick={() => { setSelectedDish({ dish: r.item, restaurant: r.restaurant }); setShowCuisinePicker(false); setCuisineFilter(r.item.category?.toLowerCase() ?? 'all'); setCuisineSearch('') }} style={{
+                      width: '100%', padding: '10px 14px', border: 'none', borderBottom: '1px solid rgba(255,255,255,0.04)', backgroundColor: 'transparent', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 10, textAlign: 'left',
+                    }}>
+                      <img src={r.item.photo_url} alt="" style={{ width: 40, height: 40, borderRadius: 8, objectFit: 'cover', flexShrink: 0 }} />
+                      <div style={{ flex: 1 }}>
+                        <span style={{ fontSize: 13, fontWeight: 800, color: '#fff', display: 'block' }}>{r.item.name}</span>
+                        <span style={{ fontSize: 11, color: 'rgba(255,255,255,0.4)' }}>{r.restaurant.name} · Rp {(r.item.price/1000).toFixed(0)}k</span>
+                      </div>
+                      <span style={{ fontSize: 10, color: '#8DC63F', fontWeight: 700 }}>🍽️</span>
+                    </button>
+                  ) : (
+                    <button key={`s-r-${i}`} onClick={() => { setCuisineSearch(''); setShowCuisinePicker(false); setCuisineFilter(null); setMenuRestaurant(r.restaurant) }} style={{
+                      width: '100%', padding: '10px 14px', border: 'none', borderBottom: '1px solid rgba(255,255,255,0.04)', backgroundColor: 'transparent', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 10, textAlign: 'left',
+                    }}>
+                      <div style={{ width: 40, height: 40, borderRadius: 8, backgroundColor: 'rgba(255,255,255,0.06)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, fontSize: 18 }}>🏪</div>
+                      <div style={{ flex: 1 }}>
+                        <span style={{ fontSize: 13, fontWeight: 800, color: '#fff', display: 'block' }}>{r.restaurant.name}</span>
+                        <span style={{ fontSize: 11, color: 'rgba(255,255,255,0.4)' }}>{r.restaurant.cuisine_type} · ★ {r.restaurant.rating}</span>
+                      </div>
+                      <span style={{ fontSize: 10, color: '#FACC15', fontWeight: 700 }}>Restaurant</span>
+                    </button>
+                  ))}
+                  {/* Search all button */}
+                  <button onClick={() => { setCuisineFilter(cuisineSearch.trim()); setDishSearch(cuisineSearch.trim()); setShowCuisinePicker(false); setCuisineSearch('') }} style={{
+                    width: '100%', padding: '12px 14px', border: 'none', backgroundColor: 'rgba(141,198,63,0.08)', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6, borderRadius: '0 0 14px 14px',
+                  }}>
+                    <span style={{ fontSize: 13, fontWeight: 800, color: '#8DC63F' }}>🔍 See all results for "{cuisineSearch.trim()}"</span>
+                  </button>
+                </div>
+              )
+            })()}
+          </div>
         </div>
         <style>{`
           @keyframes cuisineRunLight { from { transform: translateX(-100%); } to { transform: translateX(450%); } }
@@ -808,9 +846,11 @@ export default function RestaurantBrowseScreen({ onClose, onBackToCategories, ca
             ]
             const today = DAILY_THEMES[new Date().getDay()]
             const endOfDay = new Date(); endOfDay.setHours(23, 59, 59, 999)
+            void tick // trigger re-render for live countdown
             const msLeft = endOfDay - Date.now()
             const hrsLeft = Math.floor(msLeft / 3600000)
             const minsLeft = Math.floor((msLeft % 3600000) / 60000)
+            const secsLeft = Math.floor((msLeft % 60000) / 1000)
             // Get 3 deal items from top restaurants
             const dealItems = withMeta.flatMap(r => (r.menu_items ?? []).filter(i => i.photo_url).slice(0, 2).map(i => ({ ...i, restaurant: r, dealPrice: Math.round(i.price * (1 - today.discount / 100)) })))
 
@@ -824,7 +864,7 @@ export default function RestaurantBrowseScreen({ onClose, onBackToCategories, ca
                 </div>
                 <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12 }}>
                   <span style={{ fontSize: 13, color: '#fff', textShadow: '0 1px 4px rgba(0,0,0,0.9)' }}>Up to {today.discount}% off selected dishes</span>
-                  <span style={{ fontSize: 18, fontWeight: 900, color: today.color, textShadow: '0 1px 4px rgba(0,0,0,0.9)' }}>⏰ {hrsLeft}h {minsLeft}m</span>
+                  <span style={{ fontSize: 18, fontWeight: 900, color: today.color, textShadow: '0 1px 4px rgba(0,0,0,0.9)' }}>⏰ {hrsLeft}h {String(minsLeft).padStart(2,'0')}m {String(secsLeft).padStart(2,'0')}s</span>
                 </div>
                 <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
                   {dealItems.map((d, i) => (
@@ -835,10 +875,24 @@ export default function RestaurantBrowseScreen({ onClose, onBackToCategories, ca
                         <img src={d.photo_url} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
                         <span style={{ position: 'absolute', top: 6, left: 6, padding: '3px 7px', borderRadius: 6, backgroundColor: today.color, fontSize: 11, fontWeight: 900, color: '#000' }}>-{today.discount}%</span>
                       </div>
-                      <div style={{ flex: 1, padding: '10px 12px', backgroundColor: 'rgba(0,0,0,0.5)', display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
+                      <div style={{ flex: 1, padding: '10px 12px', backgroundColor: 'rgba(0,0,0,0.5)', display: 'flex', flexDirection: 'column', justifyContent: 'center', position: 'relative' }}>
                         <span style={{ fontSize: 14, fontWeight: 900, color: '#fff', display: 'block', lineHeight: 1.3 }}>{d.name}</span>
                         <span style={{ fontSize: 11, color: 'rgba(255,255,255,0.4)', marginTop: 3, display: 'block' }}>{d.restaurant.name}</span>
-                        <span style={{ fontSize: 15, fontWeight: 900, color: today.color, marginTop: 4, display: 'block' }}>Rp {(d.dealPrice/1000).toFixed(0)}k</span>
+                        <div style={{ display: 'flex', gap: 6, marginTop: 3, flexWrap: 'wrap' }}>
+                          {(() => {
+                            const txt = (d.name+' '+(d.description??'')).toLowerCase()
+                            const tags = []
+                            if (['pedas','sambal','geprek','spicy','balado','rica','cabai','cabe'].some(w => txt.includes(w))) {
+                              const hot = txt.includes('level 10') || txt.includes('extra hot') || txt.includes('very hot') ? 3 : txt.includes('hot') || txt.includes('pedas') ? 2 : 1
+                              tags.push(<span key="spicy" style={{ fontSize: 14, fontWeight: 800, color: '#EF4444', display: 'flex', alignItems: 'center', gap: 2 }}>{'🌶️'.repeat(hot)} {hot === 3 ? 'Very Hot' : hot === 2 ? 'Hot' : 'Medium'}</span>)
+                            }
+                            if (['bawang','garlic','aglio'].some(w => txt.includes(w))) tags.push(<span key="garlic" style={{ fontSize: 14, fontWeight: 800, color: '#F59E0B', display: 'flex', alignItems: 'center', gap: 2 }}>🧄 Garlic Flavour</span>)
+                            if (['vegetarian','vegan','sayur','tahu','tempe','salad','gado','pecel'].some(w => txt.includes(w))) tags.push(<span key="veg" style={{ fontSize: 14, fontWeight: 800, color: '#8DC63F', display: 'flex', alignItems: 'center', gap: 2 }}>🥬 No Meat</span>)
+                            if (['halal'].some(w => txt.includes(w))) tags.push(<span key="halal" style={{ fontSize: 14, fontWeight: 800, color: '#3B82F6', display: 'flex', alignItems: 'center', gap: 2 }}>☪️ Halal Certified</span>)
+                            return tags
+                          })()}
+                        </div>
+                        <span style={{ fontSize: 15, fontWeight: 900, color: today.color, position: 'absolute', right: 12, bottom: 10 }}>Rp {(d.dealPrice/1000).toFixed(0)}k</span>
                       </div>
                     </button>
                   ))}
@@ -1433,7 +1487,7 @@ export default function RestaurantBrowseScreen({ onClose, onBackToCategories, ca
 }
 
 // ── Restaurant card ───────────────────────────────────────────────────────────
-function RestaurantCard({ restaurant: r, onOpenMenu, onToggleFavorite, isFav }) {
+const RestaurantCard = memo(function RestaurantCard({ restaurant: r, onOpenMenu, onToggleFavorite, isFav }) {
   const [openTime, closeTime] = (r.opening_hours ?? '').split('–')
   const countdown = !r.is_open ? fmtCountdown(secsUntilOpen(r.opening_hours)) : null
 
@@ -1523,4 +1577,4 @@ function RestaurantCard({ restaurant: r, onOpenMenu, onToggleFavorite, isFav }) 
       </div>
     </div>
   )
-}
+})
