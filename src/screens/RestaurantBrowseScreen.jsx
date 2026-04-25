@@ -614,6 +614,7 @@ export default function RestaurantBrowseScreen({ onClose, onBackToCategories, ca
   const [activeIndex,    setActiveIndex]    = useState(0)
   const [menuRestaurant, setMenuRestaurant] = useState(null)
   const [selectedDish, setSelectedDish] = useState(null) // { dish, restaurant }
+  const [viewRestaurant, setViewRestaurant] = useState(null) // restaurant object for full card view
   const [tick,           setTick]           = useState(0)
   const [showFavOnly,    setShowFavOnly]    = useState(false)
   const [showCuisinePicker, setShowCuisinePicker] = useState(true) // show cuisine picker on entry
@@ -933,7 +934,7 @@ export default function RestaurantBrowseScreen({ onClose, onBackToCategories, ca
 
             {/* Restaurant button */}
             <div style={{ padding: '10px 16px' }}>
-              <button onClick={() => { setSelectedDish(null); setCuisineFilter(null); setMenuRestaurant(restaurant) }} style={{
+              <button onClick={() => setViewRestaurant(restaurant)} style={{
                 width: '100%', padding: '12px 16px', borderRadius: 14,
                 backgroundColor: 'rgba(141,198,63,0.1)', border: '1.5px solid rgba(141,198,63,0.3)',
                 color: '#8DC63F', fontSize: 14, fontWeight: 900, cursor: 'pointer', fontFamily: 'inherit',
@@ -976,6 +977,28 @@ export default function RestaurantBrowseScreen({ onClose, onBackToCategories, ca
         </div>
       )
     })()}
+
+    {/* ── Full-screen Restaurant Card page ── */}
+    {viewRestaurant && (
+      <div style={{ position: 'fixed', inset: 0, zIndex: 120, backgroundColor: '#0a0a0a' }}>
+        {/* Back button */}
+        <button onClick={() => setViewRestaurant(null)} style={{
+          position: 'absolute', top: 'calc(env(safe-area-inset-top, 0px) + 12px)', left: 16, zIndex: 10,
+          width: 36, height: 36, borderRadius: '50%',
+          backgroundColor: 'rgba(0,0,0,0.6)', backdropFilter: 'blur(8px)',
+          border: '1px solid rgba(255,255,255,0.15)',
+          display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer',
+        }}>
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2.5" strokeLinecap="round"><path d="M19 12H5M12 5l-7 7 7 7"/></svg>
+        </button>
+        <RestaurantCard
+          restaurant={viewRestaurant}
+          onOpenMenu={() => { setViewRestaurant(null); setSelectedDish(null); setCuisineFilter(null); setMenuRestaurant(viewRestaurant) }}
+          onToggleFavorite={() => { toggleFavorite(viewRestaurant); setFavTick(t => t + 1) }}
+          isFav={isFavorite(viewRestaurant.id)}
+        />
+      </div>
+    )}
 
     <div className={styles.screen} style={{ display: showLanding || loading || showCuisinePicker || cuisineFilter ? 'none' : undefined }}>
 
