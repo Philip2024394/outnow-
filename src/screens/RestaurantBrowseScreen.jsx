@@ -622,6 +622,7 @@ export default function RestaurantBrowseScreen({ onClose, onBackToCategories, ca
   const [cartToast, setCartToast] = useState(null) // toast message
   const [dishNote, setDishNote] = useState('') // special request note
   const [dishExtras, setDishExtras] = useState([]) // selected extras
+  const [extrasTab, setExtrasTab] = useState('sauces') // 'sauces' | 'drinks' | 'sides'
   const [dishSort, setDishSort] = useState('rating') // 'price' | 'rating' | 'distance'
   const [allergenFilters, setAllergenFilters] = useState([]) // active allergen filters
   const [tick,           setTick]           = useState(0)
@@ -1302,65 +1303,118 @@ export default function RestaurantBrowseScreen({ onClose, onBackToCategories, ca
               </div>
             </div>
 
-            {/* Order section — notes + extras + add to cart */}
+            {/* Easy Extra Adding */}
             <div style={{ padding: '12px 14px', position: 'relative', zIndex: 1 }}>
-              {/* Notes input */}
+              <span style={{ fontSize: 16, fontWeight: 900, color: '#FACC15', display: 'block', marginBottom: 10, textShadow: '0 1px 4px rgba(0,0,0,0.8)' }}>Easy Extra Adding</span>
+
+              {/* Toggle tabs */}
+              <div style={{ display: 'flex', gap: 6, marginBottom: 10 }}>
+                {[
+                  { id: 'sauces', label: '🌶️ Sauces' },
+                  { id: 'drinks', label: '🥤 Drinks' },
+                  { id: 'sides', label: '🍟 Sides' },
+                ].map(t => (
+                  <button key={t.id} onClick={() => setExtrasTab(t.id)} style={{
+                    flex: 1, padding: '8px 4px', borderRadius: 10,
+                    backgroundColor: extrasTab === t.id ? '#FACC15' : 'rgba(0,0,0,0.4)',
+                    border: extrasTab === t.id ? 'none' : '1px solid rgba(255,255,255,0.08)',
+                    color: extrasTab === t.id ? '#000' : '#fff',
+                    fontSize: 12, fontWeight: 800, cursor: 'pointer',
+                  }}>{t.label}</button>
+                ))}
+              </div>
+
+              {/* Extras options per tab */}
+              <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap', marginBottom: 12 }}>
+                {(() => {
+                  const EXTRAS = {
+                    sauces: [
+                      { label: 'Extra Sambal', price: 3000, icon: '🌶️' },
+                      { label: 'Kecap Manis', price: 2000, icon: '🫗' },
+                      { label: 'Chilli Oil', price: 3000, icon: '🔥' },
+                      { label: 'Peanut Sauce', price: 3000, icon: '🥜' },
+                      { label: 'Sambal Matah', price: 4000, icon: '🧅' },
+                    ],
+                    drinks: [
+                      { label: 'Es Teh Manis', price: 5000, icon: '🧊' },
+                      { label: 'Es Jeruk', price: 8000, icon: '🍊' },
+                      { label: 'Kopi Susu', price: 12000, icon: '☕' },
+                      { label: 'Air Mineral', price: 4000, icon: '💧' },
+                      { label: 'Es Kelapa', price: 10000, icon: '🥥' },
+                    ],
+                    sides: [
+                      { label: 'Extra Rice', price: 5000, icon: '🍚' },
+                      { label: 'Fried Egg', price: 5000, icon: '🥚' },
+                      { label: 'French Fries', price: 8000, icon: '🍟' },
+                      { label: 'Kerupuk', price: 3000, icon: '🦐' },
+                      { label: 'Extra Cheese', price: 8000, icon: '🧀' },
+                    ],
+                  }
+                  return (EXTRAS[extrasTab] ?? []).map(ex => {
+                    const selected = dishExtras.includes(ex.label)
+                    return (
+                      <button key={ex.label} onClick={() => setDishExtras(prev => selected ? prev.filter(e => e !== ex.label) : [...prev, ex.label])} style={{
+                        padding: '8px 12px', borderRadius: 12,
+                        backgroundColor: selected ? 'rgba(141,198,63,0.15)' : 'rgba(0,0,0,0.4)',
+                        border: `1px solid ${selected ? '#8DC63F' : 'rgba(255,255,255,0.08)'}`,
+                        color: selected ? '#8DC63F' : 'rgba(255,255,255,0.6)',
+                        fontSize: 13, fontWeight: 700, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 5,
+                      }}>
+                        {ex.icon} {ex.label} <span style={{ color: selected ? '#FACC15' : 'rgba(255,255,255,0.3)', fontWeight: 900 }}>+{(ex.price/1000).toFixed(0)}k</span>
+                      </button>
+                    )
+                  })
+                })()}
+              </div>
+
+              {/* Comment */}
               <input
                 value={dishNote}
                 onChange={e => setDishNote(e.target.value)}
-                placeholder="✏️ Special request... (no chili, extra sauce, less rice)"
+                placeholder="✏️ Any special request? (no chili, extra spicy, etc.)"
                 maxLength={100}
-                style={{ width: '100%', padding: '10px 14px', borderRadius: 12, backgroundColor: 'rgba(0,0,0,0.5)', border: '1px solid rgba(255,255,255,0.1)', color: '#fff', fontSize: 13, fontWeight: 600, outline: 'none', fontFamily: 'inherit', boxSizing: 'border-box', marginBottom: 10 }}
+                style={{ width: '100%', padding: '10px 14px', borderRadius: 12, backgroundColor: 'rgba(0,0,0,0.5)', border: '1px solid rgba(255,255,255,0.1)', color: '#fff', fontSize: 13, fontWeight: 600, outline: 'none', fontFamily: 'inherit', boxSizing: 'border-box', marginBottom: 12 }}
               />
 
-              {/* Quick extras */}
-              <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap', marginBottom: 12 }}>
-                {[
-                  { label: 'Extra Rice', price: 5000, icon: '🍚' },
-                  { label: 'Fried Egg', price: 5000, icon: '🥚' },
-                  { label: 'Extra Sambal', price: 3000, icon: '🌶️' },
-                  { label: 'Extra Cheese', price: 8000, icon: '🧀' },
-                  { label: 'Kerupuk', price: 3000, icon: '🦐' },
-                ].map(ex => {
-                  const selected = dishExtras.includes(ex.label)
-                  return (
-                    <button key={ex.label} onClick={() => setDishExtras(prev => selected ? prev.filter(e => e !== ex.label) : [...prev, ex.label])} style={{
-                      padding: '6px 10px', borderRadius: 10,
-                      backgroundColor: selected ? 'rgba(141,198,63,0.15)' : 'rgba(0,0,0,0.4)',
-                      border: `1px solid ${selected ? '#8DC63F' : 'rgba(255,255,255,0.08)'}`,
-                      color: selected ? '#8DC63F' : 'rgba(255,255,255,0.6)',
-                      fontSize: 12, fontWeight: 700, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4,
-                    }}>
-                      {ex.icon} {ex.label} +Rp {(ex.price/1000).toFixed(0)}k
-                    </button>
-                  )
-                })}
-              </div>
+              {/* Selected extras summary */}
+              {dishExtras.length > 0 && (
+                <div style={{ padding: '8px 12px', borderRadius: 10, backgroundColor: 'rgba(141,198,63,0.08)', border: '1px solid rgba(141,198,63,0.2)', marginBottom: 12 }}>
+                  <span style={{ fontSize: 12, color: '#8DC63F', fontWeight: 700 }}>
+                    {dishExtras.join(' · ')}
+                  </span>
+                </div>
+              )}
 
               {/* Add to cart button */}
-              <button onClick={() => {
-                const extrasCost = dishExtras.reduce((s, e) => {
-                  const ex = [{ label: 'Extra Rice', price: 5000 }, { label: 'Fried Egg', price: 5000 }, { label: 'Extra Sambal', price: 3000 }, { label: 'Extra Cheese', price: 8000 }, { label: 'Kerupuk', price: 3000 }].find(x => x.label === e)
-                  return s + (ex?.price ?? 0)
-                }, 0)
-                setCartItems(prev => {
-                  const ex = prev.find(c => c.id === dish.id && c.restaurant?.id === restaurant.id)
-                  if (ex) return prev.map(c => c.id === dish.id && c.restaurant?.id === restaurant.id ? { ...c, qty: c.qty + 1 } : c)
-                  return [...prev, { ...dish, restaurant, qty: 1, note: dishNote, extras: dishExtras, extrasPrice: extrasCost }]
-                })
-                setCartToast(`${dish.name} added to cart`)
-                setTimeout(() => setCartToast(null), 2000)
-                setDishNote('')
-                setDishExtras([])
-              }} style={{
-                width: '100%', padding: '14px', borderRadius: 14,
-                backgroundColor: '#8DC63F', border: 'none', color: '#000',
-                fontSize: 15, fontWeight: 900, cursor: 'pointer', fontFamily: 'inherit',
-                display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8,
-                boxShadow: '0 2px 10px rgba(141,198,63,0.4)',
-              }}>
-                🛒 Add to Cart — {fmtP(dish.price + dishExtras.reduce((s, e) => s + ([5000,5000,3000,8000,3000][[  'Extra Rice','Fried Egg','Extra Sambal','Extra Cheese','Kerupuk'].indexOf(e)] ?? 0), 0))}
-              </button>
+              {(() => {
+                const ALL_EXTRAS = [
+                  { label: 'Extra Sambal', price: 3000 }, { label: 'Kecap Manis', price: 2000 }, { label: 'Chilli Oil', price: 3000 }, { label: 'Peanut Sauce', price: 3000 }, { label: 'Sambal Matah', price: 4000 },
+                  { label: 'Es Teh Manis', price: 5000 }, { label: 'Es Jeruk', price: 8000 }, { label: 'Kopi Susu', price: 12000 }, { label: 'Air Mineral', price: 4000 }, { label: 'Es Kelapa', price: 10000 },
+                  { label: 'Extra Rice', price: 5000 }, { label: 'Fried Egg', price: 5000 }, { label: 'French Fries', price: 8000 }, { label: 'Kerupuk', price: 3000 }, { label: 'Extra Cheese', price: 8000 },
+                ]
+                const extrasCost = dishExtras.reduce((s, e) => s + (ALL_EXTRAS.find(x => x.label === e)?.price ?? 0), 0)
+                const totalPrice = dish.price + extrasCost
+                return (
+                  <button onClick={() => {
+                    setCartItems(prev => {
+                      const ex = prev.find(c => c.id === dish.id && c.restaurant?.id === restaurant.id)
+                      if (ex) return prev.map(c => c.id === dish.id && c.restaurant?.id === restaurant.id ? { ...c, qty: c.qty + 1 } : c)
+                      return [...prev, { ...dish, restaurant, qty: 1, note: dishNote, extras: dishExtras, extrasPrice: extrasCost }]
+                    })
+                    setCartToast(`${dish.name} added to cart`)
+                    setTimeout(() => setCartToast(null), 2000)
+                    setDishNote(''); setDishExtras([])
+                  }} style={{
+                    width: '100%', padding: '14px', borderRadius: 14,
+                    backgroundColor: '#8DC63F', border: 'none', color: '#000',
+                    fontSize: 15, fontWeight: 900, cursor: 'pointer', fontFamily: 'inherit',
+                    display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8,
+                    boxShadow: '0 2px 10px rgba(141,198,63,0.4)',
+                  }}>
+                    🛒 Add to Cart — {fmtP(totalPrice)}
+                  </button>
+                )
+              })()}
             </div>
 
             {/* Restaurant button */}
