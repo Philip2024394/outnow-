@@ -613,6 +613,7 @@ export default function RestaurantBrowseScreen({ onClose, onBackToCategories, ca
   const [loading,        setLoading]        = useState(true)
   const [activeIndex,    setActiveIndex]    = useState(0)
   const [menuRestaurant, setMenuRestaurant] = useState(null)
+  const [selectedDish, setSelectedDish] = useState(null) // { dish, restaurant }
   const [tick,           setTick]           = useState(0)
   const [showFavOnly,    setShowFavOnly]    = useState(false)
   const [showCuisinePicker, setShowCuisinePicker] = useState(true) // show cuisine picker on entry
@@ -779,9 +780,12 @@ export default function RestaurantBrowseScreen({ onClose, onBackToCategories, ca
       const fmtPrice = (n) => 'Rp ' + (n ?? 0).toLocaleString('id-ID')
 
       return (
-        <div style={{ position: 'fixed', inset: 0, zIndex: 105, backgroundColor: '#0a0a0a', display: 'flex', flexDirection: 'column' }}>
+        <div style={{ position: 'fixed', inset: 0, zIndex: 105, backgroundColor: '#0a0a0a', display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
+          {/* Blurred background */}
+          <img src="https://ik.imagekit.io/nepgaxllc/ChatGPT%20Image%20Apr%2021,%202026,%2006_44_19%20AM.png?updatedAt=1776728675957" alt="" style={{ position: 'absolute', inset: -20, width: 'calc(100% + 40px)', height: 'calc(100% + 40px)', objectFit: 'cover', filter: 'blur(12px)', zIndex: 0 }} />
+          <div style={{ position: 'absolute', inset: 0, backgroundColor: 'rgba(0,0,0,0.6)', zIndex: 0 }} />
           {/* Header */}
-          <div style={{ padding: 'calc(env(safe-area-inset-top, 0px) + 10px) 16px 10px', display: 'flex', alignItems: 'center', gap: 10, flexShrink: 0 }}>
+          <div style={{ padding: 'calc(env(safe-area-inset-top, 0px) + 10px) 16px 10px', display: 'flex', alignItems: 'center', gap: 10, flexShrink: 0, position: 'relative', zIndex: 1 }}>
             <button onClick={() => { setCuisineFilter(null); setShowCuisinePicker(true) }} style={{ width: 34, height: 34, borderRadius: '50%', backgroundColor: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' }}>
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2.5" strokeLinecap="round"><path d="M19 12H5M12 5l-7 7 7 7"/></svg>
             </button>
@@ -790,7 +794,7 @@ export default function RestaurantBrowseScreen({ onClose, onBackToCategories, ca
           </div>
 
           {/* Dish grid */}
-          <div style={{ flex: 1, overflowY: 'auto', padding: '8px 12px 100px' }}>
+          <div style={{ flex: 1, overflowY: 'auto', padding: '8px 12px 100px', position: 'relative', zIndex: 1 }}>
             {allDishes.length === 0 ? (
               <div style={{ textAlign: 'center', padding: '60px 20px' }}>
                 <span style={{ fontSize: 48, display: 'block', marginBottom: 12 }}>🍽️</span>
@@ -800,7 +804,7 @@ export default function RestaurantBrowseScreen({ onClose, onBackToCategories, ca
             ) : (
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 10 }}>
                 {allDishes.map((dish, i) => (
-                  <button key={`${dish.id}-${i}`} onClick={() => setMenuRestaurant(dish.restaurant)} style={{
+                  <button key={`${dish.id}-${i}`} onClick={() => setSelectedDish({ dish, restaurant: dish.restaurant })} style={{
                     borderRadius: 16, overflow: 'hidden', position: 'relative',
                     border: '1px solid rgba(255,255,255,0.08)', padding: 0, background: 'none', cursor: 'pointer',
                     display: 'flex', flexDirection: 'column', textAlign: 'left',
@@ -810,14 +814,17 @@ export default function RestaurantBrowseScreen({ onClose, onBackToCategories, ca
                       <img src={dish.photo_url} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
                       <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to top, rgba(0,0,0,0.7) 0%, transparent 50%)' }} />
                       {/* Price badge */}
-                      <div style={{ position: 'absolute', bottom: 8, right: 8, padding: '4px 8px', borderRadius: 8, backgroundColor: '#8DC63F' }}>
+                      <div style={{ position: 'absolute', bottom: 8, right: 8, padding: '4px 8px', borderRadius: 8, backgroundColor: '#FACC15' }}>
                         <span style={{ fontSize: 11, fontWeight: 900, color: '#000' }}>{fmtPrice(dish.price)}</span>
                       </div>
                     </div>
                     {/* Info */}
-                    <div style={{ padding: '10px 10px 12px', backgroundColor: 'rgba(255,255,255,0.03)' }}>
+                    <div style={{ padding: '10px 10px 12px', backgroundColor: 'rgba(0,0,0,0.6)' }}>
                       <span style={{ fontSize: 13, fontWeight: 900, color: '#fff', display: 'block', lineHeight: 1.3 }}>{dish.name}</span>
-                      <span style={{ fontSize: 11, color: 'rgba(255,255,255,0.4)', display: 'block', marginTop: 4 }}>{dish.restaurant.name}</span>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginTop: 4 }}>
+                        <span style={{ fontSize: 11, color: 'rgba(255,255,255,0.4)' }}>{dish.restaurant.name}</span>
+                        {dish.restaurant.rating && <span style={{ fontSize: 10, color: '#FACC15', fontWeight: 800 }}>★ {dish.restaurant.rating}</span>}
+                      </div>
                       {dish.restaurant.distKm != null && (
                         <span style={{ fontSize: 10, color: '#8DC63F', fontWeight: 700, marginTop: 2, display: 'block' }}>📍 {dish.restaurant.distKm} km</span>
                       )}
@@ -836,6 +843,97 @@ export default function RestaurantBrowseScreen({ onClose, onBackToCategories, ca
             onProfile={() => {}}
             activeTab={null}
           />
+        </div>
+      )
+    })()}
+
+    {/* ── Dish Detail Page — hero dish + restaurant's other dishes ── */}
+    {selectedDish && (() => {
+      const { dish, restaurant } = selectedDish
+      const otherDishes = (restaurant.menu_items ?? []).filter(d => d.id !== dish.id && d.photo_url)
+      const fmtP = (n) => 'Rp ' + (n ?? 0).toLocaleString('id-ID')
+
+      return (
+        <div style={{ position: 'fixed', inset: 0, zIndex: 115, backgroundColor: '#0a0a0a', display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
+          {/* Blurred bg */}
+          <img src={dish.photo_url} alt="" style={{ position: 'absolute', inset: -20, width: 'calc(100% + 40px)', height: 'calc(100% + 40px)', objectFit: 'cover', filter: 'blur(20px)', zIndex: 0, opacity: 0.3 }} />
+          <div style={{ position: 'absolute', inset: 0, backgroundColor: 'rgba(0,0,0,0.5)', zIndex: 0 }} />
+
+          {/* Header */}
+          <div style={{ padding: 'calc(env(safe-area-inset-top, 0px) + 10px) 16px 10px', display: 'flex', alignItems: 'center', gap: 10, flexShrink: 0, position: 'relative', zIndex: 1 }}>
+            <button onClick={() => setSelectedDish(null)} style={{ width: 34, height: 34, borderRadius: '50%', backgroundColor: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' }}>
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2.5" strokeLinecap="round"><path d="M19 12H5M12 5l-7 7 7 7"/></svg>
+            </button>
+            <div style={{ flex: 1 }}>
+              <span style={{ fontSize: 16, fontWeight: 900, color: '#fff', display: 'block' }}>{restaurant.name}</span>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginTop: 2 }}>
+                {restaurant.rating && <span style={{ fontSize: 11, color: '#FACC15', fontWeight: 800 }}>★ {restaurant.rating}</span>}
+                <span style={{ fontSize: 11, color: 'rgba(255,255,255,0.3)' }}>· {restaurant.cuisine_type}</span>
+              </div>
+            </div>
+            <button onClick={() => { setSelectedDish(null); setMenuRestaurant(restaurant) }} style={{ padding: '8px 14px', borderRadius: 10, backgroundColor: 'rgba(141,198,63,0.15)', border: '1px solid rgba(141,198,63,0.3)', color: '#8DC63F', fontSize: 12, fontWeight: 800, cursor: 'pointer' }}>
+              Full Menu
+            </button>
+          </div>
+
+          {/* Scrollable content */}
+          <div style={{ flex: 1, overflowY: 'auto', position: 'relative', zIndex: 1, padding: '0 0 100px' }}>
+
+            {/* Hero dish — full width */}
+            <div style={{ position: 'relative', height: 280 }}>
+              <img src={dish.photo_url} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+              <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to top, rgba(0,0,0,0.9) 0%, transparent 40%)' }} />
+              {/* Price badge */}
+              <div style={{ position: 'absolute', top: 14, right: 14, padding: '6px 12px', borderRadius: 10, backgroundColor: '#FACC15' }}>
+                <span style={{ fontSize: 14, fontWeight: 900, color: '#000' }}>{fmtP(dish.price)}</span>
+              </div>
+              {/* Dish info */}
+              <div style={{ position: 'absolute', bottom: 16, left: 16, right: 16 }}>
+                <span style={{ fontSize: 22, fontWeight: 900, color: '#fff', display: 'block', lineHeight: 1.2 }}>{dish.name}</span>
+                {dish.description && <span style={{ fontSize: 13, color: 'rgba(255,255,255,0.6)', display: 'block', marginTop: 6, lineHeight: 1.5 }}>{dish.description.slice(0, 150)}</span>}
+              </div>
+            </div>
+
+            {/* Prep time + category */}
+            <div style={{ display: 'flex', gap: 8, padding: '12px 16px' }}>
+              {dish.prep_time_min && (
+                <span style={{ padding: '4px 10px', borderRadius: 8, backgroundColor: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.08)', fontSize: 11, fontWeight: 700, color: 'rgba(255,255,255,0.5)' }}>⏱ {dish.prep_time_min} min</span>
+              )}
+              {dish.category && (
+                <span style={{ padding: '4px 10px', borderRadius: 8, backgroundColor: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.08)', fontSize: 11, fontWeight: 700, color: 'rgba(255,255,255,0.5)' }}>{dish.category}</span>
+              )}
+            </div>
+
+            {/* Other dishes from this restaurant */}
+            {otherDishes.length > 0 && (
+              <div style={{ padding: '0 16px' }}>
+                <span style={{ fontSize: 14, fontWeight: 900, color: '#fff', display: 'block', marginBottom: 10 }}>More from {restaurant.name}</span>
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 10 }}>
+                  {otherDishes.map((d, i) => (
+                    <button key={`${d.id}-${i}`} onClick={() => setSelectedDish({ dish: d, restaurant })} style={{
+                      borderRadius: 14, overflow: 'hidden', position: 'relative',
+                      border: '1px solid rgba(255,255,255,0.08)', padding: 0, background: 'none', cursor: 'pointer',
+                      display: 'flex', flexDirection: 'column', textAlign: 'left',
+                    }}>
+                      <div style={{ height: 100, position: 'relative', overflow: 'hidden' }}>
+                        <img src={d.photo_url} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                        <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to top, rgba(0,0,0,0.7) 0%, transparent 50%)' }} />
+                        <div style={{ position: 'absolute', bottom: 6, right: 6, padding: '3px 6px', borderRadius: 6, backgroundColor: '#FACC15' }}>
+                          <span style={{ fontSize: 10, fontWeight: 900, color: '#000' }}>{fmtP(d.price)}</span>
+                        </div>
+                      </div>
+                      <div style={{ padding: '8px 8px 10px', backgroundColor: 'rgba(0,0,0,0.6)' }}>
+                        <span style={{ fontSize: 12, fontWeight: 800, color: '#fff', display: 'block', lineHeight: 1.2 }}>{d.name}</span>
+                      </div>
+                    </button>
+                  ))}
+                </div>
+              </div>
+            )}
+          </div>
+
+          {/* Footer */}
+          <FoodFooterNav onHome={onClose} onChat={() => setChatOpen(true)} onNotifications={() => {}} onProfile={() => {}} activeTab={null} />
         </div>
       )
     })()}
