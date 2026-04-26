@@ -1,6 +1,7 @@
 import { useState, useRef, useEffect, useCallback } from 'react'
 import styles from './RestaurantMenuSheet.module.css'
 import WeeklyPromoSheet from './WeeklyPromoSheet'
+import WhatsAppInput from '@/components/ui/WhatsAppInput'
 import PaymentCard from './PaymentCard'
 import FoodOrderStatus from '@/components/orders/FoodOrderStatus'
 import { createFoodOrder, searchFoodDrivers } from '@/services/foodOrderService'
@@ -15,6 +16,8 @@ import FoodDashboard from './FoodDashboard'
 import DailyDealOverlay from './DailyDealOverlay'
 import { getTodayDealForRestaurant, hasAnyDailyDeals } from '@/services/dailyDealService'
 import { getLocalDefaultAddress } from '@/services/addressService'
+import { estimateFare, fetchPricingZones, fetchGlobalSettings } from '@/services/pricingService'
+import { haversineKm } from '@/utils/distance'
 import { getAvailableTimeSlots } from '@/services/preBookingService'
 import { validatePromoCode, applyPromoCode } from '@/services/promoCodeService'
 import { addToMultiCart, getMultiCartCount, getRestaurantCount } from '@/services/multiCartService'
@@ -53,18 +56,103 @@ import SocialsDrawer from './SocialsDrawer'
 import ReviewModal from './ReviewModal'
 import CustomizeSheet from './CustomizeSheet'
 
+// ── Delivery Chat — in-app messaging with driver during delivery ─────────────
+function DeliveryChat({ driverName, chatKey, initialMessages, onClose }) {
+  const [messages, setMessages] = useState(initialMessages)
+  const [input, setInput] = useState('')
+  const scrollRef = useRef(null)
+
+  useEffect(() => {
+    scrollRef.current?.scrollTo({ top: scrollRef.current.scrollHeight })
+  }, [messages.length])
+
+  const sendMessage = () => {
+    if (!input.trim()) return
+    const msg = { id: Date.now(), from: 'customer', text: input.trim(), time: new Date().toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' }) }
+    const updated = [...messages, msg]
+    setMessages(updated)
+    localStorage.setItem(chatKey, JSON.stringify(updated))
+    setInput('')
+    // Demo driver auto-reply
+    setTimeout(() => {
+      const replies = ['Siap, kak!', 'Oke, sedang menuju lokasi', 'Baik kak, sebentar lagi sampai', 'Sudah di depan, kak']
+      const reply = { id: Date.now() + 1, from: 'driver', text: replies[Math.floor(Date.now() / 1000) % replies.length], time: new Date().toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' }) }
+      const withReply = [...updated, reply]
+      setMessages(withReply)
+      localStorage.setItem(chatKey, JSON.stringify(withReply))
+    }, 1500)
+  }
+
+  return createPortal(
+    <div style={{ position: 'fixed', inset: 0, zIndex: 10010, backgroundColor: '#0a0a0a', display: 'flex', flexDirection: 'column' }}>
+      {/* Header */}
+      <div style={{ padding: 'calc(env(safe-area-inset-top, 0px) + 12px) 16px 12px', display: 'flex', alignItems: 'center', gap: 12, borderBottom: '1px solid rgba(255,255,255,0.06)', flexShrink: 0 }}>
+        <button onClick={onClose} style={{ width: 44, height: 44, borderRadius: '50%', background: '#8DC63F', border: 'none', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' }}>
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#000" strokeWidth="2.5" strokeLinecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+        </button>
+        <div style={{ flex: 1 }}>
+          <span style={{ fontSize: 16, fontWeight: 900, color: '#fff', display: 'block' }}>{driverName}</span>
+          <span style={{ fontSize: 12, color: '#8DC63F' }}>Driver · Online</span>
+        </div>
+      </div>
+
+      {/* Messages */}
+      <div ref={scrollRef} style={{ flex: 1, overflowY: 'auto', padding: '12px 16px', display: 'flex', flexDirection: 'column', gap: 8 }}>
+        {messages.length === 0 && (
+          <div style={{ textAlign: 'center', padding: '40px 20px', opacity: 0.4 }}>
+            <span style={{ fontSize: 14, color: '#fff' }}>Send a message to your driver</span>
+          </div>
+        )}
+        {messages.map(msg => (
+          <div key={msg.id} style={{ display: 'flex', justifyContent: msg.from === 'customer' ? 'flex-end' : 'flex-start' }}>
+            <div style={{
+              maxWidth: '75%', padding: '10px 14px', borderRadius: 16,
+              background: msg.from === 'customer' ? '#8DC63F' : 'rgba(255,255,255,0.08)',
+              borderBottomRightRadius: msg.from === 'customer' ? 4 : 16,
+              borderBottomLeftRadius: msg.from === 'driver' ? 4 : 16,
+            }}>
+              <span style={{ fontSize: 14, color: msg.from === 'customer' ? '#000' : '#fff', display: 'block', lineHeight: 1.4 }}>{msg.text}</span>
+              <span style={{ fontSize: 10, color: msg.from === 'customer' ? 'rgba(0,0,0,0.4)' : 'rgba(255,255,255,0.3)', display: 'block', marginTop: 4, textAlign: 'right' }}>{msg.time}</span>
+            </div>
+          </div>
+        ))}
+      </div>
+
+      {/* Input */}
+      <div style={{ padding: '10px 16px calc(env(safe-area-inset-bottom, 0px) + 10px)', borderTop: '1px solid rgba(255,255,255,0.06)', display: 'flex', gap: 10, flexShrink: 0 }}>
+        <input
+          value={input}
+          onChange={e => setInput(e.target.value)}
+          onKeyDown={e => e.key === 'Enter' && sendMessage()}
+          placeholder="Type a message..."
+          style={{ flex: 1, padding: '12px 16px', borderRadius: 24, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)', color: '#fff', fontSize: 14, outline: 'none', fontFamily: 'inherit' }}
+        />
+        <button onClick={sendMessage} style={{
+          width: 44, height: 44, borderRadius: '50%', background: '#8DC63F', border: 'none',
+          display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', flexShrink: 0,
+        }}>
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#000" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+        </button>
+      </div>
+    </div>,
+    document.body
+  )
+}
+
 // ── Main component ────────────────────────────────────────────────────────────
-export default function RestaurantMenuSheet({ restaurant, onClose, onOrderViaChat }) {
+export default function RestaurantMenuSheet({ restaurant, onClose, onOrderViaChat, initialCart, startTracking }) {
   const items      = restaurant.menu_items ?? []
   const categories = [...new Set(items.map(i => i.category).filter(Boolean))]
 
   const [cart,           setCart]           = useState(() => {
+    // Use initialCart if provided (from cart page checkout)
+    if (initialCart?.length > 0) return initialCart
     // Pre-populate demo cart for preview
     const demoItems = (restaurant.menu_items ?? []).filter(i => i.photo_url).slice(0, 3)
     return demoItems.length ? demoItems.map((item, i) => ({ ...item, qty: i === 0 ? 2 : 1 })) : []
   })
   const [activeCategory, setActiveCategory] = useState(null)
-  const [cartExpanded,   setCartExpanded]   = useState(false)
+  const [cartExpanded,   setCartExpanded]   = useState(!!initialCart?.length)
   const [drawerOpen,     setDrawerOpen]     = useState(false)
   const [eventsOpen,     setEventsOpen]     = useState(false)
   const [socialsOpen,    setSocialsOpen]    = useState(false)
@@ -76,6 +164,8 @@ export default function RestaurantMenuSheet({ restaurant, onClose, onOrderViaCha
   const [editingNoteId,  setEditingNoteId]  = useState(null)
   const [promosOpen,     setPromosOpen]     = useState(false)
   const [locating,       setLocating]       = useState(false)
+  const [customerCoords, setCustomerCoords] = useState(null) // { lat, lng }
+  const [calculatedFare, setCalculatedFare] = useState(null) // delivery fare from admin pricing
   const [paymentData,    setPaymentData]    = useState(null)  // { total, orderRef }
   const [ordersOpen,     setOrdersOpen]     = useState(false)
   const [foodOrders,     setFoodOrders]     = useState([])
@@ -86,10 +176,8 @@ export default function RestaurantMenuSheet({ restaurant, onClose, onOrderViaCha
   const [reviewComment,  setReviewComment]  = useState('')
   const [toast,          setToast]          = useState(null)
   const [orderType,      setOrderType]      = useState('delivery')
-  const [paymentMethod,  setPaymentMethod]  = useState(null) // 'bank' | 'cod' | null
-  const [transactionCode, setTransactionCode] = useState('')
-  const [qrZoom, setQrZoom] = useState(false)
-  const [copyMsg, setCopyMsg] = useState(false)
+  const [paymentMethod,  setPaymentMethod]  = useState('cod') // COD only
+  const [customerWa,     setCustomerWa]     = useState('') // customer WhatsApp for driver
   const [paymentStep,    setPaymentStep]    = useState(false)   // show payment step on confirmation
   const [paymentProofFile, setPaymentProofFile] = useState(null)
   const [paymentSubmitted, setPaymentSubmitted] = useState(false)
@@ -111,6 +199,7 @@ export default function RestaurantMenuSheet({ restaurant, onClose, onOrderViaCha
   const [promoCode,      setPromoCode]      = useState('')
   const [promoResult,    setPromoResult]    = useState(null) // { valid, discountAmount, ... }
   const [chatOpen,       setChatOpen]       = useState(false) // live chat sheet
+  const [deliveryChatOpen, setDeliveryChatOpen] = useState(false) // driver chat during delivery
   const [promoBannerOpen, setPromoBannerOpen2] = useState(false) // promo banner page
   const [multiCartCount, setMultiCartCount] = useState(0) // items in other restaurant carts
 
@@ -240,7 +329,7 @@ export default function RestaurantMenuSheet({ restaurant, onClose, onOrderViaCha
 
   const cartCount   = cart.reduce((s, i) => s + i.qty, 0)
   const cartTotal   = cart.reduce((s, i) => s + i.price * i.qty, 0)
-  const deliveryFare = orderType === 'delivery' ? (restaurant.deliveryFare ?? null) : 0
+  const deliveryFare = orderType === 'delivery' ? (calculatedFare ?? null) : 0
   const grandTotal  = cartTotal + (deliveryFare ?? 0)
   const maxPrepMin  = cart.length > 0
     ? Math.max(...cart.map(i => i.prep_time_min ?? 0))
@@ -248,7 +337,9 @@ export default function RestaurantMenuSheet({ restaurant, onClose, onOrderViaCha
   const avgPrepTime = cart.length > 0
     ? Math.round(cart.reduce((sum, item) => sum + (item.prep_time_min ?? 15), 0) / cart.length)
     : 15
-  const deliveryMinutes = orderType === 'delivery' ? Math.round(5 + ((deliveryFare ?? 15000) / 4000)) : 0
+  const deliveryMinutes = orderType === 'delivery' && customerCoords && restaurant.lat
+    ? Math.round(haversineKm(restaurant.lat, restaurant.lng, customerCoords.lat, customerCoords.lng) * 1.3 * 3)
+    : 0
   const eta = avgPrepTime + deliveryMinutes
   const qtyFor = (id) => cart.find(c => c.id === id)?.qty ?? 0
 
@@ -262,12 +353,28 @@ export default function RestaurantMenuSheet({ restaurant, onClose, onOrderViaCha
     }, 60)
   }, [])
 
+  // ── Calculate delivery fare from admin pricing ──
+  const calculateDeliveryFare = async (custLat, custLng) => {
+    if (!restaurant.lat || !restaurant.lng || !custLat || !custLng) return
+    const distKm = haversineKm(restaurant.lat, restaurant.lng, custLat, custLng)
+    try {
+      const [zones, settings] = await Promise.all([fetchPricingZones(), fetchGlobalSettings()])
+      const fare = estimateFare('bike_ride', restaurant.city ?? '', distKm * 1.3, zones, settings)
+      setCalculatedFare(fare)
+    } catch {
+      // Fallback: cannot calculate without admin zones
+      setCalculatedFare(null)
+    }
+  }
+
   // ── GPS location → address ──
   const handleUseLocation = () => {
     if (!navigator.geolocation) return
     setLocating(true)
     navigator.geolocation.getCurrentPosition(
       async ({ coords }) => {
+        setCustomerCoords({ lat: coords.latitude, lng: coords.longitude })
+        calculateDeliveryFare(coords.latitude, coords.longitude)
         try {
           const res  = await fetch(
             `https://nominatim.openstreetmap.org/reverse?lat=${coords.latitude}&lon=${coords.longitude}&format=json`
@@ -446,7 +553,10 @@ export default function RestaurantMenuSheet({ restaurant, onClose, onOrderViaCha
   }
 
   const [orderReceived, setOrderReceived] = useState(false)
-  const [driverOnWay, setDriverOnWay] = useState(null)
+  const [driverOnWay, setDriverOnWay] = useState(() => {
+    if (startTracking?.driver) return startTracking.driver
+    return null
+  })
   const [driverPhase, setDriverPhase] = useState('to_restaurant')
   const [driverImgIdx, setDriverImgIdx] = useState(0)
   const [processingMsgIdx, setProcessingMsgIdx] = useState(0)
@@ -556,12 +666,12 @@ export default function RestaurantMenuSheet({ restaurant, onClose, onOrderViaCha
     const finalTotal = Math.max(0, grandTotal - promoDiscount - freeDeliveryDiscount)
 
     const orderSnapshot = {
-      items: cart.map(i => ({ name: i.name, qty: i.qty, price: i.price })),
+      items: cart.map(i => ({ name: i.name, qty: i.qty, price: i.price, extras: i.extras ?? [], extrasPrice: i.extrasPrice ?? 0, note: i.note ?? null })),
       total: finalTotal,
       delivery: promoResult?.isFreeDelivery ? 0 : (deliveryFare ?? (orderType === 'delivery' ? 10000 : 0)),
       orderType,
-      paymentMethod,
-      transactionCode: paymentMethod === 'bank' ? transactionCode : null,
+      paymentMethod: 'cod',
+      customerWa: customerWa.trim(),
       address: orderType === 'delivery' ? (address || null) : null,
       restaurantName: restaurant.name,
       eta: eta + 10,
@@ -570,9 +680,9 @@ export default function RestaurantMenuSheet({ restaurant, onClose, onOrderViaCha
       promo_discount: promoDiscount + freeDeliveryDiscount,
     }
 
-    setCartExpanded(false)
     setOrderProcessing(true)
     setOrderReceived(false)
+    setCartExpanded(false)
 
     const driverSearchTime = 6000 + Math.random() * 4000
 
@@ -591,14 +701,24 @@ export default function RestaurantMenuSheet({ restaurant, onClose, onOrderViaCha
         total: orderSnapshot.total,
         delivery: orderSnapshot.delivery,
         order_type: orderSnapshot.orderType,
-        payment_method: orderSnapshot.paymentMethod,
-        transaction_code: orderSnapshot.transactionCode,
+        payment_method: 'cod',
+        customer_wa: orderSnapshot.customerWa,
         status: orderSnapshot.scheduled_at ? 'scheduled' : 'driver_assigned',
         address: orderSnapshot.address,
         created_at: new Date().toISOString(),
         scheduled_at: orderSnapshot.scheduled_at ?? null,
         promo_code: orderSnapshot.promo_code ?? null,
         promo_discount: orderSnapshot.promo_discount ?? 0,
+      }
+
+      // Post customer WhatsApp to delivery chat for driver
+      if (orderSnapshot.customerWa) {
+        const chatKey = `indoo_delivery_chat_${orderId}`
+        const systemMsg = [
+          { id: Date.now(), from: 'system', text: `Customer WhatsApp: ${orderSnapshot.customerWa}`, time: new Date().toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' }) },
+          { id: Date.now() + 1, from: 'system', text: `Tap to call: wa.me/${orderSnapshot.customerWa.replace(/\D/g, '')}`, time: new Date().toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' }) },
+        ]
+        localStorage.setItem(chatKey, JSON.stringify(systemMsg))
       }
 
       const orders = getFoodOrders()
@@ -707,7 +827,7 @@ export default function RestaurantMenuSheet({ restaurant, onClose, onOrderViaCha
             </button>
             <div style={{ flex: 1 }}>
               <span className={styles.cartPageTitle}>{restaurant.name}</span>
-              <span style={{ display: 'block', fontSize: 11, fontWeight: 700, color: restaurant.is_open ? '#8DC63F' : '#ef4444', marginTop: 3 }}>
+              <span style={{ display: 'block', fontSize: 14, fontWeight: 700, color: restaurant.is_open ? '#8DC63F' : '#ef4444', marginTop: 3 }}>
                 {restaurant.is_open ? <><span style={{ display: 'inline-block', width: 7, height: 7, borderRadius: '50%', background: '#8DC63F', marginRight: 5, animation: 'pulse 1.5s ease-in-out infinite' }} />Kitchen full speed — orders dispatched on time</> : '🔴 Kitchen is closed'}
               </span>
             </div>
@@ -732,8 +852,8 @@ export default function RestaurantMenuSheet({ restaurant, onClose, onOrderViaCha
           <div style={{ padding: '8px 16px', borderBottom: '1px solid rgba(255,255,255,0.06)', flexShrink: 0 }}>
               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke={scheduleMode ? '#FACC15' : 'rgba(255,255,255,0.4)'} strokeWidth="2" strokeLinecap="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
-                  <span style={{ fontSize: 12, fontWeight: 800, color: scheduleMode ? '#FACC15' : 'rgba(255,255,255,0.5)' }}>Schedule for later</span>
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2" strokeLinecap="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                  <span style={{ fontSize: 14, fontWeight: 800, color: scheduleMode ? '#fff' : '#fff' }}>Schedule for later</span>
                 </div>
                 <button onClick={() => { setScheduleMode(!scheduleMode); if (scheduleMode) setScheduleSlot(null) }} style={{
                   width: 44, height: 24, borderRadius: 12, border: 'none', cursor: 'pointer',
@@ -761,13 +881,13 @@ export default function RestaurantMenuSheet({ restaurant, onClose, onOrderViaCha
                       appearance: 'none', cursor: 'pointer',
                     }}
                   >
-                    <option value="" style={{ background: '#1a1a1a' }}>Select delivery time</option>
+                    <option value="" style={{ background: '#1a1a1a', color: '#fff' }}>Select delivery time</option>
                     {getAvailableTimeSlots().slice(0, 28).map(slot => (
-                      <option key={slot.value} value={slot.value} style={{ background: '#1a1a1a' }}>{slot.label}</option>
+                      <option key={slot.value} value={slot.value} style={{ background: '#1a1a1a', color: '#fff' }}>{slot.label}</option>
                     ))}
                   </select>
                   {scheduleSlot && (
-                    <span style={{ fontSize: 11, color: '#8DC63F', fontWeight: 700, marginTop: 6, display: 'block' }}>
+                    <span style={{ fontSize: 14, color: '#fff', fontWeight: 700, marginTop: 6, display: 'block' }}>
                       Scheduled: {new Date(scheduleSlot).toLocaleDateString('en-GB', { weekday: 'short', day: 'numeric', month: 'short' })} at {new Date(scheduleSlot).toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' })}
                     </span>
                   )}
@@ -811,7 +931,7 @@ export default function RestaurantMenuSheet({ restaurant, onClose, onOrderViaCha
               </button>
             </div>
             {promoResult && (
-              <span style={{ fontSize: 11, fontWeight: 700, color: promoResult.valid ? '#8DC63F' : '#ef4444', marginTop: 6, display: 'block' }}>
+              <span style={{ fontSize: 14, fontWeight: 700, color: promoResult.valid ? '#8DC63F' : '#ef4444', marginTop: 6, display: 'block' }}>
                 {promoResult.valid ? `${promoResult.label} — Save ${promoResult.isFreeDelivery ? 'delivery fee' : `Rp ${promoResult.discountAmount?.toLocaleString('id-ID')}`}` : promoResult.error}
               </span>
             )}
@@ -821,7 +941,7 @@ export default function RestaurantMenuSheet({ restaurant, onClose, onOrderViaCha
           {getRestaurantCount() > 1 && (
             <div style={{ padding: '8px 16px', borderBottom: '1px solid rgba(255,255,255,0.06)', display: 'flex', alignItems: 'center', gap: 8 }}>
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#FACC15" strokeWidth="2" strokeLinecap="round"><path d="M3 3h18v18H3z"/><path d="M3 9h18"/><path d="M9 21V9"/></svg>
-              <span style={{ fontSize: 11, fontWeight: 700, color: '#FACC15' }}>
+              <span style={{ fontSize: 14, fontWeight: 700, color: '#FACC15' }}>
                 {getRestaurantCount()} restaurants in cart · Orders will be placed separately
               </span>
             </div>
@@ -886,7 +1006,7 @@ export default function RestaurantMenuSheet({ restaurant, onClose, onOrderViaCha
                     <img src="https://ik.imagekit.io/nepgaxllc/Sleek%20green%20and%20black%20scooter%20setup.png?updatedAt=1775634845237" alt="" style={{ width: 36, height: 36, objectFit: 'contain', flexShrink: 0 }} />
                     <div style={{ flex: 1 }}>
                       <span style={{ fontSize: 14, fontWeight: 800, color: '#fff', display: 'block' }}>Delivery</span>
-                      <span style={{ fontSize: 11, color: 'rgba(255,255,255,0.4)' }}>~{eta} min · Payment To Driver</span>
+                      <span style={{ fontSize: 14, color: 'rgba(255,255,255,0.4)' }}>~{eta} min · Payment To Driver</span>
                     </div>
                     <span style={{ fontSize: 15, fontWeight: 900, color: promoResult?.isFreeDelivery ? '#8DC63F' : '#FACC15' }}>{promoResult?.isFreeDelivery ? 'FREE' : fmtRp(deliveryFare)}</span>
                   </div>
@@ -924,75 +1044,24 @@ export default function RestaurantMenuSheet({ restaurant, onClose, onOrderViaCha
 
                 <div className={styles.cartDivider} style={{ margin: '0 0 12px' }} />
 
-                {/* Payment method selection */}
+                {/* Payment — COD only */}
                 <div style={{ marginBottom: 12 }}>
-                  <span style={{ fontSize: 12, fontWeight: 700, color: 'rgba(255,255,255,0.4)', display: 'block' }}>
-                    {paymentMethod === 'cod' ? 'Pay driver on arrival · Total order' : paymentMethod === 'bank' ? 'Food payment only · Delivery paid to driver on arrival' : 'Select how to pay'}
-                  </span>
-                  <div style={{ height: 8 }} />
-                  <div style={{ display: 'flex', gap: 8 }}>
-                    <button onClick={() => setPaymentMethod('bank')} style={{
-                      flex: 1, padding: '14px 8px', borderRadius: 12,
-                      background: '#000',
-                      border: `1.5px solid ${paymentMethod === 'bank' ? '#8DC63F' : 'rgba(255,255,255,0.12)'}`,
-                      color: paymentMethod === 'bank' ? '#fff' : 'rgba(255,255,255,0.5)',
-                      fontSize: 13, fontWeight: 800, cursor: 'pointer', fontFamily: 'inherit',
-                      display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 4,
-                    }}>
-                      <span style={{ fontSize: 20 }}>🏦</span>
-                      <span>Bank Transfer</span>
-                      <span style={{ fontSize: 13, color: '#8DC63F', fontWeight: 900, animation: 'priceGlow 2s ease-in-out infinite' }}>Save 3%</span>
-                    </button>
-                    <button onClick={() => setPaymentMethod('cod')} style={{
-                      flex: 1, padding: '14px 8px', borderRadius: 12,
-                      background: '#000',
-                      border: `1.5px solid ${paymentMethod === 'cod' ? '#8DC63F' : 'rgba(255,255,255,0.12)'}`,
-                      color: paymentMethod === 'cod' ? '#fff' : 'rgba(255,255,255,0.5)',
-                      fontSize: 13, fontWeight: 800, cursor: 'pointer', fontFamily: 'inherit',
-                      display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 4,
-                    }}>
-                      <span style={{ fontSize: 20 }}>💵</span>
-                      <span>Cash on Delivery</span>
-                    </button>
+                  <div style={{ padding: '14px', borderRadius: 14, background: 'rgba(0,0,0,0.4)', border: '1.5px solid rgba(141,198,63,0.2)' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 10 }}>
+                      <img src="https://ik.imagekit.io/nepgaxllc/mmma-removebg-preview.png?updatedAt=1777002391090" alt="COD" style={{ width: 48, height: 48, objectFit: 'contain' }} />
+                      <div>
+                        <span style={{ fontSize: 16, fontWeight: 900, color: '#fff', display: 'block' }}>Cash on Delivery</span>
+                        <span style={{ fontSize: 14, color: 'rgba(255,255,255,0.5)' }}>Pay driver when food arrives</span>
+                      </div>
+                    </div>
+                    {/* Customer WhatsApp number with country prefix */}
+                    <WhatsAppInput
+                      label="Your WhatsApp"
+                      value={customerWa}
+                      onChange={setCustomerWa}
+                    />
+                    <span style={{ fontSize: 14, color: 'rgba(255,255,255,0.3)', display: 'block', marginTop: 4 }}>Driver will contact you to confirm delivery</span>
                   </div>
-                  {paymentMethod === 'bank' && restaurant.bank && (
-                    <div style={{ marginTop: 10, padding: 14, borderRadius: 14, background: 'rgba(0,0,0,0.6)', backdropFilter: 'blur(12px)', border: '1px solid rgba(255,255,255,0.06)' }}>
-                      {/* Saved 3% */}
-                      <span style={{ fontSize: 15, fontWeight: 900, color: '#FACC15', display: 'block', marginBottom: 8 }}>Saved 3%</span>
-                      {/* Row 1: Bank + account + QR */}
-                      <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-                        <div style={{ flex: 1 }}>
-                          <div style={{ fontSize: 13, fontWeight: 700, color: 'rgba(255,255,255,0.5)' }}>{restaurant.bank.name}</div>
-                          <div style={{ fontSize: 18, fontWeight: 900, color: '#fff', letterSpacing: '0.04em', marginTop: 4 }}>{restaurant.bank.account_number}</div>
-                          <div style={{ textAlign: 'center', marginTop: 6 }}>
-                            <button onClick={() => { navigator.clipboard?.writeText(restaurant.bank.account_number); setCopyMsg(true) }} style={{ padding: '5px 16px', borderRadius: 8, background: copyMsg ? 'rgba(141,198,63,0.2)' : '#8DC63F', border: copyMsg ? '1px solid #8DC63F' : 'none', color: copyMsg ? '#8DC63F' : '#000', fontSize: 12, fontWeight: 800, cursor: 'pointer', fontFamily: 'inherit' }}>{copyMsg ? '✓ Copied' : 'Copy Code'}</button>
-                          </div>
-                          <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.4)', marginTop: 2 }}>{restaurant.bank.account_holder}</div>
-                        </div>
-                        {restaurant.bank.qr_url && (
-                          <div onClick={() => setQrZoom(true)} style={{ flexShrink: 0, cursor: 'pointer', padding: 6, background: '#fff', borderRadius: 12, border: '2px solid rgba(141,198,63,0.3)', boxShadow: '0 2px 12px rgba(0,0,0,0.3)' }}>
-                            <img src={restaurant.bank.qr_url} alt="QR" style={{ width: 72, height: 72, borderRadius: 6, display: 'block' }} />
-                          </div>
-                        )}
-                      </div>
-                      {/* Row 2: Amount */}
-                      <div style={{ marginTop: 10, display: 'flex', alignItems: 'baseline', gap: 6 }}>
-                        <span style={{ fontSize: 12, fontWeight: 700, color: 'rgba(255,255,255,0.4)' }}>Food Only</span>
-                        <span style={{ fontSize: 18, fontWeight: 900, color: '#FACC15' }}>{fmtRp(Math.round(cartTotal * 0.97))}</span>
-                      </div>
-                      {/* Row 3: Transaction code */}
-                      <input value={transactionCode} onChange={e => setTransactionCode(e.target.value)} placeholder="Transaction code" className={styles.bankCodeInput} style={{ marginTop: 10 }} />
-                    </div>
-                  )}
-
-                  {/* QR code fullscreen zoom */}
-                  {qrZoom && restaurant.bank?.qr_url && (
-                    <div onClick={() => setQrZoom(false)} style={{ position: 'fixed', inset: 0, zIndex: 9999, background: 'rgba(0,0,0,0.9)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexDirection: 'column', gap: 16 }}>
-                      <img src={restaurant.bank.qr_url} alt="QR Code" style={{ width: '75vw', maxWidth: 300, height: 'auto', borderRadius: 16, border: '2px solid rgba(255,255,255,0.1)' }} />
-                      <span style={{ fontSize: 14, fontWeight: 800, color: '#fff' }}>Scan to Pay</span>
-                      <span style={{ fontSize: 12, color: 'rgba(255,255,255,0.4)' }}>Tap anywhere to close</span>
-                    </div>
-                  )}
                 </div>
 
               </>
@@ -1002,31 +1071,22 @@ export default function RestaurantMenuSheet({ restaurant, onClose, onOrderViaCha
           {/* Fixed bottom */}
           {cart.length > 0 && (
             <div className={styles.cartPageFooter}>
-              {paymentMethod === 'bank' && (deliveryFare ?? 0) > 0 && !promoResult?.isFreeDelivery && (
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '8px 0 12px' }}>
-                  <span style={{ fontSize: 14, fontWeight: 800, color: '#fff' }}>Pay Driver On Delivery</span>
-                  <span style={{ fontSize: 16, fontWeight: 900, color: '#FACC15' }}>{fmtRp(deliveryFare)}</span>
-                </div>
-              )}
-              {paymentMethod === 'cod' && (
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '8px 0 12px' }}>
-                  <span style={{ fontSize: 14, fontWeight: 800, color: '#fff' }}>Pay Driver On Arrival</span>
-                  <span style={{ fontSize: 16, fontWeight: 900, color: '#FACC15' }}>{fmtRp(grandTotal)}</span>
-                </div>
-              )}
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '8px 0 12px' }}>
+                <span style={{ fontSize: 14, fontWeight: 800, color: '#fff' }}>Pay Driver On Arrival</span>
+                <span style={{ fontSize: 16, fontWeight: 900, color: '#FACC15' }}>{fmtRp(grandTotal)}</span>
+              </div>
               <button
                 className={styles.orderBtn}
                 style={{
                   fontSize: 16, padding: 16, borderRadius: 16,
-                  opacity: (paymentMethod === 'cod' || (paymentMethod === 'bank' && transactionCode.trim())) ? 1 : 0.4,
-                  cursor: (paymentMethod === 'cod' || (paymentMethod === 'bank' && transactionCode.trim())) ? 'pointer' : 'not-allowed',
+                  opacity: customerWa.trim().length >= 10 ? 1 : 0.4,
+                  cursor: customerWa.trim().length >= 10 ? 'pointer' : 'not-allowed',
                 }}
                 onClick={() => {
-                  if (paymentMethod === 'cod') handleOrder()
-                  else if (paymentMethod === 'bank' && transactionCode.trim()) handleOrder()
+                  if (customerWa.trim().length >= 10) handleOrder()
                 }}
               >
-                {!paymentMethod ? 'Select Payment Method' : paymentMethod === 'bank' && !transactionCode.trim() ? 'Enter Transaction Code' : 'Confirm Order'}
+                {customerWa.trim().length >= 10 ? 'Confirm Order' : 'Enter WhatsApp Number'}
               </button>
             </div>
           )}
@@ -1285,7 +1345,7 @@ export default function RestaurantMenuSheet({ restaurant, onClose, onOrderViaCha
 
       {/* ── Order processing overlay ── */}
       {orderProcessing && (
-        <div style={{ position: 'fixed', inset: 0, zIndex: 9900, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
+        <div style={{ position: 'fixed', inset: 0, zIndex: 9900, backgroundColor: '#0a0a0a', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
           {/* Full-screen background image */}
           <img
             src={!orderReceived ? currentOrderImages.processing : currentOrderImages.received}
@@ -1492,7 +1552,7 @@ export default function RestaurantMenuSheet({ restaurant, onClose, onOrderViaCha
                   <a href={`tel:${driverOnWay?.phone ?? ''}`} style={{ width: 44, height: 44, borderRadius: 14, background: '#111', border: 'none', display: 'flex', alignItems: 'center', justifyContent: 'center', textDecoration: 'none' }}>
                     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
                   </a>
-                  <button onClick={() => { /* TODO: open in-app chat with driver */ }} style={{ width: 44, height: 44, borderRadius: 14, background: '#8DC63F', border: 'none', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' }}>
+                  <button onClick={() => setDeliveryChatOpen(true)} style={{ width: 44, height: 44, borderRadius: 14, background: '#8DC63F', border: 'none', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' }}>
                     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#000" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
                   </button>
                 </div>
@@ -1714,7 +1774,7 @@ export default function RestaurantMenuSheet({ restaurant, onClose, onOrderViaCha
                 border: activeCategory === c.label ? '1px solid rgba(141,198,63,0.3)' : '1px solid transparent',
                 cursor: 'pointer', width: '100%', textAlign: 'left',
               }}>
-                {c.img ? <img src={c.img} alt="" style={{ width: 32, height: 32, objectFit: 'contain', flexShrink: 0 }} /> : <span style={{ fontSize: 22, width: 32, textAlign: 'center', flexShrink: 0 }}>{c.emoji}</span>}
+                {c.img ? <img src={c.img} alt="" style={{ width: 48, height: 48, objectFit: 'contain', flexShrink: 0 }} /> : <span style={{ fontSize: 22, width: 32, textAlign: 'center', flexShrink: 0 }}>{c.emoji}</span>}
                 <span style={{ fontSize: 13, fontWeight: 800, color: activeCategory === c.label ? '#8DC63F' : '#fff' }}>{c.label}</span>
               </button>
             ))}
@@ -1756,6 +1816,32 @@ export default function RestaurantMenuSheet({ restaurant, onClose, onOrderViaCha
           onClose={() => setChatOpen(false)}
         />
       )}
+
+      {/* ── Delivery Chat with Driver ── */}
+      {deliveryChatOpen && (() => {
+        const CHAT_KEY = `indoo_delivery_chat_${orderConfirm?.id ?? 'current'}`
+        const loadMessages = () => {
+          try {
+            const stored = JSON.parse(localStorage.getItem(CHAT_KEY) || '[]')
+            // Clear messages 1 hour after delivery
+            const lastOrder = foodOrders.find(o => o.status === 'delivered')
+            if (lastOrder?.delivered_at) {
+              const deliveredTime = new Date(lastOrder.delivered_at).getTime()
+              if (Date.now() - deliveredTime > 3600000) {
+                localStorage.removeItem(CHAT_KEY)
+                return []
+              }
+            }
+            return stored
+          } catch { return [] }
+        }
+        return <DeliveryChat
+          driverName={driverOnWay?.display_name ?? driverOnWay?.name ?? assignedDriver?.display_name ?? 'Driver'}
+          chatKey={CHAT_KEY}
+          initialMessages={loadMessages()}
+          onClose={() => setDeliveryChatOpen(false)}
+        />
+      })()}
 
       {/* ── Promo Banner Page ── */}
       {promoBannerOpen && (

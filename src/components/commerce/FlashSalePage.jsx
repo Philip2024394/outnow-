@@ -70,7 +70,7 @@ export default function FlashSalePage({ open, onClose, allProducts, onOrderViaCh
 
   if (!open) return null
 
-  return createPortal(
+  const page = createPortal(
     <div className={styles.page}>
       <div style={{ position: 'fixed', top: 6, left: 6, zIndex: 99990, display: 'flex', alignItems: 'center', gap: 6, pointerEvents: 'none' }}><div style={{ width: 28, height: 28, borderRadius: '50%', background: '#8DC63F', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 11, fontWeight: 900, color: '#000', boxShadow: '0 2px 8px rgba(141,198,63,0.4)' }}>M3</div><span style={{ fontSize: 9, fontWeight: 800, color: 'rgba(141,198,63,0.6)' }}>FLASH SALE</span></div>
       {/* Header — logo only */}
@@ -161,8 +161,15 @@ export default function FlashSalePage({ open, onClose, allProducts, onOrderViaCh
         )}
       </div>
 
-      {/* Product detail sheet */}
-      {selectedProduct && (
+    </div>,
+    document.body
+  )
+
+  return (
+    <>
+      {page}
+      {/* Product detail — portaled separately to avoid z-index conflicts */}
+      {selectedProduct && createPortal(
         <ProductDetailSheet
           product={{
             ...selectedProduct,
@@ -173,10 +180,9 @@ export default function FlashSalePage({ open, onClose, allProducts, onOrderViaCh
           onClose={() => setSelectedProduct(null)}
           onOrderViaChat={onOrderViaChat}
           onMakeOffer={onMakeOffer}
-        />
+        />,
+        document.body
       )}
-
-    </div>,
-    document.body
+    </>
   )
 }

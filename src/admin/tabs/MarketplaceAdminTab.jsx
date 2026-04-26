@@ -247,12 +247,16 @@ export default function MarketplaceAdminTab() {
     setSaving(true)
     try {
       if (supabase) {
-        await supabase.from('listings').insert({
-          title: form.name, category: form.category, price_label: form.price,
-          city: form.city, description: form.description, photo_url: form.photoURL,
-          seller_name: form.sellerName, whatsapp: form.whatsapp,
-          status: form.status, is_admin: true,
-          specs: form.specs, variants: form.variants,
+        await supabase.from('products').insert({
+          name: form.name, category: form.category, price: Number(String(form.price).replace(/\D/g, '')) || 0,
+          description: form.description, image_url: form.photoURL,
+          specs: form.specs ? JSON.stringify(form.specs) : null,
+          variants: form.variants ? JSON.stringify(form.variants) : null,
+          weight_grams: form.weight ? Number(form.weight) : null,
+          dimensions: form.dimensions || null,
+          stock: form.stock ? Number(form.stock) : null,
+          condition: form.condition ?? 'new',
+          active: form.status === 'approved',
           created_at: new Date().toISOString(),
         }).catch(() => {})
       }
@@ -342,6 +346,16 @@ export default function MarketplaceAdminTab() {
               <ImageUpload value={form.photoURL} onChange={url => setForm(f => ({ ...f, photoURL: url }))} folder="marketplace" size={72} shape="square" accentColor="#A855F7" />
             </div>
             <div className={`${styles.field} ${styles.fieldFull}`}><label>Description</label><textarea value={form.description} onChange={e => setForm(f => ({ ...f, description: e.target.value }))} rows={3} /></div>
+            <div className={styles.field}><label>Weight (grams)</label><input type="number" value={form.weight ?? ''} onChange={e => setForm(f => ({ ...f, weight: e.target.value }))} placeholder="500" /></div>
+            <div className={styles.field}><label>Dimensions (cm)</label><input value={form.dimensions ?? ''} onChange={e => setForm(f => ({ ...f, dimensions: e.target.value }))} placeholder="20x15x10" /></div>
+            <div className={styles.field}><label>Stock</label><input type="number" value={form.stock ?? ''} onChange={e => setForm(f => ({ ...f, stock: e.target.value }))} placeholder="100" /></div>
+            <div className={styles.field}><label>Condition</label>
+              <select value={form.condition ?? 'new'} onChange={e => setForm(f => ({ ...f, condition: e.target.value }))}>
+                <option value="new">New</option>
+                <option value="used">Used</option>
+                <option value="refurbished">Refurbished</option>
+              </select>
+            </div>
           </div>
 
           {/* Universal product details — always shown */}

@@ -13,6 +13,7 @@ import BuyerProfileSheet from '@/components/commerce/BuyerProfileSheet'
 import PurchaseHistoryScreen from '@/screens/PurchaseHistoryScreen'
 import SearchAutocomplete, { saveRecentSearch } from '@/components/commerce/SearchAutocomplete'
 import { getAuctions, AUCTION_STATUS } from '@/services/auctionService'
+import MarketplaceHome from '@/components/commerce/MarketplaceHome'
 import SectionCTAButton from '@/components/ui/SectionCTAButton'
 import { hasVisitedSection, markSectionVisited } from '@/services/sectionVisitService'
 import styles from './ShopSearchScreen.module.css'
@@ -234,6 +235,7 @@ function MktBadge({ num, label }) {
 // ── Main screen ───────────────────────────────────────────────────────────────
 export default function ShopSearchScreen({ onClose, userCity, userCountry, giftFor, onGiftDismiss, wishlistMode = false, onWishlistSelectSeller, showToast, onOrderViaChat, onMakeOffer, onLandingChange, onHome, onChat, onAlerts, onProfile, onOpenUsedGoods, onOpenWanted }) {
   const [showLanding, setShowLanding] = useState(true)
+  const [showMarketHome, setShowMarketHome] = useState(false)
   const [showCategories, setShowCategories] = useState(false)
   const [query,                  setQuery]                  = useState('')
   const [activeCategory,         setActiveCategory]         = useState('all')
@@ -396,7 +398,7 @@ export default function ShopSearchScreen({ onClose, userCity, userCountry, giftF
             className={styles.landingSearchInput}
             placeholder="Search products, sellers…"
             readOnly
-            onClick={() => { markSectionVisited('marketplace'); setShowLanding(false); onLandingChange?.(false) }}
+            onClick={() => { markSectionVisited('marketplace'); setShowLanding(false); setShowMarketHome(true); onLandingChange?.(false) }}
           />
         </div>
       </div>
@@ -419,7 +421,7 @@ export default function ShopSearchScreen({ onClose, userCity, userCountry, giftF
       <div className={styles.landingFooter}>
         <span style={{ fontSize: 28, fontWeight: 900, display: 'block', marginBottom: 6 }}><span style={{ background: 'linear-gradient(90deg, #fff 0%, #fff 58%, #8DC63F 58%, #8DC63F 100%)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text' }}>INDOO</span> <span style={{ fontWeight: 700, fontSize: 16, color: 'rgba(255,255,255,0.5)' }}>MARKET</span></span>
         <p className={styles.landingSub}>Buy & sell anything — fashion, electronics, handmade and more</p>
-        <button onClick={() => { markSectionVisited('marketplace'); setShowLanding(false); setShowCategories(true); onLandingChange?.(false) }} style={{
+        <button onClick={() => { markSectionVisited('marketplace'); setShowLanding(false); setShowMarketHome(true); onLandingChange?.(false) }} style={{
           padding: '16px 40px', borderRadius: 16, background: '#8DC63F', border: 'none',
           color: '#000', fontSize: 16, fontWeight: 900, cursor: 'pointer', fontFamily: 'inherit',
           boxShadow: '0 4px 20px rgba(141,198,63,0.3)', display: 'flex', alignItems: 'center', gap: 8, marginTop: 8,
@@ -430,6 +432,30 @@ export default function ShopSearchScreen({ onClose, userCity, userCountry, giftF
       </div>
 
     </div>
+
+    {/* ── Marketplace Home Page ── */}
+    {showMarketHome && (
+      <div style={{ position: 'fixed', inset: 0, zIndex: 115 }}>
+        <MarketplaceHome
+          onSelectCategory={(catId) => {
+            setShowMarketHome(false)
+            setQuery(catId)
+            setShowCategories(false)
+          }}
+          onSearch={(q) => {
+            setShowMarketHome(false)
+            setQuery(q)
+            setShowCategories(false)
+          }}
+          onFlashSale={() => {
+            setShowMarketHome(false)
+            setFlashSaleOpen(true)
+          }}
+          onAlerts={onAlerts}
+          onProfile={onProfile}
+        />
+      </div>
+    )}
 
     {/* ── Categories page (M1b) ── */}
     <div style={{
@@ -507,7 +533,7 @@ export default function ShopSearchScreen({ onClose, userCity, userCountry, giftF
     </div>
 
     {/* ── Products grid (M2) — hidden via display:none instead of unmounting ── */}
-    <div className={styles.screen} style={{ display: (showLanding || showCategories) ? 'none' : undefined }}>
+    <div className={styles.screen} style={{ display: (showLanding || showCategories || showMarketHome) ? 'none' : undefined }}>
       <MktBadge num="M2" label="Products Grid" />
 
       {/* ── Gift context chip ── */}
@@ -779,7 +805,7 @@ export default function ShopSearchScreen({ onClose, userCity, userCountry, giftF
     {/* Floating footer nav — soft glass design (hidden on landing + categories) */}
     <div style={{
       position: 'fixed', bottom: 16, left: '50%', transform: 'translateX(-50%)',
-      zIndex: 99998, display: (showLanding || showCategories) ? 'none' : 'flex', alignItems: 'center', gap: 6,
+      zIndex: 99998, display: (showLanding || showCategories || showMarketHome) ? 'none' : 'flex', alignItems: 'center', gap: 6,
       background: 'rgba(0,0,0,0.45)', backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)',
       border: '1px solid rgba(255,255,255,0.06)',
       borderRadius: 30, padding: '6px 8px',

@@ -9,9 +9,11 @@ import FoodFooterNav from '@/components/restaurant/FoodFooterNav'
 import FoodDashboard from '@/components/restaurant/FoodDashboard'
 import LiveChatSheet from '@/components/restaurant/LiveChatSheet'
 import { getRestaurantExtras } from '@/services/vendorExtrasService'
-import { getDirections } from '@/utils/googleDirections'
+import { createFoodOrder, searchFoodDrivers } from '@/services/foodOrderService'
+import { recordCommission } from '@/services/commissionService'
+import { getFoodOrders, saveFoodOrders } from '@/components/restaurant/menuSheetConstants'
 import PromoBannerPage from '@/components/restaurant/PromoBannerPage'
-import { getFoodOrders } from '@/components/restaurant/menuSheetConstants'
+import WhatsAppInput from '@/components/ui/WhatsAppInput'
 import styles from './RestaurantBrowseScreen.module.css'
 
 // Footer nav button styles
@@ -79,15 +81,6 @@ function FoodLanding({ onBrowse, onClose, onSelectVendorType }) {
 }
 
 // Kemenhub Zone 1 (Java/Bali) bike delivery rates
-const BIKE_BASE   = 9250
-const BIKE_PER_KM = 1850
-const MIN_FARE    = 10000
-const MAX_FARE    = 80000
-
-function calcDeliveryFare(distKm) {
-  if (distKm == null) return null
-  return Math.min(Math.max(BIKE_BASE + Math.round(distKm * BIKE_PER_KM), MIN_FARE), MAX_FARE)
-}
 
 // ── Demo data ─────────────────────────────────────────────────────────────────
 const DEMO_RESTAURANTS = [
@@ -448,10 +441,10 @@ function DishReviews({ rating, reviewCount }) {
   const count = reviewCount ?? DEMO_REVIEWS.length
   const photoCount = DEMO_REVIEWS.reduce((s, r) => s + (r.photos?.length ?? 0), 0)
   return (
-    <div style={{ marginBottom: 12 }}>
+    <div style={{ marginBottom: 12, borderRadius: 16, background: '#000', border: '1px solid rgba(255,255,255,0.08)', overflow: 'hidden' }}>
       <button onClick={() => setOpen(v => !v)} style={{
-        width: '100%', padding: '12px 14px', borderRadius: 12,
-        background: 'rgba(0,0,0,0.4)', border: '1px solid rgba(255,255,255,0.08)',
+        width: '100%', padding: '14px', borderRadius: 0,
+        background: 'none', border: 'none',
         display: 'flex', alignItems: 'center', gap: 8, cursor: 'pointer',
       }}>
         <span style={{ fontSize: 14, color: '#FACC15' }}>★</span>
@@ -524,6 +517,106 @@ function saveOrderToHistory(dish, restaurant, qty, extras) {
 
 function loadOrderHistory() {
   try { return JSON.parse(localStorage.getItem(ORDER_HISTORY_KEY) || '[]') } catch { return [] }
+}
+
+// ── Cart Item Card with collapsible extras ──────────────────────────────────
+function CartItemCard({ item, index, fmtC, setCartItems }) {
+  const [extrasOpen, setExtrasOpen] = useState(false)
+  const hasExtras = item.extras?.length > 0
+
+  const updateExtra = (extraLabel, delta) => {
+    setCartItems(prev => prev.map((c, j) => {
+      if (j !== index) return c
+      const updatedExtras = c.extras.map(e =>
+        e.label === extraLabel ? { ...e, qty: Math.max(0, e.qty + delta) } : e
+      ).filter(e => e.qty > 0)
+      const extrasPrice = updatedExtras.reduce((s, e) => s + (e.price ?? 0) * e.qty, 0)
+      return { ...c, extras: updatedExtras, extrasPrice }
+    }))
+  }
+
+  const removeExtra = (extraLabel) => {
+    setCartItems(prev => prev.map((c, j) => {
+      if (j !== index) return c
+      const updatedExtras = c.extras.filter(e => e.label !== extraLabel)
+      const extrasPrice = updatedExtras.reduce((s, e) => s + (e.price ?? 0) * e.qty, 0)
+      return { ...c, extras: updatedExtras, extrasPrice }
+    }))
+  }
+
+  return (
+    <div style={{ borderRadius: 16, background: 'rgba(0,0,0,0.7)', border: '1px solid rgba(255,255,255,0.08)', overflow: 'hidden' }}>
+      {/* Main row */}
+      <div style={{ display: 'flex', gap: 12, padding: '12px' }}>
+        {item.photo_url && (
+          <div style={{ width: 70, height: 70, borderRadius: 12, overflow: 'hidden', flexShrink: 0 }}>
+            <img src={item.photo_url} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+          </div>
+        )}
+        <div style={{ flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
+          <span style={{ fontSize: 14, fontWeight: 800, color: '#fff', lineHeight: 1.2 }}>{item.name}</span>
+          <span style={{ fontSize: 12, color: 'rgba(255,255,255,0.4)', marginTop: 2 }}>{item.restaurant?.name}</span>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginTop: 6 }}>
+            <span style={{ fontSize: 14, fontWeight: 900, color: '#FACC15' }}>{fmtC((item.price * item.qty) + (item.extrasPrice ?? 0))}</span>
+          </div>
+        </div>
+        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'space-between' }}>
+          <button onClick={() => setCartItems(prev => prev.filter((_, j) => j !== index))} style={{
+            width: 28, height: 28, borderRadius: '50%', background: 'rgba(239,68,68,0.1)', border: '1px solid rgba(239,68,68,0.2)',
+            color: '#EF4444', fontSize: 12, fontWeight: 900, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 0,
+          }}>✕</button>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 0 }}>
+            <button onClick={() => setCartItems(prev => prev.map((c, j) => j === index ? { ...c, qty: Math.max(1, c.qty - 1) } : c))} style={{
+              width: 40, height: 40, borderRadius: 10, background: 'none', border: 'none',
+              cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 0, overflow: 'hidden',
+            }}><img src="https://ik.imagekit.io/nepgaxllc/sdfsdf-removebg-preview.png" alt="−" style={{ width: '100%', height: '100%', objectFit: 'contain' }} /></button>
+            <span style={{ width: 30, textAlign: 'center', fontSize: 16, fontWeight: 900, color: '#fff' }}>{item.qty}</span>
+            <button onClick={() => setCartItems(prev => prev.map((c, j) => j === index ? { ...c, qty: c.qty + 1 } : c))} style={{
+              width: 40, height: 40, borderRadius: 10, background: 'none', border: 'none',
+              cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 0, overflow: 'hidden',
+            }}><img src="https://ik.imagekit.io/nepgaxllc/Untitledsssaaaccc-removebg-preview.png" alt="+" style={{ width: '100%', height: '100%', objectFit: 'contain' }} /></button>
+          </div>
+        </div>
+      </div>
+
+      {/* Extras toggle */}
+      {hasExtras && (
+        <button onClick={() => setExtrasOpen(v => !v)} style={{
+          width: '100%', padding: '8px 12px', background: 'rgba(255,255,255,0.02)', border: 'none', borderTop: '1px solid rgba(255,255,255,0.04)',
+          display: 'flex', alignItems: 'center', gap: 6, cursor: 'pointer',
+        }}>
+          <span style={{ fontSize: 12, fontWeight: 700, color: '#8DC63F', flex: 1, textAlign: 'left' }}>{item.extras.length} extra{item.extras.length > 1 ? 's' : ''}</span>
+          <span style={{ fontSize: 12, color: 'rgba(255,255,255,0.3)', transform: extrasOpen ? 'rotate(180deg)' : 'none', transition: 'transform 0.2s' }}>▼</span>
+        </button>
+      )}
+
+      {/* Extras dropdown */}
+      {hasExtras && extrasOpen && (
+        <div style={{ padding: '0 12px 10px', borderTop: '1px solid rgba(255,255,255,0.04)' }}>
+          {item.extras.map(ex => (
+            <div key={ex.label} style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '6px 0' }}>
+              <button onClick={() => removeExtra(ex.label)} style={{
+                width: 22, height: 22, borderRadius: '50%', background: 'rgba(239,68,68,0.1)', border: '1px solid rgba(239,68,68,0.2)',
+                color: '#EF4444', fontSize: 10, fontWeight: 900, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 0, flexShrink: 0,
+              }}>✕</button>
+              <span style={{ fontSize: 13, color: '#fff', flex: 1 }}>{ex.label}</span>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 0, flexShrink: 0 }}>
+                <button onClick={() => updateExtra(ex.label, -1)} style={{
+                  width: 40, height: 40, borderRadius: 10, background: 'none', border: 'none',
+                  cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 0, overflow: 'hidden',
+                }}><img src="https://ik.imagekit.io/nepgaxllc/sdfsdf-removebg-preview.png" alt="−" style={{ width: '100%', height: '100%', objectFit: 'contain' }} /></button>
+                <span style={{ width: 30, textAlign: 'center', fontSize: 16, fontWeight: 900, color: '#fff' }}>{ex.qty}</span>
+                <button onClick={() => updateExtra(ex.label, 1)} style={{
+                  width: 40, height: 40, borderRadius: 10, background: 'none', border: 'none',
+                  cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 0, overflow: 'hidden',
+                }}><img src="https://ik.imagekit.io/nepgaxllc/Untitledsssaaaccc-removebg-preview.png" alt="+" style={{ width: '100%', height: '100%', objectFit: 'contain' }} /></button>
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  )
 }
 
 // ── Promo banners for cuisine grid ───────────────────────────────────────────
@@ -718,7 +811,16 @@ export default function RestaurantBrowseScreen({ onClose, onBackToCategories, ca
   const [dishNote, setDishNote] = useState('') // special request note
   const [dishQty, setDishQty] = useState(1) // main dish quantity
   const [vendorExtras, setVendorExtras] = useState(null) // { sauces: [], drinks: [], sides: [] }
-  const [deliveryETA, setDeliveryETA] = useState(null) // { durationMin, distanceKm, deliveryFee }
+  const [cartOpen, setCartOpen] = useState(false)
+  const [checkoutStep, setCheckoutStep] = useState(null) // null | 'address' | 'processing' | 'done'
+  const [checkoutAddress, setCheckoutAddress] = useState(() => localStorage.getItem('indoo_last_address') ?? '')
+  const [checkoutWa, setCheckoutWa] = useState('')
+  const [checkoutDriver, setCheckoutDriver] = useState(null)
+  const [checkoutOrderId, setCheckoutOrderId] = useState(null)
+  const [checkoutDeliveryFee, setCheckoutDeliveryFee] = useState(null)
+  const [altRecipient, setAltRecipient] = useState(false)
+  const [altWa, setAltWa] = useState('')
+  const [dishImagePopup, setDishImagePopup] = useState(false)
   const [dishExtras, setDishExtras] = useState([]) // selected extras [{label, qty}]
   const [extrasTab, setExtrasTab] = useState('sauces') // 'sauces' | 'drinks' | 'sides'
   const [dishSort, setDishSort] = useState('rating') // 'price' | 'rating' | 'distance'
@@ -745,28 +847,6 @@ export default function RestaurantBrowseScreen({ onClose, onBackToCategories, ca
     getRestaurantExtras(selectedDish.restaurant.id).then(setVendorExtras)
   }, [selectedDish?.restaurant?.id])
 
-  // Calculate real delivery ETA via Google Directions
-  useEffect(() => {
-    if (!selectedDish?.restaurant) { setDeliveryETA(null); return }
-    const r = selectedDish.restaurant
-    const userLat = coords?.latitude
-    const userLng = coords?.longitude
-    if (!r.lat || !r.lng) {
-      // Fallback estimate
-      const distKm = r.distKm ?? 3
-      setDeliveryETA({ durationMin: (r.menu_items?.[0]?.prep_time_min ?? 15) + Math.round(distKm * 2.5), distanceKm: distKm, deliveryFee: Math.max(5000, Math.round(distKm * 2500)) })
-      return
-    }
-    getDirections(r.lat, r.lng, userLat ?? r.lat + 0.02, userLng ?? r.lng + 0.02, 'driving').then(result => {
-      const prepMin = selectedDish.dish?.prep_time_min ?? 15
-      const distKm = result.distanceKm ?? 3
-      setDeliveryETA({
-        durationMin: prepMin + result.durationMin,
-        distanceKm: distKm,
-        deliveryFee: Math.max(5000, Math.round(distKm * 2500)),
-      })
-    })
-  }, [selectedDish?.restaurant?.id, coords?.latitude, coords?.longitude])
 
   useEffect(() => {
     const load = async () => {
@@ -804,7 +884,7 @@ export default function RestaurantBrowseScreen({ onClose, onBackToCategories, ca
     const distKm = coords && r.lat && r.lng
       ? Math.round(haversineKm(coords.lat, coords.lng, r.lat, r.lng) * 10) / 10
       : null
-    return { ...r, distKm, deliveryFare: calcDeliveryFare(distKm) }
+    return { ...r, distKm }
   }), [restaurants, coords?.lat, coords?.lng])
 
   // Apply vendor type filter (street_vendor / restaurant / null = all)
@@ -1389,9 +1469,9 @@ export default function RestaurantBrowseScreen({ onClose, onBackToCategories, ca
               }}>💰 Discounts</button>
               {/* Cart icon */}
               {cartItems.length > 0 && (
-                <button onClick={() => { setSelectedDish(null); setCuisineFilter(null); setMenuRestaurant(cartItems[0]?.restaurant) }} style={{ position: 'relative', width: 34, height: 34, borderRadius: '50%', backgroundColor: 'transparent', border: 'none', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', padding: 0 }}>
-                  <img src="https://ik.imagekit.io/nepgaxllc/Untitleddasdasdasdasss-removebg-preview.png?updatedAt=1775737452452" alt="cart" style={{ width: 28, height: 28, objectFit: 'contain' }} />
-                  <span style={{ position: 'absolute', top: -4, right: -4, minWidth: 16, height: 16, borderRadius: 8, backgroundColor: '#EF4444', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 9, fontWeight: 900, color: '#fff', padding: '0 3px' }}>{cartItems.reduce((s, i) => s + i.qty, 0)}</span>
+                <button onClick={() => setCartOpen(true)} style={{ position: 'relative', width: 44, height: 44, borderRadius: '50%', backgroundColor: 'transparent', border: 'none', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', padding: 0 }}>
+                  <img src="https://ik.imagekit.io/nepgaxllc/Untitleddasdasdasdasss-removebg-preview.png?updatedAt=1775737452452" alt="cart" style={{ width: 48, height: 48, objectFit: 'contain' }} />
+                  <span style={{ position: 'absolute', top: -4, right: -4, minWidth: 18, height: 18, borderRadius: 9, backgroundColor: '#EF4444', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 10, fontWeight: 900, color: '#fff', padding: '0 4px' }}>{cartItems.reduce((s, i) => s + i.qty, 0)}</span>
                 </button>
               )}
               <span style={{ fontSize: 12, color: 'rgba(255,255,255,0.4)', fontWeight: 700 }}>{filteredDishes.length}</span>
@@ -1476,10 +1556,6 @@ export default function RestaurantBrowseScreen({ onClose, onBackToCategories, ca
                         {dish.restaurant.rating && <span style={{ fontSize: 10, color: '#FACC15', fontWeight: 800 }}>★ {dish.restaurant.rating}</span>}
                       </div>
                       <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginTop: 3 }}>
-                        {dish.restaurant.deliveryFare != null && (
-                          <span style={{ fontSize: 10, color: '#8DC63F', fontWeight: 700 }}>🏍️ {fmtPrice(dish.restaurant.deliveryFare)}</span>
-                        )}
-                        <span style={{ fontSize: 10, color: 'rgba(255,255,255,0.3)' }}>~{(dish.prep_time_min ?? 15) + Math.round((dish.restaurant.distKm ?? 3) * 2.5)} min</span>
                       </div>
                       {dish.restaurant.min_order && dish.price < dish.restaurant.min_order && (
                         <span style={{ fontSize: 9, color: '#F59E0B', fontWeight: 700, marginTop: 2, display: 'block' }}>Min order {fmtPrice(dish.restaurant.min_order)}</span>
@@ -1539,7 +1615,7 @@ export default function RestaurantBrowseScreen({ onClose, onBackToCategories, ca
               backgroundColor: '#8DC63F', boxShadow: '0 4px 20px rgba(141,198,63,0.4)',
               display: 'flex', alignItems: 'center', justifyContent: 'space-between',
               cursor: 'pointer',
-            }} onClick={() => { if (cartItems[0]?.restaurant) { setSelectedDish(null); setCuisineFilter(null); setMenuRestaurant(cartItems[0].restaurant) } }}>
+            }} onClick={() => setCartOpen(true)}>
               <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
                 <span style={{ fontSize: 16 }}>🛒</span>
                 <span style={{ fontSize: 14, fontWeight: 900, color: '#000' }}>{cartCount} item{cartCount > 1 ? 's' : ''}</span>
@@ -1575,6 +1651,8 @@ export default function RestaurantBrowseScreen({ onClose, onBackToCategories, ca
 
       return (
         <div style={{ position: 'fixed', inset: 0, zIndex: 115, backgroundColor: '#0a0a0a', display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
+          {/* Full screen background image */}
+          <img src="https://ik.imagekit.io/nepgaxllc/ChatGPT%20Image%20Apr%2027,%202026,%2002_59_09%20AM.png" alt="" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', pointerEvents: 'none', zIndex: 0 }} />
 
           {/* Header */}
           <div style={{ padding: 'calc(env(safe-area-inset-top, 0px) + 10px) 16px 10px', display: 'flex', alignItems: 'center', gap: 10, flexShrink: 0, position: 'relative', zIndex: 2 }}>
@@ -1589,8 +1667,8 @@ export default function RestaurantBrowseScreen({ onClose, onBackToCategories, ca
               </div>
             </div>
             {/* Cart icon — always visible */}
-            <button onClick={() => { if (cartItems.length > 0) { setSelectedDish(null); setCuisineFilter(null); setMenuRestaurant(cartItems[0]?.restaurant) } }} style={{ position: 'relative', width: 44, height: 44, borderRadius: '50%', backgroundColor: 'transparent', border: 'none', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', padding: 0 }}>
-              <img src="https://ik.imagekit.io/nepgaxllc/Untitleddasdasdasdasss-removebg-preview.png?updatedAt=1775737452452" alt="cart" style={{ width: 32, height: 32, objectFit: 'contain' }} />
+            <button onClick={() => { setCartOpen(true) }} style={{ position: 'relative', width: 44, height: 44, borderRadius: '50%', backgroundColor: 'transparent', border: 'none', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', padding: 0 }}>
+              <img src="https://ik.imagekit.io/nepgaxllc/Untitleddasdasdasdasss-removebg-preview.png?updatedAt=1775737452452" alt="cart" style={{ width: 48, height: 48, objectFit: 'contain' }} />
               {cartItems.length > 0 && (
                 <span style={{ position: 'absolute', top: -4, right: -4, minWidth: 16, height: 16, borderRadius: 8, backgroundColor: '#EF4444', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 9, fontWeight: 900, color: '#fff', padding: '0 3px' }}>{cartItems.reduce((s, i) => s + i.qty, 0)}</span>
               )}
@@ -1598,12 +1676,7 @@ export default function RestaurantBrowseScreen({ onClose, onBackToCategories, ca
           </div>
 
           {/* Scrollable content */}
-          <div ref={el => { dishScrollRef.current = el }} style={{ flex: 1, overflowY: 'auto', position: 'relative', zIndex: 1, padding: '0 0 20px' }}>
-            {/* Background image — scrolls with content */}
-            <div style={{ position: 'absolute', top: 0, left: 0, right: 0, height: '100vh', pointerEvents: 'none', zIndex: 0 }}>
-              <img src="https://ik.imagekit.io/nepgaxllc/sizzling.png" alt="" style={{ width: '100%', height: '100%', objectFit: 'cover', opacity: 0.2 }} />
-              <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to bottom, rgba(10,10,10,0.3) 0%, rgba(10,10,10,0.8) 70%, #0a0a0a 100%)' }} />
-            </div>
+          <div ref={el => { dishScrollRef.current = el }} style={{ flex: 1, overflowY: 'auto', position: 'relative', zIndex: 1, padding: '0 0 20px', background: 'rgba(0,0,0,0.6)' }}>
 
             {/* ── Dish hero + extras panel side by side ── */}
             {(() => {
@@ -1646,7 +1719,11 @@ export default function RestaurantBrowseScreen({ onClose, onBackToCategories, ca
                       {dish.original_price && dish.original_price > dish.price && (
                         <span style={{ padding: '3px 7px', borderRadius: 6, backgroundColor: '#EF4444', fontSize: 11, fontWeight: 900, color: '#fff', flexShrink: 0 }}>{Math.round(((dish.original_price - dish.price) / dish.original_price) * 100)}% OFF</span>
                       )}
-                      <span style={{ fontSize: 11, fontWeight: 800, color: 'rgba(255,255,255,0.4)', flexShrink: 0 }}>🏍️ {deliveryETA?.durationMin ?? ((dish.prep_time_min ?? 15) + Math.round((restaurant.distKm ?? 3) * 2.5))}min</span>
+                      <button onClick={() => setViewRestaurant(restaurant)} style={{
+                        padding: '6px 12px', borderRadius: 8, flexShrink: 0,
+                        background: 'rgba(141,198,63,0.1)', border: '1px solid rgba(141,198,63,0.3)',
+                        color: '#8DC63F', fontSize: 14, fontWeight: 800, cursor: 'pointer',
+                      }}>View Menu</button>
                     </div>
                     {dish.description && <span style={{ fontSize: 12, color: '#fff', display: 'block', marginTop: 6, lineHeight: 1.4 }}>{dish.description.slice(0, 100)}</span>}
                   </div>
@@ -1656,7 +1733,7 @@ export default function RestaurantBrowseScreen({ onClose, onBackToCategories, ca
 
                     {/* Left — image + delivery time */}
                     <div style={{ width: 160, flexShrink: 0 }}>
-                      <div style={{ width: 160, height: 160, borderRadius: 18, overflow: 'hidden', position: 'relative', border: '2px solid #8DC63F' }}>
+                      <div onClick={() => setDishImagePopup(true)} style={{ width: 160, height: 160, borderRadius: 18, overflow: 'hidden', position: 'relative', border: '2px solid #8DC63F', cursor: 'pointer' }}>
                         <img src={dish.photo_url} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
                         <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to top, rgba(0,0,0,0.7) 0%, transparent 50%)' }} />
                         {/* Star rating */}
@@ -1681,14 +1758,14 @@ export default function RestaurantBrowseScreen({ onClose, onBackToCategories, ca
                       {/* Qty selector — below image */}
                       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', marginTop: 8 }}>
                         <button onClick={() => setDishQty(q => Math.max(1, q - 1))} style={{
-                          width: 44, height: 36, borderRadius: 8, background: 'rgba(141,198,63,0.15)', border: 'none',
-                          color: '#8DC63F', fontSize: 18, fontWeight: 900, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 0,
-                        }}>−</button>
+                          width: 40, height: 40, borderRadius: 10, background: 'none', border: 'none',
+                          cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 0, overflow: 'hidden',
+                        }}><img src="https://ik.imagekit.io/nepgaxllc/sdfsdf-removebg-preview.png" alt="−" style={{ width: '100%', height: '100%', objectFit: 'contain' }} /></button>
                         <span style={{ width: 36, textAlign: 'center', fontSize: 16, fontWeight: 900, color: '#fff' }}>{dishQty}</span>
                         <button onClick={() => setDishQty(q => q + 1)} style={{
-                          width: 44, height: 36, borderRadius: 8, background: 'rgba(141,198,63,0.15)', border: 'none',
-                          color: '#8DC63F', fontSize: 18, fontWeight: 900, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 0,
-                        }}>+</button>
+                          width: 40, height: 40, borderRadius: 10, background: 'none', border: 'none',
+                          cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 0, overflow: 'hidden',
+                        }}><img src="https://ik.imagekit.io/nepgaxllc/Untitledsssaaaccc-removebg-preview.png" alt="+" style={{ width: '100%', height: '100%', objectFit: 'contain' }} /></button>
                       </div>
                     </div>
 
@@ -1697,14 +1774,14 @@ export default function RestaurantBrowseScreen({ onClose, onBackToCategories, ca
                       {/* Panel header */}
                       <div style={{ padding: '10px 12px 8px', borderBottom: '1px solid rgba(255,255,255,0.06)' }}>
                         <span style={{ fontSize: 14, fontWeight: 900, color: '#8DC63F', display: 'block', lineHeight: 1.2 }}>Order Now</span>
-                        <span style={{ fontSize: 16, fontWeight: 900, color: '#fff', display: 'block', marginTop: 2 }}>{fmtP(totalPrice)}</span>
+                        <span style={{ fontSize: 16, fontWeight: 900, color: '#FACC15', display: 'block', marginTop: 2 }}>{dishQty} x {fmtP(totalPrice)}</span>
                       </div>
 
                       {/* Selected extras list */}
                       <div style={{ padding: '6px 10px' }}>
                         {dishExtras.length === 0 ? (
                           <div style={{ padding: '8px 0', opacity: 0.35, textAlign: 'center' }}>
-                            <span style={{ fontSize: 12, color: 'rgba(255,255,255,0.5)' }}>Add extras below</span>
+                            <span style={{ fontSize: 14, color: 'rgba(255,255,255,0.5)' }}>Add extras below</span>
                           </div>
                         ) : (
                           <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
@@ -1722,73 +1799,81 @@ export default function RestaurantBrowseScreen({ onClose, onBackToCategories, ca
                         )}
                       </div>
 
-                      {/* Itemized breakdown + Delivery fee */}
-                      <div style={{ padding: '8px 10px', borderTop: '1px solid rgba(255,255,255,0.06)', background: '#000' }}>
-                        <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 4 }}>
-                          <span style={{ fontSize: 12, color: 'rgba(255,255,255,0.6)' }}>{dish.name} x{dishQty}</span>
-                          <span style={{ fontSize: 12, fontWeight: 700, color: 'rgba(255,255,255,0.6)' }}>{fmtP(dish.price * dishQty)}</span>
-                        </div>
-                        {extrasCost > 0 && (
-                          <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 4 }}>
-                            <span style={{ fontSize: 12, color: 'rgba(255,255,255,0.6)' }}>Extras</span>
-                            <span style={{ fontSize: 12, fontWeight: 700, color: 'rgba(255,255,255,0.6)' }}>+{fmtP(extrasCost)}</span>
-                          </div>
-                        )}
-                        <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                          <span style={{ fontSize: 12, color: 'rgba(255,255,255,0.6)' }}>Delivery</span>
-                          <span style={{ fontSize: 12, fontWeight: 700, color: 'rgba(255,255,255,0.6)' }}>{fmtP(deliveryETA?.deliveryFee ?? restaurant.deliveryFare ?? 8000)}</span>
-                        </div>
+                      {/* Delivery at checkout */}
+                      <div style={{ padding: '8px 10px', borderTop: '1px solid rgba(255,255,255,0.06)', background: '#000', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                        <span style={{ fontSize: 14, color: 'rgba(255,255,255,0.5)' }}>Delivery at checkout</span>
                       </div>
                     </div>
                   </div>
 
                   {/* Easy Extra Adding */}
                   <div style={{ padding: '12px 14px', position: 'relative', zIndex: 1 }}>
-                    <span style={{ fontSize: 18, fontWeight: 900, color: '#fff', display: 'block', marginBottom: 3, textAlign: 'center', textShadow: '0 1px 4px rgba(0,0,0,0.8)' }}>Add Extras</span>
-                    <span style={{ fontSize: 11, color: 'rgba(255,255,255,0.35)', display: 'block', marginBottom: 8, textAlign: 'center' }}>Tap + to add sauces, drinks or sides to your order</span>
 
-                    {/* Toggle tabs */}
-                    <div style={{ display: 'flex', gap: 0, marginBottom: 10, borderBottom: '1px solid rgba(255,255,255,0.08)' }}>
-                      {[
-                        { id: 'sauces', label: '🌶️ Sauces' },
-                        { id: 'drinks', label: '🥤 Drinks' },
-                        { id: 'sides', label: '🍟 Sides' },
-                      ].map(t => {
-                        const tabCount = dishExtras.filter(e => (EXTRAS[t.id] ?? []).some(ex => ex.label === e.label)).reduce((s, e) => s + e.qty, 0)
-                        return (
-                        <button key={t.id} onClick={() => setExtrasTab(t.id)} style={{
-                          flex: 1, padding: '12px 4px', background: 'none', border: 'none',
-                          borderBottom: extrasTab === t.id ? '3px solid #8DC63F' : '3px solid transparent',
-                          color: extrasTab === t.id ? '#8DC63F' : '#fff',
-                          fontSize: 13, fontWeight: 800, cursor: 'pointer', transition: 'all 0.2s',
-                          position: 'relative',
-                        }}>{t.label}{tabCount > 0 && <span style={{ marginLeft: 4, padding: '1px 5px', borderRadius: 8, backgroundColor: '#8DC63F', color: '#000', fontSize: 10, fontWeight: 900 }}>{tabCount}</span>}</button>
-                        )
-                      })}
+                    {/* Banner card with header + toggle tabs */}
+                    <div style={{ borderRadius: 16, background: 'rgba(0,0,0,0.5)', border: '1px solid rgba(255,255,255,0.08)', backdropFilter: 'blur(8px)', marginBottom: 10, overflow: 'hidden' }}>
+                      {/* Header */}
+                      <div style={{ padding: '12px 14px 8px', textAlign: 'center' }}>
+                        <span style={{ fontSize: 18, fontWeight: 900, color: '#fff', display: 'block', marginBottom: 2 }}>Add Extras</span>
+                        <span style={{ fontSize: 14, color: 'rgba(255,255,255,0.35)', display: 'block' }}>Tap + to add sauces, drinks or sides</span>
+                      </div>
+                      {/* Toggle tabs */}
+                      <div style={{ display: 'flex', gap: 0, borderTop: '1px solid rgba(255,255,255,0.06)' }}>
+                        {[
+                          { id: 'sauces', label: 'Sauces', img: 'https://ik.imagekit.io/nepgaxllc/Untitledfsdfssss-removebg-preview.png' },
+                          { id: 'drinks', label: 'Drinks', img: 'https://ik.imagekit.io/nepgaxllc/Untitledfsdfsssssds-removebg-preview.png' },
+                          { id: 'sides', label: 'Sides', img: 'https://ik.imagekit.io/nepgaxllc/Untitledfsdfsssssdss-removebg-preview.png' },
+                        ].map(t => {
+                          const tabCount = dishExtras.filter(e => (EXTRAS[t.id] ?? []).some(ex => ex.label === e.label)).reduce((s, e) => s + e.qty, 0)
+                          return (
+                          <button key={t.id} onClick={() => setExtrasTab(t.id)} style={{
+                            flex: 1, padding: '10px 4px',
+                            background: 'none',
+                            border: 'none', borderBottom: extrasTab === t.id ? '3px solid #8DC63F' : '3px solid transparent',
+                            color: extrasTab === t.id ? '#8DC63F' : '#fff',
+                            fontSize: 13, fontWeight: 800, cursor: 'pointer', transition: 'all 0.2s',
+                            display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6,
+                          }}>
+                            <img src={t.img} alt="" style={{ width: 32, height: 32, objectFit: 'contain' }} />
+                            {t.label}
+                            {tabCount > 0 && <span style={{ padding: '1px 5px', borderRadius: 8, backgroundColor: '#8DC63F', color: '#000', fontSize: 10, fontWeight: 900 }}>{tabCount}</span>}
+                          </button>
+                          )
+                        })}
+                      </div>
                     </div>
 
-                    {/* Extras options per tab */}
-                    <div style={{ display: 'flex', flexDirection: 'column', gap: 0, marginBottom: 12 }}>
+                    {/* Extras options per tab — landscape cards */}
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: 8, marginBottom: 12 }}>
                       {(EXTRAS[extrasTab] ?? []).map(ex => {
                         const existing = dishExtras.find(e => e.label === ex.label)
                         const qty = existing?.qty ?? 0
+                        const isSelected = qty > 0
                         return (
-                          <div key={ex.label} style={{ display: 'flex', alignItems: 'center', padding: '8px 0', borderBottom: '1px solid rgba(255,255,255,0.04)' }}>
-                            <span style={{ fontSize: 13, fontWeight: 700, color: '#fff', flex: 1 }}>{ex.label}</span>
-                            <span style={{ fontSize: 12, fontWeight: 800, color: 'rgba(255,255,255,0.3)', marginRight: 10 }}>Rp {ex.price.toLocaleString('id-ID').replace(/,/g, '.')}</span>
-                            <div style={{ display: 'flex', alignItems: 'center', gap: 0 }}>
+                          <div key={ex.label} style={{
+                            display: 'flex', alignItems: 'center', gap: 12, padding: '10px 12px',
+                            borderRadius: 14, background: 'rgba(0,0,0,0.7)',
+                            border: `1.5px solid ${isSelected ? '#8DC63F' : 'rgba(255,255,255,0.06)'}`,
+                            backdropFilter: 'blur(8px)',
+                          }}>
+                            {/* Info */}
+                            <div style={{ flex: 1 }}>
+                              <span style={{ fontSize: 14, fontWeight: 800, color: '#fff', display: 'block', lineHeight: 1.2 }}>{ex.label}</span>
+                              <span style={{ fontSize: 14, fontWeight: 900, color: '#FACC15', display: 'block', marginTop: 3 }}>Rp {ex.price.toLocaleString('id-ID').replace(/,/g, '.')}</span>
+                            </div>
+                            {/* +/- controls */}
+                            <div style={{ display: 'flex', alignItems: 'center', gap: 0, flexShrink: 0 }}>
                               <button onClick={() => setDishExtras(prev => qty <= 1 ? prev.filter(e => e.label !== ex.label) : prev.map(e => e.label === ex.label ? { ...e, qty: e.qty - 1 } : e))} style={{
-                                width: 44, height: 44, borderRadius: 10, background: 'rgba(141,198,63,0.15)', border: 'none',
-                                color: '#8DC63F', fontSize: 20, fontWeight: 900, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 0,
-                              }}>−</button>
-                              <span style={{ width: 34, textAlign: 'center', fontSize: 18, fontWeight: 900, color: qty > 0 ? '#8DC63F' : 'rgba(255,255,255,0.2)' }}>{qty}</span>
+                                width: 40, height: 40, borderRadius: 10, background: 'none', border: 'none',
+                                cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 0, overflow: 'hidden',
+                              }}><img src="https://ik.imagekit.io/nepgaxllc/sdfsdf-removebg-preview.png" alt="−" style={{ width: '100%', height: '100%', objectFit: 'contain' }} /></button>
+                              <span style={{ width: 30, textAlign: 'center', fontSize: 16, fontWeight: 900, color: isSelected ? '#fff' : 'rgba(255,255,255,0.2)' }}>{qty}</span>
                               <button onClick={() => setDishExtras(prev => {
                                 if (existing) return prev.map(e => e.label === ex.label ? { ...e, qty: e.qty + 1 } : e)
                                 return [...prev, { label: ex.label, qty: 1 }]
                               })} style={{
-                                width: 44, height: 44, borderRadius: 10, background: 'rgba(141,198,63,0.15)', border: 'none',
-                                color: '#8DC63F', fontSize: 20, fontWeight: 900, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 0,
-                              }}>+</button>
+                                width: 40, height: 40, borderRadius: 10, background: 'none', border: 'none',
+                                cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 0, overflow: 'hidden',
+                              }}><img src="https://ik.imagekit.io/nepgaxllc/Untitledsssaaaccc-removebg-preview.png" alt="+" style={{ width: '100%', height: '100%', objectFit: 'contain' }} /></button>
                             </div>
                           </div>
                         )
@@ -1796,18 +1881,20 @@ export default function RestaurantBrowseScreen({ onClose, onBackToCategories, ca
                     </div>
 
                     {/* Special Instructions */}
-                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 6 }}>
-                      <span style={{ fontSize: 14, fontWeight: 800, color: '#fff' }}>Special Instructions</span>
-                      <span style={{ fontSize: 11, color: 'rgba(255,255,255,0.3)' }}>{dishNote.length}/150</span>
+                    <div style={{ padding: '14px', borderRadius: 16, background: '#000', border: '1px solid rgba(255,255,255,0.08)', marginBottom: 12 }}>
+                      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 8 }}>
+                        <span style={{ fontSize: 14, fontWeight: 800, color: '#fff' }}>Special Instructions</span>
+                        <span style={{ fontSize: 11, color: 'rgba(255,255,255,0.3)' }}>{dishNote.length}/150</span>
+                      </div>
+                      <textarea
+                        value={dishNote}
+                        onChange={e => setDishNote(e.target.value)}
+                        placeholder="No chili, extra spicy, less salt..."
+                        maxLength={150}
+                        rows={3}
+                        style={{ width: '100%', padding: '10px 14px', borderRadius: 12, backgroundColor: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.08)', color: '#fff', fontSize: 13, fontWeight: 600, outline: 'none', fontFamily: 'inherit', boxSizing: 'border-box', resize: 'none', lineHeight: 1.4 }}
+                      />
                     </div>
-                    <textarea
-                      value={dishNote}
-                      onChange={e => setDishNote(e.target.value)}
-                      placeholder="No chili, extra spicy, less salt..."
-                      maxLength={150}
-                      rows={3}
-                      style={{ width: '100%', padding: '10px 14px', borderRadius: 12, backgroundColor: 'rgba(0,0,0,0.5)', border: '1px solid rgba(255,255,255,0.1)', color: '#fff', fontSize: 13, fontWeight: 600, outline: 'none', fontFamily: 'inherit', boxSizing: 'border-box', marginBottom: 12, resize: 'none', lineHeight: 1.4 }}
-                    />
 
                     {/* Reviews section — expandable */}
                     <DishReviews rating={restaurant.rating} reviewCount={restaurant.review_count} />
@@ -1818,6 +1905,62 @@ export default function RestaurantBrowseScreen({ onClose, onBackToCategories, ca
             })()}
 
           </div>
+
+          {/* Dish image popup */}
+          {dishImagePopup && (() => {
+            const { dish: d, restaurant: r } = selectedDish
+            return (
+              <div onClick={() => setDishImagePopup(false)} style={{ position: 'fixed', inset: 0, zIndex: 10000, background: 'rgba(0,0,0,0.9)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 16 }}>
+                <div onClick={e => e.stopPropagation()} style={{ width: '100%', maxWidth: 360, borderRadius: 20, background: '#111', border: '1px solid rgba(255,255,255,0.08)', overflow: 'hidden' }}>
+                  {/* Image */}
+                  <div style={{ position: 'relative', height: 280 }}>
+                    <img src={d.photo_url} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                    <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to top, rgba(0,0,0,0.8) 0%, transparent 40%)' }} />
+                    {/* Close button */}
+                    <button onClick={() => setDishImagePopup(false)} style={{
+                      position: 'absolute', top: 12, right: 12, width: 44, height: 44, borderRadius: '50%',
+                      background: '#8DC63F', border: 'none', cursor: 'pointer',
+                      display: 'flex', alignItems: 'center', justifyContent: 'center',
+                    }}>
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#000" strokeWidth="2.5" strokeLinecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                    </button>
+                    {/* Rating */}
+                    {r.rating && (
+                      <div style={{ position: 'absolute', top: 12, left: 12, padding: '6px 10px', borderRadius: 10, background: 'rgba(0,0,0,0.7)', backdropFilter: 'blur(8px)', display: 'flex', alignItems: 'center', gap: 4 }}>
+                        <span style={{ fontSize: 14, color: '#FACC15' }}>★</span>
+                        <span style={{ fontSize: 14, fontWeight: 900, color: '#fff' }}>{r.rating}</span>
+                      </div>
+                    )}
+                  </div>
+                  {/* Info */}
+                  <div style={{ padding: '16px' }}>
+                    <span style={{ fontSize: 20, fontWeight: 900, color: '#fff', display: 'block', lineHeight: 1.2 }}>{d.name}</span>
+                    {d.description && <span style={{ fontSize: 14, color: 'rgba(255,255,255,0.6)', display: 'block', marginTop: 6, lineHeight: 1.4 }}>{d.description}</span>}
+                    {/* Tags */}
+                    {d.tags?.length > 0 && (
+                      <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap', marginTop: 10 }}>
+                        {d.tags.map(t => (
+                          <span key={t.label} style={{ padding: '5px 10px', borderRadius: 8, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.08)', display: 'flex', alignItems: 'center', gap: 4 }}>
+                            <span style={{ fontSize: 14 }}>{t.icon}</span>
+                            <span style={{ fontSize: 14, fontWeight: 700, color: '#fff' }}>{t.label}</span>
+                          </span>
+                        ))}
+                      </div>
+                    )}
+                    {/* Price */}
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginTop: 12 }}>
+                      {d.original_price && d.original_price > d.price && (
+                        <span style={{ fontSize: 14, color: 'rgba(255,255,255,0.4)', textDecoration: 'line-through' }}>{fmtP(d.original_price)}</span>
+                      )}
+                      <span style={{ fontSize: 20, fontWeight: 900, color: '#FACC15' }}>{fmtP(d.price)}</span>
+                    </div>
+                    {/* Restaurant name */}
+                    <span style={{ fontSize: 14, color: 'rgba(255,255,255,0.4)', display: 'block', marginTop: 8 }}>{r.name} · {r.cuisine_type}</span>
+                  </div>
+                </div>
+              </div>
+            )
+          })()}
 
           {/* Sticky Add to Cart footer */}
           {(() => {
@@ -1830,30 +1973,274 @@ export default function RestaurantBrowseScreen({ onClose, onBackToCategories, ca
             const exCost = dishExtras.reduce((s, e) => s + (ALL_EX.find(x => x.label === e.label)?.price ?? 0) * (e.qty ?? 1), 0)
             const total = (dish.price * dishQty) + exCost
             const fmtFooter = (n) => 'Rp ' + (n ?? 0).toLocaleString('id-ID').replace(/,/g, '.')
+            const alreadyInCart = cartItems.some(c => c.id === dish.id && c.restaurant?.id === restaurant.id)
             return (
-              <div style={{ padding: '10px 16px calc(env(safe-area-inset-bottom, 0px) + 10px)', background: 'transparent', flexShrink: 0, position: 'relative', zIndex: 2 }}>
-                <button onClick={() => {
-                  setCartItems(prev => {
-                    const existing = prev.find(c => c.id === dish.id && c.restaurant?.id === restaurant.id)
-                    if (existing) return prev.map(c => c.id === dish.id && c.restaurant?.id === restaurant.id ? { ...c, qty: c.qty + dishQty } : c)
-                    return [...prev, { ...dish, restaurant, qty: dishQty, note: dishNote, extras: dishExtras, extrasPrice: exCost }]
-                  })
-                  saveOrderToHistory(dish, restaurant, dishQty, dishExtras)
-                  setCartToast(`${dishQty}x ${dish.name} added to cart`)
-                  setTimeout(() => setCartToast(null), 2000)
-                  setDishNote(''); setDishExtras([]); setDishQty(1)
-                }} style={{
-                  width: '100%', padding: '14px', borderRadius: 14,
-                  backgroundColor: '#8DC63F', border: 'none', color: '#000',
-                  fontSize: 16, fontWeight: 900, cursor: 'pointer', fontFamily: 'inherit',
-                  display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8,
-                  boxShadow: '0 4px 25px rgba(141,198,63,0.5), 0 8px 40px rgba(141,198,63,0.3)',
-                }}>
-                  Add to Cart — {fmtFooter(total)}
-                </button>
+              <div style={{ padding: '10px 16px calc(env(safe-area-inset-bottom, 0px) + 10px)', flexShrink: 0, position: 'relative', zIndex: 2 }}>
+                {(() => {
+                  const hasChanges = dishQty > 1 || dishExtras.length > 0 || dishNote.trim()
+                  const showAddToCart = !alreadyInCart || hasChanges
+                  return showAddToCart ? (
+                    <button onClick={() => {
+                      setCartItems(prev => {
+                        const existing = prev.find(c => c.id === dish.id && c.restaurant?.id === restaurant.id)
+                        if (existing) return prev.map(c => c.id === dish.id && c.restaurant?.id === restaurant.id ? { ...c, qty: c.qty + dishQty } : c)
+                        return [...prev, { ...dish, restaurant, qty: dishQty, note: dishNote, extras: dishExtras, extrasPrice: exCost }]
+                      })
+                      saveOrderToHistory(dish, restaurant, dishQty, dishExtras)
+                      setCartToast(`${dishQty}x ${dish.name} added to cart`)
+                      setTimeout(() => setCartToast(null), 2000)
+                      setDishNote(''); setDishExtras([]); setDishQty(1)
+                    }} style={{
+                      width: '100%', padding: '14px', borderRadius: 14,
+                      backgroundColor: '#8DC63F', border: 'none', color: '#000',
+                      fontSize: 16, fontWeight: 900, cursor: 'pointer', fontFamily: 'inherit',
+                      display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8,
+                    }}>
+                      Add to Cart — {fmtFooter(total)}
+                    </button>
+                  ) : (
+                    <button onClick={() => setCartOpen(true)} style={{
+                      width: '100%', padding: '14px', borderRadius: 14,
+                      backgroundColor: '#FACC15', border: 'none', color: '#000',
+                      fontSize: 16, fontWeight: 900, cursor: 'pointer', fontFamily: 'inherit',
+                      display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8,
+                    }}>
+                      View Cart — {cartItems.reduce((s, i) => s + i.qty, 0)} items
+                    </button>
+                  )
+                })()}
               </div>
             )
           })()}
+        </div>
+      )
+    })()}
+
+    {/* ── Cart Page ── */}
+    {cartOpen && (() => {
+      const fmtC = (n) => 'Rp ' + (n ?? 0).toLocaleString('id-ID').replace(/,/g, '.')
+      const subtotal = cartItems.reduce((s, i) => s + (i.price ?? 0) * i.qty + (i.extrasPrice ?? 0), 0)
+
+      return (
+        <div style={{ position: 'fixed', inset: 0, zIndex: 120, backgroundColor: '#0a0a0a', display: 'flex', flexDirection: 'column' }}>
+          <img src="https://ik.imagekit.io/nepgaxllc/ChatGPT%20Image%20Apr%2027,%202026,%2002_59_09%20AM.png?updatedAt=1777233566650" alt="" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', pointerEvents: 'none', zIndex: 0 }} />
+          {/* Header */}
+          <div style={{ padding: 'calc(env(safe-area-inset-top, 0px) + 12px) 16px 12px', display: 'flex', alignItems: 'center', gap: 12, flexShrink: 0, borderBottom: '1px solid rgba(255,255,255,0.06)', position: 'relative', zIndex: 1 }}>
+            <button onClick={() => setCartOpen(false)} style={{ width: 44, height: 44, borderRadius: '50%', background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' }}>
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2.5" strokeLinecap="round"><path d="M19 12H5M12 5l-7 7 7 7"/></svg>
+            </button>
+            <span style={{ fontSize: 18, fontWeight: 900, color: '#fff', flex: 1 }}>Your Cart</span>
+            <div style={{ position: 'relative', width: 44, height: 44, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+              <img src="https://ik.imagekit.io/nepgaxllc/Untitleddasdasdasdasss-removebg-preview.png?updatedAt=1775737452452" alt="cart" style={{ width: 32, height: 32, objectFit: 'contain' }} />
+              {cartItems.length > 0 && (
+                <span style={{ position: 'absolute', top: -2, right: -2, minWidth: 18, height: 18, borderRadius: 9, backgroundColor: '#EF4444', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 10, fontWeight: 900, color: '#fff', padding: '0 4px' }}>{cartItems.reduce((s, i) => s + i.qty, 0)}</span>
+              )}
+            </div>
+          </div>
+
+          {/* Cart items */}
+          <div style={{ flex: 1, overflowY: 'auto', padding: '12px 16px', position: 'relative', zIndex: 1 }}>
+
+            {/* Delivery Location — top of cart */}
+            {cartItems.length > 0 && (
+              <div style={{ padding: '14px', borderRadius: 14, background: 'rgba(0,0,0,0.7)', border: '1px solid rgba(255,255,255,0.08)', marginBottom: 12 }}>
+                <span style={{ fontSize: 16, fontWeight: 900, color: '#fff', display: 'block', marginBottom: 2 }}>Delivery Location</span>
+                <span style={{ fontSize: 14, color: 'rgba(255,255,255,0.35)', display: 'block', marginBottom: 10 }}>Set location button or type in field</span>
+
+                <div style={{ position: 'relative', marginBottom: 10 }}>
+                  <input value={checkoutAddress} onChange={e => {
+                    setCheckoutAddress(e.target.value)
+                    setCheckoutDeliveryFee(null)
+                    const q = e.target.value.trim()
+                    if (q.length >= 3) {
+                      fetch(`https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(q)}&format=json&limit=3&countrycodes=id,gb,us,au,sg,my`)
+                        .then(r => r.json())
+                        .then(data => {
+                          const el = document.getElementById('cart-address-suggestions')
+                          if (el) {
+                            el.innerHTML = ''
+                            el.style.display = data.length > 0 ? 'block' : 'none'
+                            data.forEach(item => {
+                              const btn = document.createElement('button')
+                              btn.textContent = item.display_name
+                              btn.style.cssText = 'width:100%;padding:10px 14px;background:none;border:none;border-bottom:1px solid rgba(255,255,255,0.04);color:#fff;font-size:14px;font-weight:600;cursor:pointer;text-align:left;font-family:inherit;'
+                              btn.onclick = () => { setCheckoutAddress(item.display_name); el.style.display = 'none' }
+                              el.appendChild(btn)
+                            })
+                          }
+                        }).catch(() => {})
+                    } else {
+                      const el = document.getElementById('cart-address-suggestions')
+                      if (el) el.style.display = 'none'
+                    }
+                  }} placeholder="Enter address or use GPS" style={{ width: '100%', padding: '12px 14px', borderRadius: 12, background: 'rgba(0,0,0,0.4)', border: '1px solid rgba(255,255,255,0.1)', color: '#fff', fontSize: 14, outline: 'none', fontFamily: 'inherit', boxSizing: 'border-box' }} />
+                  <div id="cart-address-suggestions" style={{ display: 'none', position: 'absolute', top: '100%', left: 0, right: 0, zIndex: 100, background: '#1a1a1a', border: '1px solid rgba(255,255,255,0.1)', borderRadius: 12, marginTop: 4, overflow: 'hidden', boxShadow: '0 8px 30px rgba(0,0,0,0.6)' }} />
+                </div>
+
+                <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
+                  <button onClick={() => {
+                    if (!navigator.geolocation) return
+                    navigator.geolocation.getCurrentPosition(async ({ coords }) => {
+                      try {
+                        const res = await fetch(`https://nominatim.openstreetmap.org/reverse?lat=${coords.latitude}&lon=${coords.longitude}&format=json`)
+                        const data = await res.json()
+                        setCheckoutAddress(data.display_name ?? `${coords.latitude}, ${coords.longitude}`)
+                      } catch { setCheckoutAddress(`${coords.latitude.toFixed(5)}, ${coords.longitude.toFixed(5)}`) }
+                      // Calculate delivery fee
+                      const rest = cartItems[0]?.restaurant
+                      if (rest?.lat && rest?.lng) {
+                        const distKm = haversineKm(rest.lat, rest.lng, coords.latitude, coords.longitude) * 1.3
+                        const fee = Math.max(10000, 9250 + Math.round(distKm * 1850))
+                        setCheckoutDeliveryFee(fee)
+                      } else {
+                        setCheckoutDeliveryFee(10000)
+                      }
+                    })
+                  }} style={{ flex: 1, padding: 0, background: 'none', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                    <img src={checkoutDeliveryFee ? 'https://ik.imagekit.io/nepgaxllc/Untitleddasdddd-removebg-preview.png' : 'https://ik.imagekit.io/nepgaxllc/Untitledasdasaaaass-removebg-preview.png'} alt="Set Location" style={{ width: '100%', height: 48, objectFit: 'contain' }} />
+                  </button>
+                  {checkoutAddress.trim() && (
+                    <button onClick={() => { setCheckoutAddress(''); setCheckoutDeliveryFee(null) }} style={{ padding: '10px 16px', borderRadius: 10, background: '#EF4444', border: 'none', color: '#fff', fontSize: 14, fontWeight: 800, cursor: 'pointer', flexShrink: 0 }}>
+                      Clear
+                    </button>
+                  )}
+                </div>
+              </div>
+            )}
+
+            {cartItems.length === 0 ? (
+              <div style={{ textAlign: 'center', padding: '60px 20px' }}>
+                <span style={{ fontSize: 48, display: 'block', marginBottom: 12 }}>🛒</span>
+                <span style={{ fontSize: 16, fontWeight: 900, color: '#fff', display: 'block', marginBottom: 6 }}>Cart is empty</span>
+                <span style={{ fontSize: 13, color: 'rgba(255,255,255,0.4)' }}>Add dishes from the menu</span>
+              </div>
+            ) : (
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+                {cartItems.map((item, i) => (
+                  <CartItemCard key={`${item.id}-${i}`} item={item} index={i} fmtC={fmtC} setCartItems={setCartItems} />
+                ))}
+
+                {/* Price breakdown — shows after location set */}
+                {checkoutAddress.trim() && (
+                  <div style={{ padding: '14px', borderRadius: 14, background: 'rgba(0,0,0,0.7)', border: '1px solid rgba(255,255,255,0.08)', marginTop: 8 }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 6 }}>
+                      <span style={{ fontSize: 14, color: 'rgba(255,255,255,0.5)', display: 'flex', alignItems: 'center', gap: 6 }}><img src="https://ik.imagekit.io/nepgaxllc/ChatGPT%20Image%20Apr%2027,%202026,%2004_54_54%20AM.png" alt="" style={{ width: 44, height: 44, objectFit: 'contain', borderRadius: 4 }} />Food</span>
+                      <span style={{ fontSize: 14, fontWeight: 700, color: '#fff' }}>{fmtC(subtotal)}</span>
+                    </div>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 8 }}>
+                      <span style={{ fontSize: 14, color: 'rgba(255,255,255,0.5)', display: 'flex', alignItems: 'center', gap: 6 }}><span style={{ width: 44, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}><img src="https://ik.imagekit.io/nepgaxllc/Untitlediuooiuoifsdfsdf-removebg-preview.png?updatedAt=1775659748531" alt="" style={{ width: 32, height: 32, objectFit: 'contain' }} /></span>Delivery</span>
+                      <span style={{ fontSize: 14, fontWeight: 700, color: checkoutDeliveryFee ? '#fff' : 'rgba(255,255,255,0.3)' }}>{checkoutDeliveryFee ? fmtC(checkoutDeliveryFee) : 'Tap Set My Location'}</span>
+                    </div>
+                    <div style={{ borderTop: '1px solid rgba(255,255,255,0.08)', paddingTop: 8, display: 'flex', justifyContent: 'space-between' }}>
+                      <span style={{ fontSize: 18, fontWeight: 900, color: '#fff' }}>Total</span>
+                      <span style={{ fontSize: 18, fontWeight: 900, color: '#FACC15' }}>{fmtC(subtotal + (checkoutDeliveryFee ?? 0))}</span>
+                    </div>
+                  </div>
+                )}
+              </div>
+            )}
+          </div>
+
+          {/* Proceed button — sticky footer */}
+          {cartItems.length > 0 && !checkoutStep && (
+            <div style={{ padding: '12px 16px calc(env(safe-area-inset-bottom, 0px) + 12px)', flexShrink: 0, position: 'relative', zIndex: 1 }}>
+              <button onClick={async () => {
+                if (!checkoutAddress.trim()) return
+                localStorage.setItem('indoo_last_address', checkoutAddress.trim())
+                setCheckoutStep('processing')
+                const restaurant = cartItems[0]?.restaurant
+                const orderId = `FOOD-${Math.floor(1000 + Math.random() * 9000)}`
+                const totalWithDelivery = subtotal + (checkoutDeliveryFee ?? 0)
+                const order = {
+                  id: orderId, restaurant: restaurant?.name,
+                  items: cartItems.map(i => ({ name: i.name, qty: i.qty, price: i.price, extras: i.extras ?? [], extrasPrice: i.extrasPrice ?? 0, note: i.note ?? null })),
+                  total: totalWithDelivery, delivery_fee: checkoutDeliveryFee ?? 0,
+                  payment_method: 'cod', status: 'driver_assigned',
+                  address: checkoutAddress, created_at: new Date().toISOString(),
+                }
+                const orders = getFoodOrders(); orders.unshift(order); saveFoodOrders(orders)
+                try {
+                  const drivers = await searchFoodDrivers(restaurant?.lat, restaurant?.lng)
+                  const driver = drivers?.[0] ?? { id: 'driver-demo', display_name: 'Pak Andi', phone: '081234567890', vehicle_model: 'Honda Beat' }
+                  setCheckoutDriver(driver)
+                  try { await recordCommission(restaurant?.owner_id ?? restaurant?.id, orderId, subtotal, 'food_delivery') } catch {}
+                  try { await createFoodOrder({ restaurant, items: order.items, driver, sender: null, deliveryFee: checkoutDeliveryFee ?? 0, deliveryDistanceKm: null, driverDistanceKm: null, comment: null }) } catch {}
+                } catch { setCheckoutDriver({ id: 'driver-demo', display_name: 'Pak Andi', phone: '081234567890', vehicle_model: 'Honda Beat' }) }
+                setCheckoutOrderId(orderId)
+                // Step 1: processing (3s) → Step 2: driver found (4s) → Step 3: cinematic tracking
+                setTimeout(() => setCheckoutStep('found'), 3000)
+                setTimeout(() => {
+                  // Hand off to cinematic tracking
+                  const drv = checkoutDriver ?? { id: 'driver-demo', display_name: 'Pak Andi', phone: '081234567890', vehicle_model: 'Honda Beat' }
+                  setCartOpen(false); setCartItems([]); setCheckoutStep(null)
+                  setSelectedDish(null); setCuisineFilter(null)
+                  // Store driver for tracking handoff
+                  window.__indooTrackingDriver = drv
+                  setMenuRestaurant(restaurant)
+                }, 7000)
+              }} disabled={!checkoutAddress.trim()} style={{
+                width: '100%', padding: '16px', borderRadius: 14,
+                backgroundColor: checkoutAddress.trim() ? '#8DC63F' : 'rgba(255,255,255,0.06)',
+                border: 'none', color: checkoutAddress.trim() ? '#000' : 'rgba(255,255,255,0.3)',
+                fontSize: 16, fontWeight: 900, cursor: 'pointer', fontFamily: 'inherit',
+                display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8,
+                boxShadow: checkoutAddress.trim() ? '0 4px 25px rgba(141,198,63,0.5)' : 'none',
+              }}>
+                {!checkoutAddress.trim() ? 'Set Location to Order' : `Proceed — ${fmtC(subtotal + (checkoutDeliveryFee ?? 0))}`}
+              </button>
+            </div>
+          )}
+
+          {/* Step 1: Finding driver — satellite ping animation */}
+          {checkoutStep === 'processing' && (
+            <div style={{ position: 'absolute', inset: 0, zIndex: 10, background: '#0a0a0a', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
+              <style>{`
+                @keyframes pingRing1 { 0% { transform: scale(0.8); opacity: 0.8; } 100% { transform: scale(2.5); opacity: 0; } }
+                @keyframes pingRing2 { 0% { transform: scale(0.8); opacity: 0.6; } 100% { transform: scale(3); opacity: 0; } }
+                @keyframes pingRing3 { 0% { transform: scale(0.8); opacity: 0.4; } 100% { transform: scale(3.5); opacity: 0; } }
+                @keyframes pulseIcon { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.08); } }
+              `}</style>
+              {/* Ping rings */}
+              <div style={{ position: 'relative', width: 200, height: 200, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                <div style={{ position: 'absolute', width: 80, height: 80, borderRadius: '50%', border: '2px solid #8DC63F', animation: 'pingRing1 2s ease-out infinite' }} />
+                <div style={{ position: 'absolute', width: 80, height: 80, borderRadius: '50%', border: '2px solid #8DC63F', animation: 'pingRing2 2s ease-out infinite 0.5s' }} />
+                <div style={{ position: 'absolute', width: 80, height: 80, borderRadius: '50%', border: '1px solid rgba(141,198,63,0.3)', animation: 'pingRing3 2s ease-out infinite 1s' }} />
+                {/* Center delivery image */}
+                <div style={{ width: 80, height: 80, borderRadius: '50%', background: 'rgba(141,198,63,0.15)', border: '2px solid #8DC63F', display: 'flex', alignItems: 'center', justifyContent: 'center', animation: 'pulseIcon 2s ease-in-out infinite', zIndex: 1 }}>
+                  <img src="https://ik.imagekit.io/nepgaxllc/Untitlediuooiuoifsdfsdf-removebg-preview.png?updatedAt=1775659748531" alt="" style={{ width: 50, height: 50, objectFit: 'contain' }} />
+                </div>
+              </div>
+              <span style={{ fontSize: 22, fontWeight: 900, color: '#fff', marginTop: 24 }}>Finding your driver</span>
+              <span style={{ fontSize: 14, color: 'rgba(255,255,255,0.4)', marginTop: 6 }}>Searching nearby drivers...</span>
+            </div>
+          )}
+
+          {/* Step 2: Driver found — profile card */}
+          {checkoutStep === 'found' && (
+            <div style={{ position: 'absolute', inset: 0, zIndex: 10, background: '#0a0a0a', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: 20 }}>
+              <style>{`@keyframes scaleIn { from { transform: scale(0.5); opacity: 0; } to { transform: scale(1); opacity: 1; } }`}</style>
+              <div style={{ animation: 'scaleIn 0.4s ease-out', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+                {/* Driver photo */}
+                <div style={{ width: 100, height: 100, borderRadius: '50%', border: '3px solid #8DC63F', overflow: 'hidden', marginBottom: 16, boxShadow: '0 0 30px rgba(141,198,63,0.3)' }}>
+                  <img src={`https://i.pravatar.cc/200?img=${(checkoutDriver?.id ?? 'demo').charCodeAt(0) % 50 + 1}`} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                </div>
+                {/* Driver name */}
+                <span style={{ fontSize: 24, fontWeight: 900, color: '#fff' }}>{checkoutDriver?.display_name ?? checkoutDriver?.name ?? 'Driver'}</span>
+                {/* Star rating */}
+                <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginTop: 8 }}>
+                  <span style={{ fontSize: 18, color: '#FACC15' }}>★</span>
+                  <span style={{ fontSize: 18, fontWeight: 900, color: '#fff' }}>{(4.5 + (checkoutDriver?.id ?? '').charCodeAt(0) % 5 * 0.1).toFixed(1)}</span>
+                </div>
+                {/* Vehicle */}
+                <span style={{ fontSize: 14, color: 'rgba(255,255,255,0.4)', marginTop: 6 }}>{checkoutDriver?.vehicle_model ?? 'Honda Beat'}</span>
+                {/* Driver found badge */}
+                <div style={{ marginTop: 20, padding: '10px 24px', borderRadius: 14, background: 'rgba(141,198,63,0.15)', border: '1px solid rgba(141,198,63,0.3)' }}>
+                  <span style={{ fontSize: 16, fontWeight: 900, color: '#8DC63F' }}>Driver Found!</span>
+                </div>
+                <span style={{ fontSize: 14, color: 'rgba(255,255,255,0.3)', marginTop: 12 }}>Heading to restaurant to pick up your order...</span>
+              </div>
+            </div>
+          )}
         </div>
       )
     })()}
@@ -1876,6 +2263,8 @@ export default function RestaurantBrowseScreen({ onClose, onBackToCategories, ca
           onOpenMenu={() => { setViewRestaurant(null); setSelectedDish(null); setCuisineFilter(null); setMenuRestaurant(viewRestaurant) }}
           onToggleFavorite={() => { toggleFavorite(viewRestaurant); setFavTick(t => t + 1) }}
           isFav={isFavorite(viewRestaurant.id)}
+          onSelectDish={(dish, rest) => { setViewRestaurant(null); setSelectedDish({ dish, restaurant: rest }); setCuisineFilter(dish.category?.toLowerCase() ?? 'all') }}
+          onOpenDeals={() => { setViewRestaurant(null); setShowCuisinePicker(true); setPickerTab('deals') }}
         />
       </div>
     )}
@@ -1952,8 +2341,10 @@ export default function RestaurantBrowseScreen({ onClose, onBackToCategories, ca
       {menuRestaurant && (
         <RestaurantMenuSheet
           restaurant={menuRestaurant}
-          onClose={() => setMenuRestaurant(null)}
+          onClose={() => { setMenuRestaurant(null); setCartItems([]); window.__indooTrackingDriver = null }}
           onOrderViaChat={onOrderViaChat ?? null}
+          initialCart={cartItems.length > 0 ? cartItems : undefined}
+          startTracking={window.__indooTrackingDriver ? { driver: window.__indooTrackingDriver } : undefined}
         />
       )}
 
@@ -1963,7 +2354,7 @@ export default function RestaurantBrowseScreen({ onClose, onBackToCategories, ca
       )}
 
       {/* ── Floating footer nav — Home | Chat | Notifications | Profile ── */}
-      {!showLanding && !foodDashOpen && !selectedDish && (
+      {!showLanding && !foodDashOpen && !selectedDish && !menuRestaurant && !cartOpen && (
         <FoodFooterNav
           onHome={onClose}
           onChat={() => setChatOpen(true)}
@@ -1992,12 +2383,181 @@ export default function RestaurantBrowseScreen({ onClose, onBackToCategories, ca
 }
 
 // ── Restaurant card ───────────────────────────────────────────────────────────
-const RestaurantCard = memo(function RestaurantCard({ restaurant: r, onOpenMenu, onToggleFavorite, isFav }) {
+const RestaurantCard = memo(function RestaurantCard({ restaurant: r, onOpenMenu, onToggleFavorite, isFav, onSelectDish, onOpenDeals }) {
   const [openTime, closeTime] = (r.opening_hours ?? '').split('–')
   const countdown = !r.is_open ? fmtCountdown(secsUntilOpen(r.opening_hours)) : null
+  const [menuDrawerOpen, setMenuDrawerOpen] = useState(false)
+  const [dealsOpen, setDealsOpen] = useState(false)
+  const menuItems = r.menu_items ?? []
+  const fmtM = (n) => 'Rp ' + (n ?? 0).toLocaleString('id-ID').replace(/,/g, '.')
+
+  // Group menu items by category
+  const categories = {}
+  menuItems.filter(i => i.is_available !== false).forEach(item => {
+    const cat = item.category || 'Main'
+    if (!categories[cat]) categories[cat] = []
+    categories[cat].push(item)
+  })
 
   return (
     <div className={styles.card}>
+
+      {/* Right floating panel — 4 buttons: Menu, Deals, Share, Save */}
+      <div style={{
+        position: 'absolute', right: 12, top: '50%', transform: 'translateY(-50%)',
+        zIndex: 10, display: 'flex', flexDirection: 'column', gap: 8,
+      }}>
+        {[
+          { label: 'Menu', icon: <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>, action: () => setMenuDrawerOpen(true) },
+          { label: 'Deals', icon: <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg>, action: () => setDealsOpen(true) },
+          { label: 'Share', icon: <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>, action: () => navigator.share?.({ title: r.name, text: `Check out ${r.name} on INDOO` }).catch(() => {}) },
+          { label: isFav ? 'Saved' : 'Save', icon: <svg width="18" height="18" viewBox="0 0 24 24" fill={isFav ? '#EF4444' : 'none'} stroke={isFav ? '#EF4444' : 'currentColor'} strokeWidth="2.5" strokeLinecap="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>, action: onToggleFavorite },
+        ].map(item => (
+          <button key={item.label} onClick={item.action} style={{
+            width: 48, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 4,
+            padding: '10px 0', background: 'rgba(10,10,10,0.85)', border: '1px solid rgba(255,255,255,0.1)',
+            borderRadius: 14, cursor: 'pointer', color: 'rgba(255,255,255,0.6)', backdropFilter: 'blur(12px)',
+          }}>
+            {item.icon}
+            <span style={{ fontSize: 9, fontWeight: 800, color: 'rgba(255,255,255,0.4)', letterSpacing: '0.04em', textTransform: 'uppercase' }}>{item.label}</span>
+          </button>
+        ))}
+      </div>
+
+      {/* Menu drawer — slides from left */}
+      {menuDrawerOpen && (
+        <div style={{ position: 'absolute', inset: 0, zIndex: 20, display: 'flex' }}>
+          <div onClick={() => setMenuDrawerOpen(false)} style={{ position: 'absolute', inset: 0, background: 'rgba(0,0,0,0.5)' }} />
+          <div style={{
+            position: 'relative', width: '80%', maxWidth: 320, height: '100%',
+            background: '#0a0a0a',
+            borderRight: '1px solid rgba(255,255,255,0.08)',
+            display: 'flex', flexDirection: 'column',
+            animation: 'slideInLeft 0.25s ease', overflow: 'hidden',
+          }}>
+            <style>{`@keyframes slideInLeft { from { transform: translateX(-100%); } to { transform: translateX(0); } }`}</style>
+            <img src="https://ik.imagekit.io/nepgaxllc/odfssddasdsccc.png?updatedAt=1777008452808" alt="" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', opacity: 0.15, pointerEvents: 'none' }} />
+
+            {/* Header */}
+            <div style={{ padding: 'calc(env(safe-area-inset-top, 0px) + 14px) 16px 12px', display: 'flex', alignItems: 'center', gap: 10, flexShrink: 0, borderBottom: '1px solid rgba(255,255,255,0.06)' }}>
+              <button onClick={() => setMenuDrawerOpen(false)} style={{ width: 44, height: 44, borderRadius: '50%', background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' }}>
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2.5" strokeLinecap="round"><path d="M19 12H5M12 5l-7 7 7 7"/></svg>
+              </button>
+              <div>
+                <span style={{ fontSize: 18, fontWeight: 900, color: '#fff', display: 'block' }}>{r.name}</span>
+                <span style={{ fontSize: 14, color: 'rgba(255,255,255,0.4)' }}>{menuItems.length} items</span>
+              </div>
+            </div>
+
+            {/* Menu items grouped by category */}
+            <div style={{ flex: 1, overflowY: 'auto', padding: '8px 0' }}>
+              {Object.keys(categories).length === 0 ? (
+                <div style={{ textAlign: 'center', padding: '40px 20px', color: 'rgba(255,255,255,0.3)' }}>
+                  <span style={{ fontSize: 14 }}>No menu items yet</span>
+                </div>
+              ) : Object.entries(categories).map(([cat, items]) => (
+                <div key={cat}>
+                  {/* Category header */}
+                  <div style={{ padding: '12px 16px 6px', position: 'sticky', top: 0, background: 'rgba(10,10,10,0.95)', zIndex: 1 }}>
+                    <span style={{ fontSize: 14, fontWeight: 900, color: '#8DC63F', textTransform: 'uppercase', letterSpacing: '0.04em' }}>{cat}</span>
+                  </div>
+                  {/* Items */}
+                  {items.map((item, i) => (
+                    <button key={item.id ?? i} onClick={() => { setMenuDrawerOpen(false); onSelectDish?.(item, r) }} style={{
+                      width: '100%', padding: '10px 16px', background: 'none', border: 'none', cursor: 'pointer',
+                      display: 'flex', gap: 12, textAlign: 'left', borderBottom: '1px solid rgba(255,255,255,0.04)',
+                    }}>
+                      {item.photo_url && (
+                        <img src={item.photo_url} alt="" style={{ width: 52, height: 52, borderRadius: 10, objectFit: 'cover', flexShrink: 0 }} />
+                      )}
+                      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
+                        <span style={{ fontSize: 14, fontWeight: 800, color: '#fff', lineHeight: 1.2 }}>{item.name}</span>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginTop: 4 }}>
+                          {item.original_price && item.original_price > item.price && (
+                            <span style={{ fontSize: 14, color: 'rgba(255,255,255,0.3)', textDecoration: 'line-through' }}>{fmtM(item.original_price)}</span>
+                          )}
+                          <span style={{ fontSize: 14, fontWeight: 900, color: '#FACC15' }}>{fmtM(item.price)}</span>
+                        </div>
+                      </div>
+                    </button>
+                  ))}
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Deals overlay — full page swipeable */}
+      {dealsOpen && (() => {
+        const dealItems = menuItems.filter(i => i.is_available !== false && i.original_price && i.original_price > i.price)
+        const allItems = dealItems.length > 0 ? dealItems : menuItems.filter(i => i.is_available !== false).slice(0, 5)
+        return (
+          <div style={{ position: 'absolute', inset: 0, zIndex: 20, background: '#0a0a0a', display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
+            <img src="https://ik.imagekit.io/nepgaxllc/odfssddasdsccc.png?updatedAt=1777008452808" alt="" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', pointerEvents: 'none' }} />
+            {/* Header */}
+            <div style={{ padding: 'calc(env(safe-area-inset-top, 0px) + 12px) 16px 10px', display: 'flex', alignItems: 'center', gap: 10, flexShrink: 0 }}>
+              <button onClick={() => setDealsOpen(false)} style={{ width: 44, height: 44, borderRadius: '50%', background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' }}>
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2.5" strokeLinecap="round"><path d="M19 12H5M12 5l-7 7 7 7"/></svg>
+              </button>
+              <span style={{ fontSize: 18, fontWeight: 900, color: '#fff', flex: 1 }}>{r.name} Deals</span>
+            </div>
+
+            {/* Swipeable deal cards */}
+            <div style={{ flex: 1, overflowX: 'auto', overflowY: 'hidden', display: 'flex', scrollSnapType: 'x mandatory', scrollbarWidth: 'none' }}>
+              {allItems.map((item, i) => {
+                const discPct = item.original_price && item.original_price > item.price ? Math.round(((item.original_price - item.price) / item.original_price) * 100) : 0
+                return (
+                  <div key={item.id ?? i} style={{ minWidth: '100%', scrollSnapAlign: 'start', display: 'flex', flexDirection: 'column', padding: '0 16px' }}>
+                    {/* Full size image */}
+                    <div style={{ flex: 1, borderRadius: 20, overflow: 'hidden', position: 'relative', margin: '0 0 12px' }}>
+                      {item.photo_url ? (
+                        <img src={item.photo_url} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                      ) : (
+                        <div style={{ width: '100%', height: '100%', background: 'rgba(255,255,255,0.05)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                          <span style={{ fontSize: 48 }}>🍽️</span>
+                        </div>
+                      )}
+                      <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to top, rgba(0,0,0,0.9) 0%, transparent 40%)' }} />
+                      {/* Discount badge */}
+                      {discPct > 0 && (
+                        <div style={{ position: 'absolute', top: 14, left: 14, padding: '6px 12px', borderRadius: 10, background: '#EF4444' }}>
+                          <span style={{ fontSize: 16, fontWeight: 900, color: '#fff' }}>{discPct}% OFF</span>
+                        </div>
+                      )}
+                      {/* Swipe hint */}
+                      {allItems.length > 1 && (
+                        <div style={{ position: 'absolute', top: 14, right: 14, padding: '4px 10px', borderRadius: 8, background: 'rgba(0,0,0,0.6)' }}>
+                          <span style={{ fontSize: 14, color: 'rgba(255,255,255,0.5)' }}>{i + 1}/{allItems.length}</span>
+                        </div>
+                      )}
+                      {/* Item info */}
+                      <div style={{ position: 'absolute', bottom: 16, left: 16, right: 16 }}>
+                        <span style={{ fontSize: 22, fontWeight: 900, color: '#fff', display: 'block', lineHeight: 1.2 }}>{item.name}</span>
+                        {item.description && <span style={{ fontSize: 14, color: 'rgba(255,255,255,0.6)', display: 'block', marginTop: 4 }}>{item.description?.slice(0, 80)}</span>}
+                        <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginTop: 8 }}>
+                          {item.original_price && item.original_price > item.price && (
+                            <span style={{ fontSize: 16, color: 'rgba(255,255,255,0.4)', textDecoration: 'line-through' }}>{fmtM(item.original_price)}</span>
+                          )}
+                          <span style={{ fontSize: 22, fontWeight: 900, color: '#FACC15' }}>{fmtM(item.price)}</span>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Add to cart button */}
+                    <button onClick={() => { setDealsOpen(false); onSelectDish?.(item, r) }} style={{
+                      width: '100%', padding: '16px', borderRadius: 14, marginBottom: 'calc(env(safe-area-inset-bottom, 0px) + 12px)',
+                      background: '#8DC63F', border: 'none', color: '#000',
+                      fontSize: 16, fontWeight: 900, cursor: 'pointer',
+                      boxShadow: '0 4px 20px rgba(141,198,63,0.4)',
+                    }}>Add to Cart — {fmtM(item.price)}</button>
+                  </div>
+                )
+              })}
+            </div>
+          </div>
+        )
+      })()}
 
       {/* Background — cover > hero dish > gradient */}
       <div
@@ -2070,14 +2630,6 @@ const RestaurantCard = memo(function RestaurantCard({ restaurant: r, onOpenMenu,
             <span className={styles.countdownTime}>{countdown}</span>
           </div>
         )}
-
-        <button
-          className={`${styles.menuBtn} ${!r.is_open ? styles.menuBtnClosed : ''}`}
-          onClick={onOpenMenu}
-          disabled={!r.is_open}
-        >
-          {r.is_open ? 'View Menu' : '⏰ Closed'}
-        </button>
 
       </div>
     </div>

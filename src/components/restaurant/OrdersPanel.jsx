@@ -40,7 +40,7 @@ export default function OrdersPanel({
         </button>
         <div style={{ flex: 1 }}>
           <span style={{ fontSize: 18, fontWeight: 900, color: '#fff' }}>My Orders</span>
-          <span style={{ fontSize: 11, color: 'rgba(255,255,255,0.4)', display: 'block' }}>{foodOrders.length} order{foodOrders.length !== 1 ? 's' : ''}</span>
+          <span style={{ fontSize: 14, color: 'rgba(255,255,255,0.4)', display: 'block' }}>{foodOrders.length} order{foodOrders.length !== 1 ? 's' : ''}</span>
         </div>
       </div>
 
@@ -75,7 +75,15 @@ export default function OrdersPanel({
               {/* Items */}
               <div style={{ marginBottom: 10 }}>
                 {order.items.map((it, idx) => (
-                  <span key={idx} style={{ fontSize: 14, color: 'rgba(255,255,255,0.5)', display: 'block', lineHeight: 1.7 }}>{it.qty}x {it.name}</span>
+                  <div key={idx} style={{ marginBottom: it.extras?.length > 0 || it.note ? 6 : 0 }}>
+                    <span style={{ fontSize: 14, color: 'rgba(255,255,255,0.5)', display: 'block', lineHeight: 1.7 }}>{it.qty}x {it.name}</span>
+                    {it.extras?.length > 0 && (
+                      <span style={{ fontSize: 14, color: '#8DC63F', display: 'block', paddingLeft: 16, lineHeight: 1.5 }}>+ {it.extras.map(e => `${e.label} x${e.qty}`).join(', ')}</span>
+                    )}
+                    {it.note && (
+                      <span style={{ fontSize: 14, color: 'rgba(255,255,255,0.3)', display: 'block', paddingLeft: 16, fontStyle: 'italic', lineHeight: 1.5 }}>"{it.note}"</span>
+                    )}
+                  </div>
                 ))}
               </div>
 
