@@ -446,13 +446,13 @@ export default function DriverApp() {
 
             {/* Quick actions */}
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
-              <button onClick={() => setTab('rides')} style={{ padding: 16, borderRadius: 16, background: 'rgba(141,198,63,0.1)', backdropFilter: 'blur(16px)', border: '1px solid rgba(141,198,63,0.25)', cursor: 'pointer', textAlign: 'center' }}>
-                <span style={{ fontSize: 28, display: 'block', marginBottom: 6 }}>🏍️</span>
-                <span style={{ fontSize: 13, fontWeight: 800, color: '#8DC63F', display: 'block' }}>Ride Orders</span>
+              <button onClick={() => setTab('rides')} style={{ padding: 20, borderRadius: 20, background: 'rgba(141,198,63,0.08)', backdropFilter: 'blur(16px)', border: '1.5px solid rgba(141,198,63,0.3)', cursor: 'pointer', textAlign: 'center', overflow: 'hidden' }}>
+                <span style={{ fontSize: 32, display: 'block', marginBottom: 8 }}>🏍️</span>
+                <span style={{ fontSize: 14, fontWeight: 900, color: '#8DC63F', display: 'block' }}>Ride Orders</span>
               </button>
-              <button onClick={() => setTab('food')} style={{ padding: 16, borderRadius: 16, background: 'rgba(250,204,21,0.1)', backdropFilter: 'blur(16px)', border: '1px solid rgba(250,204,21,0.25)', cursor: 'pointer', textAlign: 'center' }}>
-                <span style={{ fontSize: 28, display: 'block', marginBottom: 6 }}>🍔</span>
-                <span style={{ fontSize: 13, fontWeight: 800, color: '#FACC15', display: 'block' }}>Food Delivery</span>
+              <button onClick={() => setTab('food')} style={{ padding: 20, borderRadius: 20, background: 'rgba(250,204,21,0.08)', backdropFilter: 'blur(16px)', border: '1.5px solid rgba(250,204,21,0.3)', cursor: 'pointer', textAlign: 'center', overflow: 'hidden' }}>
+                <span style={{ fontSize: 32, display: 'block', marginBottom: 8 }}>🍔</span>
+                <span style={{ fontSize: 14, fontWeight: 900, color: '#FACC15', display: 'block' }}>Food Delivery</span>
               </button>
             </div>
           </>
