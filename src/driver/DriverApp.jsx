@@ -66,6 +66,8 @@ export default function DriverApp() {
   const [incomingFoodOrder, setIncomingFoodOrder] = useState(null)
   const [showCashFloat, setShowCashFloat] = useState(false)
   const [showEarnings, setShowEarnings] = useState(false)
+  const [termsAccepted, setTermsAccepted] = useState(() => localStorage.getItem('indoo_driver_terms_accepted') === 'true')
+  const [showHotspotMap, setShowHotspotMap] = useState(false)
 
   // Auth
   useEffect(() => {
@@ -169,6 +171,69 @@ export default function DriverApp() {
     )
   }
 
+  // ── Terms & Conditions Gate ──
+  if (!termsAccepted) {
+    return (
+      <div style={{ height: '100%', display: 'flex', flexDirection: 'column', background: '#080808', position: 'relative' }}>
+        <img src={BG_IMG} alt="" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', pointerEvents: 'none' }} />
+        <div style={{ position: 'relative', zIndex: 1, flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
+          {/* Header */}
+          <div style={{ padding: 'calc(env(safe-area-inset-top, 0px) + 16px) 20px 16px', background: 'rgba(0,0,0,0.6)', backdropFilter: 'blur(20px)', borderBottom: '1px solid rgba(255,255,255,0.1)', textAlign: 'center' }}>
+            <h1 style={{ fontSize: 20, fontWeight: 900, color: '#fff', margin: 0 }}>INDOO Driver Agreement</h1>
+            <p style={{ fontSize: 12, color: 'rgba(255,255,255,0.4)', margin: '4px 0 0' }}>Please read and accept to continue</p>
+          </div>
+
+          {/* Terms content */}
+          <div style={{ flex: 1, overflowY: 'auto', padding: '20px 20px 100px' }}>
+            <div style={{ padding: 20, borderRadius: 16, background: 'rgba(0,0,0,0.6)', backdropFilter: 'blur(16px)', border: '1px solid rgba(255,255,255,0.1)' }}>
+              <h2 style={{ fontSize: 16, fontWeight: 900, color: '#8DC63F', margin: '0 0 16px' }}>Terms & Conditions — INDOO Driver Platform</h2>
+              <p style={{ fontSize: 11, color: 'rgba(255,255,255,0.3)', margin: '0 0 16px' }}>Operated by PT HAMMEREX PRODUCTS INDONESIA</p>
+
+              <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.75)', lineHeight: 1.8 }}>
+                <p style={{ fontWeight: 800, color: '#fff', marginBottom: 8 }}>1. SERVICE FEE & COMMISSION</p>
+                <p>By using the INDOO platform, drivers agree to pay a platform service fee of 10% (ten percent) of all earnings generated through the platform. This commission is payable to PT HAMMEREX PRODUCTS INDONESIA ("the Company") on a rolling basis.</p>
+                <p style={{ color: '#EF4444', fontWeight: 700, margin: '8px 0' }}>Failure to pay the 10% service fee within 30 days of the due date will result in a daily penalty increase of 20% applied to the total outstanding amount. This penalty covers loss of earnings, administrative processing, and recruitment fees. The penalty will continue to accumulate daily until the full balance is settled.</p>
+
+                <p style={{ fontWeight: 800, color: '#fff', marginTop: 20, marginBottom: 8 }}>2. VEHICLE INSURANCE REQUIREMENT</p>
+                <p>All drivers are required to maintain valid and active vehicle insurance at all times while operating on the INDOO platform. It is strictly prohibited to operate any vehicle without active insurance coverage. Any accident, damage, injury, or liability incurred while insurance is not active shall be the sole personal responsibility of the driver — including in cases where the vehicle is owned by a third party. The Company accepts no liability whatsoever for uninsured operations.</p>
+
+                <p style={{ fontWeight: 800, color: '#fff', marginTop: 20, marginBottom: 8 }}>3. CONDUCT & PRICING</p>
+                <p>Drivers must maintain professional and respectful behaviour with all passengers and customers at all times. Drivers must only charge the fare price stated and approved by the platform. Overcharging, harassment, or unprofessional conduct will result in immediate deactivation and potential legal action.</p>
+
+                <p style={{ fontWeight: 800, color: '#fff', marginTop: 20, marginBottom: 8 }}>4. VEHICLE ROADWORTHINESS</p>
+                <p>All vehicles used on the INDOO platform must meet road safety and roadworthiness standards as required by Indonesian law. Vehicles must pass inspection requirements and be maintained in safe operating condition. The Company reserves the right to deactivate any driver whose vehicle does not meet these standards.</p>
+
+                <p style={{ fontWeight: 800, color: '#fff', marginTop: 20, marginBottom: 8 }}>5. SELF-EMPLOYED STATUS</p>
+                <p style={{ fontWeight: 700 }}>Drivers joining the INDOO platform are fully self-employed independent contractors. The platform acts solely as a gateway to connect drivers with customers and does not act as an employer in any form, shape, or capacity. No employment relationship exists between the driver and PT HAMMEREX PRODUCTS INDONESIA or any of its subsidiaries.</p>
+
+                <p style={{ fontWeight: 800, color: '#fff', marginTop: 20, marginBottom: 8 }}>6. TAX & GOVERNMENT OBLIGATIONS</p>
+                <p>Each driver is solely responsible for keeping their government tax obligations, permits, licences, and any other regulatory requirements fully up to date. The Company is not responsible for any driver's tax affairs or regulatory compliance.</p>
+
+                <p style={{ fontWeight: 800, color: '#fff', marginTop: 20, marginBottom: 8 }}>7. DATA SHARING & PRIVACY</p>
+                <p>All drivers agree to the sharing of their contact details and personal information with platform users when necessary for the completion of services. Driver data may be used by the platform owners (PT HAMMEREX PRODUCTS INDONESIA) for training purposes, driver validation, quality assurance, dispute resolution, and platform improvement. By accepting these terms, drivers consent to this data usage.</p>
+
+                <p style={{ fontWeight: 800, color: '#fff', marginTop: 20, marginBottom: 8 }}>8. PLATFORM RIGHTS</p>
+                <p>PT HAMMEREX PRODUCTS INDONESIA reserves the right to deactivate, suspend, or permanently remove any driver account at its sole discretion for any violation of these terms, or for any reason that the Company deems necessary to protect the platform, its users, or its reputation.</p>
+
+                <p style={{ marginTop: 24, padding: 16, borderRadius: 12, background: 'rgba(141,198,63,0.08)', border: '1px solid rgba(141,198,63,0.2)', fontWeight: 700, color: '#8DC63F' }}>
+                  By accepting below, you confirm that you have read, understood, and agree to all terms and conditions set forth by PT HAMMEREX PRODUCTS INDONESIA. You acknowledge that you are entering into this agreement as a self-employed independent contractor.
+                </p>
+              </div>
+            </div>
+          </div>
+
+          {/* Accept button */}
+          <div style={{ position: 'fixed', bottom: 0, left: 0, right: 0, padding: '16px 20px calc(env(safe-area-inset-bottom, 0px) + 16px)', background: 'rgba(0,0,0,0.8)', backdropFilter: 'blur(20px)', borderTop: '1px solid rgba(255,255,255,0.1)', zIndex: 10 }}>
+            <button onClick={() => { localStorage.setItem('indoo_driver_terms_accepted', 'true'); setTermsAccepted(true) }} style={{ width: '100%', padding: 18, borderRadius: 16, background: '#8DC63F', border: 'none', color: '#000', fontSize: 16, fontWeight: 900, cursor: 'pointer', fontFamily: 'inherit' }}>
+              I Accept These Terms & Conditions
+            </button>
+            <p style={{ textAlign: 'center', fontSize: 10, color: 'rgba(255,255,255,0.3)', margin: '10px 0 0' }}>PT HAMMEREX PRODUCTS INDONESIA · All rights reserved</p>
+          </div>
+        </div>
+      </div>
+    )
+  }
+
   // ── Dashboard ──
   return (
     <div style={{ height: '100%', display: 'flex', flexDirection: 'column', background: '#080808', position: 'relative' }}>
@@ -201,53 +266,72 @@ export default function DriverApp() {
         {/* ── HOME TAB ── */}
         {tab === 'home' && (
           <>
-            {/* Today stats */}
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10, marginBottom: 16 }}>
-              <div style={{ padding: 16, borderRadius: 16, background: 'rgba(255,255,255,0.06)', backdropFilter: 'blur(16px)', border: '1px solid rgba(255,255,255,0.1)', textAlign: 'center' }}>
-                <span style={{ fontSize: 28, fontWeight: 900, color: '#FACC15', display: 'block' }}>{todayTrips}</span>
-                <span style={{ fontSize: 12, fontWeight: 700, color: 'rgba(255,255,255,0.4)' }}>Trips Today</span>
+            {/* Online Status — Primary focus */}
+            <div style={{ padding: 20, borderRadius: 20, background: isOnline ? 'rgba(141,198,63,0.08)' : 'rgba(255,255,255,0.06)', backdropFilter: 'blur(16px)', border: `1.5px solid ${isOnline ? 'rgba(141,198,63,0.3)' : 'rgba(255,255,255,0.1)'}`, marginBottom: 16, textAlign: 'center' }}>
+              <div style={{ width: 64, height: 64, borderRadius: '50%', background: isOnline ? 'rgba(141,198,63,0.15)' : 'rgba(255,255,255,0.06)', border: `3px solid ${isOnline ? '#8DC63F' : 'rgba(255,255,255,0.15)'}`, display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 12px', transition: 'all 0.3s' }}>
+                <span style={{ fontSize: 28, opacity: isOnline ? 1 : 0.4 }}>{isOnline ? '🟢' : '⚪'}</span>
               </div>
-              <div style={{ padding: 16, borderRadius: 16, background: 'rgba(255,255,255,0.06)', backdropFilter: 'blur(16px)', border: '1px solid rgba(255,255,255,0.1)', textAlign: 'center' }}>
-                <span style={{ fontSize: 28, fontWeight: 900, color: '#8DC63F', display: 'block' }}>{fmtRp(todayEarnings)}</span>
-                <span style={{ fontSize: 12, fontWeight: 700, color: 'rgba(255,255,255,0.4)' }}>Earned Today</span>
+              <span style={{ fontSize: 22, fontWeight: 900, color: isOnline ? '#8DC63F' : 'rgba(255,255,255,0.5)', display: 'block' }}>{isOnline ? 'ACTIVE' : 'OFFLINE'}</span>
+              <span style={{ fontSize: 12, color: 'rgba(255,255,255,0.4)', display: 'block', marginTop: 4 }}>
+                {isOnline ? 'Accepting rides, food delivery & all services' : 'Go online to start receiving orders'}
+              </span>
+              {!isOnline && (
+                <button onClick={toggleOnline} style={{ marginTop: 16, padding: '14px 40px', borderRadius: 14, background: '#8DC63F', border: 'none', color: '#000', fontSize: 15, fontWeight: 900, cursor: 'pointer', fontFamily: 'inherit' }}>
+                  Go Online
+                </button>
+              )}
+            </div>
+
+            {/* Daily Activity */}
+            <div style={{ padding: 16, borderRadius: 16, background: 'rgba(255,255,255,0.06)', backdropFilter: 'blur(16px)', border: '1px solid rgba(255,255,255,0.1)', marginBottom: 12 }}>
+              <span style={{ fontSize: 12, fontWeight: 800, color: 'rgba(255,255,255,0.4)', textTransform: 'uppercase', letterSpacing: '0.05em', display: 'block', marginBottom: 12 }}>Today's Activity</span>
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 8 }}>
+                <div style={{ textAlign: 'center' }}>
+                  <span style={{ fontSize: 24, fontWeight: 900, color: '#FACC15', display: 'block' }}>{todayTrips}</span>
+                  <span style={{ fontSize: 10, fontWeight: 700, color: 'rgba(255,255,255,0.35)' }}>Trips</span>
+                </div>
+                <div style={{ textAlign: 'center' }}>
+                  <span style={{ fontSize: 24, fontWeight: 900, color: '#8DC63F', display: 'block' }}>{fmtRp(todayEarnings)}</span>
+                  <span style={{ fontSize: 10, fontWeight: 700, color: 'rgba(255,255,255,0.35)' }}>Earned</span>
+                </div>
+                <div style={{ textAlign: 'center' }}>
+                  <span style={{ fontSize: 24, fontWeight: 900, color: '#00E5FF', display: 'block' }}>{fmtRp(Math.round(todayEarnings * 0.1))}</span>
+                  <span style={{ fontSize: 10, fontWeight: 700, color: 'rgba(255,255,255,0.35)' }}>Commission (10%)</span>
+                </div>
               </div>
             </div>
 
-            {/* Goals */}
-            {goals && (
-              <div style={{ padding: 16, borderRadius: 16, background: 'rgba(255,255,255,0.06)', backdropFilter: 'blur(16px)', border: '1px solid rgba(255,255,255,0.1)', marginBottom: 16 }}>
-                <span style={{ fontSize: 14, fontWeight: 900, color: '#fff', display: 'block', marginBottom: 10 }}>Daily Goal</span>
-                <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-                  <div style={{ flex: 1, height: 8, borderRadius: 4, background: 'rgba(255,255,255,0.08)', overflow: 'hidden' }}>
-                    <div style={{ width: `${Math.min(100, (todayTrips / goals.daily_trips) * 100)}%`, height: '100%', background: 'linear-gradient(90deg, #8DC63F, #FACC15)', borderRadius: 4, transition: 'width 0.5s' }} />
-                  </div>
-                  <span style={{ fontSize: 13, fontWeight: 900, color: '#fff', flexShrink: 0 }}>{todayTrips}/{goals.daily_trips}</span>
-                </div>
-                <span style={{ fontSize: 11, color: 'rgba(255,255,255,0.35)', marginTop: 6, display: 'block' }}>Complete {goals.daily_trips} trips today → bonus {fmtRp(goals.daily_bonus)}</span>
+            {/* Commission Due */}
+            <div style={{ padding: 14, borderRadius: 14, background: 'rgba(239,68,68,0.06)', backdropFilter: 'blur(16px)', border: '1px solid rgba(239,68,68,0.15)', marginBottom: 12, display: 'flex', alignItems: 'center', gap: 12 }}>
+              <span style={{ fontSize: 22 }}>💳</span>
+              <div style={{ flex: 1 }}>
+                <span style={{ fontSize: 13, fontWeight: 800, color: '#fff', display: 'block' }}>Admin Commission Due</span>
+                <span style={{ fontSize: 11, color: 'rgba(255,255,255,0.4)' }}>10% platform fee · Due within 30 days</span>
               </div>
-            )}
+              <span style={{ fontSize: 16, fontWeight: 900, color: '#EF4444' }}>{fmtRp(Math.round(todayEarnings * 0.1))}</span>
+            </div>
 
-            {/* Tier card */}
-            {tier && (
-              <div style={{ padding: 16, borderRadius: 16, background: `linear-gradient(135deg, ${tier.current.color}15, rgba(0,0,0,0.3))`, border: `1.5px solid ${tier.current.color}33`, marginBottom: 16 }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 8 }}>
-                  <span style={{ fontSize: 28 }}>{tier.current.icon ?? '🥉'}</span>
-                  <div>
-                    <span style={{ fontSize: 16, fontWeight: 900, color: '#fff', display: 'block' }}>{tier.current.name} Driver</span>
-                    <span style={{ fontSize: 12, color: 'rgba(255,255,255,0.5)' }}>{tier.totalTrips} trips · {tier.current.bonusMultiplier}x bonus</span>
-                  </div>
+            {/* Hotspot Map Button */}
+            <button onClick={() => setShowHotspotMap(true)} style={{ width: '100%', padding: 16, borderRadius: 16, background: 'rgba(0,229,255,0.08)', backdropFilter: 'blur(16px)', border: '1px solid rgba(0,229,255,0.2)', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 12, marginBottom: 12 }}>
+              <span style={{ fontSize: 28 }}>🗺️</span>
+              <div style={{ flex: 1, textAlign: 'left' }}>
+                <span style={{ fontSize: 14, fontWeight: 800, color: '#00E5FF', display: 'block' }}>Area Hotspot Map</span>
+                <span style={{ fontSize: 11, color: 'rgba(255,255,255,0.4)' }}>See high-traffic zones & admin notifications</span>
+              </div>
+              <span style={{ fontSize: 18, color: 'rgba(0,229,255,0.5)' }}>→</span>
+            </button>
+
+            {/* Goals progress */}
+            {goals && (
+              <div style={{ padding: 14, borderRadius: 14, background: 'rgba(255,255,255,0.06)', backdropFilter: 'blur(16px)', border: '1px solid rgba(255,255,255,0.1)', marginBottom: 12 }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 6 }}>
+                  <span style={{ fontSize: 12, fontWeight: 800, color: '#fff' }}>Daily Goal</span>
+                  <span style={{ fontSize: 12, fontWeight: 900, color: '#8DC63F' }}>{todayTrips}/{goals.daily_trips} trips</span>
                 </div>
-                {tier.next && (
-                  <div>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 4 }}>
-                      <span style={{ fontSize: 11, color: 'rgba(255,255,255,0.4)' }}>Next: {tier.next.name}</span>
-                      <span style={{ fontSize: 11, color: 'rgba(255,255,255,0.4)' }}>{tier.tripsToNext} trips to go</span>
-                    </div>
-                    <div style={{ height: 6, borderRadius: 3, background: 'rgba(255,255,255,0.08)', overflow: 'hidden' }}>
-                      <div style={{ width: `${tier.progress * 100}%`, height: '100%', background: tier.current.color ?? '#8DC63F', borderRadius: 3 }} />
-                    </div>
-                  </div>
-                )}
+                <div style={{ height: 8, borderRadius: 4, background: 'rgba(255,255,255,0.08)', overflow: 'hidden' }}>
+                  <div style={{ width: `${Math.min(100, (todayTrips / goals.daily_trips) * 100)}%`, height: '100%', background: 'linear-gradient(90deg, #8DC63F, #FACC15)', borderRadius: 4, transition: 'width 0.5s' }} />
+                </div>
+                <span style={{ fontSize: 10, color: 'rgba(255,255,255,0.3)', marginTop: 4, display: 'block' }}>Bonus {fmtRp(goals.daily_bonus)} on completion</span>
               </div>
             )}
 
@@ -256,22 +340,10 @@ export default function DriverApp() {
               <button onClick={() => setTab('rides')} style={{ padding: 16, borderRadius: 16, background: 'rgba(141,198,63,0.1)', backdropFilter: 'blur(16px)', border: '1px solid rgba(141,198,63,0.25)', cursor: 'pointer', textAlign: 'center' }}>
                 <span style={{ fontSize: 28, display: 'block', marginBottom: 6 }}>🏍️</span>
                 <span style={{ fontSize: 13, fontWeight: 800, color: '#8DC63F', display: 'block' }}>Ride Orders</span>
-                <span style={{ fontSize: 11, color: 'rgba(255,255,255,0.3)' }}>Bike & Car</span>
               </button>
               <button onClick={() => setTab('food')} style={{ padding: 16, borderRadius: 16, background: 'rgba(250,204,21,0.1)', backdropFilter: 'blur(16px)', border: '1px solid rgba(250,204,21,0.25)', cursor: 'pointer', textAlign: 'center' }}>
                 <span style={{ fontSize: 28, display: 'block', marginBottom: 6 }}>🍔</span>
                 <span style={{ fontSize: 13, fontWeight: 800, color: '#FACC15', display: 'block' }}>Food Delivery</span>
-                <span style={{ fontSize: 11, color: 'rgba(255,255,255,0.3)' }}>{foodOrders.length} active</span>
-              </button>
-              <button onClick={() => setTab('earnings')} style={{ padding: 16, borderRadius: 16, background: 'rgba(255,255,255,0.06)', backdropFilter: 'blur(16px)', border: '1px solid rgba(255,255,255,0.1)', cursor: 'pointer', textAlign: 'center' }}>
-                <span style={{ fontSize: 28, display: 'block', marginBottom: 6 }}>💰</span>
-                <span style={{ fontSize: 13, fontWeight: 800, color: '#fff', display: 'block' }}>Earnings</span>
-                <span style={{ fontSize: 11, color: 'rgba(255,255,255,0.3)' }}>History & payouts</span>
-              </button>
-              <button onClick={() => setTab('profile')} style={{ padding: 16, borderRadius: 16, background: 'rgba(255,255,255,0.06)', backdropFilter: 'blur(16px)', border: '1px solid rgba(255,255,255,0.1)', cursor: 'pointer', textAlign: 'center' }}>
-                <span style={{ fontSize: 28, display: 'block', marginBottom: 6 }}>👤</span>
-                <span style={{ fontSize: 13, fontWeight: 800, color: '#fff', display: 'block' }}>Profile</span>
-                <span style={{ fontSize: 11, color: 'rgba(255,255,255,0.3)' }}>Settings & docs</span>
               </button>
             </div>
           </>
