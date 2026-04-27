@@ -1,8 +1,8 @@
 export default {
   // Landing
   'landing.tagline':     '🇮🇩 印度尼西亚',
-  'landing.headline':    '美食。出行。\n约会与更多。',
-  'landing.sub':         '你需要的一切 — 触手可及。',
+  'landing.headline':    '摩托车。汽车。\n美食配送。',
+  'landing.sub':         '超值优惠 — 触手可及。',
   'landing.getStarted':  '免费开始',
   'landing.signIn':      '已有账号？登录',
   'landing.browse':      '先探索，无需注册 →',

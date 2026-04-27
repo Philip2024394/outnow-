@@ -148,7 +148,7 @@ export default function App() {
       <ErrorBoundary>
         <LanguageProvider>
           <LandingScreen
-            onGetStarted={() => setJoinOpen(true)}
+            onGetStarted={() => { if (import.meta.env.VITE_DEMO_MODE === 'true') { setGuestMode(true) } else { setJoinOpen(true) } }}
             onSignIn={() => setJoinOpen(true)}
             onBrowse={() => setGuestMode(true)}
           />
