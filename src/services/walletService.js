@@ -256,3 +256,279 @@ export function fmtIDR(n) {
   if (!n) return 'Rp 0'
   return 'Rp ' + Number(n).toLocaleString('id-ID')
 }
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// Prepaid Wallet System (driver/restaurant wallets with minimums)
+// localStorage keys: indoo_wallet_{userId}, indoo_wallet_topups_{userId},
+//   indoo_wallet_deductions_{userId}, indoo_wallet_alerts_{userId}
+// ═══════════════════════════════════════════════════════════════════════════════
+
+const MINIMUM_BALANCES = {
+  bike_rider: 30000,
+  car_driver: 100000,
+  restaurant: 50000,
+}
+
+const DEFAULT_DEMO_BALANCE = 50000
+const DEACTIVATION_HOURS = 24
+
+function getPrepaidWalletKey(userId) { return `indoo_wallet_${userId}` }
+function getTopupsKey(userId) { return `indoo_wallet_topups_${userId}` }
+function getDeductionsKey(userId) { return `indoo_wallet_deductions_${userId}` }
+function getAlertsKey(userId) { return `indoo_wallet_alerts_${userId}` }
+
+function readJSON(key, fallback = null) {
+  try { return JSON.parse(localStorage.getItem(key)) || fallback }
+  catch { return fallback }
+}
+function writeJSON(key, value) {
+  try { localStorage.setItem(key, JSON.stringify(value)) } catch {}
+}
+
+/**
+ * Get or create a prepaid wallet for a user.
+ * Creates with demo balance (Rp 50,000) if none exists.
+ */
+export async function getPrepaidWallet(userId, userType = 'bike_rider') {
+  // Try Supabase first
+  if (supabase && userId && userId !== 'demo') {
+    try {
+      const { data } = await supabase.from('wallets').select('*').eq('user_id', userId).single()
+      if (data) return data
+    } catch {}
+  }
+
+  // localStorage demo mode
+  const key = getPrepaidWalletKey(userId)
+  let w = readJSON(key)
+  if (!w) {
+    w = {
+      user_id: userId,
+      user_type: userType,
+      balance: DEFAULT_DEMO_BALANCE,
+      minimum: MINIMUM_BALANCES[userType] || 30000,
+      status: 'active',
+      created_at: new Date().toISOString(),
+      restricted_at: null,
+      deactivated_at: null,
+    }
+    writeJSON(key, w)
+  }
+  return w
+}
+
+/**
+ * Top up wallet balance.
+ * @returns updated wallet object
+ */
+export async function topUpPrepaidWallet(userId, amount, method = 'bank_transfer') {
+  if (supabase && userId && userId !== 'demo') {
+    try {
+      const { data } = await supabase.rpc('prepaid_top_up', {
+        p_user_id: userId, p_amount: Math.round(amount), p_method: method,
+      })
+      if (data) return data
+    } catch {}
+  }
+
+  const key = getPrepaidWalletKey(userId)
+  const w = readJSON(key)
+  if (!w) return null
+
+  w.balance = (w.balance || 0) + Math.round(amount)
+
+  // If was restricted/deactivated and now meets minimum, reactivate
+  if ((w.status === 'restricted' || w.status === 'deactivated') && w.balance >= (w.minimum || 30000)) {
+    w.status = 'active'
+    w.restricted_at = null
+    w.deactivated_at = null
+  }
+  writeJSON(key, w)
+
+  // Record topup
+  const topups = readJSON(getTopupsKey(userId), [])
+  topups.push({
+    id: `tu_${Date.now()}`,
+    amount: Math.round(amount),
+    method,
+    balance_after: w.balance,
+    date: new Date().toISOString(),
+  })
+  writeJSON(getTopupsKey(userId), topups)
+
+  return w
+}
+
+/**
+ * Deduct commission from wallet after an order.
+ * If balance drops below minimum, sets status to 'restricted'.
+ */
+export async function deductCommission(userId, orderId, orderType, orderTotal, rate = 0.10) {
+  const commission = Math.round(orderTotal * rate)
+
+  if (supabase && userId && userId !== 'demo') {
+    try {
+      const { data } = await supabase.rpc('deduct_wallet_commission', {
+        p_user_id: userId, p_order_id: String(orderId),
+        p_order_type: orderType, p_amount: commission,
+      })
+      if (data) return data
+    } catch {}
+  }
+
+  const key = getPrepaidWalletKey(userId)
+  const w = readJSON(key)
+  if (!w) return { success: false }
+
+  w.balance = Math.max(0, (w.balance || 0) - commission)
+
+  const deduction = {
+    id: `ded_${Date.now()}`,
+    order_id: orderId,
+    order_type: orderType,
+    order_total: orderTotal,
+    commission,
+    rate,
+    balance_after: w.balance,
+    date: new Date().toISOString(),
+  }
+
+  // Check if below minimum
+  if (w.balance < (w.minimum || 30000) && w.status === 'active') {
+    w.status = 'restricted'
+    w.restricted_at = new Date().toISOString()
+    // Add alert
+    const alerts = readJSON(getAlertsKey(userId), [])
+    alerts.push({
+      id: `alert_${Date.now()}`,
+      type: 'balance_low',
+      message: `Balance dropped below minimum (Rp ${(w.minimum || 30000).toLocaleString('id-ID')}). Top up to continue receiving orders.`,
+      read: false,
+      date: new Date().toISOString(),
+    })
+    writeJSON(getAlertsKey(userId), alerts)
+  }
+
+  writeJSON(key, w)
+
+  // Record deduction
+  const deductions = readJSON(getDeductionsKey(userId), [])
+  deductions.push(deduction)
+  writeJSON(getDeductionsKey(userId), deductions)
+
+  return { success: true, wallet: w, deduction }
+}
+
+/**
+ * Check wallet status. If restricted for 24+ hours, deactivate.
+ */
+export async function checkWalletStatus(userId) {
+  if (supabase && userId && userId !== 'demo') {
+    try {
+      const { data } = await supabase.from('wallets').select('*').eq('user_id', userId).single()
+      if (data) return {
+        status: data.status,
+        balance: data.balance,
+        minimum: data.minimum,
+        canReceiveOrders: data.status === 'active',
+        hoursRemaining: null,
+      }
+    } catch {}
+  }
+
+  const key = getPrepaidWalletKey(userId)
+  const w = readJSON(key)
+  if (!w) return { status: 'unknown', balance: 0, minimum: 30000, canReceiveOrders: false, hoursRemaining: 0 }
+
+  let hoursRemaining = null
+
+  if (w.status === 'restricted' && w.restricted_at) {
+    const elapsed = (Date.now() - new Date(w.restricted_at).getTime()) / (1000 * 60 * 60)
+    if (elapsed >= DEACTIVATION_HOURS) {
+      w.status = 'deactivated'
+      w.deactivated_at = new Date().toISOString()
+      writeJSON(key, w)
+      // Alert
+      const alerts = readJSON(getAlertsKey(userId), [])
+      alerts.push({
+        id: `alert_${Date.now()}`,
+        type: 'deactivated',
+        message: 'Account deactivated due to low balance. Top up to reactivate.',
+        read: false,
+        date: new Date().toISOString(),
+      })
+      writeJSON(getAlertsKey(userId), alerts)
+    } else {
+      hoursRemaining = Math.ceil(DEACTIVATION_HOURS - elapsed)
+    }
+  }
+
+  return {
+    status: w.status,
+    balance: w.balance,
+    minimum: w.minimum || 30000,
+    canReceiveOrders: w.status === 'active',
+    hoursRemaining,
+  }
+}
+
+/**
+ * Reactivate wallet if balance meets minimum.
+ */
+export async function reactivateWallet(userId) {
+  if (supabase && userId && userId !== 'demo') {
+    try {
+      const { data } = await supabase.rpc('reactivate_wallet', { p_user_id: userId })
+      if (data) return data
+    } catch {}
+  }
+
+  const key = getPrepaidWalletKey(userId)
+  const w = readJSON(key)
+  if (!w) return null
+
+  if (w.balance >= (w.minimum || 30000)) {
+    w.status = 'active'
+    w.restricted_at = null
+    w.deactivated_at = null
+    writeJSON(key, w)
+  }
+  return w
+}
+
+/**
+ * Get last 20 topups and deductions combined, sorted by date desc.
+ */
+export async function getWalletHistory(userId) {
+  if (supabase && userId && userId !== 'demo') {
+    try {
+      const { data } = await supabase.from('wallet_transactions')
+        .select('*').eq('user_id', userId)
+        .order('created_at', { ascending: false }).limit(20)
+      if (data?.length) return data
+    } catch {}
+  }
+
+  const topups = readJSON(getTopupsKey(userId), []).map(t => ({ ...t, type: 'topup' }))
+  const deductions = readJSON(getDeductionsKey(userId), []).map(d => ({ ...d, type: 'deduction' }))
+  return [...topups, ...deductions]
+    .sort((a, b) => new Date(b.date) - new Date(a.date))
+    .slice(0, 20)
+}
+
+/**
+ * Get unread alerts for a user's wallet.
+ */
+export async function getWalletAlerts(userId) {
+  if (supabase && userId && userId !== 'demo') {
+    try {
+      const { data } = await supabase.from('wallet_alerts')
+        .select('*').eq('user_id', userId).eq('read', false)
+        .order('created_at', { ascending: false })
+      if (data) return data
+    } catch {}
+  }
+
+  const alerts = readJSON(getAlertsKey(userId), [])
+  return alerts.filter(a => !a.read)
+}

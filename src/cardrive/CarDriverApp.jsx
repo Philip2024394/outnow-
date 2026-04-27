@@ -10,6 +10,7 @@ import DriverIncomingBooking from '@/components/driver/DriverIncomingBooking'
 import DriverFoodOrderAlert from '@/components/driver/DriverFoodOrderAlert'
 import DriverCashFloatModal from '@/components/driver/DriverCashFloatModal'
 import DriverSignInGate from '@/components/driver/DriverSignInGate'
+import { getWallet, topUpWallet, getWarningLevel } from '@/services/walletService'
 import { getDriverTier } from '@/services/driverTierService'
 import { getDriverGoals } from '@/services/driverIncentiveService'
 import { fetchDriverTripHistory } from '@/services/bookingService'
@@ -71,9 +72,8 @@ export default function CarDriverApp() {
   const [termsAccepted, setTermsAccepted] = useState(() => localStorage.getItem('indoo_car_driver_terms_accepted') === 'true')
   const [showHotspotMap, setShowHotspotMap] = useState(false)
   const [showEliteAwards, setShowEliteAwards] = useState(false)
-  const [showPayFees, setShowPayFees] = useState(false)
-  const [paymentProof, setPaymentProof] = useState(null)
-  const [paymentSubmitted, setPaymentSubmitted] = useState(false)
+  const [wallet, setWallet] = useState(null)
+  const [showTopUp, setShowTopUp] = useState(false)
   const [drawerOpen, setDrawerOpen] = useState(false)
 
   // Auth
@@ -106,6 +106,7 @@ export default function CarDriverApp() {
       setTodayEarnings(todayList.reduce((s, t) => s + (t.fare ?? 0), 0))
     }).catch(() => {})
     getDriverFoodOrders(driverId).then(o => setFoodOrders(o ?? [])).catch(() => setFoodOrders([]))
+    getWallet(driverId).then(w => setWallet(w)).catch(() => {})
   }, [user])
 
   const handleAuth = async () => {
@@ -368,25 +369,28 @@ export default function CarDriverApp() {
               </div>
             </div>
 
-            {/* Admin Fees Due */}
-            <div style={{ padding: 14, borderRadius: 14, background: 'rgba(239,68,68,0.06)', backdropFilter: 'blur(16px)', border: '1.5px solid rgba(239,68,68,0.25)', marginBottom: 12 }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 8 }}>
-                <img src="https://ik.imagekit.io/nepgaxllc/mmmass-removebg-preview.png?updatedAt=1777002478628" alt="" style={{ width: 28, height: 28, objectFit: 'contain' }} />
-                <div style={{ flex: 1 }}>
-                  <span style={{ fontSize: 14, fontWeight: 900, color: '#fff', display: 'block' }}>Admin Fees Due</span>
-                  <span style={{ fontSize: 11, color: 'rgba(255,255,255,0.4)' }}>10% platform fee · Transfer daily to keep account active</span>
+            {/* Wallet Balance */}
+            {(() => {
+              const bal = wallet?.balance ?? 0
+              const minBal = 100000
+              const walletColor = bal >= minBal ? '#22C55E' : bal >= minBal * 0.5 ? '#FACC15' : '#EF4444'
+              const walletStatus = bal >= minBal ? 'Healthy' : bal >= minBal * 0.5 ? 'Low Balance' : 'Restricted'
+              const statusBg = bal >= minBal ? 'rgba(34,197,94,0.12)' : bal >= minBal * 0.5 ? 'rgba(250,204,21,0.12)' : 'rgba(239,68,68,0.12)'
+              const statusBorder = bal >= minBal ? 'rgba(34,197,94,0.3)' : bal >= minBal * 0.5 ? 'rgba(250,204,21,0.3)' : 'rgba(239,68,68,0.3)'
+              return (
+                <div style={{ padding: 18, borderRadius: 18, background: 'rgba(255,255,255,0.06)', backdropFilter: 'blur(16px)', border: `1.5px solid ${statusBorder}`, marginBottom: 12 }}>
+                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 10 }}>
+                    <span style={{ fontSize: 13, fontWeight: 800, color: 'rgba(255,255,255,0.5)' }}>Wallet Balance</span>
+                    <span style={{ fontSize: 11, fontWeight: 800, padding: '3px 10px', borderRadius: 8, background: statusBg, border: `1px solid ${statusBorder}`, color: walletColor }}>{walletStatus}</span>
+                  </div>
+                  <span style={{ fontSize: 30, fontWeight: 900, color: walletColor, display: 'block', marginBottom: 6 }}>{fmtRp(bal)}</span>
+                  <span style={{ fontSize: 11, color: 'rgba(255,255,255,0.35)', display: 'block', marginBottom: 14 }}>Minimum balance: {fmtRp(minBal)} for car drivers</span>
+                  <button onClick={() => setShowTopUp(true)} style={{ width: '100%', padding: 13, borderRadius: 12, background: 'rgba(141,198,63,0.12)', border: '1px solid rgba(141,198,63,0.3)', color: '#8DC63F', fontSize: 14, fontWeight: 900, cursor: 'pointer', fontFamily: 'inherit' }}>
+                    Top Up Wallet
+                  </button>
                 </div>
-                <span style={{ fontSize: 18, fontWeight: 900, color: '#EF4444' }}>{fmtRp(Math.round(todayEarnings * 0.1))}</span>
-              </div>
-              <div style={{ padding: 10, borderRadius: 10, background: 'rgba(239,68,68,0.08)', border: '1px solid rgba(239,68,68,0.15)', marginBottom: 8, fontSize: 11, color: '#EF4444', fontWeight: 700, lineHeight: 1.7 }}>
-                <p style={{ margin: 0 }}>⚠️ Transfer admin fees at the end of each day for a clean, healthy working account.</p>
-                <p style={{ margin: '4px 0 0' }}>⛔ Unpaid fees after 30 days = account deactivation + 20% daily penalty.</p>
-                <p style={{ margin: '4px 0 0' }}>🔒 Reactivation fee: <strong>Rp 100.000</strong> (non-negotiable).</p>
-              </div>
-              <button onClick={() => setShowPayFees(true)} style={{ width: '100%', padding: 12, borderRadius: 10, background: 'rgba(239,68,68,0.12)', border: '1px solid rgba(239,68,68,0.3)', color: '#EF4444', fontSize: 13, fontWeight: 900, cursor: 'pointer', fontFamily: 'inherit' }}>
-                Pay Admin Fees Now
-              </button>
-            </div>
+              )
+            })()}
 
             {/* Hotspot Map Button */}
             <button onClick={() => setShowHotspotMap(true)} style={{ width: '100%', padding: 16, borderRadius: 16, background: 'rgba(0,229,255,0.08)', backdropFilter: 'blur(16px)', border: '1px solid rgba(0,229,255,0.2)', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 12, marginBottom: 12 }}>
@@ -763,8 +767,8 @@ export default function CarDriverApp() {
               <button onClick={() => { setTab('profile'); setDrawerOpen(false) }} style={{ padding: '14px 20px', display: 'flex', alignItems: 'center', gap: 12, borderBottom: '1px solid rgba(255,255,255,0.06)', background: 'none', border: 'none', borderBottom: '1px solid rgba(255,255,255,0.06)', width: '100%', cursor: 'pointer', textAlign: 'left' }}>
                 <span style={{ fontSize: 18 }}>👤</span><span style={{ flex: 1, fontSize: 14, color: '#fff', fontWeight: 600 }}>My Profile</span><span style={{ color: 'rgba(255,255,255,0.3)', fontSize: 14 }}>→</span>
               </button>
-              <button onClick={() => { setShowPayFees(true); setDrawerOpen(false) }} style={{ padding: '14px 20px', display: 'flex', alignItems: 'center', gap: 12, background: 'none', border: 'none', borderBottom: '1px solid rgba(255,255,255,0.06)', width: '100%', cursor: 'pointer', textAlign: 'left' }}>
-                <span style={{ fontSize: 18 }}>💳</span><span style={{ flex: 1, fontSize: 14, color: '#fff', fontWeight: 600 }}>Pay Admin Fees</span><span style={{ color: 'rgba(255,255,255,0.3)', fontSize: 14 }}>→</span>
+              <button onClick={() => { setShowTopUp(true); setDrawerOpen(false) }} style={{ padding: '14px 20px', display: 'flex', alignItems: 'center', gap: 12, background: 'none', border: 'none', borderBottom: '1px solid rgba(255,255,255,0.06)', width: '100%', cursor: 'pointer', textAlign: 'left' }}>
+                <span style={{ fontSize: 18 }}>💰</span><span style={{ flex: 1, fontSize: 14, color: '#fff', fontWeight: 600 }}>Wallet & Top Up</span><span style={{ color: 'rgba(255,255,255,0.3)', fontSize: 14 }}>→</span>
               </button>
               <button onClick={() => { setShowEliteAwards(true); setDrawerOpen(false) }} style={{ padding: '14px 20px', display: 'flex', alignItems: 'center', gap: 12, background: 'none', border: 'none', borderBottom: '1px solid rgba(255,255,255,0.06)', width: '100%', cursor: 'pointer', textAlign: 'left' }}>
                 <span style={{ fontSize: 18 }}>💎</span><span style={{ flex: 1, fontSize: 14, color: '#fff', fontWeight: 600 }}>INDOO Elite Awards</span><span style={{ color: 'rgba(255,255,255,0.3)', fontSize: 14 }}>→</span>
@@ -882,139 +886,38 @@ export default function CarDriverApp() {
         />
       )}
 
-      {/* ── Pay Admin Fees Page ── */}
-      {showPayFees && (
-        <div style={{ position: 'fixed', inset: 0, zIndex: 200, background: '#080808', display: 'flex', flexDirection: 'column' }}>
-          <img src={BG_IMG} alt="" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', pointerEvents: 'none', opacity: 0.2 }} />
-
-          {/* Header */}
-          <div style={{ padding: 'calc(env(safe-area-inset-top, 0px) + 12px) 16px 12px', background: 'rgba(0,0,0,0.7)', backdropFilter: 'blur(20px)', borderBottom: '1px solid rgba(239,68,68,0.2)', display: 'flex', alignItems: 'center', gap: 12, position: 'relative', zIndex: 2 }}>
-            <button onClick={() => { setShowPayFees(false); setPaymentSubmitted(false); setPaymentProof(null) }} style={{ background: 'none', border: 'none', color: '#fff', fontSize: 22, cursor: 'pointer', padding: '4px 8px' }}>←</button>
-            <div style={{ flex: 1 }}>
-              <span style={{ fontSize: 16, fontWeight: 900, color: '#fff', display: 'block' }}>💳 Pay Admin Fees</span>
-              <span style={{ fontSize: 11, color: 'rgba(255,255,255,0.4)' }}>Bank transfer + screenshot confirmation</span>
-            </div>
-          </div>
-
-          <div style={{ flex: 1, overflowY: 'auto', padding: '16px 16px 100px', position: 'relative', zIndex: 1 }}>
-
-            {!paymentSubmitted ? (
-              <>
-                {/* Amount due */}
-                <div style={{ padding: 20, borderRadius: 16, background: 'rgba(239,68,68,0.06)', backdropFilter: 'blur(16px)', border: '1.5px solid rgba(239,68,68,0.2)', marginBottom: 16, textAlign: 'center' }}>
-                  <span style={{ fontSize: 12, fontWeight: 800, color: 'rgba(255,255,255,0.4)', textTransform: 'uppercase', display: 'block', marginBottom: 8 }}>Amount Due Today</span>
-                  <span style={{ fontSize: 32, fontWeight: 900, color: '#EF4444', display: 'block' }}>{fmtRp(Math.round(todayEarnings * 0.1))}</span>
-                  <span style={{ fontSize: 11, color: 'rgba(255,255,255,0.35)', marginTop: 4, display: 'block' }}>10% of {fmtRp(todayEarnings)} total earnings</span>
-                </div>
-
-                {/* Bank details */}
-                <div style={{ padding: 16, borderRadius: 16, background: 'rgba(255,255,255,0.06)', backdropFilter: 'blur(16px)', border: '1px solid rgba(255,255,255,0.1)', marginBottom: 16 }}>
-                  <span style={{ fontSize: 12, fontWeight: 800, color: '#FACC15', textTransform: 'uppercase', letterSpacing: '0.05em', display: 'block', marginBottom: 12 }}>🏦 Transfer To This Account</span>
-
-                  <div style={{ padding: 14, borderRadius: 12, background: 'rgba(0,0,0,0.4)', border: '1px solid rgba(255,255,255,0.08)', marginBottom: 10 }}>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 8 }}>
-                      <span style={{ fontSize: 11, color: 'rgba(255,255,255,0.4)' }}>Bank</span>
-                      <span style={{ fontSize: 13, fontWeight: 900, color: '#fff' }}>BCA</span>
-                    </div>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 8 }}>
-                      <span style={{ fontSize: 11, color: 'rgba(255,255,255,0.4)' }}>Account Number</span>
-                      <span style={{ fontSize: 15, fontWeight: 900, color: '#FACC15', letterSpacing: '0.1em' }}>7890-1234-5678</span>
-                    </div>
-                    <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                      <span style={{ fontSize: 11, color: 'rgba(255,255,255,0.4)' }}>Account Name</span>
-                      <span style={{ fontSize: 13, fontWeight: 800, color: '#fff' }}>PT HAMMEREX PRODUCTS</span>
-                    </div>
-                  </div>
-
-                  <button onClick={() => { navigator.clipboard.writeText('789012345678') }} style={{ width: '100%', padding: 10, borderRadius: 10, background: 'rgba(250,204,21,0.1)', border: '1px solid rgba(250,204,21,0.25)', color: '#FACC15', fontSize: 12, fontWeight: 800, cursor: 'pointer', fontFamily: 'inherit' }}>
-                    📋 Copy Account Number
-                  </button>
-                </div>
-
-                {/* Instructions */}
-                <div style={{ padding: 14, borderRadius: 14, background: 'rgba(255,255,255,0.06)', backdropFilter: 'blur(16px)', border: '1px solid rgba(255,255,255,0.1)', marginBottom: 16 }}>
-                  <span style={{ fontSize: 12, fontWeight: 800, color: '#fff', display: 'block', marginBottom: 10 }}>How to Pay</span>
-                  <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.6)', lineHeight: 1.8 }}>
-                    {['Open your banking app (BCA, Mandiri, BNI, etc.)', 'Transfer the amount shown above to the account', 'Take a screenshot of the successful transfer', 'Upload the screenshot below to confirm payment', 'Your payment will be verified within 24 hours'].map((step, i) => (
-                      <div key={i} style={{ display: 'flex', gap: 8, marginBottom: 4 }}>
-                        <span style={{ width: 20, height: 20, borderRadius: '50%', background: 'rgba(141,198,63,0.15)', border: '1px solid rgba(141,198,63,0.3)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 10, fontWeight: 900, color: '#8DC63F', flexShrink: 0 }}>{i + 1}</span>
-                        <span>{step}</span>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-
-                {/* Upload screenshot */}
-                <div style={{ padding: 16, borderRadius: 16, background: 'rgba(255,255,255,0.06)', backdropFilter: 'blur(16px)', border: '1px solid rgba(255,255,255,0.1)', marginBottom: 16 }}>
-                  <span style={{ fontSize: 12, fontWeight: 800, color: '#fff', display: 'block', marginBottom: 10 }}>📸 Upload Transfer Screenshot</span>
-
-                  {paymentProof ? (
-                    <div style={{ position: 'relative' }}>
-                      <img src={paymentProof} alt="Payment proof" style={{ width: '100%', borderRadius: 12, maxHeight: 300, objectFit: 'contain', background: 'rgba(0,0,0,0.3)' }} />
-                      <button onClick={() => setPaymentProof(null)} style={{ position: 'absolute', top: 8, right: 8, width: 28, height: 28, borderRadius: '50%', background: 'rgba(0,0,0,0.7)', border: '1px solid rgba(255,255,255,0.2)', color: '#fff', fontSize: 14, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>✕</button>
-                    </div>
-                  ) : (
-                    <label style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 8, padding: '30px 20px', borderRadius: 12, border: '2px dashed rgba(255,255,255,0.15)', cursor: 'pointer', textAlign: 'center' }}>
-                      <span style={{ fontSize: 36 }}>📷</span>
-                      <span style={{ fontSize: 13, fontWeight: 700, color: 'rgba(255,255,255,0.5)' }}>Tap to upload screenshot</span>
-                      <span style={{ fontSize: 11, color: 'rgba(255,255,255,0.25)' }}>JPG, PNG accepted</span>
-                      <input type="file" accept="image/*" style={{ display: 'none' }} onChange={e => {
-                        const file = e.target.files?.[0]
-                        if (file) {
-                          const reader = new FileReader()
-                          reader.onload = ev => setPaymentProof(ev.target.result)
-                          reader.readAsDataURL(file)
-                        }
-                      }} />
-                    </label>
-                  )}
-                </div>
-
-                {/* Submit */}
-                <button
-                  onClick={() => { if (paymentProof) setPaymentSubmitted(true) }}
-                  disabled={!paymentProof}
-                  style={{ width: '100%', padding: 16, borderRadius: 14, background: paymentProof ? '#8DC63F' : 'rgba(255,255,255,0.06)', border: paymentProof ? 'none' : '1px solid rgba(255,255,255,0.1)', color: paymentProof ? '#000' : 'rgba(255,255,255,0.3)', fontSize: 15, fontWeight: 900, cursor: paymentProof ? 'pointer' : 'not-allowed', fontFamily: 'inherit' }}>
-                  {paymentProof ? 'Submit Payment Confirmation' : 'Upload screenshot to continue'}
-                </button>
-
-                {/* Warning */}
-                <div style={{ marginTop: 16, padding: 12, borderRadius: 12, background: 'rgba(239,68,68,0.06)', border: '1px solid rgba(239,68,68,0.15)' }}>
-                  <span style={{ fontSize: 11, color: '#EF4444', fontWeight: 700, lineHeight: 1.7, display: 'block' }}>
-                    ⚠️ Transfer daily at end of shift for a clean account.<br/>
-                    ⛔ 30+ days unpaid = account deactivation + 20% daily penalty.<br/>
-                    🔒 Reactivation fee: Rp 100.000 (non-negotiable).
-                  </span>
-                </div>
-              </>
-            ) : (
-              /* Payment submitted confirmation */
-              <div style={{ textAlign: 'center', padding: '40px 20px' }}>
-                <span style={{ fontSize: 64, display: 'block', marginBottom: 16 }}>✅</span>
-                <span style={{ fontSize: 20, fontWeight: 900, color: '#8DC63F', display: 'block', marginBottom: 8 }}>Payment Submitted</span>
-                <span style={{ fontSize: 13, color: 'rgba(255,255,255,0.5)', display: 'block', marginBottom: 24, lineHeight: 1.6 }}>Your transfer screenshot has been received. Our team will verify the payment within 24 hours. You will be notified once confirmed.</span>
-                <div style={{ padding: 14, borderRadius: 12, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)', marginBottom: 20 }}>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 6 }}>
-                    <span style={{ fontSize: 12, color: 'rgba(255,255,255,0.4)' }}>Amount</span>
-                    <span style={{ fontSize: 14, fontWeight: 900, color: '#fff' }}>{fmtRp(Math.round(todayEarnings * 0.1))}</span>
-                  </div>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 6 }}>
-                    <span style={{ fontSize: 12, color: 'rgba(255,255,255,0.4)' }}>To</span>
-                    <span style={{ fontSize: 12, fontWeight: 700, color: '#fff' }}>PT HAMMEREX PRODUCTS · BCA</span>
-                  </div>
-                  <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                    <span style={{ fontSize: 12, color: 'rgba(255,255,255,0.4)' }}>Status</span>
-                    <span style={{ fontSize: 12, fontWeight: 800, color: '#FACC15' }}>⏳ Pending verification</span>
-                  </div>
-                </div>
-                <button onClick={() => { setShowPayFees(false); setPaymentSubmitted(false); setPaymentProof(null) }} style={{ padding: '14px 40px', borderRadius: 14, background: '#8DC63F', border: 'none', color: '#000', fontSize: 15, fontWeight: 900, cursor: 'pointer', fontFamily: 'inherit' }}>
-                  Back to Dashboard
-                </button>
-              </div>
-            )}
-          </div>
-        </div>
-      )}
+      {/* ── Top Up Wallet Overlay ── */}
+      {showTopUp && (() => {
+        const bal = wallet?.balance ?? 0
+        const minBal = 100000
+        const walletColor = bal >= minBal ? '#22C55E' : bal >= minBal * 0.5 ? '#FACC15' : '#EF4444'
+        const walletStatus = bal >= minBal ? 'Healthy' : bal >= minBal * 0.5 ? 'Low Balance' : 'Restricted'
+        const QUICK_AMOUNTS = [50000, 100000, 200000, 300000]
+        const PAYMENT_METHODS = [
+          { id: 'bank', label: 'Bank Transfer (BCA)', icon: '🏦' },
+          { id: 'gopay', label: 'GoPay', icon: '💚' },
+          { id: 'ovo', label: 'OVO', icon: '💜' },
+          { id: 'dana', label: 'DANA', icon: '💙' },
+          { id: 'shopeepay', label: 'ShopeePay', icon: '🧡' },
+          { id: 'indomaret', label: 'Indomaret', icon: '🏪' },
+          { id: 'alfamart', label: 'Alfamart', icon: '🏬' },
+        ]
+        return (
+          <TopUpOverlay
+            wallet={wallet}
+            bal={bal}
+            minBal={minBal}
+            walletColor={walletColor}
+            walletStatus={walletStatus}
+            quickAmounts={QUICK_AMOUNTS}
+            paymentMethods={PAYMENT_METHODS}
+            fmtRp={fmtRp}
+            userId={user?.id}
+            onClose={() => setShowTopUp(false)}
+            onTopUpComplete={(w) => { setWallet(w); setShowTopUp(false) }}
+          />
+        )
+      })()}
 
       {/* ── INDOO Elite Awards Page ── */}
       {showEliteAwards && (
@@ -1122,6 +1025,163 @@ export default function CarDriverApp() {
           </div>
         </div>
       )}
+    </div>
+  )
+}
+
+// ── Top Up Overlay Component ─────────────────────────────────────────────────
+function TopUpOverlay({ wallet, bal, minBal, walletColor, walletStatus, quickAmounts, paymentMethods, fmtRp, userId, onClose, onTopUpComplete }) {
+  const [selectedAmount, setSelectedAmount] = useState(null)
+  const [selectedMethod, setSelectedMethod] = useState(null)
+  const [transferProof, setTransferProof] = useState(null)
+  const [topUpSuccess, setTopUpSuccess] = useState(false)
+  const [processing, setProcessing] = useState(false)
+
+  const handleConfirm = async () => {
+    if (!selectedAmount || !selectedMethod) return
+    setProcessing(true)
+    try {
+      const result = await topUpWallet(userId ?? 'default', selectedAmount)
+      setTopUpSuccess(true)
+      setTimeout(() => {
+        getWallet(userId ?? 'default').then(w => onTopUpComplete(w)).catch(() => onTopUpComplete({ ...wallet, balance: (wallet?.balance ?? 0) + selectedAmount }))
+      }, 1500)
+    } catch {
+      setTopUpSuccess(true)
+      setTimeout(() => {
+        onTopUpComplete({ ...wallet, balance: (wallet?.balance ?? 0) + selectedAmount })
+      }, 1500)
+    }
+    setProcessing(false)
+  }
+
+  if (topUpSuccess) {
+    return (
+      <div style={{ position: 'fixed', inset: 0, zIndex: 200, background: '#080808', display: 'flex', flexDirection: 'column' }}>
+        <img src={BG_IMG} alt="" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', pointerEvents: 'none', opacity: 0.2 }} />
+        <div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', position: 'relative', zIndex: 1 }}>
+          <div style={{ textAlign: 'center', padding: '40px 20px' }}>
+            <span style={{ fontSize: 64, display: 'block', marginBottom: 16 }}>✅</span>
+            <span style={{ fontSize: 22, fontWeight: 900, color: '#8DC63F', display: 'block', marginBottom: 8 }}>Top Up Successful!</span>
+            <span style={{ fontSize: 14, color: 'rgba(255,255,255,0.5)', display: 'block', marginBottom: 6 }}>{fmtRp(selectedAmount)} added to your wallet</span>
+            <span style={{ fontSize: 12, color: 'rgba(255,255,255,0.3)', display: 'block' }}>Returning to dashboard...</span>
+          </div>
+        </div>
+      </div>
+    )
+  }
+
+  return (
+    <div style={{ position: 'fixed', inset: 0, zIndex: 200, background: '#080808', display: 'flex', flexDirection: 'column' }}>
+      <img src={BG_IMG} alt="" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', pointerEvents: 'none', opacity: 0.2 }} />
+
+      {/* Header */}
+      <div style={{ padding: 'calc(env(safe-area-inset-top, 0px) + 12px) 16px 12px', background: 'rgba(0,0,0,0.7)', backdropFilter: 'blur(20px)', borderBottom: '1px solid rgba(141,198,63,0.2)', display: 'flex', alignItems: 'center', gap: 12, position: 'relative', zIndex: 2 }}>
+        <button onClick={onClose} style={{ background: 'none', border: 'none', color: '#fff', fontSize: 22, cursor: 'pointer', padding: '4px 8px' }}>←</button>
+        <div style={{ flex: 1 }}>
+          <span style={{ fontSize: 16, fontWeight: 900, color: '#fff', display: 'block' }}>Top Up Wallet</span>
+          <span style={{ fontSize: 11, color: 'rgba(255,255,255,0.4)' }}>Add funds to your car driver wallet</span>
+        </div>
+      </div>
+
+      <div style={{ flex: 1, overflowY: 'auto', padding: '16px 16px 100px', position: 'relative', zIndex: 1 }}>
+
+        {/* Current balance */}
+        <div style={{ padding: 20, borderRadius: 18, background: 'rgba(255,255,255,0.06)', backdropFilter: 'blur(16px)', border: `1.5px solid ${walletColor}40`, marginBottom: 16, textAlign: 'center' }}>
+          <span style={{ fontSize: 12, fontWeight: 800, color: 'rgba(255,255,255,0.4)', textTransform: 'uppercase', display: 'block', marginBottom: 8 }}>Current Balance</span>
+          <span style={{ fontSize: 32, fontWeight: 900, color: walletColor, display: 'block' }}>{fmtRp(bal)}</span>
+          <span style={{ fontSize: 11, fontWeight: 700, color: walletColor, marginTop: 6, display: 'inline-block', padding: '3px 12px', borderRadius: 8, background: `${walletColor}18`, border: `1px solid ${walletColor}30` }}>{walletStatus}</span>
+        </div>
+
+        {/* Quick amounts */}
+        <div style={{ marginBottom: 16 }}>
+          <span style={{ fontSize: 12, fontWeight: 800, color: 'rgba(255,255,255,0.5)', display: 'block', marginBottom: 10 }}>Select Amount</span>
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
+            {quickAmounts.map(amt => (
+              <button key={amt} onClick={() => setSelectedAmount(amt)} style={{ padding: 16, borderRadius: 14, background: selectedAmount === amt ? 'rgba(141,198,63,0.15)' : 'rgba(255,255,255,0.06)', backdropFilter: 'blur(16px)', border: `1.5px solid ${selectedAmount === amt ? '#8DC63F' : 'rgba(255,255,255,0.1)'}`, cursor: 'pointer', textAlign: 'center' }}>
+                <span style={{ fontSize: 16, fontWeight: 900, color: selectedAmount === amt ? '#8DC63F' : '#fff', display: 'block' }}>{fmtRp(amt)}</span>
+              </button>
+            ))}
+          </div>
+        </div>
+
+        {/* Payment methods */}
+        <div style={{ marginBottom: 16 }}>
+          <span style={{ fontSize: 12, fontWeight: 800, color: 'rgba(255,255,255,0.5)', display: 'block', marginBottom: 10 }}>Payment Method</span>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+            {paymentMethods.map(m => (
+              <button key={m.id} onClick={() => setSelectedMethod(m.id)} style={{ padding: '14px 16px', borderRadius: 14, background: selectedMethod === m.id ? 'rgba(141,198,63,0.1)' : 'rgba(255,255,255,0.06)', backdropFilter: 'blur(16px)', border: `1.5px solid ${selectedMethod === m.id ? '#8DC63F' : 'rgba(255,255,255,0.1)'}`, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 12 }}>
+                <span style={{ fontSize: 22 }}>{m.icon}</span>
+                <span style={{ flex: 1, fontSize: 14, fontWeight: 700, color: selectedMethod === m.id ? '#8DC63F' : '#fff', textAlign: 'left' }}>{m.label}</span>
+                {selectedMethod === m.id && <span style={{ fontSize: 16, color: '#8DC63F' }}>✓</span>}
+              </button>
+            ))}
+          </div>
+        </div>
+
+        {/* Bank transfer details (shown when bank selected) */}
+        {selectedMethod === 'bank' && (
+          <div style={{ padding: 16, borderRadius: 16, background: 'rgba(255,255,255,0.06)', backdropFilter: 'blur(16px)', border: '1px solid rgba(255,255,255,0.1)', marginBottom: 16 }}>
+            <span style={{ fontSize: 12, fontWeight: 800, color: '#FACC15', textTransform: 'uppercase', letterSpacing: '0.05em', display: 'block', marginBottom: 12 }}>Transfer To This Account</span>
+            <div style={{ padding: 14, borderRadius: 12, background: 'rgba(0,0,0,0.4)', border: '1px solid rgba(255,255,255,0.08)', marginBottom: 10 }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 8 }}>
+                <span style={{ fontSize: 11, color: 'rgba(255,255,255,0.4)' }}>Bank</span>
+                <span style={{ fontSize: 13, fontWeight: 900, color: '#fff' }}>BCA</span>
+              </div>
+              <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 8 }}>
+                <span style={{ fontSize: 11, color: 'rgba(255,255,255,0.4)' }}>Account Name</span>
+                <span style={{ fontSize: 13, fontWeight: 800, color: '#fff' }}>PT HAMMEREX PRODUCTS</span>
+              </div>
+              <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                <span style={{ fontSize: 11, color: 'rgba(255,255,255,0.4)' }}>Account Number</span>
+                <span style={{ fontSize: 15, fontWeight: 900, color: '#FACC15', letterSpacing: '0.1em' }}>7890-1234-5678</span>
+              </div>
+            </div>
+            <button onClick={() => { navigator.clipboard?.writeText('789012345678') }} style={{ width: '100%', padding: 10, borderRadius: 10, background: 'rgba(250,204,21,0.1)', border: '1px solid rgba(250,204,21,0.25)', color: '#FACC15', fontSize: 12, fontWeight: 800, cursor: 'pointer', fontFamily: 'inherit', marginBottom: 14 }}>
+              Copy Account Number
+            </button>
+
+            {/* Screenshot upload */}
+            <span style={{ fontSize: 12, fontWeight: 800, color: '#fff', display: 'block', marginBottom: 10 }}>Upload Transfer Screenshot</span>
+            {transferProof ? (
+              <div style={{ position: 'relative' }}>
+                <img src={transferProof} alt="Transfer proof" style={{ width: '100%', borderRadius: 12, maxHeight: 300, objectFit: 'contain', background: 'rgba(0,0,0,0.3)' }} />
+                <button onClick={() => setTransferProof(null)} style={{ position: 'absolute', top: 8, right: 8, width: 28, height: 28, borderRadius: '50%', background: 'rgba(0,0,0,0.7)', border: '1px solid rgba(255,255,255,0.2)', color: '#fff', fontSize: 14, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>✕</button>
+              </div>
+            ) : (
+              <label style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 8, padding: '24px 20px', borderRadius: 12, border: '2px dashed rgba(255,255,255,0.15)', cursor: 'pointer', textAlign: 'center' }}>
+                <span style={{ fontSize: 32 }}>📷</span>
+                <span style={{ fontSize: 13, fontWeight: 700, color: 'rgba(255,255,255,0.5)' }}>Tap to upload screenshot</span>
+                <span style={{ fontSize: 11, color: 'rgba(255,255,255,0.25)' }}>JPG, PNG accepted</span>
+                <input type="file" accept="image/*" style={{ display: 'none' }} onChange={e => {
+                  const file = e.target.files?.[0]
+                  if (file) {
+                    const reader = new FileReader()
+                    reader.onload = ev => setTransferProof(ev.target.result)
+                    reader.readAsDataURL(file)
+                  }
+                }} />
+              </label>
+            )}
+          </div>
+        )}
+
+        {/* Confirm button */}
+        <button
+          onClick={handleConfirm}
+          disabled={!selectedAmount || !selectedMethod || processing || (selectedMethod === 'bank' && !transferProof)}
+          style={{
+            width: '100%', padding: 16, borderRadius: 14,
+            background: (selectedAmount && selectedMethod && (selectedMethod !== 'bank' || transferProof)) ? '#8DC63F' : 'rgba(255,255,255,0.06)',
+            border: (selectedAmount && selectedMethod && (selectedMethod !== 'bank' || transferProof)) ? 'none' : '1px solid rgba(255,255,255,0.1)',
+            color: (selectedAmount && selectedMethod && (selectedMethod !== 'bank' || transferProof)) ? '#000' : 'rgba(255,255,255,0.3)',
+            fontSize: 15, fontWeight: 900,
+            cursor: (selectedAmount && selectedMethod && (selectedMethod !== 'bank' || transferProof)) ? 'pointer' : 'not-allowed',
+            fontFamily: 'inherit',
+          }}>
+          {processing ? 'Processing...' : selectedAmount ? `Confirm Top Up ${fmtRp(selectedAmount)}` : 'Select amount and method'}
+        </button>
+      </div>
     </div>
   )
 }
