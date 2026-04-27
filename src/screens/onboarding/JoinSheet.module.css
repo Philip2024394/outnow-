@@ -130,11 +130,27 @@
   backdrop-filter: blur(20px);
   -webkit-backdrop-filter: blur(20px);
   border-radius: var(--radius-xl) var(--radius-xl) 0 0;
-  border-top: 3px solid #8DC63F;
+  border-top: 3px solid rgba(141,198,63,0.3);
   padding: var(--space-3) var(--space-6) calc(var(--safe-bottom) + var(--space-6));
   max-height: 92dvh;
   overflow-y: auto;
   animation: slideUp 0.3s cubic-bezier(0.32, 0.72, 0, 1);
+  overflow-x: hidden;
+}
+.sheet::before {
+  content: '';
+  position: absolute;
+  top: -3px;
+  left: 0;
+  width: 80px;
+  height: 3px;
+  background: linear-gradient(90deg, transparent, #8DC63F, transparent);
+  border-radius: 3px;
+  animation: sheetRunLight 2.5s linear infinite;
+}
+@keyframes sheetRunLight {
+  0% { left: -80px; }
+  100% { left: 100%; }
 }
 
 @keyframes slideUp {
