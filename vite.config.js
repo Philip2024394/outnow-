@@ -17,6 +17,7 @@ export default defineConfig({
         main: resolve(__dirname, 'index.html'),
         vendor: resolve(__dirname, 'vendor.html'),
         driver: resolve(__dirname, 'driver.html'),
+        cardrive: resolve(__dirname, 'cardrive.html'),
         admin: resolve(__dirname, 'admin.html'),
       },
       output: {

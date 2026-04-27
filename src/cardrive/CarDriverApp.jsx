@@ -1,5 +1,5 @@
 /**
- * DriverApp — Standalone driver PWA for indoodrive.id
+ * CarDriverApp — Standalone car driver PWA for INDOO Car
  * Login → Dashboard with tabs: Rides | Food | Deals | Earnings | Profile
  */
 import { useState, useEffect, useRef } from 'react'
@@ -15,13 +15,15 @@ import { getDriverGoals } from '@/services/driverIncentiveService'
 import { fetchDriverTripHistory } from '@/services/bookingService'
 import { getDriverFoodOrders } from '@/services/foodOrderService'
 
-const BG_IMG = 'https://ik.imagekit.io/nepgaxllc/ChatGPT%20Image%20Apr%2019,%202026,%2010_51_20%20PM.png?updatedAt=1776613897705'
+const BG_IMG = 'https://ik.imagekit.io/nepgaxllc/ChatGPT%20Image%20Apr%2019,%202026,%2011_05_34%20PM.png?updatedAt=1776614750168'
+
+const CAR_IMG = 'https://ik.imagekit.io/nepgaxllc/Sporty%20green%20and%20black%20hatchback.png?updatedAt=1775634925566'
 
 const fmtRp = (n) => 'Rp ' + (n ?? 0).toLocaleString('id-ID')
 
 const TABS = [
   { id: 'home', label: 'Home', icon: '🏠' },
-  { id: 'rides', label: 'Rides', icon: '🏍️' },
+  { id: 'rides', label: 'Rides', icon: '🚕' },
   { id: 'food', label: 'Food', icon: '🍔' },
   { id: 'earnings', label: 'Earnings', icon: '💰' },
   { id: 'profile', label: 'Profile', icon: '👤' },
@@ -29,14 +31,14 @@ const TABS = [
 
 // Demo driver profile
 const DEMO_PROFILE = {
-  id: 'driver-demo',
+  id: 'driver-demo-car',
   display_name: 'Agus Prasetyo',
   email: 'agus@indoo.id',
   phone: '081234567999',
-  vehicle_type: 'bike_ride',
-  vehicle_brand: 'Honda',
-  vehicle_model: 'Vario 150',
-  vehicle_plate: 'AB 1234 XY',
+  vehicle_type: 'car_taxi',
+  vehicle_brand: 'Toyota',
+  vehicle_model: 'Avanza',
+  vehicle_plate: 'AB 5678 CD',
   rating: 4.9,
   total_trips: 247,
   photo_url: 'https://i.pravatar.cc/200?img=12',
@@ -44,7 +46,7 @@ const DEMO_PROFILE = {
   city: 'Yogyakarta',
 }
 
-export default function DriverApp() {
+export default function CarDriverApp() {
   const [user, setUser] = useState(null)
   const [loading, setLoading] = useState(true)
   const [loginEmail, setLoginEmail] = useState('')
@@ -66,7 +68,7 @@ export default function DriverApp() {
   const [incomingFoodOrder, setIncomingFoodOrder] = useState(null)
   const [showCashFloat, setShowCashFloat] = useState(false)
   const [showEarnings, setShowEarnings] = useState(false)
-  const [termsAccepted, setTermsAccepted] = useState(() => localStorage.getItem('indoo_driver_terms_accepted') === 'true')
+  const [termsAccepted, setTermsAccepted] = useState(() => localStorage.getItem('indoo_car_driver_terms_accepted') === 'true')
   const [showHotspotMap, setShowHotspotMap] = useState(false)
   const [showEliteAwards, setShowEliteAwards] = useState(false)
   const [showPayFees, setShowPayFees] = useState(false)
@@ -76,7 +78,7 @@ export default function DriverApp() {
   // Auth
   useEffect(() => {
     if (!supabase) {
-      setUser({ id: 'demo', email: 'driver@indoo.id' })
+      setUser({ id: 'demo', email: 'cardriver@indoo.id' })
       setLoading(false)
       return
     }
@@ -140,7 +142,7 @@ export default function DriverApp() {
       <div style={{ height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#080808' }}>
         <div style={{ textAlign: 'center' }}>
           <div style={{ width: 40, height: 40, border: '3px solid rgba(141,198,63,0.2)', borderTopColor: '#8DC63F', borderRadius: '50%', animation: 'spin 0.8s linear infinite', margin: '0 auto 16px' }} />
-          <span style={{ fontSize: 14, fontWeight: 800, color: 'rgba(255,255,255,0.4)' }}>Loading INDOO Drive...</span>
+          <span style={{ fontSize: 14, fontWeight: 800, color: 'rgba(255,255,255,0.4)' }}>Loading INDOO Car...</span>
         </div>
       </div>
     )
@@ -155,13 +157,13 @@ export default function DriverApp() {
           <div style={{ marginBottom: 32, textAlign: 'center' }}>
             <h1 style={{ fontSize: 32, fontWeight: 900, margin: '0 0 4px', letterSpacing: '-0.03em' }}>
               <span style={{ color: '#fff' }}>IND</span><span style={{ color: '#8DC63F' }}>OO</span>
-              <span style={{ fontSize: 16, fontWeight: 700, color: 'rgba(255,255,255,0.4)', marginLeft: 6 }}>DRIVE</span>
+              <span style={{ fontSize: 16, fontWeight: 700, color: 'rgba(255,255,255,0.4)', marginLeft: 6 }}>CAR</span>
             </h1>
-            <p style={{ fontSize: 13, color: 'rgba(255,255,255,0.4)', fontWeight: 600 }}>Driver Dashboard</p>
+            <p style={{ fontSize: 13, color: 'rgba(255,255,255,0.4)', fontWeight: 600 }}>Car Driver Dashboard</p>
           </div>
           <div style={{ width: '100%', maxWidth: 360, padding: '28px 24px', borderRadius: 24, background: 'rgba(10,10,10,0.9)', border: '1.5px solid rgba(141,198,63,0.2)', backdropFilter: 'blur(20px)', animation: 'slideUp 0.4s ease' }}>
             <h2 style={{ fontSize: 18, fontWeight: 900, color: '#fff', margin: '0 0 4px' }}>Sign In</h2>
-            <p style={{ fontSize: 12, color: 'rgba(255,255,255,0.4)', margin: '0 0 20px' }}>Access your driver dashboard</p>
+            <p style={{ fontSize: 12, color: 'rgba(255,255,255,0.4)', margin: '0 0 20px' }}>Access your car driver dashboard</p>
             <input type="email" value={loginEmail} onChange={e => setLoginEmail(e.target.value)} placeholder="Email" style={{ width: '100%', padding: '14px 16px', borderRadius: 14, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)', color: '#fff', fontSize: 15, fontWeight: 600, outline: 'none', marginBottom: 12, boxSizing: 'border-box' }} />
             <input type="password" value={loginPass} onChange={e => setLoginPass(e.target.value)} onKeyDown={e => { if (e.key === 'Enter') handleAuth() }} placeholder="Password" style={{ width: '100%', padding: '14px 16px', borderRadius: 14, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)', color: '#fff', fontSize: 15, fontWeight: 600, outline: 'none', marginBottom: 16, boxSizing: 'border-box' }} />
             {loginError && <div style={{ padding: '10px 14px', borderRadius: 10, background: 'rgba(239,68,68,0.1)', border: '1px solid rgba(239,68,68,0.3)', marginBottom: 14 }}><span style={{ fontSize: 12, fontWeight: 700, color: '#EF4444' }}>{loginError}</span></div>}
@@ -169,7 +171,7 @@ export default function DriverApp() {
               {signingIn ? 'Please wait...' : 'Sign In'}
             </button>
           </div>
-          <div style={{ marginTop: 32 }}><span style={{ fontSize: 11, color: 'rgba(255,255,255,0.2)' }}>indoodrive.id · Powered by INDOO</span></div>
+          <div style={{ marginTop: 32 }}><span style={{ fontSize: 11, color: 'rgba(255,255,255,0.2)' }}>indoocar.id · Powered by INDOO</span></div>
         </div>
       </div>
     )
@@ -189,7 +191,7 @@ export default function DriverApp() {
         <div style={{ position: 'relative', zIndex: 1, flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
           {/* Header */}
           <div style={{ padding: 'calc(env(safe-area-inset-top, 0px) + 16px) 20px 16px', background: 'rgba(0,0,0,0.6)', backdropFilter: 'blur(20px)', borderBottom: '1px solid rgba(255,255,255,0.1)', textAlign: 'center' }}>
-            <h1 style={{ fontSize: 20, fontWeight: 900, color: '#fff', margin: 0 }}>INDOO Driver Agreement</h1>
+            <h1 style={{ fontSize: 20, fontWeight: 900, color: '#fff', margin: 0 }}>INDOO Car Driver Agreement</h1>
             <p style={{ fontSize: 12, color: 'rgba(255,255,255,0.4)', margin: '4px 0 0' }}>Please read and accept to continue</p>
           </div>
 
@@ -197,30 +199,30 @@ export default function DriverApp() {
           <div style={{ flex: 1, overflowY: 'auto', padding: '20px 20px 100px' }}>
             <div style={{ padding: 20, borderRadius: 16, background: 'rgba(0,0,0,0.6)', backdropFilter: 'blur(16px)', border: '1px solid rgba(255,255,255,0.1)' }}>
               <h2 style={{ fontSize: 18, fontWeight: 900, color: '#8DC63F', margin: '0 0 4px', textAlign: 'center' }}>TERMS & CONDITIONS</h2>
-              <h3 style={{ fontSize: 15, fontWeight: 900, color: '#fff', margin: '0 0 4px', textAlign: 'center' }}>INDOO DRIVER PLATFORM</h3>
+              <h3 style={{ fontSize: 15, fontWeight: 900, color: '#fff', margin: '0 0 4px', textAlign: 'center' }}>INDOO CAR DRIVER PLATFORM</h3>
               <p style={{ fontSize: 12, color: 'rgba(255,255,255,0.4)', margin: '0 0 24px', textAlign: 'center', fontWeight: 700 }}>PT HAMMEREX PRODUCTS INDONESIA</p>
 
               <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.75)', lineHeight: 1.8 }}>
 
                 {/* Section 1 */}
                 <p style={tcSectionStyle}><span style={tcNumStyle}>1. </span><span style={tcTitleStyle}>PLATFORM STATUS</span></p>
-                <p style={tcBodyStyle}>INDOO is a digital technology platform (penyedia aplikasi) that facilitates connections between independent service providers and customers. PT HAMMEREX PRODUCTS INDONESIA is not a transportation company, does not provide ride or delivery services, does not employ drivers, and does not act as a carrier, logistics provider, or agent. All services are performed solely by independent Drivers.</p>
+                <p style={tcBodyStyle}>INDOO is a digital technology platform (penyedia aplikasi) that facilitates connections between independent service providers and customers. PT HAMMEREX PRODUCTS INDONESIA is not a transportation company, does not provide ride or delivery services, does not employ car drivers, and does not act as a carrier, logistics provider, or agent. All services are performed solely by independent Car Drivers.</p>
 
                 {/* Section 2 */}
                 <p style={tcSectionStyle}><span style={tcNumStyle}>2. </span><span style={tcTitleStyle}>PARTNERSHIP MODEL (KEMITRAAN)</span></p>
-                <p style={tcBodyStyle}>The relationship between the Company and Drivers is strictly a partnership (kemitraan). This agreement does not create employment, does not create wages or salary, and does not establish subordination. There are no fixed working hours, no obligation to accept orders, and no exclusivity requirement.</p>
+                <p style={tcBodyStyle}>The relationship between the Company and Car Drivers is strictly a partnership (kemitraan). This agreement does not create employment, does not create wages or salary, and does not establish subordination. There are no fixed working hours, no obligation to accept orders, and no exclusivity requirement.</p>
 
                 {/* Section 3 */}
                 <p style={tcSectionStyle}><span style={tcNumStyle}>3. </span><span style={tcTitleStyle}>DRIVER AUTONOMY</span></p>
-                <p style={tcBodyStyle}>Drivers have full control over: when to work, whether to accept or reject orders, routes taken, and operational methods. The Company does not give direct instructions or supervise Drivers.</p>
+                <p style={tcBodyStyle}>Car drivers have full control over: when to work, whether to accept or reject orders, routes taken, and operational methods. The Company does not give direct instructions or supervise car drivers.</p>
 
                 {/* Section 4 */}
                 <p style={tcSectionStyle}><span style={tcNumStyle}>4. </span><span style={tcTitleStyle}>PRICING FRAMEWORK</span></p>
-                <p style={tcBodyStyle}>The Platform provides a digital pricing mechanism. Drivers agree to the displayed fare structure and authorize the Platform to calculate pricing. Pricing is a marketplace tool, not wages. The Company does not pay salaries and does not guarantee earnings.</p>
+                <p style={tcBodyStyle}>The Platform provides a digital pricing mechanism. Car drivers agree to the displayed fare structure and authorize the Platform to calculate pricing. Pricing is a marketplace tool, not wages. The Company does not pay salaries and does not guarantee earnings.</p>
 
                 {/* Section 5 */}
                 <p style={tcSectionStyle}><span style={tcNumStyle}>5. </span><span style={tcTitleStyle}>SERVICE FEES</span></p>
-                <p style={tcBodyStyle}>Drivers agree to pay a 10% platform service fee from each order.</p>
+                <p style={tcBodyStyle}>Car drivers agree to pay a 10% platform service fee from each order.</p>
                 <p style={{ ...tcBodyStyle, ...tcRedStyle, margin: '8px 0' }}>Non-payment within 30 days may result in: account suspension, access restriction, and a daily penalty increase of 20% applied to the total outstanding amount. This penalty covers loss of earnings, administrative processing, and recruitment fees and will continue to accumulate daily until the full balance is settled.</p>
 
                 {/* Section 6 */}
@@ -229,49 +231,49 @@ export default function DriverApp() {
 
                 {/* Section 7 */}
                 <p style={tcSectionStyle}><span style={tcNumStyle}>7. </span><span style={tcTitleStyle}>FULL DRIVER LIABILITY</span></p>
-                <p style={tcBodyStyle}>Drivers are fully responsible for: passenger safety, vehicle operation, delivery of goods, and compliance with traffic laws.</p>
+                <p style={tcBodyStyle}>Car drivers are fully responsible for: passenger safety, vehicle operation, delivery of goods, and compliance with traffic laws.</p>
                 <p style={{ ...tcBodyStyle, ...tcRedStyle, margin: '8px 0' }}>The Company bears zero responsibility for: accidents, injuries or death, lost or damaged goods, and food quality or contamination.</p>
 
                 {/* Section 8 */}
                 <p style={tcSectionStyle}><span style={tcNumStyle}>8. </span><span style={tcTitleStyle}>INSURANCE REQUIREMENT</span></p>
-                <p style={tcBodyStyle}>Drivers must maintain valid vehicle insurance and personal accident coverage (recommended) at all times while operating on the platform.</p>
-                <p style={{ ...tcBodyStyle, ...tcRedStyle, margin: '8px 0' }}>If insurance is not active, the Driver assumes 100% legal and financial liability for any incident — including where the vehicle is owned by a third party.</p>
+                <p style={tcBodyStyle}>Car drivers must maintain valid vehicle insurance and personal accident coverage (recommended) at all times while operating on the platform.</p>
+                <p style={{ ...tcBodyStyle, ...tcRedStyle, margin: '8px 0' }}>If insurance is not active, the car driver assumes 100% legal and financial liability for any incident — including where the vehicle is owned by a third party.</p>
 
                 {/* Section 9 */}
                 <p style={tcSectionStyle}><span style={tcNumStyle}>9. </span><span style={tcTitleStyle}>INDEMNITY</span></p>
-                <p style={tcBodyStyle}>Drivers agree to defend, indemnify, and hold harmless PT HAMMEREX PRODUCTS INDONESIA, its directors, officers, employees, and affiliates from any claims, lawsuits, damages, losses, costs, and government penalties arising from: Driver activities, legal violations, service performance, or any breach of these terms.</p>
+                <p style={tcBodyStyle}>Car drivers agree to defend, indemnify, and hold harmless PT HAMMEREX PRODUCTS INDONESIA, its directors, officers, employees, and affiliates from any claims, lawsuits, damages, losses, costs, and government penalties arising from: car driver activities, legal violations, service performance, or any breach of these terms.</p>
 
                 {/* Section 10 */}
                 <p style={tcSectionStyle}><span style={tcNumStyle}>10. </span><span style={tcTitleStyle}>GOVERNMENT & LEGAL COMPLIANCE</span></p>
-                <p style={tcBodyStyle}>Drivers are solely responsible for: SIM (driving licence), STNK (vehicle registration), taxes, and all permits required by Indonesian law. The Company is not responsible for regulatory classification, government enforcement, or legal compliance of drivers.</p>
+                <p style={tcBodyStyle}>Car drivers are solely responsible for: SIM (driving licence), STNK (vehicle registration), taxes, and all permits required by Indonesian law. The Company is not responsible for regulatory classification, government enforcement, or legal compliance of car drivers.</p>
 
                 {/* Section 11 */}
                 <p style={tcSectionStyle}><span style={tcNumStyle}>11. </span><span style={tcTitleStyle}>CONDUCT & PROFESSIONAL STANDARDS</span></p>
-                <p style={tcBodyStyle}>Drivers must maintain professional and respectful behaviour with all passengers and customers. Drivers must only charge the fare price stated and approved by the platform. Overcharging, harassment, discrimination, or unprofessional conduct will result in immediate deactivation and potential legal action.</p>
+                <p style={tcBodyStyle}>Car drivers must maintain professional and respectful behaviour with all passengers and customers. Car drivers must only charge the fare price stated and approved by the platform. Overcharging, harassment, discrimination, or unprofessional conduct will result in immediate deactivation and potential legal action.</p>
 
                 {/* Section 12 */}
                 <p style={tcSectionStyle}><span style={tcNumStyle}>12. </span><span style={tcTitleStyle}>VEHICLE ROADWORTHINESS</span></p>
-                <p style={tcBodyStyle}>All vehicles used on the INDOO platform must meet road safety and roadworthiness standards as required by Indonesian law. The Company reserves the right to deactivate any driver whose vehicle does not meet these standards.</p>
+                <p style={tcBodyStyle}>All vehicles used on the INDOO platform must meet road safety and roadworthiness standards as required by Indonesian law. The Company reserves the right to deactivate any car driver whose vehicle does not meet these standards.</p>
 
                 {/* Section 13 */}
                 <p style={tcSectionStyle}><span style={tcNumStyle}>13. </span><span style={tcTitleStyle}>CUSTOMER & THIRD-PARTY DISPUTES</span></p>
-                <p style={tcBodyStyle}>All disputes are strictly between: Driver and customer, or Driver and third parties. The Company is not a party to any dispute and has no obligation to intervene.</p>
+                <p style={tcBodyStyle}>All disputes are strictly between: car driver and customer, or car driver and third parties. The Company is not a party to any dispute and has no obligation to intervene.</p>
 
                 {/* Section 14 */}
                 <p style={tcSectionStyle}><span style={tcNumStyle}>14. </span><span style={tcTitleStyle}>LIMITATION OF LIABILITY</span></p>
-                <p style={tcBodyStyle}>To the maximum extent permitted by Indonesian law, the Company shall not be liable for: personal injury or death, property damage, criminal acts by drivers, loss of income, or platform interruptions.</p>
+                <p style={tcBodyStyle}>To the maximum extent permitted by Indonesian law, the Company shall not be liable for: personal injury or death, property damage, criminal acts by car drivers, loss of income, or platform interruptions.</p>
 
                 {/* Section 15 */}
                 <p style={tcSectionStyle}><span style={tcNumStyle}>15. </span><span style={tcTitleStyle}>PLATFORM CONTROL DISCLAIMER</span></p>
-                <p style={tcBodyStyle}>The Company does not control: driver behaviour, service quality, or execution of services. Platform features including ratings, pricing, and navigation are tools only — not instructions.</p>
+                <p style={tcBodyStyle}>The Company does not control: car driver behaviour, service quality, or execution of services. Platform features including ratings, pricing, and navigation are tools only — not instructions.</p>
 
                 {/* Section 16 */}
                 <p style={tcSectionStyle}><span style={tcNumStyle}>16. </span><span style={tcTitleStyle}>ACCOUNT SUSPENSION & TERMINATION</span></p>
-                <p style={tcBodyStyle}>The Company may suspend or terminate driver accounts at its sole discretion based on: safety concerns, legal risk, violations of these terms, or any reason the Company deems necessary to protect the platform, its users, or its reputation.</p>
+                <p style={tcBodyStyle}>The Company may suspend or terminate car driver accounts at its sole discretion based on: safety concerns, legal risk, violations of these terms, or any reason the Company deems necessary to protect the platform, its users, or its reputation.</p>
 
                 {/* Section 17 */}
                 <p style={tcSectionStyle}><span style={tcNumStyle}>17. </span><span style={tcTitleStyle}>DATA & PRIVACY</span></p>
-                <p style={tcBodyStyle}>Driver data may be used for: platform functionality, safety, compliance, training, driver validation, quality assurance, and dispute resolution. By accepting these terms, drivers consent to the sharing of their contact details and personal information with platform users when necessary. Data handling is in accordance with Undang-Undang Nomor 27 Tahun 2022 tentang Perlindungan Data Pribadi.</p>
+                <p style={tcBodyStyle}>Car driver data may be used for: platform functionality, safety, compliance, training, driver validation, quality assurance, and dispute resolution. By accepting these terms, car drivers consent to the sharing of their contact details and personal information with platform users when necessary. Data handling is in accordance with Undang-Undang Nomor 27 Tahun 2022 tentang Perlindungan Data Pribadi.</p>
 
                 {/* Section 18 */}
                 <p style={tcSectionStyle}><span style={tcNumStyle}>18. </span><span style={tcTitleStyle}>FORCE MAJEURE</span></p>
@@ -287,7 +289,7 @@ export default function DriverApp() {
 
                 {/* Section 21 */}
                 <p style={tcSectionStyle}><span style={tcNumStyle}>21. </span><span style={tcTitleStyle}>ACCEPTANCE</span></p>
-                <p style={tcBodyStyle}>By using the INDOO Platform, Drivers confirm that: they act as independent contractors, they accept all risks associated with providing services, they waive claims against the Company to the fullest extent permitted by Indonesian law, and they have read, understood, and agreed to all terms set forth herein.</p>
+                <p style={tcBodyStyle}>By using the INDOO Platform, car drivers confirm that: they act as independent contractors, they accept all risks associated with providing services, they waive claims against the Company to the fullest extent permitted by Indonesian law, and they have read, understood, and agreed to all terms set forth herein.</p>
 
                 {/* Green bordered acceptance box */}
                 <div style={{ marginTop: 28, padding: 16, borderRadius: 12, background: 'rgba(141,198,63,0.06)', border: '2px solid #8DC63F' }}>
@@ -301,7 +303,7 @@ export default function DriverApp() {
 
           {/* Accept button */}
           <div style={{ position: 'fixed', bottom: 0, left: 0, right: 0, padding: '16px 20px calc(env(safe-area-inset-bottom, 0px) + 16px)', background: 'rgba(0,0,0,0.8)', backdropFilter: 'blur(20px)', borderTop: '1px solid rgba(255,255,255,0.1)', zIndex: 10 }}>
-            <button onClick={() => { localStorage.setItem('indoo_driver_terms_accepted', 'true'); localStorage.setItem('indoo_driver_terms_accepted_at', new Date().toISOString()); setTermsAccepted(true) }} style={{ width: '100%', padding: 18, borderRadius: 16, background: '#8DC63F', border: 'none', color: '#000', fontSize: 16, fontWeight: 900, cursor: 'pointer', fontFamily: 'inherit' }}>
+            <button onClick={() => { localStorage.setItem('indoo_car_driver_terms_accepted', 'true'); localStorage.setItem('indoo_car_driver_terms_accepted_at', new Date().toISOString()); setTermsAccepted(true) }} style={{ width: '100%', padding: 18, borderRadius: 16, background: '#8DC63F', border: 'none', color: '#000', fontSize: 16, fontWeight: 900, cursor: 'pointer', fontFamily: 'inherit' }}>
               I Accept These Terms & Conditions
             </button>
             <p style={{ textAlign: 'center', fontSize: 10, color: 'rgba(255,255,255,0.3)', margin: '10px 0 0' }}>&copy; 2026 PT HAMMEREX PRODUCTS INDONESIA &middot; All rights reserved &middot; INDOO Platform v1.0</p>
@@ -332,14 +334,14 @@ export default function DriverApp() {
               </div>
               <span style={{ fontSize: 22, fontWeight: 900, color: isOnline ? '#8DC63F' : 'rgba(255,255,255,0.5)', display: 'block', position: 'relative', zIndex: 1 }}>{isOnline ? 'ACTIVE' : 'OFFLINE'}</span>
               <span style={{ fontSize: 12, color: 'rgba(255,255,255,0.4)', display: 'block', marginTop: 4, position: 'relative', zIndex: 1 }}>
-                {isOnline ? 'Accepting rides, food delivery & all services' : 'Go online to start receiving orders'}
+                {isOnline ? 'Accepting car rides, food delivery & all services' : 'Go online to start receiving orders'}
               </span>
               {!isOnline && (
                 <button onClick={toggleOnline} style={{ marginTop: 16, padding: '14px 40px', borderRadius: 14, background: '#8DC63F', border: 'none', color: '#000', fontSize: 15, fontWeight: 900, cursor: 'pointer', fontFamily: 'inherit', position: 'relative', zIndex: 1 }}>
                   Go Online
                 </button>
               )}
-              <img src="https://ik.imagekit.io/nepgaxllc/ChatGPT%20Image%20Apr%2027,%202026,%2011_17_44%20AM.png?updatedAt=1777263492233" alt="" style={{ position: 'absolute', bottom: -4, right: -4, width: 100, height: 100, objectFit: 'contain', opacity: isOnline ? 1 : 0.4, pointerEvents: 'none', zIndex: 0 }} />
+              <img src={CAR_IMG} alt="" style={{ position: 'absolute', bottom: -4, right: -4, width: 100, height: 100, objectFit: 'contain', opacity: isOnline ? 1 : 0.4, pointerEvents: 'none', zIndex: 0 }} />
             </div>
 
             {/* Today's Activity — 3 separate containers */}
@@ -443,15 +445,15 @@ export default function DriverApp() {
               </div>
             )}
 
-            {/* Quick actions */}
+            {/* Quick actions — Car Rides + Food only (2 columns) */}
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
-              <button onClick={() => setTab('rides')} style={{ padding: 20, borderRadius: 20, background: 'rgba(141,198,63,0.08)', backdropFilter: 'blur(16px)', border: '1.5px solid rgba(141,198,63,0.3)', cursor: 'pointer', textAlign: 'center', overflow: 'hidden' }}>
-                <img src="https://ik.imagekit.io/nepgaxllc/Sleek%20green%20and%20black%20scooter%20setup.png?updatedAt=1775634845237" alt="" style={{ width: 50, height: 50, objectFit: 'contain', display: 'block', margin: '0 auto 8px' }} />
-                <span style={{ fontSize: 14, fontWeight: 900, color: '#8DC63F', display: 'block' }}>Bike Rides</span>
+              <button onClick={() => setTab('rides')} style={{ padding: 16, borderRadius: 20, background: 'rgba(0,229,255,0.08)', backdropFilter: 'blur(16px)', border: '1.5px solid rgba(0,229,255,0.3)', cursor: 'pointer', textAlign: 'center', overflow: 'hidden' }}>
+                <img src={CAR_IMG} alt="" style={{ width: 44, height: 44, objectFit: 'contain', display: 'block', margin: '0 auto 6px' }} />
+                <span style={{ fontSize: 12, fontWeight: 900, color: '#00E5FF', display: 'block' }}>Car Rides</span>
               </button>
-              <button onClick={() => setTab('food')} style={{ padding: 20, borderRadius: 20, background: 'rgba(250,204,21,0.08)', backdropFilter: 'blur(16px)', border: '1.5px solid rgba(250,204,21,0.3)', cursor: 'pointer', textAlign: 'center', overflow: 'hidden' }}>
-                <img src="https://ik.imagekit.io/nepgaxllc/ChatGPT%20Image%20Apr%2027,%202026,%2004_54_54%20AM.png?updatedAt=1777240511049" alt="" style={{ width: 50, height: 50, objectFit: 'contain', display: 'block', margin: '0 auto 8px' }} />
-                <span style={{ fontSize: 14, fontWeight: 900, color: '#FACC15', display: 'block' }}>Food Delivery</span>
+              <button onClick={() => setTab('food')} style={{ padding: 16, borderRadius: 20, background: 'rgba(250,204,21,0.08)', backdropFilter: 'blur(16px)', border: '1.5px solid rgba(250,204,21,0.3)', cursor: 'pointer', textAlign: 'center', overflow: 'hidden' }}>
+                <img src="https://ik.imagekit.io/nepgaxllc/ChatGPT%20Image%20Apr%2027,%202026,%2004_54_54%20AM.png?updatedAt=1777240511049" alt="" style={{ width: 44, height: 44, objectFit: 'contain', display: 'block', margin: '0 auto 6px' }} />
+                <span style={{ fontSize: 12, fontWeight: 900, color: '#FACC15', display: 'block' }}>Food</span>
               </button>
             </div>
           </>
@@ -460,22 +462,22 @@ export default function DriverApp() {
         {/* ── RIDES TAB ── */}
         {tab === 'rides' && (
           <>
-            <h2 style={{ fontSize: 18, fontWeight: 900, color: '#fff', margin: '0 0 6px' }}>🏍️ Ride Orders</h2>
-            <p style={{ fontSize: 12, color: 'rgba(255,255,255,0.4)', margin: '0 0 16px' }}>Bike ride & car taxi bookings</p>
+            <h2 style={{ fontSize: 18, fontWeight: 900, color: '#fff', margin: '0 0 6px' }}>🚕 Car Orders</h2>
+            <p style={{ fontSize: 12, color: 'rgba(255,255,255,0.4)', margin: '0 0 16px' }}>Car taxi bookings</p>
             {!isOnline ? (
               <div style={{ textAlign: 'center', padding: '60px 20px' }}>
                 <span style={{ fontSize: 48, display: 'block', marginBottom: 16 }}>🔴</span>
                 <span style={{ fontSize: 16, fontWeight: 900, color: '#fff', display: 'block', marginBottom: 8 }}>You're offline</span>
-                <span style={{ fontSize: 13, color: 'rgba(255,255,255,0.4)', display: 'block', marginBottom: 20 }}>Go online to start receiving ride requests</span>
+                <span style={{ fontSize: 13, color: 'rgba(255,255,255,0.4)', display: 'block', marginBottom: 20 }}>Go online to start receiving car ride requests</span>
                 <button onClick={toggleOnline} style={{ padding: '14px 32px', borderRadius: 14, background: '#8DC63F', border: 'none', color: '#000', fontSize: 15, fontWeight: 900, cursor: 'pointer' }}>Go Online</button>
               </div>
             ) : (
               <div style={{ textAlign: 'center', padding: '60px 20px' }}>
                 <div style={{ width: 80, height: 80, borderRadius: '50%', border: '3px solid #8DC63F', margin: '0 auto 16px', display: 'flex', alignItems: 'center', justifyContent: 'center', position: 'relative' }}>
-                  <span style={{ fontSize: 32 }}>🏍️</span>
+                  <span style={{ fontSize: 32 }}>🚕</span>
                   <div style={{ position: 'absolute', inset: -8, borderRadius: '50%', border: '2px solid rgba(141,198,63,0.3)', animation: 'ping 2s ease-in-out infinite' }} />
                 </div>
-                <span style={{ fontSize: 16, fontWeight: 900, color: '#8DC63F', display: 'block', marginBottom: 8 }}>Waiting for rides...</span>
+                <span style={{ fontSize: 16, fontWeight: 900, color: '#8DC63F', display: 'block', marginBottom: 8 }}>Waiting for car rides...</span>
                 <span style={{ fontSize: 13, color: 'rgba(255,255,255,0.4)' }}>You'll be notified when a booking comes in</span>
               </div>
             )}
@@ -543,7 +545,7 @@ export default function DriverApp() {
               </div>
             </div>
             <div style={{ padding: 14, borderRadius: 14, background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.06)' }}>
-              <span style={{ fontSize: 13, fontWeight: 800, color: 'rgba(255,255,255,0.5)' }}>INDOO drivers keep 90% of each fare. 10% admin fee is deducted automatically from each order.</span>
+              <span style={{ fontSize: 13, fontWeight: 800, color: 'rgba(255,255,255,0.5)' }}>INDOO car drivers keep 90% of each fare. 10% admin fee is deducted automatically from each order.</span>
             </div>
           </>
         )}
@@ -790,7 +792,7 @@ export default function DriverApp() {
             <button onClick={() => setShowEliteAwards(false)} style={{ background: 'none', border: 'none', color: '#fff', fontSize: 22, cursor: 'pointer', padding: '4px 8px' }}>←</button>
             <div style={{ flex: 1 }}>
               <span style={{ fontSize: 16, fontWeight: 900, color: '#8DC63F', display: 'block' }}>💎 INDOO Elite Awards</span>
-              <span style={{ fontSize: 11, color: 'rgba(255,255,255,0.4)' }}>Exclusive rewards for Elite drivers</span>
+              <span style={{ fontSize: 11, color: 'rgba(255,255,255,0.4)' }}>Exclusive rewards for Elite car drivers</span>
             </div>
           </div>
 
