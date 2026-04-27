@@ -375,7 +375,7 @@ export default function DriverApp() {
                 <span style={{ fontSize: 10, fontWeight: 700, color: 'rgba(255,255,255,0.35)' }}>Earned (90%)</span>
               </div>
               <div onClick={() => setShowHotspotMap(true)} style={{ padding: 20, borderRadius: 20, background: 'rgba(141,198,63,0.06)', backdropFilter: 'blur(16px)', border: '1.5px solid rgba(141,198,63,0.2)', textAlign: 'center', overflow: 'hidden', position: 'relative', cursor: 'pointer' }}>
-                <span style={{ fontSize: 26, display: 'block' }}>🗺️</span>
+                <img src="https://ik.imagekit.io/nepgaxllc/ChatGPT%20Image%20Apr%2028,%202026,%2004_15_21%20AM.png" alt="" style={{ width: 32, height: 32, objectFit: 'contain', display: 'block', margin: '0 auto' }} />
                 <span style={{ fontSize: 10, fontWeight: 700, color: '#8DC63F' }}>Hotspot</span>
               </div>
             </div>
