@@ -59,13 +59,7 @@ import CustomizeSheet from './CustomizeSheet'
 
 // ── Delivery Chat — in-app messaging with driver during delivery ─────────────
 function DeliveryChat({ driverName, chatKey, initialMessages, onClose }) {
-  const MOCK_MESSAGES = [
-    { id: 1, from: 'indoo', text: `Order confirmed — ${driverName} is on the way`, time: new Date(Date.now() - 300000).toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' }) },
-    { id: 2, from: 'driver', text: 'Halo kak, saya sedang menuju restoran untuk ambil pesanan', time: new Date(Date.now() - 240000).toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' }) },
-    { id: 3, from: 'customer', text: 'Ok terima kasih, berapa lama ya?', time: new Date(Date.now() - 180000).toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' }) },
-    { id: 4, from: 'driver', text: 'Sekitar 15 menit kak, sudah dekat restoran', time: new Date(Date.now() - 120000).toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' }) },
-    { id: 5, from: 'customer', text: 'Siap, ditunggu ya', time: new Date(Date.now() - 60000).toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' }) },
-  ]
+  const MOCK_MESSAGES = []
   const [messages, setMessages] = useState(initialMessages.length > 0 ? initialMessages : MOCK_MESSAGES)
   const [input, setInput] = useState('')
   const scrollRef = useRef(null)
@@ -119,11 +113,21 @@ function DeliveryChat({ driverName, chatKey, initialMessages, onClose }) {
         <button onClick={onClose} style={{ padding: '10px 20px', borderRadius: 12, background: '#8DC63F', border: 'none', color: '#000', fontSize: 14, fontWeight: 900, cursor: 'pointer' }}>Close</button>
       </div>
 
+      {/* Monitored notice — running marquee */}
+      <div style={{ background: 'rgba(141,198,63,0.06)', borderBottom: '1px solid rgba(141,198,63,0.1)', padding: '6px 0', overflow: 'hidden', flexShrink: 0, position: 'relative', zIndex: 1 }}>
+        <div style={{ display: 'flex', whiteSpace: 'nowrap', animation: 'marqueeScroll 20s linear infinite' }}>
+          <span style={{ fontSize: 11, fontWeight: 700, color: 'rgba(141,198,63,0.6)', paddingRight: 60 }}>
+            🔒 This conversation is secured and monitored by the INDOO Operations Team to ensure your safety and delivery quality &nbsp;&nbsp;·&nbsp;&nbsp; 🔒 This conversation is secured and monitored by the INDOO Operations Team to ensure your safety and delivery quality
+          </span>
+        </div>
+        <style>{`@keyframes marqueeScroll { 0% { transform: translateX(0) } 100% { transform: translateX(-50%) } }`}</style>
+      </div>
+
       {/* Messages */}
       <div ref={scrollRef} style={{ flex: 1, overflowY: 'auto', padding: '12px 16px', display: 'flex', flexDirection: 'column', gap: 8, position: 'relative', zIndex: 1 }}>
         {messages.length === 0 && (
           <div style={{ textAlign: 'center', padding: '40px 20px', opacity: 0.4 }}>
-            <span style={{ fontSize: 14, color: '#fff' }}>Send a message to your driver</span>
+            <span style={{ fontSize: 14, color: '#fff' }}>Dispatch channel loading...</span>
           </div>
         )}
         {messages.map(msg => {
@@ -136,7 +140,7 @@ function DeliveryChat({ driverName, chatKey, initialMessages, onClose }) {
             <div key={msg.id} style={{ display: 'flex', justifyContent: isCustomer ? 'flex-end' : 'flex-start', alignItems: 'flex-end', gap: 6 }}>
               {/* Avatar — driver or INDOO logo */}
               {isDriver && (
-                <div style={{ width: 28, height: 28, borderRadius: '50%', overflow: 'hidden', flexShrink: 0, border: '1.5px solid #8DC63F' }}>
+                <div style={{ width: 28, height: 28, borderRadius: '50%', overflow: 'hidden', flexShrink: 0, border: '1.5px solid #991B1B' }}>
                   <img src={`https://i.pravatar.cc/60?img=${(driverName ?? 'D').charCodeAt(0) % 50 + 1}`} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
                 </div>
               )}
@@ -148,12 +152,13 @@ function DeliveryChat({ driverName, chatKey, initialMessages, onClose }) {
               {/* Bubble */}
               <div style={{
                 maxWidth: '75%', padding: (msg.image || msg.imageLeft || msg.imageRight) ? '4px 4px 8px' : '10px 14px', borderRadius: 16,
-                background: isCustomer ? '#8DC63F' : isSystem ? 'rgba(141,198,63,0.08)' : 'rgba(0,0,0,0.6)',
-                border: isSystem ? '1px solid rgba(141,198,63,0.15)' : isDriver ? '1px solid rgba(255,255,255,0.08)' : 'none',
+                background: isCustomer ? '#8DC63F' : isSystem ? 'rgba(141,198,63,0.08)' : 'rgba(0,0,0,0.55)',
+                border: isSystem ? '1px solid rgba(141,198,63,0.15)' : isDriver ? '1px solid rgba(153,27,27,0.25)' : 'none',
                 borderBottomRightRadius: isCustomer ? 4 : 16,
                 borderBottomLeftRadius: isCustomer ? 16 : 4,
               }}>
-                {isSystem && <span style={{ fontSize: 10, fontWeight: 900, color: '#8DC63F', display: 'block', marginBottom: 4, letterSpacing: '0.05em', padding: (msg.image || msg.imageLeft || msg.imageRight) ? '6px 10px 0' : 0 }}>INDOO</span>}
+                {isSystem && <span style={{ fontSize: 10, fontWeight: 900, color: '#8DC63F', display: 'block', marginBottom: 4, letterSpacing: '0.05em', padding: (msg.image || msg.imageLeft || msg.imageRight) ? '6px 10px 0' : 0 }}>INDOO HQ</span>}
+                {isDriver && <span style={{ fontSize: 10, fontWeight: 900, color: '#991B1B', display: 'block', marginBottom: 4, letterSpacing: '0.05em' }}>🏍️ {msg.callsign ?? 'DRIVER'}</span>}
                 {msg.image && (
                   <img src={msg.image} alt="" style={{ width: '100%', borderRadius: 12, marginBottom: 6 }} />
                 )}
@@ -628,7 +633,7 @@ export default function RestaurantMenuSheet({ restaurant, onClose, onOrderViaCha
     return () => { clearTimeout(t1); clearTimeout(t2); clearTimeout(t3) }
   }, [!!startTracking?.driver])
 
-  // Auto-post timed journey chat messages throughout the delivery
+  // Auto-post timed dispatch comms: INDOO HQ ↔ Driver (user reads along)
   useEffect(() => {
     if (!driverOnWay) return
     const chatKey = `indoo_delivery_chat_${driverOnWay.orderId ?? orderConfirm?.id ?? 'current'}`
@@ -637,38 +642,51 @@ export default function RestaurantMenuSheet({ restaurant, onClose, onOrderViaCha
     const pickupName = isStreet ? 'the street vendor' : restaurant.name
     const plate = driverOnWay?.driverPlate ?? 'AB 1234 XY'
     const bike = driverOnWay?.bikeBrand ?? 'Honda Vario'
+    const bikeColor = driverOnWay?.bikeColor ?? 'White'
+    const callsign = driverOnWay?.driverCallsign ?? 'INDOO 4578'
+    const ordNum = `#${(driverOnWay.orderId ?? 'current').slice(-4).toUpperCase()}`
 
     const INDOO_IMG = 'https://ik.imagekit.io/nepgaxllc/ChatGPT%20Image%20Apr%2019,%202026,%2012_07_28%20AM.png?updatedAt=1776532065659'
+    const ARRIVED_IMG = 'https://ik.imagekit.io/nepgaxllc/ChatGPT%20Image%20Apr%2027,%202026,%2011_17_44%20AM.png'
 
     const postMsg = (from, text, extra) => {
       try {
         const existing = JSON.parse(localStorage.getItem(chatKey) || '[]')
-        existing.push({ id: Date.now() + Math.random(), from, text, time: fmt(), ...extra })
+        const entry = { id: Date.now() + Math.random(), from, text, time: fmt(), ...extra }
+        if (from === 'driver') entry.callsign = callsign
+        existing.push(entry)
         localStorage.setItem(chatKey, JSON.stringify(existing))
       } catch {}
     }
 
-    // Journey message schedule (delays in ms from start)
     const timers = []
     const q = (delay, from, text, extra) => timers.push(setTimeout(() => postMsg(from, text, extra), delay))
 
-    // Phase 1: to_restaurant (0–32s)
-    q(0,     'indoo',  `🏍️ Your driver is on the way to ${pickupName}`)
-    q(8000,  'driver', 'Saya sedang menuju lokasi penjual kak')
-    q(18000, 'indoo',  `📍 Driver will arrive at the pickup location shortly`)
-    q(28000, 'indoo',  `✅ Driver has arrived at ${pickupName} — collecting your order`)
+    // ── Phase 1: Dispatch → to restaurant (0–32s) ──
+    q(0,     'indoo',  `${callsign}, order ${ordNum} confirmed. Proceed to ${pickupName} for pickup.`)
+    q(4000,  'driver', `Copy HQ, ${callsign} heading to ${pickupName} now.`)
+    q(10000, 'indoo',  `${callsign}, roads looking clear on your route. Estimated ${driverOnWay?.eta ?? 12} minutes.`)
+    q(15000, 'driver', `Thanks HQ, making good time. Should be there shortly.`)
+    q(22000, 'indoo',  `${callsign}, how's the approach? You should be close.`)
+    q(25000, 'driver', `Almost there HQ, 2 minutes out from ${pickupName}.`)
+    q(30000, 'driver', `${callsign} at pickup location. Collecting order ${ordNum} now.`)
+    q(31000, 'indoo',  `Confirmed ${callsign}. Let us know once you have the order.`)
 
-    // Phase 2: to_customer (32s–52s)
-    q(33000, 'indoo',  `🛍️ Order picked up! Your driver is now heading your way`)
-    q(34000, 'driver', `Pesanan sudah diambil kak, sedang menuju ke lokasi Anda`)
-    q(40000, 'indoo',  `🏍️ Driver is making good progress — hang tight!`)
-    q(47000, 'indoo',  `📍 Your driver will be at your location very soon`)
-    q(50000, 'indoo',  `👀 Please look out for your driver\n${bike} · Plate ${plate}`, { imageLeft: INDOO_IMG })
+    // ── Phase 2: Picked up → to customer (32s–52s) ──
+    q(33000, 'driver', `Order ${ordNum} collected and secured. Leaving ${pickupName} now.`)
+    q(34500, 'indoo',  `Great work ${callsign}. Proceed to customer location. Stay safe on the road.`)
+    q(38000, 'driver', `On my way HQ, traffic is flowing nicely.`)
+    q(42000, 'indoo',  `${callsign}, you're making good progress. Customer has been notified.`)
+    q(46000, 'driver', `Copy that, about 3 minutes from drop-off.`)
+    q(48000, 'indoo',  `${callsign}, nearly there. Customer should be ready for you.`)
+    q(50000, 'indoo',  `Customer — please look out for your driver\n${callsign} · ${bikeColor} ${bike} · Plate ${plate}`, { imageLeft: INDOO_IMG })
 
-    // Phase 3: arrived (52s+)
-    q(52000, 'indoo',  `🎉 Your driver has arrived!`, { imageRight: 'https://ik.imagekit.io/nepgaxllc/ChatGPT%20Image%20Apr%2027,%202026,%2011_17_44%20AM.png' })
-    q(53000, 'driver', 'Sudah sampai kak, silakan diterima pesanannya 🙏')
-    q(57000, 'indoo',  `Thank you for ordering with INDOO! We look forward to serving you again soon.\n— The INDOO Team 😊`, { image: INDOO_IMG })
+    // ── Phase 3: Arrived (52s+) ──
+    q(52000, 'driver', `${callsign} has arrived at customer location. Delivering order ${ordNum}.`)
+    q(53500, 'indoo',  `Confirmed ${callsign}. Order ${ordNum} delivered successfully.`, { imageRight: ARRIVED_IMG })
+    q(55000, 'driver', `Order handed over. Customer happy. ${callsign} signing off this delivery 🙏`)
+    q(56500, 'indoo',  `Good job ${callsign}! Returning you to active fleet.`)
+    q(59000, 'indoo',  `Thank you for ordering with INDOO! We hope to serve you again very soon.\n— INDOO Operations Team 😊`, { image: INDOO_IMG })
 
     return () => timers.forEach(clearTimeout)
   }, [!!driverOnWay])
@@ -846,10 +864,12 @@ export default function RestaurantMenuSheet({ restaurant, onClose, onOrderViaCha
         eta: orderSnapshot.eta,
         restaurant: orderSnapshot.restaurantName,
         driverName: 'Agus Prasetyo',
+        driverCallsign: `INDOO ${Math.floor(1000 + Math.random() * 9000)}`,
         driverPlate: 'AB 1234 XY',
         driverPhoto: 'https://i.pravatar.cc/100?img=12',
         phone: '6281234567999',
         bikeBrand: 'Honda Vario 150',
+        bikeColor: 'White',
         rating: 4.9,
       })
 
