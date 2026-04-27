@@ -9,7 +9,7 @@ export default {
   'landing.legal':       '继续即表示您同意我们的条款和隐私政策',
 
   // Join / Onboarding
-  'join.phone.title':       '输入您的号码',
+  'join.phone.title':       '加入 INDOO',
   'join.phone.sub':         '我们将发送验证码 — 绝不骚扰。',
   'join.phone.placeholder': '812 3456 7890',
   'join.phone.send':        '发送验证码 →',

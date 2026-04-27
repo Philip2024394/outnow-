@@ -9,7 +9,7 @@ export default {
   'landing.legal':       'Dengan melanjutkan, kamu setuju dengan Syarat & Kebijakan Privasi kami',
 
   // Join / Onboarding
-  'join.phone.title':       'Masukkan nomormu',
+  'join.phone.title':       'Gabung INDOO',
   'join.phone.sub':         'Kami akan kirim kode — tanpa spam.',
   'join.phone.placeholder': '812 3456 7890',
   'join.phone.send':        'Kirim kode →',

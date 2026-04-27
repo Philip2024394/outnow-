@@ -9,7 +9,7 @@ export default {
   'landing.legal':       'بالمتابعة، أنت توافق على الشروط وسياسة الخصوصية',
 
   // Join / Onboarding
-  'join.phone.title':       'أدخل رقمك',
+  'join.phone.title':       'انضم إلى INDOO',
   'join.phone.sub':         'سنرسل رمزاً — بدون رسائل مزعجة.',
   'join.phone.placeholder': '٨١٢ ٣٤٥٦ ٧٨٩٠',
   'join.phone.send':        'أرسل الرمز ←',
