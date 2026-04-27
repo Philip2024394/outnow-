@@ -1049,16 +1049,17 @@ export default function CarDriverApp() {
               { icon: '🏨', name: 'Hotel / Villa Stay', desc: '1-night stay voucher at partner hotels or villas in Yogyakarta. Redeemable quarterly.', status: tier?.current?.id === 'elite' ? 'available' : 'locked', color: '#FACC15' },
               { icon: '🍽️', name: 'Meal Vouchers', desc: 'Monthly meal voucher pack (5x Rp 25.000) redeemable at any INDOO partner restaurant.', status: tier?.current?.id === 'elite' ? 'available' : 'locked', color: '#8DC63F' },
               { icon: '🎫', name: 'Elite Event Passes', desc: 'VIP invitation to quarterly INDOO driver meetups, workshops, and exclusive social events.', status: tier?.current?.id === 'elite' ? 'available' : 'locked', color: '#00E5FF' },
+              { img: 'https://ik.imagekit.io/nepgaxllc/ChatGPT%20Image%20Apr%2028,%202026,%2002_20_02%20AM.png', name: 'INDOO Phone Cover', desc: 'Protective phone case with INDOO Elite branding. Shock-resistant design built for drivers on the move.', status: tier?.current?.id === 'elite' ? 'available' : 'locked', color: '#8DC63F' },
               { img: 'https://ik.imagekit.io/nepgaxllc/ChatGPT%20Image%20Apr%2028,%202026,%2002_25_57%20AM.png', name: 'INDOO Leather Wallet', desc: 'Premium men\'s leather wallet with embossed INDOO Elite crest. Quality craftsmanship for our top drivers.', status: tier?.current?.id === 'elite' ? 'available' : 'locked', color: '#FACC15' },
               { icon: '📱', name: 'Priority Support Line', desc: 'Direct WhatsApp access to INDOO support team. Average response time: 2 minutes.', status: tier?.current?.id === 'elite' ? 'available' : 'locked', color: '#8DC63F' },
             ].map((item, i) => (
               <div key={i} style={{ display: 'flex', gap: 14, padding: 14, borderRadius: 16, background: 'rgba(255,255,255,0.06)', backdropFilter: 'blur(16px)', border: `1px solid ${item.status === 'available' ? item.color + '40' : 'rgba(255,255,255,0.08)'}`, marginBottom: 10 }}>
                 {/* Icon/Image */}
-                <div style={{ width: 60, height: 60, borderRadius: 14, background: item.status === 'available' ? `${item.color}15` : 'rgba(255,255,255,0.04)', border: `1.5px solid ${item.status === 'available' ? item.color + '30' : 'rgba(255,255,255,0.08)'}`, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, overflow: 'hidden' }}>
+                <div style={{ width: 80, height: 80, borderRadius: 16, background: item.status === 'available' ? `${item.color}10` : 'rgba(255,255,255,0.03)', border: `1.5px solid ${item.status === 'available' ? item.color + '30' : 'rgba(255,255,255,0.08)'}`, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, overflow: 'hidden' }}>
                   {item.img ? (
-                    <img src={item.img} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover', filter: item.status === 'locked' ? 'grayscale(1) opacity(0.4)' : 'none' }} />
+                    <img src={item.img} alt="" style={{ width: '100%', height: '100%', objectFit: 'contain', filter: item.status === 'locked' ? 'grayscale(1) opacity(0.4)' : 'none' }} />
                   ) : (
-                    <span style={{ fontSize: 28, filter: item.status === 'locked' ? 'grayscale(1) opacity(0.4)' : 'none' }}>{item.icon}</span>
+                    <span style={{ fontSize: 32, filter: item.status === 'locked' ? 'grayscale(1) opacity(0.4)' : 'none' }}>{item.icon}</span>
                   )}
                 </div>
                 {/* Info */}
