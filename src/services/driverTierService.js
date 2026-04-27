@@ -1,14 +1,49 @@
 /**
- * Driver Tier System — Bronze → Silver → Gold → Platinum
- * Higher tiers get: priority orders, higher bonuses, exclusive incentives.
+ * Driver Tier System — Standard → Verified → Pro → Elite
+ * Progression is earned by consistently hitting daily goals.
+ * Elite drivers receive free INDOO promotional items & rewards.
  */
 import { supabase } from '@/lib/supabase'
 
 export const TIERS = [
-  { id: 'bronze',   label: 'Bronze',   icon: '🥉', color: '#CD7F32', minTrips: 0,    minRating: 0,   bonusMultiplier: 1.0, perks: ['Basic orders'] },
-  { id: 'silver',   label: 'Silver',   icon: '🥈', color: '#C0C0C0', minTrips: 50,   minRating: 4.3, bonusMultiplier: 1.15, perks: ['Priority food orders', '15% bonus boost'] },
-  { id: 'gold',     label: 'Gold',     icon: '🥇', color: '#FFD700', minTrips: 200,  minRating: 4.6, bonusMultiplier: 1.3,  perks: ['Priority all orders', '30% bonus boost', 'Exclusive promos'] },
-  { id: 'platinum', label: 'Platinum', icon: '💎', color: '#E5E4E2', minTrips: 500,  minRating: 4.8, bonusMultiplier: 1.5,  perks: ['First pick on all orders', '50% bonus boost', 'VIP support', 'Profile badge'] },
+  {
+    id: 'standard', label: 'Standard', icon: '🏍️', color: '#888888', minTrips: 0, minRating: 0,
+    perks: ['Basic orders', 'Standard dispatch priority'],
+    description: 'New to INDOO — complete daily goals to level up',
+  },
+  {
+    id: 'verified', label: 'Verified', icon: '✅', color: '#00E5FF', minTrips: 50, minRating: 4.3,
+    perks: ['Priority food orders', 'Verified badge on profile', 'Early access to surge zones'],
+    description: 'Trusted driver — consistently meeting goals',
+  },
+  {
+    id: 'pro', label: 'Pro', icon: '⭐', color: '#FACC15', minTrips: 200, minRating: 4.6,
+    perks: ['Priority all orders', 'Pro badge on profile', 'Exclusive promo access', 'Featured in customer app'],
+    description: 'Top performer — priority on all services',
+  },
+  {
+    id: 'elite', label: 'INDOO Elite', icon: '💎', color: '#8DC63F', minTrips: 500, minRating: 4.8,
+    perks: [
+      'First pick on ALL orders',
+      'INDOO Elite badge',
+      'VIP support line',
+      'Free INDOO branded jacket',
+      'Free INDOO delivery bag',
+      'Hotel or villa stay voucher',
+      'Meal vouchers',
+      'Exclusive Elite events',
+      'Featured driver profile',
+    ],
+    rewards: [
+      { icon: '🧥', label: 'INDOO Jacket' },
+      { icon: '🎒', label: 'INDOO Delivery Bag' },
+      { icon: '🏨', label: 'Hotel / Villa Stay' },
+      { icon: '🍽️', label: 'Meal Vouchers' },
+      { icon: '🎫', label: 'Event Invites' },
+      { icon: '📱', label: 'Priority Support' },
+    ],
+    description: 'The best of the best — exclusive rewards & recognition',
+  },
 ]
 
 /**

@@ -394,17 +394,75 @@ export default function DriverApp() {
               <span style={{ fontSize: 18, color: 'rgba(0,229,255,0.5)' }}>→</span>
             </button>
 
-            {/* Goals progress */}
+            {/* Driver Level Progression */}
+            {tier && (
+              <div style={{ padding: 16, borderRadius: 16, background: `rgba(${tier.current.id === 'elite' ? '141,198,63' : '255,255,255'},0.06)`, backdropFilter: 'blur(16px)', border: `1.5px solid ${tier.current.color}40`, marginBottom: 12 }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 10 }}>
+                  <span style={{ fontSize: 28 }}>{tier.current.icon}</span>
+                  <div style={{ flex: 1 }}>
+                    <span style={{ fontSize: 15, fontWeight: 900, color: tier.current.color, display: 'block' }}>{tier.current.label} Driver</span>
+                    <span style={{ fontSize: 11, color: 'rgba(255,255,255,0.4)' }}>{tier.current.description}</span>
+                  </div>
+                </div>
+
+                {/* Progress to next tier */}
+                {tier.next ? (
+                  <>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 4 }}>
+                      <span style={{ fontSize: 10, color: 'rgba(255,255,255,0.4)' }}>Next: {tier.next.icon} {tier.next.label}</span>
+                      <span style={{ fontSize: 10, color: 'rgba(255,255,255,0.5)', fontWeight: 700 }}>{tier.tripsToNext} trips to go</span>
+                    </div>
+                    <div style={{ height: 6, borderRadius: 3, background: 'rgba(255,255,255,0.08)', overflow: 'hidden', marginBottom: 8 }}>
+                      <div style={{ width: `${tier.progress * 100}%`, height: '100%', background: `linear-gradient(90deg, ${tier.current.color}, ${tier.next.color})`, borderRadius: 3, transition: 'width 0.5s' }} />
+                    </div>
+                    <span style={{ fontSize: 10, color: 'rgba(255,255,255,0.3)' }}>Hit your daily goals consistently to level up</span>
+                  </>
+                ) : (
+                  <div style={{ padding: 10, borderRadius: 10, background: 'rgba(141,198,63,0.1)', border: '1px solid rgba(141,198,63,0.2)', marginTop: 4 }}>
+                    <span style={{ fontSize: 11, fontWeight: 800, color: '#8DC63F', display: 'block' }}>🎉 You've reached INDOO Elite!</span>
+                    <span style={{ fontSize: 10, color: 'rgba(255,255,255,0.4)' }}>Enjoy your exclusive rewards & perks</span>
+                  </div>
+                )}
+
+                {/* Elite rewards preview (show for all tiers as motivation) */}
+                {tier.current.id !== 'elite' && (
+                  <div style={{ marginTop: 10, padding: 10, borderRadius: 10, background: 'rgba(141,198,63,0.04)', border: '1px dashed rgba(141,198,63,0.15)' }}>
+                    <span style={{ fontSize: 10, fontWeight: 800, color: '#8DC63F', display: 'block', marginBottom: 6 }}>💎 INDOO ELITE REWARDS</span>
+                    <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
+                      {['🧥 Jacket', '🎒 Bag', '🏨 Hotel Stay', '🍽️ Meals', '🎫 Events'].map(r => (
+                        <span key={r} style={{ fontSize: 9, padding: '3px 8px', borderRadius: 6, background: 'rgba(141,198,63,0.08)', border: '1px solid rgba(141,198,63,0.15)', color: 'rgba(255,255,255,0.5)' }}>{r}</span>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {/* Elite rewards detail (show when elite) */}
+                {tier.current.id === 'elite' && tier.current.rewards && (
+                  <div style={{ marginTop: 8, display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 6 }}>
+                    {tier.current.rewards.map(r => (
+                      <div key={r.label} style={{ padding: 8, borderRadius: 10, background: 'rgba(141,198,63,0.08)', border: '1px solid rgba(141,198,63,0.15)', textAlign: 'center' }}>
+                        <span style={{ fontSize: 18, display: 'block' }}>{r.icon}</span>
+                        <span style={{ fontSize: 9, fontWeight: 700, color: 'rgba(255,255,255,0.5)' }}>{r.label}</span>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+            )}
+
+            {/* Daily goal (trips toward next level) */}
             {goals && (
-              <div style={{ padding: 14, borderRadius: 14, background: 'rgba(255,255,255,0.06)', backdropFilter: 'blur(16px)', border: '1px solid rgba(255,255,255,0.1)', marginBottom: 12 }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 6 }}>
-                  <span style={{ fontSize: 12, fontWeight: 800, color: '#fff' }}>Daily Goal</span>
-                  <span style={{ fontSize: 12, fontWeight: 900, color: '#8DC63F' }}>{todayTrips}/{goals.daily_trips} trips</span>
+              <div style={{ padding: 12, borderRadius: 12, background: 'rgba(255,255,255,0.06)', backdropFilter: 'blur(16px)', border: '1px solid rgba(255,255,255,0.1)', marginBottom: 12 }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 4 }}>
+                  <span style={{ fontSize: 11, fontWeight: 800, color: '#fff' }}>Today's Goal</span>
+                  <span style={{ fontSize: 11, fontWeight: 900, color: todayTrips >= goals.daily_trips ? '#8DC63F' : '#FACC15' }}>{todayTrips}/{goals.daily_trips} trips</span>
                 </div>
-                <div style={{ height: 8, borderRadius: 4, background: 'rgba(255,255,255,0.08)', overflow: 'hidden' }}>
-                  <div style={{ width: `${Math.min(100, (todayTrips / goals.daily_trips) * 100)}%`, height: '100%', background: 'linear-gradient(90deg, #8DC63F, #FACC15)', borderRadius: 4, transition: 'width 0.5s' }} />
+                <div style={{ height: 6, borderRadius: 3, background: 'rgba(255,255,255,0.08)', overflow: 'hidden' }}>
+                  <div style={{ width: `${Math.min(100, (todayTrips / goals.daily_trips) * 100)}%`, height: '100%', background: todayTrips >= goals.daily_trips ? '#8DC63F' : 'linear-gradient(90deg, #FACC15, #8DC63F)', borderRadius: 3, transition: 'width 0.5s' }} />
                 </div>
-                <span style={{ fontSize: 10, color: 'rgba(255,255,255,0.3)', marginTop: 4, display: 'block' }}>Bonus {fmtRp(goals.daily_bonus)} on completion</span>
+                <span style={{ fontSize: 9, color: 'rgba(255,255,255,0.3)', marginTop: 3, display: 'block' }}>
+                  {todayTrips >= goals.daily_trips ? '✅ Goal achieved! Every trip counts toward your next level' : 'Complete daily goals to progress to the next driver level'}
+                </span>
               </div>
             )}
 
