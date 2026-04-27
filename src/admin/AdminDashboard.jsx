@@ -30,6 +30,7 @@ import MockAccountsTab from './tabs/MockAccountsTab'
 import AdminChatTab from './tabs/AdminChatTab'
 import PublicDealsAdminTab from './tabs/PublicDealsAdminTab'
 import BlastAdminTab from './tabs/BlastAdminTab'
+import EmailGeneratorTab from './tabs/EmailGeneratorTab'
 
 const LOGO = 'https://ik.imagekit.io/dateme/Logo%20with%20green%20map%20pin%20element.png'
 
@@ -57,6 +58,7 @@ const NAV = [
   { id: 'notify',       icon: '🔔', label: 'Notify'       },
   { id: 'messages',     icon: '💬', label: 'Messages'     },
   { id: 'marketing',    icon: '📢', label: 'Marketing'    },
+  { id: 'email_gen',    icon: '📧', label: 'Email Gen'    },
   { id: 'violations',   icon: '🛡️', label: 'Violations',  alert: true },
   { id: 'places',       icon: '📍', label: 'Places' },
   { id: 'dealhunt',     icon: '🔥', label: 'Deal Hunt' },
@@ -196,6 +198,7 @@ export default function AdminDashboard({ onLogout }) {
           {tab === 'notify'      && <NotificationsTab />}
           {tab === 'messages'    && <MessagesTab />}
           {tab === 'marketing'   && <MarketingTab />}
+          {tab === 'email_gen'   && <EmailGeneratorTab />}
           {tab === 'users'       && <UsersTab />}
           {tab === 'wallets' && <WalletAdminTab />}
           {tab === 'commissions' && <CommissionsAdminTab />}
