@@ -38,7 +38,7 @@ export default {
 
   // Floating icon dock
   'icons.ride':    'Ride On',
-  'icons.street':  'INDOO Street',
+  'icons.street':  'The Street',
   'icons.dating':  'Dating',
   'icons.car':     'Drive On',
   'icons.shop':    'Market',
