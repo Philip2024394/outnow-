@@ -99,48 +99,6 @@ function DeliveryChat({ driverName, chatKey, initialMessages, onClose }) {
   return createPortal(
     <div style={{ position: 'fixed', inset: 0, zIndex: 10010, backgroundColor: '#0a0a0a', display: 'flex', flexDirection: 'column' }}>
       <img src="https://ik.imagekit.io/nepgaxllc/ChatGPT%20Image%20Apr%2027,%202026,%2006_12_16%20AM.png?updatedAt=1777245159090" alt="" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', pointerEvents: 'none', zIndex: 0 }} />
-      {/* Fleet vehicle dots background */}
-      <div style={{ position: 'absolute', inset: 0, pointerEvents: 'none', zIndex: 0, overflow: 'hidden' }}>
-        {[
-          { top: '12%', left: '8%',  busy: false },
-          { top: '25%', left: '82%', busy: true },
-          { top: '35%', left: '22%', busy: true },
-          { top: '48%', left: '70%', busy: false },
-          { top: '55%', left: '45%', busy: true },
-          { top: '65%', left: '15%', busy: false },
-          { top: '72%', left: '88%', busy: false },
-          { top: '80%', left: '55%', busy: true },
-          { top: '88%', left: '30%', busy: false },
-          { top: '18%', left: '55%', busy: true },
-          { top: '42%', left: '92%', busy: false },
-          { top: '95%', left: '75%', busy: true },
-        ].map((d, i) => (
-          <div key={i} style={{ position: 'absolute', top: d.top, left: d.left }}>
-            {/* Ping ring */}
-            <div style={{
-              position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%,-50%)',
-              width: 18, height: 18, borderRadius: '50%',
-              border: `1px solid ${d.busy ? 'rgba(153,27,27,0.3)' : 'rgba(141,198,63,0.25)'}`,
-              animation: d.busy ? `driverDrift${i % 3} ${3 + i % 2}s ease-in-out infinite` : 'chatDotPulse 2.5s ease-in-out infinite',
-            }} />
-            {/* Dot */}
-            <div style={{
-              width: d.busy ? 6 : 5, height: d.busy ? 6 : 5, borderRadius: '50%',
-              background: d.busy ? '#991B1B' : '#8DC63F',
-              boxShadow: `0 0 ${d.busy ? 4 : 6}px ${d.busy ? 'rgba(153,27,27,0.6)' : 'rgba(141,198,63,0.5)'}`,
-              opacity: 0.6,
-              animation: d.busy ? `driverDrift${i % 3} ${3 + i % 2}s ease-in-out infinite` : 'chatDotHeartbeat 2s ease-in-out infinite',
-            }} />
-          </div>
-        ))}
-        <style>{`
-          @keyframes chatDotPulse { 0%,100% { transform: translate(-50%,-50%) scale(1); opacity: 0.3 } 50% { transform: translate(-50%,-50%) scale(1.8); opacity: 0 } }
-          @keyframes chatDotHeartbeat { 0%,100% { transform: scale(1) } 50% { transform: scale(1.4) } }
-          @keyframes driverDrift0 { 0%,100% { transform: translate(0,0) } 25% { transform: translate(3px,-2px) } 50% { transform: translate(-2px,3px) } 75% { transform: translate(2px,1px) } }
-          @keyframes driverDrift1 { 0%,100% { transform: translate(0,0) } 33% { transform: translate(-3px,2px) } 66% { transform: translate(2px,-3px) } }
-          @keyframes driverDrift2 { 0%,100% { transform: translate(0,0) } 50% { transform: translate(3px,3px) } }
-        `}</style>
-      </div>
       {/* Header */}
       <div style={{ padding: 'calc(env(safe-area-inset-top, 0px) + 12px) 16px 12px', display: 'flex', alignItems: 'center', gap: 12, borderBottom: '1px solid rgba(255,255,255,0.06)', flexShrink: 0, position: 'relative', zIndex: 1 }}>
         {/* Driver profile image */}
@@ -155,14 +113,9 @@ function DeliveryChat({ driverName, chatKey, initialMessages, onClose }) {
         <button onClick={onClose} style={{ padding: '10px 20px', borderRadius: 12, background: '#8DC63F', border: 'none', color: '#000', fontSize: 14, fontWeight: 900, cursor: 'pointer' }}>Close</button>
       </div>
 
-      {/* Monitored notice — running marquee */}
-      <div style={{ background: 'rgba(141,198,63,0.06)', borderBottom: '1px solid rgba(141,198,63,0.1)', padding: '6px 0', overflow: 'hidden', flexShrink: 0, position: 'relative', zIndex: 1 }}>
-        <div style={{ display: 'flex', whiteSpace: 'nowrap', animation: 'marqueeScroll 20s linear infinite' }}>
-          <span style={{ fontSize: 11, fontWeight: 700, color: 'rgba(141,198,63,0.6)', paddingRight: 60 }}>
-            🔒 This conversation is secured and monitored by the INDOO Operations Team to ensure your safety and delivery quality &nbsp;&nbsp;·&nbsp;&nbsp; 🔒 This conversation is secured and monitored by the INDOO Operations Team to ensure your safety and delivery quality
-          </span>
-        </div>
-        <style>{`@keyframes marqueeScroll { 0% { transform: translateX(0) } 100% { transform: translateX(-50%) } }`}</style>
+      {/* Monitored notice */}
+      <div style={{ background: 'rgba(141,198,63,0.06)', borderBottom: '1px solid rgba(141,198,63,0.1)', padding: '7px 16px', flexShrink: 0, position: 'relative', zIndex: 1, textAlign: 'center' }}>
+        <span style={{ fontSize: 11, fontWeight: 700, color: 'rgba(141,198,63,0.5)' }}>🔒 Secured and monitored by INDOO Operations</span>
       </div>
 
       {/* Messages */}
