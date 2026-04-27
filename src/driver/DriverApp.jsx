@@ -586,12 +586,12 @@ export default function DriverApp() {
         )}
       </div>
 
-      {/* ── Bottom tab bar ── */}
+      {/* ── Bottom tab bar — floating ── */}
       <div style={{
-        position: 'fixed', bottom: 0, left: 0, right: 0,
-        padding: '8px 8px calc(env(safe-area-inset-bottom, 0px) + 8px)',
-        background: 'rgba(10,10,10,0.95)', backdropFilter: 'blur(16px)',
-        borderTop: '1px solid rgba(255,255,255,0.06)',
+        position: 'fixed', bottom: 'calc(env(safe-area-inset-bottom, 0px) + 12px)', left: 16, right: 16,
+        padding: '10px 8px',
+        background: 'rgba(10,10,10,0.85)', backdropFilter: 'blur(20px)',
+        border: '1.5px solid rgba(255,255,255,0.1)', borderRadius: 20,
         display: 'flex', justifyContent: 'space-around', zIndex: 100,
       }}>
         {TABS.map(t => (
