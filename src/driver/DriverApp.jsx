@@ -344,19 +344,20 @@ export default function DriverApp() {
         {tab === 'home' && (
           <>
             {/* Online Status — Primary focus */}
-            <div style={{ padding: 20, borderRadius: 20, background: isOnline ? 'rgba(141,198,63,0.08)' : 'rgba(255,255,255,0.06)', backdropFilter: 'blur(16px)', border: `1.5px solid ${isOnline ? 'rgba(141,198,63,0.3)' : 'rgba(255,255,255,0.1)'}`, marginBottom: 16, textAlign: 'center' }}>
-              <div style={{ width: 64, height: 64, borderRadius: '50%', background: isOnline ? 'rgba(141,198,63,0.15)' : 'rgba(255,255,255,0.06)', border: `3px solid ${isOnline ? '#8DC63F' : 'rgba(255,255,255,0.15)'}`, display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 12px', transition: 'all 0.3s' }}>
+            <div style={{ padding: 20, borderRadius: 20, background: isOnline ? 'rgba(141,198,63,0.08)' : 'rgba(255,255,255,0.06)', backdropFilter: 'blur(16px)', border: `1.5px solid ${isOnline ? 'rgba(141,198,63,0.3)' : 'rgba(255,255,255,0.1)'}`, marginBottom: 16, textAlign: 'center', position: 'relative', overflow: 'hidden' }}>
+              <div style={{ width: 64, height: 64, borderRadius: '50%', background: isOnline ? 'rgba(141,198,63,0.15)' : 'rgba(255,255,255,0.06)', border: `3px solid ${isOnline ? '#8DC63F' : 'rgba(255,255,255,0.15)'}`, display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 12px', transition: 'all 0.3s', position: 'relative', zIndex: 1 }}>
                 <span style={{ fontSize: 28, opacity: isOnline ? 1 : 0.4 }}>{isOnline ? '🟢' : '⚪'}</span>
               </div>
-              <span style={{ fontSize: 22, fontWeight: 900, color: isOnline ? '#8DC63F' : 'rgba(255,255,255,0.5)', display: 'block' }}>{isOnline ? 'ACTIVE' : 'OFFLINE'}</span>
-              <span style={{ fontSize: 12, color: 'rgba(255,255,255,0.4)', display: 'block', marginTop: 4 }}>
+              <span style={{ fontSize: 22, fontWeight: 900, color: isOnline ? '#8DC63F' : 'rgba(255,255,255,0.5)', display: 'block', position: 'relative', zIndex: 1 }}>{isOnline ? 'ACTIVE' : 'OFFLINE'}</span>
+              <span style={{ fontSize: 12, color: 'rgba(255,255,255,0.4)', display: 'block', marginTop: 4, position: 'relative', zIndex: 1 }}>
                 {isOnline ? 'Accepting rides, food delivery & all services' : 'Go online to start receiving orders'}
               </span>
               {!isOnline && (
-                <button onClick={toggleOnline} style={{ marginTop: 16, padding: '14px 40px', borderRadius: 14, background: '#8DC63F', border: 'none', color: '#000', fontSize: 15, fontWeight: 900, cursor: 'pointer', fontFamily: 'inherit' }}>
+                <button onClick={toggleOnline} style={{ marginTop: 16, padding: '14px 40px', borderRadius: 14, background: '#8DC63F', border: 'none', color: '#000', fontSize: 15, fontWeight: 900, cursor: 'pointer', fontFamily: 'inherit', position: 'relative', zIndex: 1 }}>
                   Go Online
                 </button>
               )}
+              <img src="https://ik.imagekit.io/nepgaxllc/ChatGPT%20Image%20Apr%2027,%202026,%2011_17_44%20AM.png?updatedAt=1777263492233" alt="" style={{ position: 'absolute', bottom: -4, right: -4, width: 90, height: 90, objectFit: 'contain', opacity: isOnline ? 1 : 0.4, pointerEvents: 'none', zIndex: 0 }} />
             </div>
 
             {/* Daily Activity */}
