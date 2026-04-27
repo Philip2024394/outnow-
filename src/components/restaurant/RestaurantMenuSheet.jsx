@@ -147,25 +147,26 @@ function DeliveryChat({ driverName, chatKey, initialMessages, onClose }) {
               )}
               {/* Bubble */}
               <div style={{
-                maxWidth: '75%', padding: (msg.image || msg.imageRight) ? '4px 4px 8px' : '10px 14px', borderRadius: 16,
+                maxWidth: '75%', padding: (msg.image || msg.imageLeft || msg.imageRight) ? '4px 4px 8px' : '10px 14px', borderRadius: 16,
                 background: isCustomer ? '#8DC63F' : isSystem ? 'rgba(141,198,63,0.08)' : 'rgba(0,0,0,0.6)',
                 border: isSystem ? '1px solid rgba(141,198,63,0.15)' : isDriver ? '1px solid rgba(255,255,255,0.08)' : 'none',
                 borderBottomRightRadius: isCustomer ? 4 : 16,
                 borderBottomLeftRadius: isCustomer ? 16 : 4,
               }}>
-                {isSystem && <span style={{ fontSize: 10, fontWeight: 900, color: '#8DC63F', display: 'block', marginBottom: 4, letterSpacing: '0.05em', padding: (msg.image || msg.imageRight) ? '6px 10px 0' : 0 }}>INDOO</span>}
+                {isSystem && <span style={{ fontSize: 10, fontWeight: 900, color: '#8DC63F', display: 'block', marginBottom: 4, letterSpacing: '0.05em', padding: (msg.image || msg.imageLeft || msg.imageRight) ? '6px 10px 0' : 0 }}>INDOO</span>}
                 {msg.image && (
                   <img src={msg.image} alt="" style={{ width: '100%', borderRadius: 12, marginBottom: 6 }} />
                 )}
-                {msg.imageRight ? (
+                {(msg.imageLeft || msg.imageRight) ? (
                   <div style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '0 6px' }}>
+                    {msg.imageLeft && <img src={msg.imageLeft} alt="" style={{ width: 64, height: 64, borderRadius: 12, objectFit: 'cover', flexShrink: 0 }} />}
                     <span style={{ fontSize: 14, color: '#fff', flex: 1, lineHeight: 1.4, whiteSpace: 'pre-line' }}>{msg.text}</span>
-                    <img src={msg.imageRight} alt="" style={{ width: 64, height: 64, borderRadius: 12, objectFit: 'cover', flexShrink: 0 }} />
+                    {msg.imageRight && <img src={msg.imageRight} alt="" style={{ width: 64, height: 64, borderRadius: 12, objectFit: 'cover', flexShrink: 0 }} />}
                   </div>
-                ) : (
+                ) : !msg.image && (
                   <span style={{ fontSize: 14, color: isCustomer ? '#000' : '#fff', display: 'block', lineHeight: 1.4, whiteSpace: 'pre-line', padding: msg.image ? '0 10px' : 0 }}>{msg.text}</span>
                 )}
-                <span style={{ fontSize: 10, color: isCustomer ? 'rgba(0,0,0,0.4)' : 'rgba(255,255,255,0.3)', display: 'block', marginTop: 4, textAlign: 'right', padding: (msg.image || msg.imageRight) ? '0 10px' : 0 }}>{msg.time}</span>
+                <span style={{ fontSize: 10, color: isCustomer ? 'rgba(0,0,0,0.4)' : 'rgba(255,255,255,0.3)', display: 'block', marginTop: 4, textAlign: 'right', padding: (msg.image || msg.imageLeft || msg.imageRight) ? '0 10px' : 0 }}>{msg.time}</span>
               </div>
             </div>
           )
@@ -662,7 +663,7 @@ export default function RestaurantMenuSheet({ restaurant, onClose, onOrderViaCha
     q(34000, 'driver', `Pesanan sudah diambil kak, sedang menuju ke lokasi Anda`)
     q(40000, 'indoo',  `🏍️ Driver is making good progress — hang tight!`)
     q(47000, 'indoo',  `📍 Your driver will be at your location very soon`)
-    q(50000, 'indoo',  `👀 Please look out for your driver\n${bike} · Plate ${plate}`, { image: INDOO_IMG })
+    q(50000, 'indoo',  `👀 Please look out for your driver\n${bike} · Plate ${plate}`, { imageLeft: INDOO_IMG })
 
     // Phase 3: arrived (52s+)
     q(52000, 'indoo',  `🎉 Your driver has arrived!`, { imageRight: 'https://ik.imagekit.io/nepgaxllc/ChatGPT%20Image%20Apr%2027,%202026,%2011_17_44%20AM.png' })
