@@ -158,7 +158,7 @@ function DeliveryChat({ driverName, chatKey, initialMessages, onClose }) {
                 borderBottomLeftRadius: isCustomer ? 16 : 4,
               }}>
                 {isSystem && <span style={{ fontSize: 10, fontWeight: 900, color: '#8DC63F', display: 'block', marginBottom: 4, letterSpacing: '0.05em', padding: (msg.image || msg.imageLeft || msg.imageRight) ? '6px 10px 0' : 0 }}>INDOO HQ</span>}
-                {isDriver && <span style={{ fontSize: 10, fontWeight: 900, color: '#991B1B', display: 'block', marginBottom: 4, letterSpacing: '0.05em' }}>🏍️ {msg.callsign ?? 'DRIVER'}</span>}
+                {isDriver && <span style={{ fontSize: 10, fontWeight: 900, color: '#991B1B', display: 'flex', alignItems: 'center', gap: 4, marginBottom: 4, letterSpacing: '0.05em' }}><img src="https://ik.imagekit.io/nepgaxllc/Untitleddsddaa-removebg-preview.png?updatedAt=1776781020066" alt="" style={{ width: 14, height: 14, objectFit: 'contain' }} /> {msg.callsign ?? 'DRIVER'}</span>}
                 {msg.image && (
                   <img src={msg.image} alt="" style={{ width: '100%', borderRadius: 12, marginBottom: 6 }} />
                 )}
