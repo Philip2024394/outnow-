@@ -346,16 +346,16 @@ export default function CarDriverApp() {
 
             {/* Today's Activity — 3 separate containers */}
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 10, marginBottom: 12 }}>
-              <div style={{ padding: 14, borderRadius: 20, background: 'rgba(250,204,21,0.08)', backdropFilter: 'blur(16px)', border: '1.5px solid rgba(250,204,21,0.3)', textAlign: 'center' }}>
-                <span style={{ fontSize: 24, fontWeight: 900, color: '#FACC15', display: 'block' }}>{todayTrips}</span>
+              <div style={{ padding: 20, borderRadius: 20, background: 'rgba(250,204,21,0.08)', backdropFilter: 'blur(16px)', border: '1.5px solid rgba(250,204,21,0.3)', textAlign: 'center', overflow: 'hidden', position: 'relative' }}>
+                <span style={{ fontSize: 26, fontWeight: 900, color: '#FACC15', display: 'block' }}>{todayTrips}</span>
                 <span style={{ fontSize: 10, fontWeight: 700, color: 'rgba(255,255,255,0.35)' }}>Trips</span>
               </div>
-              <div style={{ padding: 14, borderRadius: 20, background: 'rgba(141,198,63,0.08)', backdropFilter: 'blur(16px)', border: '1.5px solid rgba(141,198,63,0.3)', textAlign: 'center' }}>
-                <span style={{ fontSize: 24, fontWeight: 900, color: '#8DC63F', display: 'block' }}>{fmtRp(Math.round(todayEarnings * 0.9))}</span>
+              <div style={{ padding: 20, borderRadius: 20, background: 'rgba(141,198,63,0.08)', backdropFilter: 'blur(16px)', border: '1.5px solid rgba(141,198,63,0.3)', textAlign: 'center', overflow: 'hidden', position: 'relative' }}>
+                <span style={{ fontSize: 26, fontWeight: 900, color: '#8DC63F', display: 'block' }}>{fmtRp(Math.round(todayEarnings * 0.9))}</span>
                 <span style={{ fontSize: 10, fontWeight: 700, color: 'rgba(255,255,255,0.35)' }}>Earned (90%)</span>
               </div>
-              <div style={{ padding: 14, borderRadius: 20, background: 'rgba(239,68,68,0.08)', backdropFilter: 'blur(16px)', border: '1.5px solid rgba(239,68,68,0.3)', textAlign: 'center' }}>
-                <span style={{ fontSize: 24, fontWeight: 900, color: '#EF4444', display: 'block' }}>{fmtRp(Math.round(todayEarnings * 0.1))}</span>
+              <div style={{ padding: 20, borderRadius: 20, background: 'rgba(239,68,68,0.08)', backdropFilter: 'blur(16px)', border: '1.5px solid rgba(239,68,68,0.3)', textAlign: 'center', overflow: 'hidden', position: 'relative' }}>
+                <span style={{ fontSize: 26, fontWeight: 900, color: '#EF4444', display: 'block' }}>{fmtRp(Math.round(todayEarnings * 0.1))}</span>
                 <span style={{ fontSize: 10, fontWeight: 700, color: 'rgba(255,255,255,0.35)' }}>Admin (10%)</span>
               </div>
             </div>
@@ -611,7 +611,7 @@ export default function CarDriverApp() {
       {/* ── Cash float modal ── */}
       {showCashFloat && (
         <DriverCashFloatModal
-          driverName={profile.display_name}
+          onClose={() => setShowCashFloat(false)}
           onConfirm={(amount) => {
             setShowCashFloat(false)
             setIsOnline(true)
