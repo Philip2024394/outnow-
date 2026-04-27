@@ -2,7 +2,7 @@
  * DriverApp — Standalone driver PWA for indoodrive.id
  * Login → Dashboard with tabs: Rides | Food | Deals | Earnings | Profile
  */
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { supabase } from '@/lib/supabase'
 import DriverEarningsScreen from '@/components/driver/DriverEarningsScreen'
 import DriverTripScreen from '@/components/driver/DriverTripScreen'
@@ -610,6 +610,169 @@ export default function DriverApp() {
           onDismiss={() => setIncomingFoodOrder(null)}
         />
       )}
+
+      {/* ── Hotspot Map Overlay ── */}
+      {showHotspotMap && (
+        <div style={{ position: 'fixed', inset: 0, zIndex: 200, background: '#080808', display: 'flex', flexDirection: 'column' }}>
+          <img src={BG_IMG} alt="" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', pointerEvents: 'none', opacity: 0.3 }} />
+
+          {/* Header */}
+          <div style={{ padding: 'calc(env(safe-area-inset-top, 0px) + 12px) 16px 12px', background: 'rgba(0,0,0,0.7)', backdropFilter: 'blur(20px)', borderBottom: '1px solid rgba(255,255,255,0.1)', display: 'flex', alignItems: 'center', gap: 12, position: 'relative', zIndex: 2 }}>
+            <button onClick={() => setShowHotspotMap(false)} style={{ background: 'none', border: 'none', color: '#fff', fontSize: 22, cursor: 'pointer', padding: '4px 8px' }}>←</button>
+            <div style={{ flex: 1 }}>
+              <span style={{ fontSize: 16, fontWeight: 900, color: '#fff', display: 'block' }}>🗺️ Area Hotspot Map</span>
+              <span style={{ fontSize: 11, color: 'rgba(255,255,255,0.4)' }}>Yogyakarta · Live demand zones</span>
+            </div>
+            <div style={{ padding: '4px 10px', borderRadius: 12, background: 'rgba(141,198,63,0.1)', border: '1px solid rgba(141,198,63,0.3)' }}>
+              <span style={{ fontSize: 10, fontWeight: 900, color: '#8DC63F' }}>● LIVE</span>
+            </div>
+          </div>
+
+          {/* Map */}
+          <div style={{ flex: 1, position: 'relative', zIndex: 1 }}>
+            <HotspotMapContent />
+          </div>
+
+          {/* Bottom info panel */}
+          <div style={{ padding: '14px 16px calc(env(safe-area-inset-bottom, 0px) + 14px)', background: 'rgba(0,0,0,0.8)', backdropFilter: 'blur(16px)', borderTop: '1px solid rgba(255,255,255,0.1)', position: 'relative', zIndex: 2 }}>
+            <div style={{ display: 'flex', gap: 8, marginBottom: 10, flexWrap: 'wrap' }}>
+              <span style={{ padding: '4px 10px', borderRadius: 8, background: 'rgba(239,68,68,0.1)', border: '1px solid rgba(239,68,68,0.3)', fontSize: 10, fontWeight: 800, color: '#EF4444' }}>🔴 High Demand</span>
+              <span style={{ padding: '4px 10px', borderRadius: 8, background: 'rgba(250,204,21,0.1)', border: '1px solid rgba(250,204,21,0.3)', fontSize: 10, fontWeight: 800, color: '#FACC15' }}>🟡 Moderate</span>
+              <span style={{ padding: '4px 10px', borderRadius: 8, background: 'rgba(141,198,63,0.1)', border: '1px solid rgba(141,198,63,0.3)', fontSize: 10, fontWeight: 800, color: '#8DC63F' }}>🟢 Your Area</span>
+              <span style={{ padding: '4px 10px', borderRadius: 8, background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.1)', fontSize: 10, fontWeight: 800, color: 'rgba(255,255,255,0.4)' }}>⚪ Quiet</span>
+            </div>
+            <span style={{ fontSize: 11, color: 'rgba(255,255,255,0.4)', display: 'block' }}>💡 Move to red zones for higher booking rate. Too many drivers in your area reduces your chances.</span>
+          </div>
+        </div>
+      )}
     </div>
   )
+}
+
+// ── Hotspot Map Component (Mapbox GL) ────────────────────────────────────────
+function HotspotMapContent() {
+  const mapRef = useRef(null)
+  const mapObjRef = useRef(null)
+  const [mapError, setMapError] = useState(false)
+
+  const ZONES = [
+    { name: 'Malioboro', lat: -7.7925, lng: 110.3658, demand: 'high', drivers: 2, orders: 9 },
+    { name: 'Prawirotaman', lat: -7.8125, lng: 110.3650, demand: 'high', drivers: 1, orders: 7 },
+    { name: 'Seturan', lat: -7.7650, lng: 110.4100, demand: 'high', drivers: 0, orders: 5 },
+    { name: 'Tugu Station', lat: -7.7891, lng: 110.3614, demand: 'moderate', drivers: 3, orders: 4 },
+    { name: 'Amplaz', lat: -7.7835, lng: 110.4020, demand: 'moderate', drivers: 2, orders: 3 },
+    { name: 'Alun-Alun Selatan', lat: -7.8120, lng: 110.3580, demand: 'moderate', drivers: 1, orders: 3 },
+    { name: 'UGM Campus', lat: -7.7713, lng: 110.3776, demand: 'quiet', drivers: 4, orders: 1 },
+    { name: 'Jalan Kaliurang', lat: -7.7500, lng: 110.3850, demand: 'quiet', drivers: 5, orders: 1 },
+    { name: 'Condongcatur', lat: -7.7550, lng: 110.3950, demand: 'quiet', drivers: 6, orders: 0 },
+    { name: 'Kotagede', lat: -7.8200, lng: 110.3950, demand: 'quiet', drivers: 3, orders: 0 },
+    { name: 'Kota Baru', lat: -7.7820, lng: 110.3758, demand: 'moderate', drivers: 2, orders: 2 },
+    { name: 'Jakal North', lat: -7.7350, lng: 110.3900, demand: 'quiet', drivers: 4, orders: 0 },
+  ]
+
+  const DEMAND_COLORS = { high: '#EF4444', moderate: '#FACC15', quiet: 'rgba(255,255,255,0.3)' }
+  const DEMAND_OPACITY = { high: 0.25, moderate: 0.15, quiet: 0.06 }
+
+  useEffect(() => {
+    if (!mapRef.current || mapObjRef.current) return
+    const token = import.meta.env.VITE_MAPBOX_TOKEN
+    if (!token) { setMapError(true); return }
+
+    let cancelled = false
+
+    // Load Mapbox GL
+    const loadMb = () => new Promise((resolve, reject) => {
+      if (window.mapboxgl) { resolve(window.mapboxgl); return }
+      if (!document.getElementById('mapbox-css-driver')) {
+        const link = document.createElement('link')
+        link.id = 'mapbox-css-driver'
+        link.rel = 'stylesheet'
+        link.href = 'https://api.mapbox.com/mapbox-gl-js/v3.9.4/mapbox-gl.css'
+        document.head.appendChild(link)
+      }
+      const script = document.createElement('script')
+      script.src = 'https://api.mapbox.com/mapbox-gl-js/v3.9.4/mapbox-gl.js'
+      script.onload = () => resolve(window.mapboxgl)
+      script.onerror = () => reject(new Error('Failed'))
+      document.head.appendChild(script)
+    })
+
+    loadMb().then(mapboxgl => {
+      if (cancelled || !mapRef.current) return
+      mapboxgl.accessToken = token
+
+      const map = new mapboxgl.Map({
+        container: mapRef.current,
+        style: 'mapbox://styles/mapbox/dark-v11',
+        center: [110.385, -7.79],
+        zoom: 12.5,
+        attributionControl: false,
+      })
+      mapObjRef.current = map
+
+      map.on('load', () => {
+        if (cancelled) return
+
+        // Driver's current position (green marker)
+        const driverEl = document.createElement('div')
+        driverEl.innerHTML = `<div style="width:20px;height:20px;border-radius:50%;background:#8DC63F;border:3px solid #fff;box-shadow:0 0 12px rgba(141,198,63,0.8)"></div>`
+        new mapboxgl.Marker({ element: driverEl }).setLngLat([110.3758, -7.7820]).addTo(map)
+
+        // Zone circles + labels
+        ZONES.forEach(z => {
+          const color = DEMAND_COLORS[z.demand]
+          const opacity = DEMAND_OPACITY[z.demand]
+
+          // Circle overlay
+          const el = document.createElement('div')
+          const size = z.demand === 'high' ? 100 : z.demand === 'moderate' ? 80 : 60
+          el.style.cssText = `width:${size}px;height:${size}px;border-radius:50%;background:${color};opacity:${opacity};border:1.5px solid ${color};pointer-events:none;`
+          if (z.demand === 'high') el.style.animation = 'hotspotPulse 2s ease-in-out infinite'
+          new mapboxgl.Marker({ element: el, anchor: 'center' }).setLngLat([z.lng, z.lat]).addTo(map)
+
+          // Label
+          const popup = new mapboxgl.Popup({ closeButton: false, closeOnClick: false, offset: [0, -size / 2 - 5], className: 'hotspot-popup' })
+            .setLngLat([z.lng, z.lat])
+            .setHTML(`<div style="font-family:system-ui;padding:6px 10px;background:rgba(0,0,0,0.85);border-radius:8px;border:1px solid ${color}40;text-align:center;min-width:80px">
+              <div style="font-size:11px;font-weight:900;color:${color}">${z.name}</div>
+              <div style="font-size:10px;color:rgba(255,255,255,0.5);margin-top:2px">${z.orders} orders · ${z.drivers} drivers</div>
+              ${z.demand === 'high' && z.drivers < 2 ? '<div style="font-size:9px;color:#EF4444;font-weight:700;margin-top:3px">⚠️ NEEDS DRIVERS</div>' : ''}
+              ${z.drivers > z.orders && z.demand === 'quiet' ? '<div style="font-size:9px;color:#FACC15;font-weight:700;margin-top:3px">Too many drivers here</div>' : ''}
+            </div>`)
+            .addTo(map)
+
+          // Suggested movement arrows for oversaturated quiet zones
+          if (z.drivers > z.orders + 2 && z.demand === 'quiet') {
+            const arrowEl = document.createElement('div')
+            arrowEl.innerHTML = `<div style="font-size:16px;animation:bounce 1.5s ease-in-out infinite">↗️</div>`
+            new mapboxgl.Marker({ element: arrowEl, anchor: 'center' }).setLngLat([z.lng + 0.003, z.lat - 0.002]).addTo(map)
+          }
+        })
+
+        // Add pulsing animation style
+        const style = document.createElement('style')
+        style.textContent = `
+          @keyframes hotspotPulse { 0%,100% { transform: scale(1); } 50% { transform: scale(1.15); } }
+          @keyframes bounce { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-5px); } }
+          .hotspot-popup .mapboxgl-popup-content { background: none !important; padding: 0 !important; box-shadow: none !important; }
+          .hotspot-popup .mapboxgl-popup-tip { display: none !important; }
+        `
+        document.head.appendChild(style)
+      })
+    }).catch(() => { if (!cancelled) setMapError(true) })
+
+    return () => { cancelled = true; if (mapObjRef.current) { mapObjRef.current.remove(); mapObjRef.current = null } }
+  }, [])
+
+  if (mapError) {
+    return (
+      <div style={{ height: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 12, padding: 20 }}>
+        <span style={{ fontSize: 48 }}>🗺️</span>
+        <span style={{ fontSize: 14, fontWeight: 800, color: 'rgba(255,255,255,0.5)' }}>Map unavailable</span>
+        <span style={{ fontSize: 12, color: 'rgba(255,255,255,0.3)' }}>Check your connection</span>
+      </div>
+    )
+  }
+
+  return <div ref={mapRef} style={{ width: '100%', height: '100%' }} />
 }
