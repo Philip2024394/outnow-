@@ -188,7 +188,7 @@ export default function App() {
                 <Spinner size={28} color="var(--color-live)" />
               </div>
             }>
-              <AppShell returnParams={returnParams} triggerGoLive={triggerGoLive} />
+              <AppShell returnParams={returnParams} />
             </Suspense>
           )}
 
