@@ -69,6 +69,9 @@ export default function DriverApp() {
   const [termsAccepted, setTermsAccepted] = useState(() => localStorage.getItem('indoo_driver_terms_accepted') === 'true')
   const [showHotspotMap, setShowHotspotMap] = useState(false)
   const [showEliteAwards, setShowEliteAwards] = useState(false)
+  const [showPayFees, setShowPayFees] = useState(false)
+  const [paymentProof, setPaymentProof] = useState(null)
+  const [paymentSubmitted, setPaymentSubmitted] = useState(false)
 
   // Auth
   useEffect(() => {
@@ -412,14 +415,16 @@ export default function DriverApp() {
                 <span style={{ fontSize: 22 }}>💳</span>
                 <div style={{ flex: 1 }}>
                   <span style={{ fontSize: 14, fontWeight: 900, color: '#fff', display: 'block' }}>Admin Fees Due</span>
-                  <span style={{ fontSize: 11, color: 'rgba(255,255,255,0.4)' }}>10% platform fee from each completed order</span>
+                  <span style={{ fontSize: 11, color: 'rgba(255,255,255,0.4)' }}>10% platform fee · Transfer daily to keep account active</span>
                 </div>
                 <span style={{ fontSize: 18, fontWeight: 900, color: '#EF4444' }}>{fmtRp(Math.round(todayEarnings * 0.1))}</span>
               </div>
-              <div style={{ padding: 10, borderRadius: 10, background: 'rgba(239,68,68,0.08)', border: '1px solid rgba(239,68,68,0.15)', marginBottom: 10 }}>
-                <span style={{ fontSize: 11, fontWeight: 700, color: '#EF4444', display: 'block', lineHeight: 1.6 }}>⚠️ Payments must be processed within 30 days to prevent your account from being deactivated. Unpaid fees after 30 days incur a 20% daily penalty.</span>
+              <div style={{ padding: 10, borderRadius: 10, background: 'rgba(239,68,68,0.08)', border: '1px solid rgba(239,68,68,0.15)', marginBottom: 8, fontSize: 11, color: '#EF4444', fontWeight: 700, lineHeight: 1.7 }}>
+                <p style={{ margin: 0 }}>⚠️ Transfer admin fees at the end of each day for a clean, healthy working account.</p>
+                <p style={{ margin: '4px 0 0' }}>⛔ Unpaid fees after 30 days = account deactivation + 20% daily penalty.</p>
+                <p style={{ margin: '4px 0 0' }}>🔒 Reactivation fee: <strong>Rp 100.000</strong> (non-negotiable).</p>
               </div>
-              <button style={{ width: '100%', padding: 12, borderRadius: 10, background: 'rgba(239,68,68,0.12)', border: '1px solid rgba(239,68,68,0.3)', color: '#EF4444', fontSize: 13, fontWeight: 900, cursor: 'pointer', fontFamily: 'inherit' }}>
+              <button onClick={() => setShowPayFees(true)} style={{ width: '100%', padding: 12, borderRadius: 10, background: 'rgba(239,68,68,0.12)', border: '1px solid rgba(239,68,68,0.3)', color: '#EF4444', fontSize: 13, fontWeight: 900, cursor: 'pointer', fontFamily: 'inherit' }}>
                 Pay Admin Fees Now
               </button>
             </div>
@@ -714,6 +719,140 @@ export default function DriverApp() {
           driverId={profile.id}
           onDismiss={() => setIncomingFoodOrder(null)}
         />
+      )}
+
+      {/* ── Pay Admin Fees Page ── */}
+      {showPayFees && (
+        <div style={{ position: 'fixed', inset: 0, zIndex: 200, background: '#080808', display: 'flex', flexDirection: 'column' }}>
+          <img src={BG_IMG} alt="" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', pointerEvents: 'none', opacity: 0.2 }} />
+
+          {/* Header */}
+          <div style={{ padding: 'calc(env(safe-area-inset-top, 0px) + 12px) 16px 12px', background: 'rgba(0,0,0,0.7)', backdropFilter: 'blur(20px)', borderBottom: '1px solid rgba(239,68,68,0.2)', display: 'flex', alignItems: 'center', gap: 12, position: 'relative', zIndex: 2 }}>
+            <button onClick={() => { setShowPayFees(false); setPaymentSubmitted(false); setPaymentProof(null) }} style={{ background: 'none', border: 'none', color: '#fff', fontSize: 22, cursor: 'pointer', padding: '4px 8px' }}>←</button>
+            <div style={{ flex: 1 }}>
+              <span style={{ fontSize: 16, fontWeight: 900, color: '#fff', display: 'block' }}>💳 Pay Admin Fees</span>
+              <span style={{ fontSize: 11, color: 'rgba(255,255,255,0.4)' }}>Bank transfer + screenshot confirmation</span>
+            </div>
+          </div>
+
+          <div style={{ flex: 1, overflowY: 'auto', padding: '16px 16px 100px', position: 'relative', zIndex: 1 }}>
+
+            {!paymentSubmitted ? (
+              <>
+                {/* Amount due */}
+                <div style={{ padding: 20, borderRadius: 16, background: 'rgba(239,68,68,0.06)', backdropFilter: 'blur(16px)', border: '1.5px solid rgba(239,68,68,0.2)', marginBottom: 16, textAlign: 'center' }}>
+                  <span style={{ fontSize: 12, fontWeight: 800, color: 'rgba(255,255,255,0.4)', textTransform: 'uppercase', display: 'block', marginBottom: 8 }}>Amount Due Today</span>
+                  <span style={{ fontSize: 32, fontWeight: 900, color: '#EF4444', display: 'block' }}>{fmtRp(Math.round(todayEarnings * 0.1))}</span>
+                  <span style={{ fontSize: 11, color: 'rgba(255,255,255,0.35)', marginTop: 4, display: 'block' }}>10% of {fmtRp(todayEarnings)} total earnings</span>
+                </div>
+
+                {/* Bank details */}
+                <div style={{ padding: 16, borderRadius: 16, background: 'rgba(255,255,255,0.06)', backdropFilter: 'blur(16px)', border: '1px solid rgba(255,255,255,0.1)', marginBottom: 16 }}>
+                  <span style={{ fontSize: 12, fontWeight: 800, color: '#FACC15', textTransform: 'uppercase', letterSpacing: '0.05em', display: 'block', marginBottom: 12 }}>🏦 Transfer To This Account</span>
+
+                  <div style={{ padding: 14, borderRadius: 12, background: 'rgba(0,0,0,0.4)', border: '1px solid rgba(255,255,255,0.08)', marginBottom: 10 }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 8 }}>
+                      <span style={{ fontSize: 11, color: 'rgba(255,255,255,0.4)' }}>Bank</span>
+                      <span style={{ fontSize: 13, fontWeight: 900, color: '#fff' }}>BCA</span>
+                    </div>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 8 }}>
+                      <span style={{ fontSize: 11, color: 'rgba(255,255,255,0.4)' }}>Account Number</span>
+                      <span style={{ fontSize: 15, fontWeight: 900, color: '#FACC15', letterSpacing: '0.1em' }}>7890-1234-5678</span>
+                    </div>
+                    <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                      <span style={{ fontSize: 11, color: 'rgba(255,255,255,0.4)' }}>Account Name</span>
+                      <span style={{ fontSize: 13, fontWeight: 800, color: '#fff' }}>PT HAMMEREX PRODUCTS</span>
+                    </div>
+                  </div>
+
+                  <button onClick={() => { navigator.clipboard.writeText('789012345678') }} style={{ width: '100%', padding: 10, borderRadius: 10, background: 'rgba(250,204,21,0.1)', border: '1px solid rgba(250,204,21,0.25)', color: '#FACC15', fontSize: 12, fontWeight: 800, cursor: 'pointer', fontFamily: 'inherit' }}>
+                    📋 Copy Account Number
+                  </button>
+                </div>
+
+                {/* Instructions */}
+                <div style={{ padding: 14, borderRadius: 14, background: 'rgba(255,255,255,0.06)', backdropFilter: 'blur(16px)', border: '1px solid rgba(255,255,255,0.1)', marginBottom: 16 }}>
+                  <span style={{ fontSize: 12, fontWeight: 800, color: '#fff', display: 'block', marginBottom: 10 }}>How to Pay</span>
+                  <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.6)', lineHeight: 1.8 }}>
+                    {['Open your banking app (BCA, Mandiri, BNI, etc.)', 'Transfer the amount shown above to the account', 'Take a screenshot of the successful transfer', 'Upload the screenshot below to confirm payment', 'Your payment will be verified within 24 hours'].map((step, i) => (
+                      <div key={i} style={{ display: 'flex', gap: 8, marginBottom: 4 }}>
+                        <span style={{ width: 20, height: 20, borderRadius: '50%', background: 'rgba(141,198,63,0.15)', border: '1px solid rgba(141,198,63,0.3)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 10, fontWeight: 900, color: '#8DC63F', flexShrink: 0 }}>{i + 1}</span>
+                        <span>{step}</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Upload screenshot */}
+                <div style={{ padding: 16, borderRadius: 16, background: 'rgba(255,255,255,0.06)', backdropFilter: 'blur(16px)', border: '1px solid rgba(255,255,255,0.1)', marginBottom: 16 }}>
+                  <span style={{ fontSize: 12, fontWeight: 800, color: '#fff', display: 'block', marginBottom: 10 }}>📸 Upload Transfer Screenshot</span>
+
+                  {paymentProof ? (
+                    <div style={{ position: 'relative' }}>
+                      <img src={paymentProof} alt="Payment proof" style={{ width: '100%', borderRadius: 12, maxHeight: 300, objectFit: 'contain', background: 'rgba(0,0,0,0.3)' }} />
+                      <button onClick={() => setPaymentProof(null)} style={{ position: 'absolute', top: 8, right: 8, width: 28, height: 28, borderRadius: '50%', background: 'rgba(0,0,0,0.7)', border: '1px solid rgba(255,255,255,0.2)', color: '#fff', fontSize: 14, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>✕</button>
+                    </div>
+                  ) : (
+                    <label style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 8, padding: '30px 20px', borderRadius: 12, border: '2px dashed rgba(255,255,255,0.15)', cursor: 'pointer', textAlign: 'center' }}>
+                      <span style={{ fontSize: 36 }}>📷</span>
+                      <span style={{ fontSize: 13, fontWeight: 700, color: 'rgba(255,255,255,0.5)' }}>Tap to upload screenshot</span>
+                      <span style={{ fontSize: 11, color: 'rgba(255,255,255,0.25)' }}>JPG, PNG accepted</span>
+                      <input type="file" accept="image/*" style={{ display: 'none' }} onChange={e => {
+                        const file = e.target.files?.[0]
+                        if (file) {
+                          const reader = new FileReader()
+                          reader.onload = ev => setPaymentProof(ev.target.result)
+                          reader.readAsDataURL(file)
+                        }
+                      }} />
+                    </label>
+                  )}
+                </div>
+
+                {/* Submit */}
+                <button
+                  onClick={() => { if (paymentProof) setPaymentSubmitted(true) }}
+                  disabled={!paymentProof}
+                  style={{ width: '100%', padding: 16, borderRadius: 14, background: paymentProof ? '#8DC63F' : 'rgba(255,255,255,0.06)', border: paymentProof ? 'none' : '1px solid rgba(255,255,255,0.1)', color: paymentProof ? '#000' : 'rgba(255,255,255,0.3)', fontSize: 15, fontWeight: 900, cursor: paymentProof ? 'pointer' : 'not-allowed', fontFamily: 'inherit' }}>
+                  {paymentProof ? 'Submit Payment Confirmation' : 'Upload screenshot to continue'}
+                </button>
+
+                {/* Warning */}
+                <div style={{ marginTop: 16, padding: 12, borderRadius: 12, background: 'rgba(239,68,68,0.06)', border: '1px solid rgba(239,68,68,0.15)' }}>
+                  <span style={{ fontSize: 11, color: '#EF4444', fontWeight: 700, lineHeight: 1.7, display: 'block' }}>
+                    ⚠️ Transfer daily at end of shift for a clean account.<br/>
+                    ⛔ 30+ days unpaid = account deactivation + 20% daily penalty.<br/>
+                    🔒 Reactivation fee: Rp 100.000 (non-negotiable).
+                  </span>
+                </div>
+              </>
+            ) : (
+              /* Payment submitted confirmation */
+              <div style={{ textAlign: 'center', padding: '40px 20px' }}>
+                <span style={{ fontSize: 64, display: 'block', marginBottom: 16 }}>✅</span>
+                <span style={{ fontSize: 20, fontWeight: 900, color: '#8DC63F', display: 'block', marginBottom: 8 }}>Payment Submitted</span>
+                <span style={{ fontSize: 13, color: 'rgba(255,255,255,0.5)', display: 'block', marginBottom: 24, lineHeight: 1.6 }}>Your transfer screenshot has been received. Our team will verify the payment within 24 hours. You will be notified once confirmed.</span>
+                <div style={{ padding: 14, borderRadius: 12, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)', marginBottom: 20 }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 6 }}>
+                    <span style={{ fontSize: 12, color: 'rgba(255,255,255,0.4)' }}>Amount</span>
+                    <span style={{ fontSize: 14, fontWeight: 900, color: '#fff' }}>{fmtRp(Math.round(todayEarnings * 0.1))}</span>
+                  </div>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 6 }}>
+                    <span style={{ fontSize: 12, color: 'rgba(255,255,255,0.4)' }}>To</span>
+                    <span style={{ fontSize: 12, fontWeight: 700, color: '#fff' }}>PT HAMMEREX PRODUCTS · BCA</span>
+                  </div>
+                  <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                    <span style={{ fontSize: 12, color: 'rgba(255,255,255,0.4)' }}>Status</span>
+                    <span style={{ fontSize: 12, fontWeight: 800, color: '#FACC15' }}>⏳ Pending verification</span>
+                  </div>
+                </div>
+                <button onClick={() => { setShowPayFees(false); setPaymentSubmitted(false); setPaymentProof(null) }} style={{ padding: '14px 40px', borderRadius: 14, background: '#8DC63F', border: 'none', color: '#000', fontSize: 15, fontWeight: 900, cursor: 'pointer', fontFamily: 'inherit' }}>
+                  Back to Dashboard
+                </button>
+              </div>
+            )}
+          </div>
+        </div>
       )}
 
       {/* ── INDOO Elite Awards Page ── */}
