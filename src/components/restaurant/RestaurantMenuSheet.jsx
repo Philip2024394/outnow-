@@ -684,7 +684,7 @@ export default function RestaurantMenuSheet({ restaurant, onClose, onOrderViaCha
     // ── Phase 3: Arrived (52s+) ──
     q(52000, 'driver', `${callsign} has arrived at customer location. Delivering order ${ordNum}.`)
     q(53500, 'indoo',  `Confirmed ${callsign}. Order ${ordNum} delivered successfully.`, { imageRight: ARRIVED_IMG })
-    q(55000, 'driver', `Order handed over. Customer happy. ${callsign} signing off this delivery 🙏`)
+    q(55000, 'driver', `Order handed over. Customer has received. ${callsign} signing off thank you 🙏`)
     q(56500, 'indoo',  `Good job ${callsign}! Returning you to active fleet.`)
     q(59000, 'indoo',  `Thank you for ordering with INDOO! We hope to serve you again very soon.\n— INDOO Operations Team 😊`, { image: INDOO_IMG })
 
