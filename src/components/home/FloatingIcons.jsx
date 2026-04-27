@@ -5,7 +5,7 @@ import { useLanguage } from '@/i18n'
 import styles from './FloatingIcons.module.css'
 
 const ICONS = [
-  { id: 'bike_ride',  labelKey: 'icons.ride',    label: 'Bike Ride',    img: 'https://ik.imagekit.io/nepgaxllc/Untitledsadasdasd-removebg-preview.png',                  vehicle: true },
+  { id: 'bike_ride',  labelKey: 'icons.ride',    label: 'Bike Ride',    img: 'https://ik.imagekit.io/nepgaxllc/ChatGPT%20Image%20Apr%2028,%202026,%2005_49_30%20AM.png',   vehicle: true },
   { id: 'food',       labelKey: 'icons.street',  label: 'Food',         img: 'https://ik.imagekit.io/nepgaxllc/Untitledsadasdasdasdasddfssdf-removebg-preview.png',        vehicle: false },
   { id: 'dating',     labelKey: 'icons.dating',  label: 'Dating',       img: 'https://ik.imagekit.io/nepgaxllc/Untitledsadasdasdasdasddfssdfasdasdfsasdf-removebg-preview.png', vehicle: false },
   { id: 'car_taxi',   labelKey: 'icons.car',     label: 'Car Ride',     img: 'https://ik.imagekit.io/nepgaxllc/Untitledsadasdasdasdasd-removebg-preview.png',              vehicle: true },
