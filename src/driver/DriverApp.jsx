@@ -291,12 +291,12 @@ export default function DriverApp() {
                   <span style={{ fontSize: 10, fontWeight: 700, color: 'rgba(255,255,255,0.35)' }}>Trips</span>
                 </div>
                 <div style={{ textAlign: 'center' }}>
-                  <span style={{ fontSize: 24, fontWeight: 900, color: '#8DC63F', display: 'block' }}>{fmtRp(todayEarnings)}</span>
-                  <span style={{ fontSize: 10, fontWeight: 700, color: 'rgba(255,255,255,0.35)' }}>Earned</span>
+                  <span style={{ fontSize: 24, fontWeight: 900, color: '#8DC63F', display: 'block' }}>{fmtRp(Math.round(todayEarnings * 0.9))}</span>
+                  <span style={{ fontSize: 10, fontWeight: 700, color: 'rgba(255,255,255,0.35)' }}>Your Earnings (90%)</span>
                 </div>
                 <div style={{ textAlign: 'center' }}>
-                  <span style={{ fontSize: 24, fontWeight: 900, color: '#00E5FF', display: 'block' }}>{fmtRp(Math.round(todayEarnings * 0.1))}</span>
-                  <span style={{ fontSize: 10, fontWeight: 700, color: 'rgba(255,255,255,0.35)' }}>Commission (10%)</span>
+                  <span style={{ fontSize: 24, fontWeight: 900, color: '#EF4444', display: 'block' }}>{fmtRp(Math.round(todayEarnings * 0.1))}</span>
+                  <span style={{ fontSize: 10, fontWeight: 700, color: 'rgba(255,255,255,0.35)' }}>Admin Fee (10%)</span>
                 </div>
               </div>
             </div>
@@ -305,8 +305,8 @@ export default function DriverApp() {
             <div style={{ padding: 14, borderRadius: 14, background: 'rgba(239,68,68,0.06)', backdropFilter: 'blur(16px)', border: '1px solid rgba(239,68,68,0.15)', marginBottom: 12, display: 'flex', alignItems: 'center', gap: 12 }}>
               <span style={{ fontSize: 22 }}>💳</span>
               <div style={{ flex: 1 }}>
-                <span style={{ fontSize: 13, fontWeight: 800, color: '#fff', display: 'block' }}>Admin Commission Due</span>
-                <span style={{ fontSize: 11, color: 'rgba(255,255,255,0.4)' }}>10% platform fee · Due within 30 days</span>
+                <span style={{ fontSize: 13, fontWeight: 800, color: '#fff', display: 'block' }}>Admin Fee Due</span>
+                <span style={{ fontSize: 11, color: 'rgba(255,255,255,0.4)' }}>10% deducted from each order · You keep 90%</span>
               </div>
               <span style={{ fontSize: 16, fontWeight: 900, color: '#EF4444' }}>{fmtRp(Math.round(todayEarnings * 0.1))}</span>
             </div>
@@ -435,7 +435,7 @@ export default function DriverApp() {
               </div>
             </div>
             <div style={{ padding: 14, borderRadius: 14, background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.06)' }}>
-              <span style={{ fontSize: 13, fontWeight: 800, color: 'rgba(255,255,255,0.5)' }}>INDOO drivers keep 100% of fares. Commission is 10% paid from your wallet — not deducted from earnings.</span>
+              <span style={{ fontSize: 13, fontWeight: 800, color: 'rgba(255,255,255,0.5)' }}>INDOO drivers keep 90% of each fare. 10% admin fee is deducted automatically from each order.</span>
             </div>
           </>
         )}
