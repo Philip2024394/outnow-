@@ -185,9 +185,10 @@ export default function CarDriverApp() {
     const tcBodyStyle = { fontSize: 13, color: 'rgba(255,255,255,0.75)', lineHeight: 1.8, margin: '0 0 0' }
     const tcRedStyle = { color: '#EF4444', fontWeight: 700 }
 
+    const TC_BG = 'https://ik.imagekit.io/nepgaxllc/ChatGPT%20Image%20Apr%2016,%202026,%2008_02_07%20PM.png?updatedAt=1776344543969'
     return (
       <div style={{ height: '100%', display: 'flex', flexDirection: 'column', background: '#080808', position: 'relative' }}>
-        <img src={BG_IMG} alt="" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', pointerEvents: 'none' }} />
+        <img src={TC_BG} alt="" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', pointerEvents: 'none' }} />
         <div style={{ position: 'relative', zIndex: 1, flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
           {/* Header */}
           <div style={{ padding: 'calc(env(safe-area-inset-top, 0px) + 16px) 20px 16px', background: 'rgba(0,0,0,0.6)', backdropFilter: 'blur(20px)', borderBottom: '1px solid rgba(255,255,255,0.1)', textAlign: 'center' }}>
