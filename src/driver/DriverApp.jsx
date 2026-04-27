@@ -357,25 +357,23 @@ export default function DriverApp() {
                   Go Online
                 </button>
               )}
-              <img src="https://ik.imagekit.io/nepgaxllc/ChatGPT%20Image%20Apr%2027,%202026,%2011_17_44%20AM.png?updatedAt=1777263492233" alt="" style={{ position: 'absolute', bottom: -4, right: -4, width: 90, height: 90, objectFit: 'contain', opacity: isOnline ? 1 : 0.4, pointerEvents: 'none', zIndex: 0 }} />
-            </div>
-
-            {/* Daily Activity */}
-            <div style={{ padding: 16, borderRadius: 16, background: 'rgba(255,255,255,0.06)', backdropFilter: 'blur(16px)', border: '1px solid rgba(255,255,255,0.1)', marginBottom: 12 }}>
-              <span style={{ fontSize: 12, fontWeight: 800, color: 'rgba(255,255,255,0.4)', textTransform: 'uppercase', letterSpacing: '0.05em', display: 'block', marginBottom: 12 }}>Today's Activity</span>
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 8 }}>
-                <div style={{ textAlign: 'center' }}>
-                  <span style={{ fontSize: 24, fontWeight: 900, color: '#FACC15', display: 'block' }}>{todayTrips}</span>
-                  <span style={{ fontSize: 10, fontWeight: 700, color: 'rgba(255,255,255,0.35)' }}>Trips</span>
+              {/* Today's activity + bike image row */}
+              <div style={{ display: 'flex', alignItems: 'flex-end', gap: 10, marginTop: 14, position: 'relative', zIndex: 1 }}>
+                <div style={{ flex: 1, display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 4 }}>
+                  <div style={{ textAlign: 'center' }}>
+                    <span style={{ fontSize: 20, fontWeight: 900, color: '#FACC15', display: 'block' }}>{todayTrips}</span>
+                    <span style={{ fontSize: 9, fontWeight: 700, color: 'rgba(255,255,255,0.35)' }}>Trips</span>
+                  </div>
+                  <div style={{ textAlign: 'center' }}>
+                    <span style={{ fontSize: 20, fontWeight: 900, color: '#8DC63F', display: 'block' }}>{fmtRp(Math.round(todayEarnings * 0.9))}</span>
+                    <span style={{ fontSize: 9, fontWeight: 700, color: 'rgba(255,255,255,0.35)' }}>Earned (90%)</span>
+                  </div>
+                  <div style={{ textAlign: 'center' }}>
+                    <span style={{ fontSize: 20, fontWeight: 900, color: '#EF4444', display: 'block' }}>{fmtRp(Math.round(todayEarnings * 0.1))}</span>
+                    <span style={{ fontSize: 9, fontWeight: 700, color: 'rgba(255,255,255,0.35)' }}>Admin (10%)</span>
+                  </div>
                 </div>
-                <div style={{ textAlign: 'center' }}>
-                  <span style={{ fontSize: 24, fontWeight: 900, color: '#8DC63F', display: 'block' }}>{fmtRp(Math.round(todayEarnings * 0.9))}</span>
-                  <span style={{ fontSize: 10, fontWeight: 700, color: 'rgba(255,255,255,0.35)' }}>Your Earnings (90%)</span>
-                </div>
-                <div style={{ textAlign: 'center' }}>
-                  <span style={{ fontSize: 24, fontWeight: 900, color: '#EF4444', display: 'block' }}>{fmtRp(Math.round(todayEarnings * 0.1))}</span>
-                  <span style={{ fontSize: 10, fontWeight: 700, color: 'rgba(255,255,255,0.35)' }}>Admin Fee (10%)</span>
-                </div>
+                <img src="https://ik.imagekit.io/nepgaxllc/ChatGPT%20Image%20Apr%2027,%202026,%2011_17_44%20AM.png?updatedAt=1777263492233" alt="" style={{ width: 80, height: 80, objectFit: 'contain', opacity: isOnline ? 1 : 0.4, flexShrink: 0 }} />
               </div>
             </div>
 
