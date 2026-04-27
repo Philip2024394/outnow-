@@ -544,7 +544,7 @@ export default function DriverApp() {
               </div>
             </div>
             <div style={{ padding: 14, borderRadius: 14, background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.06)' }}>
-              <span style={{ fontSize: 13, fontWeight: 800, color: 'rgba(255,255,255,0.5)' }}>INDOO drivers keep 90% of each fare. 10% admin fee is deducted automatically from each order.</span>
+              <span style={{ fontSize: 13, fontWeight: 800, color: 'rgba(255,255,255,0.5)' }}>INDOO drivers keep 90% of each trip. 10% is payable to INDOO Head Quarters.</span>
             </div>
           </>
         )}
