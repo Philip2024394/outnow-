@@ -406,14 +406,22 @@ export default function DriverApp() {
               </div>
             </div>
 
-            {/* Commission Due */}
-            <div style={{ padding: 14, borderRadius: 14, background: 'rgba(239,68,68,0.06)', backdropFilter: 'blur(16px)', border: '1px solid rgba(239,68,68,0.15)', marginBottom: 12, display: 'flex', alignItems: 'center', gap: 12 }}>
-              <span style={{ fontSize: 22 }}>💳</span>
-              <div style={{ flex: 1 }}>
-                <span style={{ fontSize: 13, fontWeight: 800, color: '#fff', display: 'block' }}>Admin Fee Due</span>
-                <span style={{ fontSize: 11, color: 'rgba(255,255,255,0.4)' }}>10% deducted from each order · You keep 90%</span>
+            {/* Admin Fees Due */}
+            <div style={{ padding: 14, borderRadius: 14, background: 'rgba(239,68,68,0.06)', backdropFilter: 'blur(16px)', border: '1.5px solid rgba(239,68,68,0.25)', marginBottom: 12 }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 8 }}>
+                <span style={{ fontSize: 22 }}>💳</span>
+                <div style={{ flex: 1 }}>
+                  <span style={{ fontSize: 14, fontWeight: 900, color: '#fff', display: 'block' }}>Admin Fees Due</span>
+                  <span style={{ fontSize: 11, color: 'rgba(255,255,255,0.4)' }}>10% platform fee from each completed order</span>
+                </div>
+                <span style={{ fontSize: 18, fontWeight: 900, color: '#EF4444' }}>{fmtRp(Math.round(todayEarnings * 0.1))}</span>
               </div>
-              <span style={{ fontSize: 16, fontWeight: 900, color: '#EF4444' }}>{fmtRp(Math.round(todayEarnings * 0.1))}</span>
+              <div style={{ padding: 10, borderRadius: 10, background: 'rgba(239,68,68,0.08)', border: '1px solid rgba(239,68,68,0.15)', marginBottom: 10 }}>
+                <span style={{ fontSize: 11, fontWeight: 700, color: '#EF4444', display: 'block', lineHeight: 1.6 }}>⚠️ Payments must be processed within 30 days to prevent your account from being deactivated. Unpaid fees after 30 days incur a 20% daily penalty.</span>
+              </div>
+              <button style={{ width: '100%', padding: 12, borderRadius: 10, background: 'rgba(239,68,68,0.12)', border: '1px solid rgba(239,68,68,0.3)', color: '#EF4444', fontSize: 13, fontWeight: 900, cursor: 'pointer', fontFamily: 'inherit' }}>
+                Pay Admin Fees Now
+              </button>
             </div>
 
             {/* Hotspot Map Button */}
