@@ -59,8 +59,8 @@
 
 /* Icon image */
 .iconImg {
-  width: 38px;
-  height: 38px;
+  width: 100%;
+  height: 100%;
   object-fit: contain;
   pointer-events: none;
   filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.4));
