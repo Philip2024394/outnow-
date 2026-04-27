@@ -161,7 +161,7 @@
   border-radius: var(--radius-xl) var(--radius-xl) 0 0;
   border-top: 3px solid rgba(141,198,63,0.3);
   padding: var(--space-3) var(--space-6) calc(var(--safe-bottom) + var(--space-6));
-  max-height: 65dvh;
+  max-height: 85dvh;
   overflow-y: scroll;
   -webkit-overflow-scrolling: touch;
   animation: slideUp 0.3s cubic-bezier(0.32, 0.72, 0, 1);
