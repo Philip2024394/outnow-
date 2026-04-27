@@ -83,11 +83,18 @@ export default function JoinSheet({ open, onClose, initialStep = 'phone' }) {
 
   const handleClose = () => { reset(); onClose() }
 
+  const isDemo = import.meta.env.VITE_DEMO_MODE === 'true'
+
   // ── Phone: send OTP ──
   const handleSendOTP = async (e) => {
     e.preventDefault()
     setError(null)
     setLoading(true)
+    if (isDemo) {
+      // Demo mode — skip OTP, go straight to profile
+      setTimeout(() => { setStep('profile'); setLoading(false) }, 800)
+      return
+    }
     try {
       const result = await sendPhoneOTP(fullPhone)
       setConfirmation(result)
@@ -103,6 +110,10 @@ export default function JoinSheet({ open, onClose, initialStep = 'phone' }) {
     e.preventDefault()
     setError(null)
     setLoading(true)
+    if (isDemo) {
+      setTimeout(() => { setStep('profile'); setLoading(false) }, 600)
+      return
+    }
     try {
       await verifyOTP(confirmation, otp)
       setStep('profile')
@@ -146,11 +157,17 @@ export default function JoinSheet({ open, onClose, initialStep = 'phone' }) {
     setLoading(true)
     setError(null)
     try {
+      if (isDemo) {
+        // Demo mode — save to localStorage and enter app
+        localStorage.setItem('indoo_demo_profile', JSON.stringify({ name: name.trim(), address: address.trim(), phone: fullPhone, photo: photoPreview }))
+        setTimeout(() => { handleClose() }, 600)
+        setLoading(false)
+        return
+      }
       const uid = user?.id ?? user?.uid
       if (uid) {
         if (photoFile) await uploadAvatar(uid, photoFile)
         await saveProfile({ userId: uid, displayName: name.trim() })
-        // Save address if provided — available to all modules instantly
         if (address.trim()) {
           await saveAddress(uid, { label: 'Home', address: address.trim(), isDefault: true })
         }

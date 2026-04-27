@@ -148,11 +148,11 @@ export default function App() {
       <ErrorBoundary>
         <LanguageProvider>
           <LandingScreen
-            onGetStarted={() => { if (import.meta.env.VITE_DEMO_MODE === 'true') { setGuestMode(true) } else { setJoinOpen(true) } }}
+            onGetStarted={() => setJoinOpen(true)}
             onSignIn={() => setJoinOpen(true)}
             onBrowse={() => setGuestMode(true)}
           />
-          <JoinSheet open={joinOpen} onClose={() => setJoinOpen(false)} />
+          <JoinSheet open={joinOpen} onClose={() => { setJoinOpen(false); if (import.meta.env.VITE_DEMO_MODE === 'true') setGuestMode(true) }} />
           <LanguageToast />
         </LanguageProvider>
       </ErrorBoundary>
