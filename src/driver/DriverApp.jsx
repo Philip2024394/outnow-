@@ -173,6 +173,12 @@ export default function DriverApp() {
 
   // ── Terms & Conditions Gate ──
   if (!termsAccepted) {
+    const tcSectionStyle = { marginTop: 24, marginBottom: 8 }
+    const tcNumStyle = { color: '#8DC63F', fontWeight: 900 }
+    const tcTitleStyle = { fontWeight: 800, color: '#fff' }
+    const tcBodyStyle = { fontSize: 13, color: 'rgba(255,255,255,0.75)', lineHeight: 1.8, margin: '0 0 0' }
+    const tcRedStyle = { color: '#EF4444', fontWeight: 700 }
+
     return (
       <div style={{ height: '100%', display: 'flex', flexDirection: 'column', background: '#080808', position: 'relative' }}>
         <img src={BG_IMG} alt="" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', pointerEvents: 'none' }} />
@@ -186,48 +192,115 @@ export default function DriverApp() {
           {/* Terms content */}
           <div style={{ flex: 1, overflowY: 'auto', padding: '20px 20px 100px' }}>
             <div style={{ padding: 20, borderRadius: 16, background: 'rgba(0,0,0,0.6)', backdropFilter: 'blur(16px)', border: '1px solid rgba(255,255,255,0.1)' }}>
-              <h2 style={{ fontSize: 16, fontWeight: 900, color: '#8DC63F', margin: '0 0 16px' }}>Terms & Conditions — INDOO Driver Platform</h2>
-              <p style={{ fontSize: 11, color: 'rgba(255,255,255,0.3)', margin: '0 0 16px' }}>Operated by PT HAMMEREX PRODUCTS INDONESIA</p>
+              <h2 style={{ fontSize: 18, fontWeight: 900, color: '#8DC63F', margin: '0 0 4px', textAlign: 'center' }}>TERMS & CONDITIONS</h2>
+              <h3 style={{ fontSize: 15, fontWeight: 900, color: '#fff', margin: '0 0 4px', textAlign: 'center' }}>INDOO DRIVER PLATFORM</h3>
+              <p style={{ fontSize: 12, color: 'rgba(255,255,255,0.4)', margin: '0 0 24px', textAlign: 'center', fontWeight: 700 }}>PT HAMMEREX PRODUCTS INDONESIA</p>
 
               <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.75)', lineHeight: 1.8 }}>
-                <p style={{ fontWeight: 800, color: '#fff', marginBottom: 8 }}>1. SERVICE FEE & COMMISSION</p>
-                <p>By using the INDOO platform, drivers agree to pay a platform service fee of 10% (ten percent) of all earnings generated through the platform. This commission is payable to PT HAMMEREX PRODUCTS INDONESIA ("the Company") on a rolling basis.</p>
-                <p style={{ color: '#EF4444', fontWeight: 700, margin: '8px 0' }}>Failure to pay the 10% service fee within 30 days of the due date will result in a daily penalty increase of 20% applied to the total outstanding amount. This penalty covers loss of earnings, administrative processing, and recruitment fees. The penalty will continue to accumulate daily until the full balance is settled.</p>
 
-                <p style={{ fontWeight: 800, color: '#fff', marginTop: 20, marginBottom: 8 }}>2. VEHICLE INSURANCE REQUIREMENT</p>
-                <p>All drivers are required to maintain valid and active vehicle insurance at all times while operating on the INDOO platform. It is strictly prohibited to operate any vehicle without active insurance coverage. Any accident, damage, injury, or liability incurred while insurance is not active shall be the sole personal responsibility of the driver — including in cases where the vehicle is owned by a third party. The Company accepts no liability whatsoever for uninsured operations.</p>
+                {/* Section 1 */}
+                <p style={tcSectionStyle}><span style={tcNumStyle}>1. </span><span style={tcTitleStyle}>PLATFORM STATUS</span></p>
+                <p style={tcBodyStyle}>INDOO is a digital technology platform (penyedia aplikasi) that facilitates connections between independent service providers and customers. PT HAMMEREX PRODUCTS INDONESIA is not a transportation company, does not provide ride or delivery services, does not employ drivers, and does not act as a carrier, logistics provider, or agent. All services are performed solely by independent Drivers.</p>
 
-                <p style={{ fontWeight: 800, color: '#fff', marginTop: 20, marginBottom: 8 }}>3. CONDUCT & PRICING</p>
-                <p>Drivers must maintain professional and respectful behaviour with all passengers and customers at all times. Drivers must only charge the fare price stated and approved by the platform. Overcharging, harassment, or unprofessional conduct will result in immediate deactivation and potential legal action.</p>
+                {/* Section 2 */}
+                <p style={tcSectionStyle}><span style={tcNumStyle}>2. </span><span style={tcTitleStyle}>PARTNERSHIP MODEL (KEMITRAAN)</span></p>
+                <p style={tcBodyStyle}>The relationship between the Company and Drivers is strictly a partnership (kemitraan). This agreement does not create employment, does not create wages or salary, and does not establish subordination. There are no fixed working hours, no obligation to accept orders, and no exclusivity requirement.</p>
 
-                <p style={{ fontWeight: 800, color: '#fff', marginTop: 20, marginBottom: 8 }}>4. VEHICLE ROADWORTHINESS</p>
-                <p>All vehicles used on the INDOO platform must meet road safety and roadworthiness standards as required by Indonesian law. Vehicles must pass inspection requirements and be maintained in safe operating condition. The Company reserves the right to deactivate any driver whose vehicle does not meet these standards.</p>
+                {/* Section 3 */}
+                <p style={tcSectionStyle}><span style={tcNumStyle}>3. </span><span style={tcTitleStyle}>DRIVER AUTONOMY</span></p>
+                <p style={tcBodyStyle}>Drivers have full control over: when to work, whether to accept or reject orders, routes taken, and operational methods. The Company does not give direct instructions or supervise Drivers.</p>
 
-                <p style={{ fontWeight: 800, color: '#fff', marginTop: 20, marginBottom: 8 }}>5. SELF-EMPLOYED STATUS</p>
-                <p style={{ fontWeight: 700 }}>Drivers joining the INDOO platform are fully self-employed independent contractors. The platform acts solely as a gateway to connect drivers with customers and does not act as an employer in any form, shape, or capacity. No employment relationship exists between the driver and PT HAMMEREX PRODUCTS INDONESIA or any of its subsidiaries.</p>
+                {/* Section 4 */}
+                <p style={tcSectionStyle}><span style={tcNumStyle}>4. </span><span style={tcTitleStyle}>PRICING FRAMEWORK</span></p>
+                <p style={tcBodyStyle}>The Platform provides a digital pricing mechanism. Drivers agree to the displayed fare structure and authorize the Platform to calculate pricing. Pricing is a marketplace tool, not wages. The Company does not pay salaries and does not guarantee earnings.</p>
 
-                <p style={{ fontWeight: 800, color: '#fff', marginTop: 20, marginBottom: 8 }}>6. TAX & GOVERNMENT OBLIGATIONS</p>
-                <p>Each driver is solely responsible for keeping their government tax obligations, permits, licences, and any other regulatory requirements fully up to date. The Company is not responsible for any driver's tax affairs or regulatory compliance.</p>
+                {/* Section 5 */}
+                <p style={tcSectionStyle}><span style={tcNumStyle}>5. </span><span style={tcTitleStyle}>SERVICE FEES</span></p>
+                <p style={tcBodyStyle}>Drivers agree to pay a 10% platform service fee from each order.</p>
+                <p style={{ ...tcBodyStyle, ...tcRedStyle, margin: '8px 0' }}>Non-payment within 30 days may result in: account suspension, access restriction, and a daily penalty increase of 20% applied to the total outstanding amount. This penalty covers loss of earnings, administrative processing, and recruitment fees and will continue to accumulate daily until the full balance is settled.</p>
 
-                <p style={{ fontWeight: 800, color: '#fff', marginTop: 20, marginBottom: 8 }}>7. DATA SHARING & PRIVACY</p>
-                <p>All drivers agree to the sharing of their contact details and personal information with platform users when necessary for the completion of services. Driver data may be used by the platform owners (PT HAMMEREX PRODUCTS INDONESIA) for training purposes, driver validation, quality assurance, dispute resolution, and platform improvement. By accepting these terms, drivers consent to this data usage.</p>
+                {/* Section 6 */}
+                <p style={tcSectionStyle}><span style={tcNumStyle}>6. </span><span style={tcTitleStyle}>NO TRANSPORT OPERATOR LIABILITY</span></p>
+                <p style={tcBodyStyle}>The Company is strictly an application provider, not a transport operator as contemplated under Indonesian transport frameworks. This aligns with the separation recognized in regulations between application providers and transport service providers.</p>
 
-                <p style={{ fontWeight: 800, color: '#fff', marginTop: 20, marginBottom: 8 }}>8. PLATFORM RIGHTS</p>
-                <p>PT HAMMEREX PRODUCTS INDONESIA reserves the right to deactivate, suspend, or permanently remove any driver account at its sole discretion for any violation of these terms, or for any reason that the Company deems necessary to protect the platform, its users, or its reputation.</p>
+                {/* Section 7 */}
+                <p style={tcSectionStyle}><span style={tcNumStyle}>7. </span><span style={tcTitleStyle}>FULL DRIVER LIABILITY</span></p>
+                <p style={tcBodyStyle}>Drivers are fully responsible for: passenger safety, vehicle operation, delivery of goods, and compliance with traffic laws.</p>
+                <p style={{ ...tcBodyStyle, ...tcRedStyle, margin: '8px 0' }}>The Company bears zero responsibility for: accidents, injuries or death, lost or damaged goods, and food quality or contamination.</p>
 
-                <p style={{ marginTop: 24, padding: 16, borderRadius: 12, background: 'rgba(141,198,63,0.08)', border: '1px solid rgba(141,198,63,0.2)', fontWeight: 700, color: '#8DC63F' }}>
-                  By accepting below, you confirm that you have read, understood, and agree to all terms and conditions set forth by PT HAMMEREX PRODUCTS INDONESIA. You acknowledge that you are entering into this agreement as a self-employed independent contractor.
-                </p>
+                {/* Section 8 */}
+                <p style={tcSectionStyle}><span style={tcNumStyle}>8. </span><span style={tcTitleStyle}>INSURANCE REQUIREMENT</span></p>
+                <p style={tcBodyStyle}>Drivers must maintain valid vehicle insurance and personal accident coverage (recommended) at all times while operating on the platform.</p>
+                <p style={{ ...tcBodyStyle, ...tcRedStyle, margin: '8px 0' }}>If insurance is not active, the Driver assumes 100% legal and financial liability for any incident — including where the vehicle is owned by a third party.</p>
+
+                {/* Section 9 */}
+                <p style={tcSectionStyle}><span style={tcNumStyle}>9. </span><span style={tcTitleStyle}>INDEMNITY</span></p>
+                <p style={tcBodyStyle}>Drivers agree to defend, indemnify, and hold harmless PT HAMMEREX PRODUCTS INDONESIA, its directors, officers, employees, and affiliates from any claims, lawsuits, damages, losses, costs, and government penalties arising from: Driver activities, legal violations, service performance, or any breach of these terms.</p>
+
+                {/* Section 10 */}
+                <p style={tcSectionStyle}><span style={tcNumStyle}>10. </span><span style={tcTitleStyle}>GOVERNMENT & LEGAL COMPLIANCE</span></p>
+                <p style={tcBodyStyle}>Drivers are solely responsible for: SIM (driving licence), STNK (vehicle registration), taxes, and all permits required by Indonesian law. The Company is not responsible for regulatory classification, government enforcement, or legal compliance of drivers.</p>
+
+                {/* Section 11 */}
+                <p style={tcSectionStyle}><span style={tcNumStyle}>11. </span><span style={tcTitleStyle}>CONDUCT & PROFESSIONAL STANDARDS</span></p>
+                <p style={tcBodyStyle}>Drivers must maintain professional and respectful behaviour with all passengers and customers. Drivers must only charge the fare price stated and approved by the platform. Overcharging, harassment, discrimination, or unprofessional conduct will result in immediate deactivation and potential legal action.</p>
+
+                {/* Section 12 */}
+                <p style={tcSectionStyle}><span style={tcNumStyle}>12. </span><span style={tcTitleStyle}>VEHICLE ROADWORTHINESS</span></p>
+                <p style={tcBodyStyle}>All vehicles used on the INDOO platform must meet road safety and roadworthiness standards as required by Indonesian law. The Company reserves the right to deactivate any driver whose vehicle does not meet these standards.</p>
+
+                {/* Section 13 */}
+                <p style={tcSectionStyle}><span style={tcNumStyle}>13. </span><span style={tcTitleStyle}>CUSTOMER & THIRD-PARTY DISPUTES</span></p>
+                <p style={tcBodyStyle}>All disputes are strictly between: Driver and customer, or Driver and third parties. The Company is not a party to any dispute and has no obligation to intervene.</p>
+
+                {/* Section 14 */}
+                <p style={tcSectionStyle}><span style={tcNumStyle}>14. </span><span style={tcTitleStyle}>LIMITATION OF LIABILITY</span></p>
+                <p style={tcBodyStyle}>To the maximum extent permitted by Indonesian law, the Company shall not be liable for: personal injury or death, property damage, criminal acts by drivers, loss of income, or platform interruptions.</p>
+
+                {/* Section 15 */}
+                <p style={tcSectionStyle}><span style={tcNumStyle}>15. </span><span style={tcTitleStyle}>PLATFORM CONTROL DISCLAIMER</span></p>
+                <p style={tcBodyStyle}>The Company does not control: driver behaviour, service quality, or execution of services. Platform features including ratings, pricing, and navigation are tools only — not instructions.</p>
+
+                {/* Section 16 */}
+                <p style={tcSectionStyle}><span style={tcNumStyle}>16. </span><span style={tcTitleStyle}>ACCOUNT SUSPENSION & TERMINATION</span></p>
+                <p style={tcBodyStyle}>The Company may suspend or terminate driver accounts at its sole discretion based on: safety concerns, legal risk, violations of these terms, or any reason the Company deems necessary to protect the platform, its users, or its reputation.</p>
+
+                {/* Section 17 */}
+                <p style={tcSectionStyle}><span style={tcNumStyle}>17. </span><span style={tcTitleStyle}>DATA & PRIVACY</span></p>
+                <p style={tcBodyStyle}>Driver data may be used for: platform functionality, safety, compliance, training, driver validation, quality assurance, and dispute resolution. By accepting these terms, drivers consent to the sharing of their contact details and personal information with platform users when necessary. Data handling is in accordance with Undang-Undang Nomor 27 Tahun 2022 tentang Perlindungan Data Pribadi.</p>
+
+                {/* Section 18 */}
+                <p style={tcSectionStyle}><span style={tcNumStyle}>18. </span><span style={tcTitleStyle}>FORCE MAJEURE</span></p>
+                <p style={tcBodyStyle}>The Company is not liable for events beyond its reasonable control, including: government action, natural disasters, pandemics, system failures, or third-party service disruptions.</p>
+
+                {/* Section 19 */}
+                <p style={tcSectionStyle}><span style={tcNumStyle}>19. </span><span style={tcTitleStyle}>GOVERNING LAW</span></p>
+                <p style={tcBodyStyle}>This Agreement is governed by the laws of the Republic of Indonesia, including: Kitab Undang-Undang Hukum Perdata and Undang-Undang Nomor 8 Tahun 1999 tentang Perlindungan Konsumen.</p>
+
+                {/* Section 20 */}
+                <p style={tcSectionStyle}><span style={tcNumStyle}>20. </span><span style={tcTitleStyle}>SEVERABILITY</span></p>
+                <p style={tcBodyStyle}>If any clause of this agreement is found to be invalid or unenforceable, the remaining clauses shall continue in full force and effect.</p>
+
+                {/* Section 21 */}
+                <p style={tcSectionStyle}><span style={tcNumStyle}>21. </span><span style={tcTitleStyle}>ACCEPTANCE</span></p>
+                <p style={tcBodyStyle}>By using the INDOO Platform, Drivers confirm that: they act as independent contractors, they accept all risks associated with providing services, they waive claims against the Company to the fullest extent permitted by Indonesian law, and they have read, understood, and agreed to all terms set forth herein.</p>
+
+                {/* Green bordered acceptance box */}
+                <div style={{ marginTop: 28, padding: 16, borderRadius: 12, background: 'rgba(141,198,63,0.06)', border: '2px solid #8DC63F' }}>
+                  <p style={{ fontSize: 13, fontWeight: 700, color: '#8DC63F', lineHeight: 1.7, margin: 0 }}>
+                    By clicking 'I Accept' below, you confirm that you have read, understood, and voluntarily agree to all terms and conditions. This acceptance is timestamped and logged. You acknowledge that you are entering into this agreement as a fully self-employed independent contractor with PT HAMMEREX PRODUCTS INDONESIA.
+                  </p>
+                </div>
               </div>
             </div>
           </div>
 
           {/* Accept button */}
           <div style={{ position: 'fixed', bottom: 0, left: 0, right: 0, padding: '16px 20px calc(env(safe-area-inset-bottom, 0px) + 16px)', background: 'rgba(0,0,0,0.8)', backdropFilter: 'blur(20px)', borderTop: '1px solid rgba(255,255,255,0.1)', zIndex: 10 }}>
-            <button onClick={() => { localStorage.setItem('indoo_driver_terms_accepted', 'true'); setTermsAccepted(true) }} style={{ width: '100%', padding: 18, borderRadius: 16, background: '#8DC63F', border: 'none', color: '#000', fontSize: 16, fontWeight: 900, cursor: 'pointer', fontFamily: 'inherit' }}>
+            <button onClick={() => { localStorage.setItem('indoo_driver_terms_accepted', 'true'); localStorage.setItem('indoo_driver_terms_accepted_at', new Date().toISOString()); setTermsAccepted(true) }} style={{ width: '100%', padding: 18, borderRadius: 16, background: '#8DC63F', border: 'none', color: '#000', fontSize: 16, fontWeight: 900, cursor: 'pointer', fontFamily: 'inherit' }}>
               I Accept These Terms & Conditions
             </button>
-            <p style={{ textAlign: 'center', fontSize: 10, color: 'rgba(255,255,255,0.3)', margin: '10px 0 0' }}>PT HAMMEREX PRODUCTS INDONESIA · All rights reserved</p>
+            <p style={{ textAlign: 'center', fontSize: 10, color: 'rgba(255,255,255,0.3)', margin: '10px 0 0' }}>&copy; 2026 PT HAMMEREX PRODUCTS INDONESIA &middot; All rights reserved &middot; INDOO Platform v1.0</p>
           </div>
         </div>
       </div>
