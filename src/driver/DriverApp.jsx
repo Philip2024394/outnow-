@@ -447,7 +447,7 @@ export default function DriverApp() {
             {/* Quick actions */}
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
               <button onClick={() => setTab('rides')} style={{ padding: 20, borderRadius: 20, background: 'rgba(141,198,63,0.08)', backdropFilter: 'blur(16px)', border: '1.5px solid rgba(141,198,63,0.3)', cursor: 'pointer', textAlign: 'center', overflow: 'hidden' }}>
-                <span style={{ fontSize: 32, display: 'block', marginBottom: 8 }}>🏍️</span>
+                <img src="https://ik.imagekit.io/nepgaxllc/Sleek%20green%20and%20black%20scooter%20setup.png?updatedAt=1775634845237" alt="" style={{ width: 50, height: 50, objectFit: 'contain', display: 'block', margin: '0 auto 8px' }} />
                 <span style={{ fontSize: 14, fontWeight: 900, color: '#8DC63F', display: 'block' }}>Ride Orders</span>
               </button>
               <button onClick={() => setTab('food')} style={{ padding: 20, borderRadius: 20, background: 'rgba(250,204,21,0.08)', backdropFilter: 'blur(16px)', border: '1.5px solid rgba(250,204,21,0.3)', cursor: 'pointer', textAlign: 'center', overflow: 'hidden' }}>
