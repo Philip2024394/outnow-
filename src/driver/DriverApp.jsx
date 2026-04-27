@@ -445,7 +445,7 @@ export default function DriverApp() {
             {tier && (
               <div style={{ padding: 16, borderRadius: 16, background: `rgba(${tier.current.id === 'elite' ? '141,198,63' : '255,255,255'},0.06)`, backdropFilter: 'blur(16px)', border: `1.5px solid ${tier.current.color}40`, marginBottom: 12 }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 10 }}>
-                  <span style={{ fontSize: 28 }}>{tier.current.icon}</span>
+                  <img src="https://ik.imagekit.io/nepgaxllc/Sleek%20green%20and%20black%20scooter%20setup.png?updatedAt=1775634845237" alt="" style={{ width: 32, height: 32, objectFit: 'contain' }} />
                   <div style={{ flex: 1 }}>
                     <span style={{ fontSize: 15, fontWeight: 900, color: tier.current.color, display: 'block' }}>{tier.current.label} Driver</span>
                     <span style={{ fontSize: 11, color: 'rgba(255,255,255,0.4)' }}>{tier.current.description}</span>
@@ -478,7 +478,10 @@ export default function DriverApp() {
             {goals && (
               <div style={{ padding: 12, borderRadius: 12, background: 'rgba(255,255,255,0.06)', backdropFilter: 'blur(16px)', border: '1px solid rgba(255,255,255,0.1)', marginBottom: 12 }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 4 }}>
-                  <span style={{ fontSize: 11, fontWeight: 800, color: '#fff' }}>{tier?.current?.icon} {tier?.current?.label ?? 'Standard'} Driver — Today's Goal</span>
+                  <span style={{ fontSize: 11, fontWeight: 800, color: '#fff', display: 'flex', alignItems: 'center', gap: 6 }}>
+                    <img src="https://ik.imagekit.io/nepgaxllc/Sleek%20green%20and%20black%20scooter%20setup.png?updatedAt=1775634845237" alt="" style={{ width: 16, height: 16, objectFit: 'contain' }} />
+                    {tier?.current?.label ?? 'Standard'} Driver — Today's Goal
+                  </span>
                   <span style={{ fontSize: 11, fontWeight: 900, color: todayTrips >= goals.daily_trips ? '#8DC63F' : '#FACC15' }}>{todayTrips}/{goals.daily_trips} trips</span>
                 </div>
                 <div style={{ height: 6, borderRadius: 3, background: 'rgba(255,255,255,0.08)', overflow: 'hidden', position: 'relative' }}>
