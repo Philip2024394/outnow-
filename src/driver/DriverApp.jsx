@@ -318,14 +318,17 @@ export default function DriverApp() {
     <div style={{ height: '100%', display: 'flex', flexDirection: 'column', background: '#080808', position: 'relative' }}>
       <img src={BG_IMG} alt="" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', pointerEvents: 'none', opacity: 1 }} />
 
-      {/* Safe area spacer */}
-      <div style={{ height: 'env(safe-area-inset-top, 0px)', flexShrink: 0, position: 'relative', zIndex: 1 }} />
-
-      {/* Settings gear */}
-      <button onClick={() => setDrawerOpen(true)} style={{ position: 'absolute', top: 'calc(env(safe-area-inset-top, 0px) + 12px)', right: 16, zIndex: 5, width: 40, height: 40, borderRadius: '50%', background: 'rgba(0,0,0,0.4)', backdropFilter: 'blur(16px)', border: '1px solid rgba(255,255,255,0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', fontSize: 20 }}>⚙️</button>
+      {/* Header */}
+      <div style={{ padding: 'calc(env(safe-area-inset-top, 0px) + 10px) 16px 10px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', position: 'relative', zIndex: 5, flexShrink: 0 }}>
+        <span style={{ fontSize: 18, fontWeight: 900 }}>
+          <span style={{ color: '#fff' }}>IND</span><span style={{ color: '#8DC63F' }}>OO</span>
+          <span style={{ fontSize: 13, fontWeight: 700, color: 'rgba(255,255,255,0.4)', marginLeft: 6 }}>Driver Bike</span>
+        </span>
+        <button onClick={() => setDrawerOpen(true)} style={{ width: 40, height: 40, borderRadius: '50%', background: 'rgba(0,0,0,0.4)', backdropFilter: 'blur(16px)', border: '1px solid rgba(255,255,255,0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', fontSize: 20 }}>⚙️</button>
+      </div>
 
       {/* Main content */}
-      <div style={{ flex: 1, overflowY: 'auto', padding: '16px 16px 100px', position: 'relative', zIndex: 1 }}>
+      <div style={{ flex: 1, overflowY: 'auto', padding: '8px 16px 100px', position: 'relative', zIndex: 1 }}>
 
         {/* ── HOME TAB ── */}
         {tab === 'home' && (
@@ -563,13 +566,14 @@ export default function DriverApp() {
             { key: 'selfie_ktp', icon: '🤳', name: 'Selfie with KTP', desc: 'Photo holding your ID card' },
             { key: 'sim', icon: '🪪', name: profile.vehicle_type?.includes('car') ? 'SIM A' : 'SIM C', desc: `Surat Izin Mengemudi — Driving Licence (${profile.vehicle_type?.includes('car') ? 'SIM A for car' : 'SIM C for bike'})` },
             { key: 'selfie_sim', icon: '🤳', name: 'Selfie with SIM', desc: 'Photo holding your licence' },
+            { key: 'skck', icon: '📋', name: 'SKCK', desc: 'Surat Keterangan Catatan Kepolisian — Police Clearance' },
           ]
 
           const vehicleDocs = [
             { key: 'stnk', icon: '📄', name: 'STNK', desc: 'Surat Tanda Nomor Kendaraan — Vehicle Registration' },
             { key: 'bpkb', icon: '📘', name: 'BPKB', desc: 'Buku Pemilik Kendaraan Bermotor — Vehicle Ownership' },
             { key: 'vehicle_photo', icon: '🚗', name: 'Vehicle Photo', desc: 'Front/side of vehicle with plate visible' },
-            { key: 'insurance', icon: '🛡️', name: 'Insurance Certificate', desc: 'Active vehicle insurance' },
+            { key: 'insurance', icon: '🛡️', name: 'Insurance Certificate', desc: 'Active vehicle insurance — INDOO provides accident coverage for active drivers' },
             { key: 'uji_berkala', icon: '🔧', name: 'Vehicle Inspection', desc: 'Uji Berkala — Roadworthiness certificate' },
           ]
 
@@ -739,10 +743,6 @@ export default function DriverApp() {
                 </div>
               </div>
 
-              {/* ── Sign Out ── */}
-              <button onClick={handleLogout} style={{ marginTop: 8, marginBottom: 20, width: '100%', padding: 16, borderRadius: 16, background: 'rgba(239,68,68,0.12)', border: '1.5px solid rgba(239,68,68,0.3)', color: '#EF4444', fontSize: 15, fontWeight: 900, cursor: 'pointer', fontFamily: 'inherit' }}>
-                Sign Out
-              </button>
             </>
           )
         })()}
@@ -1047,21 +1047,24 @@ export default function DriverApp() {
 
             {/* Landscape product cards */}
             {[
-              { icon: '🧥', name: 'INDOO Elite Jacket', desc: 'Premium branded jacket with reflective INDOO logo. Waterproof material, perfect for night rides.', status: tier?.current?.id === 'elite' ? 'available' : 'locked', color: '#8DC63F' },
-              { icon: '🎒', name: 'INDOO Delivery Bag', desc: 'Insulated thermal delivery bag with INDOO branding. Keeps food hot/cold during transport.', status: tier?.current?.id === 'elite' ? 'available' : 'locked', color: '#00E5FF' },
-              { icon: '☕', name: 'INDOO Elite Mug', desc: 'Stainless steel travel mug with INDOO Elite engraving. Double-walled, keeps drinks hot 6 hours.', status: tier?.current?.id === 'elite' ? 'available' : 'locked', color: '#FACC15' },
-              { icon: '🌧️', name: 'INDOO Raincoat', desc: 'Full-body rain protection with high-visibility INDOO reflective strips. Compact fold design.', status: tier?.current?.id === 'elite' ? 'available' : 'locked', color: '#00E5FF' },
+              { img: 'https://ik.imagekit.io/nepgaxllc/ChatGPT%20Image%20Apr%2028,%202026,%2001_53_00%20AM.png', name: 'INDOO Elite Jacket', desc: 'Premium lined jacket representing the finest delivery service in Indonesia. Colour-reflecting design with INDOO branding.', status: tier?.current?.id === 'elite' ? 'available' : 'locked', color: '#8DC63F' },
+              { img: 'https://ik.imagekit.io/nepgaxllc/ChatGPT%20Image%20Apr%2028,%202026,%2001_56_58%20AM.png', name: 'INDOO T-Shirt', desc: 'Official INDOO branded performance t-shirt. Breathable fabric, perfect for daily rides in any weather.', status: tier?.current?.id === 'elite' ? 'available' : 'locked', color: '#00E5FF' },
+              { img: 'https://ik.imagekit.io/nepgaxllc/ChatGPT%20Image%20Apr%2028,%202026,%2002_00_04%20AM.png', name: 'INDOO Helmet', desc: 'Safety-certified branded helmet with INDOO Elite design. High-visibility markings for safer night rides.', status: tier?.current?.id === 'elite' ? 'available' : 'locked', color: '#8DC63F' },
+              { img: 'https://ik.imagekit.io/nepgaxllc/ChatGPT%20Image%20Apr%2028,%202026,%2002_07_42%20AM.png', name: 'INDOO Baseball Cap', desc: 'Stylish INDOO branded cap. Perfect for off-duty wear and representing your Elite status.', status: tier?.current?.id === 'elite' ? 'available' : 'locked', color: '#FACC15' },
+              { img: 'https://ik.imagekit.io/nepgaxllc/ChatGPT%20Image%20Apr%2028,%202026,%2002_12_43%20AM.png', name: 'INDOO Delivery Bag', desc: 'Insulated thermal backpack with INDOO branding. Keeps food hot or cold during transport. Built for daily use.', status: tier?.current?.id === 'elite' ? 'available' : 'locked', color: '#00E5FF' },
               { icon: '🏨', name: 'Hotel / Villa Stay', desc: '1-night stay voucher at partner hotels or villas in Yogyakarta. Redeemable quarterly.', status: tier?.current?.id === 'elite' ? 'available' : 'locked', color: '#FACC15' },
               { icon: '🍽️', name: 'Meal Vouchers', desc: 'Monthly meal voucher pack (5x Rp 25.000) redeemable at any INDOO partner restaurant.', status: tier?.current?.id === 'elite' ? 'available' : 'locked', color: '#8DC63F' },
               { icon: '🎫', name: 'Elite Event Passes', desc: 'VIP invitation to quarterly INDOO driver meetups, workshops, and exclusive social events.', status: tier?.current?.id === 'elite' ? 'available' : 'locked', color: '#00E5FF' },
               { icon: '📱', name: 'Priority Support Line', desc: 'Direct WhatsApp access to INDOO support team. Average response time: 2 minutes.', status: tier?.current?.id === 'elite' ? 'available' : 'locked', color: '#8DC63F' },
-              { icon: '🏷️', name: 'INDOO Sticker Pack', desc: 'Premium vinyl sticker set for your vehicle. Includes INDOO Elite badge, logo, and QR code.', status: tier?.current?.id === 'elite' ? 'available' : 'locked', color: '#FACC15' },
-              { icon: '🎽', name: 'INDOO Polo Shirt', desc: 'Breathable performance polo with embroidered INDOO Elite crest. Available in black and green.', status: tier?.current?.id === 'elite' ? 'available' : 'locked', color: '#8DC63F' },
             ].map((item, i) => (
               <div key={i} style={{ display: 'flex', gap: 14, padding: 14, borderRadius: 16, background: 'rgba(255,255,255,0.06)', backdropFilter: 'blur(16px)', border: `1px solid ${item.status === 'available' ? item.color + '40' : 'rgba(255,255,255,0.08)'}`, marginBottom: 10 }}>
-                {/* Icon */}
-                <div style={{ width: 60, height: 60, borderRadius: 14, background: item.status === 'available' ? `${item.color}15` : 'rgba(255,255,255,0.04)', border: `1.5px solid ${item.status === 'available' ? item.color + '30' : 'rgba(255,255,255,0.08)'}`, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-                  <span style={{ fontSize: 28, filter: item.status === 'locked' ? 'grayscale(1) opacity(0.4)' : 'none' }}>{item.icon}</span>
+                {/* Icon/Image */}
+                <div style={{ width: 60, height: 60, borderRadius: 14, background: item.status === 'available' ? `${item.color}15` : 'rgba(255,255,255,0.04)', border: `1.5px solid ${item.status === 'available' ? item.color + '30' : 'rgba(255,255,255,0.08)'}`, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, overflow: 'hidden' }}>
+                  {item.img ? (
+                    <img src={item.img} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover', filter: item.status === 'locked' ? 'grayscale(1) opacity(0.4)' : 'none' }} />
+                  ) : (
+                    <span style={{ fontSize: 28, filter: item.status === 'locked' ? 'grayscale(1) opacity(0.4)' : 'none' }}>{item.icon}</span>
+                  )}
                 </div>
                 {/* Info */}
                 <div style={{ flex: 1, minWidth: 0 }}>
