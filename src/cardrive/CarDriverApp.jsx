@@ -430,7 +430,7 @@ export default function CarDriverApp() {
 
                 {/* View Elite Awards button */}
                 <button onClick={() => setShowEliteAwards(true)} style={{ width: '100%', marginTop: 12, padding: '12px 16px', borderRadius: 12, background: 'rgba(141,198,63,0.1)', border: '1px solid rgba(141,198,63,0.25)', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8 }}>
-                  <span style={{ fontSize: 16 }}>💎</span>
+                  <img src="https://ik.imagekit.io/nepgaxllc/ChatGPT%20Image%20Apr%2028,%202026,%2002_00_04%20AM.png" alt="" style={{ width: 20, height: 20, objectFit: 'contain' }} />
                   <span style={{ fontSize: 13, fontWeight: 800, color: '#8DC63F' }}>View INDOO Elite Awards</span>
                   <span style={{ fontSize: 14, color: 'rgba(141,198,63,0.5)' }}>→</span>
                 </button>
@@ -1057,9 +1057,9 @@ export default function CarDriverApp() {
                 {/* Icon/Image */}
                 <div style={{ width: 80, height: 80, borderRadius: 16, background: item.status === 'available' ? `${item.color}10` : 'rgba(255,255,255,0.03)', border: `1.5px solid ${item.status === 'available' ? item.color + '30' : 'rgba(255,255,255,0.08)'}`, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, overflow: 'hidden' }}>
                   {item.img ? (
-                    <img src={item.img} alt="" style={{ width: '100%', height: '100%', objectFit: 'contain', filter: item.status === 'locked' ? 'grayscale(1) opacity(0.4)' : 'none' }} />
+                    <img src={item.img} alt="" style={{ width: '100%', height: '100%', objectFit: 'contain', filter: 'none' }} />
                   ) : (
-                    <span style={{ fontSize: 32, filter: item.status === 'locked' ? 'grayscale(1) opacity(0.4)' : 'none' }}>{item.icon}</span>
+                    <span style={{ fontSize: 32, filter: 'none' }}>{item.icon}</span>
                   )}
                 </div>
                 {/* Info */}
@@ -1069,7 +1069,7 @@ export default function CarDriverApp() {
                     {item.status === 'available' ? (
                       <span style={{ fontSize: 9, fontWeight: 800, padding: '2px 8px', borderRadius: 6, background: 'rgba(141,198,63,0.15)', border: '1px solid rgba(141,198,63,0.3)', color: '#8DC63F' }}>FREE</span>
                     ) : (
-                      <span style={{ fontSize: 9, fontWeight: 800, padding: '2px 8px', borderRadius: 6, background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.1)', color: 'rgba(255,255,255,0.3)' }}>🔒 ELITE</span>
+                      <span style={{ fontSize: 9, fontWeight: 800, padding: '2px 8px', borderRadius: 6, background: 'rgba(250,204,21,0.1)', border: '1px solid rgba(250,204,21,0.25)', color: '#FACC15' }}>🔒 ELITE</span>
                     )}
                   </div>
                   <span style={{ fontSize: 11, color: 'rgba(255,255,255,0.45)', lineHeight: 1.5, display: 'block' }}>{item.desc}</span>
