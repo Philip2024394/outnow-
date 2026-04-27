@@ -221,7 +221,7 @@ export default function JoinSheet({ open, onClose, initialStep = 'phone' }) {
           className={styles.headerLogo}
           draggable={false}
         />
-        <span className={styles.heroSlogan}>Bike · Car · Food Delivery</span>
+        <span className={styles.heroSlogan}>Indonesia's Superapp</span>
       </div>
 
       <div className={styles.sheet}>
