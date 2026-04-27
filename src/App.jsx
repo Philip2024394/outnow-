@@ -74,7 +74,7 @@ const LOGO_URL = 'https://ik.imagekit.io/nepgaxllc/Bold%203D%20_INDOO_%20logo%20
 
 export default function App() {
   const { user, userProfile, loading } = useAuth()
-  const [guestMode, setGuestMode] = useState(false)
+  const [guestMode, setGuestMode] = useState(() => localStorage.getItem('indoo_registered') === 'true')
   const [returnParams, setReturnParams] = useState(null)
   const [joinOpen, setJoinOpen] = useState(false)
 
@@ -148,10 +148,9 @@ export default function App() {
         <LanguageProvider>
           <LandingScreen
             onGetStarted={() => setJoinOpen(true)}
-            onSignIn={() => setJoinOpen(true)}
             onBrowse={() => setGuestMode(true)}
           />
-          <JoinSheet open={joinOpen} onClose={() => { setJoinOpen(false); if (import.meta.env.VITE_DEMO_MODE === 'true') setGuestMode(true) }} />
+          <JoinSheet open={joinOpen} onClose={() => { setJoinOpen(false); localStorage.setItem('indoo_registered', 'true'); setGuestMode(true) }} />
           <LanguageToast />
         </LanguageProvider>
       </ErrorBoundary>

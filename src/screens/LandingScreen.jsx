@@ -30,9 +30,6 @@ export default function LandingScreen({ onGetStarted, onSignIn, onBrowse }) {
           <button className={styles.getStartedBtn} onClick={onGetStarted}>
             {t('landing.getStarted')}
           </button>
-          <button className={styles.signInBtn} onClick={onSignIn}>
-            {t('landing.signIn')}
-          </button>
         </div>
 
         <button className={styles.browseBtn} onClick={onBrowse}>
