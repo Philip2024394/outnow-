@@ -355,6 +355,37 @@ export default function DriverApp() {
               )}
             </div>
 
+            {/* Cash Flow Info (shown when offline) */}
+            {!isOnline && (
+              <div style={{ padding: 16, borderRadius: 16, background: 'rgba(250,204,21,0.06)', backdropFilter: 'blur(16px)', border: '1px solid rgba(250,204,21,0.2)', marginBottom: 12 }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 10 }}>
+                  <span style={{ fontSize: 24 }}>💵</span>
+                  <div>
+                    <span style={{ fontSize: 14, fontWeight: 900, color: '#FACC15', display: 'block' }}>Cash Float = Your Booking Value</span>
+                    <span style={{ fontSize: 11, color: 'rgba(255,255,255,0.4)' }}>Determines which orders you can accept</span>
+                  </div>
+                </div>
+                <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.6)', lineHeight: 1.7 }}>
+                  <p style={{ margin: '0 0 8px' }}>When you go online, you'll be asked to declare your <strong style={{ color: '#fff' }}>available cash</strong>. This amount determines the maximum food order value you can receive.</p>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                      <span style={{ width: 6, height: 6, borderRadius: '50%', background: '#EF4444', flexShrink: 0 }} />
+                      <span>No cash = no COD food orders (rides still available)</span>
+                    </div>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                      <span style={{ width: 6, height: 6, borderRadius: '50%', background: '#FACC15', flexShrink: 0 }} />
+                      <span>Rp 50.000 = small street food orders only</span>
+                    </div>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                      <span style={{ width: 6, height: 6, borderRadius: '50%', background: '#8DC63F', flexShrink: 0 }} />
+                      <span>Rp 150.000+ = full access to all food orders</span>
+                    </div>
+                  </div>
+                  <p style={{ margin: '10px 0 0', fontSize: 11, color: 'rgba(255,255,255,0.35)' }}>💡 You pay the restaurant upfront for COD orders, then collect from the customer on delivery. More cash = more bookings = more earnings.</p>
+                </div>
+              </div>
+            )}
+
             {/* Daily Activity */}
             <div style={{ padding: 16, borderRadius: 16, background: 'rgba(255,255,255,0.06)', backdropFilter: 'blur(16px)', border: '1px solid rgba(255,255,255,0.1)', marginBottom: 12 }}>
               <span style={{ fontSize: 12, fontWeight: 800, color: 'rgba(255,255,255,0.4)', textTransform: 'uppercase', letterSpacing: '0.05em', display: 'block', marginBottom: 12 }}>Today's Activity</span>
