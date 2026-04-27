@@ -213,13 +213,16 @@ export default function JoinSheet({ open, onClose, initialStep = 'phone' }) {
       )}
       <div className={styles.cityShimmer} />
 
-      {/* Logo — top-left, same position as home screen */}
-      <img
-        src="https://ik.imagekit.io/nepgaxllc/Bold%203D%20_INDOO_%20logo%20design.png?updatedAt=1776203769926"
-        alt="INDOO"
-        className={styles.headerLogo}
-        draggable={false}
-      />
+      {/* Logo — hero area centered */}
+      <div className={styles.heroLogo}>
+        <img
+          src="https://ik.imagekit.io/nepgaxllc/Bold%203D%20_INDOO_%20logo%20design.png?updatedAt=1776203769926"
+          alt="INDOO"
+          className={styles.headerLogo}
+          draggable={false}
+        />
+        <span className={styles.heroSlogan}>Bike · Car · Food Delivery</span>
+      </div>
 
       <div className={styles.sheet}>
         <div className={styles.handle} onClick={handleClose} />
