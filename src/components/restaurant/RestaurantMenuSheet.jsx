@@ -673,7 +673,7 @@ export default function RestaurantMenuSheet({ restaurant, onClose, onOrderViaCha
     q(31000, 'indoo',  `Confirmed ${callsign}. Let us know once you have the order.`)
 
     // ── Phase 2: Picked up → to customer (32s–52s) ──
-    q(33000, 'driver', `Order ${ordNum} collected and secured. Leaving ${pickupName} now.`)
+    q(33000, 'driver', `Order ${ordNum} Confirm Collection. Leaving ${pickupName} now.`)
     q(34500, 'indoo',  `Great work ${callsign}. Proceed to customer location. Stay safe on the road.`)
     q(38000, 'driver', `On my way HQ, traffic is flowing nicely.`)
     q(42000, 'indoo',  `${callsign}, you're making good progress. Customer has been notified.`)
