@@ -24,11 +24,11 @@ export default function DriverCashFloatModal({ onConfirm, onClose }) {
           <span style={{ fontSize: 15, fontWeight: 900, color: '#fff', display: 'block' }}>💵 Enter Your Cash Float</span>
         </div>
 
-        <div style={{ textAlign: 'center', marginBottom: 20 }}>
+        <div style={{ textAlign: 'center', marginBottom: 20, position: 'relative', zIndex: 1 }}>
           <span style={{ fontSize: 40, fontWeight: 900, color: '#FACC15', display: 'block' }}>{fmtRp(amount)}</span>
         </div>
 
-        <div style={{ padding: '0 4px', marginBottom: 24 }}>
+        <div style={{ padding: '0 4px', marginBottom: 24, position: 'relative', zIndex: 1 }}>
           <input
             type="range"
             min={0}
@@ -44,10 +44,10 @@ export default function DriverCashFloatModal({ onConfirm, onClose }) {
           </div>
         </div>
 
-        <button onClick={() => onConfirm(amount)} style={{ width: '100%', padding: 16, borderRadius: 14, background: '#8DC63F', border: 'none', color: '#000', fontSize: 15, fontWeight: 900, cursor: 'pointer', fontFamily: 'inherit', marginBottom: 8 }}>
+        <button onClick={() => onConfirm(amount)} style={{ width: '100%', padding: 16, borderRadius: 14, background: '#8DC63F', border: 'none', color: '#000', fontSize: 15, fontWeight: 900, cursor: 'pointer', fontFamily: 'inherit', marginBottom: 8, position: 'relative', zIndex: 1 }}>
           Go Online{amount > 0 ? ` · ${fmtRp(amount)}` : ''}
         </button>
-        <button onClick={() => onConfirm(0)} style={{ width: '100%', padding: 12, borderRadius: 12, background: 'none', border: '1px solid rgba(255,255,255,0.1)', color: 'rgba(255,255,255,0.4)', fontSize: 12, fontWeight: 700, cursor: 'pointer', fontFamily: 'inherit' }}>
+        <button onClick={() => onConfirm(0)} style={{ width: '100%', padding: 12, borderRadius: 12, background: 'none', border: '1px solid rgba(255,255,255,0.1)', color: 'rgba(255,255,255,0.4)', fontSize: 12, fontWeight: 700, cursor: 'pointer', fontFamily: 'inherit', position: 'relative', zIndex: 1 }}>
           No cash — skip COD orders
         </button>
       </div>

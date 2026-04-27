@@ -9,6 +9,7 @@ import { useState, useEffect, useRef } from 'react'
 import { createPortal } from 'react-dom'
 import { PAYMENT_ICONS } from '@/constants/paymentIcons'
 import { saveVendorExtras as saveExtrasToDb, saveBundleDiscount as saveBundleToDb, saveMenuItem as saveMenuItemToDb, deleteMenuItem as deleteMenuItemFromDb } from '@/services/vendorExtrasService'
+import { getPrepaidWallet, topUpPrepaidWallet } from '@/services/walletService'
 
 const fmtRp = (n) => 'Rp ' + (n ?? 0).toLocaleString('id-ID')
 const LOCAL_KEY = 'indoo_vendor_restaurant'
@@ -203,6 +204,7 @@ const NAV_ITEMS = [
   { id: 'payouts', label: 'Payouts', icon: '💰' },
   { id: 'banners', label: 'Banner Ads', icon: '📢' },
   { id: 'extras', label: 'Extras & Add-ons', icon: '🍟' },
+  { id: 'wallet', label: 'Wallet & Top Up', icon: '💳' },
 ]
 
 // ── Extras management ───────────────────────────────────────────────────────
@@ -291,6 +293,177 @@ function saveVendorEvents(data) {
   localStorage.setItem(EVENTS_STORAGE_KEY, JSON.stringify(data))
 }
 
+// ── Top Up Overlay ──────────────────────────────────────────────────────────
+function TopUpOverlay({ wallet, onClose, onSuccess }) {
+  const [step, setStep] = useState('select') // select | payment | uploading | success
+  const [amount, setAmount] = useState(null)
+  const [proofFile, setProofFile] = useState(null)
+  const [proofPreview, setProofPreview] = useState(null)
+  const [copyMsg, setCopyMsg] = useState(false)
+  const [submitting, setSubmitting] = useState(false)
+
+  const QUICK_AMOUNTS = [50000, 100000, 200000, 500000]
+  const BANK_ACCOUNT = '7890-1234-5678'
+  const bal = wallet?.balance ?? 0
+  const balColor = bal >= 50000 ? '#8DC63F' : bal >= 25000 ? '#FACC15' : '#EF4444'
+
+  const handleCopy = () => {
+    navigator.clipboard.writeText(BANK_ACCOUNT.replace(/-/g, '')).catch(() => {})
+    setCopyMsg(true)
+    setTimeout(() => setCopyMsg(false), 2000)
+  }
+
+  const handleProof = (e) => {
+    const file = e.target.files?.[0]
+    if (!file) return
+    setProofFile(file)
+    const reader = new FileReader()
+    reader.onload = (ev) => setProofPreview(ev.target.result)
+    reader.readAsDataURL(file)
+  }
+
+  const handleSubmit = async () => {
+    if (!amount || !proofFile) return
+    setSubmitting(true)
+    try {
+      const updated = await topUpPrepaidWallet('vendor-demo', amount, 'bank_transfer')
+      if (updated) {
+        setStep('success')
+        setTimeout(() => onSuccess(updated), 2000)
+      }
+    } catch {
+      setSubmitting(false)
+    }
+  }
+
+  return createPortal(
+    <div style={{
+      position: 'fixed', inset: 0, zIndex: 10003, display: 'flex', flexDirection: 'column',
+      background: '#000', isolation: 'isolate',
+    }}>
+      <div style={{ position: 'absolute', inset: 0, background: 'rgba(0,0,0,0.75)', backdropFilter: 'blur(24px)', WebkitBackdropFilter: 'blur(24px)', zIndex: 0, pointerEvents: 'none' }} />
+
+      {step === 'success' ? (
+        <div style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', position: 'relative', zIndex: 1, padding: 24 }}>
+          <div style={{ fontSize: 64, marginBottom: 16 }}>✅</div>
+          <span style={{ fontSize: 22, fontWeight: 900, color: '#8DC63F', marginBottom: 8 }}>Top Up Submitted</span>
+          <span style={{ fontSize: 14, color: 'rgba(255,255,255,0.5)', textAlign: 'center' }}>Your top up of {fmtRp(amount)} is being verified. Balance will update shortly.</span>
+        </div>
+      ) : (
+        <>
+          {/* Header */}
+          <div style={{
+            display: 'flex', alignItems: 'center', gap: 10,
+            padding: 'calc(env(safe-area-inset-top, 0px) + 14px) 16px 14px',
+            position: 'relative', zIndex: 1, flexShrink: 0,
+          }}>
+            <button onClick={onClose} style={{ width: 36, height: 36, borderRadius: 10, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', flexShrink: 0 }}>
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2.5" strokeLinecap="round"><path d="M19 12H5M12 5l-7 7 7 7"/></svg>
+            </button>
+            <span style={{ fontSize: 18, fontWeight: 900, color: '#fff', flex: 1 }}>Top Up Wallet</span>
+          </div>
+
+          {/* Scrollable content */}
+          <div style={{ flex: 1, overflowY: 'auto', WebkitOverflowScrolling: 'touch', padding: '0 16px 100px', position: 'relative', zIndex: 1 }}>
+
+            {/* Current balance */}
+            <div style={{
+              padding: 16, borderRadius: 16, marginBottom: 20, textAlign: 'center',
+              background: 'rgba(0,0,0,0.4)', backdropFilter: 'blur(12px)', WebkitBackdropFilter: 'blur(12px)',
+              border: `1px solid ${balColor}30`, boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.05)',
+            }}>
+              <span style={{ fontSize: 11, fontWeight: 800, color: 'rgba(255,255,255,0.4)', textTransform: 'uppercase', letterSpacing: '0.06em', display: 'block', marginBottom: 6 }}>Current Balance</span>
+              <span style={{ fontSize: 32, fontWeight: 900, color: balColor }}>{fmtRp(bal)}</span>
+            </div>
+
+            {/* Quick amount buttons */}
+            <span style={{ fontSize: 13, fontWeight: 900, color: '#fff', display: 'block', marginBottom: 10 }}>Select Amount</span>
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10, marginBottom: 20 }}>
+              {QUICK_AMOUNTS.map(a => (
+                <button key={a} onClick={() => { setAmount(a); setStep('payment') }} style={{
+                  padding: '16px 10px', borderRadius: 14, cursor: 'pointer',
+                  background: amount === a ? 'rgba(141,198,63,0.15)' : 'rgba(0,0,0,0.4)',
+                  backdropFilter: 'blur(12px)', WebkitBackdropFilter: 'blur(12px)',
+                  border: amount === a ? '2px solid #8DC63F' : '1px solid rgba(255,255,255,0.08)',
+                  boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.05)',
+                  color: amount === a ? '#8DC63F' : '#fff', fontSize: 16, fontWeight: 900, textAlign: 'center',
+                }}>
+                  {fmtRp(a)}
+                </button>
+              ))}
+            </div>
+
+            {/* Payment details — show after amount selected */}
+            {step === 'payment' && (
+              <>
+                <span style={{ fontSize: 13, fontWeight: 900, color: '#fff', display: 'block', marginBottom: 10 }}>Payment Method</span>
+                <div style={{
+                  padding: 16, borderRadius: 16, marginBottom: 16,
+                  background: 'rgba(0,0,0,0.4)', backdropFilter: 'blur(12px)', WebkitBackdropFilter: 'blur(12px)',
+                  border: '1px solid rgba(141,198,63,0.15)', boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.05)',
+                }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 12 }}>
+                    <div style={{ width: 40, height: 40, borderRadius: 10, background: 'rgba(0,82,164,0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 14, fontWeight: 900, color: '#0052A4', flexShrink: 0 }}>BCA</div>
+                    <div style={{ flex: 1 }}>
+                      <span style={{ fontSize: 14, fontWeight: 800, color: '#fff', display: 'block' }}>Bank Transfer BCA</span>
+                      <span style={{ fontSize: 11, color: 'rgba(255,255,255,0.4)' }}>PT HAMMEREX PRODUCTS</span>
+                    </div>
+                  </div>
+                  <div style={{
+                    display: 'flex', alignItems: 'center', gap: 10, padding: '12px 14px', borderRadius: 10,
+                    background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.06)',
+                  }}>
+                    <span style={{ flex: 1, fontSize: 18, fontWeight: 900, color: '#FACC15', letterSpacing: '0.05em', fontFamily: 'monospace' }}>{BANK_ACCOUNT}</span>
+                    <button onClick={handleCopy} style={{
+                      padding: '6px 14px', borderRadius: 8, border: '1px solid rgba(141,198,63,0.3)',
+                      background: copyMsg ? 'rgba(141,198,63,0.2)' : 'rgba(141,198,63,0.08)',
+                      color: '#8DC63F', fontSize: 12, fontWeight: 800, cursor: 'pointer',
+                    }}>{copyMsg ? 'Copied!' : 'Copy'}</button>
+                  </div>
+                  <div style={{ marginTop: 10, fontSize: 11, color: 'rgba(255,255,255,0.35)', textAlign: 'center' }}>
+                    Transfer exactly {fmtRp(amount)} to the account above
+                  </div>
+                </div>
+
+                {/* Upload proof */}
+                <span style={{ fontSize: 13, fontWeight: 900, color: '#fff', display: 'block', marginBottom: 10 }}>Upload Payment Proof</span>
+                <div style={{
+                  padding: 16, borderRadius: 16, marginBottom: 20, textAlign: 'center',
+                  background: 'rgba(0,0,0,0.4)', backdropFilter: 'blur(12px)', WebkitBackdropFilter: 'blur(12px)',
+                  border: '1px dashed rgba(255,255,255,0.15)', boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.05)',
+                  cursor: 'pointer',
+                }} onClick={() => document.getElementById('topup-proof-input')?.click()}>
+                  <input id="topup-proof-input" type="file" accept="image/*" onChange={handleProof} style={{ display: 'none' }} />
+                  {proofPreview ? (
+                    <img src={proofPreview} alt="Proof" style={{ width: '100%', maxHeight: 240, objectFit: 'contain', borderRadius: 10 }} />
+                  ) : (
+                    <>
+                      <div style={{ fontSize: 36, marginBottom: 8 }}>📸</div>
+                      <span style={{ fontSize: 13, color: 'rgba(255,255,255,0.4)', display: 'block' }}>Tap to upload screenshot</span>
+                      <span style={{ fontSize: 11, color: 'rgba(255,255,255,0.25)', display: 'block', marginTop: 4 }}>Take a screenshot of your bank transfer confirmation</span>
+                    </>
+                  )}
+                </div>
+
+                {/* Confirm button */}
+                <button onClick={handleSubmit} disabled={!proofFile || submitting} style={{
+                  width: '100%', padding: '16px', borderRadius: 14, border: 'none',
+                  background: proofFile && !submitting ? '#8DC63F' : 'rgba(141,198,63,0.2)',
+                  color: proofFile && !submitting ? '#000' : 'rgba(0,0,0,0.3)',
+                  fontSize: 15, fontWeight: 900, cursor: proofFile && !submitting ? 'pointer' : 'not-allowed',
+                }}>
+                  {submitting ? 'Submitting...' : `Confirm Top Up ${fmtRp(amount)}`}
+                </button>
+              </>
+            )}
+          </div>
+        </>
+      )}
+    </div>,
+    document.body
+  )
+}
+
 // ═══════════════════════════════════════════════════════════════════════════════
 // MAIN COMPONENT
 // ═══════════════════════════════════════════════════════════════════════════════
@@ -309,6 +482,8 @@ export default function VendorDashboardV2({ onClose }) {
   const [sideOpen, setSideOpen] = useState(false)
   const [liveListOpen, setLiveListOpen] = useState(false)
   const [offlineListOpen, setOfflineListOpen] = useState(false)
+  const [wallet, setWallet] = useState(null)
+  const [showTopUp, setShowTopUp] = useState(false)
 
   // Load restaurant data
   useEffect(() => {
@@ -320,6 +495,7 @@ export default function VendorDashboardV2({ onClose }) {
         setStoreOpen(data.is_open ?? true)
       }
     } catch {}
+    getPrepaidWallet('vendor-demo', 'restaurant').then(w => setWallet(w)).catch(() => {})
   }, [])
 
   // Persist changes
@@ -532,6 +708,34 @@ export default function VendorDashboardV2({ onClose }) {
                 <img src="https://ik.imagekit.io/nepgaxllc/Detailed%20white%20fingerprint%20on%20transparent%20background.png?updatedAt=1775934544111" alt="" style={{ position: 'absolute', bottom: 8, right: 8, width: 28, height: 28, opacity: 0.15, objectFit: 'contain' }} />
               </div>
             </div>
+
+            {/* ── Wallet Balance Card ── */}
+            {wallet && (() => {
+              const bal = wallet.balance ?? 0
+              const balColor = bal >= 50000 ? '#8DC63F' : bal >= 25000 ? '#FACC15' : '#EF4444'
+              const wStatus = (wallet.status ?? 'active').charAt(0).toUpperCase() + (wallet.status ?? 'active').slice(1)
+              const statusBg = wStatus === 'Active' ? 'rgba(141,198,63,0.15)' : wStatus === 'Restricted' ? 'rgba(250,204,21,0.15)' : 'rgba(239,68,68,0.15)'
+              const statusColor = wStatus === 'Active' ? '#8DC63F' : wStatus === 'Restricted' ? '#FACC15' : '#EF4444'
+              return (
+                <div style={{
+                  padding: 16, borderRadius: 16, marginBottom: 20, position: 'relative', overflow: 'hidden',
+                  background: 'rgba(0,0,0,0.4)', backdropFilter: 'blur(12px)', WebkitBackdropFilter: 'blur(12px)',
+                  border: `1px solid ${balColor}30`,
+                  boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.05)',
+                }}>
+                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12 }}>
+                    <span style={{ fontSize: 11, fontWeight: 800, color: 'rgba(255,255,255,0.4)', textTransform: 'uppercase', letterSpacing: '0.06em' }}>Prepaid Wallet</span>
+                    <span style={{ fontSize: 10, fontWeight: 900, padding: '3px 10px', borderRadius: 6, background: statusBg, color: statusColor }}>{wStatus}</span>
+                  </div>
+                  <div style={{ fontSize: 28, fontWeight: 900, color: balColor, marginBottom: 4 }}>{fmtRp(bal)}</div>
+                  <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.35)', marginBottom: 14 }}>Minimum required: Rp 50,000</div>
+                  <button onClick={() => setShowTopUp(true)} style={{
+                    width: '100%', padding: '12px', borderRadius: 10, border: 'none',
+                    background: balColor, color: '#000', fontSize: 13, fontWeight: 900, cursor: 'pointer',
+                  }}>Top Up Wallet</button>
+                </div>
+              )
+            })()}
 
             <SectionHeader title="Live Orders" helpKey="orders" />
             {orders.filter(o => o.status !== 'completed').length === 0 ? (
@@ -911,8 +1115,92 @@ export default function VendorDashboardV2({ onClose }) {
         {/* ══════════ PAGE: EXTRAS & ADD-ONS ══════════ */}
         {page === 'extras' && <ExtrasPage restaurantId={restaurant?.id} />}
 
+        {/* ══════════ PAGE: WALLET & TOP UP ══════════ */}
+        {page === 'wallet' && (() => {
+          const bal = wallet?.balance ?? 0
+          const balColor = bal >= 50000 ? '#8DC63F' : bal >= 25000 ? '#FACC15' : '#EF4444'
+          const wStatus = wallet ? (wallet.status ?? 'active').charAt(0).toUpperCase() + (wallet.status ?? 'active').slice(1) : 'Unknown'
+          const statusBg = wStatus === 'Active' ? 'rgba(141,198,63,0.15)' : wStatus === 'Restricted' ? 'rgba(250,204,21,0.15)' : 'rgba(239,68,68,0.15)'
+          const statusColor = wStatus === 'Active' ? '#8DC63F' : wStatus === 'Restricted' ? '#FACC15' : '#EF4444'
+          return (
+            <>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 16 }}>
+                <button onClick={() => setPage('overview')} style={{ width: 32, height: 32, borderRadius: 8, background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' }}>
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2.5" strokeLinecap="round"><path d="M19 12H5M12 5l-7 7 7 7"/></svg>
+                </button>
+                <h2 style={{ fontSize: 18, fontWeight: 900, color: '#fff', margin: 0, flex: 1 }}>Wallet & Top Up</h2>
+              </div>
+
+              {/* Balance card */}
+              <div style={{
+                padding: 20, borderRadius: 16, marginBottom: 16, position: 'relative', overflow: 'hidden',
+                background: 'rgba(0,0,0,0.4)', backdropFilter: 'blur(12px)', WebkitBackdropFilter: 'blur(12px)',
+                border: `1px solid ${balColor}30`, boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.05)',
+              }}>
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 14 }}>
+                  <span style={{ fontSize: 11, fontWeight: 800, color: 'rgba(255,255,255,0.4)', textTransform: 'uppercase', letterSpacing: '0.06em' }}>Current Balance</span>
+                  <span style={{ fontSize: 10, fontWeight: 900, padding: '3px 10px', borderRadius: 6, background: statusBg, color: statusColor }}>{wStatus}</span>
+                </div>
+                <div style={{ fontSize: 36, fontWeight: 900, color: balColor, marginBottom: 6 }}>{fmtRp(bal)}</div>
+                <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.35)', marginBottom: 16 }}>Minimum required: Rp 50,000</div>
+                <button onClick={() => setShowTopUp(true)} style={{
+                  width: '100%', padding: '14px', borderRadius: 12, border: 'none',
+                  background: '#8DC63F', color: '#000', fontSize: 14, fontWeight: 900, cursor: 'pointer',
+                }}>Top Up Wallet</button>
+              </div>
+
+              {/* How it works */}
+              <div style={{
+                padding: 16, borderRadius: 16, marginBottom: 16,
+                background: 'rgba(0,0,0,0.4)', backdropFilter: 'blur(12px)', WebkitBackdropFilter: 'blur(12px)',
+                border: '1px solid rgba(255,255,255,0.06)', boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.05)',
+              }}>
+                <span style={{ fontSize: 13, fontWeight: 900, color: '#fff', display: 'block', marginBottom: 10 }}>How it Works</span>
+                {[
+                  { icon: '1', text: 'INDOO takes 10% commission (7% for bank transfer orders).' },
+                  { icon: '2', text: 'Commission is deducted from your wallet balance.' },
+                  { icon: '3', text: 'Keep your balance above Rp 50,000 to stay active.' },
+                  { icon: '4', text: 'Below minimum = Restricted. Zero balance = Deactivated.' },
+                ].map((s, i) => (
+                  <div key={i} style={{ display: 'flex', gap: 10, alignItems: 'flex-start', marginBottom: 8 }}>
+                    <span style={{ width: 22, height: 22, borderRadius: '50%', background: 'rgba(141,198,63,0.15)', color: '#8DC63F', fontSize: 10, fontWeight: 900, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>{s.icon}</span>
+                    <span style={{ fontSize: 12, color: 'rgba(255,255,255,0.5)', lineHeight: 1.5 }}>{s.text}</span>
+                  </div>
+                ))}
+              </div>
+
+              {/* Recent wallet transactions */}
+              <div style={{
+                padding: 16, borderRadius: 16,
+                background: 'rgba(0,0,0,0.4)', backdropFilter: 'blur(12px)', WebkitBackdropFilter: 'blur(12px)',
+                border: '1px solid rgba(255,255,255,0.06)', boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.05)',
+              }}>
+                <span style={{ fontSize: 13, fontWeight: 900, color: '#fff', display: 'block', marginBottom: 10 }}>Recent Activity</span>
+                {(wallet?.transactions ?? []).length === 0 ? (
+                  <div style={{ textAlign: 'center', padding: 20, color: 'rgba(255,255,255,0.3)', fontSize: 12 }}>No transactions yet</div>
+                ) : (wallet.transactions ?? []).slice(0, 10).map((t, i) => (
+                  <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '8px 0', borderBottom: '1px solid rgba(255,255,255,0.04)' }}>
+                    <div style={{ flex: 1 }}>
+                      <span style={{ fontSize: 12, fontWeight: 700, color: '#fff' }}>{t.type === 'topup' ? 'Top Up' : t.type === 'commission' ? 'Commission' : t.type}</span>
+                      <span style={{ fontSize: 10, color: 'rgba(255,255,255,0.3)', display: 'block' }}>{t.date ?? ''}</span>
+                    </div>
+                    <span style={{ fontSize: 13, fontWeight: 900, color: t.amount > 0 ? '#8DC63F' : '#EF4444' }}>{t.amount > 0 ? '+' : ''}{fmtRp(Math.abs(t.amount))}</span>
+                  </div>
+                ))}
+              </div>
+            </>
+          )
+        })()}
+
         </div>
       </div>
+
+      {/* ── Top Up Overlay ── */}
+      {showTopUp && <TopUpOverlay
+        wallet={wallet}
+        onClose={() => setShowTopUp(false)}
+        onSuccess={(updated) => { setWallet(updated); setShowTopUp(false) }}
+      />}
 
       {/* ── Add/Edit Item Modal ── */}
       {editItem !== null && (

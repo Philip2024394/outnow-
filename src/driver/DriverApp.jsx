@@ -348,7 +348,7 @@ export default function DriverApp() {
                   Go Online
                 </button>
               )}
-              <img src="https://ik.imagekit.io/nepgaxllc/ChatGPT%20Image%20Apr%2027,%202026,%2011_17_44%20AM.png?updatedAt=1777263492233" alt="" style={{ position: 'absolute', bottom: -4, right: -4, width: 100, height: 100, objectFit: 'contain', opacity: isOnline ? 1 : 0.4, pointerEvents: 'none', zIndex: 0 }} />
+              <img src="https://ik.imagekit.io/nepgaxllc/ChatGPT%20Image%20Apr%2027,%202026,%2011_17_44%20AM.png?updatedAt=1777263492233" alt="" style={{ position: 'absolute', bottom: -4, right: -4, width: 150, height: 150, objectFit: 'contain', opacity: 1, pointerEvents: 'none', zIndex: 0 }} />
             </div>
 
             {/* Today's Activity — 3 separate containers */}
@@ -361,9 +361,9 @@ export default function DriverApp() {
                 <span style={{ fontSize: 26, fontWeight: 900, color: '#8DC63F', display: 'block' }}>{fmtRp(Math.round(todayEarnings * 0.9))}</span>
                 <span style={{ fontSize: 10, fontWeight: 700, color: 'rgba(255,255,255,0.35)' }}>Earned (90%)</span>
               </div>
-              <div style={{ padding: 20, borderRadius: 20, background: 'rgba(239,68,68,0.08)', backdropFilter: 'blur(16px)', border: '1.5px solid rgba(239,68,68,0.3)', textAlign: 'center', overflow: 'hidden', position: 'relative' }}>
-                <span style={{ fontSize: 26, fontWeight: 900, color: '#EF4444', display: 'block' }}>{fmtRp(Math.round(todayEarnings * 0.1))}</span>
-                <span style={{ fontSize: 10, fontWeight: 700, color: 'rgba(255,255,255,0.35)' }}>Admin (10%)</span>
+              <div onClick={() => setShowHotspotMap(true)} style={{ padding: 20, borderRadius: 20, background: 'rgba(0,229,255,0.08)', backdropFilter: 'blur(16px)', border: '1.5px solid rgba(0,229,255,0.3)', textAlign: 'center', overflow: 'hidden', position: 'relative', cursor: 'pointer' }}>
+                <span style={{ fontSize: 26, display: 'block' }}>🗺️</span>
+                <span style={{ fontSize: 10, fontWeight: 700, color: 'rgba(0,229,255,0.7)' }}>Hotspot</span>
               </div>
             </div>
 
@@ -372,21 +372,24 @@ export default function DriverApp() {
               const bal = wallet?.balance ?? 0
               const min = wallet?.minimum ?? 30000
               const st = wallet?.status ?? 'active'
-              const balColor = st === 'restricted' || st === 'deactivated' ? '#EF4444' : bal < min * 1.5 ? '#FACC15' : '#8DC63F'
+              const isLow = bal < min * 1.5
+              const isDanger = st === 'restricted' || st === 'deactivated' || bal < min
+              const balColor = isDanger ? '#EF4444' : isLow ? '#FACC15' : '#8DC63F'
               const statusColor = st === 'active' ? '#8DC63F' : st === 'restricted' ? '#FACC15' : '#EF4444'
               const statusLabel = st === 'active' ? 'Active' : st === 'restricted' ? 'Restricted' : 'Deactivated'
               const hoursRemaining = wallet?.restricted_at ? Math.max(0, Math.ceil(24 - (Date.now() - new Date(wallet.restricted_at).getTime()) / 3600000)) : null
+              const deductions = JSON.parse(localStorage.getItem(`indoo_wallet_deductions_${user?.id ?? 'demo'}`) || '[]').slice(-5).reverse()
               return (
-                <div style={{ padding: 16, borderRadius: 20, background: `rgba(${st === 'active' ? '141,198,63' : st === 'restricted' ? '250,204,21' : '239,68,68'},0.06)`, backdropFilter: 'blur(16px)', border: `1.5px solid ${statusColor}40`, marginBottom: 12 }}>
+                <div style={{ padding: 16, borderRadius: 20, background: `rgba(${isDanger ? '239,68,68' : isLow ? '250,204,21' : '141,198,63'},0.06)`, backdropFilter: 'blur(16px)', border: `1.5px solid ${isDanger ? '#EF4444' : statusColor}40`, marginBottom: 12, animation: isDanger ? 'walletFlash 1.5s ease-in-out infinite' : 'none' }}>
                   <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 10 }}>
                     <span style={{ fontSize: 14, fontWeight: 900, color: '#fff' }}>Wallet Balance</span>
                     <span style={{ fontSize: 11, fontWeight: 800, padding: '3px 10px', borderRadius: 8, background: `${statusColor}20`, border: `1px solid ${statusColor}40`, color: statusColor }}>{statusLabel}</span>
                   </div>
                   <span style={{ fontSize: 28, fontWeight: 900, color: balColor, display: 'block', marginBottom: 4 }}>{fmtRp(bal)}</span>
-                  <span style={{ fontSize: 11, color: 'rgba(255,255,255,0.4)', display: 'block', marginBottom: 10 }}>Minimum required: Rp 30.000</span>
+                  <span style={{ fontSize: 11, color: 'rgba(255,255,255,0.4)', display: 'block', marginBottom: 10 }}>Minimum required: {fmtRp(min)}</span>
                   {st === 'restricted' && hoursRemaining !== null && (
                     <div style={{ padding: 8, borderRadius: 10, background: 'rgba(250,204,21,0.08)', border: '1px solid rgba(250,204,21,0.2)', marginBottom: 10 }}>
-                      <span style={{ fontSize: 12, fontWeight: 700, color: '#FACC15' }}>{'⚠️'} Top up within {hoursRemaining} hours to avoid deactivation</span>
+                      <span style={{ fontSize: 12, fontWeight: 700, color: '#FACC15' }}>⚠️ Top up within {hoursRemaining} hours to avoid deactivation</span>
                     </div>
                   )}
                   {st === 'deactivated' && (
@@ -394,22 +397,29 @@ export default function DriverApp() {
                       <span style={{ fontSize: 12, fontWeight: 700, color: '#EF4444' }}>Account deactivated. Top up to reactivate.</span>
                     </div>
                   )}
-                  <button onClick={() => setShowTopUp(true)} style={{ width: '100%', padding: 12, borderRadius: 12, background: 'rgba(141,198,63,0.12)', border: '1px solid rgba(141,198,63,0.3)', color: '#8DC63F', fontSize: 13, fontWeight: 900, cursor: 'pointer', fontFamily: 'inherit' }}>
-                    Top Up
+                  {/* Recent deductions */}
+                  {deductions.length > 0 && (
+                    <div style={{ marginBottom: 10 }}>
+                      <span style={{ fontSize: 10, fontWeight: 800, color: 'rgba(255,255,255,0.35)', textTransform: 'uppercase', letterSpacing: '0.05em', display: 'block', marginBottom: 6 }}>Recent Deductions</span>
+                      {deductions.map((d, i) => (
+                        <div key={i} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '6px 0', borderBottom: i < deductions.length - 1 ? '1px solid rgba(255,255,255,0.04)' : 'none' }}>
+                          <div>
+                            <span style={{ fontSize: 11, fontWeight: 700, color: 'rgba(255,255,255,0.6)', display: 'block' }}>{d.orderType ?? 'Order'} #{(d.orderId ?? '').slice(-4)}</span>
+                            <span style={{ fontSize: 10, color: 'rgba(255,255,255,0.25)' }}>{d.date ? new Date(d.date).toLocaleDateString('id-ID') : ''}</span>
+                          </div>
+                          <span style={{ fontSize: 12, fontWeight: 900, color: '#EF4444' }}>-{fmtRp(d.commission ?? d.amount ?? 0)}</span>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                  <button onClick={() => setShowTopUp(true)} style={{ width: '100%', padding: 12, borderRadius: 12, background: isDanger ? 'rgba(239,68,68,0.15)' : 'rgba(141,198,63,0.12)', border: `1px solid ${isDanger ? 'rgba(239,68,68,0.4)' : 'rgba(141,198,63,0.3)'}`, color: isDanger ? '#EF4444' : '#8DC63F', fontSize: 13, fontWeight: 900, cursor: 'pointer', fontFamily: 'inherit', animation: isDanger ? 'walletFlash 1.5s ease-in-out infinite' : 'none' }}>
+                    {isDanger ? '⚠️ Top Up Now' : 'Top Up'}
                   </button>
                 </div>
               )
             })()}
+            <style>{`@keyframes walletFlash { 0%,100% { opacity: 1; } 50% { opacity: 0.7; border-color: rgba(239,68,68,0.6); } }`}</style>
 
-            {/* Hotspot Map Button */}
-            <button onClick={() => setShowHotspotMap(true)} style={{ width: '100%', padding: 16, borderRadius: 16, background: 'rgba(0,229,255,0.08)', backdropFilter: 'blur(16px)', border: '1px solid rgba(0,229,255,0.2)', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 12, marginBottom: 12 }}>
-              <span style={{ fontSize: 28 }}>🗺️</span>
-              <div style={{ flex: 1, textAlign: 'left' }}>
-                <span style={{ fontSize: 14, fontWeight: 800, color: '#00E5FF', display: 'block' }}>Area Hotspot Map</span>
-                <span style={{ fontSize: 11, color: 'rgba(255,255,255,0.4)' }}>See high-traffic zones & admin notifications</span>
-              </div>
-              <span style={{ fontSize: 18, color: 'rgba(0,229,255,0.5)' }}>→</span>
-            </button>
 
             {/* Driver Level Progression */}
             {tier && (
