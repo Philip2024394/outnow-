@@ -597,6 +597,49 @@ export default function RestaurantMenuSheet({ restaurant, onClose, onOrderViaCha
     return () => { clearTimeout(t1); clearTimeout(t2); clearTimeout(t3) }
   }, [!!startTracking?.driver])
 
+  // Auto-post timed journey chat messages throughout the delivery
+  useEffect(() => {
+    if (!driverOnWay) return
+    const chatKey = `indoo_delivery_chat_${driverOnWay.orderId ?? orderConfirm?.id ?? 'current'}`
+    const fmt = () => new Date().toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' })
+    const isStreet = vendorType === 'street_vendor'
+    const pickupName = isStreet ? 'the street vendor' : restaurant.name
+    const plate = driverOnWay?.driverPlate ?? 'AB 1234 XY'
+    const bike = driverOnWay?.bikeBrand ?? 'Honda Vario'
+
+    const postMsg = (from, text) => {
+      try {
+        const existing = JSON.parse(localStorage.getItem(chatKey) || '[]')
+        existing.push({ id: Date.now() + Math.random(), from, text, time: fmt() })
+        localStorage.setItem(chatKey, JSON.stringify(existing))
+      } catch {}
+    }
+
+    // Journey message schedule (delays in ms from start)
+    const timers = []
+    const q = (delay, from, text) => timers.push(setTimeout(() => postMsg(from, text), delay))
+
+    // Phase 1: to_restaurant (0–32s)
+    q(0,     'system', `🏍️ Your driver is on the way to ${pickupName}`)
+    q(8000,  'driver', 'Saya sedang menuju lokasi penjual kak')
+    q(18000, 'system', `📍 Driver will arrive at the pickup location shortly`)
+    q(28000, 'system', `✅ Driver has arrived at ${pickupName} — collecting your order`)
+
+    // Phase 2: to_customer (32s–52s)
+    q(33000, 'system', `🛍️ Order picked up! Your driver is now heading your way`)
+    q(34000, 'driver', `Pesanan sudah diambil kak, sedang menuju ke lokasi Anda`)
+    q(40000, 'system', `🏍️ Driver is making good progress — hang tight!`)
+    q(47000, 'system', `📍 Your driver will be at your location very soon`)
+    q(50000, 'system', `👀 Please look out for your driver — ${bike}, plate ${plate}`)
+
+    // Phase 3: arrived (52s+)
+    q(52000, 'system', `🎉 Your driver has arrived!`)
+    q(53000, 'driver', 'Sudah sampai kak, silakan diterima pesanannya 🙏')
+    q(57000, 'system', `Thank you for ordering with INDOO! We look forward to serving you again soon.\n— The INDOO Team 😊`)
+
+    return () => timers.forEach(clearTimeout)
+  }, [!!driverOnWay])
+
   // Image 1 messages — printer waiting (before kitchen confirms)
   const PROCESSING_MESSAGES_1 = [
     'Processing Order',
@@ -1440,7 +1483,7 @@ export default function RestaurantMenuSheet({ restaurant, onClose, onOrderViaCha
 
             {/* Live Google Map — always mounted, visibility toggled (1 map load only) */}
             <div style={{ position: 'absolute', inset: 0, zIndex: mapFullView ? 1 : 0, opacity: mapFullView ? 1 : 0, pointerEvents: mapFullView ? 'auto' : 'none', transition: 'opacity 0.4s ease' }}>
-              <DeliveryMap driverPhase={driverPhase} style={{ width: '100%', height: '100%' }} />
+              <DeliveryMap driverPhase={driverPhase} driverImgIdx={driverImgIdx} totalImages={currentStageImages.length} style={{ width: '100%', height: '100%' }} />
             </div>
 
             {/* Cinematic image — always mounted, visibility toggled */}

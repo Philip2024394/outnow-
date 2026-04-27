@@ -76,12 +76,12 @@ export default function DriverMap({ userCoords, driverType = 'bike_ride', select
         filtered.forEach(d => {
           const el = document.createElement('div')
           const isSelected = d.id === selectedDriverId
-          const size = isSelected ? 36 : 28
-          const imgUrl = d.type === 'car_taxi'
-            ? 'https://ik.imagekit.io/nepgaxllc/Untitledsfsdfsfsd-removebg-preview.png'
-            : 'https://ik.imagekit.io/nepgaxllc/Untitledasdasdasaaaaaaaaaa-removebg-preview.png'
-          el.innerHTML = `<img src="${imgUrl}" style="width:${size}px;height:${size}px;object-fit:contain;filter:drop-shadow(0 2px 4px rgba(0,0,0,0.6));${isSelected ? 'border:2px solid #8DC63F;border-radius:50%;' : ''}" />`
-          new mapboxgl.Marker({ element: el }).setLngLat([d.lng, d.lat]).addTo(map)
+          const dotSize = isSelected ? 14 : 10
+          el.innerHTML = `<div style="width:${dotSize}px;height:${dotSize}px;position:relative;display:flex;align-items:center;justify-content:center">
+            <div style="position:absolute;width:${dotSize + 10}px;height:${dotSize + 10}px;border-radius:50%;border:1.5px solid rgba(153,27,27,0.4);animation:driverPulse 2s infinite"></div>
+            <div style="width:${dotSize}px;height:${dotSize}px;border-radius:50%;background:#991B1B;border:2px solid #0a0a0a;box-shadow:0 0 6px rgba(153,27,27,0.8)"></div>
+          </div>`
+          new mapboxgl.Marker({ element: el, anchor: 'center' }).setLngLat([d.lng, d.lat]).addTo(map)
         })
       })
     }).catch(() => { if (!cancelled) setError(true) })
@@ -100,8 +100,8 @@ export default function DriverMap({ userCoords, driverType = 'bike_ride', select
           <div style={{ position: 'absolute', inset: 0, opacity: 0.06, background: 'repeating-linear-gradient(0deg,transparent,transparent 39px,rgba(141,198,63,0.3) 40px),repeating-linear-gradient(90deg,transparent,transparent 39px,rgba(141,198,63,0.3) 40px)' }} />
           <div style={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%,-50%)', width: 14, height: 14, borderRadius: '50%', background: '#8DC63F', border: '2px solid #fff', boxShadow: '0 0 10px rgba(141,198,63,0.8)', zIndex: 3 }} />
           {filtered.map((d, i) => (
-            <div key={d.id} style={{ position: 'absolute', top: `${20 + (i * 20) % 60}%`, left: `${30 + (i * 15) % 60}%`, filter: 'drop-shadow(0 2px 4px rgba(0,0,0,0.6))' }}>
-              <img src={d.type === 'car_taxi' ? 'https://ik.imagekit.io/nepgaxllc/Untitledsfsdfsfsd-removebg-preview.png' : 'https://ik.imagekit.io/nepgaxllc/Untitledasdasdasaaaaaaaaaa-removebg-preview.png'} alt="" style={{ width: 24, height: 24, objectFit: 'contain' }} />
+            <div key={d.id} style={{ position: 'absolute', top: `${20 + (i * 20) % 60}%`, left: `${30 + (i * 15) % 60}%` }}>
+              <div style={{ width: 10, height: 10, borderRadius: '50%', background: '#991B1B', border: '2px solid #0a0a0a', boxShadow: '0 0 6px rgba(153,27,27,0.8)' }} />
             </div>
           ))}
           <div style={{ position: 'absolute', bottom: 6, left: '50%', transform: 'translateX(-50%)', fontSize: 9, color: 'rgba(141,198,63,0.3)', fontWeight: 600 }}>INDOO · {filtered.length} drivers nearby</div>

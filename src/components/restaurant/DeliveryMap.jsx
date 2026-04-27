@@ -75,6 +75,8 @@ function loadMapbox() {
 
 export default function DeliveryMap({
   driverPhase = 'to_restaurant',
+  driverImgIdx = 0,
+  totalImages = 8,
   driverLat,
   driverLng,
   restaurantLat,
@@ -108,6 +110,26 @@ export default function DeliveryMap({
   useEffect(() => {
     phaseRef.current = driverPhase
   }, [driverPhase])
+
+  // Sync bike position to cinematic image index from parent
+  useEffect(() => {
+    if (!isDemo || !mapLoaded || !driverMarkerRef.current) return
+    const seg = PHASE_SEGMENTS[driverPhase] || PHASE_SEGMENTS.to_restaurant
+    const segLength = seg.end - seg.start
+    const imgCount = totalImages || 1
+    // Map image index to waypoint index within the segment
+    const progress = Math.min(driverImgIdx / Math.max(imgCount - 1, 1), 1)
+    const waypointIdx = Math.round(seg.start + progress * segLength)
+    const clampedIdx = Math.min(Math.max(waypointIdx, seg.start), seg.end)
+    const pos = DEMO_ROUTE[clampedIdx]
+    const prevIdx = Math.max(seg.start, clampedIdx - 1)
+    const prev = DEMO_ROUTE[prevIdx]
+
+    targetPosRef.current = { lat: pos[0], lng: pos[1] }
+    lastPosRef.current = { lat: prev[0], lng: prev[1] }
+    interpStartRef.current = performance.now()
+    demoIdxRef.current = clampedIdx
+  }, [driverImgIdx, driverPhase, isDemo, mapLoaded, totalImages])
 
   useEffect(() => {
     mountedRef.current = true
@@ -173,13 +195,56 @@ export default function DeliveryMap({
         custEl.innerHTML = '<div style="width:28px;height:28px;background:#8DC63F;border-radius:50%;border:3px solid #0a0a0a;display:flex;align-items:center;justify-content:center"><span style="font-size:12px">📍</span></div>'
         new mapboxgl.Marker({ element: custEl }).setLngLat([custLng, custLat]).addTo(map)
 
-        // Driver marker — starts at position [0]
+        // Fleet drivers — mock other drivers on the map
+        const FLEET_DRIVERS = [
+          { lat: -7.7850, lng: 110.3630, type: 'Bike', color: '#8DC63F' },
+          { lat: -7.7900, lng: 110.3720, type: 'Car', color: '#991B1B' },
+          { lat: -7.7780, lng: 110.3680, type: 'Bike', color: '#8DC63F' },
+          { lat: -7.7830, lng: 110.3760, type: 'Car', color: '#8DC63F' },
+          { lat: -7.7950, lng: 110.3650, type: 'Bike', color: '#991B1B' },
+          { lat: -7.7770, lng: 110.3710, type: 'Bike', color: '#8DC63F' },
+          { lat: -7.7860, lng: 110.3780, type: 'Car', color: '#991B1B' },
+          { lat: -7.7920, lng: 110.3640, type: 'Bike', color: '#8DC63F' },
+        ]
+        // Inject fleet animations
+        if (!document.getElementById('fleet-animations')) {
+          const s = document.createElement('style')
+          s.id = 'fleet-animations'
+          s.textContent = `
+            @keyframes fleetHeartbeat { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.4); } }
+            @keyframes fleetGreenPing { 0% { transform: scale(1); opacity: 0.6; } 100% { transform: scale(2.5); opacity: 0; } }
+            @keyframes fleetDrift { 0% { transform: translate(0,0); } 25% { transform: translate(3px,-2px); } 50% { transform: translate(-2px,3px); } 75% { transform: translate(4px,1px); } 100% { transform: translate(0,0); } }
+          `
+          document.head.appendChild(s)
+        }
+
+        FLEET_DRIVERS.forEach(d => {
+          const isGreen = d.color === '#8DC63F'
+          const el = document.createElement('div')
+          el.innerHTML = isGreen
+            ? `<div style="display:flex;align-items:center;gap:4px">
+                <div style="position:relative;width:14px;height:14px;display:flex;align-items:center;justify-content:center">
+                  <div style="position:absolute;width:14px;height:14px;border-radius:50%;border:1px solid rgba(141,198,63,0.4);animation:fleetGreenPing 2s infinite"></div>
+                  <div style="width:10px;height:10px;border-radius:50%;background:#8DC63F;border:2px solid rgba(255,255,255,0.5);box-shadow:0 0 8px rgba(141,198,63,0.6);animation:fleetHeartbeat 1.5s infinite"></div>
+                </div>
+                <span style="font-size:9px;font-weight:800;color:rgba(255,255,255,0.5);text-shadow:0 1px 2px rgba(0,0,0,0.8)">${d.type}</span>
+              </div>`
+            : `<div style="display:flex;align-items:center;gap:4px;animation:fleetDrift 8s ease-in-out infinite">
+                <div style="width:10px;height:10px;border-radius:50%;background:#991B1B;border:2px solid rgba(255,255,255,0.5);box-shadow:0 0 6px rgba(153,27,27,0.5)"></div>
+                <span style="font-size:9px;font-weight:800;color:rgba(255,255,255,0.5);text-shadow:0 1px 2px rgba(0,0,0,0.8)">${d.type}</span>
+              </div>`
+          new mapboxgl.Marker({ element: el, anchor: 'center' }).setLngLat([d.lng, d.lat]).addTo(map)
+        })
+
+        // Active driver marker — starts at position [0]
         const driverEl = document.createElement('div')
-        driverEl.innerHTML = `<div style="width:44px;height:44px;position:relative">
-          <div style="position:absolute;inset:-4px;border-radius:50%;border:2px solid #8DC63F;animation:driverPulse 1.5s infinite"></div>
-          <img src="https://ik.imagekit.io/nepgaxllc/Untitledasdasdasaaaaaaaaaa-removebg-preview.png" style="width:44px;height:44px;object-fit:contain;transition:transform 0.5s ease" id="indoo-driver-icon" />
+        driverEl.innerHTML = `<div style="width:60px;height:60px;position:relative;display:flex;align-items:center;justify-content:center">
+          <div style="position:absolute;width:24px;height:24px;border-radius:50%;background:rgba(255,255,255,0.15);animation:driverPulse 1.5s infinite"></div>
+          <div style="position:absolute;width:40px;height:40px;border-radius:50%;border:2px solid rgba(255,255,255,0.25);animation:driverPulse 2s infinite 0.3s"></div>
+          <div style="position:absolute;width:56px;height:56px;border-radius:50%;border:1.5px solid rgba(255,255,255,0.15);animation:driverPulse 2.5s infinite 0.6s"></div>
+          <div style="width:18px;height:18px;border-radius:50%;background:#991B1B;border:3px solid #fff;position:relative;z-index:1;box-shadow:0 0 12px rgba(153,27,27,0.8)"></div>
         </div>`
-        driverMarkerRef.current = new mapboxgl.Marker({ element: driverEl }).setLngLat(initialPos).addTo(map)
+        driverMarkerRef.current = new mapboxgl.Marker({ element: driverEl, anchor: 'center' }).setLngLat(initialPos).addTo(map)
         lastPosRef.current = { lat: DEMO_ROUTE[0][0], lng: DEMO_ROUTE[0][1] }
 
         // Fit bounds to the current phase segment
@@ -187,30 +252,7 @@ export default function DeliveryMap({
 
         setMapLoaded(true)
 
-        // Demo: animate driver along the current phase's segment only
-        if (isDemo) {
-          const seg = PHASE_SEGMENTS[phaseRef.current] || PHASE_SEGMENTS.to_restaurant
-          demoIdxRef.current = seg.start
-
-          demoTimerRef.current = setInterval(() => {
-            if (!mountedRef.current) return
-
-            const currentSeg = PHASE_SEGMENTS[phaseRef.current] || PHASE_SEGMENTS.to_restaurant
-
-            // If arrived, don't move
-            if (phaseRef.current === 'arrived') return
-
-            // Only advance within the current segment
-            if (demoIdxRef.current >= currentSeg.end) return
-
-            demoIdxRef.current = Math.min(demoIdxRef.current + 1, currentSeg.end)
-            const pos = DEMO_ROUTE[demoIdxRef.current]
-            targetPosRef.current = { lat: pos[0], lng: pos[1] }
-            interpStartRef.current = performance.now()
-            const prev = DEMO_ROUTE[Math.max(currentSeg.start, demoIdxRef.current - 1)]
-            lastPosRef.current = { lat: prev[0], lng: prev[1] }
-          }, 4000)
-        }
+        // Demo positioning is now driven by driverImgIdx from parent — no timer needed
       })
     }).catch(() => {
       if (mountedRef.current) setLoadError(true)
@@ -241,13 +283,10 @@ export default function DeliveryMap({
         const currentLng = lerp(last.lng, target.lng, eased)
         driverMarkerRef.current.setLngLat([currentLng, currentLat])
 
-        // Rotate driver icon based on bearing — +180 because the bike image faces DOWN
-        const head = bearing(last.lat, last.lng, target.lat, target.lng)
-        const icon = document.getElementById('indoo-driver-icon')
-        if (icon) icon.style.transform = `rotate(${head + 180}deg)`
 
         if (!compact && mapRef.current) {
-          mapRef.current.easeTo({ center: [currentLng, currentLat], duration: 1000 })
+          // Offset center upward so bike stays visible above the bottom panel
+          mapRef.current.easeTo({ center: [currentLng, currentLat + 0.001], duration: 1000 })
         }
       }
       animFrameRef.current = requestAnimationFrame(animate)
@@ -332,5 +371,5 @@ function fitBoundsForPhase(map, mapboxgl, phase) {
   for (let i = seg.start; i <= seg.end; i++) {
     bounds.extend([DEMO_ROUTE[i][1], DEMO_ROUTE[i][0]])
   }
-  map.fitBounds(bounds, { padding: 60, duration: 1000 })
+  map.fitBounds(bounds, { padding: { top: 80, bottom: 200, left: 40, right: 40 }, duration: 1000 })
 }
