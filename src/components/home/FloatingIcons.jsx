@@ -8,7 +8,7 @@ const ICONS = [
   { id: 'bike_ride',  labelKey: 'icons.ride',    label: 'Bike Ride',    img: 'https://ik.imagekit.io/nepgaxllc/ChatGPT%20Image%20Apr%2028,%202026,%2005_49_30%20AM.png',   vehicle: true },
   { id: 'car_taxi',   labelKey: 'icons.car',     label: 'Car Ride',     img: 'https://ik.imagekit.io/nepgaxllc/Untitledsdasdvvvdsdsdsdas-removebg-preview.png',              vehicle: true },
   { id: 'food',       labelKey: 'icons.street',  label: 'Food',         img: 'https://ik.imagekit.io/nepgaxllc/Untitledsdasdvvvdsdsdsdassss-removebg-preview.png',        vehicle: false },
-  { id: 'dealhunt',   labelKey: 'icons.deals',   label: 'Deal Hunt',    img: 'https://ik.imagekit.io/nepgaxllc/Untitledsadasdasdasdasddfssdfasdasd-removebg-preview.png', vehicle: false },
+  { id: 'dealhunt',   labelKey: 'icons.deals',   label: 'Deal Hunt',    img: 'https://ik.imagekit.io/nepgaxllc/Untitledsdasdvvvdsdsdsdasssss-removebg-preview.png', vehicle: false },
   // Hidden for launch — enable later:
   // { id: 'dating',     labelKey: 'icons.dating',  label: 'Dating',       img: '...', vehicle: false },
   // { id: 'shopping',   labelKey: 'icons.shop',    label: 'Market',       img: '...', vehicle: false },
