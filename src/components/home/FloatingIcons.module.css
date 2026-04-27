@@ -22,7 +22,7 @@
 .dockGrid {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
-  gap: 10px 6px;
+  gap: 10px 10px;
 }
 
 /* Each button */
