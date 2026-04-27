@@ -1,4 +1,5 @@
 import { useState, useRef, useEffect, useCallback } from 'react'
+import { createPortal } from 'react-dom'
 import styles from './RestaurantMenuSheet.module.css'
 import WeeklyPromoSheet from './WeeklyPromoSheet'
 import WhatsAppInput from '@/components/ui/WhatsAppInput'
@@ -58,7 +59,14 @@ import CustomizeSheet from './CustomizeSheet'
 
 // ── Delivery Chat — in-app messaging with driver during delivery ─────────────
 function DeliveryChat({ driverName, chatKey, initialMessages, onClose }) {
-  const [messages, setMessages] = useState(initialMessages)
+  const MOCK_MESSAGES = [
+    { id: 1, from: 'system', text: `Order confirmed — ${driverName} is on the way`, time: new Date(Date.now() - 300000).toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' }) },
+    { id: 2, from: 'driver', text: 'Halo kak, saya sedang menuju restoran untuk ambil pesanan', time: new Date(Date.now() - 240000).toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' }) },
+    { id: 3, from: 'customer', text: 'Ok terima kasih, berapa lama ya?', time: new Date(Date.now() - 180000).toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' }) },
+    { id: 4, from: 'driver', text: 'Sekitar 15 menit kak, sudah dekat restoran', time: new Date(Date.now() - 120000).toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' }) },
+    { id: 5, from: 'customer', text: 'Siap, ditunggu ya', time: new Date(Date.now() - 60000).toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' }) },
+  ]
+  const [messages, setMessages] = useState(initialMessages.length > 0 ? initialMessages : MOCK_MESSAGES)
   const [input, setInput] = useState('')
   const scrollRef = useRef(null)
 
@@ -85,41 +93,57 @@ function DeliveryChat({ driverName, chatKey, initialMessages, onClose }) {
 
   return createPortal(
     <div style={{ position: 'fixed', inset: 0, zIndex: 10010, backgroundColor: '#0a0a0a', display: 'flex', flexDirection: 'column' }}>
+      <img src="https://ik.imagekit.io/nepgaxllc/ChatGPT%20Image%20Apr%2027,%202026,%2006_12_16%20AM.png?updatedAt=1777245159090" alt="" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', pointerEvents: 'none', zIndex: 0 }} />
       {/* Header */}
-      <div style={{ padding: 'calc(env(safe-area-inset-top, 0px) + 12px) 16px 12px', display: 'flex', alignItems: 'center', gap: 12, borderBottom: '1px solid rgba(255,255,255,0.06)', flexShrink: 0 }}>
-        <button onClick={onClose} style={{ width: 44, height: 44, borderRadius: '50%', background: '#8DC63F', border: 'none', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' }}>
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#000" strokeWidth="2.5" strokeLinecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
-        </button>
+      <div style={{ padding: 'calc(env(safe-area-inset-top, 0px) + 12px) 16px 12px', display: 'flex', alignItems: 'center', gap: 12, borderBottom: '1px solid rgba(255,255,255,0.06)', flexShrink: 0, position: 'relative', zIndex: 1 }}>
+        {/* Driver profile image */}
+        <div style={{ width: 44, height: 44, borderRadius: '50%', border: '2px solid #8DC63F', overflow: 'hidden', flexShrink: 0 }}>
+          <img src={`https://i.pravatar.cc/100?img=${(driverName ?? 'D').charCodeAt(0) % 50 + 1}`} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+        </div>
         <div style={{ flex: 1 }}>
           <span style={{ fontSize: 16, fontWeight: 900, color: '#fff', display: 'block' }}>{driverName}</span>
-          <span style={{ fontSize: 12, color: '#8DC63F' }}>Driver · Online</span>
+          <span style={{ fontSize: 14, color: '#8DC63F' }}>Driver · Online</span>
         </div>
+        {/* Close button — right side */}
+        <button onClick={onClose} style={{ padding: '10px 20px', borderRadius: 12, background: '#8DC63F', border: 'none', color: '#000', fontSize: 14, fontWeight: 900, cursor: 'pointer' }}>Close</button>
       </div>
 
       {/* Messages */}
-      <div ref={scrollRef} style={{ flex: 1, overflowY: 'auto', padding: '12px 16px', display: 'flex', flexDirection: 'column', gap: 8 }}>
+      <div ref={scrollRef} style={{ flex: 1, overflowY: 'auto', padding: '12px 16px', display: 'flex', flexDirection: 'column', gap: 8, position: 'relative', zIndex: 1 }}>
         {messages.length === 0 && (
           <div style={{ textAlign: 'center', padding: '40px 20px', opacity: 0.4 }}>
             <span style={{ fontSize: 14, color: '#fff' }}>Send a message to your driver</span>
           </div>
         )}
         {messages.map(msg => (
-          <div key={msg.id} style={{ display: 'flex', justifyContent: msg.from === 'customer' ? 'flex-end' : 'flex-start' }}>
-            <div style={{
-              maxWidth: '75%', padding: '10px 14px', borderRadius: 16,
-              background: msg.from === 'customer' ? '#8DC63F' : 'rgba(255,255,255,0.08)',
-              borderBottomRightRadius: msg.from === 'customer' ? 4 : 16,
-              borderBottomLeftRadius: msg.from === 'driver' ? 4 : 16,
-            }}>
-              <span style={{ fontSize: 14, color: msg.from === 'customer' ? '#000' : '#fff', display: 'block', lineHeight: 1.4 }}>{msg.text}</span>
-              <span style={{ fontSize: 10, color: msg.from === 'customer' ? 'rgba(0,0,0,0.4)' : 'rgba(255,255,255,0.3)', display: 'block', marginTop: 4, textAlign: 'right' }}>{msg.time}</span>
+          msg.from === 'system' ? (
+            <div key={msg.id} style={{ textAlign: 'center', padding: '6px 0' }}>
+              <span style={{ fontSize: 12, color: 'rgba(255,255,255,0.4)', background: 'rgba(0,0,0,0.4)', padding: '4px 12px', borderRadius: 10 }}>{msg.text}</span>
             </div>
-          </div>
+          ) : (
+            <div key={msg.id} style={{ display: 'flex', justifyContent: msg.from === 'customer' ? 'flex-end' : 'flex-start', alignItems: 'flex-end', gap: 6 }}>
+              {msg.from === 'driver' && (
+                <div style={{ width: 28, height: 28, borderRadius: '50%', overflow: 'hidden', flexShrink: 0, border: '1.5px solid #8DC63F' }}>
+                  <img src={`https://i.pravatar.cc/60?img=${(driverName ?? 'D').charCodeAt(0) % 50 + 1}`} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                </div>
+              )}
+              <div style={{
+                maxWidth: '70%', padding: '10px 14px', borderRadius: 16,
+                background: msg.from === 'customer' ? '#8DC63F' : 'rgba(0,0,0,0.6)',
+                border: msg.from === 'driver' ? '1px solid rgba(255,255,255,0.08)' : 'none',
+                borderBottomRightRadius: msg.from === 'customer' ? 4 : 16,
+                borderBottomLeftRadius: msg.from === 'driver' ? 4 : 16,
+              }}>
+                <span style={{ fontSize: 14, color: msg.from === 'customer' ? '#000' : '#fff', display: 'block', lineHeight: 1.4 }}>{msg.text}</span>
+                <span style={{ fontSize: 10, color: msg.from === 'customer' ? 'rgba(0,0,0,0.4)' : 'rgba(255,255,255,0.3)', display: 'block', marginTop: 4, textAlign: 'right' }}>{msg.time}</span>
+              </div>
+            </div>
+          )
         ))}
       </div>
 
       {/* Input */}
-      <div style={{ padding: '10px 16px calc(env(safe-area-inset-bottom, 0px) + 10px)', borderTop: '1px solid rgba(255,255,255,0.06)', display: 'flex', gap: 10, flexShrink: 0 }}>
+      <div style={{ padding: '10px 16px calc(env(safe-area-inset-bottom, 0px) + 10px)', borderTop: '1px solid rgba(255,255,255,0.06)', display: 'flex', gap: 10, flexShrink: 0, position: 'relative', zIndex: 1 }}>
         <input
           value={input}
           onChange={e => setInput(e.target.value)}
@@ -568,7 +592,9 @@ export default function RestaurantMenuSheet({ restaurant, onClose, onOrderViaCha
     const s2Time = 20000 // 20s to customer
     const t1 = setTimeout(() => setDriverPhase('to_customer'), s1Time)
     const t2 = setTimeout(() => setDriverPhase('arrived'), s1Time + s2Time)
-    return () => { clearTimeout(t1); clearTimeout(t2) }
+    // Auto-close 10s after arrived
+    const t3 = setTimeout(() => setDriverOnWay(null), s1Time + s2Time + 10000)
+    return () => { clearTimeout(t1); clearTimeout(t2); clearTimeout(t3) }
   }, [!!startTracking?.driver])
 
   // Image 1 messages — printer waiting (before kitchen confirms)
@@ -1386,26 +1412,31 @@ export default function RestaurantMenuSheet({ restaurant, onClose, onOrderViaCha
       )}
 
       {/* ── Driver tracking — full page ── */}
-      {driverOnWay && (
-        <div style={{ position: 'fixed', inset: 0, zIndex: 9850, background: '#0a0a0a', display: 'flex', flexDirection: 'column' }}>
-          {/* Header */}
-          <div style={{ padding: 'calc(env(safe-area-inset-top, 0px) + 12px) 16px 12px', display: 'flex', alignItems: 'center', gap: 10, borderBottom: '1px solid rgba(255,255,255,0.06)', flexShrink: 0 }}>
-            <img src="https://ik.imagekit.io/nepgaxllc/ChatGPT%20Image%20Apr%2019,%202026,%2012_07_28%20AM.png?updatedAt=1776532065659" alt="" style={{ width: 48, height: 48, objectFit: 'contain', flexShrink: 0 }} />
-            <div style={{ flex: 1 }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-                <span style={{ fontSize: 14, fontWeight: 900, color: '#fff' }}>Order #{driverOnWay?.orderId ?? '—'}</span>
-                <span style={{ width: 7, height: 7, borderRadius: '50%', background: '#8DC63F', animation: 'ping 1.5s ease-in-out infinite', flexShrink: 0 }} />
-                <span style={{ fontSize: 9, fontWeight: 800, color: '#8DC63F', textTransform: 'uppercase', letterSpacing: '0.08em' }}>Live</span>
-              </div>
-              <span style={{ display: 'block', fontSize: 11, color: 'rgba(255,255,255,0.4)', marginTop: 2 }}>{driverOnWay?.restaurant ?? ''}</span>
-            </div>
-            <button onClick={() => setDriverOnWay(null)} style={{ background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '50%', width: 36, height: 36, display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', color: '#fff', fontSize: 14, flexShrink: 0 }}>
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M19 12H5M12 5l-7 7 7 7"/></svg>
-            </button>
-          </div>
+      {/* Minimized driver notification bar */}
+      {driverOnWay?.minimized && (
+        <button onClick={() => setDriverOnWay(prev => ({ ...prev, minimized: false }))} style={{
+          position: 'fixed', bottom: 'calc(env(safe-area-inset-bottom, 0px) + 80px)', left: 16, right: 16, zIndex: 9860,
+          padding: '12px 16px', borderRadius: 14, background: '#8DC63F', border: 'none',
+          display: 'flex', alignItems: 'center', gap: 10, cursor: 'pointer',
+          boxShadow: '0 4px 20px rgba(141,198,63,0.4)',
+        }}>
+          <span style={{ width: 10, height: 10, borderRadius: '50%', background: '#000', animation: 'pulse 1.5s infinite' }} />
+          <span style={{ fontSize: 14, fontWeight: 900, color: '#000', flex: 1 }}>Driver on the way — tap to view</span>
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#000" strokeWidth="2.5" strokeLinecap="round"><polyline points="9 18 15 12 9 6"/></svg>
+        </button>
+      )}
 
-          {/* Delivery tracking — toggleable cinematic images / live map (single map instance) */}
-          <div style={{ flex: 1, minHeight: 0, position: 'relative', background: '#0a0a0a', overflow: 'hidden' }}>
+      {driverOnWay && !driverOnWay.minimized && (
+        <div style={{ position: 'fixed', inset: 0, zIndex: 9850, background: '#0a0a0a', display: 'flex', flexDirection: 'column' }}>
+          <img src="https://ik.imagekit.io/nepgaxllc/ChatGPT%20Image%20Apr%2027,%202026,%2006_12_16%20AM.png?updatedAt=1777245159090" alt="" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', pointerEvents: 'none', zIndex: 0 }} />
+          {/* Minimize button — top left */}
+          <button onClick={() => setDriverOnWay(prev => ({ ...prev, minimized: true }))} style={{ position: 'absolute', top: 'calc(env(safe-area-inset-top, 0px) + 12px)', left: 16, zIndex: 10, background: 'rgba(0,0,0,0.5)', backdropFilter: 'blur(8px)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: 12, padding: '8px 14px', display: 'flex', alignItems: 'center', gap: 6, cursor: 'pointer' }}>
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2.5" strokeLinecap="round"><line x1="5" y1="12" x2="19" y2="12"/></svg>
+            <span style={{ fontSize: 14, fontWeight: 800, color: '#fff' }}>Minimize</span>
+          </button>
+
+          {/* Delivery tracking — full height behind footer */}
+          <div style={{ position: 'absolute', inset: 0, zIndex: 1, background: '#0a0a0a', overflow: 'hidden' }}>
 
             {/* Live Google Map — always mounted, visibility toggled (1 map load only) */}
             <div style={{ position: 'absolute', inset: 0, zIndex: mapFullView ? 1 : 0, opacity: mapFullView ? 1 : 0, pointerEvents: mapFullView ? 'auto' : 'none', transition: 'opacity 0.4s ease' }}>
@@ -1422,46 +1453,10 @@ export default function RestaurantMenuSheet({ restaurant, onClose, onOrderViaCha
                 style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', animation: 'fadeIn 0.8s ease' }}
               />
 
-              {/* Vertical journey progress rail — right edge */}
-              {(() => {
-                const imgs = currentStageImages
-                const progress = imgs.length > 1 ? (Math.min(driverImgIdx, imgs.length - 1)) / (imgs.length - 1) : 1
-                return (
-                  <div style={{ position: 'absolute', top: 70, bottom: 80, right: 14, width: 20, zIndex: 3, display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-                    <div style={{ width: 20, height: 20, borderRadius: '50%', background: 'rgba(0,0,0,0.7)', border: '1.5px solid rgba(255,255,255,0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, zIndex: 2 }}>
-                      {driverPhase === 'to_restaurant' ? (
-                        <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="#FACC15" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M3 3h18v18H3z"/><path d="M3 9h18"/><path d="M9 21V9"/></svg>
-                      ) : (
-                        <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="#FACC15" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg>
-                      )}
-                    </div>
-                    <div style={{ flex: 1, width: 4, borderRadius: 2, background: 'rgba(255,255,255,0.1)', position: 'relative', margin: '4px 0', overflow: 'visible' }}>
-                      <div style={{ position: 'absolute', top: 0, left: 0, right: 0, height: `${progress * 100}%`, background: 'linear-gradient(180deg, #8DC63F, #FACC15)', borderRadius: 2, transition: 'height 0.8s ease' }} />
-                      <div style={{
-                        position: 'absolute', left: '50%', top: `${progress * 100}%`, transform: 'translate(-50%, -50%)',
-                        width: 14, height: 14, borderRadius: '50%',
-                        background: '#8DC63F', border: '2px solid #0a0a0a',
-                        boxShadow: '0 0 8px rgba(141,198,63,0.8), 0 0 16px rgba(141,198,63,0.4)',
-                        transition: 'top 0.8s ease', zIndex: 2,
-                        display: 'flex', alignItems: 'center', justifyContent: 'center',
-                      }}>
-                        <svg width="8" height="8" viewBox="0 0 24 24" fill="#000" stroke="none"><path d="M12 2C8 2 4 5 4 9c0 5 8 13 8 13s8-8 8-13c0-4-4-7-8-7z"/></svg>
-                      </div>
-                    </div>
-                    <div style={{ width: 20, height: 20, borderRadius: '50%', background: driverPhase === 'arrived' ? '#8DC63F' : 'rgba(0,0,0,0.7)', border: `1.5px solid ${driverPhase === 'arrived' ? '#8DC63F' : 'rgba(255,255,255,0.15)'}`, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, zIndex: 2, transition: 'all 0.5s' }}>
-                      {driverPhase === 'to_restaurant' ? (
-                        <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke={progress >= 1 ? '#000' : '#8DC63F'} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M3 3h18v18H3z"/><path d="M3 9h18"/><path d="M9 21V9"/></svg>
-                      ) : (
-                        <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke={driverPhase === 'arrived' ? '#000' : '#8DC63F'} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg>
-                      )}
-                    </div>
-                  </div>
-                )
-              })()}
             </div>
 
             {/* Status banner — top (always visible in both views) */}
-            <div style={{ position: 'absolute', top: 12, left: 12, right: 12, zIndex: 4 }}>
+            <div style={{ position: 'absolute', top: 'calc(env(safe-area-inset-top, 0px) + 64px)', left: 12, right: 12, zIndex: 4 }}>
               <div style={{ padding: '12px 16px', borderRadius: 14, background: 'rgba(0,0,0,0.75)', backdropFilter: 'blur(12px)', border: '1px solid rgba(255,255,255,0.08)', display: 'flex', alignItems: 'center', gap: 10 }}>
                 <span style={{ width: 8, height: 8, borderRadius: '50%', background: '#8DC63F', animation: 'ping 1.5s ease-in-out infinite', flexShrink: 0 }} />
                 <span style={{ fontSize: 13, fontWeight: 800, color: '#fff', flex: 1, animation: 'fadeIn 0.5s ease' }} key={`txt-${driverPhase}-${driverImgIdx}`}>
@@ -1476,7 +1471,7 @@ export default function RestaurantMenuSheet({ restaurant, onClose, onOrderViaCha
               const currentImg = currentStageImages[Math.min(driverImgIdx, currentStageImages.length - 1)]
               const speed = currentImg?.speed ?? 0
               return (
-                <div style={{ position: 'absolute', bottom: 16, left: 0, right: 0, zIndex: 4, display: 'flex', justifyContent: 'center' }}>
+                <div style={{ position: 'absolute', bottom: 260, left: 0, right: 0, zIndex: 4, display: 'flex', justifyContent: 'center' }}>
                   <div style={{ display: 'flex', gap: 10, alignItems: 'flex-end' }}>
                     {/* KM */}
                     <div style={{ padding: '10px 16px', borderRadius: 12, background: 'rgba(0,0,0,0.75)', backdropFilter: 'blur(8px)', border: '1px solid rgba(255,255,255,0.08)', textAlign: 'center' }}>
@@ -1531,10 +1526,14 @@ export default function RestaurantMenuSheet({ restaurant, onClose, onOrderViaCha
             })()}
           </div>
 
-          {/* Bottom panel — driver info + progress inside one card */}
+          {/* Bottom panel — floating container at footer */}
           <div style={{
-            flexShrink: 0, padding: '16px', borderTop: '1px solid rgba(255,255,255,0.06)', position: 'relative',
-            background: 'rgba(10,10,10,0.95)',
+            position: 'absolute', bottom: 0, left: 0, right: 0, zIndex: 5, padding: '0 12px calc(env(safe-area-inset-bottom, 0px) + 12px)',
+          }}>
+          <div style={{
+            padding: '16px', borderRadius: 20,
+            background: 'rgba(0,0,0,0.85)', backdropFilter: 'blur(12px)',
+            border: '1px solid rgba(141,198,63,0.2)',
           }}>
             <div className={styles.driverCard} style={{ flexDirection: 'column', gap: 12 }}>
               {/* Top row: photo + info + action buttons */}
@@ -1559,7 +1558,7 @@ export default function RestaurantMenuSheet({ restaurant, onClose, onOrderViaCha
 
                 {/* Action buttons */}
                 <div style={{ display: 'flex', flexDirection: 'column', gap: 8, flexShrink: 0 }}>
-                  <a href={`tel:${driverOnWay?.phone ?? ''}`} style={{ width: 44, height: 44, borderRadius: 14, background: '#111', border: 'none', display: 'flex', alignItems: 'center', justifyContent: 'center', textDecoration: 'none' }}>
+                  <a href={`tel:${driverOnWay?.phone ?? ''}`} style={{ width: 44, height: 44, borderRadius: 14, background: '#991B1B', border: 'none', display: 'flex', alignItems: 'center', justifyContent: 'center', textDecoration: 'none' }}>
                     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
                   </a>
                   <button onClick={() => setDeliveryChatOpen(true)} style={{ width: 44, height: 44, borderRadius: 14, background: '#8DC63F', border: 'none', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' }}>
@@ -1639,6 +1638,7 @@ export default function RestaurantMenuSheet({ restaurant, onClose, onOrderViaCha
                 </div>
               </div>
             </div>
+          </div>
           </div>
         </div>
       )}

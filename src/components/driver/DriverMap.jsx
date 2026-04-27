@@ -1,25 +1,11 @@
 /**
- * DriverMap — Google Maps for booking page
- * Uses same loader pattern as DeliveryMap (functional API)
+ * DriverMap — Mapbox GL for booking/ride page
  */
 import { useEffect, useRef, useState } from 'react'
-import { importLibrary, setOptions } from '@googlemaps/js-api-loader'
 import styles from './DriverMap.module.css'
 
-const API_KEY = import.meta.env.VITE_GOOGLE_MAPS_KEY ?? import.meta.env.VITE_GOOGLE_DIRECTIONS_KEY ?? ''
+const MAPBOX_TOKEN = import.meta.env.VITE_MAPBOX_TOKEN ?? ''
 const DEFAULT_CENTER = { lat: -7.797, lng: 110.370 }
-
-const MAP_STYLES = [
-  { elementType: 'geometry', stylers: [{ color: '#1a1a2e' }] },
-  { elementType: 'labels.text.stroke', stylers: [{ color: '#1a1a2e' }] },
-  { elementType: 'labels.text.fill', stylers: [{ color: '#4a4a6a' }] },
-  { featureType: 'road', elementType: 'geometry', stylers: [{ color: '#2a2a4a' }] },
-  { featureType: 'road', elementType: 'geometry.stroke', stylers: [{ color: '#1a1a2e' }] },
-  { featureType: 'road.highway', elementType: 'geometry', stylers: [{ color: '#3a3a5a' }] },
-  { featureType: 'water', elementType: 'geometry', stylers: [{ color: '#0e1a2b' }] },
-  { featureType: 'poi', stylers: [{ visibility: 'off' }] },
-  { featureType: 'transit', stylers: [{ visibility: 'off' }] },
-]
 
 const MOCK_DRIVERS = [
   { id: 'd1', type: 'bike_ride', lat: -7.799, lng: 110.372, online: true },
@@ -29,14 +15,26 @@ const MOCK_DRIVERS = [
   { id: 'd5', type: 'car_taxi',  lat: -7.787, lng: 110.383, online: true },
 ]
 
-// Shared loader — same pattern as DeliveryMap.jsx
-let loaderPromise = null
-function loadGoogle() {
-  if (loaderPromise) return loaderPromise
-  if (!API_KEY) return Promise.reject('no key')
-  try { setOptions({ apiKey: API_KEY, version: 'weekly' }) } catch {}
-  loaderPromise = importLibrary('maps').then(() => window.google)
-  return loaderPromise
+// Load Mapbox GL JS + CSS dynamically
+let mapboxLoaded = null
+function loadMapbox() {
+  if (mapboxLoaded) return mapboxLoaded
+  mapboxLoaded = new Promise((resolve, reject) => {
+    if (!document.getElementById('mapbox-css')) {
+      const link = document.createElement('link')
+      link.id = 'mapbox-css'
+      link.rel = 'stylesheet'
+      link.href = 'https://api.mapbox.com/mapbox-gl-js/v3.9.4/mapbox-gl.css'
+      document.head.appendChild(link)
+    }
+    if (window.mapboxgl) { resolve(window.mapboxgl); return }
+    const script = document.createElement('script')
+    script.src = 'https://api.mapbox.com/mapbox-gl-js/v3.9.4/mapbox-gl.js'
+    script.onload = () => resolve(window.mapboxgl)
+    script.onerror = () => reject(new Error('Mapbox failed'))
+    document.head.appendChild(script)
+  })
+  return mapboxLoaded
 }
 
 export default function DriverMap({ userCoords, driverType = 'bike_ride', selectedDriverId = null, drivers = [] }) {
@@ -48,42 +46,51 @@ export default function DriverMap({ userCoords, driverType = 'bike_ride', select
   const filtered = displayDrivers.filter(d => d.online && d.type === driverType)
 
   useEffect(() => {
-    if (!mapRef.current || !API_KEY) { setError(true); return }
+    if (!mapRef.current) { setError(true); return }
     let cancelled = false
 
-    loadGoogle().then(google => {
+    loadMapbox().then(mapboxgl => {
       if (cancelled || !mapRef.current || mapObjRef.current) return
 
-      const map = new google.maps.Map(mapRef.current, {
-        center, zoom: 14,
-        disableDefaultUI: true,
-        styles: MAP_STYLES,
-        gestureHandling: 'none',
-        keyboardShortcuts: false,
+      mapboxgl.accessToken = MAPBOX_TOKEN
+
+      const map = new mapboxgl.Map({
+        container: mapRef.current,
+        style: 'mapbox://styles/mapbox/dark-v11',
+        center: [center.lng, center.lat],
+        zoom: 14,
+        attributionControl: false,
+        interactive: false,
       })
       mapObjRef.current = map
 
-      // User marker — green dot
-      new google.maps.Marker({
-        position: center, map,
-        icon: { path: google.maps.SymbolPath.CIRCLE, scale: 8, fillColor: '#8DC63F', fillOpacity: 1, strokeColor: '#fff', strokeWeight: 2 },
-        zIndex: 10,
-      })
+      map.on('load', () => {
+        if (cancelled) return
 
-      // Driver markers
-      filtered.forEach(d => {
-        new google.maps.Marker({
-          position: { lat: d.lat, lng: d.lng }, map,
-          icon: { path: google.maps.SymbolPath.CIRCLE, scale: 5, fillColor: d.id === selectedDriverId ? '#8DC63F' : '#fff', fillOpacity: 0.7, strokeColor: 'rgba(255,255,255,0.3)', strokeWeight: 1 },
+        // User marker
+        const userEl = document.createElement('div')
+        userEl.innerHTML = '<div style="width:16px;height:16px;border-radius:50%;background:#8DC63F;border:2px solid #fff;box-shadow:0 0 10px rgba(141,198,63,0.8)"></div>'
+        new mapboxgl.Marker({ element: userEl }).setLngLat([center.lng, center.lat]).addTo(map)
+
+        // Driver markers
+        filtered.forEach(d => {
+          const el = document.createElement('div')
+          const isSelected = d.id === selectedDriverId
+          const size = isSelected ? 36 : 28
+          const imgUrl = d.type === 'car_taxi'
+            ? 'https://ik.imagekit.io/nepgaxllc/Untitledsfsdfsfsd-removebg-preview.png'
+            : 'https://ik.imagekit.io/nepgaxllc/Untitledasdasdasaaaaaaaaaa-removebg-preview.png'
+          el.innerHTML = `<img src="${imgUrl}" style="width:${size}px;height:${size}px;object-fit:contain;filter:drop-shadow(0 2px 4px rgba(0,0,0,0.6));${isSelected ? 'border:2px solid #8DC63F;border-radius:50%;' : ''}" />`
+          new mapboxgl.Marker({ element: el }).setLngLat([d.lng, d.lat]).addTo(map)
         })
       })
     }).catch(() => { if (!cancelled) setError(true) })
 
-    return () => { cancelled = true }
-  }, []) // eslint-disable-line
+    return () => { cancelled = true; if (mapObjRef.current) { mapObjRef.current.remove(); mapObjRef.current = null } }
+  }, [])
 
   useEffect(() => {
-    if (mapObjRef.current && userCoords) mapObjRef.current.panTo(userCoords)
+    if (mapObjRef.current && userCoords) mapObjRef.current.easeTo({ center: [userCoords.lng, userCoords.lat], duration: 500 })
   }, [userCoords?.lat, userCoords?.lng])
 
   if (error) {
@@ -93,8 +100,8 @@ export default function DriverMap({ userCoords, driverType = 'bike_ride', select
           <div style={{ position: 'absolute', inset: 0, opacity: 0.06, background: 'repeating-linear-gradient(0deg,transparent,transparent 39px,rgba(141,198,63,0.3) 40px),repeating-linear-gradient(90deg,transparent,transparent 39px,rgba(141,198,63,0.3) 40px)' }} />
           <div style={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%,-50%)', width: 14, height: 14, borderRadius: '50%', background: '#8DC63F', border: '2px solid #fff', boxShadow: '0 0 10px rgba(141,198,63,0.8)', zIndex: 3 }} />
           {filtered.map((d, i) => (
-            <div key={d.id} style={{ position: 'absolute', top: `${20 + (i * 20) % 60}%`, left: `${30 + (i * 15) % 60}%`, fontSize: 16, filter: 'drop-shadow(0 2px 4px rgba(0,0,0,0.6))' }}>
-              {d.type === 'car_taxi' ? '🚗' : '🛵'}
+            <div key={d.id} style={{ position: 'absolute', top: `${20 + (i * 20) % 60}%`, left: `${30 + (i * 15) % 60}%`, filter: 'drop-shadow(0 2px 4px rgba(0,0,0,0.6))' }}>
+              <img src={d.type === 'car_taxi' ? 'https://ik.imagekit.io/nepgaxllc/Untitledsfsdfsfsd-removebg-preview.png' : 'https://ik.imagekit.io/nepgaxllc/Untitledasdasdasaaaaaaaaaa-removebg-preview.png'} alt="" style={{ width: 24, height: 24, objectFit: 'contain' }} />
             </div>
           ))}
           <div style={{ position: 'absolute', bottom: 6, left: '50%', transform: 'translateX(-50%)', fontSize: 9, color: 'rgba(141,198,63,0.3)', fontWeight: 600 }}>INDOO · {filtered.length} drivers nearby</div>
@@ -105,7 +112,7 @@ export default function DriverMap({ userCoords, driverType = 'bike_ride', select
 
   return (
     <div className={styles.mapWrap}>
-      <div ref={mapRef} className={styles.map} style={{ touchAction: 'pan-y' }} />
+      <div className={styles.map} ref={mapRef} />
     </div>
   )
 }

@@ -1,54 +1,46 @@
 /**
- * ═══════════════════════════════════════════════════════════════════��═══════
- * DeliveryMap — Google Maps live delivery tracker
- * ═══════════════════════════════════════════════════════════════════════════
+ * DeliveryMap — Mapbox GL live delivery tracker
  *
- * Features beyond GoJek/Grab:
- * - GPS interpolation: smooth 60fps marker movement between updates
- * - Offline resilience: keeps showing last position + estimated movement
- * - Heading rotation: bike marker rotates to face direction of travel
+ * Features:
+ * - GPS interpolation: smooth 60fps marker movement
+ * - Offline resilience: keeps showing last position
  * - Dark INDOO-branded map style
- * - Route polyline with animated gradient
- * - Auto-zoom: fits route in view, zooms in as driver approaches
- * - Fallback: if Google Maps fails to load, shows branded placeholder
+ * - Route polyline
+ * - Auto-zoom: fits route, zooms as driver approaches
+ * - Fallback: branded placeholder if Mapbox fails
+ * - Phase-aware demo: bike moves on the correct segment per driverPhase
  */
-import { useRef, useEffect, useState, useCallback } from 'react'
-import { importLibrary, setOptions } from '@googlemaps/js-api-loader'
+import { useRef, useEffect, useState } from 'react'
 
-const MAPS_KEY = import.meta.env.VITE_GOOGLE_MAPS_API_KEY || ''
+const MAPBOX_TOKEN = import.meta.env.VITE_MAPBOX_TOKEN ?? ''
 
-// ── INDOO dark map style ─────────────────────────────────────────────────────
-const DARK_STYLE = [
-  { elementType: 'geometry', stylers: [{ color: '#0a0a0a' }] },
-  { elementType: 'labels.text.stroke', stylers: [{ color: '#0a0a0a' }] },
-  { elementType: 'labels.text.fill', stylers: [{ color: '#555' }] },
-  { featureType: 'road', elementType: 'geometry', stylers: [{ color: '#1a1a1a' }] },
-  { featureType: 'road', elementType: 'geometry.stroke', stylers: [{ color: '#252525' }] },
-  { featureType: 'road.highway', elementType: 'geometry', stylers: [{ color: '#1f1f1f' }] },
-  { featureType: 'road.highway', elementType: 'geometry.stroke', stylers: [{ color: '#333' }] },
-  { featureType: 'water', elementType: 'geometry', stylers: [{ color: '#050505' }] },
-  { featureType: 'poi', stylers: [{ visibility: 'off' }] },
-  { featureType: 'transit', stylers: [{ visibility: 'off' }] },
-  { featureType: 'poi.park', elementType: 'geometry', stylers: [{ color: '#0f1a0a', visibility: 'on' }] },
-  { featureType: 'administrative', elementType: 'geometry.stroke', stylers: [{ color: '#222' }] },
+// Demo route: Yogyakarta area
+const DEMO_ROUTE = [
+  [-7.7928, 110.3657], // 0  start
+  [-7.7915, 110.3665], // 1
+  [-7.7900, 110.3672], // 2
+  [-7.7885, 110.3680], // 3
+  [-7.7870, 110.3688], // 4
+  [-7.7855, 110.3695], // 5
+  [-7.7840, 110.3702], // 6
+  [-7.7825, 110.3710], // 7
+  [-7.7810, 110.3718], // 8  restaurant
+  [-7.7795, 110.3725], // 9
+  [-7.7780, 110.3733], // 10
+  [-7.7765, 110.3740], // 11
+  [-7.7750, 110.3748], // 12
+  [-7.7735, 110.3755], // 13 customer
 ]
 
-// ── SVG markers ──────────────────────────────────────────────────────────────
-const BIKE_SVG = `<svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 40 40">
-  <circle cx="20" cy="20" r="18" fill="#8DC63F" stroke="#0a0a0a" stroke-width="3"/>
-  <circle cx="20" cy="20" r="18" fill="none" stroke="#8DC63F" stroke-width="1" opacity="0.5">
-    <animate attributeName="r" from="18" to="26" dur="1.5s" repeatCount="indefinite"/>
-    <animate attributeName="opacity" from="0.5" to="0" dur="1.5s" repeatCount="indefinite"/>
-  </circle>
-  <path d="M20 10 L26 24 L14 24 Z" fill="#0a0a0a" stroke="#0a0a0a" stroke-width="1"/>
-</svg>`
+// Segment boundaries keyed by phase
+const PHASE_SEGMENTS = {
+  to_restaurant: { start: 0, end: 8 },
+  to_customer:   { start: 8, end: 13 },
+  arrived:       { start: 13, end: 13 },
+}
 
-const PIN_SVG = (color) => `<svg xmlns="http://www.w3.org/2000/svg" width="28" height="36" viewBox="0 0 28 36">
-  <path d="M14 0C6.3 0 0 6.3 0 14c0 10.5 14 22 14 22s14-11.5 14-22C28 6.3 21.7 0 14 0z" fill="${color}" stroke="#0a0a0a" stroke-width="2"/>
-  <circle cx="14" cy="14" r="5" fill="#0a0a0a"/>
-</svg>`
+function lerp(a, b, t) { return a + (b - a) * Math.max(0, Math.min(1, t)) }
 
-// ── Haversine bearing ────────────────────────────────────────────────────────
 function bearing(lat1, lng1, lat2, lng2) {
   const toRad = d => d * Math.PI / 180
   const dLng = toRad(lng2 - lng1)
@@ -57,163 +49,169 @@ function bearing(lat1, lng1, lat2, lng2) {
   return ((Math.atan2(y, x) * 180 / Math.PI) + 360) % 360
 }
 
-// ── Lerp between two lat/lng positions ───────────────────────────────────────
-function lerp(a, b, t) {
-  return a + (b - a) * Math.max(0, Math.min(1, t))
-}
-
-// ── Loader singleton (new functional API) ────────────────────────────────────
-let configured = false
-let loaderPromise = null
-function getGoogleMaps() {
-  if (!loaderPromise && MAPS_KEY) {
-    if (!configured) {
-      setOptions({ apiKey: MAPS_KEY, version: 'weekly' })
-      configured = true
+// Load Mapbox GL JS + CSS dynamically
+let mapboxLoaded = null
+function loadMapbox() {
+  if (mapboxLoaded) return mapboxLoaded
+  mapboxLoaded = new Promise((resolve, reject) => {
+    // CSS
+    if (!document.getElementById('mapbox-css')) {
+      const link = document.createElement('link')
+      link.id = 'mapbox-css'
+      link.rel = 'stylesheet'
+      link.href = 'https://api.mapbox.com/mapbox-gl-js/v3.9.4/mapbox-gl.css'
+      document.head.appendChild(link)
     }
-    loaderPromise = importLibrary('maps').then(() => window.google)
-  }
-  return loaderPromise
+    // JS
+    if (window.mapboxgl) { resolve(window.mapboxgl); return }
+    const script = document.createElement('script')
+    script.src = 'https://api.mapbox.com/mapbox-gl-js/v3.9.4/mapbox-gl.js'
+    script.onload = () => resolve(window.mapboxgl)
+    script.onerror = () => reject(new Error('Mapbox failed to load'))
+    document.head.appendChild(script)
+  })
+  return mapboxLoaded
 }
-
-// ── Demo route: simulated waypoints (Jakarta area) ───────────────────────────
-const DEMO_ROUTE = [
-  { lat: -6.2088, lng: 106.8456 }, // start
-  { lat: -6.2075, lng: 106.8462 },
-  { lat: -6.2060, lng: 106.8470 },
-  { lat: -6.2045, lng: 106.8478 },
-  { lat: -6.2030, lng: 106.8485 },
-  { lat: -6.2015, lng: 106.8490 },
-  { lat: -6.2000, lng: 106.8495 },
-  { lat: -6.1985, lng: 106.8500 },
-  { lat: -6.1970, lng: 106.8505 }, // restaurant
-  { lat: -6.1960, lng: 106.8510 },
-  { lat: -6.1945, lng: 106.8520 },
-  { lat: -6.1930, lng: 106.8530 },
-  { lat: -6.1915, lng: 106.8540 },
-  { lat: -6.1900, lng: 106.8550 }, // customer
-]
 
 export default function DeliveryMap({
-  driverPhase,
+  driverPhase = 'to_restaurant',
   driverLat,
   driverLng,
   restaurantLat,
   restaurantLng,
   customerLat,
   customerLng,
-  heading = 0,
   compact = false,
   style = {},
 }) {
   const containerRef = useRef(null)
   const mapRef = useRef(null)
   const driverMarkerRef = useRef(null)
-  const restaurantMarkerRef = useRef(null)
-  const customerMarkerRef = useRef(null)
-  const polylineRef = useRef(null)
   const animFrameRef = useRef(null)
   const lastPosRef = useRef(null)
   const targetPosRef = useRef(null)
   const interpStartRef = useRef(0)
-  const [mapLoaded, setMapLoaded] = useState(false)
-  const [loadError, setLoadError] = useState(false)
-  const mountedRef = useRef(true)
-
-  // Demo mode positions
-  const isDemo = import.meta.env.VITE_DEMO_MODE === 'true' || !import.meta.env.VITE_SUPABASE_URL
-  const restLat = restaurantLat ?? DEMO_ROUTE[8].lat
-  const restLng = restaurantLng ?? DEMO_ROUTE[8].lng
-  const custLat = customerLat ?? DEMO_ROUTE[13].lat
-  const custLng = customerLng ?? DEMO_ROUTE[13].lng
-
-  // Demo: simulate driver movement along route
   const demoIdxRef = useRef(0)
   const demoTimerRef = useRef(null)
+  const mountedRef = useRef(true)
+  const phaseRef = useRef(driverPhase)
+  const [loadError, setLoadError] = useState(false)
+  const [mapLoaded, setMapLoaded] = useState(false)
 
-  // ── Initialize Google Map ──────────────────────────────────────────────────
+  const isDemo = import.meta.env.VITE_DEMO_MODE === 'true' || !import.meta.env.VITE_SUPABASE_URL
+  const restLat = restaurantLat ?? DEMO_ROUTE[8][0]
+  const restLng = restaurantLng ?? DEMO_ROUTE[8][1]
+  const custLat = customerLat ?? DEMO_ROUTE[13][0]
+  const custLng = customerLng ?? DEMO_ROUTE[13][1]
+
+  // Keep phaseRef in sync
+  useEffect(() => {
+    phaseRef.current = driverPhase
+  }, [driverPhase])
+
   useEffect(() => {
     mountedRef.current = true
-    if (!MAPS_KEY) { setLoadError(true); return }
 
-    getGoogleMaps().then(google => {
+    // Inject pulse animation CSS once
+    if (!document.getElementById('mapbox-pulse-style')) {
+      const s = document.createElement('style')
+      s.id = 'mapbox-pulse-style'
+      s.textContent = '@keyframes driverPulse { 0% { transform: scale(1); opacity: 0.6; } 100% { transform: scale(2); opacity: 0; } }'
+      document.head.appendChild(s)
+    }
+
+    loadMapbox().then(mapboxgl => {
       if (!mountedRef.current || !containerRef.current) return
 
-      const map = new google.maps.Map(containerRef.current, {
-        center: { lat: restLat, lng: restLng },
-        zoom: 15,
-        styles: DARK_STYLE,
-        disableDefaultUI: true,
-        gestureHandling: compact ? 'none' : 'greedy',
-        zoomControl: !compact,
-        keyboardShortcuts: false,
-        clickableIcons: false,
+      mapboxgl.accessToken = MAPBOX_TOKEN
+
+      // Bike starts at position [0] (the start of the route)
+      const initialPos = isDemo
+        ? [DEMO_ROUTE[0][1], DEMO_ROUTE[0][0]]
+        : [driverLng ?? restLng, driverLat ?? restLat]
+
+      const map = new mapboxgl.Map({
+        container: containerRef.current,
+        style: 'mapbox://styles/mapbox/dark-v11',
+        center: initialPos,
+        zoom: 14,
+        attributionControl: false,
+        interactive: !compact,
       })
       mapRef.current = map
 
-      // Restaurant marker
-      restaurantMarkerRef.current = new google.maps.Marker({
-        map,
-        position: { lat: restLat, lng: restLng },
-        icon: { url: 'data:image/svg+xml,' + encodeURIComponent(PIN_SVG('#FACC15')), scaledSize: new google.maps.Size(28, 36) },
+      map.on('load', () => {
+        if (!mountedRef.current) return
+
+        // Route line — always show the FULL path
+        const routeCoords = isDemo
+          ? DEMO_ROUTE.map(p => [p[1], p[0]])
+          : [[restLng, restLat], [custLng, custLat]]
+
+        map.addSource('route', {
+          type: 'geojson',
+          data: { type: 'Feature', geometry: { type: 'LineString', coordinates: routeCoords } },
+        })
+        map.addLayer({
+          id: 'route-line',
+          type: 'line',
+          source: 'route',
+          paint: {
+            'line-color': '#8DC63F',
+            'line-width': 4,
+            'line-opacity': 0.7,
+          },
+        })
+
+        // Restaurant marker
+        const restEl = document.createElement('div')
+        restEl.innerHTML = '<div style="width:28px;height:28px;background:#FACC15;border-radius:50%;border:3px solid #0a0a0a;display:flex;align-items:center;justify-content:center"><span style="font-size:12px">🍽️</span></div>'
+        new mapboxgl.Marker({ element: restEl }).setLngLat([restLng, restLat]).addTo(map)
+
+        // Customer marker
+        const custEl = document.createElement('div')
+        custEl.innerHTML = '<div style="width:28px;height:28px;background:#8DC63F;border-radius:50%;border:3px solid #0a0a0a;display:flex;align-items:center;justify-content:center"><span style="font-size:12px">📍</span></div>'
+        new mapboxgl.Marker({ element: custEl }).setLngLat([custLng, custLat]).addTo(map)
+
+        // Driver marker — starts at position [0]
+        const driverEl = document.createElement('div')
+        driverEl.innerHTML = `<div style="width:44px;height:44px;position:relative">
+          <div style="position:absolute;inset:-4px;border-radius:50%;border:2px solid #8DC63F;animation:driverPulse 1.5s infinite"></div>
+          <img src="https://ik.imagekit.io/nepgaxllc/Untitledasdasdasaaaaaaaaaa-removebg-preview.png" style="width:44px;height:44px;object-fit:contain;transition:transform 0.5s ease" id="indoo-driver-icon" />
+        </div>`
+        driverMarkerRef.current = new mapboxgl.Marker({ element: driverEl }).setLngLat(initialPos).addTo(map)
+        lastPosRef.current = { lat: DEMO_ROUTE[0][0], lng: DEMO_ROUTE[0][1] }
+
+        // Fit bounds to the current phase segment
+        fitBoundsForPhase(map, mapboxgl, phaseRef.current)
+
+        setMapLoaded(true)
+
+        // Demo: animate driver along the current phase's segment only
+        if (isDemo) {
+          const seg = PHASE_SEGMENTS[phaseRef.current] || PHASE_SEGMENTS.to_restaurant
+          demoIdxRef.current = seg.start
+
+          demoTimerRef.current = setInterval(() => {
+            if (!mountedRef.current) return
+
+            const currentSeg = PHASE_SEGMENTS[phaseRef.current] || PHASE_SEGMENTS.to_restaurant
+
+            // If arrived, don't move
+            if (phaseRef.current === 'arrived') return
+
+            // Only advance within the current segment
+            if (demoIdxRef.current >= currentSeg.end) return
+
+            demoIdxRef.current = Math.min(demoIdxRef.current + 1, currentSeg.end)
+            const pos = DEMO_ROUTE[demoIdxRef.current]
+            targetPosRef.current = { lat: pos[0], lng: pos[1] }
+            interpStartRef.current = performance.now()
+            const prev = DEMO_ROUTE[Math.max(currentSeg.start, demoIdxRef.current - 1)]
+            lastPosRef.current = { lat: prev[0], lng: prev[1] }
+          }, 4000)
+        }
       })
-
-      // Customer marker
-      customerMarkerRef.current = new google.maps.Marker({
-        map,
-        position: { lat: custLat, lng: custLng },
-        icon: { url: 'data:image/svg+xml,' + encodeURIComponent(PIN_SVG('#8DC63F')), scaledSize: new google.maps.Size(28, 36) },
-      })
-
-      // Driver marker
-      const startPos = isDemo ? DEMO_ROUTE[0] : { lat: driverLat ?? restLat, lng: driverLng ?? restLng }
-      driverMarkerRef.current = new google.maps.Marker({
-        map,
-        position: startPos,
-        icon: {
-          url: 'data:image/svg+xml,' + encodeURIComponent(BIKE_SVG),
-          scaledSize: new google.maps.Size(40, 40),
-          anchor: new google.maps.Point(20, 20),
-        },
-        zIndex: 100,
-      })
-      lastPosRef.current = startPos
-
-      // Route polyline
-      const routePath = isDemo ? DEMO_ROUTE : [
-        startPos,
-        { lat: restLat, lng: restLng },
-        { lat: custLat, lng: custLng },
-      ]
-      polylineRef.current = new google.maps.Polyline({
-        path: routePath,
-        strokeColor: '#8DC63F',
-        strokeWeight: 4,
-        strokeOpacity: 0.7,
-        geodesic: true,
-        map,
-      })
-
-      // Fit bounds to show full route
-      const bounds = new google.maps.LatLngBounds()
-      routePath.forEach(p => bounds.extend(p))
-      map.fitBounds(bounds, compact ? 20 : 50)
-
-      setMapLoaded(true)
-
-      // Demo: animate driver along route
-      if (isDemo) {
-        demoIdxRef.current = 0
-        demoTimerRef.current = setInterval(() => {
-          if (!mountedRef.current) return
-          demoIdxRef.current = Math.min(demoIdxRef.current + 1, DEMO_ROUTE.length - 1)
-          const pos = DEMO_ROUTE[demoIdxRef.current]
-          const prev = DEMO_ROUTE[Math.max(0, demoIdxRef.current - 1)]
-          targetPosRef.current = pos
-          interpStartRef.current = performance.now()
-          lastPosRef.current = prev
-        }, 4000)
-      }
     }).catch(() => {
       if (mountedRef.current) setLoadError(true)
     })
@@ -222,14 +220,14 @@ export default function DeliveryMap({
       mountedRef.current = false
       if (demoTimerRef.current) clearInterval(demoTimerRef.current)
       if (animFrameRef.current) cancelAnimationFrame(animFrameRef.current)
+      if (mapRef.current) { mapRef.current.remove(); mapRef.current = null }
     }
-  }, []) // eslint-disable-line react-hooks/exhaustive-deps
+  }, [])
 
-  // ── GPS interpolation: smooth 60fps marker movement ────────────────────────
+  // GPS interpolation loop
   useEffect(() => {
     if (!mapLoaded) return
-
-    const INTERP_DURATION = 3000 // smooth over 3 seconds
+    const INTERP_DURATION = 3000
 
     function animate() {
       if (!mountedRef.current || !driverMarkerRef.current) return
@@ -238,25 +236,18 @@ export default function DeliveryMap({
       if (target && last) {
         const elapsed = performance.now() - interpStartRef.current
         const t = Math.min(elapsed / INTERP_DURATION, 1)
-        // Ease-out for natural deceleration
         const eased = 1 - Math.pow(1 - t, 3)
         const currentLat = lerp(last.lat, target.lat, eased)
         const currentLng = lerp(last.lng, target.lng, eased)
-        driverMarkerRef.current.setPosition({ lat: currentLat, lng: currentLng })
+        driverMarkerRef.current.setLngLat([currentLng, currentLat])
 
-        // Rotate marker based on bearing
+        // Rotate driver icon based on bearing — +180 because the bike image faces DOWN
         const head = bearing(last.lat, last.lng, target.lat, target.lng)
-        const el = driverMarkerRef.current.getIcon()
-        if (el) {
-          driverMarkerRef.current.setIcon({
-            ...el,
-            rotation: head,
-          })
-        }
+        const icon = document.getElementById('indoo-driver-icon')
+        if (icon) icon.style.transform = `rotate(${head + 180}deg)`
 
-        // Pan map to follow driver smoothly
         if (!compact && mapRef.current) {
-          mapRef.current.panTo({ lat: currentLat, lng: currentLng })
+          mapRef.current.easeTo({ center: [currentLng, currentLat], duration: 1000 })
         }
       }
       animFrameRef.current = requestAnimationFrame(animate)
@@ -266,12 +257,10 @@ export default function DeliveryMap({
     return () => { if (animFrameRef.current) cancelAnimationFrame(animFrameRef.current) }
   }, [mapLoaded, compact])
 
-  // ── Live GPS updates (non-demo): receive new position → start interpolation
+  // Live GPS updates (non-demo)
   useEffect(() => {
     if (isDemo || !mapLoaded || driverLat == null || driverLng == null) return
-    const newPos = { lat: driverLat, lng: driverLng }
     if (lastPosRef.current && targetPosRef.current) {
-      // Current interpolated position becomes the new "last"
       const elapsed = performance.now() - interpStartRef.current
       const t = Math.min(elapsed / 3000, 1)
       const eased = 1 - Math.pow(1 - t, 3)
@@ -280,32 +269,48 @@ export default function DeliveryMap({
         lng: lerp(lastPosRef.current.lng, targetPosRef.current.lng, eased),
       }
     }
-    targetPosRef.current = newPos
+    targetPosRef.current = { lat: driverLat, lng: driverLng }
     interpStartRef.current = performance.now()
   }, [driverLat, driverLng, isDemo, mapLoaded])
 
-  // ── Zoom in as driver approaches destination ───────────────────────────────
+  // Phase change: reset demo index to new segment start & adjust map bounds
   useEffect(() => {
-    if (!mapLoaded || !mapRef.current || compact) return
-    if (driverPhase === 'arrived') {
-      mapRef.current.setZoom(17)
-    } else if (driverPhase === 'to_customer') {
-      mapRef.current.setZoom(16)
-    }
-  }, [driverPhase, mapLoaded, compact])
+    if (!mapLoaded || !mapRef.current) return
 
-  // ── Fallback UI ────────────────────────────────────────────────────────────
-  if (loadError || !MAPS_KEY) {
+    if (isDemo) {
+      const seg = PHASE_SEGMENTS[driverPhase] || PHASE_SEGMENTS.to_restaurant
+      demoIdxRef.current = seg.start
+
+      // Snap the bike to the segment start immediately
+      const startPos = DEMO_ROUTE[seg.start]
+      lastPosRef.current = { lat: startPos[0], lng: startPos[1] }
+      targetPosRef.current = null
+      if (driverMarkerRef.current) {
+        driverMarkerRef.current.setLngLat([startPos[1], startPos[0]])
+      }
+    }
+
+    // Fit map bounds to the current phase area
+    if (!compact && window.mapboxgl) {
+      fitBoundsForPhase(mapRef.current, window.mapboxgl, driverPhase)
+    }
+
+    // Zoom adjustments
+    if (!compact) {
+      if (driverPhase === 'arrived') {
+        mapRef.current.easeTo({ zoom: 17, duration: 1000 })
+      } else if (driverPhase === 'to_customer') {
+        mapRef.current.easeTo({ zoom: 16, duration: 1000 })
+      }
+    }
+  }, [driverPhase, mapLoaded, compact, isDemo])
+
+  // Fallback UI if Mapbox fails to load
+  if (loadError) {
     return (
-      <div style={{
-        ...style,
-        background: '#0a0a0a',
-        display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
-        borderRadius: compact ? 12 : 0,
-        border: compact ? '1px solid rgba(141,198,63,0.2)' : 'none',
-      }}>
+      <div style={{ ...style, background: '#0a0a0a', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', borderRadius: compact ? 12 : 0 }}>
         <div style={{ width: 32, height: 32, borderRadius: '50%', border: '3px solid #8DC63F', borderTopColor: 'transparent', animation: 'spin 1s linear infinite' }} />
-        <span style={{ fontSize: 10, color: 'rgba(255,255,255,0.4)', marginTop: 8, fontWeight: 700 }}>INDOO Live Map</span>
+        <span style={{ fontSize: 14, color: 'rgba(255,255,255,0.4)', marginTop: 8, fontWeight: 700 }}>INDOO Live Map</span>
       </div>
     )
   }
@@ -313,12 +318,19 @@ export default function DeliveryMap({
   return (
     <div
       ref={containerRef}
-      style={{
-        width: '100%', height: '100%',
-        borderRadius: compact ? 12 : 0,
-        overflow: 'hidden',
-        ...style,
-      }}
+      style={{ width: '100%', height: '100%', borderRadius: compact ? 12 : 0, overflow: 'hidden', ...style }}
     />
   )
+}
+
+/**
+ * Fit map bounds to the relevant area for the given phase.
+ */
+function fitBoundsForPhase(map, mapboxgl, phase) {
+  const seg = PHASE_SEGMENTS[phase] || PHASE_SEGMENTS.to_restaurant
+  const bounds = new mapboxgl.LngLatBounds()
+  for (let i = seg.start; i <= seg.end; i++) {
+    bounds.extend([DEMO_ROUTE[i][1], DEMO_ROUTE[i][0]])
+  }
+  map.fitBounds(bounds, { padding: 60, duration: 1000 })
 }

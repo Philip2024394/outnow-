@@ -1245,7 +1245,7 @@ export default function RestaurantBrowseScreen({ onClose, onBackToCategories, ca
                       {regular.length > 0 && (<>
                         <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 8 }}>
                           <span style={{ fontSize: 18 }}>🍽️</span>
-                          <span style={{ fontSize: 18, fontWeight: 900, color: '#FACC15' }}>{selectedCuisine.charAt(0).toUpperCase() + selectedCuisine.slice(1)} Dishes 🍽️</span>
+                          <span style={{ fontSize: 20, fontWeight: 900, color: '#8DC63F' }}>{selectedCuisine.charAt(0).toUpperCase() + selectedCuisine.slice(1)} Dishes</span>
                           <span style={{ fontSize: 11, color: 'rgba(255,255,255,0.3)' }}>{regular.length} dishes</span>
                         </div>
                         <div style={{ display: 'flex', flexDirection: 'column', gap: 8, marginBottom: 20 }}>
@@ -2109,7 +2109,10 @@ export default function RestaurantBrowseScreen({ onClose, onBackToCategories, ca
             {/* Delivery Location — top of cart */}
             {cartItems.length > 0 && (
               <div style={{ padding: '14px', borderRadius: 14, background: '#000', border: '1px solid rgba(141,198,63,0.25)', marginBottom: 12 }}>
-                <span style={{ fontSize: 16, fontWeight: 900, color: '#fff', display: 'block', marginBottom: 2 }}>Delivery Location</span>
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 2 }}>
+                  <span style={{ fontSize: 16, fontWeight: 900, color: '#fff' }}>Delivery Location</span>
+                  <img src="https://ik.imagekit.io/nepgaxllc/Untitledsdasdvvvdsds-removebg-preview.png" alt="" style={{ width: 32, height: 32, objectFit: 'contain' }} />
+                </div>
                 <span style={{ fontSize: 14, color: 'rgba(255,255,255,0.35)', display: 'block', marginBottom: 10 }}>Set location button or type in field</span>
 
                 <div style={{ position: 'relative', marginBottom: 10 }}>
@@ -2167,7 +2170,8 @@ export default function RestaurantBrowseScreen({ onClose, onBackToCategories, ca
                     <img src={checkoutDeliveryFee ? 'https://ik.imagekit.io/nepgaxllc/Untitleddasdddd-removebg-preview.png' : 'https://ik.imagekit.io/nepgaxllc/Untitledasdasaaaass-removebg-preview.png'} alt="Set Location" style={{ width: '100%', height: 48, objectFit: 'contain', position: 'relative', zIndex: 1 }} />
                   </button>
                   {checkoutAddress.trim() && (
-                    <button onClick={() => { setCheckoutAddress(''); setCheckoutDeliveryFee(null) }} style={{ padding: '10px 16px', borderRadius: 10, background: '#EF4444', border: 'none', color: '#fff', fontSize: 14, fontWeight: 800, cursor: 'pointer', flexShrink: 0 }}>
+                    <button onClick={() => { setCheckoutAddress(''); setCheckoutDeliveryFee(null) }} style={{ padding: '10px 16px', borderRadius: 10, background: '#991B1B', border: 'none', color: '#fff', fontSize: 14, fontWeight: 800, cursor: 'pointer', flexShrink: 0, display: 'flex', alignItems: 'center', gap: 6 }}>
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2" strokeLinecap="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
                       Clear
                     </button>
                   )}
@@ -2305,8 +2309,8 @@ export default function RestaurantBrowseScreen({ onClose, onBackToCategories, ca
                 {/* Vehicle */}
                 <span style={{ fontSize: 14, color: 'rgba(255,255,255,0.4)', marginTop: 6 }}>{checkoutDriver?.vehicle_model ?? 'Honda Beat'}</span>
                 {/* Driver found badge */}
-                <div style={{ marginTop: 20, padding: '10px 24px', borderRadius: 14, background: 'rgba(141,198,63,0.15)', border: '1px solid rgba(141,198,63,0.3)' }}>
-                  <span style={{ fontSize: 16, fontWeight: 900, color: '#8DC63F' }}>Driver Found!</span>
+                <div style={{ marginTop: 20, padding: '12px 28px', borderRadius: 14, background: '#8DC63F', border: 'none' }}>
+                  <span style={{ fontSize: 16, fontWeight: 900, color: '#000' }}>Driver Found!</span>
                 </div>
                 <span style={{ fontSize: 14, color: 'rgba(255,255,255,0.3)', marginTop: 12 }}>Heading to restaurant to pick up your order...</span>
               </div>
