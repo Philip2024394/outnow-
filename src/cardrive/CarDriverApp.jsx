@@ -74,6 +74,7 @@ export default function CarDriverApp() {
   const [showPayFees, setShowPayFees] = useState(false)
   const [paymentProof, setPaymentProof] = useState(null)
   const [paymentSubmitted, setPaymentSubmitted] = useState(false)
+  const [drawerOpen, setDrawerOpen] = useState(false)
 
   // Auth
   useEffect(() => {
@@ -322,6 +323,9 @@ export default function CarDriverApp() {
       {/* Safe area spacer */}
       <div style={{ height: 'env(safe-area-inset-top, 0px)', flexShrink: 0, position: 'relative', zIndex: 1 }} />
 
+      {/* Settings gear */}
+      <button onClick={() => setDrawerOpen(true)} style={{ position: 'absolute', top: 'calc(env(safe-area-inset-top, 0px) + 12px)', right: 16, zIndex: 5, width: 40, height: 40, borderRadius: '50%', background: 'rgba(0,0,0,0.4)', backdropFilter: 'blur(16px)', border: '1px solid rgba(255,255,255,0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', fontSize: 20 }}>⚙️</button>
+
       {/* Main content */}
       <div style={{ flex: 1, overflowY: 'auto', padding: '16px 16px 100px', position: 'relative', zIndex: 1 }}>
 
@@ -552,42 +556,271 @@ export default function CarDriverApp() {
         )}
 
         {/* ── PROFILE TAB ── */}
-        {tab === 'profile' && (
-          <>
-            <div style={{ textAlign: 'center', marginBottom: 20 }}>
-              <div style={{ position: 'relative', display: 'inline-block', marginBottom: 12 }}>
-                <img src={profile.photo_url} alt="" style={{ width: 80, height: 80, borderRadius: '50%', objectFit: 'cover', border: '3px solid #8DC63F' }} />
-                <div style={{ position: 'absolute', bottom: 0, right: 0, width: 22, height: 22, borderRadius: '50%', background: '#8DC63F', border: '3px solid #080808', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                  <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="#000" strokeWidth="4" strokeLinecap="round"><polyline points="20 6 9 17 4 12"/></svg>
+        {tab === 'profile' && (() => {
+          const GLASS = { borderRadius: 20, backdropFilter: 'blur(16px)', border: '1.5px solid rgba(255,255,255,0.1)', background: 'rgba(255,255,255,0.06)' }
+          const SECTION_TITLE = { fontSize: 14, fontWeight: 900, color: '#FACC15', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: 14, display: 'block' }
+
+          const personalDocs = [
+            { key: 'ktp', icon: '🪪', name: 'KTP', desc: 'Kartu Tanda Penduduk — National ID Card' },
+            { key: 'selfie_ktp', icon: '🤳', name: 'Selfie with KTP', desc: 'Photo holding your ID card' },
+            { key: 'sim', icon: '🪪', name: 'SIM A', desc: 'Surat Izin Mengemudi — Driving Licence (SIM A for car)' },
+            { key: 'selfie_sim', icon: '🤳', name: 'Selfie with SIM', desc: 'Photo holding your licence' },
+          ]
+
+          const vehicleDocs = [
+            { key: 'stnk', icon: '📄', name: 'STNK', desc: 'Surat Tanda Nomor Kendaraan — Vehicle Registration' },
+            { key: 'bpkb', icon: '📘', name: 'BPKB', desc: 'Buku Pemilik Kendaraan Bermotor — Vehicle Ownership' },
+            { key: 'vehicle_photo', icon: '🚗', name: 'Vehicle Photo', desc: 'Front/side of vehicle with plate visible' },
+            { key: 'insurance', icon: '🛡️', name: 'Insurance Certificate', desc: 'Active vehicle insurance' },
+            { key: 'uji_berkala', icon: '🔧', name: 'Vehicle Inspection', desc: 'Uji Berkala — Roadworthiness certificate' },
+          ]
+
+          const getDocStatus = (docKey) => {
+            const stored = localStorage.getItem(`indoo_car_driver_docs_${docKey}`)
+            if (!stored) return { status: 'not_uploaded', label: '🔴 Not Uploaded', color: '#EF4444' }
+            try {
+              const parsed = JSON.parse(stored)
+              if (parsed.approved) return { status: 'approved', label: '🟢 Approved', color: '#22C55E', preview: parsed.preview }
+              return { status: 'pending', label: '🟡 Pending Review', color: '#FACC15', preview: parsed.preview }
+            } catch { return { status: 'not_uploaded', label: '🔴 Not Uploaded', color: '#EF4444' } }
+          }
+
+          const handleDocUpload = (docKey, file) => {
+            if (!file) return
+            const reader = new FileReader()
+            reader.onload = (ev) => {
+              localStorage.setItem(`indoo_car_driver_docs_${docKey}`, JSON.stringify({ preview: ev.target.result, approved: false, uploadedAt: new Date().toISOString() }))
+              setTab('_refresh')
+              setTimeout(() => setTab('profile'), 0)
+            }
+            reader.readAsDataURL(file)
+          }
+
+          const renderDocCard = (doc) => {
+            const info = getDocStatus(doc.key)
+            return (
+              <div key={doc.key} style={{ ...GLASS, padding: 14, display: 'flex', gap: 12, alignItems: 'flex-start' }}>
+                {info.preview ? (
+                  <img src={info.preview} alt="" style={{ width: 52, height: 52, borderRadius: 10, objectFit: 'cover', flexShrink: 0, border: '1px solid rgba(255,255,255,0.1)' }} />
+                ) : (
+                  <div style={{ width: 52, height: 52, borderRadius: 10, background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 24, flexShrink: 0 }}>{doc.icon}</div>
+                )}
+                <div style={{ flex: 1, minWidth: 0 }}>
+                  <span style={{ fontSize: 14, fontWeight: 800, color: '#fff', display: 'block' }}>{doc.name}</span>
+                  <span style={{ fontSize: 11, color: 'rgba(255,255,255,0.35)', display: 'block', marginTop: 2 }}>{doc.desc}</span>
+                  <span style={{ fontSize: 11, fontWeight: 700, color: info.color, display: 'block', marginTop: 6 }}>{info.label}</span>
+                </div>
+                <label style={{ flexShrink: 0, padding: '8px 14px', borderRadius: 10, background: 'rgba(141,198,63,0.12)', border: '1px solid rgba(141,198,63,0.3)', color: '#8DC63F', fontSize: 12, fontWeight: 800, cursor: 'pointer', alignSelf: 'center' }}>
+                  Upload
+                  <input type="file" accept="image/*" style={{ display: 'none' }} onChange={e => handleDocUpload(doc.key, e.target.files?.[0])} />
+                </label>
+              </div>
+            )
+          }
+
+          const savedNpwp = localStorage.getItem('indoo_car_driver_npwp') || ''
+          const savedBank = JSON.parse(localStorage.getItem('indoo_car_driver_bank') || '{}')
+          const savedEmergency = JSON.parse(localStorage.getItem('indoo_car_driver_emergency') || '{}')
+
+          return (
+            <>
+              {/* Profile Header */}
+              <div style={{ ...GLASS, padding: 20, textAlign: 'center', marginBottom: 16 }}>
+                <div style={{ position: 'relative', display: 'inline-block', marginBottom: 12 }}>
+                  <img src={profile.photo_url} alt="" style={{ width: 88, height: 88, borderRadius: '50%', objectFit: 'cover', border: '3px solid #8DC63F' }} />
+                  <div style={{ position: 'absolute', bottom: 0, right: 0, width: 24, height: 24, borderRadius: '50%', background: '#8DC63F', border: '3px solid #080808', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                    <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="#000" strokeWidth="4" strokeLinecap="round"><polyline points="20 6 9 17 4 12"/></svg>
+                  </div>
+                </div>
+                <h2 style={{ fontSize: 20, fontWeight: 900, color: '#fff', margin: '0 0 4px' }}>{profile.display_name}</h2>
+                <span style={{ fontSize: 13, color: 'rgba(255,255,255,0.4)', display: 'block' }}>{profile.email}</span>
+                <span style={{ fontSize: 13, color: 'rgba(255,255,255,0.35)', display: 'block', marginTop: 2 }}>{profile.phone}</span>
+                <div style={{ display: 'flex', justifyContent: 'center', gap: 20, marginTop: 14 }}>
+                  <div style={{ textAlign: 'center' }}>
+                    <span style={{ fontSize: 18, fontWeight: 900, color: '#FACC15', display: 'block' }}>{'⭐'.repeat(Math.round(profile.rating || 0))}</span>
+                    <span style={{ fontSize: 11, fontWeight: 700, color: 'rgba(255,255,255,0.4)' }}>{profile.rating} rating</span>
+                  </div>
+                  <div style={{ width: 1, background: 'rgba(255,255,255,0.1)' }} />
+                  <div style={{ textAlign: 'center' }}>
+                    <span style={{ fontSize: 18, fontWeight: 900, color: '#fff', display: 'block' }}>{profile.total_trips}</span>
+                    <span style={{ fontSize: 11, fontWeight: 700, color: 'rgba(255,255,255,0.4)' }}>trips</span>
+                  </div>
+                  <div style={{ width: 1, background: 'rgba(255,255,255,0.1)' }} />
+                  <div style={{ textAlign: 'center' }}>
+                    <span style={{ fontSize: 14, fontWeight: 900, color: '#8DC63F', display: 'block', padding: '2px 10px', borderRadius: 8, background: 'rgba(141,198,63,0.12)', border: '1px solid rgba(141,198,63,0.25)' }}>{tier?.current?.name ?? 'Bronze'}</span>
+                    <span style={{ fontSize: 11, fontWeight: 700, color: 'rgba(255,255,255,0.4)', marginTop: 2, display: 'block' }}>tier</span>
+                  </div>
                 </div>
               </div>
-              <h2 style={{ fontSize: 20, fontWeight: 900, color: '#fff', margin: 0 }}>{profile.display_name}</h2>
-              <span style={{ fontSize: 13, color: 'rgba(255,255,255,0.4)' }}>{profile.email}</span>
-            </div>
 
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
-              {[
-                { label: 'Phone', value: profile.phone },
-                { label: 'Vehicle', value: `${profile.vehicle_brand} ${profile.vehicle_model}` },
-                { label: 'Plate', value: profile.vehicle_plate },
-                { label: 'City', value: profile.city },
-                { label: 'Rating', value: `⭐ ${profile.rating}` },
-                { label: 'Total Trips', value: profile.total_trips },
-                { label: 'Tier', value: tier?.current?.name ?? 'Bronze' },
-              ].map(row => (
-                <div key={row.label} style={{ display: 'flex', justifyContent: 'space-between', padding: '12px 14px', borderRadius: 12, background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.06)' }}>
-                  <span style={{ fontSize: 13, fontWeight: 700, color: 'rgba(255,255,255,0.4)' }}>{row.label}</span>
-                  <span style={{ fontSize: 13, fontWeight: 800, color: '#fff' }}>{row.value}</span>
+              {/* Personal Documents */}
+              <div style={{ marginBottom: 16 }}>
+                <span style={SECTION_TITLE}>🪪 Personal Documents</span>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>{personalDocs.map(renderDocCard)}</div>
+              </div>
+
+              {/* Vehicle Documents */}
+              <div style={{ marginBottom: 16 }}>
+                <span style={SECTION_TITLE}>🚗 Vehicle Documents</span>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>{vehicleDocs.map(renderDocCard)}</div>
+              </div>
+
+              {/* Tax & Banking */}
+              <div style={{ ...GLASS, padding: 18, marginBottom: 16 }}>
+                <span style={SECTION_TITLE}>🏦 Tax & Banking</span>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+                  <div>
+                    <label style={{ fontSize: 12, fontWeight: 700, color: 'rgba(255,255,255,0.5)', display: 'block', marginBottom: 6 }}>NPWP — Tax ID Number</label>
+                    <input type="text" placeholder="Enter NPWP number" defaultValue={savedNpwp} onBlur={e => localStorage.setItem('indoo_car_driver_npwp', e.target.value)} style={{ width: '100%', padding: '12px 14px', borderRadius: 12, background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.1)', color: '#fff', fontSize: 14, fontWeight: 600, fontFamily: 'inherit', outline: 'none', boxSizing: 'border-box' }} />
+                  </div>
+                  <div>
+                    <label style={{ fontSize: 12, fontWeight: 700, color: 'rgba(255,255,255,0.5)', display: 'block', marginBottom: 6 }}>Bank Name</label>
+                    <select defaultValue={savedBank.bankName || ''} onChange={e => { const b = JSON.parse(localStorage.getItem('indoo_car_driver_bank') || '{}'); b.bankName = e.target.value; localStorage.setItem('indoo_car_driver_bank', JSON.stringify(b)) }} style={{ width: '100%', padding: '12px 14px', borderRadius: 12, background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.1)', color: '#fff', fontSize: 14, fontWeight: 600, fontFamily: 'inherit', outline: 'none', boxSizing: 'border-box', appearance: 'none' }}>
+                      <option value="" disabled style={{ color: '#888' }}>Select bank...</option>
+                      {['BCA', 'Mandiri', 'BNI', 'BRI', 'BSI', 'CIMB', 'Permata', 'Danamon'].map(b => (<option key={b} value={b} style={{ background: '#1a1a1a', color: '#fff' }}>{b}</option>))}
+                    </select>
+                  </div>
+                  <div>
+                    <label style={{ fontSize: 12, fontWeight: 700, color: 'rgba(255,255,255,0.5)', display: 'block', marginBottom: 6 }}>Bank Account Number</label>
+                    <input type="text" placeholder="Enter account number" defaultValue={savedBank.accountNumber || ''} onBlur={e => { const b = JSON.parse(localStorage.getItem('indoo_car_driver_bank') || '{}'); b.accountNumber = e.target.value; localStorage.setItem('indoo_car_driver_bank', JSON.stringify(b)) }} style={{ width: '100%', padding: '12px 14px', borderRadius: 12, background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.1)', color: '#fff', fontSize: 14, fontWeight: 600, fontFamily: 'inherit', outline: 'none', boxSizing: 'border-box' }} />
+                  </div>
+                  <div>
+                    <label style={{ fontSize: 12, fontWeight: 700, color: 'rgba(255,255,255,0.5)', display: 'block', marginBottom: 6 }}>Account Holder Name</label>
+                    <input type="text" placeholder="Enter holder name" defaultValue={savedBank.holderName || ''} onBlur={e => { const b = JSON.parse(localStorage.getItem('indoo_car_driver_bank') || '{}'); b.holderName = e.target.value; localStorage.setItem('indoo_car_driver_bank', JSON.stringify(b)) }} style={{ width: '100%', padding: '12px 14px', borderRadius: 12, background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.1)', color: '#fff', fontSize: 14, fontWeight: 600, fontFamily: 'inherit', outline: 'none', boxSizing: 'border-box' }} />
+                  </div>
                 </div>
-              ))}
-            </div>
+              </div>
 
-            <button onClick={handleLogout} style={{ marginTop: 20, width: '100%', padding: 14, borderRadius: 14, background: 'rgba(239,68,68,0.1)', border: '1px solid rgba(239,68,68,0.2)', color: '#EF4444', fontSize: 14, fontWeight: 800, cursor: 'pointer' }}>
-              Sign Out
-            </button>
-          </>
-        )}
+              {/* Emergency Contact */}
+              <div style={{ ...GLASS, padding: 18, marginBottom: 16 }}>
+                <span style={SECTION_TITLE}>🆘 Emergency Contact</span>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+                  <div>
+                    <label style={{ fontSize: 12, fontWeight: 700, color: 'rgba(255,255,255,0.5)', display: 'block', marginBottom: 6 }}>Contact Name</label>
+                    <input type="text" placeholder="Full name" defaultValue={savedEmergency.name || ''} onBlur={e => { const em = JSON.parse(localStorage.getItem('indoo_car_driver_emergency') || '{}'); em.name = e.target.value; localStorage.setItem('indoo_car_driver_emergency', JSON.stringify(em)) }} style={{ width: '100%', padding: '12px 14px', borderRadius: 12, background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.1)', color: '#fff', fontSize: 14, fontWeight: 600, fontFamily: 'inherit', outline: 'none', boxSizing: 'border-box' }} />
+                  </div>
+                  <div>
+                    <label style={{ fontSize: 12, fontWeight: 700, color: 'rgba(255,255,255,0.5)', display: 'block', marginBottom: 6 }}>Phone Number</label>
+                    <input type="tel" placeholder="08xxxxxxxxxx" defaultValue={savedEmergency.phone || ''} onBlur={e => { const em = JSON.parse(localStorage.getItem('indoo_car_driver_emergency') || '{}'); em.phone = e.target.value; localStorage.setItem('indoo_car_driver_emergency', JSON.stringify(em)) }} style={{ width: '100%', padding: '12px 14px', borderRadius: 12, background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.1)', color: '#fff', fontSize: 14, fontWeight: 600, fontFamily: 'inherit', outline: 'none', boxSizing: 'border-box' }} />
+                  </div>
+                  <div>
+                    <label style={{ fontSize: 12, fontWeight: 700, color: 'rgba(255,255,255,0.5)', display: 'block', marginBottom: 6 }}>Relationship</label>
+                    <select defaultValue={savedEmergency.relationship || ''} onChange={e => { const em = JSON.parse(localStorage.getItem('indoo_car_driver_emergency') || '{}'); em.relationship = e.target.value; localStorage.setItem('indoo_car_driver_emergency', JSON.stringify(em)) }} style={{ width: '100%', padding: '12px 14px', borderRadius: 12, background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.1)', color: '#fff', fontSize: 14, fontWeight: 600, fontFamily: 'inherit', outline: 'none', boxSizing: 'border-box', appearance: 'none' }}>
+                      <option value="" disabled style={{ color: '#888' }}>Select...</option>
+                      {['Spouse', 'Parent', 'Sibling', 'Other'].map(r => (<option key={r} value={r} style={{ background: '#1a1a1a', color: '#fff' }}>{r}</option>))}
+                    </select>
+                  </div>
+                </div>
+              </div>
+
+              {/* Vehicle Details */}
+              <div style={{ ...GLASS, padding: 18, marginBottom: 16 }}>
+                <span style={SECTION_TITLE}>🚗 Vehicle Details</span>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+                  {[
+                    { label: 'Brand', value: profile.vehicle_brand || '-' },
+                    { label: 'Model', value: profile.vehicle_model || '-' },
+                    { label: 'Year', value: profile.vehicle_year || '-' },
+                    { label: 'Color', value: profile.vehicle_color || '-' },
+                    { label: 'Plate Number', value: profile.vehicle_plate || '-' },
+                    { label: 'CC (Engine Size)', value: profile.vehicle_cc || '-' },
+                  ].map(row => (
+                    <div key={row.label} style={{ display: 'flex', justifyContent: 'space-between', padding: '10px 14px', borderRadius: 12, background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.06)' }}>
+                      <span style={{ fontSize: 13, fontWeight: 700, color: 'rgba(255,255,255,0.4)' }}>{row.label}</span>
+                      <span style={{ fontSize: 13, fontWeight: 800, color: '#fff' }}>{row.value}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* Sign Out */}
+              <button onClick={handleLogout} style={{ marginTop: 8, marginBottom: 20, width: '100%', padding: 16, borderRadius: 16, background: 'rgba(239,68,68,0.12)', border: '1.5px solid rgba(239,68,68,0.3)', color: '#EF4444', fontSize: 15, fontWeight: 900, cursor: 'pointer', fontFamily: 'inherit' }}>
+                Sign Out
+              </button>
+            </>
+          )
+        })()}
       </div>
+
+      {/* Settings Drawer */}
+      {drawerOpen && (
+        <div style={{ position: 'fixed', inset: 0, zIndex: 150, display: 'flex' }}>
+          {/* Backdrop */}
+          <div onClick={() => setDrawerOpen(false)} style={{ flex: 1, background: 'rgba(0,0,0,0.6)' }} />
+          {/* Drawer panel */}
+          <div style={{ width: 300, background: '#0d0d1a', borderLeft: '1px solid rgba(255,255,255,0.1)', display: 'flex', flexDirection: 'column', animation: 'slideLeft 0.3s ease' }}>
+            {/* Drawer header */}
+            <div style={{ padding: 'calc(env(safe-area-inset-top, 0px) + 16px) 20px 16px', borderBottom: '1px solid rgba(255,255,255,0.1)', display: 'flex', gap: 12, alignItems: 'center' }}>
+              <img src={profile.photo_url} alt="" style={{ width: 44, height: 44, borderRadius: '50%', objectFit: 'cover', border: '2px solid #8DC63F' }} />
+              <div style={{ flex: 1 }}>
+                <div style={{ fontSize: 14, fontWeight: 800, color: '#fff' }}>{profile.display_name}</div>
+                <div style={{ fontSize: 12, color: '#FACC15', fontWeight: 700 }}>{tier?.tier_name || 'Bronze'} Driver</div>
+              </div>
+              <button onClick={() => setDrawerOpen(false)} style={{ background: 'none', border: 'none', color: 'rgba(255,255,255,0.5)', fontSize: 22, cursor: 'pointer', padding: 4 }}>✕</button>
+            </div>
+            {/* Menu items */}
+            <div style={{ flex: 1, overflowY: 'auto', padding: '12px 0' }}>
+              <button onClick={() => { setTab('profile'); setDrawerOpen(false) }} style={{ padding: '14px 20px', display: 'flex', alignItems: 'center', gap: 12, borderBottom: '1px solid rgba(255,255,255,0.06)', background: 'none', border: 'none', borderBottom: '1px solid rgba(255,255,255,0.06)', width: '100%', cursor: 'pointer', textAlign: 'left' }}>
+                <span style={{ fontSize: 18 }}>👤</span><span style={{ flex: 1, fontSize: 14, color: '#fff', fontWeight: 600 }}>My Profile</span><span style={{ color: 'rgba(255,255,255,0.3)', fontSize: 14 }}>→</span>
+              </button>
+              <button onClick={() => { setShowPayFees(true); setDrawerOpen(false) }} style={{ padding: '14px 20px', display: 'flex', alignItems: 'center', gap: 12, background: 'none', border: 'none', borderBottom: '1px solid rgba(255,255,255,0.06)', width: '100%', cursor: 'pointer', textAlign: 'left' }}>
+                <span style={{ fontSize: 18 }}>💳</span><span style={{ flex: 1, fontSize: 14, color: '#fff', fontWeight: 600 }}>Pay Admin Fees</span><span style={{ color: 'rgba(255,255,255,0.3)', fontSize: 14 }}>→</span>
+              </button>
+              <button onClick={() => { setShowEliteAwards(true); setDrawerOpen(false) }} style={{ padding: '14px 20px', display: 'flex', alignItems: 'center', gap: 12, background: 'none', border: 'none', borderBottom: '1px solid rgba(255,255,255,0.06)', width: '100%', cursor: 'pointer', textAlign: 'left' }}>
+                <span style={{ fontSize: 18 }}>💎</span><span style={{ flex: 1, fontSize: 14, color: '#fff', fontWeight: 600 }}>INDOO Elite Awards</span><span style={{ color: 'rgba(255,255,255,0.3)', fontSize: 14 }}>→</span>
+              </button>
+              <button onClick={() => { setShowHotspotMap(true); setDrawerOpen(false) }} style={{ padding: '14px 20px', display: 'flex', alignItems: 'center', gap: 12, background: 'none', border: 'none', borderBottom: '1px solid rgba(255,255,255,0.06)', width: '100%', cursor: 'pointer', textAlign: 'left' }}>
+                <span style={{ fontSize: 18 }}>🗺️</span><span style={{ flex: 1, fontSize: 14, color: '#fff', fontWeight: 600 }}>Hotspot Map</span><span style={{ color: 'rgba(255,255,255,0.3)', fontSize: 14 }}>→</span>
+              </button>
+              <button onClick={() => { setTab('earnings'); setDrawerOpen(false) }} style={{ padding: '14px 20px', display: 'flex', alignItems: 'center', gap: 12, background: 'none', border: 'none', borderBottom: '1px solid rgba(255,255,255,0.06)', width: '100%', cursor: 'pointer', textAlign: 'left' }}>
+                <span style={{ fontSize: 18 }}>📊</span><span style={{ flex: 1, fontSize: 14, color: '#fff', fontWeight: 600 }}>Earnings</span><span style={{ color: 'rgba(255,255,255,0.3)', fontSize: 14 }}>→</span>
+              </button>
+
+              {/* Divider */}
+              <div style={{ height: 1, background: 'rgba(255,255,255,0.08)', margin: '8px 0' }} />
+
+              {/* Car Fare Rates */}
+              <div style={{ padding: '14px 20px' }}>
+                <div style={{ fontSize: 14, fontWeight: 800, color: '#fff', marginBottom: 10, display: 'flex', alignItems: 'center', gap: 8 }}><span>🚕</span> Car Fare Rates</div>
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '6px 12px' }}>
+                  <span style={{ fontSize: 12, color: 'rgba(255,255,255,0.4)' }}>Base Fare</span><span style={{ fontSize: 13, fontWeight: 800, color: '#FACC15' }}>Rp 12.000</span>
+                  <span style={{ fontSize: 12, color: 'rgba(255,255,255,0.4)' }}>Per KM</span><span style={{ fontSize: 13, fontWeight: 800, color: '#FACC15' }}>Rp 4.000</span>
+                  <span style={{ fontSize: 12, color: 'rgba(255,255,255,0.4)' }}>Min Fare</span><span style={{ fontSize: 13, fontWeight: 800, color: '#FACC15' }}>Rp 15.000</span>
+                  <span style={{ fontSize: 12, color: 'rgba(255,255,255,0.4)' }}>Waiting (per min)</span><span style={{ fontSize: 13, fontWeight: 800, color: '#FACC15' }}>Rp 1.500</span>
+                </div>
+              </div>
+
+              {/* Divider */}
+              <div style={{ height: 1, background: 'rgba(255,255,255,0.08)', margin: '8px 0' }} />
+
+              {/* Food Delivery Rates */}
+              <div style={{ padding: '14px 20px' }}>
+                <div style={{ fontSize: 14, fontWeight: 800, color: '#fff', marginBottom: 10, display: 'flex', alignItems: 'center', gap: 8 }}><span>🍔</span> Food Delivery Rates</div>
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '6px 12px' }}>
+                  <span style={{ fontSize: 12, color: 'rgba(255,255,255,0.4)' }}>Base</span><span style={{ fontSize: 13, fontWeight: 800, color: '#FACC15' }}>Rp 5.000</span>
+                  <span style={{ fontSize: 12, color: 'rgba(255,255,255,0.4)' }}>Per KM</span><span style={{ fontSize: 13, fontWeight: 800, color: '#FACC15' }}>Rp 2.000</span>
+                  <span style={{ fontSize: 12, color: 'rgba(255,255,255,0.4)' }}>Min</span><span style={{ fontSize: 13, fontWeight: 800, color: '#FACC15' }}>Rp 8.000</span>
+                </div>
+              </div>
+
+              {/* Divider */}
+              <div style={{ height: 1, background: 'rgba(255,255,255,0.08)', margin: '8px 0' }} />
+
+              <button onClick={() => { localStorage.removeItem('indoo_car_driver_terms_accepted'); localStorage.removeItem('indoo_car_driver_terms_accepted_at'); setTermsAccepted(false); setDrawerOpen(false) }} style={{ padding: '14px 20px', display: 'flex', alignItems: 'center', gap: 12, background: 'none', border: 'none', borderBottom: '1px solid rgba(255,255,255,0.06)', width: '100%', cursor: 'pointer', textAlign: 'left' }}>
+                <span style={{ fontSize: 18 }}>📋</span><span style={{ flex: 1, fontSize: 14, color: '#fff', fontWeight: 600 }}>Terms & Conditions</span><span style={{ color: 'rgba(255,255,255,0.3)', fontSize: 14 }}>→</span>
+              </button>
+              <div style={{ padding: '14px 20px', display: 'flex', alignItems: 'center', gap: 12, borderBottom: '1px solid rgba(255,255,255,0.06)' }}>
+                <span style={{ fontSize: 18 }}>📞</span><span style={{ flex: 1, fontSize: 14, color: '#fff', fontWeight: 600 }}>Support</span><span style={{ fontSize: 13, color: 'rgba(255,255,255,0.4)' }}>+62 812-3456-7890</span>
+              </div>
+              <button onClick={() => { setDrawerOpen(false); handleLogout() }} style={{ padding: '14px 20px', display: 'flex', alignItems: 'center', gap: 12, background: 'none', border: 'none', borderBottom: '1px solid rgba(255,255,255,0.06)', width: '100%', cursor: 'pointer', textAlign: 'left' }}>
+                <span style={{ fontSize: 18 }}>🔴</span><span style={{ flex: 1, fontSize: 14, color: '#EF4444', fontWeight: 600 }}>Sign Out</span><span style={{ color: 'rgba(255,255,255,0.3)', fontSize: 14 }}>→</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      <style>{`@keyframes slideLeft { from { transform: translateX(100%); } to { transform: translateX(0); } }`}</style>
 
       {/* ── Bottom tab bar — floating ── */}
       <div style={{
