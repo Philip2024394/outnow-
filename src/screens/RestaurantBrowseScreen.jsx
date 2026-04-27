@@ -716,7 +716,7 @@ const CuisineGridWithBanners = memo(function CuisineGridWithBanners({ onSelect }
 
   const circleStyle = {
     width: 64, height: 64, borderRadius: '50%', cursor: 'pointer',
-    backgroundImage: 'url(https://ik.imagekit.io/nepgaxllc/Untitledsdfsssq.png)',
+    backgroundImage: 'url(https://ik.imagekit.io/nepgaxllc/Untitledfdssdfsd.png)',
     backgroundSize: 'cover', backgroundPosition: 'center',
     border: '1px solid rgba(255,255,255,0.1)',
     boxShadow: '0 2px 8px rgba(0,0,0,0.3)',
@@ -814,6 +814,19 @@ export default function RestaurantBrowseScreen({ onClose, onBackToCategories, ca
   const [cartOpen, setCartOpen] = useState(false)
   const [checkoutStep, setCheckoutStep] = useState(null) // null | 'address' | 'processing' | 'done'
   const [checkoutAddress, setCheckoutAddress] = useState(() => localStorage.getItem('indoo_last_address') ?? '')
+  // Auto-calculate delivery fee when cart opens with saved address
+  useEffect(() => {
+    if (!cartOpen || !checkoutAddress.trim() || checkoutDeliveryFee) return
+    if (!navigator.geolocation) return
+    navigator.geolocation.getCurrentPosition(({ coords }) => {
+      const rest = cartItems[0]?.restaurant
+      if (rest?.lat && rest?.lng) {
+        const distKm = haversineKm(rest.lat, rest.lng, coords.latitude, coords.longitude) * 1.3
+        const fee = Math.max(10000, 9250 + Math.round(distKm * 1850))
+        setCheckoutDeliveryFee(fee)
+      }
+    }, () => {}, { timeout: 5000 })
+  }, [cartOpen])
   const [checkoutWa, setCheckoutWa] = useState('')
   const [checkoutDriver, setCheckoutDriver] = useState(null)
   const [checkoutOrderId, setCheckoutOrderId] = useState(null)
@@ -954,21 +967,24 @@ export default function RestaurantBrowseScreen({ onClose, onBackToCategories, ca
     {showCuisinePicker && (
       <div style={{ position: 'fixed', inset: 0, zIndex: 110, backgroundColor: '#0a0a0a', display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
         {/* Blurred background image */}
-        <img src="https://ik.imagekit.io/nepgaxllc/sizzling.png" alt="" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', zIndex: 0, pointerEvents: 'none', opacity: 0.25 }} />
+        <img src="https://ik.imagekit.io/nepgaxllc/sizzling.png" alt="" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', zIndex: 0, pointerEvents: 'none' }} />
         {/* Dark tint */}
         <div style={{
           padding: 'calc(env(safe-area-inset-top, 0px) + 12px) 16px 10px', flexShrink: 0, position: 'relative', zIndex: 1,
         }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 0 }}>
-            <span style={{ fontSize: 18, fontWeight: 900, color: '#fff' }}>What are you craving?</span>
+            <span style={{ fontSize: 22, fontWeight: 900, color: '#fff' }}>What are you craving?</span>
           </div>
           {/* Search bar with autocomplete */}
-          <div style={{ position: 'relative', marginTop: 8 }}>
+          <div style={{ position: 'relative', marginTop: 14 }}>
+            <style>{`
+              @keyframes searchPlaceholder { 0%, 20% { content: '🔍 Nasi Goreng...'; } 25%, 45% { content: '🔍 Ayam Geprek...'; } 50%, 70% { content: '🔍 Es Teh Manis...'; } 75%, 95% { content: '🔍 Sate Ayam...'; } }
+            `}</style>
             <input
               value={cuisineSearch}
               onChange={e => setCuisineSearch(e.target.value)}
-              placeholder="🔍 Search any dish or restaurant..."
-              style={{ width: '100%', padding: '10px 14px', borderRadius: 12, backgroundColor: 'rgba(0,0,0,0.4)', border: '1px solid rgba(255,255,255,0.1)', color: '#fff', fontSize: 14, fontWeight: 600, outline: 'none', fontFamily: 'inherit', boxSizing: 'border-box' }}
+              placeholder={['🔍 Nasi Goreng, Sate, Gudeg...', '🔍 Search any dish or restaurant...', '🔍 Ayam Geprek, Es Teh Manis...'][Math.floor(Date.now() / 5000) % 3]}
+              style={{ width: '100%', padding: '12px 14px', borderRadius: 12, backgroundColor: '#000', border: '1px solid rgba(141,198,63,0.25)', color: '#fff', fontSize: 14, fontWeight: 600, outline: 'none', fontFamily: 'inherit', boxSizing: 'border-box' }}
             />
             {cuisineSearch.trim().length >= 1 && (
               <button onClick={() => setCuisineSearch('')} style={{ position: 'absolute', right: 10, top: '50%', transform: 'translateY(-50%)', background: 'none', border: 'none', color: 'rgba(255,255,255,0.4)', fontSize: 16, cursor: 'pointer' }}>✕</button>
@@ -1023,20 +1039,39 @@ export default function RestaurantBrowseScreen({ onClose, onBackToCategories, ca
         `}</style>
 
         {/* Toggle tabs */}
-        <div style={{ display: 'flex', gap: 6, padding: '0 12px 8px', position: 'relative', zIndex: 1, overflowX: 'auto', scrollbarWidth: 'none' }}>
-          {[
-            { id: 'cuisine', label: '🍽️ Cuisine' },
-            { id: 'deals', label: `🔥 ${['Super Sunday','Mega Monday','Tasty Tuesday','Wicked Wednesday','Thirsty Thursday','Crunchy Friday','Sizzle Saturday'][new Date().getDay()]}` },
-            { id: 'discounts', label: '💰 Discounts' },
-          ].map(t => (
-            <button key={t.id} onClick={() => { setPickerTab(t.id); if (t.id === 'cuisine') setSelectedCuisine(null) }} style={{
-              padding: '8px 14px', borderRadius: 12, whiteSpace: 'nowrap', flexShrink: 0,
-              backgroundColor: pickerTab === t.id ? '#8DC63F' : 'rgba(0,0,0,0.5)',
-              border: pickerTab === t.id ? 'none' : '1px solid rgba(255,255,255,0.08)',
-              color: pickerTab === t.id ? '#000' : '#fff',
-              fontSize: 12, fontWeight: 800, cursor: 'pointer',
-            }}>{t.label}</button>
-          ))}
+        <style>{`
+          @keyframes fireRise {
+            0% { transform: translateY(0) scaleY(1); opacity: 0.8; }
+            50% { transform: translateY(-8px) scaleY(1.3); opacity: 1; }
+            100% { transform: translateY(-16px) scaleY(0.5); opacity: 0; }
+          }
+        `}</style>
+        <div style={{ padding: '6px 16px 10px', position: 'relative', zIndex: 1 }}>
+          <div style={{ display: 'flex', gap: 0, background: '#000', borderRadius: 14, border: '1px solid rgba(255,255,255,0.08)', overflow: 'visible', position: 'relative' }}>
+            {[
+              { id: 'cuisine', label: '🍽️ Cuisine' },
+              { id: 'deals', label: '🔥 Daily Deals' },
+              { id: 'discounts', label: '💰 Promo' },
+            ].map(t => (
+              <button key={t.id} onClick={() => { setPickerTab(t.id); if (t.id === 'cuisine') setSelectedCuisine(null) }} style={{
+                flex: 1, padding: '12px 4px', whiteSpace: 'nowrap',
+                background: 'none', border: 'none',
+                borderBottom: pickerTab === t.id ? '3px solid #8DC63F' : '3px solid transparent',
+                color: '#fff',
+                fontSize: 14, fontWeight: 800, cursor: 'pointer',
+                position: 'relative', overflow: 'visible',
+              }}>
+                {t.label}
+                {pickerTab === t.id && (
+                  <div style={{ position: 'absolute', bottom: -2, left: '50%', transform: 'translateX(-50%)', display: 'flex', gap: 2, pointerEvents: 'none' }}>
+                    <span style={{ fontSize: 8, animation: 'fireRise 0.8s ease-out infinite', animationDelay: '0s' }}>🔥</span>
+                    <span style={{ fontSize: 10, animation: 'fireRise 0.8s ease-out infinite', animationDelay: '0.2s' }}>🔥</span>
+                    <span style={{ fontSize: 8, animation: 'fireRise 0.8s ease-out infinite', animationDelay: '0.4s' }}>🔥</span>
+                  </div>
+                )}
+              </button>
+            ))}
+          </div>
         </div>
 
         {/* Scrollable content */}
@@ -1069,14 +1104,12 @@ export default function RestaurantBrowseScreen({ onClose, onBackToCategories, ca
             return (
               <div>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 6 }}>
-                  <span style={{ fontSize: 28 }}>{today.icon}</span>
                   <div style={{ flex: 1 }}>
-                    <span style={{ fontSize: 20, fontWeight: 900, color: today.color, display: 'block', textShadow: '0 1px 4px rgba(0,0,0,0.9), 0 0 12px rgba(0,0,0,0.7)' }}>{today.name}</span>
+                    <span style={{ fontSize: 20, fontWeight: 900, color: '#8DC63F', display: 'block', textShadow: '0 1px 4px rgba(0,0,0,0.9), 0 0 12px rgba(0,0,0,0.7)' }}>{today.name}</span>
                   </div>
                 </div>
-                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12 }}>
-                  <span style={{ fontSize: 13, color: '#fff', textShadow: '0 1px 4px rgba(0,0,0,0.9)' }}>Up to {today.discount}% off selected dishes</span>
-                  <span style={{ fontSize: 18, fontWeight: 900, color: today.color, textShadow: '0 1px 4px rgba(0,0,0,0.9)' }}>⏰ {hrsLeft}h {String(minsLeft).padStart(2,'0')}m</span>
+                <div style={{ marginBottom: 12 }}>
+                  <span style={{ fontSize: 14, color: '#fff', textShadow: '0 1px 4px rgba(0,0,0,0.9)' }}>Up to {today.discount}% off selected dishes</span>
                 </div>
                 <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
                   {dealItems.map((d, i) => (
@@ -1085,11 +1118,17 @@ export default function RestaurantBrowseScreen({ onClose, onBackToCategories, ca
                     }}>
                       <div style={{ width: 110, flexShrink: 0, position: 'relative' }}>
                         <img src={d.photo_url} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-                        <span style={{ position: 'absolute', top: 6, left: 6, padding: '3px 7px', borderRadius: 6, backgroundColor: today.color, fontSize: 11, fontWeight: 900, color: '#000' }}>-{today.discount}%</span>
+                        <span style={{ position: 'absolute', top: 6, left: 6, padding: '3px 7px', borderRadius: 6, backgroundColor: '#FACC15', fontSize: 11, fontWeight: 900, color: '#000' }}>-{today.discount}%</span>
                         <span style={{ position: 'absolute', top: 6, right: 6, fontSize: 16 }}>{(d.restaurant.vendor_type ?? 'restaurant') === 'street_vendor' ? '🛒' : '🍽️'}</span>
                       </div>
-                      <div style={{ flex: 1, padding: '10px 12px', backgroundColor: 'rgba(0,0,0,0.5)', display: 'flex', flexDirection: 'column', justifyContent: 'center', position: 'relative' }}>
-                        <span style={{ fontSize: 14, fontWeight: 900, color: '#fff', display: 'block', lineHeight: 1.3 }}>{d.name}</span>
+                      <div style={{ flex: 1, padding: '10px 12px', backgroundColor: '#000', display: 'flex', flexDirection: 'column', justifyContent: 'center', position: 'relative' }}>
+                        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                          <span style={{ fontSize: 14, fontWeight: 900, color: '#fff', lineHeight: 1.3, flex: 1 }}>{d.name}</span>
+                          <div style={{ display: 'flex', alignItems: 'center', gap: 3, flexShrink: 0 }}>
+                            <span style={{ fontSize: 12, color: '#FACC15' }}>★</span>
+                            <span style={{ fontSize: 12, fontWeight: 800, color: 'rgba(255,255,255,0.5)' }}>{d.restaurant.rating ?? '4.5'}</span>
+                          </div>
+                        </div>
                         <span style={{ fontSize: 11, color: 'rgba(255,255,255,0.4)', marginTop: 3, display: 'block' }}>{d.restaurant.name}</span>
                         <div style={{ display: 'flex', gap: 6, marginTop: 3, flexWrap: 'wrap' }}>
                           {(() => {
@@ -1105,7 +1144,7 @@ export default function RestaurantBrowseScreen({ onClose, onBackToCategories, ca
                             return tags
                           })()}
                         </div>
-                        <span style={{ fontSize: 15, fontWeight: 900, color: today.color, position: 'absolute', right: 12, bottom: 10 }}>Rp {(d.dealPrice ?? 0).toLocaleString('id-ID').replace(/,/g, '.')}</span>
+                        <span style={{ fontSize: 15, fontWeight: 900, color: '#FACC15', position: 'absolute', right: 12, bottom: 10 }}>Rp {(d.dealPrice ?? 0).toLocaleString('id-ID').replace(/,/g, '.')}</span>
                       </div>
                     </button>
                   ))}
@@ -1123,18 +1162,39 @@ export default function RestaurantBrowseScreen({ onClose, onBackToCategories, ca
                   const DCard = ({ d, onClick }) => {
                     const hasDiscount = (d.original_price && d.original_price > d.price) || d.discountPct
                     const discPct = d.discountPct || (d.original_price && d.original_price > d.price ? Math.round(((d.original_price - d.price) / d.original_price) * 100) : 0)
+                    const txt = `${d.name ?? ''} ${d.description ?? ''}`.toLowerCase()
+                    const tags = []
+                    if (['pedas','sambal','geprek','spicy','balado','rica','cabai','cabe','chili'].some(w => txt.includes(w))) tags.push('🌶️')
+                    if (['bawang','garlic','aglio'].some(w => txt.includes(w))) tags.push('🧄')
+                    if (['vegetarian','vegan','sayur','tahu','tempe'].some(w => txt.includes(w))) tags.push('🥬')
+                    if (['halal'].some(w => txt.includes(w))) tags.push('☪️')
+                    if (['ikan','udang','seafood','fish','shrimp'].some(w => txt.includes(w))) tags.push('🦐')
                     return (
-                      <button onClick={onClick} style={{ width: '100%', borderRadius: 14, overflow: 'hidden', border: `1px solid ${hasDiscount ? 'rgba(250,204,21,0.3)' : 'rgba(255,255,255,0.08)'}`, padding: 0, background: 'none', cursor: 'pointer', display: 'flex', textAlign: 'left', height: 80 }}>
+                      <button onClick={onClick} style={{ width: '100%', borderRadius: 14, overflow: 'hidden', border: '1px solid rgba(255,255,255,0.1)', padding: 0, background: 'none', cursor: 'pointer', display: 'flex', textAlign: 'left', height: 85, boxShadow: '0 4px 16px rgba(141,198,63,0.15), 0 8px 24px rgba(0,0,0,0.5)' }}>
                         <div style={{ width: 100, flexShrink: 0, position: 'relative' }}>
                           <img src={d.photo_url} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-                          {discPct > 0 && <span style={{ position: 'absolute', top: 6, left: 6, padding: '3px 7px', borderRadius: 6, backgroundColor: '#EF4444', fontSize: 11, fontWeight: 900, color: '#fff' }}>{discPct}% OFF</span>}
+                          {discPct > 0 && <span style={{ position: 'absolute', top: 6, left: 6, padding: '3px 7px', borderRadius: 6, backgroundColor: '#FACC15', fontSize: 12, fontWeight: 900, color: '#000' }}>{discPct}%</span>}
                         </div>
-                        <div style={{ flex: 1, padding: '8px 12px', backgroundColor: 'rgba(0,0,0,0.5)', display: 'flex', flexDirection: 'column', justifyContent: 'center', position: 'relative' }}>
-                          <span style={{ fontSize: 14, fontWeight: 900, color: '#fff', display: 'block', lineHeight: 1.3 }}>{d.name}</span>
-                          <span style={{ fontSize: 11, color: 'rgba(255,255,255,0.4)', marginTop: 2 }}>{d.restaurant?.name}</span>
-                          <div style={{ display: 'flex', alignItems: 'center', gap: 6, position: 'absolute', right: 12, bottom: 10 }}>
-                            {hasDiscount && d.original_price && <span style={{ fontSize: 11, color: 'rgba(255,255,255,0.3)', textDecoration: 'line-through' }}>Rp {d.original_price.toLocaleString('id-ID').replace(/,/g, '.')}</span>}
-                            <span style={{ fontSize: 15, fontWeight: 900, color: '#8DC63F' }}>Rp {(d.dealPrice ?? d.price ?? 0).toLocaleString('id-ID').replace(/,/g, '.')}</span>
+                        <div style={{ flex: 1, padding: '8px 12px', backgroundColor: '#000', display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
+                          {/* Name + Rating */}
+                          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                            <span style={{ fontSize: 14, fontWeight: 900, color: '#fff', lineHeight: 1.2, flex: 1 }}>{d.name}</span>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: 3, flexShrink: 0, marginLeft: 6 }}>
+                              <span style={{ fontSize: 12, color: '#FACC15' }}>★</span>
+                              <span style={{ fontSize: 12, fontWeight: 800, color: 'rgba(255,255,255,0.5)' }}>{d.restaurant?.rating ?? '4.5'}</span>
+                            </div>
+                          </div>
+                          {/* Description */}
+                          {d.description && <span style={{ fontSize: 12, color: 'rgba(255,255,255,0.35)', marginTop: 2, lineHeight: 1.2, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{d.description.slice(0, 40)}</span>}
+                          {/* Tags + Price */}
+                          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginTop: 4 }}>
+                            <div style={{ display: 'flex', gap: 3 }}>
+                              {tags.map(t => <span key={t} style={{ fontSize: 14 }}>{t}</span>)}
+                            </div>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: 4, flexShrink: 0 }}>
+                              {hasDiscount && d.original_price && <span style={{ fontSize: 12, color: 'rgba(255,255,255,0.3)', textDecoration: 'line-through' }}>Rp {d.original_price.toLocaleString('id-ID').replace(/,/g, '.')}</span>}
+                              <span style={{ fontSize: 14, fontWeight: 900, color: '#FACC15' }}>Rp {(d.dealPrice ?? d.price ?? 0).toLocaleString('id-ID').replace(/,/g, '.')}</span>
+                            </div>
                           </div>
                         </div>
                       </button>
@@ -1185,7 +1245,7 @@ export default function RestaurantBrowseScreen({ onClose, onBackToCategories, ca
                       {regular.length > 0 && (<>
                         <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 8 }}>
                           <span style={{ fontSize: 18 }}>🍽️</span>
-                          <span style={{ fontSize: 18, fontWeight: 900, color: '#8DC63F' }}>All {selectedCuisine.charAt(0).toUpperCase() + selectedCuisine.slice(1)} Dishes</span>
+                          <span style={{ fontSize: 18, fontWeight: 900, color: '#FACC15' }}>{selectedCuisine.charAt(0).toUpperCase() + selectedCuisine.slice(1)} Dishes 🍽️</span>
                           <span style={{ fontSize: 11, color: 'rgba(255,255,255,0.3)' }}>{regular.length} dishes</span>
                         </div>
                         <div style={{ display: 'flex', flexDirection: 'column', gap: 8, marginBottom: 20 }}>
@@ -1231,12 +1291,9 @@ export default function RestaurantBrowseScreen({ onClose, onBackToCategories, ca
                   return (<div>
                     {/* 1. Free Delivery */}
                     {freeDelivery.length > 0 && (<>
-                      <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 8 }}>
-                        <span style={{ fontSize: 24 }}>🏍️</span>
-                        <div>
-                          <span style={{ fontSize: 20, fontWeight: 900, color: '#8DC63F', display: 'block', textShadow: '0 1px 4px rgba(0,0,0,0.9), 0 0 12px rgba(0,0,0,0.7)' }}>Free Delivery</span>
-                          <span style={{ fontSize: 13, color: '#fff', textShadow: '0 1px 4px rgba(0,0,0,0.9)' }}>No delivery charge today</span>
-                        </div>
+                      <div style={{ marginBottom: 8 }}>
+                        <span style={{ fontSize: 20, fontWeight: 900, color: '#8DC63F', display: 'block' }}>Free Delivery</span>
+                        <span style={{ fontSize: 14, color: '#fff' }}>No delivery charge today</span>
                       </div>
                       <div style={{ display: 'flex', flexDirection: 'column', gap: 10, marginBottom: 20 }}>
                         {freeDelivery.map((d, i) => <DCard key={`free-${i}`} d={d} onClick={() => openDish(d)} />)}
@@ -1245,7 +1302,6 @@ export default function RestaurantBrowseScreen({ onClose, onBackToCategories, ca
 
                     {/* 2. Flash Deals */}
                     <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 8 }}>
-                      <span style={{ fontSize: 24 }}>⚡</span>
                       <div>
                         <span style={{ fontSize: 20, fontWeight: 900, color: '#8DC63F', display: 'block', textShadow: '0 1px 4px rgba(0,0,0,0.9), 0 0 12px rgba(0,0,0,0.7)' }}>Flash Deals</span>
                         <span style={{ fontSize: 13, color: '#fff', textShadow: '0 1px 4px rgba(0,0,0,0.9)' }}>Ending soon — grab them now</span>
@@ -1257,7 +1313,6 @@ export default function RestaurantBrowseScreen({ onClose, onBackToCategories, ca
 
                     {/* 3. Biggest Savings */}
                     <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 8 }}>
-                      <span style={{ fontSize: 24 }}>💰</span>
                       <div>
                         <span style={{ fontSize: 20, fontWeight: 900, color: '#8DC63F', display: 'block', textShadow: '0 1px 4px rgba(0,0,0,0.9), 0 0 12px rgba(0,0,0,0.7)' }}>Biggest Savings</span>
                         <span style={{ fontSize: 13, color: '#fff', textShadow: '0 1px 4px rgba(0,0,0,0.9)' }}>Highest discount first</span>
@@ -1286,13 +1341,23 @@ export default function RestaurantBrowseScreen({ onClose, onBackToCategories, ca
           {/* ── Recent Orders — reorder ── */}
           {pickerTab === 'cuisine' && (() => {
             const history = loadOrderHistory()
-            if (history.length === 0) return null
+            const MOCK_REORDERS = [
+              { id: 'm1', dishId: 1, dishName: 'Nasi Gudeg Telur', dishPhoto: 'https://images.unsplash.com/photo-1504674900247-0877df9cc836?w=300', price: 18000, qty: 1, restaurantId: 1, restaurantName: 'Warung Bu Sari' },
+              { id: 'm2', dishId: 3, dishName: 'Nasi Gudeg Ayam', dishPhoto: 'https://images.unsplash.com/photo-1555939594-58d7cb561ad1?w=300', price: 25000, qty: 1, restaurantId: 1, restaurantName: 'Warung Bu Sari' },
+              { id: 'm3', dishId: 5, dishName: 'Ayam Geprek', dishPhoto: 'https://images.unsplash.com/photo-1626645738196-c2a7c87a8f58?w=300', price: 20000, qty: 1, restaurantId: 3, restaurantName: 'Ayam Geprek Mbak Rina' },
+              { id: 'm4', dishId: 8, dishName: 'Es Teh Manis', dishPhoto: 'https://images.unsplash.com/photo-1556679343-c7306c1976bc?w=300', price: 5000, qty: 2, restaurantId: 1, restaurantName: 'Warung Bu Sari' },
+              { id: 'm5', dishId: 10, dishName: 'Sate Ayam', dishPhoto: 'https://images.unsplash.com/photo-1529563021893-cc83c992d75d?w=300', price: 22000, qty: 1, restaurantId: 4, restaurantName: 'Sate Klathak Mas Bari' },
+              { id: 'm6', dishId: 12, dishName: 'Nasi Goreng', dishPhoto: 'https://images.unsplash.com/photo-1512058564366-18510be2db19?w=300', price: 15000, qty: 1, restaurantId: 2, restaurantName: 'Nasi Goreng Pak Harto' },
+            ]
+            const items = history.length > 0 ? history.slice(0, 6) : MOCK_REORDERS
             const fmtH = (n) => 'Rp ' + (n ?? 0).toLocaleString('id-ID').replace(/,/g, '.')
             return (
               <div style={{ padding: '0 12px 12px' }}>
-                <span style={{ fontSize: 14, fontWeight: 900, color: '#8DC63F', display: 'block', marginBottom: 8 }}>Recent Orders</span>
-                <div style={{ display: 'flex', gap: 10, overflowX: 'auto', scrollbarWidth: 'none', paddingBottom: 4 }}>
-                  {history.slice(0, 6).map(h => (
+                <span style={{ fontSize: 20, fontWeight: 900, color: '#8DC63F', display: 'block', marginBottom: 8 }}>Recent Orders</span>
+                <style>{`@keyframes reorderScroll { 0%, 10% { transform: translateX(0); } 45%, 55% { transform: translateX(-30%); } 90%, 100% { transform: translateX(0); } }`}</style>
+                <div style={{ overflow: 'hidden', paddingBottom: 4 }}>
+                <div style={{ display: 'flex', gap: 10, animation: 'reorderScroll 12s ease-in-out infinite', width: 'max-content' }}>
+                  {items.map(h => (
                     <button key={h.id} onClick={() => {
                       // Find the restaurant and dish in withMeta
                       const r = withMeta.find(r => r.id === h.restaurantId)
@@ -1306,7 +1371,7 @@ export default function RestaurantBrowseScreen({ onClose, onBackToCategories, ca
                       }
                     }} style={{
                       width: 120, flexShrink: 0, borderRadius: 14, overflow: 'hidden',
-                      border: '1px solid rgba(255,255,255,0.08)', padding: 0, background: 'none', cursor: 'pointer',
+                      border: '1.5px solid rgba(153,27,27,0.5)', padding: 0, background: '#000', cursor: 'pointer',
                       display: 'flex', flexDirection: 'column', textAlign: 'left',
                     }}>
                       <div style={{ height: 80, position: 'relative', overflow: 'hidden' }}>
@@ -1318,16 +1383,17 @@ export default function RestaurantBrowseScreen({ onClose, onBackToCategories, ca
                           </div>
                         )}
                         <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to top, rgba(0,0,0,0.7) 0%, transparent 50%)' }} />
-                        <div style={{ position: 'absolute', bottom: 4, right: 4, padding: '2px 6px', borderRadius: 6, background: '#8DC63F' }}>
-                          <span style={{ fontSize: 12, fontWeight: 900, color: '#000' }}>Reorder</span>
+                        <div style={{ position: 'absolute', bottom: 4, right: 4, padding: '2px 6px', borderRadius: 6, background: '#991B1B' }}>
+                          <span style={{ fontSize: 12, fontWeight: 900, color: '#fff' }}>Reorder</span>
                         </div>
                       </div>
-                      <div style={{ padding: '6px 8px 8px', background: 'rgba(0,0,0,0.5)' }}>
+                      <div style={{ padding: '6px 8px 8px', background: '#000' }}>
                         <span style={{ fontSize: 12, fontWeight: 800, color: '#fff', display: 'block', lineHeight: 1.2, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{h.dishName}</span>
                         <span style={{ fontSize: 12, color: 'rgba(255,255,255,0.4)', display: 'block', marginTop: 2 }}>{fmtH(h.price)}</span>
                       </div>
                     </button>
                   ))}
+                </div>
                 </div>
               </div>
             )
@@ -1541,8 +1607,8 @@ export default function RestaurantBrowseScreen({ onClose, onBackToCategories, ca
                       </div>
                       {/* Discount badge */}
                       {dish.original_price && dish.original_price > dish.price && (
-                        <div style={{ position: 'absolute', top: 6, left: 6, padding: '3px 6px', borderRadius: 6, backgroundColor: '#EF4444' }}>
-                          <span style={{ fontSize: 9, fontWeight: 900, color: '#fff' }}>{Math.round(((dish.original_price - dish.price) / dish.original_price) * 100)}% OFF</span>
+                        <div style={{ position: 'absolute', top: 6, left: 6, padding: '3px 6px', borderRadius: 6, backgroundColor: '#FACC15' }}>
+                          <span style={{ fontSize: 9, fontWeight: 900, color: '#000' }}>{Math.round(((dish.original_price - dish.price) / dish.original_price) * 100)}% OFF</span>
                         </div>
                       )}
                       {dish.isSpicy && <span style={{ position: 'absolute', bottom: 8, left: 8, fontSize: 18 }}>🌶️</span>}
@@ -1589,8 +1655,8 @@ export default function RestaurantBrowseScreen({ onClose, onBackToCategories, ca
                             <span style={{ fontSize: 11, fontWeight: 900, color: '#000' }}>{fmtPrice(dish.price)}</span>
                           </div>
                         </div>
-                        <div style={{ position: 'absolute', top: 6, left: 6, padding: '3px 6px', borderRadius: 6, backgroundColor: '#EF4444' }}>
-                          <span style={{ fontSize: 9, fontWeight: 900, color: '#fff' }}>{Math.round(((dish.original_price - dish.price) / dish.original_price) * 100)}% OFF</span>
+                        <div style={{ position: 'absolute', top: 6, left: 6, padding: '3px 6px', borderRadius: 6, backgroundColor: '#FACC15' }}>
+                          <span style={{ fontSize: 9, fontWeight: 900, color: '#000' }}>{Math.round(((dish.original_price - dish.price) / dish.original_price) * 100)}% OFF</span>
                         </div>
                       </div>
                       <div style={{ padding: '10px 10px 12px', backgroundColor: 'rgba(0,0,0,0.6)' }}>
@@ -1652,22 +1718,21 @@ export default function RestaurantBrowseScreen({ onClose, onBackToCategories, ca
       return (
         <div style={{ position: 'fixed', inset: 0, zIndex: 115, backgroundColor: '#0a0a0a', display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
           {/* Full screen background image */}
-          <img src="https://ik.imagekit.io/nepgaxllc/ChatGPT%20Image%20Apr%2027,%202026,%2002_59_09%20AM.png" alt="" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', pointerEvents: 'none', zIndex: 0 }} />
+          <img src="https://ik.imagekit.io/nepgaxllc/ChatGPT%20Image%20Apr%2027,%202026,%2007_22_25%20AM.png" alt="" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', pointerEvents: 'none', zIndex: 0 }} />
 
-          {/* Header */}
-          <div style={{ padding: 'calc(env(safe-area-inset-top, 0px) + 10px) 16px 10px', display: 'flex', alignItems: 'center', gap: 10, flexShrink: 0, position: 'relative', zIndex: 2 }}>
-            <button onClick={() => { setSelectedDish(null); setCuisineFilter(null); setShowCuisinePicker(true) }} style={{ width: 44, height: 44, borderRadius: '50%', backgroundColor: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' }}>
+          {/* Floating back + cart buttons — no header container */}
+          <div style={{ position: 'absolute', top: 'calc(env(safe-area-inset-top, 0px) + 12px)', left: 16, right: 16, display: 'flex', alignItems: 'center', gap: 10, zIndex: 2, pointerEvents: 'none' }}>
+            <button onClick={() => { setSelectedDish(null); setCuisineFilter(null); setShowCuisinePicker(true) }} style={{ width: 44, height: 44, borderRadius: '50%', backgroundColor: 'rgba(0,0,0,0.5)', backdropFilter: 'blur(8px)', border: '1px solid rgba(255,255,255,0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', pointerEvents: 'auto' }}>
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2.5" strokeLinecap="round"><path d="M19 12H5M12 5l-7 7 7 7"/></svg>
             </button>
             <div style={{ flex: 1 }}>
-              <span style={{ fontSize: 16, fontWeight: 900, color: '#fff', display: 'block' }}>{restaurant.name}</span>
+              <span style={{ fontSize: 16, fontWeight: 900, color: '#fff', display: 'block', textShadow: '0 1px 4px rgba(0,0,0,0.8)' }}>{restaurant.name}</span>
               <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginTop: 2 }}>
                 {restaurant.rating && <span style={{ fontSize: 12, color: '#FACC15', fontWeight: 800 }}>★ {restaurant.rating}</span>}
-                <span style={{ fontSize: 12, color: 'rgba(255,255,255,0.4)' }}>· {restaurant.cuisine_type}</span>
+                <span style={{ fontSize: 12, color: 'rgba(255,255,255,0.5)', textShadow: '0 1px 4px rgba(0,0,0,0.8)' }}>· {restaurant.cuisine_type}</span>
               </div>
             </div>
-            {/* Cart icon — always visible */}
-            <button onClick={() => { setCartOpen(true) }} style={{ position: 'relative', width: 44, height: 44, borderRadius: '50%', backgroundColor: 'transparent', border: 'none', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', padding: 0 }}>
+            <button onClick={() => { setCartOpen(true) }} style={{ position: 'relative', width: 44, height: 44, borderRadius: '50%', backgroundColor: 'rgba(0,0,0,0.5)', backdropFilter: 'blur(8px)', border: '1px solid rgba(255,255,255,0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', padding: 0, pointerEvents: 'auto' }}>
               <img src="https://ik.imagekit.io/nepgaxllc/Untitleddasdasdasdasss-removebg-preview.png?updatedAt=1775737452452" alt="cart" style={{ width: 48, height: 48, objectFit: 'contain' }} />
               {cartItems.length > 0 && (
                 <span style={{ position: 'absolute', top: -4, right: -4, minWidth: 16, height: 16, borderRadius: 8, backgroundColor: '#EF4444', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 9, fontWeight: 900, color: '#fff', padding: '0 3px' }}>{cartItems.reduce((s, i) => s + i.qty, 0)}</span>
@@ -1676,7 +1741,7 @@ export default function RestaurantBrowseScreen({ onClose, onBackToCategories, ca
           </div>
 
           {/* Scrollable content */}
-          <div ref={el => { dishScrollRef.current = el }} style={{ flex: 1, overflowY: 'auto', position: 'relative', zIndex: 1, padding: '0 0 20px', background: 'rgba(0,0,0,0.6)' }}>
+          <div ref={el => { dishScrollRef.current = el }} style={{ flex: 1, overflowY: 'auto', position: 'relative', zIndex: 1, padding: '0 0 20px' }}>
 
             {/* ── Dish hero + extras panel side by side ── */}
             {(() => {
@@ -1713,11 +1778,11 @@ export default function RestaurantBrowseScreen({ onClose, onBackToCategories, ca
               return (
                 <>
                   {/* Dish name above the row */}
-                  <div style={{ margin: '8px 14px 20px', position: 'relative', zIndex: 1 }}>
+                  <div style={{ margin: '70px 14px 20px', position: 'relative', zIndex: 1 }}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 2 }}>
                       <span style={{ fontSize: 18, fontWeight: 900, color: '#fff', lineHeight: 1.2, flex: 1 }}>{dish.name}</span>
                       {dish.original_price && dish.original_price > dish.price && (
-                        <span style={{ padding: '3px 7px', borderRadius: 6, backgroundColor: '#EF4444', fontSize: 11, fontWeight: 900, color: '#fff', flexShrink: 0 }}>{Math.round(((dish.original_price - dish.price) / dish.original_price) * 100)}% OFF</span>
+                        <span style={{ padding: '3px 7px', borderRadius: 6, backgroundColor: '#FACC15', fontSize: 11, fontWeight: 900, color: '#000', flexShrink: 0 }}>{Math.round(((dish.original_price - dish.price) / dish.original_price) * 100)}% OFF</span>
                       )}
                       <button onClick={() => setViewRestaurant(restaurant)} style={{
                         padding: '6px 12px', borderRadius: 8, flexShrink: 0,
@@ -1851,7 +1916,7 @@ export default function RestaurantBrowseScreen({ onClose, onBackToCategories, ca
                         return (
                           <div key={ex.label} style={{
                             display: 'flex', alignItems: 'center', gap: 12, padding: '10px 12px',
-                            borderRadius: 14, background: 'rgba(0,0,0,0.7)',
+                            borderRadius: 14, background: '#000',
                             border: `1.5px solid ${isSelected ? '#8DC63F' : 'rgba(255,255,255,0.06)'}`,
                             backdropFilter: 'blur(8px)',
                           }}>
@@ -1881,7 +1946,7 @@ export default function RestaurantBrowseScreen({ onClose, onBackToCategories, ca
                     </div>
 
                     {/* Special Instructions */}
-                    <div style={{ padding: '14px', borderRadius: 16, background: '#000', border: '1px solid rgba(255,255,255,0.08)', marginBottom: 12 }}>
+                    <div style={{ padding: '14px', borderRadius: 16, background: '#000', border: '1px solid rgba(141,198,63,0.25)', marginBottom: 12 }}>
                       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 8 }}>
                         <span style={{ fontSize: 14, fontWeight: 800, color: '#fff' }}>Special Instructions</span>
                         <span style={{ fontSize: 11, color: 'rgba(255,255,255,0.3)' }}>{dishNote.length}/150</span>
@@ -2023,7 +2088,7 @@ export default function RestaurantBrowseScreen({ onClose, onBackToCategories, ca
 
       return (
         <div style={{ position: 'fixed', inset: 0, zIndex: 120, backgroundColor: '#0a0a0a', display: 'flex', flexDirection: 'column' }}>
-          <img src="https://ik.imagekit.io/nepgaxllc/ChatGPT%20Image%20Apr%2027,%202026,%2002_59_09%20AM.png?updatedAt=1777233566650" alt="" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', pointerEvents: 'none', zIndex: 0 }} />
+          <img src="https://ik.imagekit.io/nepgaxllc/ChatGPT%20Image%20Apr%2027,%202026,%2007_22_25%20AM.png" alt="" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', pointerEvents: 'none', zIndex: 0 }} />
           {/* Header */}
           <div style={{ padding: 'calc(env(safe-area-inset-top, 0px) + 12px) 16px 12px', display: 'flex', alignItems: 'center', gap: 12, flexShrink: 0, borderBottom: '1px solid rgba(255,255,255,0.06)', position: 'relative', zIndex: 1 }}>
             <button onClick={() => setCartOpen(false)} style={{ width: 44, height: 44, borderRadius: '50%', background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' }}>
@@ -2043,7 +2108,7 @@ export default function RestaurantBrowseScreen({ onClose, onBackToCategories, ca
 
             {/* Delivery Location — top of cart */}
             {cartItems.length > 0 && (
-              <div style={{ padding: '14px', borderRadius: 14, background: 'rgba(0,0,0,0.7)', border: '1px solid rgba(255,255,255,0.08)', marginBottom: 12 }}>
+              <div style={{ padding: '14px', borderRadius: 14, background: '#000', border: '1px solid rgba(141,198,63,0.25)', marginBottom: 12 }}>
                 <span style={{ fontSize: 16, fontWeight: 900, color: '#fff', display: 'block', marginBottom: 2 }}>Delivery Location</span>
                 <span style={{ fontSize: 14, color: 'rgba(255,255,255,0.35)', display: 'block', marginBottom: 10 }}>Set location button or type in field</span>
 
@@ -2096,8 +2161,10 @@ export default function RestaurantBrowseScreen({ onClose, onBackToCategories, ca
                         setCheckoutDeliveryFee(10000)
                       }
                     })
-                  }} style={{ flex: 1, padding: 0, background: 'none', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                    <img src={checkoutDeliveryFee ? 'https://ik.imagekit.io/nepgaxllc/Untitleddasdddd-removebg-preview.png' : 'https://ik.imagekit.io/nepgaxllc/Untitledasdasaaaass-removebg-preview.png'} alt="Set Location" style={{ width: '100%', height: 48, objectFit: 'contain' }} />
+                  }} style={{ flex: 1, padding: 0, background: 'none', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', position: 'relative' }}>
+                    {!checkoutDeliveryFee && <style>{`@keyframes redGlow { 0%, 100% { boxShadow: 0 4px 15px rgba(239,68,68,0.4); } 50% { boxShadow: 0 4px 25px rgba(239,68,68,0.7); } }`}</style>}
+                    {!checkoutDeliveryFee && <div style={{ position: 'absolute', bottom: -4, left: '10%', right: '10%', height: 8, borderRadius: 4, background: 'rgba(239,68,68,0.5)', filter: 'blur(8px)', animation: 'pulse 1.5s infinite' }} />}
+                    <img src={checkoutDeliveryFee ? 'https://ik.imagekit.io/nepgaxllc/Untitleddasdddd-removebg-preview.png' : 'https://ik.imagekit.io/nepgaxllc/Untitledasdasaaaass-removebg-preview.png'} alt="Set Location" style={{ width: '100%', height: 48, objectFit: 'contain', position: 'relative', zIndex: 1 }} />
                   </button>
                   {checkoutAddress.trim() && (
                     <button onClick={() => { setCheckoutAddress(''); setCheckoutDeliveryFee(null) }} style={{ padding: '10px 16px', borderRadius: 10, background: '#EF4444', border: 'none', color: '#fff', fontSize: 14, fontWeight: 800, cursor: 'pointer', flexShrink: 0 }}>
@@ -2122,7 +2189,7 @@ export default function RestaurantBrowseScreen({ onClose, onBackToCategories, ca
 
                 {/* Price breakdown — shows after location set */}
                 {checkoutAddress.trim() && (
-                  <div style={{ padding: '14px', borderRadius: 14, background: 'rgba(0,0,0,0.7)', border: '1px solid rgba(255,255,255,0.08)', marginTop: 8 }}>
+                  <div style={{ padding: '14px', borderRadius: 14, background: '#000', border: '1px solid rgba(141,198,63,0.25)', marginTop: 8 }}>
                     <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 6 }}>
                       <span style={{ fontSize: 14, color: 'rgba(255,255,255,0.5)', display: 'flex', alignItems: 'center', gap: 6 }}><img src="https://ik.imagekit.io/nepgaxllc/ChatGPT%20Image%20Apr%2027,%202026,%2004_54_54%20AM.png" alt="" style={{ width: 44, height: 44, objectFit: 'contain', borderRadius: 4 }} />Food</span>
                       <span style={{ fontSize: 14, fontWeight: 700, color: '#fff' }}>{fmtC(subtotal)}</span>
@@ -2167,8 +2234,8 @@ export default function RestaurantBrowseScreen({ onClose, onBackToCategories, ca
                   try { await createFoodOrder({ restaurant, items: order.items, driver, sender: null, deliveryFee: checkoutDeliveryFee ?? 0, deliveryDistanceKm: null, driverDistanceKm: null, comment: null }) } catch {}
                 } catch { setCheckoutDriver({ id: 'driver-demo', display_name: 'Pak Andi', phone: '081234567890', vehicle_model: 'Honda Beat' }) }
                 setCheckoutOrderId(orderId)
-                // Step 1: processing (3s) → Step 2: driver found (4s) → Step 3: cinematic tracking
-                setTimeout(() => setCheckoutStep('found'), 3000)
+                // Step 1: searching (6s) → Step 2: driver found (5s) → Step 3: cinematic tracking
+                setTimeout(() => setCheckoutStep('found'), 6000)
                 setTimeout(() => {
                   // Hand off to cinematic tracking
                   const drv = checkoutDriver ?? { id: 'driver-demo', display_name: 'Pak Andi', phone: '081234567890', vehicle_model: 'Honda Beat' }
@@ -2177,7 +2244,7 @@ export default function RestaurantBrowseScreen({ onClose, onBackToCategories, ca
                   // Store driver for tracking handoff
                   window.__indooTrackingDriver = drv
                   setMenuRestaurant(restaurant)
-                }, 7000)
+                }, 11000)
               }} disabled={!checkoutAddress.trim()} style={{
                 width: '100%', padding: '16px', borderRadius: 14,
                 backgroundColor: checkoutAddress.trim() ? '#8DC63F' : 'rgba(255,255,255,0.06)',
@@ -2194,12 +2261,15 @@ export default function RestaurantBrowseScreen({ onClose, onBackToCategories, ca
           {/* Step 1: Finding driver — satellite ping animation */}
           {checkoutStep === 'processing' && (
             <div style={{ position: 'absolute', inset: 0, zIndex: 10, background: '#0a0a0a', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
+              <img src={new Date().getHours() >= 6 && new Date().getHours() < 18 ? 'https://ik.imagekit.io/nepgaxllc/Indonesia%20cityscapes%20and%20landmarks%203D%20map.png?updatedAt=1776003140619' : 'https://ik.imagekit.io/nepgaxllc/Indonesia%20at%20night_%20map%20transforms%20to%20city.png?updatedAt=1776003167981'} alt="" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', pointerEvents: 'none' }} />
               <style>{`
                 @keyframes pingRing1 { 0% { transform: scale(0.8); opacity: 0.8; } 100% { transform: scale(2.5); opacity: 0; } }
                 @keyframes pingRing2 { 0% { transform: scale(0.8); opacity: 0.6; } 100% { transform: scale(3); opacity: 0; } }
                 @keyframes pingRing3 { 0% { transform: scale(0.8); opacity: 0.4; } 100% { transform: scale(3.5); opacity: 0; } }
                 @keyframes pulseIcon { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.08); } }
               `}</style>
+              {/* Header text */}
+              <span style={{ fontSize: 22, fontWeight: 900, color: '#fff', marginBottom: 20, position: 'relative', zIndex: 1, textShadow: '0 2px 8px rgba(0,0,0,0.8)' }}>Searching for Driver</span>
               {/* Ping rings */}
               <div style={{ position: 'relative', width: 200, height: 200, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                 <div style={{ position: 'absolute', width: 80, height: 80, borderRadius: '50%', border: '2px solid #8DC63F', animation: 'pingRing1 2s ease-out infinite' }} />
@@ -2218,8 +2288,9 @@ export default function RestaurantBrowseScreen({ onClose, onBackToCategories, ca
           {/* Step 2: Driver found — profile card */}
           {checkoutStep === 'found' && (
             <div style={{ position: 'absolute', inset: 0, zIndex: 10, background: '#0a0a0a', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: 20 }}>
+              <img src={new Date().getHours() >= 6 && new Date().getHours() < 18 ? 'https://ik.imagekit.io/nepgaxllc/Indonesia%20cityscapes%20and%20landmarks%203D%20map.png?updatedAt=1776003140619' : 'https://ik.imagekit.io/nepgaxllc/Indonesia%20at%20night_%20map%20transforms%20to%20city.png?updatedAt=1776003167981'} alt="" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', pointerEvents: 'none' }} />
               <style>{`@keyframes scaleIn { from { transform: scale(0.5); opacity: 0; } to { transform: scale(1); opacity: 1; } }`}</style>
-              <div style={{ animation: 'scaleIn 0.4s ease-out', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+              <div style={{ animation: 'scaleIn 0.4s ease-out', display: 'flex', flexDirection: 'column', alignItems: 'center', position: 'relative', zIndex: 1 }}>
                 {/* Driver photo */}
                 <div style={{ width: 100, height: 100, borderRadius: '50%', border: '3px solid #8DC63F', overflow: 'hidden', marginBottom: 16, boxShadow: '0 0 30px rgba(141,198,63,0.3)' }}>
                   <img src={`https://i.pravatar.cc/200?img=${(checkoutDriver?.id ?? 'demo').charCodeAt(0) % 50 + 1}`} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
@@ -2388,6 +2459,7 @@ const RestaurantCard = memo(function RestaurantCard({ restaurant: r, onOpenMenu,
   const countdown = !r.is_open ? fmtCountdown(secsUntilOpen(r.opening_hours)) : null
   const [menuDrawerOpen, setMenuDrawerOpen] = useState(false)
   const [dealsOpen, setDealsOpen] = useState(false)
+  const [previewItem, setPreviewItem] = useState(null)
   const menuItems = r.menu_items ?? []
   const fmtM = (n) => 'Rp ' + (n ?? 0).toLocaleString('id-ID').replace(/,/g, '.')
 
@@ -2431,17 +2503,24 @@ const RestaurantCard = memo(function RestaurantCard({ restaurant: r, onOpenMenu,
           <div style={{
             position: 'relative', width: '80%', maxWidth: 320, height: '100%',
             background: '#0a0a0a',
-            borderRight: '1px solid rgba(255,255,255,0.08)',
+            borderRight: '2px solid #8DC63F',
             display: 'flex', flexDirection: 'column',
             animation: 'slideInLeft 0.25s ease', overflow: 'hidden',
           }}>
-            <style>{`@keyframes slideInLeft { from { transform: translateX(-100%); } to { transform: translateX(0); } }`}</style>
-            <img src="https://ik.imagekit.io/nepgaxllc/odfssddasdsccc.png?updatedAt=1777008452808" alt="" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', opacity: 0.15, pointerEvents: 'none' }} />
+            <style>{`
+              @keyframes slideInLeft { from { transform: translateX(-100%); } to { transform: translateX(0); } }
+              @keyframes drawerEdgeLight { 0% { top: -20%; } 100% { top: 120%; } }
+            `}</style>
+            {/* Running light on right edge */}
+            <div style={{ position: 'absolute', top: 0, right: -1, width: 2, height: '100%', overflow: 'hidden', zIndex: 2 }}>
+              <div style={{ width: 2, height: '20%', background: 'linear-gradient(to bottom, transparent, #8DC63F, transparent)', position: 'absolute', animation: 'drawerEdgeLight 2s linear infinite' }} />
+            </div>
+            <img src="https://ik.imagekit.io/nepgaxllc/ChatGPT%20Image%20Apr%2027,%202026,%2006_12_16%20AM.png" alt="" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', pointerEvents: 'none' }} />
 
             {/* Header */}
-            <div style={{ padding: 'calc(env(safe-area-inset-top, 0px) + 14px) 16px 12px', display: 'flex', alignItems: 'center', gap: 10, flexShrink: 0, borderBottom: '1px solid rgba(255,255,255,0.06)' }}>
-              <button onClick={() => setMenuDrawerOpen(false)} style={{ width: 44, height: 44, borderRadius: '50%', background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' }}>
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2.5" strokeLinecap="round"><path d="M19 12H5M12 5l-7 7 7 7"/></svg>
+            <div style={{ padding: 'calc(env(safe-area-inset-top, 0px) + 14px) 16px 12px', display: 'flex', alignItems: 'center', gap: 10, flexShrink: 0, borderBottom: '1px solid rgba(255,255,255,0.06)', position: 'relative', zIndex: 1 }}>
+              <button onClick={() => setMenuDrawerOpen(false)} style={{ width: 44, height: 44, borderRadius: '50%', background: '#8DC63F', border: 'none', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' }}>
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#000" strokeWidth="2.5" strokeLinecap="round"><path d="M19 12H5M12 5l-7 7 7 7"/></svg>
               </button>
               <div>
                 <span style={{ fontSize: 18, fontWeight: 900, color: '#fff', display: 'block' }}>{r.name}</span>
@@ -2450,7 +2529,7 @@ const RestaurantCard = memo(function RestaurantCard({ restaurant: r, onOpenMenu,
             </div>
 
             {/* Menu items grouped by category */}
-            <div style={{ flex: 1, overflowY: 'auto', padding: '8px 0' }}>
+            <div style={{ flex: 1, overflowY: 'auto', padding: '8px 0', position: 'relative', zIndex: 1 }}>
               {Object.keys(categories).length === 0 ? (
                 <div style={{ textAlign: 'center', padding: '40px 20px', color: 'rgba(255,255,255,0.3)' }}>
                   <span style={{ fontSize: 14 }}>No menu items yet</span>
@@ -2458,25 +2537,70 @@ const RestaurantCard = memo(function RestaurantCard({ restaurant: r, onOpenMenu,
               ) : Object.entries(categories).map(([cat, items]) => (
                 <div key={cat}>
                   {/* Category header */}
-                  <div style={{ padding: '12px 16px 6px', position: 'sticky', top: 0, background: 'rgba(10,10,10,0.95)', zIndex: 1 }}>
-                    <span style={{ fontSize: 14, fontWeight: 900, color: '#8DC63F', textTransform: 'uppercase', letterSpacing: '0.04em' }}>{cat}</span>
+                  <div style={{ padding: '14px 16px 6px' }}>
+                    <span style={{ fontSize: 16, fontWeight: 900, color: '#8DC63F', display: 'block', textTransform: 'uppercase', letterSpacing: '0.04em' }}>{cat}</span>
+                    <span style={{ fontSize: 14, color: 'rgba(255,255,255,0.35)', display: 'block', marginTop: 2 }}>
+                      {cat === 'Main' ? 'Signature dishes from our kitchen' :
+                       cat === 'Drinks' ? 'Refresh your meal' :
+                       cat === 'Desserts' ? 'Sweet endings' :
+                       cat === 'Snacks' ? 'Light bites to share' :
+                       cat === 'Sides' ? 'Perfect pairings' :
+                       cat === 'Breakfast' ? 'Start your day right' :
+                       cat === 'Noodles' ? 'Hand-pulled favourites' :
+                       cat === 'Rice' ? 'Hearty rice bowls' :
+                       cat === 'Seafood' ? 'Fresh from the ocean' :
+                       cat === 'Soup' ? 'Warm and comforting' :
+                       `Explore our ${cat.toLowerCase()}`}
+                    </span>
                   </div>
                   {/* Items */}
                   {items.map((item, i) => (
-                    <button key={item.id ?? i} onClick={() => { setMenuDrawerOpen(false); onSelectDish?.(item, r) }} style={{
-                      width: '100%', padding: '10px 16px', background: 'none', border: 'none', cursor: 'pointer',
-                      display: 'flex', gap: 12, textAlign: 'left', borderBottom: '1px solid rgba(255,255,255,0.04)',
+                    <button key={item.id ?? i} onClick={() => setPreviewItem(item)} style={{
+                      width: 'calc(100% - 24px)', margin: '0 12px 8px', padding: '10px 12px',
+                      background: '#000',
+                      backdropFilter: 'blur(12px)', WebkitBackdropFilter: 'blur(12px)',
+                      border: `1.5px solid ${previewItem?.id === item.id ? '#8DC63F' : 'rgba(141,198,63,0.25)'}`,
+                      borderRadius: 14, cursor: 'pointer',
+                      display: 'flex', gap: 12, textAlign: 'left', height: 76, overflow: 'hidden',
                     }}>
-                      {item.photo_url && (
-                        <img src={item.photo_url} alt="" style={{ width: 52, height: 52, borderRadius: 10, objectFit: 'cover', flexShrink: 0 }} />
+                      {item.photo_url ? (
+                        <img src={item.photo_url} alt="" style={{ width: 56, height: 56, borderRadius: 10, objectFit: 'cover', flexShrink: 0 }} />
+                      ) : (
+                        <div style={{ width: 56, height: 56, borderRadius: 10, background: 'rgba(255,255,255,0.06)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                          <span style={{ fontSize: 24 }}>🍽️</span>
+                        </div>
                       )}
-                      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
-                        <span style={{ fontSize: 14, fontWeight: 800, color: '#fff', lineHeight: 1.2 }}>{item.name}</span>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginTop: 4 }}>
-                          {item.original_price && item.original_price > item.price && (
-                            <span style={{ fontSize: 14, color: 'rgba(255,255,255,0.3)', textDecoration: 'line-through' }}>{fmtM(item.original_price)}</span>
-                          )}
-                          <span style={{ fontSize: 14, fontWeight: 900, color: '#FACC15' }}>{fmtM(item.price)}</span>
+                      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'center', minWidth: 0 }}>
+                        {/* Name + rating on same row */}
+                        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                          <span style={{ fontSize: 14, fontWeight: 800, color: '#fff', lineHeight: 1.2, flex: 1, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{item.name}</span>
+                          <div style={{ display: 'flex', alignItems: 'center', gap: 3, flexShrink: 0, marginLeft: 6 }}>
+                            <span style={{ fontSize: 12, color: '#FACC15' }}>★</span>
+                            <span style={{ fontSize: 12, fontWeight: 800, color: 'rgba(255,255,255,0.5)' }}>{r.rating ?? '4.5'}</span>
+                          </div>
+                        </div>
+                        {/* Description */}
+                        {item.description && <span style={{ fontSize: 12, color: 'rgba(255,255,255,0.35)', marginTop: 2, lineHeight: 1.3, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{item.description.slice(0, 40)}</span>}
+                        {/* Tags + Price row */}
+                        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginTop: 4 }}>
+                          <div style={{ display: 'flex', gap: 3 }}>
+                            {(() => {
+                              const txt = `${item.name ?? ''} ${item.description ?? ''}`.toLowerCase()
+                              const tags = []
+                              if (['pedas','sambal','geprek','spicy','balado','rica','cabai','cabe','chili'].some(w => txt.includes(w))) tags.push('🌶️')
+                              if (['bawang','garlic','aglio'].some(w => txt.includes(w))) tags.push('🧄')
+                              if (['vegetarian','vegan','sayur','tahu','tempe'].some(w => txt.includes(w))) tags.push('🥬')
+                              if (['halal'].some(w => txt.includes(w))) tags.push('☪️')
+                              if (['ikan','udang','seafood','fish','shrimp'].some(w => txt.includes(w))) tags.push('🦐')
+                              return tags.map(t => <span key={t} style={{ fontSize: 14 }}>{t}</span>)
+                            })()}
+                          </div>
+                          <div style={{ display: 'flex', alignItems: 'center', gap: 4, flexShrink: 0 }}>
+                            {item.original_price && item.original_price > item.price && (
+                              <span style={{ fontSize: 12, color: 'rgba(255,255,255,0.3)', textDecoration: 'line-through' }}>{fmtM(item.original_price)}</span>
+                            )}
+                            <span style={{ fontSize: 14, fontWeight: 900, color: '#FACC15' }}>{fmtM(item.price)}</span>
+                          </div>
                         </div>
                       </div>
                     </button>
@@ -2484,6 +2608,74 @@ const RestaurantCard = memo(function RestaurantCard({ restaurant: r, onOpenMenu,
                 </div>
               ))}
             </div>
+
+            {/* Preview card — enlarged item view */}
+            {previewItem && (
+              <div style={{ position: 'absolute', inset: 0, zIndex: 5, background: '#0a0a0a', display: 'flex', flexDirection: 'column', justifyContent: 'center', padding: 16 }}>
+                <img src="https://ik.imagekit.io/nepgaxllc/ChatGPT%20Image%20Apr%2027,%202026,%2006_12_16%20AM.png" alt="" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', pointerEvents: 'none' }} />
+                <div style={{ borderRadius: 20, background: '#000', border: '1px solid rgba(255,255,255,0.08)', overflow: 'hidden', position: 'relative', zIndex: 1 }}>
+                  {/* Large image */}
+                  {previewItem.photo_url && (
+                    <div style={{ height: 200, position: 'relative' }}>
+                      <img src={previewItem.photo_url} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                      <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to top, rgba(0,0,0,0.8) 0%, transparent 40%)' }} />
+                      {/* Tags */}
+                      {(() => {
+                        const txt = `${previewItem.name ?? ''} ${previewItem.description ?? ''} ${previewItem.category ?? ''}`.toLowerCase()
+                        const tags = []
+                        if (['pedas','sambal','geprek','spicy','balado','rica','cabai','cabe'].some(w => txt.includes(w))) tags.push({ icon: '🌶️', label: 'Spicy' })
+                        if (['vegetarian','vegan','sayur','tahu','tempe'].some(w => txt.includes(w))) tags.push({ icon: '🥬', label: 'Vegan' })
+                        if (['halal'].some(w => txt.includes(w))) tags.push({ icon: '☪️', label: 'Halal' })
+                        if (['ikan','udang','seafood','fish','shrimp'].some(w => txt.includes(w))) tags.push({ icon: '🦐', label: 'Seafood' })
+                        return tags.length > 0 ? (
+                          <div style={{ position: 'absolute', bottom: 10, left: 10, display: 'flex', gap: 4 }}>
+                            {tags.map(t => (
+                              <span key={t.label} style={{ padding: '4px 8px', borderRadius: 6, background: 'rgba(0,0,0,0.7)', backdropFilter: 'blur(8px)', fontSize: 14, display: 'flex', alignItems: 'center', gap: 3 }}>
+                                <span>{t.icon}</span>
+                                <span style={{ fontSize: 14, fontWeight: 700, color: '#fff' }}>{t.label}</span>
+                              </span>
+                            ))}
+                          </div>
+                        ) : null
+                      })()}
+                    </div>
+                  )}
+
+                  {/* Info */}
+                  <div style={{ padding: '14px 16px' }}>
+                    <span style={{ fontSize: 20, fontWeight: 900, color: '#fff', display: 'block', lineHeight: 1.2 }}>{previewItem.name}</span>
+                    {previewItem.description && <span style={{ fontSize: 14, color: 'rgba(255,255,255,0.5)', display: 'block', marginTop: 6, lineHeight: 1.4 }}>{previewItem.description}</span>}
+
+                    {/* Price */}
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginTop: 10 }}>
+                      {previewItem.original_price && previewItem.original_price > previewItem.price && (
+                        <span style={{ fontSize: 14, color: 'rgba(255,255,255,0.3)', textDecoration: 'line-through' }}>{fmtM(previewItem.original_price)}</span>
+                      )}
+                      <span style={{ fontSize: 20, fontWeight: 900, color: '#FACC15' }}>{fmtM(previewItem.price)}</span>
+                      {previewItem.original_price && previewItem.original_price > previewItem.price && (
+                        <span style={{ padding: '3px 8px', borderRadius: 6, background: '#FACC15', fontSize: 14, fontWeight: 900, color: '#000' }}>{Math.round(((previewItem.original_price - previewItem.price) / previewItem.original_price) * 100)}% OFF</span>
+                      )}
+                    </div>
+
+                    {/* Buttons */}
+                    <div style={{ display: 'flex', gap: 10, marginTop: 14 }}>
+                      <button onClick={() => setPreviewItem(null)} style={{
+                        flex: 1, padding: '14px', borderRadius: 14,
+                        background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)',
+                        color: '#fff', fontSize: 16, fontWeight: 800, cursor: 'pointer',
+                      }}>Close</button>
+                      <button onClick={() => {
+                        setPreviewItem(null); setMenuDrawerOpen(false); onSelectDish?.(previewItem, r)
+                      }} style={{
+                        flex: 2, padding: '14px', borderRadius: 14,
+                        background: '#8DC63F', border: 'none', color: '#000',
+                        fontSize: 16, fontWeight: 900, cursor: 'pointer',
+                      }}>Add to Cart</button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
           </div>
         </div>
       )}
@@ -2494,13 +2686,21 @@ const RestaurantCard = memo(function RestaurantCard({ restaurant: r, onOpenMenu,
         const allItems = dealItems.length > 0 ? dealItems : menuItems.filter(i => i.is_available !== false).slice(0, 5)
         return (
           <div style={{ position: 'absolute', inset: 0, zIndex: 20, background: '#0a0a0a', display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
-            <img src="https://ik.imagekit.io/nepgaxllc/odfssddasdsccc.png?updatedAt=1777008452808" alt="" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', pointerEvents: 'none' }} />
+            <img src="https://ik.imagekit.io/nepgaxllc/ChatGPT%20Image%20Apr%2027,%202026,%2006_12_16%20AM.png" alt="" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', pointerEvents: 'none' }} />
             {/* Header */}
-            <div style={{ padding: 'calc(env(safe-area-inset-top, 0px) + 12px) 16px 10px', display: 'flex', alignItems: 'center', gap: 10, flexShrink: 0 }}>
-              <button onClick={() => setDealsOpen(false)} style={{ width: 44, height: 44, borderRadius: '50%', background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' }}>
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2.5" strokeLinecap="round"><path d="M19 12H5M12 5l-7 7 7 7"/></svg>
+            <div style={{ padding: 'calc(env(safe-area-inset-top, 0px) + 12px) 16px 10px', display: 'flex', alignItems: 'center', gap: 10, flexShrink: 0, position: 'relative', zIndex: 1 }}>
+              <button onClick={() => setDealsOpen(false)} style={{ width: 44, height: 44, borderRadius: '50%', background: '#8DC63F', border: 'none', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' }}>
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#000" strokeWidth="2.5" strokeLinecap="round"><path d="M19 12H5M12 5l-7 7 7 7"/></svg>
               </button>
-              <span style={{ fontSize: 18, fontWeight: 900, color: '#fff', flex: 1 }}>{r.name} Deals</span>
+              <div style={{ flex: 1 }}>
+                <span style={{ fontSize: 18, fontWeight: 900, color: '#fff', display: 'block' }}>{r.name}</span>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginTop: 2 }}>
+                  <span style={{ fontSize: 14, color: '#FACC15' }}>★</span>
+                  <span style={{ fontSize: 14, fontWeight: 800, color: '#fff' }}>{r.rating ?? '4.5'}</span>
+                  <span style={{ fontSize: 14, color: 'rgba(255,255,255,0.4)' }}>· {r.cuisine_type ?? 'Restaurant'}</span>
+                </div>
+                <span style={{ fontSize: 14, color: 'rgba(255,255,255,0.35)', display: 'block', marginTop: 2 }}>Today's deals and discounts</span>
+              </div>
             </div>
 
             {/* Swipeable deal cards */}
@@ -2519,27 +2719,63 @@ const RestaurantCard = memo(function RestaurantCard({ restaurant: r, onOpenMenu,
                         </div>
                       )}
                       <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to top, rgba(0,0,0,0.9) 0%, transparent 40%)' }} />
-                      {/* Discount badge */}
-                      {discPct > 0 && (
-                        <div style={{ position: 'absolute', top: 14, left: 14, padding: '6px 12px', borderRadius: 10, background: '#EF4444' }}>
-                          <span style={{ fontSize: 16, fontWeight: 900, color: '#fff' }}>{discPct}% OFF</span>
+                      {/* Top left — discount price */}
+                      <div style={{ position: 'absolute', top: 14, left: 14, display: 'flex', flexDirection: 'column', gap: 4 }}>
+                        {discPct > 0 && (
+                          <div style={{ padding: '5px 10px', borderRadius: 8, background: '#FACC15', display: 'inline-flex', alignItems: 'center', gap: 4 }}>
+                            <span style={{ fontSize: 16, fontWeight: 900, color: '#000' }}>{discPct}% OFF</span>
+                          </div>
+                        )}
+                        <div style={{ padding: '5px 10px', borderRadius: 8, background: 'rgba(0,0,0,0.7)', backdropFilter: 'blur(8px)' }}>
+                          <span style={{ fontSize: 18, fontWeight: 900, color: '#FACC15' }}>{fmtM(item.price)}</span>
+                          {item.original_price && item.original_price > item.price && (
+                            <span style={{ fontSize: 14, color: 'rgba(255,255,255,0.4)', textDecoration: 'line-through', marginLeft: 6 }}>{fmtM(item.original_price)}</span>
+                          )}
                         </div>
-                      )}
-                      {/* Swipe hint */}
+                      </div>
+                      {/* Top right — swipe counter */}
                       {allItems.length > 1 && (
                         <div style={{ position: 'absolute', top: 14, right: 14, padding: '4px 10px', borderRadius: 8, background: 'rgba(0,0,0,0.6)' }}>
                           <span style={{ fontSize: 14, color: 'rgba(255,255,255,0.5)' }}>{i + 1}/{allItems.length}</span>
                         </div>
                       )}
+                      {/* Bottom right — countdown + remaining */}
+                      <div style={{ position: 'absolute', bottom: 16, right: 16, display: 'flex', flexDirection: 'column', gap: 4, alignItems: 'flex-end' }}>
+                        <div style={{ padding: '5px 10px', borderRadius: 8, background: 'rgba(0,0,0,0.7)', backdropFilter: 'blur(8px)', display: 'flex', alignItems: 'center', gap: 4 }}>
+                          <span style={{ width: 6, height: 6, borderRadius: '50%', background: '#EF4444', animation: 'pulse 1.5s infinite' }} />
+                          <span style={{ fontSize: 14, fontWeight: 800, color: '#fff' }}>{(() => {
+                            const endH = 20 + (item.id ?? i) % 4
+                            const now = new Date()
+                            const end = new Date(now); end.setHours(endH, 0, 0, 0)
+                            if (end <= now) end.setDate(end.getDate() + 1)
+                            const diff = end - now
+                            const h = Math.floor(diff / 3600000)
+                            const m = Math.floor((diff % 3600000) / 60000)
+                            return `${h}h ${m}m`
+                          })()}</span>
+                        </div>
+                        <div style={{ padding: '4px 10px', borderRadius: 8, background: 'rgba(0,0,0,0.7)', backdropFilter: 'blur(8px)' }}>
+                          <span style={{ fontSize: 14, fontWeight: 700, color: '#8DC63F' }}>{(item.stock ?? 10 + (item.id ?? i) % 15)} left</span>
+                        </div>
+                      </div>
                       {/* Item info */}
-                      <div style={{ position: 'absolute', bottom: 16, left: 16, right: 16 }}>
+                      <div style={{ position: 'absolute', bottom: 16, left: 16, right: 130 }}>
                         <span style={{ fontSize: 22, fontWeight: 900, color: '#fff', display: 'block', lineHeight: 1.2 }}>{item.name}</span>
-                        {item.description && <span style={{ fontSize: 14, color: 'rgba(255,255,255,0.6)', display: 'block', marginTop: 4 }}>{item.description?.slice(0, 80)}</span>}
-                        <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginTop: 8 }}>
-                          {item.original_price && item.original_price > item.price && (
-                            <span style={{ fontSize: 16, color: 'rgba(255,255,255,0.4)', textDecoration: 'line-through' }}>{fmtM(item.original_price)}</span>
-                          )}
-                          <span style={{ fontSize: 22, fontWeight: 900, color: '#FACC15' }}>{fmtM(item.price)}</span>
+                        {item.description && <span style={{ fontSize: 14, color: 'rgba(255,255,255,0.6)', display: 'block', marginTop: 4 }}>{item.description?.slice(0, 60)}</span>}
+                        {/* Rating + Tags */}
+                        <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginTop: 6 }}>
+                          <span style={{ fontSize: 14, color: '#FACC15' }}>★</span>
+                          <span style={{ fontSize: 14, fontWeight: 800, color: '#fff' }}>{r.rating ?? '4.5'}</span>
+                          {(() => {
+                            const txt = `${item.name ?? ''} ${item.description ?? ''}`.toLowerCase()
+                            const tags = []
+                            if (['pedas','sambal','geprek','spicy','balado','rica','cabai','cabe','chili'].some(w => txt.includes(w))) tags.push('🌶️')
+                            if (['bawang','garlic','aglio'].some(w => txt.includes(w))) tags.push('🧄')
+                            if (['vegetarian','vegan','sayur','tahu','tempe'].some(w => txt.includes(w))) tags.push('🥬')
+                            if (['halal'].some(w => txt.includes(w))) tags.push('☪️')
+                            if (['ikan','udang','seafood','fish','shrimp'].some(w => txt.includes(w))) tags.push('🦐')
+                            return tags.map(t => <span key={t} style={{ fontSize: 16 }}>{t}</span>)
+                          })()}
                         </div>
                       </div>
                     </div>
@@ -2554,6 +2790,10 @@ const RestaurantCard = memo(function RestaurantCard({ restaurant: r, onOpenMenu,
                   </div>
                 )
               })}
+            </div>
+            {/* Footer nav */}
+            <div style={{ flexShrink: 0, position: 'relative', zIndex: 1 }}>
+              <FoodFooterNav onHome={() => setDealsOpen(false)} onChat={() => {}} onNotifications={() => {}} onProfile={() => {}} activeTab={null} />
             </div>
           </div>
         )

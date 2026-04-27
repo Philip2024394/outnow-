@@ -561,6 +561,16 @@ export default function RestaurantMenuSheet({ restaurant, onClose, onOrderViaCha
   const [driverImgIdx, setDriverImgIdx] = useState(0)
   const [processingMsgIdx, setProcessingMsgIdx] = useState(0)
 
+  // Auto-progress stages when started from cart checkout (startTracking)
+  useEffect(() => {
+    if (!startTracking?.driver || !driverOnWay) return
+    const s1Time = 32000 // 32s to restaurant
+    const s2Time = 20000 // 20s to customer
+    const t1 = setTimeout(() => setDriverPhase('to_customer'), s1Time)
+    const t2 = setTimeout(() => setDriverPhase('arrived'), s1Time + s2Time)
+    return () => { clearTimeout(t1); clearTimeout(t2) }
+  }, [!!startTracking?.driver])
+
   // Image 1 messages — printer waiting (before kitchen confirms)
   const PROCESSING_MESSAGES_1 = [
     'Processing Order',
