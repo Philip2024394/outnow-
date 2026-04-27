@@ -13,6 +13,7 @@ import { createFoodOrder, searchFoodDrivers } from '@/services/foodOrderService'
 import { recordCommission } from '@/services/commissionService'
 import { getFoodOrders, saveFoodOrders } from '@/components/restaurant/menuSheetConstants'
 import PromoBannerPage from '@/components/restaurant/PromoBannerPage'
+import ContactUsPage from '@/components/ui/ContactUsPage'
 import WhatsAppInput from '@/components/ui/WhatsAppInput'
 import styles from './RestaurantBrowseScreen.module.css'
 
@@ -23,6 +24,7 @@ const footerLabelStyle = { fontSize: 9, fontWeight: 800, color: 'rgba(255,255,25
 const FOOD_LANDING_BG = 'https://ik.imagekit.io/nepgaxllc/ChatGPT%20Image%20Apr%2016,%202026,%2006_04_21%20PM.png'
 
 function FoodLanding({ onBrowse, onClose, onSelectVendorType }) {
+  const [contactUsOpen, setContactUsOpen] = useState(false)
   return (
     <div className={styles.landingPage} style={{ backgroundImage: `url("${FOOD_LANDING_BG}")` }}>
       <div className={styles.landingOverlay} />
@@ -39,6 +41,22 @@ function FoodLanding({ onBrowse, onClose, onSelectVendorType }) {
         <button onClick={onClose} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 2, background: 'none', border: 'none', cursor: 'pointer', padding: '4px 0', width: 42 }}>
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.6)" strokeWidth="2" strokeLinecap="round"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
           <span style={{ fontSize: 8, fontWeight: 800, color: 'rgba(255,255,255,0.6)', letterSpacing: '0.03em' }}>Home</span>
+        </button>
+        <button onClick={() => setContactUsOpen(true)} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 2, background: 'none', border: 'none', cursor: 'pointer', padding: '4px 0', width: 42 }}>
+          <span style={{ fontSize: 17 }}>📞</span>
+          <span style={{ fontSize: 8, fontWeight: 800, color: 'rgba(255,255,255,0.6)', letterSpacing: '0.03em' }}>Contact</span>
+        </button>
+        <button onClick={() => window.open('/privacy', '_blank')} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 2, background: 'none', border: 'none', cursor: 'pointer', padding: '4px 0', width: 42 }}>
+          <span style={{ fontSize: 17 }}>🔒</span>
+          <span style={{ fontSize: 8, fontWeight: 800, color: 'rgba(255,255,255,0.6)', letterSpacing: '0.03em' }}>Privacy</span>
+        </button>
+        <button onClick={() => window.open('/terms', '_blank')} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 2, background: 'none', border: 'none', cursor: 'pointer', padding: '4px 0', width: 42 }}>
+          <span style={{ fontSize: 17 }}>📋</span>
+          <span style={{ fontSize: 8, fontWeight: 800, color: 'rgba(255,255,255,0.6)', letterSpacing: '0.03em' }}>Terms</span>
+        </button>
+        <button onClick={() => window.open('/refund', '_blank')} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 2, background: 'none', border: 'none', cursor: 'pointer', padding: '4px 0', width: 42 }}>
+          <span style={{ fontSize: 17 }}>💰</span>
+          <span style={{ fontSize: 8, fontWeight: 800, color: 'rgba(255,255,255,0.6)', letterSpacing: '0.03em' }}>Refund</span>
         </button>
       </div>
 
@@ -76,6 +94,7 @@ function FoodLanding({ onBrowse, onClose, onSelectVendorType }) {
           Browse all food
         </button>
       </div>
+      {contactUsOpen && <ContactUsPage onClose={() => setContactUsOpen(false)} />}
     </div>
   )
 }
