@@ -1,139 +1,85 @@
 import { useState } from 'react'
-import styles from './DriverCashFloatModal.module.css'
 
-/** Formats number as "Rp 50.000" Indonesian style */
 function fmtRp(n) {
   if (!n) return 'Rp 0'
   return 'Rp ' + Math.floor(n).toLocaleString('id-ID')
 }
 
-/** COD eligibility tier copy */
 function eligibilityTier(amount) {
-  if (amount <= 0)    return { icon: '🚫', label: 'No COD orders', sub: 'You will only receive non-COD food & ride bookings', color: '#555' }
-  if (amount < 30000) return { icon: '⚠️', label: 'Very limited COD', sub: `Small orders only — up to ${fmtRp(amount)}`, color: '#FF9500' }
-  if (amount < 75000) return { icon: '🟡', label: 'Some COD orders', sub: `Orders up to ${fmtRp(amount)} eligible`, color: '#FFB800' }
-  if (amount < 150000)return { icon: '🟢', label: 'Good COD flow', sub: `Orders up to ${fmtRp(amount)} eligible — most restaurants`, color: '#34C759' }
-  return                    { icon: '🔥', label: 'Full COD access', sub: `Orders up to ${fmtRp(amount)} — maximum bookings`, color: '#34C759' }
+  if (amount <= 0)     return { label: 'No COD orders · Rides only', color: '#555' }
+  if (amount < 50000)  return { label: 'Small street food orders only', color: '#FF9500' }
+  if (amount < 100000) return { label: 'Most street food orders', color: '#FFB800' }
+  if (amount < 150000) return { label: 'Most restaurant orders', color: '#8DC63F' }
+  return                      { label: 'Full access to all orders', color: '#8DC63F' }
 }
 
-const QUICK_AMOUNTS = [50000, 100000, 150000, 200000, 300000]
-
-export default function DriverCashFloatModal({ driverName = 'Driver', onConfirm, _forceAmount }) {
-  const [raw, setRaw] = useState(_forceAmount != null ? String(_forceAmount) : '')
-
-  const numericValue = parseInt(raw.replace(/\D/g, ''), 10) || 0
-  const tier = eligibilityTier(numericValue)
-
-  const handleInput = (e) => {
-    // Strip non-digits, allow up to 7 digits (max Rp 9.999.999)
-    const digits = e.target.value.replace(/\D/g, '').slice(0, 7)
-    setRaw(digits)
-  }
-
-  const handleQuick = (amount) => setRaw(String(amount))
-
-  const handleConfirm = () => {
-    onConfirm(numericValue)
-  }
-
-  const handleSkip = () => {
-    onConfirm(0)
-  }
+export default function DriverCashFloatModal({ driverName = 'Driver', onConfirm }) {
+  const [amount, setAmount] = useState(100000)
+  const tier = eligibilityTier(amount)
 
   return (
-    <div className={styles.overlay}>
-      <div className={styles.panel}>
+    <div style={{ position: 'fixed', inset: 0, zIndex: 300, display: 'flex', alignItems: 'flex-end', justifyContent: 'center', background: 'rgba(0,0,0,0.7)', backdropFilter: 'blur(8px)' }}>
+      <div style={{ width: '100%', maxWidth: 420, borderRadius: '24px 24px 0 0', background: '#0d0d1a', border: '1px solid rgba(255,255,255,0.1)', borderBottom: 'none', padding: '24px 20px calc(env(safe-area-inset-bottom, 0px) + 20px)', animation: 'slideUp 0.3s ease' }}>
 
         {/* Header */}
-        <div className={styles.header}>
-          <span className={styles.headerIcon}>💵</span>
-          <div>
-            <p className={styles.headerTitle}>Cash Float Declaration</p>
-            <p className={styles.headerSub}>Hi {driverName} — before you go online</p>
+        <div style={{ textAlign: 'center', marginBottom: 20 }}>
+          <span style={{ fontSize: 14, fontWeight: 900, color: '#fff', display: 'block' }}>💵 Cash Float</span>
+          <span style={{ fontSize: 11, color: 'rgba(255,255,255,0.4)' }}>Your cash determines your booking value</span>
+        </div>
+
+        {/* Amount display */}
+        <div style={{ textAlign: 'center', marginBottom: 16 }}>
+          <span style={{ fontSize: 36, fontWeight: 900, color: '#FACC15', display: 'block' }}>{fmtRp(amount)}</span>
+          <span style={{ fontSize: 12, fontWeight: 700, color: tier.color, marginTop: 4, display: 'block' }}>{tier.label}</span>
+        </div>
+
+        {/* Slider */}
+        <div style={{ padding: '0 4px', marginBottom: 16 }}>
+          <input
+            type="range"
+            min={0}
+            max={300000}
+            step={10000}
+            value={amount}
+            onChange={e => setAmount(parseInt(e.target.value))}
+            style={{ width: '100%', accentColor: '#8DC63F', height: 6 }}
+          />
+          <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: 4 }}>
+            <span style={{ fontSize: 10, color: 'rgba(255,255,255,0.25)' }}>Rp 0</span>
+            <span style={{ fontSize: 10, color: 'rgba(255,255,255,0.25)' }}>Rp 300.000</span>
           </div>
         </div>
 
-        {/* Explainer banner */}
-        <div className={styles.banner}>
-          <span className={styles.bannerIcon}>🍽️</span>
-          <p className={styles.bannerText}>
-            For <strong>Cash-on-Delivery food orders</strong> the driver pays the restaurant upfront,
-            then collects from the customer on delivery. Declaring your cash lets us match
-            you to the right orders automatically.
-          </p>
-        </div>
-
-        {/* Input */}
-        <div className={styles.inputSection}>
-          <label className={styles.inputLabel}>How much cash do you have right now?</label>
-          <div className={styles.inputWrap}>
-            <span className={styles.inputPrefix}>Rp</span>
-            <input
-              type="tel"
-              inputMode="numeric"
-              pattern="[0-9]*"
-              className={styles.input}
-              placeholder="0"
-              value={raw ? parseInt(raw, 10).toLocaleString('id-ID') : ''}
-              onChange={handleInput}
-              autoFocus
-            />
-          </div>
-
-          {/* Quick-pick buttons */}
-          <div className={styles.quickRow}>
-            {QUICK_AMOUNTS.map(a => (
-              <button
-                key={a}
-                className={`${styles.quickBtn} ${numericValue === a ? styles.quickBtnActive : ''}`}
-                onClick={() => handleQuick(a)}
-              >
-                {fmtRp(a)}
-              </button>
-            ))}
-          </div>
-        </div>
-
-        {/* Eligibility pill */}
-        <div className={styles.eligibility} style={{ borderColor: tier.color + '55' }}>
-          <span className={styles.eligIcon}>{tier.icon}</span>
-          <div>
-            <p className={styles.eligLabel} style={{ color: tier.color }}>{tier.label}</p>
-            <p className={styles.eligSub}>{tier.sub}</p>
-          </div>
-        </div>
-
-        {/* Info rows */}
-        <div className={styles.infoGrid}>
-          <div className={styles.infoRow}>
-            <span className={styles.infoIcon}>📦</span>
-            <span className={styles.infoText}>COD orders with food total above your declared cash will <strong>not</strong> be assigned to you</span>
-          </div>
-          <div className={styles.infoRow}>
-            <span className={styles.infoIcon}>🔄</span>
-            <span className={styles.infoText}>You can update your cash float anytime from the driver menu</span>
-          </div>
-          <div className={styles.infoRow}>
-            <span className={styles.infoIcon}>🚴</span>
-            <span className={styles.infoText}>Ride bookings and non-COD food orders are unaffected</span>
+        {/* How it works */}
+        <div style={{ padding: 12, borderRadius: 12, background: 'rgba(250,204,21,0.06)', border: '1px solid rgba(250,204,21,0.15)', marginBottom: 16, fontSize: 11, color: 'rgba(255,255,255,0.5)', lineHeight: 1.7 }}>
+          <span style={{ fontWeight: 800, color: '#FACC15', display: 'block', marginBottom: 6 }}>How Cash Float Works</span>
+          <span>You pay the restaurant upfront for COD food orders, then collect from the customer on delivery. More cash = bigger orders = more earnings.</span>
+          <div style={{ marginTop: 8, display: 'flex', flexDirection: 'column', gap: 4 }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+              <span style={{ width: 5, height: 5, borderRadius: '50%', background: '#EF4444', flexShrink: 0 }} />
+              <span>No cash = no COD food orders (rides still available)</span>
+            </div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+              <span style={{ width: 5, height: 5, borderRadius: '50%', background: '#FACC15', flexShrink: 0 }} />
+              <span>Rp 50.000 = small street food orders</span>
+            </div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+              <span style={{ width: 5, height: 5, borderRadius: '50%', background: '#8DC63F', flexShrink: 0 }} />
+              <span>Rp 150.000+ = full access to all food orders</span>
+            </div>
           </div>
         </div>
 
         {/* Actions */}
-        <div className={styles.actions}>
-          <button
-            className={styles.confirmBtn}
-            onClick={handleConfirm}
-            disabled={false}
-          >
-            Go Online{numericValue > 0 ? ` · ${fmtRp(numericValue)} float` : ''}
-          </button>
-          <button className={styles.skipBtn} onClick={handleSkip}>
-            No cash right now — skip COD orders
-          </button>
-        </div>
-
+        <button onClick={() => onConfirm(amount)} style={{ width: '100%', padding: 16, borderRadius: 14, background: '#8DC63F', border: 'none', color: '#000', fontSize: 15, fontWeight: 900, cursor: 'pointer', fontFamily: 'inherit', marginBottom: 8 }}>
+          Go Online{amount > 0 ? ` · ${fmtRp(amount)} float` : ''}
+        </button>
+        <button onClick={() => onConfirm(0)} style={{ width: '100%', padding: 12, borderRadius: 12, background: 'none', border: '1px solid rgba(255,255,255,0.1)', color: 'rgba(255,255,255,0.4)', fontSize: 12, fontWeight: 700, cursor: 'pointer', fontFamily: 'inherit' }}>
+          No cash — skip COD orders
+        </button>
       </div>
+
+      <style>{`@keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }`}</style>
     </div>
   )
 }
