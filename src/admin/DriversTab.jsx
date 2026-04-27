@@ -188,7 +188,7 @@ export default function DriversTab() {
             <div key={d.id} className={`${styles.flaggedRow} ${d.cancellation_count >= 2 ? styles.flaggedRowCritical : ''}`}>
               <div className={styles.flaggedInfo}>
                 <span className={styles.flaggedName}>{d.display_name}</span>
-                <span className={styles.flaggedMeta}>{d.driver_type === 'car_taxi' ? '🚗 Car' : '🛵 Bike'} · {d.city ?? '—'}</span>
+                <span className={styles.flaggedMeta}>{d.driver_type === 'car_taxi' ? '🚕 Car' : '🏍 Bike'} · {d.city ?? '—'}</span>
               </div>
               <span className={styles.flaggedBadge}>
                 ⚠️ {d.cancellation_count} {d.cancellation_count === 1 ? 'WARNING' : 'WARNINGS'}
@@ -211,7 +211,7 @@ export default function DriversTab() {
                 <div className={styles.disputeInfo}>
                   <span className={styles.disputeName}>{d.user_name ?? d.user_id}</span>
                   <span className={styles.disputeMeta}>
-                    Driver: <strong>{d.driver_name}</strong> · {d.driver_type === 'car_taxi' ? '🚗 Car' : '🛵 Bike'} · {new Date(d.created_at).toLocaleDateString('en-GB', { day: 'numeric', month: 'short' })}
+                    Driver: <strong>{d.driver_name}</strong> · {d.driver_type === 'car_taxi' ? '🚕 Car' : '🏍 Bike'} · {new Date(d.created_at).toLocaleDateString('en-GB', { day: 'numeric', month: 'short' })}
                   </span>
                   <span className={styles.disputeMeta}>📍 {d.pickup_location} → {d.dropoff_location}</span>
                   <span className={styles.disputeMeta}>Booking: {d.booking_id}</span>
@@ -259,8 +259,8 @@ export default function DriversTab() {
                 <span className={styles.rateZoneLabel}>Zone {n}</span>
                 <span className={styles.rateZoneName}>{info.label}</span>
                 <div className={styles.rateZoneRates}>
-                  <span>🛵 {formatRp(info.bike_per_km)}<span className={styles.rateUnit}>/km</span></span>
-                  <span>🚗 {formatRp(info.car_per_km)}<span className={styles.rateUnit}>/km</span></span>
+                  <span>🏍 {formatRp(info.bike_per_km)}<span className={styles.rateUnit}>/km</span></span>
+                  <span>🚕 {formatRp(info.car_per_km)}<span className={styles.rateUnit}>/km</span></span>
                 </div>
               </div>
             )
@@ -315,8 +315,8 @@ export default function DriversTab() {
                     }
                   </div>
                   <div className={styles.driverInfo}>
-                    <span className={styles.driverName}>{name}</span>
-                    <span className={styles.driverMeta}>{city} · {app.driver_type === 'car_taxi' ? '🚗 Car Taxi' : '🛵 Bike Ride'} · {dateStr}</span>
+                    <span className={styles.driverName}>{name}{app.status === 'approved' && <span style={{ color: '#22C55E', marginLeft: 4, fontSize: 13 }} title="Verified driver">✅</span>}</span>
+                    <span className={styles.driverMeta}>{city} · {app.driver_type === 'car_taxi' ? '🚕 Car Taxi' : '🏍 Bike Ride'} · {dateStr}</span>
                     {app.admin_notes && <span className={styles.adminNote}>Note: {app.admin_notes}</span>}
                   </div>
                   <span className={`${styles.statusPill} ${styles['pill_' + app.status]}`}>

@@ -6,8 +6,8 @@ import { useState, useRef, useEffect } from 'react'
 const DEMO_USERS = [
   { id: 'u1', name: 'Ava Mitchell', type: 'user', photo: 'https://i.pravatar.cc/40?img=1' },
   { id: 'u2', name: 'Jordan Lee', type: 'user', photo: 'https://i.pravatar.cc/40?img=2' },
-  { id: 'd1', name: 'Agus Prasetyo', type: 'driver', photo: 'https://i.pravatar.cc/40?img=12' },
-  { id: 'd2', name: 'Budi Santoso', type: 'driver', photo: 'https://i.pravatar.cc/40?img=15' },
+  { id: 'd1', name: 'Agus Prasetyo', type: 'driver', photo: 'https://i.pravatar.cc/40?img=12', vehicle_type: 'bike_ride' },
+  { id: 'd2', name: 'Budi Santoso', type: 'driver', photo: 'https://i.pravatar.cc/40?img=15', vehicle_type: 'car_taxi' },
   { id: 'v1', name: 'Warung Bu Sari', type: 'vendor', photo: 'https://i.pravatar.cc/40?img=20' },
   { id: 'v2', name: 'Bakso Pak Budi', type: 'vendor', photo: 'https://i.pravatar.cc/40?img=25' },
 ]
@@ -73,7 +73,7 @@ export default function AdminChatTab() {
             }}>
               <img src={u.photo} alt="" style={{ width: 36, height: 36, borderRadius: '50%', objectFit: 'cover', border: `2px solid ${typeColors[u.type]}` }} />
               <div>
-                <span style={{ fontSize: 13, fontWeight: 800, color: '#fff', display: 'block' }}>{u.name}</span>
+                <span style={{ fontSize: 13, fontWeight: 800, color: '#fff', display: 'block' }}>{u.type === 'driver' ? (u.vehicle_type === 'car_taxi' ? '🚕 ' : '🏍 ') : ''}{u.name}</span>
                 <span style={{ fontSize: 10, fontWeight: 700, color: typeColors[u.type], textTransform: 'uppercase' }}>{u.type}</span>
               </div>
               {(messages[u.id]?.length ?? 0) > 0 && (
@@ -98,6 +98,9 @@ export default function AdminChatTab() {
               <div style={{ flex: 1 }}>
                 <span style={{ fontSize: 14, fontWeight: 800, color: '#fff' }}>{selectedUser.name}</span>
                 <span style={{ fontSize: 10, color: typeColors[selectedUser.type], fontWeight: 700, marginLeft: 8, textTransform: 'uppercase' }}>{selectedUser.type}</span>
+                {selectedUser.type === 'driver' && selectedUser.vehicle_type && (
+                  <span style={{ fontSize: 10, color: 'rgba(255,255,255,0.5)', fontWeight: 700, marginLeft: 8 }}>{selectedUser.vehicle_type === 'car_taxi' ? '🚕 Car Taxi' : '🏍 Bike Ride'}</span>
+                )}
               </div>
             </div>
 

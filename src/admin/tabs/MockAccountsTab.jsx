@@ -2,7 +2,7 @@
  * MockAccountsTab — Admin creates mock users, drivers, vendors, restaurants, food items, deals
  * Full seeding control for all modules
  */
-import { useState } from 'react'
+import { useState, useCallback } from 'react'
 
 const fmtRp = (n) => 'Rp ' + (n ?? 0).toLocaleString('id-ID')
 
@@ -25,6 +25,18 @@ export default function MockAccountsTab() {
   const [toast, setToast] = useState(null)
 
   const showToast = (msg) => { setToast(msg); setTimeout(() => setToast(null), 3000) }
+  const [_, setTick] = useState(0)
+  const refresh = useCallback(() => setTick(t => t + 1), [])
+
+  const deleteFromStorage = (key, id, idField = 'id') => {
+    const arr = JSON.parse(localStorage.getItem(key) || '[]')
+    const updated = arr.filter(item => item[idField] !== id)
+    localStorage.setItem(key, JSON.stringify(updated))
+    refresh()
+    showToast('Item deleted')
+  }
+
+  const getFromStorage = (key) => JSON.parse(localStorage.getItem(key) || '[]')
 
   // ── User form ──
   const [userName, setUserName] = useState('')
@@ -39,6 +51,7 @@ export default function MockAccountsTab() {
     users.push({ id: `user-${Date.now()}`, display_name: userName.trim(), email: userEmail.trim(), phone: userPhone.trim(), city: userCity, is_verified: userVerified, created_at: new Date().toISOString(), status: 'active' })
     localStorage.setItem('indoo_mock_users', JSON.stringify(users))
     setUserName(''); setUserEmail(''); setUserPhone('')
+    refresh()
     showToast(`User "${userName.trim()}" created`)
   }
 
@@ -55,6 +68,7 @@ export default function MockAccountsTab() {
     drivers.push({ id: `driver-${Date.now()}`, display_name: driverName.trim(), phone: driverPhone.trim(), vehicle_model: driverVehicle, vehicle_plate: driverPlate.trim(), vehicle_type: driverType, rating: 4.8, total_trips: 0, status: 'approved', is_online: false, created_at: new Date().toISOString() })
     localStorage.setItem('indoo_mock_drivers', JSON.stringify(drivers))
     setDriverName(''); setDriverPhone(''); setDriverPlate('')
+    refresh()
     showToast(`Driver "${driverName.trim()}" created`)
   }
 
@@ -66,13 +80,16 @@ export default function MockAccountsTab() {
   const [vendorType, setVendorType] = useState('restaurant')
   const [vendorBank, setVendorBank] = useState('BCA')
   const [vendorAccount, setVendorAccount] = useState('')
+  const [vendorCoverUrl, setVendorCoverUrl] = useState('')
+  const [vendorHeroDishUrl, setVendorHeroDishUrl] = useState('')
 
   const createVendor = () => {
     if (!vendorName.trim()) return
     const vendors = JSON.parse(localStorage.getItem('indoo_mock_vendors') || '[]')
-    vendors.push({ id: `rest-${Date.now()}`, name: vendorName.trim(), cuisine_type: vendorCuisine, address: vendorAddress.trim(), phone: vendorPhone.trim(), vendor_type: vendorType, bank: { name: vendorBank, account_number: vendorAccount, account_holder: vendorName.trim() }, status: 'approved', rating: 4.5, review_count: 0, is_open: true, created_at: new Date().toISOString() })
+    vendors.push({ id: `rest-${Date.now()}`, name: vendorName.trim(), cuisine_type: vendorCuisine, address: vendorAddress.trim(), phone: vendorPhone.trim(), vendor_type: vendorType, bank: { name: vendorBank, account_number: vendorAccount, account_holder: vendorName.trim() }, cover_url: vendorCoverUrl.trim() || '', hero_dish_url: vendorHeroDishUrl.trim() || '', status: 'approved', rating: 4.5, review_count: 0, is_open: true, created_at: new Date().toISOString() })
     localStorage.setItem('indoo_mock_vendors', JSON.stringify(vendors))
-    setVendorName(''); setVendorAddress(''); setVendorPhone(''); setVendorAccount('')
+    setVendorName(''); setVendorAddress(''); setVendorPhone(''); setVendorAccount(''); setVendorCoverUrl(''); setVendorHeroDishUrl('')
+    refresh()
     showToast(`Restaurant "${vendorName.trim()}" created`)
   }
 
@@ -82,13 +99,16 @@ export default function MockAccountsTab() {
   const [menuCategory, setMenuCategory] = useState('Main')
   const [menuDesc, setMenuDesc] = useState('')
   const [menuRestId, setMenuRestId] = useState('')
+  const [menuPhotoUrl, setMenuPhotoUrl] = useState('')
+  const [menuRestCustom, setMenuRestCustom] = useState(false)
 
   const createMenuItem = () => {
     if (!menuName.trim() || !menuPrice) return
     const items = JSON.parse(localStorage.getItem('indoo_mock_menu_items') || '[]')
-    items.push({ id: `item-${Date.now()}`, name: menuName.trim(), price: Number(menuPrice), category: menuCategory, description: menuDesc.trim(), restaurant_id: menuRestId.trim() || 'rest-demo', is_available: true, created_at: new Date().toISOString() })
+    items.push({ id: `item-${Date.now()}`, name: menuName.trim(), price: Number(menuPrice), category: menuCategory, description: menuDesc.trim(), restaurant_id: menuRestId.trim() || 'rest-demo', photo_url: menuPhotoUrl.trim() || '', is_available: true, created_at: new Date().toISOString() })
     localStorage.setItem('indoo_mock_menu_items', JSON.stringify(items))
-    setMenuName(''); setMenuPrice(''); setMenuDesc('')
+    setMenuName(''); setMenuPrice(''); setMenuDesc(''); setMenuPhotoUrl('')
+    refresh()
     showToast(`Menu item "${menuName.trim()}" created`)
   }
 
@@ -106,6 +126,7 @@ export default function MockAccountsTab() {
     deals.unshift({ id: `DEAL-${Date.now().toString(36).toUpperCase()}`, title: dealTitle.trim(), original_price: Number(dealOriginal), deal_price: Number(dealPrice), discount_pct: Math.round((1 - Number(dealPrice) / Number(dealOriginal)) * 100), category: dealCategory, quantity: Number(dealQty), address: dealAddress.trim(), status: 'active', images: [], whatsapp: '', created_at: new Date().toISOString(), seller_id: 'admin', view_count: 0, claim_count: 0 })
     localStorage.setItem('indoo_public_deals', JSON.stringify(deals))
     setDealTitle(''); setDealOriginal(''); setDealPrice(''); setDealAddress('')
+    refresh()
     showToast(`Deal "${dealTitle.trim()}" posted (active)`)
   }
 
@@ -123,6 +144,7 @@ export default function MockAccountsTab() {
     promos.push({ code: promoCode.toUpperCase().trim(), discount: Number(promoDiscount), type: promoType, minOrder: Number(promoMinOrder), maxDiscount: Number(promoMaxDiscount), expires: promoExpiry, usageLimit: 999, label: `Admin: ${promoCode.toUpperCase().trim()}`, created_at: new Date().toISOString() })
     localStorage.setItem('indoo_admin_promos', JSON.stringify(promos))
     setPromoCode(''); setPromoDiscount('')
+    refresh()
     showToast(`Promo code "${promoCode.toUpperCase().trim()}" created`)
   }
 
@@ -155,6 +177,30 @@ export default function MockAccountsTab() {
             <span style={{ fontSize: 13, color: 'rgba(255,255,255,0.6)' }}>Verified account</span>
           </div>
           <button onClick={createUser} style={{ ...btnStyle, background: '#8DC63F', color: '#000', marginTop: 16, width: '100%' }}>Create User</button>
+
+          {/* View Data */}
+          {(() => {
+            const users = getFromStorage('indoo_mock_users')
+            if (!users.length) return null
+            return (
+              <div style={{ marginTop: 20, borderTop: '1px solid rgba(255,255,255,0.08)', paddingTop: 16 }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 12 }}>
+                  <span style={{ fontSize: 14, fontWeight: 900, color: '#fff' }}>Existing Users</span>
+                  <span style={{ fontSize: 11, fontWeight: 800, padding: '2px 8px', borderRadius: 10, background: 'rgba(141,198,63,0.15)', color: '#8DC63F' }}>{users.length}</span>
+                </div>
+                {users.map(u => (
+                  <div key={u.id} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '8px 12px', borderRadius: 8, background: 'rgba(255,255,255,0.03)', marginBottom: 6 }}>
+                    <div>
+                      <span style={{ fontSize: 13, fontWeight: 700, color: '#fff' }}>{u.display_name}</span>
+                      <span style={{ fontSize: 11, color: 'rgba(255,255,255,0.4)', marginLeft: 8 }}>{u.email || u.phone || u.city}</span>
+                      <span style={{ fontSize: 11, color: 'rgba(255,255,255,0.3)', marginLeft: 8 }}>{u.status}</span>
+                    </div>
+                    <button onClick={() => deleteFromStorage('indoo_mock_users', u.id)} style={{ ...btnStyle, background: 'rgba(255,60,60,0.15)', color: '#ff5555', fontSize: 11, padding: '4px 10px' }}>Delete</button>
+                  </div>
+                ))}
+              </div>
+            )
+          })()}
         </div>
       )}
 
@@ -176,6 +222,31 @@ export default function MockAccountsTab() {
             ))}
           </div>
           <button onClick={createDriver} style={{ ...btnStyle, background: '#8DC63F', color: '#000', marginTop: 16, width: '100%' }}>Create Driver</button>
+
+          {/* View Data */}
+          {(() => {
+            const drivers = getFromStorage('indoo_mock_drivers')
+            if (!drivers.length) return null
+            return (
+              <div style={{ marginTop: 20, borderTop: '1px solid rgba(255,255,255,0.08)', paddingTop: 16 }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 12 }}>
+                  <span style={{ fontSize: 14, fontWeight: 900, color: '#fff' }}>Existing Drivers</span>
+                  <span style={{ fontSize: 11, fontWeight: 800, padding: '2px 8px', borderRadius: 10, background: 'rgba(141,198,63,0.15)', color: '#8DC63F' }}>{drivers.length}</span>
+                </div>
+                {drivers.map(d => (
+                  <div key={d.id} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '8px 12px', borderRadius: 8, background: 'rgba(255,255,255,0.03)', marginBottom: 6 }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                      <span style={{ fontSize: 13, fontWeight: 700, color: '#fff' }}>{d.display_name}</span>
+                      {d.status === 'approved' && <span style={{ fontSize: 11, fontWeight: 800, padding: '1px 6px', borderRadius: 6, background: 'rgba(76,175,80,0.15)', color: '#4CAF50' }}>&#10003; Approved</span>}
+                      <span style={{ fontSize: 11, color: 'rgba(255,255,255,0.4)', marginLeft: 4 }}>{d.vehicle_model} ({d.vehicle_plate})</span>
+                      <span style={{ fontSize: 11, color: 'rgba(255,255,255,0.3)' }}>{d.vehicle_type === 'bike_ride' ? 'Bike' : 'Car'}</span>
+                    </div>
+                    <button onClick={() => deleteFromStorage('indoo_mock_drivers', d.id)} style={{ ...btnStyle, background: 'rgba(255,60,60,0.15)', color: '#ff5555', fontSize: 11, padding: '4px 10px' }}>Delete</button>
+                  </div>
+                ))}
+              </div>
+            )
+          })()}
         </div>
       )}
 
@@ -190,6 +261,8 @@ export default function MockAccountsTab() {
             <div><span style={labelStyle}>Phone</span><input value={vendorPhone} onChange={e => setVendorPhone(e.target.value)} style={inputStyle} /></div>
             <div><span style={labelStyle}>Bank</span><input value={vendorBank} onChange={e => setVendorBank(e.target.value)} style={inputStyle} /></div>
             <div><span style={labelStyle}>Account Number</span><input value={vendorAccount} onChange={e => setVendorAccount(e.target.value)} style={inputStyle} /></div>
+            <div><span style={labelStyle}>Cover Image URL</span><input value={vendorCoverUrl} onChange={e => setVendorCoverUrl(e.target.value)} placeholder="https://..." style={inputStyle} /></div>
+            <div><span style={labelStyle}>Hero Dish Image URL</span><input value={vendorHeroDishUrl} onChange={e => setVendorHeroDishUrl(e.target.value)} placeholder="https://..." style={inputStyle} /></div>
           </div>
           <div style={{ display: 'flex', gap: 8, marginTop: 12 }}>
             {['restaurant', 'street_vendor'].map(t => (
@@ -199,6 +272,33 @@ export default function MockAccountsTab() {
             ))}
           </div>
           <button onClick={createVendor} style={{ ...btnStyle, background: '#8DC63F', color: '#000', marginTop: 16, width: '100%' }}>Create Restaurant</button>
+
+          {/* View Data */}
+          {(() => {
+            const vendors = getFromStorage('indoo_mock_vendors')
+            if (!vendors.length) return null
+            return (
+              <div style={{ marginTop: 20, borderTop: '1px solid rgba(255,255,255,0.08)', paddingTop: 16 }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 12 }}>
+                  <span style={{ fontSize: 14, fontWeight: 900, color: '#fff' }}>Existing Restaurants</span>
+                  <span style={{ fontSize: 11, fontWeight: 800, padding: '2px 8px', borderRadius: 10, background: 'rgba(141,198,63,0.15)', color: '#8DC63F' }}>{vendors.length}</span>
+                </div>
+                {vendors.map(v => (
+                  <div key={v.id} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '8px 12px', borderRadius: 8, background: 'rgba(255,255,255,0.03)', marginBottom: 6 }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                      {v.cover_url && <img src={v.cover_url} alt="" style={{ width: 36, height: 36, borderRadius: 6, objectFit: 'cover' }} />}
+                      <div>
+                        <span style={{ fontSize: 13, fontWeight: 700, color: '#fff' }}>{v.name}</span>
+                        <span style={{ fontSize: 11, color: 'rgba(255,255,255,0.4)', marginLeft: 8 }}>{v.cuisine_type} &middot; {v.vendor_type}</span>
+                        <span style={{ fontSize: 11, color: 'rgba(255,255,255,0.3)', marginLeft: 8 }}>{v.status}</span>
+                      </div>
+                    </div>
+                    <button onClick={() => deleteFromStorage('indoo_mock_vendors', v.id)} style={{ ...btnStyle, background: 'rgba(255,60,60,0.15)', color: '#ff5555', fontSize: 11, padding: '4px 10px' }}>Delete</button>
+                  </div>
+                ))}
+              </div>
+            )
+          })()}
         </div>
       )}
 
@@ -210,10 +310,61 @@ export default function MockAccountsTab() {
             <div><span style={labelStyle}>Item Name</span><input value={menuName} onChange={e => setMenuName(e.target.value)} placeholder="Nasi Goreng Spesial" style={inputStyle} /></div>
             <div><span style={labelStyle}>Price (Rp)</span><input type="number" value={menuPrice} onChange={e => setMenuPrice(e.target.value)} placeholder="25000" style={inputStyle} /></div>
             <div><span style={labelStyle}>Category</span><select value={menuCategory} onChange={e => setMenuCategory(e.target.value)} style={inputStyle}><option>Main</option><option>Sides</option><option>Drinks</option><option>Desserts</option><option>Snacks</option></select></div>
-            <div><span style={labelStyle}>Restaurant ID</span><input value={menuRestId} onChange={e => setMenuRestId(e.target.value)} placeholder="rest-demo" style={inputStyle} /></div>
+            <div>
+              <span style={labelStyle}>Restaurant {menuRestCustom ? '(Custom ID)' : ''}</span>
+              {(() => {
+                const vendors = getFromStorage('indoo_mock_vendors')
+                if (!menuRestCustom && vendors.length > 0) {
+                  return (
+                    <div style={{ display: 'flex', gap: 6 }}>
+                      <select value={menuRestId} onChange={e => setMenuRestId(e.target.value)} style={{ ...inputStyle, flex: 1 }}>
+                        <option value="">-- Select restaurant --</option>
+                        {vendors.map(v => <option key={v.id} value={v.id}>{v.name}</option>)}
+                      </select>
+                      <button onClick={() => setMenuRestCustom(true)} style={{ ...btnStyle, background: 'rgba(255,255,255,0.06)', color: 'rgba(255,255,255,0.5)', fontSize: 11, padding: '8px 10px', whiteSpace: 'nowrap' }}>Custom</button>
+                    </div>
+                  )
+                }
+                return (
+                  <div style={{ display: 'flex', gap: 6 }}>
+                    <input value={menuRestId} onChange={e => setMenuRestId(e.target.value)} placeholder="rest-demo" style={{ ...inputStyle, flex: 1 }} />
+                    {vendors.length > 0 && <button onClick={() => setMenuRestCustom(false)} style={{ ...btnStyle, background: 'rgba(255,255,255,0.06)', color: 'rgba(255,255,255,0.5)', fontSize: 11, padding: '8px 10px', whiteSpace: 'nowrap' }}>List</button>}
+                  </div>
+                )
+              })()}
+            </div>
+            <div style={{ gridColumn: '1 / -1' }}><span style={labelStyle}>Photo URL</span><input value={menuPhotoUrl} onChange={e => setMenuPhotoUrl(e.target.value)} placeholder="https://..." style={inputStyle} /></div>
           </div>
           <div style={{ marginTop: 12 }}><span style={labelStyle}>Description</span><textarea value={menuDesc} onChange={e => setMenuDesc(e.target.value)} placeholder="Describe the dish..." style={{ ...inputStyle, height: 60, resize: 'none' }} /></div>
           <button onClick={createMenuItem} style={{ ...btnStyle, background: '#8DC63F', color: '#000', marginTop: 16, width: '100%' }}>Create Menu Item</button>
+
+          {/* View Data */}
+          {(() => {
+            const items = getFromStorage('indoo_mock_menu_items')
+            if (!items.length) return null
+            return (
+              <div style={{ marginTop: 20, borderTop: '1px solid rgba(255,255,255,0.08)', paddingTop: 16 }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 12 }}>
+                  <span style={{ fontSize: 14, fontWeight: 900, color: '#fff' }}>Existing Menu Items</span>
+                  <span style={{ fontSize: 11, fontWeight: 800, padding: '2px 8px', borderRadius: 10, background: 'rgba(141,198,63,0.15)', color: '#8DC63F' }}>{items.length}</span>
+                </div>
+                {items.map(m => (
+                  <div key={m.id} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '8px 12px', borderRadius: 8, background: 'rgba(255,255,255,0.03)', marginBottom: 6 }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                      {m.photo_url && <img src={m.photo_url} alt="" style={{ width: 36, height: 36, borderRadius: 6, objectFit: 'cover' }} />}
+                      <div>
+                        <span style={{ fontSize: 13, fontWeight: 700, color: '#fff' }}>{m.name}</span>
+                        <span style={{ fontSize: 11, color: '#8DC63F', marginLeft: 8 }}>{fmtRp(m.price)}</span>
+                        <span style={{ fontSize: 11, color: 'rgba(255,255,255,0.4)', marginLeft: 8 }}>{m.category}</span>
+                        <span style={{ fontSize: 11, color: 'rgba(255,255,255,0.3)', marginLeft: 8 }}>{m.restaurant_id}</span>
+                      </div>
+                    </div>
+                    <button onClick={() => deleteFromStorage('indoo_mock_menu_items', m.id)} style={{ ...btnStyle, background: 'rgba(255,60,60,0.15)', color: '#ff5555', fontSize: 11, padding: '4px 10px' }}>Delete</button>
+                  </div>
+                ))}
+              </div>
+            )
+          })()}
         </div>
       )}
 
@@ -235,6 +386,31 @@ export default function MockAccountsTab() {
             </div>
           )}
           <button onClick={createDeal} style={{ ...btnStyle, background: '#8DC63F', color: '#000', marginTop: 16, width: '100%' }}>Post Deal (Live Immediately)</button>
+
+          {/* View Data */}
+          {(() => {
+            const deals = getFromStorage('indoo_public_deals')
+            if (!deals.length) return null
+            return (
+              <div style={{ marginTop: 20, borderTop: '1px solid rgba(255,255,255,0.08)', paddingTop: 16 }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 12 }}>
+                  <span style={{ fontSize: 14, fontWeight: 900, color: '#fff' }}>Existing Deals</span>
+                  <span style={{ fontSize: 11, fontWeight: 800, padding: '2px 8px', borderRadius: 10, background: 'rgba(141,198,63,0.15)', color: '#8DC63F' }}>{deals.length}</span>
+                </div>
+                {deals.map(d => (
+                  <div key={d.id} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '8px 12px', borderRadius: 8, background: 'rgba(255,255,255,0.03)', marginBottom: 6 }}>
+                    <div>
+                      <span style={{ fontSize: 13, fontWeight: 700, color: '#fff' }}>{d.title}</span>
+                      <span style={{ fontSize: 11, color: '#8DC63F', marginLeft: 8 }}>{d.discount_pct}% OFF</span>
+                      <span style={{ fontSize: 11, color: 'rgba(255,255,255,0.4)', marginLeft: 8 }}>{fmtRp(d.deal_price)}</span>
+                      <span style={{ fontSize: 11, color: 'rgba(255,255,255,0.3)', marginLeft: 8 }}>{d.status}</span>
+                    </div>
+                    <button onClick={() => deleteFromStorage('indoo_public_deals', d.id)} style={{ ...btnStyle, background: 'rgba(255,60,60,0.15)', color: '#ff5555', fontSize: 11, padding: '4px 10px' }}>Delete</button>
+                  </div>
+                ))}
+              </div>
+            )
+          })()}
         </div>
       )}
 
@@ -251,6 +427,31 @@ export default function MockAccountsTab() {
             <div><span style={labelStyle}>Expires</span><input type="date" value={promoExpiry} onChange={e => setPromoExpiry(e.target.value)} style={inputStyle} /></div>
           </div>
           <button onClick={createPromo} style={{ ...btnStyle, background: '#8DC63F', color: '#000', marginTop: 16, width: '100%' }}>Create Promo Code</button>
+
+          {/* View Data */}
+          {(() => {
+            const promos = getFromStorage('indoo_admin_promos')
+            if (!promos.length) return null
+            return (
+              <div style={{ marginTop: 20, borderTop: '1px solid rgba(255,255,255,0.08)', paddingTop: 16 }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 12 }}>
+                  <span style={{ fontSize: 14, fontWeight: 900, color: '#fff' }}>Existing Promos</span>
+                  <span style={{ fontSize: 11, fontWeight: 800, padding: '2px 8px', borderRadius: 10, background: 'rgba(141,198,63,0.15)', color: '#8DC63F' }}>{promos.length}</span>
+                </div>
+                {promos.map(p => (
+                  <div key={p.code} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '8px 12px', borderRadius: 8, background: 'rgba(255,255,255,0.03)', marginBottom: 6 }}>
+                    <div>
+                      <span style={{ fontSize: 13, fontWeight: 700, color: '#fff', fontFamily: 'monospace' }}>{p.code}</span>
+                      <span style={{ fontSize: 11, color: '#8DC63F', marginLeft: 8 }}>{p.type === 'percent' ? `${p.discount}%` : p.type === 'flat' ? fmtRp(p.discount) : 'Free Delivery'}</span>
+                      <span style={{ fontSize: 11, color: 'rgba(255,255,255,0.4)', marginLeft: 8 }}>min {fmtRp(p.minOrder)}</span>
+                      <span style={{ fontSize: 11, color: 'rgba(255,255,255,0.3)', marginLeft: 8 }}>exp {p.expires}</span>
+                    </div>
+                    <button onClick={() => deleteFromStorage('indoo_admin_promos', p.code, 'code')} style={{ ...btnStyle, background: 'rgba(255,60,60,0.15)', color: '#ff5555', fontSize: 11, padding: '4px 10px' }}>Delete</button>
+                  </div>
+                ))}
+              </div>
+            )
+          })()}
         </div>
       )}
 

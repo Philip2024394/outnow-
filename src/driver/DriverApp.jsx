@@ -15,7 +15,7 @@ import { getDriverGoals } from '@/services/driverIncentiveService'
 import { fetchDriverTripHistory } from '@/services/bookingService'
 import { getDriverFoodOrders } from '@/services/foodOrderService'
 
-const BG_IMG = 'https://ik.imagekit.io/nepgaxllc/ChatGPT%20Image%20Apr%2016,%202026,%2006_04_21%20PM.png'
+const BG_IMG = 'https://ik.imagekit.io/nepgaxllc/ChatGPT%20Image%20Apr%2027,%202026,%2006_12_16%20AM.png?updatedAt=1777245159090'
 
 const fmtRp = (n) => 'Rp ' + (n ?? 0).toLocaleString('id-ID')
 
@@ -171,10 +171,11 @@ export default function DriverApp() {
 
   // ── Dashboard ──
   return (
-    <div style={{ height: '100%', display: 'flex', flexDirection: 'column', background: '#080808' }}>
+    <div style={{ height: '100%', display: 'flex', flexDirection: 'column', background: '#080808', position: 'relative' }}>
+      <img src={BG_IMG} alt="" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', pointerEvents: 'none', opacity: 0.15 }} />
 
       {/* Header */}
-      <div style={{ padding: 'calc(env(safe-area-inset-top, 0px) + 12px) 16px 12px', borderBottom: '1px solid rgba(255,255,255,0.06)', flexShrink: 0, display: 'flex', alignItems: 'center', gap: 12 }}>
+      <div style={{ padding: 'calc(env(safe-area-inset-top, 0px) + 12px) 16px 12px', borderBottom: '1px solid rgba(255,255,255,0.1)', background: 'rgba(0,0,0,0.4)', backdropFilter: 'blur(20px)', flexShrink: 0, display: 'flex', alignItems: 'center', gap: 12, position: 'relative', zIndex: 1 }}>
         <img src={profile.photo_url} alt="" style={{ width: 44, height: 44, borderRadius: '50%', objectFit: 'cover', border: `2.5px solid ${isOnline ? '#8DC63F' : 'rgba(255,255,255,0.15)'}` }} />
         <div style={{ flex: 1 }}>
           <span style={{ fontSize: 16, fontWeight: 900, color: '#fff', display: 'block' }}>{profile.display_name}</span>
@@ -195,18 +196,18 @@ export default function DriverApp() {
       </div>
 
       {/* Main content */}
-      <div style={{ flex: 1, overflowY: 'auto', padding: '16px 16px 100px' }}>
+      <div style={{ flex: 1, overflowY: 'auto', padding: '16px 16px 100px', position: 'relative', zIndex: 1 }}>
 
         {/* ── HOME TAB ── */}
         {tab === 'home' && (
           <>
             {/* Today stats */}
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10, marginBottom: 16 }}>
-              <div style={{ padding: 16, borderRadius: 16, background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.06)', textAlign: 'center' }}>
+              <div style={{ padding: 16, borderRadius: 16, background: 'rgba(255,255,255,0.06)', backdropFilter: 'blur(16px)', border: '1px solid rgba(255,255,255,0.1)', textAlign: 'center' }}>
                 <span style={{ fontSize: 28, fontWeight: 900, color: '#FACC15', display: 'block' }}>{todayTrips}</span>
                 <span style={{ fontSize: 12, fontWeight: 700, color: 'rgba(255,255,255,0.4)' }}>Trips Today</span>
               </div>
-              <div style={{ padding: 16, borderRadius: 16, background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.06)', textAlign: 'center' }}>
+              <div style={{ padding: 16, borderRadius: 16, background: 'rgba(255,255,255,0.06)', backdropFilter: 'blur(16px)', border: '1px solid rgba(255,255,255,0.1)', textAlign: 'center' }}>
                 <span style={{ fontSize: 28, fontWeight: 900, color: '#8DC63F', display: 'block' }}>{fmtRp(todayEarnings)}</span>
                 <span style={{ fontSize: 12, fontWeight: 700, color: 'rgba(255,255,255,0.4)' }}>Earned Today</span>
               </div>
@@ -214,7 +215,7 @@ export default function DriverApp() {
 
             {/* Goals */}
             {goals && (
-              <div style={{ padding: 16, borderRadius: 16, background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.06)', marginBottom: 16 }}>
+              <div style={{ padding: 16, borderRadius: 16, background: 'rgba(255,255,255,0.06)', backdropFilter: 'blur(16px)', border: '1px solid rgba(255,255,255,0.1)', marginBottom: 16 }}>
                 <span style={{ fontSize: 14, fontWeight: 900, color: '#fff', display: 'block', marginBottom: 10 }}>Daily Goal</span>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
                   <div style={{ flex: 1, height: 8, borderRadius: 4, background: 'rgba(255,255,255,0.08)', overflow: 'hidden' }}>
@@ -252,22 +253,22 @@ export default function DriverApp() {
 
             {/* Quick actions */}
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
-              <button onClick={() => setTab('rides')} style={{ padding: 16, borderRadius: 16, background: 'rgba(141,198,63,0.08)', border: '1px solid rgba(141,198,63,0.2)', cursor: 'pointer', textAlign: 'center' }}>
+              <button onClick={() => setTab('rides')} style={{ padding: 16, borderRadius: 16, background: 'rgba(141,198,63,0.1)', backdropFilter: 'blur(16px)', border: '1px solid rgba(141,198,63,0.25)', cursor: 'pointer', textAlign: 'center' }}>
                 <span style={{ fontSize: 28, display: 'block', marginBottom: 6 }}>🏍️</span>
                 <span style={{ fontSize: 13, fontWeight: 800, color: '#8DC63F', display: 'block' }}>Ride Orders</span>
                 <span style={{ fontSize: 11, color: 'rgba(255,255,255,0.3)' }}>Bike & Car</span>
               </button>
-              <button onClick={() => setTab('food')} style={{ padding: 16, borderRadius: 16, background: 'rgba(250,204,21,0.08)', border: '1px solid rgba(250,204,21,0.2)', cursor: 'pointer', textAlign: 'center' }}>
+              <button onClick={() => setTab('food')} style={{ padding: 16, borderRadius: 16, background: 'rgba(250,204,21,0.1)', backdropFilter: 'blur(16px)', border: '1px solid rgba(250,204,21,0.25)', cursor: 'pointer', textAlign: 'center' }}>
                 <span style={{ fontSize: 28, display: 'block', marginBottom: 6 }}>🍔</span>
                 <span style={{ fontSize: 13, fontWeight: 800, color: '#FACC15', display: 'block' }}>Food Delivery</span>
                 <span style={{ fontSize: 11, color: 'rgba(255,255,255,0.3)' }}>{foodOrders.length} active</span>
               </button>
-              <button onClick={() => setTab('earnings')} style={{ padding: 16, borderRadius: 16, background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)', cursor: 'pointer', textAlign: 'center' }}>
+              <button onClick={() => setTab('earnings')} style={{ padding: 16, borderRadius: 16, background: 'rgba(255,255,255,0.06)', backdropFilter: 'blur(16px)', border: '1px solid rgba(255,255,255,0.1)', cursor: 'pointer', textAlign: 'center' }}>
                 <span style={{ fontSize: 28, display: 'block', marginBottom: 6 }}>💰</span>
                 <span style={{ fontSize: 13, fontWeight: 800, color: '#fff', display: 'block' }}>Earnings</span>
                 <span style={{ fontSize: 11, color: 'rgba(255,255,255,0.3)' }}>History & payouts</span>
               </button>
-              <button onClick={() => setTab('profile')} style={{ padding: 16, borderRadius: 16, background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)', cursor: 'pointer', textAlign: 'center' }}>
+              <button onClick={() => setTab('profile')} style={{ padding: 16, borderRadius: 16, background: 'rgba(255,255,255,0.06)', backdropFilter: 'blur(16px)', border: '1px solid rgba(255,255,255,0.1)', cursor: 'pointer', textAlign: 'center' }}>
                 <span style={{ fontSize: 28, display: 'block', marginBottom: 6 }}>👤</span>
                 <span style={{ fontSize: 13, fontWeight: 800, color: '#fff', display: 'block' }}>Profile</span>
                 <span style={{ fontSize: 11, color: 'rgba(255,255,255,0.3)' }}>Settings & docs</span>
@@ -325,7 +326,7 @@ export default function DriverApp() {
             ) : (
               <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
                 {foodOrders.map(order => (
-                  <div key={order.id} style={{ padding: 14, borderRadius: 16, background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)' }}>
+                  <div key={order.id} style={{ padding: 14, borderRadius: 16, background: 'rgba(255,255,255,0.06)', backdropFilter: 'blur(16px)', border: '1px solid rgba(255,255,255,0.1)' }}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 8 }}>
                       <span style={{ fontSize: 20 }}>🏪</span>
                       <div style={{ flex: 1 }}>
@@ -352,11 +353,11 @@ export default function DriverApp() {
             <h2 style={{ fontSize: 18, fontWeight: 900, color: '#fff', margin: '0 0 6px' }}>💰 Earnings</h2>
             <p style={{ fontSize: 12, color: 'rgba(255,255,255,0.4)', margin: '0 0 16px' }}>Your income and trip history</p>
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10, marginBottom: 16 }}>
-              <div style={{ padding: 16, borderRadius: 16, background: 'rgba(141,198,63,0.08)', border: '1px solid rgba(141,198,63,0.2)', textAlign: 'center' }}>
+              <div style={{ padding: 16, borderRadius: 16, background: 'rgba(141,198,63,0.1)', backdropFilter: 'blur(16px)', border: '1px solid rgba(141,198,63,0.25)', textAlign: 'center' }}>
                 <span style={{ fontSize: 24, fontWeight: 900, color: '#8DC63F', display: 'block' }}>{fmtRp(todayEarnings)}</span>
                 <span style={{ fontSize: 12, fontWeight: 700, color: 'rgba(255,255,255,0.4)' }}>Today</span>
               </div>
-              <div style={{ padding: 16, borderRadius: 16, background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.06)', textAlign: 'center' }}>
+              <div style={{ padding: 16, borderRadius: 16, background: 'rgba(255,255,255,0.06)', backdropFilter: 'blur(16px)', border: '1px solid rgba(255,255,255,0.1)', textAlign: 'center' }}>
                 <span style={{ fontSize: 24, fontWeight: 900, color: '#fff', display: 'block' }}>{todayTrips}</span>
                 <span style={{ fontSize: 12, fontWeight: 700, color: 'rgba(255,255,255,0.4)' }}>Trips</span>
               </div>

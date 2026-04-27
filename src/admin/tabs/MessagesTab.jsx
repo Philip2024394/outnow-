@@ -193,7 +193,7 @@ export default function MessagesTab() {
                 </div>
                 <div className={styles.contactInfo}>
                   <div className={styles.contactTop}>
-                    <span className={styles.contactName}>{c.name}</span>
+                    <span className={styles.contactName}>{c.name}{(c.category === 'bike' || c.category === 'taxi') && <span style={{ color: '#22C55E', marginLeft: 4, fontSize: 11 }} title="Verified driver">✅</span>}</span>
                     <span className={styles.catBadge} style={{ color: CAT_COLOR[c.category], background: CAT_COLOR[c.category] + '15', borderColor: CAT_COLOR[c.category] + '30' }}>
                       {CATS.find(x => x.id === c.category)?.icon}
                     </span>

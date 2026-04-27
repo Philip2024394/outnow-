@@ -331,7 +331,7 @@ export default function RidesAdminTab() {
                   <span className={styles.onlineDot} style={{ background: d.online ? '#00FF9D' : 'rgba(255,255,255,0.2)', boxShadow: d.online ? '0 0 6px #00FF9D' : 'none' }} />
                 </div>
                 <div className={styles.driverInfo}>
-                  <span className={styles.driverName}>{d.name}</span>
+                  <span className={styles.driverName}>{d.name}{(d.status === 'available' || d.status === 'on_ride') && <span style={{ color: '#22C55E', marginLeft: 4, fontSize: 12 }} title="Verified driver">✅</span>}</span>
                   <span className={styles.driverMeta}>
                     <span className={styles.driverType}>{d.type === 'bike' ? '🏍' : '🚕'}</span>
                     {d.area} · ⭐{d.rating}
@@ -356,7 +356,7 @@ export default function RidesAdminTab() {
             {ACTIVE_RIDES.map(r => (
               <div key={r.id} className={styles.rideRow}>
                 <div className={styles.rideInfo}>
-                  <span className={styles.rideDriver}>{r.driver}</span>
+                  <span className={styles.rideDriver}>{r.driver} <span style={{ color: '#22C55E', fontSize: 11 }} title="Verified driver">✅</span></span>
                   <span className={styles.rideMeta}>{r.from} → {r.to} · {r.type === 'bike' ? '🏍' : '🚕'}</span>
                 </div>
                 <div className={styles.rideRight}>
@@ -375,7 +375,7 @@ export default function RidesAdminTab() {
               <div className={styles.chatHeader}>
                 <img src={selectedDriver.avatar} alt="" className={styles.chatAvatar} />
                 <div className={styles.chatHeaderInfo}>
-                  <span className={styles.chatName}>{selectedDriver.name}</span>
+                  <span className={styles.chatName}>{selectedDriver.name}{(selectedDriver.status === 'available' || selectedDriver.status === 'on_ride') && <span style={{ color: '#22C55E', marginLeft: 4, fontSize: 13 }} title="Verified driver">✅</span>}</span>
                   <span className={styles.chatMeta}>
                     {selectedDriver.type === 'bike' ? '🏍 Bike' : '🚕 Taxi'} · {selectedDriver.area} ·
                     <span style={{ color: STATUS_COLOR[selectedDriver.status] }}> {selectedDriver.status.replace('_', ' ')}</span>

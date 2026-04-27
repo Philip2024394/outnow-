@@ -50,7 +50,7 @@ export default function LiveMapTab() {
   const driverPopupHtml = (d) => `
     <div style="font-family:system-ui;min-width:160px;color:#fff;background:#0d0d1a;border-radius:10px;overflow:hidden;">
       <div style="padding:12px 14px;border-bottom:1px solid rgba(255,255,255,0.08)">
-        <div style="font-weight:800;font-size:14px;margin-bottom:2px">${d.type === 'bike' ? '🏍' : '🚕'} ${d.name}</div>
+        <div style="font-weight:800;font-size:14px;margin-bottom:2px">${d.type === 'bike' ? '🏍' : '🚕'} ${d.name} ${d.status !== 'offline' ? '<span style="color:#22C55E;font-size:12px" title="Verified">✅</span>' : ''}</div>
         <div style="font-size:11px;color:${d.status === 'online' ? '#00FF9D' : d.status === 'busy' ? '#FFB800' : '#FF4444'};font-weight:700;text-transform:uppercase">${d.status}</div>
       </div>
       <div style="padding:10px 14px;font-size:12px;color:rgba(255,255,255,0.6);line-height:1.8">
@@ -293,7 +293,7 @@ export default function LiveMapTab() {
                   }}>
                   <span className={styles.driverTypeIcon}>{d.type === 'bike' ? '🏍' : '🚕'}</span>
                   <div className={styles.driverInfo}>
-                    <span className={styles.driverName}>{d.name}</span>
+                    <span className={styles.driverName}>{d.name}{d.status !== 'offline' && <span style={{ color: '#22C55E', marginLeft: 4, fontSize: 11 }} title="Verified driver">✅</span>}</span>
                     <span className={styles.driverSub}>⭐ {d.rating} · {d.trips} trips</span>
                   </div>
                   <span className={styles.driverStatus} style={{
