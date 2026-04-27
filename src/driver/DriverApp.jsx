@@ -356,7 +356,7 @@ export default function DriverApp() {
                     {confirmToggle ? 'Tap Again to Confirm' : 'Go Online'}
                   </button>
                 ) : (
-                  <button onClick={toggleOnline} style={{ padding: '10px 24px', borderRadius: 12, background: confirmToggle ? '#EF4444' : 'rgba(153,27,27,0.3)', border: `1.5px solid ${confirmToggle ? '#EF4444' : 'rgba(153,27,27,0.5)'}`, color: confirmToggle ? '#fff' : '#991B1B', fontSize: 13, fontWeight: 900, cursor: 'pointer', fontFamily: 'inherit' }}>
+                  <button onClick={toggleOnline} style={{ padding: '10px 24px', borderRadius: 12, background: '#991B1B', border: 'none', color: '#fff', fontSize: 13, fontWeight: 900, cursor: 'pointer', fontFamily: 'inherit' }}>
                     {confirmToggle ? 'Tap Again to Go Offline' : 'Go Offline'}
                   </button>
                 )}
@@ -366,17 +366,17 @@ export default function DriverApp() {
 
             {/* Today's Activity — 3 separate containers */}
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 10, marginBottom: 12 }}>
-              <div style={{ padding: 20, borderRadius: 20, background: 'rgba(255,255,255,0.06)', backdropFilter: 'blur(16px)', border: '1.5px solid rgba(255,255,255,0.1)', textAlign: 'center', overflow: 'hidden', position: 'relative' }}>
-                <span style={{ fontSize: 26, fontWeight: 900, color: '#FACC15', display: 'block' }}>{todayTrips}</span>
+              <div style={{ padding: 20, borderRadius: 20, background: 'rgba(141,198,63,0.06)', backdropFilter: 'blur(16px)', border: '1.5px solid rgba(141,198,63,0.2)', textAlign: 'center', overflow: 'hidden', position: 'relative' }}>
+                <span style={{ fontSize: 26, fontWeight: 900, color: '#8DC63F', display: 'block' }}>{todayTrips}</span>
                 <span style={{ fontSize: 10, fontWeight: 700, color: 'rgba(255,255,255,0.35)' }}>Trips</span>
               </div>
-              <div style={{ padding: 20, borderRadius: 20, background: 'rgba(255,255,255,0.06)', backdropFilter: 'blur(16px)', border: '1.5px solid rgba(255,255,255,0.1)', textAlign: 'center', overflow: 'hidden', position: 'relative' }}>
+              <div style={{ padding: 20, borderRadius: 20, background: 'rgba(141,198,63,0.06)', backdropFilter: 'blur(16px)', border: '1.5px solid rgba(141,198,63,0.2)', textAlign: 'center', overflow: 'hidden', position: 'relative' }}>
                 <span style={{ fontSize: 26, fontWeight: 900, color: '#8DC63F', display: 'block' }}>{fmtRp(Math.round(todayEarnings * 0.9))}</span>
                 <span style={{ fontSize: 10, fontWeight: 700, color: 'rgba(255,255,255,0.35)' }}>Earned (90%)</span>
               </div>
-              <div onClick={() => setShowHotspotMap(true)} style={{ padding: 20, borderRadius: 20, background: 'rgba(255,255,255,0.06)', backdropFilter: 'blur(16px)', border: '1.5px solid rgba(255,255,255,0.1)', textAlign: 'center', overflow: 'hidden', position: 'relative', cursor: 'pointer' }}>
+              <div onClick={() => setShowHotspotMap(true)} style={{ padding: 20, borderRadius: 20, background: 'rgba(141,198,63,0.06)', backdropFilter: 'blur(16px)', border: '1.5px solid rgba(141,198,63,0.2)', textAlign: 'center', overflow: 'hidden', position: 'relative', cursor: 'pointer' }}>
                 <span style={{ fontSize: 26, display: 'block' }}>🗺️</span>
-                <span style={{ fontSize: 10, fontWeight: 700, color: 'rgba(0,229,255,0.7)' }}>Hotspot</span>
+                <span style={{ fontSize: 10, fontWeight: 700, color: '#8DC63F' }}>Hotspot</span>
               </div>
             </div>
 
