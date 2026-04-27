@@ -29,6 +29,7 @@
     transparent 100%
   );
   z-index: 2;
+  pointer-events: none;
 }
 
 .overlayBottom {
@@ -44,6 +45,7 @@
     #000 100%
   );
   z-index: 2;
+  pointer-events: none;
 }
 
 /* ── Logo — directly in hero, no wrapper ── */
