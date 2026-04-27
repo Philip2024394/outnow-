@@ -10,7 +10,7 @@ import DriverIncomingBooking from '@/components/driver/DriverIncomingBooking'
 import DriverFoodOrderAlert from '@/components/driver/DriverFoodOrderAlert'
 import DriverCashFloatModal from '@/components/driver/DriverCashFloatModal'
 import DriverSignInGate from '@/components/driver/DriverSignInGate'
-import { getWallet, topUpWallet, getWarningLevel } from '@/services/walletService'
+import { getPrepaidWallet, topUpPrepaidWallet, checkWalletStatus } from '@/services/walletService'
 import { getDriverTier } from '@/services/driverTierService'
 import { getDriverGoals } from '@/services/driverIncentiveService'
 import { fetchDriverTripHistory } from '@/services/bookingService'
@@ -106,7 +106,7 @@ export default function CarDriverApp() {
       setTodayEarnings(todayList.reduce((s, t) => s + (t.fare ?? 0), 0))
     }).catch(() => {})
     getDriverFoodOrders(driverId).then(o => setFoodOrders(o ?? [])).catch(() => setFoodOrders([]))
-    getWallet(driverId).then(w => setWallet(w)).catch(() => {})
+    getPrepaidWallet(driverId, 'car_driver').then(w => setWallet(w)).catch(() => {})
   }, [user])
 
   const handleAuth = async () => {
@@ -1041,10 +1041,10 @@ function TopUpOverlay({ wallet, bal, minBal, walletColor, walletStatus, quickAmo
     if (!selectedAmount || !selectedMethod) return
     setProcessing(true)
     try {
-      const result = await topUpWallet(userId ?? 'default', selectedAmount)
+      const result = await topUpPrepaidWallet(userId ?? 'default', selectedAmount, selectedMethod)
       setTopUpSuccess(true)
       setTimeout(() => {
-        getWallet(userId ?? 'default').then(w => onTopUpComplete(w)).catch(() => onTopUpComplete({ ...wallet, balance: (wallet?.balance ?? 0) + selectedAmount }))
+        getPrepaidWallet(userId ?? 'default', 'car_driver').then(w => onTopUpComplete(w)).catch(() => onTopUpComplete({ ...wallet, balance: (wallet?.balance ?? 0) + selectedAmount }))
       }, 1500)
     } catch {
       setTopUpSuccess(true)
