@@ -140,12 +140,12 @@ function DeliveryChat({ driverName, chatKey, initialMessages, onClose }) {
             <div key={msg.id} style={{ display: 'flex', justifyContent: isCustomer ? 'flex-end' : 'flex-start', alignItems: 'flex-end', gap: 6 }}>
               {/* Avatar — driver or INDOO logo */}
               {isDriver && (
-                <div style={{ width: 28, height: 28, borderRadius: '50%', overflow: 'hidden', flexShrink: 0, border: '1.5px solid #991B1B' }}>
+                <div style={{ width: 38, height: 38, borderRadius: '50%', overflow: 'hidden', flexShrink: 0, border: '1.5px solid #991B1B' }}>
                   <img src={`https://i.pravatar.cc/60?img=${(driverName ?? 'D').charCodeAt(0) % 50 + 1}`} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
                 </div>
               )}
               {isSystem && (
-                <div style={{ width: 28, height: 28, borderRadius: '50%', overflow: 'hidden', flexShrink: 0, border: '1.5px solid rgba(141,198,63,0.4)', background: '#111' }}>
+                <div style={{ width: 38, height: 38, borderRadius: '50%', overflow: 'hidden', flexShrink: 0, border: '1.5px solid rgba(141,198,63,0.4)', background: '#111' }}>
                   <img src={INDOO_LOGO} alt="INDOO" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
                 </div>
               )}
