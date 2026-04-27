@@ -130,10 +130,15 @@ export default function CarDriverApp() {
     setIsOnline(false)
   }
 
+  const [confirmToggle, setConfirmToggle] = useState(false)
   const toggleOnline = () => {
     if (!isOnline) {
+      if (!confirmToggle) { setConfirmToggle(true); setTimeout(() => setConfirmToggle(false), 3000); return }
+      setConfirmToggle(false)
       setShowCashFloat(true)
     } else {
+      if (!confirmToggle) { setConfirmToggle(true); setTimeout(() => setConfirmToggle(false), 3000); return }
+      setConfirmToggle(false)
       setIsOnline(false)
     }
   }
@@ -340,16 +345,24 @@ export default function CarDriverApp() {
             <div style={{ padding: 20, borderRadius: 20, background: isOnline ? 'rgba(141,198,63,0.08)' : 'rgba(255,255,255,0.06)', backdropFilter: 'blur(16px)', border: `1.5px solid ${isOnline ? 'rgba(141,198,63,0.3)' : 'rgba(255,255,255,0.1)'}`, marginBottom: 16, textAlign: 'center', position: 'relative', overflow: 'hidden' }}>
               <div style={{ width: 64, height: 64, borderRadius: '50%', background: isOnline ? 'rgba(141,198,63,0.15)' : 'rgba(255,255,255,0.06)', border: `3px solid ${isOnline ? '#8DC63F' : 'rgba(255,255,255,0.15)'}`, display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 12px', transition: 'all 0.3s', position: 'relative', zIndex: 1 }}>
                 <span style={{ fontSize: 28, opacity: isOnline ? 1 : 0.4 }}>{isOnline ? '🟢' : '⚪'}</span>
+                {isOnline && <div style={{ position: 'absolute', inset: -8, borderRadius: '50%', border: '2px solid rgba(141,198,63,0.4)', animation: 'satPing 2s ease-out infinite' }} />}
+                {isOnline && <div style={{ position: 'absolute', inset: -16, borderRadius: '50%', border: '1px solid rgba(141,198,63,0.2)', animation: 'satPing 2s ease-out infinite 0.5s' }} />}
               </div>
               <span style={{ fontSize: 22, fontWeight: 900, color: isOnline ? '#8DC63F' : 'rgba(255,255,255,0.5)', display: 'block', position: 'relative', zIndex: 1 }}>{isOnline ? 'ACTIVE' : 'OFFLINE'}</span>
               <span style={{ fontSize: 12, color: 'rgba(255,255,255,0.4)', display: 'block', marginTop: 4, position: 'relative', zIndex: 1 }}>
                 {isOnline ? 'Accepting car rides, food delivery & all services' : 'Go online to start receiving orders'}
               </span>
-              {!isOnline && (
-                <button onClick={toggleOnline} style={{ marginTop: 16, padding: '14px 40px', borderRadius: 14, background: '#8DC63F', border: 'none', color: '#000', fontSize: 15, fontWeight: 900, cursor: 'pointer', fontFamily: 'inherit', position: 'relative', zIndex: 1 }}>
-                  Go Online
-                </button>
-              )}
+              <div style={{ marginTop: 16, position: 'relative', zIndex: 1 }}>
+                {!isOnline ? (
+                  <button onClick={toggleOnline} style={{ padding: '14px 40px', borderRadius: 14, background: confirmToggle ? '#FACC15' : '#8DC63F', border: 'none', color: '#000', fontSize: 15, fontWeight: 900, cursor: 'pointer', fontFamily: 'inherit' }}>
+                    {confirmToggle ? 'Tap Again to Confirm' : 'Go Online'}
+                  </button>
+                ) : (
+                  <button onClick={toggleOnline} style={{ padding: '10px 24px', borderRadius: 12, background: confirmToggle ? '#EF4444' : 'rgba(153,27,27,0.3)', border: `1.5px solid ${confirmToggle ? '#EF4444' : 'rgba(153,27,27,0.5)'}`, color: confirmToggle ? '#fff' : '#991B1B', fontSize: 13, fontWeight: 900, cursor: 'pointer', fontFamily: 'inherit' }}>
+                    {confirmToggle ? 'Tap Again to Go Offline' : 'Go Offline'}
+                  </button>
+                )}
+              </div>
               <img src={CAR_IMG} alt="" style={{ position: 'absolute', bottom: -4, right: -4, width: 150, height: 150, objectFit: 'contain', opacity: 1, pointerEvents: 'none', zIndex: 0 }} />
             </div>
 
@@ -384,7 +397,10 @@ export default function CarDriverApp() {
               return (
                 <div style={{ padding: 16, borderRadius: 20, background: `rgba(${isDanger ? '239,68,68' : isLow ? '250,204,21' : '141,198,63'},0.06)`, backdropFilter: 'blur(16px)', border: `1.5px solid ${isDanger ? '#EF4444' : statusColor}40`, marginBottom: 12, animation: isDanger ? 'walletFlash 1.5s ease-in-out infinite' : 'none' }}>
                   <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 10 }}>
-                    <span style={{ fontSize: 14, fontWeight: 900, color: '#fff' }}>Wallet Balance</span>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                      <img src="https://ik.imagekit.io/nepgaxllc/mmmass-removebg-preview.png?updatedAt=1777002478628" alt="" style={{ width: 20, height: 20, objectFit: 'contain' }} />
+                      <span style={{ fontSize: 14, fontWeight: 900, color: '#fff' }}>Wallet Balance</span>
+                    </div>
                     <span style={{ fontSize: 11, fontWeight: 800, padding: '3px 10px', borderRadius: 8, background: `${statusColor}20`, border: `1px solid ${statusColor}40`, color: statusColor }}>{statusLabel}</span>
                   </div>
                   <span style={{ fontSize: 28, fontWeight: 900, color: balColor, display: 'block', marginBottom: 4 }}>{fmtRp(bal)}</span>
@@ -413,13 +429,17 @@ export default function CarDriverApp() {
                       ))}
                     </div>
                   )}
-                  <button onClick={() => setShowTopUp(true)} style={{ width: '100%', padding: 12, borderRadius: 12, background: isDanger ? 'rgba(239,68,68,0.15)' : 'rgba(141,198,63,0.12)', border: `1px solid ${isDanger ? 'rgba(239,68,68,0.4)' : 'rgba(141,198,63,0.3)'}`, color: isDanger ? '#EF4444' : '#8DC63F', fontSize: 13, fontWeight: 900, cursor: 'pointer', fontFamily: 'inherit', animation: isDanger ? 'walletFlash 1.5s ease-in-out infinite' : 'none' }}>
+                  <button onClick={() => setShowTopUp(true)} style={{ width: '100%', padding: 12, borderRadius: 12, background: isDanger ? '#EF4444' : '#8DC63F', border: 'none', color: isDanger ? '#fff' : '#000', fontSize: 13, fontWeight: 900, cursor: 'pointer', fontFamily: 'inherit', animation: isDanger ? 'walletFlash 1.5s ease-in-out infinite' : 'none' }}>
                     {isDanger ? '⚠️ Top Up Now' : 'Top Up'}
                   </button>
                 </div>
               )
             })()}
-            <style>{`@keyframes walletFlash { 0%,100% { opacity: 1; } 50% { opacity: 0.7; border-color: rgba(239,68,68,0.6); } }`}</style>
+            <style>{`
+              @keyframes walletFlash { 0%,100% { opacity: 1; } 50% { opacity: 0.7; border-color: rgba(239,68,68,0.6); } }
+              @keyframes goalRunLight { 0% { left: -40px; } 100% { left: 100%; } }
+              @keyframes satPing { 0% { transform: scale(1); opacity: 0.6; } 100% { transform: scale(1.8); opacity: 0; } }
+            `}</style>
 
 
             {/* Driver Level Progression */}
@@ -453,11 +473,6 @@ export default function CarDriverApp() {
                 )}
 
                 {/* View Elite Awards button */}
-                <button onClick={() => setShowEliteAwards(true)} style={{ width: '100%', marginTop: 12, padding: '12px 16px', borderRadius: 12, background: 'rgba(141,198,63,0.1)', border: '1px solid rgba(141,198,63,0.25)', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8 }}>
-                  <img src="https://ik.imagekit.io/nepgaxllc/ChatGPT%20Image%20Apr%2028,%202026,%2002_00_04%20AM.png" alt="" style={{ width: 20, height: 20, objectFit: 'contain' }} />
-                  <span style={{ fontSize: 13, fontWeight: 800, color: '#8DC63F' }}>View INDOO Elite Awards</span>
-                  <span style={{ fontSize: 14, color: 'rgba(141,198,63,0.5)' }}>→</span>
-                </button>
               </div>
             )}
 
@@ -465,11 +480,13 @@ export default function CarDriverApp() {
             {goals && (
               <div style={{ padding: 12, borderRadius: 12, background: 'rgba(255,255,255,0.06)', backdropFilter: 'blur(16px)', border: '1px solid rgba(255,255,255,0.1)', marginBottom: 12 }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 4 }}>
-                  <span style={{ fontSize: 11, fontWeight: 800, color: '#fff' }}>Today's Goal</span>
+                  <span style={{ fontSize: 11, fontWeight: 800, color: '#fff' }}>{tier?.current?.icon} {tier?.current?.label ?? 'Standard'} Driver — Today's Goal</span>
                   <span style={{ fontSize: 11, fontWeight: 900, color: todayTrips >= goals.daily_trips ? '#8DC63F' : '#FACC15' }}>{todayTrips}/{goals.daily_trips} trips</span>
                 </div>
-                <div style={{ height: 6, borderRadius: 3, background: 'rgba(255,255,255,0.08)', overflow: 'hidden' }}>
-                  <div style={{ width: `${Math.min(100, (todayTrips / goals.daily_trips) * 100)}%`, height: '100%', background: todayTrips >= goals.daily_trips ? '#8DC63F' : 'linear-gradient(90deg, #FACC15, #8DC63F)', borderRadius: 3, transition: 'width 0.5s' }} />
+                <div style={{ height: 6, borderRadius: 3, background: 'rgba(255,255,255,0.08)', overflow: 'hidden', position: 'relative' }}>
+                  <div style={{ width: `${Math.min(100, (todayTrips / goals.daily_trips) * 100)}%`, height: '100%', background: todayTrips >= goals.daily_trips ? '#8DC63F' : 'linear-gradient(90deg, #FACC15, #8DC63F)', borderRadius: 3, transition: 'width 0.5s', position: 'relative', overflow: 'hidden' }}>
+                    <div style={{ position: 'absolute', top: 0, left: 0, width: 40, height: '100%', background: 'linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent)', animation: 'goalRunLight 2s linear infinite' }} />
+                  </div>
                 </div>
                 <span style={{ fontSize: 9, color: 'rgba(255,255,255,0.3)', marginTop: 3, display: 'block' }}>
                   {todayTrips >= goals.daily_trips ? '✅ Goal achieved! Every trip counts toward your next level' : 'Complete daily goals to progress to the next driver level'}
