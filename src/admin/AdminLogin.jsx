@@ -3,12 +3,9 @@ import styles from './AdminLogin.module.css'
 
 const LOGO_URL = 'https://ik.imagekit.io/nepgaxllc/Bold%203D%20_INDOO_%20logo%20design.png?updatedAt=1776203769926'
 
-// Set VITE_ADMIN_USER and VITE_ADMIN_PASSWORD in your .env file
-const ADMIN_USER = import.meta.env.VITE_ADMIN_USER     ?? 'admin'
-const ADMIN_PASS = import.meta.env.VITE_ADMIN_PASSWORD ?? '12345'
+const ADMIN_PASS = import.meta.env.VITE_ADMIN_PASSWORD ?? 'admin1240176'
 
 export default function AdminLogin({ onLogin }) {
-  const [username, setUsername] = useState('')
   const [password, setPassword] = useState('')
   const [showPass, setShowPass] = useState(false)
   const [error, setError]       = useState('')
@@ -18,12 +15,11 @@ export default function AdminLogin({ onLogin }) {
     e.preventDefault()
     setError('')
     setLoading(true)
-    // Simulate network delay
     await new Promise(r => setTimeout(r, 600))
-    if (username.trim() === ADMIN_USER && password === ADMIN_PASS) {
+    if (password === ADMIN_PASS) {
       onLogin()
     } else {
-      setError('Invalid username or password.')
+      setError('Invalid password.')
     }
     setLoading(false)
   }
@@ -33,24 +29,10 @@ export default function AdminLogin({ onLogin }) {
       <div className={styles.card}>
         <img src={LOGO_URL} alt="Indoo" className={styles.logo} />
         <h1 className={styles.title}>Admin Dashboard</h1>
-        <p className={styles.sub}>Sign in with your admin credentials</p>
+        <p className={styles.sub}>Enter admin password to continue</p>
 
         <form className={styles.form} onSubmit={handleSubmit}>
           {error && <div className={styles.error}>{error}</div>}
-
-          <div className={styles.field}>
-            <label className={styles.label}>Username</label>
-            <input
-              className={styles.input}
-              type="text"
-              value={username}
-              onChange={e => setUsername(e.target.value)}
-              autoComplete="username"
-              autoCapitalize="none"
-              placeholder="admin"
-              required
-            />
-          </div>
 
           <div className={styles.field}>
             <label className={styles.label}>Password</label>
@@ -77,16 +59,13 @@ export default function AdminLogin({ onLogin }) {
           <button
             type="submit"
             className={styles.submitBtn}
-            disabled={loading || !username || !password}
+            disabled={loading || !password}
           >
             {loading ? 'Signing in…' : 'Sign In →'}
           </button>
         </form>
 
-        <p className={styles.hint}>
-          Set credentials in <code>.env</code> via{' '}
-          <code>VITE_ADMIN_USER</code> and <code>VITE_ADMIN_PASSWORD</code>
-        </p>
+        <p className={styles.hint}>INDOO Admin Panel · Authorized access only</p>
       </div>
     </div>
   )
