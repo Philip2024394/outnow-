@@ -29,7 +29,7 @@ function FoodLanding({ onBrowse, onClose, onSelectVendorType }) {
     <div className={styles.landingPage} style={{ backgroundImage: `url("${FOOD_LANDING_BG}")` }}>
       <div className={styles.landingOverlay} />
 
-      {/* Side nav — Home button only */}
+      {/* Side nav */}
       <div style={{
         position: 'fixed', right: 6, top: '50%', transform: 'translateY(-50%)',
         display: 'flex', flexDirection: 'column', gap: 10, zIndex: 200,
@@ -38,6 +38,11 @@ function FoodLanding({ onBrowse, onClose, onSelectVendorType }) {
         border: '1px solid rgba(255,255,255,0.08)',
         boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.04), 0 4px 20px rgba(0,0,0,0.5)',
       }}>
+        {/* User profile image */}
+        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 2, padding: '4px 0', width: 42 }}>
+          <img src={localStorage.getItem('indoo_demo_profile') ? JSON.parse(localStorage.getItem('indoo_demo_profile')).photo || 'https://i.pravatar.cc/40?img=3' : 'https://i.pravatar.cc/40?img=3'} alt="" style={{ width: 30, height: 30, borderRadius: '50%', objectFit: 'cover', border: '2px solid #8DC63F' }} />
+        </div>
+        <div style={{ width: 24, height: 1, background: 'rgba(255,255,255,0.08)', margin: '0 auto' }} />
         <button onClick={onClose} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 2, background: 'none', border: 'none', cursor: 'pointer', padding: '4px 0', width: 42 }}>
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.6)" strokeWidth="2" strokeLinecap="round"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
           <span style={{ fontSize: 8, fontWeight: 800, color: 'rgba(255,255,255,0.6)', letterSpacing: '0.03em' }}>Home</span>

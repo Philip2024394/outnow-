@@ -160,15 +160,9 @@ export default function AppShell({ returnParams, triggerGoLive }) {
   const seenNowRef    = useRef(-1)
   const seenInviteRef = useRef(-1)
   // Driver online/offline — null means not a bike/car service account
-  const isDriverAccount = userProfile?.isDriver === true &&
-    (userProfile?.driverType === 'bike_ride' || userProfile?.driverType === 'car_taxi')
-  const [driverOnline, setDriverOnline] = useState(null)
-  useEffect(() => {
-    if (!isDriverAccount) { setDriverOnline(null); return }
-    // Prefer localStorage (reflects last toggle) then fall back to DB value
-    const stored = localStorage.getItem('indoo_driver_online')
-    setDriverOnline(stored !== null ? stored === 'true' : (userProfile?.driverOnline ?? false))
-  }, [isDriverAccount, userProfile?.driverOnline])
+  // Driver online/offline toggle removed — drivers use separate dashboards (/driver, /cardrive)
+  const driverOnline = null
+  const setDriverOnline = () => {}
   const [vibeBanner, setVibeBanner]         = useState(null) // { status: 'active'|'invite_out'|'scheduled' }
 
   const openDiscoveryList = (filter) => {
