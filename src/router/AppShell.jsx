@@ -1041,10 +1041,7 @@ export default function AppShell({ returnParams, triggerGoLive }) {
         />
       </Suspense>
 
-      {/* Dev panel — home page only */}
-      {activeTab === 'map' && !shopOpen && !foodOpen && !rideOpen && !massageOpen && !datingGridOpen && (
-        <Suspense fallback={null}><DevPanel /></Suspense>
-      )}
+      {/* Dev panel removed for production */}
 
       {/* Side nav — visible on marketplace with orange theme */}
       {(!rideOpen || rideOnLanding) && (!massageOpen || massageOnLanding) && (!datingGridOpen || datingOnLanding) && activeTab !== 'rentals' && activeTab !== 'chat' && !shopOpen && !foodOpen && !dealHuntOpen && !notifOpen && !rideHistoryOpen && <AppShellBottomNav
