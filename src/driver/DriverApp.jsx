@@ -316,26 +316,8 @@ export default function DriverApp() {
     <div style={{ height: '100%', display: 'flex', flexDirection: 'column', background: '#080808', position: 'relative' }}>
       <img src={BG_IMG} alt="" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', pointerEvents: 'none', opacity: 1 }} />
 
-      {/* Header */}
-      <div style={{ padding: 'calc(env(safe-area-inset-top, 0px) + 12px) 16px 12px', borderBottom: '1px solid rgba(255,255,255,0.1)', background: 'rgba(0,0,0,0.4)', backdropFilter: 'blur(20px)', flexShrink: 0, display: 'flex', alignItems: 'center', gap: 12, position: 'relative', zIndex: 1 }}>
-        <img src={profile.photo_url} alt="" style={{ width: 44, height: 44, borderRadius: '50%', objectFit: 'cover', border: `2.5px solid ${isOnline ? '#8DC63F' : 'rgba(255,255,255,0.15)'}` }} />
-        <div style={{ flex: 1 }}>
-          <span style={{ fontSize: 16, fontWeight: 900, color: '#fff', display: 'block' }}>{profile.display_name}</span>
-          <span style={{ fontSize: 12, color: isOnline ? '#8DC63F' : 'rgba(255,255,255,0.4)', fontWeight: 700 }}>
-            {isOnline ? '● Online' : '○ Offline'} · {tier?.current?.name ?? 'Bronze'} · ⭐ {profile.rating}
-          </span>
-        </div>
-        {/* Go online/offline toggle */}
-        <button onClick={toggleOnline} style={{
-          padding: '10px 18px', borderRadius: 14,
-          background: isOnline ? 'rgba(239,68,68,0.15)' : '#8DC63F',
-          border: isOnline ? '1.5px solid rgba(239,68,68,0.3)' : 'none',
-          color: isOnline ? '#EF4444' : '#000',
-          fontSize: 13, fontWeight: 900, cursor: 'pointer', fontFamily: 'inherit',
-        }}>
-          {isOnline ? 'Go Offline' : 'Go Online'}
-        </button>
-      </div>
+      {/* Safe area spacer */}
+      <div style={{ height: 'env(safe-area-inset-top, 0px)', flexShrink: 0, position: 'relative', zIndex: 1 }} />
 
       {/* Main content */}
       <div style={{ flex: 1, overflowY: 'auto', padding: '16px 16px 100px', position: 'relative', zIndex: 1 }}>
@@ -373,7 +355,7 @@ export default function DriverApp() {
                     <span style={{ fontSize: 9, fontWeight: 700, color: 'rgba(255,255,255,0.35)' }}>Admin (10%)</span>
                   </div>
                 </div>
-                <img src="https://ik.imagekit.io/nepgaxllc/ChatGPT%20Image%20Apr%2027,%202026,%2011_17_44%20AM.png?updatedAt=1777263492233" alt="" style={{ width: 80, height: 80, objectFit: 'contain', opacity: isOnline ? 1 : 0.4, flexShrink: 0 }} />
+                <img src="https://ik.imagekit.io/nepgaxllc/ChatGPT%20Image%20Apr%2027,%202026,%2011_17_44%20AM.png?updatedAt=1777263492233" alt="" style={{ width: 100, height: 100, objectFit: 'contain', opacity: isOnline ? 1 : 0.4, flexShrink: 0 }} />
               </div>
             </div>
 
