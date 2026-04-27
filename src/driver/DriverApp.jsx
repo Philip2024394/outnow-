@@ -455,7 +455,7 @@ export default function DriverApp() {
                 <span style={{ fontSize: 12, fontWeight: 900, color: '#00E5FF', display: 'block' }}>Car Rides</span>
               </button>
               <button onClick={() => setTab('food')} style={{ padding: 16, borderRadius: 20, background: 'rgba(250,204,21,0.08)', backdropFilter: 'blur(16px)', border: '1.5px solid rgba(250,204,21,0.3)', cursor: 'pointer', textAlign: 'center', overflow: 'hidden' }}>
-                <span style={{ fontSize: 32, display: 'block', marginBottom: 6 }}>🍔</span>
+                <img src="https://ik.imagekit.io/nepgaxllc/ChatGPT%20Image%20Apr%2027,%202026,%2004_54_54%20AM.png?updatedAt=1777240511049" alt="" style={{ width: 44, height: 44, objectFit: 'contain', display: 'block', margin: '0 auto 6px' }} />
                 <span style={{ fontSize: 12, fontWeight: 900, color: '#FACC15', display: 'block' }}>Food</span>
               </button>
             </div>
