@@ -1,162 +1,314 @@
-.page { padding: 24px 28px; display: flex; flex-direction: column; gap: 20px; max-width: 1280px; }
+.page {
+  display: flex;
+  flex-direction: column;
+  height: calc(100vh - 52px);
+  overflow: hidden;
+  position: relative;
+}
 
-.header { margin: 0; font-size: 22px; font-weight: 900; color: #fff; }
-.subtext { font-size: 13px; color: rgba(255,255,255,0.4); margin: -12px 0 0; }
-
-/* Toast */
+/* ── Toast ── */
 .toast {
-  position: fixed; top: 20px; right: 20px; z-index: 9999;
-  padding: 12px 20px; border-radius: 10px; font-size: 13px; font-weight: 600;
-  background: rgba(0,255,157,0.12); border: 1px solid rgba(0,255,157,0.3); color: #00FF9D;
-  animation: fadeIn 0.2s ease;
+  position: fixed;
+  top: 70px;
+  right: 24px;
+  z-index: 9999;
+  background: rgba(13,13,26,0.95);
+  border: 1px solid rgba(141,198,63,0.3);
+  padding: 10px 20px;
+  border-radius: 12px;
+  font-size: 13px;
+  font-weight: 700;
+  color: #8DC63F;
+  box-shadow: 0 8px 30px rgba(0,0,0,0.5);
+  animation: slideIn 0.3s ease;
 }
-@keyframes fadeIn { from { opacity:0; transform: translateY(-8px); } }
+@keyframes slideIn {
+  from { transform: translateX(20px); opacity: 0; }
+  to { transform: translateX(0); opacity: 1; }
+}
 
-/* Section cards */
+/* ── Top bar ── */
+.topBar {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 14px 24px;
+  background: rgba(7,7,15,0.95);
+  border-bottom: 1px solid rgba(255,255,255,0.06);
+  flex-shrink: 0;
+}
+.topTitle {
+  font-size: 14px;
+  font-weight: 800;
+  color: #fff;
+  letter-spacing: 0.02em;
+}
+.countBadge {
+  margin-left: auto;
+  background: rgba(141,198,63,0.12);
+  border: 1px solid rgba(141,198,63,0.3);
+  color: #8DC63F;
+  font-size: 12px;
+  font-weight: 800;
+  padding: 4px 12px;
+  border-radius: 20px;
+}
+
+/* ── Main layout ── */
+.mainLayout {
+  display: flex;
+  flex: 1;
+  overflow: hidden;
+}
+
+/* ── Left controls ── */
+.controls {
+  width: 420px;
+  flex-shrink: 0;
+  padding: 20px 24px;
+  overflow-y: auto;
+  border-right: 1px solid rgba(255,255,255,0.06);
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
 .section {
-  background: rgba(255,255,255,0.03);
-  border: 1px solid rgba(255,255,255,0.07);
-  border-radius: 14px;
-  padding: 22px 24px;
-}
-.sectionTitle {
-  margin: 0 0 16px; font-size: 15px; font-weight: 800; color: #00FF9D;
-  display: flex; align-items: center; gap: 8px;
+  margin-bottom: 16px;
 }
 
-/* Form rows */
-.row { display: flex; flex-wrap: wrap; gap: 14px; align-items: flex-end; margin-bottom: 14px; }
-
-.field { display: flex; flex-direction: column; gap: 6px; }
-.field label {
-  font-size: 11px; font-weight: 600; color: rgba(255,255,255,0.4);
-  text-transform: uppercase; letter-spacing: 0.08em;
+.label {
+  display: block;
+  font-size: 11px;
+  font-weight: 800;
+  color: rgba(255,255,255,0.5);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  margin-bottom: 8px;
 }
-.field input, .field select, .field textarea {
-  background: rgba(0,0,0,0.3);
+
+.hint {
+  display: block;
+  font-size: 11px;
+  color: rgba(255,255,255,0.25);
+  margin-top: 6px;
+}
+
+.input {
+  width: 100%;
+  padding: 10px 14px;
+  background: rgba(255,255,255,0.04);
   border: 1px solid rgba(255,255,255,0.1);
-  border-radius: 8px;
-  padding: 9px 12px;
+  border-radius: 10px;
   color: #fff;
   font-size: 13px;
+  font-weight: 600;
   font-family: inherit;
   outline: none;
+  box-sizing: border-box;
   transition: border-color 0.15s;
 }
-.field input:focus, .field select:focus, .field textarea:focus {
-  border-color: rgba(0,255,157,0.4);
+.input:focus {
+  border-color: rgba(141,198,63,0.4);
 }
-.field input::placeholder, .field textarea::placeholder {
+.input::placeholder {
   color: rgba(255,255,255,0.2);
 }
 
-/* Checkbox grid for domains */
-.checkboxGrid {
-  display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 14px;
+/* ── Country grid ── */
+.countryGrid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 6px;
 }
-.checkboxLabel {
-  display: flex; align-items: center; gap: 6px;
-  padding: 6px 12px;
+.countryBtn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px;
+  background: rgba(255,255,255,0.03);
+  border: 1px solid rgba(255,255,255,0.07);
+  border-radius: 10px;
+  color: rgba(255,255,255,0.5);
+  cursor: pointer;
+  font-family: inherit;
+  transition: all 0.15s;
+}
+.countryBtn:hover {
+  background: rgba(255,255,255,0.06);
+}
+.countryBtnActive {
+  background: rgba(141,198,63,0.1) !important;
+  border-color: rgba(141,198,63,0.35) !important;
+  color: #8DC63F !important;
+}
+
+/* ── Domain grid ── */
+.domainGrid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 6px;
+}
+.domainBtn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 7px 10px;
+  background: rgba(255,255,255,0.03);
+  border: 1px solid rgba(255,255,255,0.07);
+  border-radius: 8px;
+  color: rgba(255,255,255,0.4);
+  cursor: pointer;
+  font-family: inherit;
+  font-size: 12px;
+  font-weight: 600;
+  transition: all 0.15s;
+}
+.domainBtn:hover {
+  background: rgba(255,255,255,0.06);
+}
+.domainBtnActive {
+  background: rgba(0,229,255,0.08) !important;
+  border-color: rgba(0,229,255,0.3) !important;
+  color: #00E5FF !important;
+}
+
+/* ── Quick buttons ── */
+.quickBtn {
+  padding: 5px 12px;
   background: rgba(255,255,255,0.04);
   border: 1px solid rgba(255,255,255,0.08);
   border-radius: 8px;
-  font-size: 12px; color: rgba(255,255,255,0.6);
-  cursor: pointer; transition: all 0.15s; user-select: none;
-}
-.checkboxLabel:hover { border-color: rgba(0,255,157,0.3); }
-.checkboxLabelActive {
-  composes: checkboxLabel;
-  background: rgba(0,255,157,0.08);
-  border-color: rgba(0,255,157,0.3);
-  color: #00FF9D;
-}
-.checkboxLabel input, .checkboxLabelActive input { display: none; }
-
-/* Separator toggle */
-.sepToggle { display: flex; gap: 0; border-radius: 8px; overflow: hidden; border: 1px solid rgba(255,255,255,0.1); }
-.sepBtn {
-  padding: 7px 14px; background: rgba(255,255,255,0.04); border: none;
-  color: rgba(255,255,255,0.4); font-size: 12px; font-weight: 600;
-  cursor: pointer; font-family: inherit; transition: all 0.15s;
-}
-.sepBtnActive {
-  composes: sepBtn;
-  background: rgba(0,255,157,0.12); color: #00FF9D;
-}
-
-/* Buttons */
-.btnPrimary {
-  padding: 10px 22px;
-  background: rgba(0,255,157,0.12);
-  border: 1px solid rgba(0,255,157,0.3);
-  border-radius: 10px;
-  color: #00FF9D;
-  font-size: 13px; font-weight: 700; cursor: pointer; font-family: inherit;
+  color: rgba(255,255,255,0.5);
+  font-size: 11px;
+  font-weight: 700;
+  cursor: pointer;
+  font-family: inherit;
   transition: all 0.15s;
 }
-.btnPrimary:hover:not(:disabled) { background: rgba(0,255,157,0.22); }
-.btnPrimary:disabled { opacity: 0.4; cursor: default; }
-
-.btnSecondary {
-  padding: 10px 22px;
-  background: rgba(255,255,255,0.05);
-  border: 1px solid rgba(255,255,255,0.1);
-  border-radius: 10px;
-  color: rgba(255,255,255,0.6);
-  font-size: 13px; font-weight: 600; cursor: pointer; font-family: inherit;
-  transition: all 0.15s;
+.quickBtn:hover {
+  background: rgba(255,255,255,0.08);
+  color: #fff;
 }
-.btnSecondary:hover { background: rgba(255,255,255,0.08); }
-
-/* Action row */
-.actions { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; margin-top: 10px; }
-
-/* Count badge */
-.badge {
-  display: inline-flex; align-items: center; gap: 6px;
-  padding: 5px 14px; border-radius: 20px;
-  background: rgba(0,255,157,0.08); border: 1px solid rgba(0,255,157,0.2);
-  font-size: 12px; font-weight: 700; color: #00FF9D;
-  font-family: monospace;
+.quickBtnActive {
+  background: rgba(141,198,63,0.12) !important;
+  border-color: rgba(141,198,63,0.3) !important;
+  color: #8DC63F !important;
 }
 
-/* Output textarea */
+/* ── Generate button ── */
+.generateBtn {
+  width: 100%;
+  padding: 14px;
+  border-radius: 12px;
+  background: linear-gradient(135deg, #8DC63F, #6ba32e);
+  border: none;
+  color: #000;
+  font-size: 14px;
+  font-weight: 900;
+  cursor: pointer;
+  font-family: inherit;
+  transition: opacity 0.15s;
+  margin-top: 8px;
+}
+.generateBtn:hover { opacity: 0.9; }
+.generateBtn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* ── Right output ── */
 .output {
-  width: 100%; min-height: 180px; max-height: 360px;
-  background: rgba(0,0,0,0.4);
-  border: 1px solid rgba(255,255,255,0.08);
-  border-radius: 10px;
-  padding: 12px 14px;
-  color: rgba(255,255,255,0.7);
-  font-size: 12px; font-family: 'Courier New', monospace;
-  resize: vertical; outline: none;
-  line-height: 1.6;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  min-width: 0;
 }
-.output:focus { border-color: rgba(0,255,157,0.3); }
 
-/* Quick template buttons */
-.templateGrid { display: flex; flex-wrap: wrap; gap: 10px; }
-.templateBtn {
-  padding: 10px 18px;
+.outputToolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 20px;
+  border-bottom: 1px solid rgba(255,255,255,0.06);
+  flex-shrink: 0;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.actionBtn {
+  padding: 7px 14px;
   background: rgba(141,198,63,0.08);
   border: 1px solid rgba(141,198,63,0.25);
-  border-radius: 10px;
+  border-radius: 8px;
   color: #8DC63F;
-  font-size: 12px; font-weight: 700; cursor: pointer; font-family: inherit;
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+  font-family: inherit;
   transition: all 0.15s;
 }
-.templateBtn:hover { background: rgba(141,198,63,0.16); }
-
-/* Validation display */
-.validInfo {
-  font-size: 12px; color: rgba(255,255,255,0.4);
+.actionBtn:hover {
+  background: rgba(141,198,63,0.15);
 }
-.validCount { color: #00FF9D; font-weight: 700; }
-.invalidCount { color: #FF4444; font-weight: 700; }
+.actionBtn:disabled {
+  opacity: 0.3;
+  cursor: not-allowed;
+}
 
-/* Responsive */
-@media (max-width: 700px) {
-  .page { padding: 16px; }
-  .row { flex-direction: column; }
-  .checkboxGrid { gap: 6px; }
+.textarea {
+  flex: 1;
+  padding: 16px 20px;
+  background: rgba(0,0,0,0.3);
+  border: none;
+  color: rgba(255,255,255,0.7);
+  font-size: 12px;
+  font-family: 'SF Mono', 'Fira Code', 'Consolas', monospace;
+  line-height: 1.7;
+  resize: none;
+  outline: none;
+  min-height: 200px;
+}
+.textarea::placeholder {
+  color: rgba(255,255,255,0.15);
+}
+
+/* ── Stats bar ── */
+.statsBar {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 20px;
+  border-top: 1px solid rgba(255,255,255,0.06);
+  font-size: 11px;
+  color: rgba(255,255,255,0.4);
+  flex-shrink: 0;
+  flex-wrap: wrap;
+}
+
+/* ── Saved lists ── */
+.savedSection {
+  padding: 12px 20px;
+  border-top: 1px solid rgba(255,255,255,0.06);
+  flex-shrink: 0;
+}
+.savedList {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  max-height: 160px;
+  overflow-y: auto;
+}
+.savedRow {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px;
+  background: rgba(255,255,255,0.02);
+  border-radius: 8px;
+  border: 1px solid rgba(255,255,255,0.04);
+}
+.savedRow:hover {
+  background: rgba(255,255,255,0.04);
 }
