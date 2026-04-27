@@ -134,7 +134,7 @@ function DeliveryChat({ driverName, chatKey, initialMessages, onClose }) {
           const isCustomer = msg.from === 'customer'
           const isSystem = msg.from === 'system' || msg.from === 'indoo'
           const isDriver = msg.from === 'driver'
-          const INDOO_LOGO = 'https://ik.imagekit.io/nepgaxllc/Bold%203D%20_INDOO_%20logo%20design.png?updatedAt=1776203769926'
+          const INDOO_LOGO = 'https://ik.imagekit.io/nepgaxllc/ChatGPT%20Image%20Apr%2027,%202026,%2012_04_23%20PM.png'
 
           return (
             <div key={msg.id} style={{ display: 'flex', justifyContent: isCustomer ? 'flex-end' : 'flex-start', alignItems: 'flex-end', gap: 6 }}>
