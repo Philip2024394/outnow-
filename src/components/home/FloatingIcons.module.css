@@ -1,7 +1,7 @@
 /* ── Module buttons — black container with standard buttons ── */
 .dock {
   position: fixed;
-  top: calc(var(--safe-top) + 130px);
+  top: calc(var(--safe-top) + 180px);
   left: 8px;
   right: 64px;
   z-index: 9999;
