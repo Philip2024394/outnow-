@@ -339,23 +339,22 @@ export default function DriverApp() {
                   Go Online
                 </button>
               )}
-              {/* Today's activity + bike image row */}
-              <div style={{ display: 'flex', alignItems: 'flex-end', gap: 10, marginTop: 14, position: 'relative', zIndex: 1 }}>
-                <div style={{ flex: 1, display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 4 }}>
-                  <div style={{ textAlign: 'center' }}>
-                    <span style={{ fontSize: 20, fontWeight: 900, color: '#FACC15', display: 'block' }}>{todayTrips}</span>
-                    <span style={{ fontSize: 9, fontWeight: 700, color: 'rgba(255,255,255,0.35)' }}>Trips</span>
-                  </div>
-                  <div style={{ textAlign: 'center' }}>
-                    <span style={{ fontSize: 20, fontWeight: 900, color: '#8DC63F', display: 'block' }}>{fmtRp(Math.round(todayEarnings * 0.9))}</span>
-                    <span style={{ fontSize: 9, fontWeight: 700, color: 'rgba(255,255,255,0.35)' }}>Earned (90%)</span>
-                  </div>
-                  <div style={{ textAlign: 'center' }}>
-                    <span style={{ fontSize: 20, fontWeight: 900, color: '#EF4444', display: 'block' }}>{fmtRp(Math.round(todayEarnings * 0.1))}</span>
-                    <span style={{ fontSize: 9, fontWeight: 700, color: 'rgba(255,255,255,0.35)' }}>Admin (10%)</span>
-                  </div>
-                </div>
-                <img src="https://ik.imagekit.io/nepgaxllc/ChatGPT%20Image%20Apr%2027,%202026,%2011_17_44%20AM.png?updatedAt=1777263492233" alt="" style={{ width: 100, height: 100, objectFit: 'contain', opacity: isOnline ? 1 : 0.4, flexShrink: 0 }} />
+              <img src="https://ik.imagekit.io/nepgaxllc/ChatGPT%20Image%20Apr%2027,%202026,%2011_17_44%20AM.png?updatedAt=1777263492233" alt="" style={{ position: 'absolute', bottom: -4, right: -4, width: 100, height: 100, objectFit: 'contain', opacity: isOnline ? 1 : 0.4, pointerEvents: 'none', zIndex: 0 }} />
+            </div>
+
+            {/* Today's Activity — 3 separate containers */}
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 10, marginBottom: 12 }}>
+              <div style={{ padding: 14, borderRadius: 20, background: 'rgba(250,204,21,0.08)', backdropFilter: 'blur(16px)', border: '1.5px solid rgba(250,204,21,0.3)', textAlign: 'center' }}>
+                <span style={{ fontSize: 24, fontWeight: 900, color: '#FACC15', display: 'block' }}>{todayTrips}</span>
+                <span style={{ fontSize: 10, fontWeight: 700, color: 'rgba(255,255,255,0.35)' }}>Trips</span>
+              </div>
+              <div style={{ padding: 14, borderRadius: 20, background: 'rgba(141,198,63,0.08)', backdropFilter: 'blur(16px)', border: '1.5px solid rgba(141,198,63,0.3)', textAlign: 'center' }}>
+                <span style={{ fontSize: 24, fontWeight: 900, color: '#8DC63F', display: 'block' }}>{fmtRp(Math.round(todayEarnings * 0.9))}</span>
+                <span style={{ fontSize: 10, fontWeight: 700, color: 'rgba(255,255,255,0.35)' }}>Earned (90%)</span>
+              </div>
+              <div style={{ padding: 14, borderRadius: 20, background: 'rgba(239,68,68,0.08)', backdropFilter: 'blur(16px)', border: '1.5px solid rgba(239,68,68,0.3)', textAlign: 'center' }}>
+                <span style={{ fontSize: 24, fontWeight: 900, color: '#EF4444', display: 'block' }}>{fmtRp(Math.round(todayEarnings * 0.1))}</span>
+                <span style={{ fontSize: 10, fontWeight: 700, color: 'rgba(255,255,255,0.35)' }}>Admin (10%)</span>
               </div>
             </div>
 
