@@ -8,6 +8,7 @@ import MarketplaceAdminTab from './tabs/MarketplaceAdminTab'
 import AuctionAdminTab from './tabs/AuctionAdminTab'
 import RidesAdminTab  from './tabs/RidesAdminTab'
 import LiveMapTab     from './tabs/LiveMapTab'
+import FleetIntelTab  from './tabs/FleetIntelTab'
 import RestaurantsTab from './RestaurantsTab'
 import FoodOrdersTab from './tabs/FoodOrdersTab'
 import DriversTab     from './DriversTab'
@@ -46,6 +47,7 @@ const NAV = [
   { id: 'massage',      icon: '💆', label: 'Massage'      },
   { id: 'rides',        icon: '🚗', label: 'Rides'        },
   { id: 'map',          icon: '🗺️', label: 'Live Map'     },
+  { id: 'fleet_intel',  icon: '🛰️', label: 'Fleet Intel'  },
   { id: 'drivers',      icon: '🏍️', label: 'Drivers'      },
   { id: 'id_verify',   icon: '⭐', label: 'ID Verify'    },
   { id: 'bookings',     icon: '📋', label: 'Bookings'     },
@@ -185,6 +187,7 @@ export default function AdminDashboard({ onLogout }) {
           {tab === 'food_orders' && <FoodOrdersTab />}
           {tab === 'rides'       && <RidesAdminTab />}
           {tab === 'map'         && <LiveMapTab />}
+          {tab === 'fleet_intel' && <FleetIntelTab />}
           {tab === 'drivers'     && <DriversTab />}
           {tab === 'id_verify'   && <IdVerificationTab />}
           {tab === 'bookings'    && <BookingsTab />}
