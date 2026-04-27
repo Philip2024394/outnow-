@@ -84,7 +84,6 @@ export default function App() {
   //  'profile'   — new user must complete their profile
   //  'done'      — returning user, go straight to map
   const [onboardStep, setOnboardStep] = useState('checking')
-  const [triggerGoLive] = useState(false)
 
   // Resolve onboarding state per-user so each new account sees onboarding
   const resolvedRef = useRef(null)
