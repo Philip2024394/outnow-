@@ -20,11 +20,9 @@ const IMAGES = {
 
 // WIB = UTC+7, returns fractional hours 0..24
 function getWIBHour() {
+  // Use user's local time so background matches their actual daylight
   const now = new Date()
-  const utcMs = now.getTime() + now.getTimezoneOffset() * 60_000
-  const wibMs = utcMs + 7 * 3_600_000
-  const wib   = new Date(wibMs)
-  return wib.getHours() + wib.getMinutes() / 60
+  return now.getHours() + now.getMinutes() / 60
 }
 
 function getPhase(h) {

@@ -14,8 +14,7 @@ const BG_IMAGES = {
 
 function getWIBHour() {
   const now = new Date()
-  const utcMs = now.getTime() + now.getTimezoneOffset() * 60_000
-  return new Date(utcMs + 7 * 3_600_000).getHours() + new Date(utcMs + 7 * 3_600_000).getMinutes() / 60
+  return now.getHours() + now.getMinutes() / 60
 }
 function getBGPhase(h) {
   if (h >= 5   && h < 7.5)  return 'sunrise'

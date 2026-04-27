@@ -14,11 +14,9 @@ const BG_IMAGES = {
 }
 
 function getWIBHour() {
+  // Use user's local time so background matches their actual daylight
   const now = new Date()
-  const utcMs = now.getTime() + now.getTimezoneOffset() * 60_000
-  const wibMs = utcMs + 7 * 3_600_000
-  const wib   = new Date(wibMs)
-  return wib.getHours() + wib.getMinutes() / 60
+  return now.getHours() + now.getMinutes() / 60
 }
 
 function getBGPhase(h) {
