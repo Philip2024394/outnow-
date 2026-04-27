@@ -11,18 +11,9 @@ export function AuthProvider({ children }) {
   useEffect(() => {
     const demoMode = import.meta.env.VITE_DEMO_MODE === 'true'
     if (!supabase || demoMode) {
-      // Demo mode — no Supabase configured, or VITE_DEMO_MODE=true
-      setUser(DEMO_USER)
-      setUserProfile({
-        displayName: 'Admin Preview',
-        photoURL: null,
-        lookingFor: '',
-        isDriver:    true,
-        driverType:  'bike_ride',
-        driverOnline: false,
-        city: 'Yogyakarta',
-        country: 'Indonesia',
-      })
+      // Demo mode — don't auto-login, let user see landing page first
+      // User will enter via "Browse as Guest" or sign-in flow
+      setUser(null)
       return
     }
 

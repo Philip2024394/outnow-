@@ -8,6 +8,7 @@ import Avatar from '@/components/ui/Avatar'
 import PrivacySheet from './PrivacySheet'
 import SafetySheet from '@/components/safety/SafetySheet'
 import { getSafetyContact } from '@/components/safety/SafetySheet'
+import ContactUsPage from '@/components/ui/ContactUsPage'
 import SuggestPlaceSheet from './SuggestPlaceSheet'
 import VerifiedPage from './VerifiedPage'
 import ContactOptionsSheet from './ContactOptionsSheet'
@@ -51,6 +52,7 @@ export default function SettingsSheet({ open, onClose, onOpenLikes, onOpenMyLike
   const [suggestOpen, setSuggestOpen] = useState(false)
   const [verifiedOpen, setVerifiedOpen]               = useState(false)
   const [contactOptionsOpen, setContactOptionsOpen]   = useState(false)
+  const [contactUsOpen, setContactUsOpen] = useState(false)
   const [giftAddressOpen,    setGiftAddressOpen]      = useState(false)
   const safetyContact = getSafetyContact()
   const drawerRef = useRef(null)
@@ -325,6 +327,12 @@ export default function SettingsSheet({ open, onClose, onOpenLikes, onOpenMyLike
               onClick={() => showToast?.("Indoo v0.1.0 — who's hanging near you?")}
             />
             <Row
+              icon="📞"
+              label="Contact Us"
+              sublabel="Get in touch with the INDOO team"
+              onClick={() => setContactUsOpen(true)}
+            />
+            <Row
               icon="🚪"
               label={signingOut ? 'Signing out…' : 'Sign Out'}
               danger
@@ -336,6 +344,7 @@ export default function SettingsSheet({ open, onClose, onOpenLikes, onOpenMyLike
 
       <PrivacySheet open={privacyOpen} onClose={() => setPrivacyOpen(false)} />
       <SafetySheet open={safetyOpen} onClose={() => setSafetyOpen(false)} />
+      {contactUsOpen && <ContactUsPage onClose={() => setContactUsOpen(false)} />}
       <SuggestPlaceSheet open={suggestOpen} onClose={() => setSuggestOpen(false)} showToast={showToast} />
       <GiftAddressSheet open={giftAddressOpen} onClose={() => setGiftAddressOpen(false)} showToast={showToast} />
 
