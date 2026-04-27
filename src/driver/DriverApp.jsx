@@ -68,6 +68,7 @@ export default function DriverApp() {
   const [showEarnings, setShowEarnings] = useState(false)
   const [termsAccepted, setTermsAccepted] = useState(() => localStorage.getItem('indoo_driver_terms_accepted') === 'true')
   const [showHotspotMap, setShowHotspotMap] = useState(false)
+  const [showEliteAwards, setShowEliteAwards] = useState(false)
 
   // Auth
   useEffect(() => {
@@ -478,6 +479,13 @@ export default function DriverApp() {
                     ))}
                   </div>
                 )}
+
+                {/* View Elite Awards button */}
+                <button onClick={() => setShowEliteAwards(true)} style={{ width: '100%', marginTop: 12, padding: '12px 16px', borderRadius: 12, background: 'rgba(141,198,63,0.1)', border: '1px solid rgba(141,198,63,0.25)', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8 }}>
+                  <span style={{ fontSize: 16 }}>💎</span>
+                  <span style={{ fontSize: 13, fontWeight: 800, color: '#8DC63F' }}>View INDOO Elite Awards</span>
+                  <span style={{ fontSize: 14, color: 'rgba(141,198,63,0.5)' }}>→</span>
+                </button>
               </div>
             )}
 
@@ -698,6 +706,73 @@ export default function DriverApp() {
           driverId={profile.id}
           onDismiss={() => setIncomingFoodOrder(null)}
         />
+      )}
+
+      {/* ── INDOO Elite Awards Page ── */}
+      {showEliteAwards && (
+        <div style={{ position: 'fixed', inset: 0, zIndex: 200, background: '#080808', display: 'flex', flexDirection: 'column' }}>
+          <img src={BG_IMG} alt="" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', pointerEvents: 'none', opacity: 0.2 }} />
+
+          {/* Header */}
+          <div style={{ padding: 'calc(env(safe-area-inset-top, 0px) + 12px) 16px 12px', background: 'rgba(0,0,0,0.7)', backdropFilter: 'blur(20px)', borderBottom: '1px solid rgba(141,198,63,0.2)', display: 'flex', alignItems: 'center', gap: 12, position: 'relative', zIndex: 2 }}>
+            <button onClick={() => setShowEliteAwards(false)} style={{ background: 'none', border: 'none', color: '#fff', fontSize: 22, cursor: 'pointer', padding: '4px 8px' }}>←</button>
+            <div style={{ flex: 1 }}>
+              <span style={{ fontSize: 16, fontWeight: 900, color: '#8DC63F', display: 'block' }}>💎 INDOO Elite Awards</span>
+              <span style={{ fontSize: 11, color: 'rgba(255,255,255,0.4)' }}>Exclusive rewards for Elite drivers</span>
+            </div>
+          </div>
+
+          {/* Products grid */}
+          <div style={{ flex: 1, overflowY: 'auto', padding: '16px 16px 100px', position: 'relative', zIndex: 1 }}>
+            {/* Intro */}
+            <div style={{ padding: 16, borderRadius: 16, background: 'rgba(141,198,63,0.06)', backdropFilter: 'blur(16px)', border: '1px solid rgba(141,198,63,0.15)', marginBottom: 16, textAlign: 'center' }}>
+              <span style={{ fontSize: 32, display: 'block', marginBottom: 8 }}>💎</span>
+              <span style={{ fontSize: 16, fontWeight: 900, color: '#8DC63F', display: 'block' }}>INDOO Elite Service Provider</span>
+              <span style={{ fontSize: 12, color: 'rgba(255,255,255,0.5)', display: 'block', marginTop: 4 }}>Reach Elite status (500+ trips, 4.8+ rating) to unlock these exclusive free rewards</span>
+            </div>
+
+            {/* Landscape product cards */}
+            {[
+              { icon: '🧥', name: 'INDOO Elite Jacket', desc: 'Premium branded jacket with reflective INDOO logo. Waterproof material, perfect for night rides.', status: tier?.current?.id === 'elite' ? 'available' : 'locked', color: '#8DC63F' },
+              { icon: '🎒', name: 'INDOO Delivery Bag', desc: 'Insulated thermal delivery bag with INDOO branding. Keeps food hot/cold during transport.', status: tier?.current?.id === 'elite' ? 'available' : 'locked', color: '#00E5FF' },
+              { icon: '☕', name: 'INDOO Elite Mug', desc: 'Stainless steel travel mug with INDOO Elite engraving. Double-walled, keeps drinks hot 6 hours.', status: tier?.current?.id === 'elite' ? 'available' : 'locked', color: '#FACC15' },
+              { icon: '🌧️', name: 'INDOO Raincoat', desc: 'Full-body rain protection with high-visibility INDOO reflective strips. Compact fold design.', status: tier?.current?.id === 'elite' ? 'available' : 'locked', color: '#00E5FF' },
+              { icon: '🏨', name: 'Hotel / Villa Stay', desc: '1-night stay voucher at partner hotels or villas in Yogyakarta. Redeemable quarterly.', status: tier?.current?.id === 'elite' ? 'available' : 'locked', color: '#FACC15' },
+              { icon: '🍽️', name: 'Meal Vouchers', desc: 'Monthly meal voucher pack (5x Rp 25.000) redeemable at any INDOO partner restaurant.', status: tier?.current?.id === 'elite' ? 'available' : 'locked', color: '#8DC63F' },
+              { icon: '🎫', name: 'Elite Event Passes', desc: 'VIP invitation to quarterly INDOO driver meetups, workshops, and exclusive social events.', status: tier?.current?.id === 'elite' ? 'available' : 'locked', color: '#00E5FF' },
+              { icon: '📱', name: 'Priority Support Line', desc: 'Direct WhatsApp access to INDOO support team. Average response time: 2 minutes.', status: tier?.current?.id === 'elite' ? 'available' : 'locked', color: '#8DC63F' },
+              { icon: '🏷️', name: 'INDOO Sticker Pack', desc: 'Premium vinyl sticker set for your vehicle. Includes INDOO Elite badge, logo, and QR code.', status: tier?.current?.id === 'elite' ? 'available' : 'locked', color: '#FACC15' },
+              { icon: '🎽', name: 'INDOO Polo Shirt', desc: 'Breathable performance polo with embroidered INDOO Elite crest. Available in black and green.', status: tier?.current?.id === 'elite' ? 'available' : 'locked', color: '#8DC63F' },
+            ].map((item, i) => (
+              <div key={i} style={{ display: 'flex', gap: 14, padding: 14, borderRadius: 16, background: 'rgba(255,255,255,0.06)', backdropFilter: 'blur(16px)', border: `1px solid ${item.status === 'available' ? item.color + '40' : 'rgba(255,255,255,0.08)'}`, marginBottom: 10 }}>
+                {/* Icon */}
+                <div style={{ width: 60, height: 60, borderRadius: 14, background: item.status === 'available' ? `${item.color}15` : 'rgba(255,255,255,0.04)', border: `1.5px solid ${item.status === 'available' ? item.color + '30' : 'rgba(255,255,255,0.08)'}`, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                  <span style={{ fontSize: 28, filter: item.status === 'locked' ? 'grayscale(1) opacity(0.4)' : 'none' }}>{item.icon}</span>
+                </div>
+                {/* Info */}
+                <div style={{ flex: 1, minWidth: 0 }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 4 }}>
+                    <span style={{ fontSize: 14, fontWeight: 900, color: item.status === 'available' ? '#fff' : 'rgba(255,255,255,0.4)' }}>{item.name}</span>
+                    {item.status === 'available' ? (
+                      <span style={{ fontSize: 9, fontWeight: 800, padding: '2px 8px', borderRadius: 6, background: 'rgba(141,198,63,0.15)', border: '1px solid rgba(141,198,63,0.3)', color: '#8DC63F' }}>FREE</span>
+                    ) : (
+                      <span style={{ fontSize: 9, fontWeight: 800, padding: '2px 8px', borderRadius: 6, background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.1)', color: 'rgba(255,255,255,0.3)' }}>🔒 ELITE</span>
+                    )}
+                  </div>
+                  <span style={{ fontSize: 11, color: 'rgba(255,255,255,0.45)', lineHeight: 1.5, display: 'block' }}>{item.desc}</span>
+                  {item.status === 'available' && (
+                    <button style={{ marginTop: 8, padding: '6px 14px', borderRadius: 8, background: item.color, border: 'none', color: '#000', fontSize: 11, fontWeight: 900, cursor: 'pointer' }}>Claim Reward</button>
+                  )}
+                </div>
+              </div>
+            ))}
+
+            {/* Footer note */}
+            <div style={{ textAlign: 'center', padding: '20px 0' }}>
+              <span style={{ fontSize: 11, color: 'rgba(255,255,255,0.25)' }}>Rewards refreshed quarterly · Items subject to availability</span>
+            </div>
+          </div>
+        </div>
       )}
 
       {/* ── Hotspot Map Overlay ── */}
