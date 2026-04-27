@@ -771,10 +771,30 @@ function HotspotMapContent() {
       map.on('load', () => {
         if (cancelled) return
 
-        // Driver's current position (green marker)
+        // Driver's current position (green marker — you)
         const driverEl = document.createElement('div')
-        driverEl.innerHTML = `<div style="width:20px;height:20px;border-radius:50%;background:#8DC63F;border:3px solid #fff;box-shadow:0 0 12px rgba(141,198,63,0.8)"></div>`
+        driverEl.innerHTML = `<div style="width:20px;height:20px;border-radius:50%;background:#8DC63F;border:3px solid #fff;box-shadow:0 0 12px rgba(141,198,63,0.8);animation:driverFlash 1.5s ease-in-out infinite"></div>`
         new mapboxgl.Marker({ element: driverEl }).setLngLat([110.3758, -7.7820]).addTo(map)
+
+        // Other drivers in the area (10 mock green dots — placed in quiet/oversaturated zones)
+        const OTHER_DRIVERS = [
+          // Quiet zones (oversaturated — too many drivers, low demand)
+          { lat: -7.7520, lng: 110.3870 }, // Jalan Kaliurang
+          { lat: -7.7485, lng: 110.3830 }, // Jalan Kaliurang
+          { lat: -7.7540, lng: 110.3960 }, // Condongcatur
+          { lat: -7.7565, lng: 110.3935 }, // Condongcatur
+          { lat: -7.7580, lng: 110.3980 }, // Condongcatur
+          { lat: -7.8210, lng: 110.3930 }, // Kotagede
+          { lat: -7.8185, lng: 110.3970 }, // Kotagede
+          { lat: -7.7340, lng: 110.3920 }, // Jakal North
+          { lat: -7.7370, lng: 110.3880 }, // Jakal North
+          { lat: -7.7730, lng: 110.3790 }, // UGM area
+        ]
+        OTHER_DRIVERS.forEach((d, i) => {
+          const el = document.createElement('div')
+          el.innerHTML = `<div style="width:10px;height:10px;border-radius:50%;background:#8DC63F;border:2px solid rgba(255,255,255,0.6);box-shadow:0 0 8px rgba(141,198,63,0.6);animation:driverFlash ${1.2 + (i % 3) * 0.3}s ease-in-out infinite;animation-delay:${i * 0.2}s"></div>`
+          new mapboxgl.Marker({ element: el, anchor: 'center' }).setLngLat([d.lng, d.lat]).addTo(map)
+        })
 
         // Zone circles + labels
         ZONES.forEach(z => {
@@ -811,6 +831,7 @@ function HotspotMapContent() {
         const style = document.createElement('style')
         style.textContent = `
           @keyframes hotspotPulse { 0%,100% { transform: scale(1); } 50% { transform: scale(1.15); } }
+          @keyframes driverFlash { 0%,100% { opacity: 1; box-shadow: 0 0 8px rgba(141,198,63,0.6); } 50% { opacity: 0.4; box-shadow: 0 0 16px rgba(141,198,63,1); } }
           @keyframes bounce { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-5px); } }
           .hotspot-popup .mapboxgl-popup-content { background: none !important; padding: 0 !important; box-shadow: none !important; }
           .hotspot-popup .mapboxgl-popup-tip { display: none !important; }
