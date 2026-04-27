@@ -40,7 +40,7 @@ function FoodLanding({ onBrowse, onClose, onSelectVendorType }) {
       }}>
         {/* User profile image */}
         <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 2, padding: '4px 0', width: 42 }}>
-          <img src={localStorage.getItem('indoo_demo_profile') ? JSON.parse(localStorage.getItem('indoo_demo_profile')).photo || 'https://i.pravatar.cc/40?img=3' : 'https://i.pravatar.cc/40?img=3'} alt="" style={{ width: 30, height: 30, borderRadius: '50%', objectFit: 'cover', border: '2px solid #8DC63F' }} />
+          <img src={(() => { try { const p = JSON.parse(localStorage.getItem('indoo_demo_profile') || '{}'); return p.photo || localStorage.getItem('indoo_user_avatar') || 'https://i.pravatar.cc/40?img=3' } catch { return 'https://i.pravatar.cc/40?img=3' } })()} alt="" style={{ width: 30, height: 30, borderRadius: '50%', objectFit: 'cover', border: '2px solid #8DC63F' }} />
         </div>
         <div style={{ width: 24, height: 1, background: 'rgba(255,255,255,0.08)', margin: '0 auto' }} />
         <button onClick={onClose} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 2, background: 'none', border: 'none', cursor: 'pointer', padding: '4px 0', width: 42 }}>
