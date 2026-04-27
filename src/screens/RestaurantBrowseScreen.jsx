@@ -58,6 +58,10 @@ function FoodLanding({ onBrowse, onClose, onSelectVendorType }) {
           <span style={{ fontSize: 17 }}>💰</span>
           <span style={{ fontSize: 8, fontWeight: 800, color: 'rgba(255,255,255,0.6)', letterSpacing: '0.03em' }}>Refund</span>
         </button>
+        <button onClick={() => window.open('/payments', '_blank')} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 2, background: 'none', border: 'none', cursor: 'pointer', padding: '4px 0', width: 42 }}>
+          <span style={{ fontSize: 17 }}>💳</span>
+          <span style={{ fontSize: 8, fontWeight: 800, color: 'rgba(255,255,255,0.6)', letterSpacing: '0.03em' }}>Payments</span>
+        </button>
       </div>
 
       <div className={styles.landingContent}>
