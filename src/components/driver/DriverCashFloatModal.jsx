@@ -10,9 +10,10 @@ export default function DriverCashFloatModal({ onConfirm }) {
 
   return (
     <div style={{ position: 'fixed', inset: 0, zIndex: 300, display: 'flex', alignItems: 'flex-end', justifyContent: 'center', background: 'rgba(0,0,0,0.7)', backdropFilter: 'blur(8px)' }}>
-      <div style={{ width: '100%', maxWidth: 420, borderRadius: '24px 24px 0 0', background: '#0d0d1a', border: '1px solid rgba(255,255,255,0.1)', borderBottom: 'none', padding: '28px 20px calc(env(safe-area-inset-bottom, 0px) + 20px)', animation: 'slideUp 0.3s ease' }}>
+      <div style={{ width: '100%', maxWidth: 420, borderRadius: '24px 24px 0 0', background: '#0d0d1a', border: '1px solid rgba(255,255,255,0.1)', borderBottom: 'none', padding: '28px 20px calc(env(safe-area-inset-bottom, 0px) + 20px)', animation: 'slideUp 0.3s ease', position: 'relative', overflow: 'hidden' }}>
+        <img src="https://ik.imagekit.io/nepgaxllc/ChatGPT%20Image%20Apr%2022,%202026,%2006_39_04%20AM.png?updatedAt=1776814761653" alt="" style={{ position: 'absolute', top: 0, right: -10, width: 120, height: 120, objectFit: 'contain', opacity: 0.3, pointerEvents: 'none', zIndex: 0 }} />
 
-        <div style={{ textAlign: 'center', marginBottom: 20 }}>
+        <div style={{ textAlign: 'center', marginBottom: 20, position: 'relative', zIndex: 1 }}>
           <span style={{ fontSize: 15, fontWeight: 900, color: '#fff', display: 'block' }}>💵 Enter Your Cash Float</span>
         </div>
 
