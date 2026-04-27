@@ -445,14 +445,18 @@ export default function DriverApp() {
             )}
 
             {/* Quick actions */}
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
-              <button onClick={() => setTab('rides')} style={{ padding: 20, borderRadius: 20, background: 'rgba(141,198,63,0.08)', backdropFilter: 'blur(16px)', border: '1.5px solid rgba(141,198,63,0.3)', cursor: 'pointer', textAlign: 'center', overflow: 'hidden' }}>
-                <img src="https://ik.imagekit.io/nepgaxllc/Sleek%20green%20and%20black%20scooter%20setup.png?updatedAt=1775634845237" alt="" style={{ width: 50, height: 50, objectFit: 'contain', display: 'block', margin: '0 auto 8px' }} />
-                <span style={{ fontSize: 14, fontWeight: 900, color: '#8DC63F', display: 'block' }}>Ride Orders</span>
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 10 }}>
+              <button onClick={() => setTab('rides')} style={{ padding: 16, borderRadius: 20, background: 'rgba(141,198,63,0.08)', backdropFilter: 'blur(16px)', border: '1.5px solid rgba(141,198,63,0.3)', cursor: 'pointer', textAlign: 'center', overflow: 'hidden' }}>
+                <img src="https://ik.imagekit.io/nepgaxllc/Sleek%20green%20and%20black%20scooter%20setup.png?updatedAt=1775634845237" alt="" style={{ width: 44, height: 44, objectFit: 'contain', display: 'block', margin: '0 auto 6px' }} />
+                <span style={{ fontSize: 12, fontWeight: 900, color: '#8DC63F', display: 'block' }}>Bike Rides</span>
               </button>
-              <button onClick={() => setTab('food')} style={{ padding: 20, borderRadius: 20, background: 'rgba(250,204,21,0.08)', backdropFilter: 'blur(16px)', border: '1.5px solid rgba(250,204,21,0.3)', cursor: 'pointer', textAlign: 'center', overflow: 'hidden' }}>
-                <span style={{ fontSize: 32, display: 'block', marginBottom: 8 }}>🍔</span>
-                <span style={{ fontSize: 14, fontWeight: 900, color: '#FACC15', display: 'block' }}>Food Delivery</span>
+              <button onClick={() => setTab('rides')} style={{ padding: 16, borderRadius: 20, background: 'rgba(0,229,255,0.08)', backdropFilter: 'blur(16px)', border: '1.5px solid rgba(0,229,255,0.3)', cursor: 'pointer', textAlign: 'center', overflow: 'hidden' }}>
+                <img src="https://ik.imagekit.io/nepgaxllc/Sporty%20green%20and%20black%20hatchback.png?updatedAt=1775634925566" alt="" style={{ width: 44, height: 44, objectFit: 'contain', display: 'block', margin: '0 auto 6px' }} />
+                <span style={{ fontSize: 12, fontWeight: 900, color: '#00E5FF', display: 'block' }}>Car Rides</span>
+              </button>
+              <button onClick={() => setTab('food')} style={{ padding: 16, borderRadius: 20, background: 'rgba(250,204,21,0.08)', backdropFilter: 'blur(16px)', border: '1.5px solid rgba(250,204,21,0.3)', cursor: 'pointer', textAlign: 'center', overflow: 'hidden' }}>
+                <span style={{ fontSize: 32, display: 'block', marginBottom: 6 }}>🍔</span>
+                <span style={{ fontSize: 12, fontWeight: 900, color: '#FACC15', display: 'block' }}>Food</span>
               </button>
             </div>
           </>
