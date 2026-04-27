@@ -60,7 +60,7 @@ import CustomizeSheet from './CustomizeSheet'
 // ── Delivery Chat — in-app messaging with driver during delivery ─────────────
 function DeliveryChat({ driverName, chatKey, initialMessages, onClose }) {
   const MOCK_MESSAGES = [
-    { id: 1, from: 'system', text: `Order confirmed — ${driverName} is on the way`, time: new Date(Date.now() - 300000).toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' }) },
+    { id: 1, from: 'indoo', text: `Order confirmed — ${driverName} is on the way`, time: new Date(Date.now() - 300000).toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' }) },
     { id: 2, from: 'driver', text: 'Halo kak, saya sedang menuju restoran untuk ambil pesanan', time: new Date(Date.now() - 240000).toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' }) },
     { id: 3, from: 'customer', text: 'Ok terima kasih, berapa lama ya?', time: new Date(Date.now() - 180000).toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' }) },
     { id: 4, from: 'driver', text: 'Sekitar 15 menit kak, sudah dekat restoran', time: new Date(Date.now() - 120000).toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' }) },
@@ -70,8 +70,19 @@ function DeliveryChat({ driverName, chatKey, initialMessages, onClose }) {
   const [input, setInput] = useState('')
   const scrollRef = useRef(null)
 
+  // Poll localStorage for new messages posted by journey auto-updates
   useEffect(() => {
-    scrollRef.current?.scrollTo({ top: scrollRef.current.scrollHeight })
+    const id = setInterval(() => {
+      try {
+        const stored = JSON.parse(localStorage.getItem(chatKey) || '[]')
+        if (stored.length > messages.length) setMessages(stored)
+      } catch {}
+    }, 1500)
+    return () => clearInterval(id)
+  }, [chatKey, messages.length])
+
+  useEffect(() => {
+    scrollRef.current?.scrollTo({ top: scrollRef.current.scrollHeight, behavior: 'smooth' })
   }, [messages.length])
 
   const sendMessage = () => {
@@ -115,31 +126,43 @@ function DeliveryChat({ driverName, chatKey, initialMessages, onClose }) {
             <span style={{ fontSize: 14, color: '#fff' }}>Send a message to your driver</span>
           </div>
         )}
-        {messages.map(msg => (
-          msg.from === 'system' ? (
-            <div key={msg.id} style={{ textAlign: 'center', padding: '6px 0' }}>
-              <span style={{ fontSize: 12, color: 'rgba(255,255,255,0.4)', background: 'rgba(0,0,0,0.4)', padding: '4px 12px', borderRadius: 10 }}>{msg.text}</span>
-            </div>
-          ) : (
-            <div key={msg.id} style={{ display: 'flex', justifyContent: msg.from === 'customer' ? 'flex-end' : 'flex-start', alignItems: 'flex-end', gap: 6 }}>
-              {msg.from === 'driver' && (
+        {messages.map(msg => {
+          const isCustomer = msg.from === 'customer'
+          const isSystem = msg.from === 'system' || msg.from === 'indoo'
+          const isDriver = msg.from === 'driver'
+          const INDOO_LOGO = 'https://ik.imagekit.io/nepgaxllc/ChatGPT%20Image%20Apr%2019,%202026,%2012_07_28%20AM.png?updatedAt=1776532065659'
+
+          return (
+            <div key={msg.id} style={{ display: 'flex', justifyContent: isCustomer ? 'flex-end' : 'flex-start', alignItems: 'flex-end', gap: 6 }}>
+              {/* Avatar — driver or INDOO logo */}
+              {isDriver && (
                 <div style={{ width: 28, height: 28, borderRadius: '50%', overflow: 'hidden', flexShrink: 0, border: '1.5px solid #8DC63F' }}>
                   <img src={`https://i.pravatar.cc/60?img=${(driverName ?? 'D').charCodeAt(0) % 50 + 1}`} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
                 </div>
               )}
+              {isSystem && (
+                <div style={{ width: 28, height: 28, borderRadius: '50%', overflow: 'hidden', flexShrink: 0, border: '1.5px solid rgba(141,198,63,0.4)', background: '#111' }}>
+                  <img src={INDOO_LOGO} alt="INDOO" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                </div>
+              )}
+              {/* Bubble */}
               <div style={{
-                maxWidth: '70%', padding: '10px 14px', borderRadius: 16,
-                background: msg.from === 'customer' ? '#8DC63F' : 'rgba(0,0,0,0.6)',
-                border: msg.from === 'driver' ? '1px solid rgba(255,255,255,0.08)' : 'none',
-                borderBottomRightRadius: msg.from === 'customer' ? 4 : 16,
-                borderBottomLeftRadius: msg.from === 'driver' ? 4 : 16,
+                maxWidth: '75%', padding: msg.image ? '4px 4px 8px' : '10px 14px', borderRadius: 16,
+                background: isCustomer ? '#8DC63F' : isSystem ? 'rgba(141,198,63,0.08)' : 'rgba(0,0,0,0.6)',
+                border: isSystem ? '1px solid rgba(141,198,63,0.15)' : isDriver ? '1px solid rgba(255,255,255,0.08)' : 'none',
+                borderBottomRightRadius: isCustomer ? 4 : 16,
+                borderBottomLeftRadius: isCustomer ? 16 : 4,
               }}>
-                <span style={{ fontSize: 14, color: msg.from === 'customer' ? '#000' : '#fff', display: 'block', lineHeight: 1.4 }}>{msg.text}</span>
-                <span style={{ fontSize: 10, color: msg.from === 'customer' ? 'rgba(0,0,0,0.4)' : 'rgba(255,255,255,0.3)', display: 'block', marginTop: 4, textAlign: 'right' }}>{msg.time}</span>
+                {isSystem && <span style={{ fontSize: 10, fontWeight: 900, color: '#8DC63F', display: 'block', marginBottom: 4, letterSpacing: '0.05em', padding: msg.image ? '6px 10px 0' : 0 }}>INDOO</span>}
+                {msg.image && (
+                  <img src={msg.image} alt="" style={{ width: '100%', borderRadius: 12, marginBottom: 6 }} />
+                )}
+                <span style={{ fontSize: 14, color: isCustomer ? '#000' : '#fff', display: 'block', lineHeight: 1.4, whiteSpace: 'pre-line', padding: msg.image ? '0 10px' : 0 }}>{msg.text}</span>
+                <span style={{ fontSize: 10, color: isCustomer ? 'rgba(0,0,0,0.4)' : 'rgba(255,255,255,0.3)', display: 'block', marginTop: 4, textAlign: 'right', padding: msg.image ? '0 10px' : 0 }}>{msg.time}</span>
               </div>
             </div>
           )
-        ))}
+        })}
       </div>
 
       {/* Input */}
@@ -607,35 +630,37 @@ export default function RestaurantMenuSheet({ restaurant, onClose, onOrderViaCha
     const plate = driverOnWay?.driverPlate ?? 'AB 1234 XY'
     const bike = driverOnWay?.bikeBrand ?? 'Honda Vario'
 
-    const postMsg = (from, text) => {
+    const INDOO_IMG = 'https://ik.imagekit.io/nepgaxllc/ChatGPT%20Image%20Apr%2019,%202026,%2012_07_28%20AM.png?updatedAt=1776532065659'
+
+    const postMsg = (from, text, extra) => {
       try {
         const existing = JSON.parse(localStorage.getItem(chatKey) || '[]')
-        existing.push({ id: Date.now() + Math.random(), from, text, time: fmt() })
+        existing.push({ id: Date.now() + Math.random(), from, text, time: fmt(), ...extra })
         localStorage.setItem(chatKey, JSON.stringify(existing))
       } catch {}
     }
 
     // Journey message schedule (delays in ms from start)
     const timers = []
-    const q = (delay, from, text) => timers.push(setTimeout(() => postMsg(from, text), delay))
+    const q = (delay, from, text, extra) => timers.push(setTimeout(() => postMsg(from, text, extra), delay))
 
     // Phase 1: to_restaurant (0–32s)
-    q(0,     'system', `🏍️ Your driver is on the way to ${pickupName}`)
+    q(0,     'indoo',  `🏍️ Your driver is on the way to ${pickupName}`)
     q(8000,  'driver', 'Saya sedang menuju lokasi penjual kak')
-    q(18000, 'system', `📍 Driver will arrive at the pickup location shortly`)
-    q(28000, 'system', `✅ Driver has arrived at ${pickupName} — collecting your order`)
+    q(18000, 'indoo',  `📍 Driver will arrive at the pickup location shortly`)
+    q(28000, 'indoo',  `✅ Driver has arrived at ${pickupName} — collecting your order`)
 
     // Phase 2: to_customer (32s–52s)
-    q(33000, 'system', `🛍️ Order picked up! Your driver is now heading your way`)
+    q(33000, 'indoo',  `🛍️ Order picked up! Your driver is now heading your way`)
     q(34000, 'driver', `Pesanan sudah diambil kak, sedang menuju ke lokasi Anda`)
-    q(40000, 'system', `🏍️ Driver is making good progress — hang tight!`)
-    q(47000, 'system', `📍 Your driver will be at your location very soon`)
-    q(50000, 'system', `👀 Please look out for your driver — ${bike}, plate ${plate}`)
+    q(40000, 'indoo',  `🏍️ Driver is making good progress — hang tight!`)
+    q(47000, 'indoo',  `📍 Your driver will be at your location very soon`)
+    q(50000, 'indoo',  `👀 Please look out for your driver\n${bike} · Plate ${plate}`, { image: INDOO_IMG })
 
     // Phase 3: arrived (52s+)
-    q(52000, 'system', `🎉 Your driver has arrived!`)
+    q(52000, 'indoo',  `🎉 Your driver has arrived!`)
     q(53000, 'driver', 'Sudah sampai kak, silakan diterima pesanannya 🙏')
-    q(57000, 'system', `Thank you for ordering with INDOO! We look forward to serving you again soon.\n— The INDOO Team 😊`)
+    q(57000, 'indoo',  `Thank you for ordering with INDOO! We look forward to serving you again soon.\n— The INDOO Team 😊`, { image: INDOO_IMG })
 
     return () => timers.forEach(clearTimeout)
   }, [!!driverOnWay])
