@@ -65,8 +65,8 @@ export default function FoodOrderStatus({ order, onClose }) {
       <div className={styles.header}>
         <div className={styles.headerBrand}>
           <img
-            src="https://ik.imagekit.io/nepgaxllc/Untitleddsfsdf-removebg-preview.png"
-            alt="Indoo"
+            src="https://ik.imagekit.io/nepgaxllc/Bold%203D%20_INDOO_%20logo%20design.png?updatedAt=1776203769926"
+            alt="INDOO"
             className={styles.headerLogo}
           />
         </div>
