@@ -46,8 +46,8 @@
 /* Icon box — rounded square */
 .iconBox {
   position: relative;
-  width: 56px;
-  height: 56px;
+  width: 68px;
+  height: 68px;
   border-radius: 14px;
   background: rgba(255, 255, 255, 0.06);
   border: 1px solid rgba(255, 255, 255, 0.1);
