@@ -871,8 +871,8 @@ export default function CarDriverApp() {
             <HotspotMapContent />
           </div>
 
-          {/* Bottom info panel */}
-          <div style={{ padding: '14px 16px calc(env(safe-area-inset-bottom, 0px) + 14px)', background: 'rgba(0,0,0,0.8)', backdropFilter: 'blur(16px)', borderTop: '1px solid rgba(255,255,255,0.1)', position: 'relative', zIndex: 2 }}>
+          {/* Bottom info panel — floating */}
+          <div style={{ position: 'absolute', bottom: 'calc(env(safe-area-inset-bottom, 0px) + 16px)', left: 16, right: 16, padding: '14px 16px', background: 'rgba(0,0,0,0.8)', backdropFilter: 'blur(20px)', borderRadius: 20, border: '1.5px solid rgba(255,255,255,0.1)', zIndex: 2 }}>
             <div style={{ display: 'flex', gap: 8, marginBottom: 10, flexWrap: 'wrap' }}>
               <span style={{ padding: '4px 10px', borderRadius: 8, background: 'rgba(239,68,68,0.1)', border: '1px solid rgba(239,68,68,0.3)', fontSize: 10, fontWeight: 800, color: '#EF4444' }}>🔴 High Demand</span>
               <span style={{ padding: '4px 10px', borderRadius: 8, background: 'rgba(250,204,21,0.1)', border: '1px solid rgba(250,204,21,0.3)', fontSize: 10, fontWeight: 800, color: '#FACC15' }}>🟡 Moderate</span>
