@@ -37,14 +37,14 @@ export default {
   'nav.profile': 'Profile',
 
   // Floating icon dock
-  'icons.ride':    'Ride',
-  'icons.street':  'The Street',
+  'icons.ride':    'Ride On',
+  'icons.street':  'INDOO Street',
   'icons.dating':  'Dating',
-  'icons.car':     'Car',
+  'icons.car':     'Drive On',
   'icons.shop':    'Market',
   'icons.massage': 'Massage',
   'icons.rentals': 'Rentals',
-  'icons.deals':   'Deals',
+  'icons.deals':   'Deal Hunt',
 
   // Map header
   'header.signIn': 'Sign In',

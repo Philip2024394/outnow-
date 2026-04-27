@@ -37,13 +37,14 @@ export default {
   'nav.profile': 'Profil',
 
   // Floating icon dock
-  'icons.ride':    'Ojek',
-  'icons.street':  'The Street',
+  'icons.ride':    'Ride On',
+  'icons.street':  'INDOO Street',
   'icons.dating':  'Kencan',
-  'icons.car':     'Mobil',
+  'icons.car':     'Drive On',
   'icons.shop':    'Belanja',
   'icons.massage': 'Pijat',
   'icons.rentals': 'Sewa',
+  'icons.deals':   'Deal Hunt',
 
   // Map header
   'header.signIn': 'Masuk',
