@@ -469,30 +469,6 @@ export default function DriverApp() {
                   </div>
                 )}
 
-                {/* Elite rewards preview (show for all tiers as motivation) */}
-                {tier.current.id !== 'elite' && (
-                  <div style={{ marginTop: 10, padding: 10, borderRadius: 10, background: 'rgba(141,198,63,0.04)', border: '1px dashed rgba(141,198,63,0.15)' }}>
-                    <span style={{ fontSize: 10, fontWeight: 800, color: '#8DC63F', display: 'block', marginBottom: 6 }}>💎 INDOO ELITE REWARDS</span>
-                    <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
-                      {['🧥 Jacket', '🎒 Bag', '🏨 Hotel Stay', '🍽️ Meals', '🎫 Events'].map(r => (
-                        <span key={r} style={{ fontSize: 9, padding: '3px 8px', borderRadius: 6, background: 'rgba(141,198,63,0.08)', border: '1px solid rgba(141,198,63,0.15)', color: 'rgba(255,255,255,0.5)' }}>{r}</span>
-                      ))}
-                    </div>
-                  </div>
-                )}
-
-                {/* Elite rewards detail (show when elite) */}
-                {tier.current.id === 'elite' && tier.current.rewards && (
-                  <div style={{ marginTop: 8, display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 6 }}>
-                    {tier.current.rewards.map(r => (
-                      <div key={r.label} style={{ padding: 8, borderRadius: 10, background: 'rgba(141,198,63,0.08)', border: '1px solid rgba(141,198,63,0.15)', textAlign: 'center' }}>
-                        <span style={{ fontSize: 18, display: 'block' }}>{r.icon}</span>
-                        <span style={{ fontSize: 9, fontWeight: 700, color: 'rgba(255,255,255,0.5)' }}>{r.label}</span>
-                      </div>
-                    ))}
-                  </div>
-                )}
-
                 {/* View Elite Awards button */}
                 <button onClick={() => setShowEliteAwards(true)} style={{ width: '100%', marginTop: 12, padding: '12px 16px', borderRadius: 12, background: 'rgba(141,198,63,0.1)', border: '1px solid rgba(141,198,63,0.25)', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8 }}>
                   <span style={{ fontSize: 16 }}>💎</span>
