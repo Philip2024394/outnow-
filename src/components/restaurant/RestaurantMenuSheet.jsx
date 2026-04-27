@@ -644,7 +644,7 @@ export default function RestaurantMenuSheet({ restaurant, onClose, onOrderViaCha
     const bike = driverOnWay?.bikeBrand ?? 'Honda Vario'
     const bikeColor = driverOnWay?.bikeColor ?? 'White'
     const callsign = driverOnWay?.driverCallsign ?? 'INDOO 4578'
-    const ordNum = `#${(driverOnWay.orderId ?? 'current').slice(-4).toUpperCase()}`
+    const ordNum = `#${driverOnWay.orderId ? driverOnWay.orderId.slice(-4).toUpperCase() : String(Math.floor(1000 + Math.random() * 9000))}`
 
     const INDOO_IMG = 'https://ik.imagekit.io/nepgaxllc/ChatGPT%20Image%20Apr%2019,%202026,%2012_07_28%20AM.png?updatedAt=1776532065659'
     const ARRIVED_IMG = 'https://ik.imagekit.io/nepgaxllc/ChatGPT%20Image%20Apr%2027,%202026,%2011_17_44%20AM.png'
