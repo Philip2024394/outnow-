@@ -66,14 +66,18 @@ export default function DealPosterVerification({ onClose, onCreateDeal }) {
   const [verified, setVerified] = useState(() => localStorage.getItem(VERIFIED_KEY) === 'true')
   const [profile, setProfile] = useState(() => loadProfile())
 
-  // Step 1 form fields
+  // Auto-fill from existing user profile
+  const userProfile = (() => { try { return JSON.parse(localStorage.getItem('indoo_demo_profile') || '{}') } catch { return {} } })()
+  const savedLocations = (() => { try { return JSON.parse(localStorage.getItem('indoo_saved_locations') || '{}') } catch { return {} } })()
+
+  // Step 1 form fields — pre-filled from existing account
   const [profilePhoto, setProfilePhoto] = useState(null)
-  const [profilePhotoUrl, setProfilePhotoUrl] = useState(null)
-  const [fullName, setFullName] = useState('')
-  const [phone, setPhone] = useState('')
+  const [profilePhotoUrl, setProfilePhotoUrl] = useState(userProfile.photo || null)
+  const [fullName, setFullName] = useState(userProfile.name || '')
+  const [phone, setPhone] = useState(userProfile.phone?.replace(/^\+\d{1,3}/, '') || '')
   const [countryPrefix, setCountryPrefix] = useState('+62')
-  const [address, setAddress] = useState('')
-  const [city, setCity] = useState('')
+  const [address, setAddress] = useState(savedLocations.home?.address || userProfile.address || '')
+  const [city, setCity] = useState(userProfile.city || 'Yogyakarta')
   const [ktpNumber, setKtpNumber] = useState('')
   const [ktpPhoto, setKtpPhoto] = useState(null)
   const [ktpPhotoUrl, setKtpPhotoUrl] = useState(null)
@@ -227,14 +231,26 @@ export default function DealPosterVerification({ onClose, onCreateDeal }) {
       <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
         {/* Title card */}
         <div style={{ ...glass, textAlign: 'center' }}>
-          <div style={{ fontSize: 40, marginBottom: 8 }}>&#128179;</div>
+          <div style={{ fontSize: 40, marginBottom: 8 }}>🏷️</div>
           <div style={{ fontSize: 16, fontWeight: 900, color: '#fff', marginBottom: 4 }}>
-            Become a Deal Poster
+            Verify to Post Deals
           </div>
           <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.5)', lineHeight: 1.5 }}>
-            Verify your identity to start posting deals. This helps protect buyers and build trust.
+            Your account details are pre-filled. Just upload your KTP for verification to start posting deals.
           </div>
         </div>
+
+        {/* Auto-filled profile summary */}
+        {(userProfile.name || userProfile.phone) && (
+          <div style={{ ...glass, display: 'flex', alignItems: 'center', gap: 14 }}>
+            {userProfile.photo && <img src={userProfile.photo} alt="" style={{ width: 48, height: 48, borderRadius: '50%', objectFit: 'cover', border: '2px solid #8DC63F', flexShrink: 0 }} />}
+            <div style={{ flex: 1 }}>
+              <span style={{ fontSize: 14, fontWeight: 800, color: '#fff', display: 'block' }}>{userProfile.name || 'Your Name'}</span>
+              <span style={{ fontSize: 12, color: 'rgba(255,255,255,0.4)' }}>{userProfile.phone || 'Phone not set'}</span>
+            </div>
+            <span style={{ fontSize: 10, fontWeight: 800, padding: '4px 10px', borderRadius: 8, background: 'rgba(141,198,63,0.12)', border: '1px solid rgba(141,198,63,0.25)', color: '#8DC63F' }}>Auto-filled</span>
+          </div>
+        )}
 
         {/* Profile Photo */}
         <div style={glass}>
