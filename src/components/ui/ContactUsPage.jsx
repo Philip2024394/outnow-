@@ -529,23 +529,25 @@ export default function ContactUsPage({ onClose }) {
         fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
       }}
     >
-      {/* Header */}
+      {/* Footer nav panel — floating */}
       <div style={{
-        position: 'absolute', top: 0, left: 0, right: 0, zIndex: 2,
-        padding: 'calc(env(safe-area-inset-top, 0px) + 12px) 16px 12px',
+        position: 'fixed', bottom: 'calc(env(safe-area-inset-bottom, 0px) + 12px)', left: 16, right: 16, zIndex: 2,
+        padding: '12px 16px',
+        background: 'rgba(0,0,0,0.8)', backdropFilter: 'blur(20px)',
+        borderRadius: 20, border: '1.5px solid rgba(255,255,255,0.1)',
         display: 'flex', alignItems: 'center', justifyContent: 'space-between',
       }}>
-        <div />
+        <span style={{ fontSize: 14, fontWeight: 800, color: 'rgba(255,255,255,0.5)' }}>INDOO · Contact</span>
         <button
           type="button"
           onClick={onClose}
           style={{
-            width: 36, height: 36, borderRadius: '50%',
+            padding: '8px 20px', borderRadius: 12,
             background: '#8DC63F', border: 'none',
-            display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer',
+            color: '#000', fontSize: 13, fontWeight: 900, cursor: 'pointer',
           }}
         >
-          <span style={{ fontSize: 18, fontWeight: 900, color: '#000', lineHeight: 1 }}>✕</span>
+          Close
         </button>
       </div>
 
