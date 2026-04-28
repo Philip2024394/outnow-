@@ -300,14 +300,16 @@ export default function LegalPage({ onClose, initialTab = 'privacy' }) {
       {/* Background image — time-based */}
       <img src={getLegalBG()} alt="" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', pointerEvents: 'none', zIndex: 0 }} />
 
+      {/* Single scrollable area */}
+      <div className="legalScroll" style={{ flex: 1, overflowY: 'auto', position: 'relative', zIndex: 1, scrollbarWidth: 'none', msOverflowStyle: 'none', WebkitOverflowScrolling: 'touch' }}>
+      <style>{`.legalScroll::-webkit-scrollbar { display: none; }`}</style>
+
       {/* Hero */}
       <div
         style={{
           position: 'relative',
-          zIndex: 1,
-          padding: '20px 16px 12px',
+          padding: 'calc(env(safe-area-inset-top, 0px) + 20px) 16px 12px',
           textAlign: 'center',
-          flexShrink: 0,
         }}
       >
         {/* Back button */}
@@ -412,15 +414,10 @@ export default function LegalPage({ onClose, initialTab = 'privacy' }) {
         </div>
       </div>
 
-      {/* Scrollable content */}
+      {/* Content */}
       <div
         style={{
-          flex: 1,
-          overflowY: 'auto',
           padding: '0 16px 32px',
-          WebkitOverflowScrolling: 'touch',
-          position: 'relative',
-          zIndex: 1,
         }}
       >
         {activeTab === 'privacy' && <PrivacyContent />}
@@ -443,6 +440,7 @@ export default function LegalPage({ onClose, initialTab = 'privacy' }) {
           <div>Last updated: April 2026</div>
         </div>
       </div>
+      </div>{/* end single scrollable area */}
     </div>
   );
 
