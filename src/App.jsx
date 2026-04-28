@@ -72,6 +72,20 @@ class ErrorBoundary extends Component {
 
 const LOGO_URL = 'https://ik.imagekit.io/nepgaxllc/Bold%203D%20_INDOO_%20logo%20design.png?updatedAt=1776203769926'
 
+// ── Keyboard viewport fix — scrolls focused input into view ──
+if (typeof window !== 'undefined' && window.visualViewport) {
+  let pendingScroll = null
+  window.visualViewport.addEventListener('resize', () => {
+    clearTimeout(pendingScroll)
+    pendingScroll = setTimeout(() => {
+      const el = document.activeElement
+      if (el && (el.tagName === 'INPUT' || el.tagName === 'TEXTAREA' || el.tagName === 'SELECT')) {
+        el.scrollIntoView({ behavior: 'smooth', block: 'center' })
+      }
+    }, 100)
+  })
+}
+
 export default function App() {
   const { user, userProfile, loading } = useAuth()
   const [guestMode, setGuestMode] = useState(() => localStorage.getItem('indoo_registered') === 'true')
