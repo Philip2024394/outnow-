@@ -137,11 +137,10 @@ export default function SimpleProfileScreen({ onClose }) {
     }, 300);
   };
 
-  if (showContact) {
+  if (showContact)
     return <ContactUsPage onClose={() => setShowContact(false)} />;
   if (showLegal)
     return <LegalPage onClose={() => setShowLegal(false)} />;
-  }
 
   const content = (
     <div style={{
@@ -622,9 +621,9 @@ export default function SimpleProfileScreen({ onClose }) {
         <div style={{ flex: 1, overflowY: 'auto', padding: '12px 0' }}>
           {[
             { icon: '👤', label: 'Edit Profile', action: scrollToProfileCard },
-            { icon: '🔒', label: 'Privacy Policy', action: () => { setShowDrawer(false); setShowLegal(true) } },
-            { icon: '📋', label: 'Terms of Service', action: () => { setShowDrawer(false); setShowLegal(true) } },
-            { icon: '💰', label: 'Refund Policy', action: () => { setShowDrawer(false); setShowLegal(true) } },
+            { icon: '🔒', label: 'Privacy Policy', action: () => { setDrawerOpen(false); setShowLegal(true) } },
+            { icon: '📋', label: 'Terms of Service', action: () => { setDrawerOpen(false); setShowLegal(true) } },
+            { icon: '💰', label: 'Refund Policy', action: () => { setDrawerOpen(false); setShowLegal(true) } },
             { icon: '📞', label: 'Contact Us', action: () => { setDrawerOpen(false); setShowContact(true); } },
             { icon: '🔴', label: 'Sign Out', action: handleSignOut },
           ].map((item) => (
