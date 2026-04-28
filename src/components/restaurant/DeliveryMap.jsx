@@ -11,6 +11,7 @@
  * - Phase-aware demo: bike moves on the correct segment per driverPhase
  */
 import { useRef, useEffect, useState } from 'react'
+import { supabase } from '@/lib/supabase'
 
 const MAPBOX_TOKEN = import.meta.env.VITE_MAPBOX_TOKEN ?? ''
 
@@ -77,6 +78,7 @@ export default function DeliveryMap({
   driverPhase = 'to_restaurant',
   driverImgIdx = 0,
   totalImages = 8,
+  driverId = null,
   driverLat,
   driverLng,
   restaurantLat,
@@ -99,6 +101,7 @@ export default function DeliveryMap({
   const phaseRef = useRef(driverPhase)
   const [loadError, setLoadError] = useState(false)
   const [mapLoaded, setMapLoaded] = useState(false)
+  const hasLiveDataRef = useRef(false)
 
   const isDemo = import.meta.env.VITE_DEMO_MODE === 'true' || !import.meta.env.VITE_SUPABASE_URL
   const restLat = restaurantLat ?? DEMO_ROUTE[8][0]
@@ -111,8 +114,9 @@ export default function DeliveryMap({
     phaseRef.current = driverPhase
   }, [driverPhase])
 
-  // Sync bike position to cinematic image index from parent
+  // Sync bike position to cinematic image index from parent (demo fallback only)
   useEffect(() => {
+    if (hasLiveDataRef.current) return // live Supabase data takes priority
     if (!isDemo || !mapLoaded || !driverMarkerRef.current) return
     const seg = PHASE_SEGMENTS[driverPhase] || PHASE_SEGMENTS.to_restaurant
     const segLength = seg.end - seg.start
@@ -311,6 +315,51 @@ export default function DeliveryMap({
     targetPosRef.current = { lat: driverLat, lng: driverLng }
     interpStartRef.current = performance.now()
   }, [driverLat, driverLng, isDemo, mapLoaded])
+
+  // Supabase Realtime: subscribe to driver_locations updates for the active driver
+  useEffect(() => {
+    if (!supabase || !driverId || !mapLoaded) return
+
+    const channel = supabase
+      .channel('driver-track')
+      .on(
+        'postgres_changes',
+        {
+          event: 'UPDATE',
+          schema: 'public',
+          table: 'driver_locations',
+          filter: 'driver_id=eq.' + driverId,
+        },
+        (payload) => {
+          const { lat, lng } = payload.new
+          if (lat == null || lng == null) return
+
+          hasLiveDataRef.current = true
+
+          // Snapshot current interpolated position as the starting point
+          if (lastPosRef.current && targetPosRef.current) {
+            const elapsed = performance.now() - interpStartRef.current
+            const t = Math.min(elapsed / 3000, 1)
+            const eased = 1 - Math.pow(1 - t, 3)
+            lastPosRef.current = {
+              lat: lerp(lastPosRef.current.lat, targetPosRef.current.lat, eased),
+              lng: lerp(lastPosRef.current.lng, targetPosRef.current.lng, eased),
+            }
+          } else {
+            lastPosRef.current = { lat, lng }
+          }
+
+          targetPosRef.current = { lat, lng }
+          interpStartRef.current = performance.now()
+        }
+      )
+      .subscribe()
+
+    return () => {
+      supabase.removeChannel(channel)
+      hasLiveDataRef.current = false
+    }
+  }, [driverId, mapLoaded])
 
   // Phase change: reset demo index to new segment start & adjust map bounds
   useEffect(() => {

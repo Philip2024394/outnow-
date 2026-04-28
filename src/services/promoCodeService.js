@@ -50,6 +50,22 @@ const PROMO_BANNERS = [
   },
 ]
 
+function getAdminPromos() {
+  try { return JSON.parse(localStorage.getItem('indoo_admin_promos') || '[]') } catch { return [] }
+}
+
+function getAllPromoCodes() {
+  // Merge hardcoded promos with admin-created promos; admin codes override if duplicate
+  const adminPromos = getAdminPromos()
+  const merged = [...PROMO_CODES]
+  for (const ap of adminPromos) {
+    const idx = merged.findIndex(p => p.code === ap.code)
+    if (idx >= 0) merged[idx] = ap
+    else merged.push(ap)
+  }
+  return merged
+}
+
 function getUsedCodes() {
   return JSON.parse(localStorage.getItem('indoo_used_promos') || '{}')
 }
@@ -61,7 +77,8 @@ function markCodeUsed(code) {
 }
 
 export function validatePromoCode(code, cartTotal) {
-  const promo = PROMO_CODES.find(p => p.code === code.toUpperCase().trim())
+  const allCodes = getAllPromoCodes()
+  const promo = allCodes.find(p => p.code === code.toUpperCase().trim())
   if (!promo) return { valid: false, error: 'Invalid promo code' }
 
   const now = new Date()
@@ -104,5 +121,5 @@ export function getPromoBanners() {
 }
 
 export function getPromoByCode(code) {
-  return PROMO_CODES.find(p => p.code === code.toUpperCase().trim()) ?? null
+  return getAllPromoCodes().find(p => p.code === code.toUpperCase().trim()) ?? null
 }
