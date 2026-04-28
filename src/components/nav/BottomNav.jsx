@@ -2,6 +2,7 @@ import { useRef, useState } from 'react'
 import { createPortal } from 'react-dom'
 import Avatar from '@/components/ui/Avatar'
 import ContactUsPage from '@/components/ui/ContactUsPage'
+import LegalPage from '@/components/ui/LegalPage'
 import styles from './BottomNav.module.css'
 
 const RING_R    = 20          // SVG circle radius
@@ -32,6 +33,7 @@ export default function BottomNav({ activeTab = 'map', userPhotoURL, userName, i
   const [holding, setHolding]     = useState(false)
   const [toggled, setToggled]     = useState(false)   // flash on complete
   const [contactUsOpen, setContactUsOpen] = useState(false)
+  const [legalOpen, setLegalOpen] = useState(null) // null or 'privacy'|'terms'|'refund'
 
   const startHold = (e) => {
     // Only trigger hold if this is a driver account
@@ -187,7 +189,7 @@ export default function BottomNav({ activeTab = 'map', userPhotoURL, userName, i
       )}
 
 
-      {/* Compliance & Contact buttons — default theme only */}
+      {/* Contact & Legal buttons — default theme only */}
       {!showBuyerBtns && !showSellerBtns && (
         <>
           <div style={{ width: 24, height: 1, background: 'rgba(255,255,255,0.08)' }} />
@@ -195,23 +197,16 @@ export default function BottomNav({ activeTab = 'map', userPhotoURL, userName, i
             <span style={{ fontSize: 16 }}>📞</span>
             <span className={styles.tabLabel}>Contact</span>
           </button>
-          <button className={styles.tab} onClick={() => window.open('/privacy', '_blank')} aria-label="Privacy">
-            <span style={{ fontSize: 16 }}>🔒</span>
-            <span className={styles.tabLabel}>Privacy</span>
-          </button>
-          <button className={styles.tab} onClick={() => window.open('/terms', '_blank')} aria-label="Terms">
+          <button className={styles.tab} onClick={() => setLegalOpen('privacy')} aria-label="Legal">
             <span style={{ fontSize: 16 }}>📋</span>
-            <span className={styles.tabLabel}>Terms</span>
-          </button>
-          <button className={styles.tab} onClick={() => window.open('/refund', '_blank')} aria-label="Refund">
-            <span style={{ fontSize: 16 }}>💰</span>
-            <span className={styles.tabLabel}>Refund</span>
+            <span className={styles.tabLabel}>Legal</span>
           </button>
         </>
       )}
 
-      {/* Contact Us page overlay */}
+      {/* Overlays */}
       {contactUsOpen && <ContactUsPage onClose={() => setContactUsOpen(false)} />}
+      {legalOpen && <LegalPage initialTab={legalOpen} onClose={() => setLegalOpen(null)} />}
 
     </nav>,
     document.body

@@ -529,55 +529,29 @@ export default function ContactUsPage({ onClose }) {
         fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
       }}
     >
-      {/* Header */}
-      <div
+      {/* Back button — floating */}
+      <button
+        type="button"
+        onClick={onClose}
         style={{
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'space-between',
-          padding: '14px 16px',
-          background: 'rgba(0,0,0,0.5)',
-          backdropFilter: 'blur(10px)',
-          WebkitBackdropFilter: 'blur(10px)',
-          borderBottom: '1px solid rgba(255,255,255,0.08)',
-          flexShrink: 0,
+          position: 'absolute', top: 'calc(env(safe-area-inset-top, 0px) + 12px)', left: 12, zIndex: 2,
+          width: 40, height: 40, borderRadius: '50%',
+          background: 'rgba(0,0,0,0.5)', backdropFilter: 'blur(12px)',
+          border: '1px solid rgba(255,255,255,0.1)',
+          display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer',
         }}
       >
-        <button
-          type="button"
-          onClick={onClose}
-          style={{
-            background: 'none',
-            border: 'none',
-            cursor: 'pointer',
-            padding: 8,
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            minWidth: 44,
-            minHeight: 44,
-          }}
-        >
-          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-            <path d="M19 12H5" />
-            <path d="M12 19L5 12L12 5" />
-          </svg>
-        </button>
-
-        <span style={{ color: '#fff', fontSize: 17, fontWeight: 700 }}>Contact Us</span>
-
-        <span style={{ fontSize: 18, fontWeight: 800, letterSpacing: 0.5 }}>
-          <span style={{ color: '#8DC63F' }}>IND</span>
-          <span style={{ color: '#fff' }}>OO</span>
-        </span>
-      </div>
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2.5" strokeLinecap="round">
+          <path d="M19 12H5" /><path d="M12 19L5 12L12 5" />
+        </svg>
+      </button>
 
       {/* Scrollable form */}
       <div
         style={{
           flex: 1,
           overflowY: 'auto',
-          padding: '18px 16px 32px',
+          padding: '100px 16px 32px',
           WebkitOverflowScrolling: 'touch',
         }}
       >
