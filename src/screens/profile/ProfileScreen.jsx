@@ -79,9 +79,18 @@ function parseDob(dobStr) {
 }
 
 export default function ProfileScreen({ onClose, onboarding = false }) {
-  const { user, userProfile } = useAuth()
+  const { user, userProfile: authProfile } = useAuth()
   const { session: mySession } = useMySession()
   const ipCountry = useIpCountry()
+
+  // Load demo profile from localStorage if no auth profile
+  const demoProfile = (() => { try { return JSON.parse(localStorage.getItem('indoo_demo_profile') || '{}') } catch { return {} } })()
+  const userProfile = authProfile ?? {
+    displayName: demoProfile.name || 'You',
+    photoURL: demoProfile.photo || null,
+    city: 'Yogyakarta',
+    country: 'Indonesia',
+  }
   const pricing = getRegionPricing(ipCountry)
 
   // ── Activity / intent ────────────────────────────────────────────────────────
