@@ -4,6 +4,7 @@
   position: fixed; inset: 0; z-index: 9500;
   background: #000;
   overflow: hidden;
+  display: flex; flex-direction: column;
 }
 
 /* ── Landing splash ── */
@@ -598,12 +599,12 @@
 
 /* ── FAB ── */
 .fab {
-  position: fixed; bottom: 100px; right: 16px;
-  z-index: 9510; width: 52px; height: 52px; border-radius: 50%;
+  position: fixed; bottom: 80px; right: 20px;
+  z-index: 9530; width: 56px; height: 56px; border-radius: 50%;
   background: #8DC63F; border: none;
   display: flex; align-items: center; justify-content: center;
   cursor: pointer;
-  box-shadow: 0 4px 20px rgba(141,198,63,0.5);
+  box-shadow: 0 4px 20px rgba(141,198,63,0.5), 0 0 0 4px rgba(141,198,63,0.15);
   transition: transform 0.15s;
 }
 .fab:active { transform: scale(0.9); }
