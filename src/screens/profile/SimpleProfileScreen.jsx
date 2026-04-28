@@ -53,6 +53,50 @@ export default function SimpleProfileScreen({ onClose }) {
   const [email, setEmail] = useState(profile.email || '');
   const [city, setCity] = useState(profile.city || 'Yogyakarta');
   const [language, setLanguage] = useState(profile.language || 'English');
+
+  // Saved locations
+  const [locations, setLocations] = useState(() => {
+    try { return JSON.parse(localStorage.getItem('indoo_saved_locations') || '{}') }
+    catch { return {} }
+  });
+  const [editingLoc, setEditingLoc] = useState(null); // 'home'|'work'|'favourite'|null
+  const [locInput, setLocInput] = useState('');
+  const [locSuggestions, setLocSuggestions] = useState([]);
+
+  const saveLocation = (key, address) => {
+    const updated = { ...locations, [key]: { address, savedAt: new Date().toISOString() } };
+    setLocations(updated);
+    localStorage.setItem('indoo_saved_locations', JSON.stringify(updated));
+    setEditingLoc(null);
+    setLocInput('');
+    setLocSuggestions([]);
+  };
+
+  const removeLocation = (key) => {
+    const updated = { ...locations };
+    delete updated[key];
+    setLocations(updated);
+    localStorage.setItem('indoo_saved_locations', JSON.stringify(updated));
+  };
+
+  // Simple address suggestions (Indonesian cities/areas)
+  const SUGGESTIONS_DB = [
+    'Jl. Malioboro, Yogyakarta', 'Jl. Kaliurang KM 5, Yogyakarta', 'Jl. Prawirotaman, Yogyakarta',
+    'UGM Campus, Yogyakarta', 'Tugu Station, Yogyakarta', 'Ambarukmo Plaza, Yogyakarta',
+    'Jl. Solo, Yogyakarta', 'Jl. Godean, Yogyakarta', 'Kotagede, Yogyakarta', 'Seturan, Yogyakarta',
+    'Jl. Sudirman, Jakarta', 'Jl. Thamrin, Jakarta', 'Monas, Jakarta', 'Blok M, Jakarta',
+    'Jl. Braga, Bandung', 'Jl. Dago, Bandung', 'Jl. Tunjungan, Surabaya',
+  ];
+
+  const handleLocInputChange = (val) => {
+    setLocInput(val);
+    if (val.length >= 2) {
+      const filtered = SUGGESTIONS_DB.filter(s => s.toLowerCase().includes(val.toLowerCase())).slice(0, 3);
+      setLocSuggestions(filtered);
+    } else {
+      setLocSuggestions([]);
+    }
+  };
   const scrollRef = useRef(null);
   const profileCardRef = useRef(null);
 
@@ -281,6 +325,71 @@ export default function SimpleProfileScreen({ onClose }) {
               ))}
             </select>
           </div>
+        </div>
+
+        {/* My Locations */}
+        <div style={GLASS}>
+          <div style={{ fontSize: 16, fontWeight: 'bold', color: '#fff', marginBottom: 16 }}>My Locations</div>
+
+          {[
+            { key: 'home', icon: '🏠', label: 'Home', desc: 'Default pickup & delivery', required: true },
+            { key: 'work', icon: '💼', label: 'Work', desc: 'Your workplace address', required: false },
+            { key: 'favourite', icon: '⭐', label: 'Favourite', desc: 'Any spot you visit often', required: false },
+          ].map(loc => (
+            <div key={loc.key} style={{ marginBottom: 14 }}>
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 6 }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                  <span style={{ fontSize: 18 }}>{loc.icon}</span>
+                  <div>
+                    <span style={{ fontSize: 14, fontWeight: 800, color: '#fff', display: 'block' }}>{loc.label}</span>
+                    <span style={{ fontSize: 10, color: 'rgba(255,255,255,0.35)' }}>{loc.desc}</span>
+                  </div>
+                </div>
+                {locations[loc.key] && (
+                  <button onClick={() => removeLocation(loc.key)} style={{ background: 'none', border: 'none', color: 'rgba(255,255,255,0.3)', fontSize: 16, cursor: 'pointer', padding: 4 }}>✕</button>
+                )}
+              </div>
+
+              {locations[loc.key] && editingLoc !== loc.key ? (
+                <div onClick={() => { setEditingLoc(loc.key); setLocInput(locations[loc.key].address); }} style={{ background: 'rgba(141,198,63,0.08)', border: '1px solid rgba(141,198,63,0.2)', borderRadius: 12, padding: '10px 14px', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 8 }}>
+                  <span style={{ fontSize: 14 }}>📍</span>
+                  <span style={{ fontSize: 13, color: '#8DC63F', fontWeight: 600, flex: 1 }}>{locations[loc.key].address}</span>
+                  <span style={{ fontSize: 11, color: 'rgba(255,255,255,0.3)' }}>Edit</span>
+                </div>
+              ) : editingLoc === loc.key ? (
+                <div>
+                  <input
+                    type="text"
+                    value={locInput}
+                    onChange={(e) => handleLocInputChange(e.target.value)}
+                    placeholder="Type address or area..."
+                    autoFocus
+                    style={{ width: '100%', background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.2)', borderRadius: 12, padding: '10px 14px', color: '#fff', fontSize: 14, outline: 'none', boxSizing: 'border-box' }}
+                  />
+                  {/* Suggestions dropdown */}
+                  {locSuggestions.length > 0 && (
+                    <div style={{ marginTop: 4, borderRadius: 12, overflow: 'hidden', border: '1px solid rgba(255,255,255,0.1)' }}>
+                      {locSuggestions.map((s, i) => (
+                        <button key={i} onClick={() => saveLocation(loc.key, s)} style={{ width: '100%', padding: '10px 14px', background: 'rgba(0,0,0,0.7)', border: 'none', borderBottom: i < locSuggestions.length - 1 ? '1px solid rgba(255,255,255,0.06)' : 'none', color: '#fff', fontSize: 13, textAlign: 'left', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 8 }}>
+                          <span style={{ color: '#8DC63F' }}>📍</span> {s}
+                        </button>
+                      ))}
+                    </div>
+                  )}
+                  <div style={{ display: 'flex', gap: 8, marginTop: 8 }}>
+                    <button onClick={() => { if (locInput.trim()) saveLocation(loc.key, locInput.trim()) }} style={{ flex: 1, padding: 10, borderRadius: 10, background: '#8DC63F', border: 'none', color: '#000', fontSize: 13, fontWeight: 800, cursor: 'pointer' }}>Save</button>
+                    <button onClick={() => { setEditingLoc(null); setLocInput(''); setLocSuggestions([]) }} style={{ padding: '10px 16px', borderRadius: 10, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)', color: 'rgba(255,255,255,0.5)', fontSize: 13, fontWeight: 700, cursor: 'pointer' }}>Cancel</button>
+                  </div>
+                </div>
+              ) : (
+                <button onClick={() => setEditingLoc(loc.key)} style={{ width: '100%', padding: '10px 14px', borderRadius: 12, background: 'rgba(255,255,255,0.06)', border: '1px dashed rgba(255,255,255,0.15)', color: 'rgba(255,255,255,0.4)', fontSize: 13, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 8, minHeight: 44 }}>
+                  <span>+</span> Add {loc.label.toLowerCase()} address
+                </button>
+              )}
+            </div>
+          ))}
+
+          <span style={{ fontSize: 10, color: 'rgba(255,255,255,0.25)', display: 'block', marginTop: 4 }}>💡 Saved locations appear as quick-select when booking rides or ordering food</span>
         </div>
 
         {/* Preferences */}
