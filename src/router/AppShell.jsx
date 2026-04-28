@@ -136,7 +136,7 @@ export default function AppShell({ returnParams, triggerGoLive }) {
   // Effective country: explicit browse selection → IP detection → profile country
   const effectiveCountry = browseCountry ?? ipCountry ?? userProfile?.country ?? null
   const { sessions: rawSessions } = useLiveUsers({ browseCountry: effectiveCountry })
-  const filterFlag = COUNTRIES.find(c => c.name.toLowerCase() === effectiveCountry?.toLowerCase())?.flag ?? null
+  const filterFlag = '🇮🇩'
   const { coords: viewerCoords } = useGeolocation()
 
   // Attach distanceKm to every session using viewer's GPS position
@@ -455,7 +455,7 @@ export default function AppShell({ returnParams, triggerGoLive }) {
           onClear={() => setSearchQuery('')}
           onSubmit={() => { if (searchQuery.trim()) setCityResultsOpen(true) }}
           filterFlag={filterFlag}
-          onFilterTap={() => setCountrySearchOpen(true)}
+          onFilterTap={() => {}}
           placeholder={companyPanelOpen ? 'Find businesses near you…' : 'Search people, food, market, rides…'}
         >
           <GlobalSearchSuggest
