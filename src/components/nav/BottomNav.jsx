@@ -71,21 +71,6 @@ export default function BottomNav({ activeTab = 'map', userPhotoURL, userName, i
     {createPortal(
     <nav className={`${styles.nav} ${(showBuyerBtns || showSellerBtns) ? styles.navMarket : ''}`} style={contactUsOpen || legalOpen ? { display: 'none' } : undefined}>
 
-      {/* Profile avatar — top of nav */}
-      {!showBuyerBtns && !showSellerBtns && (
-        <button
-          className={`${styles.avatarTab} ${activeTab === 'profile' ? styles.avatarTabActive : ''}`}
-          onClick={() => onProfileTap?.()}
-          aria-label="My profile"
-        >
-          <img
-            src={(() => { try { const p = JSON.parse(localStorage.getItem('indoo_demo_profile') || '{}'); return p.photo || localStorage.getItem('indoo_user_avatar') || userPhotoURL || 'https://i.pravatar.cc/68?img=12' } catch { return userPhotoURL || 'https://i.pravatar.cc/68?img=12' } })()}
-            alt=""
-            style={{ width: 39, height: 39, borderRadius: '50%', objectFit: 'cover', border: 'none' }}
-          />
-          <span className={styles.tabLabel}>Me</span>
-        </button>
-      )}
 
       {/* Home — marketplace/seller only */}
       {(showBuyerBtns || showSellerBtns) && (
