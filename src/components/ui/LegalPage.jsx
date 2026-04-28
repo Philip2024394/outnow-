@@ -1,6 +1,13 @@
 import { useState } from 'react';
 import { createPortal } from 'react-dom';
 
+const DAY_BG = 'https://ik.imagekit.io/nepgaxllc/ChatGPT%20Image%20Apr%2027,%202026,%2007_28_51%20AM.png?updatedAt=1777249747241';
+const NIGHT_BG = 'https://ik.imagekit.io/nepgaxllc/ChatGPT%20Image%20Apr%2027,%202026,%2007_22_25%20AM.png?updatedAt=1777249363795';
+function getLegalBG() {
+  const h = new Date().getHours();
+  return (h >= 6 && h < 18) ? DAY_BG : NIGHT_BG;
+}
+
 const TABS = [
   { key: 'privacy', label: 'Privacy' },
   { key: 'terms', label: 'Terms' },
@@ -288,10 +295,14 @@ export default function LegalPage({ onClose, initialTab = 'privacy' }) {
         overflow: 'hidden',
       }}
     >
+      {/* Background image — time-based */}
+      <img src={getLegalBG()} alt="" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', pointerEvents: 'none', zIndex: 0 }} />
+
       {/* Hero */}
       <div
         style={{
           position: 'relative',
+          zIndex: 1,
           padding: '20px 16px 12px',
           textAlign: 'center',
           flexShrink: 0,
@@ -406,6 +417,8 @@ export default function LegalPage({ onClose, initialTab = 'privacy' }) {
           overflowY: 'auto',
           padding: '0 16px 32px',
           WebkitOverflowScrolling: 'touch',
+          position: 'relative',
+          zIndex: 1,
         }}
       >
         {activeTab === 'privacy' && <PrivacyContent />}
