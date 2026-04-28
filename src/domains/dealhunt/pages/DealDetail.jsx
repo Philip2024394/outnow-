@@ -8,6 +8,7 @@
 import { useState, useEffect, useRef, useCallback } from 'react'
 import { createPortal } from 'react-dom'
 import DealCheckout from './DealCheckout'
+import SellerDealsDrawer from '../components/SellerDealsDrawer'
 import styles from './DealDetail.module.css'
 
 // ── helpers ──────────────────────────────────────────────
@@ -61,12 +62,13 @@ const domainColors = {
 
 // ── main component ───────────────────────────────────────
 
-export default function DealDetail({ deal, open, onClose, onClaim, onChat }) {
+export default function DealDetail({ deal, open, onClose, onClaim, onChat, onSelectDeal }) {
   const [termsOpen, setTermsOpen] = useState(false)
   const [showClaimModal, setShowClaimModal] = useState(false)
   const [claimSuccess, setClaimSuccess] = useState(false)
   const [voucherCode, setVoucherCode] = useState('')
   const [showShareSheet, setShowShareSheet] = useState(false)
+  const [sellerDrawerOpen, setSellerDrawerOpen] = useState(false)
   const [remaining, setRemaining] = useState(() => getRemaining(deal?.endTime))
   const rafRef = useRef(null)
   const lastSecRef = useRef(-1)
@@ -304,6 +306,42 @@ export default function DealDetail({ deal, open, onClose, onClaim, onChat }) {
         </div>
       </div>
 
+      {/* ── Seller Deals floating button ── */}
+      {seller.name && (
+        <button
+          onClick={() => setSellerDrawerOpen(true)}
+          aria-label="View seller deals"
+          style={{
+            position: 'fixed',
+            right: 8,
+            top: '50%',
+            transform: 'translateY(-50%)',
+            zIndex: 1100,
+            background: 'rgba(0,0,0,0.6)',
+            backdropFilter: 'blur(12px)',
+            WebkitBackdropFilter: 'blur(12px)',
+            border: '1px solid rgba(255,255,255,0.12)',
+            borderRadius: 20,
+            padding: '14px 6px',
+            cursor: 'pointer',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            writingMode: 'vertical-rl',
+            textOrientation: 'mixed',
+            color: '#4ade80',
+            fontSize: 12,
+            fontWeight: 700,
+            letterSpacing: 1,
+            lineHeight: 1,
+            minWidth: 44,
+            minHeight: 44,
+          }}
+        >
+          Seller Deals
+        </button>
+      )}
+
       {/* ── Sticky CTA ── */}
       <div className={styles.stickyCta}>
         <button
@@ -359,6 +397,20 @@ export default function DealDetail({ deal, open, onClose, onClaim, onChat }) {
           setClaimSuccess(true)
           setVoucherCode(result.voucherCode)
           onClaim?.(deal, result.voucherCode)
+        }}
+      />
+
+      {/* ── Seller Deals Drawer ── */}
+      <SellerDealsDrawer
+        open={sellerDrawerOpen}
+        onClose={() => setSellerDrawerOpen(false)}
+        sellerId={seller.id || deal.seller_id || deal.sellerId || ''}
+        sellerName={seller.name || ''}
+        onSelectDeal={(selectedDeal) => {
+          setSellerDrawerOpen(false)
+          if (onSelectDeal) {
+            onSelectDeal(selectedDeal)
+          }
         }}
       />
     </>,

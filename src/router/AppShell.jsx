@@ -1029,6 +1029,7 @@ export default function AppShell({ returnParams, triggerGoLive }) {
             open={!!dealDetailOpen}
             onClose={() => setDealDetailOpen(null)}
             onClaim={() => {}}
+            onSelectDeal={(deal) => setDealDetailOpen(deal)}
             onChat={() => {
               setDealDetailOpen(null)
               setDealHuntOpen(false)
