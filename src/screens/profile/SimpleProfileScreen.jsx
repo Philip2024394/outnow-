@@ -1,6 +1,7 @@
 import { useState, useRef, useEffect } from 'react';
 import { createPortal } from 'react-dom';
 import ContactUsPage from '@/components/ui/ContactUsPage';
+import LegalPage from '@/components/ui/LegalPage';
 
 const DAY_BG = 'https://ik.imagekit.io/nepgaxllc/ChatGPT%20Image%20Apr%2027,%202026,%2007_28_51%20AM.png?updatedAt=1777249747241';
 const NIGHT_BG = 'https://ik.imagekit.io/nepgaxllc/ChatGPT%20Image%20Apr%2027,%202026,%2007_22_25%20AM.png?updatedAt=1777249363795';
@@ -49,6 +50,7 @@ export default function SimpleProfileScreen({ onClose }) {
   const [profile, setProfile] = useState(loadProfile);
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [showContact, setShowContact] = useState(false);
+  const [showLegal, setShowLegal] = useState(false);
   const [notifications, setNotifications] = useState(profile.notifications !== false);
   const [email, setEmail] = useState(profile.email || '');
   const [city, setCity] = useState(profile.city || 'Yogyakarta');
@@ -137,6 +139,8 @@ export default function SimpleProfileScreen({ onClose }) {
 
   if (showContact) {
     return <ContactUsPage onClose={() => setShowContact(false)} />;
+  if (showLegal)
+    return <LegalPage onClose={() => setShowLegal(false)} />;
   }
 
   const content = (
@@ -478,7 +482,7 @@ export default function SimpleProfileScreen({ onClose }) {
           </div>
 
           <button
-            onClick={() => window.open('/terms', '_blank')}
+            onClick={() => setShowLegal(true)}
             style={{
               width: '100%',
               background: 'rgba(255,255,255,0.08)',
@@ -614,9 +618,9 @@ export default function SimpleProfileScreen({ onClose }) {
         <div style={{ flex: 1, overflowY: 'auto', padding: '12px 0' }}>
           {[
             { icon: '👤', label: 'Edit Profile', action: scrollToProfileCard },
-            { icon: '🔒', label: 'Privacy Policy', action: () => window.open('/privacy', '_blank') },
-            { icon: '📋', label: 'Terms of Service', action: () => window.open('/terms', '_blank') },
-            { icon: '💰', label: 'Refund Policy', action: () => window.open('/refund', '_blank') },
+            { icon: '🔒', label: 'Privacy Policy', action: () => { setShowDrawer(false); setShowLegal(true) } },
+            { icon: '📋', label: 'Terms of Service', action: () => { setShowDrawer(false); setShowLegal(true) } },
+            { icon: '💰', label: 'Refund Policy', action: () => { setShowDrawer(false); setShowLegal(true) } },
             { icon: '📞', label: 'Contact Us', action: () => { setDrawerOpen(false); setShowContact(true); } },
             { icon: '🔴', label: 'Sign Out', action: handleSignOut },
           ].map((item) => (
