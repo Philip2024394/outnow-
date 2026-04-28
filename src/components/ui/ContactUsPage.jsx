@@ -529,22 +529,25 @@ export default function ContactUsPage({ onClose }) {
         fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
       }}
     >
-      {/* Back button — floating */}
-      <button
-        type="button"
-        onClick={onClose}
-        style={{
-          position: 'absolute', top: 'calc(env(safe-area-inset-top, 0px) + 12px)', left: 12, zIndex: 2,
-          width: 40, height: 40, borderRadius: '50%',
-          background: 'rgba(0,0,0,0.5)', backdropFilter: 'blur(12px)',
-          border: '1px solid rgba(255,255,255,0.1)',
-          display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer',
-        }}
-      >
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2.5" strokeLinecap="round">
-          <path d="M19 12H5" /><path d="M12 19L5 12L12 5" />
-        </svg>
-      </button>
+      {/* Header */}
+      <div style={{
+        position: 'absolute', top: 0, left: 0, right: 0, zIndex: 2,
+        padding: 'calc(env(safe-area-inset-top, 0px) + 12px) 16px 12px',
+        display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+      }}>
+        <span style={{ fontSize: 18, fontWeight: 900, color: '#fff' }}>Contact Us</span>
+        <button
+          type="button"
+          onClick={onClose}
+          style={{
+            width: 36, height: 36, borderRadius: '50%',
+            background: '#8DC63F', border: 'none',
+            display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer',
+          }}
+        >
+          <span style={{ fontSize: 18, fontWeight: 900, color: '#000', lineHeight: 1 }}>✕</span>
+        </button>
+      </div>
 
       {/* Scrollable form */}
       <div

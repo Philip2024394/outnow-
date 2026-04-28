@@ -67,8 +67,9 @@ export default function BottomNav({ activeTab = 'map', userPhotoURL, userName, i
   // Derived ring values
   const dashOffset = RING_CIRC - (RING_CIRC * holdPct) / 100
 
-  return createPortal(
-    <nav className={`${styles.nav} ${(showBuyerBtns || showSellerBtns) ? styles.navMarket : ''}`}>
+  return <>
+    {createPortal(
+    <nav className={`${styles.nav} ${(showBuyerBtns || showSellerBtns) ? styles.navMarket : ''}`} style={contactUsOpen || legalOpen ? { display: 'none' } : undefined}>
 
       {/* Profile avatar — top of nav */}
       {!showBuyerBtns && !showSellerBtns && (
@@ -204,11 +205,11 @@ export default function BottomNav({ activeTab = 'map', userPhotoURL, userName, i
         </>
       )}
 
-      {/* Overlays */}
-      {contactUsOpen && <ContactUsPage onClose={() => setContactUsOpen(false)} />}
-      {legalOpen && <LegalPage initialTab={legalOpen} onClose={() => setLegalOpen(null)} />}
 
     </nav>,
     document.body
-  )
+  )}
+  {contactUsOpen && <ContactUsPage onClose={() => setContactUsOpen(false)} />}
+  {legalOpen && <LegalPage initialTab={legalOpen} onClose={() => setLegalOpen(null)} />}
+  </>
 }
