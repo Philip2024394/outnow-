@@ -563,7 +563,8 @@ export default function ContactUsPage({ onClose }) {
         {/* Hero title inside form area */}
         <div style={{ textAlign: 'center', marginBottom: 24 }}>
           <span style={{ fontSize: 42, fontWeight: 900, color: '#fff', display: 'block' }}>Contact Us</span>
-          <span style={{ fontSize: 16, fontWeight: 700, color: 'rgba(255,255,255,0.5)', display: 'block', marginTop: 8 }}>Get in touch — we're here to help</span>
+          <span style={{ fontSize: 20, fontWeight: 800, display: 'block', marginTop: 8, background: 'linear-gradient(90deg, #fff 0%, #fff 40%, #8DC63F 60%, #fff 80%, #fff 100%)', backgroundSize: '200% 100%', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text', animation: 'contactShine 3s linear infinite' }}>Get in touch — we're here to help</span>
+          <style>{`@keyframes contactShine { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }`}</style>
         </div>
 
         {/* Section 1 - Personal Details */}
