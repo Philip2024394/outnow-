@@ -69,7 +69,7 @@ export default function BottomNav({ activeTab = 'map', userPhotoURL, userName, i
 
   return <>
     {createPortal(
-    <nav className={`${styles.nav} ${(showBuyerBtns || showSellerBtns) ? styles.navMarket : ''}`} style={contactUsOpen || legalOpen ? { display: 'none' } : undefined}>
+    <nav className={`${styles.nav} ${(showBuyerBtns || showSellerBtns) ? styles.navMarket : ''}`} style={contactUsOpen || legalOpen || activeTab === 'profile' ? { display: 'none' } : undefined}>
 
 
       {/* Home — marketplace/seller only */}
