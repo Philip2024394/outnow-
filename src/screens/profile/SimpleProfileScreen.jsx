@@ -125,7 +125,7 @@ export default function SimpleProfileScreen({ onClose }) {
         padding: '16px 20px',
         paddingTop: 'max(16px, env(safe-area-inset-top))',
       }}>
-        <span style={{ fontSize: 20, fontWeight: 'bold', color: '#fff' }}>My Profile</span>
+        <img src="https://ik.imagekit.io/nepgaxllc/Bold%203D%20_INDOO_%20logo%20design.png?updatedAt=1776203769926" alt="INDOO" style={{ height: 36, objectFit: 'contain' }} />
         <button
           onClick={() => setDrawerOpen(true)}
           style={{
@@ -406,19 +406,19 @@ export default function SimpleProfileScreen({ onClose }) {
         </div>
       </div>
 
-      {/* Footer nav */}
+      {/* Footer nav — floating */}
       <div style={{
         position: 'fixed',
-        bottom: 0,
-        left: 0,
-        right: 0,
+        bottom: 'calc(env(safe-area-inset-bottom, 0px) + 12px)',
+        left: 16,
+        right: 16,
         zIndex: 10000,
-        background: 'rgba(0,0,0,0.85)',
-        backdropFilter: 'blur(12px)',
-        WebkitBackdropFilter: 'blur(12px)',
-        borderTop: '1px solid rgba(255,255,255,0.1)',
-        padding: '12px 20px',
-        paddingBottom: 'max(12px, env(safe-area-inset-bottom))',
+        background: 'rgba(0,0,0,0.8)',
+        backdropFilter: 'blur(20px)',
+        WebkitBackdropFilter: 'blur(20px)',
+        borderRadius: 20,
+        border: '1.5px solid rgba(255,255,255,0.1)',
+        padding: '12px 16px',
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'space-between',
