@@ -829,6 +829,7 @@ export default function RestaurantBrowseScreen({ onClose, onBackToCategories, ca
   const [loading,        setLoading]        = useState(true)
   const [activeIndex,    setActiveIndex]    = useState(0)
   const [menuRestaurant, setMenuRestaurant] = useState(null)
+  const [activeDeal, setActiveDeal] = useState(null) // { itemName, discountPercent, originalPrice, dealPrice } — passed to menu sheet
   const [selectedDish, setSelectedDish] = useState(null) // { dish, restaurant }
   const [viewRestaurant, setViewRestaurant] = useState(null) // restaurant object for full card view
   const [dishSearch, setDishSearch] = useState('') // search within dish feed
@@ -1158,23 +1159,96 @@ export default function RestaurantBrowseScreen({ onClose, onBackToCategories, ca
                           </div>
                         </div>
                         <span style={{ fontSize: 11, color: 'rgba(255,255,255,0.4)', marginTop: 3, display: 'block' }}>{d.restaurant.name}</span>
-                        <div style={{ display: 'flex', gap: 6, marginTop: 3, flexWrap: 'wrap' }}>
-                          {(() => {
-                            const txt = (d.name+' '+(d.description??'')).toLowerCase()
-                            const tags = []
-                            if (['pedas','sambal','geprek','spicy','balado','rica','cabai','cabe'].some(w => txt.includes(w))) {
-                              const hot = txt.includes('level 10') || txt.includes('extra hot') || txt.includes('very hot') ? 3 : txt.includes('hot') || txt.includes('pedas') ? 2 : 1
-                              tags.push(<span key="spicy" style={{ fontSize: 14, fontWeight: 800, color: '#EF4444', display: 'flex', alignItems: 'center', gap: 2 }}>{'🌶️'.repeat(hot)} {hot === 3 ? 'Very Hot' : hot === 2 ? 'Hot' : 'Medium'}</span>)
-                            }
-                            if (['bawang','garlic','aglio'].some(w => txt.includes(w))) tags.push(<span key="garlic" style={{ fontSize: 14, fontWeight: 800, color: '#F59E0B', display: 'flex', alignItems: 'center', gap: 2 }}>🧄 Garlic Flavour</span>)
-                            if (['vegetarian','vegan','sayur','tahu','tempe','salad','gado','pecel'].some(w => txt.includes(w))) tags.push(<span key="veg" style={{ fontSize: 14, fontWeight: 800, color: '#8DC63F', display: 'flex', alignItems: 'center', gap: 2 }}>🥬 No Meat</span>)
-                            if (['halal'].some(w => txt.includes(w))) tags.push(<span key="halal" style={{ fontSize: 14, fontWeight: 800, color: '#3B82F6', display: 'flex', alignItems: 'center', gap: 2 }}>☪️ Halal Certified</span>)
-                            return tags
-                          })()}
+                        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginTop: 3 }}>
+                          <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap', flex: 1 }}>
+                            {(() => {
+                              const txt = (d.name+' '+(d.description??'')).toLowerCase()
+                              const tags = []
+                              if (['pedas','sambal','geprek','spicy','balado','rica','cabai','cabe'].some(w => txt.includes(w))) {
+                                const hot = txt.includes('level 10') || txt.includes('extra hot') || txt.includes('very hot') ? 3 : txt.includes('hot') || txt.includes('pedas') ? 2 : 1
+                                tags.push(<span key="spicy" style={{ fontSize: 14, fontWeight: 800, color: '#EF4444', display: 'flex', alignItems: 'center', gap: 2 }}>{'🌶️'.repeat(hot)} {hot === 3 ? 'Very Hot' : hot === 2 ? 'Hot' : 'Medium'}</span>)
+                              }
+                              if (['bawang','garlic','aglio'].some(w => txt.includes(w))) tags.push(<span key="garlic" style={{ fontSize: 14, fontWeight: 800, color: '#F59E0B', display: 'flex', alignItems: 'center', gap: 2 }}>🧄 Garlic Flavour</span>)
+                              if (['vegetarian','vegan','sayur','tahu','tempe','salad','gado','pecel'].some(w => txt.includes(w))) tags.push(<span key="veg" style={{ fontSize: 14, fontWeight: 800, color: '#8DC63F', display: 'flex', alignItems: 'center', gap: 2 }}>🥬 No Meat</span>)
+                              if (['halal'].some(w => txt.includes(w))) tags.push(<span key="halal" style={{ fontSize: 14, fontWeight: 800, color: '#3B82F6', display: 'flex', alignItems: 'center', gap: 2 }}>☪️ Halal Certified</span>)
+                              return tags
+                            })()}
+                          </div>
+                          <button onClick={(e) => { e.stopPropagation(); setActiveDeal({ itemName: d.name, discountPercent: today.discount, originalPrice: d.price, dealPrice: d.dealPrice }); setShowCuisinePicker(false); setCuisineFilter(null); setSelectedDish(null); setMenuRestaurant(d.restaurant) }} style={{ padding: '5px 10px', borderRadius: 8, backgroundColor: '#8DC63F', border: 'none', color: '#000', fontSize: 11, fontWeight: 900, cursor: 'pointer', flexShrink: 0 }}>Order Now</button>
                         </div>
                         <span style={{ fontSize: 15, fontWeight: 900, color: '#FACC15', position: 'absolute', right: 12, bottom: 10 }}>Rp {(d.dealPrice ?? 0).toLocaleString('id-ID').replace(/,/g, '.')}</span>
                       </div>
                     </button>
+                  ))}
+                </div>
+              </div>
+            )
+          })()}
+
+          {/* ── Vendor Deals from localStorage ── */}
+          {(() => {
+            let vendorDeals = []
+            try { vendorDeals = JSON.parse(localStorage.getItem('indoo_vendor_deals') || '[]') } catch {}
+            let publicDeals = []
+            try { publicDeals = JSON.parse(localStorage.getItem('indoo_public_deals') || '[]').filter(d => d.status === 'active' && d.category === 'food') } catch {}
+            const allVendorDeals = [...vendorDeals, ...publicDeals].filter(d => {
+              if (!d.active && !d.status) return false
+              const today = new Date().toISOString().split('T')[0]
+              if (d.startDate && today < d.startDate) return false
+              if (d.endDate && today > d.endDate) return false
+              return true
+            })
+            if (allVendorDeals.length === 0) return null
+            return (
+              <div style={{ marginTop: 16 }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 10 }}>
+                  <span style={{ fontSize: 20, fontWeight: 900, color: '#8DC63F', display: 'block' }}>Vendor Deals</span>
+                  <span style={{ fontSize: 11, color: 'rgba(255,255,255,0.3)' }}>{allVendorDeals.length} active</span>
+                </div>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+                  {allVendorDeals.map((deal, di) => (
+                    deal.items?.map((item, ii) => {
+                      const dealPrice = Math.round((item.price ?? 0) * (1 - (deal.discountPercent ?? deal.discount_percent ?? 20) / 100))
+                      const discPct = deal.discountPercent ?? deal.discount_percent ?? 20
+                      const remaining = (deal.quantity ?? 50) - (deal.claimed ?? 0)
+                      const matchedRestaurant = withMeta.find(r => r.menu_items?.some(mi => mi.name === item.name))
+                      return (
+                        <div key={`vd-${di}-${ii}`} style={{
+                          borderRadius: 14, overflow: 'hidden', border: '1px solid rgba(250,204,21,0.3)',
+                          background: '#000', display: 'flex', textAlign: 'left',
+                        }}>
+                          {/* Image */}
+                          <div style={{ width: 110, flexShrink: 0, position: 'relative', minHeight: 100 }}>
+                            {item.photo_url ? (
+                              <img src={item.photo_url} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                            ) : (
+                              <div style={{ width: '100%', height: '100%', background: 'rgba(255,255,255,0.05)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                                <span style={{ fontSize: 32 }}>🍽️</span>
+                              </div>
+                            )}
+                            <span style={{ position: 'absolute', top: 6, left: 6, padding: '3px 7px', borderRadius: 6, backgroundColor: '#FACC15', fontSize: 11, fontWeight: 900, color: '#000' }}>{discPct}% OFF</span>
+                          </div>
+                          {/* Info */}
+                          <div style={{ flex: 1, padding: '10px 12px', display: 'flex', flexDirection: 'column', justifyContent: 'center', gap: 4 }}>
+                            <span style={{ fontSize: 14, fontWeight: 900, color: '#fff', lineHeight: 1.3 }}>{item.name}</span>
+                            {matchedRestaurant && <span style={{ fontSize: 11, color: 'rgba(255,255,255,0.4)' }}>{matchedRestaurant.name}</span>}
+                            <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                              <span style={{ fontSize: 12, color: 'rgba(255,255,255,0.3)', textDecoration: 'line-through' }}>Rp {(item.price ?? 0).toLocaleString('id-ID').replace(/,/g, '.')}</span>
+                              <span style={{ fontSize: 15, fontWeight: 900, color: '#8DC63F' }}>Rp {dealPrice.toLocaleString('id-ID').replace(/,/g, '.')}</span>
+                            </div>
+                            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginTop: 2 }}>
+                              <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                                <span style={{ fontSize: 11, color: 'rgba(255,255,255,0.35)' }}>{remaining} left</span>
+                                {deal.days && <span style={{ fontSize: 11, color: 'rgba(255,255,255,0.25)' }}>{deal.days.join(', ')}</span>}
+                              </div>
+                              {matchedRestaurant && (
+                                <button onClick={() => { setActiveDeal({ itemName: item.name, discountPercent: discPct, originalPrice: item.price, dealPrice }); setShowCuisinePicker(false); setCuisineFilter(null); setSelectedDish(null); setMenuRestaurant(matchedRestaurant) }} style={{ padding: '5px 10px', borderRadius: 8, backgroundColor: '#8DC63F', border: 'none', color: '#000', fontSize: 11, fontWeight: 900, cursor: 'pointer' }}>Order Now</button>
+                              )}
+                            </div>
+                          </div>
+                        </div>
+                      )
+                    })
                   ))}
                 </div>
               </div>
@@ -2368,6 +2442,7 @@ export default function RestaurantBrowseScreen({ onClose, onBackToCategories, ca
           isFav={isFavorite(viewRestaurant.id)}
           onSelectDish={(dish, rest) => { setViewRestaurant(null); setSelectedDish({ dish, restaurant: rest }); setCuisineFilter(dish.category?.toLowerCase() ?? 'all') }}
           onOpenDeals={() => { setViewRestaurant(null); setShowCuisinePicker(true); setPickerTab('deals') }}
+          onOrderDeal={(deal) => { setViewRestaurant(null); setActiveDeal(deal); setMenuRestaurant(viewRestaurant) }}
         />
       </div>
     )}
@@ -2435,6 +2510,7 @@ export default function RestaurantBrowseScreen({ onClose, onBackToCategories, ca
               onOpenMenu={() => setMenuRestaurant(r)}
               onToggleFavorite={() => { toggleFavorite(r); setFavTick(t => t + 1) }}
               isFav={isFavorite(r.id)}
+              onOrderDeal={(deal) => { setActiveDeal(deal); setMenuRestaurant(r) }}
             />
           )
         )}
@@ -2444,10 +2520,11 @@ export default function RestaurantBrowseScreen({ onClose, onBackToCategories, ca
       {menuRestaurant && (
         <RestaurantMenuSheet
           restaurant={menuRestaurant}
-          onClose={() => { setMenuRestaurant(null); setCartItems([]); window.__indooTrackingDriver = null }}
+          onClose={() => { setMenuRestaurant(null); setCartItems([]); setActiveDeal(null); window.__indooTrackingDriver = null }}
           onOrderViaChat={onOrderViaChat ?? null}
           initialCart={cartItems.length > 0 ? cartItems : undefined}
           startTracking={window.__indooTrackingDriver ? { driver: window.__indooTrackingDriver } : undefined}
+          activeDeal={activeDeal}
         />
       )}
 
@@ -2486,7 +2563,7 @@ export default function RestaurantBrowseScreen({ onClose, onBackToCategories, ca
 }
 
 // ── Restaurant card ───────────────────────────────────────────────────────────
-const RestaurantCard = memo(function RestaurantCard({ restaurant: r, onOpenMenu, onToggleFavorite, isFav, onSelectDish, onOpenDeals }) {
+const RestaurantCard = memo(function RestaurantCard({ restaurant: r, onOpenMenu, onToggleFavorite, isFav, onSelectDish, onOpenDeals, onOrderDeal }) {
   const [openTime, closeTime] = (r.opening_hours ?? '').split('–')
   const countdown = !r.is_open ? fmtCountdown(secsUntilOpen(r.opening_hours)) : null
   const [menuDrawerOpen, setMenuDrawerOpen] = useState(false)
@@ -2813,12 +2890,19 @@ const RestaurantCard = memo(function RestaurantCard({ restaurant: r, onOpenMenu,
                     </div>
 
                     {/* Add to cart button */}
-                    <button onClick={() => { setDealsOpen(false); onSelectDish?.(item, r) }} style={{
-                      width: '100%', padding: '16px', borderRadius: 14, marginBottom: 'calc(env(safe-area-inset-bottom, 0px) + 12px)',
-                      background: '#8DC63F', border: 'none', color: '#000',
-                      fontSize: 16, fontWeight: 900, cursor: 'pointer',
-                      boxShadow: '0 4px 20px rgba(141,198,63,0.4)',
-                    }}>Add to Cart — {fmtM(item.price)}</button>
+                    <div style={{ display: 'flex', gap: 8, marginBottom: 'calc(env(safe-area-inset-bottom, 0px) + 12px)' }}>
+                      <button onClick={() => { setDealsOpen(false); onSelectDish?.(item, r) }} style={{
+                        flex: 1, padding: '16px', borderRadius: 14,
+                        background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.15)', color: '#fff',
+                        fontSize: 16, fontWeight: 900, cursor: 'pointer',
+                      }}>Add to Cart</button>
+                      <button onClick={() => { setDealsOpen(false); if (onOrderDeal) { onOrderDeal({ itemName: item.name, discountPercent: discPct, originalPrice: item.original_price ?? item.price, dealPrice: item.price }); } else { onOpenMenu?.(); } }} style={{
+                        flex: 2, padding: '16px', borderRadius: 14,
+                        background: '#8DC63F', border: 'none', color: '#000',
+                        fontSize: 16, fontWeight: 900, cursor: 'pointer',
+                        boxShadow: '0 4px 20px rgba(141,198,63,0.4)',
+                      }}>Order Now — {fmtM(item.price)}</button>
+                    </div>
                   </div>
                 )
               })}

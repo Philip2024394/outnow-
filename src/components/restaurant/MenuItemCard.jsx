@@ -2,7 +2,7 @@ import styles from './RestaurantMenuSheet.module.css'
 import { fmtRp, CATEGORY_GRADIENTS } from './menuSheetConstants'
 
 // ── Menu item card — full-screen ──────────────────────────────────────────────
-export default function MenuItemCard({ item, qty, onAdd, onRemove, onCustomize, itemRef, badge, tags }) {
+export default function MenuItemCard({ item, qty, onAdd, onRemove, onCustomize, itemRef, badge, tags, dealBadge }) {
   const bg = item.photo_url
     ? `url("${item.photo_url}")`
     : CATEGORY_GRADIENTS[item.category] ?? 'linear-gradient(160deg, #1a1200 0%, #0d0d0d 100%)'
@@ -20,6 +20,18 @@ export default function MenuItemCard({ item, qty, onAdd, onRemove, onCustomize, 
           width: 60, height: 60,
         }}>
           <img src={badge.image} alt={badge.label} style={{ width: '100%', height: '100%', objectFit: 'contain', filter: 'drop-shadow(0 2px 6px rgba(0,0,0,0.5))' }} />
+        </div>
+      )}
+
+      {/* Deal badge top-left */}
+      {dealBadge && (
+        <div style={{
+          position: 'absolute', top: 12, left: 12, zIndex: 3,
+          padding: '5px 10px', borderRadius: 8, backgroundColor: '#FACC15',
+          display: 'flex', alignItems: 'center', gap: 4,
+          boxShadow: '0 2px 8px rgba(0,0,0,0.4)',
+        }}>
+          <span style={{ fontSize: 14, fontWeight: 900, color: '#000' }}>🏷️ {dealBadge.discountPercent}% OFF</span>
         </div>
       )}
 
@@ -54,7 +66,12 @@ export default function MenuItemCard({ item, qty, onAdd, onRemove, onCustomize, 
           <p className={styles.itemDesc}>{item.description}</p>
         )}
         <div className={styles.itemFooter}>
-          <span className={styles.itemPrice}>{fmtRp(item.price)}</span>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+            {dealBadge && item.original_price && item.original_price > item.price && (
+              <span style={{ fontSize: 14, color: 'rgba(255,255,255,0.4)', textDecoration: 'line-through' }}>{fmtRp(item.original_price)}</span>
+            )}
+            <span className={styles.itemPrice} style={dealBadge ? { color: '#8DC63F' } : {}}>{fmtRp(item.price)}</span>
+          </div>
 
           {item.is_available !== false && (
             qty > 0 ? (

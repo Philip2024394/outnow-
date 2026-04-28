@@ -198,7 +198,7 @@ function DeliveryChat({ driverName, chatKey, initialMessages, onClose }) {
 }
 
 // ── Main component ────────────────────────────────────────────────────────────
-export default function RestaurantMenuSheet({ restaurant, onClose, onOrderViaChat, initialCart, startTracking }) {
+export default function RestaurantMenuSheet({ restaurant, onClose, onOrderViaChat, initialCart, startTracking, activeDeal }) {
   const items      = restaurant.menu_items ?? []
   const categories = [...new Set(items.map(i => i.category).filter(Boolean))]
 
@@ -291,6 +291,31 @@ export default function RestaurantMenuSheet({ restaurant, onClose, onOrderViaCha
   // Load food orders on mount (seeds demo if empty)
   useEffect(() => { setFoodOrders(getFoodOrders()); setMultiCartCount(getMultiCartCount()) }, [])
 
+  // ── Auto-add deal item to cart when activeDeal is provided ──
+  const [dealDiscount, setDealDiscount] = useState(null) // { itemName, discountPercent, originalPrice, dealPrice, discountAmount }
+  useEffect(() => {
+    if (!activeDeal) return
+    const { itemName, discountPercent, originalPrice, dealPrice } = activeDeal
+    // Find the matching menu item
+    const menuItem = items.find(i => i.name === itemName)
+    if (menuItem) {
+      const discountedPrice = dealPrice ?? Math.round(menuItem.price * (1 - discountPercent / 100))
+      const discountAmount = (menuItem.price ?? originalPrice) - discountedPrice
+      // Add to cart with discounted price
+      setCart(prev => {
+        const exists = prev.find(c => c.id === menuItem.id)
+        if (exists) return prev
+        return [{ ...menuItem, price: discountedPrice, original_price: menuItem.price, qty: 1, _isDeal: true }, ...prev.filter(c => c.id !== menuItem.id)]
+      })
+      setDealDiscount({ itemName, discountPercent, originalPrice: menuItem.price, dealPrice: discountedPrice, discountAmount })
+      setCartExpanded(true)
+      setToast(`Deal applied: ${discountPercent}% OFF ${itemName}`)
+    } else {
+      // Item not found in menu — still show the deal info
+      setDealDiscount({ itemName, discountPercent, originalPrice, dealPrice, discountAmount: (originalPrice ?? 0) - (dealPrice ?? 0) })
+    }
+  }, []) // eslint-disable-line react-hooks/exhaustive-deps
+
   // Toast auto-dismiss
   useEffect(() => {
     if (!toast) return
@@ -375,11 +400,20 @@ export default function RestaurantMenuSheet({ restaurant, onClose, onOrderViaCha
     }
     return true
   }).sort((a, b) => {
+    // Deal item always first when activeDeal is set
+    if (dealDiscount && a.name === dealDiscount.itemName) return -1
+    if (dealDiscount && b.name === dealDiscount.itemName) return 1
     // Hero dish (matches restaurant hero_dish_name) always first
     if (a.name === restaurant.hero_dish_name) return -1
     if (b.name === restaurant.hero_dish_name) return 1
     // Then by price descending (premium items = popular)
     return (b.price ?? 0) - (a.price ?? 0)
+  }).map(item => {
+    // Apply deal pricing to matching item in feed
+    if (dealDiscount && item.name === dealDiscount.itemName) {
+      return { ...item, original_price: dealDiscount.originalPrice, price: dealDiscount.dealPrice }
+    }
+    return item
   })
 
   // ── Cart helpers ──
@@ -1120,8 +1154,14 @@ export default function RestaurantMenuSheet({ restaurant, onClose, onOrderViaCha
                   <div key={`${item.id}-${idx}`} className={styles.cartPageItem}>
                     <div className={styles.cartPageItemRow}>
                       <span className={styles.cartPageQty}>{item.qty}×</span>
-                      <span className={styles.cartPageName}>{item.name}</span>
-                      <span className={styles.cartPagePrice}>{fmtRp(item.price * item.qty)}</span>
+                      <span className={styles.cartPageName} style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                        {item.name}
+                        {item._isDeal && <span style={{ padding: '2px 6px', borderRadius: 6, backgroundColor: '#FACC15', fontSize: 10, fontWeight: 900, color: '#000', flexShrink: 0 }}>🏷️ {dealDiscount?.discountPercent ?? 0}% OFF</span>}
+                      </span>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 6, flexShrink: 0 }}>
+                        {item._isDeal && item.original_price && <span style={{ fontSize: 12, color: 'rgba(255,255,255,0.3)', textDecoration: 'line-through' }}>{fmtRp(item.original_price * item.qty)}</span>}
+                        <span className={styles.cartPagePrice} style={item._isDeal ? { color: '#8DC63F' } : {}}>{fmtRp(item.price * item.qty)}</span>
+                      </div>
                     </div>
                     {/* Qty controls */}
                     <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginTop: 6 }}>
@@ -1172,6 +1212,14 @@ export default function RestaurantMenuSheet({ restaurant, onClose, onOrderViaCha
                       <span style={{ fontSize: 14, color: 'rgba(255,255,255,0.4)' }}>~{formatETA(eta)} · Payment To Driver</span>
                     </div>
                     <span style={{ fontSize: 15, fontWeight: 900, color: promoResult?.isFreeDelivery ? '#8DC63F' : '#FACC15' }}>{promoResult?.isFreeDelivery ? 'FREE' : fmtRp(deliveryFare)}</span>
+                  </div>
+                )}
+
+                {/* Deal discount line */}
+                {dealDiscount && (
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '8px 0' }}>
+                    <span style={{ fontSize: 13, fontWeight: 700, color: '#FACC15' }}>🏷️ {dealDiscount.discountPercent}% OFF Deal</span>
+                    <span style={{ fontSize: 14, fontWeight: 900, color: '#FACC15' }}>-{fmtRp(dealDiscount.discountAmount)}</span>
                   </div>
                 )}
 
@@ -1450,6 +1498,7 @@ export default function RestaurantMenuSheet({ restaurant, onClose, onOrderViaCha
                 itemRef={el => { itemRefs.current[i] = el }}
                 badge={badgeData}
                 tags={getAutoTags(item)}
+                dealBadge={dealDiscount && item.name === dealDiscount.itemName ? dealDiscount : null}
               />
             )
           })
