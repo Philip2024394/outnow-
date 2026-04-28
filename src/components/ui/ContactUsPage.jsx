@@ -561,6 +561,12 @@ export default function ContactUsPage({ onClose }) {
           WebkitOverflowScrolling: 'touch',
         }}
       >
+        {/* Hero title inside form area */}
+        <div style={{ textAlign: 'center', marginBottom: 24 }}>
+          <span style={{ fontSize: 28, fontWeight: 900, color: '#fff', display: 'block' }}>Contact Us</span>
+          <span style={{ fontSize: 13, color: 'rgba(255,255,255,0.5)', display: 'block', marginTop: 6 }}>Get in touch — we're here to help</span>
+        </div>
+
         {/* Section 1 - Personal Details */}
         <div style={glassStyle}>
           <div style={sectionTitleStyle}>Personal Details</div>
