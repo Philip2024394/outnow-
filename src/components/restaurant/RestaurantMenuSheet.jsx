@@ -1,5 +1,6 @@
 import { useState, useRef, useEffect, useCallback } from 'react'
 import { createPortal } from 'react-dom'
+import IndooChat from '@/components/chat/IndooChat'
 import styles from './RestaurantMenuSheet.module.css'
 import WeeklyPromoSheet from './WeeklyPromoSheet'
 import WhatsAppInput from '@/components/ui/WhatsAppInput'
@@ -1936,7 +1937,7 @@ export default function RestaurantMenuSheet({ restaurant, onClose, onOrderViaCha
             return stored
           } catch { return [] }
         }
-        return <DeliveryChat
+        return <IndooChat
           driverName={driverOnWay?.display_name ?? driverOnWay?.name ?? assignedDriver?.display_name ?? 'Driver'}
           chatKey={CHAT_KEY}
           initialMessages={loadMessages()}
