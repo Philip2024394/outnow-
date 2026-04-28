@@ -14,8 +14,10 @@ export default function MapHeader({
   const { isLive } = useMySession()
   const { user } = useAuth()
   const { t } = useLanguage()
-  const photoURL = user?.photoURL ?? user?.user_metadata?.avatar_url ?? null
-  const displayName = user?.displayName ?? user?.user_metadata?.full_name ?? null
+  const demoProfile = (() => { try { return JSON.parse(localStorage.getItem('indoo_demo_profile') || '{}') } catch { return {} } })()
+  const isRegistered = !!user || localStorage.getItem('indoo_registered') === 'true'
+  const photoURL = user?.photoURL ?? user?.user_metadata?.avatar_url ?? demoProfile.photo ?? null
+  const displayName = user?.displayName ?? user?.user_metadata?.full_name ?? demoProfile.name ?? null
 
   return createPortal(
     <div className={styles.header}>
@@ -43,17 +45,13 @@ export default function MapHeader({
           )}
         </button>
 
-        {/* Account — shows avatar if logged in, Sign In button if guest */}
-        {user ? (
+        {/* Account — shows avatar if registered, hidden if guest browsing */}
+        {isRegistered && (
           <button className={styles.avatarBtn} onClick={onAccountClick} aria-label="My account">
             {photoURL
               ? <img src={photoURL} alt={displayName ?? 'Me'} className={styles.avatarImg} />
               : <span className={styles.avatarInitial}>{(displayName?.[0] ?? '?').toUpperCase()}</span>
             }
-          </button>
-        ) : (
-          <button className={styles.signInBtn} onClick={onAccountClick} aria-label="Sign in">
-            {t('header.signIn')}
           </button>
         )}
       </div>
