@@ -72,13 +72,11 @@ export default function BottomNav({ activeTab = 'map', userPhotoURL, userName, i
     <nav className={`${styles.nav} ${(showBuyerBtns || showSellerBtns) ? styles.navMarket : ''}`} style={contactUsOpen || legalOpen || activeTab !== 'map' || !dockVisible ? { display: 'none' } : undefined}>
 
 
-      {/* Home — marketplace/seller only */}
-      {(showBuyerBtns || showSellerBtns) && (
-        <button className={`${styles.homeBtn} ${styles.homeBtnActive}`} onClick={onHome} aria-label="Home">
-          <img src="https://ik.imagekit.io/nepgaxllc/Untitledsssaa-removebg-preview.png" alt="" style={{ width: 40, height: 40, objectFit: 'contain' }} />
-          <span className={styles.homeBtnLabel}>Home</span>
-        </button>
-      )}
+      {/* Home — always visible */}
+      <button onClick={onHome} aria-label="Home" style={{ width: 42, height: 42, borderRadius: 12, background: 'rgba(255,255,255,0.06)', backdropFilter: 'blur(12px)', border: '1px solid rgba(255,255,255,0.12)', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 2, cursor: 'pointer' }}>
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+        <span style={{ fontSize: 7, fontWeight: 800, color: 'rgba(255,255,255,0.5)' }}>Home</span>
+      </button>
 
       {/* Chat — marketplace theme only */}
       {showBuyerBtns && (
