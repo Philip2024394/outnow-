@@ -649,8 +649,8 @@ export default function DriverApp() {
               </div>
             ) : (
               <div style={{ textAlign: 'center', padding: '60px 20px' }}>
-                <div style={{ width: 80, height: 80, borderRadius: '50%', border: '3px solid #8DC63F', margin: '0 auto 16px', display: 'flex', alignItems: 'center', justifyContent: 'center', position: 'relative' }}>
-                  <span style={{ fontSize: 32 }}>🏍️</span>
+                <div style={{ width: 80, height: 80, borderRadius: '50%', border: '3px solid #8DC63F', margin: '0 auto 16px', overflow: 'hidden', position: 'relative' }}>
+                  <img src="https://ik.imagekit.io/nepgaxllc/ChatGPT%20Image%20Apr%2028,%202026,%2010_53_12%20AM.png" alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
                   <div style={{ position: 'absolute', inset: -8, borderRadius: '50%', border: '2px solid rgba(141,198,63,0.3)', animation: 'ping 2s ease-in-out infinite' }} />
                 </div>
                 <span style={{ fontSize: 16, fontWeight: 900, color: '#8DC63F', display: 'block', marginBottom: 8 }}>Waiting for rides...</span>
