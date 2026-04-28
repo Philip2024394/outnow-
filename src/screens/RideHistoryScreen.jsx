@@ -3,6 +3,7 @@ import { supabase } from '@/lib/supabase'
 import { getDisputeTimeLeftMs, formatCountdown } from '@/services/disputeService'
 import DisputeSheet from '@/components/ride/DisputeSheet'
 import ProfileStrip from '@/components/map/ProfileStrip'
+import IndooFooter from '@/components/ui/IndooFooter'
 import styles from './RideHistoryScreen.module.css'
 
 const DEMO_RIDES = [
@@ -206,6 +207,7 @@ export default function RideHistoryScreen({ userId, userName, onClose, stripProp
       )}
 
       {stripProps && <ProfileStrip {...stripProps} />}
+      <IndooFooter label="Ride History" onHome={onClose} onClose={onClose} />
     </div>
   )
 }

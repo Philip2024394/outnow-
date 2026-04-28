@@ -2,6 +2,7 @@ import { useState, useRef, useEffect } from 'react';
 import { createPortal } from 'react-dom';
 import ContactUsPage from '@/components/ui/ContactUsPage';
 import LegalPage from '@/components/ui/LegalPage';
+import IndooFooter from '@/components/ui/IndooFooter';
 
 const DAY_BG = 'https://ik.imagekit.io/nepgaxllc/ChatGPT%20Image%20Apr%2027,%202026,%2007_28_51%20AM.png?updatedAt=1777249747241';
 const NIGHT_BG = 'https://ik.imagekit.io/nepgaxllc/ChatGPT%20Image%20Apr%2027,%202026,%2007_22_25%20AM.png?updatedAt=1777249363795';
@@ -517,42 +518,7 @@ export default function SimpleProfileScreen({ onClose }) {
 
       </div>{/* end single scrollable area */}
 
-      {/* Footer nav — floating */}
-      <div style={{
-        position: 'fixed',
-        bottom: 'calc(env(safe-area-inset-bottom, 0px) + 12px)',
-        left: 16,
-        right: 16,
-        zIndex: 10000,
-        background: 'rgba(0,0,0,0.8)',
-        backdropFilter: 'blur(20px)',
-        WebkitBackdropFilter: 'blur(20px)',
-        borderRadius: 20,
-        border: '1.5px solid rgba(255,255,255,0.1)',
-        padding: '12px 16px',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'space-between',
-      }}>
-        <span style={{ fontSize: 13, color: 'rgba(255,255,255,0.5)' }}>INDOO · Profile</span>
-        <button
-          onClick={onClose}
-          style={{
-            background: GREEN,
-            border: 'none',
-            borderRadius: 20,
-            padding: '8px 24px',
-            color: '#fff',
-            fontSize: 14,
-            fontWeight: 'bold',
-            cursor: 'pointer',
-            minHeight: 44,
-            minWidth: 44,
-          }}
-        >
-          Close
-        </button>
-      </div>
+      <IndooFooter label="Profile" onHome={onClose} onClose={onClose} />
 
       {/* Settings Drawer Backdrop */}
       {drawerOpen && (

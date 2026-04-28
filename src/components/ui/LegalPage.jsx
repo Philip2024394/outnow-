@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { createPortal } from 'react-dom';
+import IndooFooter from '@/components/ui/IndooFooter';
 
 const DAY_BG = 'https://ik.imagekit.io/nepgaxllc/ChatGPT%20Image%20Apr%2027,%202026,%2007_28_51%20AM.png?updatedAt=1777249747241';
 const NIGHT_BG = 'https://ik.imagekit.io/nepgaxllc/ChatGPT%20Image%20Apr%2027,%202026,%2007_22_25%20AM.png?updatedAt=1777249363795';
@@ -414,26 +415,7 @@ export default function LegalPage({ onClose, initialTab = 'privacy' }) {
       </div>
       </div>{/* end single scrollable area */}
 
-      {/* Footer nav panel — floating */}
-      <div style={{
-        position: 'fixed', bottom: 'calc(env(safe-area-inset-bottom, 0px) + 12px)', left: 16, right: 16, zIndex: 2,
-        padding: '12px 16px',
-        background: 'rgba(0,0,0,0.8)', backdropFilter: 'blur(20px)',
-        borderRadius: 20, border: '1.5px solid rgba(255,255,255,0.1)',
-        display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-      }}>
-        <span style={{ fontSize: 14, fontWeight: 800, color: 'rgba(255,255,255,0.5)' }}>INDOO · Legal</span>
-        <button
-          onClick={onClose}
-          style={{
-            padding: '8px 20px', borderRadius: 12,
-            background: '#8DC63F', border: 'none',
-            color: '#000', fontSize: 13, fontWeight: 900, cursor: 'pointer',
-          }}
-        >
-          Close
-        </button>
-      </div>
+      <IndooFooter label="Legal" onHome={onClose} onClose={onClose} />
     </div>
   );
 

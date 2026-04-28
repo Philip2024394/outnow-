@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react'
 import { useNotifications } from '@/hooks/useNotifications'
 import { supabase } from '@/lib/supabase'
 import ProfileStrip from '@/components/map/ProfileStrip'
+import IndooFooter from '@/components/ui/IndooFooter'
 import styles from './NotificationsScreen.module.css'
 
 // ── Active vibe blasts targeting this user ────────────────────────────────
@@ -358,6 +359,7 @@ export default function NotificationsScreen({ onClose, onOpenChat, userId, userP
       </div>
 
       {stripProps && <ProfileStrip {...stripProps} />}
+      <IndooFooter label="Notifications" onHome={onClose} onClose={onClose} />
     </div>
   )
 }
