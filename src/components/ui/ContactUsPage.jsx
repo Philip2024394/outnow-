@@ -520,7 +520,7 @@ export default function ContactUsPage({ onClose }) {
         bottom: 0,
         zIndex: 10000,
         backgroundImage:
-          'url(https://ik.imagekit.io/nepgaxllc/Untitledsadasdadsaa.png?updatedAt=1776480383268)',
+          'url(https://ik.imagekit.io/nepgaxllc/Untitledfsdsss.png)',
         backgroundSize: 'cover',
         backgroundPosition: 'center',
         backgroundRepeat: 'no-repeat',
