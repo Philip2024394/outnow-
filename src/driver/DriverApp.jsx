@@ -68,6 +68,7 @@ export default function DriverApp() {
   const [showCashFloat, setShowCashFloat] = useState(false)
   const [showEarnings, setShowEarnings] = useState(false)
   const [termsAccepted, setTermsAccepted] = useState(() => localStorage.getItem('indoo_driver_terms_accepted') === 'true')
+  const [driverRegistered, setDriverRegistered] = useState(() => localStorage.getItem('indoo_driver_registered') === 'true')
   const [showHotspotMap, setShowHotspotMap] = useState(false)
   const [showEliteAwards, setShowEliteAwards] = useState(false)
   const [wallet, setWallet] = useState(null)
@@ -355,6 +356,31 @@ export default function DriverApp() {
             <p style={{ textAlign: 'center', fontSize: 10, color: 'rgba(255,255,255,0.3)', margin: '10px 0 0' }}>&copy; 2026 PT HAMMEREX PRODUCTS INDONESIA &middot; All rights reserved &middot; INDOO Platform v1.0</p>
           </div>
         </div>
+      </div>
+    )
+  }
+
+  // ── Driver Registration Gate ──
+  if (!driverRegistered) {
+    return (
+      <div style={{ height: '100%', display: 'flex', flexDirection: 'column', background: '#080808', alignItems: 'center', justifyContent: 'center', padding: 32, textAlign: 'center' }}>
+        <div style={{ width: 80, height: 80, borderRadius: '50%', background: 'rgba(141,198,63,0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: 20, fontSize: 40 }}>🏍️</div>
+        <h2 style={{ fontSize: 22, fontWeight: 900, color: '#fff', margin: '0 0 8px' }}>Become an INDOO Bike Driver</h2>
+        <p style={{ fontSize: 14, color: 'rgba(255,255,255,0.5)', margin: '0 0 24px', lineHeight: 1.6 }}>
+          You need an approved driver application before you can start accepting rides and deliveries.
+        </p>
+        <button
+          onClick={() => { localStorage.setItem('indoo_driver_registered', 'true'); setDriverRegistered(true) }}
+          style={{ padding: '16px 40px', borderRadius: 16, background: '#8DC63F', border: 'none', color: '#000', fontSize: 16, fontWeight: 900, cursor: 'pointer', fontFamily: 'inherit', marginBottom: 12 }}
+        >
+          Apply to Become a Driver
+        </button>
+        <button
+          onClick={() => { if (supabase) supabase.auth.signOut(); setUser(null) }}
+          style={{ background: 'none', border: 'none', color: 'rgba(255,255,255,0.3)', fontSize: 13, cursor: 'pointer', fontFamily: 'inherit' }}
+        >
+          Sign Out
+        </button>
       </div>
     )
   }

@@ -6,6 +6,7 @@
 import { useState, useEffect } from 'react'
 import { supabase } from '@/lib/supabase'
 import VendorDashboardV2 from '@/components/restaurant/VendorDashboardV2'
+import VendorOnboarding from '@/components/restaurant/VendorOnboarding'
 
 const BG_IMG = 'https://ik.imagekit.io/nepgaxllc/ChatGPT%20Image%20Apr%2016,%202026,%2006_04_21%20PM.png'
 
@@ -17,6 +18,7 @@ export default function VendorApp() {
   const [loginError, setLoginError] = useState(null)
   const [signingIn, setSigningIn] = useState(false)
   const [isRegister, setIsRegister] = useState(false)
+  const [onboardingDone, setOnboardingDone] = useState(() => !!localStorage.getItem('indoo_vendor_restaurant'))
 
   // Check existing session
   useEffect(() => {
@@ -78,8 +80,18 @@ export default function VendorApp() {
     )
   }
 
-  // Logged in — show dashboard
+  // Logged in — show onboarding if no restaurant, otherwise dashboard
   if (user) {
+    if (!onboardingDone) {
+      return (
+        <VendorOnboarding
+          open={true}
+          onClose={handleLogout}
+          onComplete={() => setOnboardingDone(true)}
+          userId={user.id ?? user.uid}
+        />
+      )
+    }
     return <VendorDashboardV2 onClose={handleLogout} />
   }
 
