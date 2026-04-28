@@ -924,7 +924,9 @@ export default function DriverApp() {
           {/* Backdrop */}
           <div onClick={() => setDrawerOpen(false)} style={{ flex: 1, background: 'rgba(0,0,0,0.6)' }} />
           {/* Drawer panel */}
-          <div style={{ width: 300, background: '#0d0d1a', borderLeft: '1px solid rgba(255,255,255,0.1)', display: 'flex', flexDirection: 'column', animation: 'slideLeft 0.3s ease' }}>
+          <div style={{ width: 300, background: 'rgba(0,0,0,0.75)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)', borderLeft: '3px solid rgba(141,198,63,0.3)', display: 'flex', flexDirection: 'column', animation: 'slideLeft 0.3s ease', overflow: 'hidden' }}>
+            <div style={{ position: 'absolute', top: 0, left: -3, width: 3, height: '100%', overflow: 'hidden', zIndex: 1 }}><div style={{ position: 'absolute', width: '100%', height: 60, background: 'linear-gradient(180deg, transparent, #8DC63F, transparent)', animation: 'drawerEdge 3s linear infinite' }} /></div>
+            <style>{`@keyframes drawerEdge { 0% { top: -60px; } 100% { top: 100%; } }`}</style>
             {/* Drawer header */}
             <div style={{ padding: 'calc(env(safe-area-inset-top, 0px) + 16px) 20px 16px', borderBottom: '1px solid rgba(255,255,255,0.1)', display: 'flex', gap: 12, alignItems: 'center' }}>
               <img src={profile.photo_url} alt="" style={{ width: 44, height: 44, borderRadius: '50%', objectFit: 'cover', border: '2px solid #8DC63F' }} />
@@ -936,19 +938,19 @@ export default function DriverApp() {
             </div>
             {/* Menu items */}
             <div style={{ flex: 1, overflowY: 'auto', padding: '12px 0' }}>
-              <button onClick={() => { setTab('profile'); setDrawerOpen(false) }} style={{ padding: '14px 20px', display: 'flex', alignItems: 'center', gap: 12, borderBottom: '1px solid rgba(255,255,255,0.06)', background: 'none', border: 'none', borderBottom: '1px solid rgba(255,255,255,0.06)', width: '100%', cursor: 'pointer', textAlign: 'left' }}>
+              <button onClick={() => { setTab('profile'); setDrawerOpen(false) }} style={{ padding: '14px 16px', margin: '0 12px 8px', display: 'flex', alignItems: 'center', gap: 12, background: 'rgba(255,255,255,0.04)', backdropFilter: 'blur(12px)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 14, width: 'calc(100% - 24px)', cursor: 'pointer', textAlign: 'left' }}>
                 <span style={{ fontSize: 18 }}>👤</span><span style={{ flex: 1, fontSize: 14, color: '#fff', fontWeight: 600 }}>My Profile</span><span style={{ color: 'rgba(255,255,255,0.3)', fontSize: 14 }}>→</span>
               </button>
-              <button onClick={() => { setShowTopUp(true); setDrawerOpen(false) }} style={{ padding: '14px 20px', display: 'flex', alignItems: 'center', gap: 12, background: 'none', border: 'none', borderBottom: '1px solid rgba(255,255,255,0.06)', width: '100%', cursor: 'pointer', textAlign: 'left' }}>
+              <button onClick={() => { setShowTopUp(true); setDrawerOpen(false) }} style={{ padding: '14px 16px', margin: '0 12px 8px', display: 'flex', alignItems: 'center', gap: 12, background: 'rgba(255,255,255,0.04)', backdropFilter: 'blur(12px)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 14, width: 'calc(100% - 24px)', cursor: 'pointer', textAlign: 'left' }}>
                 <span style={{ fontSize: 18 }}>💰</span><span style={{ flex: 1, fontSize: 14, color: '#fff', fontWeight: 600 }}>Wallet & Top Up</span><span style={{ color: 'rgba(255,255,255,0.3)', fontSize: 14 }}>→</span>
               </button>
-              <button onClick={() => { setShowEliteAwards(true); setDrawerOpen(false) }} style={{ padding: '14px 20px', display: 'flex', alignItems: 'center', gap: 12, background: 'none', border: 'none', borderBottom: '1px solid rgba(255,255,255,0.06)', width: '100%', cursor: 'pointer', textAlign: 'left' }}>
+              <button onClick={() => { setShowEliteAwards(true); setDrawerOpen(false) }} style={{ padding: '14px 16px', margin: '0 12px 8px', display: 'flex', alignItems: 'center', gap: 12, background: 'rgba(255,255,255,0.04)', backdropFilter: 'blur(12px)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 14, width: 'calc(100% - 24px)', cursor: 'pointer', textAlign: 'left' }}>
                 <span style={{ fontSize: 18 }}>💎</span><span style={{ flex: 1, fontSize: 14, color: '#fff', fontWeight: 600 }}>INDOO Elite Awards</span><span style={{ color: 'rgba(255,255,255,0.3)', fontSize: 14 }}>→</span>
               </button>
-              <button onClick={() => { setShowHotspotMap(true); setDrawerOpen(false) }} style={{ padding: '14px 20px', display: 'flex', alignItems: 'center', gap: 12, background: 'none', border: 'none', borderBottom: '1px solid rgba(255,255,255,0.06)', width: '100%', cursor: 'pointer', textAlign: 'left' }}>
+              <button onClick={() => { setShowHotspotMap(true); setDrawerOpen(false) }} style={{ padding: '14px 16px', margin: '0 12px 8px', display: 'flex', alignItems: 'center', gap: 12, background: 'rgba(255,255,255,0.04)', backdropFilter: 'blur(12px)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 14, width: 'calc(100% - 24px)', cursor: 'pointer', textAlign: 'left' }}>
                 <span style={{ fontSize: 18 }}>🗺️</span><span style={{ flex: 1, fontSize: 14, color: '#fff', fontWeight: 600 }}>Hotspot Map</span><span style={{ color: 'rgba(255,255,255,0.3)', fontSize: 14 }}>→</span>
               </button>
-              <button onClick={() => { setTab('earnings'); setDrawerOpen(false) }} style={{ padding: '14px 20px', display: 'flex', alignItems: 'center', gap: 12, background: 'none', border: 'none', borderBottom: '1px solid rgba(255,255,255,0.06)', width: '100%', cursor: 'pointer', textAlign: 'left' }}>
+              <button onClick={() => { setTab('earnings'); setDrawerOpen(false) }} style={{ padding: '14px 16px', margin: '0 12px 8px', display: 'flex', alignItems: 'center', gap: 12, background: 'rgba(255,255,255,0.04)', backdropFilter: 'blur(12px)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 14, width: 'calc(100% - 24px)', cursor: 'pointer', textAlign: 'left' }}>
                 <span style={{ fontSize: 18 }}>📊</span><span style={{ flex: 1, fontSize: 14, color: '#fff', fontWeight: 600 }}>Earnings</span><span style={{ color: 'rgba(255,255,255,0.3)', fontSize: 14 }}>→</span>
               </button>
 
@@ -982,13 +984,13 @@ export default function DriverApp() {
               {/* Divider */}
               <div style={{ height: 1, background: 'rgba(255,255,255,0.08)', margin: '8px 0' }} />
 
-              <button onClick={() => { localStorage.removeItem('indoo_driver_terms_accepted'); localStorage.removeItem('indoo_driver_terms_accepted_at'); setTermsAccepted(false); setDrawerOpen(false) }} style={{ padding: '14px 20px', display: 'flex', alignItems: 'center', gap: 12, background: 'none', border: 'none', borderBottom: '1px solid rgba(255,255,255,0.06)', width: '100%', cursor: 'pointer', textAlign: 'left' }}>
+              <button onClick={() => { localStorage.removeItem('indoo_driver_terms_accepted'); localStorage.removeItem('indoo_driver_terms_accepted_at'); setTermsAccepted(false); setDrawerOpen(false) }} style={{ padding: '14px 16px', margin: '0 12px 8px', display: 'flex', alignItems: 'center', gap: 12, background: 'rgba(255,255,255,0.04)', backdropFilter: 'blur(12px)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 14, width: 'calc(100% - 24px)', cursor: 'pointer', textAlign: 'left' }}>
                 <span style={{ fontSize: 18 }}>📋</span><span style={{ flex: 1, fontSize: 14, color: '#fff', fontWeight: 600 }}>Terms & Conditions</span><span style={{ color: 'rgba(255,255,255,0.3)', fontSize: 14 }}>→</span>
               </button>
               <div style={{ padding: '14px 20px', display: 'flex', alignItems: 'center', gap: 12, borderBottom: '1px solid rgba(255,255,255,0.06)' }}>
                 <span style={{ fontSize: 18 }}>📞</span><span style={{ flex: 1, fontSize: 14, color: '#fff', fontWeight: 600 }}>Support</span><span style={{ fontSize: 13, color: 'rgba(255,255,255,0.4)' }}>+62 812-3456-7890</span>
               </div>
-              <button onClick={() => { setDrawerOpen(false); handleLogout() }} style={{ padding: '14px 20px', display: 'flex', alignItems: 'center', gap: 12, background: 'none', border: 'none', borderBottom: '1px solid rgba(255,255,255,0.06)', width: '100%', cursor: 'pointer', textAlign: 'left' }}>
+              <button onClick={() => { setDrawerOpen(false); handleLogout() }} style={{ padding: '14px 16px', margin: '0 12px 8px', display: 'flex', alignItems: 'center', gap: 12, background: 'rgba(255,255,255,0.04)', backdropFilter: 'blur(12px)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 14, width: 'calc(100% - 24px)', cursor: 'pointer', textAlign: 'left' }}>
                 <span style={{ fontSize: 18 }}>🔴</span><span style={{ flex: 1, fontSize: 14, color: '#EF4444', fontWeight: 600 }}>Sign Out</span><span style={{ color: 'rgba(255,255,255,0.3)', fontSize: 14 }}>→</span>
               </button>
             </div>
