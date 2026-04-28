@@ -26,26 +26,7 @@ export default function MapHeader({
         <img src={LOGO_URL} alt="Indoo" className={styles.logo} />
       </div>
 
-      <div className={styles.right}>
-        {isLive && (
-          <div className={styles.liveBadge}>
-            <span className={styles.liveDot} />
-            LIVE
-          </div>
-        )}
-
-        {/* Notifications */}
-        <button className={styles.settingsBtn} onClick={onOpenNotifications} aria-label="Notifications">
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-            <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/>
-            <path d="M13.73 21a2 2 0 0 1-3.46 0"/>
-          </svg>
-          {notifCount > 0 && (
-            <span className={styles.notifBadge}>{notifCount > 9 ? '9+' : notifCount}</span>
-          )}
-        </button>
-
-      </div>
+      <div className={styles.right} />
     </div>,
     document.body
   )
