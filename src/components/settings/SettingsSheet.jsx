@@ -110,7 +110,10 @@ export default function SettingsSheet({ open, onClose, onOpenLikes, onOpenMyLike
     try {
       if (mySession?.id) await endSession(mySession.id)
       await signOut()
+      localStorage.removeItem('indoo_registered')
+      localStorage.removeItem('indoo_demo_profile')
       onClose()
+      window.location.reload()
     } catch {
       showToast?.('Could not sign out. Try again.', 'error')
     }
