@@ -1006,7 +1006,7 @@ export default function AppShell({ returnParams, triggerGoLive }) {
       />
 
       {/* ── Deal Hunt ── */}
-      <Suspense fallback={null}>
+      <Suspense fallback={<div style={{ position: 'fixed', inset: 0, zIndex: 9500, background: '#000', display: 'flex', alignItems: 'center', justifyContent: 'center' }}><span style={{ color: '#8DC63F', fontSize: 14 }}>Loading Deal Hunt...</span></div>}>
         <DealHuntLanding
           open={dealHuntOpen}
           onClose={() => setDealHuntOpen(false)}
