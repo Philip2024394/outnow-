@@ -89,6 +89,26 @@ if (typeof window !== 'undefined' && window.visualViewport) {
 export default function App() {
   const { user, userProfile, loading } = useAuth()
   const [guestMode, setGuestMode] = useState(() => localStorage.getItem('indoo_registered') === 'true')
+
+  // Auto-update detection
+  const [updateReady, setUpdateReady] = useState(false)
+  useEffect(() => {
+    if (!('serviceWorker' in navigator)) return
+    navigator.serviceWorker.register('/sw.js').then(reg => {
+      setInterval(() => reg.update(), 60000)
+      reg.addEventListener('updatefound', () => {
+        const nw = reg.installing
+        if (!nw) return
+        nw.addEventListener('statechange', () => {
+          if (nw.state === 'installed' && navigator.serviceWorker.controller) setUpdateReady(true)
+        })
+      })
+    }).catch(() => {})
+    let refreshing = false
+    navigator.serviceWorker.addEventListener('controllerchange', () => {
+      if (refreshing) return; refreshing = true; window.location.reload()
+    })
+  }, [])
   const [returnParams, setReturnParams] = useState(null)
   const [joinOpen, setJoinOpen] = useState(false)
 
@@ -175,7 +195,13 @@ export default function App() {
     <ErrorBoundary>
       <LanguageProvider>
         <GuestGateProvider>
-          {/* DevPanel rendered inside AppShell for home page only */}
+          {/* App update banner */}
+          {updateReady && (
+            <div style={{ position: 'fixed', top: 'calc(env(safe-area-inset-top, 0px) + 8px)', left: 16, right: 16, zIndex: 999999, padding: '12px 16px', background: 'rgba(141,198,63,0.95)', borderRadius: 16, display: 'flex', alignItems: 'center', gap: 12, boxShadow: '0 4px 20px rgba(0,0,0,0.4)' }}>
+              <span style={{ fontSize: 14, fontWeight: 800, color: '#000', flex: 1 }}>New update available</span>
+              <button onClick={() => { navigator.serviceWorker.ready.then(r => { if (r.waiting) r.waiting.postMessage({ type: 'SKIP_WAITING' }) }) }} style={{ padding: '8px 16px', borderRadius: 10, background: '#000', border: 'none', color: '#8DC63F', fontSize: 13, fontWeight: 900, cursor: 'pointer' }}>Update Now</button>
+            </div>
+          )}
           <LanguageToast />
 
           {/* ── New user: welcome slides ── */}

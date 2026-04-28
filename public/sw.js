@@ -105,6 +105,11 @@ self.addEventListener('fetch', (e) => {
   // Everything else — network only (Supabase, Stripe, Mapbox API calls)
 })
 
+// ── Skip waiting when app requests update ────────────────────────────────────
+self.addEventListener('message', (e) => {
+  if (e.data?.type === 'SKIP_WAITING') self.skipWaiting()
+})
+
 // ── Push notifications ────────────────────────────────────────────────────────
 self.addEventListener('push', (e) => {
   const data = e.data?.json() ?? {}
