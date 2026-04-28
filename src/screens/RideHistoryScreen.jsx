@@ -89,11 +89,6 @@ export default function RideHistoryScreen({ userId, userName, onClose, stripProp
       <div className={styles.header}>
         <img src="https://ik.imagekit.io/nepgaxllc/Green%20and%20black%20speed%20machines.png?updatedAt=1775635360641" alt="" className={styles.headerImg} aria-hidden="true" />
         <span className={styles.title}>Ride History</span>
-        <button className={styles.backBtn} onClick={onClose} aria-label="Back">
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-            <path d="M19 12H5M12 5l-7 7 7 7"/>
-          </svg>
-        </button>
       </div>
 
       {/* Stats strip */}
