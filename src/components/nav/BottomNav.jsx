@@ -1,6 +1,7 @@
 import { useRef, useState } from 'react'
 import { createPortal } from 'react-dom'
 import Avatar from '@/components/ui/Avatar'
+import ContactUsPage from '@/components/ui/ContactUsPage'
 import styles from './BottomNav.module.css'
 
 const RING_R    = 20          // SVG circle radius
@@ -30,6 +31,7 @@ export default function BottomNav({ activeTab = 'map', userPhotoURL, userName, i
   const [holdPct, setHoldPct]     = useState(0)
   const [holding, setHolding]     = useState(false)
   const [toggled, setToggled]     = useState(false)   // flash on complete
+  const [contactUsOpen, setContactUsOpen] = useState(false)
 
   const startHold = (e) => {
     // Only trigger hold if this is a driver account
@@ -66,11 +68,29 @@ export default function BottomNav({ activeTab = 'map', userPhotoURL, userName, i
   return createPortal(
     <nav className={`${styles.nav} ${(showBuyerBtns || showSellerBtns) ? styles.navMarket : ''}`}>
 
-      {/* Home — always takes user back to home */}
-      <button className={`${styles.homeBtn} ${activeTab === 'map' ? ((showBuyerBtns || showSellerBtns) ? styles.homeBtnMarketActive : styles.homeBtnActive) : ''}`} onClick={onHome} aria-label="Home">
-        <img src="https://ik.imagekit.io/nepgaxllc/Untitledsssaa-removebg-preview.png" alt="" style={{ width: 40, height: 40, objectFit: 'contain' }} />
-        <span className={styles.homeBtnLabel}>Home</span>
-      </button>
+      {/* Profile avatar — top of nav */}
+      {!showBuyerBtns && !showSellerBtns && (
+        <button
+          className={`${styles.avatarTab} ${activeTab === 'profile' ? styles.avatarTabActive : ''}`}
+          onClick={() => onProfileTap?.()}
+          aria-label="My profile"
+        >
+          <img
+            src={(() => { try { const p = JSON.parse(localStorage.getItem('indoo_demo_profile') || '{}'); return p.photo || localStorage.getItem('indoo_user_avatar') || userPhotoURL || 'https://i.pravatar.cc/68?img=12' } catch { return userPhotoURL || 'https://i.pravatar.cc/68?img=12' } })()}
+            alt=""
+            style={{ width: 30, height: 30, borderRadius: '50%', objectFit: 'cover', border: '2px solid #8DC63F' }}
+          />
+          <span className={styles.tabLabel}>Me</span>
+        </button>
+      )}
+
+      {/* Home — marketplace/seller only */}
+      {(showBuyerBtns || showSellerBtns) && (
+        <button className={`${styles.homeBtn} ${styles.homeBtnActive}`} onClick={onHome} aria-label="Home">
+          <img src="https://ik.imagekit.io/nepgaxllc/Untitledsssaa-removebg-preview.png" alt="" style={{ width: 40, height: 40, objectFit: 'contain' }} />
+          <span className={styles.homeBtnLabel}>Home</span>
+        </button>
+      )}
 
       {/* Chat — marketplace theme only */}
       {showBuyerBtns && (
@@ -167,35 +187,31 @@ export default function BottomNav({ activeTab = 'map', userPhotoURL, userName, i
       )}
 
 
-      {/* Contact INDOO — hidden on landing pages, marketplace theme, and seller theme */}
-      {!onLanding && !showBuyerBtns && !showSellerBtns && (
-        <button
-          className={styles.liveBtn}
-          onClick={() => window.open('https://wa.me/6281234567890?text=Hi%20INDOO%2C%20I%20have%20a%20question', '_blank')}
-          aria-label="Contact INDOO"
-        >
-          <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
-            <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
-          </svg>
-          <span className={styles.liveBtnLabel}>Contact</span>
-        </button>
+      {/* Compliance & Contact buttons — default theme only */}
+      {!showBuyerBtns && !showSellerBtns && (
+        <>
+          <div style={{ width: 24, height: 1, background: 'rgba(255,255,255,0.08)' }} />
+          <button className={styles.tab} onClick={() => setContactUsOpen(true)} aria-label="Contact">
+            <span style={{ fontSize: 16 }}>📞</span>
+            <span className={styles.tabLabel}>Contact</span>
+          </button>
+          <button className={styles.tab} onClick={() => window.open('/privacy', '_blank')} aria-label="Privacy">
+            <span style={{ fontSize: 16 }}>🔒</span>
+            <span className={styles.tabLabel}>Privacy</span>
+          </button>
+          <button className={styles.tab} onClick={() => window.open('/terms', '_blank')} aria-label="Terms">
+            <span style={{ fontSize: 16 }}>📋</span>
+            <span className={styles.tabLabel}>Terms</span>
+          </button>
+          <button className={styles.tab} onClick={() => window.open('/refund', '_blank')} aria-label="Refund">
+            <span style={{ fontSize: 16 }}>💰</span>
+            <span className={styles.tabLabel}>Refund</span>
+          </button>
+        </>
       )}
 
-      {/* Profile avatar — simple tap to open profile, hidden in marketplace/seller theme */}
-      {!showBuyerBtns && !showSellerBtns && <button
-        className={`${styles.avatarTab} ${activeTab === 'profile' ? styles.avatarTabActive : ''}`}
-        onClick={() => onProfileTap?.()}
-        aria-label="My profile"
-      >
-        <Avatar
-          src={userPhotoURL ?? 'https://i.pravatar.cc/68?img=12'}
-          name={userName ?? 'Me'}
-          size={30}
-          live={isLive}
-          inviteOut={isInviteOut}
-        />
-        <span className={styles.tabLabel}>Me</span>
-      </button>}
+      {/* Contact Us page overlay */}
+      {contactUsOpen && <ContactUsPage onClose={() => setContactUsOpen(false)} />}
 
     </nav>,
     document.body
