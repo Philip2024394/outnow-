@@ -45,15 +45,6 @@ export default function MapHeader({
           )}
         </button>
 
-        {/* Account — shows avatar if registered, hidden if guest browsing */}
-        {isRegistered && (
-          <button className={styles.avatarBtn} onClick={onAccountClick} aria-label="My account">
-            {photoURL
-              ? <img src={photoURL} alt={displayName ?? 'Me'} className={styles.avatarImg} />
-              : <span className={styles.avatarInitial}>{(displayName?.[0] ?? '?').toUpperCase()}</span>
-            }
-          </button>
-        )}
       </div>
     </div>,
     document.body
