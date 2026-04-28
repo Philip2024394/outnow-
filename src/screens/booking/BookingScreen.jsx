@@ -14,6 +14,7 @@ import {
 import {
   estimateFare, formatRp, DEFAULT_ZONES, DEFAULT_SETTINGS, fetchPricingZones, fetchGlobalSettings,
 } from '@/services/pricingService'
+import { calculateETA, formatETA } from '@/services/etaService'
 import { notifyRideRequest } from '@/services/notificationService'
 import { hasVisitedSection, markSectionVisited } from '@/services/sectionVisitService'
 import SectionCTAButton from '@/components/ui/SectionCTAButton'
@@ -26,6 +27,7 @@ import BookingFormPanel   from './BookingFormPanel'
 import BookingLivePanel   from './BookingLivePanel'
 import BookingReceiptPanel from './BookingReceiptPanel'
 import IndooPayment from '@/components/payment/IndooPayment'
+import RatingPopup from '@/components/ui/RatingPopup'
 
 // ── Auth wall ─────────────────────────────────────────────────────────────────
 function AuthWall({ onClose, onSignUp }) {
@@ -110,6 +112,9 @@ export default function BookingScreen({ onClose, initialVehicle, onLandingChange
   const [reviewComment,    setReviewComment]    = useState('')
   const [reviewSubmitting, setReviewSubmitting] = useState(false)
 
+  // ── Rating popup ────────────────────────────────────────────────────────────
+  const [showRating, setShowRating] = useState(null) // null or { driverName, driverPhoto, orderId, serviceType }
+
   // ── Cancel ─────────────────────────────────────────────────────────────────
   const [cancelReason, setCancelReason] = useState('')
 
@@ -155,26 +160,28 @@ export default function BookingScreen({ onClose, initialVehicle, onLandingChange
     )
   }
 
-  // ── Fare estimate (uses Google Directions for real road distance) ────────
+  // ── Fare estimate & ETA (uses etaService with Mapbox / haversine fallback) ──
   const pickupCoords = pickup ?? gpsCoords
   const [distanceKm, setDistanceKm] = useState(3)
   const [rideEtaMin, setRideEtaMin] = useState(null)
+  const [rideEtaText, setRideEtaText] = useState(null)
 
   useEffect(() => {
-    if (!destination || !pickupCoords) { setDistanceKm(3); setRideEtaMin(null); return }
+    if (!destination || !pickupCoords) { setDistanceKm(3); setRideEtaMin(null); setRideEtaText(null); return }
     let cancelled = false
+    const profile = (vehicleType === 'bike_ride' || vehicleType === 'bike_parcel') ? 'cycling' : 'driving'
     ;(async () => {
       try {
-        const { getRideDistance } = await import('@/utils/googleDirections')
-        const result = await getRideDistance(pickupCoords.lat, pickupCoords.lng, destination.lat, destination.lng)
+        const result = await calculateETA(pickupCoords.lat, pickupCoords.lng, destination.lat, destination.lng, profile)
         if (!cancelled) {
           setDistanceKm(Math.max(0.5, result.distanceKm))
-          setRideEtaMin(result.durationMin)
+          setRideEtaMin(result.durationMinutes)
+          setRideEtaText(result.durationText)
         }
       } catch { /* fallback stays at previous value */ }
     })()
     return () => { cancelled = true }
-  }, [destination?.lat, destination?.lng, pickupCoords?.lat, pickupCoords?.lng])
+  }, [destination?.lat, destination?.lng, pickupCoords?.lat, pickupCoords?.lng, vehicleType])
 
   const [surgeMultiplier, setSurgeMultiplier] = useState(1.0)
   const [surgeLabel, setSurgeLabel] = useState(null)
@@ -309,6 +316,12 @@ export default function BookingScreen({ onClose, initialVehicle, onLandingChange
 
 const handleJourneyComplete = async () => {
     if (booking) await completeBooking(booking.id, selectedDriver?.id)
+    setShowRating({
+      driverName:  selectedDriver?.display_name ?? selectedDriver?.name ?? 'Driver',
+      driverPhoto: selectedDriver?.photo_url ?? selectedDriver?.photoURL ?? '',
+      orderId:     booking?.id ?? null,
+      serviceType: vehicleType === 'car_taxi' ? 'ride_car' : 'ride_bike',
+    })
     setPhase('review')
   }
 
@@ -423,6 +436,7 @@ const handleJourneyComplete = async () => {
               pickupCoords={pickupCoords}
               gpsCoords={gpsCoords}
               fare={fare} distanceKm={distanceKm}
+              rideEtaText={rideEtaText}
               formatRp={formatRp} estimateFare={estimateFare}
               zones={zones} settings={settings}
               handleFindDriver={handleFindDriver}
@@ -508,6 +522,14 @@ const handleJourneyComplete = async () => {
             />
           )}
         </>
+      )}
+
+      {showRating && (
+        <RatingPopup
+          {...showRating}
+          onSubmit={() => setShowRating(null)}
+          onSkip={() => setShowRating(null)}
+        />
       )}
     </div>
   )

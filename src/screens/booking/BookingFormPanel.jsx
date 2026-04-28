@@ -135,6 +135,7 @@ export default function BookingFormPanel({
   pickupCoords,
   gpsCoords,
   fare, distanceKm,
+  rideEtaText,
   formatRp, estimateFare,
   zones, settings,
   handleFindDriver,
@@ -200,6 +201,7 @@ export default function BookingFormPanel({
               <div>
                 <span className={styles.vehicleTabLabel} style={{ display: 'block' }}>Bike Ride</span>
                 <span className={styles.vehicleTabPrice}>{formatRp(estimateFare('bike_ride', 'Yogyakarta', distanceKm, zones, settings))}</span>
+                {rideEtaText && vehicleType === 'bike_ride' && <span style={{ display: 'block', fontSize: 11, color: 'rgba(255,255,255,0.5)', marginTop: 2 }}>~{rideEtaText}</span>}
               </div>
             </button>
             <button
@@ -226,6 +228,7 @@ export default function BookingFormPanel({
               <div>
                 <span className={styles.vehicleTabLabel} style={{ display: 'block' }}>Car Ride</span>
                 <span className={styles.vehicleTabPrice}>{formatRp(estimateFare('car_taxi', 'Yogyakarta', distanceKm, zones, settings))}</span>
+                {rideEtaText && vehicleType === 'car_taxi' && <span style={{ display: 'block', fontSize: 11, color: 'rgba(255,255,255,0.5)', marginTop: 2 }}>~{rideEtaText}</span>}
               </div>
             </button>
             <button

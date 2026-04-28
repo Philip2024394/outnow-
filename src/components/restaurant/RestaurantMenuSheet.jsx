@@ -20,11 +20,13 @@ import { getTodayDealForRestaurant, hasAnyDailyDeals } from '@/services/dailyDea
 import { getLocalDefaultAddress } from '@/services/addressService'
 import { estimateFare, fetchPricingZones, fetchGlobalSettings } from '@/services/pricingService'
 import { haversineKm } from '@/utils/distance'
+import { calculateDeliveryETA, formatETA } from '@/services/etaService'
 import { getAvailableTimeSlots } from '@/services/preBookingService'
 import { validatePromoCode, applyPromoCode } from '@/services/promoCodeService'
 import { addToMultiCart, getMultiCartCount, getRestaurantCount } from '@/services/multiCartService'
 import LiveChatSheet from './LiveChatSheet'
 import PromoBannerPage from './PromoBannerPage'
+import RatingPopup from '@/components/ui/RatingPopup'
 
 // Auto-detect tags from item name/description/category
 const SPICY_WORDS = ['pedas','sambal','geprek','balado','rica','cabai','chili','hot','spicy','cabe']
@@ -248,6 +250,9 @@ export default function RestaurantMenuSheet({ restaurant, onClose, onOrderViaCha
   const [todayDeal,       setTodayDeal]       = useState(null) // { day, items, active }
   const [hasDailyDeals,   setHasDailyDeals]   = useState(false)
 
+  // ── Delivery ETA from etaService ──
+  const [realDeliveryEta, setRealDeliveryEta] = useState(null) // { totalMinutes, etaText, ... }
+
   // ── New features state ──
   const [allergenFilter, setAllergenFilter] = useState([]) // active allergen filter IDs
   const [scheduleMode,   setScheduleMode]   = useState(false) // scheduled delivery toggle
@@ -292,6 +297,26 @@ export default function RestaurantMenuSheet({ restaurant, onClose, onOrderViaCha
     const t = setTimeout(() => setToast(null), 3000)
     return () => clearTimeout(t)
   }, [toast])
+
+  // ── Calculate real delivery ETA when driver assigned + coords available ──
+  useEffect(() => {
+    if (!customerCoords || !restaurant.lat || orderType !== 'delivery') {
+      setRealDeliveryEta(null)
+      return
+    }
+    let cancelled = false
+    // Use assigned driver coords if available, otherwise estimate from restaurant
+    const driverLat = assignedDriver?.lat ?? restaurant.lat
+    const driverLng = assignedDriver?.lng ?? restaurant.lng
+    calculateDeliveryETA(
+      restaurant.lat, restaurant.lng,
+      customerCoords.lat, customerCoords.lng,
+      driverLat, driverLng,
+    ).then(result => {
+      if (!cancelled) setRealDeliveryEta(result)
+    }).catch(() => {})
+    return () => { cancelled = true }
+  }, [customerCoords?.lat, customerCoords?.lng, restaurant.lat, restaurant.lng, assignedDriver, orderType])
 
   // ── Dish badges from localStorage ──
   const [dishBadges, setDishBadges] = useState([])
@@ -393,9 +418,10 @@ export default function RestaurantMenuSheet({ restaurant, onClose, onOrderViaCha
   const avgPrepTime = cart.length > 0
     ? Math.round(cart.reduce((sum, item) => sum + (item.prep_time_min ?? 15), 0) / cart.length)
     : 15
-  const deliveryMinutes = orderType === 'delivery' && customerCoords && restaurant.lat
+  const fallbackDeliveryMinutes = orderType === 'delivery' && customerCoords && restaurant.lat
     ? Math.round(haversineKm(restaurant.lat, restaurant.lng, customerCoords.lat, customerCoords.lng) * 1.3 * 3)
     : 0
+  const deliveryMinutes = realDeliveryEta ? realDeliveryEta.totalMinutes : fallbackDeliveryMinutes
   const eta = avgPrepTime + deliveryMinutes
   const qtyFor = (id) => cart.find(c => c.id === id)?.qty ?? 0
 
@@ -616,6 +642,7 @@ export default function RestaurantMenuSheet({ restaurant, onClose, onOrderViaCha
   const [driverPhase, setDriverPhase] = useState('to_restaurant')
   const [driverImgIdx, setDriverImgIdx] = useState(0)
   const [processingMsgIdx, setProcessingMsgIdx] = useState(0)
+  const [showDeliveryRating, setShowDeliveryRating] = useState(null) // null or { driverName, driverPhoto, orderId, serviceType }
 
   // Auto-progress stages when started from cart checkout (startTracking)
   useEffect(() => {
@@ -624,8 +651,15 @@ export default function RestaurantMenuSheet({ restaurant, onClose, onOrderViaCha
     const s2Time = 20000 // 20s to customer
     const t1 = setTimeout(() => setDriverPhase('to_customer'), s1Time)
     const t2 = setTimeout(() => setDriverPhase('arrived'), s1Time + s2Time)
-    // Auto-close 10s after arrived
-    const t3 = setTimeout(() => setDriverOnWay(null), s1Time + s2Time + 10000)
+    // Show rating popup 10s after arrived (before closing tracking)
+    const t3 = setTimeout(() => {
+      setShowDeliveryRating({
+        driverName:  driverOnWay?.driverName ?? 'Driver',
+        driverPhoto: driverOnWay?.driverPhoto ?? '',
+        orderId:     driverOnWay?.orderId ?? null,
+        serviceType: 'food_delivery',
+      })
+    }, s1Time + s2Time + 10000)
     return () => { clearTimeout(t1); clearTimeout(t2); clearTimeout(t3) }
   }, [!!startTracking?.driver])
 
@@ -857,7 +891,7 @@ export default function RestaurantMenuSheet({ restaurant, onClose, onOrderViaCha
       setDriverPhase('to_restaurant')
       setDriverOnWay({
         orderId,
-        eta: orderSnapshot.eta,
+        eta: realDeliveryEta ? realDeliveryEta.totalMinutes + avgPrepTime : orderSnapshot.eta,
         restaurant: orderSnapshot.restaurantName,
         driverName: 'Agus Prasetyo',
         driverCallsign: `INDOO ${Math.floor(1000 + Math.random() * 9000)}`,
@@ -1134,7 +1168,7 @@ export default function RestaurantMenuSheet({ restaurant, onClose, onOrderViaCha
                     <img src="https://ik.imagekit.io/nepgaxllc/Sleek%20green%20and%20black%20scooter%20setup.png?updatedAt=1775634845237" alt="" style={{ width: 36, height: 36, objectFit: 'contain', flexShrink: 0 }} />
                     <div style={{ flex: 1 }}>
                       <span style={{ fontSize: 14, fontWeight: 800, color: '#fff', display: 'block' }}>Delivery</span>
-                      <span style={{ fontSize: 14, color: 'rgba(255,255,255,0.4)' }}>~{eta} min · Payment To Driver</span>
+                      <span style={{ fontSize: 14, color: 'rgba(255,255,255,0.4)' }}>~{formatETA(eta)} · Payment To Driver</span>
                     </div>
                     <span style={{ fontSize: 15, fontWeight: 900, color: promoResult?.isFreeDelivery ? '#8DC63F' : '#FACC15' }}>{promoResult?.isFreeDelivery ? 'FREE' : fmtRp(deliveryFare)}</span>
                   </div>
@@ -1554,7 +1588,7 @@ export default function RestaurantMenuSheet({ restaurant, onClose, onOrderViaCha
                 <span style={{ fontSize: 13, fontWeight: 800, color: '#fff', flex: 1, animation: 'fadeIn 0.5s ease' }} key={`txt-${driverPhase}-${driverImgIdx}`}>
                   {currentStageImages[Math.min(driverImgIdx, currentStageImages.length - 1)]?.text ?? ''}
                 </span>
-                {driverPhase !== 'arrived' && <span style={{ fontSize: 14, fontWeight: 900, color: '#8DC63F', flexShrink: 0 }}>~{driverOnWay?.eta ?? 0} min</span>}
+                {driverPhase !== 'arrived' && <span style={{ fontSize: 14, fontWeight: 900, color: '#8DC63F', flexShrink: 0 }}>~{formatETA(driverOnWay?.eta ?? 0)}</span>}
               </div>
             </div>
 
@@ -1733,6 +1767,15 @@ export default function RestaurantMenuSheet({ restaurant, onClose, onOrderViaCha
           </div>
           </div>
         </div>
+      )}
+
+      {/* ── Delivery rating popup — shown before tracking closes ── */}
+      {showDeliveryRating && (
+        <RatingPopup
+          {...showDeliveryRating}
+          onSubmit={() => { setShowDeliveryRating(null); setDriverOnWay(null) }}
+          onSkip={() => { setShowDeliveryRating(null); setDriverOnWay(null) }}
+        />
       )}
 
       {/* ── Order confirmation overlay with payment flow ── */}

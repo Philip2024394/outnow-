@@ -107,6 +107,46 @@ export default function DriverApp() {
     getPrepaidWallet(user.id, 'bike_rider').then(w => setWallet(w)).catch(() => {})
   }, [user])
 
+  // GPS tracking — send location every 10s when online
+  useEffect(() => {
+    if (!isOnline || !navigator.geolocation) return
+    let watchId = null
+    let intervalId = null
+    let lastPos = null
+
+    // Watch position
+    watchId = navigator.geolocation.watchPosition(
+      (pos) => { lastPos = pos.coords },
+      () => {},
+      { enableHighAccuracy: true, maximumAge: 5000 }
+    )
+
+    // Send to Supabase every 10s
+    intervalId = setInterval(() => {
+      if (!lastPos) return
+      const driverId = user?.id ?? profile.id ?? 'demo'
+      const payload = {
+        driver_id: driverId,
+        lat: lastPos.latitude,
+        lng: lastPos.longitude,
+        heading: lastPos.heading ?? 0,
+        speed: lastPos.speed ? Math.round(lastPos.speed * 3.6) : 0, // m/s to km/h
+        updated_at: new Date().toISOString(),
+      }
+      // Save to Supabase if available
+      if (supabase) {
+        supabase.from('driver_locations').upsert(payload, { onConflict: 'driver_id' }).then(() => {})
+      }
+      // Also save to localStorage for demo
+      localStorage.setItem('indoo_driver_gps', JSON.stringify(payload))
+    }, 10000)
+
+    return () => {
+      if (watchId !== null) navigator.geolocation.clearWatch(watchId)
+      if (intervalId) clearInterval(intervalId)
+    }
+  }, [isOnline])
+
   const handleAuth = async () => {
     if (!loginEmail.trim() || !loginPass.trim()) return
     setSigningIn(true)
