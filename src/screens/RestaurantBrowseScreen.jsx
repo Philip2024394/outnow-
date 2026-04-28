@@ -1888,9 +1888,12 @@ export default function RestaurantBrowseScreen({ onClose, onBackToCategories, ca
                       )}
                       <button onClick={() => setViewRestaurant(restaurant)} style={{
                         padding: '6px 12px', borderRadius: 8, flexShrink: 0,
-                        background: 'rgba(141,198,63,0.1)', border: '1px solid rgba(141,198,63,0.3)',
-                        color: '#8DC63F', fontSize: 14, fontWeight: 800, cursor: 'pointer',
+                        background: '#FACC15', border: 'none',
+                        color: '#000', fontSize: 14, fontWeight: 900, cursor: 'pointer',
+                        boxShadow: '0 0 12px rgba(250,204,21,0.4), 0 0 24px rgba(250,204,21,0.2)',
+                        animation: 'menuBtnGlow 2s ease-in-out infinite',
                       }}>View Menu</button>
+                      <style>{`@keyframes menuBtnGlow { 0%,100% { box-shadow: 0 0 12px rgba(250,204,21,0.4), 0 0 24px rgba(250,204,21,0.2); transform: scale(1); } 50% { box-shadow: 0 0 18px rgba(250,204,21,0.6), 0 0 36px rgba(250,204,21,0.3); transform: scale(1.03); } }`}</style>
                     </div>
                     {dish.description && <span style={{ fontSize: 12, color: '#fff', display: 'block', marginTop: 6, lineHeight: 1.4 }}>{dish.description.slice(0, 100)}</span>}
                   </div>
