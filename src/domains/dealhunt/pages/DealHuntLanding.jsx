@@ -1,8 +1,7 @@
 import { useState, useEffect, useRef, useCallback, useMemo } from 'react'
 import { createPortal } from 'react-dom'
 import styles from './DealHuntLanding.module.css'
-import DealBlast from './DealBlast'
-import DealChat from '../components/DealChat'
+import DealReviewCarousel from '../components/DealReviewCarousel'
 
 // ── Promo banners — full-screen, no text, random rotation ────────────────────
 const PROMO_BANNERS = [
@@ -360,20 +359,37 @@ function DealSlide({ deal, isActive, onClaim, onChat, onViewSeller, onOpenMenu }
       <div className={styles.slideBg} style={{ backgroundImage: `url("${deal.images?.[0] ?? ''}")` }} />
       <div className={styles.slideScrim} />
 
-      {/* Right-side action buttons — on card edge */}
-      <div style={{
-        position: 'absolute', right: 10, top: '50%', transform: 'translateY(-50%)',
-        display: 'flex', flexDirection: 'column', gap: 14, zIndex: 5,
-      }}>
-        <button onClick={() => onChat?.(deal)} style={{ width: 44, height: 44, borderRadius: '50%', backgroundColor: 'rgba(0,0,0,0.6)', backdropFilter: 'blur(8px)', border: '1px solid rgba(255,255,255,0.12)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', flexDirection: 'column', gap: 2 }}>
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="#fff" stroke="none"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+      {/* Discount badge — top right */}
+      <div className={styles.discountBadge}>
+        <img src={getDiscountImage(discount)} alt={`-${discount}%`} className={styles.discountImg} />
+      </div>
+
+      {/* HOT badge — top left */}
+      {deal.is_hot && <div className={styles.hotBadge}>🔥 HOT</div>}
+
+      {/* Right-side action buttons (TikTok style) */}
+      <div className={styles.sideActions}>
+        <button className={styles.sideBtn} onClick={() => onChat?.(deal)}>
+          <svg width="26" height="26" viewBox="0 0 24 24" fill="#fff" stroke="none"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+          <span>Chat</span>
         </button>
-        <button onClick={() => setReviewsOpen(true)} style={{ width: 44, height: 44, borderRadius: '50%', backgroundColor: 'rgba(0,0,0,0.6)', backdropFilter: 'blur(8px)', border: '1px solid rgba(255,255,255,0.12)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', position: 'relative' }}>
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#FACC15" strokeWidth="2" strokeLinecap="round"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
-          {dealReviews.length > 0 && <span style={{ position: 'absolute', top: -4, right: -4, minWidth: 16, height: 16, borderRadius: 8, backgroundColor: '#EF4444', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 9, fontWeight: 900, color: '#fff', padding: '0 3px' }}>{dealReviews.length}</span>}
+        <button className={styles.sideBtn} onClick={() => setReviewsOpen(true)}>
+          <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
+          </svg>
+          <span>{dealReviews.length || ''}</span>
+          <span>Reviews</span>
         </button>
-        <button onClick={() => setMenuOpen(true)} style={{ width: 44, height: 44, borderRadius: '50%', backgroundColor: 'rgba(0,0,0,0.6)', backdropFilter: 'blur(8px)', border: '1px solid rgba(255,255,255,0.12)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' }}>
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2" strokeLinecap="round"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
+        <button className={styles.sideBtn} onClick={() => setMenuOpen(true)}>
+          <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/>
+            <rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/>
+          </svg>
+          <span>{deal.domain === 'food' ? 'Menu' : 'Catalogue'}</span>
+        </button>
+        <button className={styles.sideBtn} onClick={() => { try { navigator.share?.({ title: deal.title, text: `${deal.title} only ${fmtRp(deal.deal_price)}! 🔥`, url: window.location.href }) } catch {} }}>
+          <svg width="26" height="26" viewBox="0 0 24 24" fill="#fff" stroke="none"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><path d="M8.59 13.51l6.83 3.98M15.41 6.51l-6.82 3.98" stroke="#fff" strokeWidth="1.5"/></svg>
+          <span>Share</span>
         </button>
       </div>
 
@@ -481,30 +497,6 @@ function DealSlide({ deal, isActive, onClaim, onChat, onViewSeller, onOpenMenu }
           </span>
         </div>
 
-        {/* Bottom action strip — WhatsApp share + Save + Location */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: 8, margin: '10px 0' }}>
-          <button onClick={(e) => {
-            e.stopPropagation()
-            const text = `🔥 ${deal.title} — ${discount}% OFF on INDOO!\nhttps://indoo.id`
-            window.open(`https://wa.me/?text=${encodeURIComponent(text)}`, '_blank')
-          }} style={{ flex: 1, padding: '10px', borderRadius: 12, backgroundColor: 'rgba(37,211,102,0.15)', border: '1px solid rgba(37,211,102,0.3)', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6 }}>
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#25D366" strokeWidth="2" strokeLinecap="round"><path d="M21 11.5a8.38 8.38 0 01-.9 3.8 8.5 8.5 0 01-7.6 4.7 8.38 8.38 0 01-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 01-.9-3.8 8.5 8.5 0 014.7-7.6 8.38 8.38 0 013.8-.9h.5a8.48 8.48 0 018 8v.5z"/></svg>
-            <span style={{ fontSize: 12, fontWeight: 800, color: '#25D366' }}>Share</span>
-          </button>
-          <button onClick={(e) => {
-            e.stopPropagation()
-            const sv = JSON.parse(localStorage.getItem('indoo_saved_deals') || '[]')
-            if (!sv.some(d => d.id === deal.id)) { sv.push({ id: deal.id, title: deal.title }); localStorage.setItem('indoo_saved_deals', JSON.stringify(sv)) }
-          }} style={{ padding: '10px 14px', borderRadius: 12, backgroundColor: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.12)', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6 }}>
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.7)" strokeWidth="2" strokeLinecap="round"><path d="M19 21l-7-5-7 5V5a2 2 0 012-2h10a2 2 0 012 2z"/></svg>
-            <span style={{ fontSize: 12, fontWeight: 800, color: 'rgba(255,255,255,0.7)' }}>Save</span>
-          </button>
-          <div style={{ padding: '10px 14px', borderRadius: 12, backgroundColor: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.12)', display: 'flex', alignItems: 'center', gap: 4 }}>
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#FACC15" strokeWidth="2" strokeLinecap="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
-            <span style={{ fontSize: 12, fontWeight: 800, color: '#FACC15' }}>{deal.city}</span>
-          </div>
-        </div>
-
         {/* Claim button */}
         <button
           className={`${styles.claimBtn} ${expired || pct >= 100 ? styles.claimBtnDisabled : ''}`}
@@ -532,750 +524,236 @@ function DealSlide({ deal, isActive, onClaim, onChat, onViewSeller, onOpenMenu }
 // ── Main TikTok-style feed ────────────────────────────────────────────────────
 const LANDING_BG = 'https://ik.imagekit.io/nepgaxllc/ChatGPT%20Image%20Apr%2020,%202026,%2011_03_28%20PM.png'
 
-const glassCard = { backgroundColor: 'rgba(0,0,0,0.6)', backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)', border: '1px solid rgba(255,255,255,0.08)', boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.04), 0 4px 16px rgba(0,0,0,0.4)', borderRadius: 16, padding: 16 }
-const profileInput = { width: '100%', padding: '12px 14px', borderRadius: 12, backgroundColor: 'rgba(0,0,0,0.3)', border: '1px solid rgba(255,255,255,0.1)', color: '#fff', fontSize: 14, fontWeight: 600, outline: 'none', fontFamily: 'inherit', boxSizing: 'border-box' }
+export default function DealHuntLanding({ open, onClose, onSelectDeal, onCreateDeal, onViewSeller }) {
+  const [showLanding, setShowLanding] = useState(true)
+  const [activeIndex, setActiveIndex] = useState(0)
+  const [onBanner, setOnBanner] = useState(true) // first slide is always a banner
+  const [userTouched, setUserTouched] = useState(false)
 
-function DealHuntProfile({ onCreateDeal }) {
-  // Load from all app sources
-  const mainProfile = JSON.parse(localStorage.getItem('indoo_profile') || '{}')
-  const ownerProfile = JSON.parse(localStorage.getItem('indoo_rental_owner') || '{}')
-  const vendorData = JSON.parse(localStorage.getItem('indoo_vendor_restaurant') || '{}')
-  const addressData = JSON.parse(localStorage.getItem('indoo_default_address') || '{}')
-  const ktpData = JSON.parse(localStorage.getItem('indoo_deal_ktp_verified') || '{}')
-  const isKtpVerified = !!ktpData.verified
-
-  // Editable state — pre-filled from merged data
-  const [name, setName] = useState(mainProfile.display_name || mainProfile.name || ownerProfile.name || vendorData.name || '')
-  const [email, setEmail] = useState(mainProfile.email || ownerProfile.email || '')
-  const [phone, setPhone] = useState(mainProfile.phone || mainProfile.whatsapp || ownerProfile.phone || vendorData.phone || '')
-  const [whatsapp, setWhatsapp] = useState(mainProfile.whatsapp || mainProfile.phone || ownerProfile.phone || '')
-  const [city, setCity] = useState(mainProfile.city || ownerProfile.city || addressData.city || vendorData.city || '')
-  const [address, setAddress] = useState(addressData.address || mainProfile.address || ownerProfile.address || vendorData.address || '')
-  const [photo, setPhoto] = useState(mainProfile.photo_url || mainProfile.photoURL || ownerProfile.photo_url || '')
-  const [saved, setSaved] = useState(false)
-  const photoRef = useRef(null)
-
-  const handlePhotoUpload = (e) => {
-    const file = e.target.files?.[0]
-    if (!file) return
-    const url = URL.createObjectURL(file)
-    setPhoto(url)
-    // Save to main profile
-    const existing = JSON.parse(localStorage.getItem('indoo_profile') || '{}')
-    existing.photo_url = url
-    localStorage.setItem('indoo_profile', JSON.stringify(existing))
-  }
-
-  const handleSave = () => {
-    const existing = JSON.parse(localStorage.getItem('indoo_profile') || '{}')
-    existing.display_name = name
-    existing.name = name
-    existing.email = email
-    existing.phone = phone
-    existing.whatsapp = whatsapp
-    existing.city = city
-    existing.address = address
-    if (photo) existing.photo_url = photo
-    localStorage.setItem('indoo_profile', JSON.stringify(existing))
-    setSaved(true)
-    setTimeout(() => setSaved(false), 2000)
-  }
-
-  return (
-    <>
-      {/* Profile photo card */}
-      <div style={{ ...glassCard, marginBottom: 16, textAlign: 'center' }}>
-        <div style={{ position: 'relative', display: 'inline-block', marginBottom: 12 }}>
-          <div style={{ width: 90, height: 90, borderRadius: '50%', backgroundColor: 'rgba(255,255,255,0.06)', overflow: 'hidden', border: `3px solid ${isKtpVerified ? '#8DC63F' : 'rgba(255,255,255,0.15)'}` }}>
-            {photo ? (
-              <img src={photo} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-            ) : (
-              <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 36 }}>👤</div>
-            )}
-          </div>
-          {/* Upload button */}
-          <button onClick={() => photoRef.current?.click()} style={{
-            position: 'absolute', bottom: 0, right: -4, width: 30, height: 30, borderRadius: '50%',
-            backgroundColor: '#8DC63F', border: '3px solid #0a0a0a', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer',
-          }}>
-            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#000" strokeWidth="2.5" strokeLinecap="round"><path d="M23 19a2 2 0 01-2 2H3a2 2 0 01-2-2V8a2 2 0 012-2h4l2-3h6l2 3h4a2 2 0 012 2z"/><circle cx="12" cy="13" r="4"/></svg>
-          </button>
-          <input ref={photoRef} type="file" accept=".png,.jpg,.jpeg,.webp,.heic" onChange={handlePhotoUpload} style={{ display: 'none' }} />
-        </div>
-        <span style={{ fontSize: 10, color: 'rgba(255,255,255,0.3)', display: 'block' }}>PNG, JPG, JPEG, WEBP or HEIC</span>
-      </div>
-
-      {/* KTP verification */}
-      <div style={{
-        ...glassCard, marginBottom: 16,
-        backgroundColor: isKtpVerified ? 'rgba(141,198,63,0.06)' : 'rgba(250,204,21,0.06)',
-        border: `1.5px solid ${isKtpVerified ? 'rgba(141,198,63,0.2)' : 'rgba(250,204,21,0.2)'}`,
-        display: 'flex', alignItems: 'center', gap: 10,
-      }}>
-        <span style={{ fontSize: 28 }}>{isKtpVerified ? '✅' : '🪪'}</span>
-        <div style={{ flex: 1 }}>
-          <span style={{ fontSize: 14, fontWeight: 900, color: isKtpVerified ? '#8DC63F' : '#FACC15', display: 'block' }}>
-            {isKtpVerified ? 'Identity Verified' : 'Verification Required'}
-          </span>
-          <span style={{ fontSize: 12, color: 'rgba(255,255,255,0.4)' }}>
-            {isKtpVerified ? 'KTP + Selfie confirmed' : 'Verify to post deals'}
-          </span>
-        </div>
-        {!isKtpVerified && <button onClick={() => onCreateDeal?.()} style={{ padding: '8px 14px', borderRadius: 8, backgroundColor: '#FACC15', border: 'none', color: '#000', fontSize: 12, fontWeight: 800, cursor: 'pointer' }}>Verify</button>}
-      </div>
-
-      {/* Stats */}
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 10, marginBottom: 16 }}>
-        {[
-          { label: 'Deals Posted', value: JSON.parse(localStorage.getItem('indoo_public_deals') || '[]').length, icon: '📦' },
-          { label: 'Deals Saved', value: JSON.parse(localStorage.getItem('indoo_saved_deals') || '[]').length, icon: '🔖' },
-          { label: 'Blasts Sent', value: JSON.parse(localStorage.getItem('indoo_deal_blasts') || '[]').filter(b => b.status === 'sent').length, icon: '🚀' },
-        ].map(s => (
-          <div key={s.label} style={{ ...glassCard, textAlign: 'center', padding: 12 }}>
-            <span style={{ fontSize: 16, display: 'block', marginBottom: 4 }}>{s.icon}</span>
-            <span style={{ fontSize: 20, fontWeight: 900, color: '#fff', display: 'block' }}>{s.value}</span>
-            <span style={{ fontSize: 10, fontWeight: 700, color: 'rgba(255,255,255,0.3)' }}>{s.label}</span>
-          </div>
-        ))}
-      </div>
-
-      {/* Editable fields */}
-      <div style={{ ...glassCard, marginBottom: 16 }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 14 }}>
-          <span style={{ fontSize: 18 }}>✏️</span>
-          <span style={{ fontSize: 12, fontWeight: 800, color: 'rgba(255,255,255,0.4)', textTransform: 'uppercase' }}>Edit Profile</span>
-        </div>
-
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
-          <div>
-            <span style={{ fontSize: 11, fontWeight: 700, color: 'rgba(255,255,255,0.3)', display: 'block', marginBottom: 4 }}>Full Name</span>
-            <input value={name} onChange={e => setName(e.target.value)} placeholder="Your name" style={profileInput} />
-          </div>
-          <div>
-            <span style={{ fontSize: 11, fontWeight: 700, color: 'rgba(255,255,255,0.3)', display: 'block', marginBottom: 4 }}>Email</span>
-            <input value={email} onChange={e => setEmail(e.target.value)} placeholder="email@example.com" type="email" style={profileInput} />
-          </div>
-          <div>
-            <span style={{ fontSize: 11, fontWeight: 700, color: 'rgba(255,255,255,0.3)', display: 'block', marginBottom: 4 }}>Phone</span>
-            <input value={phone} onChange={e => setPhone(e.target.value)} placeholder="081234567890" type="tel" style={profileInput} />
-          </div>
-          <div>
-            <span style={{ fontSize: 11, fontWeight: 700, color: 'rgba(255,255,255,0.3)', display: 'block', marginBottom: 4 }}>WhatsApp</span>
-            <input value={whatsapp} onChange={e => setWhatsapp(e.target.value)} placeholder="081234567890" type="tel" style={profileInput} />
-          </div>
-          <div>
-            <span style={{ fontSize: 11, fontWeight: 700, color: 'rgba(255,255,255,0.3)', display: 'block', marginBottom: 4 }}>City</span>
-            <input value={city} onChange={e => setCity(e.target.value)} placeholder="Yogyakarta" style={profileInput} />
-          </div>
-          <div>
-            <span style={{ fontSize: 11, fontWeight: 700, color: 'rgba(255,255,255,0.3)', display: 'block', marginBottom: 4 }}>Address</span>
-            <input value={address} onChange={e => setAddress(e.target.value)} placeholder="Your pickup address" style={profileInput} />
-          </div>
-        </div>
-
-        <button onClick={handleSave} style={{
-          width: '100%', padding: 14, borderRadius: 14, marginTop: 14,
-          backgroundColor: saved ? 'rgba(141,198,63,0.15)' : '#8DC63F',
-          border: saved ? '1px solid #8DC63F' : 'none',
-          color: saved ? '#8DC63F' : '#000',
-          fontSize: 14, fontWeight: 900, cursor: 'pointer', fontFamily: 'inherit',
-        }}>
-          {saved ? '✓ Saved' : 'Save Profile'}
-        </button>
-      </div>
-    </>
-  )
-}
-
-// ── Helper: get deal status considering activation time ──────────────────────
-function getDealStatus(deal) {
-  const now = Date.now()
-  if (!deal.active) return 'paused'
-  if (deal.end_time && now > deal.end_time) return 'expired'
-  if (deal.start_time && now < deal.start_time) return 'paused'
-  return 'active'
-}
-
-function getDealTimeRemaining(deal) {
-  if (!deal.end_time) return ''
-  const diff = deal.end_time - Date.now()
-  if (diff <= 0) return 'Expired'
-  const h = Math.floor(diff / 3600000)
-  const m = Math.floor((diff % 3600000) / 60000)
-  if (h > 0) return `${h}h ${m}m left`
-  return `${m}m left`
-}
-
-// ── Toggle switch component ──────────────────────────────────────────────────
-function ToggleSwitch({ on, onChange }) {
-  return (
-    <button
-      onClick={(e) => { e.stopPropagation(); onChange?.(!on) }}
-      style={{
-        width: 44, height: 24, borderRadius: 12, padding: 2,
-        backgroundColor: on ? '#8DC63F' : 'rgba(255,255,255,0.15)',
-        border: 'none', cursor: 'pointer', position: 'relative',
-        transition: 'background-color 0.2s',
-        flexShrink: 0,
-      }}
-    >
-      <div style={{
-        width: 20, height: 20, borderRadius: '50%',
-        backgroundColor: '#fff',
-        transform: on ? 'translateX(20px)' : 'translateX(0)',
-        transition: 'transform 0.2s',
-        boxShadow: '0 1px 3px rgba(0,0,0,0.3)',
-      }} />
-    </button>
-  )
-}
-
-// ── IndooFooter ──────────────────────────────────────────────────────────────
-function IndooFooter({ onClose }) {
-  return (
-    <div style={{
-      position: 'fixed', bottom: 0, left: 0, right: 0, zIndex: 9500,
-      background: 'rgba(0,0,0,0.85)',
-      backdropFilter: 'blur(16px) saturate(1.4)',
-      WebkitBackdropFilter: 'blur(16px) saturate(1.4)',
-      borderTop: '1px solid rgba(255,255,255,0.06)',
-      padding: 'calc(12px) 16px calc(env(safe-area-inset-bottom, 0px) + 12px)',
-    }}>
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 24 }}>
-        <span style={{ fontSize: 12, fontWeight: 800, color: 'rgba(255,255,255,0.35)', letterSpacing: '0.08em' }}>
-          INDOO · Deal Hunt
-        </span>
-        <button onClick={onClose} style={{
-          display: 'flex', alignItems: 'center', gap: 6,
-          background: 'none', border: 'none', cursor: 'pointer', padding: '6px 12px',
-        }}>
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.5)" strokeWidth="2" strokeLinecap="round">
-            <path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/>
-          </svg>
-          <span style={{ fontSize: 12, fontWeight: 700, color: 'rgba(255,255,255,0.5)' }}>Home</span>
-        </button>
-        <button onClick={onClose} style={{
-          display: 'flex', alignItems: 'center', gap: 6,
-          background: 'none', border: 'none', cursor: 'pointer', padding: '6px 12px',
-        }}>
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.5)" strokeWidth="2" strokeLinecap="round">
-            <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
-          </svg>
-          <span style={{ fontSize: 12, fontWeight: 700, color: 'rgba(255,255,255,0.5)' }}>Close</span>
-        </button>
-      </div>
-    </div>
-  )
-}
-
-export default function DealHuntLanding({ open, onClose, onSelectDeal, onCreateDeal, onViewSeller, notifCount = 0, onNotifications, onProfile }) {
-  const [activeTab, setActiveTab] = useState('browse') // 'browse' | 'mydeals'
-  const [searchQuery, setSearchQuery] = useState('')
-  const [myDeals, setMyDeals] = useState([])
-  const [blastOpen, setBlastOpen] = useState(false)
-  const [dealChatOpen, setDealChatOpen] = useState(null) // null or deal object
-  const [, forceUpdate] = useState(0)
-
-  // Load my deals from localStorage
+  // Reset to landing page every time Deal Hunt opens
   useEffect(() => {
-    if (!open) return
-    const raw = JSON.parse(localStorage.getItem('indoo_public_deals') || '[]')
-    setMyDeals(raw)
-  }, [open, activeTab])
-
-  // Get current user seller_id
-  const currentSellerId = useMemo(() => {
-    const profile = JSON.parse(localStorage.getItem('indoo_deal_poster_profile') || '{}')
-    return profile.seller_id || null
-  }, [open])
-
-  // ── Browse Deals: active deals from other users ──────────────────────────
-  const allPublicDeals = useMemo(() => {
-    const stored = JSON.parse(localStorage.getItem('indoo_public_deals') || '[]')
-    // Combine stored deals with demo deals for a full feed
-    const combined = [...DEMO_DEALS]
-    stored.forEach(d => {
-      if (!combined.some(c => c.id === d.id)) combined.push(d)
-    })
-    return combined
-  }, [open, forceUpdate])
-
-  const now = Date.now()
-  const sevenDaysAgo = now - 7 * 24 * 3600000
-
-  const activeDeals = useMemo(() => {
-    return allPublicDeals.filter(d => {
-      // Filter out own deals if seller_id matches
-      if (currentSellerId && d.seller_id === currentSellerId) return false
-      // Must be active and within date range
-      const endTime = d.end_time ?? (Date.now() + 3600000)
-      if (endTime < now) return false
-      if (d.active === false) return false
-      return true
-    }).filter(d => {
-      if (!searchQuery.trim()) return true
-      const q = searchQuery.toLowerCase()
-      return (d.title?.toLowerCase().includes(q)) ||
-             (d.category?.toLowerCase().includes(q)) ||
-             (d.domain?.toLowerCase().includes(q)) ||
-             (d.seller_name?.toLowerCase().includes(q))
-    })
-  }, [allPublicDeals, searchQuery, currentSellerId, now])
-
-  const expiredThisWeek = useMemo(() => {
-    return allPublicDeals.filter(d => {
-      if (currentSellerId && d.seller_id === currentSellerId) return false
-      const endTime = d.end_time ?? 0
-      return endTime < now && endTime > sevenDaysAgo
-    }).filter(d => {
-      if (!searchQuery.trim()) return true
-      const q = searchQuery.toLowerCase()
-      return (d.title?.toLowerCase().includes(q)) ||
-             (d.category?.toLowerCase().includes(q))
-    })
-  }, [allPublicDeals, searchQuery, currentSellerId, now, sevenDaysAgo])
-
-  // ── My Deals: filtered by current user ──────────────────────────────────
-  const myFilteredDeals = useMemo(() => {
-    if (!currentSellerId) return myDeals
-    return myDeals.filter(d => d.seller_id === currentSellerId)
-  }, [myDeals, currentSellerId])
-
-  // ── Toggle deal active/paused ──────────────────────────────────────────
-  const handleToggleDeal = useCallback((dealId, newActive) => {
-    const raw = JSON.parse(localStorage.getItem('indoo_public_deals') || '[]')
-    const updated = raw.map(d => {
-      if (d.id !== dealId) return d
-      if (newActive) {
-        // Activate for 24 hours from now
-        return {
-          ...d,
-          active: true,
-          status: 'active',
-          start_time: Date.now(),
-          end_time: Date.now() + 24 * 3600000,
-        }
-      } else {
-        return { ...d, active: false, status: 'paused' }
-      }
-    })
-    localStorage.setItem('indoo_public_deals', JSON.stringify(updated))
-    setMyDeals(updated)
-  }, [])
-
-  // ── Delete deal ──────────────────────────────────────────────────────────
-  const handleDeleteDeal = useCallback((dealId) => {
-    const raw = JSON.parse(localStorage.getItem('indoo_public_deals') || '[]')
-    const filtered = raw.filter(d => d.id !== dealId)
-    localStorage.setItem('indoo_public_deals', JSON.stringify(filtered))
-    setMyDeals(filtered)
-  }, [])
-
-  // ── FAB handler ──────────────────────────────────────────────────────────
-  const handleFabPress = useCallback(() => {
-    const verified = localStorage.getItem('indoo_deal_poster_verified')
-    if (verified) {
-      onCreateDeal?.()
-    } else {
-      // Open verification flow — onCreateDeal handles routing to verification
-      onCreateDeal?.()
+    if (open) {
+      setShowLanding(true)
+      setActiveIndex(0)
+      setUserTouched(false)
     }
-  }, [onCreateDeal])
+  }, [open])
+  const containerRef = useRef(null)
+  const autoScrollRef = useRef(null)
+  const deals = DEMO_DEALS
+
+  // Banner positions in the feed: 0, 11, 22, 33... (every 10 deals + 1 banner)
+  const bannerPositions = useMemo(() => {
+    const positions = new Set()
+    let feedIdx = 0
+    for (let i = 0; i < deals.length; i++) {
+      if (i % 10 === 0) { positions.add(feedIdx); feedIdx++ }
+      feedIdx++
+    }
+    return positions
+  }, [deals.length])
+
+  const handleScroll = useCallback(() => {
+    const el = containerRef.current
+    if (!el) return
+    const idx = Math.round(el.scrollTop / el.clientHeight)
+    setActiveIndex(idx)
+    setOnBanner(bannerPositions.has(idx))
+  }, [bannerPositions])
+
+  // Auto-scroll through all deals once on first load, stop when user touches
+  useEffect(() => {
+    if (!open || userTouched) return
+    let current = 0
+    autoScrollRef.current = setInterval(() => {
+      current++
+      if (current >= deals.length) {
+        clearInterval(autoScrollRef.current)
+        // Scroll back to first deal
+        containerRef.current?.scrollTo({ top: 0, behavior: 'smooth' })
+        return
+      }
+      containerRef.current?.scrollTo({
+        top: current * window.innerHeight,
+        behavior: 'smooth',
+      })
+    }, 3000) // 3 seconds per deal
+    return () => clearInterval(autoScrollRef.current)
+  }, [open, userTouched, deals.length])
+
+  // Stop auto-scroll on any touch
+  const handleTouch = useCallback(() => {
+    if (!userTouched) {
+      setUserTouched(true)
+      clearInterval(autoScrollRef.current)
+    }
+  }, [userTouched])
 
   if (!open) return null
 
-  // ── Render helper: deal card for Browse tab ────────────────────────────
-  const renderBrowseCard = (deal) => {
-    const discount = Math.round((1 - (deal.deal_price ?? deal.original_price) / deal.original_price) * 100)
-    const endTime = deal.end_time ?? 0
-    const isExpired = endTime < now
-    const diff = endTime - now
-    let timeLabel = 'Expired'
-    if (!isExpired && diff > 0) {
-      const h = Math.floor(diff / 3600000)
-      const m = Math.floor((diff % 3600000) / 60000)
-      timeLabel = h > 0 ? `${h}h ${m}m left` : `${m}m left`
-    }
-
-    return (
-      <div
-        key={deal.id}
-        onClick={() => onSelectDeal?.(deal)}
-        style={{
-          backgroundColor: 'rgba(255,255,255,0.06)',
-          backdropFilter: 'blur(16px)',
-          WebkitBackdropFilter: 'blur(16px)',
-          border: '1px solid rgba(255,255,255,0.08)',
-          boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.04), 0 4px 16px rgba(0,0,0,0.4)',
-          borderRadius: 16,
-          overflow: 'hidden',
-          cursor: 'pointer',
-          transition: 'transform 0.15s',
-        }}
-      >
-        {/* Deal image */}
-        <div style={{ position: 'relative', width: '100%', height: 160 }}>
-          <img
-            src={deal.images?.[0] ?? deal.photo ?? 'https://picsum.photos/seed/deal/400/300'}
-            alt=""
-            style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }}
-          />
-          {/* Discount badge */}
-          {discount > 0 && (
-            <div style={{
-              position: 'absolute', top: 10, right: 10,
-              backgroundColor: '#FACC15',
-              color: '#000',
-              padding: '4px 10px',
-              borderRadius: 8,
-              fontSize: 13,
-              fontWeight: 900,
-              boxShadow: '0 2px 8px rgba(250,204,21,0.4)',
-            }}>
-              -{discount}%
-            </div>
-          )}
-          {/* Time badge */}
-          <div style={{
-            position: 'absolute', bottom: 10, left: 10,
-            backgroundColor: isExpired ? 'rgba(239,68,68,0.85)' : 'rgba(0,0,0,0.7)',
-            backdropFilter: 'blur(8px)',
-            padding: '4px 10px',
-            borderRadius: 8,
-            fontSize: 11,
-            fontWeight: 800,
-            color: isExpired ? '#fff' : '#8DC63F',
-          }}>
-            {timeLabel}
-          </div>
-        </div>
-
-        {/* Card body */}
-        <div style={{ padding: '12px 14px' }}>
-          <h3 style={{ fontSize: 15, fontWeight: 900, color: '#fff', margin: 0, lineHeight: 1.3 }}>{deal.title}</h3>
-
-          {/* Seller name */}
-          <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginTop: 6 }}>
-            {deal.seller_photo && (
-              <img src={deal.seller_photo} alt="" style={{ width: 18, height: 18, borderRadius: '50%', objectFit: 'cover', border: '1px solid rgba(255,255,255,0.15)' }} />
-            )}
-            <span style={{ fontSize: 12, fontWeight: 700, color: 'rgba(255,255,255,0.5)' }}>{deal.seller_name ?? 'Seller'}</span>
-          </div>
-
-          {/* Prices */}
-          <div style={{ display: 'flex', alignItems: 'baseline', gap: 8, marginTop: 8 }}>
-            <span style={{ fontSize: 18, fontWeight: 900, color: '#8DC63F' }}>{fmtRp(deal.deal_price)}</span>
-            <span style={{ fontSize: 13, color: 'rgba(255,255,255,0.35)', textDecoration: 'line-through' }}>{fmtRp(deal.original_price)}</span>
-          </div>
-
-          {/* Chat / Done Deal button */}
-          <button
-            onClick={(e) => { e.stopPropagation(); setDealChatOpen(deal) }}
-            style={{
-              width: '100%', marginTop: 10, padding: '9px 0',
-              borderRadius: 10,
-              backgroundColor: 'rgba(141,198,63,0.12)',
-              border: '1.5px solid rgba(141,198,63,0.3)',
-              color: '#8DC63F', fontSize: 12, fontWeight: 900,
-              cursor: 'pointer', fontFamily: 'inherit',
-              display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6,
-            }}
-          >
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="#8DC63F" stroke="none"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
-            Done Deal
-          </button>
-        </div>
-      </div>
-    )
-  }
-
-  // ── Render helper: deal card for My Deals tab ──────────────────────────
-  const renderMyDealCard = (deal) => {
-    const status = getDealStatus(deal)
-    const timeRemaining = getDealTimeRemaining(deal)
-    const discount = deal.original_price && deal.deal_price
-      ? Math.round((1 - deal.deal_price / deal.original_price) * 100)
-      : (deal.discount ?? 0)
-
-    const statusColors = {
-      active: { bg: 'rgba(141,198,63,0.12)', text: '#8DC63F', label: 'Active' },
-      paused: { bg: 'rgba(255,255,255,0.08)', text: 'rgba(255,255,255,0.4)', label: 'Paused' },
-      expired: { bg: 'rgba(239,68,68,0.12)', text: '#EF4444', label: 'Expired' },
-    }
-    const st = statusColors[status] || statusColors.paused
-
-    return (
-      <div
-        key={deal.id}
-        style={{
-          backgroundColor: 'rgba(255,255,255,0.06)',
-          backdropFilter: 'blur(16px)',
-          WebkitBackdropFilter: 'blur(16px)',
-          border: '1px solid rgba(255,255,255,0.08)',
-          boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.04), 0 4px 16px rgba(0,0,0,0.4)',
-          borderRadius: 16,
-          padding: 14,
-          marginBottom: 10,
-        }}
-      >
-        <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-          {/* Deal info */}
-          <div style={{ flex: 1, minWidth: 0 }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 4 }}>
-              <h3 style={{ fontSize: 15, fontWeight: 900, color: '#fff', margin: 0, flex: 1, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-                {deal.title}
-              </h3>
-              <span style={{
-                padding: '3px 10px', borderRadius: 8, fontSize: 10, fontWeight: 800,
-                backgroundColor: st.bg, color: st.text,
-                flexShrink: 0,
-              }}>
-                {st.label}
-              </span>
-            </div>
-
-            {/* Discount + time remaining */}
-            <div style={{ display: 'flex', alignItems: 'center', gap: 10, fontSize: 12 }}>
-              {discount > 0 && (
-                <span style={{
-                  backgroundColor: 'rgba(250,204,21,0.15)', color: '#FACC15',
-                  padding: '2px 8px', borderRadius: 6, fontWeight: 800, fontSize: 11,
-                }}>
-                  -{discount}%
-                </span>
-              )}
-              {status === 'active' && timeRemaining && (
-                <span style={{ color: '#8DC63F', fontWeight: 700, fontSize: 12 }}>{timeRemaining}</span>
-              )}
-              {status === 'expired' && (
-                <span style={{ color: '#EF4444', fontWeight: 700, fontSize: 12 }}>Expired</span>
-              )}
-            </div>
-          </div>
-
-          {/* Toggle switch */}
-          <ToggleSwitch
-            on={status === 'active'}
-            onChange={(val) => handleToggleDeal(deal.id, val)}
-          />
-        </div>
-
-        {/* Delete button row */}
-        <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: 10 }}>
-          <button
-            onClick={() => handleDeleteDeal(deal.id)}
-            style={{
-              display: 'flex', alignItems: 'center', gap: 4,
-              background: 'none', border: '1px solid rgba(239,68,68,0.2)',
-              borderRadius: 8, padding: '5px 12px', cursor: 'pointer',
-              color: '#EF4444', fontSize: 11, fontWeight: 700, fontFamily: 'inherit',
-            }}
-          >
-            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#EF4444" strokeWidth="2" strokeLinecap="round">
-              <polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2"/>
-            </svg>
-            Delete
-          </button>
-        </div>
-      </div>
-    )
-  }
-
   return createPortal(
-    <div className={styles.screen}>
+    <div className={styles.screen} onTouchStart={handleTouch} onMouseDown={handleTouch}>
 
-      {/* ── Top tabs: Browse Deals / My Deals ── */}
-      <div style={{
-        position: 'sticky', top: 0, zIndex: 9520,
-        backgroundColor: 'rgba(0,0,0,0.85)',
-        backdropFilter: 'blur(16px)',
-        WebkitBackdropFilter: 'blur(16px)',
-        borderBottom: '1px solid rgba(255,255,255,0.06)',
-        padding: 'calc(env(safe-area-inset-top, 0px) + 8px) 16px 0',
-      }}>
-        <div style={{ display: 'flex', gap: 0 }}>
-          {[
-            { id: 'browse', label: 'Browse Deals' },
-            { id: 'mydeals', label: 'My Deals' },
-          ].map(tab => (
-            <button
-              key={tab.id}
-              onClick={() => setActiveTab(tab.id)}
-              style={{
-                flex: 1,
-                padding: '12px 0',
-                background: 'none',
-                border: 'none',
-                borderBottom: `3px solid ${activeTab === tab.id ? '#8DC63F' : 'transparent'}`,
-                color: activeTab === tab.id ? '#fff' : 'rgba(255,255,255,0.4)',
-                fontSize: 14,
-                fontWeight: 800,
-                cursor: 'pointer',
-                fontFamily: 'inherit',
-                transition: 'color 0.2s, border-color 0.2s',
-              }}
-            >
-              {tab.label}
-            </button>
-          ))}
-        </div>
-      </div>
+      {/* ── Landing splash ── */}
+      {showLanding && (
+        <div className={styles.landingSplash}>
+          <img src={LANDING_BG} alt="" className={styles.landingBgImg} />
+          <div className={styles.landingOverlay} />
 
-      {/* ── Scrollable content area ── */}
-      <div style={{
-        flex: 1, overflowY: 'auto',
-        padding: '0 0 80px',
-        height: 'calc(100% - 52px)',
-        boxSizing: 'border-box',
-      }}>
-
-        {/* ══════════════════ BROWSE DEALS TAB ══════════════════ */}
-        {activeTab === 'browse' && (
-          <div style={{ padding: '12px 16px' }}>
-            {/* Search bar */}
-            <div style={{
-              display: 'flex', alignItems: 'center', gap: 8,
-              padding: '0 14px', height: 42,
-              backgroundColor: 'rgba(255,255,255,0.06)',
-              backdropFilter: 'blur(12px)',
-              WebkitBackdropFilter: 'blur(12px)',
-              border: '1px solid rgba(255,255,255,0.1)',
-              borderRadius: 14,
-              marginBottom: 16,
-            }}>
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.35)" strokeWidth="2" strokeLinecap="round">
-                <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
-              </svg>
-              <input
-                value={searchQuery}
-                onChange={e => setSearchQuery(e.target.value)}
-                placeholder="Search deals by title or category..."
-                style={{
-                  flex: 1, background: 'none', border: 'none', color: '#fff',
-                  fontSize: 13, fontFamily: 'inherit', outline: 'none',
-                }}
-              />
-              {searchQuery && (
-                <button onClick={() => setSearchQuery('')} style={{
-                  background: 'none', border: 'none', cursor: 'pointer', padding: 4,
-                  color: 'rgba(255,255,255,0.4)', fontSize: 16,
-                }}>
-                  x
-                </button>
-              )}
+          {/* Header */}
+          <div className={styles.landingHeader}>
+            <div className={styles.landingHeaderTop}>
+              <span className={styles.landingHeaderBrand}>DEAL <span>HUNT</span></span>
+              <span className={styles.landingHeaderLive}>● LIVE</span>
             </div>
+            <p className={styles.landingHeaderSub}>Best Deals In Yogyakarta</p>
 
-            {/* Active deals */}
-            {activeDeals.length > 0 && (
-              <>
-                <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 12 }}>
-                  <div style={{ width: 8, height: 8, borderRadius: '50%', backgroundColor: '#8DC63F', boxShadow: '0 0 8px rgba(141,198,63,0.5)' }} />
-                  <span style={{ fontSize: 13, fontWeight: 800, color: 'rgba(255,255,255,0.5)', textTransform: 'uppercase', letterSpacing: '0.06em' }}>
-                    Active Deals ({activeDeals.length})
+            {/* Running text ticker */}
+            <div className={styles.landingTicker}>
+              <div className={styles.landingTickerInner}>
+                {[
+                  { icon: '🔥', text: 'Sarah claimed Nasi Goreng deal · 2m ago' },
+                  { icon: '💰', text: 'Budi grabbed Leather Wallet · 5m ago' },
+                  { icon: '⚡', text: '87% claimed on Bakso Jumbo!' },
+                  { icon: '🆕', text: 'New massage deal just dropped · 1m ago' },
+                  { icon: '%', text: 'Wireless Earbuds 38% off · ending soon' },
+                  { icon: '🔥', text: 'Couple Massage 40% off · 8 claimed' },
+                  { icon: '💰', text: 'Honda Vario rental deal · 35% off' },
+                  { icon: '⚡', text: 'Flash deal on Ojek Bandara!' },
+                ].map((t, i) => (
+                  <span key={i} className={styles.landingTickerItem}>
+                    <span className={styles.landingTickerIcon}>{t.icon}</span>{t.text}
                   </span>
-                </div>
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12, marginBottom: 24 }}>
-                  {activeDeals.map(renderBrowseCard)}
-                </div>
-              </>
-            )}
-
-            {activeDeals.length === 0 && (
-              <div style={{ textAlign: 'center', padding: '40px 0 24px' }}>
-                <span style={{ fontSize: 40, display: 'block', marginBottom: 8 }}>
-                  {searchQuery ? '🔍' : '📦'}
-                </span>
-                <span style={{ fontSize: 14, color: 'rgba(255,255,255,0.3)', fontWeight: 600 }}>
-                  {searchQuery ? 'No deals match your search' : 'No active deals right now'}
-                </span>
+                ))}
               </div>
-            )}
-
-            {/* This Week — expired within 7 days */}
-            {expiredThisWeek.length > 0 && (
-              <>
-                <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 12 }}>
-                  <div style={{ width: 8, height: 8, borderRadius: '50%', backgroundColor: 'rgba(255,255,255,0.25)' }} />
-                  <span style={{ fontSize: 13, fontWeight: 800, color: 'rgba(255,255,255,0.35)', textTransform: 'uppercase', letterSpacing: '0.06em' }}>
-                    This Week ({expiredThisWeek.length})
-                  </span>
-                </div>
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12, marginBottom: 24, opacity: 0.65 }}>
-                  {expiredThisWeek.map(renderBrowseCard)}
-                </div>
-              </>
-            )}
+            </div>
           </div>
-        )}
 
-        {/* ══════════════════ MY DEALS TAB ══════════════════ */}
-        {activeTab === 'mydeals' && (
-          <div style={{ padding: '12px 16px' }}>
-            {myFilteredDeals.length === 0 ? (
-              <div style={{ textAlign: 'center', padding: '60px 0' }}>
-                <span style={{ fontSize: 48, display: 'block', marginBottom: 12 }}>📦</span>
-                <span style={{ fontSize: 15, fontWeight: 700, color: 'rgba(255,255,255,0.35)' }}>No deals posted yet</span>
-                <p style={{ fontSize: 13, color: 'rgba(255,255,255,0.2)', marginTop: 6 }}>
-                  Tap the green "+" button to create your first deal
-                </p>
+          {/* Side nav — Home + Join */}
+          <div className={styles.landingSideNav}>
+            <button className={styles.landingSideBtn} onClick={onClose}>
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#8DC63F" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/>
+              </svg>
+              <span>Home</span>
+            </button>
+            <button className={styles.landingSideBtn} onClick={() => { setShowLanding(false); onCreateDeal?.() }}>
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#8DC63F" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M16 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="8.5" cy="7" r="4"/><line x1="20" y1="8" x2="20" y2="14"/><line x1="23" y1="11" x2="17" y2="11"/>
+              </svg>
+              <span>Join</span>
+            </button>
+          </div>
+
+          <div className={styles.landingContent}>
+            <h1 className={styles.landingTitle}>DEAL <span>HUNT</span></h1>
+            <p className={styles.landingSub}>Get the best deals across all categories — food, products, services & more</p>
+            <div className={styles.landingBtnWrap}>
+              <div className={styles.fireParticles}>
+                {[...Array(6)].map((_, i) => (
+                  <span key={i} className={styles.fireParticle} style={{ '--i': i }} />
+                ))}
               </div>
-            ) : (
-              <>
-                <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 14 }}>
-                  <span style={{ fontSize: 13, fontWeight: 800, color: 'rgba(255,255,255,0.5)', textTransform: 'uppercase', letterSpacing: '0.06em' }}>
-                    Your Deals ({myFilteredDeals.length})
-                  </span>
-                </div>
-                {myFilteredDeals.map(renderMyDealCard)}
-              </>
-            )}
+              <button className={styles.landingBtn} onClick={() => setShowLanding(false)}>
+                Start Hunting 🔥
+              </button>
+            </div>
           </div>
-        )}
+        </div>
+      )}
+
+      {/* Back button */}
+      {!showLanding && <button className={styles.backBtn} onClick={onClose}>
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+          <path d="M19 12H5M12 5l-7 7 7 7"/>
+        </svg>
+      </button>}
+
+      {/* Title + category/city context */}
+      {!showLanding && !onBanner && <div className={styles.headerTitle}>
+        <span className={styles.headerBrand}>DEAL <span style={{ color: '#8DC63F' }}>HUNT</span></span>
+        <span className={styles.headerLive}>● LIVE</span>
+      </div>}
+
+      {/* Hide feed + header sub when landing is showing */}
+      {showLanding && <style>{`.${styles.headerSub}, .${styles.feed}, .${styles.fab} { display: none !important; }`}</style>}
+      <div className={styles.headerSub} style={onBanner ? { display: 'none' } : {}}>
+        <span className={styles.headerCategory}>{DOMAIN_LABELS[deals[activeIndex]?.domain] ?? ''}</span>
+        <span className={styles.headerDot}>·</span>
+        <span className={styles.headerCity}>{deals[activeIndex]?.city ?? 'Indonesia'}</span>
       </div>
 
-      {/* ── Green "+" FAB — bottom-right, above footer ── */}
-      <button
-        onClick={handleFabPress}
-        style={{
-          position: 'fixed',
-          bottom: 'calc(env(safe-area-inset-bottom, 0px) + 64px)',
-          right: 20,
-          zIndex: 9530,
-          width: 56,
-          height: 56,
-          borderRadius: '50%',
-          backgroundColor: '#8DC63F',
-          border: 'none',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          cursor: 'pointer',
-          boxShadow: '0 4px 20px rgba(141,198,63,0.5), 0 0 0 4px rgba(141,198,63,0.15)',
-          transition: 'transform 0.15s',
-        }}
-      >
-        <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#000" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+      {/* Snap-scroll vertical feed with promo banners */}
+      <div className={styles.feed} ref={containerRef} onScroll={handleScroll}>
+        {(() => {
+          const items = []
+          let lastBanner = null
+          deals.forEach((deal, i) => {
+            // Insert banner at start and every 10 deals
+            if (i % 10 === 0) {
+              const banner = getRandomBanner(lastBanner)
+              lastBanner = banner
+              items.push(
+                <div key={`banner-${i}`} className={styles.slide} style={{ background: '#000' }}>
+                  {/* Banner image — full screen width, stretched to fill */}
+                  <img
+                    src={banner}
+                    alt=""
+                    style={{
+                      position: 'absolute',
+                      top: 0, left: 0,
+                      width: '100vw', height: '100%',
+                      objectFit: 'fill',
+                    }}
+                  />
+                  {/* Swipe hint — yellow arrow button, tap to scroll down */}
+                  <div style={{
+                    position: 'absolute', bottom: 50, left: 0, right: 0, zIndex: 3,
+                    display: 'flex', justifyContent: 'center',
+                    animation: 'arrowFloat 1.2s ease-in-out infinite',
+                  }}>
+                    <button
+                      onClick={() => {
+                        const el = containerRef.current
+                        if (el) el.scrollBy({ top: el.clientHeight, behavior: 'smooth' })
+                      }}
+                      style={{
+                        width: 52, height: 52, borderRadius: '50%',
+                        background: 'rgba(0,0,0,0.8)', border: '2px solid rgba(250,204,21,0.4)',
+                        display: 'flex', alignItems: 'center', justifyContent: 'center',
+                        boxShadow: '0 0 16px rgba(250,204,21,0.4)',
+                        cursor: 'pointer', padding: 0,
+                      }}
+                    >
+                      <svg width="24" height="24" viewBox="0 0 24 14" fill="#FACC15" stroke="none" style={{ filter: 'drop-shadow(0 0 6px rgba(250,204,21,0.8))' }}>
+                        <path d="M4 2l8 8 8-8 2 2-10 10L2 4z"/>
+                      </svg>
+                    </button>
+                  </div>
+                </div>
+              )
+            }
+            items.push(
+              <DealSlide
+                key={deal.id}
+                deal={deal}
+                isActive={false}
+                onClaim={(d) => onSelectDeal?.(d)}
+                onChat={(d) => onSelectDeal?.(d)}
+                onOpenMenu={(d) => onViewSeller?.(d)}
+              />
+            )
+          })
+          return items
+        })()}
+      </div>
+
+      {/* FAB — create deal */}
+      <button className={styles.fab} onClick={onCreateDeal}>
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#000" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
           <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
         </svg>
       </button>
-
-      {/* ── IndooFooter ── */}
-      <IndooFooter onClose={onClose} />
-
-      {/* Deal Blast — paid promotion */}
-      <DealBlast
-        open={blastOpen}
-        onClose={() => setBlastOpen(false)}
-        deal={null}
-      />
-
-      {/* Deal Chat — anonymous buyer-seller chat */}
-      {dealChatOpen && (
-        <DealChat
-          deal={dealChatOpen}
-          onClose={() => setDealChatOpen(null)}
-        />
-      )}
     </div>,
     document.body
   )
