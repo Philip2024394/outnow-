@@ -178,14 +178,13 @@ export default function BottomNav({ activeTab = 'map', userPhotoURL, userName, i
       {/* Contact & Legal buttons — default theme only */}
       {!showBuyerBtns && !showSellerBtns && (
         <>
-          <div style={{ width: 24, height: 1, background: 'rgba(255,255,255,0.08)' }} />
-          <button className={styles.tab} onClick={() => setContactUsOpen(true)} aria-label="Contact">
-            <span style={{ fontSize: 16 }}>📞</span>
-            <span className={styles.tabLabel}>Contact</span>
+          <button onClick={() => setContactUsOpen(true)} aria-label="Contact" style={{ width: 42, height: 42, borderRadius: 12, background: 'rgba(255,255,255,0.06)', backdropFilter: 'blur(12px)', border: '1px solid rgba(255,255,255,0.12)', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 2, cursor: 'pointer' }}>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07 19.5 19.5 0 01-6-6 19.79 19.79 0 01-3.07-8.67A2 2 0 014.11 2h3a2 2 0 012 1.72c.127.96.361 1.903.7 2.81a2 2 0 01-.45 2.11L8.09 9.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0122 16.92z"/></svg>
+            <span style={{ fontSize: 7, fontWeight: 800, color: 'rgba(255,255,255,0.5)' }}>Contact</span>
           </button>
-          <button className={styles.tab} onClick={() => setLegalOpen('privacy')} aria-label="Legal">
-            <span style={{ fontSize: 16 }}>📋</span>
-            <span className={styles.tabLabel}>Legal</span>
+          <button onClick={() => setLegalOpen('privacy')} aria-label="Legal" style={{ width: 42, height: 42, borderRadius: 12, background: 'rgba(255,255,255,0.06)', backdropFilter: 'blur(12px)', border: '1px solid rgba(255,255,255,0.12)', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 2, cursor: 'pointer' }}>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+            <span style={{ fontSize: 7, fontWeight: 800, color: 'rgba(255,255,255,0.5)' }}>Legal</span>
           </button>
         </>
       )}
