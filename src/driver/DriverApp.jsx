@@ -421,8 +421,9 @@ export default function DriverApp() {
   // ── Driver Registration Gate ──
   if (!driverRegistered) {
     return (
-      <div style={{ height: '100%', display: 'flex', flexDirection: 'column', background: '#080808', alignItems: 'center', justifyContent: 'center', padding: 32, textAlign: 'center' }}>
-        <div style={{ width: 80, height: 80, borderRadius: '50%', background: 'rgba(141,198,63,0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: 20, fontSize: 40 }}>🏍️</div>
+      <div style={{ height: '100%', display: 'flex', flexDirection: 'column', background: '#080808', alignItems: 'center', justifyContent: 'center', padding: 32, textAlign: 'center', position: 'relative' }}>
+        <img src="https://ik.imagekit.io/nepgaxllc/ChatGPT%20Image%20Apr%2017,%202026,%2004_37_21%20PM.png?updatedAt=1776418664777" alt="" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', pointerEvents: 'none' }} />
+        <div style={{ position: 'relative', zIndex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
         <h2 style={{ fontSize: 22, fontWeight: 900, color: '#fff', margin: '0 0 8px' }}>Become an INDOO Bike Driver</h2>
         <p style={{ fontSize: 14, color: 'rgba(255,255,255,0.5)', margin: '0 0 24px', lineHeight: 1.6 }}>
           You need an approved driver application before you can start accepting rides and deliveries.
@@ -439,6 +440,7 @@ export default function DriverApp() {
         >
           Sign Out
         </button>
+        </div>
       </div>
     )
   }
