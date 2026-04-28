@@ -155,39 +155,27 @@ export default function NotificationsScreen({ onClose, onOpenChat, userId, userP
       {/* ── Stats strip ── */}
       <div className={styles.statsStrip}>
         <div className={styles.statChip}>
-          <span className={styles.statNum}>{profileViews.length || '—'}</span>
-          <span className={styles.statMeta}>Profile Views</span>
+          <span className={styles.statNum}>{rideNotifs.length + recentRides.length || '—'}</span>
+          <span className={styles.statMeta}>Rides</span>
         </div>
         <div className={styles.statDivider} />
         <div className={styles.statChip}>
-          <span className={styles.statNum}>{notifications.filter(n => n.type === 'like').length || '—'}</span>
-          <span className={styles.statMeta}>Likes Received</span>
+          <span className={styles.statNum}>{restaurantNotifs.length || '—'}</span>
+          <span className={styles.statMeta}>Food Orders</span>
         </div>
         <div className={styles.statDivider} />
         <div className={styles.statChip}>
-          <span className={styles.statNum}>{notifications.filter(n => n.type === 'connect').length || '—'}</span>
-          <span className={styles.statMeta}>Connections</span>
+          <span className={styles.statNum}>{messageNotifs.length || '—'}</span>
+          <span className={styles.statMeta}>Messages</span>
         </div>
       </div>
 
       <div className={styles.scroll}>
 
-        {/* ── WHO VIEWED YOUR PROFILE ── */}
-        {profileViews.length > 0 && (
-          <>
-            <div className={styles.sectionHeader}>
-              <span className={styles.sectionIcon}>👁️</span>
-              <span className={styles.sectionTitle}>Who Viewed Your Profile</span>
-              <span className={styles.sectionCount}>{profileViews.length}</span>
-            </div>
-            {profileViews.map(v => (
-              <ViewerCard key={v.id} viewer={v} />
-            ))}
-          </>
-        )}
+        {/* WHO VIEWED YOUR PROFILE — hidden for launch */}
 
-        {/* ── VIBE BLASTS ── */}
-        {vibeBlasts.length > 0 && (
+        {/* VIBE BLASTS — hidden for launch */}
+        {false && vibeBlasts.length > 0 && (
           <>
             <div className={`${styles.sectionHeader} ${styles.sectionVibe}`}>
               <span className={styles.sectionIcon}>⚡</span>
@@ -220,8 +208,8 @@ export default function NotificationsScreen({ onClose, onOpenChat, userId, userP
           </>
         )}
 
-        {/* ── DATING ── */}
-        {datingNotifs.length > 0 && (
+        {/* DATING — hidden for launch */}
+        {false && datingNotifs.length > 0 && (
           <>
             <div className={`${styles.sectionHeader} ${styles.sectionDating}`}>
               <span className={styles.sectionIcon}>💕</span>
@@ -234,8 +222,8 @@ export default function NotificationsScreen({ onClose, onOpenChat, userId, userP
           </>
         )}
 
-        {/* ── MARKETPLACE ── */}
-        {marketNotifs.length > 0 && (
+        {/* MARKETPLACE — hidden for launch */}
+        {false && marketNotifs.length > 0 && (
           <>
             <div className={`${styles.sectionHeader} ${styles.sectionMarket}`}>
               <span className={styles.sectionIcon}>🛍️</span>
@@ -322,8 +310,8 @@ export default function NotificationsScreen({ onClose, onOpenChat, userId, userP
           </>
         )}
 
-        {/* ── SOCIAL ── */}
-        {socialNotifs.length > 0 && (
+        {/* SOCIAL — hidden for launch */}
+        {false && socialNotifs.length > 0 && (
           <>
             <div className={styles.sectionHeader}>
               <span className={styles.sectionIcon}>🤝</span>
