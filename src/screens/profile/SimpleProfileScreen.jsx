@@ -329,7 +329,8 @@ export default function SimpleProfileScreen({ onClose }) {
 
         {/* My Locations */}
         <div style={GLASS}>
-          <div style={{ fontSize: 16, fontWeight: 'bold', color: '#fff', marginBottom: 16 }}>My Locations</div>
+          <div style={{ fontSize: 16, fontWeight: 'bold', color: '#fff', marginBottom: 4 }}>My Locations</div>
+          <span style={{ fontSize: 11, color: 'rgba(255,255,255,0.35)', display: 'block', marginBottom: 16 }}>Save locations for faster checkout</span>
 
           {[
             { key: 'home', icon: '🏠', label: 'Home', desc: 'Default pickup & delivery', required: true },
