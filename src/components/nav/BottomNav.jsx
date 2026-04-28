@@ -81,7 +81,7 @@ export default function BottomNav({ activeTab = 'map', userPhotoURL, userName, i
           <img
             src={(() => { try { const p = JSON.parse(localStorage.getItem('indoo_demo_profile') || '{}'); return p.photo || localStorage.getItem('indoo_user_avatar') || userPhotoURL || 'https://i.pravatar.cc/68?img=12' } catch { return userPhotoURL || 'https://i.pravatar.cc/68?img=12' } })()}
             alt=""
-            style={{ width: 30, height: 30, borderRadius: '50%', objectFit: 'cover', border: '2px solid #8DC63F' }}
+            style={{ width: 39, height: 39, borderRadius: '50%', objectFit: 'cover', border: 'none' }}
           />
           <span className={styles.tabLabel}>Me</span>
         </button>
