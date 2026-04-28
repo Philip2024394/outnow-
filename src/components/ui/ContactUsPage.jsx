@@ -61,13 +61,13 @@ const inputStyle = {
 
 const selectStyle = {
   ...inputStyle,
-  appearance: 'none',
-  WebkitAppearance: 'none',
   backgroundImage: `url("data:image/svg+xml,%3Csvg width='12' height='8' viewBox='0 0 12 8' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M1 1L6 6L11 1' stroke='white' stroke-width='2'/%3E%3C/svg%3E")`,
   backgroundRepeat: 'no-repeat',
   backgroundPosition: 'right 14px center',
   paddingRight: 36,
 };
+
+const optionStyle = { background: '#1a1a1a', color: '#fff' };
 
 const labelStyle = {
   display: 'block',
@@ -276,9 +276,9 @@ export default function ContactUsPage({ onClose }) {
           onChange={(e) => setVehicleType(e.target.value)}
           style={selectStyle}
         >
-          <option value="">Select vehicle</option>
+          <option value="" style={optionStyle}>Select vehicle</option>
           {(isBike ? BIKE_VEHICLES : CAR_VEHICLES).map((v) => (
-            <option key={v} value={v}>{v}</option>
+            <option key={v} value={v} style={optionStyle}>{v}</option>
           ))}
         </select>
       </div>
@@ -290,9 +290,9 @@ export default function ContactUsPage({ onClose }) {
           onChange={(e) => setEmployment(e.target.value)}
           style={selectStyle}
         >
-          <option value="">Select current employment</option>
+          <option value="" style={optionStyle}>Select current employment</option>
           {EMPLOYMENT_OPTIONS.map((v) => (
-            <option key={v} value={v}>{v}</option>
+            <option key={v} value={v} style={optionStyle}>{v}</option>
           ))}
         </select>
       </div>
@@ -598,7 +598,7 @@ export default function ContactUsPage({ onClose }) {
                 style={{ ...selectStyle, width: 155, flex: 'none' }}
               >
                 {COUNTRY_CODES.map((c) => (
-                  <option key={c.code} value={c.code}>{c.label}</option>
+                  <option key={c.code} value={c.code} style={optionStyle}>{c.label}</option>
                 ))}
               </select>
               <input
@@ -630,9 +630,9 @@ export default function ContactUsPage({ onClose }) {
                 borderColor: errors.city ? '#f87171' : 'rgba(255,255,255,0.15)',
               }}
             >
-              <option value="">Select city</option>
+              <option value="" style={optionStyle}>Select city</option>
               {CITIES.map((c) => (
-                <option key={c} value={c}>{c}</option>
+                <option key={c} value={c} style={optionStyle}>{c}</option>
               ))}
             </select>
             {errors.city && (
@@ -667,9 +667,9 @@ export default function ContactUsPage({ onClose }) {
                 borderColor: errors.reason ? '#f87171' : 'rgba(255,255,255,0.15)',
               }}
             >
-              <option value="">Choose one...</option>
+              <option value="" style={optionStyle}>Choose one...</option>
               {CONTACT_REASONS.map((r) => (
-                <option key={r} value={r}>{r}</option>
+                <option key={r} value={r} style={optionStyle}>{r}</option>
               ))}
             </select>
             {errors.reason && (
