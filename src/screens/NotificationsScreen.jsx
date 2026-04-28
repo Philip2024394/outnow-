@@ -121,7 +121,8 @@ const CHAT_TYPES = new Set(['date_invite', 'date_accepted', 'message', 'connect'
 export const DEMO_UNREAD_COUNT = 2
 
 export default function NotificationsScreen({ onClose, onOpenChat, userId, userProfile, onOpenRideHistory, stripProps }) {
-  const { notifications, profileViews, unreadCount, markAllRead } = useNotifications()
+  const notifData = useNotifications()
+  const { notifications = [], profileViews = [], unreadCount = 0, markAllRead = () => {} } = notifData || {}
   const recentRides = useRecentRides(userId)
   const vibeBlasts  = useVibeBlasts(
     userId,
