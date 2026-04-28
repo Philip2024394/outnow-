@@ -163,10 +163,12 @@ export default function SimpleProfileScreen({ onClose }) {
         pointerEvents: 'none',
       }} />
 
+      {/* Single scrollable area */}
+      <div className="profileScroll" style={{ flex: 1, overflowY: 'auto', position: 'relative', zIndex: 2, scrollbarWidth: 'none', msOverflowStyle: 'none', WebkitOverflowScrolling: 'touch' }}>
+      <style>{`.profileScroll::-webkit-scrollbar { display: none; }`}</style>
+
       {/* Header */}
       <div style={{
-        position: 'relative',
-        zIndex: 2,
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'space-between',
@@ -179,7 +181,7 @@ export default function SimpleProfileScreen({ onClose }) {
           style={{
             background: 'none',
             border: 'none',
-            fontSize: 24,
+            fontSize: 34,
             cursor: 'pointer',
             padding: 8,
             minWidth: 44,
@@ -194,16 +196,10 @@ export default function SimpleProfileScreen({ onClose }) {
         </button>
       </div>
 
-      {/* Scrollable content */}
+      {/* Content */}
       <div
-        ref={scrollRef}
         style={{
-          position: 'relative',
-          zIndex: 2,
-          flex: 1,
-          overflowY: 'auto',
           padding: '0 20px 100px 20px',
-          WebkitOverflowScrolling: 'touch',
         }}
       >
         {/* Profile Card */}
@@ -520,6 +516,8 @@ export default function SimpleProfileScreen({ onClose }) {
         </div>
       </div>
 
+      </div>{/* end single scrollable area */}
+
       {/* Footer nav — floating */}
       <div style={{
         position: 'fixed',
@@ -578,15 +576,21 @@ export default function SimpleProfileScreen({ onClose }) {
         bottom: 0,
         width: 280,
         zIndex: 10002,
-        background: 'rgba(0,0,0,0.85)',
-        backdropFilter: 'blur(16px)',
-        WebkitBackdropFilter: 'blur(16px)',
-        borderLeft: '1px solid rgba(255,255,255,0.1)',
+        background: 'rgba(0,0,0,0.75)',
+        backdropFilter: 'blur(20px)',
+        WebkitBackdropFilter: 'blur(20px)',
+        borderLeft: '3px solid rgba(141,198,63,0.3)',
         transition: 'right 0.3s ease',
         display: 'flex',
         flexDirection: 'column',
         paddingTop: 'max(20px, env(safe-area-inset-top))',
+        overflow: 'hidden',
       }}>
+        {/* Green running light on left edge */}
+        <div style={{ position: 'absolute', top: 0, left: -3, width: 3, height: '100%', overflow: 'hidden', zIndex: 1 }}>
+          <div style={{ position: 'absolute', width: '100%', height: 60, background: 'linear-gradient(180deg, transparent, #8DC63F, transparent)', animation: 'drawerEdgeLight 3s linear infinite' }} />
+        </div>
+        <style>{`@keyframes drawerEdgeLight { 0% { top: -60px; } 100% { top: 100%; } }`}</style>
         <div style={{
           padding: '16px 20px',
           borderBottom: '1px solid rgba(255,255,255,0.1)',
@@ -628,11 +632,13 @@ export default function SimpleProfileScreen({ onClose }) {
               key={item.label}
               onClick={item.action}
               style={{
-                width: '100%',
-                background: 'none',
-                border: 'none',
-                borderBottom: '1px solid rgba(255,255,255,0.06)',
-                padding: '14px 20px',
+                width: 'calc(100% - 24px)',
+                margin: '0 12px 8px',
+                background: 'rgba(255,255,255,0.04)',
+                backdropFilter: 'blur(12px)',
+                border: '1px solid rgba(255,255,255,0.08)',
+                borderRadius: 14,
+                padding: '14px 16px',
                 display: 'flex',
                 alignItems: 'center',
                 gap: 12,
