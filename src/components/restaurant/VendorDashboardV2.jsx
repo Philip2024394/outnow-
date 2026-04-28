@@ -63,6 +63,16 @@ const HELP = {
       'All customer payments go directly to your bank account — INDOO never holds your money.',
     ],
   },
+  deals: {
+    title: 'Deals & Promotions',
+    steps: [
+      'Create deals by selecting menu items and setting a discount percentage.',
+      'Choose which days the deal is available and set start/end dates.',
+      'Set a daily quantity limit so you control how many deals go out each day.',
+      'Toggle deals active or inactive anytime — inactive deals are hidden from customers.',
+      'Preview how your deal card looks to customers before publishing.',
+    ],
+  },
   toggle: {
     title: 'Live / Offline Toggle',
     steps: [
@@ -205,6 +215,7 @@ const NAV_ITEMS = [
   { id: 'banners', label: 'Banner Ads', icon: '📢' },
   { id: 'extras', label: 'Extras & Add-ons', icon: '🍟' },
   { id: 'wallet', label: 'Wallet & Top Up', icon: '💳' },
+  { id: 'deals', label: 'Deals & Promotions', icon: '🏷️' },
 ]
 
 // ── Extras management ───────────────────────────────────────────────────────
@@ -1115,6 +1126,9 @@ export default function VendorDashboardV2({ onClose }) {
         {/* ══════════ PAGE: EXTRAS & ADD-ONS ══════════ */}
         {page === 'extras' && <ExtrasPage restaurantId={restaurant?.id} />}
 
+        {/* ══════════ PAGE: DEALS & PROMOTIONS ══════════ */}
+        {page === 'deals' && <DealsPage menuItems={menuItems} onBack={() => setPage('overview')} />}
+
         {/* ══════════ PAGE: WALLET & TOP UP ══════════ */}
         {page === 'wallet' && (() => {
           const bal = wallet?.balance ?? 0
@@ -1349,6 +1363,400 @@ export default function VendorDashboardV2({ onClose }) {
       )}
     </div>,
     document.body
+  )
+}
+
+// ── Deals & Promotions page ─────────────────────────────────────────────────
+const DEALS_STORAGE = 'indoo_vendor_deals'
+const DISCOUNT_OPTIONS = [10, 15, 20, 25, 30, 40, 50]
+const DAYS_OF_WEEK = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']
+
+function loadDeals() {
+  try { return JSON.parse(localStorage.getItem(DEALS_STORAGE)) ?? [] } catch { return [] }
+}
+function saveDeals(deals) {
+  try { localStorage.setItem(DEALS_STORAGE, JSON.stringify(deals)) } catch {}
+}
+
+function DealsPage({ menuItems, onBack }) {
+  const [deals, setDeals] = useState(() => loadDeals())
+  const [showCreate, setShowCreate] = useState(false)
+  const [previewDeal, setPreviewDeal] = useState(null)
+  const [deleteConfirm, setDeleteConfirm] = useState(null)
+
+  // ── Create deal state ──
+  const [selectedItems, setSelectedItems] = useState([])
+  const [discount, setDiscount] = useState(20)
+  const [startDate, setStartDate] = useState('')
+  const [endDate, setEndDate] = useState('')
+  const [quantity, setQuantity] = useState(50)
+  const [days, setDays] = useState(['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'])
+  const [dealTitle, setDealTitle] = useState('')
+
+  const resetForm = () => {
+    setSelectedItems([]); setDiscount(20); setStartDate(''); setEndDate('')
+    setQuantity(50); setDays(['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']); setDealTitle('')
+  }
+
+  const toggleItemSelection = (item) => {
+    setSelectedItems(prev => {
+      const exists = prev.find(i => i.id === item.id)
+      return exists ? prev.filter(i => i.id !== item.id) : [...prev, item]
+    })
+  }
+
+  const toggleDay = (day) => {
+    setDays(prev => prev.includes(day) ? prev.filter(d => d !== day) : [...prev, day])
+  }
+
+  const autoTitle = selectedItems.length > 0
+    ? `${discount}% Off ${selectedItems.map(i => i.name).join(', ').slice(0, 60)}`
+    : ''
+
+  const canSave = selectedItems.length > 0 && startDate && endDate && days.length > 0 && quantity > 0
+
+  const createDeal = () => {
+    const deal = {
+      id: 'deal-' + Date.now(),
+      items: selectedItems.map(i => ({ name: i.name, price: i.price, photo_url: i.photo_url ?? '' })),
+      discountPercent: discount,
+      startDate,
+      endDate,
+      days,
+      quantity: Number(quantity),
+      claimed: 0,
+      title: dealTitle.trim() || autoTitle,
+      active: true,
+      createdAt: new Date().toISOString(),
+    }
+    const updated = [deal, ...deals]
+    setDeals(updated)
+    saveDeals(updated)
+    setShowCreate(false)
+    resetForm()
+  }
+
+  const toggleDealActive = (id) => {
+    const updated = deals.map(d => d.id === id ? { ...d, active: !d.active } : d)
+    setDeals(updated)
+    saveDeals(updated)
+  }
+
+  const deleteDeal = (id) => {
+    const updated = deals.filter(d => d.id !== id)
+    setDeals(updated)
+    saveDeals(updated)
+    setDeleteConfirm(null)
+  }
+
+  const isDealRunning = (deal) => {
+    if (!deal.active) return false
+    const today = new Date().toISOString().split('T')[0]
+    return today >= deal.startDate && today <= deal.endDate
+  }
+
+  const daysRemaining = (deal) => {
+    const end = new Date(deal.endDate)
+    const now = new Date()
+    const diff = Math.ceil((end - now) / (1000 * 60 * 60 * 24))
+    return Math.max(0, diff)
+  }
+
+  // ── Styles ──
+  const cardStyle = {
+    padding: 16, borderRadius: 16, marginBottom: 12,
+    background: 'rgba(0,0,0,0.4)', backdropFilter: 'blur(12px)', WebkitBackdropFilter: 'blur(12px)',
+    border: '1px solid rgba(255,255,255,0.06)', boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.05)',
+  }
+  const inputStyle = {
+    width: '100%', padding: '12px 14px', borderRadius: 10, fontSize: 14, fontWeight: 600,
+    background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.1)', color: '#fff',
+    outline: 'none', boxSizing: 'border-box',
+  }
+  const labelStyle = { fontSize: 12, fontWeight: 800, color: 'rgba(255,255,255,0.5)', display: 'block', marginBottom: 6, textTransform: 'uppercase', letterSpacing: '0.06em' }
+
+  return (
+    <>
+      {/* ── Header ── */}
+      <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 16 }}>
+        <button onClick={onBack} style={{ width: 32, height: 32, borderRadius: 8, background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' }}>
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2.5" strokeLinecap="round"><path d="M19 12H5M12 5l-7 7 7 7"/></svg>
+        </button>
+        <h2 style={{ fontSize: 18, fontWeight: 900, color: '#fff', margin: 0, flex: 1 }}>Deals & Promotions</h2>
+        <HelpIcon section="deals" />
+      </div>
+
+      {/* ── Create Deal Button ── */}
+      {!showCreate && (
+        <button onClick={() => setShowCreate(true)} style={{
+          width: '100%', padding: '14px', borderRadius: 14, border: '2px dashed rgba(141,198,63,0.3)',
+          background: 'rgba(141,198,63,0.06)', color: '#8DC63F', fontSize: 14, fontWeight: 900,
+          cursor: 'pointer', marginBottom: 20, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8,
+        }}>
+          <span style={{ fontSize: 18 }}>+</span> Create New Deal
+        </button>
+      )}
+
+      {/* ══════════ CREATE DEAL FORM ══════════ */}
+      {showCreate && (
+        <div style={{ ...cardStyle, border: '1px solid rgba(141,198,63,0.2)', marginBottom: 20 }}>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 16 }}>
+            <span style={{ fontSize: 16, fontWeight: 900, color: '#fff' }}>New Deal</span>
+            <button onClick={() => { setShowCreate(false); resetForm() }} style={{ width: 28, height: 28, borderRadius: '50%', background: 'rgba(239,68,68,0.1)', border: 'none', color: '#EF4444', fontSize: 14, fontWeight: 900, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>x</button>
+          </div>
+
+          {/* Select menu items */}
+          <span style={labelStyle}>Select Menu Items</span>
+          <div style={{ maxHeight: 180, overflowY: 'auto', marginBottom: 14, borderRadius: 10, border: '1px solid rgba(255,255,255,0.06)', background: 'rgba(0,0,0,0.2)' }}>
+            {menuItems.length === 0 && (
+              <div style={{ padding: 20, textAlign: 'center', color: 'rgba(255,255,255,0.3)', fontSize: 12 }}>No menu items — add items in the Menu page first</div>
+            )}
+            {menuItems.map(item => {
+              const selected = selectedItems.find(i => i.id === item.id)
+              return (
+                <div key={item.id} onClick={() => toggleItemSelection(item)} style={{
+                  display: 'flex', alignItems: 'center', gap: 10, padding: '10px 12px', cursor: 'pointer',
+                  background: selected ? 'rgba(141,198,63,0.08)' : 'transparent',
+                  borderBottom: '1px solid rgba(255,255,255,0.04)',
+                }}>
+                  <div style={{
+                    width: 20, height: 20, borderRadius: 4, border: selected ? '2px solid #8DC63F' : '2px solid rgba(255,255,255,0.15)',
+                    background: selected ? '#8DC63F' : 'transparent', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0,
+                  }}>
+                    {selected && <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#000" strokeWidth="3" strokeLinecap="round"><polyline points="20 6 9 17 4 12"/></svg>}
+                  </div>
+                  {item.photo_url && <img src={item.photo_url} alt="" style={{ width: 32, height: 32, borderRadius: 6, objectFit: 'cover', flexShrink: 0 }} />}
+                  <div style={{ flex: 1, minWidth: 0 }}>
+                    <span style={{ fontSize: 13, fontWeight: 700, color: '#fff', display: 'block', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{item.name}</span>
+                    <span style={{ fontSize: 11, color: 'rgba(255,255,255,0.4)' }}>{fmtRp(item.price)}</span>
+                  </div>
+                </div>
+              )
+            })}
+          </div>
+
+          {/* Discount */}
+          <span style={labelStyle}>Discount Percentage</span>
+          <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap', marginBottom: 14 }}>
+            {DISCOUNT_OPTIONS.map(d => (
+              <button key={d} onClick={() => setDiscount(d)} style={{
+                padding: '8px 14px', borderRadius: 8, border: 'none', cursor: 'pointer', fontSize: 13, fontWeight: 800,
+                background: discount === d ? '#FACC15' : 'rgba(255,255,255,0.06)',
+                color: discount === d ? '#000' : 'rgba(255,255,255,0.5)',
+              }}>{d}%</button>
+            ))}
+          </div>
+
+          {/* Dates */}
+          <div style={{ display: 'flex', gap: 10, marginBottom: 14 }}>
+            <div style={{ flex: 1 }}>
+              <span style={labelStyle}>Start Date</span>
+              <input type="date" value={startDate} onChange={e => setStartDate(e.target.value)} style={{ ...inputStyle, colorScheme: 'dark' }} />
+            </div>
+            <div style={{ flex: 1 }}>
+              <span style={labelStyle}>End Date</span>
+              <input type="date" value={endDate} onChange={e => setEndDate(e.target.value)} style={{ ...inputStyle, colorScheme: 'dark' }} />
+            </div>
+          </div>
+
+          {/* Quantity per day */}
+          <span style={labelStyle}>Quantity Per Day</span>
+          <input type="number" value={quantity} onChange={e => setQuantity(e.target.value)} min="1" placeholder="50" style={{ ...inputStyle, marginBottom: 14 }} />
+
+          {/* Days of week */}
+          <span style={labelStyle}>Available Days</span>
+          <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap', marginBottom: 14 }}>
+            {DAYS_OF_WEEK.map(day => (
+              <button key={day} onClick={() => toggleDay(day)} style={{
+                padding: '8px 12px', borderRadius: 8, border: 'none', cursor: 'pointer', fontSize: 12, fontWeight: 800,
+                background: days.includes(day) ? 'rgba(141,198,63,0.2)' : 'rgba(255,255,255,0.04)',
+                color: days.includes(day) ? '#8DC63F' : 'rgba(255,255,255,0.3)',
+              }}>{day}</button>
+            ))}
+          </div>
+
+          {/* Deal title */}
+          <span style={labelStyle}>Deal Title</span>
+          <input type="text" value={dealTitle} onChange={e => setDealTitle(e.target.value)} placeholder={autoTitle || 'Deal title...'} style={{ ...inputStyle, marginBottom: 16 }} />
+
+          {/* Preview mini */}
+          {selectedItems.length > 0 && (
+            <>
+              <span style={labelStyle}>Card Preview</span>
+              <DealCardPreview deal={{
+                items: selectedItems.map(i => ({ name: i.name, price: i.price, photo_url: i.photo_url ?? '' })),
+                discountPercent: discount,
+                title: dealTitle.trim() || autoTitle,
+                days,
+                startDate,
+                endDate,
+                quantity: Number(quantity),
+                claimed: 0,
+                active: true,
+              }} />
+            </>
+          )}
+
+          {/* Save button */}
+          <button onClick={createDeal} disabled={!canSave} style={{
+            width: '100%', padding: '14px', borderRadius: 12, border: 'none', marginTop: 8,
+            background: canSave ? '#8DC63F' : 'rgba(141,198,63,0.2)', color: canSave ? '#000' : 'rgba(255,255,255,0.3)',
+            fontSize: 14, fontWeight: 900, cursor: canSave ? 'pointer' : 'not-allowed',
+          }}>Create Deal</button>
+        </div>
+      )}
+
+      {/* ══════════ ACTIVE DEALS LIST ══════════ */}
+      <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 12 }}>
+        <span style={{ fontSize: 15, fontWeight: 900, color: '#fff' }}>Your Deals</span>
+        <span style={{ fontSize: 11, fontWeight: 800, color: 'rgba(255,255,255,0.3)', background: 'rgba(255,255,255,0.06)', padding: '2px 8px', borderRadius: 6 }}>{deals.length}</span>
+      </div>
+
+      {deals.length === 0 && (
+        <div style={{ ...cardStyle, textAlign: 'center', padding: 40 }}>
+          <span style={{ fontSize: 36, display: 'block', marginBottom: 10 }}>🏷️</span>
+          <span style={{ fontSize: 14, fontWeight: 700, color: 'rgba(255,255,255,0.3)' }}>No deals yet — create your first promotion above</span>
+        </div>
+      )}
+
+      {deals.map(deal => {
+        const running = isDealRunning(deal)
+        const remaining = daysRemaining(deal)
+        return (
+          <div key={deal.id} style={{ ...cardStyle, border: running ? '1px solid rgba(141,198,63,0.15)' : '1px solid rgba(255,255,255,0.06)' }}>
+            {/* Header row */}
+            <div style={{ display: 'flex', alignItems: 'flex-start', gap: 10, marginBottom: 10 }}>
+              <div style={{ flex: 1, minWidth: 0 }}>
+                <span style={{ fontSize: 14, fontWeight: 900, color: '#fff', display: 'block', marginBottom: 2, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{deal.title}</span>
+                <span style={{ fontSize: 11, color: 'rgba(255,255,255,0.35)' }}>{deal.items.map(i => i.name).join(', ')}</span>
+              </div>
+              <span style={{
+                padding: '4px 10px', borderRadius: 6, fontSize: 12, fontWeight: 900, flexShrink: 0,
+                background: '#FACC15', color: '#000',
+              }}>{deal.discountPercent}% OFF</span>
+            </div>
+
+            {/* Stats row */}
+            <div style={{ display: 'flex', gap: 8, marginBottom: 10, flexWrap: 'wrap' }}>
+              <span style={{ fontSize: 11, fontWeight: 700, color: 'rgba(255,255,255,0.4)', background: 'rgba(255,255,255,0.04)', padding: '4px 8px', borderRadius: 6 }}>
+                Qty: {deal.claimed ?? 0}/{deal.quantity}
+              </span>
+              <span style={{ fontSize: 11, fontWeight: 700, color: 'rgba(255,255,255,0.4)', background: 'rgba(255,255,255,0.04)', padding: '4px 8px', borderRadius: 6 }}>
+                {deal.days.join(', ')}
+              </span>
+              <span style={{ fontSize: 11, fontWeight: 700, color: remaining <= 2 ? '#EF4444' : 'rgba(255,255,255,0.4)', background: remaining <= 2 ? 'rgba(239,68,68,0.1)' : 'rgba(255,255,255,0.04)', padding: '4px 8px', borderRadius: 6 }}>
+                {remaining > 0 ? `${remaining}d left` : 'Expired'}
+              </span>
+              <span style={{ fontSize: 11, fontWeight: 700, padding: '4px 8px', borderRadius: 6, background: running ? 'rgba(141,198,63,0.1)' : 'rgba(255,255,255,0.04)', color: running ? '#8DC63F' : 'rgba(255,255,255,0.3)' }}>
+                {running ? 'Running' : deal.active ? 'Scheduled' : 'Inactive'}
+              </span>
+            </div>
+
+            {/* Date range */}
+            <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.3)', marginBottom: 12 }}>
+              {deal.startDate} to {deal.endDate}
+            </div>
+
+            {/* Actions */}
+            <div style={{ display: 'flex', gap: 8 }}>
+              <button onClick={() => toggleDealActive(deal.id)} style={{
+                flex: 1, padding: '10px', borderRadius: 10, border: '1px solid rgba(255,255,255,0.08)',
+                background: deal.active ? 'rgba(141,198,63,0.08)' : 'rgba(255,255,255,0.03)',
+                color: deal.active ? '#8DC63F' : 'rgba(255,255,255,0.4)', fontSize: 12, fontWeight: 800, cursor: 'pointer',
+              }}>{deal.active ? 'Deactivate' : 'Activate'}</button>
+              <button onClick={() => setPreviewDeal(deal)} style={{
+                padding: '10px 14px', borderRadius: 10, border: '1px solid rgba(255,255,255,0.08)',
+                background: 'rgba(255,255,255,0.03)', color: 'rgba(255,255,255,0.5)', fontSize: 12, fontWeight: 800, cursor: 'pointer',
+              }}>Preview</button>
+              <button onClick={() => setDeleteConfirm(deal.id)} style={{
+                padding: '10px 14px', borderRadius: 10, border: '1px solid rgba(239,68,68,0.15)',
+                background: 'rgba(239,68,68,0.06)', color: '#EF4444', fontSize: 12, fontWeight: 800, cursor: 'pointer',
+              }}>Delete</button>
+            </div>
+          </div>
+        )
+      })}
+
+      {/* ── Delete Deal Confirmation ── */}
+      {deleteConfirm && createPortal(
+        <div onClick={() => setDeleteConfirm(null)} style={{ position: 'fixed', inset: 0, zIndex: 10002, background: 'rgba(0,0,0,0.7)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 20 }}>
+          <div onClick={e => e.stopPropagation()} style={{ background: '#1a1a1e', borderRadius: 20, padding: 24, maxWidth: 300, width: '100%', textAlign: 'center' }}>
+            <span style={{ fontSize: 36, display: 'block', marginBottom: 12 }}>🗑️</span>
+            <span style={{ fontSize: 16, fontWeight: 900, color: '#fff', display: 'block', marginBottom: 8 }}>Delete this deal?</span>
+            <span style={{ fontSize: 13, color: 'rgba(255,255,255,0.4)', display: 'block', marginBottom: 16 }}>This action cannot be undone.</span>
+            <div style={{ display: 'flex', gap: 10 }}>
+              <button onClick={() => setDeleteConfirm(null)} style={{ flex: 1, padding: '12px', borderRadius: 10, border: '1px solid rgba(255,255,255,0.1)', background: 'none', color: '#fff', fontSize: 14, fontWeight: 700, cursor: 'pointer' }}>Cancel</button>
+              <button onClick={() => deleteDeal(deleteConfirm)} style={{ flex: 1, padding: '12px', borderRadius: 10, background: '#EF4444', border: 'none', color: '#fff', fontSize: 14, fontWeight: 900, cursor: 'pointer' }}>Delete</button>
+            </div>
+          </div>
+        </div>,
+        document.body
+      )}
+
+      {/* ── Deal Preview Modal ── */}
+      {previewDeal && createPortal(
+        <div onClick={() => setPreviewDeal(null)} style={{ position: 'fixed', inset: 0, zIndex: 10002, background: 'rgba(0,0,0,0.8)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 20 }}>
+          <div onClick={e => e.stopPropagation()} style={{ background: '#1a1a1e', borderRadius: 20, padding: 24, maxWidth: 360, width: '100%', border: '1px solid rgba(255,255,255,0.08)' }}>
+            <span style={{ fontSize: 14, fontWeight: 900, color: '#fff', display: 'block', marginBottom: 14, textAlign: 'center' }}>Customer View Preview</span>
+            <DealCardPreview deal={previewDeal} />
+            <button onClick={() => setPreviewDeal(null)} style={{
+              width: '100%', padding: '12px', borderRadius: 10, border: '1px solid rgba(255,255,255,0.1)',
+              background: 'none', color: 'rgba(255,255,255,0.5)', fontSize: 13, fontWeight: 700, cursor: 'pointer', marginTop: 14,
+            }}>Close</button>
+          </div>
+        </div>,
+        document.body
+      )}
+    </>
+  )
+}
+
+function DealCardPreview({ deal }) {
+  const firstItem = deal.items[0]
+  const originalPrice = deal.items.reduce((sum, i) => sum + (i.price ?? 0), 0)
+  const discountedPrice = Math.round(originalPrice * (1 - deal.discountPercent / 100))
+
+  return (
+    <div style={{
+      borderRadius: 16, overflow: 'hidden', marginBottom: 8,
+      background: 'rgba(0,0,0,0.5)', border: '1px solid rgba(255,255,255,0.08)',
+      position: 'relative',
+    }}>
+      {/* Photo strip */}
+      <div style={{ display: 'flex', height: 100, overflow: 'hidden', background: 'rgba(255,255,255,0.03)' }}>
+        {deal.items.slice(0, 3).map((item, i) => (
+          item.photo_url ? (
+            <img key={i} src={item.photo_url} alt="" style={{ flex: 1, height: '100%', objectFit: 'cover', borderRight: i < 2 ? '1px solid rgba(0,0,0,0.3)' : 'none' }} />
+          ) : (
+            <div key={i} style={{ flex: 1, height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'rgba(255,255,255,0.03)', fontSize: 28 }}>🍽️</div>
+          )
+        ))}
+      </div>
+
+      {/* Discount badge */}
+      <div style={{
+        position: 'absolute', top: 8, right: 8, padding: '5px 10px', borderRadius: 8,
+        background: '#FACC15', color: '#000', fontSize: 13, fontWeight: 900,
+        boxShadow: '0 2px 8px rgba(250,204,21,0.3)',
+      }}>{deal.discountPercent}% OFF</div>
+
+      {/* Content */}
+      <div style={{ padding: '12px 14px' }}>
+        <span style={{ fontSize: 14, fontWeight: 900, color: '#fff', display: 'block', marginBottom: 4, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{deal.title}</span>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 6 }}>
+          <span style={{ fontSize: 16, fontWeight: 900, color: '#8DC63F' }}>{fmtRp(discountedPrice)}</span>
+          <span style={{ fontSize: 12, color: 'rgba(255,255,255,0.3)', textDecoration: 'line-through' }}>{fmtRp(originalPrice)}</span>
+        </div>
+        <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
+          <span style={{ fontSize: 10, fontWeight: 700, color: 'rgba(255,255,255,0.35)', background: 'rgba(255,255,255,0.04)', padding: '3px 6px', borderRadius: 4 }}>
+            {deal.days.length === 7 ? 'Every day' : deal.days.join(', ')}
+          </span>
+          <span style={{ fontSize: 10, fontWeight: 700, color: 'rgba(255,255,255,0.35)', background: 'rgba(255,255,255,0.04)', padding: '3px 6px', borderRadius: 4 }}>
+            {deal.quantity - (deal.claimed ?? 0)} left/day
+          </span>
+        </div>
+      </div>
+    </div>
   )
 }
 

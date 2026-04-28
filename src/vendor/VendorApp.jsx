@@ -20,6 +20,36 @@ export default function VendorApp() {
   const [isRegister, setIsRegister] = useState(false)
   const [onboardingDone, setOnboardingDone] = useState(() => !!localStorage.getItem('indoo_vendor_restaurant'))
 
+  // PWA Install prompt
+  const [installPrompt, setInstallPrompt] = useState(null)
+  const [showInstallBanner, setShowInstallBanner] = useState(false)
+
+  useEffect(() => {
+    if (window.matchMedia('(display-mode: standalone)').matches) return
+    if (navigator.standalone) return // iOS
+
+    const handler = (e) => {
+      e.preventDefault()
+      setInstallPrompt(e)
+      setTimeout(() => setShowInstallBanner(true), 3000)
+    }
+    window.addEventListener('beforeinstallprompt', handler)
+
+    const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent)
+    if (isIOS) setTimeout(() => setShowInstallBanner(true), 5000)
+
+    return () => window.removeEventListener('beforeinstallprompt', handler)
+  }, [])
+
+  const handleInstall = async () => {
+    if (installPrompt) {
+      installPrompt.prompt()
+      const result = await installPrompt.userChoice
+      if (result.outcome === 'accepted') setShowInstallBanner(false)
+    }
+    setShowInstallBanner(false)
+  }
+
   // Check existing session
   useEffect(() => {
     if (!supabase) {
@@ -92,7 +122,41 @@ export default function VendorApp() {
         />
       )
     }
-    return <VendorDashboardV2 onClose={handleLogout} />
+    return (
+      <>
+        <VendorDashboardV2 onClose={handleLogout} />
+        {/* PWA Install Banner */}
+        {showInstallBanner && (
+          <div style={{
+            position: 'fixed', bottom: 80, left: 16, right: 16, zIndex: 10000,
+            padding: '14px 16px', borderRadius: 20,
+            background: 'rgba(10,10,10,0.85)', backdropFilter: 'blur(24px)',
+            border: '1.5px solid rgba(141,198,63,0.25)',
+            display: 'flex', alignItems: 'center', gap: 12,
+            boxShadow: '0 8px 32px rgba(0,0,0,0.5)',
+          }}>
+            <div style={{ flex: 1 }}>
+              <span style={{ fontSize: 14, fontWeight: 900, color: '#fff', display: 'block' }}>Install INDOO Business</span>
+              {installPrompt ? (
+                <span style={{ fontSize: 12, color: 'rgba(255,255,255,0.5)', marginTop: 2, display: 'block' }}>Add to your home screen for the best experience</span>
+              ) : (
+                <span style={{ fontSize: 12, color: 'rgba(255,255,255,0.5)', marginTop: 2, display: 'block' }}>Tap Share then "Add to Home Screen"</span>
+              )}
+            </div>
+            {installPrompt && (
+              <button onClick={handleInstall} style={{
+                padding: '10px 18px', borderRadius: 14, background: '#8DC63F', border: 'none',
+                color: '#000', fontSize: 13, fontWeight: 900, cursor: 'pointer', fontFamily: 'inherit', whiteSpace: 'nowrap',
+              }}>Install</button>
+            )}
+            <button onClick={() => setShowInstallBanner(false)} style={{
+              background: 'none', border: 'none', color: 'rgba(255,255,255,0.4)',
+              fontSize: 18, cursor: 'pointer', padding: '4px 4px', lineHeight: 1,
+            }}>✕</button>
+          </div>
+        )}
+      </>
+    )
   }
 
   // Login screen

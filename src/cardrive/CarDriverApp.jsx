@@ -15,6 +15,7 @@ import { getDriverTier } from '@/services/driverTierService'
 import { getDriverGoals } from '@/services/driverIncentiveService'
 import { fetchDriverTripHistory } from '@/services/bookingService'
 import { getDriverFoodOrders } from '@/services/foodOrderService'
+import { requestNotificationPermission, alertNewOrder } from '@/services/driverNotificationService'
 
 const BG_IMG = 'https://ik.imagekit.io/nepgaxllc/ChatGPT%20Image%20Apr%2019,%202026,%2011_05_34%20PM.png?updatedAt=1776614750168'
 
@@ -76,6 +77,36 @@ export default function CarDriverApp() {
   const [wallet, setWallet] = useState(null)
   const [showTopUp, setShowTopUp] = useState(false)
   const [drawerOpen, setDrawerOpen] = useState(false)
+
+  // PWA Install prompt
+  const [installPrompt, setInstallPrompt] = useState(null)
+  const [showInstallBanner, setShowInstallBanner] = useState(false)
+
+  useEffect(() => {
+    if (window.matchMedia('(display-mode: standalone)').matches) return
+    if (navigator.standalone) return // iOS
+
+    const handler = (e) => {
+      e.preventDefault()
+      setInstallPrompt(e)
+      setTimeout(() => setShowInstallBanner(true), 3000)
+    }
+    window.addEventListener('beforeinstallprompt', handler)
+
+    const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent)
+    if (isIOS) setTimeout(() => setShowInstallBanner(true), 5000)
+
+    return () => window.removeEventListener('beforeinstallprompt', handler)
+  }, [])
+
+  const handleInstall = async () => {
+    if (installPrompt) {
+      installPrompt.prompt()
+      const result = await installPrompt.userChoice
+      if (result.outcome === 'accepted') setShowInstallBanner(false)
+    }
+    setShowInstallBanner(false)
+  }
 
   // Auth
   useEffect(() => {
@@ -149,6 +180,33 @@ export default function CarDriverApp() {
       if (intervalId) clearInterval(intervalId)
     }
   }, [isOnline])
+
+  // Request notification permission when driver goes online
+  useEffect(() => {
+    if (isOnline) requestNotificationPermission()
+  }, [isOnline])
+
+  // Alert on incoming booking
+  useEffect(() => {
+    if (incomingBooking) {
+      alertNewOrder(
+        'car_ride',
+        incomingBooking.customer_name || incomingBooking.passenger_name,
+        incomingBooking.pickup_address || incomingBooking.pickup_location,
+      )
+    }
+  }, [incomingBooking])
+
+  // Alert on incoming food order
+  useEffect(() => {
+    if (incomingFoodOrder) {
+      alertNewOrder(
+        'food_delivery',
+        incomingFoodOrder.customer_name,
+        incomingFoodOrder.restaurant_name || incomingFoodOrder.pickup_address,
+      )
+    }
+  }, [incomingFoodOrder])
 
   const handleAuth = async () => {
     if (!loginEmail.trim() || !loginPass.trim()) return
@@ -1129,6 +1187,37 @@ export default function CarDriverApp() {
             </div>
             <span style={{ fontSize: 11, color: 'rgba(255,255,255,0.4)', display: 'block' }}>💡 Move to red zones for higher booking rate. Too many drivers in your area reduces your chances.</span>
           </div>
+        </div>
+      )}
+
+      {/* PWA Install Banner */}
+      {showInstallBanner && (
+        <div style={{
+          position: 'fixed', bottom: 80, left: 16, right: 16, zIndex: 10000,
+          padding: '14px 16px', borderRadius: 20,
+          background: 'rgba(10,10,10,0.85)', backdropFilter: 'blur(24px)',
+          border: '1.5px solid rgba(141,198,63,0.25)',
+          display: 'flex', alignItems: 'center', gap: 12,
+          boxShadow: '0 8px 32px rgba(0,0,0,0.5)',
+        }}>
+          <div style={{ flex: 1 }}>
+            <span style={{ fontSize: 14, fontWeight: 900, color: '#fff', display: 'block' }}>Install INDOO Drive</span>
+            {installPrompt ? (
+              <span style={{ fontSize: 12, color: 'rgba(255,255,255,0.5)', marginTop: 2, display: 'block' }}>Add to your home screen for the best experience</span>
+            ) : (
+              <span style={{ fontSize: 12, color: 'rgba(255,255,255,0.5)', marginTop: 2, display: 'block' }}>Tap Share then "Add to Home Screen"</span>
+            )}
+          </div>
+          {installPrompt && (
+            <button onClick={handleInstall} style={{
+              padding: '10px 18px', borderRadius: 14, background: '#8DC63F', border: 'none',
+              color: '#000', fontSize: 13, fontWeight: 900, cursor: 'pointer', fontFamily: 'inherit', whiteSpace: 'nowrap',
+            }}>Install</button>
+          )}
+          <button onClick={() => setShowInstallBanner(false)} style={{
+            background: 'none', border: 'none', color: 'rgba(255,255,255,0.4)',
+            fontSize: 18, cursor: 'pointer', padding: '4px 4px', lineHeight: 1,
+          }}>✕</button>
         </div>
       )}
     </div>
