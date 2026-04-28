@@ -337,36 +337,8 @@ export default function LegalPage({ onClose, initialTab = 'privacy' }) {
           </svg>
         </button>
 
-        {/* Logo */}
-        <div
-          style={{
-            width: 60,
-            height: 60,
-            margin: '0 auto 10px',
-            borderRadius: 14,
-            background: 'linear-gradient(135deg, #8DC63F 0%, #6BA030 100%)',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            fontWeight: 900,
-            fontSize: 18,
-            color: '#000',
-            letterSpacing: 1,
-          }}
-        >
-          INDOO
-        </div>
-
-        <div
-          style={{
-            fontSize: 18,
-            fontWeight: 900,
-            color: '#fff',
-            letterSpacing: 0.5,
-          }}
-        >
-          Legal & Policies
-        </div>
+        <div style={{ fontSize: 32, fontWeight: 900, color: '#fff' }}>Legal & Policies</div>
+        <div style={{ fontSize: 16, fontWeight: 700, color: 'rgba(255,255,255,0.5)', marginTop: 6 }}>PT HAMMEREX PRODUCTS INDONESIA</div>
       </div>
 
       {/* Tab pills */}
