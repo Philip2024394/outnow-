@@ -74,6 +74,7 @@ import {
   DealHuntLanding, DealDetail, CreateDealPage, MyDealsPage,
 } from './appShellLazy'
 import PostDealPublic from '@/domains/dealhunt/pages/PostDealPublic'
+import DealPosterVerification from '@/domains/dealhunt/pages/DealPosterVerification'
 
 
 export default function AppShell({ returnParams, triggerGoLive }) {
@@ -371,7 +372,7 @@ export default function AppShell({ returnParams, triggerGoLive }) {
           }}
           onMassageClick={() => { if (isGuest) { triggerGate(); return } setDockVisible(false); setActiveSection('massage'); setMassageOpen(true) }}
           onRentalsClick={() => { if (isGuest) { triggerGate(); return } setDockVisible(false); setActiveSection('rentals'); setActiveTab('rentals') }}
-          onDealHuntClick={() => { setDealHuntOpen(true) }}
+          onDealHuntClick={() => { setDealHuntOpen(true); setDockVisible(false) }}
         />
       )}
 
@@ -1047,9 +1048,15 @@ export default function AppShell({ returnParams, triggerGoLive }) {
           onSaved={() => setCreateDealOpen(false)}
           userId={user?.id ?? user?.uid}
         />
+        {postDealOpen && (
+          <DealPosterVerification
+            onClose={() => setPostDealOpen(false)}
+            onCreateDeal={() => { setCreateDealOpen(true) }}
+          />
+        )}
         <PostDealPublic
-          open={postDealOpen}
-          onClose={() => setPostDealOpen(false)}
+          open={false}
+          onClose={() => {}}
           onPosted={() => {}}
         />
         <MyDealsPage

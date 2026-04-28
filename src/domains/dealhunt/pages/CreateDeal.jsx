@@ -92,6 +92,14 @@ export default function CreateDeal({ open, onClose, onSaved, userId }) {
   const [description, setDescription] = useState('')
   const [originalPrice, setOriginalPrice] = useState('')
   const [dealPrice, setDealPrice]     = useState('')
+  const [selectedDiscount, setSelectedDiscount] = useState(10)
+  const DISCOUNT_OPTIONS = [10, 15, 20, 25, 30, 35, 40, 45, 50, 55, 60, 65, 70, 75, 80]
+
+  // Auto-calculate deal price when original price or selected discount changes
+  const autoCalcDealPrice = (origPrice, discPct) => {
+    const orig = Number(origPrice)
+    if (orig > 0) setDealPrice(String(Math.round(orig * (1 - discPct / 100))))
+  }
   const [quantity, setQuantity]       = useState('5')
   const [perUser, setPerUser]         = useState('1')
   const [dealType, setDealType]       = useState('pickup')
@@ -421,14 +429,32 @@ export default function CreateDeal({ open, onClose, onSaved, userId }) {
                   type="number"
                   inputMode="numeric"
                   value={originalPrice}
-                  onChange={e => setOriginalPrice(e.target.value.replace(/[^0-9]/g, ''))}
+                  onChange={e => { const v = e.target.value.replace(/[^0-9]/g, ''); setOriginalPrice(v); autoCalcDealPrice(v, selectedDiscount) }}
                   placeholder="100000"
                 />
               </div>
               {errors.originalPrice && <div className={styles.error}>{errors.originalPrice}</div>}
             </div>
+
+            {/* Discount percentage selector */}
+            <div style={{ marginBottom: 16 }}>
+              <label className={styles.label}>Discount % <span style={{ color: 'rgba(255,255,255,0.3)', fontWeight: 400 }}>(default 10%)</span></label>
+              <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
+                {DISCOUNT_OPTIONS.map(pct => (
+                  <button key={pct} type="button" onClick={() => { setSelectedDiscount(pct); autoCalcDealPrice(originalPrice, pct) }} style={{
+                    padding: '8px 12px', borderRadius: 10, fontSize: 13, fontWeight: 800, cursor: 'pointer', minWidth: 48,
+                    background: selectedDiscount === pct ? '#FACC15' : 'rgba(255,255,255,0.06)',
+                    color: selectedDiscount === pct ? '#000' : 'rgba(255,255,255,0.5)',
+                    border: selectedDiscount === pct ? 'none' : '1px solid rgba(255,255,255,0.1)',
+                  }}>
+                    {pct}%
+                  </button>
+                ))}
+              </div>
+            </div>
+
             <div className={styles.priceField}>
-              <label className={styles.label}>Deal Price</label>
+              <label className={styles.label}>Deal Price <span style={{ color: '#8DC63F', fontWeight: 700 }}>(auto-calculated)</span></label>
               <div className={styles.priceInputWrap}>
                 <span className={styles.pricePrefix}>Rp</span>
                 <input
