@@ -79,7 +79,7 @@ export default function AppShell({ returnParams, triggerGoLive }) {
   const { overlay, closeOverlay, openGoLive, openDiscovery } = useOverlay()
   const { userProfile, user } = useAuth()
   const { triggerGate } = useGuestGate()
-  const isGuest = !user
+  const isGuest = !user && localStorage.getItem('indoo_registered') !== 'true'
   const { isOnline, wasOffline } = useConnectionHealth()
   const { session: mySession, needsCheckIn } = useMySession()
   const { showBanner: showCheckIn, bannerReason, handleStillOut, handleLeaving } = useStatusCheckIn(mySession)
