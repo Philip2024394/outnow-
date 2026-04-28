@@ -3,7 +3,7 @@ import styles from './AdminLogin.module.css'
 
 const LOGO_URL = 'https://ik.imagekit.io/nepgaxllc/Bold%203D%20_INDOO_%20logo%20design.png?updatedAt=1776203769926'
 
-const ADMIN_PASS = import.meta.env.VITE_ADMIN_PASSWORD ?? 'admin1240176'
+const ADMIN_PASS = import.meta.env.VITE_ADMIN_PASSWORD ?? ''
 
 export default function AdminLogin({ onLogin }) {
   const [password, setPassword] = useState('')
