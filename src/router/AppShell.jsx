@@ -360,7 +360,7 @@ export default function AppShell({ returnParams, triggerGoLive }) {
           serviceCounts={serviceUnreadCounts}
           onSelectSession={(s) => handleOpenDiscovery(s)}
           onFoodClick={() => { setDockVisible(false); setActiveSection('food'); setFoodOpen(true) }}
-          onRideClick={(type) => { if (isGuest) { triggerGate(); return } setActiveSection('rides'); setRideVehicleType(type ?? 'bike_ride'); setRideOpen(true) }}
+          onRideClick={(type) => { if (isGuest) { triggerGate(); return } setActiveSection('rides'); setRideVehicleType(type ?? 'bike_ride'); setRideOpen(true); setDockVisible(false) }}
           onShoppingClick={() => {
             if (isGuest) { triggerGate(); return }
             setActiveSection('marketplace'); setShopOpen(true); setMarketplaceLanding(true)
