@@ -5,4 +5,4 @@
  * This file keeps the original import path working for any consumer
  * that imports from '@/screens/ProfileScreen' or './ProfileScreen'.
  */
-export { default } from './profile/ProfileScreen'
+export { default } from './profile/SimpleProfileScreen'
