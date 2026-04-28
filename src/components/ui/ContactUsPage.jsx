@@ -551,7 +551,7 @@ export default function ContactUsPage({ onClose }) {
         style={{
           flex: 1,
           overflowY: 'auto',
-          padding: '100px 16px 32px',
+          padding: '200px 16px 32px',
           WebkitOverflowScrolling: 'touch',
         }}
       >
