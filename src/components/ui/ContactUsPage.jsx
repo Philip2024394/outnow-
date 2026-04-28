@@ -535,10 +535,7 @@ export default function ContactUsPage({ onClose }) {
         padding: 'calc(env(safe-area-inset-top, 0px) + 12px) 16px 12px',
         display: 'flex', alignItems: 'center', justifyContent: 'space-between',
       }}>
-        <div>
-          <span style={{ fontSize: 20, fontWeight: 900, color: '#fff', display: 'block' }}>Contact Us</span>
-          <span style={{ fontSize: 11, fontWeight: 600, color: 'rgba(255,255,255,0.4)', display: 'block', marginTop: 2 }}>We'd love to hear from you</span>
-        </div>
+        <div />
         <button
           type="button"
           onClick={onClose}
