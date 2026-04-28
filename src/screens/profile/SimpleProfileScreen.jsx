@@ -169,7 +169,7 @@ export default function SimpleProfileScreen({ onClose }) {
         padding: '16px 20px',
         paddingTop: 'max(16px, env(safe-area-inset-top))',
       }}>
-        <img src="https://ik.imagekit.io/nepgaxllc/Bold%203D%20_INDOO_%20logo%20design.png?updatedAt=1776203769926" alt="INDOO" style={{ height: 36, objectFit: 'contain' }} />
+        <img src="https://ik.imagekit.io/nepgaxllc/Bold%203D%20_INDOO_%20logo%20design.png?updatedAt=1776203769926" alt="INDOO" style={{ height: 56, objectFit: 'contain' }} />
         <button
           onClick={() => setDrawerOpen(true)}
           style={{
