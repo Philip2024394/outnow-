@@ -55,6 +55,7 @@ import IntentGrid from '@/components/ui/IntentGrid'
 import ReviewPrompt from '@/components/restaurant/ReviewPrompt'
 import { buildOrderConversation, buildOfferConversation, buildChatConversation, buildIntroText } from './orderChatHandlers'
 import AppShellBottomNav from './AppShellBottomNav'
+import IndooFooter from '@/components/ui/IndooFooter'
 import MarketplaceOverlays from './MarketplaceOverlays'
 
 import '@/styles/map.css'
@@ -426,7 +427,30 @@ export default function AppShell({ returnParams, triggerGoLive }) {
 
       {/* Full-screen tab screens */}
       <Suspense fallback={<LazyFallback />}>
-        {activeTab === 'chat'    && <ChatScreen key={pendingConv?.id ?? 'chat'} onClose={() => setActiveTab('map')} pendingConv={pendingConv} />}
+        {activeTab === 'chat' && (
+          <div style={{ position: 'fixed', inset: 0, zIndex: 9999, background: '#080808', display: 'flex', flexDirection: 'column' }}>
+            {/* Header */}
+            <div style={{ padding: 'calc(env(safe-area-inset-top, 0px) + 16px) 20px 16px', borderBottom: '1px solid rgba(255,255,255,0.06)', display: 'flex', alignItems: 'center', gap: 12 }}>
+              <button onClick={() => setActiveTab('map')} style={{ background: 'none', border: 'none', color: '#fff', fontSize: 22, cursor: 'pointer' }}>←</button>
+              <span style={{ fontSize: 18, fontWeight: 900, color: '#fff' }}>Messages</span>
+            </div>
+
+            {/* Empty state */}
+            <div style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 16, padding: 40 }}>
+              <span style={{ fontSize: 48 }}>💬</span>
+              <span style={{ fontSize: 18, fontWeight: 900, color: '#fff' }}>No Active Chats</span>
+              <span style={{ fontSize: 13, color: 'rgba(255,255,255,0.4)', textAlign: 'center', lineHeight: 1.6 }}>
+                Chat messages will appear here when you have an active ride or food delivery order.
+                Book a ride or order food to start chatting with your driver.
+              </span>
+              <button onClick={() => setActiveTab('map')} style={{ marginTop: 16, padding: '14px 32px', borderRadius: 14, background: '#8DC63F', border: 'none', color: '#000', fontSize: 15, fontWeight: 900, cursor: 'pointer' }}>
+                Go to Home
+              </button>
+            </div>
+
+            <IndooFooter label="Messages" onHome={() => setActiveTab('map')} onClose={() => setActiveTab('map')} />
+          </div>
+        )}
         {activeTab === 'profile' && <ProfileScreen onClose={() => setActiveTab('map')} onOpenSettings={() => setSettingsOpen(true)} />}
         {activeTab === 'rentals' && <RentalSearchScreen onClose={() => { setActiveTab('map'); setDockVisible(true) }} />}
       </Suspense>
