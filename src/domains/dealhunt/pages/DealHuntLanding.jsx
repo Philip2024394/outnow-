@@ -2,6 +2,7 @@ import { useState, useEffect, useRef, useCallback, useMemo } from 'react'
 import { createPortal } from 'react-dom'
 import styles from './DealHuntLanding.module.css'
 import DealBlast from './DealBlast'
+import DealChat from '../components/DealChat'
 
 // ── Promo banners — full-screen, no text, random rotation ────────────────────
 const PROMO_BANNERS = [
@@ -772,6 +773,7 @@ export default function DealHuntLanding({ open, onClose, onSelectDeal, onCreateD
   const [searchQuery, setSearchQuery] = useState('')
   const [myDeals, setMyDeals] = useState([])
   const [blastOpen, setBlastOpen] = useState(false)
+  const [dealChatOpen, setDealChatOpen] = useState(null) // null or deal object
   const [, forceUpdate] = useState(0)
 
   // Load my deals from localStorage
@@ -965,6 +967,23 @@ export default function DealHuntLanding({ open, onClose, onSelectDeal, onCreateD
             <span style={{ fontSize: 18, fontWeight: 900, color: '#8DC63F' }}>{fmtRp(deal.deal_price)}</span>
             <span style={{ fontSize: 13, color: 'rgba(255,255,255,0.35)', textDecoration: 'line-through' }}>{fmtRp(deal.original_price)}</span>
           </div>
+
+          {/* Chat / Done Deal button */}
+          <button
+            onClick={(e) => { e.stopPropagation(); setDealChatOpen(deal) }}
+            style={{
+              width: '100%', marginTop: 10, padding: '9px 0',
+              borderRadius: 10,
+              backgroundColor: 'rgba(141,198,63,0.12)',
+              border: '1.5px solid rgba(141,198,63,0.3)',
+              color: '#8DC63F', fontSize: 12, fontWeight: 900,
+              cursor: 'pointer', fontFamily: 'inherit',
+              display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6,
+            }}
+          >
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="#8DC63F" stroke="none"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+            Done Deal
+          </button>
         </div>
       </div>
     )
@@ -1249,6 +1268,14 @@ export default function DealHuntLanding({ open, onClose, onSelectDeal, onCreateD
         onClose={() => setBlastOpen(false)}
         deal={null}
       />
+
+      {/* Deal Chat — anonymous buyer-seller chat */}
+      {dealChatOpen && (
+        <DealChat
+          deal={dealChatOpen}
+          onClose={() => setDealChatOpen(null)}
+        />
+      )}
     </div>,
     document.body
   )
