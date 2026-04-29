@@ -15,7 +15,9 @@ export { PageBadge }
 
 export default function RentalDetail({ listing, onClose, onChat, onBook, onReview }) {
   const [saved, setSaved] = useState(() => isItemSaved(listing?.id))
+  const [activeImg, setActiveImg] = useState(0)
   if (!listing) return null
+  const images = listing.images?.length ? listing.images : [listing.image || '']
 
   const fmtK = n => !n ? '\u2014' : n >= 1000000 ? (n/1000000).toFixed(1).replace('.0','') + 'jt' : n >= 1000 ? Math.round(n/1000) + 'k' : n
 
@@ -31,12 +33,21 @@ export default function RentalDetail({ listing, onClose, onChat, onBook, onRevie
 
   return (
     <div style={{ position: 'fixed', inset: 0, zIndex: 9998, display: 'flex', flexDirection: 'column', fontFamily: 'inherit' }}>
-      <PageBadge num="8b" label="Product Detail" />
 
       {/* Full-bleed background image */}
       <div style={{ position: 'absolute', inset: 0, zIndex: 0 }}>
-        <img src={listing.images?.[0]} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }} />
+        <img src={images[activeImg] || images[0]} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block', transition: 'opacity 0.3s' }} />
         <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, height: '70%', background: 'linear-gradient(transparent, rgba(0,0,0,0.85))', pointerEvents: 'none' }} />
+        {/* Thumbnails */}
+        {images.length >= 1 && (
+          <div style={{ position: 'absolute', bottom: 12, left: '50%', transform: 'translateX(-50%)', display: 'flex', gap: 8, zIndex: 3 }}>
+            {images.slice(0, 4).map((img, i) => (
+              <button key={i} onClick={() => setActiveImg(i)} style={{ width: 48, height: 48, borderRadius: 10, overflow: 'hidden', border: activeImg === i ? '2px solid #8DC63F' : '2px solid rgba(255,255,255,0.2)', padding: 0, cursor: 'pointer', opacity: activeImg === i ? 1 : 0.6, transition: 'all 0.2s', boxShadow: activeImg === i ? '0 0 10px rgba(141,198,63,0.4)' : 'none' }}>
+                <img src={img} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+              </button>
+            ))}
+          </div>
+        )}
       </div>
 
       {/* Floating top buttons */}

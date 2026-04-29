@@ -28,10 +28,8 @@ import SettingsScreen from './SettingsScreen'
 import MessagesScreen from './MessagesScreen'
 import ProfileScreen2 from './ProfileScreen2'
 import RentalDetail, { PageBadge } from './rental/RentalDetail'
-import RentalLanding from './rental/RentalLanding'
 import SubCategoryLanding from './rental/SubCategoryLanding'
 import VehicleDirectory, { BIKE_DIR_BG, CAR_DIR_BG, TRUCK_DIR_BG, BUS_DIR_BG } from './rental/VehicleDirectory'
-import RentalCategories, { CATEGORY_TILES } from './rental/RentalCategories'
 import { seedMockData } from '@/utils/mockData'
 import styles from './RentalSearchScreen.module.css'
 
@@ -52,7 +50,7 @@ function usePreloadImages() {
 }
 
 
-export default function RentalSearchScreen({ onClose, initialView }) {
+export default function RentalSearchScreen({ onClose, initialView, initialListingMode, initialListingOpen }) {
   usePreloadImages()
   const [view, setView] = useState(initialView || 'browse')
   const [search, setSearch] = useState('')
@@ -63,7 +61,7 @@ export default function RentalSearchScreen({ onClose, initialView }) {
   const [selected, setSelected] = useState(null)
   const [dashboardOpen, setDashboardOpen] = useState(false)
   const [rentalSignUpOpen, setRentalSignUpOpen] = useState(false)
-  const [rentalCategoryOpen, setRentalListingOpen] = useState(false)
+  const [rentalCategoryOpen, setRentalListingOpen] = useState(initialListingOpen || false)
   const [renterSignUpOpen, setRenterSignUpOpen] = useState(false)
   const [calcVehicle, setCalcVehicle] = useState(null)
   const [chatListing, setChatListing] = useState(null)
@@ -78,7 +76,7 @@ export default function RentalSearchScreen({ onClose, initialView }) {
   const [filterPreviewIdx, setFilterPreviewIdx] = useState(0)
   const [cardImgIdx, setCardImgIdx] = useState({})
   const [flippedCards, setFlippedCards] = useState({})
-  const [listingMode, setListingMode] = useState('all') // 'all' | 'rent' | 'sale'
+  const [listingMode, setListingMode] = useState(initialListingMode || 'all') // 'all' | 'rent' | 'sale'
   const [reviewListing, setReviewListing] = useState(null)
   const [showUserDrawer, setShowUserDrawer] = useState(false)
   const [pendingAction, setPendingAction] = useState(null) // { type: 'book'|'chat', listing }
@@ -97,12 +95,12 @@ export default function RentalSearchScreen({ onClose, initialView }) {
 
   // Check if user has account before allowing book/chat
   const hasAccount = () => {
-    try { return !!localStorage.getItem('indoo_profile') || !!localStorage.getItem('indoo_rental_owner') } catch { return false }
+    try { return !!localStorage.getItem('indoo_profile') || !!localStorage.getItem('indoo_rental_owner') || !!localStorage.getItem('indoo_demo_profile') } catch { return false }
   }
   const requireAccount = (type, listing) => {
+    if (type === 'chat') { setChatListing(listing); return }
     if (hasAccount()) {
       if (type === 'book') setBookingListing(listing)
-      else if (type === 'chat') setChatListing(listing)
     } else {
       setPendingAction({ type, listing })
       setRentalSignUpOpen(true)
@@ -215,12 +213,11 @@ export default function RentalSearchScreen({ onClose, initialView }) {
 
   if (view === 'vehicles') {
     return (<>
-      <PageBadge num={3} label="Vehicles" />
       <SubCategoryLanding
         bg={VEHICLES_BG}
-        title="Vehicles"
+        title={listingMode === 'sale' ? 'Vehicles to Buy' : listingMode === 'rent' ? 'Vehicles to Rent' : 'Vehicles'}
         tagline="Find your perfect ride"
-        heroSub="Buy or rent vehicles across Indonesia"
+        heroSub={listingMode === 'sale' ? 'Find vehicles for sale across Indonesia' : listingMode === 'rent' ? 'Find vehicles to rent across Indonesia' : 'Buy or rent vehicles across Indonesia'}
         buttons={[
           { img: 'https://ik.imagekit.io/nepgaxllc/Sleek%20green%20and%20black%20scooter%20setup.png?updatedAt=1775634845237', label: 'Bike Market', sub: 'Matic, Sport, Trail & Classic', count: '1,200+', rating: 4.8, filter: 'Motorcycles' },
           { img: 'https://ik.imagekit.io/nepgaxllc/Sporty%20green%20and%20black%20hatchback.png?updatedAt=1775634925566', label: 'Car Market', sub: 'MPV, SUV, Sedan & City Cars', count: '860+', rating: 4.7, filter: 'Cars' },
@@ -235,10 +232,10 @@ export default function RentalSearchScreen({ onClose, initialView }) {
 
   if (view === 'vehicleDir' && vehicleType) {
     return (<>
-      <PageBadge num={4} label="Directory" />
       <VehicleDirectory
         vehicleType={vehicleType}
-        onSelectModel={(model) => { setSelectedModel(model); setActiveFilter([vehicleType]); setSearch(model.name.split(' ')[0]); setView('browse') }}
+        listingMode={listingMode}
+        onSelectModel={(model) => { setSelectedModel(model); setActiveFilter([vehicleType]); setCategory(vehicleType); setSearch(model.name.split(' ')[0]); setView('browse') }}
         onBack={() => setView('vehicles')}
       />
     </>)
@@ -246,14 +243,13 @@ export default function RentalSearchScreen({ onClose, initialView }) {
 
   if (view === 'property') {
     return (<>
-      <PageBadge num={5} label="Property" />
       <SubCategoryLanding
         bg={PROPERTY_BG}
         bgPosition="center top"
         noScroll
-        title="Property Buy & Rent"
+        title={listingMode === 'sale' ? 'Property to Buy' : listingMode === 'rent' ? 'Property to Rent' : 'Property'}
         tagline="Stay anywhere you want"
-        heroSub="Buy or rent houses, villas, kos & factory spaces"
+        heroSub={listingMode === 'sale' ? 'Find property for sale across Indonesia' : listingMode === 'rent' ? 'Find property to rent across Indonesia' : 'Buy or rent houses, villas, kos & factory spaces'}
         buttons={[
           { label: 'House', filter: 'House', heroCard: true, heroImg: 'https://ik.imagekit.io/nepgaxllc/Untitleddddddg.png', heroIcon: 'house' },
           { label: 'Factory', filter: 'Factory', heroCard: true, heroImg: 'https://ik.imagekit.io/nepgaxllc/Untitleddddddgdd.png', heroIcon: 'factory' },
@@ -268,12 +264,11 @@ export default function RentalSearchScreen({ onClose, initialView }) {
 
   if (view === 'equipment') {
     return (<>
-      <PageBadge num={6} label="Equipment" />
       <SubCategoryLanding
         bg={EQUIPMENT_BG}
-        title="Equipment Buy & Rent"
+        title={listingMode === 'sale' ? 'Equipment to Buy' : listingMode === 'rent' ? 'Equipment to Rent' : 'Equipment'}
         tagline="Gear up for any occasion"
-        heroSub="Buy or rent cameras, sound systems, lighting & event gear"
+        heroSub={listingMode === 'sale' ? 'Find equipment for sale' : listingMode === 'rent' ? 'Find equipment to rent' : 'Buy or rent cameras, sound systems & event gear'}
         buttons={[
           { icon: '🎪', label: 'Event Gear', filter: 'Event' },
           { icon: '📸', label: 'Photo & Video', filter: 'Camera' },
@@ -287,13 +282,12 @@ export default function RentalSearchScreen({ onClose, initialView }) {
 
   if (view === 'fashion') {
     return (<>
-      <PageBadge num={7} label="Fashion" />
       <SubCategoryLanding
         bg={FASHION_BG}
         bgPosition="center top"
-        title="Fashion Buy & Rent"
+        title={listingMode === 'sale' ? 'Fashion to Buy' : listingMode === 'rent' ? 'Fashion to Rent' : 'Fashion'}
         tagline="Dress for every occasion"
-        heroSub="Buy or rent kebaya, suits, gowns & traditional wear"
+        heroSub={listingMode === 'sale' ? 'Find fashion for sale' : listingMode === 'rent' ? 'Find fashion to rent' : 'Buy or rent kebaya, suits, gowns & traditional wear'}
         buttons={[
           { label: 'Wedding Clothes', filter: 'Wedding', heroCard: true, heroImg: 'https://ik.imagekit.io/nepgaxllc/ChatGPT%20Image%20Apr%2029,%202026,%2006_13_12%20AM.png', heroIcon: 'wedding' },
           { label: 'Fashion Clothes', filter: 'Fashion', heroCard: true, heroImg: 'https://ik.imagekit.io/nepgaxllc/ChatGPT%20Image%20Apr%2029,%202026,%2006_15_05%20AM.png', heroIcon: 'fashion' },
@@ -331,7 +325,8 @@ export default function RentalSearchScreen({ onClose, initialView }) {
 
         {/* Filter overlay — full screen with flip hero + filter fields */}
         {showFilter && (() => {
-          const previewListing = sortedListings[filterPreviewIdx % Math.max(sortedListings.length, 1)] || sortedListings[0]
+          const modeFilteredListings = sortedListings.filter(l => listingMode === 'sale' ? !!l.buy_now : listingMode === 'rent' ? !l.buy_now : true)
+          const previewListing = modeFilteredListings[filterPreviewIdx % Math.max(modeFilteredListings.length, 1)] || modeFilteredListings[0]
           const previewImgs = previewListing?.images?.length ? previewListing.images : [previewListing?.image || '']
           const hasActiveFilters = filterCity || filterCondition || filterPriceMin || filterPriceMax || priceSort || category !== 'all'
           const activeCount = [filterCity, filterCondition, filterPriceMin, filterPriceMax, priceSort, category !== 'all' ? category : ''].filter(Boolean).length
@@ -339,7 +334,6 @@ export default function RentalSearchScreen({ onClose, initialView }) {
 
           return (
           <div style={{ position: 'fixed', inset: 0, zIndex: 9990, background: 'linear-gradient(180deg, #0a0a0c 0%, #0d0d0f 40%, #0a0a0c 100%)', display: 'flex', flexDirection: 'column', fontFamily: 'inherit' }}>
-            <PageBadge num="8a" label="Filter" />
             <style>{`@keyframes filterFlip { from { transform: rotateY(0) } to { transform: rotateY(180deg) } } @keyframes filterSlideUp { from { transform: translateY(30px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }`}</style>
 
             {/* Header */}
@@ -354,6 +348,19 @@ export default function RentalSearchScreen({ onClose, initialView }) {
             </div>
 
             <div style={{ flex: 1, overflowY: 'auto', padding: '0 16px 20px' }}>
+
+              {/* Rent / Buy toggle */}
+              <div style={{ display: 'flex', gap: 8, marginBottom: 14 }}>
+                <button onClick={() => setListingMode('rent')} style={{ flex: 1, padding: '12px 0', borderRadius: 14, background: listingMode === 'rent' ? 'rgba(141,198,63,0.15)' : 'rgba(255,255,255,0.04)', border: listingMode === 'rent' ? '1.5px solid rgba(141,198,63,0.4)' : '1.5px solid rgba(255,255,255,0.06)', color: listingMode === 'rent' ? '#8DC63F' : 'rgba(255,255,255,0.4)', fontSize: 14, fontWeight: 900, cursor: 'pointer', fontFamily: 'inherit' }}>
+                  Rentals
+                </button>
+                <button onClick={() => setListingMode('sale')} style={{ flex: 1, padding: '12px 0', borderRadius: 14, background: listingMode === 'sale' ? 'rgba(255,215,0,0.12)' : 'rgba(255,255,255,0.04)', border: listingMode === 'sale' ? '1.5px solid rgba(255,215,0,0.4)' : '1.5px solid rgba(255,255,255,0.06)', color: listingMode === 'sale' ? '#FFD700' : 'rgba(255,255,255,0.4)', fontSize: 14, fontWeight: 900, cursor: 'pointer', fontFamily: 'inherit' }}>
+                  For Sale
+                </button>
+                <button onClick={() => setListingMode('all')} style={{ flex: 1, padding: '12px 0', borderRadius: 14, background: listingMode === 'all' ? 'rgba(255,255,255,0.08)' : 'rgba(255,255,255,0.04)', border: listingMode === 'all' ? '1.5px solid rgba(255,255,255,0.15)' : '1.5px solid rgba(255,255,255,0.06)', color: listingMode === 'all' ? '#fff' : 'rgba(255,255,255,0.4)', fontSize: 14, fontWeight: 900, cursor: 'pointer', fontFamily: 'inherit' }}>
+                  All
+                </button>
+              </div>
 
               {/* ═══ HERO FLIP CARD — preview listing ═══ */}
               {previewListing && (
@@ -488,7 +495,8 @@ export default function RentalSearchScreen({ onClose, initialView }) {
                   </div>
                 </div>
 
-                {/* Category */}
+                {/* Category — hidden when viewing specific vehicle type */}
+                {!vehicleType && (
                 <div style={{ padding: '14px', background: 'rgba(0,0,0,0.4)', backdropFilter: 'blur(12px)', border: '1.5px solid rgba(141,198,63,0.08)', borderRadius: 16, boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.04), 0 4px 16px rgba(0,0,0,0.3)' }}>
                   <div style={{ fontSize: 10, fontWeight: 800, color: 'rgba(141,198,63,0.6)', letterSpacing: '0.05em', marginBottom: 8, textTransform: 'uppercase' }}>Category</div>
                   <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
@@ -503,6 +511,7 @@ export default function RentalSearchScreen({ onClose, initialView }) {
                     ))}
                   </div>
                 </div>
+                )}
 
                 {/* Price Range */}
                 <div style={{ padding: '14px', background: 'rgba(0,0,0,0.4)', backdropFilter: 'blur(12px)', border: '1.5px solid rgba(141,198,63,0.08)', borderRadius: 16, boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.04), 0 4px 16px rgba(0,0,0,0.3)' }}>
@@ -711,14 +720,13 @@ export default function RentalSearchScreen({ onClose, initialView }) {
         </>
       )}
 
-      <PageBadge num={8} label="Browse" />
       {/* 2-column product grid — matches marketplace layout */}
       <div className={styles.body} style={{ paddingRight: 66, paddingTop: 90 }}>
         <style>{`
           @keyframes rentalCardIn { from { opacity: 0; transform: translateY(12px) scale(0.97); } to { opacity: 1; transform: translateY(0) scale(1); } }
         `}</style>
         {/* Mode label */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 10 }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 8 }}>
           <span style={{ fontSize: 16, fontWeight: 900, color: listingMode === 'sale' ? '#FFD700' : listingMode === 'rent' ? '#8DC63F' : '#fff' }}>
             {listingMode === 'sale' ? 'For Sale' : listingMode === 'rent' ? 'Rentals' : 'All Listings'}
           </span>
@@ -726,6 +734,30 @@ export default function RentalSearchScreen({ onClose, initialView }) {
             {sortedListings.filter(l => listingMode === 'sale' ? !!l.buy_now : listingMode === 'rent' ? !l.buy_now : true).length} items
           </span>
         </div>
+        {/* Quick category chips — hidden when viewing specific vehicle type */}
+        {!vehicleType && (
+          <div style={{ display: 'flex', gap: 6, overflowX: 'auto', paddingBottom: 10, WebkitOverflowScrolling: 'touch' }}>
+            {[
+              { id: 'all', label: 'All' },
+              { id: 'Motorcycles', label: 'Bikes' },
+              { id: 'Cars', label: 'Cars' },
+              { id: 'Trucks', label: 'Trucks' },
+              { id: 'Property', label: 'Property' },
+              { id: 'Fashion', label: 'Fashion' },
+              { id: 'Electronics', label: 'Electronics' },
+              { id: 'Audio & Sound', label: 'Audio' },
+              { id: 'Party & Event', label: 'Events' },
+            ].map(c => (
+              <button key={c.id} onClick={() => { setCategory(c.id === 'all' ? 'all' : c.id); setActiveFilter(c.id === 'all' ? null : [c.id]); setSearch('') }} style={{
+                padding: '6px 14px', borderRadius: 20, whiteSpace: 'nowrap', flexShrink: 0,
+                background: (category === c.id || (c.id === 'all' && category === 'all' && !activeFilter)) ? 'rgba(141,198,63,0.15)' : 'rgba(255,255,255,0.04)',
+                border: (category === c.id || (c.id === 'all' && category === 'all' && !activeFilter)) ? '1px solid rgba(141,198,63,0.3)' : '1px solid rgba(255,255,255,0.06)',
+                color: (category === c.id || (c.id === 'all' && category === 'all' && !activeFilter)) ? '#8DC63F' : 'rgba(255,255,255,0.4)',
+                fontSize: 12, fontWeight: 700, cursor: 'pointer', fontFamily: 'inherit',
+              }}>{c.label}</button>
+            ))}
+          </div>
+        )}
         {sortedListings.length === 0 && <div className={styles.empty}>No rentals found</div>}
         <div className={styles.grid}>
           {sortedListings.filter(l => listingMode === 'sale' ? !!l.buy_now : listingMode === 'rent' ? !l.buy_now : true).map(l => {
@@ -862,7 +894,7 @@ export default function RentalSearchScreen({ onClose, initialView }) {
       <SettingsScreen open={showSettings} onClose={() => setShowSettings(false)} />
       <MessagesScreen open={showMessages} onClose={() => setShowMessages(false)} onOpenChat={(conv) => { setShowMessages(false); setChatListing(conv) }} />
       {modals}
-      <IndooFooter label="Rentals" onBack={onClose} onHome={onClose} />
+      {!rentalCategoryOpen && <IndooFooter label="Rentals" onBack={onClose} onHome={onClose} />}
     </div>
   )
 }

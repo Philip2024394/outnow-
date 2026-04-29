@@ -11,13 +11,25 @@ function fmtPrice(n) {
 
 // Rental Chat Window
 export function RentalChat({ listing, onClose, onBook }) {
+  const refNum = `IND-${(listing?.id || 'XXX').toString().slice(-6).toUpperCase()}`
   const chatKey = `indoo_chat_${listing?.ref || listing?.id || 'default'}`
+  const [whatsappShared, setWhatsappShared] = useState(false)
   const [messages, setMessages] = useState(() => {
     try {
       const saved = JSON.parse(localStorage.getItem(chatKey) || '[]')
       if (saved.length) return saved.map(m => ({ ...m, time: new Date(m.time) }))
     } catch {}
-    return [{ from: 'system', text: `Welcome! Ask the owner about "${listing?.title}". Phone numbers and contact details are blocked until booking is confirmed.`, time: new Date() }]
+    const priceInfo = listing?.buy_now
+      ? `Sale Price: Rp ${(typeof listing.buy_now === 'object' ? listing.buy_now.price : listing.buy_now || 0).toLocaleString('id-ID')}`
+      : [
+          listing?.price_day && `Daily: Rp ${listing.price_day.toLocaleString('id-ID')}`,
+          listing?.price_week && `Weekly: Rp ${listing.price_week.toLocaleString('id-ID')}`,
+          listing?.price_month && `Monthly: Rp ${listing.price_month.toLocaleString('id-ID')}`,
+        ].filter(Boolean).join(' · ')
+    return [
+      { from: 'system', text: `📋 Listing: ${listing?.title}\nRef: ${refNum}\n${priceInfo}\nCity: ${listing?.city || 'Indonesia'}\n\n⚠️ Phone numbers, social links and contact details are blocked until WhatsApp is officially shared.`, time: new Date(), image: listing?.images?.[0] || null },
+      { from: 'user', text: `Hi, I'm interested in "${listing?.title}" (Ref: ${refNum}). Is this still available?`, time: new Date() },
+    ]
   })
   const [input, setInput] = useState('')
   const [spamWarning, setSpamWarning] = useState('')
@@ -87,16 +99,26 @@ export function RentalChat({ listing, onClose, onBook }) {
   return createPortal(
     <div style={{ position: 'fixed', inset: 0, zIndex: 99998, background: "#000 url('https://ik.imagekit.io/nepgaxllc/Untitledbbbcdfsdf.png?updatedAt=1776626023030') center / cover no-repeat", display: 'flex', flexDirection: 'column' }}>
       {/* Header */}
-      <div style={{ padding: '14px 16px', borderBottom: '1px solid rgba(255,255,255,0.06)', display: 'flex', alignItems: 'center', gap: 12, flexShrink: 0 }}>
-        <button onClick={onClose} style={{ width: 34, height: 34, borderRadius: '50%', background: '#8DC63F', border: 'none', color: '#000', fontSize: 14, fontWeight: 900, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+      <div style={{ padding: '14px 16px', borderBottom: '1px solid rgba(255,255,255,0.06)', display: 'flex', alignItems: 'center', gap: 10, flexShrink: 0 }}>
+        <button onClick={onClose} style={{ width: 34, height: 34, borderRadius: '50%', background: '#8DC63F', border: 'none', color: '#000', fontSize: 14, fontWeight: 900, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#000" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
         </button>
-        <div style={{ flex: 1 }}>
-          <div style={{ fontSize: 14, fontWeight: 800, color: '#fff' }}>{listing.title}</div>
-          <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.3)' }}>{listing.extra_fields?.make} {listing.extra_fields?.model} · {fmtPrice(listing.price_day)}/day</div>
+        {listing.images?.[0] && <img src={listing.images[0]} alt="" style={{ width: 36, height: 36, borderRadius: 10, objectFit: 'cover', flexShrink: 0, border: '1px solid rgba(255,255,255,0.1)' }} />}
+        <div style={{ flex: 1, minWidth: 0 }}>
+          <div style={{ fontSize: 13, fontWeight: 800, color: '#fff', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{listing.title}</div>
+          <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.3)' }}>Ref: {refNum} · {fmtPrice(listing.price_day || listing.buy_now || 0)}{listing.price_day ? '/day' : ''}</div>
         </div>
-        <button onClick={onBook} style={{ padding: '8px 14px', background: '#8DC63F', border: 'none', borderRadius: 10, color: '#000', fontSize: 11, fontWeight: 800, cursor: 'pointer', fontFamily: 'inherit' }}>
-          Book Now
+        <button
+          onClick={() => {
+            if (whatsappShared) return
+            setWhatsappShared(true)
+            const shareMsg = { from: 'system', text: `✅ WhatsApp shared! The seller's WhatsApp number is now available.\n\n📱 +62 812-XXXX-XXXX\n\n10% commission applies to this transaction.`, time: new Date() }
+            setMessages(prev => { const all = [...prev, shareMsg]; persistMessages(all); return all })
+          }}
+          style={{ padding: '6px 10px', background: whatsappShared ? 'rgba(37,211,102,0.15)' : '#25D366', border: whatsappShared ? '1px solid rgba(37,211,102,0.3)' : 'none', borderRadius: 10, color: whatsappShared ? '#25D366' : '#fff', fontSize: 10, fontWeight: 800, cursor: 'pointer', fontFamily: 'inherit', flexShrink: 0, display: 'flex', alignItems: 'center', gap: 4 }}
+        >
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/><path d="M12 2C6.477 2 2 6.477 2 12c0 1.89.525 3.66 1.438 5.168L2 22l4.832-1.438A9.955 9.955 0 0012 22c5.523 0 10-4.477 10-10S17.523 2 12 2z"/></svg>
+          {whatsappShared ? 'Shared' : 'WhatsApp'}
         </button>
       </div>
 
@@ -111,8 +133,9 @@ export function RentalChat({ listing, onClose, onBook }) {
               borderBottomRightRadius: msg.from === 'user' ? 4 : 16,
               borderBottomLeftRadius: msg.from === 'owner' ? 4 : 16,
             }}>
+              {msg.image && <img src={msg.image} alt="" style={{ width: '100%', height: 100, objectFit: 'cover', borderRadius: 10, marginBottom: 8 }} />}
               {msg.from === 'owner' && <div style={{ fontSize: 9, fontWeight: 700, color: '#FFD700', marginBottom: 4 }}>Owner</div>}
-              <div style={{ fontSize: 13, fontWeight: 500, color: msg.from === 'user' ? '#000' : msg.from === 'system' ? 'rgba(141,198,63,0.7)' : 'rgba(255,255,255,0.7)', lineHeight: 1.4 }}>{msg.text}</div>
+              <div style={{ fontSize: 13, fontWeight: 500, color: msg.from === 'user' ? '#000' : msg.from === 'system' ? 'rgba(141,198,63,0.7)' : 'rgba(255,255,255,0.7)', lineHeight: 1.4, whiteSpace: 'pre-line' }}>{msg.text}</div>
               <div style={{ fontSize: 8, color: msg.from === 'user' ? 'rgba(0,0,0,0.3)' : 'rgba(255,255,255,0.15)', marginTop: 4, textAlign: 'right' }}>{msg.time.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</div>
             </div>
           </div>

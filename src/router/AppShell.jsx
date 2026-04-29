@@ -217,6 +217,8 @@ export default function AppShell({ returnParams, triggerGoLive }) {
   const [dealHuntOpen, setDealHuntOpen] = useState(false)
   const [sellRentOpen, setSellRentOpen] = useState(false)
   const [rentalInitialView, setRentalInitialView] = useState(null)
+  const [rentalInitialMode, setRentalInitialMode] = useState(null)
+  const [rentalListingOpen, setRentalListingOpen] = useState(false)
   const [dealDetailOpen, setDealDetailOpen] = useState(null)
   const [createDealOpen, setCreateDealOpen] = useState(false)
   const [postDealOpen, setPostDealOpen] = useState(false)
@@ -368,13 +370,13 @@ export default function AppShell({ returnParams, triggerGoLive }) {
           onRideClick={(type) => { if (isGuest) { triggerGate(); return } setActiveSection('rides'); setRideVehicleType(type ?? 'bike_ride'); setRideOpen(true); setDockVisible(false) }}
           onShoppingClick={() => {
             if (isGuest) { triggerGate(); return }
-            setActiveSection('marketplace'); setShopOpen(true); setMarketplaceLanding(true)
+            setDockVisible(false); setActiveSection('rentals'); setRentalInitialMode('sale'); setRentalInitialView(null); setActiveTab('rentals')
           }}
           onDatingClick={() => {
             setActiveSection('dating'); setDatingGridOpen(true)
           }}
           onMassageClick={() => { if (isGuest) { triggerGate(); return } setDockVisible(false); setActiveSection('massage'); setMassageOpen(true) }}
-          onRentalsClick={() => { if (isGuest) { triggerGate(); return } setDockVisible(false); setActiveSection('rentals'); setActiveTab('rentals') }}
+          onRentalsClick={() => { if (isGuest) { triggerGate(); return } setDockVisible(false); setActiveSection('rentals'); setRentalInitialMode('rent'); setRentalInitialView(null); setActiveTab('rentals') }}
           onDealHuntClick={() => { setDealHuntOpen(true); setDockVisible(false) }}
           onSellRentClick={() => { setSellRentOpen(true); setDockVisible(false) }}
         />
@@ -457,7 +459,7 @@ export default function AppShell({ returnParams, triggerGoLive }) {
           </div>
         )}
         {activeTab === 'profile' && <ProfileScreen onClose={() => setActiveTab('map')} onOpenSettings={() => setSettingsOpen(true)} />}
-        {activeTab === 'rentals' && <RentalSearchScreen onClose={() => { setActiveTab('map'); setDockVisible(true); setRentalInitialView(null) }} initialView={rentalInitialView} />}
+        {activeTab === 'rentals' && <RentalSearchScreen onClose={() => { setActiveTab('map'); setDockVisible(true); setRentalInitialView(null); setRentalInitialMode(null); setRentalListingOpen(false) }} initialView={rentalInitialView} initialListingMode={rentalInitialMode} initialListingOpen={rentalListingOpen} />}
       </Suspense>
 
       <div className="map-top-fade" />
@@ -1019,6 +1021,7 @@ export default function AppShell({ returnParams, triggerGoLive }) {
               setSellRentOpen(false)
               setDockVisible(false)
               setActiveSection('rentals')
+              setRentalInitialMode('rent')
               setRentalInitialView(cat === 'vehicles' ? 'vehicles' : cat === 'property' ? 'property' : cat === 'fashion' ? 'fashion' : (cat === 'equipment' || cat === 'electronics' || cat === 'audio') ? 'equipment' : 'categories')
               setActiveTab('rentals')
             }}
@@ -1026,6 +1029,7 @@ export default function AppShell({ returnParams, triggerGoLive }) {
               setSellRentOpen(false)
               setDockVisible(false)
               setActiveSection('rentals')
+              setRentalInitialMode('sale')
               setRentalInitialView(cat === 'vehicles' ? 'vehicles' : cat === 'property' ? 'property' : cat === 'fashion' ? 'fashion' : (cat === 'equipment' || cat === 'electronics' || cat === 'audio') ? 'equipment' : 'categories')
               setActiveTab('rentals')
             }}
@@ -1036,6 +1040,14 @@ export default function AppShell({ returnParams, triggerGoLive }) {
             onOpenCreateDeal={() => {
               setSellRentOpen(false)
               setPostDealOpen(true)
+            }}
+            onJoinSellRent={() => {
+              setSellRentOpen(false)
+              setDockVisible(false)
+              setActiveSection('rentals')
+              setRentalListingOpen(true)
+              setRentalInitialView(null)
+              setActiveTab('rentals')
             }}
           />
         )}

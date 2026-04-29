@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from 'react'
-import { createPortal } from 'react-dom'
+import IndooFooter from '@/components/ui/IndooFooter'
 import styles from '../rentalFormStyles.module.css'
 
 function generateOwnerId() { return 'OWN-' + Math.random().toString(36).substring(2, 6).toUpperCase() + Math.floor(1000 + Math.random() * 9000) }
@@ -27,17 +27,7 @@ export default function OwnerProfileForm({ open, onClose, onComplete }) {
   const [showErrors, setShowErrors] = useState(false)
   const [locationSuggestions, setLocationSuggestions] = useState([])
   const [showLocationPicker, setShowLocationPicker] = useState(false)
-  const [showAgreement, setShowAgreement] = useState(false)
-  const [showPlanSelect, setShowPlanSelect] = useState(false)
-  const [selectedPlan, setSelectedPlan] = useState(null)
-  const [localAgreement, setLocalAgreement] = useState(
-    '1. Valid KTP (National ID Card) required\n2. SIM C (Motorcycle) or SIM A (Car) license required\n3. WhatsApp contact number must be provided\n4. KTP held as collateral during rental period\n5. Return vehicle with full tank of fuel\n6. Late return charged per hour based on daily rate\n7. Renter responsible for all traffic violations and fines\n8. Renter liable for any damage to the vehicle\n9. Vehicle must not be taken outside agreed area\n10. Sub-renting or lending to third party is prohibited'
-  )
-  const [touristAgreement, setTouristAgreement] = useState(
-    '1. Valid Passport (physical or copy) required\n2. International Driving Permit (IDP) mandatory\n3. Small deposit paid in advance to secure booking\n4. Bank details of deposit must match passport name\n5. Proof of hotel/villa stay with remaining days required\n6. All documents must match (passport, bank, hotel booking)\n7. Emergency local contact must be provided\n8. Return vehicle with full tank of fuel (Pertamax)\n9. Late return charged per hour based on daily rate\n10. Renter responsible for damage and third-party costs\n11. Vehicle cannot leave the island\n12. Sub-renting or lending to third party is prohibited'
-  )
-  const [editingAgreementTab, setEditingAgreementTab] = useState('local')
-  const [agreementAccepted, setAgreementAccepted] = useState(false)
+  const [agreementFile, setAgreementFile] = useState(null)
 
   // Auto-detect city on load
   useEffect(() => {
@@ -60,8 +50,8 @@ export default function OwnerProfileForm({ open, onClose, onComplete }) {
 
   // Processing / Activated screen
   if (processing) {
-    return createPortal(
-      <div className={styles.screen} style={{ backgroundImage: 'url(https://ik.imagekit.io/nepgaxllc/Untitledsadasdadsaa.png)', backgroundSize: 'cover', backgroundPosition: 'center', alignItems: 'center', justifyContent: 'center' }}>
+    return (
+      <div className={styles.screen} style={{ backgroundImage: "url('https://ik.imagekit.io/nepgaxllc/ChatGPT%20Image%20Apr%2029,%202026,%2003_29_38%20AM.png?updatedAt=1777408195502')", backgroundSize: 'cover', backgroundPosition: 'center', alignItems: 'center', justifyContent: 'center' }}>
         {!activated ? (
           <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 24, textAlign: 'center', padding: 40 }}>
             {/* Spinning circle */}
@@ -83,271 +73,10 @@ export default function OwnerProfileForm({ open, onClose, onComplete }) {
             </button>
           </div>
         )}
-      </div>,
-      document.body
+      </div>
     )
   }
 
-  // Welcome screen — simple, clear, one path
-  if (showPlanSelect) {
-    const handleContinue = () => {
-      try {
-        const p = JSON.parse(localStorage.getItem('indoo_rental_owner') || '{}')
-        p.plan = 'free'
-        p.plan_started = new Date().toISOString()
-        localStorage.setItem('indoo_rental_owner', JSON.stringify(p))
-      } catch {}
-      setShowPlanSelect(false)
-      onComplete?.({ ownerId, ownerType, fullName, companyName, yearEstablished, whatsapp, email, city, address, fleetSize, bio, plan: 'free', rentalAgreement: { local: localAgreement, tourist: touristAgreement, accepted: agreementAccepted } })
-    }
-
-    return createPortal(
-      <div className={styles.screen} style={{ backgroundImage: 'url(https://ik.imagekit.io/nepgaxllc/ChatGPT%20Image%20Apr%2018,%202026,%2006_51_21%20PM.png?updatedAt=1776513101123)', backgroundSize: 'cover', backgroundPosition: 'center' }}>
-        <div style={{ position: 'absolute', inset: 0, background: 'rgba(0,0,0,0.5)', pointerEvents: 'none' }} />
-
-        <div className={styles.content} style={{ position: 'relative', zIndex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', minHeight: '100%', padding: '40px 20px' }}>
-
-          {/* Welcome text */}
-          <h1 style={{ fontSize: 26, fontWeight: 900, color: '#fff', margin: '0 0 16px', textAlign: 'center' }}>Welcome to Indoo</h1>
-
-          {/* Bike image */}
-          <img src="https://ik.imagekit.io/nepgaxllc/ChatGPT%20Image%20Apr%2019,%202026,%2012_04_09%20AM.png" alt="" style={{ width: 140, height: 140, objectFit: 'contain', filter: 'drop-shadow(0 8px 24px rgba(0,0,0,0.5))', marginBottom: 24 }} />
-
-          {/* Spacer */}
-          <div style={{ height: 10 }} />
-
-          {/* Simple package card */}
-          <div style={{
-            width: '100%', maxWidth: 340, padding: '24px 20px',
-            background: 'rgba(0,0,0,0.6)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)',
-            border: '1.5px solid rgba(141,198,63,0.25)', borderRadius: 20,
-            boxShadow: '0 0 20px rgba(141,198,63,0.1), inset 0 1px 0 rgba(255,255,255,0.04)',
-          }}>
-            {/* Main message */}
-            <h2 style={{ fontSize: 20, fontWeight: 900, color: '#fff', margin: '0 0 6px', textAlign: 'center' }}>Free To Join</h2>
-            <p style={{ fontSize: 14, color: '#8DC63F', fontWeight: 700, textAlign: 'center', margin: '0 0 20px' }}>Start Today For Unlimited Access</p>
-
-            {/* Features */}
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
-              {[
-                { icon: '✅', text: 'No sign-up fees', sub: 'Create your account completely free' },
-                { icon: '🏍️', text: 'List unlimited vehicles', sub: 'Motorbikes, cars, trucks — list them all' },
-                { icon: '💬', text: 'Connect with renters', sub: 'In-app chat to manage bookings' },
-                { icon: '📊', text: 'Track your earnings', sub: 'Wallet dashboard with full history' },
-                { icon: '🌍', text: 'Reach millions of tourists', sub: 'Your listings visible across Indonesia' },
-              ].map((item, i) => (
-                <div key={i} style={{ display: 'flex', gap: 12, alignItems: 'flex-start' }}>
-                  <span style={{ fontSize: 20, flexShrink: 0, marginTop: 1 }}>{item.icon}</span>
-                  <div>
-                    <div style={{ fontSize: 14, fontWeight: 800, color: '#fff' }}>{item.text}</div>
-                    <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.3)', marginTop: 2 }}>{item.sub}</div>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-
-          {/* CTA */}
-          <button onClick={handleContinue} style={{
-            width: '100%', maxWidth: 340, marginTop: 20, padding: '16px 0',
-            borderRadius: 14, background: '#8DC63F', border: 'none',
-            color: '#000', fontSize: 16, fontWeight: 800, cursor: 'pointer',
-            fontFamily: 'inherit', boxShadow: '0 4px 20px rgba(141,198,63,0.3)',
-          }}>
-            Get Started →
-          </button>
-
-          <p style={{ fontSize: 10, color: 'rgba(255,255,255,0.2)', marginTop: 10, textAlign: 'center' }}>
-            By continuing you agree to Indoo's <span style={{ color: 'rgba(141,198,63,0.5)', textDecoration: 'underline', cursor: 'pointer' }}>terms of service</span> including commission rates
-          </p>
-        </div>
-      </div>,
-      document.body
-    )
-  }
-
-  // Old plan code removed — wallet system handles everything now
-  if (false) {
-    const _unused = [
-      {
-        id: '_removed', features: [
-          { t: 'placeholder', y: true },
-          { t: 'Basic rental card', y: true },
-          { t: 'Standard search position', y: true },
-          { t: 'Views count only', y: true },
-          { t: 'WhatsApp direct contact', y: false },
-          { t: 'GPS live tracking', y: false },
-          { t: 'Analytics dashboard', y: false },
-          { t: 'Custom rental agreement', y: false },
-          { t: 'Verified owner badge', y: false },
-        ],
-      },
-      {
-        id: 'standard', name: 'Cruiser', tagline: 'Ride With Confidence', price: '49.000', color: '#3B82F6', commission: '10%',
-        commColor: '#8DC63F', commBg: 'rgba(141,198,63,0.08)', commBorder: 'rgba(141,198,63,0.2)',
-        contact: 'WhatsApp direct', badge: null, stars: 3, img: 'https://ik.imagekit.io/nepgaxllc/ChatGPT%20Image%20Apr%2019,%202026,%2012_06_08%20AM.png',
-        features: [
-          { t: 'Up to 10 listings', y: true },
-          { t: 'WhatsApp direct to renters', y: true },
-          { t: 'Enhanced rental card', y: true },
-          { t: 'Boosted search position', y: true },
-          { t: 'Views + booking analytics', y: true },
-          { t: 'Editable rental agreement', y: true },
-          { t: 'Email support', y: true },
-          { t: 'GPS live tracking', y: false },
-          { t: 'Full analytics dashboard', y: false },
-          { t: 'Verified owner badge', y: false },
-        ],
-      },
-      {
-        id: 'premium', name: 'Superbike', tagline: 'Full Throttle Power', price: '79.000', color: '#FFD700', commission: '0%',
-        commColor: '#8DC63F', commBg: 'rgba(141,198,63,0.08)', commBorder: 'rgba(141,198,63,0.2)',
-        contact: 'WhatsApp + GPS Tracking', badge: 'BEST VALUE', stars: 5, img: 'https://ik.imagekit.io/nepgaxllc/ChatGPT%20Image%20Apr%2019,%202026,%2012_04_09%20AM.png',
-        features: [
-          { t: 'Unlimited listings', y: true },
-          { t: 'WhatsApp direct to renters', y: true },
-          { t: 'Live GPS tracking on rentals', y: true },
-          { t: 'Premium rental card design', y: true },
-          { t: 'Top priority in search results', y: true },
-          { t: 'Full analytics dashboard', y: true },
-          { t: 'Custom branded agreement', y: true },
-          { t: '✓ Verified Owner badge', y: true },
-          { t: 'Priority WhatsApp support', y: true },
-          { t: '0% commission — keep all', y: true },
-        ],
-      },
-    ]
-    return createPortal(
-      <div className={styles.screen} style={{ backgroundImage: 'url(https://ik.imagekit.io/nepgaxllc/ChatGPT%20Image%20Apr%2018,%202026,%2006_51_21%20PM.png?updatedAt=1776513101123)', backgroundSize: 'cover', backgroundPosition: 'center' }}>
-        <div style={{ position: 'absolute', inset: 0, background: 'rgba(0,0,0,0.5)', pointerEvents: 'none' }} />
-
-        {/* Header */}
-        <div style={{ padding: '16px 20px 0', flexShrink: 0, position: 'relative', zIndex: 1, textAlign: 'center' }}>
-          <h1 style={{ fontSize: 22, fontWeight: 900, color: '#fff', margin: 0 }}>Choose Your Plan</h1>
-          <p style={{ fontSize: 12, color: 'rgba(255,255,255,0.35)', margin: '6px 0 0', fontWeight: 500 }}>Start free or upgrade for more power</p>
-        </div>
-
-        <div className={styles.content} style={{ position: 'relative', zIndex: 1 }}>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 12, padding: '100px 0 20px' }}>
-            {plans.map(plan => {
-              const sel = selectedPlan === plan.id
-              return (
-                <button key={plan.id} onClick={() => setSelectedPlan(plan.id)} style={{
-                  padding: '18px 16px', borderRadius: 20, cursor: 'pointer', fontFamily: 'inherit', textAlign: 'left',
-                  position: 'relative', overflow: 'hidden',
-                  background: sel ? `rgba(0,0,0,0.75)` : 'rgba(0,0,0,0.65)',
-                  backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)',
-                  border: sel ? `2px solid ${plan.color}` : '1.5px solid rgba(255,255,255,0.08)',
-                  boxShadow: sel ? `0 0 25px ${plan.color}44, inset 0 1px 0 rgba(255,255,255,0.06)` : 'inset 0 1px 0 rgba(255,255,255,0.04), 0 4px 16px rgba(0,0,0,0.4)',
-                  transition: 'all 0.25s',
-                }}>
-                  {/* Badge */}
-                  {plan.badge && <div style={{ position: 'absolute', top: 12, right: plan.img ? 90 : 12, padding: '4px 12px', background: plan.color, borderRadius: 8, fontSize: 9, fontWeight: 900, color: '#000', letterSpacing: '0.05em', zIndex: 2 }}>{plan.badge}</div>}
-                  {/* Package image */}
-                  {plan.img && <img src={plan.img} alt="" style={{ position: 'absolute', right: -10, top: '50%', transform: 'translateY(-50%)', width: 120, height: 120, objectFit: 'contain', opacity: 0.9, pointerEvents: 'none', filter: 'drop-shadow(0 4px 12px rgba(0,0,0,0.5))' }} />}
-
-                  {/* Name + Tagline + Stars + Price row */}
-                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12, paddingRight: plan.badge ? 80 : 0 }}>
-                    <div>
-                      <span style={{ fontSize: 19, fontWeight: 900, color: plan.color }}>{plan.name}</span>
-                      <div style={{ fontSize: 12, color: '#fff', marginTop: 2, fontWeight: 700, fontStyle: 'italic', opacity: 0.6 }}>{plan.tagline}</div>
-                      <div style={{ display: 'flex', gap: 2, marginTop: 4 }}>
-                        {Array.from({ length: 5 }, (_, si) => (
-                          <span key={si} style={{ fontSize: 12, color: si < plan.stars ? plan.color : 'rgba(255,255,255,0.1)' }}>★</span>
-                        ))}
-                        <span style={{ fontSize: 9, color: 'rgba(255,255,255,0.25)', marginLeft: 4, fontWeight: 700, alignSelf: 'center' }}>{plan.stars === 5 ? 'Most Popular' : plan.stars === 3 ? 'Popular' : 'Starter'}</span>
-                      </div>
-                      <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.3)', marginTop: 3, fontWeight: 600 }}>{plan.contact}</div>
-                    </div>
-                    <div style={{ textAlign: 'right' }}>
-                      <div style={{ display: 'flex', alignItems: 'baseline', gap: 2 }}>
-                        <span style={{ fontSize: 12, color: 'rgba(255,255,255,0.4)', fontWeight: 600 }}>Rp</span>
-                        <span style={{ fontSize: 26, fontWeight: 900, color: plan.color }}>{plan.price}</span>
-                      </div>
-                      <span style={{ fontSize: 10, color: 'rgba(255,255,255,0.3)', fontWeight: 600 }}>/month</span>
-                    </div>
-                  </div>
-
-                  {/* Commission badge — grey with running light */}
-                  <div style={{ padding: '8px 12px', background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 10, marginBottom: 12, textAlign: 'center', position: 'relative', overflow: 'hidden' }}>
-                    <div style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', background: `linear-gradient(90deg, transparent 0%, ${plan.color}15 50%, transparent 100%)`, animation: 'commGlow 3s ease-in-out infinite', pointerEvents: 'none' }} />
-                    <span style={{ fontSize: 13, fontWeight: 800, color: 'rgba(255,255,255,0.7)', position: 'relative', zIndex: 1 }}>{plan.commission === '0%' ? '0% Commission — Keep All Earnings' : `${plan.commission} Commission Per Booking`}</span>
-                  </div>
-
-                  {/* Features — single column for readability */}
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
-                    {plan.features.map((f, fi) => (
-                      <div key={fi} style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                        <span style={{ fontSize: 13, color: f.y ? plan.color : 'rgba(255,255,255,0.15)', flexShrink: 0 }}>{f.y ? '✓' : '✕'}</span>
-                        <span style={{ fontSize: 13, fontWeight: 600, color: f.y ? 'rgba(255,255,255,0.8)' : 'rgba(255,255,255,0.2)', textDecoration: f.y ? 'none' : 'line-through' }}>{f.t}</span>
-                      </div>
-                    ))}
-                  </div>
-
-                  {/* Fingerprint select button — bottom right */}
-                  <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: 12 }}>
-                    <div onClick={e => { e.stopPropagation(); setSelectedPlan(plan.id) }} style={{
-                      width: 44, height: 44, borderRadius: '50%',
-                      background: sel ? plan.color : 'rgba(255,255,255,0.06)',
-                      border: sel ? 'none' : '1.5px solid rgba(255,255,255,0.12)',
-                      display: 'flex', alignItems: 'center', justifyContent: 'center',
-                      cursor: 'pointer', transition: 'all 0.25s',
-                      boxShadow: sel ? `0 0 16px ${plan.color}55` : 'none',
-                    }}>
-                      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke={sel ? '#000' : 'rgba(255,255,255,0.3)'} strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
-                        <path d="M18.9 8a8.1 8.1 0 0 0-2.2-3.8A8 8 0 0 0 4 12c0 2.2.5 3.9 1.3 5.3"/>
-                        <path d="M12 4a8 8 0 0 1 8 8c0 2.5-.7 4.2-1.6 5.5"/>
-                        <path d="M8 12a4 4 0 0 1 8 0c0 1.4-.3 2.5-.8 3.4"/>
-                        <path d="M12 8a4 4 0 0 0-4 4c0 1.8.5 3.2 1.2 4.2"/>
-                        <path d="M12 12v8"/>
-                      </svg>
-                    </div>
-                  </div>
-
-                  {/* Selected indicator */}
-                  {sel && <div style={{ marginTop: 6, textAlign: 'center', fontSize: 10, fontWeight: 800, color: plan.color, letterSpacing: '0.04em' }}>✓ SELECTED</div>}
-                </button>
-              )
-            })}
-          </div>
-        </div>
-
-        {/* Footer */}
-        <div style={{ padding: '10px 20px 24px', flexShrink: 0, position: 'relative', zIndex: 1 }}>
-          <button
-            onClick={() => {
-              const plan = selectedPlan || 'free'
-              try {
-                const p = JSON.parse(localStorage.getItem('indoo_rental_owner') || '{}')
-                p.plan = plan
-                p.plan_started = new Date().toISOString()
-                if (plan !== 'free') p.plan_expires = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString()
-                localStorage.setItem('indoo_rental_owner', JSON.stringify(p))
-              } catch {}
-              setShowPlanSelect(false)
-              onComplete?.({ ownerId, ownerType, fullName, companyName, yearEstablished, whatsapp, email, city, address, fleetSize, bio, plan, rentalAgreement: { local: localAgreement, tourist: touristAgreement, accepted: agreementAccepted } })
-            }}
-            disabled={!selectedPlan}
-            style={{
-              width: '100%', padding: '15px 0', borderRadius: 14,
-              background: !selectedPlan ? 'rgba(255,255,255,0.06)' : selectedPlan === 'free' ? '#8DC63F' : selectedPlan === 'standard' ? '#3B82F6' : '#FFD700',
-              border: 'none', color: selectedPlan ? '#000' : 'rgba(255,255,255,0.2)',
-              fontSize: 15, fontWeight: 800, cursor: selectedPlan ? 'pointer' : 'not-allowed',
-              fontFamily: 'inherit',
-              boxShadow: selectedPlan ? '0 4px 20px rgba(0,0,0,0.3)' : 'none',
-              transition: 'all 0.25s',
-            }}
-          >
-            {selectedPlan === 'premium' ? 'Start Premium →' : selectedPlan === 'standard' ? 'Start Standard →' : selectedPlan === 'free' ? 'Continue Free →' : 'Select a Plan'}
-          </button>
-          {selectedPlan && selectedPlan !== 'free' && (
-            <p style={{ textAlign: 'center', fontSize: 10, color: 'rgba(255,255,255,0.2)', marginTop: 6 }}>Cancel anytime · 7 day free trial</p>
-          )}
-        </div>
-      </div>,
-      document.body
-    )
-  }
 
   const isCompany = ownerType === 'Company' || ownerType === 'Agency'
   const errors = {
@@ -363,27 +92,31 @@ export default function OwnerProfileForm({ open, onClose, onComplete }) {
     const profile = {
       ownerId, ownerType, fullName, companyName, yearEstablished,
       whatsapp, email, city, address, fleetSize, bio,
-      rentalAgreement: { local: localAgreement, tourist: touristAgreement, accepted: agreementAccepted },
+      plan: 'free', plan_started: new Date().toISOString(),
     }
     localStorage.setItem('indoo_rental_owner', JSON.stringify(profile))
-    setTimeout(() => setActivated(true), 5000)
+    setTimeout(() => {
+      setActivated(true)
+      setTimeout(() => {
+        setProcessing(false)
+        setActivated(false)
+        onComplete?.(profile)
+      }, 2000)
+    }, 5000)
   }
 
-  return createPortal(
-    <div className={styles.screen} style={{ backgroundImage: 'url(https://ik.imagekit.io/nepgaxllc/ChatGPT%20Image%20Apr%2016,%202026,%2008_02_07%20PM.png?updatedAt=1776344543969)', backgroundSize: 'cover', backgroundPosition: 'center' }}>
+  return (
+    <div className={styles.screen} style={{ backgroundImage: "url('https://ik.imagekit.io/nepgaxllc/ChatGPT%20Image%20Apr%2029,%202026,%2003_29_38%20AM.png?updatedAt=1777408195502')", backgroundSize: 'cover', backgroundPosition: 'center' }}>
       <div style={{ position: 'absolute', inset: 0, background: 'rgba(0,0,0,0.45)', pointerEvents: 'none' }} />
 
-      <div style={{ padding: '16px 20px 0', flexShrink: 0 }}>
-        <button onClick={onClose} style={{ width: 38, height: 38, borderRadius: '50%', background: '#8DC63F', border: 'none', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', boxShadow: '0 2px 10px rgba(141,198,63,0.3)' }}>
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#000" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
-        </button>
+      {/* Hero header */}
+      <div style={{ position: 'relative', zIndex: 1, padding: '20px 20px 0', flexShrink: 0 }}>
+        <h1 style={{ fontSize: 26, fontWeight: 900, color: '#fff', margin: 0, textShadow: '0 4px 20px rgba(0,0,0,0.6)' }}>Owner <span style={{ color: '#8DC63F' }}>Profile</span></h1>
+        <p style={{ fontSize: 13, color: 'rgba(255,255,255,0.45)', margin: '4px 0 0', fontWeight: 600 }}>One-time setup for all your listings</p>
       </div>
 
       <div className={styles.content}>
         <div className={styles.form}>
-
-          {/* Spacer for background image visibility */}
-          <div style={{ height: 120, flexShrink: 0 }} />
 
           {/* Single glass container */}
           <div style={{
@@ -397,11 +130,12 @@ export default function OwnerProfileForm({ open, onClose, onComplete }) {
             {/* Green accent line top */}
             <div style={{ position: 'absolute', top: 0, left: '10%', right: '10%', height: 1, background: 'linear-gradient(90deg, transparent, rgba(141,198,63,0.4), transparent)', pointerEvents: 'none' }} />
 
-            <h2 style={{ fontSize: 20, fontWeight: 900, color: '#fff', margin: 0, padding: '0 0 12px', letterSpacing: '-0.02em' }}>Owner Profile</h2>
-            <p style={{ fontSize: 12, color: 'rgba(255,255,255,0.3)', margin: '-8px 0 16px' }}>One-time setup — applies to all your listings</p>
 
             {/* Trading As */}
-            <h2 className={styles.inlineGroupTitle}>Trading As</h2>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '0 0 4px' }}>
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#8DC63F" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 7V5a2 2 0 00-2-2h-4a2 2 0 00-2 2v2"/></svg>
+              <h2 className={styles.inlineGroupTitle} style={{ margin: 0, padding: 0 }}>Trading As</h2>
+            </div>
             <div className={styles.inlineGroup}>
               <div className={styles.inlineField}>
                 <span className={styles.inlineLabel}>Type</span>
@@ -421,7 +155,10 @@ export default function OwnerProfileForm({ open, onClose, onComplete }) {
             </div>
 
             {/* Personal Details */}
-            <h2 className={styles.inlineGroupTitle}>Personal Details</h2>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '8px 0 4px' }}>
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#8DC63F" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+              <h2 className={styles.inlineGroupTitle} style={{ margin: 0, padding: 0 }}>Personal Details</h2>
+            </div>
             <div className={styles.inlineGroup}>
               <div className={styles.inlineField}>
                 <span className={styles.inlineLabel}>Full Name</span>
@@ -451,60 +188,116 @@ export default function OwnerProfileForm({ open, onClose, onComplete }) {
               </div>
             </div>
 
-            {/* Location — city auto-detects, GPS on address */}
-            <h2 className={styles.inlineGroupTitle}>Location</h2>
+            {/* Location */}
+            <div style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '8px 0 4px' }}>
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#EF4444" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>
+              <h2 className={styles.inlineGroupTitle} style={{ margin: 0, padding: 0 }}>Location</h2>
+            </div>
             <div className={styles.inlineGroup}>
               <div className={styles.inlineField}>
                 <span className={styles.inlineLabel}>City</span>
-                <input className={styles.inlineInput} value={city} onChange={e => setCity(e.target.value)} placeholder="Auto-detecting..." autoComplete="new-password" />
+                <select
+                  className={styles.inlineInput}
+                  value={city}
+                  onChange={e => {
+                    setCity(e.target.value)
+                    if (e.target.value === 'Other') setShowLocationPicker(true)
+                    else setShowLocationPicker(false)
+                  }}
+                  style={{ appearance: 'none', WebkitAppearance: 'none', backgroundImage: 'url("data:image/svg+xml,%3Csvg width=\'10\' height=\'6\' viewBox=\'0 0 10 6\' fill=\'none\' xmlns=\'http://www.w3.org/2000/svg\'%3E%3Cpath d=\'M1 1l4 4 4-4\' stroke=\'%238DC63F\' stroke-width=\'1.5\' stroke-linecap=\'round\'/%3E%3C/svg%3E")', backgroundRepeat: 'no-repeat', backgroundPosition: 'right 8px center' }}
+                >
+                  <option value="" style={{ background: '#111' }}>Select city...</option>
+                  {['Yogyakarta','Jakarta','Surabaya','Bandung','Semarang','Medan','Makassar','Denpasar','Malang','Solo','Palembang','Manado','Balikpapan','Pontianak','Padang','Banjarmasin','Pekanbaru','Batam','Mataram','Kupang','Jayapura','Ambon','Ternate','Kendari','Gorontalo','Samarinda','Sorong','Pangkal Pinang','Bengkulu','Jambi','Lampung','Serang','Cirebon','Tasikmalaya','Sukabumi','Bogor','Bekasi','Tangerang','Depok','Other'].map(c => (
+                    <option key={c} value={c} style={{ background: '#111', color: '#fff' }}>{c}</option>
+                  ))}
+                </select>
               </div>
+
+              {/* Other city — custom input + GPS */}
+              {(city === 'Other' || showLocationPicker) && (
+                <>
+                  <div className={styles.inlineField}>
+                    <span className={styles.inlineLabel}>Your City</span>
+                    <input className={styles.inlineInput} value={city === 'Other' ? '' : city} onChange={e => setCity(e.target.value)} placeholder="Enter city or area name" autoComplete="new-password" />
+                  </div>
+                  <button onClick={() => {
+                    navigator.geolocation.getCurrentPosition(
+                      async (pos) => {
+                        try {
+                          const r = await fetch(`https://nominatim.openstreetmap.org/reverse?lat=${pos.coords.latitude}&lon=${pos.coords.longitude}&format=json`)
+                          const d = await r.json()
+                          const c = [d.address?.city, d.address?.town, d.address?.village, d.address?.county].filter(Boolean)[0] || ''
+                          const addr = [d.address?.road, d.address?.suburb, d.address?.village].filter(Boolean).join(', ')
+                          if (c) setCity(c)
+                          if (addr) setAddress(addr)
+                          // Save GPS coords
+                          try {
+                            const profile = JSON.parse(localStorage.getItem('indoo_rental_owner') || '{}')
+                            profile.gps = { lat: pos.coords.latitude, lng: pos.coords.longitude }
+                            profile.gps_city = c
+                            localStorage.setItem('indoo_rental_owner', JSON.stringify(profile))
+                          } catch {}
+                          setShowLocationPicker(false)
+                        } catch {}
+                      },
+                      () => {},
+                      { enableHighAccuracy: true, timeout: 10000 }
+                    )
+                  }} style={{
+                    display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8,
+                    padding: '10px', borderRadius: 12, width: '100%',
+                    background: 'rgba(239,68,68,0.1)', border: '1px solid rgba(239,68,68,0.25)',
+                    color: '#EF4444', fontSize: 12, fontWeight: 800, cursor: 'pointer', fontFamily: 'inherit',
+                  }}>
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>
+                    Set My GPS Location
+                  </button>
+                </>
+              )}
+
               <div className={styles.inlineField}>
                 <span className={styles.inlineLabel}>Address</span>
                 <input className={styles.inlineInput} value={address} onChange={e => setAddress(e.target.value)} placeholder="Street address" autoComplete="new-password" />
-                <button onClick={() => {
-                  setAddress('Detecting...')
-                  navigator.geolocation.getCurrentPosition(
-                    async (pos) => {
-                      try {
-                        const r = await fetch(`https://nominatim.openstreetmap.org/reverse?lat=${pos.coords.latitude}&lon=${pos.coords.longitude}&format=json`)
-                        const d = await r.json()
-                        const addr = [d.address?.road, d.address?.suburb, d.address?.village].filter(Boolean).join(', ')
-                        setAddress(addr || d.display_name?.split(',').slice(0, 3).join(',') || 'Address set')
-                        const c = [d.address?.city, d.address?.town, d.address?.county, d.address?.state].filter(Boolean).slice(0, 2).join(', ')
-                        if (c) setCity(c)
-                        // Show 3 nearby suggestions
-                        const nearby = await fetch(`https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(addr)}&format=json&countrycodes=id&limit=3`)
-                        const nd = await nearby.json()
-                        setLocationSuggestions(nd.map(l => l.display_name.split(',').slice(0, 3).join(',')))
-                        setShowLocationPicker(true)
-                      } catch { setAddress('') }
-                    },
-                    () => setAddress(''),
-                    { enableHighAccuracy: true, timeout: 10000 }
-                  )
-                }} style={{
-                  width: 30, height: 30, borderRadius: '50%',
-                  background: '#EF4444', border: 'none',
-                  display: 'flex', alignItems: 'center', justifyContent: 'center',
-                  cursor: 'pointer', flexShrink: 0, marginLeft: 8,
-                  boxShadow: '0 2px 8px rgba(239,68,68,0.3)',
-                }}>
-                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>
-                </button>
               </div>
-              {showLocationPicker && locationSuggestions.length > 0 && (
-                <div className={styles.brandPicker} style={{ gridTemplateColumns: '1fr' }}>
-                  {locationSuggestions.map((loc, i) => (
-                    <button key={i} className={`${styles.brandPickerItem} ${address === loc ? styles.brandPickerItemActive : ''}`} onClick={() => { setAddress(loc); setShowLocationPicker(false); setLocationSuggestions([]) }} style={{ textAlign: 'left', fontSize: 12 }}>
-                      📍 {loc}
-                    </button>
-                  ))}
-                </div>
-              )}
+
+              {/* Set GPS Location — always visible */}
+              <button onClick={() => {
+                navigator.geolocation.getCurrentPosition(
+                  async (pos) => {
+                    try {
+                      const r = await fetch(`https://nominatim.openstreetmap.org/reverse?lat=${pos.coords.latitude}&lon=${pos.coords.longitude}&format=json`)
+                      const d = await r.json()
+                      const c = [d.address?.city, d.address?.town, d.address?.village, d.address?.county].filter(Boolean)[0] || ''
+                      const addr = [d.address?.road, d.address?.suburb, d.address?.village].filter(Boolean).join(', ')
+                      if (c) setCity(c)
+                      if (addr) setAddress(addr)
+                      try {
+                        const profile = JSON.parse(localStorage.getItem('indoo_rental_owner') || '{}')
+                        profile.gps = { lat: pos.coords.latitude, lng: pos.coords.longitude }
+                        profile.gps_city = c
+                        localStorage.setItem('indoo_rental_owner', JSON.stringify(profile))
+                      } catch {}
+                    } catch {}
+                  },
+                  () => {},
+                  { enableHighAccuracy: true, timeout: 10000 }
+                )
+              }} style={{
+                display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8,
+                padding: '10px', borderRadius: 12, width: '100%',
+                background: 'rgba(141,198,63,0.1)', border: '1px solid rgba(141,198,63,0.25)',
+                color: '#8DC63F', fontSize: 12, fontWeight: 800, cursor: 'pointer', fontFamily: 'inherit',
+              }}>
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>
+                Set My Location
+              </button>
             </div>
 
             {/* Fleet */}
-            <h2 className={styles.inlineGroupTitle}>Your Fleet</h2>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '8px 0 4px' }}>
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#8DC63F" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="5" cy="18" r="3"/><circle cx="19" cy="18" r="3"/><path d="M12 18h7M5 18l3-8h4l3 8"/><path d="M12 5l-2 5"/></svg>
+              <h2 className={styles.inlineGroupTitle} style={{ margin: 0, padding: 0 }}>Your Fleet</h2>
+            </div>
             <div className={styles.inlineGroup}>
               <div className={styles.inlineField}>
                 <span className={styles.inlineLabel}>Total Vehicles</span>
@@ -523,113 +316,40 @@ export default function OwnerProfileForm({ open, onClose, onComplete }) {
             </div>
 
             {/* About */}
-            <h2 style={{ fontSize: 16, fontWeight: 800, color: '#fff', padding: '16px 0 6px', margin: 0 }}>About</h2>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '8px 0 4px' }}>
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#A855F7" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 015.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+              <h2 style={{ fontSize: 16, fontWeight: 800, color: '#fff', margin: 0 }}>About</h2>
+            </div>
             <div>
               <textarea className={styles.inlineInput} style={{ resize: 'none', height: 100, display: 'block', width: '100%', overflow: 'hidden', boxSizing: 'border-box' }} value={bio} onChange={e => { if (e.target.value.length <= 250) setBio(e.target.value) }} placeholder="Tell renters about yourself or your business..." autoComplete="new-password" />
               <span style={{ fontSize: 10, color: 'rgba(255,255,255,0.15)', float: 'right', marginTop: 4 }}>{bio.length}/250</span>
             </div>
 
-            {/* Rental Agreement */}
+            {/* Agreement Upload (Optional) */}
             <div style={{ marginTop: 16, padding: '14px', background: 'rgba(141,198,63,0.04)', border: '1.5px solid rgba(141,198,63,0.15)', borderRadius: 16 }}>
-              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                  <span style={{ fontSize: 18 }}>📋</span>
-                  <div>
-                    <span style={{ fontSize: 13, fontWeight: 800, color: '#fff' }}>Rental Agreement</span>
-                    <p style={{ fontSize: 10, color: 'rgba(255,255,255,0.25)', margin: '2px 0 0', fontWeight: 500 }}>Set rules for local & tourist rentals</p>
-                  </div>
-                </div>
-                <button onClick={() => setShowAgreement(true)} style={{ padding: '8px 14px', background: '#8DC63F', border: 'none', borderRadius: 10, color: '#000', fontSize: 11, fontWeight: 800, cursor: 'pointer', fontFamily: 'inherit' }}>
-                  View & Edit
-                </button>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 8 }}>
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#8DC63F" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+                <span style={{ fontSize: 13, fontWeight: 800, color: '#fff' }}>Rental / Sales Agreement</span>
+                <span style={{ fontSize: 10, color: 'rgba(255,255,255,0.25)', fontWeight: 600, marginLeft: 'auto' }}>Optional</span>
               </div>
-              <p style={{ fontSize: 10, color: 'rgba(141,198,63,0.4)', margin: '8px 0 0', lineHeight: 1.4 }}>
-                Pre-filled with standard Indonesian rental terms. You can edit these to match your business. These terms will be shown to renters before they book.
-              </p>
+              <p style={{ fontSize: 11, color: 'rgba(255,255,255,0.35)', margin: '0 0 10px', lineHeight: 1.4 }}>Upload your own rental or sales agreement. This will be shown to buyers/renters before they proceed.</p>
+              <label style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8, padding: '12px', borderRadius: 12, background: 'rgba(0,0,0,0.3)', border: '1px dashed rgba(141,198,63,0.3)', cursor: 'pointer' }}>
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#8DC63F" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+                <span style={{ fontSize: 12, fontWeight: 700, color: agreementFile ? '#8DC63F' : 'rgba(255,255,255,0.4)' }}>{agreementFile ? agreementFile.name : 'Upload PDF or Image'}</span>
+                <input type="file" accept=".pdf,.jpg,.jpeg,.png" onChange={e => setAgreementFile(e.target.files?.[0] || null)} style={{ display: 'none' }} />
+              </label>
 
-              {/* Acceptance checkbox */}
-              <button onClick={() => setAgreementAccepted(!agreementAccepted)} style={{ display: 'flex', alignItems: 'center', gap: 10, marginTop: 12, padding: 0, background: 'none', border: 'none', cursor: 'pointer', fontFamily: 'inherit', width: '100%', textAlign: 'left' }}>
-                <div style={{ width: 22, height: 22, borderRadius: 6, background: agreementAccepted ? '#8DC63F' : 'transparent', border: agreementAccepted ? 'none' : '2px solid rgba(255,255,255,0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, transition: 'all 0.2s', boxShadow: agreementAccepted ? '0 0 8px rgba(141,198,63,0.3)' : 'none' }}>
-                  {agreementAccepted && <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#000" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"/></svg>}
-                </div>
-                <span style={{ fontSize: 11, fontWeight: 600, color: agreementAccepted ? '#8DC63F' : 'rgba(255,255,255,0.35)', lineHeight: 1.3 }}>
-                  I agree to use these rental terms for all my listings
-                </span>
+              {/* Activate button */}
+              <button onClick={handleSubmit} style={{ width: '100%', marginTop: 12, padding: 12, borderRadius: 12, background: '#8DC63F', border: 'none', color: '#000', fontSize: 14, fontWeight: 900, cursor: 'pointer', fontFamily: 'inherit', boxShadow: '0 4px 16px rgba(141,198,63,0.3)' }}>
+                Activate Account
               </button>
-            </div>
-
-            {/* Bike image — inside container, below Agreement */}
-            <div style={{ display: 'flex', justifyContent: 'flex-end', paddingTop: 8, marginRight: -30, marginBottom: -10 }}>
-              <img src="https://ik.imagekit.io/nepgaxllc/Sleek%20green%20and%20black%20scooter%20setup.png?updatedAt=1775634845237" alt="" style={{
-                width: 140, height: 140, objectFit: 'contain',
-                filter: 'drop-shadow(0 8px 20px rgba(0,0,0,0.4))',
-              }} />
             </div>
 
           </div>
 
         </div>
       </div>
-
-      {/* Rental Agreement Popup Editor */}
-      {showAgreement && (
-        <div style={{ position: 'fixed', inset: 0, zIndex: 99999, background: 'rgba(0,0,0,0.85)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 16 }}>
-          <div style={{ width: '100%', maxWidth: 420, background: '#111', border: '1.5px solid rgba(141,198,63,0.25)', borderRadius: 20, overflow: 'hidden', boxShadow: '0 20px 60px rgba(0,0,0,0.6), 0 0 20px rgba(141,198,63,0.1)', display: 'flex', flexDirection: 'column', maxHeight: '85vh' }}>
-            {/* Header */}
-            <div style={{ padding: '16px 16px 12px', borderBottom: '1px solid rgba(255,255,255,0.06)', display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexShrink: 0 }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                <span style={{ fontSize: 18 }}>📋</span>
-                <span style={{ fontSize: 15, fontWeight: 800, color: '#fff' }}>Rental Agreement</span>
-              </div>
-              <button onClick={() => setShowAgreement(false)} style={{ width: 32, height: 32, borderRadius: '50%', background: '#8DC63F', border: 'none', color: '#000', fontSize: 14, fontWeight: 900, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>✕</button>
-            </div>
-
-            {/* Tabs */}
-            <div style={{ display: 'flex', gap: 0, flexShrink: 0 }}>
-              <button onClick={() => setEditingAgreementTab('local')} style={{ flex: 1, padding: '12px 0', background: editingAgreementTab === 'local' ? 'rgba(141,198,63,0.1)' : 'transparent', border: 'none', borderBottom: editingAgreementTab === 'local' ? '2px solid #8DC63F' : '2px solid transparent', color: editingAgreementTab === 'local' ? '#8DC63F' : 'rgba(255,255,255,0.3)', fontSize: 13, fontWeight: 800, cursor: 'pointer', fontFamily: 'inherit' }}>
-                🇮🇩 Local Rental
-              </button>
-              <button onClick={() => setEditingAgreementTab('tourist')} style={{ flex: 1, padding: '12px 0', background: editingAgreementTab === 'tourist' ? 'rgba(255,215,0,0.08)' : 'transparent', border: 'none', borderBottom: editingAgreementTab === 'tourist' ? '2px solid #FFD700' : '2px solid transparent', color: editingAgreementTab === 'tourist' ? '#FFD700' : 'rgba(255,255,255,0.3)', fontSize: 13, fontWeight: 800, cursor: 'pointer', fontFamily: 'inherit' }}>
-                ✈️ Tourist Rental
-              </button>
-            </div>
-
-            {/* Editor */}
-            <div style={{ flex: 1, padding: '12px 16px', overflowY: 'auto' }}>
-              <p style={{ fontSize: 10, color: 'rgba(255,255,255,0.2)', margin: '0 0 8px', fontWeight: 500 }}>
-                Edit the terms below. Each line is one requirement. These will be shown to renters.
-              </p>
-              {editingAgreementTab === 'local' ? (
-                <textarea
-                  value={localAgreement}
-                  onChange={e => setLocalAgreement(e.target.value)}
-                  style={{ width: '100%', minHeight: 250, background: 'rgba(0,0,0,0.3)', border: '1px solid rgba(141,198,63,0.15)', borderRadius: 12, padding: 12, color: 'rgba(255,255,255,0.7)', fontSize: 13, fontWeight: 500, lineHeight: 1.6, resize: 'vertical', fontFamily: 'inherit', outline: 'none', boxSizing: 'border-box' }}
-                />
-              ) : (
-                <textarea
-                  value={touristAgreement}
-                  onChange={e => setTouristAgreement(e.target.value)}
-                  style={{ width: '100%', minHeight: 300, background: 'rgba(0,0,0,0.3)', border: '1px solid rgba(255,215,0,0.15)', borderRadius: 12, padding: 12, color: 'rgba(255,255,255,0.7)', fontSize: 13, fontWeight: 500, lineHeight: 1.6, resize: 'vertical', fontFamily: 'inherit', outline: 'none', boxSizing: 'border-box' }}
-                />
-              )}
-            </div>
-
-            {/* Footer */}
-            <div style={{ padding: '8px 16px 16px', flexShrink: 0 }}>
-              <button onClick={() => setShowAgreement(false)} style={{ width: '100%', padding: '13px 0', borderRadius: 12, background: '#8DC63F', border: 'none', color: '#000', fontSize: 14, fontWeight: 800, cursor: 'pointer', fontFamily: 'inherit', boxShadow: '0 4px 16px rgba(141,198,63,0.3)' }}>
-                Save Agreement
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* Footer */}
-      <div className={styles.footer}>
-        <button className={styles.nextBtn} onClick={handleSubmit}>
-          Create Account
-        </button>
-      </div>
-    </div>,
-    document.body)
+      <IndooFooter label="Owner Profile" onBack={onClose} onHome={onClose} />
+    </div>
+  )
 }

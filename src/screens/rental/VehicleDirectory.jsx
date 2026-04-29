@@ -9,7 +9,7 @@ const BUS_DIR_BG = 'https://ik.imagekit.io/nepgaxllc/ChatGPT%20Image%20Apr%2029,
 
 export { BIKE_DIR_BG, CAR_DIR_BG, TRUCK_DIR_BG, BUS_DIR_BG }
 
-export default function VehicleDirectory({ vehicleType, onSelectModel, onBack }) {
+export default function VehicleDirectory({ vehicleType, onSelectModel, onBack, listingMode }) {
   const directory = getDirectory(vehicleType)
   const isBike = vehicleType === 'Motorcycles'
   const isTruck = vehicleType === 'Trucks'
@@ -21,8 +21,7 @@ export default function VehicleDirectory({ vehicleType, onSelectModel, onBack })
   return (
     <div className={styles.dirPage} style={bgStyle}>
       <div className={styles.dirHero}>
-        <h1 className={styles.dirHeroTitle}>{title}</h1>
-        <p style={{ fontSize: 14, fontWeight: 900, color: '#8DC63F', margin: '2px 0 0', letterSpacing: 0.5 }}>Buy / Sell</p>
+        <h1 className={styles.dirHeroTitle}>{listingMode === 'sale' ? `${title} to Buy` : listingMode === 'rent' ? `${title} to Rent` : title}</h1>
         <p className={styles.dirHeroSub}>
           {(() => { const c = (() => { try { return JSON.parse(localStorage.getItem('indoo_rental_owner') || '{}').city } catch { return '' } })() || 'your city'; return isBike ? `Find your perfect ride in ${c}` : isTruck ? `Heavy-duty vehicles in ${c}` : isBus ? `Group travel in ${c}` : `Drive in comfort in ${c}` })()}
         </p>
