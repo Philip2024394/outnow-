@@ -5,78 +5,78 @@
   padding-bottom: env(safe-area-inset-bottom, 0px);
 }
 
-/* Header */
-.header {
-  display: flex; align-items: center; justify-content: space-between;
-  padding: calc(env(safe-area-inset-top, 0px) + 16px) 20px 14px;
-  border-bottom: 1px solid #1a1a1a;
-}
-.headerPhase { font-size: 16px; font-weight: 800; color: #fff; }
-.closeBtn {
-  width: 34px; height: 34px; border-radius: 50%;
-  background: #1a1a1a; border: none; color: #666;
-  font-size: 14px; cursor: pointer;
+/* Full-screen navigation layout */
+.navScreen {
+  position: fixed; inset: 0; z-index: 99000;
+  background: #0a0a0a;
+  display: flex; flex-direction: column;
 }
 
-/* Passenger card */
-.passengerCard {
-  display: flex; align-items: center; gap: 12px;
-  margin: 16px 20px 0;
-  background: #111; border: 1px solid #1e1e1e; border-radius: 16px;
-  padding: 14px 16px;
+/* Floating passenger card (top-left, over map) */
+.passengerFloat {
+  position: absolute; top: 110px; left: 12px; right: 70px; z-index: 25;
+  display: flex; align-items: center; gap: 10px;
+  padding: 10px 12px; border-radius: 14px;
+  background: rgba(0,0,0,0.75); backdrop-filter: blur(12px);
+  border: 1px solid rgba(255,255,255,0.08);
+  box-shadow: 0 4px 16px rgba(0,0,0,0.4);
 }
 .passengerAvatar {
-  width: 48px; height: 48px; border-radius: 50%; flex-shrink: 0;
+  width: 36px; height: 36px; border-radius: 50%; flex-shrink: 0;
   background: #1a1a1a; overflow: hidden;
   display: flex; align-items: center; justify-content: center;
 }
 .avatarImg { width: 100%; height: 100%; object-fit: cover; }
-.avatarInitial { font-size: 20px; font-weight: 800; color: #8DC63F; }
-.passengerMeta { flex: 1; display: flex; flex-direction: column; gap: 2px; }
-.passengerName { font-size: 15px; font-weight: 800; color: #fff; }
-.passengerRating { font-size: 12px; color: #666; }
-.fare { font-size: 20px; font-weight: 900; color: #8DC63F; flex-shrink: 0; }
+.avatarInitial { font-size: 16px; font-weight: 800; color: #8DC63F; }
+.passengerInfo { flex: 1; min-width: 0; }
+.passengerName { font-size: 13px; font-weight: 800; color: #fff; display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.phaseLabel { font-size: 10px; color: rgba(255,255,255,0.4); font-weight: 600; }
+.fareFloat { font-size: 16px; font-weight: 900; color: #8DC63F; flex-shrink: 0; }
 
-/* Route card */
-.routeCard {
-  margin: 12px 20px 0;
-  background: #111; border: 1px solid #1e1e1e; border-radius: 16px;
-  padding: 14px 16px; display: flex; flex-direction: column; gap: 0;
+/* Action button overlay — above bottom ETA bar */
+.actionOverlay {
+  position: absolute; bottom: 70px; left: 16px; right: 16px; z-index: 25;
 }
-.routeRow { display: flex; align-items: flex-start; gap: 10px; }
-.routeDot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; margin-top: 4px; }
-.routeText { flex: 1; display: flex; flex-direction: column; gap: 1px; }
-.routeLabel { font-size: 10px; color: #444; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; }
-.routeAddr { font-size: 13px; color: #ccc; font-weight: 600; }
-.routeConnector { width: 1px; height: 12px; background: #1e1e1e; margin-left: 4px; margin: 6px 0 6px 4px; }
-.navBtn {
-  padding: 6px 10px; border-radius: 8px; flex-shrink: 0;
-  background: rgba(141,198,63,0.1); border: 1px solid rgba(141,198,63,0.3);
-  color: #8DC63F; font-size: 11px; font-weight: 700;
-  cursor: pointer; font-family: inherit; white-space: nowrap;
-}
-
-/* Booking ID */
-.bookingId {
-  font-size: 10px; color: #333; font-family: monospace;
-  text-align: center; margin-top: 12px;
-}
-
-/* Action */
-.actionArea { margin: 20px 20px 0; }
-.btnPrimary {
-  width: 100%; padding: 18px; border-radius: 16px;
+.actionBtn {
+  width: 100%; padding: 16px; border-radius: 14px;
   background: #8DC63F; color: #000; border: none;
-  font-size: 17px; font-weight: 900; cursor: pointer;
+  font-size: 16px; font-weight: 900; cursor: pointer;
   font-family: inherit; transition: opacity 0.15s;
+  box-shadow: 0 4px 20px rgba(141,198,63,0.4);
 }
-.btnPrimary:disabled { opacity: 0.5; cursor: default; }
-.btnComplete { background: #F5C518; }
+.actionBtn:disabled { opacity: 0.5; cursor: default; }
+.actionBtnComplete { background: #F5C518; box-shadow: 0 4px 20px rgba(245,197,24,0.4); }
 
-.completedMsg {
-  display: flex; flex-direction: column; align-items: center; gap: 6px;
-  padding: 28px 0;
+/* Close button */
+.closeNav {
+  position: absolute; top: 14px; right: 14px; z-index: 30;
+  width: 36px; height: 36px; border-radius: 50%;
+  background: rgba(0,0,0,0.6); backdrop-filter: blur(8px);
+  border: 1px solid rgba(255,255,255,0.1);
+  color: #fff; font-size: 16px; cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
 }
-.completedIcon { font-size: 48px; }
-.completedText { font-size: 18px; font-weight: 800; color: #fff; }
-.completedFare { font-size: 22px; font-weight: 900; color: #8DC63F; }
+
+/* Loading overlay */
+.loadingOverlay {
+  position: absolute; inset: 0; z-index: 50;
+  background: rgba(0,0,0,0.8); backdrop-filter: blur(8px);
+  display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 16px;
+  color: rgba(255,255,255,0.5); font-size: 14px; font-weight: 600;
+}
+.loadingSpinner {
+  width: 36px; height: 36px; border-radius: 50%;
+  border: 3px solid rgba(141,198,63,0.2);
+  border-top-color: #8DC63F;
+  animation: navSpin 0.8s linear infinite;
+}
+@keyframes navSpin { to { transform: rotate(360deg); } }
+
+/* Completed screen */
+.completedScreen {
+  flex: 1; display: flex; flex-direction: column;
+  align-items: center; justify-content: center; gap: 12px;
+}
+.completedIcon { font-size: 56px; }
+.completedText { font-size: 22px; font-weight: 900; color: #fff; }
+.completedFare { font-size: 26px; font-weight: 900; color: #8DC63F; }

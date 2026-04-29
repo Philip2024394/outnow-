@@ -112,3 +112,79 @@ export async function getDeliveryRoute(driverCoords, restaurantCoords, customerC
 export async function getRideDistance(pickupLat, pickupLng, dropoffLat, dropoffLng) {
   return getDirections(pickupLat, pickupLng, dropoffLat, dropoffLng, 'driving')
 }
+
+/**
+ * Get full navigation route with polyline and turn-by-turn steps.
+ * Used by the in-app driver navigation map.
+ */
+export async function getNavigationRoute(originLat, originLng, destLat, destLng) {
+  if (!originLat || !destLat || !EDGE_FN_URL || !SUPABASE_ANON) {
+    return null
+  }
+
+  try {
+    const res = await fetch(EDGE_FN_URL, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${SUPABASE_ANON}`,
+        'apikey': SUPABASE_ANON,
+      },
+      body: JSON.stringify({
+        origin: `${originLat},${originLng}`,
+        destination: `${destLat},${destLng}`,
+        mode: 'driving',
+        full: true,
+      }),
+    })
+
+    if (!res.ok) return null
+    const data = await res.json()
+
+    if (data.source === 'google' && data.polyline) {
+      return {
+        polyline: data.polyline,
+        decodedPath: decodePolyline(data.polyline),
+        steps: data.steps || [],
+        bounds: data.bounds,
+        distanceKm: data.distanceKm,
+        durationMin: data.durationMin,
+        distanceText: data.distanceText,
+        durationText: data.durationText,
+      }
+    }
+    return null
+  } catch {
+    return null
+  }
+}
+
+/**
+ * Decode Google's encoded polyline format into array of {lat, lng}.
+ * Algorithm: https://developers.google.com/maps/documentation/utilities/polylinealgorithm
+ */
+export function decodePolyline(encoded) {
+  const points = []
+  let index = 0, lat = 0, lng = 0
+
+  while (index < encoded.length) {
+    let shift = 0, result = 0, byte
+    do {
+      byte = encoded.charCodeAt(index++) - 63
+      result |= (byte & 0x1f) << shift
+      shift += 5
+    } while (byte >= 0x20)
+    lat += (result & 1) ? ~(result >> 1) : (result >> 1)
+
+    shift = 0; result = 0
+    do {
+      byte = encoded.charCodeAt(index++) - 63
+      result |= (byte & 0x1f) << shift
+      shift += 5
+    } while (byte >= 0x20)
+    lng += (result & 1) ? ~(result >> 1) : (result >> 1)
+
+    points.push({ lat: lat / 1e5, lng: lng / 1e5 })
+  }
+  return points
+}

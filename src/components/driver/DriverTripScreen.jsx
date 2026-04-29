@@ -1,23 +1,28 @@
 import { useState, useRef, useEffect } from 'react'
 import { driverMarkArrived, driverStartRide, driverCompleteRide } from '@/services/bookingService'
+import useDriverNavigation from '@/hooks/useDriverNavigation'
+import DriverNavMap from './DriverNavMap'
+import DriverNavInstructions from './DriverNavInstructions'
 import styles from './DriverTripScreen.module.css'
 
 function fmtRp(n) { return `Rp ${Number(n).toLocaleString('id-ID')}` }
 
-// Opens Google Maps navigation to a coordinate or address
-function openNav(coords, address) {
-  const query = coords?.lat
-    ? `${coords.lat},${coords.lng}`
-    : encodeURIComponent(address ?? '')
-  window.open(`https://www.google.com/maps/dir/?api=1&destination=${query}&travelmode=driving`, '_blank')
-}
-
 export default function DriverTripScreen({ booking, driverId, onCompleted, onClose }) {
-  // phase: 'going_to_pickup' | 'arrived' | 'in_progress' | 'completed'
   const [phase, setPhase] = useState(
     booking.status === 'in_progress' ? 'in_progress' : 'going_to_pickup'
   )
   const [busy, setBusy] = useState(false)
+
+  // Determine navigation destination based on phase
+  const destination = phase === 'in_progress' || phase === 'arrived'
+    ? booking.dropoff_coords
+    : booking.pickup_coords
+
+  const {
+    route, loading, driverPos, bearing,
+    currentStep, nextStep, etaMin, distToNextTurn,
+    isOffRoute, arrived,
+  } = useDriverNavigation(destination, phase !== 'completed')
 
   const passenger = booking.passenger
 
@@ -46,102 +51,94 @@ export default function DriverTripScreen({ booking, driverId, onCompleted, onClo
     completeTimerRef.current = setTimeout(() => onCompleted?.(), 2000)
   }
 
-  return (
-    <div className={styles.screen}>
-
-      {/* Header */}
-      <div className={styles.header}>
-        <div className={styles.headerPhase}>
-          {phase === 'going_to_pickup' && '🔵 Head to Pickup'}
-          {phase === 'arrived'         && '🟡 Waiting for Passenger'}
-          {phase === 'in_progress'     && '🟢 Ride in Progress'}
-          {phase === 'completed'       && '✅ Ride Complete!'}
-        </div>
-        {onClose && phase !== 'in_progress' && (
-          <button className={styles.closeBtn} onClick={onClose}>✕</button>
-        )}
-      </div>
-
-      {/* Passenger info */}
-      <div className={styles.passengerCard}>
-        <div className={styles.passengerAvatar}>
-          {passenger?.photo_url
-            ? <img src={passenger.photo_url} alt={passenger.display_name} className={styles.avatarImg} />
-            : <span className={styles.avatarInitial}>{passenger?.display_name?.[0]?.toUpperCase() ?? '?'}</span>
-          }
-        </div>
-        <div className={styles.passengerMeta}>
-          <span className={styles.passengerName}>{passenger?.display_name ?? 'Passenger'}</span>
-          {passenger?.rating && <span className={styles.passengerRating}>⭐ {passenger.rating}</span>}
-        </div>
-        {booking.fare != null && (
-          <span className={styles.fare}>{fmtRp(booking.fare)}</span>
-        )}
-      </div>
-
-      {/* Route */}
-      <div className={styles.routeCard}>
-        <div className={styles.routeRow}>
-          <span className={styles.routeDot} style={{ background: '#8DC63F' }} />
-          <div className={styles.routeText}>
-            <span className={styles.routeLabel}>Pickup</span>
-            <span className={styles.routeAddr}>{booking.pickup_location ?? '—'}</span>
-          </div>
-          <button
-            className={styles.navBtn}
-            onClick={() => openNav(booking.pickup_coords, booking.pickup_location)}
-          >
-            🧭 Navigate
-          </button>
-        </div>
-        <div className={styles.routeConnector} />
-        <div className={styles.routeRow}>
-          <span className={styles.routeDot} style={{ background: '#F5C518' }} />
-          <div className={styles.routeText}>
-            <span className={styles.routeLabel}>Destination</span>
-            <span className={styles.routeAddr}>{booking.dropoff_location ?? '—'}</span>
-          </div>
-          {phase === 'in_progress' && (
-            <button
-              className={styles.navBtn}
-              onClick={() => openNav(booking.dropoff_coords, booking.dropoff_location)}
-            >
-              🧭 Navigate
-            </button>
+  // Completed screen (no map)
+  if (phase === 'completed') {
+    return (
+      <div className={styles.screen}>
+        <div className={styles.completedScreen}>
+          <span className={styles.completedIcon}>🎉</span>
+          <span className={styles.completedText}>Ride Complete!</span>
+          {booking.fare != null && (
+            <span className={styles.completedFare}>{fmtRp(booking.fare)} earned</span>
           )}
         </div>
       </div>
+    )
+  }
 
-      {/* Booking ID */}
-      <div className={styles.bookingId}>Booking #{booking.id}</div>
+  return (
+    <div className={styles.navScreen}>
+      {/* Full-screen navigation map */}
+      <DriverNavMap
+        driverPos={driverPos}
+        bearing={bearing}
+        route={route}
+        destination={destination}
+        isOffRoute={isOffRoute}
+      />
 
-      {/* Action button */}
-      <div className={styles.actionArea}>
+      {/* Turn-by-turn instructions overlay */}
+      <DriverNavInstructions
+        currentStep={currentStep}
+        nextStep={nextStep}
+        distToNextTurn={distToNextTurn}
+        etaMin={etaMin}
+        arrived={arrived}
+        durationText={route?.durationText}
+      />
+
+      {/* Floating passenger card */}
+      <div className={styles.passengerFloat}>
+        <div className={styles.passengerAvatar}>
+          {passenger?.photo_url
+            ? <img src={passenger.photo_url} alt="" className={styles.avatarImg} />
+            : <span className={styles.avatarInitial}>{passenger?.display_name?.[0]?.toUpperCase() ?? '?'}</span>
+          }
+        </div>
+        <div className={styles.passengerInfo}>
+          <span className={styles.passengerName}>{passenger?.display_name ?? 'Passenger'}</span>
+          <span className={styles.phaseLabel}>
+            {phase === 'going_to_pickup' && '📍 Heading to pickup'}
+            {phase === 'arrived' && '⏳ Waiting for passenger'}
+            {phase === 'in_progress' && '🚀 Ride in progress'}
+          </span>
+        </div>
+        {booking.fare != null && (
+          <span className={styles.fareFloat}>{fmtRp(booking.fare)}</span>
+        )}
+      </div>
+
+      {/* Action button — overlays bottom of map */}
+      <div className={styles.actionOverlay}>
         {phase === 'going_to_pickup' && (
-          <button className={styles.btnPrimary} onClick={handleArrived} disabled={busy}>
-            {busy ? '…' : "📍 I've Arrived at Pickup"}
+          <button className={styles.actionBtn} onClick={handleArrived} disabled={busy}>
+            {busy ? '...' : "📍 I've Arrived"}
           </button>
         )}
         {phase === 'arrived' && (
-          <button className={styles.btnPrimary} onClick={handleStartRide} disabled={busy}>
-            {busy ? '…' : '🚀 Start Ride'}
+          <button className={styles.actionBtn} onClick={handleStartRide} disabled={busy}>
+            {busy ? '...' : '🚀 Start Ride'}
           </button>
         )}
         {phase === 'in_progress' && (
-          <button className={`${styles.btnPrimary} ${styles.btnComplete}`} onClick={handleComplete} disabled={busy}>
-            {busy ? '…' : '✅ Complete Ride'}
+          <button className={`${styles.actionBtn} ${styles.actionBtnComplete}`} onClick={handleComplete} disabled={busy}>
+            {busy ? '...' : '✅ Complete Ride'}
           </button>
         )}
-        {phase === 'completed' && (
-          <div className={styles.completedMsg}>
-            <span className={styles.completedIcon}>🎉</span>
-            <span className={styles.completedText}>Ride complete! Well done.</span>
-            {booking.fare != null && (
-              <span className={styles.completedFare}>{fmtRp(booking.fare)} earned</span>
-            )}
-          </div>
-        )}
       </div>
+
+      {/* Loading overlay */}
+      {loading && (
+        <div className={styles.loadingOverlay}>
+          <div className={styles.loadingSpinner} />
+          <span>Loading route...</span>
+        </div>
+      )}
+
+      {/* Close button */}
+      {onClose && phase === 'going_to_pickup' && (
+        <button className={styles.closeNav} onClick={onClose}>✕</button>
+      )}
     </div>
   )
 }
