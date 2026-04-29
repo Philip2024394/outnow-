@@ -2,6 +2,8 @@ import { useState, useEffect, useRef, useCallback, useMemo } from 'react'
 import { createPortal } from 'react-dom'
 import styles from './DealHuntLanding.module.css'
 import DealReviewCarousel from '../components/DealReviewCarousel'
+import DealChat from '../components/DealChat'
+import SellerDealsDrawer, { MOCK_SELLER_DEALS } from '../components/SellerDealsDrawer'
 
 // ── Promo banners — full-screen, no text, random rotation ────────────────────
 const PROMO_BANNERS = [
@@ -50,6 +52,40 @@ function getDiscountImage(pct) {
 
 const DOMAIN_COLORS = { food: '#F97316', marketplace: '#8DC63F', massage: '#A855F7', rentals: '#3B82F6', rides: '#EAB308' }
 const DOMAIN_LABELS = { food: 'Makanan', marketplace: 'Market', massage: 'Massage', rentals: 'Rental', rides: 'Ojek' }
+
+const FILTER_CITIES = ['All Cities', 'Yogyakarta', 'Jakarta', 'Surabaya', 'Bandung', 'Semarang', 'Medan', 'Makassar', 'Denpasar', 'Malang', 'Solo', 'Bali']
+const FILTER_CATEGORIES = [
+  { value: 'all', label: 'All Categories' },
+  { value: 'food', label: 'Food & Drink' },
+  { value: 'marketplace', label: 'Shopping' },
+  { value: 'massage', label: 'Spa & Massage' },
+  { value: 'rentals', label: 'Rentals' },
+  { value: 'rides', label: 'Rides & Transport' },
+  { value: 'beauty', label: 'Beauty & Wellness' },
+  { value: 'services', label: 'Services' },
+]
+const FILTER_CONDITIONS = [
+  { value: 'all', label: 'All' },
+  { value: 'new', label: 'New' },
+  { value: 'used', label: 'Used' },
+  { value: 'refurbished', label: 'Refurbished' },
+]
+const FILTER_SORT = [
+  { value: 'relevance', label: 'Relevance' },
+  { value: 'price_low', label: 'Price: Low to High' },
+  { value: 'price_high', label: 'Price: High to Low' },
+  { value: 'discount', label: 'Biggest Discount' },
+  { value: 'ending_soon', label: 'Ending Soon' },
+  { value: 'most_claimed', label: 'Most Popular' },
+  { value: 'newest', label: 'Newest First' },
+]
+const FILTER_AVAILABILITY = [
+  { value: 'all', label: 'All Deals' },
+  { value: 'active', label: 'Active Only' },
+  { value: 'almost_gone', label: 'Almost Gone (80%+)' },
+  { value: 'hot', label: 'Hot Deals' },
+]
+const DISCOUNT_TIERS = [0, 10, 20, 30, 40, 50]
 
 // ── Mock menu/catalogue items per seller ──────────────────────────────────────
 const SELLER_ITEMS = {
@@ -344,7 +380,7 @@ function SellerDrawer({ deal, open, onClose, onAddItem }) {
   )
 }
 
-function DealSlide({ deal, isActive, onClaim, onChat, onViewSeller, onOpenMenu }) {
+function DealSlide({ deal, isActive, onClaim, onChat, onViewSeller, onOpenMenu, onOpenDrawer, onChatInquiryChange, onHome, onReviewsChange }) {
   const { h, m, s, expired, urgent } = useCountdown(deal.end_time)
   const pct = Math.round((deal.quantity_claimed / deal.quantity_available) * 100)
   const discount = Math.round((1 - deal.deal_price / deal.original_price) * 100)
@@ -352,6 +388,28 @@ function DealSlide({ deal, isActive, onClaim, onChat, onViewSeller, onOpenMenu }
   const dealReviews = useMemo(() => DEMO_REVIEW_DATA.filter(r => r.deal_title === deal.title), [deal.title])
   const [reviewsOpen, setReviewsOpen] = useState(false)
   const [menuOpen, setMenuOpen] = useState(false)
+  const [chatInquiryOpen, setChatInquiryOpen] = useState(false)
+  const [chatMsg, setChatMsg] = useState('')
+  const chatInputRef = useRef(null)
+
+  const userProfile = useMemo(() => {
+    try { return JSON.parse(localStorage.getItem('indoo_demo_profile') || '{}') } catch { return {} }
+  }, [])
+  const userName = userProfile.name || userProfile.displayName || 'Guest'
+
+  const handleSendInquiry = () => {
+    if (!chatMsg.trim()) return
+    const chatKey = `indoo_deal_chat_${deal.id}_${Date.now()}`
+    const initMessages = [
+      { id: Date.now(), from: 'system', text: `💬 Deal Inquiry\n\n${deal.title}\nPrice: ${fmtRp(deal.deal_price)}\nDiscount: ${discount}% OFF`, time: new Date().toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' }), image: deal.images?.[0] ?? null },
+      { id: Date.now() + 1, from: 'customer', text: chatMsg.trim(), time: new Date().toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' }) },
+    ]
+    localStorage.setItem(chatKey, JSON.stringify(initMessages))
+    setChatInquiryOpen(false)
+    onChatInquiryChange?.(false)
+    setChatMsg('')
+    onChat?.({ ...deal, _chatKey: chatKey, _inquiry: true })
+  }
 
   return (
     <div className={styles.slide}>
@@ -359,89 +417,161 @@ function DealSlide({ deal, isActive, onClaim, onChat, onViewSeller, onOpenMenu }
       <div className={styles.slideBg} style={{ backgroundImage: `url("${deal.images?.[0] ?? ''}")` }} />
       <div className={styles.slideScrim} />
 
-      {/* Discount badge — top right */}
-      <div className={styles.discountBadge}>
-        <img src={getDiscountImage(discount)} alt={`-${discount}%`} className={styles.discountImg} />
+      {/* Discount + countdown — header right */}
+      <div style={{ position: 'absolute', top: 'calc(env(safe-area-inset-top, 0px) + 10px)', right: 12, zIndex: 5, display: 'flex', alignItems: 'center', gap: 6 }}>
+        <span style={{ color: '#FACC15', fontSize: 14, fontWeight: 900 }}>-{discount}%</span>
+        <span style={{ color: 'rgba(255,255,255,0.3)', fontSize: 12 }}>·</span>
+        <span style={{ color: urgent ? '#EF4444' : 'rgba(255,255,255,0.7)', fontSize: 12, fontWeight: 800 }}>
+          {expired ? 'EXPIRED' : `Deal Ends ${String(h).padStart(2,'0')}:${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`}
+        </span>
       </div>
-
-      {/* HOT badge — top left */}
-      {deal.is_hot && <div className={styles.hotBadge}>🔥 HOT</div>}
 
       {/* Right-side action buttons (TikTok style) */}
       <div className={styles.sideActions}>
-        <button className={styles.sideBtn} onClick={() => onChat?.(deal)}>
+        <button className={styles.sideBtn} onClick={() => onHome?.()}>
+          <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+          <span>Home</span>
+        </button>
+        <button className={styles.sideBtn} onClick={() => { setChatInquiryOpen(true); onChatInquiryChange?.(true); setTimeout(() => chatInputRef.current?.focus(), 300) }}>
           <svg width="26" height="26" viewBox="0 0 24 24" fill="#fff" stroke="none"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
           <span>Chat</span>
         </button>
-        <button className={styles.sideBtn} onClick={() => setReviewsOpen(true)}>
+        <button className={styles.sideBtn} onClick={() => { setReviewsOpen(true); onReviewsChange?.(true) }}>
           <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
             <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
           </svg>
           <span>{dealReviews.length || ''}</span>
           <span>Reviews</span>
         </button>
-        <button className={styles.sideBtn} onClick={() => setMenuOpen(true)}>
-          <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-            <rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/>
-            <rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/>
-          </svg>
-          <span>{deal.domain === 'food' ? 'Menu' : 'Catalogue'}</span>
-        </button>
         <button className={styles.sideBtn} onClick={() => { try { navigator.share?.({ title: deal.title, text: `${deal.title} only ${fmtRp(deal.deal_price)}! 🔥`, url: window.location.href }) } catch {} }}>
           <svg width="26" height="26" viewBox="0 0 24 24" fill="#fff" stroke="none"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><path d="M8.59 13.51l6.83 3.98M15.41 6.51l-6.82 3.98" stroke="#fff" strokeWidth="1.5"/></svg>
           <span>Share</span>
         </button>
+        {onOpenDrawer && (
+          <button className={styles.sideBtn} onClick={() => onOpenDrawer?.(deal)}>
+            <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 01-8 0"/></svg>
+            <span>Deals</span>
+          </button>
+        )}
       </div>
+
+      {/* ── Chat inquiry popup ── */}
+      {chatInquiryOpen && (
+        <div style={{ position: 'absolute', inset: 0, zIndex: 30, display: 'flex', alignItems: 'flex-end', justifyContent: 'center', background: 'rgba(0,0,0,0.6)', backdropFilter: 'blur(6px)', touchAction: 'none', overscrollBehavior: 'contain' }} onClick={() => { setChatInquiryOpen(false); onChatInquiryChange?.(false) }} onTouchMove={e => e.stopPropagation()}>
+          <div onClick={e => e.stopPropagation()} style={{ width: '100%', maxWidth: 420, borderRadius: '24px 24px 0 0', background: 'rgba(8,8,8,0.85)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)', borderTop: '2px solid rgba(141,198,63,0.5)', borderLeft: '1px solid rgba(255,255,255,0.1)', borderRight: '1px solid rgba(255,255,255,0.1)', borderBottom: 'none', padding: '16px 18px 24px', animation: 'slideUp 0.3s ease-out' }}>
+            {/* Drag handle — green */}
+            <div style={{ width: 36, height: 4, borderRadius: 2, background: '#8DC63F', margin: '0 auto 14px' }} />
+
+            {/* Deal card preview */}
+            <div style={{ display: 'flex', gap: 12, padding: 12, background: 'rgba(0,0,0,0.6)', backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: 20, marginBottom: 16 }}>
+              <div style={{ width: 64, height: 64, borderRadius: 14, overflow: 'hidden', flexShrink: 0, background: 'rgba(255,255,255,0.04)' }}>
+                {deal.images?.[0] && <img src={deal.images[0]} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />}
+              </div>
+              <div style={{ flex: 1, minWidth: 0 }}>
+                <span style={{ fontSize: 14, fontWeight: 800, color: '#fff', display: 'block', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{deal.title}</span>
+                <div style={{ display: 'flex', alignItems: 'baseline', gap: 6, marginTop: 4 }}>
+                  <span style={{ fontSize: 15, fontWeight: 900, color: '#8DC63F' }}>{fmtRp(deal.deal_price)}</span>
+                  <span style={{ fontSize: 11, color: 'rgba(255,255,255,0.3)', textDecoration: 'line-through' }}>{fmtRp(deal.original_price)}</span>
+                  <span style={{ fontSize: 11, fontWeight: 800, color: '#FACC15' }}>-{discount}%</span>
+                </div>
+                <span style={{ fontSize: 11, color: 'rgba(255,255,255,0.4)', marginTop: 4, display: 'block' }}>by {deal.seller_name}</span>
+              </div>
+            </div>
+
+            {/* User info */}
+            <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 12, padding: '10px 12px', background: 'rgba(0,0,0,0.6)', backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: 20 }}>
+              <div style={{ width: 28, height: 28, borderRadius: '50%', background: 'rgba(141,198,63,0.15)', border: '1px solid rgba(141,198,63,0.3)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 12, color: '#8DC63F', fontWeight: 800 }}>{userName.charAt(0).toUpperCase()}</div>
+              <span style={{ fontSize: 13, fontWeight: 700, color: 'rgba(255,255,255,0.7)' }}>{userName}</span>
+              <span style={{ fontSize: 11, color: 'rgba(255,255,255,0.25)', marginLeft: 'auto' }}>Anonymous Chat</span>
+            </div>
+
+            {/* Message input */}
+            <div style={{ position: 'relative' }}>
+              <textarea
+                ref={chatInputRef}
+                value={chatMsg}
+                onChange={e => setChatMsg(e.target.value)}
+                placeholder="Ask about this deal..."
+                rows={3}
+                style={{ width: '100%', padding: '12px 14px', borderRadius: 20, background: 'rgba(0,0,0,0.6)', backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)', border: '1px solid rgba(255,255,255,0.1)', color: '#fff', fontSize: 14, fontFamily: 'inherit', resize: 'none', outline: 'none', boxSizing: 'border-box' }}
+                onKeyDown={e => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); handleSendInquiry() } }}
+              />
+            </div>
+
+            {/* Quick question chips */}
+            <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap', marginTop: 10, marginBottom: 14 }}>
+              {['Is this still available?', 'Can I pick up today?', 'Any other sizes?', 'Can you deliver?'].map(q => (
+                <button key={q} onClick={() => setChatMsg(q)} style={{ padding: '6px 12px', borderRadius: 20, background: 'rgba(0,0,0,0.6)', border: '1px solid rgba(255,255,255,0.1)', color: 'rgba(255,255,255,0.5)', fontSize: 12, fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit' }}>{q}</button>
+              ))}
+            </div>
+
+            {/* Send button */}
+            <button
+              onClick={handleSendInquiry}
+              disabled={!chatMsg.trim()}
+              style={{ width: '100%', padding: 14, borderRadius: 14, background: chatMsg.trim() ? '#8DC63F' : 'rgba(141,198,63,0.2)', border: 'none', color: chatMsg.trim() ? '#000' : 'rgba(0,0,0,0.3)', fontSize: 15, fontWeight: 900, cursor: chatMsg.trim() ? 'pointer' : 'default', fontFamily: 'inherit', transition: 'all 0.2s' }}
+            >
+              Send Message
+            </button>
+          </div>
+        </div>
+      )}
 
       {/* Reviews panel — slides up from bottom */}
       {reviewsOpen && (
-        <div className={styles.reviewsOverlay} onClick={() => setReviewsOpen(false)}>
+        <div className={styles.reviewsOverlay} onClick={() => { setReviewsOpen(false); onReviewsChange?.(false) }}>
           <div className={styles.reviewsPanel} onClick={e => e.stopPropagation()}>
-            {/* Drag handle */}
-            <div className={styles.reviewsDragHandle}><span /></div>
+            {/* Green drag handle */}
+            <div style={{ display: 'flex', justifyContent: 'center', padding: '10px 0 4px' }}><span style={{ width: 36, height: 4, borderRadius: 2, background: '#8DC63F' }} /></div>
 
-            {/* Header with avg rating */}
-            <div className={styles.reviewsHeader}>
-              <div className={styles.reviewsHeaderLeft}>
-                <span className={styles.reviewsTitle}>Reviews</span>
+            {/* Header — logo style + rating + close */}
+            <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', padding: '4px 16px 14px', borderBottom: '1px solid rgba(255,255,255,0.06)' }}>
+              <div>
+                <h2 style={{ fontSize: 20, fontWeight: 900, color: '#fff', margin: 0, letterSpacing: 0.02 }}>Reviews</h2>
                 {dealReviews.length > 0 && (
-                  <div className={styles.reviewsAvg}>
-                    <span className={styles.reviewsAvgNum}>{(dealReviews.reduce((a, r) => a + r.stars, 0) / dealReviews.length).toFixed(1)}</span>
-                    <span className={styles.reviewsAvgStars}>{'★'.repeat(Math.round(dealReviews.reduce((a, r) => a + r.stars, 0) / dealReviews.length))}</span>
-                    <span className={styles.reviewsCount}>({dealReviews.length})</span>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginTop: 4 }}>
+                    <span style={{ fontSize: 28, fontWeight: 900, color: '#FACC15' }}>{(dealReviews.reduce((a, r) => a + r.stars, 0) / dealReviews.length).toFixed(1)}</span>
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
+                      <span style={{ fontSize: 14, color: '#FACC15', letterSpacing: 1 }}>{'���'.repeat(Math.round(dealReviews.reduce((a, r) => a + r.stars, 0) / dealReviews.length))}{'☆'.repeat(5 - Math.round(dealReviews.reduce((a, r) => a + r.stars, 0) / dealReviews.length))}</span>
+                      <span style={{ fontSize: 11, color: 'rgba(255,255,255,0.35)', fontWeight: 600 }}>{dealReviews.length} review{dealReviews.length !== 1 ? 's' : ''}</span>
+                    </div>
                   </div>
                 )}
               </div>
-              <button className={styles.reviewsClose} onClick={() => setReviewsOpen(false)}>✕</button>
+              <button onClick={() => { setReviewsOpen(false); onReviewsChange?.(false) }} style={{ width: 36, height: 36, borderRadius: '50%', background: 'rgba(141,198,63,0.15)', border: '1px solid rgba(141,198,63,0.35)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' }}>
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#8DC63F" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+              </button>
             </div>
 
-            {/* Write review link */}
-            <button className={styles.writeReviewBtn} onClick={() => { setReviewsOpen(false) }}>
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 013 3L7 19l-4 1 1-4L16.5 3.5z"/>
-              </svg>
-              <span>Write a Review</span>
-            </button>
+            {/* Write review button */}
+            <div style={{ padding: '12px 16px' }}>
+              <button onClick={() => { setReviewsOpen(false); onReviewsChange?.(false) }} style={{ width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8, padding: '12px 16px', background: 'rgba(141,198,63,0.1)', border: '1px solid rgba(141,198,63,0.25)', borderRadius: 14, cursor: 'pointer', color: '#8DC63F', fontSize: 14, fontWeight: 800, fontFamily: 'inherit' }}>
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 013 3L7 19l-4 1 1-4L16.5 3.5z"/>
+                </svg>
+                <span>Write a Review</span>
+              </button>
+            </div>
 
             {/* Review cards */}
             {dealReviews.length === 0 ? (
-              <div className={styles.reviewsEmpty}>
-                <span className={styles.reviewsEmptyIcon}>⭐</span>
-                <span>No reviews yet</span>
-                <span className={styles.reviewsEmptySub}>Be the first to review this deal</span>
+              <div style={{ padding: '40px 16px', textAlign: 'center', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 8 }}>
+                <span style={{ fontSize: 40 }}>⭐</span>
+                <span style={{ fontSize: 16, fontWeight: 800, color: 'rgba(255,255,255,0.5)' }}>No reviews yet</span>
+                <span style={{ fontSize: 13, color: 'rgba(255,255,255,0.25)' }}>Be the first to review this deal</span>
               </div>
             ) : (
-              <div className={styles.reviewsList}>
+              <div style={{ overflowY: 'auto', padding: '4px 16px 24px', display: 'flex', flexDirection: 'column', gap: 10 }}>
                 {dealReviews.map(r => (
-                  <div key={r.id} className={styles.reviewCard}>
-                    <img src={r.photo_url} alt="" className={styles.reviewImg} />
-                    <div className={styles.reviewBody}>
-                      <div className={styles.reviewTop}>
-                        <span className={styles.reviewerName}>{r.reviewer_name}</span>
-                        <span className={styles.reviewStars}>{'★'.repeat(r.stars)}{'☆'.repeat(5 - r.stars)}</span>
+                  <div key={r.id} style={{ display: 'flex', gap: 12, padding: 14, background: 'rgba(0,0,0,0.6)', backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 18 }}>
+                    <img src={r.photo_url} alt="" style={{ width: 72, height: 72, borderRadius: 14, objectFit: 'cover', flexShrink: 0, border: '1px solid rgba(255,255,255,0.08)' }} />
+                    <div style={{ flex: 1, minWidth: 0, display: 'flex', flexDirection: 'column', gap: 4 }}>
+                      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                        <span style={{ fontSize: 14, fontWeight: 800, color: '#fff' }}>{r.reviewer_name}</span>
+                        <span style={{ fontSize: 12, color: '#FACC15', letterSpacing: 1 }}>{'★'.repeat(r.stars)}{'☆'.repeat(5 - r.stars)}</span>
                       </div>
-                      <p className={styles.reviewCaption}>{r.caption}</p>
-                      <span className={styles.reviewDate}>{new Date(r.created_at).toLocaleDateString('en-GB', { day: 'numeric', month: 'short' })}</span>
+                      <p style={{ fontSize: 13, color: 'rgba(255,255,255,0.6)', margin: 0, lineHeight: 1.4 }}>{r.caption}</p>
+                      <span style={{ fontSize: 11, color: 'rgba(255,255,255,0.25)', fontWeight: 600 }}>{new Date(r.created_at).toLocaleDateString('en-GB', { day: 'numeric', month: 'short' })}</span>
                     </div>
                   </div>
                 ))}
@@ -489,21 +619,13 @@ function DealSlide({ deal, isActive, onClaim, onChat, onViewSeller, onOpenMenu }
           </div>
         </div>
 
-        {/* Countdown */}
-        <div className={`${styles.countdown} ${urgent ? styles.countdownUrgent : ''}`}>
-          <span>⏰</span>
-          <span className={styles.countdownDigits}>
-            {expired ? 'EXPIRED' : `${String(h).padStart(2,'0')}:${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`}
-          </span>
-        </div>
-
         {/* Claim button */}
         <button
           className={`${styles.claimBtn} ${expired || pct >= 100 ? styles.claimBtnDisabled : ''}`}
           onClick={() => !expired && pct < 100 && onClaim?.(deal)}
           disabled={expired || pct >= 100}
         >
-          {pct >= 100 ? 'Sold Out!' : expired ? 'Deal Ended' : `🔥 Get This Deal — ${fmtRp(deal.deal_price)}`}
+          {pct >= 100 ? 'Sold Out!' : expired ? 'Deal Ended' : `🔥 -{discount}% Get This Deal — ${fmtRp(deal.deal_price)}`}
         </button>
 
         {/* Social proof */}
@@ -527,8 +649,56 @@ const LANDING_BG = 'https://ik.imagekit.io/nepgaxllc/ChatGPT%20Image%20Apr%2020,
 export default function DealHuntLanding({ open, onClose, onSelectDeal, onCreateDeal, onViewSeller }) {
   const [showLanding, setShowLanding] = useState(true)
   const [activeIndex, setActiveIndex] = useState(0)
-  const [onBanner, setOnBanner] = useState(true) // first slide is always a banner
+  const [onBanner, setOnBanner] = useState(true)
   const [userTouched, setUserTouched] = useState(false)
+  const [confirmDeal, setConfirmDeal] = useState(null)
+  const [dealChatOpen, setDealChatOpen] = useState(null)
+  const [sellerDrawerDeal, setSellerDrawerDeal] = useState(null)
+  const [fullCardDeal, setFullCardDeal] = useState(null) // deal to show as full screen card overlay
+  const [chatInquiryVisible, setChatInquiryVisible] = useState(false)
+  const [reviewsVisible, setReviewsVisible] = useState(false)
+  const [filterOpen, setFilterOpen] = useState(false)
+  const [filters, setFilters] = useState({
+    city: 'all',
+    category: 'all',
+    priceMin: '',
+    priceMax: '',
+    condition: 'all',
+    sortBy: 'relevance',
+    discountMin: 0,
+    availability: 'all',
+  })
+  const [activeFilterCount, setActiveFilterCount] = useState(0)
+
+  const handleGetDeal = (deal) => setConfirmDeal(deal)
+
+  const handleRequestExpiredDeal = (deal) => {
+    const chatKey = `indoo_deal_chat_${deal.id}_${Date.now()}`
+    const discount = deal.original_price > 0 ? Math.round((1 - (deal.deal_price || deal.dealPrice || 0) / (deal.original_price || deal.originalPrice || 1)) * 100) : 0
+    const price = (deal.deal_price || deal.dealPrice || 0)
+    const initMessages = [
+      { id: Date.now(), from: 'system', text: `🔥 Deal Request\n\nA buyer is interested in your expired deal:\n\n${deal.title}\nPrevious Price: Rp ${price.toLocaleString('id-ID')}\nDiscount: ${discount}% OFF`, time: new Date().toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' }), image: deal.images?.[0] ?? null },
+      { id: Date.now() + 1, from: 'customer', text: `Hi! I noticed your deal for "${deal.title}" has expired. I'm really interested — would you be able to reactivate it at the same price of Rp ${price.toLocaleString('id-ID')}? Let me know if this deal is still available! 🙏`, time: new Date().toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' }) },
+      { id: Date.now() + 2, from: 'seller', text: `Thanks for your interest in "${deal.title}"! Let me check if I can reactivate this deal for you. One moment please... 🔥`, time: new Date().toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' }) },
+    ]
+    localStorage.setItem(chatKey, JSON.stringify(initMessages))
+    setSellerDrawerDeal(null)
+    setDealChatOpen({ ...deal, _chatKey: chatKey })
+  }
+
+  const handleConfirmYes = () => {
+    const deal = confirmDeal
+    setConfirmDeal(null)
+    // Auto-post initial deal message in chat
+    const chatKey = `indoo_deal_chat_${deal.id}_${Date.now()}`
+    const userProfile = (() => { try { return JSON.parse(localStorage.getItem('indoo_demo_profile') || '{}') } catch { return {} } })()
+    const initMessages = [
+      { id: Date.now(), from: 'system', text: `🔥 Deal Confirmed!\n\n${deal.title}\nLocked Price: Rp ${(deal.deal_price ?? 0).toLocaleString('id-ID')}\nDiscount: ${Math.round((1 - deal.deal_price / deal.original_price) * 100)}% OFF`, time: new Date().toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' }), image: deal.images?.[0] ?? null },
+      { id: Date.now() + 1, from: 'customer', text: `Hi, I'd like to confirm this deal for ${deal.title} at the locked price of Rp ${(deal.deal_price ?? 0).toLocaleString('id-ID')}. Can we discuss the details?`, time: new Date().toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' }) },
+    ]
+    localStorage.setItem(chatKey, JSON.stringify(initMessages))
+    setDealChatOpen({ ...deal, _chatKey: chatKey })
+  }
 
   // Reset to landing page every time Deal Hunt opens
   useEffect(() => {
@@ -608,25 +778,6 @@ export default function DealHuntLanding({ open, onClose, onSelectDeal, onCreateD
             </div>
             <p className={styles.landingHeaderSub}>Best Deals In Yogyakarta</p>
 
-            {/* Running text ticker */}
-            <div className={styles.landingTicker}>
-              <div className={styles.landingTickerInner}>
-                {[
-                  { icon: '🔥', text: 'Sarah claimed Nasi Goreng deal · 2m ago' },
-                  { icon: '💰', text: 'Budi grabbed Leather Wallet · 5m ago' },
-                  { icon: '⚡', text: '87% claimed on Bakso Jumbo!' },
-                  { icon: '🆕', text: 'New massage deal just dropped · 1m ago' },
-                  { icon: '%', text: 'Wireless Earbuds 38% off · ending soon' },
-                  { icon: '🔥', text: 'Couple Massage 40% off · 8 claimed' },
-                  { icon: '💰', text: 'Honda Vario rental deal · 35% off' },
-                  { icon: '⚡', text: 'Flash deal on Ojek Bandara!' },
-                ].map((t, i) => (
-                  <span key={i} className={styles.landingTickerItem}>
-                    <span className={styles.landingTickerIcon}>{t.icon}</span>{t.text}
-                  </span>
-                ))}
-              </div>
-            </div>
           </div>
 
           {/* Side nav — Home + Join */}
@@ -662,26 +813,37 @@ export default function DealHuntLanding({ open, onClose, onSelectDeal, onCreateD
         </div>
       )}
 
-      {/* Back button */}
-      {!showLanding && <button className={styles.backBtn} onClick={onClose}>
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-          <path d="M19 12H5M12 5l-7 7 7 7"/>
-        </svg>
-      </button>}
-
-      {/* Title + category/city context */}
-      {!showLanding && !onBanner && <div className={styles.headerTitle}>
-        <span className={styles.headerBrand}>DEAL <span style={{ color: '#8DC63F' }}>HUNT</span></span>
-        <span className={styles.headerLive}>● LIVE</span>
-      </div>}
+      {/* Title + search bar */}
+      {!showLanding && !onBanner && (
+        <div style={{ position: 'fixed', top: 'env(safe-area-inset-top, 0px)', left: 0, right: 0, zIndex: 9510, padding: '8px 14px 0', pointerEvents: 'none' }}>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', pointerEvents: 'auto' }}>
+            <span className={styles.headerBrand}>DEAL <span style={{ color: '#8DC63F' }}>HUNT</span></span>
+          </div>
+          <div style={{ marginTop: 6, display: 'flex', alignItems: 'center', gap: 8, pointerEvents: 'auto' }}>
+            <div
+              onClick={() => {/* TODO: open search */}}
+              style={{ flex: 1, display: 'flex', alignItems: 'center', gap: 8, padding: '8px 14px', background: 'rgba(0,0,0,0.6)', backdropFilter: 'blur(12px)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: 14, cursor: 'pointer' }}
+            >
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.4)" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+                <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+              </svg>
+              <span style={{ fontSize: 13, color: 'rgba(255,255,255,0.35)', fontWeight: 600 }}>Search deals, sellers...</span>
+            </div>
+            <button
+              onClick={() => setFilterOpen(true)}
+              style={{ padding: '8px 14px', borderRadius: 14, background: 'rgba(0,0,0,0.6)', backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)', border: '1px solid rgba(255,255,255,0.1)', display: 'flex', alignItems: 'center', gap: 6, cursor: 'pointer', flexShrink: 0, position: 'relative' }}
+            >
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#8DC63F" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+                <polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"/>
+              </svg>
+              <span style={{ fontSize: 12, fontWeight: 800, color: '#8DC63F' }}>Filter{activeFilterCount > 0 ? ` (${activeFilterCount})` : ''}</span>
+            </button>
+          </div>
+        </div>
+      )}
 
       {/* Hide feed + header sub when landing is showing */}
       {showLanding && <style>{`.${styles.headerSub}, .${styles.feed}, .${styles.fab} { display: none !important; }`}</style>}
-      <div className={styles.headerSub} style={onBanner ? { display: 'none' } : {}}>
-        <span className={styles.headerCategory}>{DOMAIN_LABELS[deals[activeIndex]?.domain] ?? ''}</span>
-        <span className={styles.headerDot}>·</span>
-        <span className={styles.headerCity}>{deals[activeIndex]?.city ?? 'Indonesia'}</span>
-      </div>
 
       {/* Snap-scroll vertical feed with promo banners */}
       <div className={styles.feed} ref={containerRef} onScroll={handleScroll}>
@@ -738,9 +900,13 @@ export default function DealHuntLanding({ open, onClose, onSelectDeal, onCreateD
                 key={deal.id}
                 deal={deal}
                 isActive={false}
-                onClaim={(d) => onSelectDeal?.(d)}
-                onChat={(d) => onSelectDeal?.(d)}
-                onOpenMenu={(d) => onViewSeller?.(d)}
+                onClaim={(d) => handleGetDeal(d)}
+                onChat={(d) => d._chatKey ? setDealChatOpen(d) : handleGetDeal(d)}
+                onOpenMenu={(d) => setSellerDrawerDeal(d)}
+                onOpenDrawer={(d) => setSellerDrawerDeal(d)}
+                onChatInquiryChange={setChatInquiryVisible}
+                onReviewsChange={setReviewsVisible}
+                onHome={onClose}
               />
             )
           })
@@ -748,12 +914,253 @@ export default function DealHuntLanding({ open, onClose, onSelectDeal, onCreateD
         })()}
       </div>
 
-      {/* FAB — create deal */}
-      <button className={styles.fab} onClick={onCreateDeal}>
+      {/* Seller Deals Drawer */}
+      {sellerDrawerDeal && (
+        <SellerDealsDrawer
+          open={!!sellerDrawerDeal}
+          onClose={() => setSellerDrawerDeal(null)}
+          sellerId={'demo'}
+          sellerName={sellerDrawerDeal.seller_name ?? 'Seller'}
+          onSelectDeal={(deal) => { setSellerDrawerDeal(null); setFullCardDeal(deal) }}
+          onRequestDeal={handleRequestExpiredDeal}
+        />
+      )}
+
+      {/* ── Full-screen scrollable feed from drawer selection ── */}
+      {fullCardDeal && (() => {
+        // Build feed: selected deal → other live seller deals → normal feed
+        const sellerId = fullCardDeal.seller_id || fullCardDeal.sellerId || ''
+        const sellerLiveDeals = MOCK_SELLER_DEALS.filter(
+          d => (d.status === 'active' || d.active === true) && d.id !== fullCardDeal.id
+        )
+        const normalDeals = DEMO_DEALS.filter(d => d.id !== fullCardDeal.id)
+        const combinedFeed = [fullCardDeal, ...sellerLiveDeals, ...normalDeals]
+
+        return (
+          <div style={{ position: 'fixed', inset: 0, zIndex: 9600, background: '#000' }}>
+            {/* Scrollable snap feed */}
+            <div style={{ width: '100%', height: '100%', overflowY: 'scroll', scrollSnapType: 'y mandatory', WebkitOverflowScrolling: 'touch' }}>
+              {combinedFeed.map((d, i) => (
+                <DealSlide
+                  key={d.id + '-overlay-' + i}
+                  deal={d}
+                  isActive={true}
+                  onClaim={(dd) => { setFullCardDeal(null); handleGetDeal(dd) }}
+                  onChat={(dd) => { setFullCardDeal(null); dd._chatKey ? setDealChatOpen(dd) : handleGetDeal(dd) }}
+                  onOpenDrawer={(dd) => setSellerDrawerDeal(dd)}
+                  onChatInquiryChange={setChatInquiryVisible}
+                  onReviewsChange={setReviewsVisible}
+                  onHome={() => { setFullCardDeal(null); onClose?.() }}
+                />
+              ))}
+            </div>
+            {/* Close button */}
+            <button
+              onClick={() => setFullCardDeal(null)}
+              style={{
+                position: 'absolute', top: 'calc(env(safe-area-inset-top, 0px) + 12px)', left: 12,
+                zIndex: 9610, width: 40, height: 40, borderRadius: '50%',
+                background: 'rgba(0,0,0,0.6)', backdropFilter: 'blur(12px)',
+                border: '1px solid rgba(255,255,255,0.12)',
+                display: 'flex', alignItems: 'center', justifyContent: 'center',
+                cursor: 'pointer',
+              }}
+            >
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M19 12H5M12 5l-7 7 7 7"/>
+              </svg>
+            </button>
+          </div>
+        )
+      })()}
+
+      {/* FAB — create deal (hidden when chat inquiry is open) */}
+      <button className={styles.fab} onClick={onCreateDeal} style={(chatInquiryVisible || reviewsVisible) ? { display: 'none' } : undefined}>
         <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#000" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
           <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
         </svg>
       </button>
+
+      {/* Confirm Deal Popup */}
+      {confirmDeal && (
+        <div style={{ position: 'fixed', inset: 0, zIndex: 10000, display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'rgba(0,0,0,0.7)', backdropFilter: 'blur(8px)' }}>
+          <div style={{ width: '90%', maxWidth: 340, borderRadius: 24, background: 'rgba(10,10,10,0.95)', border: '1.5px solid rgba(141,198,63,0.2)', padding: 24, textAlign: 'center' }}>
+            {confirmDeal.images?.[0] && (
+              <img src={confirmDeal.images[0]} alt="" style={{ width: 80, height: 80, borderRadius: 16, objectFit: 'cover', margin: '0 auto 16px', display: 'block' }} />
+            )}
+            <span style={{ fontSize: 18, fontWeight: 900, color: '#fff', display: 'block', marginBottom: 4 }}>Confirm Deal?</span>
+            <span style={{ fontSize: 14, color: 'rgba(255,255,255,0.5)', display: 'block', marginBottom: 12 }}>{confirmDeal.title}</span>
+            <div style={{ display: 'flex', alignItems: 'baseline', justifyContent: 'center', gap: 10, marginBottom: 8 }}>
+              <span style={{ fontSize: 24, fontWeight: 900, color: '#8DC63F' }}>Rp {(confirmDeal.deal_price ?? 0).toLocaleString('id-ID')}</span>
+              <span style={{ fontSize: 14, color: 'rgba(255,255,255,0.3)', textDecoration: 'line-through' }}>Rp {(confirmDeal.original_price ?? 0).toLocaleString('id-ID')}</span>
+            </div>
+            <span style={{ fontSize: 13, fontWeight: 800, color: '#FACC15', display: 'block', marginBottom: 20 }}>🏷️ {Math.round((1 - confirmDeal.deal_price / confirmDeal.original_price) * 100)}% OFF — Locked Price</span>
+            <div style={{ display: 'flex', gap: 10 }}>
+              <button onClick={() => setConfirmDeal(null)} style={{ flex: 1, padding: 14, borderRadius: 14, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)', color: 'rgba(255,255,255,0.5)', fontSize: 15, fontWeight: 900, cursor: 'pointer', fontFamily: 'inherit' }}>
+                No Deal
+              </button>
+              <button onClick={handleConfirmYes} style={{ flex: 1, padding: 14, borderRadius: 14, background: '#8DC63F', border: 'none', color: '#000', fontSize: 15, fontWeight: 900, cursor: 'pointer', fontFamily: 'inherit' }}>
+                Yes Deal! 🔥
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ── Filter Sheet — Premium ── */}
+      {filterOpen && (
+        <div style={{ position: 'fixed', inset: 0, zIndex: 10000, background: 'rgba(8,8,8,0.85)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)', display: 'flex', flexDirection: 'column', overflow: 'hidden', borderTop: '2px solid rgba(141,198,63,0.5)', animation: 'slideUp 0.3s ease-out' }}>
+
+          {/* ─ Page content (no scroll) ─ */}
+          <div style={{ flex: 1, padding: '18px 16px 100px', overflowY: 'auto', WebkitOverflowScrolling: 'touch' }}>
+
+            {/* Header — logo + sub + close + reset */}
+            <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', marginBottom: 20 }}>
+              <div>
+                <h1 style={{ fontSize: 28, fontWeight: 900, color: '#fff', letterSpacing: 0.04, margin: 0, textShadow: '0 4px 20px rgba(0,0,0,0.6)' }}>DEAL <span style={{ color: '#8DC63F' }}>HUNT</span></h1>
+                <span style={{ fontSize: 12, color: 'rgba(255,255,255,0.5)', fontWeight: 600, display: 'block', marginTop: 2 }}>Refine your search results</span>
+              </div>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                <button onClick={() => { setFilters({ city: 'all', category: 'all', priceMin: '', priceMax: '', condition: 'all', sortBy: 'relevance', discountMin: 0, availability: 'all' }); setActiveFilterCount(0) }} style={{ fontSize: 12, fontWeight: 700, color: '#8DC63F', background: 'none', border: 'none', cursor: 'pointer', fontFamily: 'inherit', textDecoration: 'underline' }}>Reset</button>
+                <button onClick={() => setFilterOpen(false)} style={{ width: 36, height: 36, borderRadius: '50%', background: 'rgba(141,198,63,0.15)', border: '1px solid rgba(141,198,63,0.35)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' }}>
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#8DC63F" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                </button>
+              </div>
+            </div>
+
+            {/* ── Sort By — dropdown ── */}
+            <div style={{ background: 'rgba(0,0,0,0.6)', backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: 20, padding: 16, marginBottom: 14 }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 10 }}>
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#8DC63F" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="4" y1="6" x2="20" y2="6"/><line x1="4" y1="12" x2="14" y2="12"/><line x1="4" y1="18" x2="8" y2="18"/></svg>
+                <span style={{ fontSize: 14, fontWeight: 800, color: '#fff' }}>Sort By</span>
+              </div>
+              <select
+                value={filters.sortBy}
+                onChange={e => setFilters(f => ({ ...f, sortBy: e.target.value }))}
+                style={{ width: '100%', padding: '10px 14px', borderRadius: 12, background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(141,198,63,0.2)', color: '#fff', fontSize: 13, fontFamily: 'inherit', outline: 'none', appearance: 'none', WebkitAppearance: 'none', backgroundImage: 'url("data:image/svg+xml,%3Csvg width=\'12\' height=\'8\' viewBox=\'0 0 12 8\' fill=\'none\' xmlns=\'http://www.w3.org/2000/svg\'%3E%3Cpath d=\'M1 1l5 5 5-5\' stroke=\'%238DC63F\' stroke-width=\'2\' stroke-linecap=\'round\'/%3E%3C/svg%3E")', backgroundRepeat: 'no-repeat', backgroundPosition: 'right 14px center' }}
+              >
+                {FILTER_SORT.map(s => <option key={s.value} value={s.value} style={{ background: '#111', color: '#fff' }}>{s.label}</option>)}
+              </select>
+            </div>
+
+            {/* ── City — dropdown ── */}
+            <div style={{ background: 'rgba(0,0,0,0.6)', backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: 20, padding: 16, marginBottom: 14 }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 10 }}>
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#8DC63F" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>
+                <span style={{ fontSize: 14, fontWeight: 800, color: '#fff' }}>City</span>
+                <span style={{ fontSize: 11, color: 'rgba(255,255,255,0.3)', marginLeft: 'auto' }}>Select location</span>
+              </div>
+              <select
+                value={filters.city}
+                onChange={e => setFilters(f => ({ ...f, city: e.target.value }))}
+                style={{ width: '100%', padding: '10px 14px', borderRadius: 12, background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(141,198,63,0.2)', color: '#fff', fontSize: 13, fontFamily: 'inherit', outline: 'none', appearance: 'none', WebkitAppearance: 'none', backgroundImage: 'url("data:image/svg+xml,%3Csvg width=\'12\' height=\'8\' viewBox=\'0 0 12 8\' fill=\'none\' xmlns=\'http://www.w3.org/2000/svg\'%3E%3Cpath d=\'M1 1l5 5 5-5\' stroke=\'%238DC63F\' stroke-width=\'2\' stroke-linecap=\'round\'/%3E%3C/svg%3E")', backgroundRepeat: 'no-repeat', backgroundPosition: 'right 14px center' }}
+              >
+                {FILTER_CITIES.map(c => <option key={c} value={c === 'All Cities' ? 'all' : c} style={{ background: '#111', color: '#fff' }}>{c}</option>)}
+              </select>
+            </div>
+
+            {/* ── Category — dropdown ── */}
+            <div style={{ background: 'rgba(0,0,0,0.6)', backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: 20, padding: 16, marginBottom: 14 }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 10 }}>
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#8DC63F" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+                <span style={{ fontSize: 14, fontWeight: 800, color: '#fff' }}>Category</span>
+                <span style={{ fontSize: 11, color: 'rgba(255,255,255,0.3)', marginLeft: 'auto' }}>Product type</span>
+              </div>
+              <select
+                value={filters.category}
+                onChange={e => setFilters(f => ({ ...f, category: e.target.value }))}
+                style={{ width: '100%', padding: '10px 14px', borderRadius: 12, background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(141,198,63,0.2)', color: '#fff', fontSize: 13, fontFamily: 'inherit', outline: 'none', appearance: 'none', WebkitAppearance: 'none', backgroundImage: 'url("data:image/svg+xml,%3Csvg width=\'12\' height=\'8\' viewBox=\'0 0 12 8\' fill=\'none\' xmlns=\'http://www.w3.org/2000/svg\'%3E%3Cpath d=\'M1 1l5 5 5-5\' stroke=\'%238DC63F\' stroke-width=\'2\' stroke-linecap=\'round\'/%3E%3C/svg%3E")', backgroundRepeat: 'no-repeat', backgroundPosition: 'right 14px center' }}
+              >
+                {FILTER_CATEGORIES.map(c => <option key={c.value} value={c.value} style={{ background: '#111', color: '#fff' }}>{c.label}</option>)}
+              </select>
+            </div>
+
+            {/* ── Price Range ── */}
+            <div style={{ background: 'rgba(0,0,0,0.6)', backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: 20, padding: 16, marginBottom: 14 }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 10 }}>
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#8DC63F" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/></svg>
+                <span style={{ fontSize: 14, fontWeight: 800, color: '#fff' }}>Price Range</span>
+                <span style={{ fontSize: 11, color: 'rgba(255,255,255,0.3)', marginLeft: 'auto' }}>IDR</span>
+              </div>
+              <div style={{ display: 'flex', gap: 10, alignItems: 'center' }}>
+                <input type="number" placeholder="Min" value={filters.priceMin} onChange={e => setFilters(f => ({ ...f, priceMin: e.target.value }))} style={{ flex: 1, padding: '10px 14px', borderRadius: 12, background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(141,198,63,0.2)', color: '#fff', fontSize: 13, fontFamily: 'inherit', outline: 'none' }} />
+                <span style={{ color: 'rgba(141,198,63,0.4)', fontSize: 16, fontWeight: 700 }}>—</span>
+                <input type="number" placeholder="Max" value={filters.priceMax} onChange={e => setFilters(f => ({ ...f, priceMax: e.target.value }))} style={{ flex: 1, padding: '10px 14px', borderRadius: 12, background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(141,198,63,0.2)', color: '#fff', fontSize: 13, fontFamily: 'inherit', outline: 'none' }} />
+              </div>
+            </div>
+
+            {/* ── Minimum Discount ── */}
+            <div style={{ background: 'rgba(0,0,0,0.6)', backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: 20, padding: 16, marginBottom: 14 }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 10 }}>
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#FACC15" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg>
+                <span style={{ fontSize: 14, fontWeight: 800, color: '#fff' }}>Minimum Discount</span>
+              </div>
+              <div style={{ display: 'flex', gap: 8 }}>
+                {DISCOUNT_TIERS.map(d => (
+                  <button key={d} onClick={() => setFilters(f => ({ ...f, discountMin: d }))} style={{ flex: 1, padding: '10px 0', borderRadius: 12, background: filters.discountMin === d ? 'rgba(250,204,21,0.15)' : 'rgba(255,255,255,0.04)', border: `1.5px solid ${filters.discountMin === d ? 'rgba(250,204,21,0.5)' : 'rgba(255,255,255,0.08)'}`, color: filters.discountMin === d ? '#FACC15' : 'rgba(255,255,255,0.4)', fontSize: 13, fontWeight: 800, cursor: 'pointer', fontFamily: 'inherit', textAlign: 'center' }}>{d === 0 ? 'Any' : `${d}%+`}</button>
+                ))}
+              </div>
+            </div>
+
+            {/* ── Condition — dropdown ── */}
+            <div style={{ background: 'rgba(0,0,0,0.6)', backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: 20, padding: 16, marginBottom: 14 }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 10 }}>
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#8DC63F" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M20.59 13.41l-7.17 7.17a2 2 0 01-2.83 0L2 12V2h10l8.59 8.59a2 2 0 010 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg>
+                <span style={{ fontSize: 14, fontWeight: 800, color: '#fff' }}>Condition</span>
+                <span style={{ fontSize: 11, color: 'rgba(255,255,255,0.3)', marginLeft: 'auto' }}>New or used</span>
+              </div>
+              <select
+                value={filters.condition}
+                onChange={e => setFilters(f => ({ ...f, condition: e.target.value }))}
+                style={{ width: '100%', padding: '10px 14px', borderRadius: 12, background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(141,198,63,0.2)', color: '#fff', fontSize: 13, fontFamily: 'inherit', outline: 'none', appearance: 'none', WebkitAppearance: 'none', backgroundImage: 'url("data:image/svg+xml,%3Csvg width=\'12\' height=\'8\' viewBox=\'0 0 12 8\' fill=\'none\' xmlns=\'http://www.w3.org/2000/svg\'%3E%3Cpath d=\'M1 1l5 5 5-5\' stroke=\'%238DC63F\' stroke-width=\'2\' stroke-linecap=\'round\'/%3E%3C/svg%3E")', backgroundRepeat: 'no-repeat', backgroundPosition: 'right 14px center' }}
+              >
+                {FILTER_CONDITIONS.map(c => <option key={c.value} value={c.value} style={{ background: '#111', color: '#fff' }}>{c.label}</option>)}
+              </select>
+            </div>
+
+            {/* ── Availability — dropdown ── */}
+            <div style={{ background: 'rgba(0,0,0,0.6)', backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: 20, padding: 16, marginBottom: 14 }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 10 }}>
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#8DC63F" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                <span style={{ fontSize: 14, fontWeight: 800, color: '#fff' }}>Availability</span>
+                <span style={{ fontSize: 11, color: 'rgba(255,255,255,0.3)', marginLeft: 'auto' }}>Deal status</span>
+              </div>
+              <select
+                value={filters.availability}
+                onChange={e => setFilters(f => ({ ...f, availability: e.target.value }))}
+                style={{ width: '100%', padding: '10px 14px', borderRadius: 12, background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(141,198,63,0.2)', color: '#fff', fontSize: 13, fontFamily: 'inherit', outline: 'none', appearance: 'none', WebkitAppearance: 'none', backgroundImage: 'url("data:image/svg+xml,%3Csvg width=\'12\' height=\'8\' viewBox=\'0 0 12 8\' fill=\'none\' xmlns=\'http://www.w3.org/2000/svg\'%3E%3Cpath d=\'M1 1l5 5 5-5\' stroke=\'%238DC63F\' stroke-width=\'2\' stroke-linecap=\'round\'/%3E%3C/svg%3E")', backgroundRepeat: 'no-repeat', backgroundPosition: 'right 14px center' }}
+              >
+                {FILTER_AVAILABILITY.map(a => <option key={a.value} value={a.value} style={{ background: '#111', color: '#fff' }}>{a.label}</option>)}
+              </select>
+            </div>
+          </div>
+
+          {/* ─ Sticky apply bar ─ */}
+          <div style={{ flexShrink: 0, padding: '14px 16px', background: '#080808', borderTop: '1px solid rgba(141,198,63,0.15)' }}>
+            <button
+              onClick={() => {
+                let count = 0
+                if (filters.city !== 'all') count++
+                if (filters.category !== 'all') count++
+                if (filters.priceMin) count++
+                if (filters.priceMax) count++
+                if (filters.condition !== 'all') count++
+                if (filters.sortBy !== 'relevance') count++
+                if (filters.discountMin > 0) count++
+                if (filters.availability !== 'all') count++
+                setActiveFilterCount(count)
+                setFilterOpen(false)
+              }}
+              style={{ width: '100%', padding: 15, borderRadius: 16, background: 'linear-gradient(135deg, #8DC63F 0%, #6ba32e 100%)', border: 'none', color: '#000', fontSize: 16, fontWeight: 900, cursor: 'pointer', fontFamily: 'inherit', letterSpacing: 0.5 }}
+            >
+              Apply Filters{activeFilterCount > 0 ? ` (${activeFilterCount})` : ''}
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* Deal Chat */}
+      {dealChatOpen && <DealChat deal={dealChatOpen} onClose={() => setDealChatOpen(null)} />}
     </div>,
     document.body
   )

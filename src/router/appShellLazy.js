@@ -12,6 +12,7 @@ export const DealHuntLanding         = lazy(() => import('@/domains/dealhunt/pag
 export const DealDetail              = lazy(() => import('@/domains/dealhunt/pages/DealDetail'))
 export const CreateDealPage          = lazy(() => import('@/domains/dealhunt/pages/CreateDeal'))
 export const MyDealsPage             = lazy(() => import('@/domains/dealhunt/pages/MyDeals'))
+export const SellRentSheet           = lazy(() => import('@/components/sellrent/SellRentSheet'))
 export const QAFeedScreen            = lazy(() => import('@/components/community/QAFeedScreen'))
 export const VibeBlastPage           = lazy(() => import('@/components/vibecheck/VibeBlastPage'))
 export const NotificationsScreen     = lazy(() => import('@/screens/NotificationsScreen'))

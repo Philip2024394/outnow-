@@ -7,14 +7,16 @@ import { supabase } from '@/lib/supabase'
 // ─────────────────────────────────────────────────────────────────────────────
 
 export const COMMISSION_RATES = {
-  marketplace:  0.10,   // 10% — all services unified
-  restaurant:   0.10,   // 10%
-  rental:       0.10,   // 10%
-  massage:      0.10,   // 10%
-  driver_bike:  0.10,   // 10%
-  driver_car:   0.10,   // 10%
-  dating:       0.10,   // 10%
-  food:         0.10,   // 10%
+  marketplace:      0.10,   // 10% — general marketplace
+  restaurant:       0.10,   // 10%
+  rental:           0.10,   // 10% — rental orders (vehicles, equipment, fashion)
+  massage:          0.10,   // 10%
+  driver_bike:      0.10,   // 10%
+  driver_car:       0.10,   // 10%
+  dating:           0.10,   // 10%
+  food:             0.10,   // 10%
+  property_sale:    0.05,   // 5% — house, factory, kos, villa sales
+  motor_sale:       0.05,   // 5% — motorcycle/vehicle sales
 }
 
 // ── Record a new commission when order is marked complete ─────────────────────

@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef, useCallback } from 'react'
+import IndooFooter from '@/components/ui/IndooFooter'
 import { supabase } from '@/lib/supabase'
 import { LOOKING_FOR_OPTIONS } from '@/utils/lookingForLabels'
 import { DEMO_BUSINESS_SELLERS } from '@/demo/mockData'
@@ -832,6 +833,7 @@ export default function ShopSearchScreen({ onClose, userCity, userCountry, giftF
         </button>
       ))}
     </div>
+    <IndooFooter label="Market" onBack={onClose} onHome={onHome || onClose} />
     </>
   )
 }

@@ -1,10 +1,11 @@
 import { getDirectory } from '@/services/vehicleDirectoryService'
+import IndooFooter from '@/components/ui/IndooFooter'
 import styles from '../RentalSearchScreen.module.css'
 
-const BIKE_DIR_BG = 'https://ik.imagekit.io/nepgaxllc/Untitledsdfsdfsdasdfsdsdfsadasd.png?updatedAt=1776328299311'
-const CAR_DIR_BG = 'https://ik.imagekit.io/nepgaxllc/Untitledsdfasdfdddfsdfsdsdfsdfadsasdadasdaadasdsadfsdsasdaasdasdadsasd.png?updatedAt=1776099885459'
-const TRUCK_DIR_BG = 'https://ik.imagekit.io/nepgaxllc/Untitledsdfsdfsdasdfsdsdfsadasddsasd.png'
-const BUS_DIR_BG = 'https://ik.imagekit.io/nepgaxllc/ChatGPT%20Image%20Apr%2019,%202026,%2004_38_15%20AM.png'
+const BIKE_DIR_BG = 'https://ik.imagekit.io/nepgaxllc/ChatGPT%20Image%20Apr%2029,%202026,%2003_29_38%20AM.png?updatedAt=1777408195502'
+const CAR_DIR_BG = 'https://ik.imagekit.io/nepgaxllc/ChatGPT%20Image%20Apr%2029,%202026,%2003_31_56%20AM.png?updatedAt=1777408335834'
+const TRUCK_DIR_BG = 'https://ik.imagekit.io/nepgaxllc/ChatGPT%20Image%20Apr%2029,%202026,%2003_29_38%20AM.png?updatedAt=1777408195502'
+const BUS_DIR_BG = 'https://ik.imagekit.io/nepgaxllc/ChatGPT%20Image%20Apr%2029,%202026,%2003_29_38%20AM.png?updatedAt=1777408195502'
 
 export { BIKE_DIR_BG, CAR_DIR_BG, TRUCK_DIR_BG, BUS_DIR_BG }
 
@@ -13,19 +14,15 @@ export default function VehicleDirectory({ vehicleType, onSelectModel, onBack })
   const isBike = vehicleType === 'Motorcycles'
   const isTruck = vehicleType === 'Trucks'
   const isBus = vehicleType === 'Buses'
-  const title = isBike ? 'Motor Bikes' : isTruck ? 'Trucks' : isBus ? 'Buses' : 'Cars'
+  const title = isBike ? 'Motorbikes' : isTruck ? 'Trucks' : isBus ? 'Buses' : 'Cars'
   const bgUrl = isBike ? BIKE_DIR_BG : isTruck ? TRUCK_DIR_BG : isBus ? BUS_DIR_BG : CAR_DIR_BG
   const bgStyle = bgUrl ? { backgroundImage: `url("${bgUrl}")`, backgroundSize: 'cover', backgroundPosition: 'center' } : {}
 
   return (
     <div className={styles.dirPage} style={bgStyle}>
-      <button onClick={onBack} style={{ position:'absolute', top:16, right:16, zIndex:3, width:36, height:36, borderRadius:'50%', background:'#8DC63F', border:'none', display:'flex', alignItems:'center', justifyContent:'center', cursor:'pointer', boxShadow:'0 2px 10px rgba(0,0,0,0.3)' }}>
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#000" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-          <polyline points="15 18 9 12 15 6"/>
-        </svg>
-      </button>
       <div className={styles.dirHero}>
-        <h1 className={styles.dirHeroTitle}>{title} Rentals</h1>
+        <h1 className={styles.dirHeroTitle}>{title}</h1>
+        <p style={{ fontSize: 14, fontWeight: 900, color: '#8DC63F', margin: '2px 0 0', letterSpacing: 0.5 }}>Buy / Sell</p>
         <p className={styles.dirHeroSub}>
           {(() => { const c = (() => { try { return JSON.parse(localStorage.getItem('indoo_rental_owner') || '{}').city } catch { return '' } })() || 'your city'; return isBike ? `Find your perfect ride in ${c}` : isTruck ? `Heavy-duty vehicles in ${c}` : isBus ? `Group travel in ${c}` : `Drive in comfort in ${c}` })()}
         </p>
@@ -76,6 +73,7 @@ export default function VehicleDirectory({ vehicleType, onSelectModel, onBack })
           ))}
         </div>
       </div>
+      <IndooFooter label={title} onBack={onBack} onHome={onBack} />
     </div>
   )
 }

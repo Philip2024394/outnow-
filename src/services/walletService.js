@@ -2,7 +2,7 @@
  * Indoo Universal Wallet — one wallet for all services
  * Marketplace, Rentals, Rides, Food, Dating
  *
- * Commission: 10% flat across all services
+ * Commission: 10% rentals, 5% property sales, 5% motor sales
  * Debt limit: Rp 50.000 for new accounts
  * Credit limit increases with trading history
  *
@@ -18,6 +18,14 @@ import {
 
 const WALLET_KEY = 'indoo_wallet'
 export const COMMISSION_RATE = 0.10
+export const COMMISSION_RATE_PROPERTY_SALE = 0.05
+export const COMMISSION_RATE_MOTOR_SALE = 0.05
+
+export function getCommissionRate(type) {
+  if (type === 'property_sale') return COMMISSION_RATE_PROPERTY_SALE
+  if (type === 'motor_sale') return COMMISSION_RATE_MOTOR_SALE
+  return COMMISSION_RATE
+}
 export const DEFAULT_DEBT_LIMIT = 50000
 
 const HISTORY_THRESHOLDS = [
@@ -130,7 +138,8 @@ export async function processCommission(userId = 'default', service, orderId, or
 
   // localStorage fallback
   const w = getLocalWallet(userId)
-  const commission = Math.round(orderAmount * COMMISSION_RATE)
+  const rate = getCommissionRate(service)
+  const commission = Math.round(orderAmount * rate)
 
   if (w.freeOrdersLeft > 0) {
     w.freeOrdersLeft--; w.totalOrders++; w.totalEarned += orderAmount

@@ -306,41 +306,6 @@ export default function DealDetail({ deal, open, onClose, onClaim, onChat, onSel
         </div>
       </div>
 
-      {/* ── Seller Deals floating button ── */}
-      {seller.name && (
-        <button
-          onClick={() => setSellerDrawerOpen(true)}
-          aria-label="View seller deals"
-          style={{
-            position: 'fixed',
-            right: 8,
-            top: '50%',
-            transform: 'translateY(-50%)',
-            zIndex: 1100,
-            background: 'rgba(0,0,0,0.6)',
-            backdropFilter: 'blur(12px)',
-            WebkitBackdropFilter: 'blur(12px)',
-            border: '1px solid rgba(255,255,255,0.12)',
-            borderRadius: 20,
-            padding: '14px 6px',
-            cursor: 'pointer',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            writingMode: 'vertical-rl',
-            textOrientation: 'mixed',
-            color: '#4ade80',
-            fontSize: 12,
-            fontWeight: 700,
-            letterSpacing: 1,
-            lineHeight: 1,
-            minWidth: 44,
-            minHeight: 44,
-          }}
-        >
-          Seller Deals
-        </button>
-      )}
 
       {/* ── Sticky CTA ── */}
       <div className={styles.stickyCta}>

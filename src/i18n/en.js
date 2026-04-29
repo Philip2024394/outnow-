@@ -41,10 +41,11 @@ export default {
   'icons.street':  'The Street',
   'icons.dating':  'Dating',
   'icons.car':     'Drive On',
-  'icons.shop':    'Market',
+  'icons.shop':    'Buy',
   'icons.massage': 'Massage',
-  'icons.rentals': 'Rentals',
+  'icons.rentals': 'Rent',
   'icons.deals':   'Deal Hunt',
+  'icons.sellrent': 'Sell / Rent',
 
   // Map header
   'header.signIn': 'Sign In',

@@ -5,6 +5,7 @@
  * Theme: gold #8DC63F
  */
 import { useState, useEffect } from 'react'
+import IndooFooter from '@/components/ui/IndooFooter'
 import {
   RENTAL_CATEGORIES, getListings, getListingsByCategory,
   searchListings, fmtIDR,
@@ -37,9 +38,9 @@ import styles from './RentalSearchScreen.module.css'
 const LANDING_BG = 'https://ik.imagekit.io/nepgaxllc/ChatGPT%20Image%20Apr%2019,%202026,%2010_51_20%20PM.png?updatedAt=1776613897705'
 
 
-const VEHICLES_BG = 'https://ik.imagekit.io/nepgaxllc/Untitledcasdasddd.png'
-const PROPERTY_BG = 'https://ik.imagekit.io/nepgaxllc/ChatGPT%20Image%20Apr%2016,%202026,%2003_21_17%20PM.png'
-const FASHION_BG  = 'https://ik.imagekit.io/nepgaxllc/Stylish%20shopping%20stroll%20at%20sunset.png?updatedAt=1776105703045'
+const VEHICLES_BG = 'https://ik.imagekit.io/nepgaxllc/ChatGPT%20Image%20Apr%2029,%202026,%2007_48_01%20AM.png'
+const PROPERTY_BG = 'https://ik.imagekit.io/nepgaxllc/ChatGPT%20Image%20Apr%2029,%202026,%2005_01_47%20AM.png'
+const FASHION_BG  = 'https://ik.imagekit.io/nepgaxllc/Untitledsfsdfsfsdasdasdddddd.png'
 const EQUIPMENT_BG = 'https://ik.imagekit.io/nepgaxllc/Exploring%20the%20marketplace%20on%20a%20scooter.png?updatedAt=1776106102122'
 
 // Preload all background images on mount
@@ -51,9 +52,9 @@ function usePreloadImages() {
 }
 
 
-export default function RentalSearchScreen({ onClose }) {
+export default function RentalSearchScreen({ onClose, initialView }) {
   usePreloadImages()
-  const [view, setView] = useState('landing')
+  const [view, setView] = useState(initialView || 'browse')
   const [search, setSearch] = useState('')
   const [category, setCategory] = useState('all')
   const [activeFilter, setActiveFilter] = useState(null)
@@ -186,16 +187,16 @@ export default function RentalSearchScreen({ onClose }) {
       }}
       onListRental={() => { setRentalSignUpOpen(false); setRentalListingOpen(true) }}
       onSellItem={() => { setRentalSignUpOpen(false); setRentalListingOpen(true) }}
-      onBuyItem={() => { setRentalSignUpOpen(false); markSectionVisited('rentals'); setListingMode('sale'); setView('categories') }}
+      onBuyItem={() => { setRentalSignUpOpen(false); markSectionVisited('rentals'); setListingMode('sale'); setView('browse') }}
       onRentItems={() => {
         setRentalSignUpOpen(false)
-        markSectionVisited('rentals'); setListingMode('rent'); setView('categories')
+        markSectionVisited('rentals'); setListingMode('rent'); setView('browse')
       }}
     />
     <RentalRenterSignUpScreen
       open={renterSignUpOpen}
       onClose={() => setRenterSignUpOpen(false)}
-      onComplete={() => { setRenterSignUpOpen(false); markSectionVisited('rentals'); setView('categories') }}
+      onComplete={() => { setRenterSignUpOpen(false); markSectionVisited('rentals'); setView('browse') }}
     />
     {rentalCategoryOpen && <RentalCategoryRouter
       open={rentalCategoryOpen}
@@ -210,30 +211,7 @@ export default function RentalSearchScreen({ onClose }) {
     />}
   </>
 
-  if (view === 'landing') {
-    return <div>
-      <PageBadge num={1} label="Landing" />
-      <RentalLanding onEnter={() => { markSectionVisited('rentals'); setView('categories') }} onClose={onClose} onDashboard={() => { markSectionVisited('rentals'); setDashboardOpen(true) }} onSignUp={() => setRentalSignUpOpen(true)} />
-      {modals}
-    </div>
-  }
 
-  if (view === 'categories') {
-    return (<>
-      <PageBadge num={2} label="Categories" />
-      <RentalCategories
-        onSelect={(c) => {
-          if (c.id === 'Vehicles') { setView('vehicles'); return }
-          if (c.id === 'Property') { setView('property'); return }
-          if (c.id === 'Fashion') { setView('fashion'); return }
-          if (c.id === 'Electronics' || c.id === 'Audio & Sound' || c.id === 'Party & Event') { setView('equipment'); return }
-          setActiveFilter(c.filter); setView('browse')
-        }}
-        onBack={() => setView('landing')}
-        onDashboard={() => setDashboardOpen(true)}
-      />
-    </>)
-  }
 
   if (view === 'vehicles') {
     return (<>
@@ -242,7 +220,7 @@ export default function RentalSearchScreen({ onClose }) {
         bg={VEHICLES_BG}
         title="Vehicles"
         tagline="Find your perfect ride"
-        heroSub="Indonesia's largest market for quality used & new vehicles"
+        heroSub="Buy or rent vehicles across Indonesia"
         buttons={[
           { img: 'https://ik.imagekit.io/nepgaxllc/Sleek%20green%20and%20black%20scooter%20setup.png?updatedAt=1775634845237', label: 'Bike Market', sub: 'Matic, Sport, Trail & Classic', count: '1,200+', rating: 4.8, filter: 'Motorcycles' },
           { img: 'https://ik.imagekit.io/nepgaxllc/Sporty%20green%20and%20black%20hatchback.png?updatedAt=1775634925566', label: 'Car Market', sub: 'MPV, SUV, Sedan & City Cars', count: '860+', rating: 4.7, filter: 'Cars' },
@@ -250,7 +228,7 @@ export default function RentalSearchScreen({ onClose }) {
           { img: 'https://ik.imagekit.io/nepgaxllc/asdasdasssssddd-removebg-preview.png', label: 'Bus Market', sub: 'Minibus, HiAce & Tour Bus', count: '95+', rating: 4.5, filter: 'Buses' },
         ]}
         onSelect={(type) => { setVehicleType(type); setView('vehicleDir') }}
-        onBack={() => setView('categories')}
+        onBack={() => setView('browse')}
       />
     </>)
   }
@@ -271,17 +249,19 @@ export default function RentalSearchScreen({ onClose }) {
       <PageBadge num={5} label="Property" />
       <SubCategoryLanding
         bg={PROPERTY_BG}
-        title="Rent Property"
+        bgPosition="center top"
+        noScroll
+        title="Property Buy & Rent"
         tagline="Stay anywhere you want"
-        heroSub="Villas, houses, kos & factory spaces across Indonesia"
+        heroSub="Buy or rent houses, villas, kos & factory spaces"
         buttons={[
-          { icon: '🏠', label: 'House', filter: 'House' },
-          { icon: '🏭', label: 'Factory', filter: 'Factory' },
-          { icon: '🏢', label: 'Kos', filter: 'Kos' },
-          { icon: '🏡', label: 'Villa', filter: 'Villa' },
+          { label: 'House', filter: 'House', heroCard: true, heroImg: 'https://ik.imagekit.io/nepgaxllc/Untitleddddddg.png', heroIcon: 'house' },
+          { label: 'Factory', filter: 'Factory', heroCard: true, heroImg: 'https://ik.imagekit.io/nepgaxllc/Untitleddddddgdd.png', heroIcon: 'factory' },
+          { label: 'Kos', filter: 'Kos', heroCard: true, heroImg: 'https://ik.imagekit.io/nepgaxllc/Untitleddddddgdddd.png', heroIcon: 'kos' },
+          { label: 'Villa', filter: 'Villa', heroCard: true, heroImg: 'https://ik.imagekit.io/nepgaxllc/Untitleddddddgdddddd.png', heroIcon: 'villa' },
         ]}
         onSelect={(type) => { setActiveFilter([type]); setView('browse') }}
-        onBack={() => setView('categories')}
+        onBack={() => setView('browse')}
       />
     </>)
   }
@@ -291,16 +271,16 @@ export default function RentalSearchScreen({ onClose }) {
       <PageBadge num={6} label="Equipment" />
       <SubCategoryLanding
         bg={EQUIPMENT_BG}
-        title="Rent Equipment"
+        title="Equipment Buy & Rent"
         tagline="Gear up for any occasion"
-        heroSub="Cameras, sound systems, lighting & event gear for hire"
+        heroSub="Buy or rent cameras, sound systems, lighting & event gear"
         buttons={[
           { icon: '🎪', label: 'Event Gear', filter: 'Event' },
           { icon: '📸', label: 'Photo & Video', filter: 'Camera' },
           { icon: '💻', label: 'Laptops & Phones', filter: 'Laptop' },
         ]}
         onSelect={(type) => { setActiveFilter([type, 'Electronics', 'Audio & Sound', 'Party & Event']); setView('browse') }}
-        onBack={() => setView('categories')}
+        onBack={() => setView('browse')}
       />
     </>)
   }
@@ -310,15 +290,16 @@ export default function RentalSearchScreen({ onClose }) {
       <PageBadge num={7} label="Fashion" />
       <SubCategoryLanding
         bg={FASHION_BG}
-        title="Rent Fashion"
+        bgPosition="center top"
+        title="Fashion Buy & Rent"
         tagline="Dress for every occasion"
-        heroSub="Kebaya, suits, gowns & traditional wear for rent"
+        heroSub="Buy or rent kebaya, suits, gowns & traditional wear"
         buttons={[
-          { icon: '👰', label: 'Wedding Clothes', filter: 'Wedding' },
-          { icon: '👗', label: 'Fashion Clothes', filter: 'Fashion' },
+          { label: 'Wedding Clothes', filter: 'Wedding', heroCard: true, heroImg: 'https://ik.imagekit.io/nepgaxllc/ChatGPT%20Image%20Apr%2029,%202026,%2006_13_12%20AM.png', heroIcon: 'wedding' },
+          { label: 'Fashion Clothes', filter: 'Fashion', heroCard: true, heroImg: 'https://ik.imagekit.io/nepgaxllc/ChatGPT%20Image%20Apr%2029,%202026,%2006_15_05%20AM.png', heroIcon: 'fashion' },
         ]}
         onSelect={(type) => { setActiveFilter([type, 'Fashion']); setView('browse') }}
-        onBack={() => setView('categories')}
+        onBack={() => setView('browse')}
       />
     </>)
   }
@@ -337,7 +318,7 @@ export default function RentalSearchScreen({ onClose }) {
       {/* Header — market title + search bar + filter */}
       <div style={{ padding: '14px 14px 0', flexShrink: 0 }}>
         <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
-          <div style={{ flex: 1, cursor: 'pointer' }} onClick={() => { if (vehicleType) { setView('vehicleDir'); return } setView('categories') }}>
+          <div style={{ flex: 1, cursor: 'pointer' }} onClick={() => { if (vehicleType) { setView('vehicleDir'); return } setView('browse') }}>
             <span style={{ fontSize: 38, fontWeight: 900, color: '#fff', letterSpacing: '-0.02em', display: 'block' }}>
               {vehicleType === 'Motorcycles' ? 'Bike ' : vehicleType === 'Cars' ? 'Car ' : vehicleType === 'Trucks' ? 'Truck ' : vehicleType === 'Buses' ? 'Bus ' : ''}<span style={{ color: '#8DC63F' }}>Market</span>
             </span>
@@ -596,35 +577,23 @@ export default function RentalSearchScreen({ onClose }) {
 
       </div>
 
-      {/* Floating side nav — with labels */}
-      {/* Floating side nav — bare icons, no container */}
+      {/* Floating side nav — glass panel */}
       <div style={{
-        position: 'fixed', right: 6, top: '50%', transform: 'translateY(-50%)',
-        display: 'flex', flexDirection: 'column', gap: 10, zIndex: 200,
-        padding: '10px 6px', borderRadius: 24,
-        background: 'rgba(0,0,0,0.45)', backdropFilter: 'blur(12px)',
-        border: '1px solid rgba(255,255,255,0.05)',
+        position: 'fixed', right: 8, top: '50%', transform: 'translateY(-50%)',
+        display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 16, zIndex: 200,
+        padding: '14px 8px', borderRadius: 20,
+        background: 'rgba(0,0,0,0.5)', backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)',
+        border: '1px solid rgba(255,255,255,0.08)',
       }}>
-        {[
-          { id: 'home', label: 'Home', icon: <img src="https://ik.imagekit.io/nepgaxllc/Untitledsssaa-removebg-preview.png" alt="" style={{ width: 40, height: 40, objectFit: 'contain' }} />, action: () => { if (vehicleType) { setView('vehicleDir') } else { setView('categories') } } },
-          { id: 'rent', label: 'Rent', icon: <img src="https://ik.imagekit.io/nepgaxllc/Untitledsssaadddddd-removebg-preview.png" alt="" style={{ width: 40, height: 40, objectFit: 'contain' }} />, action: () => setListingMode(listingMode === 'rent' ? 'all' : 'rent') },
-          { id: 'sale', label: 'Buy', icon: <img src="https://ik.imagekit.io/nepgaxllc/Untitledsssaadddddddd-removebg-preview.png" alt="" style={{ width: 40, height: 40, objectFit: 'contain' }} />, action: () => setListingMode(listingMode === 'sale' ? 'all' : 'sale') },
-          { id: 'user', label: 'Profile', icon: <img src="https://ik.imagekit.io/nepgaxllc/Untitledsssaaddd-removebg-preview.png" alt="" style={{ width: 40, height: 40, objectFit: 'contain' }} />, action: () => setShowUserDrawer(true) },
-        ].map(btn => {
-          const isActive = (btn.id === 'rent' && listingMode === 'rent') || (btn.id === 'sale' && listingMode === 'sale')
-          return (
-          <button key={btn.id} onClick={btn.action} style={{
-            width: 44, minHeight: 54, borderRadius: 12,
-            background: 'none', border: 'none',
-            color: isActive ? (btn.id === 'sale' ? '#FFD700' : '#8DC63F') : '#fff',
-            display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 2,
-            cursor: 'pointer', padding: 0, transition: 'all 0.2s',
-            filter: isActive ? `drop-shadow(0 0 8px ${btn.id === 'sale' ? 'rgba(255,215,0,0.6)' : 'rgba(141,198,63,0.6)'})` : 'drop-shadow(0 1px 4px rgba(0,0,0,0.8))',
-          }}>
-            {btn.icon}
-            <span style={{ fontSize: 8, fontWeight: 800, letterSpacing: '0.03em', color: isActive ? (btn.id === 'sale' ? '#FFD700' : '#8DC63F') : 'rgba(255,255,255,0.6)' }}>{btn.label}</span>
-          </button>
-        )})}
+        <style>{`@keyframes sideNavGlow { 0%, 100% { box-shadow: 0 0 6px rgba(141,198,63,0.3); } 50% { box-shadow: 0 0 14px rgba(141,198,63,0.6); } } @keyframes sideNavGlowGold { 0%, 100% { box-shadow: 0 0 6px rgba(255,215,0,0.3); } 50% { box-shadow: 0 0 14px rgba(255,215,0,0.6); } }`}</style>
+        <button onClick={() => setListingMode(listingMode === 'sale' ? 'all' : 'sale')} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 4, background: listingMode === 'sale' ? 'rgba(255,215,0,0.1)' : 'none', border: 'none', cursor: 'pointer', color: listingMode === 'sale' ? '#FFD700' : '#fff', fontSize: 10, fontWeight: 700, padding: '8px 6px', borderRadius: 12, animation: listingMode === 'sale' ? 'sideNavGlowGold 2s ease-in-out infinite' : 'none' }}>
+          <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 01-8 0"/></svg>
+          <span>Buy</span>
+        </button>
+        <button onClick={() => setListingMode(listingMode === 'rent' ? 'all' : 'rent')} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 4, background: listingMode === 'rent' ? 'rgba(141,198,63,0.1)' : 'none', border: 'none', cursor: 'pointer', color: listingMode === 'rent' ? '#8DC63F' : '#fff', fontSize: 10, fontWeight: 700, padding: '8px 6px', borderRadius: 12, animation: listingMode === 'rent' ? 'sideNavGlow 2s ease-in-out infinite' : 'none' }}>
+          <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 2l-2 2m-7.61 7.61a5.5 5.5 0 11-7.78 7.78 5.5 5.5 0 017.78-7.78zm0 0L15.5 7.5m0 0l3 3L22 7l-3-3m-3.5 3.5L19 4"/></svg>
+          <span>Rent</span>
+        </button>
       </div>
 
       {/* User Account Side Drawer */}
@@ -748,6 +717,15 @@ export default function RentalSearchScreen({ onClose }) {
         <style>{`
           @keyframes rentalCardIn { from { opacity: 0; transform: translateY(12px) scale(0.97); } to { opacity: 1; transform: translateY(0) scale(1); } }
         `}</style>
+        {/* Mode label */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 10 }}>
+          <span style={{ fontSize: 16, fontWeight: 900, color: listingMode === 'sale' ? '#FFD700' : listingMode === 'rent' ? '#8DC63F' : '#fff' }}>
+            {listingMode === 'sale' ? 'For Sale' : listingMode === 'rent' ? 'Rentals' : 'All Listings'}
+          </span>
+          <span style={{ fontSize: 12, color: 'rgba(255,255,255,0.3)', fontWeight: 600 }}>
+            {sortedListings.filter(l => listingMode === 'sale' ? !!l.buy_now : listingMode === 'rent' ? !l.buy_now : true).length} items
+          </span>
+        </div>
         {sortedListings.length === 0 && <div className={styles.empty}>No rentals found</div>}
         <div className={styles.grid}>
           {sortedListings.filter(l => listingMode === 'sale' ? !!l.buy_now : listingMode === 'rent' ? !l.buy_now : true).map(l => {
@@ -884,6 +862,7 @@ export default function RentalSearchScreen({ onClose }) {
       <SettingsScreen open={showSettings} onClose={() => setShowSettings(false)} />
       <MessagesScreen open={showMessages} onClose={() => setShowMessages(false)} onOpenChat={(conv) => { setShowMessages(false); setChatListing(conv) }} />
       {modals}
+      <IndooFooter label="Rentals" onBack={onClose} onHome={onClose} />
     </div>
   )
 }

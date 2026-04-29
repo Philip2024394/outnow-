@@ -136,7 +136,7 @@ export default function SellerCommissionScreen({ onClose, onUpgrade }) {
           <div className={styles.infoBody}>
             <span className={styles.infoTitle}>How commission works</span>
             <p className={styles.infoText}>
-              Indoo charges a <strong>10% commission</strong> on every completed sale.
+              Indoo charges a <strong>10% commission</strong> on rentals, <strong>5%</strong> on property sales (house, factory, kos, villa), and <strong>5%</strong> on motor sales.
               You have <strong>72 hours</strong> after marking "Payment Received" to settle.
               Unpaid commissions lock your chat reply — buyers can still reach you.
             </p>

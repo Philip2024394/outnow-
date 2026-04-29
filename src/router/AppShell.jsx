@@ -72,6 +72,7 @@ import {
   MySpotScreen, VibeCheckSheet, IndooNewsSheet, RatingSheet,
   ReviewsSection, DevPanel, LazyFallback,
   DealHuntLanding, DealDetail, CreateDealPage, MyDealsPage,
+  SellRentSheet,
 } from './appShellLazy'
 import PostDealPublic from '@/domains/dealhunt/pages/PostDealPublic'
 import DealPosterVerification from '@/domains/dealhunt/pages/DealPosterVerification'
@@ -214,6 +215,8 @@ export default function AppShell({ returnParams, triggerGoLive }) {
   const [rideVehicleType, setRideVehicleType] = useState('bike_ride') // 'bike_ride' | 'car_taxi'
   const [giftForSession, setGiftForSession] = useState(null)
   const [dealHuntOpen, setDealHuntOpen] = useState(false)
+  const [sellRentOpen, setSellRentOpen] = useState(false)
+  const [rentalInitialView, setRentalInitialView] = useState(null)
   const [dealDetailOpen, setDealDetailOpen] = useState(null)
   const [createDealOpen, setCreateDealOpen] = useState(false)
   const [postDealOpen, setPostDealOpen] = useState(false)
@@ -356,7 +359,7 @@ export default function AppShell({ returnParams, triggerGoLive }) {
       <TimeBackground />
 
       {/* Floating activity icons — visible when dock is on */}
-      {dockVisible && activeTab === 'map' && !rideOpen && !massageOpen && !shopOpen && !foodOpen && !datingGridOpen && !dealHuntOpen && !notifOpen && !rideHistoryOpen && !settingsOpen && !countrySearchOpen && (
+      {dockVisible && activeTab === 'map' && !rideOpen && !massageOpen && !shopOpen && !foodOpen && !datingGridOpen && !dealHuntOpen && !sellRentOpen && !notifOpen && !rideHistoryOpen && !settingsOpen && !countrySearchOpen && (
         <FloatingIcons
           sessions={visibleSessions}
           serviceCounts={serviceUnreadCounts}
@@ -373,6 +376,7 @@ export default function AppShell({ returnParams, triggerGoLive }) {
           onMassageClick={() => { if (isGuest) { triggerGate(); return } setDockVisible(false); setActiveSection('massage'); setMassageOpen(true) }}
           onRentalsClick={() => { if (isGuest) { triggerGate(); return } setDockVisible(false); setActiveSection('rentals'); setActiveTab('rentals') }}
           onDealHuntClick={() => { setDealHuntOpen(true); setDockVisible(false) }}
+          onSellRentClick={() => { setSellRentOpen(true); setDockVisible(false) }}
         />
       )}
 
@@ -453,7 +457,7 @@ export default function AppShell({ returnParams, triggerGoLive }) {
           </div>
         )}
         {activeTab === 'profile' && <ProfileScreen onClose={() => setActiveTab('map')} onOpenSettings={() => setSettingsOpen(true)} />}
-        {activeTab === 'rentals' && <RentalSearchScreen onClose={() => { setActiveTab('map'); setDockVisible(true) }} />}
+        {activeTab === 'rentals' && <RentalSearchScreen onClose={() => { setActiveTab('map'); setDockVisible(true); setRentalInitialView(null) }} initialView={rentalInitialView} />}
       </Suspense>
 
       <div className="map-top-fade" />
@@ -1005,12 +1009,44 @@ export default function AppShell({ returnParams, triggerGoLive }) {
         setMarketplaceLanding={setMarketplaceLanding} setDockVisible={setDockVisible}
       />
 
+      {/* ── Sell / Rent ── */}
+      <Suspense fallback={<LazyFallback />}>
+        {sellRentOpen && (
+          <SellRentSheet
+            open={sellRentOpen}
+            onClose={() => { setSellRentOpen(false); setDockVisible(true) }}
+            onOpenRentalListing={(cat) => {
+              setSellRentOpen(false)
+              setDockVisible(false)
+              setActiveSection('rentals')
+              setRentalInitialView(cat === 'vehicles' ? 'vehicles' : cat === 'property' ? 'property' : cat === 'fashion' ? 'fashion' : (cat === 'equipment' || cat === 'electronics' || cat === 'audio') ? 'equipment' : 'categories')
+              setActiveTab('rentals')
+            }}
+            onOpenRentalSell={(cat) => {
+              setSellRentOpen(false)
+              setDockVisible(false)
+              setActiveSection('rentals')
+              setRentalInitialView(cat === 'vehicles' ? 'vehicles' : cat === 'property' ? 'property' : cat === 'fashion' ? 'fashion' : (cat === 'equipment' || cat === 'electronics' || cat === 'audio') ? 'equipment' : 'categories')
+              setActiveTab('rentals')
+            }}
+            onOpenAddProduct={() => {
+              setSellRentOpen(false)
+              setAddProductOpen(true)
+            }}
+            onOpenCreateDeal={() => {
+              setSellRentOpen(false)
+              setPostDealOpen(true)
+            }}
+          />
+        )}
+      </Suspense>
+
       {/* ── Deal Hunt ── */}
       <Suspense fallback={<div style={{ position: 'fixed', inset: 0, zIndex: 9500, background: '#000', display: 'flex', alignItems: 'center', justifyContent: 'center' }}><span style={{ color: '#8DC63F', fontSize: 14 }}>Loading Deal Hunt...</span></div>}>
         <DealHuntLanding
           open={dealHuntOpen}
-          onClose={() => setDealHuntOpen(false)}
-          onSelectDeal={(deal) => { setDealDetailOpen(deal) }}
+          onClose={() => { setDealHuntOpen(false); setDockVisible(true) }}
+          onSelectDeal={(deal) => { setDealDetailOpen({ ...deal, endTime: deal.endTime ?? deal.end_time, dealPrice: deal.dealPrice ?? deal.deal_price, originalPrice: deal.originalPrice ?? deal.original_price, quantityAvailable: deal.quantityAvailable ?? deal.quantity_available, quantityClaimed: deal.quantityClaimed ?? deal.quantity_claimed, sellerName: deal.sellerName ?? deal.seller_name, sellerPhoto: deal.sellerPhoto ?? deal.seller_photo, sellerRating: deal.sellerRating ?? deal.seller_rating, image: deal.image ?? deal.images?.[0] ?? null, claimed: deal.claimed ?? deal.quantity_claimed ?? 0, totalSlots: deal.totalSlots ?? deal.quantity_available ?? 50, description: deal.description ?? deal.sub ?? '', seller: deal.seller ?? { name: deal.seller_name ?? deal.sellerName ?? '', photo: deal.seller_photo ?? deal.sellerPhoto ?? '', rating: deal.seller_rating ?? deal.sellerRating ?? 0, id: deal.seller_id ?? '' }, discount: deal.discount ?? (deal.original_price && deal.deal_price ? Math.round((1 - (deal.deal_price ?? deal.dealPrice) / (deal.original_price ?? deal.originalPrice)) * 100) : 0) }) }}
           onCreateDeal={() => setPostDealOpen(true)}
           notifCount={notifUnreadCount}
           onNotifications={() => { setDealHuntOpen(false); setNotifOpen(true) }}
@@ -1029,7 +1065,7 @@ export default function AppShell({ returnParams, triggerGoLive }) {
             open={!!dealDetailOpen}
             onClose={() => setDealDetailOpen(null)}
             onClaim={() => {}}
-            onSelectDeal={(deal) => setDealDetailOpen(deal)}
+            onSelectDeal={(deal) => setDealDetailOpen({ ...deal, endTime: deal.endTime ?? deal.end_time, dealPrice: deal.dealPrice ?? deal.deal_price, originalPrice: deal.originalPrice ?? deal.original_price, quantityAvailable: deal.quantityAvailable ?? deal.quantity_available, quantityClaimed: deal.quantityClaimed ?? deal.quantity_claimed, sellerName: deal.sellerName ?? deal.seller_name, sellerPhoto: deal.sellerPhoto ?? deal.seller_photo, sellerRating: deal.sellerRating ?? deal.seller_rating, image: deal.image ?? deal.images?.[0] ?? null, claimed: deal.claimed ?? deal.quantity_claimed ?? 0, totalSlots: deal.totalSlots ?? deal.quantity_available ?? 50, description: deal.description ?? deal.sub ?? '', seller: deal.seller ?? { name: deal.seller_name ?? deal.sellerName ?? '', photo: deal.seller_photo ?? deal.sellerPhoto ?? '', rating: deal.seller_rating ?? deal.sellerRating ?? 0, id: deal.seller_id ?? '' }, discount: deal.discount ?? (deal.original_price && deal.deal_price ? Math.round((1 - (deal.deal_price ?? deal.dealPrice) / (deal.original_price ?? deal.originalPrice)) * 100) : 0) })}
             onChat={() => {
               setDealDetailOpen(null)
               setDealHuntOpen(false)

@@ -85,6 +85,9 @@ const TYPE_FILTERS = [
   { key: 'restaurant',  label: '🍽️ Restaurant',   rate: '10%' },
   { key: 'driver_bike', label: '🚲 Bike Driver',  rate: '10%' },
   { key: 'driver_car',  label: '🚗 Car Driver',   rate: '10%' },
+  { key: 'rental',      label: '🔑 Rentals',      rate: '10%' },
+  { key: 'property_sale', label: '🏠 Property Sale', rate: '5%' },
+  { key: 'motor_sale',  label: '🏍️ Motor Sale',   rate: '5%' },
 ]
 
 export default function CommissionsAdminTab() {

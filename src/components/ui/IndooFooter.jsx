@@ -4,14 +4,14 @@
  */
 import { createPortal } from 'react-dom'
 
-export default function IndooFooter({ label = '', onHome, onClose }) {
+export default function IndooFooter({ label = '', onHome, onClose, onBack }) {
   return createPortal(
     <div style={{
       position: 'fixed',
       bottom: 'calc(env(safe-area-inset-bottom, 0px) + 12px)',
       left: 16,
       right: 16,
-      zIndex: 10000,
+      zIndex: 10010,
       padding: '10px 16px',
       background: 'rgba(0,0,0,0.8)',
       backdropFilter: 'blur(20px)',
@@ -28,6 +28,19 @@ export default function IndooFooter({ label = '', onHome, onClose }) {
         {label && <span style={{ color: 'rgba(255,255,255,0.3)', marginLeft: 6 }}>· {label}</span>}
       </span>
 
+      {/* Back button */}
+      {onBack && (
+        <button onClick={onBack} style={{
+          padding: '8px 14px', borderRadius: 10,
+          background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.12)',
+          color: '#fff', fontSize: 12, fontWeight: 800, cursor: 'pointer',
+          display: 'flex', alignItems: 'center', gap: 6,
+        }}>
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M19 12H5M12 5l-7 7 7 7"/></svg>
+          Back
+        </button>
+      )}
+
       {/* Home button */}
       {onHome && (
         <button onClick={onHome} style={{
@@ -41,16 +54,6 @@ export default function IndooFooter({ label = '', onHome, onClose }) {
         </button>
       )}
 
-      {/* Close button */}
-      {onClose && (
-        <button onClick={onClose} style={{
-          padding: '8px 16px', borderRadius: 10,
-          background: '#8DC63F', border: 'none',
-          color: '#000', fontSize: 12, fontWeight: 900, cursor: 'pointer',
-        }}>
-          Close
-        </button>
-      )}
     </div>,
     document.body
   )

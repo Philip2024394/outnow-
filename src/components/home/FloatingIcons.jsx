@@ -9,14 +9,12 @@ const ICONS = [
   { id: 'car_taxi',   labelKey: 'icons.car',     label: 'Drive On',     img: 'https://ik.imagekit.io/nepgaxllc/Untitledsdasdvvvdsdsdsdas-removebg-preview.png',              vehicle: true },
   { id: 'food',       labelKey: 'icons.street',  label: 'The Street', img: 'https://ik.imagekit.io/nepgaxllc/Untitledsdasdvvvdsdsdsdassss-removebg-preview.png',        vehicle: false },
   { id: 'dealhunt',   labelKey: 'icons.deals',   label: 'Deal Hunt',    img: 'https://ik.imagekit.io/nepgaxllc/Untitledsdasdvvvdsdsdsdasssss-removebg-preview.png', vehicle: false },
-  // Hidden for launch — enable later:
-  // { id: 'dating',     labelKey: 'icons.dating',  label: 'Dating',       img: '...', vehicle: false },
-  // { id: 'shopping',   labelKey: 'icons.shop',    label: 'Market',       img: '...', vehicle: false },
-  // { id: 'massage',    labelKey: 'icons.massage', label: 'Massage',      img: '...', vehicle: false },
-  // { id: 'rentals',    labelKey: 'icons.rentals', label: 'Rentals',      img: '...', vehicle: false },
+  { id: 'shopping',   labelKey: 'icons.shop',    label: 'Buy',       img: 'https://ik.imagekit.io/nepgaxllc/Untitledsdasdvvvdsdsdsdassss-removebg-preview.png', vehicle: false },
+  { id: 'rentals',    labelKey: 'icons.rentals', label: 'Rent',      img: 'https://ik.imagekit.io/nepgaxllc/Untitledsssvvddssdddddd-removebg-preview.png', vehicle: false },
+  { id: 'sellrent',  labelKey: 'icons.sellrent', label: 'Sell / Rent', img: 'https://ik.imagekit.io/nepgaxllc/Untitledsdasdvvvdsdsdsdasssss-removebg-preview.png', vehicle: false },
 ]
 
-export default function FloatingIcons({ sessions = [], serviceCounts = {}, onSelectSession, onFoodClick, onRideClick, onShoppingClick, onDatingClick, onMassageClick, onRentalsClick, onDealHuntClick }) {
+export default function FloatingIcons({ sessions = [], serviceCounts = {}, onSelectSession, onFoodClick, onRideClick, onShoppingClick, onDatingClick, onMassageClick, onRentalsClick, onDealHuntClick, onSellRentClick }) {
   const { t } = useLanguage()
   const [activeActivity, setActiveActivity] = useState(null)
 
@@ -29,6 +27,7 @@ export default function FloatingIcons({ sessions = [], serviceCounts = {}, onSel
     if (icon.id === 'massage' && onMassageClick)                              { onMassageClick();  return }
     if (icon.id === 'rentals' && onRentalsClick)                              { onRentalsClick();  return }
     if (icon.id === 'dealhunt' && onDealHuntClick)                            { onDealHuntClick(); return }
+    if (icon.id === 'sellrent' && onSellRentClick)                            { onSellRentClick(); return }
     setActiveActivity(icon)
   }
 

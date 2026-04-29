@@ -41,10 +41,12 @@ export default {
   'icons.street':  'The Street',
   'icons.dating':  'Kencan',
   'icons.car':     'Drive On',
-  'icons.shop':    'Belanja',
+  'icons.shop':    'Beli',
   'icons.massage': 'Pijat',
   'icons.rentals': 'Sewa',
+
   'icons.deals':   'Deal Hunt',
+  'icons.sellrent': 'Jual / Sewa',
 
   // Map header
   'header.signIn': 'Masuk',
