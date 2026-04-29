@@ -4,11 +4,12 @@
  * Tap card → full detail view with WhatsApp CTA.
  * Theme: gold #8DC63F
  */
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import IndooFooter from '@/components/ui/IndooFooter'
 import {
-  RENTAL_CATEGORIES, getListings, getListingsByCategory,
-  searchListings, fmtIDR,
+  RENTAL_CATEGORIES, fetchListings, fetchListingsByCategory,
+  fetchSearchListings, fmtIDR,
+  getListings, getListingsByCategory, searchListings,
 } from '@/services/rentalService'
 import RentalDashboard from '@/components/rentals/RentalDashboard'
 import RentalSignUpScreen from './RentalSignUpScreen'
@@ -93,6 +94,35 @@ export default function RentalSearchScreen({ onClose, initialView, initialListin
   // Seed mock/demo data on first mount (version-gated inside seedMockData)
   useEffect(() => { seedMockData() }, [])
 
+  // ─── Supabase async listing fetch ───
+  const [supaListings, setSupaListings] = useState([])
+  const [listingsLoading, setListingsLoading] = useState(true)
+
+  const loadListings = useCallback(async () => {
+    setListingsLoading(true)
+    try {
+      let data
+      if (search.trim()) {
+        data = await fetchSearchListings(search)
+      } else if (category !== 'all') {
+        data = await fetchListingsByCategory(category)
+      } else {
+        data = await fetchListings()
+      }
+      setSupaListings(data || [])
+    } catch (err) {
+      console.warn('[RentalSearchScreen] fetch error, using sync fallback:', err)
+      // Fallback to synchronous demo data
+      const fallback = search.trim()
+        ? searchListings(search)
+        : category !== 'all' ? getListingsByCategory(category) : getListings()
+      setSupaListings(fallback)
+    }
+    setListingsLoading(false)
+  }, [search, category])
+
+  useEffect(() => { loadListings() }, [loadListings])
+
   // Check if user has account before allowing book/chat
   const hasAccount = () => {
     try { return !!localStorage.getItem('indoo_profile') || !!localStorage.getItem('indoo_rental_owner') || !!localStorage.getItem('indoo_demo_profile') } catch { return false }
@@ -112,8 +142,15 @@ export default function RentalSearchScreen({ onClose, initialView, initialListin
   const ownerListings = (() => {
     try {
       const allRaw = []
+      const seenRefs = new Set()
       for (const key of ALL_LISTING_KEYS) {
-        try { allRaw.push(...JSON.parse(localStorage.getItem(key) || '[]')) } catch {}
+        try {
+          const items = JSON.parse(localStorage.getItem(key) || '[]')
+          for (const item of items) {
+            const uid = item.ref || item.id
+            if (!seenRefs.has(uid)) { seenRefs.add(uid); allRaw.push(item) }
+          }
+        } catch {}
       }
       return allRaw
         .filter(l => l.status === 'live')
@@ -143,12 +180,9 @@ export default function RentalSearchScreen({ onClose, initialView, initialListin
     } catch { return [] }
   })()
 
-  let listings = search.trim()
-    ? searchListings(search)
-    : category !== 'all' ? getListingsByCategory(category) : getListings()
-
-  // Add owner listings to the pool
-  listings = [...ownerListings, ...listings]
+  // Merge Supabase listings with local owner listings (deduplicate by id)
+  const ownerIds = new Set(ownerListings.map(l => l.id))
+  let listings = [...ownerListings, ...supaListings.filter(l => !ownerIds.has(l.id))]
 
   if (activeFilter && !search.trim() && category === 'all') {
     listings = listings.filter(l => activeFilter.includes(l.category) || activeFilter.includes(l.sub_category))
@@ -775,12 +809,12 @@ export default function RentalSearchScreen({ onClose, initialView, initialListin
         )}
         {sortedListings.length === 0 && <div className={styles.empty}>No rentals found</div>}
         <div className={styles.grid}>
-          {sortedListings.filter(l => listingMode === 'sale' ? !!l.buy_now : listingMode === 'rent' ? !l.buy_now : true).map(l => {
+          {sortedListings.filter(l => listingMode === 'sale' ? !!l.buy_now : listingMode === 'rent' ? !l.buy_now : true).map((l, idx) => {
             const imgs = l.images?.length ? l.images : [l.image || '']
             const fmtK = n => n >= 1000000 ? (n/1000000).toFixed(1).replace('.0','') + 'jt' : n >= 1000 ? Math.round(n/1000) + 'k' : n
             const price = l.buy_now ? (typeof l.buy_now === 'object' ? l.buy_now.price : l.buy_now) : l.price_day
             return (
-            <button key={l.id} onClick={() => setSelected(l)} style={{
+            <button key={`${l.id}-${idx}`} onClick={() => setSelected(l)} style={{
               background: 'rgba(0,0,0,0.5)', backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)',
               border: '1.5px solid rgba(141,198,63,0.08)', borderRadius: 20,
               overflow: 'hidden', cursor: 'pointer', textAlign: 'left', fontFamily: 'inherit',

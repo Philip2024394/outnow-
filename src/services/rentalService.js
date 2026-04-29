@@ -1,14 +1,15 @@
 /**
- * Rental Service — demo listings for the rentals module.
- * Categories: Motorcycles, Cars, Property, Electronics, Fashion, Audio, Party & Event
+ * Rental Service — fetches marketplace listings from Supabase.
+ * Falls back to DEMO_LISTINGS when Supabase is unavailable (demo mode).
  */
-
-const STORAGE_KEY = 'indoo_rental_listings'
+import { supabase } from '@/lib/supabase'
 
 export const RENTAL_CATEGORIES = [
   { id: 'all',          label: 'All',           emoji: '🏷️' },
   { id: 'Motorcycles',  label: 'Motorcycles',   emoji: '🏍️' },
   { id: 'Cars',         label: 'Cars',          emoji: '🚗' },
+  { id: 'Trucks',       label: 'Trucks',        emoji: '🚛' },
+  { id: 'Buses',        label: 'Buses',         emoji: '🚌' },
   { id: 'Property',     label: 'Property',      emoji: '🏠' },
   { id: 'Electronics',  label: 'Electronics',   emoji: '📷' },
   { id: 'Fashion',      label: 'Fashion',       emoji: '👗' },
@@ -16,6 +17,7 @@ export const RENTAL_CATEGORIES = [
   { id: 'Party & Event',label: 'Party & Event', emoji: '🎉' },
 ]
 
+// ─── Demo fallback data (used when Supabase is null / demo mode) ───
 export const DEMO_LISTINGS = [
   {"id":"00af49f5","title":"Canon EOS 200D Mark II - DSLR Lengkap","description":"Kamera DSLR Canon EOS 200D Mark II. Lengkap dengan lensa kit 18-55mm, charger, kartu memori 64GB, tas kamera.","category":"Electronics","sub_category":"Camera","city":"Yogyakarta","address":"Sleman, DIY Yogyakarta","price_day":150000,"price_week":850000,"price_month":2800000,"condition":"good","status":"active","owner_type":"owner","images":["https://images.unsplash.com/photo-1516035069371-29a1b244cc32?w=800&q=80"],"features":["Lensa kit 18-55mm","Memory card 64GB","Tas kamera","Charger"],"rating":4.7,"review_count":12,"view_count":89,"extra_fields":{"brand":"Canon","model":"EOS 200D Mark II"}},
   {"id":"18836211","title":"Villa Tepi Pantai Bali - 3 Kamar","description":"Villa mewah tepi pantai di Seminyak, Bali. 3 kamar tidur, 3 kamar mandi, kolam renang pribadi, view laut.","category":"Property","sub_category":"Villa","city":"Bali","address":"Seminyak, Kuta, Bali","price_day":1500000,"price_week":9000000,"price_month":30000000,"condition":"new","status":"active","owner_type":"owner","images":["https://images.unsplash.com/photo-1615880484746-a134be9a6ecf?w=800&q=80"],"features":["Kolam renang","View laut","Dapur lengkap","AC semua kamar","Staff 24 jam"],"rating":4.9,"review_count":34,"view_count":245,"extra_fields":{"bedrooms":3,"bathrooms":3,"property_type":"Villa"}},
@@ -38,10 +40,184 @@ export const DEMO_LISTINGS = [
   {"id":"tr1","title":"Suzuki Carry Pickup 2023","description":"Carry pickup 2023 untuk pindahan atau angkut barang. Bersih dan terawat.","category":"Trucks","sub_category":"Pickup","city":"Yogyakarta","address":"Sleman, DIY","price_day":200000,"price_week":1200000,"price_month":4000000,"condition":"good","status":"active","owner_type":"owner","images":["https://images.unsplash.com/photo-1586023492125-27b2c045efd7?w=800&q=80"],"features":["Terpal","Tali pengaman","Box opsional"],"rating":4.4,"review_count":6,"view_count":85,"extra_fields":{"year":2023,"brand":"Suzuki","model":"Carry","payload":"750 kg","withDriver":true}},
 ]
 
+// ─── Helpers ───
 export function fmtIDR(n) {
   if (!n) return '-'
   return `Rp ${Number(n).toLocaleString('id-ID')}`
 }
+
+export function getConditionLabel(c) {
+  const map = { new: 'New', like_new: 'Like New', good: 'Good', fair: 'Fair' }
+  return map[c] || c
+}
+
+// ─── In-memory cache for Supabase results ───
+let _cache = { listings: null, ts: 0 }
+const CACHE_TTL = 30_000 // 30s
+
+function isCacheValid() {
+  return _cache.listings && (Date.now() - _cache.ts < CACHE_TTL)
+}
+
+// ─── Supabase queries ───
+
+/**
+ * Fetch all active listings from Supabase.
+ * Returns array of listing objects. Falls back to DEMO_LISTINGS in demo mode.
+ */
+export async function fetchListings() {
+  if (!supabase) return DEMO_LISTINGS.filter(l => l.status === 'active')
+  if (isCacheValid()) return _cache.listings
+
+  const { data, error } = await supabase
+    .from('rental_listings')
+    .select('*')
+    .in('status', ['active', 'live'])
+    .order('created_at', { ascending: false })
+
+  if (error) {
+    console.warn('[rentalService] Supabase fetch failed, using demo data:', error.message)
+    return DEMO_LISTINGS.filter(l => l.status === 'active')
+  }
+
+  _cache = { listings: data, ts: Date.now() }
+  return data
+}
+
+/**
+ * Fetch listings by category from Supabase.
+ */
+export async function fetchListingsByCategory(catId) {
+  if (catId === 'all') return fetchListings()
+  if (!supabase) return DEMO_LISTINGS.filter(l => l.status === 'active' && l.category === catId)
+
+  const { data, error } = await supabase
+    .from('rental_listings')
+    .select('*')
+    .eq('category', catId)
+    .in('status', ['active', 'live'])
+    .order('created_at', { ascending: false })
+
+  if (error) {
+    console.warn('[rentalService] category fetch failed:', error.message)
+    return DEMO_LISTINGS.filter(l => l.status === 'active' && l.category === catId)
+  }
+  return data
+}
+
+/**
+ * Search listings by text query (title, description, category, city, features).
+ */
+export async function fetchSearchListings(query) {
+  if (!query.trim()) return fetchListings()
+  if (!supabase) {
+    const q = query.toLowerCase()
+    return DEMO_LISTINGS.filter(l =>
+      l.status === 'active' && (
+        l.title.toLowerCase().includes(q) ||
+        l.description.toLowerCase().includes(q) ||
+        l.category.toLowerCase().includes(q) ||
+        (l.sub_category || '').toLowerCase().includes(q) ||
+        l.city.toLowerCase().includes(q) ||
+        (l.features || []).some(f => f.toLowerCase().includes(q))
+      )
+    )
+  }
+
+  const { data, error } = await supabase
+    .from('rental_listings')
+    .select('*')
+    .in('status', ['active', 'live'])
+    .or(`title.ilike.%${query}%,description.ilike.%${query}%,category.ilike.%${query}%,city.ilike.%${query}%`)
+    .order('created_at', { ascending: false })
+
+  if (error) {
+    console.warn('[rentalService] search failed:', error.message)
+    return []
+  }
+  return data
+}
+
+/**
+ * Create a new listing in Supabase.
+ */
+export async function createListing(listing) {
+  if (!supabase) {
+    console.warn('[rentalService] No Supabase — listing saved locally only')
+    return { data: listing, error: null }
+  }
+
+  const { data, error } = await supabase
+    .from('rental_listings')
+    .insert(listing)
+    .select()
+    .single()
+
+  if (!error) _cache.listings = null // invalidate cache
+  return { data, error }
+}
+
+/**
+ * Update an existing listing.
+ */
+export async function updateListing(id, updates) {
+  if (!supabase) return { data: { id, ...updates }, error: null }
+
+  const { data, error } = await supabase
+    .from('rental_listings')
+    .update(updates)
+    .eq('id', id)
+    .select()
+    .single()
+
+  if (!error) _cache.listings = null
+  return { data, error }
+}
+
+/**
+ * Delete a listing.
+ */
+export async function deleteListing(id) {
+  if (!supabase) return { error: null }
+
+  const { error } = await supabase
+    .from('rental_listings')
+    .delete()
+    .eq('id', id)
+
+  if (!error) _cache.listings = null
+  return { error }
+}
+
+/**
+ * Fetch listings owned by a specific user.
+ */
+export async function fetchMyListings(ownerId) {
+  if (!supabase) return []
+
+  const { data, error } = await supabase
+    .from('rental_listings')
+    .select('*')
+    .eq('owner_id', ownerId)
+    .order('created_at', { ascending: false })
+
+  if (error) {
+    console.warn('[rentalService] fetchMyListings failed:', error.message)
+    return []
+  }
+  return data
+}
+
+/**
+ * Increment view count for a listing.
+ */
+export async function incrementViewCount(id) {
+  if (!supabase) return
+  await supabase.rpc('increment_view_count', { listing_id: id }).catch(() => {})
+}
+
+// ─── Synchronous fallbacks (for components that haven't migrated to async) ───
+// These keep backward compatibility during the transition.
 
 export function getListings() {
   return DEMO_LISTINGS.filter(l => l.status === 'active')
@@ -59,13 +235,8 @@ export function searchListings(query) {
     l.title.toLowerCase().includes(q) ||
     l.description.toLowerCase().includes(q) ||
     l.category.toLowerCase().includes(q) ||
-    l.sub_category.toLowerCase().includes(q) ||
+    (l.sub_category || '').toLowerCase().includes(q) ||
     l.city.toLowerCase().includes(q) ||
     (l.features || []).some(f => f.toLowerCase().includes(q))
   )
-}
-
-export function getConditionLabel(c) {
-  const map = { new: 'New', like_new: 'Like New', good: 'Good', fair: 'Fair' }
-  return map[c] || c
 }
