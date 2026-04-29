@@ -459,6 +459,7 @@ export default function AppShell({ returnParams, triggerGoLive }) {
           </div>
         )}
         {activeTab === 'profile' && <ProfileScreen onClose={() => setActiveTab('map')} onOpenSettings={() => setSettingsOpen(true)} />}
+        {activeTab === 'rentals' && <div style={{ position: 'fixed', inset: 0, background: '#080808', zIndex: 99 }} />}
         {activeTab === 'rentals' && <RentalSearchScreen onClose={() => { setActiveTab('map'); setDockVisible(true); setRentalInitialView(null); setRentalInitialMode(null); setRentalListingOpen(false) }} initialView={rentalInitialView} initialListingMode={rentalInitialMode} initialListingOpen={rentalListingOpen} />}
       </Suspense>
 

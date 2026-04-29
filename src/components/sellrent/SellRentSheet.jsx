@@ -3,6 +3,7 @@
  * Shows category cards routing to existing listing flows.
  */
 import { createPortal } from 'react-dom'
+import { useEffect } from 'react'
 import IndooFooter from '@/components/ui/IndooFooter'
 
 const CATEGORIES = [
@@ -15,6 +16,17 @@ const CATEGORIES = [
 ]
 
 export default function SellRentSheet({ open, onClose, onOpenRentalListing, onOpenRentalSell, onJoinSellRent }) {
+  useEffect(() => {
+    if (document.getElementById('sellrent-styles')) return
+    const el = document.createElement('style')
+    el.id = 'sellrent-styles'
+    el.textContent = `
+      @keyframes hintLeft { 0% { background: #6ba32e; outline: 2px solid transparent; } 20% { background: #8DC63F; box-shadow: 0 0 20px rgba(250,204,21,0.6); outline: 2px solid #FACC15; outline-offset: 2px; } 40% { background: #6ba32e; box-shadow: none; outline: 2px solid transparent; } 100% { background: #6ba32e; outline: 2px solid transparent; } }
+      @keyframes hintRight { 0%, 40% { background: #6ba32e; outline: 2px solid transparent; } 60% { background: #8DC63F; box-shadow: 0 0 20px rgba(250,204,21,0.6); outline: 2px solid #FACC15; outline-offset: 2px; } 80% { background: #6ba32e; box-shadow: none; outline: 2px solid transparent; } 100% { background: #6ba32e; outline: 2px solid transparent; } }
+    `
+    document.head.appendChild(el)
+  }, [])
+
   if (!open) return null
 
   const handleSelect = (cat, mode) => {
@@ -24,10 +36,6 @@ export default function SellRentSheet({ open, onClose, onOpenRentalListing, onOp
 
   const renderCard = (cat, idx) => (
     <div key={cat.id} style={{ display: 'flex', width: '100%', borderRadius: 20, overflow: 'hidden', height: 110 }}>
-      <style>{`
-        @keyframes hintLeft { 0% { background: #6ba32e; outline: 2px solid transparent; } 20% { background: #8DC63F; box-shadow: 0 0 20px rgba(250,204,21,0.6); outline: 2px solid #FACC15; outline-offset: 2px; } 40% { background: #6ba32e; box-shadow: none; outline: 2px solid transparent; } 100% { background: #6ba32e; outline: 2px solid transparent; } }
-        @keyframes hintRight { 0%, 40% { background: #6ba32e; outline: 2px solid transparent; } 60% { background: #8DC63F; box-shadow: 0 0 20px rgba(250,204,21,0.6); outline: 2px solid #FACC15; outline-offset: 2px; } 80% { background: #6ba32e; box-shadow: none; outline: 2px solid transparent; } 100% { background: #6ba32e; outline: 2px solid transparent; } }
-      `}</style>
       {/* Left — BUY */}
       <button
         onClick={() => handleSelect(cat, 'sell')}

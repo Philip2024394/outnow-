@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { createPortal } from 'react-dom'
 import RentalCalendar from '@/components/calendar/RentalCalendar'
 
@@ -66,6 +66,14 @@ export default function MyListingsScreen({ open, onClose, onEdit }) {
   const [toast, setToast] = useState('')
 
   useEffect(() => {
+    if (document.getElementById('mylistings-styles')) return
+    const el = document.createElement('style')
+    el.id = 'mylistings-styles'
+    el.textContent = '@keyframes slideDown { from { transform: translateX(-50%) translateY(-20px); opacity: 0; } to { transform: translateX(-50%) translateY(0); opacity: 1; } }'
+    document.head.appendChild(el)
+  }, [])
+
+  useEffect(() => {
     if (open) {
       ensurePulseAnimation()
       setListings(loadAllListings())
@@ -92,7 +100,7 @@ export default function MyListingsScreen({ open, onClose, onEdit }) {
   }
 
   return createPortal(
-    <div style={{ position: 'fixed', inset: 0, zIndex: 99998, background: 'linear-gradient(180deg, #0d0d0f 0%, #0a0a0c 50%, #0d0d0f 100%)', display: 'flex', flexDirection: 'column', fontFamily: 'inherit' }}>
+    <div style={{ position: 'fixed', inset: 0, zIndex: 99998, background: "#080808 url('https://ik.imagekit.io/nepgaxllc/ChatGPT%20Image%20Apr%2029,%202026,%2003_29_38%20AM.png?updatedAt=1777408195502') center / cover no-repeat", display: 'flex', flexDirection: 'column', fontFamily: 'inherit' }}>
             {/* DEV page badge */}
       <div style={{ position: 'absolute', top: 6, left: 6, zIndex: 99999, display: 'flex', alignItems: 'center', gap: 6, pointerEvents: 'none' }}><div style={{ width: 28, height: 28, borderRadius: '50%', background: '#8DC63F', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 12, fontWeight: 900, color: '#000', boxShadow: '0 2px 8px rgba(141,198,63,0.4)' }}>11</div><span style={{ fontSize: 9, fontWeight: 800, color: 'rgba(141,198,63,0.6)', letterSpacing: '0.03em' }}>LISTINGS</span></div>
       {/* Header */}
@@ -181,7 +189,6 @@ export default function MyListingsScreen({ open, onClose, onEdit }) {
           {toast}
         </div>
       )}
-      <style>{`@keyframes slideDown { from { transform: translateX(-50%) translateY(-20px); opacity: 0; } to { transform: translateX(-50%) translateY(0); opacity: 1; } }`}</style>
 
       {/* Calendar for listing */}
       {calendarListing && (

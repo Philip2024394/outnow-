@@ -35,7 +35,7 @@ export default function VehicleDirectory({ vehicleType, onSelectModel, onBack, l
                 {v.image ? (
                   <img src={v.image} alt={v.name} className={styles.dirCardImg} />
                 ) : (
-                  <span className={styles.dirCardPlaceholder}>{isBike ? '\ud83c\udfcd\ufe0f' : isTruck ? '\ud83d\ude9b' : isBus ? '\ud83d\ude8c' : '\ud83d\ude97'}</span>
+                  <span className={styles.dirCardPlaceholder}>{isBike ? '🏍️' : isTruck ? '🚛' : isBus ? '🚌' : '🚗'}</span>
                 )}
                 <div className={styles.dirCardReflection} />
               </div>

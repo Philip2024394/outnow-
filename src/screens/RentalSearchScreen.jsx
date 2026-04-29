@@ -308,7 +308,22 @@ export default function RentalSearchScreen({ onClose, initialView, initialListin
   if (priceSort === 'high') sortedListings.sort((a, b) => (b.price_day || 0) - (a.price_day || 0))
 
   return (
-    <div className={styles.page} style={vehicleType === 'Cars' ? { backgroundImage: "url('https://ik.imagekit.io/nepgaxllc/ChatGPT%20Image%20Apr%2019,%202026,%2011_05_34%20PM.png')" } : undefined}>
+    <div className={styles.page} style={(() => {
+      const cat = vehicleType || category
+      const filter = activeFilter?.[0]
+      const BG = {
+        Motorcycles: 'https://ik.imagekit.io/nepgaxllc/ChatGPT%20Image%20Apr%2029,%202026,%2003_29_38%20AM.png?updatedAt=1777408195502',
+        Cars: 'https://ik.imagekit.io/nepgaxllc/ChatGPT%20Image%20Apr%2029,%202026,%2003_31_56%20AM.png?updatedAt=1777408335834',
+        'Audio & Sound': 'https://ik.imagekit.io/nepgaxllc/ChatGPT%20Image%20Apr%2029,%202026,%2003_36_37%20AM.png?updatedAt=1777408614828',
+        'Party & Event': 'https://ik.imagekit.io/nepgaxllc/ChatGPT%20Image%20Apr%2029,%202026,%2003_40_04%20AM.png?updatedAt=1777408820302',
+        Event: 'https://ik.imagekit.io/nepgaxllc/ChatGPT%20Image%20Apr%2029,%202026,%2003_40_04%20AM.png?updatedAt=1777408820302',
+        Fashion: 'https://ik.imagekit.io/nepgaxllc/ChatGPT%20Image%20Apr%2029,%202026,%2003_42_33%20AM.png?updatedAt=1777408975197',
+        Wedding: 'https://ik.imagekit.io/nepgaxllc/ChatGPT%20Image%20Apr%2029,%202026,%2003_42_33%20AM.png?updatedAt=1777408975197',
+        Property: 'https://ik.imagekit.io/nepgaxllc/ChatGPT%20Image%20Apr%2029,%202026,%2005_01_47%20AM.png',
+      }
+      const url = BG[cat] || BG[filter] || null
+      return url ? { backgroundImage: `url('${url}')` } : undefined
+    })()}>
       {/* Header — market title + search bar + filter */}
       <div style={{ padding: '14px 14px 0', flexShrink: 0 }}>
         <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>

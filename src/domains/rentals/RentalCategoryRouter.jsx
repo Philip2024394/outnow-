@@ -58,7 +58,7 @@ export default function RentalCategoryRouter({ open, onClose, onSubmit }) {
   // ── Setting up animation ──
   if (settingUp) {
     return (
-      <div style={{ position: 'fixed', inset: 0, zIndex: 9900, background: "#080808 url('https://ik.imagekit.io/nepgaxllc/Untitledfsdsss.png?updatedAt=1777336271626') center / cover no-repeat", display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 30 }}>
+      <div key="setup" style={{ position: 'fixed', inset: 0, zIndex: 9900, background: "#080808 url('https://ik.imagekit.io/nepgaxllc/Untitledfsdsss.png?updatedAt=1777336271626') center / cover no-repeat", display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 30 }}>
         <div style={{ position: 'relative', width: 90, height: 90, animation: 'setupGlow 2s ease-in-out infinite' }}>
           <div style={{ position: 'absolute', inset: 0, borderRadius: '50%', border: '3px solid rgba(141,198,63,0.1)', borderTopColor: '#8DC63F', borderRightColor: '#8DC63F', animation: 'setupRing 1.2s linear infinite' }} />
           <div style={{ position: 'absolute', inset: 8, borderRadius: '50%', border: '3px solid rgba(250,204,21,0.1)', borderBottomColor: '#FACC15', borderLeftColor: '#FACC15', animation: 'setupRing2 1.8s linear infinite' }} />
@@ -81,7 +81,7 @@ export default function RentalCategoryRouter({ open, onClose, onSubmit }) {
   // ── Welcome / How it works popup ──
   if (showWelcome) {
     return (
-      <div style={{ position: 'fixed', inset: 0, zIndex: 9900, background: "#080808 url('https://ik.imagekit.io/nepgaxllc/Untitledfsdsss.png?updatedAt=1777336271626') center / cover no-repeat", overflowY: 'auto', WebkitOverflowScrolling: 'touch', padding: '20px 20px 40px', display: 'flex', alignItems: 'flex-start', justifyContent: 'center' }}>
+      <div key="welcome" style={{ position: 'fixed', inset: 0, zIndex: 9900, background: "#080808 url('https://ik.imagekit.io/nepgaxllc/Untitledfsdsss.png?updatedAt=1777336271626') center / cover no-repeat", overflowY: 'auto', WebkitOverflowScrolling: 'touch', padding: '20px 20px 40px', display: 'flex', alignItems: 'flex-start', justifyContent: 'center' }}>
         {/* Green running rim container */}
         <div style={{ position: 'relative', width: '100%', maxWidth: 380, borderRadius: 24, padding: 2 }}>
           {/* Animated rim */}
@@ -200,7 +200,7 @@ export default function RentalCategoryRouter({ open, onClose, onSubmit }) {
   if (selectedCat && !listingMarket && !editListingData) {
     const catLabel = CATEGORIES.find(c => c.id === selectedCat)?.label || 'Item'
     return (
-      <div className={styles.screen} style={{ backgroundImage: 'url(https://ik.imagekit.io/nepgaxllc/Untitledfsdsss.png?updatedAt=1777336271626)', backgroundSize: 'cover', backgroundPosition: 'center' }}>
+      <div key="market" className={styles.screen} style={{ backgroundImage: 'url(https://ik.imagekit.io/nepgaxllc/Untitledfsdsss.png?updatedAt=1777336271626)', backgroundSize: 'cover', backgroundPosition: 'center' }}>
         <div style={{ position: 'absolute', inset: 0, background: 'rgba(0,0,0,0.55)', pointerEvents: 'none' }} />
 
         {/* Hero header */}
@@ -291,7 +291,7 @@ export default function RentalCategoryRouter({ open, onClose, onSubmit }) {
 
   // Category selection screen
   return (
-    <div className={styles.screen} style={{ backgroundImage: 'url(https://ik.imagekit.io/nepgaxllc/Untitledfsdsss.png?updatedAt=1777336271626)', backgroundSize: 'cover', backgroundPosition: 'center' }}>
+    <div key="catgrid" className={styles.screen} style={{ backgroundImage: 'url(https://ik.imagekit.io/nepgaxllc/Untitledfsdsss.png?updatedAt=1777336271626)', backgroundSize: 'cover', backgroundPosition: 'center' }}>
       <div style={{ position: 'absolute', inset: 0, background: 'rgba(0,0,0,0.45)', pointerEvents: 'none' }} />
 
       {/* Hero header */}

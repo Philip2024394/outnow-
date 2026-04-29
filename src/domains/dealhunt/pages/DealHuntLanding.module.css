@@ -100,15 +100,15 @@
   gap: 12px; text-align: center; width: 100%;
 }
 .landingTitle {
-  font-size: 36px; font-weight: 900; color: #fff;
-  letter-spacing: 0.04em; margin: 0;
+  font-size: 42px; font-weight: 900; color: #fff;
+  letter-spacing: 0.02em; margin: 0;
   text-shadow: 0 4px 20px rgba(0,0,0,0.6);
 }
-.landingTitle span { color: #8DC63F; }
 .landingSub {
-  font-size: 15px; color: rgba(255,255,255,0.75);
-  line-height: 1.5; margin: 0; max-width: 320px;
+  font-size: 16px; color: rgba(255,255,255,0.6);
+  line-height: 1.5; margin: 4px 0 0; max-width: 320px;
   text-shadow: 0 2px 8px rgba(0,0,0,0.6);
+  font-weight: 600; letter-spacing: 0.1em;
 }
 .landingBtnWrap {
   position: relative; width: 100%; max-width: 320px; margin-top: 8px;

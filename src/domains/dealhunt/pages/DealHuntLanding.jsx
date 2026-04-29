@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef, useCallback, useMemo } from 'react'
 import { createPortal } from 'react-dom'
+import { useLanguage } from '@/i18n'
 import styles from './DealHuntLanding.module.css'
 import DealReviewCarousel from '../components/DealReviewCarousel'
 import DealChat from '../components/DealChat'
@@ -647,6 +648,7 @@ function DealSlide({ deal, isActive, onClaim, onChat, onViewSeller, onOpenMenu, 
 const LANDING_BG = 'https://ik.imagekit.io/nepgaxllc/ChatGPT%20Image%20Apr%2020,%202026,%2011_03_28%20PM.png'
 
 export default function DealHuntLanding({ open, onClose, onSelectDeal, onCreateDeal, onViewSeller }) {
+  const { t, lang, setLang } = useLanguage()
   const [showLanding, setShowLanding] = useState(true)
   const [activeIndex, setActiveIndex] = useState(0)
   const [onBanner, setOnBanner] = useState(true)
@@ -773,11 +775,9 @@ export default function DealHuntLanding({ open, onClose, onSelectDeal, onCreateD
           {/* Header */}
           <div className={styles.landingHeader}>
             <div className={styles.landingHeaderTop}>
-              <span className={styles.landingHeaderBrand}>DEAL <span>HUNT</span></span>
+              <span className={styles.landingHeaderBrand}>IND<span>OO</span></span>
               <span className={styles.landingHeaderLive}>● LIVE</span>
             </div>
-            <p className={styles.landingHeaderSub}>Best Deals In Yogyakarta</p>
-
           </div>
 
           {/* Side nav — Home + Join */}
@@ -797,8 +797,36 @@ export default function DealHuntLanding({ open, onClose, onSelectDeal, onCreateD
           </div>
 
           <div className={styles.landingContent}>
-            <h1 className={styles.landingTitle}>DEAL <span>HUNT</span></h1>
-            <p className={styles.landingSub}>Get the best deals across all categories — food, products, services & more</p>
+            <h1 className={styles.landingTitle}>{t('dealhunt.landing.title')}</h1>
+            <p className={styles.landingSub}>{t('dealhunt.landing.sub')}</p>
+
+            {/* Language selector */}
+            <div style={{ display: 'flex', gap: 8, justifyContent: 'center', marginTop: 12, marginBottom: 8 }}>
+              {[
+                { code: 'en', flag: '🇬🇧', label: 'English' },
+                { code: 'id', flag: '🇮🇩', label: 'Bahasa' },
+                { code: 'zh', flag: '🇨🇳', label: '中文' },
+                { code: 'ar', flag: '🇸🇦', label: 'العربية' },
+              ].map(l => (
+                <button
+                  key={l.code}
+                  onClick={() => setLang(l.code)}
+                  style={{
+                    padding: '6px 12px', borderRadius: 12,
+                    background: lang === l.code ? 'rgba(141,198,63,0.2)' : 'rgba(0,0,0,0.4)',
+                    border: lang === l.code ? '1.5px solid rgba(141,198,63,0.5)' : '1.5px solid rgba(255,255,255,0.1)',
+                    color: lang === l.code ? '#8DC63F' : 'rgba(255,255,255,0.6)',
+                    fontSize: 12, fontWeight: 800, cursor: 'pointer', fontFamily: 'inherit',
+                    backdropFilter: 'blur(8px)',
+                    display: 'flex', alignItems: 'center', gap: 4,
+                  }}
+                >
+                  <span style={{ fontSize: 16 }}>{l.flag}</span>
+                  <span>{l.label}</span>
+                </button>
+              ))}
+            </div>
+
             <div className={styles.landingBtnWrap}>
               <div className={styles.fireParticles}>
                 {[...Array(6)].map((_, i) => (
@@ -806,7 +834,7 @@ export default function DealHuntLanding({ open, onClose, onSelectDeal, onCreateD
                 ))}
               </div>
               <button className={styles.landingBtn} onClick={() => setShowLanding(false)}>
-                Start Hunting 🔥
+                {t('dealhunt.landing.start')}
               </button>
             </div>
           </div>

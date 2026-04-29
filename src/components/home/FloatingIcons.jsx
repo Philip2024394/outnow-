@@ -9,8 +9,6 @@ const ICONS = [
   { id: 'car_taxi',   labelKey: 'icons.car',     label: 'Drive On',     img: 'https://ik.imagekit.io/nepgaxllc/Untitledsdasdvvvdsdsdsdas-removebg-preview.png',              vehicle: true },
   { id: 'food',       labelKey: 'icons.street',  label: 'The Street', img: 'https://ik.imagekit.io/nepgaxllc/Untitledsdasdvvvdsdsdsdassss-removebg-preview.png',        vehicle: false },
   { id: 'dealhunt',   labelKey: 'icons.deals',   label: 'Deal Hunt',    img: 'https://ik.imagekit.io/nepgaxllc/Untitledsdasdvvvdsdsdsdasssss-removebg-preview.png', vehicle: false },
-  { id: 'shopping',   labelKey: 'icons.shop',    label: 'Buy',       img: 'https://ik.imagekit.io/nepgaxllc/Untitledsdasdvvvdsdsdsdassss-removebg-preview.png', vehicle: false },
-  { id: 'rentals',    labelKey: 'icons.rentals', label: 'Rent',      img: 'https://ik.imagekit.io/nepgaxllc/Untitledsssvvddssdddddd-removebg-preview.png', vehicle: false },
   { id: 'sellrent',  labelKey: 'icons.sellrent', label: 'Sell / Rent', img: 'https://ik.imagekit.io/nepgaxllc/Untitledsdasdvvvdsdsdsdasssss-removebg-preview.png', vehicle: false },
 ]
 
