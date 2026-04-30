@@ -92,6 +92,7 @@ export default function DriverIncomingBooking({ booking, driverId, onAccepted, o
   return (
     <div className={styles.overlay}>
       <div className={styles.modal}>
+        <div className={styles.modalBg} />
 
         {/* Timer bar */}
         <div className={styles.timerBar}>

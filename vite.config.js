@@ -18,6 +18,7 @@ export default defineConfig({
         vendor: resolve(__dirname, 'vendor.html'),
         driver: resolve(__dirname, 'driver.html'),
         cardrive: resolve(__dirname, 'cardrive.html'),
+        andong: resolve(__dirname, 'andong.html'),
         admin: resolve(__dirname, 'admin.html'),
       },
       output: {
@@ -30,7 +31,6 @@ export default defineConfig({
           'vendor-supabase': ['@supabase/supabase-js'],
           'vendor-map': ['leaflet', 'react-leaflet'],
           'vendor-stripe': ['@stripe/stripe-js'],
-          'vendor-firebase': ['firebase/app', 'firebase/firestore', 'firebase/auth'],
         },
       },
     },

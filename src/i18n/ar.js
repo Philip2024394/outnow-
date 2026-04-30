@@ -41,6 +41,7 @@ export default {
   'icons.street':  'الشارع',
   'icons.dating':  'المواعدة',
   'icons.car':     'سيارة',
+  'icons.andong':  'أندونغ',
   'icons.shop':    'تسوق',
   'icons.massage': 'تدليك',
   'icons.rentals': 'إيجار',

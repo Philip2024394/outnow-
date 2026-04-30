@@ -22,6 +22,8 @@ import IdVerificationTab from './tabs/IdVerificationTab'
 import CommissionsAdminTab from './tabs/CommissionsAdminTab'
 import WalletAdminTab from './tabs/WalletAdminTab'
 import MassageAdminTab from './tabs/MassageAdminTab'
+import AndongAdminTab from './tabs/AndongAdminTab'
+import DriverDiscountTab from './tabs/DriverDiscountTab'
 import ViolationsTab from './tabs/ViolationsTab'
 import PlaceSuggestionsTab from './tabs/PlaceSuggestionsTab'
 import DealHuntAdminTab from './tabs/DealHuntAdminTab'
@@ -46,6 +48,8 @@ const NAV = [
   { id: 'wallets',      icon: '💳', label: 'Wallets'       },
   { id: 'commissions',  icon: '💰', label: 'Commissions'  },
   { id: 'massage',      icon: '💆', label: 'Massage'      },
+  { id: 'andong',       icon: '🐴', label: 'Andong'       },
+  { id: 'discounts',    icon: '🏷️', label: 'Discounts'   },
   { id: 'rides',        icon: '🚗', label: 'Rides'        },
   { id: 'map',          icon: '🗺️', label: 'Live Map'     },
   { id: 'fleet_intel',  icon: '🛰️', label: 'Fleet Intel'  },
@@ -203,6 +207,8 @@ export default function AdminDashboard({ onLogout }) {
           {tab === 'wallets' && <WalletAdminTab />}
           {tab === 'commissions' && <CommissionsAdminTab />}
           {tab === 'massage'     && <MassageAdminTab />}
+          {tab === 'andong'      && <AndongAdminTab />}
+          {tab === 'discounts'   && <DriverDiscountTab />}
           {tab === 'violations'  && <ViolationsTab />}
           {tab === 'places'      && <PlaceSuggestionsTab />}
           {tab === 'dealhunt'    && <DealHuntAdminTab />}

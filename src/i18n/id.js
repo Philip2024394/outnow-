@@ -41,6 +41,7 @@ export default {
   'icons.street':  'The Street',
   'icons.dating':  'Kencan',
   'icons.car':     'Drive On',
+  'icons.andong':  'Andong',
   'icons.shop':    'Beli',
   'icons.massage': 'Pijat',
   'icons.rentals': 'Sewa',

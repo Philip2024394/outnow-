@@ -7,8 +7,9 @@
 import styles from '../BookingScreen.module.css'
 import DriverMap from '@/components/driver/DriverMap'
 
-import { useState } from 'react'
+import { useState, useEffect, useRef, useCallback } from 'react'
 import DestinationDirectory from '@/components/booking/DestinationDirectory'
+import { searchPlaces, getNearbyPlaces } from '@/services/placesService'
 
 const BIKE_IMG = 'https://ik.imagekit.io/nepgaxllc/Sleek%20green%20and%20black%20scooter%20setup.png'
 const CAR_IMG  = 'https://ik.imagekit.io/nepgaxllc/Sporty%20green%20and%20black%20hatchback.png'
@@ -31,37 +32,72 @@ function formatRpStatic(n) {
   return `Rp ${Number(n).toLocaleString('id-ID')}`
 }
 
-const DEMO_PLACES = [
-  { label: 'Malioboro Street',        address: 'Jl. Malioboro, Yogyakarta',         lat: -7.793, lng: 110.365 },
-  { label: 'Prambanan Temple',        address: 'Jl. Raya Solo-Yogya, Sleman',       lat: -7.752, lng: 110.491 },
-  { label: 'Borobudur Temple',        address: 'Jl. Badrawati, Magelang',           lat: -7.608, lng: 110.204 },
-  { label: 'Yogyakarta Airport',      address: 'Kulon Progo, Yogyakarta',           lat: -7.900, lng: 110.057 },
-  { label: 'Tugu Station',            address: 'Jl. Pasar Kembang, Yogyakarta',     lat: -7.789, lng: 110.363 },
-  { label: 'UGM Campus',              address: 'Bulaksumur, Sleman',                lat: -7.771, lng: 110.377 },
-  { label: 'Parangtritis Beach',      address: 'Bantul Regency, Yogyakarta',        lat: -8.024, lng: 110.331 },
-  { label: 'Alun-Alun Kidul',         address: 'Kraton, Yogyakarta',                lat: -7.812, lng: 110.363 },
-  { label: 'Alun-Alun Utara',         address: 'Ngupasan, Yogyakarta',              lat: -7.803, lng: 110.364 },
-  { label: 'Kotagede',                address: 'Kotagede, Yogyakarta',              lat: -7.836, lng: 110.400 },
-  { label: 'Sleman City Hall',        address: 'Jl. Magelang, Sleman',              lat: -7.726, lng: 110.356 },
-  { label: 'Bantul Town Square',      address: 'Bantul, Yogyakarta',                lat: -7.890, lng: 110.328 },
-  { label: 'Kaliurang Resort Area',   address: 'Kaliurang, Sleman',                 lat: -7.600, lng: 110.425 },
-  { label: 'Soekarno-Hatta Airport',  address: 'Tangerang, Banten',                 lat: -6.126, lng: 106.656 },
-  { label: 'Grand Indonesia Mall',    address: 'Jl. MH. Thamrin, Jakarta Pusat',    lat: -6.195, lng: 106.820 },
-  { label: 'Ngurah Rai Airport',      address: 'Jl. Airport, Tuban, Bali',          lat: -8.748, lng: 115.167 },
-  { label: 'Seminyak Beach',          address: 'Seminyak, Kuta, Bali',              lat: -8.692, lng: 115.156 },
-  { label: 'Ubud Palace',             address: 'Jl. Raya Ubud, Bali',               lat: -8.507, lng: 115.262 },
+// Popular landmarks as instant fallback (before Overpass loads)
+const POPULAR_PLACES = [
+  { label: 'Malioboro Street',        address: 'Jl. Malioboro, Yogyakarta',         lat: -7.793, lng: 110.365, icon: '🛍️' },
+  { label: 'Prambanan Temple',        address: 'Jl. Raya Solo-Yogya, Sleman',       lat: -7.752, lng: 110.491, icon: '🛕' },
+  { label: 'Borobudur Temple',        address: 'Jl. Badrawati, Magelang',           lat: -7.608, lng: 110.204, icon: '🛕' },
+  { label: 'Yogyakarta Airport',      address: 'Kulon Progo, Yogyakarta',           lat: -7.900, lng: 110.057, icon: '✈️' },
+  { label: 'Tugu Station',            address: 'Jl. Pasar Kembang, Yogyakarta',     lat: -7.789, lng: 110.363, icon: '🚉' },
+  { label: 'UGM Campus',              address: 'Bulaksumur, Sleman',                lat: -7.771, lng: 110.377, icon: '🎓' },
+  { label: 'Parangtritis Beach',      address: 'Bantul Regency, Yogyakarta',        lat: -8.024, lng: 110.331, icon: '🏖️' },
+  { label: 'Alun-Alun Kidul',         address: 'Kraton, Yogyakarta',                lat: -7.812, lng: 110.363, icon: '🏛️' },
 ]
 
-function filterPlaces(query) {
-  const q = query.trim().toLowerCase()
-  if (!q) return DEMO_PLACES.slice(0, 6)
-  return DEMO_PLACES.filter(p =>
-    p.label.toLowerCase().includes(q) || p.address.toLowerCase().includes(q)
-  ).slice(0, 8)
-}
-
 function LocationField({ label, query, setQuery, value, setValue, showSuggest, setShowSuggest, placeholder, isPickup, gpsLoading, gpsError, onGps }) {
-  const filtered = filterPlaces(query)
+  const [suggestions, setSuggestions] = useState(POPULAR_PLACES)
+  const [loading, setLoading] = useState(false)
+  const debounceRef = useRef(null)
+
+  // Debounced search — queries Overpass places + falls back to popular
+  const doSearch = useCallback((q) => {
+    clearTimeout(debounceRef.current)
+    const trimmed = q.trim()
+
+    if (!trimmed) {
+      setSuggestions(POPULAR_PLACES)
+      setLoading(false)
+      return
+    }
+
+    setLoading(true)
+    debounceRef.current = setTimeout(async () => {
+      try {
+        const results = await searchPlaces(trimmed, null, 10)
+        const mapped = results.map(p => ({
+          label: p.name,
+          address: p.address || `${p.category} · ${p.lat.toFixed(4)}, ${p.lng.toFixed(4)}`,
+          lat: p.lat,
+          lng: p.lng,
+          icon: p.icon,
+        }))
+
+        // Also check popular places
+        const popularMatches = POPULAR_PLACES.filter(p =>
+          p.label.toLowerCase().includes(trimmed.toLowerCase()) ||
+          p.address.toLowerCase().includes(trimmed.toLowerCase())
+        )
+
+        // Merge: popular matches first, then Overpass results (deduped)
+        const seen = new Set(popularMatches.map(p => p.label.toLowerCase()))
+        const merged = [
+          ...popularMatches,
+          ...mapped.filter(p => !seen.has(p.label.toLowerCase())),
+        ].slice(0, 10)
+
+        setSuggestions(merged.length ? merged : [])
+      } catch {
+        // Fallback to popular places filter
+        const fallback = POPULAR_PLACES.filter(p =>
+          p.label.toLowerCase().includes(trimmed.toLowerCase()) ||
+          p.address.toLowerCase().includes(trimmed.toLowerCase())
+        )
+        setSuggestions(fallback)
+      }
+      setLoading(false)
+    }, 280)
+  }, [])
+
   return (
     <div className={styles.locFieldWrap}>
       <label className={styles.fieldLabel}>{label}</label>
@@ -74,28 +110,30 @@ function LocationField({ label, query, setQuery, value, setValue, showSuggest, s
             className={`${styles.destInput} ${value ? styles.destInputFilled : ''}`}
             placeholder={placeholder}
             value={query}
-            onChange={e => { setQuery(e.target.value); setShowSuggest(true); if (!e.target.value) setValue(null) }}
-            onFocus={() => setShowSuggest(true)}
+            onChange={e => { setQuery(e.target.value); setShowSuggest(true); doSearch(e.target.value); if (!e.target.value) setValue(null) }}
+            onFocus={() => { setShowSuggest(true); doSearch(query) }}
             onBlur={() => setTimeout(() => setShowSuggest(false), 150)}
           />
           {query && (
-            <button className={styles.clearBtn} onMouseDown={e => { e.preventDefault(); setQuery(''); setValue(null) }}>✕</button>
+            <button className={styles.clearBtn} onMouseDown={e => { e.preventDefault(); setQuery(''); setValue(null); setSuggestions(POPULAR_PLACES) }}>✕</button>
           )}
           {showSuggest && (
             <div className={styles.suggestions}>
-              {filtered.length ? filtered.map((d, i) => (
+              {loading && <div className={styles.suggestionEmpty}>Searching...</div>}
+              {!loading && suggestions.length ? suggestions.map((d, i) => (
                 <button
                   key={i}
                   className={styles.suggestion}
                   onMouseDown={e => { e.preventDefault(); setValue(d); setQuery(d.label); setShowSuggest(false) }}
                 >
-                  <span className={styles.suggestionIcon}>📍</span>
+                  <span className={styles.suggestionIcon}>{d.icon || '📍'}</span>
                   <div className={styles.suggestionText}>
                     <span className={styles.suggestionLabel}>{d.label}</span>
                     <span className={styles.suggestionAddr}>{d.address}</span>
                   </div>
                 </button>
-              )) : (
+              )) : null}
+              {!loading && !suggestions.length && (
                 <div className={styles.suggestionEmpty}>No places found</div>
               )}
             </div>

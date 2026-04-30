@@ -61,7 +61,7 @@ import MarketplaceOverlays from './MarketplaceOverlays'
 import '@/styles/map.css'
 import styles from './AppShell.module.css'
 import {
-  ChatScreen, ProfileScreen, BookingScreen, ShopSearchScreen,
+  ChatScreen, ProfileScreen, BookingScreen, AndongBookingScreen, ShopSearchScreen,
   DatingBubbleScreen, RestaurantBrowseScreen,
   QAFeedScreen, VibeBlastPage, NotificationsScreen, RideHistoryScreen,
   LikedMeScreen, LikedProfilesScreen, BlockedUsersScreen,
@@ -111,6 +111,7 @@ export default function AppShell({ returnParams, triggerGoLive }) {
     datingIntentOpen,  setDatingIntentOpen,
     datingGridOpen,    setDatingGridOpen,
     rideOpen,          setRideOpen,
+    andongOpen,        setAndongOpen,
     foodOpen,          setFoodOpen,
     foodBrowseOpen,    setFoodBrowseOpen,
     likedMeOpen,       setLikedMeOpen,
@@ -361,7 +362,7 @@ export default function AppShell({ returnParams, triggerGoLive }) {
       <TimeBackground />
 
       {/* Floating activity icons — visible when dock is on */}
-      {dockVisible && activeTab === 'map' && !rideOpen && !massageOpen && !shopOpen && !foodOpen && !datingGridOpen && !dealHuntOpen && !sellRentOpen && !notifOpen && !rideHistoryOpen && !settingsOpen && !countrySearchOpen && (
+      {dockVisible && activeTab === 'map' && !rideOpen && !andongOpen && !massageOpen && !shopOpen && !foodOpen && !datingGridOpen && !dealHuntOpen && !sellRentOpen && !notifOpen && !rideHistoryOpen && !settingsOpen && !countrySearchOpen && (
         <FloatingIcons
           sessions={visibleSessions}
           serviceCounts={serviceUnreadCounts}
@@ -377,6 +378,7 @@ export default function AppShell({ returnParams, triggerGoLive }) {
           }}
           onMassageClick={() => { if (isGuest) { triggerGate(); return } setDockVisible(false); setActiveSection('massage'); setMassageOpen(true) }}
           onRentalsClick={() => { if (isGuest) { triggerGate(); return } setDockVisible(false); setActiveSection('rentals'); setRentalInitialMode('rent'); setRentalInitialView(null); setActiveTab('rentals') }}
+          onAndongClick={() => { if (isGuest) { triggerGate(); return } setAndongOpen(true); setDockVisible(false) }}
           onDealHuntClick={() => { setDealHuntOpen(true); setDockVisible(false) }}
           onSellRentClick={() => { setSellRentOpen(true); setDockVisible(false) }}
         />
@@ -612,6 +614,7 @@ export default function AppShell({ returnParams, triggerGoLive }) {
 
       <Suspense fallback={<LazyFallback />}>
       {rideOpen && <BookingScreen onClose={() => { setRideOpen(false); setRideOnLanding(true); setDockVisible(true) }} initialVehicle={rideVehicleType} onLandingChange={(onLanding) => { setRideOnLanding(onLanding); if (!onLanding) setDockVisible(false) }} />}
+      {andongOpen && <AndongBookingScreen onClose={() => { setAndongOpen(false); setDockVisible(true) }} />}
       </Suspense>
 
       <Suspense fallback={<LazyFallback />}>

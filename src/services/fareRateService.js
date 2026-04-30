@@ -9,10 +9,12 @@
  */
 import { supabase } from '@/lib/supabase'
 
-// Default rates (Kemenhub Zone 1 — Java/Bali, 2024)
+// Customer-facing rates (10% commission built in, driver gets 90%)
+// Zone 1: driver min bike Rp 1,850/km, car Rp 3,200/km
+// Customer rate = driver_min / 0.90
 const DEFAULT_RATES = {
-  bike: { baseFare: 2600, perKm: 2600, minFare: 12000, maxFare: null, surgeMax: 2.0 },
-  car:  { baseFare: 4500, perKm: 4500, minFare: 40000, maxFare: null, surgeMax: 2.0 },
+  bike: { baseFare: 10280, perKm: 2055, minFare: 10280, maxFare: 100000, surgeMax: 2.0 },
+  car:  { baseFare: 16670, perKm: 3555, minFare: 16670, maxFare: 100000, surgeMax: 2.0 },
 }
 
 const DEFAULT_DELIVERY = {

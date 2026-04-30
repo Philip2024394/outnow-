@@ -23,6 +23,7 @@ export function useAppOverlays() {
 
   // ── Ride / food ─────────────────────────────────────────────────────────────
   const [rideOpen,       setRideOpen]       = useState(false)
+  const [andongOpen,     setAndongOpen]     = useState(false)
   const [foodOpen,       setFoodOpen]       = useState(false)
   const [foodBrowseOpen, setFoodBrowseOpen] = useState(false)
 
@@ -67,6 +68,7 @@ export function useAppOverlays() {
     datingIntentOpen,  setDatingIntentOpen,
     datingGridOpen,    setDatingGridOpen,
     rideOpen,          setRideOpen,
+    andongOpen,        setAndongOpen,
     foodOpen,          setFoodOpen,
     foodBrowseOpen,    setFoodBrowseOpen,
     likedMeOpen,       setLikedMeOpen,

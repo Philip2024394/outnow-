@@ -41,6 +41,7 @@ export default {
   'icons.street':  '街头',
   'icons.dating':  '交友',
   'icons.car':     '打车',
+  'icons.andong':  '马车',
   'icons.shop':    '购物',
   'icons.massage': '按摩',
   'icons.rentals': '租赁',

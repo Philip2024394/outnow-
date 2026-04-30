@@ -4,6 +4,7 @@ import { lazy } from 'react'
 export const ChatScreen              = lazy(() => import('@/screens/ChatScreen'))
 export const ProfileScreen           = lazy(() => import('@/screens/ProfileScreen'))
 export const BookingScreen           = lazy(() => import('@/screens/BookingScreen'))
+export const AndongBookingScreen     = lazy(() => import('@/screens/booking/AndongBookingScreen'))
 export const ShopSearchScreen        = lazy(() => import('@/screens/ShopSearchScreen'))
 export const DatingBubbleScreen      = lazy(() => import('@/components/dating/DatingBubbleScreen'))
 export const CategoryDiscoveryScreen = lazy(() => import('@/screens/CategoryDiscoveryScreen'))

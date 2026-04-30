@@ -7,12 +7,13 @@ import styles from './FloatingIcons.module.css'
 const ICONS = [
   { id: 'bike_ride',  labelKey: 'icons.ride',    label: 'Ride On',       img: 'https://ik.imagekit.io/nepgaxllc/ChatGPT%20Image%20Apr%2028,%202026,%2005_49_30%20AM.png',   vehicle: true },
   { id: 'car_taxi',   labelKey: 'icons.car',     label: 'Drive On',     img: 'https://ik.imagekit.io/nepgaxllc/Untitledsdasdvvvdsdsdsdas-removebg-preview.png',              vehicle: true },
+  { id: 'andong',     labelKey: 'icons.andong',   label: 'Andong',       img: 'https://ik.imagekit.io/nepgaxllc/Untitledsddsssdsssssssssdddddasd-removebg-preview.png',    vehicle: true },
   { id: 'food',       labelKey: 'icons.street',  label: 'The Street', img: 'https://ik.imagekit.io/nepgaxllc/Untitledsdasdvvvdsdsdsdassss-removebg-preview.png',        vehicle: false },
   { id: 'dealhunt',   labelKey: 'icons.deals',   label: 'Deal Hunt',    img: 'https://ik.imagekit.io/nepgaxllc/Untitledsdasdvvvdsdsdsdasssss-removebg-preview.png', vehicle: false },
-  { id: 'sellrent',  labelKey: 'icons.sellrent', label: 'Sell / Rent', img: 'https://ik.imagekit.io/nepgaxllc/Untitledsdasdvvvdsdsdsdasssss-removebg-preview.png', vehicle: false },
+  { id: 'sellrent',  labelKey: 'icons.sellrent', label: 'Sell / Rent', img: 'https://ik.imagekit.io/nepgaxllc/Untitledsddsssdsssssssssdddddasdssss-removebg-preview.png', vehicle: false },
 ]
 
-export default function FloatingIcons({ sessions = [], serviceCounts = {}, onSelectSession, onFoodClick, onRideClick, onShoppingClick, onDatingClick, onMassageClick, onRentalsClick, onDealHuntClick, onSellRentClick }) {
+export default function FloatingIcons({ sessions = [], serviceCounts = {}, onSelectSession, onFoodClick, onRideClick, onAndongClick, onShoppingClick, onDatingClick, onMassageClick, onRentalsClick, onDealHuntClick, onSellRentClick }) {
   const { t } = useLanguage()
   const [activeActivity, setActiveActivity] = useState(null)
 
@@ -20,6 +21,7 @@ export default function FloatingIcons({ sessions = [], serviceCounts = {}, onSel
     if (icon.id === 'food' && onFoodClick)                                    { onFoodClick();     return }
     if (icon.id === 'bike_ride' && onRideClick)   { onRideClick('bike_ride');  return }
     if (icon.id === 'car_taxi' && onRideClick)    { onRideClick('car_taxi');   return }
+    if (icon.id === 'andong' && onAndongClick)    { onAndongClick();          return }
     if (icon.id === 'shopping' && onShoppingClick)                            { onShoppingClick(); return }
     if (icon.id === 'dating' && onDatingClick)                                { onDatingClick();   return }
     if (icon.id === 'massage' && onMassageClick)                              { onMassageClick();  return }

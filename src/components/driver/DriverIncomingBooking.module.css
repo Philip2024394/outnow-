@@ -11,6 +11,14 @@
   padding: 0 0 28px;
   display: flex; flex-direction: column; align-items: center;
   overflow: hidden;
+  position: relative;
+}
+.modalBg {
+  position: absolute; inset: 0;
+  background-image: url('https://ik.imagekit.io/nepgaxllc/ChatGPT%20Image%20Apr%2022,%202026,%2006_39_04%20AM.png?updatedAt=1776814761653');
+  background-size: cover; background-position: center;
+  opacity: 0.15; pointer-events: none;
+  border-radius: 24px 24px 0 0;
 }
 
 /* Timer bar */
@@ -62,12 +70,12 @@
 .actions { display: flex; gap: 12px; width: calc(100% - 40px); }
 .btnDecline {
   flex: 1; padding: 14px; border-radius: 14px;
-  background: rgba(255,107,107,0.1); color: #ff6b6b;
-  border: 1px solid rgba(255,107,107,0.3);
+  background: #7F1D1D; color: #fff;
+  border: none;
   font-size: 15px; font-weight: 800; cursor: pointer; font-family: inherit;
   transition: background 0.15s;
 }
-.btnDecline:hover:not(:disabled) { background: rgba(255,107,107,0.2); }
+.btnDecline:hover:not(:disabled) { background: #991B1B; }
 .btnAccept {
   flex: 2; padding: 14px; border-radius: 14px;
   background: #8DC63F; color: #000;

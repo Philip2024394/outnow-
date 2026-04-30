@@ -6,6 +6,7 @@ import { useState, useEffect, useRef } from 'react'
 import { supabase } from '@/lib/supabase'
 import DriverEarningsScreen from '@/components/driver/DriverEarningsScreen'
 import DriverTripScreen from '@/components/driver/DriverTripScreen'
+import DriverTripChat from '@/components/driver/DriverTripChat'
 import DriverIncomingBooking from '@/components/driver/DriverIncomingBooking'
 import DriverFoodOrderAlert from '@/components/driver/DriverFoodOrderAlert'
 import DriverCashFloatModal from '@/components/driver/DriverCashFloatModal'
@@ -71,6 +72,7 @@ export default function DriverApp() {
   const [termsAccepted, setTermsAccepted] = useState(() => localStorage.getItem('indoo_driver_terms_accepted') === 'true')
   const [driverRegistered, setDriverRegistered] = useState(() => localStorage.getItem('indoo_driver_registered') === 'true')
   const [showHotspotMap, setShowHotspotMap] = useState(false)
+  const [tripChatOpen, setTripChatOpen] = useState(false)
   const [showEliteAwards, setShowEliteAwards] = useState(false)
   const [wallet, setWallet] = useState(null)
   const [showTopUp, setShowTopUp] = useState(false)
@@ -183,6 +185,34 @@ export default function DriverApp() {
   useEffect(() => {
     if (isOnline) requestNotificationPermission()
   }, [isOnline])
+
+  // Demo mode: simulate incoming booking 3s after going online
+  useEffect(() => {
+    if (!isOnline || supabase || incomingBooking || activeBooking) return
+    const timer = setTimeout(() => {
+      setIncomingBooking({
+        id: 'demo-booking-bike',
+        status: 'pending',
+        driver_type: 'bike_ride',
+        fare: 18000,
+        pickup_coords: { lat: -7.7956, lng: 110.3695 },
+        dropoff_coords: { lat: -7.7825, lng: 110.3550 },
+        pickup_address: 'Jl. Malioboro No. 52, Yogyakarta',
+        dropoff_address: 'Jl. Tentara Pelajar No. 8, Yogyakarta',
+        passenger: {
+          display_name: 'Dewi Lestari',
+          phone: '081298765432',
+          photo_url: 'https://i.pravatar.cc/200?img=5',
+          rating: 4.8,
+        },
+        passenger_name: 'Dewi Lestari',
+        customer_name: 'Dewi Lestari',
+        expires_at: new Date(Date.now() + 30000).toISOString(),
+        created_at: new Date().toISOString(),
+      })
+    }, 3000)
+    return () => clearTimeout(timer)
+  }, [isOnline, incomingBooking, activeBooking])
 
   // Alert on incoming booking
   useEffect(() => {
@@ -450,14 +480,16 @@ export default function DriverApp() {
     <div style={{ height: '100%', display: 'flex', flexDirection: 'column', background: '#080808', position: 'relative' }}>
       <img src={BG_IMG} alt="" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', pointerEvents: 'none', opacity: 1 }} />
 
-      {/* Header */}
-      <div style={{ padding: 'calc(env(safe-area-inset-top, 0px) + 10px) 16px 10px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', position: 'relative', zIndex: 5, flexShrink: 0 }}>
-        <span style={{ fontSize: 18, fontWeight: 900 }}>
-          <span style={{ color: '#fff' }}>IND</span><span style={{ color: '#8DC63F' }}>OO</span>
-          <span style={{ fontSize: 13, fontWeight: 700, color: 'rgba(255,255,255,0.4)', marginLeft: 6 }}>Driver Bike</span>
-        </span>
-        <button onClick={() => setDrawerOpen(true)} style={{ width: 40, height: 40, borderRadius: '50%', background: 'rgba(0,0,0,0.4)', backdropFilter: 'blur(16px)', border: '1px solid rgba(255,255,255,0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', fontSize: 20 }}>⚙️</button>
-      </div>
+      {/* Header — hidden during active trip */}
+      {!activeBooking && (
+        <div style={{ padding: 'calc(env(safe-area-inset-top, 0px) + 10px) 16px 10px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', position: 'relative', zIndex: 5, flexShrink: 0 }}>
+          <span style={{ fontSize: 18, fontWeight: 900 }}>
+            <span style={{ color: '#fff' }}>IND</span><span style={{ color: '#8DC63F' }}>OO</span>
+            <span style={{ fontSize: 13, fontWeight: 700, color: 'rgba(255,255,255,0.4)', marginLeft: 6 }}>Driver Bike</span>
+          </span>
+          <button onClick={() => setDrawerOpen(true)} style={{ width: 40, height: 40, borderRadius: '50%', background: 'rgba(0,0,0,0.4)', backdropFilter: 'blur(16px)', border: '1px solid rgba(255,255,255,0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', fontSize: 20 }}>⚙️</button>
+        </div>
+      )}
 
       {/* Main content */}
       <div style={{ flex: 1, overflowY: 'auto', padding: '8px 16px 100px', position: 'relative', zIndex: 1 }}>
@@ -1046,8 +1078,18 @@ export default function DriverApp() {
         <DriverTripScreen
           booking={activeBooking}
           driverId={profile.id}
-          onCompleted={() => setActiveBooking(null)}
-          onClose={() => setActiveBooking(null)}
+          onCompleted={() => { setActiveBooking(null); setTripChatOpen(false) }}
+          onClose={() => { setActiveBooking(null); setTripChatOpen(false) }}
+          onOpenChat={() => setTripChatOpen(true)}
+        />
+      )}
+
+      {/* ── Trip chat overlay ── */}
+      {tripChatOpen && activeBooking && (
+        <DriverTripChat
+          booking={activeBooking}
+          driverId={profile.id}
+          onClose={() => setTripChatOpen(false)}
         />
       )}
 

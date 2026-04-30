@@ -1,6 +1,7 @@
 /**
  * In-app chat between passenger/customer and driver.
  * Real-time via Supabase with quick reply templates.
+ * Demo mode uses in-memory store shared across all components.
  */
 import { supabase } from '@/lib/supabase'
 
@@ -23,6 +24,37 @@ const QUICK_REPLIES = {
 
 export { QUICK_REPLIES }
 
+// ── In-memory message store (demo mode) ─────────────────────────────────────
+const _demoMessages = {}
+const _listeners = {}
+
+function notifyListeners(bookingId) {
+  if (_listeners[bookingId]) {
+    _listeners[bookingId].forEach(fn => fn(_demoMessages[bookingId] || []))
+  }
+}
+
+/**
+ * Subscribe to message updates (works in both demo + production).
+ * Returns unsubscribe function.
+ */
+export function onMessagesUpdated(bookingId, callback) {
+  if (!supabase) {
+    if (!_listeners[bookingId]) _listeners[bookingId] = new Set()
+    _listeners[bookingId].add(callback)
+    // Fire immediately with current messages
+    callback(_demoMessages[bookingId] || [])
+    return () => _listeners[bookingId]?.delete(callback)
+  }
+
+  // Production: use Supabase realtime
+  const unsub = subscribeToMessages(bookingId, () => {
+    getMessages(bookingId).then(callback)
+  })
+  getMessages(bookingId).then(callback)
+  return unsub
+}
+
 /**
  * Send a chat message.
  */
@@ -30,12 +62,18 @@ export async function sendMessage(bookingId, senderId, senderRole, text) {
   const message = {
     booking_id: bookingId,
     sender_id: senderId,
-    sender_role: senderRole, // 'passenger' | 'driver'
+    sender_role: senderRole,
     text: text.trim(),
     created_at: new Date().toISOString(),
   }
 
-  if (!supabase) return { ...message, id: Date.now() }
+  if (!supabase) {
+    const msg = { ...message, id: Date.now() + Math.random() }
+    if (!_demoMessages[bookingId]) _demoMessages[bookingId] = []
+    _demoMessages[bookingId].push(msg)
+    notifyListeners(bookingId)
+    return msg
+  }
 
   const { data, error } = await supabase
     .from('booking_messages')
@@ -51,7 +89,7 @@ export async function sendMessage(bookingId, senderId, senderRole, text) {
  * Get chat history for a booking.
  */
 export async function getMessages(bookingId) {
-  if (!supabase) return []
+  if (!supabase) return _demoMessages[bookingId] || []
   const { data } = await supabase
     .from('booking_messages')
     .select('*')
@@ -61,7 +99,17 @@ export async function getMessages(bookingId) {
 }
 
 /**
- * Subscribe to new messages in real-time.
+ * Get unread count for badge.
+ */
+export function getUnreadCount(bookingId, lastSeenId) {
+  const msgs = _demoMessages[bookingId] || []
+  if (!lastSeenId) return msgs.length
+  const idx = msgs.findIndex(m => m.id === lastSeenId)
+  return idx === -1 ? msgs.length : msgs.length - idx - 1
+}
+
+/**
+ * Subscribe to new messages in real-time (Supabase).
  */
 export function subscribeToMessages(bookingId, onMessage) {
   if (!supabase) return () => {}

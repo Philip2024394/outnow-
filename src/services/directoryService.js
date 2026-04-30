@@ -1,21 +1,14 @@
 /**
  * Destination Directory Service
  * Real GPS coordinates for Yogyakarta destinations.
- * Auto-pricing: under 10km = one way, over 10km = return trip.
- * Bike: Rp 5,000 base + Rp 3,000/km
- * Car: Rp 10,000 base + Rp 4,000/km
+ * Pricing: uses pricingService (government-regulated Zone rates) as single source of truth.
+ * Under 10km = one-way fare, over 10km = return trip fare.
  */
+import { estimateFare, DEFAULT_ZONES, DEFAULT_SETTINGS } from './pricingService'
 
 // City center reference point (Malioboro, Yogyakarta)
 const CITY_CENTER = { lat: -7.7928, lng: 110.3653 }
 const ONE_WAY_LIMIT_KM = 10
-
-// Pricing
-// Yogyakarta Zone 1 (Central Java) — within government regulation
-const BIKE_BASE = 8000
-const BIKE_PER_KM = 2500
-const CAR_BASE = 15000
-const CAR_PER_KM = 4000
 
 // Haversine distance
 function distanceKm(lat1, lng1, lat2, lng2) {
@@ -30,14 +23,16 @@ function roundPrice(n) {
   return Math.round(n / 1000) * 1000
 }
 
-export function calculateDirectoryPrice(destination) {
+export function calculateDirectoryPrice(destination, zones, settings) {
   const km = destination.distanceKm
   const isReturn = km > ONE_WAY_LIMIT_KM
   const tripKm = isReturn ? km * 2 : km
+  const z = zones || DEFAULT_ZONES
+  const s = settings || DEFAULT_SETTINGS
 
   return {
-    bike: roundPrice(BIKE_BASE + tripKm * BIKE_PER_KM),
-    car: roundPrice(CAR_BASE + tripKm * CAR_PER_KM),
+    bike: roundPrice(estimateFare('bike_ride', 'Yogyakarta', tripKm, z, s)),
+    car: roundPrice(estimateFare('car_taxi', 'Yogyakarta', tripKm, z, s)),
     isReturn,
     oneWayKm: km,
     tripKm,

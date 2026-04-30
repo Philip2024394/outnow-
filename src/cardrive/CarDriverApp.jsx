@@ -186,6 +186,33 @@ export default function CarDriverApp() {
     if (isOnline) requestNotificationPermission()
   }, [isOnline])
 
+  // Demo mode: simulate incoming booking 3s after going online
+  useEffect(() => {
+    if (!isOnline || supabase || incomingBooking || activeBooking) return
+    const timer = setTimeout(() => {
+      setIncomingBooking({
+        id: 'demo-booking-car',
+        status: 'pending',
+        driver_type: 'car_taxi',
+        fare: 35000,
+        pickup_coords: { lat: -7.7956, lng: 110.3695 },
+        dropoff_coords: { lat: -7.7825, lng: 110.3550 },
+        pickup_address: 'Jl. Malioboro No. 52, Yogyakarta',
+        dropoff_address: 'Jl. Tentara Pelajar No. 8, Yogyakarta',
+        passenger: {
+          display_name: 'Rina Maharani',
+          phone: '081387654321',
+          photo_url: 'https://i.pravatar.cc/200?img=9',
+        },
+        passenger_name: 'Rina Maharani',
+        customer_name: 'Rina Maharani',
+        expires_at: new Date(Date.now() + 30000).toISOString(),
+        created_at: new Date().toISOString(),
+      })
+    }, 3000)
+    return () => clearTimeout(timer)
+  }, [isOnline, incomingBooking, activeBooking])
+
   // Alert on incoming booking
   useEffect(() => {
     if (incomingBooking) {
