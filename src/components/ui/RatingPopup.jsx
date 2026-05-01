@@ -172,7 +172,8 @@ export default function RatingPopup({
     setThankYou(true);
     setTimeout(() => {
       onSubmit?.({ stars, comment: comment.trim(), favorite });
-    }, 1200);
+      onSkip?.();
+    }, 1500);
   };
 
   const handleSkip = () => {
@@ -203,7 +204,7 @@ export default function RatingPopup({
   const bgOverlay = {
     position: 'absolute',
     inset: 0,
-    background: 'linear-gradient(to bottom, rgba(0,0,0,0.4) 0%, rgba(0,0,0,0.7) 50%, rgba(0,0,0,0.92) 100%)',
+    background: 'linear-gradient(to bottom, rgba(0,0,0,0.2) 0%, rgba(0,0,0,0.4) 40%, rgba(0,0,0,0.75) 100%)',
     zIndex: 1,
   };
 
@@ -227,12 +228,14 @@ export default function RatingPopup({
 
   const glassBox = {
     width: '100%',
-    background: 'rgba(0,0,0,0.5)',
+    background: 'rgba(0,0,0,0.35)',
     backdropFilter: 'blur(16px)',
     WebkitBackdropFilter: 'blur(16px)',
-    border: '1px solid rgba(255,255,255,0.08)',
+    border: '1px solid rgba(255,255,255,0.1)',
     borderRadius: 18,
     padding: '16px',
+    position: 'relative',
+    zIndex: 1,
   };
 
   const photoStyle = {
@@ -373,9 +376,10 @@ export default function RatingPopup({
     cursor: stars > 0 ? 'pointer' : 'default',
     minHeight: 44,
     transition: 'background 0.2s, color 0.2s',
-    boxShadow: stars > 0 ? '0 4px 20px rgba(141,198,63,0.3)' : 'none',
+    boxShadow: stars > 0 ? '0 4px 24px rgba(141,198,63,0.4)' : 'none',
     position: 'relative',
     zIndex: 1,
+    fontFamily: 'inherit',
   };
 
   const skipBtn = {
@@ -468,17 +472,17 @@ export default function RatingPopup({
               onClick={() => setFavorite(!favorite)}
               style={{
                 width: '100%', padding: '14px 0', borderRadius: 14,
-                background: favorite ? 'rgba(250,204,21,0.15)' : 'rgba(0,0,0,0.4)',
+                background: favorite ? '#FACC15' : 'rgba(250,204,21,0.12)',
                 backdropFilter: 'blur(12px)',
-                border: `1.5px solid ${favorite ? 'rgba(250,204,21,0.5)' : 'rgba(255,255,255,0.08)'}`,
-                color: favorite ? '#FACC15' : 'rgba(255,255,255,0.6)',
-                fontSize: 14, fontWeight: 800, cursor: 'pointer', fontFamily: 'inherit',
+                border: `1.5px solid ${favorite ? '#FACC15' : 'rgba(250,204,21,0.4)'}`,
+                color: favorite ? '#000' : '#FACC15',
+                fontSize: 14, fontWeight: 900, cursor: 'pointer', fontFamily: 'inherit',
                 display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8,
                 transition: 'all 0.2s', minHeight: 44, position: 'relative', zIndex: 1,
-                boxShadow: favorite ? '0 0 16px rgba(250,204,21,0.15)' : 'none',
+                boxShadow: favorite ? '0 4px 20px rgba(250,204,21,0.35)' : '0 0 12px rgba(250,204,21,0.1)',
               }}
             >
-              <svg width="18" height="18" viewBox="0 0 24 24" fill={favorite ? '#FACC15' : 'none'} stroke={favorite ? '#FACC15' : 'rgba(255,255,255,0.4)'} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill={favorite ? '#000' : 'none'} stroke={favorite ? '#000' : '#FACC15'} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                 <path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z"/>
               </svg>
               {favorite ? 'Added to Favorites ⭐' : 'Add to Favorite Drivers'}

@@ -1297,7 +1297,8 @@ export default function RestaurantMenuSheet({ restaurant, onClose, onOrderViaCha
                   if (customerWa.trim().length >= 10) handleOrder()
                 }}
               >
-                {customerWa.trim().length >= 10 ? 'Confirm Order' : 'Enter WhatsApp Number'}
+                <img src="https://ik.imagekit.io/nepgaxllc/dfggdfgees-removebg-preview.png" alt="" />
+                <span>{customerWa.trim().length >= 10 ? 'Confirm Order' : 'Enter WhatsApp Number'}</span>
               </button>
             </div>
           )}

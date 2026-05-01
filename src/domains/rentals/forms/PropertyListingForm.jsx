@@ -37,6 +37,25 @@ const BEDROOM_OPTIONS = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '10+']
 const BATHROOM_OPTIONS = ['1', '2', '3', '4', '5+']
 const FLOOR_OPTIONS = ['Ground', '1', '2', '3', '4', '5', '6', '7', '8', '9', '10+', 'Penthouse']
 
+// Kos-specific options
+const KOS_TIER_OPTIONS = ['Basic', 'Standard', 'Premium', 'Exclusive']
+const KOS_GENDER_OPTIONS = ['Putra', 'Putri', 'Campur']
+const KOS_BED_TYPE_OPTIONS = ['Single 90x200', 'Queen 160x200', 'King 180x200']
+const KOS_ROOM_FACILITIES = ['Desk+Chair', 'Mirror', 'Wardrobe', 'Electric Kettle', 'Smart Lock']
+const KOS_SHARED_FACILITIES = ['Shared Kitchen', 'Dining Area', 'Common Area', 'Laundry Area']
+const KOS_INCLUDED_OPTIONS = ['WiFi', 'Laundry', 'Cleaning', 'Water']
+const KOS_EXCLUDED_OPTIONS = ['Electricity', 'Overtime AC']
+const KOS_MIN_STAY_OPTIONS = ['1 month', '3 months', '6 months', '1 year']
+
+// House/Villa-specific options
+const ELECTRICITY_CAPACITY_OPTIONS = ['450W', '900W', '1300W', '2200W', '3500W', '5500W', '7700W', '11000W']
+const WATER_TYPE_OPTIONS = ['PDAM', 'Well']
+const CERTIFICATE_TYPE_OPTIONS = ['SHM', 'HGB', 'Hak Pakai', 'SHMSRS', 'AJB', 'Girik']
+const FACING_DIRECTION_OPTIONS = ['North', 'South', 'East', 'West']
+
+// All property types
+const CANCELLATION_POLICY_OPTIONS = ['Flexible', 'Moderate', 'Strict', 'Non-refundable']
+
 function generateRef() { return 'PROP-' + Math.random().toString(36).substring(2, 6).toUpperCase() + Math.floor(1000 + Math.random() * 9000) }
 
 
@@ -141,7 +160,7 @@ function AmenitiesBundle({ amenities }) {
 /* ══════════════════════════════════════════════════════════════════════════════
    MAIN FORM
    ══════════════════════════════════════════════════════════════════════════════ */
-export default function PropertyListingForm({ open, onClose, onSubmit, editListing }) {
+export default function PropertyListingForm({ open, onClose, onSubmit, editListing, listingMarket, propertyType }) {
   const isEditing = !!editListing
   const propRef = useMemo(() => editListing?.ref || generateRef(), [editListing])
   const ef = editListing?.extra_fields || {}
@@ -155,7 +174,7 @@ export default function PropertyListingForm({ open, onClose, onSubmit, editListi
     try { const p = JSON.parse(localStorage.getItem('indoo_rental_owner') || '{}'); return p.city || '' } catch { return '' }
   })
   const [address, setAddress] = useState(ef.address || '')
-  const [propType, setPropType] = useState(ef.propType || '')
+  const [propType, setPropType] = useState(ef.propType || propertyType || '')
   const [bedrooms, setBedrooms] = useState(ef.bedrooms || '1')
   const [bathrooms, setBathrooms] = useState(ef.bathrooms || '1')
   const [sizeSqm, setSizeSqm] = useState(ef.sizeSqm || '')
@@ -175,6 +194,43 @@ export default function PropertyListingForm({ open, onClose, onSubmit, editListi
     if (ef.whatsapp) return ef.whatsapp
     try { const p = JSON.parse(localStorage.getItem('indoo_rental_owner') || '{}'); return p.whatsapp || '' } catch { return '' }
   })
+
+  // ── Kos-specific fields ──
+  const [kosTier, setKosTier] = useState(ef.kosTier || '')
+  const [kosGender, setKosGender] = useState(ef.kosGender || '')
+  const [kosBedType, setKosBedType] = useState(ef.kosBedType || '')
+  const [kosMaxOccupants, setKosMaxOccupants] = useState(ef.kosMaxOccupants || '1')
+  const [kosRoomFacilities, setKosRoomFacilities] = useState(ef.kosRoomFacilities || [])
+  const [kosSharedFacilities, setKosSharedFacilities] = useState(ef.kosSharedFacilities || [])
+  const [kosIncluded, setKosIncluded] = useState(ef.kosIncluded || [])
+  const [kosExcluded, setKosExcluded] = useState(ef.kosExcluded || [])
+  const [kosGuestHours, setKosGuestHours] = useState(ef.kosGuestHours || '22:00')
+  const [kosCouplesAllowed, setKosCouplesAllowed] = useState(ef.kosCouplesAllowed || false)
+  const [kos24HourAccess, setKos24HourAccess] = useState(ef.kos24HourAccess ?? true)
+  const [kosDepositAmount, setKosDepositAmount] = useState(ef.kosDepositAmount || '')
+  const [kosMinStay, setKosMinStay] = useState(ef.kosMinStay || '')
+  const [kosAvailableRooms, setKosAvailableRooms] = useState(ef.kosAvailableRooms || '')
+  const [kosAvailableFrom, setKosAvailableFrom] = useState(ef.kosAvailableFrom || '')
+
+  // ── House/Villa-specific fields ──
+  const [landArea, setLandArea] = useState(ef.landArea || '')
+  const [buildingArea, setBuildingArea] = useState(ef.buildingArea || '')
+  const [numFloors, setNumFloors] = useState(ef.numFloors || '')
+  const [numGarages, setNumGarages] = useState(ef.numGarages || '')
+  const [electricityCapacity, setElectricityCapacity] = useState(ef.electricityCapacity || '')
+  const [waterType, setWaterType] = useState(ef.waterType || '')
+  const [certificateType, setCertificateType] = useState(ef.certificateType || '')
+  const [facingDirection, setFacingDirection] = useState(ef.facingDirection || '')
+  const [yearBuilt, setYearBuilt] = useState(ef.yearBuilt || '')
+  const [accessRoadWidth, setAccessRoadWidth] = useState(ef.accessRoadWidth || '')
+  const [floodFree, setFloodFree] = useState(ef.floodFree ?? true)
+  const [nearTollRoad, setNearTollRoad] = useState(ef.nearTollRoad || false)
+  const [nearPublicTransport, setNearPublicTransport] = useState(ef.nearPublicTransport || false)
+
+  // ── All property types — additional fields ──
+  const [videoTourUrl, setVideoTourUrl] = useState(ef.videoTourUrl || '')
+  const [floorPlanImage, setFloorPlanImage] = useState(ef.floorPlanImage || '')
+  const [cancellationPolicy, setCancellationPolicy] = useState(ef.cancellationPolicy || '')
 
   // Pricing
   const [nightly, setNightly] = useState(editListing?.price_day || '')
@@ -264,7 +320,15 @@ export default function PropertyListingForm({ open, onClose, onSubmit, editListi
       images: [mainImage, ...thumbs].filter(Boolean),
       price_day: nightly, price_week: weekly, price_month: monthly, price_year: yearly,
       buy_now: buyNow ? { price: buyNowPrice, negotiable } : null,
-      extra_fields: { propType, address, bedrooms, bathrooms, sizeSqm, furnished, floorLevel, amenities, electricityIncluded, waterIncluded, internetIncluded, checkIn, checkOut, maxGuests, petFriendly, smokingAllowed, minAge, whatsapp, deposit, cleaningFee, lateFee, yearly },
+      extra_fields: {
+        propType, address, bedrooms, bathrooms, sizeSqm, furnished, floorLevel, amenities, electricityIncluded, waterIncluded, internetIncluded, checkIn, checkOut, maxGuests, petFriendly, smokingAllowed, minAge, whatsapp, deposit, cleaningFee, lateFee, yearly,
+        // Kos fields
+        kosTier, kosGender, kosBedType, kosMaxOccupants, kosRoomFacilities, kosSharedFacilities, kosIncluded, kosExcluded, kosGuestHours, kosCouplesAllowed, kos24HourAccess, kosDepositAmount, kosMinStay, kosAvailableRooms, kosAvailableFrom,
+        // House/Villa fields
+        landArea, buildingArea, numFloors, numGarages, electricityCapacity, waterType, certificateType, facingDirection, yearBuilt, accessRoadWidth, floodFree, nearTollRoad, nearPublicTransport,
+        // Universal fields
+        videoTourUrl, floorPlanImage, cancellationPolicy,
+      },
       status: 'live',
       created_at: new Date().toISOString(),
     }
@@ -281,13 +345,13 @@ export default function PropertyListingForm({ open, onClose, onSubmit, editListi
       localStorage.setItem('indoo_my_property_listings', JSON.stringify(saved))
     } catch {}
     await onSubmit?.(listing)
-    setSubmitting(false); setStep(4)
+    setSubmitting(false); setStep(5)
     // After 5 seconds, show success
-    setTimeout(() => setStep(5), 5000)
+    setTimeout(() => setStep(6), 5000)
   }
 
   return createPortal(
-    <div className={styles.screen} style={{ backgroundImage: `url(${step === 1 ? 'https://ik.imagekit.io/nepgaxllc/ChatGPT%20Image%20Apr%2018,%202026,%2007_07_33%20PM.png' : step === 2 ? 'https://ik.imagekit.io/nepgaxllc/ChatGPT%20Image%20Apr%2018,%202026,%2010_39_50%20PM.png' : step >= 4 ? 'https://ik.imagekit.io/nepgaxllc/ChatGPT%20Image%20Apr%2018,%202026,%2011_13_56%20PM.png?updatedAt=1776528855040' : 'https://ik.imagekit.io/nepgaxllc/ChatGPT%20Image%20Apr%2018,%202026,%2006_57_42%20PM.png'})`, backgroundSize: 'cover', backgroundPosition: 'center' }}>
+    <div className={styles.screen} style={{ backgroundImage: `url(${step === 1 ? 'https://ik.imagekit.io/nepgaxllc/ChatGPT%20Image%20Apr%2018,%202026,%2007_07_33%20PM.png' : step === 2 ? 'https://ik.imagekit.io/nepgaxllc/ChatGPT%20Image%20Apr%2018,%202026,%2007_07_33%20PM.png' : step === 3 ? 'https://ik.imagekit.io/nepgaxllc/ChatGPT%20Image%20Apr%2018,%202026,%2010_39_50%20PM.png' : step >= 5 ? 'https://ik.imagekit.io/nepgaxllc/ChatGPT%20Image%20Apr%2018,%202026,%2011_13_56%20PM.png?updatedAt=1776528855040' : 'https://ik.imagekit.io/nepgaxllc/ChatGPT%20Image%20Apr%2018,%202026,%2006_57_42%20PM.png'})`, backgroundSize: 'cover', backgroundPosition: 'center' }}>
 
       <FormHeader step={step} setStep={setStep} onClose={onClose} setShowDrawer={setShowDrawer} />
 
@@ -302,11 +366,11 @@ export default function PropertyListingForm({ open, onClose, onSubmit, editListi
 
       <div className={styles.content} style={{ paddingTop: 97 }}>
 
-        {/* ═══ STEP 4: ENTERING MARKETPLACE — ping animation ═══ */}
-        {step === 4 && <ProcessingStep isEditing={isEditing} emoji={"🏠"} vehicleName="Property" refCode={propRef} />}
+        {/* ═══ STEP 5: ENTERING MARKETPLACE — ping animation ═══ */}
+        {step === 5 && <ProcessingStep isEditing={isEditing} emoji={"🏠"} vehicleName="Property" refCode={propRef} />}
 
-        {/* ═══ STEP 5: SUCCESS ═══ */}
-        {step === 5 && <SuccessStep isEditing={isEditing} refCode={propRef} summaryTitle={`${propertyName || title}`} summaryDetails={`${propertyType} \u00b7 ${bedrooms} bed \u00b7 ${bathrooms} bath`} summaryPrice={daily ? `Rp ${daily}/day` : monthly ? `Rp ${monthly}/month` : ""} onClose={onClose} onViewMyListings={() => { setMyListings(JSON.parse(localStorage.getItem("indoo_my_listings") || "[]")); setShowMyListings(true) }} itemName="property" />}
+        {/* ═══ STEP 6: SUCCESS ═══ */}
+        {step === 6 && <SuccessStep isEditing={isEditing} refCode={propRef} summaryTitle={`${propertyName || title}`} summaryDetails={`${propertyType} \u00b7 ${bedrooms} bed \u00b7 ${bathrooms} bath`} summaryPrice={daily ? `Rp ${daily}/day` : monthly ? `Rp ${monthly}/month` : ""} onClose={onClose} onViewMyListings={() => { setMyListings(JSON.parse(localStorage.getItem("indoo_my_listings") || "[]")); setShowMyListings(true) }} itemName="property" />}
 
         {/* ═══ STEP 0: PROPERTY DETAILS ═══ */}
         {step === 0 && (
@@ -396,7 +460,7 @@ export default function PropertyListingForm({ open, onClose, onSubmit, editListi
               <div className={styles.inlineGroup}>
                 <div className={styles.inlineField}>
                   <span className={styles.inlineLabel}>Title</span>
-                  <input className={styles.inlineInput} value={title || autoTitle} onChange={e => setTitle(e.target.value)} placeholder="Villa Sunset 3BR - Seminyak" />
+                  <input className={styles.inlineInput} value={title || autoTitle} onChange={e => { if (e.target.value.length <= 80) setTitle(e.target.value) }} placeholder="Villa Sunset 3BR - Seminyak" maxLength={80} />
                 </div>
                 <div className={styles.inlineField} style={{ alignItems: 'flex-start', paddingTop: 16 }}>
                   <span className={styles.inlineLabel} style={{ paddingTop: 2 }}>Description</span>
@@ -405,13 +469,13 @@ export default function PropertyListingForm({ open, onClose, onSubmit, editListi
                       className={styles.inlineInput}
                       style={{ resize: 'none', minHeight: 100, display: 'block', width: '100%', overflow: 'hidden', height: 'auto' }}
                       value={desc || autoDesc}
-                      onChange={e => { if (e.target.value.length <= 350) setDesc(e.target.value) }}
+                      onChange={e => { if (e.target.value.length <= 1500) setDesc(e.target.value) }}
                       placeholder="Property features, neighborhood, views..."
                       rows={5}
                       onInput={e => { e.target.style.height = 'auto'; e.target.style.height = e.target.scrollHeight + 'px' }}
                       ref={el => { if (el) { el.style.height = 'auto'; el.style.height = el.scrollHeight + 'px' } }}
                     />
-                    <span style={{ fontSize: 10, color: 'rgba(255,255,255,0.15)', float: 'right' }}>{(desc || autoDesc).length}/350</span>
+                    <span style={{ fontSize: 10, color: 'rgba(255,255,255,0.15)', float: 'right' }}>{(desc || autoDesc).length}/1,500</span>
                   </div>
                 </div>
                 <div className={styles.inlineField}>
@@ -556,8 +620,352 @@ export default function PropertyListingForm({ open, onClose, onSubmit, editListi
           </div>
         )}
 
-        {/* ═══ STEP 2: RATES + TERMS ═══ */}
+        {/* ═══ STEP 2: ADVANCED DETAILS (Kos / House / Universal) ═══ */}
         {step === 2 && (
+          <div className={styles.form} style={{ paddingTop: 150 }}>
+
+            {/* ── KOS-SPECIFIC FIELDS ── */}
+            {propType === 'Kos' && (
+              <div style={{ background: 'rgba(0,0,0,0.6)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)', border: '1.5px solid rgba(141,198,63,0.2)', borderRadius: 20, padding: '16px 14px', boxShadow: '0 0 20px rgba(141,198,63,0.08)', position: 'relative', zIndex: 1 }}>
+                <h2 className={styles.inlineGroupTitle} style={{ paddingTop: 0, textShadow: '0 0 12px rgba(141,198,63,0.4)' }}>Kos Details</h2>
+                <p style={{ fontSize: 11, color: 'rgba(255,255,255,0.25)', margin: '-4px 0 8px', fontWeight: 500 }}>Tier, gender, bed type & capacity</p>
+                <div style={{ position: 'relative', height: 2, marginBottom: 10, overflow: 'hidden' }}><div style={{ position: 'absolute', width: 60, height: 2, background: 'linear-gradient(90deg, transparent, #8DC63F, transparent)', animation: 'runGlow 3s ease-in-out infinite' }} /></div>
+
+                <div className={styles.inlineGroup}>
+                  {/* Kos Tier */}
+                  <div className={styles.inlineField}>
+                    <span className={styles.inlineLabel}>Kos Tier</span>
+                    <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap', flex: 1 }}>
+                      {KOS_TIER_OPTIONS.map(t => (
+                        <button key={t} onClick={() => setKosTier(t)} style={{ padding: '6px 12px', borderRadius: 8, fontSize: 11, fontWeight: 700, cursor: 'pointer', fontFamily: 'inherit', transition: 'all 0.2s', background: kosTier === t ? 'rgba(141,198,63,0.15)' : 'rgba(255,255,255,0.03)', border: kosTier === t ? '1.5px solid rgba(141,198,63,0.4)' : '1.5px solid rgba(255,255,255,0.08)', color: kosTier === t ? '#8DC63F' : 'rgba(255,255,255,0.4)' }}>{t}</button>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Gender Restriction */}
+                  <div className={styles.inlineField}>
+                    <span className={styles.inlineLabel}>Gender</span>
+                    <div style={{ display: 'flex', gap: 6, flex: 1 }}>
+                      {KOS_GENDER_OPTIONS.map(g => (
+                        <button key={g} onClick={() => setKosGender(g)} style={{ padding: '6px 12px', borderRadius: 8, fontSize: 11, fontWeight: 700, cursor: 'pointer', fontFamily: 'inherit', transition: 'all 0.2s', background: kosGender === g ? 'rgba(141,198,63,0.15)' : 'rgba(255,255,255,0.03)', border: kosGender === g ? '1.5px solid rgba(141,198,63,0.4)' : '1.5px solid rgba(255,255,255,0.08)', color: kosGender === g ? '#8DC63F' : 'rgba(255,255,255,0.4)' }}>{g}</button>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Bed Type */}
+                  <div className={styles.inlineField}>
+                    <span className={styles.inlineLabel}>Bed Type</span>
+                    <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap', flex: 1 }}>
+                      {KOS_BED_TYPE_OPTIONS.map(b => (
+                        <button key={b} onClick={() => setKosBedType(b)} style={{ padding: '6px 10px', borderRadius: 8, fontSize: 10, fontWeight: 700, cursor: 'pointer', fontFamily: 'inherit', transition: 'all 0.2s', background: kosBedType === b ? 'rgba(141,198,63,0.15)' : 'rgba(255,255,255,0.03)', border: kosBedType === b ? '1.5px solid rgba(141,198,63,0.4)' : '1.5px solid rgba(255,255,255,0.08)', color: kosBedType === b ? '#8DC63F' : 'rgba(255,255,255,0.4)' }}>{b}</button>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Max Occupants */}
+                  <div className={styles.inlineField}>
+                    <span className={styles.inlineLabel}>Max Occupants</span>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+                      <button onClick={() => setKosMaxOccupants(String(Math.max(1, Number(kosMaxOccupants) - 1)))} style={{ width: 24, height: 24, borderRadius: '50%', background: '#8DC63F', border: 'none', color: '#000', fontSize: 14, fontWeight: 900, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', lineHeight: 1 }}>-</button>
+                      <span style={{ fontSize: 15, fontWeight: 800, color: '#fff', minWidth: 16, textAlign: 'center' }}>{kosMaxOccupants}</span>
+                      <button onClick={() => setKosMaxOccupants(String(Math.min(4, Number(kosMaxOccupants) + 1)))} style={{ width: 24, height: 24, borderRadius: '50%', background: '#8DC63F', border: 'none', color: '#000', fontSize: 14, fontWeight: 900, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', lineHeight: 1 }}>+</button>
+                    </div>
+                  </div>
+
+                  {/* Available Rooms */}
+                  <div className={styles.inlineField}>
+                    <span className={styles.inlineLabel}>Available Rooms</span>
+                    <input className={`${styles.inlineInput} ${!kosAvailableRooms ? styles.inlineInputEmpty : ''}`} value={kosAvailableRooms} onChange={e => setKosAvailableRooms(e.target.value.replace(/[^0-9]/g, ''))} placeholder="5" inputMode="numeric" />
+                    <span className={styles.inlineSuffix}>rooms</span>
+                  </div>
+
+                  {/* Available From */}
+                  <div className={styles.inlineField}>
+                    <span className={styles.inlineLabel}>Available From</span>
+                    <input className={styles.inlineInput} type="date" value={kosAvailableFrom} onChange={e => setKosAvailableFrom(e.target.value)} />
+                  </div>
+
+                  {/* Minimum Stay */}
+                  <div className={styles.inlineField}>
+                    <span className={styles.inlineLabel}>Min Stay</span>
+                    <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap', flex: 1 }}>
+                      {KOS_MIN_STAY_OPTIONS.map(s => (
+                        <button key={s} onClick={() => setKosMinStay(s)} style={{ padding: '6px 10px', borderRadius: 8, fontSize: 10, fontWeight: 700, cursor: 'pointer', fontFamily: 'inherit', transition: 'all 0.2s', background: kosMinStay === s ? 'rgba(141,198,63,0.15)' : 'rgba(255,255,255,0.03)', border: kosMinStay === s ? '1.5px solid rgba(141,198,63,0.4)' : '1.5px solid rgba(255,255,255,0.08)', color: kosMinStay === s ? '#8DC63F' : 'rgba(255,255,255,0.4)' }}>{s}</button>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Deposit */}
+                  <div className={styles.inlineField}>
+                    <span className={styles.inlineLabel}>Deposit</span>
+                    <span style={{ color: 'rgba(255,255,255,0.2)', fontSize: 14, fontWeight: 600, marginRight: 4 }}>Rp</span>
+                    <input className={`${styles.inlineInput} ${!kosDepositAmount ? styles.inlineInputEmpty : ''}`} value={kosDepositAmount} onChange={e => setKosDepositAmount(e.target.value.replace(/[^0-9.]/g, ''))} placeholder="500.000" inputMode="decimal" />
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* ── KOS ROOM FACILITIES ── */}
+            {propType === 'Kos' && (
+              <div style={{ background: 'rgba(0,0,0,0.6)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)', border: '1.5px solid rgba(141,198,63,0.2)', borderRadius: 20, padding: '16px 14px', boxShadow: '0 0 20px rgba(141,198,63,0.08)', position: 'relative', zIndex: 1 }}>
+                <h2 className={styles.inlineGroupTitle} style={{ paddingTop: 0, textShadow: '0 0 12px rgba(141,198,63,0.4)' }}>Room Facilities</h2>
+                <p style={{ fontSize: 11, color: 'rgba(255,255,255,0.25)', margin: '-4px 0 8px', fontWeight: 500 }}>In-room amenities</p>
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 8 }}>
+                  {KOS_ROOM_FACILITIES.map(f => {
+                    const active = kosRoomFacilities.includes(f)
+                    return (
+                      <button key={f} onClick={() => setKosRoomFacilities(prev => active ? prev.filter(x => x !== f) : [...prev, f])} style={{
+                        padding: '12px 6px', borderRadius: 12, textAlign: 'center', cursor: 'pointer', fontFamily: 'inherit', transition: 'all 0.2s',
+                        background: active ? 'rgba(141,198,63,0.12)' : 'rgba(255,255,255,0.02)',
+                        border: active ? '1.5px solid rgba(141,198,63,0.3)' : '1.5px solid rgba(255,255,255,0.06)',
+                        boxShadow: active ? '0 0 12px rgba(141,198,63,0.15)' : 'none',
+                      }}>
+                        <div style={{ fontSize: 10, fontWeight: 700, color: active ? '#8DC63F' : 'rgba(255,255,255,0.3)' }}>{f}</div>
+                      </button>
+                    )
+                  })}
+                </div>
+
+                <h3 style={{ fontSize: 12, fontWeight: 800, color: 'rgba(255,255,255,0.5)', margin: '14px 0 8px' }}>Shared Facilities</h3>
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 8 }}>
+                  {KOS_SHARED_FACILITIES.map(f => {
+                    const active = kosSharedFacilities.includes(f)
+                    return (
+                      <button key={f} onClick={() => setKosSharedFacilities(prev => active ? prev.filter(x => x !== f) : [...prev, f])} style={{
+                        padding: '12px 6px', borderRadius: 12, textAlign: 'center', cursor: 'pointer', fontFamily: 'inherit', transition: 'all 0.2s',
+                        background: active ? 'rgba(141,198,63,0.12)' : 'rgba(255,255,255,0.02)',
+                        border: active ? '1.5px solid rgba(141,198,63,0.3)' : '1.5px solid rgba(255,255,255,0.06)',
+                        boxShadow: active ? '0 0 12px rgba(141,198,63,0.15)' : 'none',
+                      }}>
+                        <div style={{ fontSize: 10, fontWeight: 700, color: active ? '#8DC63F' : 'rgba(255,255,255,0.3)' }}>{f}</div>
+                      </button>
+                    )
+                  })}
+                </div>
+              </div>
+            )}
+
+            {/* ── KOS INCLUSIONS & RULES ── */}
+            {propType === 'Kos' && (
+              <div style={{ background: 'rgba(0,0,0,0.6)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)', border: '1.5px solid rgba(141,198,63,0.2)', borderRadius: 20, padding: '16px 14px', boxShadow: '0 0 20px rgba(141,198,63,0.08)', position: 'relative', zIndex: 1 }}>
+                <h2 className={styles.inlineGroupTitle} style={{ paddingTop: 0, textShadow: '0 0 12px rgba(141,198,63,0.4)' }}>Inclusions & Rules</h2>
+                <p style={{ fontSize: 11, color: 'rgba(255,255,255,0.25)', margin: '-4px 0 8px', fontWeight: 500 }}>What is and isn't included in rent</p>
+                <div style={{ position: 'relative', height: 2, marginBottom: 10, overflow: 'hidden' }}><div style={{ position: 'absolute', width: 60, height: 2, background: 'linear-gradient(90deg, transparent, #8DC63F, transparent)', animation: 'runGlow 3s ease-in-out infinite' }} /></div>
+
+                <h3 style={{ fontSize: 11, fontWeight: 800, color: '#8DC63F', margin: '0 0 8px' }}>Included in Rent</h3>
+                <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap', marginBottom: 12 }}>
+                  {KOS_INCLUDED_OPTIONS.map(o => {
+                    const active = kosIncluded.includes(o)
+                    return (
+                      <button key={o} onClick={() => setKosIncluded(prev => active ? prev.filter(x => x !== o) : [...prev, o])} style={{ padding: '6px 12px', borderRadius: 8, fontSize: 11, fontWeight: 700, cursor: 'pointer', fontFamily: 'inherit', background: active ? 'rgba(141,198,63,0.15)' : 'rgba(255,255,255,0.03)', border: active ? '1.5px solid rgba(141,198,63,0.4)' : '1.5px solid rgba(255,255,255,0.08)', color: active ? '#8DC63F' : 'rgba(255,255,255,0.4)' }}>{o}</button>
+                    )
+                  })}
+                </div>
+
+                <h3 style={{ fontSize: 11, fontWeight: 800, color: '#EF4444', margin: '0 0 8px' }}>Excluded (Extra Cost)</h3>
+                <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap', marginBottom: 14 }}>
+                  {KOS_EXCLUDED_OPTIONS.map(o => {
+                    const active = kosExcluded.includes(o)
+                    return (
+                      <button key={o} onClick={() => setKosExcluded(prev => active ? prev.filter(x => x !== o) : [...prev, o])} style={{ padding: '6px 12px', borderRadius: 8, fontSize: 11, fontWeight: 700, cursor: 'pointer', fontFamily: 'inherit', background: active ? 'rgba(239,68,68,0.12)' : 'rgba(255,255,255,0.03)', border: active ? '1.5px solid rgba(239,68,68,0.3)' : '1.5px solid rgba(255,255,255,0.08)', color: active ? '#EF4444' : 'rgba(255,255,255,0.4)' }}>{o}</button>
+                    )
+                  })}
+                </div>
+
+                <div className={styles.inlineGroup}>
+                  {/* Guest Visiting Hours */}
+                  <div className={styles.inlineField}>
+                    <span className={styles.inlineLabel}>Guest Hours Until</span>
+                    <input className={styles.inlineInput} type="time" value={kosGuestHours} onChange={e => setKosGuestHours(e.target.value)} />
+                  </div>
+
+                  {/* Couples/Opposite Gender */}
+                  <div className={styles.inlineField}>
+                    <span className={styles.inlineLabel}>Couples Allowed</span>
+                    <button onClick={() => setKosCouplesAllowed(!kosCouplesAllowed)} style={{ background: 'none', border: 'none', color: kosCouplesAllowed ? '#8DC63F' : 'rgba(255,255,255,0.3)', fontSize: 15, fontWeight: 700, cursor: 'pointer', fontFamily: 'inherit', padding: 0, flex: 1, textAlign: 'left' }}>
+                      {kosCouplesAllowed ? 'Yes' : 'No'}
+                    </button>
+                  </div>
+
+                  {/* 24-hour Access */}
+                  <div className={styles.inlineField}>
+                    <span className={styles.inlineLabel}>24-Hour Access</span>
+                    <button onClick={() => setKos24HourAccess(!kos24HourAccess)} style={{ background: 'none', border: 'none', color: kos24HourAccess ? '#8DC63F' : 'rgba(255,255,255,0.3)', fontSize: 15, fontWeight: 700, cursor: 'pointer', fontFamily: 'inherit', padding: 0, flex: 1, textAlign: 'left' }}>
+                      {kos24HourAccess ? 'Yes' : 'No'}
+                    </button>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* ── HOUSE/VILLA-SPECIFIC FIELDS ── */}
+            {(propType === 'House' || propType === 'Villa') && (
+              <div style={{ background: 'rgba(0,0,0,0.6)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)', border: '1.5px solid rgba(141,198,63,0.2)', borderRadius: 20, padding: '16px 14px', boxShadow: '0 0 20px rgba(141,198,63,0.08)', position: 'relative', zIndex: 1 }}>
+                <h2 className={styles.inlineGroupTitle} style={{ paddingTop: 0, textShadow: '0 0 12px rgba(141,198,63,0.4)' }}>Property Specifications</h2>
+                <p style={{ fontSize: 11, color: 'rgba(255,255,255,0.25)', margin: '-4px 0 8px', fontWeight: 500 }}>Land, building & infrastructure details</p>
+                <div style={{ position: 'relative', height: 2, marginBottom: 10, overflow: 'hidden' }}><div style={{ position: 'absolute', width: 60, height: 2, background: 'linear-gradient(90deg, transparent, #8DC63F, transparent)', animation: 'runGlow 3s ease-in-out infinite' }} /></div>
+
+                <div className={styles.inlineGroup}>
+                  {/* Land Area */}
+                  <div className={styles.inlineField}>
+                    <span className={styles.inlineLabel}>Land Area</span>
+                    <input className={`${styles.inlineInput} ${!landArea ? styles.inlineInputEmpty : ''}`} value={landArea} onChange={e => setLandArea(e.target.value.replace(/[^0-9]/g, ''))} placeholder="200" inputMode="numeric" />
+                    <span className={styles.inlineSuffix}>m2</span>
+                  </div>
+
+                  {/* Building Area */}
+                  <div className={styles.inlineField}>
+                    <span className={styles.inlineLabel}>Building Area</span>
+                    <input className={`${styles.inlineInput} ${!buildingArea ? styles.inlineInputEmpty : ''}`} value={buildingArea} onChange={e => setBuildingArea(e.target.value.replace(/[^0-9]/g, ''))} placeholder="150" inputMode="numeric" />
+                    <span className={styles.inlineSuffix}>m2</span>
+                  </div>
+
+                  {/* Number of Floors */}
+                  <div className={styles.inlineField}>
+                    <span className={styles.inlineLabel}>Floors</span>
+                    <input className={`${styles.inlineInput} ${!numFloors ? styles.inlineInputEmpty : ''}`} value={numFloors} onChange={e => setNumFloors(e.target.value.replace(/[^0-9]/g, ''))} placeholder="2" inputMode="numeric" />
+                  </div>
+
+                  {/* Garages/Carports */}
+                  <div className={styles.inlineField}>
+                    <span className={styles.inlineLabel}>Garage/Carport</span>
+                    <input className={`${styles.inlineInput} ${!numGarages ? styles.inlineInputEmpty : ''}`} value={numGarages} onChange={e => setNumGarages(e.target.value.replace(/[^0-9]/g, ''))} placeholder="1" inputMode="numeric" />
+                  </div>
+
+                  {/* Electricity Capacity */}
+                  <div className={styles.inlineField}>
+                    <span className={styles.inlineLabel}>Electricity</span>
+                    <div style={{ display: 'flex', gap: 5, flexWrap: 'wrap', flex: 1 }}>
+                      {ELECTRICITY_CAPACITY_OPTIONS.map(e => (
+                        <button key={e} onClick={() => setElectricityCapacity(e)} style={{ padding: '5px 8px', borderRadius: 6, fontSize: 9, fontWeight: 700, cursor: 'pointer', fontFamily: 'inherit', background: electricityCapacity === e ? 'rgba(141,198,63,0.15)' : 'rgba(255,255,255,0.03)', border: electricityCapacity === e ? '1.5px solid rgba(141,198,63,0.4)' : '1.5px solid rgba(255,255,255,0.08)', color: electricityCapacity === e ? '#8DC63F' : 'rgba(255,255,255,0.4)' }}>{e}</button>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Water Type */}
+                  <div className={styles.inlineField}>
+                    <span className={styles.inlineLabel}>Water Source</span>
+                    <div style={{ display: 'flex', gap: 6, flex: 1 }}>
+                      {WATER_TYPE_OPTIONS.map(w => (
+                        <button key={w} onClick={() => setWaterType(w)} style={{ padding: '6px 14px', borderRadius: 8, fontSize: 11, fontWeight: 700, cursor: 'pointer', fontFamily: 'inherit', background: waterType === w ? 'rgba(141,198,63,0.15)' : 'rgba(255,255,255,0.03)', border: waterType === w ? '1.5px solid rgba(141,198,63,0.4)' : '1.5px solid rgba(255,255,255,0.08)', color: waterType === w ? '#8DC63F' : 'rgba(255,255,255,0.4)' }}>{w}</button>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Certificate Type */}
+                  <div className={styles.inlineField}>
+                    <span className={styles.inlineLabel}>Certificate</span>
+                    <div style={{ display: 'flex', gap: 5, flexWrap: 'wrap', flex: 1 }}>
+                      {CERTIFICATE_TYPE_OPTIONS.map(c => (
+                        <button key={c} onClick={() => setCertificateType(c)} style={{ padding: '5px 8px', borderRadius: 6, fontSize: 9, fontWeight: 700, cursor: 'pointer', fontFamily: 'inherit', background: certificateType === c ? 'rgba(141,198,63,0.15)' : 'rgba(255,255,255,0.03)', border: certificateType === c ? '1.5px solid rgba(141,198,63,0.4)' : '1.5px solid rgba(255,255,255,0.08)', color: certificateType === c ? '#8DC63F' : 'rgba(255,255,255,0.4)' }}>{c}</button>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Facing Direction */}
+                  <div className={styles.inlineField}>
+                    <span className={styles.inlineLabel}>Facing</span>
+                    <div style={{ display: 'flex', gap: 6, flex: 1 }}>
+                      {FACING_DIRECTION_OPTIONS.map(d => (
+                        <button key={d} onClick={() => setFacingDirection(d)} style={{ padding: '6px 10px', borderRadius: 8, fontSize: 11, fontWeight: 700, cursor: 'pointer', fontFamily: 'inherit', background: facingDirection === d ? 'rgba(141,198,63,0.15)' : 'rgba(255,255,255,0.03)', border: facingDirection === d ? '1.5px solid rgba(141,198,63,0.4)' : '1.5px solid rgba(255,255,255,0.08)', color: facingDirection === d ? '#8DC63F' : 'rgba(255,255,255,0.4)' }}>{d}</button>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Year Built */}
+                  <div className={styles.inlineField}>
+                    <span className={styles.inlineLabel}>Year Built</span>
+                    <input className={`${styles.inlineInput} ${!yearBuilt ? styles.inlineInputEmpty : ''}`} value={yearBuilt} onChange={e => setYearBuilt(e.target.value.replace(/[^0-9]/g, ''))} placeholder="2020" inputMode="numeric" maxLength={4} />
+                  </div>
+
+                  {/* Access Road Width */}
+                  <div className={styles.inlineField}>
+                    <span className={styles.inlineLabel}>Road Width</span>
+                    <input className={`${styles.inlineInput} ${!accessRoadWidth ? styles.inlineInputEmpty : ''}`} value={accessRoadWidth} onChange={e => setAccessRoadWidth(e.target.value.replace(/[^0-9.]/g, ''))} placeholder="6" inputMode="decimal" />
+                    <span className={styles.inlineSuffix}>meters</span>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* ── HOUSE/VILLA LOCATION FEATURES ── */}
+            {(propType === 'House' || propType === 'Villa') && (
+              <div style={{ background: 'rgba(0,0,0,0.6)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)', border: '1.5px solid rgba(141,198,63,0.2)', borderRadius: 20, padding: '16px 14px', boxShadow: '0 0 20px rgba(141,198,63,0.08)', position: 'relative', zIndex: 1 }}>
+                <h2 className={styles.inlineGroupTitle} style={{ paddingTop: 0, textShadow: '0 0 12px rgba(141,198,63,0.4)' }}>Location Features</h2>
+                <p style={{ fontSize: 11, color: 'rgba(255,255,255,0.25)', margin: '-4px 0 8px', fontWeight: 500 }}>Environment & accessibility</p>
+                <div style={{ position: 'relative', height: 2, marginBottom: 10, overflow: 'hidden' }}><div style={{ position: 'absolute', width: 60, height: 2, background: 'linear-gradient(90deg, transparent, #8DC63F, transparent)', animation: 'runGlow 3s ease-in-out infinite' }} /></div>
+
+                <div className={styles.inlineGroup}>
+                  <div className={styles.inlineField}>
+                    <span className={styles.inlineLabel}>Flood Free</span>
+                    <button onClick={() => setFloodFree(!floodFree)} style={{ background: 'none', border: 'none', color: floodFree ? '#8DC63F' : 'rgba(255,255,255,0.3)', fontSize: 15, fontWeight: 700, cursor: 'pointer', fontFamily: 'inherit', padding: 0, flex: 1, textAlign: 'left' }}>
+                      {floodFree ? 'Yes' : 'No'}
+                    </button>
+                  </div>
+                  <div className={styles.inlineField}>
+                    <span className={styles.inlineLabel}>Near Toll Road</span>
+                    <button onClick={() => setNearTollRoad(!nearTollRoad)} style={{ background: 'none', border: 'none', color: nearTollRoad ? '#8DC63F' : 'rgba(255,255,255,0.3)', fontSize: 15, fontWeight: 700, cursor: 'pointer', fontFamily: 'inherit', padding: 0, flex: 1, textAlign: 'left' }}>
+                      {nearTollRoad ? 'Yes' : 'No'}
+                    </button>
+                  </div>
+                  <div className={styles.inlineField}>
+                    <span className={styles.inlineLabel}>Near Public Transport</span>
+                    <button onClick={() => setNearPublicTransport(!nearPublicTransport)} style={{ background: 'none', border: 'none', color: nearPublicTransport ? '#8DC63F' : 'rgba(255,255,255,0.3)', fontSize: 15, fontWeight: 700, cursor: 'pointer', fontFamily: 'inherit', padding: 0, flex: 1, textAlign: 'left' }}>
+                      {nearPublicTransport ? 'Yes' : 'No'}
+                    </button>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* ── UNIVERSAL FIELDS (all property types) ── */}
+            <div style={{ background: 'rgba(0,0,0,0.6)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)', border: '1.5px solid rgba(141,198,63,0.2)', borderRadius: 20, padding: '16px 14px', boxShadow: '0 0 20px rgba(141,198,63,0.08)', position: 'relative', zIndex: 1 }}>
+              <h2 className={styles.inlineGroupTitle} style={{ paddingTop: 0, textShadow: '0 0 12px rgba(141,198,63,0.4)' }}>Media & Policies</h2>
+              <p style={{ fontSize: 11, color: 'rgba(255,255,255,0.25)', margin: '-4px 0 8px', fontWeight: 500 }}>Video tour, floor plan & cancellation</p>
+              <div style={{ position: 'relative', height: 2, marginBottom: 10, overflow: 'hidden' }}><div style={{ position: 'absolute', width: 60, height: 2, background: 'linear-gradient(90deg, transparent, #8DC63F, transparent)', animation: 'runGlow 3s ease-in-out infinite' }} /></div>
+
+              <div className={styles.inlineGroup}>
+                {/* Video Tour URL */}
+                <div className={styles.inlineField}>
+                  <span className={styles.inlineLabel}>Video Tour</span>
+                  <input className={`${styles.inlineInput} ${!videoTourUrl ? styles.inlineInputEmpty : ''}`} value={videoTourUrl} onChange={e => setVideoTourUrl(e.target.value)} placeholder="https://youtube.com/..." />
+                </div>
+
+                {/* Floor Plan Image URL */}
+                <div className={styles.inlineField}>
+                  <span className={styles.inlineLabel}>Floor Plan URL</span>
+                  <input className={`${styles.inlineInput} ${!floorPlanImage ? styles.inlineInputEmpty : ''}`} value={floorPlanImage} onChange={e => setFloorPlanImage(e.target.value)} placeholder="https://..." />
+                </div>
+
+                {/* Cancellation Policy */}
+                <div className={styles.inlineField}>
+                  <span className={styles.inlineLabel}>Cancellation</span>
+                  <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap', flex: 1 }}>
+                    {CANCELLATION_POLICY_OPTIONS.map(p => (
+                      <button key={p} onClick={() => setCancellationPolicy(p)} style={{ padding: '6px 10px', borderRadius: 8, fontSize: 10, fontWeight: 700, cursor: 'pointer', fontFamily: 'inherit', transition: 'all 0.2s', background: cancellationPolicy === p ? 'rgba(141,198,63,0.15)' : 'rgba(255,255,255,0.03)', border: cancellationPolicy === p ? '1.5px solid rgba(141,198,63,0.4)' : '1.5px solid rgba(255,255,255,0.08)', color: cancellationPolicy === p ? '#8DC63F' : 'rgba(255,255,255,0.4)' }}>{p}</button>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Check-in Time */}
+                <div className={styles.inlineField}>
+                  <span className={styles.inlineLabel}>Check-in</span>
+                  <input className={styles.inlineInput} type="time" value={checkIn} onChange={e => setCheckIn(e.target.value)} />
+                </div>
+
+                {/* Check-out Time */}
+                <div className={styles.inlineField}>
+                  <span className={styles.inlineLabel}>Check-out</span>
+                  <input className={styles.inlineInput} type="time" value={checkOut} onChange={e => setCheckOut(e.target.value)} />
+                </div>
+              </div>
+            </div>
+
+          </div>
+        )}
+
+        {/* ═══ STEP 3: RATES + TERMS ═══ */}
+        {step === 3 && (
           <div className={styles.form} style={{ paddingTop: 70 }}>
             {/* Rental Rates */}
             <div style={{ background: 'rgba(0,0,0,0.7)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)', border: '1.5px solid rgba(141,198,63,0.2)', borderRadius: 20, padding: '16px 14px', boxShadow: '0 0 20px rgba(141,198,63,0.08), inset 0 1px 0 rgba(141,198,63,0.05)' }}>
@@ -628,8 +1036,8 @@ export default function PropertyListingForm({ open, onClose, onSubmit, editListi
           </div>
         )}
 
-        {/* ═══ STEP 3: PREVIEW ═══ */}
-        {step === 3 && (
+        {/* ═══ STEP 4: PREVIEW ═══ */}
+        {step === 4 && (
           <div className={styles.form}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 }}>
               <span className={showroomStyles.refBadge}>REF: {propRef}</span>
@@ -821,8 +1229,8 @@ export default function PropertyListingForm({ open, onClose, onSubmit, editListi
         </div>
       )}
 
-      {step <= 3 && (
-        <FormFooter step={step} onNext={() => step === 3 ? handleSubmit() : setStep(s => s + 1)} onDraft={() => {}} canNext={step === 0 ? !!propType : step === 1 ? !!title || !!autoTitle : step === 2 ? !!(nightly || monthly) : true} submitting={submitting} nextLabel={step === 3 ? 'Publish Listing' : step === 2 ? 'Preview' : step === 1 ? 'Set Pricing' : 'Next'} />
+      {step <= 4 && (
+        <FormFooter step={step} onNext={() => step === 4 ? handleSubmit() : setStep(s => s + 1)} onDraft={() => {}} canNext={step === 0 ? !!propType : step === 1 ? !!title || !!autoTitle : step === 2 ? true : step === 3 ? !!(nightly || monthly) : true} submitting={submitting} nextLabel={step === 4 ? 'Publish Listing' : step === 3 ? 'Preview' : step === 2 ? 'Set Pricing' : step === 1 ? 'Advanced Details' : 'Next'} />
       )}
     </div>,
     document.body

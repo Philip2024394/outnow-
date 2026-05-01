@@ -4,8 +4,8 @@ import ContactUsPage from '@/components/ui/ContactUsPage';
 import LegalPage from '@/components/ui/LegalPage';
 import IndooFooter from '@/components/ui/IndooFooter';
 
-const DAY_BG = 'https://ik.imagekit.io/nepgaxllc/ChatGPT%20Image%20Apr%2027,%202026,%2007_28_51%20AM.png?updatedAt=1777249747241';
-const NIGHT_BG = 'https://ik.imagekit.io/nepgaxllc/ChatGPT%20Image%20Apr%2027,%202026,%2007_22_25%20AM.png?updatedAt=1777249363795';
+const DAY_BG = 'https://ik.imagekit.io/nepgaxllc/ChatGPT%20Image%20Apr%2030,%202026,%2004_47_24%20PM.png';
+const NIGHT_BG = 'https://ik.imagekit.io/nepgaxllc/ChatGPT%20Image%20Apr%2030,%202026,%2004_47_24%20PM.png';
 
 const CITIES = [
   'Yogyakarta', 'Jakarta', 'Surabaya', 'Bandung', 'Semarang',
@@ -43,13 +43,28 @@ function loadProfile() {
 function saveProfile(updates) {
   const current = loadProfile();
   const merged = { ...current, ...updates };
-  localStorage.setItem('indoo_demo_profile', JSON.stringify(merged));
+  try {
+    localStorage.setItem('indoo_demo_profile', JSON.stringify(merged));
+  } catch (e) {
+    // Quota exceeded — remove old data and retry without photo
+    try {
+      localStorage.removeItem('indoo_places_yogyakarta');
+      localStorage.removeItem('indoo_chat_history');
+      localStorage.setItem('indoo_demo_profile', JSON.stringify(merged));
+    } catch {
+      // Still full — save without photo
+      const { photo_url, ...rest } = merged;
+      try { localStorage.setItem('indoo_demo_profile', JSON.stringify(rest)); } catch {}
+    }
+  }
   return merged;
 }
 
 export default function SimpleProfileScreen({ onClose }) {
   const [profile, setProfile] = useState(loadProfile);
   const [drawerOpen, setDrawerOpen] = useState(false);
+  const [editingName, setEditingName] = useState(false);
+  const [nameInput, setNameInput] = useState(profile.name || '');
   const [showContact, setShowContact] = useState(false);
   const [showLegal, setShowLegal] = useState(false);
   const [notifications, setNotifications] = useState(profile.notifications !== false);
@@ -159,7 +174,7 @@ export default function SimpleProfileScreen({ onClose }) {
         backgroundImage: `url(${getTimeBasedBg()})`,
         backgroundSize: 'cover',
         backgroundPosition: 'center',
-        opacity: 0.3,
+        opacity: 1,
         pointerEvents: 'none',
       }} />
 
@@ -169,83 +184,104 @@ export default function SimpleProfileScreen({ onClose }) {
 
       {/* Header */}
       <div style={{
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'space-between',
-        padding: '16px 20px',
-        paddingTop: 'max(16px, env(safe-area-inset-top))',
+        display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+        padding: '10px 16px', paddingTop: 'calc(env(safe-area-inset-top, 0px) + 10px)',
       }}>
-        <img src="https://ik.imagekit.io/nepgaxllc/Bold%203D%20_INDOO_%20logo%20design.png?updatedAt=1776203769926" alt="INDOO" style={{ height: 112, objectFit: 'contain' }} />
+        <div>
+          <div style={{ fontSize: 22, fontWeight: 900, lineHeight: 1 }}>
+            <span style={{ color: '#fff' }}>IND</span><span style={{ color: '#8DC63F' }}>OO</span>
+          </div>
+          <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.4)', fontWeight: 600, marginTop: 2 }}>My Profile</div>
+        </div>
         <button
           onClick={() => setDrawerOpen(true)}
           style={{
-            background: 'none',
-            border: 'none',
-            fontSize: 34,
-            cursor: 'pointer',
-            padding: 8,
-            minWidth: 44,
-            minHeight: 44,
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
+            width: 38, height: 38, borderRadius: 12,
+            background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.1)',
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+            cursor: 'pointer', flexShrink: 0,
           }}
           aria-label="Settings"
         >
-          <span role="img" aria-label="settings">⚙️</span>
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.6)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-2 2 2 2 0 01-2-2v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83 0 2 2 0 010-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 01-2-2 2 2 0 012-2h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 010-2.83 2 2 0 012.83 0l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 012-2 2 2 0 012 2v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 0 2 2 0 010 2.83l-.06.06a1.65 1.65 0 00-.33 1.82V9a1.65 1.65 0 001.51 1H21a2 2 0 012 2 2 2 0 01-2 2h-.09a1.65 1.65 0 00-1.51 1z"/></svg>
         </button>
       </div>
 
       {/* Content */}
       <div
         style={{
-          padding: '0 20px 100px 20px',
+          padding: '0 16px 100px 16px',
         }}
       >
         {/* Profile Card */}
         <div ref={profileCardRef} style={{ ...GLASS, textAlign: 'center', paddingTop: 28, paddingBottom: 24 }}>
+          {/* Photo with glow ring */}
           <div style={{
-            width: 80,
-            height: 80,
-            borderRadius: '50%',
-            border: `3px solid ${GREEN}`,
-            margin: '0 auto 12px',
-            overflow: 'hidden',
-            background: 'rgba(255,255,255,0.1)',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
+            width: 110, height: 110, borderRadius: '50%', margin: '0 auto 14px', position: 'relative',
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
           }}>
-            {profile.photo ? (
-              <img
-                src={profile.photo}
-                alt="Profile"
-                style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+            {/* Animated glow ring */}
+            <div style={{
+              position: 'absolute', inset: -4, borderRadius: '50%',
+              background: `conic-gradient(from 0deg, ${GREEN}, rgba(141,198,63,0.1), ${GREEN})`,
+              animation: 'profileRingSpin 4s linear infinite',
+            }} />
+            <style>{`@keyframes profileRingSpin { to { transform: rotate(360deg); } }`}</style>
+            <div style={{
+              width: 102, height: 102, borderRadius: '50%', overflow: 'hidden',
+              background: '#111', display: 'flex', alignItems: 'center', justifyContent: 'center',
+              position: 'relative', zIndex: 1, border: '3px solid #080808',
+            }}>
+              {profile.photo ? (
+                <img src={profile.photo} alt="Profile" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+              ) : (
+                <span style={{ fontSize: 44, color: 'rgba(255,255,255,0.3)' }}>👤</span>
+              )}
+            </div>
+            {/* Camera badge */}
+            <div onClick={handlePhotoUpload} style={{
+              position: 'absolute', bottom: 2, right: 2, zIndex: 2,
+              width: 32, height: 32, borderRadius: '50%',
+              background: GREEN, border: '3px solid #080808',
+              display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer',
+            }}>
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#000" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M23 19a2 2 0 01-2 2H3a2 2 0 01-2-2V8a2 2 0 012-2h4l2-3h6l2 3h4a2 2 0 012 2z"/><circle cx="12" cy="13" r="4"/></svg>
+            </div>
+          </div>
+
+          {/* Name — editable */}
+          {editingName ? (
+            <div style={{ display: 'flex', alignItems: 'center', gap: 8, justifyContent: 'center', marginBottom: 4 }}>
+              <input
+                autoFocus
+                value={nameInput}
+                onChange={e => setNameInput(e.target.value)}
+                onKeyDown={e => { if (e.key === 'Enter') { const updated = saveProfile({ name: nameInput.trim() || 'User' }); setProfile(updated); setEditingName(false) } }}
+                style={{ padding: '8px 14px', borderRadius: 10, border: `1px solid ${GREEN}`, background: 'rgba(255,255,255,0.08)', color: '#fff', fontSize: 18, fontWeight: 900, textAlign: 'center', outline: 'none', fontFamily: 'inherit', width: 200 }}
               />
-            ) : (
-              <span style={{ fontSize: 36, color: 'rgba(255,255,255,0.5)' }}>👤</span>
-            )}
-          </div>
-          <div style={{ fontSize: 20, fontWeight: 'bold', color: '#fff', marginBottom: 4 }}>
-            {profile.name || 'User'}
-          </div>
-          <div style={{ fontSize: 14, color: 'rgba(255,255,255,0.5)', marginBottom: 14 }}>
+              <button onClick={() => { const updated = saveProfile({ name: nameInput.trim() || 'User' }); setProfile(updated); setEditingName(false) }} style={{ width: 36, height: 36, borderRadius: 10, background: GREEN, border: 'none', color: '#000', fontSize: 14, fontWeight: 900, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>✓</button>
+            </div>
+          ) : (
+            <div style={{ fontSize: 22, fontWeight: 900, color: '#fff', marginBottom: 4 }}>
+              {profile.name || 'User'}
+            </div>
+          )}
+
+          <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.45)', marginBottom: 14 }}>
             {profile.city || city}
           </div>
+
           <button
-            onClick={handlePhotoUpload}
+            onClick={() => { setNameInput(profile.name || ''); setEditingName(true) }}
             style={{
-              background: 'transparent',
-              border: `1px solid ${GREEN}`,
-              color: GREEN,
-              borderRadius: 20,
-              padding: '6px 18px',
-              fontSize: 13,
-              cursor: 'pointer',
-              minHeight: 44,
+              background: 'rgba(141,198,63,0.12)', border: `1.5px solid rgba(141,198,63,0.3)`,
+              color: GREEN, borderRadius: 14, padding: '10px 24px',
+              fontSize: 14, fontWeight: 800, cursor: 'pointer', fontFamily: 'inherit',
+              display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6, margin: '0 auto',
             }}
           >
-            Edit Photo
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke={GREEN} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+            Edit Profile
           </button>
         </div>
 
@@ -379,7 +415,7 @@ export default function SimpleProfileScreen({ onClose }) {
                   )}
                   <div style={{ display: 'flex', gap: 8, marginTop: 8 }}>
                     <button onClick={() => { if (locInput.trim()) saveLocation(loc.key, locInput.trim()) }} style={{ flex: 1, padding: 10, borderRadius: 10, background: '#8DC63F', border: 'none', color: '#000', fontSize: 13, fontWeight: 800, cursor: 'pointer' }}>Save</button>
-                    <button onClick={() => { setEditingLoc(null); setLocInput(''); setLocSuggestions([]) }} style={{ padding: '10px 16px', borderRadius: 10, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)', color: 'rgba(255,255,255,0.5)', fontSize: 13, fontWeight: 700, cursor: 'pointer' }}>Cancel</button>
+                    <button onClick={() => { setEditingLoc(null); setLocInput(''); setLocSuggestions([]) }} style={{ padding: '10px 16px', borderRadius: 10, background: '#7F1D1D', border: 'none', color: '#fff', fontSize: 13, fontWeight: 700, cursor: 'pointer' }}>Cancel</button>
                   </div>
                 </div>
               ) : (
@@ -525,101 +561,122 @@ export default function SimpleProfileScreen({ onClose }) {
         <div
           onClick={() => setDrawerOpen(false)}
           style={{
-            position: 'fixed',
-            top: 0, left: 0, right: 0, bottom: 0,
-            background: 'rgba(0,0,0,0.5)',
-            zIndex: 10001,
+            position: 'fixed', inset: 0, zIndex: 10001,
+            background: 'rgba(0,0,0,0.6)', backdropFilter: 'blur(4px)',
+            animation: 'drawerFadeIn 0.3s ease',
           }}
         />
       )}
+      <style>{`
+        @keyframes drawerFadeIn { from { opacity: 0; } to { opacity: 1; } }
+        @keyframes drawerEdgeLight { 0% { top: -80px; } 100% { top: 100%; } }
+        @keyframes drawerSlideIn { from { transform: translateX(100%); } to { transform: translateX(0); } }
+      `}</style>
 
       {/* Settings Drawer */}
       <div style={{
-        position: 'fixed',
-        top: 0,
-        right: drawerOpen ? 0 : -300,
-        bottom: 0,
-        width: 280,
-        zIndex: 10002,
-        background: 'rgba(0,0,0,0.75)',
-        backdropFilter: 'blur(20px)',
-        WebkitBackdropFilter: 'blur(20px)',
-        borderLeft: '3px solid rgba(141,198,63,0.3)',
-        transition: 'right 0.3s ease',
-        display: 'flex',
-        flexDirection: 'column',
-        paddingTop: 'max(20px, env(safe-area-inset-top))',
-        overflow: 'hidden',
+        position: 'fixed', top: 0, right: drawerOpen ? 0 : -320, bottom: 0,
+        width: 300, zIndex: 10002,
+        background: 'rgba(8,8,12,0.85)', backdropFilter: 'blur(30px)', WebkitBackdropFilter: 'blur(30px)',
+        borderLeft: '2px solid rgba(141,198,63,0.2)',
+        transition: 'right 0.35s cubic-bezier(0.32,0.72,0,1)',
+        display: 'flex', flexDirection: 'column', overflow: 'hidden',
       }}>
         {/* Green running light on left edge */}
-        <div style={{ position: 'absolute', top: 0, left: -3, width: 3, height: '100%', overflow: 'hidden', zIndex: 1 }}>
-          <div style={{ position: 'absolute', width: '100%', height: 60, background: 'linear-gradient(180deg, transparent, #8DC63F, transparent)', animation: 'drawerEdgeLight 3s linear infinite' }} />
+        <div style={{ position: 'absolute', top: 0, left: -2, width: 2, height: '100%', overflow: 'hidden', zIndex: 1 }}>
+          <div style={{ position: 'absolute', width: '100%', height: 80, background: 'linear-gradient(180deg, transparent, #8DC63F, #a8e650, #8DC63F, transparent)', animation: 'drawerEdgeLight 2.5s linear infinite' }} />
         </div>
-        <style>{`@keyframes drawerEdgeLight { 0% { top: -60px; } 100% { top: 100%; } }`}</style>
+
+        {/* Header */}
         <div style={{
-          padding: '16px 20px',
-          borderBottom: '1px solid rgba(255,255,255,0.1)',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'space-between',
+          padding: 'calc(env(safe-area-inset-top, 0px) + 16px) 16px 14px',
+          display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+          borderBottom: '1px solid rgba(141,198,63,0.1)',
         }}>
-          <span style={{ fontSize: 18, fontWeight: 'bold', color: '#fff' }}>Settings</span>
-          <button
-            onClick={() => setDrawerOpen(false)}
-            style={{
-              background: 'none',
-              border: 'none',
-              color: '#fff',
-              fontSize: 22,
-              cursor: 'pointer',
-              minWidth: 44,
-              minHeight: 44,
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-            }}
-            aria-label="Close settings"
-          >
-            ✕
+          <div>
+            <div style={{ fontSize: 18, fontWeight: 900, color: '#fff' }}>Settings</div>
+            <div style={{ fontSize: 10, color: 'rgba(141,198,63,0.5)', fontWeight: 600, marginTop: 2 }}>Manage your account</div>
+          </div>
+          <button onClick={() => setDrawerOpen(false)} style={{
+            width: 34, height: 34, borderRadius: 10,
+            background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)',
+            display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer',
+          }}>
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2.5" strokeLinecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
           </button>
         </div>
 
-        <div style={{ flex: 1, overflowY: 'auto', padding: '12px 0' }}>
+        {/* Menu items */}
+        <div style={{ flex: 1, overflowY: 'auto', padding: '14px 12px' }}>
+          {/* Account section */}
+          <div style={{ fontSize: 10, fontWeight: 700, color: 'rgba(141,198,63,0.5)', letterSpacing: 1, padding: '0 4px 8px', textTransform: 'uppercase' }}>Account</div>
           {[
-            { icon: '👤', label: 'Edit Profile', action: scrollToProfileCard },
-            { icon: '🔒', label: 'Privacy Policy', action: () => { setDrawerOpen(false); setShowLegal(true) } },
-            { icon: '📋', label: 'Terms of Service', action: () => { setDrawerOpen(false); setShowLegal(true) } },
-            { icon: '💰', label: 'Refund Policy', action: () => { setDrawerOpen(false); setShowLegal(true) } },
-            { icon: '📞', label: 'Contact Us', action: () => { setDrawerOpen(false); setShowContact(true); } },
-            { icon: '🔴', label: 'Sign Out', action: handleSignOut },
-          ].map((item) => (
-            <button
-              key={item.label}
-              onClick={item.action}
-              style={{
-                width: 'calc(100% - 24px)',
-                margin: '0 12px 8px',
-                background: 'rgba(255,255,255,0.04)',
-                backdropFilter: 'blur(12px)',
-                border: '1px solid rgba(255,255,255,0.08)',
-                borderRadius: 14,
-                padding: '14px 16px',
-                display: 'flex',
-                alignItems: 'center',
-                gap: 12,
-                cursor: 'pointer',
-                minHeight: 44,
-              }}
-            >
-              <span style={{ fontSize: 18 }}>{item.icon}</span>
-              <span style={{
-                fontSize: 15,
-                color: item.label === 'Sign Out' ? '#ff4444' : '#fff',
-              }}>
-                {item.label}
-              </span>
+            { icon: <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#8DC63F" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>, label: 'Edit Profile', action: scrollToProfileCard },
+            { icon: <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#8DC63F" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg>, label: 'Privacy & Security', action: () => { setDrawerOpen(false); setShowLegal(true) } },
+          ].map(item => (
+            <button key={item.label} onClick={item.action} style={{
+              width: '100%', marginBottom: 6, padding: '13px 14px', borderRadius: 14,
+              background: 'rgba(255,255,255,0.04)', backdropFilter: 'blur(12px)',
+              border: '1px solid rgba(255,255,255,0.06)',
+              display: 'flex', alignItems: 'center', gap: 12, cursor: 'pointer',
+              transition: 'background 0.15s',
+            }}>
+              <div style={{ width: 36, height: 36, borderRadius: 10, background: 'rgba(141,198,63,0.08)', border: '1px solid rgba(141,198,63,0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>{item.icon}</div>
+              <span style={{ fontSize: 14, fontWeight: 700, color: '#fff', flex: 1, textAlign: 'left' }}>{item.label}</span>
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.2)" strokeWidth="2" strokeLinecap="round"><path d="M9 18l6-6-6-6"/></svg>
             </button>
           ))}
+
+          {/* Legal section */}
+          <div style={{ fontSize: 10, fontWeight: 700, color: 'rgba(141,198,63,0.5)', letterSpacing: 1, padding: '14px 4px 8px', textTransform: 'uppercase' }}>Legal</div>
+          {[
+            { icon: <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#60A5FA" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>, label: 'Terms of Service', color: '#60A5FA' },
+            { icon: <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#FACC15" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>, label: 'Refund Policy', color: '#FACC15' },
+          ].map(item => (
+            <button key={item.label} onClick={() => { setDrawerOpen(false); setShowLegal(true) }} style={{
+              width: '100%', marginBottom: 6, padding: '13px 14px', borderRadius: 14,
+              background: 'rgba(255,255,255,0.04)', backdropFilter: 'blur(12px)',
+              border: '1px solid rgba(255,255,255,0.06)',
+              display: 'flex', alignItems: 'center', gap: 12, cursor: 'pointer',
+            }}>
+              <div style={{ width: 36, height: 36, borderRadius: 10, background: `rgba(255,255,255,0.04)`, border: '1px solid rgba(255,255,255,0.08)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>{item.icon}</div>
+              <span style={{ fontSize: 14, fontWeight: 700, color: '#fff', flex: 1, textAlign: 'left' }}>{item.label}</span>
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.2)" strokeWidth="2" strokeLinecap="round"><path d="M9 18l6-6-6-6"/></svg>
+            </button>
+          ))}
+
+          {/* Support section */}
+          <div style={{ fontSize: 10, fontWeight: 700, color: 'rgba(141,198,63,0.5)', letterSpacing: 1, padding: '14px 4px 8px', textTransform: 'uppercase' }}>Support</div>
+          <button onClick={() => { setDrawerOpen(false); setShowContact(true) }} style={{
+            width: '100%', marginBottom: 6, padding: '13px 14px', borderRadius: 14,
+            background: 'rgba(255,255,255,0.04)', backdropFilter: 'blur(12px)',
+            border: '1px solid rgba(255,255,255,0.06)',
+            display: 'flex', alignItems: 'center', gap: 12, cursor: 'pointer',
+          }}>
+            <div style={{ width: 36, height: 36, borderRadius: 10, background: 'rgba(34,197,94,0.08)', border: '1px solid rgba(34,197,94,0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#22C55E" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>
+            </div>
+            <span style={{ fontSize: 14, fontWeight: 700, color: '#fff', flex: 1, textAlign: 'left' }}>Contact Us</span>
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.2)" strokeWidth="2" strokeLinecap="round"><path d="M9 18l6-6-6-6"/></svg>
+          </button>
+
+          {/* Sign Out */}
+          <div style={{ padding: '20px 0 10px' }}>
+            <button onClick={handleSignOut} style={{
+              width: '100%', padding: '14px', borderRadius: 14,
+              background: 'rgba(127,29,29,0.2)', border: '1px solid rgba(239,68,68,0.2)',
+              display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8, cursor: 'pointer',
+            }}>
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#EF4444" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+              <span style={{ fontSize: 14, fontWeight: 800, color: '#EF4444' }}>Sign Out</span>
+            </button>
+          </div>
+        </div>
+
+        {/* Footer brand */}
+        <div style={{ padding: '12px 16px', borderTop: '1px solid rgba(255,255,255,0.04)', textAlign: 'center' }}>
+          <span style={{ fontSize: 12, fontWeight: 800 }}><span style={{ color: 'rgba(255,255,255,0.3)' }}>IND</span><span style={{ color: 'rgba(141,198,63,0.4)' }}>OO</span></span>
+          <div style={{ fontSize: 9, color: 'rgba(255,255,255,0.15)', marginTop: 2 }}>v1.0 · Yogyakarta</div>
         </div>
       </div>
     </div>

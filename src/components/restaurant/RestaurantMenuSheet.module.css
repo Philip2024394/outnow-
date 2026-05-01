@@ -1,7 +1,7 @@
-/* ── Screen ──────────────────────────────────────────────────────────────────── */
+/* ── Screen ── cache-bust-v2 ──────────────────────────────────────────────── */
 .screen {
   position: fixed; inset: 0; z-index: 9500;
-  background: #000;
+  background: #0a0a0a;
   display: flex; flex-direction: column;
   overflow: hidden;
 }
@@ -36,14 +36,14 @@
 /* ── Full-page cart ─────────────────────────────────────────────────────────── */
 .cartPage {
   position: fixed; inset: 0; z-index: 9800;
-  background: #0a0a0a url('https://ik.imagekit.io/nepgaxllc/ChatGPT%20Image%20Apr%2021,%202026,%2006_21_46%20AM.png') center/cover no-repeat;
+  background-color: #0a0a0a;
+  background-image:
+    linear-gradient(rgba(0,0,0,0.3), rgba(0,0,0,0.3)),
+    url('https://ik.imagekit.io/nepgaxllc/ChatGPT%20Image%20Apr%2030,%202026,%2012_24_10%20PM.png');
+  background-size: cover;
+  background-position: center;
   display: flex; flex-direction: column;
   animation: cartPageIn 0.3s ease;
-}
-.cartPage::before {
-  content: ''; position: absolute; inset: 0;
-  background: rgba(0,0,0,0.75);
-  pointer-events: none;
 }
 @keyframes cartPageIn {
   from { transform: translateY(100%); }
@@ -73,7 +73,9 @@
 .cartPageBody::-webkit-scrollbar { display: none; }
 .cartPageItem {
   padding: 14px;
-  background: linear-gradient(135deg, rgba(255,255,255,0.06) 0%, rgba(255,255,255,0.02) 100%);
+  background: rgba(0,0,0,0.35);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
   backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px);
   border: 1.5px solid rgba(255,255,255,0.1);
   border-radius: 16px;
@@ -290,10 +292,17 @@
   98% { transform: translateX(3px); }
 }
 .orderBtn {
-  width: 100%; padding: 14px; border-radius: 14px;
-  background: #8DC63F; color: #000;
-  border: none; font-size: 15px; font-weight: 900;
+  width: 100%; padding: 0; border-radius: 14px;
+  background: none; border: none;
   cursor: pointer; font-family: inherit;
+  position: relative; overflow: hidden;
+}
+.orderBtn img { width: 100%; height: auto; display: block; }
+.orderBtn span {
+  position: absolute; inset: 0;
+  display: flex; align-items: center; justify-content: center;
+  color: #fff; font-size: 15px; font-weight: 900;
+  text-shadow: 0 1px 4px rgba(0,0,0,0.5);
 }
 .orderBtn:active { opacity: 0.85; }
 
@@ -338,20 +347,22 @@
 .itemBg { position: absolute; inset: 0; background-size: cover; background-position: center; }
 .itemOverlay {
   position: absolute; inset: 0;
-  background: linear-gradient(to bottom, rgba(0,0,0,0.05) 0%, rgba(0,0,0,0) 30%, rgba(0,0,0,0.65) 60%, rgba(0,0,0,0.96) 100%);
+  background: linear-gradient(to bottom, rgba(0,0,0,0.05) 0%, rgba(0,0,0,0) 30%, rgba(0,0,0,0.5) 60%, rgba(0,0,0,0.88) 100%);
 }
 .itemCatPill {
   position: absolute; top: calc(env(safe-area-inset-top, 0px) + 72px); left: 16px;
   font-size: 10px; font-weight: 800; color: #F59E0B;
   text-transform: uppercase; letter-spacing: 0.1em;
-  background: rgba(0,0,0,0.55); border: 1px solid rgba(245,197,24,0.3);
-  border-radius: 100px; padding: 4px 12px; backdrop-filter: blur(6px);
+  background: rgba(0,0,0,0.3); border: 1px solid rgba(245,197,24,0.25);
+  border-radius: 100px; padding: 4px 12px; backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
 }
 .itemPrep {
   position: absolute; top: calc(env(safe-area-inset-top, 0px) + 72px); right: 68px;
-  font-size: 10px; font-weight: 700; color: rgba(255,255,255,0.5);
-  background: rgba(0,0,0,0.5); border: 1px solid rgba(255,255,255,0.08);
-  border-radius: 100px; padding: 4px 10px; backdrop-filter: blur(6px);
+  font-size: 10px; font-weight: 700; color: rgba(255,255,255,0.6);
+  background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 100px; padding: 4px 10px; backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
 }
 .soldOutOverlay {
   position: absolute; inset: 0; background: rgba(0,0,0,0.6);
@@ -389,7 +400,8 @@
 .addBtn:active { transform: scale(0.96); }
 .qtyControl {
   display: flex; align-items: center;
-  background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.12);
+  background: rgba(0,0,0,0.35); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255,255,255,0.1);
   border-radius: 14px; overflow: hidden; flex-shrink: 0;
 }
 .qtyBtn { width: 42px; height: 46px; background: none; border: none; color: #8DC63F; font-size: 20px; font-weight: 700; cursor: pointer; display: flex; align-items: center; justify-content: center; }
@@ -430,10 +442,12 @@
   position: relative;
   display: flex; flex-direction: column;
   align-items: center; justify-content: center;
-  background: rgba(12,12,12,0.82);
-  border: 1.5px solid rgba(255,255,255,0.18);
+  background: rgba(0,0,0,0.35);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1.5px solid rgba(255,255,255,0.1);
   border-radius: 20px; cursor: pointer; font-family: inherit;
-  box-shadow: 0 4px 20px rgba(0,0,0,0.45), inset 0 0.5px 0 rgba(255,255,255,0.15);
+  box-shadow: 0 4px 20px rgba(0,0,0,0.3);
   transition: background 0.15s, border-color 0.15s, transform 0.1s;
   overflow: hidden;
   flex-shrink: 0;

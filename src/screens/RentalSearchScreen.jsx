@@ -4,8 +4,10 @@
  * Tap card → full detail view with WhatsApp CTA.
  * Theme: gold #8DC63F
  */
-import { useState, useEffect, useCallback } from 'react'
+import { useState, useEffect, useCallback, useRef } from 'react'
 import IndooFooter from '@/components/ui/IndooFooter'
+import PropertyMapSearch from '@/components/property/PropertyMapSearch'
+import SavedSearchAlerts from '@/components/property/SavedSearchAlerts'
 import {
   RENTAL_CATEGORIES, fetchListings, fetchListingsByCategory,
   fetchSearchListings, fmtIDR,
@@ -18,6 +20,8 @@ import RentalRenterSignUpScreen from './RentalRenterSignUpScreen'
 import SectionCTAButton from '@/components/ui/SectionCTAButton'
 import { hasVisitedSection, markSectionVisited } from '@/services/sectionVisitService'
 import PriceCalculator from '@/components/rentals/PriceCalculator'
+import PropertyCard from '@/components/rentals/PropertyCard'
+import { getPropertiesByCategory, DEMO_PROPERTIES } from '@/services/propertyListingService'
 import { RentalChat, RentalBookingFlow } from '@/domains/rentals/components/RentalBooking'
 import { ReviewsPopup, getAvgRating } from '@/components/reviews/ReviewSystem'
 import MyBookingsScreen from './MyBookingsScreen'
@@ -34,13 +38,13 @@ import VehicleDirectory, { BIKE_DIR_BG, CAR_DIR_BG, TRUCK_DIR_BG, BUS_DIR_BG } f
 import { seedMockData } from '@/utils/mockData'
 import styles from './RentalSearchScreen.module.css'
 
-const LANDING_BG = 'https://ik.imagekit.io/nepgaxllc/ChatGPT%20Image%20Apr%2019,%202026,%2010_51_20%20PM.png?updatedAt=1776613897705'
+const LANDING_BG = 'https://ik.imagekit.io/nepgaxllc/ChatGPT%20Image%20Apr%2019,%202026,%2011_05_34%20PM.png?updatedAt=1776614750168'
 
 
 const VEHICLES_BG = 'https://ik.imagekit.io/nepgaxllc/ChatGPT%20Image%20Apr%2029,%202026,%2007_48_01%20AM.png'
 const PROPERTY_BG = 'https://ik.imagekit.io/nepgaxllc/ChatGPT%20Image%20Apr%2029,%202026,%2005_01_47%20AM.png'
 const FASHION_BG  = 'https://ik.imagekit.io/nepgaxllc/Untitledsfsdfsfsdasdasdddddd.png'
-const EQUIPMENT_BG = 'https://ik.imagekit.io/nepgaxllc/Exploring%20the%20marketplace%20on%20a%20scooter.png?updatedAt=1776106102122'
+const EQUIPMENT_BG = 'https://ik.imagekit.io/nepgaxllc/ChatGPT%20Image%20Apr%2029,%202026,%2003_40_04%20AM.png?updatedAt=1777408820302'
 
 // Preload all background images on mount
 const ALL_BGS = [LANDING_BG, VEHICLES_BG, PROPERTY_BG, FASHION_BG, EQUIPMENT_BG, BIKE_DIR_BG, CAR_DIR_BG, TRUCK_DIR_BG, BUS_DIR_BG]
@@ -48,6 +52,138 @@ function usePreloadImages() {
   useEffect(() => {
     ALL_BGS.forEach(src => { const img = new Image(); img.src = src })
   }, [])
+}
+
+const fmtKGlobal = n => n >= 1000000000 ? (n/1000000000).toFixed(1).replace('.0','')+'M' : n >= 1000000 ? (n/1000000).toFixed(1).replace('.0','')+'jt' : n >= 1000 ? Math.round(n/1000)+'k' : n
+const getPrice = l => { const p = l.buy_now ? (typeof l.buy_now === 'object' ? l.buy_now.price : l.buy_now) : l.price_month || l.price_day; return p ? fmtKGlobal(Number(String(p).replace(/\./g,''))) : '—' }
+
+/* Auto-scrolling circular story carousel */
+function NewListingsCarousel({ listings, onSelect }) {
+  const scrollRef = useRef(null)
+  const pauseRef = useRef(false)
+  const items = listings.filter(l => ['House','Villa','Kos','Factory','Property'].includes(l.category)).slice(0, 12)
+  if (items.length < 2) return null
+
+  useEffect(() => {
+    const el = scrollRef.current
+    if (!el) return
+    const speed = 0.2
+    let raf
+    const tick = () => {
+      if (!pauseRef.current) {
+        el.scrollLeft += speed
+        if (el.scrollLeft >= el.scrollWidth - el.clientWidth - 1) el.scrollLeft = 0
+      }
+      raf = requestAnimationFrame(tick)
+    }
+    raf = requestAnimationFrame(tick)
+    return () => cancelAnimationFrame(raf)
+  }, [])
+
+  const handleTap = (nl) => {
+    pauseRef.current = true
+    setTimeout(() => { pauseRef.current = false }, 3000)
+    onSelect(nl)
+  }
+
+  const handleDoubleTap = (e) => {
+    e.stopPropagation()
+    pauseRef.current = false
+  }
+
+  return (
+    <div style={{ marginBottom: 14 }}>
+      <div style={{ fontSize: 18, fontWeight: 900, color: '#fff', marginBottom: 10 }}>New Listings</div>
+      <div ref={scrollRef}
+        onTouchStart={() => { pauseRef.current = true }}
+        onTouchEnd={() => { setTimeout(() => { pauseRef.current = false }, 3000) }}
+        style={{ display: 'flex', gap: 14, overflowX: 'auto', paddingBottom: 4, paddingRight: 60, scrollbarWidth: 'none', msOverflowStyle: 'none' }}>
+        {items.map(nl => (
+          <div key={nl.id} onClick={() => handleTap(nl)} onDoubleClick={handleDoubleTap} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 6, cursor: 'pointer', flexShrink: 0 }}>
+            <div style={{ width: 68, height: 68, borderRadius: '50%', padding: 2.5, background: 'conic-gradient(#8DC63F 0deg, #6BA33A 120deg, #8DC63F 240deg, #6BA33A 360deg)', boxShadow: '0 0 14px rgba(141,198,63,0.3)', animation: 'storyRing 8s linear infinite' }}>
+              <div style={{ width: '100%', height: '100%', borderRadius: '50%', overflow: 'hidden', border: '2.5px solid #0a0a0a' }}>
+                <img src={nl.images?.[0] || nl.image} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+              </div>
+            </div>
+            <div style={{ textAlign: 'center', maxWidth: 72 }}>
+              <div style={{ fontSize: 12, fontWeight: 700, color: '#fff', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{nl.sub_category || nl.extra_fields?.property_type || 'Property'}</div>
+              <div style={{ fontSize: 12, fontWeight: 900, color: '#FACC15' }}>{getPrice(nl)}</div>
+            </div>
+          </div>
+        ))}
+      </div>
+      <style>{`@keyframes storyRing { from { transform: rotate(0deg) } to { transform: rotate(360deg) } }`}</style>
+    </div>
+  )
+}
+
+/* Auto-scrolling featured card carousel */
+function FeaturedCarousel({ listings, onSelect }) {
+  const scrollRef = useRef(null)
+  const pauseRef = useRef(false)
+  const items = listings.filter(l => ['House','Villa','Kos','Factory','Property'].includes(l.category) && l.rating >= 4.5).slice(0, 8)
+  if (items.length < 2) return null
+
+  useEffect(() => {
+    const el = scrollRef.current
+    if (!el) return
+    const speed = 0.3
+    let raf
+    const tick = () => {
+      if (!pauseRef.current) {
+        el.scrollLeft += speed
+        if (el.scrollLeft >= el.scrollWidth - el.clientWidth - 1) el.scrollLeft = 0
+      }
+      raf = requestAnimationFrame(tick)
+    }
+    raf = requestAnimationFrame(tick)
+    return () => cancelAnimationFrame(raf)
+  }, [])
+
+  const handleTap = (fl) => {
+    pauseRef.current = true
+    setTimeout(() => { pauseRef.current = false }, 3000)
+    onSelect(fl)
+  }
+
+  return (
+    <div style={{ marginBottom: 16 }}>
+      <div style={{ fontSize: 18, fontWeight: 900, color: '#fff', marginBottom: 10 }}>Featured</div>
+      <div ref={scrollRef}
+        onTouchStart={() => { pauseRef.current = true }}
+        onTouchEnd={() => { setTimeout(() => { pauseRef.current = false }, 3000) }}
+        onDoubleClick={() => { pauseRef.current = false }}
+        style={{ display: 'flex', gap: 10, overflowX: 'auto', paddingBottom: 6, scrollbarWidth: 'none', msOverflowStyle: 'none' }}>
+        {items.map(fl => (
+          <div key={fl.id} onClick={() => handleTap(fl)} style={{ width: 230, flexShrink: 0, borderRadius: 14, overflow: 'hidden', cursor: 'pointer', background: 'rgba(15,15,15,0.95)', boxShadow: '0 4px 20px rgba(0,0,0,0.5)', border: '1px solid rgba(255,255,255,0.08)' }}>
+            <div style={{ position: 'relative', height: 140 }}>
+              <img src={fl.images?.[0] || fl.image} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+              <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(transparent 40%, rgba(0,0,0,0.85))', pointerEvents: 'none' }} />
+              <div style={{ position: 'absolute', top: 8, left: 0, padding: '3px 10px 3px 8px', borderRadius: '0 8px 8px 0', background: fl.buy_now ? 'rgba(250,204,21,0.15)' : 'rgba(141,198,63,0.15)', backdropFilter: 'blur(6px)', borderRight: `1.5px solid ${fl.buy_now ? '#FACC15' : '#8DC63F'}` }}>
+                <span style={{ fontSize: 12, fontWeight: 800, color: '#fff' }}>{fl.sub_category || fl.extra_fields?.property_type}</span>
+                <span style={{ fontSize: 12, fontWeight: 700, color: fl.buy_now ? '#FACC15' : '#8DC63F', marginLeft: 6 }}>{fl.buy_now ? 'SALE' : 'RENT'}</span>
+              </div>
+              {fl.rating && <span style={{ position: 'absolute', top: 8, right: 8, fontSize: 12, fontWeight: 800, color: '#FFD700', padding: '3px 8px', borderRadius: 8, background: 'rgba(0,0,0,0.5)' }}>★ {fl.rating}</span>}
+              <div style={{ position: 'absolute', bottom: 8, left: 10, right: 10 }}>
+                <div style={{ fontSize: 18, fontWeight: 900, color: '#FACC15' }}>Rp {getPrice(fl)}</div>
+                <div style={{ fontSize: 12, fontWeight: 600, color: 'rgba(255,255,255,0.5)', marginTop: 2, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{fl.title}</div>
+              </div>
+            </div>
+            <div style={{ padding: '8px 10px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+              <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.4)', display: 'flex', alignItems: 'center', gap: 4 }}>
+                <span style={{ fontSize: 11 }}>📍</span>
+                {fl.city || 'Indonesia'}
+              </div>
+              <div style={{ display: 'flex', gap: 6, fontSize: 12, fontWeight: 800, color: '#fff' }}>
+                {fl.extra_fields?.bedrooms && <span>{fl.extra_fields.bedrooms} 🛏️</span>}
+                {fl.extra_fields?.bathrooms && <span>{fl.extra_fields.bathrooms} 🚿</span>}
+              </div>
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  )
 }
 
 
@@ -89,6 +225,8 @@ export default function RentalSearchScreen({ onClose, initialView, initialListin
   const [showSettings, setShowSettings] = useState(false)
   const [showMessages, setShowMessages] = useState(false)
   const [showProfile, setShowProfile] = useState(false)
+  const [showMapSearch, setShowMapSearch] = useState(false)
+  const [showAlerts, setShowAlerts] = useState(false)
   const [savedToggle, setSavedToggle] = useState(0) // force re-render on save
 
   // Seed mock/demo data on first mount (version-gated inside seedMockData)
@@ -164,6 +302,11 @@ export default function RentalSearchScreen({ onClose, initialView, initialListin
           price_day: Number(String(l.price_day).replace(/\./g, '')) || 0,
           price_week: Number(String(l.price_week).replace(/\./g, '')) || 0,
           price_month: Number(String(l.price_month).replace(/\./g, '')) || 0,
+          price_3month: Number(String(l.price_3month || 0).replace(/\./g, '')) || 0,
+          price_6month: Number(String(l.price_6month || 0).replace(/\./g, '')) || 0,
+          price_year: Number(String(l.price_year || 0).replace(/\./g, '')) || 0,
+          price_2year: Number(String(l.price_2year || 0).replace(/\./g, '')) || 0,
+          price_5year: Number(String(l.price_5year || 0).replace(/\./g, '')) || 0,
           condition: l.condition?.toLowerCase().replace(' ', '_') || 'good',
           status: 'active',
           owner_type: 'owner',
@@ -184,8 +327,10 @@ export default function RentalSearchScreen({ onClose, initialView, initialListin
   const ownerIds = new Set(ownerListings.map(l => l.id))
   let listings = [...ownerListings, ...supaListings.filter(l => !ownerIds.has(l.id))]
 
-  if (activeFilter && !search.trim() && category === 'all') {
+  if (activeFilter && !search.trim()) {
     listings = listings.filter(l => activeFilter.includes(l.category) || activeFilter.includes(l.sub_category))
+  } else if (category !== 'all' && !search.trim()) {
+    listings = listings.filter(l => l.category === category)
   }
 
   if (search.trim() && category !== 'all') {
@@ -290,8 +435,8 @@ export default function RentalSearchScreen({ onClose, initialView, initialListin
           { label: 'Kos', filter: 'Kos', heroCard: true, heroImg: 'https://ik.imagekit.io/nepgaxllc/Untitleddddddgdddd.png', heroIcon: 'kos' },
           { label: 'Villa', filter: 'Villa', heroCard: true, heroImg: 'https://ik.imagekit.io/nepgaxllc/Untitleddddddgdddddd.png', heroIcon: 'villa' },
         ]}
-        onSelect={(type) => { setActiveFilter([type]); setView('browse') }}
-        onBack={() => setView('browse')}
+        onSelect={(type) => { setActiveFilter([type, 'Property']); setCategory('Property'); setView('browse') }}
+        onBack={() => { setActiveFilter(null); setCategory('all'); setView('browse') }}
       />
     </>)
   }
@@ -353,7 +498,7 @@ export default function RentalSearchScreen({ onClose, initialView, initialListin
         Event: 'https://ik.imagekit.io/nepgaxllc/ChatGPT%20Image%20Apr%2029,%202026,%2003_40_04%20AM.png?updatedAt=1777408820302',
         Fashion: 'https://ik.imagekit.io/nepgaxllc/ChatGPT%20Image%20Apr%2029,%202026,%2003_42_33%20AM.png?updatedAt=1777408975197',
         Wedding: 'https://ik.imagekit.io/nepgaxllc/ChatGPT%20Image%20Apr%2029,%202026,%2003_42_33%20AM.png?updatedAt=1777408975197',
-        Property: 'https://ik.imagekit.io/nepgaxllc/ChatGPT%20Image%20Apr%2029,%202026,%2005_01_47%20AM.png',
+        Property: 'https://ik.imagekit.io/nepgaxllc/ChatGPT%20Image%20Apr%2030,%202026,%2007_44_48%20PM.png',
       }
       const url = BG[cat] || BG[filter] || null
       return url ? { backgroundImage: `url('${url}')` } : undefined
@@ -361,14 +506,29 @@ export default function RentalSearchScreen({ onClose, initialView, initialListin
       {/* Header — market title + search bar + filter */}
       <div style={{ padding: '14px 14px 0', flexShrink: 0 }}>
         <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
-          <div style={{ flex: 1, cursor: 'pointer' }} onClick={() => { if (vehicleType) { setView('vehicleDir'); return } setView('browse') }}>
-            <span style={{ fontSize: 38, fontWeight: 900, color: '#fff', letterSpacing: '-0.02em', display: 'block' }}>
-              {vehicleType === 'Motorcycles' ? 'Bike ' : vehicleType === 'Cars' ? 'Car ' : vehicleType === 'Trucks' ? 'Truck ' : vehicleType === 'Buses' ? 'Bus ' : ''}<span style={{ color: '#8DC63F' }}>Market</span>
-            </span>
-            <span style={{ fontSize: 11, fontWeight: 600, color: 'rgba(255,255,255,0.35)', letterSpacing: '0.04em', marginTop: 2, display: 'block' }}>Indonesia's Largest Marketplace · Buy · Sell · Rentals</span>
+          {/* Listing count badge */}
+          <div style={{
+            width: 36, height: 36, borderRadius: 10, flexShrink: 0,
+            background: 'rgba(0,0,0,0.5)', backdropFilter: 'blur(12px)',
+            border: '1px solid rgba(141,198,63,0.3)',
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+          }}>
+            <span style={{ fontSize: 14, fontWeight: 900, color: '#8DC63F' }}>#{sortedListings.length}</span>
           </div>
-          <button onClick={() => setShowFilter(true)} style={{ width: 40, height: 40, borderRadius: '50%', background: '#8DC63F', border: 'none', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', flexShrink: 0, boxShadow: '0 2px 10px rgba(141,198,63,0.3)' }}>
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="#000" stroke="none"><path d="M3 4h18v2H3zm3 5h12v2H6zm3 5h6v2H9z"/></svg>
+          <div style={{ flex: 1, cursor: 'pointer' }} onClick={() => { if (vehicleType) { setView('vehicleDir'); return } setView('browse') }}>
+            <span style={{ fontSize: 32, fontWeight: 900, color: '#fff', letterSpacing: '-0.02em', display: 'block', whiteSpace: 'nowrap' }}>
+              {vehicleType === 'Motorcycles' ? 'Bike ' : vehicleType === 'Cars' ? 'Car ' : vehicleType === 'Trucks' ? 'Truck ' : vehicleType === 'Buses' ? 'Bus ' : activeFilter?.includes('House') || activeFilter?.includes('Villa') || activeFilter?.includes('Kos') || activeFilter?.includes('Factory') || category === 'Property' ? 'Property ' : ''}<span style={{ color: '#8DC63F' }}>Market</span>
+            </span>
+            <span style={{ fontSize: 13, fontWeight: 600, color: 'rgba(255,255,255,0.35)', letterSpacing: '0.04em', marginTop: 2, display: 'block' }}>{listingMode === 'sale' ? 'For Sale' : listingMode === 'rent' ? 'For Rent' : 'Buy · Sell · Rentals'} in Yogyakarta</span>
+          </div>
+          <button onClick={() => setShowMapSearch(true)} style={{ width: 36, height: 36, borderRadius: '50%', background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', flexShrink: 0 }}>
+            <span style={{ fontSize: 16 }}>📍</span>
+          </button>
+          <button onClick={() => setShowAlerts(true)} style={{ width: 36, height: 36, borderRadius: '50%', background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', flexShrink: 0 }}>
+            <span style={{ fontSize: 16 }}>🔔</span>
+          </button>
+          <button onClick={() => setShowFilter(true)} style={{ width: 36, height: 36, borderRadius: '50%', background: '#8DC63F', border: 'none', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', flexShrink: 0, boxShadow: '0 2px 10px rgba(141,198,63,0.3)' }}>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="#000" stroke="none"><path d="M3 4h18v2H3zm3 5h12v2H6zm3 5h6v2H9z"/></svg>
           </button>
         </div>
 
@@ -391,7 +551,7 @@ export default function RentalSearchScreen({ onClose, initialView, initialListin
               <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
                 <span style={{ fontSize: 18 }}>🔍</span>
                 <span style={{ fontSize: 16, fontWeight: 900, color: '#fff' }}>Filter & Search</span>
-                {activeCount > 0 && <span style={{ padding: '2px 8px', borderRadius: 10, background: '#8DC63F', fontSize: 10, fontWeight: 900, color: '#000' }}>{activeCount}</span>}
+                {activeCount > 0 && <span style={{ padding: '2px 8px', borderRadius: 10, background: '#8DC63F', fontSize: 12, fontWeight: 900, color: '#000' }}>{activeCount}</span>}
               </div>
               <button onClick={() => setShowFilter(false)} style={{ width: 32, height: 32, borderRadius: '50%', background: '#8DC63F', border: 'none', color: '#000', fontSize: 13, fontWeight: 900, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>✕</button>
             </div>
@@ -435,19 +595,19 @@ export default function RentalSearchScreen({ onClose, initialView, initialListin
                         <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, height: '50%', background: 'linear-gradient(transparent, rgba(0,0,0,0.8))', pointerEvents: 'none' }} />
 
                         {/* Badges */}
-                        {!previewListing.buy_now && <div style={{ position: 'absolute', top: 10, left: 10, padding: '4px 10px', background: '#8DC63F', borderRadius: 8, fontSize: 9, fontWeight: 900, color: '#000', zIndex: 3 }}>FOR RENT</div>}
-                        {previewListing.buy_now && <div style={{ position: 'absolute', top: 10, left: 10, padding: '4px 10px', background: '#FFD700', borderRadius: 8, fontSize: 9, fontWeight: 900, color: '#000', zIndex: 3 }}>FOR SALE</div>}
+                        {!previewListing.buy_now && <div style={{ position: 'absolute', top: 10, left: 10, padding: '4px 10px', background: '#8DC63F', borderRadius: 8, fontSize: 12, fontWeight: 900, color: '#000', zIndex: 3 }}>FOR RENT</div>}
+                        {previewListing.buy_now && <div style={{ position: 'absolute', top: 10, left: 10, padding: '4px 10px', background: '#FFD700', borderRadius: 8, fontSize: 12, fontWeight: 900, color: '#000', zIndex: 3 }}>FOR SALE</div>}
 
                         {/* Title overlay */}
                         <div style={{ position: 'absolute', bottom: 10, left: 12, right: 60, zIndex: 3 }}>
                           <div style={{ fontSize: 15, fontWeight: 900, color: '#fff', textShadow: '0 1px 4px rgba(0,0,0,0.5)' }}>{previewListing.title}</div>
-                          <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.5)', fontWeight: 600, marginTop: 2 }}>{previewListing.city}</div>
+                          <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.5)', fontWeight: 600, marginTop: 2 }}>{previewListing.city}</div>
                         </div>
 
                         {/* Price badge */}
                         <div style={{ position: 'absolute', bottom: 10, right: 10, padding: '6px 12px', background: 'rgba(0,0,0,0.6)', backdropFilter: 'blur(8px)', borderRadius: 10, border: '1px solid rgba(141,198,63,0.2)', zIndex: 3 }}>
                           <span style={{ fontSize: 14, fontWeight: 900, color: '#8DC63F' }}>Rp {fmtK(previewListing.price_day || previewListing.buy_now || 0)}</span>
-                          {previewListing.price_day && <span style={{ fontSize: 9, color: 'rgba(255,255,255,0.3)', fontWeight: 600 }}>/day</span>}
+                          {previewListing.price_day && <span style={{ fontSize: 12, color: 'rgba(255,255,255,0.3)', fontWeight: 600 }}>/day</span>}
                         </div>
                       </div>
                     </div>
@@ -465,7 +625,7 @@ export default function RentalSearchScreen({ onClose, initialView, initialListin
                       <div style={{ position: 'absolute', top: 0, left: '10%', right: '10%', height: 1, background: 'linear-gradient(90deg, transparent, rgba(141,198,63,0.2), transparent)' }} />
 
                       <div style={{ fontSize: 15, fontWeight: 900, color: '#fff', marginBottom: 8 }}>{previewListing.title}</div>
-                      <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.3)', marginBottom: 12 }}>{previewListing.city} · {previewListing.category}</div>
+                      <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.3)', marginBottom: 12 }}>{previewListing.city} · {previewListing.category}</div>
 
                       {/* Prices grid */}
                       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 8, marginBottom: 12 }}>
@@ -485,7 +645,7 @@ export default function RentalSearchScreen({ onClose, initialView, initialListin
                       {previewListing.extra_fields && (
                         <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6, marginBottom: 10 }}>
                           {Object.entries(previewListing.extra_fields).filter(([,v]) => v && v !== false).slice(0, 6).map(([k,v]) => (
-                            <span key={k} style={{ padding: '3px 8px', borderRadius: 6, background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)', fontSize: 9, fontWeight: 700, color: 'rgba(255,255,255,0.4)' }}>
+                            <span key={k} style={{ padding: '3px 8px', borderRadius: 6, background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)', fontSize: 12, fontWeight: 700, color: 'rgba(255,255,255,0.4)' }}>
                               {typeof v === 'boolean' ? k.replace(/_/g, ' ') : `${k.replace(/_/g, ' ')}: ${v}`}
                             </span>
                           ))}
@@ -496,7 +656,7 @@ export default function RentalSearchScreen({ onClose, initialView, initialListin
                       {previewListing.features?.length > 0 && (
                         <div style={{ display: 'flex', flexWrap: 'wrap', gap: 4 }}>
                           {previewListing.features.slice(0, 5).map((f, i) => (
-                            <span key={i} style={{ padding: '3px 8px', borderRadius: 6, background: 'rgba(141,198,63,0.06)', border: '1px solid rgba(141,198,63,0.12)', fontSize: 9, fontWeight: 700, color: '#8DC63F' }}>{f}</span>
+                            <span key={i} style={{ padding: '3px 8px', borderRadius: 6, background: 'rgba(141,198,63,0.06)', border: '1px solid rgba(141,198,63,0.12)', fontSize: 12, fontWeight: 700, color: '#8DC63F' }}>{f}</span>
                           ))}
                         </div>
                       )}
@@ -516,7 +676,7 @@ export default function RentalSearchScreen({ onClose, initialView, initialListin
                     </button>
                   </div>
                   <div style={{ textAlign: 'center', marginTop: 6 }}>
-                    <span style={{ fontSize: 9, color: 'rgba(255,255,255,0.15)', fontWeight: 600 }}>Flip to view details · Swipe to browse</span>
+                    <span style={{ fontSize: 12, color: 'rgba(255,255,255,0.15)', fontWeight: 600 }}>Flip to view details · Swipe to browse</span>
                   </div>
                 </div>
               )}
@@ -526,7 +686,7 @@ export default function RentalSearchScreen({ onClose, initialView, initialListin
 
                 {/* Sort */}
                 <div style={{ padding: '14px', background: 'rgba(0,0,0,0.4)', backdropFilter: 'blur(12px)', border: '1.5px solid rgba(141,198,63,0.08)', borderRadius: 16, boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.04), 0 4px 16px rgba(0,0,0,0.3)' }}>
-                  <div style={{ fontSize: 10, fontWeight: 800, color: 'rgba(141,198,63,0.6)', letterSpacing: '0.05em', marginBottom: 8, textTransform: 'uppercase' }}>Sort By</div>
+                  <div style={{ fontSize: 12, fontWeight: 800, color: 'rgba(141,198,63,0.6)', letterSpacing: '0.05em', marginBottom: 8, textTransform: 'uppercase' }}>Sort By</div>
                   <div style={{ display: 'flex', gap: 6 }}>
                     {[
                       { id: '', label: 'Default' },
@@ -537,7 +697,7 @@ export default function RentalSearchScreen({ onClose, initialView, initialListin
                         flex: 1, padding: '10px 0', borderRadius: 10, border: 'none', cursor: 'pointer', fontFamily: 'inherit',
                         background: priceSort === f.id ? '#8DC63F' : 'rgba(255,255,255,0.04)',
                         color: priceSort === f.id ? '#000' : 'rgba(255,255,255,0.4)',
-                        fontSize: 11, fontWeight: 800,
+                        fontSize: 13, fontWeight: 800,
                         boxShadow: priceSort === f.id ? '0 2px 10px rgba(141,198,63,0.3)' : 'none',
                       }}>{f.label}</button>
                     ))}
@@ -547,7 +707,7 @@ export default function RentalSearchScreen({ onClose, initialView, initialListin
                 {/* Category — hidden when viewing specific vehicle type */}
                 {!vehicleType && (
                 <div style={{ padding: '14px', background: 'rgba(0,0,0,0.4)', backdropFilter: 'blur(12px)', border: '1.5px solid rgba(141,198,63,0.08)', borderRadius: 16, boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.04), 0 4px 16px rgba(0,0,0,0.3)' }}>
-                  <div style={{ fontSize: 10, fontWeight: 800, color: 'rgba(141,198,63,0.6)', letterSpacing: '0.05em', marginBottom: 8, textTransform: 'uppercase' }}>Category</div>
+                  <div style={{ fontSize: 12, fontWeight: 800, color: 'rgba(141,198,63,0.6)', letterSpacing: '0.05em', marginBottom: 8, textTransform: 'uppercase' }}>Category</div>
                   <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
                     {RENTAL_CATEGORIES.map(c => (
                       <button key={c.id} onClick={() => { setCategory(category === c.id ? 'all' : c.id); setSearch('') }} style={{
@@ -555,7 +715,7 @@ export default function RentalSearchScreen({ onClose, initialView, initialListin
                         background: category === c.id ? 'rgba(141,198,63,0.15)' : 'rgba(255,255,255,0.04)',
                         border: category === c.id ? '1px solid rgba(141,198,63,0.3)' : '1px solid rgba(255,255,255,0.06)',
                         color: category === c.id ? '#8DC63F' : 'rgba(255,255,255,0.35)',
-                        fontSize: 11, fontWeight: 700,
+                        fontSize: 13, fontWeight: 700,
                       }}>{c.emoji} {c.label}</button>
                     ))}
                   </div>
@@ -564,15 +724,15 @@ export default function RentalSearchScreen({ onClose, initialView, initialListin
 
                 {/* Price Range */}
                 <div style={{ padding: '14px', background: 'rgba(0,0,0,0.4)', backdropFilter: 'blur(12px)', border: '1.5px solid rgba(141,198,63,0.08)', borderRadius: 16, boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.04), 0 4px 16px rgba(0,0,0,0.3)' }}>
-                  <div style={{ fontSize: 10, fontWeight: 800, color: 'rgba(141,198,63,0.6)', letterSpacing: '0.05em', marginBottom: 8, textTransform: 'uppercase' }}>Price Range (per day)</div>
+                  <div style={{ fontSize: 12, fontWeight: 800, color: 'rgba(141,198,63,0.6)', letterSpacing: '0.05em', marginBottom: 8, textTransform: 'uppercase' }}>Price Range (per day)</div>
                   <div style={{ display: 'flex', gap: 10, alignItems: 'center' }}>
                     <div style={{ flex: 1 }}>
-                      <div style={{ fontSize: 9, color: 'rgba(255,255,255,0.2)', fontWeight: 600, marginBottom: 4 }}>MIN</div>
+                      <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.2)', fontWeight: 600, marginBottom: 4 }}>MIN</div>
                       <input type="number" placeholder="50.000" value={filterPriceMin} onChange={e => setFilterPriceMin(e.target.value)} style={{ width: '100%', padding: '10px 12px', borderRadius: 10, background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)', color: '#fff', fontSize: 13, fontWeight: 700, fontFamily: 'inherit', outline: 'none' }} />
                     </div>
                     <span style={{ color: 'rgba(255,255,255,0.15)', fontSize: 16, fontWeight: 700, marginTop: 16 }}>—</span>
                     <div style={{ flex: 1 }}>
-                      <div style={{ fontSize: 9, color: 'rgba(255,255,255,0.2)', fontWeight: 600, marginBottom: 4 }}>MAX</div>
+                      <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.2)', fontWeight: 600, marginBottom: 4 }}>MAX</div>
                       <input type="number" placeholder="500.000" value={filterPriceMax} onChange={e => setFilterPriceMax(e.target.value)} style={{ width: '100%', padding: '10px 12px', borderRadius: 10, background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)', color: '#fff', fontSize: 13, fontWeight: 700, fontFamily: 'inherit', outline: 'none' }} />
                     </div>
                   </div>
@@ -580,7 +740,7 @@ export default function RentalSearchScreen({ onClose, initialView, initialListin
 
                 {/* Condition */}
                 <div style={{ padding: '14px', background: 'rgba(0,0,0,0.4)', backdropFilter: 'blur(12px)', border: '1.5px solid rgba(141,198,63,0.08)', borderRadius: 16, boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.04), 0 4px 16px rgba(0,0,0,0.3)' }}>
-                  <div style={{ fontSize: 10, fontWeight: 800, color: 'rgba(141,198,63,0.6)', letterSpacing: '0.05em', marginBottom: 8, textTransform: 'uppercase' }}>Condition</div>
+                  <div style={{ fontSize: 12, fontWeight: 800, color: 'rgba(141,198,63,0.6)', letterSpacing: '0.05em', marginBottom: 8, textTransform: 'uppercase' }}>Condition</div>
                   <div style={{ display: 'flex', gap: 6 }}>
                     {[
                       { id: '', label: 'All' },
@@ -593,7 +753,7 @@ export default function RentalSearchScreen({ onClose, initialView, initialListin
                         flex: 1, padding: '10px 0', borderRadius: 10, border: 'none', cursor: 'pointer', fontFamily: 'inherit',
                         background: filterCondition === c.id ? '#8DC63F' : 'rgba(255,255,255,0.04)',
                         color: filterCondition === c.id ? '#000' : 'rgba(255,255,255,0.4)',
-                        fontSize: 10, fontWeight: 800,
+                        fontSize: 12, fontWeight: 800,
                         boxShadow: filterCondition === c.id ? '0 2px 10px rgba(141,198,63,0.3)' : 'none',
                       }}>{c.label}</button>
                     ))}
@@ -602,7 +762,7 @@ export default function RentalSearchScreen({ onClose, initialView, initialListin
 
                 {/* City */}
                 <div style={{ padding: '14px', background: 'rgba(0,0,0,0.4)', backdropFilter: 'blur(12px)', border: '1.5px solid rgba(141,198,63,0.08)', borderRadius: 16, boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.04), 0 4px 16px rgba(0,0,0,0.3)' }}>
-                  <div style={{ fontSize: 10, fontWeight: 800, color: 'rgba(141,198,63,0.6)', letterSpacing: '0.05em', marginBottom: 8, textTransform: 'uppercase' }}>Location</div>
+                  <div style={{ fontSize: 12, fontWeight: 800, color: 'rgba(141,198,63,0.6)', letterSpacing: '0.05em', marginBottom: 8, textTransform: 'uppercase' }}>Location</div>
                   <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
                     {['', 'Canggu', 'Seminyak', 'Kuta', 'Ubud', 'Denpasar', 'Uluwatu', 'Kerobokan'].map(c => (
                       <button key={c} onClick={() => setFilterCity(filterCity === c ? '' : c)} style={{
@@ -610,7 +770,7 @@ export default function RentalSearchScreen({ onClose, initialView, initialListin
                         background: filterCity === c ? 'rgba(141,198,63,0.15)' : 'rgba(255,255,255,0.04)',
                         border: filterCity === c ? '1px solid rgba(141,198,63,0.3)' : '1px solid rgba(255,255,255,0.06)',
                         color: filterCity === c ? '#8DC63F' : 'rgba(255,255,255,0.35)',
-                        fontSize: 11, fontWeight: 700,
+                        fontSize: 13, fontWeight: 700,
                       }}>{c || 'All'}</button>
                     ))}
                   </div>
@@ -635,24 +795,6 @@ export default function RentalSearchScreen({ onClose, initialView, initialListin
 
       </div>
 
-      {/* Floating side nav — glass panel */}
-      <div style={{
-        position: 'fixed', right: 8, top: '50%', transform: 'translateY(-50%)',
-        display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 16, zIndex: 200,
-        padding: '14px 8px', borderRadius: 20,
-        background: 'rgba(0,0,0,0.5)', backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)',
-        border: '1px solid rgba(255,255,255,0.08)',
-      }}>
-        <style>{`@keyframes sideNavGlow { 0%, 100% { box-shadow: 0 0 6px rgba(141,198,63,0.3); } 50% { box-shadow: 0 0 14px rgba(141,198,63,0.6); } } @keyframes sideNavGlowGold { 0%, 100% { box-shadow: 0 0 6px rgba(255,215,0,0.3); } 50% { box-shadow: 0 0 14px rgba(255,215,0,0.6); } }`}</style>
-        <button onClick={() => setListingMode(listingMode === 'sale' ? 'all' : 'sale')} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 4, background: listingMode === 'sale' ? 'rgba(255,215,0,0.1)' : 'none', border: 'none', cursor: 'pointer', color: listingMode === 'sale' ? '#FFD700' : '#fff', fontSize: 10, fontWeight: 700, padding: '8px 6px', borderRadius: 12, animation: listingMode === 'sale' ? 'sideNavGlowGold 2s ease-in-out infinite' : 'none' }}>
-          <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 01-8 0"/></svg>
-          <span>Buy</span>
-        </button>
-        <button onClick={() => setListingMode(listingMode === 'rent' ? 'all' : 'rent')} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 4, background: listingMode === 'rent' ? 'rgba(141,198,63,0.1)' : 'none', border: 'none', cursor: 'pointer', color: listingMode === 'rent' ? '#8DC63F' : '#fff', fontSize: 10, fontWeight: 700, padding: '8px 6px', borderRadius: 12, animation: listingMode === 'rent' ? 'sideNavGlow 2s ease-in-out infinite' : 'none' }}>
-          <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 2l-2 2m-7.61 7.61a5.5 5.5 0 11-7.78 7.78 5.5 5.5 0 017.78-7.78zm0 0L15.5 7.5m0 0l3 3L22 7l-3-3m-3.5 3.5L19 4"/></svg>
-          <span>Rent</span>
-        </button>
-      </div>
 
       {/* User Account Side Drawer */}
       {showUserDrawer && (
@@ -712,10 +854,10 @@ export default function RentalSearchScreen({ onClose, initialView, initialListin
                 const isOwner = !!localStorage.getItem('indoo_rental_owner')
                 return (
                   <div style={{ display: 'flex', gap: 4, marginBottom: 4 }}>
-                    <div style={{ padding: '4px 10px', borderRadius: 8, background: 'rgba(141,198,63,0.08)', border: '1px solid rgba(141,198,63,0.15)', fontSize: 9, fontWeight: 700, color: '#8DC63F' }}>
+                    <div style={{ padding: '4px 10px', borderRadius: 8, background: 'rgba(141,198,63,0.08)', border: '1px solid rgba(141,198,63,0.15)', fontSize: 12, fontWeight: 700, color: '#8DC63F' }}>
                       {isOwner ? '👤 Owner Account' : '👤 Buyer Account'}
                     </div>
-                    {isOwner && <div style={{ padding: '4px 10px', borderRadius: 8, background: 'rgba(255,215,0,0.06)', border: '1px solid rgba(255,215,0,0.15)', fontSize: 9, fontWeight: 700, color: '#FFD700' }}>+ Buyer</div>}
+                    {isOwner && <div style={{ padding: '4px 10px', borderRadius: 8, background: 'rgba(255,215,0,0.06)', border: '1px solid rgba(255,215,0,0.15)', fontSize: 12, fontWeight: 700, color: '#FFD700' }}>+ Buyer</div>}
                   </div>
                 )
               })()}
@@ -754,7 +896,7 @@ export default function RentalSearchScreen({ onClose, initialView, initialListin
                   </div>
                   <div style={{ flex: 1 }}>
                     <div style={{ fontSize: 13, fontWeight: 700, color: item.accent || '#fff' }}>{item.label}</div>
-                    <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.2)', marginTop: 2 }}>{item.sub}</div>
+                    <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.2)', marginTop: 2 }}>{item.sub}</div>
                   </div>
                   <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="rgba(141,198,63,0.4)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
                 </button>
@@ -763,14 +905,14 @@ export default function RentalSearchScreen({ onClose, initialView, initialListin
 
             {/* Footer */}
             <div style={{ padding: '14px 16px', borderTop: '1px solid rgba(255,255,255,0.04)', textAlign: 'center' }}>
-              <span style={{ fontSize: 10, color: 'rgba(255,255,255,0.12)', fontWeight: 600 }}>Indoo Done Deal v1.0</span>
+              <span style={{ fontSize: 12, color: 'rgba(255,255,255,0.12)', fontWeight: 600 }}>Indoo Done Deal v1.0</span>
             </div>
           </div>
         </>
       )}
 
       {/* 2-column product grid — matches marketplace layout */}
-      <div className={styles.body} style={{ paddingRight: 66, paddingTop: 90 }}>
+      <div className={styles.body} style={{ paddingRight: 0, paddingTop: 90 }}>
         <style>{`
           @keyframes rentalCardIn { from { opacity: 0; transform: translateY(12px) scale(0.97); } to { opacity: 1; transform: translateY(0) scale(1); } }
         `}</style>
@@ -783,8 +925,8 @@ export default function RentalSearchScreen({ onClose, initialView, initialListin
             {sortedListings.filter(l => listingMode === 'sale' ? !!l.buy_now : listingMode === 'rent' ? !l.buy_now : true).length} items
           </span>
         </div>
-        {/* Quick category chips — hidden when viewing specific vehicle type */}
-        {!vehicleType && (
+        {/* Quick category chips — hidden */}
+        {false && (
           <div style={{ display: 'flex', gap: 6, overflowX: 'auto', paddingBottom: 10, WebkitOverflowScrolling: 'touch' }}>
             {[
               { id: 'all', label: 'All' },
@@ -807,115 +949,150 @@ export default function RentalSearchScreen({ onClose, initialView, initialListin
             ))}
           </div>
         )}
+        {/* Rent / Sale — toggle with green underline */}
+        <div style={{ display: 'flex', marginBottom: 16, borderBottom: '1px solid rgba(255,255,255,0.06)' }}>
+          <button onClick={() => setListingMode(listingMode === 'rent' ? 'all' : 'rent')} style={{
+            flex: 1, padding: '12px 0', border: 'none', cursor: 'pointer', fontFamily: 'inherit',
+            background: 'transparent', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8,
+            color: listingMode === 'rent' ? '#8DC63F' : 'rgba(255,255,255,0.35)',
+            fontSize: 14, fontWeight: 800,
+            borderBottom: 'none',
+            transition: 'all 0.2s', position: 'relative',
+          }}>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 2l-2 2m-7.61 7.61a5.5 5.5 0 11-7.78 7.78 5.5 5.5 0 017.78-7.78zm0 0L15.5 7.5m0 0l3 3L22 7l-3-3m-3.5 3.5L19 4"/></svg>
+            For Rent
+            {listingMode === 'rent' && <div style={{ position: 'absolute', bottom: 0, left: '25%', right: '25%', height: 2, borderRadius: 1, background: '#8DC63F' }} />}
+          </button>
+          <button onClick={() => setListingMode(listingMode === 'sale' ? 'all' : 'sale')} style={{
+            flex: 1, padding: '12px 0', border: 'none', cursor: 'pointer', fontFamily: 'inherit',
+            background: 'transparent', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8,
+            color: listingMode === 'sale' ? '#8DC63F' : 'rgba(255,255,255,0.35)',
+            fontSize: 14, fontWeight: 800,
+            borderBottom: 'none', position: 'relative',
+            transition: 'all 0.2s',
+          }}>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 01-8 0"/></svg>
+            For Sale
+            {listingMode === 'sale' && <div style={{ position: 'absolute', bottom: 0, left: '25%', right: '25%', height: 2, borderRadius: 1, background: '#8DC63F' }} />}
+          </button>
+        </div>
+
+        {/* New Listings — auto-scrolling circular carousel */}
+        <NewListingsCarousel listings={sortedListings} onSelect={setSelected} />
+
+        {/* Featured — auto-scrolling card carousel */}
+        <FeaturedCarousel listings={sortedListings} onSelect={setSelected} />
+
         {sortedListings.length === 0 && <div className={styles.empty}>No rentals found</div>}
         <div className={styles.grid}>
           {sortedListings.filter(l => listingMode === 'sale' ? !!l.buy_now : listingMode === 'rent' ? !l.buy_now : true).map((l, idx) => {
             const imgs = l.images?.length ? l.images : [l.image || '']
-            const fmtK = n => n >= 1000000 ? (n/1000000).toFixed(1).replace('.0','') + 'jt' : n >= 1000 ? Math.round(n/1000) + 'k' : n
-            const price = l.buy_now ? (typeof l.buy_now === 'object' ? l.buy_now.price : l.buy_now) : l.price_day
+            const fmtK = n => n >= 1000000000 ? (n/1000000000).toFixed(1).replace('.0','')+'M' : n >= 1000000 ? (n/1000000).toFixed(1).replace('.0','') + 'jt' : n >= 1000 ? Math.round(n/1000) + 'k' : n
+            const price = l.buy_now ? (typeof l.buy_now === 'object' ? l.buy_now.price : l.buy_now) : l.price_month || l.price_day
+            const isPropertyCard = ['House', 'Villa', 'Kos', 'Factory', 'Property'].includes(l.category)
             return (
             <button key={`${l.id}-${idx}`} onClick={() => setSelected(l)} style={{
-              background: 'rgba(0,0,0,0.5)', backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)',
-              border: '1.5px solid rgba(141,198,63,0.08)', borderRadius: 20,
+              background: 'none', border: '1px solid rgba(255,255,255,0.1)', borderRadius: 16,
               overflow: 'hidden', cursor: 'pointer', textAlign: 'left', fontFamily: 'inherit',
               display: 'flex', flexDirection: 'column', position: 'relative', padding: 0, width: '100%',
-              boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.04), 0 4px 20px rgba(0,0,0,0.3)',
+              boxShadow: '0 8px 32px rgba(0,0,0,0.6), inset 0 1px 0 rgba(255,255,255,0.08)',
               animation: 'rentalCardIn 0.4s ease both',
-              transition: 'transform 0.2s ease',
+              transition: 'transform 0.15s ease',
               WebkitTapHighlightColor: 'transparent',
             }}
             onPointerDown={e => e.currentTarget.style.transform = 'scale(0.98)'}
             onPointerUp={e => e.currentTarget.style.transform = 'scale(1)'}
             onPointerLeave={e => e.currentTarget.style.transform = 'scale(1)'}
             >
-              {/* Green glow line */}
-              <div style={{ position: 'absolute', top: 0, left: '10%', right: '10%', height: 1, background: 'linear-gradient(90deg, transparent, rgba(141,198,63,0.2), transparent)', pointerEvents: 'none', zIndex: 2 }} />
+              {/* Full-width hero image */}
+              <div
+                onTouchStart={e => { e.currentTarget._touchX = e.touches[0].clientX }}
+                onTouchEnd={e => { const diff = e.changedTouches[0].clientX - (e.currentTarget._touchX || 0); if (Math.abs(diff) > 40 && imgs.length > 1) { e.stopPropagation(); setCardImgIdx(p => ({ ...p, [l.id]: diff > 0 ? ((p[l.id] || 0) - 1 + imgs.length) % imgs.length : ((p[l.id] || 0) + 1) % imgs.length })) } }}
+                style={{ position: 'relative', width: '100%', height: 200, overflow: 'hidden', borderRadius: '16px 16px 0 0' }}>
+                <img src={imgs[cardImgIdx[l.id] || 0] || imgs[0]} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }} />
+                <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(180deg, rgba(0,0,0,0.1) 0%, transparent 40%, rgba(0,0,0,0.85) 100%)', pointerEvents: 'none' }} />
 
-              {/* 16:9 image */}
-              <div style={{ position: 'relative', width: '100%', aspectRatio: '16/9', background: '#0a0a0a', overflow: 'hidden', borderRadius: '18px 18px 0 0' }}>
-                {imgs[0] ? (
-                  <img src={imgs[0]} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }} />
-                ) : (
-                  <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 36, color: 'rgba(255,255,255,0.08)' }}>🏍️</div>
+                {/* Top-left: Type + Sale/Rent badge */}
+                <div style={{ position: 'absolute', top: 10, left: 0, zIndex: 3, padding: '5px 14px 5px 10px', borderRadius: '0 10px 10px 0', background: 'rgba(0,0,0,0.6)', backdropFilter: 'blur(10px)', borderRight: `2px solid ${l.buy_now ? '#FACC15' : '#8DC63F'}` }}>
+                  <span style={{ fontSize: 13, fontWeight: 900, color: '#fff' }}>{l.sub_category || l.extra_fields?.property_type || l.category}</span>
+                  <span style={{ fontSize: 12, fontWeight: 700, color: l.buy_now ? '#FACC15' : '#8DC63F', marginLeft: 8 }}>{l.buy_now ? 'SALE' : 'RENT'}</span>
+                </div>
+
+                {/* Top-right: Rating + photos */}
+                <div style={{ position: 'absolute', top: 10, right: 10, zIndex: 3, display: 'flex', gap: 6 }}>
+                  {l.rating && <span style={{ fontSize: 13, fontWeight: 800, color: '#FFD700', padding: '4px 10px', borderRadius: 10, background: 'rgba(0,0,0,0.5)', backdropFilter: 'blur(6px)' }}>⭐ {l.rating}</span>}
+                  {imgs.length > 1 && <span style={{ fontSize: 12, fontWeight: 700, color: '#fff', padding: '4px 10px', borderRadius: 10, background: 'rgba(0,0,0,0.5)', backdropFilter: 'blur(6px)' }}>📷 {imgs.length}</span>}
+                </div>
+
+                {/* Bottom on image: Price + Owner + Location */}
+                <div style={{ position: 'absolute', bottom: 10, left: 12, right: 12, zIndex: 3 }}>
+                  <div style={{ display: 'flex', alignItems: 'baseline', justifyContent: 'space-between' }}>
+                    <div>
+                      <span style={{ fontSize: 24, fontWeight: 900, color: '#FACC15', letterSpacing: '-0.02em' }}>Rp {price ? fmtK(Number(String(price).replace(/\./g, ''))) : '—'}</span>
+                      {!l.buy_now && <span style={{ fontSize: 13, color: 'rgba(255,255,255,0.5)', fontWeight: 600, marginLeft: 4 }}>/{l.price_month ? 'bln' : l.price_week ? 'mgg' : 'hr'}</span>}
+                    </div>
+                    {l.owner_type && <span style={{ fontSize: 13, fontWeight: 700, color: l.owner_type === 'owner' ? '#8DC63F' : '#60A5FA' }}>Listing · {l.owner_type === 'owner' ? 'Owner' : 'Agent'}</span>}
+                  </div>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 5, marginTop: 4 }}>
+                    <span style={{ fontSize: 12 }}>📍</span>
+                    <span style={{ fontSize: 13, fontWeight: 600, color: 'rgba(255,255,255,0.5)' }}>{l.city || 'Indonesia'}</span>
+                    {l.extra_fields?.land_area && <span style={{ marginLeft: 'auto', fontSize: 13, fontWeight: 800, color: 'rgba(255,255,255,0.7)' }}>📐 {l.extra_fields.land_area}</span>}
+                  </div>
+                </div>
+              </div>
+
+              {/* Bottom strip — specs + rental periods */}
+              <div style={{ background: 'rgba(10,10,10,0.98)', padding: '10px 12px', borderRadius: '0 0 16px 16px', display: 'flex', alignItems: 'center', gap: 8 }}>
+                {/* Title */}
+                <div style={{ fontSize: 14, fontWeight: 800, color: '#fff', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', flex: 1, minWidth: 0 }}>{l.title}</div>
+
+                {/* Specs — colored emoji icons */}
+                {isPropertyCard && l.extra_fields && (
+                  <div style={{ display: 'flex', gap: 8, alignItems: 'center', flexShrink: 0 }}>
+                    {l.extra_fields.bedrooms && <span style={{ fontSize: 13, fontWeight: 800, color: '#fff', display: 'flex', alignItems: 'center', gap: 3 }}><span style={{ fontSize: 15 }}>🛏️</span>{l.extra_fields.bedrooms}</span>}
+                    {l.extra_fields.bathrooms && <span style={{ fontSize: 13, fontWeight: 800, color: '#fff', display: 'flex', alignItems: 'center', gap: 3 }}><span style={{ fontSize: 15 }}>🚿</span>{l.extra_fields.bathrooms}</span>}
+                    {l.extra_fields.parking && <span style={{ fontSize: 13, fontWeight: 800, color: '#fff', display: 'flex', alignItems: 'center', gap: 3 }}><span style={{ fontSize: 15 }}>🚗</span>{l.extra_fields.parking}</span>}
+                    {l.extra_fields?.certificate && <span style={{ fontSize: 12, fontWeight: 700, color: l.extra_fields.certificate.includes('SHM') ? '#8DC63F' : '#FACC15' }}>📄 {l.extra_fields.certificate.split('·')[0].trim()}</span>}
+                  </div>
                 )}
-                {/* Bottom gradient */}
-                <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, height: '50%', background: 'linear-gradient(transparent, rgba(0,0,0,0.7))', pointerEvents: 'none' }} />
-
-                {/* City badge with red pin */}
-                <span style={{ position: 'absolute', top: 10, left: 10, padding: '4px 10px', borderRadius: 8, background: 'rgba(0,0,0,0.5)', backdropFilter: 'blur(6px)', color: '#fff', fontSize: 10, fontWeight: 800, letterSpacing: '0.02em', display: 'flex', alignItems: 'center', gap: 4 }}>
-                  <svg width="10" height="10" viewBox="0 0 24 24" fill="#EF4444" stroke="none"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5a2.5 2.5 0 010-5 2.5 2.5 0 010 5z"/></svg>
-                  {l.city?.split(',')[0] || 'Indonesia'}
-                </span>
-
-                {/* Heart save */}
-                <div role="button" tabIndex={0} onClick={e => { e.stopPropagation(); if (isItemSaved(l.id)) return; saveItem({ id: l.id, title: l.title, city: l.city, price: l.price_day || l.buy_now, image: imgs[0], category: l.category }); setSavedToggle(p => p + 1) }} style={{ position: 'absolute', top: 10, right: 10, width: 34, height: 34, borderRadius: '50%', background: 'rgba(0,0,0,0.35)', backdropFilter: 'blur(6px)', border: 'none', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', zIndex: 3, padding: 0 }}>
-                  <svg width="16" height="16" viewBox="0 0 24 24" fill={isItemSaved(l.id) ? '#EF4444' : 'none'} stroke={isItemSaved(l.id) ? '#EF4444' : '#fff'} strokeWidth="2.5"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
-                </div>
-
-                {/* Rating badge */}
-                {l.rating && <span style={{ position: 'absolute', bottom: 10, left: 10, padding: '3px 8px', borderRadius: 8, background: 'rgba(0,0,0,0.5)', backdropFilter: 'blur(6px)', fontSize: 11, fontWeight: 800, color: '#FFD700', zIndex: 3 }}>★ {l.rating}{l.review_count ? <span style={{ color: 'rgba(255,255,255,0.4)', fontWeight: 600 }}> ({l.review_count})</span> : ''}</span>}
-
-                {/* Transmission badge */}
-                {l.extra_fields?.transmission && <span style={{ position: 'absolute', bottom: 10, right: 10, padding: '3px 8px', borderRadius: 8, background: 'rgba(0,0,0,0.5)', backdropFilter: 'blur(6px)', color: '#fff', fontSize: 10, fontWeight: 800, zIndex: 3, textTransform: 'capitalize' }}>{l.extra_fields.transmission === 'matic' ? 'Automatic' : l.extra_fields.transmission === 'manual' ? 'Manual' : l.extra_fields.transmission}</span>}
-
               </div>
 
-              {/* Card body — brand + specs + price + features */}
-              <div style={{ padding: '12px 14px 14px' }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-                  <div style={{ flex: 1, minWidth: 0 }}>
-                    {/* Brand / Title */}
-                    <div style={{ fontSize: 16, fontWeight: 900, color: '#fff', letterSpacing: '-0.01em', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-                      {l.extra_fields?.brand ? `${l.extra_fields.brand} ${l.extra_fields.model || ''}`.trim() : l.title}
-                    </div>
-                    {/* Specs line */}
-                    <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.35)', fontWeight: 600, marginTop: 2, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-                      {l.extra_fields?.cc
-                        ? [l.extra_fields.cc && `${l.extra_fields.cc}cc`, l.extra_fields.year, l.extra_fields.transmission].filter(Boolean).join(' · ')
-                        : `${l.category}${l.city ? ` · ${l.city}` : ''}`
-                      }
-                    </div>
+              {/* Rental periods strip */}
+              {!l.buy_now && isPropertyCard && (() => {
+                const sub = l.sub_category || l.extra_fields?.property_type || ''
+                const rates = sub === 'Factory' ? [
+                  l.price_6month && { l: '6 Month', p: l.price_6month },
+                  l.price_year && { l: 'Year', p: l.price_year },
+                  l.price_2year && { l: '2 Year', p: l.price_2year },
+                  l.price_5year && { l: '5 Year', p: l.price_5year },
+                ] : sub === 'Kos' ? [
+                  l.price_month && { l: 'Month', p: l.price_month },
+                  l.price_3month && { l: '3 Month', p: l.price_3month },
+                  l.price_6month && { l: '6 Month', p: l.price_6month },
+                  l.price_year && { l: 'Year', p: l.price_year },
+                ] : sub === 'House' ? [
+                  l.price_month && { l: 'Month', p: l.price_month },
+                  l.price_6month && { l: '6 Month', p: l.price_6month },
+                  l.price_year && { l: 'Year', p: l.price_year },
+                ] : [
+                  l.price_day && { l: 'Day', p: l.price_day },
+                  l.price_week && { l: 'Week', p: l.price_week },
+                  l.price_month && { l: 'Month', p: l.price_month },
+                  l.price_year && { l: 'Year', p: l.price_year },
+                ]
+                const valid = rates.filter(Boolean)
+                if (valid.length <= 1) return null
+                return (
+                  <div style={{ display: 'flex', background: 'rgba(5,5,5,0.98)', borderTop: '1px solid rgba(250,204,21,0.08)', borderRadius: '0 0 16px 16px', overflow: 'hidden' }}>
+                    {valid.map((r, i) => (
+                      <div key={r.l} style={{ flex: 1, padding: '8px 4px', textAlign: 'center', borderRight: i < valid.length - 1 ? '1px solid rgba(255,255,255,0.05)' : 'none' }}>
+                        <div style={{ fontSize: 12, fontWeight: 700, color: 'rgba(255,255,255,0.4)' }}>{r.l}</div>
+                        <div style={{ fontSize: 16, fontWeight: 900, color: '#FACC15', marginTop: 2 }}>{fmtK(r.p)}</div>
+                      </div>
+                    ))}
                   </div>
-                  {/* Price — right side */}
-                  <div style={{ textAlign: 'right', flexShrink: 0 }}>
-                    <div style={{ fontSize: 18, fontWeight: 900, color: l.buy_now ? '#FFD700' : '#8DC63F', letterSpacing: '-0.02em', fontFamily: 'monospace' }}>
-                      {price ? fmtK(Number(String(price).replace(/\./g, ''))) : '—'}
-                    </div>
-                    <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.3)', fontWeight: 600, marginTop: 1 }}>
-                      {l.buy_now ? 'asking' : '/day'}
-                    </div>
-                  </div>
-                </div>
-                {/* Includes line — helmets + raincoat + drop off icons */}
-                {(() => {
-                  const helmetCount = l.extra_fields?.helmet_count || (l.features?.some(f => /helm/i.test(f)) ? 1 : 0)
-                  const hasRaincoat = l.features?.some(f => /rain|jas hujan/i.test(f))
-                  const hasDropOff = l.extra_fields?.delivery_available || l.features?.some(f => /deliver|drop|antar/i.test(f))
-                  if (!helmetCount && !hasRaincoat && !hasDropOff) return null
-                  return (
-                    <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginTop: 8 }}>
-                      {helmetCount > 0 && (
-                        <span style={{ display: 'flex', alignItems: 'center', gap: 4, fontSize: 11, fontWeight: 700, color: 'rgba(255,255,255,0.45)' }}>
-                          <img src="https://ik.imagekit.io/nepgaxllc/Untitleddsdssss-removebg-preview.png" alt="" style={{ width: 15, height: 15, objectFit: 'contain' }} />
-                          x{helmetCount}
-                        </span>
-                      )}
-                      {hasRaincoat && (
-                        <span style={{ display: 'flex', alignItems: 'center', gap: 4, fontSize: 11, fontWeight: 700, color: 'rgba(255,255,255,0.45)' }}>
-                          <img src="https://ik.imagekit.io/nepgaxllc/Untitleddsdssssdd-removebg-preview.png" alt="" style={{ width: 15, height: 15, objectFit: 'contain' }} />
-                          x1
-                        </span>
-                      )}
-                      {hasDropOff && (
-                        <span style={{ display: 'flex', alignItems: 'center', gap: 4, fontSize: 11, fontWeight: 700, color: 'rgba(255,255,255,0.45)' }}>
-                          <img src="https://ik.imagekit.io/nepgaxllc/Untitleddsdssssddss-removebg-preview.png" alt="" style={{ width: 22, height: 22, objectFit: 'contain' }} />
-                          Drop off
-                        </span>
-                      )}
-                    </div>
-                  )
-                })()}
-              </div>
+                )
+              })()}
             </button>
           )})}
         </div>
@@ -942,8 +1119,10 @@ export default function RentalSearchScreen({ onClose, initialView, initialListin
       <ProfileScreen2 open={showProfile} onClose={() => setShowProfile(false)} />
       <SettingsScreen open={showSettings} onClose={() => setShowSettings(false)} />
       <MessagesScreen open={showMessages} onClose={() => setShowMessages(false)} onOpenChat={(conv) => { setShowMessages(false); setChatListing(conv) }} />
+      <PropertyMapSearch open={showMapSearch} onClose={() => setShowMapSearch(false)} listings={sortedListings} onSelect={(l) => { setShowMapSearch(false); setSelected(l) }} />
+      <SavedSearchAlerts open={showAlerts} onClose={() => setShowAlerts(false)} />
       {modals}
-      {!rentalCategoryOpen && <IndooFooter label="Rentals" onBack={onClose} onHome={onClose} />}
+      {!rentalCategoryOpen && !selected && <IndooFooter label="Rentals" onBack={onClose} onHome={onClose} />}
     </div>
   )
 }

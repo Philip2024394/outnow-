@@ -123,11 +123,11 @@
 
 .getStartedBtn {
   width: 100%;
-  padding: 17px 24px;
-  border-radius: 16px;
+  padding: 0;
+  border-radius: 14px;
   border: none;
-  background: #8DC63F;
-  color: #000;
+  background: none;
+  color: #fff;
   font-size: 17px;
   font-weight: 900;
   font-family: inherit;
@@ -135,7 +135,14 @@
   cursor: pointer;
   -webkit-tap-highlight-color: transparent;
   transition: transform 0.12s, opacity 0.12s;
-  box-shadow: 0 4px 24px rgba(141, 198, 63, 0.45);
+  position: relative;
+  overflow: hidden;
+}
+.getStartedBtn img { width: 100%; height: auto; display: block; }
+.getStartedBtn span {
+  position: absolute; inset: 0;
+  display: flex; align-items: center; justify-content: center;
+  text-shadow: 0 1px 4px rgba(0,0,0,0.5);
 }
 
 .getStartedBtn:active {

@@ -29,6 +29,7 @@ const CATEGORIES = [
 
 export default function RentalCategoryRouter({ open, onClose, onSubmit }) {
   const [selectedCat, setSelectedCat] = useState(null)
+  const [propertySubCat, setPropertySubCat] = useState(null) // 'House' | 'Villa' | 'Kos' | 'Factory'
   const [editListingData, setEditListingData] = useState(null)
   const [listingMarket, setListingMarket] = useState(null) // 'rental' | 'selling'
   const [ownerDone, setOwnerDone] = useState(() => !!localStorage.getItem('indoo_rental_owner'))
@@ -196,8 +197,8 @@ export default function RentalCategoryRouter({ open, onClose, onSubmit }) {
     )
   }
 
-  // Category selected but no market chosen → show market selector
-  if (selectedCat && !listingMarket && !editListingData) {
+  // Category selected but no market chosen → show market selector (skip for property — handled separately)
+  if (selectedCat && selectedCat !== 'property' && !listingMarket && !editListingData) {
     const catLabel = CATEGORIES.find(c => c.id === selectedCat)?.label || 'Item'
     return (
       <div key="market" className={styles.screen} style={{ backgroundImage: 'url(https://ik.imagekit.io/nepgaxllc/Untitledfsdsss.png?updatedAt=1777336271626)', backgroundSize: 'cover', backgroundPosition: 'center' }}>
@@ -270,11 +271,13 @@ export default function RentalCategoryRouter({ open, onClose, onSubmit }) {
       setTimeout(() => setSelectedCat(cat), 50)
     } else if (action === 'viewMarketplace') {
       setSelectedCat(null)
+      setPropertySubCat(null)
       setEditListingData(null)
       setListingMarket(null)
       onClose('viewMarketplace')
     } else {
       setSelectedCat(null)
+      setPropertySubCat(null)
       setEditListingData(null)
       setListingMarket(null)
     }
@@ -286,7 +289,93 @@ export default function RentalCategoryRouter({ open, onClose, onSubmit }) {
   if (selectedCat === 'bicycle') return <BicycleListingForm open onClose={handleFormClose} onSubmit={onSubmit} editListing={editListingData} listingMarket={listingMarket} />
   if (selectedCat === 'bus') return <BusListingForm open onClose={handleFormClose} onSubmit={onSubmit} editListing={editListingData} listingMarket={listingMarket} />
   if (selectedCat === 'truck') return <TruckListingForm open onClose={handleFormClose} onSubmit={onSubmit} editListing={editListingData} listingMarket={listingMarket} />
-  if (selectedCat === 'property') return <PropertyListingForm open onClose={handleFormClose} onSubmit={onSubmit} editListing={editListingData} listingMarket={listingMarket} />
+  // Property sub-category selection before form
+  if (selectedCat === 'property' && !propertySubCat) {
+    return (
+      <div className={styles.screen} style={{ backgroundImage: 'linear-gradient(160deg, rgba(10,15,8,0.95), rgba(5,10,3,0.98)), url(https://ik.imagekit.io/nepgaxllc/ChatGPT%20Image%20Apr%2030,%202026,%2010_41_24%20AM.png?updatedAt=1777520502182)', backgroundSize: 'cover', backgroundPosition: 'center' }}>
+        <div style={{ position: 'relative', zIndex: 1, padding: '20px 16px 0' }}>
+          <h1 style={{ fontSize: 22, fontWeight: 900, color: '#fff', margin: 0 }}>Property Type</h1>
+          <p style={{ fontSize: 12, color: 'rgba(255,255,255,0.4)', margin: '4px 0 0', fontWeight: 600 }}>Select your property category</p>
+        </div>
+        <div style={{ position: 'relative', zIndex: 1, flex: 1, overflowY: 'auto', padding: '16px' }}>
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
+            {[
+              { id: 'House', icon: '🏠', img: 'https://images.unsplash.com/photo-1564013799919-ab600027ffc6?w=400', desc: 'Family homes & residences' },
+              { id: 'Villa', icon: '🏝️', img: 'https://images.unsplash.com/photo-1582268611958-ebfd161ef9cf?w=400', desc: 'Luxury villas & holiday homes' },
+              { id: 'Kos', icon: '🏢', img: 'https://images.unsplash.com/photo-1522771739844-6a9f6d5f14af?w=400', desc: 'Boarding rooms & student housing' },
+              { id: 'Factory', icon: '🏭', img: 'https://images.unsplash.com/photo-1565793298595-6a879b1d9492?w=400', desc: 'Warehouses & industrial space' },
+            ].map(sub => (
+              <button key={sub.id} onClick={() => setPropertySubCat(sub.id)} style={{
+                padding: 0, border: '1px solid rgba(141,198,63,0.12)', borderRadius: 16, overflow: 'hidden', cursor: 'pointer',
+                background: 'rgba(141,198,63,0.03)', backdropFilter: 'blur(12px)',
+                boxShadow: '0 8px 24px rgba(0,0,0,0.3)', textAlign: 'left', fontFamily: 'inherit',
+                display: 'flex', flexDirection: 'column',
+              }}>
+                <div style={{ width: '100%', aspectRatio: '4/3', overflow: 'hidden', position: 'relative' }}>
+                  <img src={sub.img} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                  <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, height: '50%', background: 'linear-gradient(transparent, rgba(0,0,0,0.7))', pointerEvents: 'none' }} />
+                  <div style={{ position: 'absolute', bottom: 8, left: 10, fontSize: 22 }}>{sub.icon}</div>
+                </div>
+                <div style={{ padding: '10px 12px' }}>
+                  <div style={{ fontSize: 15, fontWeight: 900, color: '#fff' }}>{sub.id}</div>
+                  <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.4)', marginTop: 3, lineHeight: 1.3 }}>{sub.desc}</div>
+                </div>
+              </button>
+            ))}
+          </div>
+        </div>
+        <IndooFooter label="Property" onBack={() => { setSelectedCat(null); setListingMarket(null) }} onHome={onClose} />
+      </div>
+    )
+  }
+
+  // Property sub-cat selected but no market → show rent/sell with context
+  if (selectedCat === 'property' && propertySubCat && !listingMarket) {
+    return (
+      <div className={styles.screen} style={{ backgroundImage: 'linear-gradient(160deg, rgba(10,15,8,0.95), rgba(5,10,3,0.98)), url(https://ik.imagekit.io/nepgaxllc/ChatGPT%20Image%20Apr%2030,%202026,%2010_41_24%20AM.png?updatedAt=1777520502182)', backgroundSize: 'cover', backgroundPosition: 'center' }}>
+        <div style={{ position: 'relative', zIndex: 1, padding: '20px 16px 0' }}>
+          <h1 style={{ fontSize: 22, fontWeight: 900, color: '#fff', margin: 0 }}>List {propertySubCat}</h1>
+          <p style={{ fontSize: 12, color: 'rgba(255,255,255,0.4)', margin: '4px 0 0', fontWeight: 600 }}>How would you like to list?</p>
+        </div>
+        <div style={{ position: 'relative', zIndex: 1, flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px 16px' }}>
+          <div style={{ display: 'flex', gap: 12, width: '100%' }}>
+            {/* Rent */}
+            <button onClick={() => setListingMarket('rental')} style={{
+              flex: 1, padding: '24px 14px', borderRadius: 18, cursor: 'pointer', fontFamily: 'inherit', textAlign: 'center',
+              background: 'rgba(141,198,63,0.04)', backdropFilter: 'blur(12px)',
+              border: '1.5px solid rgba(141,198,63,0.2)', boxShadow: '0 8px 24px rgba(0,0,0,0.3)',
+              display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 10,
+            }}>
+              <div style={{ width: 52, height: 52, borderRadius: 14, background: 'rgba(141,198,63,0.1)', border: '1px solid rgba(141,198,63,0.25)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#8DC63F" strokeWidth="2"><path d="M21 2l-2 2m-7.61 7.61a5.5 5.5 0 11-7.78 7.78 5.5 5.5 0 017.78-7.78zm0 0L15.5 7.5m0 0l3 3L22 7l-3-3m-3.5 3.5L19 4"/></svg>
+              </div>
+              <div style={{ fontSize: 18, fontWeight: 900, color: '#8DC63F' }}>For Rent</div>
+              <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.35)', lineHeight: 1.4 }}>Daily, weekly or monthly</div>
+              <span style={{ padding: '3px 10px', borderRadius: 8, background: 'rgba(141,198,63,0.1)', border: '1px solid rgba(141,198,63,0.2)', fontSize: 10, fontWeight: 800, color: '#8DC63F' }}>10% commission</span>
+            </button>
+
+            {/* Sale */}
+            <button onClick={() => setListingMarket('selling')} style={{
+              flex: 1, padding: '24px 14px', borderRadius: 18, cursor: 'pointer', fontFamily: 'inherit', textAlign: 'center',
+              background: 'rgba(250,204,21,0.03)', backdropFilter: 'blur(12px)',
+              border: '1.5px solid rgba(250,204,21,0.15)', boxShadow: '0 8px 24px rgba(0,0,0,0.3)',
+              display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 10,
+            }}>
+              <div style={{ width: 52, height: 52, borderRadius: 14, background: 'rgba(250,204,21,0.08)', border: '1px solid rgba(250,204,21,0.2)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#FACC15" strokeWidth="2"><path d="M20.59 13.41l-7.17 7.17a2 2 0 01-2.83 0L2 12V2h10l8.59 8.59a2 2 0 010 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg>
+              </div>
+              <div style={{ fontSize: 18, fontWeight: 900, color: '#FACC15' }}>For Sale</div>
+              <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.35)', lineHeight: 1.4 }}>One-time sale price</div>
+              <span style={{ padding: '3px 10px', borderRadius: 8, background: 'rgba(250,204,21,0.06)', border: '1px solid rgba(250,204,21,0.15)', fontSize: 10, fontWeight: 800, color: '#FACC15' }}>5% commission</span>
+            </button>
+          </div>
+        </div>
+        <IndooFooter label={propertySubCat} onBack={() => setPropertySubCat(null)} onHome={onClose} />
+      </div>
+    )
+  }
+
+  if (selectedCat === 'property') return <PropertyListingForm open onClose={handleFormClose} onSubmit={onSubmit} editListing={editListingData} listingMarket={listingMarket} propertyType={propertySubCat} />
   if (selectedCat === 'event') return <EventEquipmentListingForm open onClose={handleFormClose} onSubmit={onSubmit} editListing={editListingData} listingMarket={listingMarket} />
 
   // Category selection screen

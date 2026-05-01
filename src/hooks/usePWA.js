@@ -12,8 +12,8 @@ export function usePWA() {
   const [updateAvailable, setUpdateAvailable] = useState(false)
 
   useEffect(() => {
-    // Register service worker + detect updates
-    if ('serviceWorker' in navigator) {
+    // Register service worker + detect updates (skip in dev — blocks HMR)
+    if ('serviceWorker' in navigator && !import.meta.env.DEV) {
       navigator.serviceWorker.register('/sw.js').then(reg => {
         // Check for updates every 60 seconds
         setInterval(() => reg.update(), 60000)

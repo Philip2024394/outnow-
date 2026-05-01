@@ -380,7 +380,8 @@ export default function BookingFormPanel({
         disabled={!destination || !pickup || !vehicleType}
         onClick={handleFindDriver}
       >
-        Find a Driver
+        <img src="https://ik.imagekit.io/nepgaxllc/dfggdfgees-removebg-preview.png" alt="" />
+        <span>Find a Driver</span>
       </button>
       {!pickup && <p className={styles.fieldHint}>Set your pickup location to continue</p>}
       {/* Demo shortcut — skip to active ride to preview Add Stop */}

@@ -314,13 +314,17 @@
 /* Action button inside sheet */
 .sheetAction { padding: 6px 14px 14px; }
 .actionBtn {
-  width: 100%; padding: 16px; border-radius: 14px;
-  background: linear-gradient(135deg, #8DC63F, #6ba020);
-  color: #000; border: none;
-  font-size: 16px; font-weight: 900; cursor: pointer;
-  font-family: inherit; transition: all 0.2s;
-  box-shadow: 0 4px 24px rgba(141, 198, 63, 0.35);
+  width: 100%; padding: 0; border-radius: 14px;
+  background: none; border: none;
+  cursor: pointer; font-family: inherit; transition: all 0.2s;
+  position: relative; overflow: hidden;
+}
+.actionBtn img.btnBg { width: 100%; height: auto; display: block; }
+.actionBtn .btnContent {
+  position: absolute; inset: 0;
   display: flex; align-items: center; justify-content: center; gap: 10px;
+  color: #fff; font-size: 16px; font-weight: 900;
+  text-shadow: 0 1px 4px rgba(0,0,0,0.5);
 }
 .btnFare {
   background: rgba(0, 0, 0, 0.15); padding: 3px 10px;

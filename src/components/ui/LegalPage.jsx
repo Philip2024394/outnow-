@@ -2,8 +2,8 @@ import { useState } from 'react';
 import { createPortal } from 'react-dom';
 import IndooFooter from '@/components/ui/IndooFooter';
 
-const DAY_BG = 'https://ik.imagekit.io/nepgaxllc/ChatGPT%20Image%20Apr%2027,%202026,%2007_28_51%20AM.png?updatedAt=1777249747241';
-const NIGHT_BG = 'https://ik.imagekit.io/nepgaxllc/ChatGPT%20Image%20Apr%2027,%202026,%2007_22_25%20AM.png?updatedAt=1777249363795';
+const DAY_BG = 'https://ik.imagekit.io/nepgaxllc/ChatGPT%20Image%20Apr%2030,%202026,%2004_47_24%20PM.png';
+const NIGHT_BG = 'https://ik.imagekit.io/nepgaxllc/ChatGPT%20Image%20Apr%2030,%202026,%2004_47_24%20PM.png';
 function getLegalBG() {
   const h = new Date().getHours();
   return (h >= 6 && h < 18) ? DAY_BG : NIGHT_BG;
@@ -313,31 +313,6 @@ export default function LegalPage({ onClose, initialTab = 'privacy' }) {
           textAlign: 'center',
         }}
       >
-        {/* Back button */}
-        <button
-          onClick={onClose}
-          style={{
-            position: 'absolute',
-            top: 16,
-            left: 12,
-            width: 44,
-            height: 44,
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            background: 'rgba(255,255,255,0.06)',
-            border: '1px solid rgba(255,255,255,0.1)',
-            borderRadius: 12,
-            cursor: 'pointer',
-            padding: 0,
-          }}
-          aria-label="Go back"
-        >
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-            <polyline points="15 18 9 12 15 6" />
-          </svg>
-        </button>
-
         <div style={{ fontSize: 32, fontWeight: 900, color: '#fff' }}>Legal & Policies</div>
         <div style={{ fontSize: 16, fontWeight: 700, color: 'rgba(255,255,255,0.5)', marginTop: 6 }}>PT HAMMEREX PRODUCTS INDONESIA</div>
       </div>

@@ -94,6 +94,12 @@ export default function App() {
   const [updateReady, setUpdateReady] = useState(false)
   useEffect(() => {
     if (!('serviceWorker' in navigator)) return
+    // In dev mode, unregister ALL service workers and clear caches
+    if (import.meta.env.DEV) {
+      navigator.serviceWorker.getRegistrations().then(regs => regs.forEach(r => r.unregister()))
+      caches.keys().then(keys => keys.forEach(k => caches.delete(k)))
+      return
+    }
     navigator.serviceWorker.register('/sw.js').then(reg => {
       setInterval(() => reg.update(), 60000)
       reg.addEventListener('updatefound', () => {

@@ -2,12 +2,27 @@
 // Strategy: network-first for navigation (HTML), cache-first for static assets.
 // This prevents the "blank on refresh" issue caused by stale cached HTML.
 
-const CACHE_VERSION = 'indoo-v1'
+// DEV MODE: self-destruct — unregister and clear all caches
+const IS_DEV = self.location.hostname === 'localhost' || self.location.hostname === '127.0.0.1'
+if (IS_DEV) {
+  self.addEventListener('install', () => self.skipWaiting())
+  self.addEventListener('activate', (e) => {
+    e.waitUntil(
+      caches.keys().then(keys => Promise.all(keys.map(k => caches.delete(k))))
+        .then(() => self.registration.unregister())
+    )
+  })
+}
+
+const CACHE_VERSION = 'indoo-v2'
 const STATIC_CACHE  = `${CACHE_VERSION}-static`
 const IMAGE_CACHE   = `${CACHE_VERSION}-images`
 
 // Only cache the shell HTML — NOT dev paths like /src/main.jsx
 const PRECACHE = ['/']
+
+// Skip all caching in dev mode
+if (IS_DEV) { /* dev self-destruct active — skip production handlers */ } else {
 
 // ── Install: pre-cache shell only ────────────────────────────────────────────
 self.addEventListener('install', (e) => {
@@ -160,3 +175,5 @@ async function sendDigestNotification() {
     data: { url: '/?tab=match' },
   })
 }
+
+} // end of production-only block

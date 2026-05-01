@@ -6,6 +6,7 @@
  * Page 4: Horse selection cards
  */
 import { useState, useEffect } from 'react'
+import IndooButton from '@/components/ui/IndooButton'
 import {
   ANDONG_PRICING, ANDONG_PACKAGES, PACKAGE_CATEGORIES, TIME_SLOTS,
   getAvailableHorses, calculateAndongFare, formatRpAndong,
@@ -17,25 +18,19 @@ function LandingPage({ onNext, onClose }) {
   return (
     <div style={{ ...S.page, background: '#000' }}>
       <img src="https://ik.imagekit.io/nepgaxllc/ChatGPT%20Image%20Apr%2030,%202026,%2006_01_25%20AM.png" alt="" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover' }} />
-      <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to bottom, rgba(0,0,0,0.3) 0%, rgba(0,0,0,0.1) 40%, rgba(0,0,0,0.6) 70%, rgba(0,0,0,0.95) 100%)' }} />
-      <div style={{ position: 'absolute', top: 'calc(env(safe-area-inset-top, 0px) + 12px)', left: 14, zIndex: 10 }}>
-        <button onClick={onClose} style={{ ...S.backBtn, background: 'rgba(0,0,0,0.4)', backdropFilter: 'blur(8px)' }}>
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M19 12H5"/><polyline points="12 19 5 12 12 5"/></svg>
-        </button>
-      </div>
+      <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to bottom, rgba(0,0,0,0.2) 0%, rgba(0,0,0,0.05) 40%, rgba(0,0,0,0.5) 70%, rgba(0,0,0,0.92) 100%)' }} />
+
+      {/* Logo top right */}
       <div style={{ position: 'absolute', top: 'calc(env(safe-area-inset-top, 0px) + 16px)', right: 16, zIndex: 10 }}>
         <span style={{ fontSize: 16, fontWeight: 900 }}><span style={{ color: '#fff' }}>IND</span><span style={{ color: '#8DC63F' }}>OO</span><span style={{ fontSize: 11, fontWeight: 600, color: 'rgba(255,255,255,0.6)', marginLeft: 4 }}>Andong</span></span>
       </div>
+
+      {/* Bottom content */}
       <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, zIndex: 5, padding: '0 20px', paddingBottom: 'calc(env(safe-area-inset-bottom, 0px) + 20px)' }}>
-        <div style={{ fontSize: 32, fontWeight: 900, color: '#fff', lineHeight: 1.2, textShadow: '0 2px 12px rgba(0,0,0,0.5)' }}>Ride a<br />Horse Cart</div>
+        <div style={{ fontSize: 30, fontWeight: 900, color: '#fff', lineHeight: 1.2, textShadow: '0 2px 12px rgba(0,0,0,0.5)' }}>Traditional<br />Horse Cart Rides</div>
         <div style={{ fontSize: 14, color: 'rgba(255,255,255,0.7)', marginTop: 8, lineHeight: 1.5, maxWidth: 280 }}>Experience Yogyakarta's iconic andong — cultural heritage tours through historic streets</div>
-        <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6, marginTop: 14 }}>
-          {['💚 Welfare Certified', '📅 Book Tomorrow', '🏨 Hotel Pickup', '💬 Chat with Kusir'].map((f, i) => (
-            <span key={i} style={{ fontSize: 10, fontWeight: 600, padding: '4px 8px', borderRadius: 6, background: 'rgba(255,255,255,0.12)', backdropFilter: 'blur(8px)', color: 'rgba(255,255,255,0.8)' }}>{f}</span>
-          ))}
-        </div>
         <div style={{ marginTop: 14, fontSize: 13, color: 'rgba(255,255,255,0.5)' }}>From <span style={{ color: '#8DC63F', fontWeight: 900, fontSize: 18 }}>{formatRpAndong(75000)}</span> / tour</div>
-        <button onClick={onNext} style={{ ...S.primaryBtn, marginTop: 16 }}>Browse Tour Packages</button>
+        <IndooButton onClick={onNext} style={{ marginTop: 16 }}>Browse Tour Packages</IndooButton>
       </div>
     </div>
   )
@@ -220,7 +215,7 @@ function MapPage({ pkg, horses, bookingDate, setBookingDate, bookingSlot, setBoo
       </div>
 
       <div style={S.footer}>
-        <button onClick={onViewAvailable} style={S.primaryBtn}>View Available Horses · {formatRpAndong(pkg.price)}</button>
+        <IndooButton onClick={onViewAvailable}>View Available Horses · {formatRpAndong(pkg.price)}</IndooButton>
       </div>
     </div>
   )
@@ -305,7 +300,7 @@ function HorseSelectionPage({ horses, pkg, bookingDate, bookingSlot, onBook, onB
             </div>
             <div style={{ fontSize: 22, fontWeight: 900, color: '#8DC63F' }}>{formatRpAndong(fare.total)}</div>
           </div>
-          <button onClick={() => onBook(selectedHorse)} style={S.primaryBtn}>Book {selectedHorse.name}</button>
+          <IndooButton onClick={() => onBook(selectedHorse)}>Book {selectedHorse.name}</IndooButton>
         </div>
       )}
     </div>
@@ -340,7 +335,7 @@ export default function AndongBookingScreen({ onClose }) {
           {bookingDate === 'tomorrow' && <div style={{ fontSize: 12, color: '#FACC15', marginTop: 6 }}>Tomorrow · {TIME_SLOTS.find(s => s.id === bookingSlot)?.time}</div>}
           <div style={{ fontSize: 28, fontWeight: 900, color: '#fff', marginTop: 16 }}>{fare && formatRpAndong(fare.total)}</div>
           <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.3)', marginTop: 4 }}>💚 Welfare certified ride</div>
-          <button onClick={onClose} style={{ ...S.primaryBtn, marginTop: 24, maxWidth: 200, margin: '24px auto 0' }}>Done</button>
+          <IndooButton onClick={onClose} style={{ marginTop: 24, maxWidth: 200, margin: '24px auto 0' }}>Done</IndooButton>
         </div>
       </div>
     )

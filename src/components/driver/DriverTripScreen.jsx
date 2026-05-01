@@ -353,20 +353,20 @@ export default function DriverTripScreen({ booking, driverId, onCompleted, onClo
         <div className={styles.sheetAction}>
           {phase === 'going_to_pickup' && (
             <button className={styles.actionBtn} onClick={handleArrived} disabled={busy}>
-              {busy ? '...' : "I've Arrived at Pickup"}
-              {booking.fare != null && <span className={styles.btnFare}>{fmtRp(booking.fare)}</span>}
+              <img className={styles.btnBg} src="https://ik.imagekit.io/nepgaxllc/dfggdfgees-removebg-preview.png" alt="" />
+              <span className={styles.btnContent}>{busy ? '...' : "I've Arrived at Pickup"}{booking.fare != null && ` · ${fmtRp(booking.fare)}`}</span>
             </button>
           )}
           {phase === 'arrived' && (
             <button className={styles.actionBtn} onClick={handleStartRide} disabled={busy}>
-              {busy ? '...' : 'Start Ride'}
-              {booking.fare != null && <span className={styles.btnFare}>{fmtRp(booking.fare)}</span>}
+              <img className={styles.btnBg} src="https://ik.imagekit.io/nepgaxllc/dfggdfgees-removebg-preview.png" alt="" />
+              <span className={styles.btnContent}>{busy ? '...' : 'Start Ride'}{booking.fare != null && ` · ${fmtRp(booking.fare)}`}</span>
             </button>
           )}
           {phase === 'in_progress' && (
-            <button className={`${styles.actionBtn} ${styles.actionBtnComplete}`} onClick={handleComplete} disabled={busy}>
-              {busy ? '...' : 'Complete Ride'}
-              {booking.fare != null && <span className={styles.btnFare}>{fmtRp(booking.fare)}</span>}
+            <button className={styles.actionBtn} onClick={handleComplete} disabled={busy}>
+              <img className={styles.btnBg} src="https://ik.imagekit.io/nepgaxllc/dfggdfgees-removebg-preview.png" alt="" />
+              <span className={styles.btnContent}>{busy ? '...' : 'Complete Ride'}{booking.fare != null && ` · ${fmtRp(booking.fare)}`}</span>
             </button>
           )}
         </div>
