@@ -21,7 +21,7 @@ import SectionCTAButton from '@/components/ui/SectionCTAButton'
 import { hasVisitedSection, markSectionVisited } from '@/services/sectionVisitService'
 import PriceCalculator from '@/components/rentals/PriceCalculator'
 import PropertyCard from '@/components/rentals/PropertyCard'
-import NewProjectsSection from '@/components/property/NewProjectsSection'
+import NewProjectsPage from '@/components/property/NewProjectsPage'
 import { getPropertiesByCategory, DEMO_PROPERTIES } from '@/services/propertyListingService'
 import { RentalChat, RentalBookingFlow } from '@/domains/rentals/components/RentalBooking'
 import { ReviewsPopup, getAvgRating } from '@/components/reviews/ReviewSystem'
@@ -232,6 +232,7 @@ export default function RentalSearchScreen({ onClose, initialView, initialListin
   const [showProfile, setShowProfile] = useState(false)
   const [showMapSearch, setShowMapSearch] = useState(false)
   const [showAlerts, setShowAlerts] = useState(false)
+  const [showNewProjects, setShowNewProjects] = useState(false)
   const [savedToggle, setSavedToggle] = useState(0) // force re-render on save
 
   // Seed mock/demo data on first mount (version-gated inside seedMockData)
@@ -559,6 +560,9 @@ export default function RentalSearchScreen({ onClose, initialView, initialListin
             </span>
             <span style={{ fontSize: 13, fontWeight: 600, color: 'rgba(255,255,255,0.35)', letterSpacing: '0.04em', marginTop: 2, display: 'block' }}>{listingMode === 'sale' ? 'For Sale' : listingMode === 'rent' ? 'For Rent' : 'Buy · Sell · Rentals'} in Yogyakarta</span>
           </div>
+          <button onClick={() => setShowNewProjects(true)} style={{ width: 36, height: 36, borderRadius: '50%', background: 'rgba(250,204,21,0.12)', border: '1px solid rgba(250,204,21,0.25)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', flexShrink: 0 }}>
+            <span style={{ fontSize: 16 }}>🏗️</span>
+          </button>
           <button onClick={() => setShowMapSearch(true)} style={{ width: 36, height: 36, borderRadius: '50%', background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', flexShrink: 0 }}>
             <span style={{ fontSize: 16 }}>📍</span>
           </button>
@@ -1016,9 +1020,6 @@ export default function RentalSearchScreen({ onClose, initialView, initialListin
         </div>
 
         {/* New Listings — auto-scrolling circular carousel */}
-        {/* New Property Projects */}
-        {(category === 'Property' || category === 'all') && <NewProjectsSection />}
-
         <NewListingsCarousel listings={sortedListings} onSelect={setSelected} />
 
         {/* Featured — auto-scrolling card carousel */}
@@ -1161,6 +1162,7 @@ export default function RentalSearchScreen({ onClose, initialView, initialListin
       <SettingsScreen open={showSettings} onClose={() => setShowSettings(false)} />
       <MessagesScreen open={showMessages} onClose={() => setShowMessages(false)} onOpenChat={(conv) => { setShowMessages(false); setChatListing(conv) }} />
       <PropertyMapSearch open={showMapSearch} onClose={() => setShowMapSearch(false)} listings={sortedListings} onSelect={(l) => { setShowMapSearch(false); setSelected(l) }} />
+      <NewProjectsPage open={showNewProjects} onClose={() => setShowNewProjects(false)} />
       <SavedSearchAlerts open={showAlerts} onClose={() => setShowAlerts(false)} />
       {modals}
       {!rentalCategoryOpen && !selected && <IndooFooter label="Rentals" onBack={onClose} onHome={onClose} />}

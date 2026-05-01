@@ -479,26 +479,28 @@ export default function RentalDetail({ listing: initialListing, onClose, onChat,
               )
             })()}
 
-            {/* ── Rental Periods — glass tinted with Best Value ── */}
+            {/* ── Rental Periods — connected card, only bottom corners rounded ── */}
             {rentalPeriods.length > 0 && (() => {
               const bestIdx = rentalPeriods.reduce((best, p, i) => {
                 const monthly = p.key === 'day' ? p.price * 30 : p.key === 'week' ? p.price * 4.3 : p.key === 'month' ? p.price : p.key === '3month' ? p.price / 3 : p.key === '6month' ? p.price / 6 : p.key === 'year' ? p.price / 12 : p.key === '2year' ? p.price / 24 : p.price / 60
                 return monthly < best.monthly ? { idx: i, monthly } : best
               }, { idx: 0, monthly: Infinity }).idx
               return (
-                <div className="rd-section" style={{ marginBottom: 20, ...sectionDelay(sectionIdx++) }}>
-                  <SectionHeader>Rental Periods</SectionHeader>
-                  <div style={{ display: 'flex', gap: 8 }}>
-                    {rentalPeriods.map((p, i) => {
-                      const isBest = i === bestIdx && rentalPeriods.length > 1
-                      return (
-                        <div key={p.key} style={{ flex: 1, padding: '12px 6px', borderRadius: 12, textAlign: 'center', position: 'relative', background: isBest ? 'rgba(141,198,63,0.08)' : 'rgba(255,255,255,0.03)', backdropFilter: 'blur(8px)', border: isBest ? '1.5px solid rgba(141,198,63,0.3)' : '1px solid rgba(255,255,255,0.06)', boxShadow: isBest ? '0 0 16px rgba(141,198,63,0.15)' : 'none' }}>
-                          {isBest && <div style={{ position: 'absolute', top: -8, left: '50%', transform: 'translateX(-50%)', padding: '2px 8px', borderRadius: 6, background: '#8DC63F', fontSize: 9, fontWeight: 800, color: '#000', whiteSpace: 'nowrap', animation: 'rd_bestValue 2s ease infinite' }}>Best Value</div>}
-                          <div style={{ fontSize: 12, fontWeight: 700, color: 'rgba(255,255,255,0.4)', marginTop: isBest ? 4 : 0 }}>{p.label}</div>
-                          <div style={{ fontSize: 18, fontWeight: 900, color: '#FACC15', marginTop: 4 }}>{fmtK(p.price)}</div>
-                        </div>
-                      )
-                    })}
+                <div className="rd-section" style={{ marginBottom: 20, marginTop: -12, ...sectionDelay(sectionIdx++) }}>
+                  <div style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.06)', borderTop: 'none', borderRadius: '0 0 14px 14px', padding: '12px 10px 14px' }}>
+                    <div style={{ fontSize: 11, fontWeight: 700, color: 'rgba(255,255,255,0.3)', textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: 10, paddingLeft: 4 }}>Rental Periods</div>
+                    <div style={{ display: 'flex', gap: 8 }}>
+                      {rentalPeriods.map((p, i) => {
+                        const isBest = i === bestIdx && rentalPeriods.length > 1
+                        return (
+                          <div key={p.key} style={{ flex: 1, padding: '12px 6px', borderRadius: 10, textAlign: 'center', position: 'relative', background: isBest ? 'rgba(141,198,63,0.08)' : 'rgba(255,255,255,0.02)', border: isBest ? '1.5px solid rgba(141,198,63,0.3)' : '1px solid rgba(255,255,255,0.04)', boxShadow: isBest ? '0 0 16px rgba(141,198,63,0.15)' : 'none' }}>
+                            {isBest && <div style={{ position: 'absolute', top: -8, left: '50%', transform: 'translateX(-50%)', padding: '2px 8px', borderRadius: 6, background: '#8DC63F', fontSize: 9, fontWeight: 800, color: '#000', whiteSpace: 'nowrap', animation: 'rd_bestValue 2s ease infinite' }}>Best Value</div>}
+                            <div style={{ fontSize: 12, fontWeight: 700, color: 'rgba(255,255,255,0.4)', marginTop: isBest ? 4 : 0 }}>{p.label}</div>
+                            <div style={{ fontSize: 18, fontWeight: 900, color: '#FACC15', marginTop: 4 }}>{fmtK(p.price)}</div>
+                          </div>
+                        )
+                      })}
+                    </div>
                   </div>
                 </div>
               )
