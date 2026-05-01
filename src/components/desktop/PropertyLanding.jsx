@@ -114,7 +114,7 @@ export default function PropertyLanding({ onBrowse, onSearch, onViewListing }) {
   const filtered = activeType === 'all' ? allProperty : allProperty.filter(l => l.sub_category === activeType || l.extra_fields?.property_type === activeType)
 
   return (
-    <div className="property-landing" style={{ display: 'none', background: '#0a0a0a', minHeight: '100vh' }}>
+    <div className="property-landing" style={{ display: 'none', background: '#0a0a0a', minHeight: '100vh', width: '100%' }}>
 
       {/* ═══ HERO ═══ */}
       <section style={{ position: 'relative', minHeight: '100vh', display: 'flex', alignItems: 'center', background: `#0a0a0a url("${HERO_BG}") center/cover no-repeat` }}>

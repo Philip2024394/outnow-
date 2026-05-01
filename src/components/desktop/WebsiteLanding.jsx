@@ -116,7 +116,7 @@ export default function WebsiteLanding({ onBrowse, onSearch }) {
   const allListings = DEMO_LISTINGS.filter(l => l.images?.length > 0).slice(0, 12)
 
   return (
-    <div className="website-landing" style={{ display: 'none', background: '#0a0a0a', minHeight: '100vh' }}>
+    <div className="website-landing" style={{ display: 'none', background: '#0a0a0a', minHeight: '100vh', width: '100%' }}>
 
       {/* ═══ HERO ═══ */}
       <section style={{

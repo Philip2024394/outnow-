@@ -212,48 +212,69 @@ export default function App() {
             </div>
           )}
           <LanguageToast />
-          <DesktopNav onNavigate={(section) => { /* handled by AppShell */ }} />
 
-          {/* ── Desktop website landing (always visible on desktop 768px+) ── */}
-          {window.location.pathname === '/property' ? (
-            <PropertyLanding
-              onBrowse={() => { setGuestMode(true) }}
-              onSearch={() => { setGuestMode(true) }}
-              onViewListing={() => { setGuestMode(true) }}
-            />
-          ) : (
-            <WebsiteLanding
-              onBrowse={() => { setGuestMode(true) }}
-              onSearch={() => { setGuestMode(true) }}
-            />
-          )}
+          {/* ── Desktop website view (768px+) — separate from mobile app ── */}
+          {(() => {
+            const isDesktop = typeof window !== 'undefined' && window.innerWidth >= 768
+            const isWebRoute = ['/', '/property', '/rentals', '/places', '/agents'].includes(window.location.pathname)
+            if (isDesktop && isWebRoute) {
+              return (
+                <>
+                  <DesktopNav onNavigate={(section) => { /* future: route to section */ }} />
+                  {window.location.pathname === '/property' ? (
+                    <PropertyLanding
+                      onBrowse={() => { setGuestMode(true) }}
+                      onSearch={() => { setGuestMode(true) }}
+                      onViewListing={() => { setGuestMode(true) }}
+                    />
+                  ) : (
+                    <WebsiteLanding
+                      onBrowse={() => { setGuestMode(true) }}
+                      onSearch={() => { setGuestMode(true) }}
+                    />
+                  )}
+                </>
+              )
+            }
+            return null
+          })()}
 
-          {/* ── New user: welcome slides ── */}
-          {onboardStep === 'welcome' && (
-            <WelcomeScreen onDone={handleWelcomeDone} />
-          )}
+          {/* ── Mobile app flow (or desktop when not on web routes) ── */}
+          {(() => {
+            const isDesktop = typeof window !== 'undefined' && window.innerWidth >= 768
+            const isWebRoute = ['/', '/property', '/rentals', '/places', '/agents'].includes(window.location.pathname)
+            if (isDesktop && isWebRoute) return null // website handles these routes on desktop
+            return (
+              <>
+                {/* ── New user: welcome slides ── */}
+                {onboardStep === 'welcome' && (
+                  <WelcomeScreen onDone={handleWelcomeDone} />
+                )}
 
-          {/* ── New user: profile setup (required before map) ── */}
-          {onboardStep === 'profile' && (
-            <ProfileScreen onClose={handleProfileDone} onboarding />
-          )}
+                {/* ── New user: profile setup (required before map) ── */}
+                {onboardStep === 'profile' && (
+                  <ProfileScreen onClose={handleProfileDone} onboarding />
+                )}
 
-          {/* ── Location confirmation gate ── */}
-          {onboardStep === 'location' && (
-            <LocationGateScreen onConfirmed={handleLocationConfirmed} />
-          )}
+                {/* ── Location confirmation gate ── */}
+                {onboardStep === 'location' && (
+                  <LocationGateScreen onConfirmed={handleLocationConfirmed} />
+                )}
 
-          {/* ── Returning user or after onboarding complete ── */}
-          {(guestMode || onboardStep === 'done') && (
-            <Suspense fallback={
-              <div className={styles.splash}>
-                <img src={LOGO_URL} alt="Indoo" className={styles.splashLogo} />
-                <Spinner size={28} color="var(--color-live)" />
-              </div>
-            }>
-              <AppShell returnParams={returnParams} />
-            </Suspense>
-          )}
+                {/* ── Returning user or after onboarding complete ── */}
+                {(guestMode || onboardStep === 'done') && (
+                  <Suspense fallback={
+                    <div className={styles.splash}>
+                      <img src={LOGO_URL} alt="Indoo" className={styles.splashLogo} />
+                      <Spinner size={28} color="var(--color-live)" />
+                    </div>
+                  }>
+                    <AppShell returnParams={returnParams} />
+                  </Suspense>
+                )}
+              </>
+            )
+          })()}
 
         </GuestGateProvider>
       </LanguageProvider>
