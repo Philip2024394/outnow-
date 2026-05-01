@@ -44,7 +44,7 @@ const FEATURES = [
   { icon: '📍', title: 'Neighborhood Guide', desc: 'Transport, schools, hospitals, dining — walkability score', toolId: 'neighborhood' },
   { icon: '🚇', title: 'Transport Nearby', desc: 'MRT, KRL, LRT, bus stations with transit score', toolId: 'transport' },
   { icon: '🏢', title: 'Agent Directory', desc: 'Verified agents with portfolios & testimonials', toolId: 'agents' },
-  { icon: '🔥', title: 'Deal Hunt', desc: 'Property deals with 2.5% minimum discount', toolId: 'dealhunt' },
+  { icon: '🏗️', title: 'New Projects', desc: 'Pre-sale villas, apartments — brochures & floor plans', toolId: 'newprojects' },
 ]
 
 // Sample listing for tool demos
@@ -148,7 +148,7 @@ function ToolModal({ open, onClose, title, children, small }) {
   )
 }
 
-export default function HomePage({ onSearch, onBrowseSale, onBrowseRent, onBrowseAll, onSelectListing }) {
+export default function HomePage({ onSearch, onBrowseSale, onBrowseRent, onBrowseAll, onSelectListing, onNavigate }) {
   const [searchVal, setSearchVal] = useState('')
   const [activeTool, setActiveTool] = useState(null) // kpr | history | valuation | comparable | neighborhood | transport | agents | dealhunt
   const allProperty = DEMO_LISTINGS.filter(l => l.category === 'Property' && l.images?.length > 0)
@@ -295,7 +295,7 @@ export default function HomePage({ onSearch, onBrowseSale, onBrowseRent, onBrows
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 16 }}>
             {FEATURES.map((f, i) => (
               <ScrollReveal key={f.title} delay={i * 0.05}>
-                <div className="ws-card" onClick={() => setActiveTool(f.toolId)} style={{ padding: '24px 20px', borderRadius: 16, background: 'rgba(0,0,0,0.4)', border: '1px solid rgba(255,255,255,0.05)', cursor: 'pointer' }}>
+                <div className="ws-card" onClick={() => { if (f.toolId === 'agents' || f.toolId === 'dealhunt' || f.toolId === 'newprojects') { onNavigate?.(f.toolId === 'dealhunt' ? 'home' : f.toolId) } else { setActiveTool(f.toolId) } }} style={{ padding: '24px 20px', borderRadius: 16, background: 'rgba(0,0,0,0.4)', border: '1px solid rgba(255,255,255,0.05)', cursor: 'pointer' }}>
                   <div style={{ fontSize: 28, marginBottom: 10 }}>{f.icon}</div>
                   <div style={{ fontSize: 15, fontWeight: 800, color: '#fff', marginBottom: 6 }}>{f.title}</div>
                   <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.35)', lineHeight: 1.5 }}>{f.desc}</div>

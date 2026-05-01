@@ -66,6 +66,7 @@ export default function WebsiteApp() {
             onBrowseRent={() => { setFilterMode('rent'); setPage('search') }}
             onBrowseAll={() => { setFilterMode('all'); setPage('search') }}
             onSelectListing={handleSelectListing}
+            onNavigate={navigate}
           />
         )}
 
