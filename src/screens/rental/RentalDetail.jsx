@@ -378,12 +378,11 @@ export default function RentalDetail({ listing: initialListing, onClose, onChat,
                 </span>
               )}
             </div>
-            {/* SOLD / RENTED badge */}
+            {/* SOLD / RENTED image overlay */}
             {(listing.status === 'sold' || listing.status === 'rented') && (
-              <div style={{ padding: '6px 16px', borderRadius: 10, background: listing.status === 'sold' ? 'rgba(239,68,68,0.15)' : 'rgba(96,165,250,0.15)', border: `1.5px solid ${listing.status === 'sold' ? 'rgba(239,68,68,0.4)' : 'rgba(96,165,250,0.4)'}`, display: 'inline-flex', alignItems: 'center', gap: 6, marginBottom: 6 }}>
-                <span style={{ fontSize: 14, fontWeight: 900, color: listing.status === 'sold' ? '#EF4444' : '#60A5FA' }}>
-                  {listing.status === 'sold' ? '🔴 SOLD' : '🔵 RENTED'}
-                </span>
+              <div style={{ marginBottom: 8, display: 'flex', alignItems: 'center', gap: 10 }}>
+                <img src={listing.status === 'sold' ? 'https://ik.imagekit.io/nepgaxllc/ChatGPT%20Image%20May%202,%202026,%2004_45_33%20AM.png' : 'https://ik.imagekit.io/nepgaxllc/ChatGPT%20Image%20May%202,%202026,%2004_43_39%20AM.png'} alt={listing.status} style={{ width: 80, objectFit: 'contain' }} />
+                <span style={{ fontSize: 12, color: 'rgba(255,255,255,0.35)' }}>Locked for 7 days</span>
               </div>
             )}
             {/* Large price */}

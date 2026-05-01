@@ -506,7 +506,7 @@ export default function RentalSearchScreen({ onClose, initialView, initialListin
     </>)
   }
 
-  // Filter out expired sold/rented listings (past 3-day window)
+  // Filter out expired sold/rented listings (past 7-day window)
   let sortedListings = [...listings].filter(l => {
     if ((l.status === 'sold' || l.status === 'rented') && l.hideAfter && new Date() > new Date(l.hideAfter)) return false
     return true
@@ -1066,6 +1066,13 @@ export default function RentalSearchScreen({ onClose, initialView, initialListin
                 style={{ position: 'relative', width: '100%', height: 200, overflow: 'hidden', borderRadius: '16px 16px 0 0' }}>
                 <img src={imgs[cardImgIdx[l.id] || 0] || imgs[0]} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }} />
                 <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(180deg, rgba(0,0,0,0.1) 0%, transparent 40%, rgba(0,0,0,0.85) 100%)', pointerEvents: 'none' }} />
+
+                {/* SOLD/RENTED overlay image — locked for 7 days */}
+                {(l.status === 'sold' || l.status === 'rented') && (
+                  <div style={{ position: 'absolute', inset: 0, zIndex: 4, display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'rgba(0,0,0,0.4)', pointerEvents: 'none' }}>
+                    <img src={l.status === 'sold' ? 'https://ik.imagekit.io/nepgaxllc/ChatGPT%20Image%20May%202,%202026,%2004_45_33%20AM.png' : 'https://ik.imagekit.io/nepgaxllc/ChatGPT%20Image%20May%202,%202026,%2004_43_39%20AM.png'} alt={l.status} style={{ width: '60%', maxWidth: 160, objectFit: 'contain', opacity: 0.9 }} />
+                  </div>
+                )}
 
                 {/* Top-left: Type + Sale/Rent badge */}
                 <div style={{ position: 'absolute', top: 10, left: 0, zIndex: 3, padding: '5px 14px 5px 10px', borderRadius: '0 10px 10px 0', background: 'rgba(0,0,0,0.6)', backdropFilter: 'blur(10px)', borderRight: `2px solid ${l.buy_now ? '#FACC15' : '#8DC63F'}` }}>

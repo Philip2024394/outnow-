@@ -198,10 +198,10 @@ export async function toggleListingStatus(id) {
   return listings[idx]
 }
 
-/** Deactivate listing — marks as 'sold' or 'rented' for 3 days then hides */
+/** Deactivate listing — marks as 'sold' or 'rented' for 7 days then hides */
 export async function deactivateListing(id, reason = 'sold') {
   const status = reason === 'rented' ? 'rented' : 'sold'
-  const hideAfter = new Date(Date.now() + 3 * 24 * 60 * 60 * 1000).toISOString()
+  const hideAfter = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString()
 
   // localStorage
   const listings = loadLocal()
