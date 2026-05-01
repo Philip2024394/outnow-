@@ -101,9 +101,9 @@ export default function PropertyValuation({ listing }) {
 
       {/* Estimate Range */}
       <div style={{ ...glass, padding: '18px', marginBottom: 12, position: 'relative', overflow: 'hidden' }}>
-        <img src="https://ik.imagekit.io/nepgaxllc/ChatGPT%20Image%20May%201,%202026,%2012_20_26%20PM.png" alt="" style={{ position: 'absolute', bottom: -6, right: -6, width: 130, height: 130, objectFit: 'contain', opacity: 0.7, pointerEvents: 'none' }} />
-        <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.4)', fontWeight: 600, marginBottom: 10 }}>ESTIMATED VALUE RANGE</div>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', marginBottom: 12 }}>
+        <img src="https://ik.imagekit.io/nepgaxllc/ChatGPT%20Image%20May%201,%202026,%2012_20_26%20PM.png" alt="" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', opacity: 0.25, pointerEvents: 'none' }} />
+        <div style={{ position: 'relative', zIndex: 1, fontSize: 11, color: 'rgba(255,255,255,0.4)', fontWeight: 600, marginBottom: 10 }}>ESTIMATED VALUE RANGE</div>
+        <div style={{ position: 'relative', zIndex: 1, display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', marginBottom: 12 }}>
           <div>
             <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.35)' }}>Low</div>
             <div style={{ fontSize: 14, fontWeight: 700, color: '#8DC63F' }}>{fmtRp(valuation.estimateLow)}</div>
@@ -119,7 +119,7 @@ export default function PropertyValuation({ listing }) {
         </div>
 
         {/* Gauge bar */}
-        <div style={{ position: 'relative', height: 8, borderRadius: 4, background: 'linear-gradient(90deg, #8DC63F, #FACC15, #F97316)', marginBottom: 8 }}>
+        <div style={{ position: 'relative', zIndex: 1, height: 8, borderRadius: 4, background: 'linear-gradient(90deg, #8DC63F, #FACC15, #F97316)', marginBottom: 8 }}>
           <div style={{
             position: 'absolute',
             left: `${Math.max(0, Math.min(100, valuation.pricePosition * 100))}%`,
@@ -129,7 +129,7 @@ export default function PropertyValuation({ listing }) {
             boxShadow: `0 0 8px ${priceStatus.color}`,
           }} />
         </div>
-        <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', gap: 6, marginTop: 8 }}>
+        <div style={{ position: 'relative', zIndex: 1, display: 'flex', justifyContent: 'center', alignItems: 'center', gap: 6, marginTop: 8 }}>
           <span style={{ fontSize: 14 }}>{priceStatus.icon}</span>
           <span style={{ fontSize: 13, fontWeight: 700, color: priceStatus.color }}>Listed at {fmtRp(valuation.currentPrice)} — {priceStatus.label}</span>
         </div>
