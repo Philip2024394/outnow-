@@ -182,7 +182,7 @@ export default function PropertyListingForm({ open, onClose, onSubmit, editListi
   const isEditing = !!editListing
   const propRef = useMemo(() => editListing?.ref || generateRef(), [editListing])
   const ef = editListing?.extra_fields || {}
-  const [step, setStep] = useState(0)
+  const [step, setStep] = useState(propertyType ? 1 : 0)
   const [mainImage, setMainImage] = useState(editListing?.image || '')
   const [thumbs, setThumbs] = useState(() => editListing?.images?.slice(1) || [])
   const [title, setTitle] = useState(editListing?.title || '')
