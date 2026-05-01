@@ -100,7 +100,8 @@ export default function PropertyValuation({ listing }) {
       </div>
 
       {/* Estimate Range */}
-      <div style={{ ...glass, padding: '18px', marginBottom: 12 }}>
+      <div style={{ ...glass, padding: '18px', marginBottom: 12, position: 'relative', overflow: 'hidden' }}>
+        <img src="https://ik.imagekit.io/nepgaxllc/ChatGPT%20Image%20May%201,%202026,%2012_20_26%20PM.png" alt="" style={{ position: 'absolute', bottom: -6, right: -6, width: 130, height: 130, objectFit: 'contain', opacity: 0.7, pointerEvents: 'none' }} />
         <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.4)', fontWeight: 600, marginBottom: 10 }}>ESTIMATED VALUE RANGE</div>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', marginBottom: 12 }}>
           <div>
