@@ -218,19 +218,31 @@ export default function DestinationDirectory({ open, onClose, onSelectDestinatio
                 {isStandalone ? (
                   <div style={{ display: 'flex', gap: 8 }}>
                     <button onClick={() => selectDest(dest, 'bike_ride')} style={{
-                      flex: 1, padding: '14px 0', borderRadius: 14, border: 'none',
+                      flex: 1, padding: '8px 10px', borderRadius: 14, border: 'none',
                       background: 'linear-gradient(135deg, #8DC63F, #6BA52A)',
-                      color: '#000', fontSize: 14, fontWeight: 900, cursor: 'pointer', fontFamily: 'inherit',
-                      display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6,
-                      boxShadow: '0 4px 20px rgba(141,198,63,0.3)',
-                    }}>Bike — {fmtIDR(pricing.bike)} <img src="https://ik.imagekit.io/nepgaxllc/Sleek%20green%20and%20black%20scooter%20setup.png?updatedAt=1775634845237" alt="" style={{ width: 84, height: 84, objectFit: 'contain' }} /></button>
+                      color: '#000', cursor: 'pointer', fontFamily: 'inherit',
+                      display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+                      boxShadow: '0 4px 20px rgba(141,198,63,0.3)', overflow: 'hidden',
+                    }}>
+                      <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start' }}>
+                        <span style={{ fontSize: 14, fontWeight: 900 }}>Bike</span>
+                        <span style={{ fontSize: 12, fontWeight: 700 }}>{fmtIDR(pricing.bike)}</span>
+                      </div>
+                      <img src="https://ik.imagekit.io/nepgaxllc/Sleek%20green%20and%20black%20scooter%20setup.png?updatedAt=1775634845237" alt="" style={{ width: 50, height: 50, objectFit: 'contain' }} />
+                    </button>
                     <button onClick={() => selectDest(dest, 'car_taxi')} style={{
-                      flex: 1, padding: '14px 0', borderRadius: 14, border: 'none',
+                      flex: 1, padding: '8px 10px', borderRadius: 14, border: 'none',
                       background: 'linear-gradient(135deg, #8DC63F, #6BA52A)',
-                      color: '#000', fontSize: 14, fontWeight: 900, cursor: 'pointer', fontFamily: 'inherit',
-                      display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6,
-                      boxShadow: '0 4px 20px rgba(141,198,63,0.3)',
-                    }}>Car — {fmtIDR(pricing.car)} <img src="https://ik.imagekit.io/nepgaxllc/Sporty%20green%20and%20black%20hatchback.png?updatedAt=1775634925566" alt="" style={{ width: 84, height: 84, objectFit: 'contain' }} /></button>
+                      color: '#000', cursor: 'pointer', fontFamily: 'inherit',
+                      display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+                      boxShadow: '0 4px 20px rgba(141,198,63,0.3)', overflow: 'hidden',
+                    }}>
+                      <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start' }}>
+                        <span style={{ fontSize: 14, fontWeight: 900 }}>Car</span>
+                        <span style={{ fontSize: 12, fontWeight: 700 }}>{fmtIDR(pricing.car)}</span>
+                      </div>
+                      <img src="https://ik.imagekit.io/nepgaxllc/Sporty%20green%20and%20black%20hatchback.png?updatedAt=1775634925566" alt="" style={{ width: 50, height: 50, objectFit: 'contain' }} />
+                    </button>
                   </div>
                 ) : (
                   <button onClick={() => selectDest(dest, vehicleMode)} style={{
