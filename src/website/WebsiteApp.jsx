@@ -10,23 +10,28 @@ import WebsiteFooter from './components/WebsiteFooter'
 import HomePage from './pages/HomePage'
 import SearchPage from './pages/SearchPage'
 import PropertyDetailPage from './pages/PropertyDetailPage'
+import AgentDirectoryPage from './pages/AgentDirectoryPage'
+import AgentProfilePage from './pages/AgentProfilePage'
+import NewProjectsPage from './pages/NewProjectsPage'
 
 const BG_IMG = 'https://ik.imagekit.io/nepgaxllc/ChatGPT%20Image%20May%202,%202026,%2002_15_43%20AM.png'
 
 export default function WebsiteApp() {
   const [page, setPage] = useState('home')
   const [selectedListing, setSelectedListing] = useState(null)
+  const [selectedAgent, setSelectedAgent] = useState(null)
   const [searchQuery, setSearchQuery] = useState('')
-  const [filterMode, setFilterMode] = useState('all') // all | sale | rent
+  const [filterMode, setFilterMode] = useState('all')
 
   const navigate = (target) => {
-    if (target === 'home') { setPage('home'); setSelectedListing(null) }
-    else if (target === 'sale') { setPage('search'); setFilterMode('sale'); setSelectedListing(null) }
-    else if (target === 'rent') { setPage('search'); setFilterMode('rent'); setSelectedListing(null) }
-    else if (target === 'newprojects') { setPage('search'); setFilterMode('all'); setSelectedListing(null) }
-    else if (target === 'agents') { setPage('search'); setSelectedListing(null) }
-    else if (target === 'kpr') { setPage('search'); setSelectedListing(null) }
-    else { setPage(target); setSelectedListing(null) }
+    setSelectedListing(null); setSelectedAgent(null)
+    if (target === 'home') setPage('home')
+    else if (target === 'sale') { setPage('search'); setFilterMode('sale') }
+    else if (target === 'rent') { setPage('search'); setFilterMode('rent') }
+    else if (target === 'newprojects') setPage('newprojects')
+    else if (target === 'agents') setPage('agents')
+    else if (target === 'kpr') { setPage('search'); setFilterMode('all') }
+    else setPage(target)
   }
 
   const handleSearch = (query) => {
@@ -76,6 +81,28 @@ export default function WebsiteApp() {
             listing={selectedListing}
             onBack={() => setPage('search')}
             onSelectListing={handleSelectListing}
+          />
+        )}
+
+        {page === 'agents' && !selectedAgent && (
+          <AgentDirectoryPage
+            onSelectAgent={(a) => { setSelectedAgent(a); setPage('agentprofile') }}
+            onBack={() => setPage('home')}
+          />
+        )}
+
+        {page === 'agentprofile' && selectedAgent && (
+          <AgentProfilePage
+            agent={selectedAgent}
+            onBack={() => { setSelectedAgent(null); setPage('agents') }}
+            onSelectListing={handleSelectListing}
+          />
+        )}
+
+        {page === 'newprojects' && (
+          <NewProjectsPage
+            onSelectProject={(p) => { /* future: project detail page */ }}
+            onBack={() => setPage('home')}
           />
         )}
 
