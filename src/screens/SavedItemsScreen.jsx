@@ -1,30 +1,91 @@
 import { useState, useEffect } from 'react'
 import { createPortal } from 'react-dom'
+import { supabase } from '@/lib/supabase'
 
 const STORAGE_KEY = 'indoo_saved_items'
+
+/* ── localStorage helpers ── */
+function getLocalSaved() {
+  try { return JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]') }
+  catch { return [] }
+}
+function setLocalSaved(items) {
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(items))
+}
 
 /* ── Utility functions (exported) ── */
 
 export function getSavedItems() {
-  try { return JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]') }
-  catch { return [] }
+  return getLocalSaved()
+}
+
+/** Fetch saved items — Supabase first, localStorage fallback */
+export async function fetchSavedItems() {
+  if (supabase) {
+    try {
+      const { data: userData } = await supabase.auth.getUser()
+      const userId = userData?.user?.id
+      if (userId) {
+        const { data, error } = await supabase
+          .from('rental_saved_items')
+          .select('*')
+          .eq('user_id', userId)
+          .order('saved_at', { ascending: false })
+        if (!error && data?.length) return data
+      }
+    } catch {}
+  }
+  return getLocalSaved()
 }
 
 export function saveItem(listing) {
-  const items = getSavedItems()
+  // localStorage (sync, for fast UI)
+  const items = getLocalSaved()
   if (items.some(i => i.id === listing.id)) return
   items.unshift({ ...listing, savedAt: Date.now() })
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(items))
+  setLocalSaved(items)
+
+  // Supabase (async, fire-and-forget)
+  if (supabase) {
+    supabase.auth.getUser().then(({ data }) => {
+      const userId = data?.user?.id
+      if (!userId) return
+      supabase.from('rental_saved_items').upsert({
+        user_id: userId,
+        listing_ref: listing.ref || listing.id,
+        listing_id: null,
+        saved_at: new Date().toISOString(),
+      }, { onConflict: 'user_id,listing_ref' }).then(({ error }) => {
+        if (error) console.warn('Supabase save item error:', error.message)
+      })
+    })
+  }
 }
 
 export function removeSavedItem(id) {
-  const items = getSavedItems().filter(i => i.id !== id)
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(items))
+  const items = getLocalSaved().filter(i => i.id !== id)
+  setLocalSaved(items)
+
+  // Supabase (async)
+  if (supabase) {
+    supabase.auth.getUser().then(({ data }) => {
+      const userId = data?.user?.id
+      if (!userId) return
+      supabase.from('rental_saved_items')
+        .delete()
+        .eq('user_id', userId)
+        .eq('listing_ref', id)
+        .then(({ error }) => {
+          if (error) console.warn('Supabase remove saved error:', error.message)
+        })
+    })
+  }
+
   return items
 }
 
 export function isItemSaved(id) {
-  return getSavedItems().some(i => i.id === id)
+  return getLocalSaved().some(i => i.id === id)
 }
 
 /* ── Screen component ── */

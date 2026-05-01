@@ -2,9 +2,10 @@
  * Rental Tracking Service
  * - Tracks renter's phone GPS during active rental
  * - Geofence alerts when vehicle leaves defined area
- * - Booking request system
+ * - Booking request system (Supabase + localStorage)
  * - Price calculator
  */
+import { supabase } from '@/lib/supabase'
 
 const BOOKINGS_KEY = 'indoo_rental_bookings'
 const TRACKING_KEY = 'indoo_rental_tracking'
@@ -71,8 +72,8 @@ function saveBookings(data) {
   localStorage.setItem(BOOKINGS_KEY, JSON.stringify(data))
 }
 
-export function createBookingRequest({ listingId, vehicleName, renterName, renterPhone, startDate, endDate, days, total, addDriver }) {
-  const bookings = loadBookings()
+export async function createBookingRequest({ listingId, vehicleName, renterName, renterPhone, startDate, endDate, days, total, addDriver, ownerId }) {
+  const commission = Math.round(total * 0.10)
   const booking = {
     id: 'bk_' + Date.now() + '_' + Math.random().toString(36).slice(2, 6),
     listingId,
@@ -84,17 +85,79 @@ export function createBookingRequest({ listingId, vehicleName, renterName, rente
     days,
     total,
     addDriver,
-    status: 'pending', // pending | accepted | declined | active | completed
+    status: 'pending',
     trackingActive: false,
-    commission: Math.round(total * 0.10), // 10% commission
+    commission,
     createdAt: new Date().toISOString(),
   }
+
+  // localStorage (always, as cache)
+  const bookings = loadBookings()
   bookings.unshift(booking)
   saveBookings(bookings)
+
+  // Supabase
+  if (supabase) {
+    try {
+      const { data: userData } = await supabase.auth.getUser()
+      const renterId = userData?.user?.id
+      await supabase.from('rental_bookings').insert({
+        listing_ref: listingId,
+        listing_title: vehicleName,
+        renter_id: renterId,
+        renter_name: renterName || 'User',
+        renter_phone: renterPhone || '',
+        owner_id: ownerId || null,
+        start_date: startDate,
+        end_date: endDate,
+        days,
+        total,
+        commission,
+        add_driver: addDriver || false,
+        status: 'pending',
+      })
+    } catch (e) {
+      console.warn('Supabase booking insert error:', e)
+    }
+  }
+
   return booking
 }
 
 export function getBookings() { return loadBookings() }
+
+/** Fetch bookings — Supabase first, localStorage fallback */
+export async function getMyBookings() {
+  if (supabase) {
+    try {
+      const { data: userData } = await supabase.auth.getUser()
+      const userId = userData?.user?.id
+      if (userId) {
+        const { data, error } = await supabase
+          .from('rental_bookings')
+          .select('*')
+          .eq('renter_id', userId)
+          .order('created_at', { ascending: false })
+        if (!error && data?.length) return data
+      }
+    } catch {}
+  }
+  return loadBookings()
+}
+
+/** Fetch bookings for a listing owner */
+export async function getBookingsForOwner(ownerId) {
+  if (!supabase || !ownerId) return []
+  try {
+    const { data, error } = await supabase
+      .from('rental_bookings')
+      .select('*')
+      .eq('owner_id', ownerId)
+      .order('created_at', { ascending: false })
+    if (!error) return data || []
+  } catch {}
+  return []
+}
 
 export function updateBookingStatus(id, status) {
   const bookings = loadBookings()
