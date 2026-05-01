@@ -244,6 +244,9 @@ export default function DestinationDirectory({ open, onClose, onSelectDestinatio
                       <img src="https://ik.imagekit.io/nepgaxllc/Sporty%20green%20and%20black%20hatchback.png?updatedAt=1775634925566" alt="" style={{ width: 44, height: 44, objectFit: 'contain', flexShrink: 0 }} />
                     </button>
                   </div>
+                  <div style={{ textAlign: 'center', marginTop: 8, fontSize: 12, fontWeight: 700, color: 'rgba(255,255,255,0.5)' }}>
+                    Book now · arrival ~{Math.max(5, Math.round((dest.distanceKm || 5) * 2.5))} Min
+                  </div>
                 ) : (
                   <button onClick={() => selectDest(dest, vehicleMode)} style={{
                     width: '100%', padding: '14px 0', borderRadius: 14, border: 'none',
