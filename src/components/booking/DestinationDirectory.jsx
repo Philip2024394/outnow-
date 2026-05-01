@@ -10,6 +10,7 @@ import {
 } from '@/services/directoryService'
 import { useGeolocation } from '@/hooks/useGeolocation'
 import SuggestPlaceSheet from './SuggestPlaceSheet'
+import JoinPlacesSheet from './JoinPlacesSheet'
 
 const ID_FLAG = 'https://ik.imagekit.io/nepgaxllc/Untitledxxxxcc-removebg-preview.png?updatedAt=1777592820803'
 const BG_IMG = 'https://ik.imagekit.io/nepgaxllc/ChatGPT%20Image%20May%201,%202026,%2012_24_37%20PM.png'
@@ -39,6 +40,7 @@ export default function DestinationDirectory({ open, onClose, onSelectDestinatio
   const [search, setSearch] = useState('')
   const [activeIdx, setActiveIdx] = useState(0)
   const [suggestOpen, setSuggestOpen] = useState(false)
+  const [joinOpen, setJoinOpen] = useState(false)
   const scrollRef = useRef(null)
   const [ratings] = useState(() => {
     const r = {}
@@ -102,6 +104,11 @@ export default function DestinationDirectory({ open, onClose, onSelectDestinatio
             <span>INDOO</span> <span style={{ color: '#8DC63F' }}>PLACES</span>
           </h1>
           <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
+            <button onClick={() => setJoinOpen(true)} style={{
+              padding: '7px 14px', borderRadius: 20, cursor: 'pointer', fontFamily: 'inherit',
+              background: 'rgba(141,198,63,0.15)', border: '1.5px solid rgba(141,198,63,0.35)',
+              color: '#8DC63F', fontSize: 11, fontWeight: 800,
+            }}>Join</button>
             <button onClick={() => setSuggestOpen(true)} style={{
               padding: '7px 14px', borderRadius: 20, cursor: 'pointer', fontFamily: 'inherit',
               background: 'rgba(245,158,11,0.15)', border: '1.5px solid rgba(245,158,11,0.35)',
@@ -301,6 +308,7 @@ export default function DestinationDirectory({ open, onClose, onSelectDestinatio
       )}
 
       <SuggestPlaceSheet open={suggestOpen} onClose={() => setSuggestOpen(false)} />
+      <JoinPlacesSheet open={joinOpen} onClose={() => setJoinOpen(false)} />
     </div>,
     document.body
   )
