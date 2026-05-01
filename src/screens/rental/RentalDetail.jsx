@@ -13,6 +13,7 @@ import PropertyValuation from '@/components/property/PropertyValuation'
 import TransportProximity from '@/components/property/TransportProximity'
 import UniversalBusinessProfile from '@/components/profile/UniversalBusinessProfile'
 import RoomAvailability from '@/components/property/RoomAvailability'
+import ComparableSales from '@/components/property/ComparableSales'
 
 function PageBadge({ num, label }) {
   return (
@@ -713,6 +714,13 @@ export default function RentalDetail({ listing: initialListing, onClose, onChat,
             {isProperty && (
               <div className="rd-section" style={{ ...sectionDelay(sectionIdx++) }}>
                 <PriceHistoryChart listing={listing} />
+              </div>
+            )}
+
+            {/* ── Comparable Sales ── */}
+            {isProperty && listing.buy_now && (
+              <div className="rd-section" style={{ ...sectionDelay(sectionIdx++) }}>
+                <ComparableSales listing={listing} />
               </div>
             )}
 
