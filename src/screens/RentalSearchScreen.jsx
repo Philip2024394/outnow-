@@ -237,19 +237,25 @@ export default function RentalSearchScreen({ onClose, initialView, initialListin
   useEffect(() => { seedMockData() }, [])
 
   // ─── Scroll-based background swap: detect when first card enters header ───
+  const scrollCheckRef = useRef(null)
   useEffect(() => {
-    const el = bodyScrollRef.current
-    if (!el) return
-    const handleScroll = () => {
-      const grid = gridRef.current
-      if (!grid) return
-      const gridTop = grid.getBoundingClientRect().top
-      // When grid's top edge scrolls above 90px (header area), cards are under header
-      setScrolledPastCards(gridTop < 90)
+    // Re-attach on every render since the body element may mount/unmount
+    const attach = () => {
+      const el = bodyScrollRef.current
+      if (!el || scrollCheckRef.current === el) return
+      scrollCheckRef.current = el
+      el.addEventListener('scroll', () => {
+        const grid = gridRef.current
+        if (!grid) return
+        const gridTop = grid.getBoundingClientRect().top
+        setScrolledPastCards(gridTop < 100)
+      }, { passive: true })
     }
-    el.addEventListener('scroll', handleScroll, { passive: true })
-    return () => el.removeEventListener('scroll', handleScroll)
-  }, [])
+    attach()
+    // Retry after a short delay in case refs aren't ready yet
+    const t = setTimeout(attach, 500)
+    return () => clearTimeout(t)
+  })
 
   // ─── Supabase async listing fetch ───
   const [supaListings, setSupaListings] = useState([])
@@ -507,8 +513,6 @@ export default function RentalSearchScreen({ onClose, initialView, initialListin
 
   return (
     <div className={styles.page} style={(() => {
-      const SCROLL_BG = 'https://ik.imagekit.io/nepgaxllc/ChatGPT%20Image%20Apr%2030,%202026,%2010_41_24%20AM.png?updatedAt=1777520502182'
-      if (scrolledPastCards) return { backgroundImage: `url('${SCROLL_BG}')`, transition: 'background-image 0.5s ease' }
       const cat = vehicleType || category
       const filter = activeFilter?.[0]
       const BG = {
@@ -522,10 +526,18 @@ export default function RentalSearchScreen({ onClose, initialView, initialListin
         Property: 'https://ik.imagekit.io/nepgaxllc/ChatGPT%20Image%20Apr%2030,%202026,%2007_44_48%20PM.png',
       }
       const url = BG[cat] || BG[filter] || null
-      return url ? { backgroundImage: `url('${url}')`, transition: 'background-image 0.5s ease' } : { transition: 'background-image 0.5s ease' }
+      return url ? { backgroundImage: `url('${url}')` } : undefined
     })()}>
+      {/* Scroll background overlay — fades in when cards reach header */}
+      <div style={{
+        position: 'absolute', inset: 0, zIndex: 0, pointerEvents: 'none',
+        backgroundImage: `url('${SCROLL_CARDS_BG}')`,
+        backgroundSize: 'cover', backgroundPosition: 'center',
+        opacity: scrolledPastCards ? 1 : 0,
+        transition: 'opacity 0.5s ease',
+      }} />
       {/* Header — market title + search bar + filter */}
-      <div style={{ padding: '14px 14px 0', flexShrink: 0 }}>
+      <div style={{ padding: '14px 14px 0', flexShrink: 0, position: 'relative', zIndex: 1 }}>
         <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
           {/* Listing count badge */}
           <div style={{
@@ -933,7 +945,7 @@ export default function RentalSearchScreen({ onClose, initialView, initialListin
       )}
 
       {/* 2-column product grid — matches marketplace layout */}
-      <div ref={bodyScrollRef} className={styles.body} style={{ paddingRight: 0, paddingTop: 90 }}>
+      <div ref={bodyScrollRef} className={styles.body} style={{ paddingRight: 0, paddingTop: 90, position: 'relative', zIndex: 1 }}>
         <style>{`
           @keyframes rentalCardIn { from { opacity: 0; transform: translateY(12px) scale(0.97); } to { opacity: 1; transform: translateY(0) scale(1); } }
         `}</style>
