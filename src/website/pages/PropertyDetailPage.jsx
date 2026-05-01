@@ -50,15 +50,15 @@ export default function PropertyDetailPage({ listing, onBack, onSelectListing })
   const details = [
     ef.certificate && ['Certificate', ef.certificate],
     ef.furnished && ['Furnished', ef.furnished],
-    ef.facing || ef.facingDirection && ['Facing', ef.facing || ef.facingDirection],
-    ef.floors || ef.numFloors && ['Floors', ef.floors || ef.numFloors],
-    ef.yearBuilt || ef.year_built && ['Year Built', ef.yearBuilt || ef.year_built],
+    (ef.facing || ef.facingDirection) && ['Facing', ef.facing || ef.facingDirection],
+    (ef.floors || ef.numFloors) && ['Floors', ef.floors || ef.numFloors],
+    (ef.yearBuilt || ef.year_built) && ['Year Built', ef.yearBuilt || ef.year_built],
     ef.electricityCapacity && ['Electricity', ef.electricityCapacity],
     ef.waterType && ['Water', ef.waterType],
     ef.parking && ['Parking', `${ef.parking} spots`],
     ef.pool && ['Pool', 'Yes'],
     ef.zoning && ['Zoning', ef.zoning],
-  ].filter(Boolean)
+  ].filter(Array.isArray)
 
   // Rental periods
   const periods = []
