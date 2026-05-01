@@ -201,12 +201,22 @@ export default function RentalDetail({ listing: initialListing, onClose, onChat,
     <div style={{ borderRadius: 14, background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.06)', overflow: 'hidden', ...style }}>{children}</div>
   )
 
+  const DETAIL_ICONS = {
+    Certificate: 'https://ik.imagekit.io/nepgaxllc/Untitledsssvvvvv-removebg-preview.png',
+    Furnished: 'https://ik.imagekit.io/nepgaxllc/Untitledsssvvvvvdd-removebg-preview.png',
+    Facing: 'https://ik.imagekit.io/nepgaxllc/Untitledssv-removebg-preview.png',
+    Floors: 'https://ik.imagekit.io/nepgaxllc/Untitled33-removebg-preview.png',
+    'Year Built': 'https://ik.imagekit.io/nepgaxllc/Untitledsssff-removebg-preview.png',
+  }
+
   let detailRowIdx = 0
   const DetailRow = ({ label, value, color = '#fff', isLast = false }) => {
     const idx = detailRowIdx++
+    const iconUrl = DETAIL_ICONS[label]
     return (
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '12px 16px', borderBottom: isLast ? 'none' : '1px solid rgba(255,255,255,0.04)', background: idx % 2 === 0 ? 'rgba(255,255,255,0.02)' : 'transparent' }}>
-        <span style={{ fontSize: 13, fontWeight: 600, color: 'rgba(255,255,255,0.4)' }}>{label}</span>
+      <div style={{ display: 'flex', alignItems: 'center', padding: '12px 16px', borderBottom: isLast ? 'none' : '1px solid rgba(255,255,255,0.04)', background: idx % 2 === 0 ? 'rgba(255,255,255,0.02)' : 'transparent', gap: 10 }}>
+        {iconUrl && <img src={iconUrl} alt="" style={{ width: 22, height: 22, objectFit: 'contain', flexShrink: 0, opacity: 0.8 }} />}
+        <span style={{ fontSize: 13, fontWeight: 600, color: 'rgba(255,255,255,0.4)', flex: 1 }}>{label}</span>
         <span style={{ fontSize: 13, fontWeight: 800, color }}>{value}</span>
       </div>
     )
