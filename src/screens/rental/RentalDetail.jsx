@@ -434,23 +434,23 @@ export default function RentalDetail({ listing: initialListing, onClose, onChat,
               return (
                 <div className="rd-section" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10, marginBottom: 20, ...sectionDelay(sectionIdx++) }}>
                   {ef.land_area && (
-                    <GlassCard style={{ padding: '16px', border: '1px solid rgba(141,198,63,0.12)', background: 'rgba(141,198,63,0.04)', position: 'relative', overflow: 'hidden', minHeight: 100 }}>
+                    <GlassCard style={{ padding: '16px', border: '1px solid rgba(255,255,255,0.08)', background: 'rgba(0,0,0,0.85)', position: 'relative', overflow: 'hidden', minHeight: 110 }}>
                       <div style={{ position: 'relative', zIndex: 1 }}>
-                        <div style={{ fontSize: 12, fontWeight: 700, color: 'rgba(255,255,255,0.35)', letterSpacing: '0.06em', textTransform: 'uppercase' }}>Land Area</div>
+                        <div style={{ fontSize: 12, fontWeight: 700, color: 'rgba(255,255,255,0.4)', letterSpacing: '0.06em', textTransform: 'uppercase' }}>Land Area</div>
                         <div style={{ fontSize: 22, fontWeight: 900, color: '#fff', marginTop: 6 }}>{ef.land_area}</div>
-                        <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.25)', marginTop: 2 }}>m²</div>
+                        <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.3)', marginTop: 2 }}>m²</div>
                       </div>
-                      <img src={landImg} alt="" style={{ position: 'absolute', bottom: -4, right: -4, width: 70, height: 70, objectFit: 'contain', opacity: 0.5, pointerEvents: 'none' }} />
+                      <img src={landImg} alt="" style={{ position: 'absolute', bottom: -2, right: -2, width: 70, height: 70, objectFit: 'contain', opacity: 0.85, pointerEvents: 'none' }} />
                     </GlassCard>
                   )}
                   {ef.building_area && (
-                    <GlassCard style={{ padding: '16px', border: '1px solid rgba(141,198,63,0.12)', background: 'rgba(141,198,63,0.04)', position: 'relative', overflow: 'hidden', minHeight: 100 }}>
+                    <GlassCard style={{ padding: '16px', border: '1px solid rgba(255,255,255,0.08)', background: 'rgba(0,0,0,0.85)', position: 'relative', overflow: 'hidden', minHeight: 110 }}>
                       <div style={{ position: 'relative', zIndex: 1 }}>
-                        <div style={{ fontSize: 12, fontWeight: 700, color: 'rgba(255,255,255,0.35)', letterSpacing: '0.06em', textTransform: 'uppercase' }}>Building Area</div>
+                        <div style={{ fontSize: 12, fontWeight: 700, color: 'rgba(255,255,255,0.4)', letterSpacing: '0.06em', textTransform: 'uppercase' }}>Building Area</div>
                         <div style={{ fontSize: 22, fontWeight: 900, color: '#fff', marginTop: 6 }}>{ef.building_area}</div>
-                        <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.25)', marginTop: 2 }}>m²</div>
+                        <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.3)', marginTop: 2 }}>m²</div>
                       </div>
-                      <img src={buildingBg} alt="" style={{ position: 'absolute', bottom: -4, right: -4, width: 70, height: 70, objectFit: 'contain', opacity: 0.5, pointerEvents: 'none' }} />
+                      <img src={buildingBg} alt="" style={{ position: 'absolute', bottom: -4, right: -4, width: 140, height: 140, objectFit: 'contain', opacity: 0.85, pointerEvents: 'none' }} />
                     </GlassCard>
                   )}
                 </div>
