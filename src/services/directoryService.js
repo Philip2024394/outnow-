@@ -289,6 +289,17 @@ export function getDestinationsByCategory(categoryId) {
   return YOGYAKARTA_DESTINATIONS.filter(d => d.category === categoryId)
 }
 
+/** Get destinations relative to user location, filtered by radius and sorted by nearest */
+export function getDestinationsNearUser(userLat, userLng, radiusKm = 50, categoryId = 'all') {
+  const base = categoryId === 'all' ? YOGYAKARTA_DESTINATIONS : YOGYAKARTA_DESTINATIONS.filter(d => d.category === categoryId)
+  return base
+    .map(d => ({ ...d, distanceKm: Math.round(distanceKm(userLat, userLng, d.lat, d.lng) * 10) / 10 }))
+    .filter(d => d.distanceKm <= radiusKm)
+    .sort((a, b) => a.distanceKm - b.distanceKm)
+}
+
+export { distanceKm }
+
 export function fmtIDR(n) {
   return `Rp ${Number(n).toLocaleString('id-ID')}`
 }

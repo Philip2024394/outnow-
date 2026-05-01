@@ -3,13 +3,16 @@
  * Swipe left/right to browse. Center card is highlighted with full detail.
  * Google Maps + Instagram links on each card.
  */
-import { useState, useRef, useCallback } from 'react'
+import { useState, useRef, useCallback, useEffect } from 'react'
 import { createPortal } from 'react-dom'
 import {
-  DIRECTORY_CATEGORIES, getDestinationsByCategory,
+  DIRECTORY_CATEGORIES, getDestinationsByCategory, getDestinationsNearUser,
   calculateDirectoryPrice, fmtIDR,
 } from '@/services/directoryService'
+import { useGeolocation } from '@/hooks/useGeolocation'
 import SuggestPlaceSheet from './SuggestPlaceSheet'
+
+const ID_FLAG = 'https://ik.imagekit.io/nepgaxllc/Untitledxxxxcc-removebg-preview.png?updatedAt=1777592820803'
 
 /* ── Category → Hero image ── */
 const CAT_IMAGES = {
@@ -62,6 +65,7 @@ function getShuffled() {
 }
 
 export default function DestinationDirectory({ open, onClose, onSelectDestination, vehicleMode }) {
+  const { coords } = useGeolocation()
   const [search, setSearch] = useState('')
   const [activeCat, setActiveCat] = useState('all')
   const [activeIdx, setActiveIdx] = useState(0)
@@ -77,8 +81,11 @@ export default function DestinationDirectory({ open, onClose, onSelectDestinatio
 
   if (!open) return null
 
-  let destinations = getShuffled()
-  if (activeCat !== 'all') destinations = destinations.filter(d => d.category === activeCat)
+  // Use user location for distance calc + 50km radius filter, sorted nearest first
+  let destinations = coords
+    ? getDestinationsNearUser(coords.lat, coords.lng, 50, activeCat)
+    : (activeCat !== 'all' ? getShuffled().filter(d => d.category === activeCat) : getShuffled())
+
   if (search.trim()) {
     const q = search.toLowerCase()
     destinations = destinations.filter(d =>
@@ -88,8 +95,8 @@ export default function DestinationDirectory({ open, onClose, onSelectDestinatio
 
   const isBike = vehicleMode !== 'car_taxi'
   const isStandalone = vehicleMode === null || vehicleMode === undefined
-  const totalAll = getShuffled().length
-  const usedCats = [...new Set(getShuffled().map(d => d.category))]
+  const totalAll = coords ? getDestinationsNearUser(coords.lat, coords.lng, 50).length : getShuffled().length
+  const usedCats = [...new Set((coords ? getDestinationsNearUser(coords.lat, coords.lng, 50) : getShuffled()).map(d => d.category))]
   const clamp = (i) => Math.max(0, Math.min(destinations.length - 1, i))
 
   /* ── Swipe handlers ── */
@@ -132,14 +139,11 @@ export default function DestinationDirectory({ open, onClose, onSelectDestinatio
       onMouseMove={handleMouseMove} onMouseUp={handleMouseUp} onMouseLeave={handleMouseUp}
     >
       {/* ═══ Header ═══ */}
-      <div style={{ flexShrink: 0, padding: '14px 16px 0', background: 'transparent', borderBottom: '1px solid rgba(255,255,255,0.06)' }}>
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 10 }}>
-          <div>
-            <h1 style={{ fontSize: 20, fontWeight: 900, color: '#fff', margin: 0, letterSpacing: '0.02em' }}>
-              <span style={{ color: '#fff' }}>INDOO</span> <span style={{ color: '#8DC63F' }}>PLACES</span>
-            </h1>
-            <p style={{ fontSize: 12, color: 'rgba(255,255,255,0.4)', margin: '4px 0 0', fontWeight: 600 }}>Swipe to explore · Tap to book a ride</p>
-          </div>
+      <div style={{ flexShrink: 0, padding: '14px 16px 10px', background: 'transparent' }}>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12 }}>
+          <h1 style={{ fontSize: 20, fontWeight: 900, color: '#fff', margin: 0, letterSpacing: '0.02em' }}>
+            <span style={{ color: '#fff' }}>INDOO</span> <span style={{ color: '#8DC63F' }}>PLACES</span>
+          </h1>
           <div style={{ display: 'flex', gap: 8 }}>
             <button onClick={() => setSuggestOpen(true)} style={{
               padding: '7px 14px', borderRadius: 20, cursor: 'pointer', fontFamily: 'inherit',
@@ -147,7 +151,7 @@ export default function DestinationDirectory({ open, onClose, onSelectDestinatio
               color: '#F59E0B', fontSize: 11, fontWeight: 800, display: 'flex', alignItems: 'center', gap: 5,
             }}>+ Suggest</button>
             <button onClick={onClose} style={{
-              width: 36, height: 36, borderRadius: 18, background: 'rgba(255,255,255,0.08)',
+              width: 36, height: 36, borderRadius: 18, background: 'rgba(0,0,0,0.6)',
               border: '1px solid rgba(255,255,255,0.15)', color: '#fff', cursor: 'pointer',
               display: 'flex', alignItems: 'center', justifyContent: 'center',
             }}>
@@ -156,32 +160,12 @@ export default function DestinationDirectory({ open, onClose, onSelectDestinatio
           </div>
         </div>
 
-        {/* Category pills */}
-        <div style={{ display: 'flex', gap: 6, overflowX: 'auto', paddingBottom: 12, scrollbarWidth: 'none' }}>
-          <button onClick={() => { setActiveCat('all'); setActiveIdx(0) }} style={{
-            padding: '6px 14px', borderRadius: 20, whiteSpace: 'nowrap', flexShrink: 0, cursor: 'pointer', fontFamily: 'inherit',
-            background: activeCat === 'all' ? 'rgba(141,198,63,0.15)' : 'rgba(255,255,255,0.04)',
-            border: activeCat === 'all' ? '1.5px solid rgba(141,198,63,0.4)' : '1px solid rgba(255,255,255,0.06)',
-            color: activeCat === 'all' ? '#8DC63F' : 'rgba(255,255,255,0.4)', fontSize: 12, fontWeight: 700,
-          }}>All</button>
-          {DIRECTORY_CATEGORIES.filter(c => usedCats.includes(c.id)).map(c => (
-            <button key={c.id} onClick={() => { setActiveCat(c.id); setActiveIdx(0) }} style={{
-              padding: '6px 14px', borderRadius: 20, whiteSpace: 'nowrap', flexShrink: 0, cursor: 'pointer', fontFamily: 'inherit',
-              background: activeCat === c.id ? 'rgba(141,198,63,0.15)' : 'rgba(255,255,255,0.04)',
-              border: activeCat === c.id ? '1.5px solid rgba(141,198,63,0.4)' : '1px solid rgba(255,255,255,0.06)',
-              color: activeCat === c.id ? '#8DC63F' : 'rgba(255,255,255,0.4)', fontSize: 12, fontWeight: 700,
-              display: 'flex', alignItems: 'center', gap: 4,
-            }}>{c.icon} {c.label}</button>
-          ))}
-        </div>
-      </div>
-
-      {/* ═══ Search Bar ═══ */}
-      <div style={{ padding: '10px 16px 6px', flexShrink: 0 }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '0 14px', height: 46, background: 'rgba(0,0,0,0.7)', backdropFilter: 'blur(12px)', WebkitBackdropFilter: 'blur(12px)', border: '1.5px solid rgba(141,198,63,0.2)', borderRadius: 14 }}>
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#8DC63F" strokeWidth="2.5"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-          <input value={search} onChange={e => { setSearch(e.target.value); setActiveIdx(0) }} placeholder="Search temples, beaches, restaurants..." style={{ flex: 1, background: 'none', border: 'none', color: '#fff', fontSize: 14, fontWeight: 600, fontFamily: 'inherit', outline: 'none' }} />
+        {/* Search bar — black fill with Indonesia flag */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '0 14px', height: 46, background: 'rgba(0,0,0,0.85)', border: '1.5px solid rgba(255,255,255,0.1)', borderRadius: 14 }}>
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.4)" strokeWidth="2.5"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+          <input value={search} onChange={e => { setSearch(e.target.value); setActiveIdx(0) }} placeholder="Search places near you..." style={{ flex: 1, background: 'none', border: 'none', color: '#fff', fontSize: 14, fontWeight: 600, fontFamily: 'inherit', outline: 'none' }} />
           {search && <button onClick={() => { setSearch(''); setActiveIdx(0) }} style={{ width: 28, height: 28, borderRadius: 14, background: 'rgba(255,255,255,0.1)', border: 'none', color: '#fff', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 13, fontWeight: 700 }}>✕</button>}
+          <img src={ID_FLAG} alt="" style={{ width: 24, height: 24, objectFit: 'contain', borderRadius: '50%', flexShrink: 0 }} />
         </div>
         {search && <div style={{ marginTop: 6, fontSize: 12, fontWeight: 700, color: '#8DC63F', textAlign: 'center' }}>{destinations.length} result{destinations.length !== 1 ? 's' : ''} for "{search}"</div>}
       </div>
