@@ -136,10 +136,12 @@ export default function WebsiteApp() {
 
         <WebsiteFooter onNavigate={navigate} />
 
-        {/* List Property Form */}
+        {/* List Property Form — pre-set to Property category */}
         {showListForm && (
           <PropertyListingForm
             open
+            propertyType="House"
+            listingMarket="rental"
             onClose={() => setShowListForm(false)}
             onSubmit={async (listing) => {
               await createListing(listing)

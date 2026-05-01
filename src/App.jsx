@@ -10,7 +10,7 @@ import { GuestGateProvider } from '@/contexts/GuestGateContext'
 import { LanguageProvider } from '@/i18n'
 import LanguageToast from '@/components/ui/LanguageToast'
 import DesktopNav from '@/components/desktop/DesktopNav'
-import MobilePropertyLanding from '@/screens/MobilePropertyLanding'
+// MobilePropertyLanding removed — mobile users see the normal app
 import WebsiteLanding from '@/components/desktop/WebsiteLanding'
 import PropertyLanding from '@/components/desktop/PropertyLanding'
 import WebsiteApp from '@/website/WebsiteApp'
@@ -260,20 +260,6 @@ export default function App() {
             const isDesktop = typeof window !== 'undefined' && window.innerWidth >= 768
             const isWebRoute = ['/', '/property', '/rentals', '/places', '/agents'].includes(window.location.pathname)
             if (isDesktop && isWebRoute) return null // website handles these routes on desktop
-
-            // Mobile user on /property — show property landing instead of generic app
-            const isMobileProperty = !isDesktop && window.location.pathname === '/property'
-            if (isMobileProperty) {
-              return (
-                <MobilePropertyLanding
-                  onEnterApp={(target, query) => {
-                    setGuestMode(true)
-                    // Will enter app's main flow
-                  }}
-                  onSelectListing={() => { setGuestMode(true) }}
-                />
-              )
-            }
 
             return (
               <>
