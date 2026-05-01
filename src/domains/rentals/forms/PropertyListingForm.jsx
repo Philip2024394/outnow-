@@ -4,6 +4,7 @@ import { TextField, NumberField, SelectField, PillSelect, ToggleField, TextArea,
 import styles from '../rentalFormStyles.module.css'
 import showroomStyles from './MotorbikeShowroom.module.css'
 import { PickerField, SettingsDrawer, ProcessingStep, SuccessStep, MyListingsPanel, RentalTermsSection, AgreementEditorPopup, FormHeader } from './shared/ListingFormShared'
+import DealHuntToggle from '@/components/dealhunt/DealHuntToggle'
 
 /* ══════════════════════════════════════════════════════════════════════════════
    PROPERTY DIRECTORY — showroom carousel data
@@ -248,6 +249,8 @@ export default function PropertyListingForm({ open, onClose, onSubmit, editListi
   const [videoTourUrl, setVideoTourUrl] = useState(ef.videoTourUrl || '')
   const [floorPlanImage, setFloorPlanImage] = useState(ef.floorPlanImage || '')
   const [cancellationPolicy, setCancellationPolicy] = useState(ef.cancellationPolicy || '')
+  const [dealHuntEnabled, setDealHuntEnabled] = useState(false)
+  const [dealHuntPct, setDealHuntPct] = useState(0)
 
   // Pricing
   const [nightly, setNightly] = useState(editListing?.price_day || '')
@@ -362,6 +365,13 @@ export default function PropertyListingForm({ open, onClose, onSubmit, editListi
       localStorage.setItem('indoo_my_property_listings', JSON.stringify(saved))
     } catch {}
     await onSubmit?.(listing)
+    // Create Deal Hunt entry if enabled
+    if (dealHuntEnabled && dealHuntPct > 0) {
+      try {
+        const { createDealFromListing } = await import('@/services/dealService')
+        await createDealFromListing({ listing, discountPct: dealHuntPct, category: 'Property', isSale: !!buyNow })
+      } catch (e) { console.warn('Deal Hunt listing failed:', e) }
+    }
     setSubmitting(false); setStep(5)
     // After 5 seconds, show success
     setTimeout(() => setStep(6), 5000)
@@ -1049,6 +1059,16 @@ export default function PropertyListingForm({ open, onClose, onSubmit, editListi
             <RentalTermsSection ownerAgreementSaved={ownerAgreementSaved} localTermsEnabled={localTermsEnabled} setLocalTermsEnabled={setLocalTermsEnabled} touristTermsEnabled={touristTermsEnabled} setTouristTermsEnabled={setTouristTermsEnabled} showLocalTerms={showLocalTerms} setShowLocalTerms={setShowLocalTerms} showTouristTerms={showTouristTerms} setShowTouristTerms={setShowTouristTerms} />
 
             <AgreementEditorPopup show={showAgreementEditor} onClose={() => setShowAgreementEditor(false)} agreementEditTab={agreementEditTab} setAgreementEditTab={setAgreementEditTab} editLocalTerms={editLocalTerms} setEditLocalTerms={setEditLocalTerms} editTouristTerms={editTouristTerms} setEditTouristTerms={setEditTouristTerms} />
+
+            {/* Deal Hunt toggle */}
+            <div style={{ marginTop: 14 }}>
+              <DealHuntToggle
+                category="Property"
+                isSale={!!buyNow}
+                price={buyNow ? buyNowPrice : monthly || nightly}
+                onToggle={(enabled, pct) => { setDealHuntEnabled(enabled); setDealHuntPct(pct) }}
+              />
+            </div>
 
           </div>
         )}

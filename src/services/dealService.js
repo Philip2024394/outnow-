@@ -35,13 +35,30 @@ function expiresAtForDealType(dealType) {
 }
 
 const MIN_DISCOUNT_BY_CATEGORY = {
-  food: 15,
-  massage: 15,
+  food: 10,
+  massage: 10,
   marketplace: 10,
-  rentals: 10,
-  rides: 10,
+  rentals: 5,
+  rides: 3,
+  property_sale: 2.5,
+  property_rental: 5,
+  cars_sale: 3,
+  bikes_sale: 3,
+  trucks_sale: 3,
+  audio: 10,
+  fashion: 10,
+  event: 10,
 }
 const DEFAULT_MIN_DISCOUNT = 10
+
+/** Get minimum discount % for a category */
+export function getMinDiscount(category, isSale = false) {
+  if (category === 'Property' && isSale) return MIN_DISCOUNT_BY_CATEGORY.property_sale
+  if (category === 'Property') return MIN_DISCOUNT_BY_CATEGORY.property_rental
+  if (['Cars', 'Motorcycles', 'Trucks'].includes(category) && isSale) return MIN_DISCOUNT_BY_CATEGORY[`${category === 'Cars' ? 'cars' : category === 'Motorcycles' ? 'bikes' : 'trucks'}_sale`]
+  const key = category?.toLowerCase().replace(/\s+/g, '_')
+  return MIN_DISCOUNT_BY_CATEGORY[key] || DEFAULT_MIN_DISCOUNT
+}
 
 // ── Demo deals ──────────────────────────────────────────────────────────────
 
@@ -277,6 +294,42 @@ export async function createDeal(dealData) {
     console.warn('[dealService] createDeal failed', e)
     return null
   }
+}
+
+// ── Create deal from a listing (property, car, rental, etc.) ────────────────
+
+export async function createDealFromListing({ listing, discountPct, category, isSale }) {
+  const minPct = getMinDiscount(category, isSale)
+  if (discountPct < minPct) throw new Error(`Minimum discount for ${category} is ${minPct}%`)
+
+  const originalPrice = isSale
+    ? Number(String(typeof listing.buy_now === 'object' ? listing.buy_now.price : listing.buy_now || 0).replace(/\./g, ''))
+    : listing.price_month || listing.price_day || 0
+  const dealPrice = Math.round(originalPrice * (1 - discountPct / 100))
+
+  const domain = category === 'Property' ? (isSale ? 'property_sale' : 'rentals')
+    : ['Cars', 'Motorcycles', 'Trucks'].includes(category) ? 'rides'
+    : 'marketplace'
+
+  return createDeal({
+    title: listing.title,
+    description: listing.description || `${discountPct}% off — ${listing.title}`,
+    domain,
+    sub_category: listing.sub_category || category,
+    original_price: originalPrice,
+    deal_price: dealPrice,
+    discount_pct: discountPct,
+    quantity_available: 1,
+    image: listing.images?.[0] || listing.image || null,
+    images: listing.images || [],
+    seller_name: listing.ownerName || 'Owner',
+    seller_id: listing.owner_id || null,
+    city: listing.city || '',
+    end_time: daysFromNow(7),
+    deal_type: 'pickup',
+    listing_ref: listing.ref || listing.id,
+    listing_category: category,
+  })
 }
 
 // ── Claim deal ──────────────────────────────────────────────────────────────
