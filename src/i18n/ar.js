@@ -45,6 +45,7 @@ export default {
   'icons.shop':    'تسوق',
   'icons.massage': 'تدليك',
   'icons.rentals': 'إيجار',
+  'icons.places': 'أماكن',
 
   // Deal Hunt
   'dealhunt.landing.title': 'إندونيسيا',

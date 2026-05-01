@@ -45,6 +45,7 @@ export default {
   'icons.shop':    '购物',
   'icons.massage': '按摩',
   'icons.rentals': '租赁',
+  'icons.places': '景点',
 
   // Deal Hunt
   'dealhunt.landing.title': '印度尼西亚',

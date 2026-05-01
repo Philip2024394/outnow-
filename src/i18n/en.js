@@ -47,6 +47,7 @@ export default {
   'icons.rentals': 'Rent',
   'icons.deals':   'Deal Hunt',
   'icons.sellrent': 'Sell / Rent',
+  'icons.places': 'Places',
 
   // Deal Hunt
   'dealhunt.landing.title': 'Indonesia',
