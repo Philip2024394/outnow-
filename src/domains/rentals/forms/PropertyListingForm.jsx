@@ -29,7 +29,7 @@ const PROPERTY_DIRECTORY = [
 /* ══════════════════════════════════════════════════════════════════════════════
    PROPERTY OPTIONS & CONSTANTS
    ══════════════════════════════════════════════════════════════════════════════ */
-const PROPERTY_TYPES = ['Villa', 'Apartment', 'Kos', 'House', 'Room', 'Studio', 'Bungalow', 'Penthouse', 'Glamping']
+const PROPERTY_TYPES = ['Villa', 'Apartment', 'Kos', 'House', 'Room', 'Studio', 'Bungalow', 'Penthouse', 'Glamping', 'Tanah', 'Ruko', 'Gudang', 'Pabrik']
 const FURNISHED_OPTIONS = ['Fully Furnished', 'Semi Furnished', 'Unfurnished']
 const AMENITIES = ['Pool', 'AC', 'WiFi', 'Kitchen', 'Laundry', 'Parking', 'Garden', 'Security', 'CCTV', 'Hot Water', 'TV', 'Balcony', 'Rooftop']
 const AMENITY_ICONS = { Pool: '🏊', AC: '❄️', WiFi: '📶', Kitchen: '🍳', Laundry: '🧺', Parking: '🅿️', Garden: '🌿', Security: '🔒', CCTV: '📹', 'Hot Water': '🚿', TV: '📺', Balcony: '🌅', Rooftop: '🏙️' }
@@ -50,8 +50,25 @@ const KOS_MIN_STAY_OPTIONS = ['1 month', '3 months', '6 months', '1 year']
 // House/Villa-specific options
 const ELECTRICITY_CAPACITY_OPTIONS = ['450W', '900W', '1300W', '2200W', '3500W', '5500W', '7700W', '11000W']
 const WATER_TYPE_OPTIONS = ['PDAM', 'Well']
-const CERTIFICATE_TYPE_OPTIONS = ['SHM', 'HGB', 'Hak Pakai', 'SHMSRS', 'AJB', 'Girik']
+const CERTIFICATE_TYPE_OPTIONS = ['SHM', 'HGB', 'Hak Pakai', 'SHMSRS', 'AJB', 'Girik', 'Petok D', 'Adat', 'HGU']
 const FACING_DIRECTION_OPTIONS = ['North', 'South', 'East', 'West']
+
+// Tanah (Land) options
+const ZONING_OPTIONS = ['Residential', 'Commercial', 'Industrial', 'Agricultural', 'Mixed-Use']
+const LAND_SHAPE_OPTIONS = ['Regular', 'L-Shape', 'Irregular', 'Corner Lot']
+const LAND_CONTOUR_OPTIONS = ['Flat', 'Sloped', 'Hillside']
+const ROAD_ACCESS_OPTIONS = ['Asphalt', 'Concrete', 'Gravel', 'Dirt']
+
+// Ruko options
+const BUSINESS_TYPE_OPTIONS = ['Retail', 'Office', 'F&B', 'Mixed']
+
+// Gudang/Pabrik options
+const ELECTRICITY_KVA_OPTIONS = ['23 kVA', '53 kVA', '100 kVA', '200 kVA', '350 kVA']
+const WAREHOUSE_ZONING_OPTIONS = ['Industrial', 'Commercial', 'Logistics']
+const WATER_SUPPLY_OPTIONS = ['PDAM', 'Well', 'Both']
+
+// Owner type
+const OWNER_TYPE_OPTIONS = ['Owner', 'Agent']
 
 // All property types
 const CANCELLATION_POLICY_OPTIONS = ['Flexible', 'Moderate', 'Strict', 'Non-refundable']

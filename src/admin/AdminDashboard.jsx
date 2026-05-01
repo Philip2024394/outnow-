@@ -33,6 +33,7 @@ import AdminChatTab from './tabs/AdminChatTab'
 import PublicDealsAdminTab from './tabs/PublicDealsAdminTab'
 import BlastAdminTab from './tabs/BlastAdminTab'
 import EmailGeneratorTab from './tabs/EmailGeneratorTab'
+import KprRatesTab from './tabs/KprRatesTab'
 
 const LOGO = 'https://ik.imagekit.io/dateme/Logo%20with%20green%20map%20pin%20element.png'
 
@@ -71,6 +72,7 @@ const NAV = [
   { id: 'admin_chat',   icon: '🕵️', label: 'Chat Access' },
   { id: 'deal_approvals', icon: '✅', label: 'Deal Approvals' },
   { id: 'blasts',         icon: '🚀', label: 'Deal Blasts' },
+  { id: 'kpr_rates',      icon: '🏦', label: 'KPR Rates' },
 ]
 
 export default function AdminDashboard({ onLogout }) {
@@ -217,6 +219,7 @@ export default function AdminDashboard({ onLogout }) {
           {tab === 'admin_chat' && <AdminChatTab />}
           {tab === 'deal_approvals' && <PublicDealsAdminTab />}
           {tab === 'blasts' && <BlastAdminTab />}
+          {tab === 'kpr_rates' && <KprRatesTab />}
         </div>
       </div>
     </div>

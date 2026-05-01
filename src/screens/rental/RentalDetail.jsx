@@ -4,6 +4,13 @@ import { saveItem, isItemSaved } from '../SavedItemsScreen'
 import KPRCalculator from '@/components/property/KPRCalculator'
 import BookingRequest from '@/components/property/BookingRequest'
 import PropertyReviews from '@/components/property/PropertyReviews'
+import VideoPlayer from '@/components/property/VideoPlayer'
+import WhatsAppCTA from '@/components/property/WhatsAppCTA'
+import VerifiedBadge from '@/components/property/VerifiedBadge'
+import NeighborhoodGuide from '@/components/property/NeighborhoodGuide'
+import PriceHistoryChart from '@/components/property/PriceHistoryChart'
+import PropertyValuation from '@/components/property/PropertyValuation'
+import TransportProximity from '@/components/property/TransportProximity'
 
 function PageBadge({ num, label }) {
   return (
@@ -91,7 +98,7 @@ export default function RentalDetail({ listing: initialListing, onClose, onChat,
   if (!listing) return null
 
   const images = listing.images?.length ? listing.images : [listing.image || '']
-  const isProperty = ['House', 'Villa', 'Kos', 'Factory', 'Property'].includes(listing.category) || ['House', 'Villa', 'Kos', 'Factory'].includes(listing.sub_category)
+  const isProperty = ['House', 'Villa', 'Kos', 'Factory', 'Property'].includes(listing.category) || ['House', 'Villa', 'Kos', 'Factory', 'Tanah', 'Ruko', 'Gudang', 'Pabrik', 'Apartment'].includes(listing.sub_category)
   const subCat = listing.sub_category || listing.category || 'Property'
   const ef = listing.extra_fields || {}
 
@@ -639,6 +646,52 @@ export default function RentalDetail({ listing: initialListing, onClose, onChat,
               </div>
             )}
 
+            {/* ── Video Tour ── */}
+            {listing.video_url && (
+              <div className="rd-section" style={{ marginBottom: 20, ...sectionDelay(sectionIdx++) }}>
+                <SectionHeader>Video Tour</SectionHeader>
+                <VideoPlayer videoUrl={listing.video_url} thumbnailUrl={listing.video_thumbnail} />
+              </div>
+            )}
+
+            {/* ── Verified Badge + Owner Type ── */}
+            {isProperty && (
+              <div className="rd-section" style={{ marginBottom: 16, display: 'flex', gap: 8, flexWrap: 'wrap', ...sectionDelay(sectionIdx++) }}>
+                <VerifiedBadge type={listing.owner_type === 'agent' ? 'verified' : 'trusted'} size="md" />
+                {listing.condition === 'new' && <VerifiedBadge type="new" size="md" />}
+                {listing.owner_type === 'agent' && <span style={{ padding: '4px 12px', borderRadius: 20, background: 'rgba(96,165,250,0.12)', border: '1px solid rgba(96,165,250,0.3)', color: '#60A5FA', fontSize: 12, fontWeight: 800 }}>🏢 Agent</span>}
+                {listing.owner_type === 'owner' && <span style={{ padding: '4px 12px', borderRadius: 20, background: 'rgba(141,198,63,0.12)', border: '1px solid rgba(141,198,63,0.3)', color: '#8DC63F', fontSize: 12, fontWeight: 800 }}>👤 Owner</span>}
+              </div>
+            )}
+
+            {/* ── Price History & Market ── */}
+            {isProperty && (
+              <div className="rd-section" style={{ ...sectionDelay(sectionIdx++) }}>
+                <PriceHistoryChart listing={listing} />
+              </div>
+            )}
+
+            {/* ── Property Valuation ── */}
+            {isProperty && listing.buy_now && (
+              <div className="rd-section" style={{ ...sectionDelay(sectionIdx++) }}>
+                <PropertyValuation listing={listing} />
+              </div>
+            )}
+
+            {/* ── Neighborhood Guide ── */}
+            {isProperty && (
+              <div className="rd-section" style={{ ...sectionDelay(sectionIdx++) }}>
+                <NeighborhoodGuide listing={listing} />
+              </div>
+            )}
+
+            {/* ── Transport Proximity ── */}
+            {isProperty && (
+              <div className="rd-section" style={{ ...sectionDelay(sectionIdx++) }}>
+                <TransportProximity listing={listing} />
+              </div>
+            )}
+
             {/* ── Reviews ── */}
             <div className="rd-section" style={{ marginBottom: 20, ...sectionDelay(sectionIdx++) }}>
               <PropertyReviews listingId={listing.id} listingTitle={listing.title} rating={listing.rating} reviewCount={listing.review_count} />
@@ -698,19 +751,23 @@ export default function RentalDetail({ listing: initialListing, onClose, onChat,
           background: 'linear-gradient(transparent 0%, rgba(10,10,10,0.7) 30%, #0a0a0a 70%)',
           display: 'flex', alignItems: 'center', gap: 10,
         }}>
-          {/* Chat Owner — outline */}
-          <button onClick={() => onChat?.(listing)} style={{
-            flex: 1, padding: '15px 0', borderRadius: 14,
-            background: 'rgba(255,255,255,0.04)',
-            border: '1.5px solid rgba(255,255,255,0.12)',
-            color: '#fff', fontSize: 14, fontWeight: 800,
-            cursor: 'pointer', fontFamily: 'inherit',
-            display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6,
-            backdropFilter: 'blur(8px)',
-          }}>
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z" /></svg>
-            Chat Owner
-          </button>
+          {/* WhatsApp CTA (property) or Chat Owner (other) */}
+          {isProperty ? (
+            <WhatsAppCTA phoneNumber={listing.whatsapp || '81234567890'} listingTitle={listing.title} listingPrice={listing.buy_now ? (typeof listing.buy_now === 'object' ? listing.buy_now.price : listing.buy_now) : listing.price_month} size="small" />
+          ) : (
+            <button onClick={() => onChat?.(listing)} style={{
+              flex: 1, padding: '15px 0', borderRadius: 14,
+              background: 'rgba(255,255,255,0.04)',
+              border: '1.5px solid rgba(255,255,255,0.12)',
+              color: '#fff', fontSize: 14, fontWeight: 800,
+              cursor: 'pointer', fontFamily: 'inherit',
+              display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6,
+              backdropFilter: 'blur(8px)',
+            }}>
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z" /></svg>
+              Chat Owner
+            </button>
+          )}
 
           {/* KPR Calculator (sale only) */}
           {listing.buy_now && isProperty && (
