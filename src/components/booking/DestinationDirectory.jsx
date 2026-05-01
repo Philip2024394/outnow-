@@ -40,6 +40,11 @@ export default function DestinationDirectory({ open, onClose, onSelectDestinatio
   const [activeIdx, setActiveIdx] = useState(0)
   const [suggestOpen, setSuggestOpen] = useState(false)
   const scrollRef = useRef(null)
+  const [ratings] = useState(() => {
+    const r = {}
+    getDestinationsByCategory('all').forEach(d => { r[d.id] = (4 + Math.random()).toFixed(1) })
+    return r
+  })
 
   // Scroll snap to active index
   useEffect(() => {
