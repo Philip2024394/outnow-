@@ -440,7 +440,7 @@ export default function RentalDetail({ listing: initialListing, onClose, onChat,
                         <div style={{ fontSize: 22, fontWeight: 900, color: '#fff', marginTop: 6 }}>{ef.land_area}</div>
                         <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.3)', marginTop: 2 }}>m²</div>
                       </div>
-                      <img src={landImg} alt="" style={{ position: 'absolute', bottom: -2, right: -2, width: 70, height: 70, objectFit: 'contain', opacity: 0.85, pointerEvents: 'none' }} />
+                      <img src={landImg} alt="" style={{ position: 'absolute', bottom: -2, right: -2, width: 77, height: 77, objectFit: 'contain', opacity: 0.85, pointerEvents: 'none' }} />
                     </GlassCard>
                   )}
                   {ef.building_area && (
