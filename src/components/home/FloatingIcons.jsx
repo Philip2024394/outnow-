@@ -11,9 +11,10 @@ const ICONS = [
   { id: 'food',       labelKey: 'icons.street',  label: 'The Street', img: 'https://ik.imagekit.io/nepgaxllc/Untitledsdasdvvvdsdsdsdassss-removebg-preview.png',        vehicle: false },
   { id: 'dealhunt',   labelKey: 'icons.deals',   label: 'Deal Hunt',    img: 'https://ik.imagekit.io/nepgaxllc/Untitledsdasdvvvdsdsdsdasssss-removebg-preview.png', vehicle: false },
   { id: 'sellrent',  labelKey: 'icons.sellrent', label: 'Sell / Rent', img: 'https://ik.imagekit.io/nepgaxllc/Untitledsddsssdsssssssssdddddasdssss-removebg-preview.png', vehicle: false },
+  { id: 'places',    labelKey: 'icons.places',   label: 'Places',      img: 'https://ik.imagekit.io/nepgaxllc/Untitledssddd-removebg-preview.png', vehicle: false },
 ]
 
-export default function FloatingIcons({ sessions = [], serviceCounts = {}, onSelectSession, onFoodClick, onRideClick, onAndongClick, onShoppingClick, onDatingClick, onMassageClick, onRentalsClick, onDealHuntClick, onSellRentClick }) {
+export default function FloatingIcons({ sessions = [], serviceCounts = {}, onSelectSession, onFoodClick, onRideClick, onAndongClick, onShoppingClick, onDatingClick, onMassageClick, onRentalsClick, onDealHuntClick, onSellRentClick, onPlacesClick }) {
   const { t } = useLanguage()
   const [activeActivity, setActiveActivity] = useState(null)
 
@@ -28,6 +29,7 @@ export default function FloatingIcons({ sessions = [], serviceCounts = {}, onSel
     if (icon.id === 'rentals' && onRentalsClick)                              { onRentalsClick();  return }
     if (icon.id === 'dealhunt' && onDealHuntClick)                            { onDealHuntClick(); return }
     if (icon.id === 'sellrent' && onSellRentClick)                            { onSellRentClick(); return }
+    if (icon.id === 'places' && onPlacesClick)                                { onPlacesClick();   return }
     setActiveActivity(icon)
   }
 

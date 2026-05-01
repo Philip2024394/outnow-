@@ -75,6 +75,7 @@ import {
   SellRentSheet,
 } from './appShellLazy'
 import PostDealPublic from '@/domains/dealhunt/pages/PostDealPublic'
+import DestinationDirectory from '@/components/booking/DestinationDirectory'
 import DealPosterVerification from '@/domains/dealhunt/pages/DealPosterVerification'
 
 
@@ -217,6 +218,7 @@ export default function AppShell({ returnParams, triggerGoLive }) {
   const [giftForSession, setGiftForSession] = useState(null)
   const [dealHuntOpen, setDealHuntOpen] = useState(false)
   const [sellRentOpen, setSellRentOpen] = useState(false)
+  const [placesOpen, setPlacesOpen] = useState(false)
   const [rentalInitialView, setRentalInitialView] = useState(null)
   const [rentalInitialMode, setRentalInitialMode] = useState(null)
   const [rentalListingOpen, setRentalListingOpen] = useState(false)
@@ -362,7 +364,7 @@ export default function AppShell({ returnParams, triggerGoLive }) {
       <TimeBackground />
 
       {/* Floating activity icons — visible when dock is on */}
-      {dockVisible && activeTab === 'map' && !rideOpen && !andongOpen && !massageOpen && !shopOpen && !foodOpen && !datingGridOpen && !dealHuntOpen && !sellRentOpen && !notifOpen && !rideHistoryOpen && !settingsOpen && !countrySearchOpen && (
+      {dockVisible && activeTab === 'map' && !rideOpen && !andongOpen && !massageOpen && !shopOpen && !foodOpen && !datingGridOpen && !dealHuntOpen && !sellRentOpen && !placesOpen && !notifOpen && !rideHistoryOpen && !settingsOpen && !countrySearchOpen && (
         <FloatingIcons
           sessions={visibleSessions}
           serviceCounts={serviceUnreadCounts}
@@ -381,6 +383,7 @@ export default function AppShell({ returnParams, triggerGoLive }) {
           onAndongClick={() => { if (isGuest) { triggerGate(); return } setAndongOpen(true); setDockVisible(false) }}
           onDealHuntClick={() => { setDealHuntOpen(true); setDockVisible(false) }}
           onSellRentClick={() => { setSellRentOpen(true); setDockVisible(false) }}
+          onPlacesClick={() => { setPlacesOpen(true); setDockVisible(false) }}
         />
       )}
 
@@ -1056,6 +1059,22 @@ export default function AppShell({ returnParams, triggerGoLive }) {
           />
         )}
       </Suspense>
+
+      {/* ── Places (standalone module) ── */}
+      {placesOpen && (
+        <DestinationDirectory
+          open={placesOpen}
+          onClose={() => { setPlacesOpen(false); setDockVisible(true) }}
+          vehicleMode={null}
+          onSelectDestination={(dest) => {
+            setPlacesOpen(false)
+            setDockVisible(false)
+            setActiveSection('rides')
+            setRideVehicleType(dest._selectedVehicle || 'bike_ride')
+            setRideOpen(true)
+          }}
+        />
+      )}
 
       {/* ── Deal Hunt ── */}
       <Suspense fallback={<div style={{ position: 'fixed', inset: 0, zIndex: 9500, background: '#000', display: 'flex', alignItems: 'center', justifyContent: 'center' }}><span style={{ color: '#8DC63F', fontSize: 14 }}>Loading Deal Hunt...</span></div>}>

@@ -87,6 +87,7 @@ export default function DestinationDirectory({ open, onClose, onSelectDestinatio
   }
 
   const isBike = vehicleMode !== 'car_taxi'
+  const isStandalone = vehicleMode === null || vehicleMode === undefined
   const totalAll = getShuffled().length
   const usedCats = [...new Set(getShuffled().map(d => d.category))]
   const clamp = (i) => Math.max(0, Math.min(destinations.length - 1, i))
@@ -281,7 +282,35 @@ export default function DestinationDirectory({ open, onClose, onSelectDestinatio
                       </div>
 
                       {/* Center card: Book CTA */}
-                      {isCenter && (
+                      {isCenter && isStandalone && (
+                        <div style={{ display: 'flex', gap: 8 }}>
+                          <button onClick={() => {
+                            onSelectDestination?.({ ...dest, price: pricing.bike, isReturn: pricing.isReturn, vehiclePrice: pricing, _selectedVehicle: 'bike_ride' })
+                            onClose()
+                          }} style={{
+                            flex: 1, padding: '14px 0', borderRadius: 14, border: 'none',
+                            background: 'linear-gradient(135deg, #8DC63F, #6BA52A)',
+                            color: '#000', fontSize: 14, fontWeight: 900, cursor: 'pointer', fontFamily: 'inherit',
+                            display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6,
+                            boxShadow: '0 4px 20px rgba(141,198,63,0.3)',
+                          }}>
+                            🏍️ Bike — {fmtIDR(pricing.bike)}
+                          </button>
+                          <button onClick={() => {
+                            onSelectDestination?.({ ...dest, price: pricing.car, isReturn: pricing.isReturn, vehiclePrice: pricing, _selectedVehicle: 'car_taxi' })
+                            onClose()
+                          }} style={{
+                            flex: 1, padding: '14px 0', borderRadius: 14, border: 'none',
+                            background: 'linear-gradient(135deg, #8DC63F, #6BA52A)',
+                            color: '#000', fontSize: 14, fontWeight: 900, cursor: 'pointer', fontFamily: 'inherit',
+                            display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6,
+                            boxShadow: '0 4px 20px rgba(141,198,63,0.3)',
+                          }}>
+                            🚗 Car — {fmtIDR(pricing.car)}
+                          </button>
+                        </div>
+                      )}
+                      {isCenter && !isStandalone && (
                         <button onClick={() => {
                           onSelectDestination?.({ ...dest, price, isReturn: pricing.isReturn, vehiclePrice: pricing })
                           onClose()
