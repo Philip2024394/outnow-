@@ -9,6 +9,8 @@ import Spinner from '@/components/ui/Spinner'
 import { GuestGateProvider } from '@/contexts/GuestGateContext'
 import { LanguageProvider } from '@/i18n'
 import LanguageToast from '@/components/ui/LanguageToast'
+import DesktopNav from '@/components/desktop/DesktopNav'
+import WebsiteLanding from '@/components/desktop/WebsiteLanding'
 import styles from './App.module.css'
 
 // Lazy-loaded: AppShell is the heaviest module — only needed after onboarding
@@ -209,6 +211,15 @@ export default function App() {
             </div>
           )}
           <LanguageToast />
+          <DesktopNav onNavigate={(section) => { /* handled by AppShell */ }} />
+
+          {/* ── Desktop website landing (hidden on mobile) ── */}
+          {onboardStep !== 'done' && !guestMode && (
+            <WebsiteLanding
+              onBrowse={() => { setGuestMode(true) }}
+              onSearch={() => { setGuestMode(true) }}
+            />
+          )}
 
           {/* ── New user: welcome slides ── */}
           {onboardStep === 'welcome' && (
