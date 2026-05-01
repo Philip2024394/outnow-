@@ -12,7 +12,7 @@ import LanguageToast from '@/components/ui/LanguageToast'
 import DesktopNav from '@/components/desktop/DesktopNav'
 import WebsiteLanding from '@/components/desktop/WebsiteLanding'
 import PropertyLanding from '@/components/desktop/PropertyLanding'
-import WebsitePropertyModule from '@/components/desktop/WebsitePropertyModule'
+import WebsiteApp from '@/website/WebsiteApp'
 import styles from './App.module.css'
 
 // Lazy-loaded: AppShell is the heaviest module — only needed after onboarding
@@ -235,7 +235,7 @@ export default function App() {
               return (
                 <>
                   {window.location.pathname === '/property' ? (
-                    <WebsitePropertyModule />
+                    <WebsiteApp />
                   ) : (
                     <>
                     <DesktopNav onNavigate={(section) => { /* future: route to section */ }} />
