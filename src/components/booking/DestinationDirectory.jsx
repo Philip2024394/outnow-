@@ -123,7 +123,7 @@ export default function DestinationDirectory({ open, onClose, onSelectDestinatio
       </div>
 
       {/* ── Stacked Cards ── */}
-      <div style={{ flex: 1, position: 'relative', overflow: 'visible', margin: '0 30px' }}
+      <div style={{ flex: 1, position: 'relative', overflow: 'visible', margin: '0 22px' }}
         onTouchStart={e => { scrollRef.current = { x: e.touches[0].clientX, t: Date.now() } }}
         onTouchEnd={e => {
           if (!scrollRef.current) return
@@ -166,10 +166,10 @@ export default function DestinationDirectory({ open, onClose, onSelectDestinatio
           return (
             <div key={dest.id} style={{
               position: 'absolute',
-              top: isActive ? '10%' : '20%',
-              bottom: isActive ? '10%' : '20%',
-              left: isActive ? '4%' : '4%',
-              right: isActive ? '4%' : '4%',
+              top: isActive ? '7%' : '17%',
+              bottom: isActive ? '7%' : '17%',
+              left: isActive ? '1%' : '1%',
+              right: isActive ? '1%' : '1%',
               transform: isActive ? 'translateX(0) scale(1)' : `translateX(${sideShift}) scale(0.6)`,
               opacity: isActive ? 1 : 0.85,
               zIndex: isActive ? 3 : 1,
