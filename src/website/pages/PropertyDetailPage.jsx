@@ -11,6 +11,8 @@ import ComparableSales from '@/components/property/ComparableSales'
 import NeighborhoodGuide from '@/components/property/NeighborhoodGuide'
 import TransportProximity from '@/components/property/TransportProximity'
 import { ScrollReveal } from '../hooks/useScrollReveal'
+import FavoriteButton from '../components/FavoriteButton'
+import ShareButtons from '../components/ShareButtons'
 
 function fmtRp(n) {
   if (!n) return '—'
@@ -106,11 +108,14 @@ export default function PropertyDetailPage({ listing, onBack, onSelectListing })
         {/* Right — Info */}
         <ScrollReveal delay={0.1} style={{ width: '45%' }}>
           <div style={{ ...glass, padding: '28px 24px' }}>
-            {/* Badges */}
-            <div style={{ display: 'flex', gap: 6, marginBottom: 10 }}>
-              <span style={{ padding: '3px 10px', borderRadius: 8, background: 'rgba(96,165,250,0.12)', border: '1px solid rgba(96,165,250,0.25)', fontSize: 11, fontWeight: 800, color: '#60A5FA' }}>✓ Verified</span>
-              <span style={{ padding: '3px 10px', borderRadius: 8, background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)', fontSize: 11, fontWeight: 800, color: 'rgba(255,255,255,0.4)' }}>{listing.sub_category}</span>
-              {listing.owner_type === 'agent' && <span style={{ padding: '3px 10px', borderRadius: 8, background: 'rgba(96,165,250,0.08)', fontSize: 11, fontWeight: 800, color: '#60A5FA' }}>🏢 Agent</span>}
+            {/* Badges + Actions */}
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 10 }}>
+              <div style={{ display: 'flex', gap: 6 }}>
+                <span style={{ padding: '3px 10px', borderRadius: 8, background: 'rgba(96,165,250,0.12)', border: '1px solid rgba(96,165,250,0.25)', fontSize: 11, fontWeight: 800, color: '#60A5FA' }}>✓ Verified</span>
+                <span style={{ padding: '3px 10px', borderRadius: 8, background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)', fontSize: 11, fontWeight: 800, color: 'rgba(255,255,255,0.4)' }}>{listing.sub_category}</span>
+                {listing.owner_type === 'agent' && <span style={{ padding: '3px 10px', borderRadius: 8, background: 'rgba(96,165,250,0.08)', fontSize: 11, fontWeight: 800, color: '#60A5FA' }}>🏢 Agent</span>}
+              </div>
+              <FavoriteButton listingId={listing.id} size="md" />
             </div>
 
             <h1 style={{ fontSize: 26, fontWeight: 900, color: '#fff', margin: '0 0 6px', lineHeight: 1.2 }}>{listing.title}</h1>
@@ -118,7 +123,8 @@ export default function PropertyDetailPage({ listing, onBack, onSelectListing })
 
             {/* Price */}
             <div style={{ fontSize: 36, fontWeight: 900, color: '#FACC15', marginBottom: 4 }}>{fmtRp(price)}</div>
-            <div style={{ fontSize: 14, color: 'rgba(255,255,255,0.35)', marginBottom: 20 }}>{priceLabel}{ef.land_area ? ` · ${fmtRp(Math.round(Number(String(price).replace(/\./g, '')) / parseInt(String(ef.land_area).replace(/[^\d]/g, ''), 10) || 1))}/m²` : ''}</div>
+            <div style={{ fontSize: 14, color: 'rgba(255,255,255,0.35)', marginBottom: 12 }}>{priceLabel}{ef.land_area ? ` · ${fmtRp(Math.round(Number(String(price).replace(/\./g, '')) / parseInt(String(ef.land_area).replace(/[^\d]/g, ''), 10) || 1))}/m²` : ''}</div>
+            <div style={{ marginBottom: 20 }}><ShareButtons title={listing.title} price={fmtRp(price)} /></div>
 
             {/* Specs grid */}
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 10, marginBottom: 20 }}>

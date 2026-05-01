@@ -4,6 +4,8 @@
 import { useState, useMemo } from 'react'
 import { usePropertyListings } from '../hooks/usePropertyListings'
 import { ScrollReveal } from '../hooks/useScrollReveal'
+import FavoriteButton from '../components/FavoriteButton'
+import ComparePanel, { CompareBar, useCompare } from '../components/ComparePanel'
 
 function fmtRp(n) {
   if (!n) return '—'
@@ -26,6 +28,8 @@ const pill = (active) => ({
 })
 
 export default function SearchPage({ initialSearch = '', initialMode = 'all', onSelectListing, onBack }) {
+  const compare = useCompare()
+  const [showCompare, setShowCompare] = useState(false)
   const [search, setSearch] = useState(initialSearch)
   const [mode, setMode] = useState(initialMode)
   const [types, setTypes] = useState([])
@@ -161,6 +165,17 @@ export default function SearchPage({ initialSearch = '', initialMode = 'all', on
                     <div style={{ position: 'absolute', top: 10, left: 10, padding: '4px 12px', borderRadius: 8, background: l.buy_now ? '#FACC15' : '#8DC63F', fontSize: 11, fontWeight: 900, color: '#000' }}>{l.buy_now ? 'FOR SALE' : 'FOR RENT'}</div>
                     {l.sub_category && <div style={{ position: 'absolute', top: 10, right: 10, padding: '3px 10px', borderRadius: 6, background: 'rgba(0,0,0,0.6)', fontSize: 10, fontWeight: 700, color: '#fff' }}>{l.sub_category}</div>}
                     {l.rating && <div style={{ position: 'absolute', bottom: 10, right: 10, padding: '3px 8px', borderRadius: 6, background: 'rgba(0,0,0,0.6)', fontSize: 11, fontWeight: 800, color: '#FACC15' }}>⭐ {l.rating}</div>}
+                    {/* Favorite + Compare */}
+                    <div style={{ position: 'absolute', bottom: 10, left: 10, display: 'flex', gap: 6 }}>
+                      <FavoriteButton listingId={l.id} size="sm" />
+                      <button onClick={(e) => { e.stopPropagation(); compare.toggle(l) }} style={{
+                        width: 28, height: 28, borderRadius: 14, cursor: 'pointer', padding: 0,
+                        background: compare.isSelected(l.id) ? 'rgba(141,198,63,0.2)' : 'rgba(0,0,0,0.5)',
+                        border: compare.isSelected(l.id) ? '1.5px solid rgba(141,198,63,0.4)' : '1px solid rgba(255,255,255,0.15)',
+                        display: 'flex', alignItems: 'center', justifyContent: 'center',
+                        fontSize: 12, color: compare.isSelected(l.id) ? '#8DC63F' : '#fff',
+                      }}>⚖️</button>
+                    </div>
                   </div>
                   <div style={{ padding: '14px 16px' }}>
                     <div style={{ fontSize: 15, fontWeight: 800, color: '#fff', marginBottom: 4, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{l.title}</div>
@@ -174,6 +189,10 @@ export default function SearchPage({ initialSearch = '', initialMode = 'all', on
           })}
         </div>
       </div>
+
+      {/* Compare bar + modal */}
+      <CompareBar items={compare.items} onClear={compare.clear} onCompare={() => setShowCompare(true)} />
+      {showCompare && <ComparePanel items={compare.items} onClose={() => setShowCompare(false)} />}
     </div>
   )
 }
