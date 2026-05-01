@@ -4,6 +4,7 @@
  */
 import { useState, useRef, useEffect } from 'react'
 import { DEMO_LISTINGS } from '@/services/rentalService'
+import { getNewProjects, STATUS_LABELS } from '@/services/newProjectService'
 import { ScrollReveal } from '../hooks/useScrollReveal'
 import StatsCounter from '../components/StatsCounter'
 
@@ -76,6 +77,52 @@ function PropertyCard({ l, onClick }) {
   )
 }
 
+function ProjectCircleCarousel() {
+  const [projects, setProjects] = useState([])
+  const ref = useRef(null)
+
+  useEffect(() => { getNewProjects().then(setProjects) }, [])
+
+  useEffect(() => {
+    const el = ref.current; if (!el || projects.length < 2) return
+    let raf
+    const tick = () => { el.scrollLeft += 0.3; if (el.scrollLeft >= el.scrollWidth / 2) el.scrollLeft = 0; raf = requestAnimationFrame(tick) }
+    raf = requestAnimationFrame(tick)
+    const stop = () => cancelAnimationFrame(raf)
+    const go = () => { raf = requestAnimationFrame(tick) }
+    el.addEventListener('mouseenter', stop); el.addEventListener('mouseleave', go)
+    return () => { cancelAnimationFrame(raf); el.removeEventListener('mouseenter', stop); el.removeEventListener('mouseleave', go) }
+  }, [projects])
+
+  if (projects.length === 0) return null
+  const doubled = [...projects, ...projects]
+  return (
+    <div ref={ref} style={{ display: 'flex', gap: 24, overflowX: 'hidden', scrollbarWidth: 'none', padding: '8px 0' }}>
+      {doubled.map((p, i) => {
+        const status = STATUS_LABELS[p.status] || STATUS_LABELS.pre_sale
+        return (
+          <div key={`${p.id}-${i}`} style={{ flexShrink: 0, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 8, cursor: 'pointer', width: 100 }}
+            onMouseEnter={e => e.currentTarget.querySelector('.ring').style.borderColor = status.color}
+            onMouseLeave={e => e.currentTarget.querySelector('.ring').style.borderColor = 'rgba(250,204,21,0.3)'}
+          >
+            <div className="ring" style={{
+              width: 80, height: 80, borderRadius: '50%', overflow: 'hidden',
+              border: '3px solid rgba(250,204,21,0.3)', padding: 2,
+              transition: 'border-color 0.3s, transform 0.3s',
+            }}>
+              <img src={p.images?.[0] || 'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?w=200'} alt={p.project_name} style={{ width: '100%', height: '100%', borderRadius: '50%', objectFit: 'cover' }} />
+            </div>
+            <div style={{ textAlign: 'center' }}>
+              <div style={{ fontSize: 11, fontWeight: 800, color: '#fff', lineHeight: 1.2, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', maxWidth: 100 }}>{p.project_name}</div>
+              <div style={{ fontSize: 10, fontWeight: 700, color: status.color }}>{status.label}</div>
+            </div>
+          </div>
+        )
+      })}
+    </div>
+  )
+}
+
 export default function HomePage({ onSearch, onBrowseSale, onBrowseRent, onBrowseAll, onSelectListing }) {
   const [searchVal, setSearchVal] = useState('')
   const allProperty = DEMO_LISTINGS.filter(l => l.category === 'Property' && l.images?.length > 0)
@@ -123,6 +170,19 @@ export default function HomePage({ onSearch, onBrowseSale, onBrowseRent, onBrows
               <button onClick={onBrowseAll} style={{ width: '100%', padding: '14px', borderRadius: 14, border: 'none', marginTop: 20, background: 'linear-gradient(135deg, #8DC63F, #6BA52A)', color: '#000', fontSize: 15, fontWeight: 900, cursor: 'pointer', fontFamily: 'inherit' }}>Explore All →</button>
             </div>
           </ScrollReveal>
+        </div>
+      </section>
+
+      {/* ═══ NEW PROJECTS — round profile carousel ═══ */}
+      <section style={{ padding: '40px 0 20px' }}>
+        <div className="ws-container">
+          <ScrollReveal>
+            <h2 style={{ fontSize: 22, fontWeight: 900, color: '#fff', margin: '0 0 16px', display: 'flex', alignItems: 'center', gap: 8 }}>
+              🏗️ <span style={{ color: '#FACC15' }}>New</span> Projects
+              <span style={{ fontSize: 12, fontWeight: 700, color: 'rgba(255,255,255,0.25)', marginLeft: 4 }}>Pre-sale & under construction</span>
+            </h2>
+          </ScrollReveal>
+          <ProjectCircleCarousel />
         </div>
       </section>
 
