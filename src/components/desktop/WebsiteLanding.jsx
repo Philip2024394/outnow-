@@ -120,8 +120,9 @@ export default function WebsiteLanding({ onBrowse, onSearch }) {
 
       {/* ═══ HERO ═══ */}
       <section style={{
-        position: 'relative', minHeight: '100vh', display: 'flex', alignItems: 'center',
+        position: 'relative', width: '100vw', minHeight: '100vh', display: 'flex', alignItems: 'center',
         background: `#0a0a0a url("${HERO_BG}") center/cover no-repeat`,
+        marginLeft: 'calc(-50vw + 50%)', marginRight: 'calc(-50vw + 50%)',
       }}>
         <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(135deg, rgba(0,0,0,0.75), rgba(0,0,0,0.45) 50%, rgba(0,0,0,0.7))' }} />
 
