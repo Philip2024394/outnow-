@@ -226,9 +226,9 @@ export default function DestinationDirectory({ open, onClose, onSelectDestinatio
                     }}>
                       <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start' }}>
                         <span style={{ fontSize: 14, fontWeight: 900 }}>Bike</span>
-                        <span style={{ fontSize: 12, fontWeight: 700 }}>{fmtIDR(pricing.bike)}</span>
+                        <span style={{ fontSize: 11, fontWeight: 700, whiteSpace: 'nowrap' }}>{fmtIDR(pricing.bike)}</span>
                       </div>
-                      <img src="https://ik.imagekit.io/nepgaxllc/Sleek%20green%20and%20black%20scooter%20setup.png?updatedAt=1775634845237" alt="" style={{ width: 50, height: 50, objectFit: 'contain' }} />
+                      <img src="https://ik.imagekit.io/nepgaxllc/Sleek%20green%20and%20black%20scooter%20setup.png?updatedAt=1775634845237" alt="" style={{ width: 44, height: 44, objectFit: 'contain', flexShrink: 0 }} />
                     </button>
                     <button onClick={() => selectDest(dest, 'car_taxi')} style={{
                       flex: 1, padding: '8px 10px', borderRadius: 14, border: 'none',
@@ -239,9 +239,9 @@ export default function DestinationDirectory({ open, onClose, onSelectDestinatio
                     }}>
                       <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start' }}>
                         <span style={{ fontSize: 14, fontWeight: 900 }}>Car</span>
-                        <span style={{ fontSize: 12, fontWeight: 700 }}>{fmtIDR(pricing.car)}</span>
+                        <span style={{ fontSize: 11, fontWeight: 700, whiteSpace: 'nowrap' }}>{fmtIDR(pricing.car)}</span>
                       </div>
-                      <img src="https://ik.imagekit.io/nepgaxllc/Sporty%20green%20and%20black%20hatchback.png?updatedAt=1775634925566" alt="" style={{ width: 50, height: 50, objectFit: 'contain' }} />
+                      <img src="https://ik.imagekit.io/nepgaxllc/Sporty%20green%20and%20black%20hatchback.png?updatedAt=1775634925566" alt="" style={{ width: 44, height: 44, objectFit: 'contain', flexShrink: 0 }} />
                     </button>
                   </div>
                 ) : (
