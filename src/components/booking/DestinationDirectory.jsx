@@ -161,17 +161,17 @@ export default function DestinationDirectory({ open, onClose, onSelectDestinatio
           // Center card full, prev card peeking left, next card peeking right
           const isActive = diff === 0
           // Side cards: shifted 70% to the side, scaled down, dimmed
-          const sideShift = diff < 0 ? '-65%' : '65%'
+          const sideShift = diff < 0 ? '-75%' : '75%'
 
           return (
             <div key={dest.id} style={{
               position: 'absolute',
-              top: isActive ? '10%' : '14%',
-              bottom: isActive ? '10%' : '14%',
+              top: isActive ? '10%' : '20%',
+              bottom: isActive ? '10%' : '20%',
               left: isActive ? '4%' : '4%',
               right: isActive ? '4%' : '4%',
-              transform: isActive ? 'translateX(0) scale(1)' : `translateX(${sideShift}) scale(0.78)`,
-              opacity: isActive ? 1 : 0.5,
+              transform: isActive ? 'translateX(0) scale(1)' : `translateX(${sideShift}) scale(0.6)`,
+              opacity: isActive ? 1 : 0.45,
               zIndex: isActive ? 3 : 1,
               filter: isActive ? 'none' : 'brightness(0.5)',
               borderRadius: 20, overflow: 'hidden',
