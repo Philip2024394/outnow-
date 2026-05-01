@@ -15,6 +15,17 @@ html, body {
   overflow: hidden;
   touch-action: manipulation;
 }
+html.desktop-website, html.desktop-website body {
+  overflow: auto !important;
+  height: auto !important;
+  overscroll-behavior: auto !important;
+  user-select: auto !important;
+}
+html.desktop-website body {
+  display: block !important;
+  align-items: stretch !important;
+  justify-content: stretch !important;
+}
 
 html {
   font-size: 16px;
@@ -88,6 +99,22 @@ body {
     overflow: hidden;
   }
 }
+
+/* Desktop website mode — full width, no phone frame */
+#root.desktop-website {
+  max-width: 100% !important;
+  max-height: 100% !important;
+  height: 100vh !important;
+  border-radius: 0 !important;
+  box-shadow: none !important;
+  overflow-y: auto !important;
+  overflow-x: hidden !important;
+}
+.desktop-website body,
+#root.desktop-website {
+  overflow: auto !important;
+}
+
 
 button {
   font-family: inherit;

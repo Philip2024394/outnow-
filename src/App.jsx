@@ -94,6 +94,19 @@ export default function App() {
   const { user, userProfile, loading } = useAuth()
   const [guestMode, setGuestMode] = useState(() => localStorage.getItem('indoo_registered') === 'true')
 
+  // Desktop website mode — remove phone frame
+  useEffect(() => {
+    const isDesktop = window.innerWidth >= 768
+    const isWebRoute = ['/', '/property', '/rentals', '/places', '/agents'].includes(window.location.pathname)
+    if (isDesktop && isWebRoute) {
+      document.documentElement.classList.add('desktop-website')
+      document.getElementById('root')?.classList.add('desktop-website')
+    } else {
+      document.documentElement.classList.remove('desktop-website')
+      document.getElementById('root')?.classList.remove('desktop-website')
+    }
+  }, [])
+
   // Auto-update detection
   const [updateReady, setUpdateReady] = useState(false)
   useEffect(() => {
