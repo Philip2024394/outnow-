@@ -424,25 +424,38 @@ export default function RentalDetail({ listing: initialListing, onClose, onChat,
               </div>
             )}
 
-            {/* ── Size Cards ── */}
-            {isProperty && (ef.land_area || ef.building_area) && (
-              <div className="rd-section" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10, marginBottom: 20, ...sectionDelay(sectionIdx++) }}>
-                {ef.land_area && (
-                  <GlassCard style={{ padding: '16px', border: '1px solid rgba(141,198,63,0.12)', background: 'rgba(141,198,63,0.04)' }}>
-                    <div style={{ fontSize: 12, fontWeight: 700, color: 'rgba(255,255,255,0.35)', letterSpacing: '0.06em', textTransform: 'uppercase' }}>Land Area</div>
-                    <div style={{ fontSize: 22, fontWeight: 900, color: '#fff', marginTop: 6 }}>{ef.land_area}</div>
-                    <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.25)', marginTop: 2 }}>m²</div>
-                  </GlassCard>
-                )}
-                {ef.building_area && (
-                  <GlassCard style={{ padding: '16px', border: '1px solid rgba(141,198,63,0.12)', background: 'rgba(141,198,63,0.04)' }}>
-                    <div style={{ fontSize: 12, fontWeight: 700, color: 'rgba(255,255,255,0.35)', letterSpacing: '0.06em', textTransform: 'uppercase' }}>Building Area</div>
-                    <div style={{ fontSize: 22, fontWeight: 900, color: '#fff', marginTop: 6 }}>{ef.building_area}</div>
-                    <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.25)', marginTop: 2 }}>m²</div>
-                  </GlassCard>
-                )}
-              </div>
-            )}
+            {/* ── Size Cards with background images ── */}
+            {isProperty && (ef.land_area || ef.building_area) && (() => {
+              const landImg = 'https://ik.imagekit.io/nepgaxllc/ChatGPT%20Image%20May%201,%202026,%2012_00_08%20PM.png'
+              const houseImg = 'https://ik.imagekit.io/nepgaxllc/ChatGPT%20Image%20May%201,%202026,%2011_55_49%20AM.png'
+              const factoryImg = 'https://ik.imagekit.io/nepgaxllc/ChatGPT%20Image%20May%201,%202026,%2012_02_44%20PM.png'
+              const isFactory = ['Factory', 'Gudang', 'Pabrik'].includes(subCat)
+              const buildingBg = isFactory ? factoryImg : houseImg
+              return (
+                <div className="rd-section" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10, marginBottom: 20, ...sectionDelay(sectionIdx++) }}>
+                  {ef.land_area && (
+                    <GlassCard style={{ padding: '16px', border: '1px solid rgba(141,198,63,0.12)', background: 'rgba(141,198,63,0.04)', position: 'relative', overflow: 'hidden', minHeight: 100 }}>
+                      <div style={{ position: 'relative', zIndex: 1 }}>
+                        <div style={{ fontSize: 12, fontWeight: 700, color: 'rgba(255,255,255,0.35)', letterSpacing: '0.06em', textTransform: 'uppercase' }}>Land Area</div>
+                        <div style={{ fontSize: 22, fontWeight: 900, color: '#fff', marginTop: 6 }}>{ef.land_area}</div>
+                        <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.25)', marginTop: 2 }}>m²</div>
+                      </div>
+                      <img src={landImg} alt="" style={{ position: 'absolute', bottom: -4, right: -4, width: 70, height: 70, objectFit: 'contain', opacity: 0.5, pointerEvents: 'none' }} />
+                    </GlassCard>
+                  )}
+                  {ef.building_area && (
+                    <GlassCard style={{ padding: '16px', border: '1px solid rgba(141,198,63,0.12)', background: 'rgba(141,198,63,0.04)', position: 'relative', overflow: 'hidden', minHeight: 100 }}>
+                      <div style={{ position: 'relative', zIndex: 1 }}>
+                        <div style={{ fontSize: 12, fontWeight: 700, color: 'rgba(255,255,255,0.35)', letterSpacing: '0.06em', textTransform: 'uppercase' }}>Building Area</div>
+                        <div style={{ fontSize: 22, fontWeight: 900, color: '#fff', marginTop: 6 }}>{ef.building_area}</div>
+                        <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.25)', marginTop: 2 }}>m²</div>
+                      </div>
+                      <img src={buildingBg} alt="" style={{ position: 'absolute', bottom: -4, right: -4, width: 70, height: 70, objectFit: 'contain', opacity: 0.5, pointerEvents: 'none' }} />
+                    </GlassCard>
+                  )}
+                </div>
+              )
+            })()}
 
             {/* ── Rental Periods — glass tinted with Best Value ── */}
             {rentalPeriods.length > 0 && (() => {
