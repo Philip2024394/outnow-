@@ -15,6 +15,7 @@ import UniversalBusinessProfile from '@/components/profile/UniversalBusinessProf
 import AgentProfilePage from '@/components/profile/AgentProfilePage'
 import RoomAvailability from '@/components/property/RoomAvailability'
 import ComparableSales from '@/components/property/ComparableSales'
+import PropertyMap from '@/components/property/PropertyMap'
 
 function PageBadge({ num, label }) {
   return (
@@ -744,6 +745,16 @@ export default function RentalDetail({ listing: initialListing, onClose, onChat,
             {isProperty && (
               <div className="rd-section" style={{ ...sectionDelay(sectionIdx++) }}>
                 <TransportProximity listing={listing} />
+              </div>
+            )}
+
+            {/* ── Map Location ── */}
+            {isProperty && (
+              <div className="rd-section" style={{ marginBottom: 16, ...sectionDelay(sectionIdx++) }}>
+                <div style={{ fontSize: 14, fontWeight: 800, color: '#fff', marginBottom: 10, display: 'flex', alignItems: 'center', gap: 8 }}>
+                  <span style={{ fontSize: 18 }}>📍</span> Location
+                </div>
+                <PropertyMap lat={ef.lat || listing.lat} lng={ef.lng || listing.lng} title={listing.title} height={180} />
               </div>
             )}
 

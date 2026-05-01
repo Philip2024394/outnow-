@@ -11,6 +11,7 @@ import ComparableSales from '@/components/property/ComparableSales'
 import NeighborhoodGuide from '@/components/property/NeighborhoodGuide'
 import TransportProximity from '@/components/property/TransportProximity'
 import { ScrollReveal } from '../hooks/useScrollReveal'
+import PropertyMap from '@/components/property/PropertyMap'
 import FavoriteButton from '../components/FavoriteButton'
 import ShareButtons from '../components/ShareButtons'
 
@@ -209,6 +210,16 @@ export default function PropertyDetailPage({ listing, onBack, onSelectListing })
       <div className="ws-container" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 20, marginBottom: 32 }}>
         <ScrollReveal><div style={{ ...glass, padding: 20 }}><NeighborhoodGuide listing={listing} /></div></ScrollReveal>
         <ScrollReveal delay={0.1}><div style={{ ...glass, padding: 20 }}><TransportProximity listing={listing} /></div></ScrollReveal>
+      </div>
+
+      {/* ═══ MAP ═══ */}
+      <div className="ws-container" style={{ marginBottom: 32 }}>
+        <ScrollReveal>
+          <div style={{ ...glass, padding: 20 }}>
+            <h3 style={{ fontSize: 18, fontWeight: 800, color: '#fff', margin: '0 0 14px', display: 'flex', alignItems: 'center', gap: 8 }}>📍 Property Location</h3>
+            <PropertyMap lat={ef.lat || listing.lat} lng={ef.lng || listing.lng} title={listing.title} height={300} />
+          </div>
+        </ScrollReveal>
       </div>
 
       {/* ═══ SECTION 5: Similar ═══ */}

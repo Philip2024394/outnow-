@@ -5,6 +5,7 @@ import styles from '../rentalFormStyles.module.css'
 import showroomStyles from './MotorbikeShowroom.module.css'
 import { PickerField, SettingsDrawer, ProcessingStep, SuccessStep, MyListingsPanel, RentalTermsSection, AgreementEditorPopup, FormHeader } from './shared/ListingFormShared'
 import DealHuntToggle from '@/components/dealhunt/DealHuntToggle'
+import VideoUpload from '@/components/property/VideoUpload'
 
 /* ══════════════════════════════════════════════════════════════════════════════
    PROPERTY DIRECTORY — showroom carousel data
@@ -951,12 +952,10 @@ export default function PropertyListingForm({ open, onClose, onSubmit, editListi
               <p style={{ fontSize: 11, color: 'rgba(255,255,255,0.25)', margin: '-4px 0 8px', fontWeight: 500 }}>Video tour, floor plan & cancellation</p>
               <div style={{ position: 'relative', height: 2, marginBottom: 10, overflow: 'hidden' }}><div style={{ position: 'absolute', width: 60, height: 2, background: 'linear-gradient(90deg, transparent, #8DC63F, transparent)', animation: 'runGlow 3s ease-in-out infinite' }} /></div>
 
+              {/* Video Tour Upload */}
+              <VideoUpload listingRef={propRef} existingUrl={videoTourUrl} onVideoUploaded={(url) => setVideoTourUrl(url || '')} />
+
               <div className={styles.inlineGroup}>
-                {/* Video Tour URL */}
-                <div className={styles.inlineField}>
-                  <span className={styles.inlineLabel}>Video Tour</span>
-                  <input className={`${styles.inlineInput} ${!videoTourUrl ? styles.inlineInputEmpty : ''}`} value={videoTourUrl} onChange={e => setVideoTourUrl(e.target.value)} placeholder="https://youtube.com/..." />
-                </div>
 
                 {/* Floor Plan Image URL */}
                 <div className={styles.inlineField}>
