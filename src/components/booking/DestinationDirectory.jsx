@@ -266,7 +266,7 @@ export default function DestinationDirectory({ open, onClose, onSelectDestinatio
 
       {/* ── Bottom nav ── */}
       {destinations.length > 0 && (
-        <div style={{ flexShrink: 0, padding: '10px 16px 20px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+        <div style={{ flexShrink: 0, padding: '6px 16px 14px', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 16 }}>
           <button onClick={() => setActiveIdx(prev => clamp(prev - 1))} disabled={activeIdx === 0} style={{
             width: 44, height: 44, borderRadius: 22, cursor: 'pointer',
             background: 'rgba(0,0,0,0.85)', border: '1px solid rgba(255,255,255,0.12)',
