@@ -216,6 +216,7 @@ export default function DestinationDirectory({ open, onClose, onSelectDestinatio
 
                 {/* Bike + Car buttons */}
                 {isStandalone ? (
+                  <>
                   <div style={{ display: 'flex', gap: 8 }}>
                     <button onClick={() => selectDest(dest, 'bike_ride')} style={{
                       flex: 1, padding: '8px 10px', borderRadius: 14, border: 'none',
@@ -247,6 +248,7 @@ export default function DestinationDirectory({ open, onClose, onSelectDestinatio
                   <div style={{ textAlign: 'center', marginTop: 8, fontSize: 12, fontWeight: 700, color: 'rgba(255,255,255,0.5)' }}>
                     Book now · arrival ~{Math.max(5, Math.round((dest.distanceKm || 5) * 2.5))} Min
                   </div>
+                  </>
                 ) : (
                   <button onClick={() => selectDest(dest, vehicleMode)} style={{
                     width: '100%', padding: '14px 0', borderRadius: 14, border: 'none',
