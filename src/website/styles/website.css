@@ -66,5 +66,4 @@
 }
 @media (max-width: 768px) {
   .ws-container { padding: 0 16px; }
-  .website-page { display: none !important; }
 }

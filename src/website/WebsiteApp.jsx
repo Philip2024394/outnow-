@@ -4,7 +4,7 @@
  * Shares data services + reusable property components with the app.
  */
 import { useState } from 'react'
-import '../website/styles/website.css'
+import './styles/website.css'
 import WebsiteNav from './components/WebsiteNav'
 import WebsiteFooter from './components/WebsiteFooter'
 import HomePage from './pages/HomePage'
@@ -48,9 +48,11 @@ export default function WebsiteApp() {
   return (
     <div className="website-page" style={{
       position: 'relative',
-      background: `url("${BG_IMG}") center center / 100% 100% no-repeat fixed`,
+      background: '#0a0a0a',
+      minHeight: '100vh',
     }}>
-      {/* Fixed background overlay for readability */}
+      {/* Fixed background image */}
+      <div style={{ position: 'fixed', inset: 0, zIndex: 0, backgroundImage: `url("${BG_IMG}")`, backgroundSize: '100% 100%', backgroundPosition: 'center', backgroundRepeat: 'no-repeat', pointerEvents: 'none' }} />
       <div style={{ position: 'fixed', inset: 0, zIndex: 0, background: 'rgba(0,0,0,0.4)', pointerEvents: 'none' }} />
 
       {/* Content */}
