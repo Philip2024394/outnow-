@@ -47,7 +47,8 @@ const FASHION_BG  = 'https://ik.imagekit.io/nepgaxllc/Untitledsfsdfsfsdasdasdddd
 const EQUIPMENT_BG = 'https://ik.imagekit.io/nepgaxllc/ChatGPT%20Image%20Apr%2029,%202026,%2003_40_04%20AM.png?updatedAt=1777408820302'
 
 // Preload all background images on mount
-const ALL_BGS = [LANDING_BG, VEHICLES_BG, PROPERTY_BG, FASHION_BG, EQUIPMENT_BG, BIKE_DIR_BG, CAR_DIR_BG, TRUCK_DIR_BG, BUS_DIR_BG]
+const SCROLL_CARDS_BG = 'https://ik.imagekit.io/nepgaxllc/ChatGPT%20Image%20Apr%2030,%202026,%2010_41_24%20AM.png?updatedAt=1777520502182'
+const ALL_BGS = [LANDING_BG, VEHICLES_BG, PROPERTY_BG, FASHION_BG, EQUIPMENT_BG, BIKE_DIR_BG, CAR_DIR_BG, TRUCK_DIR_BG, BUS_DIR_BG, SCROLL_CARDS_BG]
 function usePreloadImages() {
   useEffect(() => {
     ALL_BGS.forEach(src => { const img = new Image(); img.src = src })
@@ -214,6 +215,9 @@ export default function RentalSearchScreen({ onClose, initialView, initialListin
   const [cardImgIdx, setCardImgIdx] = useState({})
   const [flippedCards, setFlippedCards] = useState({})
   const [listingMode, setListingMode] = useState(initialListingMode || 'all') // 'all' | 'rent' | 'sale'
+  const [scrolledPastCards, setScrolledPastCards] = useState(false)
+  const gridRef = useRef(null)
+  const bodyScrollRef = useRef(null)
   const [reviewListing, setReviewListing] = useState(null)
   const [showUserDrawer, setShowUserDrawer] = useState(false)
   const [pendingAction, setPendingAction] = useState(null) // { type: 'book'|'chat', listing }
@@ -231,6 +235,21 @@ export default function RentalSearchScreen({ onClose, initialView, initialListin
 
   // Seed mock/demo data on first mount (version-gated inside seedMockData)
   useEffect(() => { seedMockData() }, [])
+
+  // ─── Scroll-based background swap: detect when first card enters header ───
+  useEffect(() => {
+    const el = bodyScrollRef.current
+    if (!el) return
+    const handleScroll = () => {
+      const grid = gridRef.current
+      if (!grid) return
+      const gridTop = grid.getBoundingClientRect().top
+      // When grid's top edge scrolls above 90px (header area), cards are under header
+      setScrolledPastCards(gridTop < 90)
+    }
+    el.addEventListener('scroll', handleScroll, { passive: true })
+    return () => el.removeEventListener('scroll', handleScroll)
+  }, [])
 
   // ─── Supabase async listing fetch ───
   const [supaListings, setSupaListings] = useState([])
@@ -488,6 +507,8 @@ export default function RentalSearchScreen({ onClose, initialView, initialListin
 
   return (
     <div className={styles.page} style={(() => {
+      const SCROLL_BG = 'https://ik.imagekit.io/nepgaxllc/ChatGPT%20Image%20Apr%2030,%202026,%2010_41_24%20AM.png?updatedAt=1777520502182'
+      if (scrolledPastCards) return { backgroundImage: `url('${SCROLL_BG}')`, transition: 'background-image 0.5s ease' }
       const cat = vehicleType || category
       const filter = activeFilter?.[0]
       const BG = {
@@ -501,7 +522,7 @@ export default function RentalSearchScreen({ onClose, initialView, initialListin
         Property: 'https://ik.imagekit.io/nepgaxllc/ChatGPT%20Image%20Apr%2030,%202026,%2007_44_48%20PM.png',
       }
       const url = BG[cat] || BG[filter] || null
-      return url ? { backgroundImage: `url('${url}')` } : undefined
+      return url ? { backgroundImage: `url('${url}')`, transition: 'background-image 0.5s ease' } : { transition: 'background-image 0.5s ease' }
     })()}>
       {/* Header — market title + search bar + filter */}
       <div style={{ padding: '14px 14px 0', flexShrink: 0 }}>
@@ -912,7 +933,7 @@ export default function RentalSearchScreen({ onClose, initialView, initialListin
       )}
 
       {/* 2-column product grid — matches marketplace layout */}
-      <div className={styles.body} style={{ paddingRight: 0, paddingTop: 90 }}>
+      <div ref={bodyScrollRef} className={styles.body} style={{ paddingRight: 0, paddingTop: 90 }}>
         <style>{`
           @keyframes rentalCardIn { from { opacity: 0; transform: translateY(12px) scale(0.97); } to { opacity: 1; transform: translateY(0) scale(1); } }
         `}</style>
@@ -984,7 +1005,7 @@ export default function RentalSearchScreen({ onClose, initialView, initialListin
         <FeaturedCarousel listings={sortedListings} onSelect={setSelected} />
 
         {sortedListings.length === 0 && <div className={styles.empty}>No rentals found</div>}
-        <div className={styles.grid}>
+        <div ref={gridRef} className={styles.grid}>
           {sortedListings.filter(l => listingMode === 'sale' ? !!l.buy_now : listingMode === 'rent' ? !l.buy_now : true).map((l, idx) => {
             const imgs = l.images?.length ? l.images : [l.image || '']
             const fmtK = n => n >= 1000000000 ? (n/1000000000).toFixed(1).replace('.0','')+'M' : n >= 1000000 ? (n/1000000).toFixed(1).replace('.0','') + 'jt' : n >= 1000 ? Math.round(n/1000) + 'k' : n
