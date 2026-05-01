@@ -4,6 +4,8 @@
  */
 import { useState, useRef, useEffect } from 'react'
 import { usePropertyListings } from '../hooks/usePropertyListings'
+import { useLanguage } from '@/i18n'
+import { DEMO_AGENTS } from './AgentDirectoryPage'
 import { getNewProjects, STATUS_LABELS } from '@/services/newProjectService'
 import KPRCalculator from '@/components/property/KPRCalculator'
 import PriceHistoryChart from '@/components/property/PriceHistoryChart'
@@ -148,9 +150,39 @@ function ToolModal({ open, onClose, title, children, small }) {
   )
 }
 
+function TopAgentsCarousel() {
+  const ref = useRef(null)
+  const agents = DEMO_AGENTS.sort((a, b) => b.sold - a.sold).slice(0, 6)
+  useEffect(() => {
+    const el = ref.current; if (!el || agents.length < 2) return
+    let raf
+    const tick = () => { el.scrollLeft += 0.3; if (el.scrollLeft >= el.scrollWidth / 2) el.scrollLeft = 0; raf = requestAnimationFrame(tick) }
+    raf = requestAnimationFrame(tick)
+    const stop = () => cancelAnimationFrame(raf)
+    const go = () => { raf = requestAnimationFrame(tick) }
+    el.addEventListener('mouseenter', stop); el.addEventListener('mouseleave', go)
+    return () => { cancelAnimationFrame(raf); el.removeEventListener('mouseenter', stop); el.removeEventListener('mouseleave', go) }
+  }, [agents])
+  const doubled = [...agents, ...agents]
+  return (
+    <div ref={ref} style={{ display: 'flex', gap: 24, overflowX: 'hidden', scrollbarWidth: 'none', padding: '8px 0' }}>
+      {doubled.map((a, i) => (
+        <div key={`${a.id}-${i}`} style={{ flexShrink: 0, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 6, width: 90, cursor: 'pointer' }}>
+          <div style={{ width: 70, height: 70, borderRadius: '50%', overflow: 'hidden', border: '3px solid rgba(96,165,250,0.3)', transition: 'border-color 0.3s' }}>
+            <img src={a.photo} alt={a.name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+          </div>
+          <div style={{ fontSize: 11, fontWeight: 800, color: '#fff', textAlign: 'center', lineHeight: 1.2, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', maxWidth: 90 }}>{a.name}</div>
+          <div style={{ fontSize: 10, fontWeight: 700, color: '#60A5FA' }}>{a.sold} sold</div>
+        </div>
+      ))}
+    </div>
+  )
+}
+
 export default function HomePage({ onSearch, onBrowseSale, onBrowseRent, onBrowseAll, onSelectListing, onNavigate }) {
+  const { t } = useLanguage()
   const [searchVal, setSearchVal] = useState('')
-  const [activeTool, setActiveTool] = useState(null) // kpr | history | valuation | comparable | neighborhood | transport | agents | dealhunt
+  const [activeTool, setActiveTool] = useState(null)
   const { listings: allProperty } = usePropertyListings()
   const sampleListing = allProperty[0] || SAMPLE_LISTING
   const forSale = allProperty.filter(l => !!l.buy_now)
@@ -163,7 +195,7 @@ export default function HomePage({ onSearch, onBrowseSale, onBrowseRent, onBrows
         <div className="ws-container" style={{ display: 'flex', alignItems: 'center', gap: 60 }}>
           <ScrollReveal style={{ flex: 1 }}>
             <div style={{ fontSize: 14, fontWeight: 800, color: '#8DC63F', letterSpacing: '0.15em', marginBottom: 12 }}>INDOO PROPERTY</div>
-            <h1 style={{ fontSize: 56, fontWeight: 900, color: '#fff', margin: '0 0 20px', lineHeight: 1.08 }}>
+            <h1 className="ws-glow-text" style={{ fontSize: 56, fontWeight: 900, color: '#fff', margin: '0 0 20px', lineHeight: 1.08 }}>
               Find Your Dream<br /><span style={{ color: '#8DC63F' }}>Property</span> in Indonesia
             </h1>
             <p style={{ fontSize: 20, color: 'rgba(255,255,255,0.5)', margin: '0 0 36px', maxWidth: 480, lineHeight: 1.5 }}>
@@ -200,16 +232,27 @@ export default function HomePage({ onSearch, onBrowseSale, onBrowseRent, onBrows
         </div>
       </section>
 
-      {/* ═══ NEW PROJECTS — round profile carousel ═══ */}
+      {/* ═══ NEW PROJECTS + TOP AGENTS — side by side ═══ */}
       <section style={{ padding: '40px 0 20px' }}>
-        <div className="ws-container">
-          <ScrollReveal>
-            <h2 style={{ fontSize: 22, fontWeight: 900, color: '#fff', margin: '0 0 16px', display: 'flex', alignItems: 'center', gap: 8 }}>
-              <img src="https://ik.imagekit.io/nepgaxllc/ChatGPT%20Image%20May%202,%202026,%2003_29_33%20AM.png" alt="" style={{ width: 84, height: 84, objectFit: 'contain' }} /> <span style={{ color: '#FACC15' }}>New</span> Projects
-              <span style={{ fontSize: 12, fontWeight: 700, color: 'rgba(255,255,255,0.25)', marginLeft: 4 }}>Pre-sale & under construction</span>
-            </h2>
-          </ScrollReveal>
-          <ProjectCircleCarousel />
+        <div className="ws-container" style={{ display: 'flex', gap: 32 }}>
+          {/* Left — New Projects */}
+          <div style={{ flex: 1 }}>
+            <ScrollReveal>
+              <h2 style={{ fontSize: 20, fontWeight: 900, color: '#fff', margin: '0 0 14px', display: 'flex', alignItems: 'center', gap: 8 }}>
+                <img src="https://ik.imagekit.io/nepgaxllc/ChatGPT%20Image%20May%202,%202026,%2003_29_33%20AM.png" alt="" style={{ width: 40, height: 40, objectFit: 'contain' }} /> <span style={{ color: '#FACC15' }}>New</span> Projects
+              </h2>
+            </ScrollReveal>
+            <ProjectCircleCarousel />
+          </div>
+          {/* Right — Top Agents */}
+          <div style={{ flex: 1 }}>
+            <ScrollReveal delay={0.1}>
+              <h2 style={{ fontSize: 20, fontWeight: 900, color: '#fff', margin: '0 0 14px', display: 'flex', alignItems: 'center', gap: 8 }}>
+                🏆 <span style={{ color: '#60A5FA' }}>Top Agents</span> This Month
+              </h2>
+            </ScrollReveal>
+            <TopAgentsCarousel />
+          </div>
         </div>
       </section>
 
@@ -264,24 +307,20 @@ export default function HomePage({ onSearch, onBrowseSale, onBrowseRent, onBrows
         </div>
       </section>
 
-      {/* ═══ BROWSE BY CITY ═══ */}
+      {/* ═══ BROWSE BY CITY — auto-scrolling ═══ */}
       <section style={{ padding: '48px 0' }}>
         <div className="ws-container">
           <ScrollReveal><h2 style={{ fontSize: 28, fontWeight: 900, color: '#fff', margin: '0 0 24px' }}>Browse by City</h2></ScrollReveal>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(6, 1fr)', gap: 14 }}>
-            {CITIES.map((c, i) => (
-              <ScrollReveal key={c.name} delay={i * 0.06}>
-                <div className="ws-card" onClick={() => onSearch?.(c.name)} style={{ borderRadius: 14, overflow: 'hidden', position: 'relative', height: 150 }}>
-                  <img src={c.img} alt={c.name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} loading="lazy" />
-                  <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(transparent 30%, rgba(0,0,0,0.8))' }} />
-                  <div style={{ position: 'absolute', bottom: 12, left: 12 }}>
-                    <div style={{ fontSize: 17, fontWeight: 900, color: '#fff' }}>{c.name}</div>
-                    <div style={{ fontSize: 12, color: '#8DC63F', fontWeight: 700 }}>{c.count} properties</div>
-                  </div>
-                </div>
-              </ScrollReveal>
-            ))}
-          </div>
+          <AutoCarousel items={CITIES} renderCard={(c) => (
+            <div className="ws-card" onClick={() => onSearch?.(c.name)} style={{ borderRadius: 14, overflow: 'hidden', position: 'relative', height: 150, width: '100%' }}>
+              <img src={c.img} alt={c.name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} loading="lazy" />
+              <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(transparent 30%, rgba(0,0,0,0.8))' }} />
+              <div style={{ position: 'absolute', bottom: 12, left: 12 }}>
+                <div style={{ fontSize: 17, fontWeight: 900, color: '#fff' }}>{c.name}</div>
+                <div style={{ fontSize: 12, color: '#8DC63F', fontWeight: 700 }}>{c.count} properties</div>
+              </div>
+            </div>
+          )} />
         </div>
       </section>
 
