@@ -123,7 +123,7 @@ export default function DestinationDirectory({ open, onClose, onSelectDestinatio
       </div>
 
       {/* ── Stacked Cards ── */}
-      <div style={{ flex: 1, position: 'relative', overflow: 'hidden', margin: '0 16px' }}
+      <div style={{ flex: 1, position: 'relative', overflow: 'hidden', margin: '0 30px' }}
         onTouchStart={e => { scrollRef.current = { x: e.touches[0].clientX, t: Date.now() } }}
         onTouchEnd={e => {
           if (!scrollRef.current) return
@@ -166,11 +166,11 @@ export default function DestinationDirectory({ open, onClose, onSelectDestinatio
           return (
             <div key={dest.id} style={{
               position: 'absolute',
-              top: isActive ? 0 : '5%',
-              bottom: isActive ? 0 : '5%',
-              left: isActive ? 0 : 0,
-              right: isActive ? 0 : 0,
-              transform: isActive ? 'translateX(0) scale(1)' : `translateX(${sideShift}) scale(0.82)`,
+              top: isActive ? '10%' : '14%',
+              bottom: isActive ? '10%' : '14%',
+              left: isActive ? '4%' : '4%',
+              right: isActive ? '4%' : '4%',
+              transform: isActive ? 'translateX(0) scale(1)' : `translateX(${sideShift}) scale(0.78)`,
               opacity: isActive ? 1 : 0.5,
               zIndex: isActive ? 3 : 1,
               filter: isActive ? 'none' : 'brightness(0.5)',
@@ -223,14 +223,14 @@ export default function DestinationDirectory({ open, onClose, onSelectDestinatio
                       color: '#000', fontSize: 14, fontWeight: 900, cursor: 'pointer', fontFamily: 'inherit',
                       display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6,
                       boxShadow: '0 4px 20px rgba(141,198,63,0.3)',
-                    }}>Bike — {fmtIDR(pricing.bike)} <img src="https://ik.imagekit.io/nepgaxllc/Sleek%20green%20and%20black%20scooter%20setup.png?updatedAt=1775634845237" alt="" style={{ width: 28, height: 28, objectFit: 'contain' }} /></button>
+                    }}>Bike — {fmtIDR(pricing.bike)} <img src="https://ik.imagekit.io/nepgaxllc/Sleek%20green%20and%20black%20scooter%20setup.png?updatedAt=1775634845237" alt="" style={{ width: 84, height: 84, objectFit: 'contain' }} /></button>
                     <button onClick={() => selectDest(dest, 'car_taxi')} style={{
                       flex: 1, padding: '14px 0', borderRadius: 14, border: 'none',
                       background: 'linear-gradient(135deg, #8DC63F, #6BA52A)',
                       color: '#000', fontSize: 14, fontWeight: 900, cursor: 'pointer', fontFamily: 'inherit',
                       display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6,
                       boxShadow: '0 4px 20px rgba(141,198,63,0.3)',
-                    }}>Car — {fmtIDR(pricing.car)} <img src="https://ik.imagekit.io/nepgaxllc/Sporty%20green%20and%20black%20hatchback.png?updatedAt=1775634925566" alt="" style={{ width: 28, height: 28, objectFit: 'contain' }} /></button>
+                    }}>Car — {fmtIDR(pricing.car)} <img src="https://ik.imagekit.io/nepgaxllc/Sporty%20green%20and%20black%20hatchback.png?updatedAt=1775634925566" alt="" style={{ width: 84, height: 84, objectFit: 'contain' }} /></button>
                   </div>
                 ) : (
                   <button onClick={() => selectDest(dest, vehicleMode)} style={{
