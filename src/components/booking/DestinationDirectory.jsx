@@ -156,20 +156,6 @@ export default function DestinationDirectory({ open, onClose, onSelectDestinatio
           </div>
         </div>
 
-        {/* Stats */}
-        <div style={{ display: 'flex', gap: 8, marginBottom: 10, fontSize: 11, fontWeight: 600 }}>
-          <span style={{ padding: '3px 10px', borderRadius: 8, background: 'rgba(141,198,63,0.08)', color: '#8DC63F' }}>{totalAll} places</span>
-          <span style={{ padding: '3px 10px', borderRadius: 8, background: 'rgba(255,255,255,0.04)', color: 'rgba(255,255,255,0.3)' }}>{usedCats.length} categories</span>
-          <span style={{ padding: '3px 10px', borderRadius: 8, background: 'rgba(255,255,255,0.04)', color: 'rgba(255,255,255,0.3)' }}>Yogyakarta</span>
-        </div>
-
-        {/* Search */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '0 12px', height: 40, background: 'rgba(0,0,0,0.5)', border: '1.5px solid rgba(255,255,255,0.1)', borderRadius: 12, marginBottom: 10 }}>
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.35)" strokeWidth="2.5"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-          <input value={search} onChange={e => { setSearch(e.target.value); setActiveIdx(0) }} placeholder="Search places..." style={{ flex: 1, background: 'none', border: 'none', color: '#fff', fontSize: 13, fontFamily: 'inherit', outline: 'none' }} />
-          {search && <button onClick={() => { setSearch(''); setActiveIdx(0) }} style={{ background: 'none', border: 'none', color: 'rgba(255,255,255,0.3)', cursor: 'pointer', fontSize: 14, padding: 0 }}>✕</button>}
-        </div>
-
         {/* Category pills */}
         <div style={{ display: 'flex', gap: 6, overflowX: 'auto', paddingBottom: 12, scrollbarWidth: 'none' }}>
           <button onClick={() => { setActiveCat('all'); setActiveIdx(0) }} style={{
@@ -188,6 +174,16 @@ export default function DestinationDirectory({ open, onClose, onSelectDestinatio
             }}>{c.icon} {c.label}</button>
           ))}
         </div>
+      </div>
+
+      {/* ═══ Search Bar ═══ */}
+      <div style={{ padding: '10px 16px 6px', flexShrink: 0 }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '0 14px', height: 46, background: 'rgba(0,0,0,0.7)', backdropFilter: 'blur(12px)', WebkitBackdropFilter: 'blur(12px)', border: '1.5px solid rgba(141,198,63,0.2)', borderRadius: 14 }}>
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#8DC63F" strokeWidth="2.5"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+          <input value={search} onChange={e => { setSearch(e.target.value); setActiveIdx(0) }} placeholder="Search temples, beaches, restaurants..." style={{ flex: 1, background: 'none', border: 'none', color: '#fff', fontSize: 14, fontWeight: 600, fontFamily: 'inherit', outline: 'none' }} />
+          {search && <button onClick={() => { setSearch(''); setActiveIdx(0) }} style={{ width: 28, height: 28, borderRadius: 14, background: 'rgba(255,255,255,0.1)', border: 'none', color: '#fff', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 13, fontWeight: 700 }}>✕</button>}
+        </div>
+        {search && <div style={{ marginTop: 6, fontSize: 12, fontWeight: 700, color: '#8DC63F', textAlign: 'center' }}>{destinations.length} result{destinations.length !== 1 ? 's' : ''} for "{search}"</div>}
       </div>
 
       {/* ═══ Swipe Carousel ═══ */}
