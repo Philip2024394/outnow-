@@ -97,10 +97,6 @@ export default function DestinationDirectory({ open, onClose, onSelectDestinatio
             <span>INDOO</span> <span style={{ color: '#8DC63F' }}>PLACES</span>
           </h1>
           <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 4, padding: '5px 10px', borderRadius: 12, background: 'rgba(0,0,0,0.5)', border: '1px solid rgba(255,255,255,0.1)' }}>
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#8DC63F" strokeWidth="2.5" strokeLinecap="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>
-              <span style={{ fontSize: 11, fontWeight: 700, color: 'rgba(255,255,255,0.5)' }}>{coords ? `${coords.lat.toFixed(2)}, ${coords.lng.toFixed(2)}` : 'GPS'}</span>
-            </div>
             <button onClick={() => setSuggestOpen(true)} style={{
               padding: '7px 14px', borderRadius: 20, cursor: 'pointer', fontFamily: 'inherit',
               background: 'rgba(245,158,11,0.15)', border: '1.5px solid rgba(245,158,11,0.35)',
@@ -192,16 +188,15 @@ export default function DestinationDirectory({ open, onClose, onSelectDestinatio
               {/* Content */}
               <div style={{ position: 'relative', zIndex: 1, flex: 1, padding: '14px 14px 16px', display: 'flex', flexDirection: 'column', justifyContent: 'flex-end' }}>
 
-                {/* Instagram — top right */}
-                <a href={`https://www.instagram.com/explore/tags/${encodeURIComponent(dest.name.replace(/\s+/g, '').toLowerCase())}/`}
-                  target="_blank" rel="noopener noreferrer" onClick={e => e.stopPropagation()}
-                  style={{ position: 'absolute', top: 12, right: 12, width: 32, height: 32, borderRadius: 8, textDecoration: 'none', background: 'linear-gradient(135deg, #833AB4, #E1306C, #F77737)', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 2px 8px rgba(225,48,108,0.4)' }}>
-                  <svg width="16" height="16" viewBox="0 0 24 24" fill="#fff"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zM12 0C8.741 0 8.333.014 7.053.072 2.695.272.273 2.69.073 7.052.014 8.333 0 8.741 0 12c0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98C8.333 23.986 8.741 24 12 24c3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98C15.668.014 15.259 0 12 0zm0 5.838a6.162 6.162 0 100 12.324 6.162 6.162 0 000-12.324zM12 16a4 4 0 110-8 4 4 0 010 8zm6.406-11.845a1.44 1.44 0 100 2.881 1.44 1.44 0 000-2.881z"/></svg>
-                </a>
+                {/* Rating star — top right */}
+                <div style={{ position: 'absolute', top: 12, right: 12, padding: '4px 10px', borderRadius: 8, background: 'rgba(0,0,0,0.6)', fontSize: 12, fontWeight: 800, color: '#FACC15' }}>
+                  ⭐ {ratings[dest.id] || '4.5'}
+                </div>
 
                 {/* Distance — top left */}
                 {dest.distanceKm && (
-                  <div style={{ position: 'absolute', top: 12, left: 12, padding: '4px 10px', borderRadius: 8, background: 'rgba(0,0,0,0.6)', fontSize: 11, fontWeight: 800, color: '#60A5FA' }}>
+                  <div style={{ position: 'absolute', top: 12, left: 12, padding: '4px 10px', borderRadius: 8, background: 'rgba(0,0,0,0.6)', fontSize: 11, fontWeight: 800, color: '#60A5FA', display: 'flex', alignItems: 'center', gap: 4 }}>
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#60A5FA" strokeWidth="2.5" strokeLinecap="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>
                     {dest.distanceKm} km
                   </div>
                 )}
@@ -235,6 +230,11 @@ export default function DestinationDirectory({ open, onClose, onSelectDestinatio
                       </div>
                       <img src="https://ik.imagekit.io/nepgaxllc/Sleek%20green%20and%20black%20scooter%20setup.png?updatedAt=1775634845237" alt="" style={{ width: 44, height: 44, objectFit: 'contain', flexShrink: 0 }} />
                     </button>
+                    <a href={`https://www.instagram.com/explore/tags/${encodeURIComponent(dest.name.replace(/\s+/g, '').toLowerCase())}/`}
+                      target="_blank" rel="noopener noreferrer" onClick={e => e.stopPropagation()}
+                      style={{ width: 44, height: 44, borderRadius: 14, textDecoration: 'none', flexShrink: 0, background: 'linear-gradient(135deg, #833AB4, #E1306C, #F77737)', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 2px 8px rgba(225,48,108,0.4)' }}>
+                      <svg width="22" height="22" viewBox="0 0 24 24" fill="#fff"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zM12 0C8.741 0 8.333.014 7.053.072 2.695.272.273 2.69.073 7.052.014 8.333 0 8.741 0 12c0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98C8.333 23.986 8.741 24 12 24c3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98C15.668.014 15.259 0 12 0zm0 5.838a6.162 6.162 0 100 12.324 6.162 6.162 0 000-12.324zM12 16a4 4 0 110-8 4 4 0 010 8zm6.406-11.845a1.44 1.44 0 100 2.881 1.44 1.44 0 000-2.881z"/></svg>
+                    </a>
                     <button onClick={() => selectDest(dest, 'car_taxi')} style={{
                       flex: 1, padding: '8px 10px', borderRadius: 14, border: 'none',
                       background: 'linear-gradient(135deg, #8DC63F, #6BA52A)',
