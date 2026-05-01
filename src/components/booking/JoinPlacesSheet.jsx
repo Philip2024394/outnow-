@@ -54,6 +54,7 @@ export default function JoinPlacesSheet({ open, onClose }) {
   const [catSearch, setCatSearch] = useState('')
   const [showCatDrop, setShowCatDrop] = useState(false)
   const [imagePreview, setImagePreview] = useState(null)
+  const [discount, setDiscount] = useState(0)
   const [instagram, setInstagram] = useState('')
   const [facebook, setFacebook] = useState('')
   const [tiktok, setTiktok] = useState('')
@@ -78,7 +79,7 @@ export default function JoinPlacesSheet({ open, onClose }) {
       businessName, ownerName, whatsapp, bio, category,
       address: useGps && coords ? `GPS: ${coords.lat.toFixed(5)}, ${coords.lng.toFixed(5)}` : address,
       instagram, facebook, tiktok, primarySocial,
-      tier, fee: tierData.price,
+      tier, fee: tierData.price, discount,
       referredBy: referralCode.trim() || null,
     })
     setGeneratedCode(result.referralCode)
@@ -251,6 +252,32 @@ export default function JoinPlacesSheet({ open, onClose }) {
             <div style={{ ...glass, padding: 16 }}>
               <label style={lbl}>About Your Business</label>
               <textarea value={bio} onChange={e => setBio(e.target.value)} placeholder="What makes your business special..." rows={3} style={{ ...inp, resize: 'none', minHeight: 70 }} />
+            </div>
+
+            {/* Visit Us Discount */}
+            <div style={{ ...glass, padding: 16 }}>
+              <label style={lbl}>🎁 Visit Us Discount (optional)</label>
+              <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.35)', marginBottom: 10 }}>Customers show your Indoo card on arrival for a discount</div>
+              <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+                {[0, 5, 10, 15, 20, 25, 30, 50].map(v => (
+                  <button key={v} onClick={() => setDiscount(v)} style={{
+                    padding: '10px 16px', borderRadius: 10, cursor: 'pointer', fontFamily: 'inherit',
+                    background: discount === v ? (v > 0 ? 'rgba(250,204,21,0.15)' : 'rgba(255,255,255,0.06)') : 'rgba(0,0,0,0.4)',
+                    border: discount === v ? (v > 0 ? '2px solid rgba(250,204,21,0.5)' : '2px solid rgba(141,198,63,0.4)') : '1px solid rgba(255,255,255,0.08)',
+                    color: discount === v ? (v > 0 ? '#FACC15' : '#8DC63F') : 'rgba(255,255,255,0.4)',
+                    fontSize: 14, fontWeight: 800, minWidth: 44, minHeight: 44,
+                  }}>{v === 0 ? 'None' : `${v}%`}</button>
+                ))}
+              </div>
+              {discount > 0 && (
+                <div style={{ marginTop: 10, padding: '10px 14px', borderRadius: 12, background: 'rgba(250,204,21,0.08)', border: '1px solid rgba(250,204,21,0.2)', display: 'flex', alignItems: 'center', gap: 8 }}>
+                  <span style={{ fontSize: 20 }}>🏷️</span>
+                  <div>
+                    <div style={{ fontSize: 14, fontWeight: 900, color: '#FACC15' }}>Show on arrival — {discount}% OFF</div>
+                    <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.35)' }}>This badge will appear on your place card</div>
+                  </div>
+                </div>
+              )}
             </div>
 
             {/* Social */}

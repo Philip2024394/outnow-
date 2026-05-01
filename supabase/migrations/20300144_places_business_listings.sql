@@ -25,6 +25,7 @@ CREATE TABLE IF NOT EXISTS places_listings (
   ride_count      integer DEFAULT 0,
   rating_avg      numeric DEFAULT 0,
   rating_count    integer DEFAULT 0,
+  discount_pct    integer DEFAULT 0,
   referral_code   text UNIQUE,
   referred_by     text,
   activated_at    timestamptz,

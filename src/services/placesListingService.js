@@ -9,8 +9,8 @@ export function generateReferralCode(businessName) {
 }
 
 export const TIERS = {
-  basic: { id: 'basic', label: 'Basic', price: 100000, features: ['Name & photo on card', '1 social media link', 'Standard placement', 'WhatsApp contact'] },
-  premium: { id: 'premium', label: 'Premium', price: 250000, features: ['All Basic features', 'Featured placement (30 days)', 'Larger card in carousel', 'Priority in search', 'Verified badge ✓', 'Analytics dashboard', 'Rating & reviews'] },
+  basic: { id: 'basic', label: 'Basic', price: 100000, features: ['Name & photo on card', '1 social media link', 'Standard placement', 'WhatsApp contact', 'Visit Us discount text'] },
+  premium: { id: 'premium', label: 'Premium', price: 250000, features: ['All Basic features', 'Featured placement (30 days)', 'Larger card in carousel', 'Priority in search', 'Verified badge ✓', 'Analytics dashboard', 'Rating & reviews', 'Animated discount badge 🏷️'] },
 }
 
 /** Submit places application — Supabase + localStorage */
@@ -43,6 +43,7 @@ export async function submitPlacesApplication(data) {
         fee_paid: data.fee,
         referral_code: referralCode,
         referred_by: data.referredBy || null,
+        discount_pct: data.discount || 0,
       })
     } catch (e) { console.warn('Places submit error:', e) }
   }

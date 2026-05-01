@@ -219,6 +219,14 @@ export default function DestinationDirectory({ open, onClose, onSelectDestinatio
                   <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.5)', lineHeight: 1.3 }}>{dest.address}</div>
                 </div>
 
+                {/* Discount badge */}
+                {dest.discount_pct > 0 && (
+                  <div style={{ marginBottom: 8, padding: '6px 12px', borderRadius: 10, background: 'rgba(250,204,21,0.12)', border: '1px solid rgba(250,204,21,0.25)', display: 'inline-flex', alignItems: 'center', gap: 6 }}>
+                    <span style={{ fontSize: 14 }}>🏷️</span>
+                    <span style={{ fontSize: 13, fontWeight: 900, color: '#FACC15' }}>Show on arrival — {dest.discount_pct}% OFF</span>
+                  </div>
+                )}
+
                 {/* Price */}
                 <div style={{ marginBottom: 12 }}>
                   <span style={{ fontSize: 22, fontWeight: 900, color: '#FACC15', textShadow: '0 1px 6px rgba(0,0,0,0.5)' }}>{fmtIDR(price)}</span>
