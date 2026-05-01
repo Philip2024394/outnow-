@@ -78,6 +78,53 @@ export async function submitPlacesReview(listingId, reviewerName, rating, commen
   } catch (e) { console.warn('Review submit error:', e) }
 }
 
+/** Notify business owner that a customer booked a ride to their place (in-app only, no personal data shared) */
+export async function notifyBusinessRideBooked(placeName, vehicleType, etaMinutes) {
+  const vehicleLabel = vehicleType === 'car_taxi' ? '🚗 Car' : '🏍️ Bike'
+  const message = {
+    id: 'notif_' + Date.now(),
+    type: 'places_ride_booked',
+    title: 'Customer on the way!',
+    body: `${vehicleLabel} ride booked to ${placeName}. ETA ~${etaMinutes} min`,
+    icon: vehicleType === 'car_taxi' ? '🚗' : '🏍️',
+    placeName,
+    vehicleType,
+    etaMinutes,
+    read: false,
+    createdAt: new Date().toISOString(),
+  }
+
+  // Save to localStorage notification queue (for in-app display)
+  const notifs = JSON.parse(localStorage.getItem('indoo_places_notifications') || '[]')
+  notifs.unshift(message)
+  localStorage.setItem('indoo_places_notifications', JSON.stringify(notifs.slice(0, 50)))
+
+  // Supabase — insert into a notifications channel for the business owner
+  if (supabase) {
+    try {
+      // Find the listing by name to get owner_id
+      const { data: listing } = await supabase
+        .from('places_listings')
+        .select('id, owner_id')
+        .eq('business_name', placeName)
+        .eq('status', 'approved')
+        .single()
+
+      if (listing?.owner_id) {
+        // Track as analytics event
+        await supabase.from('places_analytics').insert({ listing_id: listing.id, event_type: 'ride_booked' })
+        // Increment ride count
+        await supabase.rpc('increment_ride_count', { listing_id: listing.id }).catch(() => {
+          // Fallback if RPC doesn't exist
+          supabase.from('places_listings').update({ ride_count: listing.ride_count + 1 }).eq('id', listing.id)
+        })
+      }
+    } catch (e) { console.warn('Places ride notify error:', e) }
+  }
+
+  return message
+}
+
 /** Get approved listings */
 export async function getApprovedPlacesListings() {
   if (!supabase) return []

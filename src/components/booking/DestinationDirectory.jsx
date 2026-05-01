@@ -8,6 +8,7 @@ import {
   DIRECTORY_CATEGORIES, getDestinationsByCategory, getDestinationsNearUser,
   calculateDirectoryPrice, fmtIDR,
 } from '@/services/directoryService'
+import { notifyBusinessRideBooked } from '@/services/placesListingService'
 import { useGeolocation } from '@/hooks/useGeolocation'
 import SuggestPlaceSheet from './SuggestPlaceSheet'
 import JoinPlacesSheet from './JoinPlacesSheet'
@@ -80,6 +81,7 @@ export default function DestinationDirectory({ open, onClose, onSelectDestinatio
 
   const selectDest = (dest, vehicle) => {
     const pricing = calculateDirectoryPrice(dest)
+    const eta = Math.max(5, Math.round((dest.distanceKm || 5) * 2.5))
     onSelectDestination?.({
       ...dest,
       price: vehicle === 'car_taxi' ? pricing.car : pricing.bike,
@@ -87,6 +89,8 @@ export default function DestinationDirectory({ open, onClose, onSelectDestinatio
       vehiclePrice: pricing,
       _selectedVehicle: vehicle,
     })
+    // Notify business owner (in-app only, no customer data shared)
+    notifyBusinessRideBooked(dest.name, vehicle, eta)
     onClose()
   }
 
