@@ -234,24 +234,14 @@ export default function HomePage({ onSearch, onBrowseSale, onBrowseRent, onBrows
 
       {/* ═══ NEW PROJECTS + TOP AGENTS — side by side ═══ */}
       <section style={{ padding: '40px 0 20px' }}>
-        <div className="ws-container" style={{ display: 'flex', gap: 32 }}>
-          {/* Left — New Projects */}
-          <div style={{ flex: 1 }}>
+        <div className="ws-container">
+          <div>
             <ScrollReveal>
               <h2 style={{ fontSize: 20, fontWeight: 900, color: '#fff', margin: '0 0 14px', display: 'flex', alignItems: 'center', gap: 8 }}>
                 <img src="https://ik.imagekit.io/nepgaxllc/ChatGPT%20Image%20May%202,%202026,%2003_29_33%20AM.png" alt="" style={{ width: 40, height: 40, objectFit: 'contain' }} /> <span style={{ color: '#FACC15' }}>New</span> Projects
               </h2>
             </ScrollReveal>
             <ProjectCircleCarousel />
-          </div>
-          {/* Right — Top Agents */}
-          <div style={{ flex: 1 }}>
-            <ScrollReveal delay={0.1}>
-              <h2 style={{ fontSize: 20, fontWeight: 900, color: '#fff', margin: '0 0 14px', display: 'flex', alignItems: 'center', gap: 8 }}>
-                🏆 <span style={{ color: '#60A5FA' }}>Top Agents</span> This Month
-              </h2>
-            </ScrollReveal>
-            <TopAgentsCarousel />
           </div>
         </div>
       </section>

@@ -2,7 +2,7 @@
  * AgentDirectoryPage — Browse agents grouped by city/location.
  * Click agent → opens full profile with listings, sales records, contacts.
  */
-import { useState } from 'react'
+import { useState, useRef, useEffect } from 'react'
 import { ScrollReveal } from '../hooks/useScrollReveal'
 
 const DEMO_AGENTS = [
@@ -62,8 +62,16 @@ export default function AgentDirectoryPage({ onSelectAgent, onBack }) {
           </div>
         </ScrollReveal>
 
-        {/* Stats */}
+        {/* Top Agents This Month */}
         <ScrollReveal delay={0.05}>
+          <div style={{ marginBottom: 24 }}>
+            <h3 style={{ fontSize: 18, fontWeight: 900, color: '#fff', margin: '0 0 14px', display: 'flex', alignItems: 'center', gap: 8 }}>🏆 <span style={{ color: '#60A5FA' }}>Top Agents</span> This Month</h3>
+            <TopAgentsRow agents={DEMO_AGENTS} />
+          </div>
+        </ScrollReveal>
+
+        {/* Stats */}
+        <ScrollReveal delay={0.1}>
           <div style={{ display: 'flex', gap: 16, marginBottom: 20 }}>
             {[
               { val: agents.length, label: 'Total Agents', color: '#fff' },
@@ -174,6 +182,35 @@ function AgentCard({ agent: a, delay, onSelect }) {
         </div>
       </div>
     </ScrollReveal>
+  )
+}
+
+function TopAgentsRow({ agents }) {
+  const ref = useRef(null)
+  const sorted = [...agents].sort((a, b) => b.sold - a.sold).slice(0, 8)
+  useEffect(() => {
+    const el = ref.current; if (!el || sorted.length < 3) return
+    let raf
+    const tick = () => { el.scrollLeft += 0.3; if (el.scrollLeft >= el.scrollWidth / 2) el.scrollLeft = 0; raf = requestAnimationFrame(tick) }
+    raf = requestAnimationFrame(tick)
+    const stop = () => cancelAnimationFrame(raf)
+    const go = () => { raf = requestAnimationFrame(tick) }
+    el.addEventListener('mouseenter', stop); el.addEventListener('mouseleave', go)
+    return () => { cancelAnimationFrame(raf); el.removeEventListener('mouseenter', stop); el.removeEventListener('mouseleave', go) }
+  }, [sorted])
+  const doubled = [...sorted, ...sorted]
+  return (
+    <div ref={ref} style={{ display: 'flex', gap: 20, overflowX: 'hidden', scrollbarWidth: 'none', padding: '4px 0' }}>
+      {doubled.map((a, i) => (
+        <div key={`${a.id}-${i}`} style={{ flexShrink: 0, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 6, width: 90 }}>
+          <div style={{ width: 70, height: 70, borderRadius: '50%', overflow: 'hidden', border: '3px solid rgba(96,165,250,0.3)' }}>
+            <img src={a.photo} alt={a.name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+          </div>
+          <div style={{ fontSize: 11, fontWeight: 800, color: '#fff', textAlign: 'center', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', maxWidth: 90 }}>{a.name}</div>
+          <div style={{ fontSize: 10, fontWeight: 700, color: '#60A5FA' }}>{a.sold} sold · ⭐ {a.rating}</div>
+        </div>
+      ))}
+    </div>
   )
 }
 
