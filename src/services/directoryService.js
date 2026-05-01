@@ -25,17 +25,15 @@ function roundPrice(n) {
 
 export function calculateDirectoryPrice(destination, zones, settings) {
   const km = destination.distanceKm
-  const isReturn = km > ONE_WAY_LIMIT_KM
-  const tripKm = isReturn ? km * 2 : km
   const z = zones || DEFAULT_ZONES
   const s = settings || DEFAULT_SETTINGS
 
   return {
-    bike: roundPrice(estimateFare('bike_ride', 'Yogyakarta', tripKm, z, s)),
-    car: roundPrice(estimateFare('car_taxi', 'Yogyakarta', tripKm, z, s)),
-    isReturn,
+    bike: roundPrice(estimateFare('bike_ride', 'Yogyakarta', km, z, s)),
+    car: roundPrice(estimateFare('car_taxi', 'Yogyakarta', km, z, s)),
+    isReturn: false,
     oneWayKm: km,
-    tripKm,
+    tripKm: km,
   }
 }
 

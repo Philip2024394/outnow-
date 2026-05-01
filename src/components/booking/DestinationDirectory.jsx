@@ -161,19 +161,19 @@ export default function DestinationDirectory({ open, onClose, onSelectDestinatio
           // Center card full, prev card peeking left, next card peeking right
           const isActive = diff === 0
           // Side cards: shifted 70% to the side, scaled down, dimmed
-          const sideShift = diff < 0 ? '-75%' : '75%'
+          const sideShift = diff < 0 ? '-58%' : '58%'
 
           return (
             <div key={dest.id} style={{
               position: 'absolute',
-              top: isActive ? '7%' : '17%',
-              bottom: isActive ? '7%' : '17%',
+              top: isActive ? '7%' : '12%',
+              bottom: isActive ? '7%' : '12%',
               left: isActive ? '1%' : '1%',
               right: isActive ? '1%' : '1%',
-              transform: isActive ? 'translateX(0) scale(1)' : `translateX(${sideShift}) scale(0.6)`,
-              opacity: isActive ? 1 : 0.85,
+              transform: isActive ? 'translateX(0) scale(1)' : `translateX(${sideShift}) scale(0.7)`,
+              opacity: isActive ? 1 : 0.9,
               zIndex: isActive ? 3 : 1,
-              filter: isActive ? 'none' : 'brightness(0.7)',
+              filter: isActive ? 'none' : 'brightness(0.65)',
               borderRadius: 20, overflow: 'hidden',
               border: isActive ? '2px solid rgba(141,198,63,0.5)' : '1px solid rgba(255,255,255,0.08)',
               boxShadow: isActive ? '0 0 30px rgba(141,198,63,0.15), 0 8px 40px rgba(0,0,0,0.6)' : '0 4px 20px rgba(0,0,0,0.4)',
@@ -211,7 +211,7 @@ export default function DestinationDirectory({ open, onClose, onSelectDestinatio
                 {/* Price */}
                 <div style={{ marginBottom: 12 }}>
                   <span style={{ fontSize: 22, fontWeight: 900, color: '#FACC15', textShadow: '0 1px 6px rgba(0,0,0,0.5)' }}>{fmtIDR(price)}</span>
-                  {pricing.isReturn && <span style={{ marginLeft: 8, padding: '2px 8px', borderRadius: 6, background: 'rgba(96,165,250,0.15)', fontSize: 10, fontWeight: 700, color: '#60A5FA' }}>Return</span>}
+                  <span style={{ marginLeft: 8, padding: '2px 8px', borderRadius: 6, background: 'rgba(141,198,63,0.12)', fontSize: 10, fontWeight: 700, color: '#8DC63F' }}>One way</span>
                 </div>
 
                 {/* Bike + Car buttons */}
