@@ -192,7 +192,7 @@ export default function HomePage({ onSearch, onBrowseSale, onBrowseRent, onBrows
           <div className="ws-container">
             <ScrollReveal>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 }}>
-                <h2 style={{ fontSize: 28, fontWeight: 900, color: '#FACC15', margin: 0 }}>🏷️ For Sale</h2>
+                <h2 style={{ fontSize: 28, fontWeight: 900, color: '#FACC15', margin: 0 }}><img src="https://ik.imagekit.io/nepgaxllc/Untitledrwerwer-removebg-preview.png" alt="" style={{ width: 36, height: 36, objectFit: 'contain' }} /> For Sale</h2>
                 <button onClick={onBrowseSale} style={{ padding: '8px 20px', borderRadius: 10, border: '1px solid rgba(250,204,21,0.3)', background: 'rgba(250,204,21,0.06)', color: '#FACC15', fontSize: 13, fontWeight: 800, cursor: 'pointer', fontFamily: 'inherit' }}>View All →</button>
               </div>
             </ScrollReveal>
