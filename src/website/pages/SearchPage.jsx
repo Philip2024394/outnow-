@@ -2,7 +2,7 @@
  * SearchPage — Property search with filter sidebar + results grid.
  */
 import { useState, useMemo } from 'react'
-import { DEMO_LISTINGS } from '@/services/rentalService'
+import { usePropertyListings } from '../hooks/usePropertyListings'
 import { ScrollReveal } from '../hooks/useScrollReveal'
 
 function fmtRp(n) {
@@ -36,7 +36,7 @@ export default function SearchPage({ initialSearch = '', initialMode = 'all', on
   const [certs, setCerts] = useState([])
   const [sort, setSort] = useState('newest')
 
-  const allProperty = DEMO_LISTINGS.filter(l => l.category === 'Property' && l.images?.length > 0)
+  const { listings: allProperty } = usePropertyListings()
 
   const filtered = useMemo(() => {
     let result = [...allProperty]

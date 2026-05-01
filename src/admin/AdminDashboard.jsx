@@ -35,6 +35,7 @@ import BlastAdminTab from './tabs/BlastAdminTab'
 import EmailGeneratorTab from './tabs/EmailGeneratorTab'
 import KprRatesTab from './tabs/KprRatesTab'
 import PlacesListingsTab from './tabs/PlacesListingsTab'
+import WebsiteUsersTab from './tabs/WebsiteUsersTab'
 
 const LOGO = 'https://ik.imagekit.io/dateme/Logo%20with%20green%20map%20pin%20element.png'
 
@@ -75,6 +76,7 @@ const NAV = [
   { id: 'blasts',         icon: '🚀', label: 'Deal Blasts' },
   { id: 'kpr_rates',      icon: '🏦', label: 'KPR Rates' },
   { id: 'places_biz',     icon: '📍', label: 'Places Biz' },
+  { id: 'website',        icon: '🌐', label: 'Website' },
 ]
 
 export default function AdminDashboard({ onLogout }) {
@@ -223,6 +225,7 @@ export default function AdminDashboard({ onLogout }) {
           {tab === 'blasts' && <BlastAdminTab />}
           {tab === 'kpr_rates' && <KprRatesTab />}
           {tab === 'places_biz' && <PlacesListingsTab />}
+          {tab === 'website' && <WebsiteUsersTab />}
         </div>
       </div>
     </div>

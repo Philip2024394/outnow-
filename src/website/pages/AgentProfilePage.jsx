@@ -3,7 +3,7 @@
  * Stats, portfolio, testimonials, listings, contact.
  */
 import { useState } from 'react'
-import { DEMO_LISTINGS } from '@/services/rentalService'
+import { usePropertyListings } from '../hooks/usePropertyListings'
 import { ScrollReveal } from '../hooks/useScrollReveal'
 import StatsCounter from '../components/StatsCounter'
 
@@ -32,7 +32,8 @@ export default function AgentProfilePage({ agent, onBack, onSelectListing }) {
 
   if (!agent) return null
 
-  const listings = DEMO_LISTINGS.filter(l => l.category === 'Property' && l.images?.length > 0 && l.owner_type === 'agent').slice(0, 8)
+  const { listings: allListings } = usePropertyListings()
+  const listings = allListings.filter(l => l.owner_type === 'agent' || l.owner_type === 'owner').slice(0, 8)
   const soldListings = [
     { id: 'sold1', title: 'Villa Sunset Seminyak', city: 'Bali', status: 'sold', buy_now: 2800000000 },
     { id: 'sold2', title: 'Rumah Minimalis Sleman', city: 'Yogyakarta', status: 'sold', buy_now: 850000000 },

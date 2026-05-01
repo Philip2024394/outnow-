@@ -3,7 +3,7 @@
  * Gallery left, details right. Integrates existing app components.
  */
 import { useState, useRef, useEffect } from 'react'
-import { DEMO_LISTINGS } from '@/services/rentalService'
+import { usePropertyListings } from '../hooks/usePropertyListings'
 import KPRCalculator from '@/components/property/KPRCalculator'
 import PriceHistoryChart from '@/components/property/PriceHistoryChart'
 import PropertyValuation from '@/components/property/PropertyValuation'
@@ -30,6 +30,7 @@ const DETAIL_ICONS = {
 export default function PropertyDetailPage({ listing, onBack, onSelectListing }) {
   const [activeImg, setActiveImg] = useState(0)
   const [showKPR, setShowKPR] = useState(false)
+  const { listings: allListings } = usePropertyListings()
 
   if (!listing) return null
 
@@ -40,8 +41,8 @@ export default function PropertyDetailPage({ listing, onBack, onSelectListing })
   const isProperty = true
   const phone = ef.whatsapp || listing.whatsapp || '081234567890'
 
-  // Similar listings
-  const similar = DEMO_LISTINGS.filter(l => l.category === 'Property' && l.id !== listing.id && l.images?.length > 0 && (l.city === listing.city || l.sub_category === listing.sub_category)).slice(0, 6)
+  // Similar listings from Supabase/demo
+  const similar = allListings.filter(l => l.id !== listing.id && (l.city === listing.city || l.sub_category === listing.sub_category)).slice(0, 6)
 
   // Detail rows
   const details = [

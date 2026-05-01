@@ -3,7 +3,7 @@
  * Hero + carousels + stats + cities + features + download CTA.
  */
 import { useState, useRef, useEffect } from 'react'
-import { DEMO_LISTINGS } from '@/services/rentalService'
+import { usePropertyListings } from '../hooks/usePropertyListings'
 import { getNewProjects, STATUS_LABELS } from '@/services/newProjectService'
 import KPRCalculator from '@/components/property/KPRCalculator'
 import PriceHistoryChart from '@/components/property/PriceHistoryChart'
@@ -151,7 +151,7 @@ function ToolModal({ open, onClose, title, children, small }) {
 export default function HomePage({ onSearch, onBrowseSale, onBrowseRent, onBrowseAll, onSelectListing, onNavigate }) {
   const [searchVal, setSearchVal] = useState('')
   const [activeTool, setActiveTool] = useState(null) // kpr | history | valuation | comparable | neighborhood | transport | agents | dealhunt
-  const allProperty = DEMO_LISTINGS.filter(l => l.category === 'Property' && l.images?.length > 0)
+  const { listings: allProperty } = usePropertyListings()
   const sampleListing = allProperty[0] || SAMPLE_LISTING
   const forSale = allProperty.filter(l => !!l.buy_now)
   const forRent = allProperty.filter(l => !l.buy_now)
