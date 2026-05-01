@@ -23,7 +23,7 @@ export default function NewProjectsPage({ onSelectProject, onBack }) {
         <ScrollReveal>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 24 }}>
             <div>
-              <h1 style={{ fontSize: 36, fontWeight: 900, color: '#fff', margin: '0 0 6px' }}>🏗️ <span style={{ color: '#FACC15' }}>New</span> Projects</h1>
+              <h1 style={{ fontSize: 36, fontWeight: 900, color: '#fff', margin: '0 0 6px', display: 'flex', alignItems: 'center', gap: 12 }}><img src="https://ik.imagekit.io/nepgaxllc/ChatGPT%20Image%20May%202,%202026,%2003_29_33%20AM.png?updatedAt=1777667392389" alt="" style={{ width: 48, height: 48, objectFit: 'contain' }} /> <span style={{ color: '#FACC15' }}>New</span> Projects</h1>
               <p style={{ fontSize: 16, color: 'rgba(255,255,255,0.4)', margin: 0 }}>{filtered.length} projects · Pre-sale & under construction</p>
             </div>
             <div style={{ display: 'flex', gap: 10 }}>
