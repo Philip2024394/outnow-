@@ -21,6 +21,7 @@ import SectionCTAButton from '@/components/ui/SectionCTAButton'
 import { hasVisitedSection, markSectionVisited } from '@/services/sectionVisitService'
 import PriceCalculator from '@/components/rentals/PriceCalculator'
 import PropertyCard from '@/components/rentals/PropertyCard'
+import NewProjectsSection from '@/components/property/NewProjectsSection'
 import { getPropertiesByCategory, DEMO_PROPERTIES } from '@/services/propertyListingService'
 import { RentalChat, RentalBookingFlow } from '@/domains/rentals/components/RentalBooking'
 import { ReviewsPopup, getAvgRating } from '@/components/reviews/ReviewSystem'
@@ -502,7 +503,11 @@ export default function RentalSearchScreen({ onClose, initialView, initialListin
     </>)
   }
 
-  let sortedListings = [...listings]
+  // Filter out expired sold/rented listings (past 3-day window)
+  let sortedListings = [...listings].filter(l => {
+    if ((l.status === 'sold' || l.status === 'rented') && l.hideAfter && new Date() > new Date(l.hideAfter)) return false
+    return true
+  })
   // Apply advanced filters
   if (filterCity) sortedListings = sortedListings.filter(l => l.city?.toLowerCase().includes(filterCity.toLowerCase()))
   if (filterCondition) sortedListings = sortedListings.filter(l => (l.condition || '').toLowerCase().includes(filterCondition.toLowerCase()))
@@ -1011,6 +1016,9 @@ export default function RentalSearchScreen({ onClose, initialView, initialListin
         </div>
 
         {/* New Listings — auto-scrolling circular carousel */}
+        {/* New Property Projects */}
+        {(category === 'Property' || category === 'all') && <NewProjectsSection />}
+
         <NewListingsCarousel listings={sortedListings} onSelect={setSelected} />
 
         {/* Featured — auto-scrolling card carousel */}
@@ -1048,7 +1056,7 @@ export default function RentalSearchScreen({ onClose, initialView, initialListin
                 {/* Top-left: Type + Sale/Rent badge */}
                 <div style={{ position: 'absolute', top: 10, left: 0, zIndex: 3, padding: '5px 14px 5px 10px', borderRadius: '0 10px 10px 0', background: 'rgba(0,0,0,0.6)', backdropFilter: 'blur(10px)', borderRight: `2px solid ${l.buy_now ? '#FACC15' : '#8DC63F'}` }}>
                   <span style={{ fontSize: 13, fontWeight: 900, color: '#fff' }}>{l.sub_category || l.extra_fields?.property_type || l.category}</span>
-                  <span style={{ fontSize: 12, fontWeight: 700, color: l.buy_now ? '#FACC15' : '#8DC63F', marginLeft: 8 }}>{l.buy_now ? 'SALE' : 'RENT'}</span>
+                  <span style={{ fontSize: 12, fontWeight: 700, color: l.status === 'sold' ? '#EF4444' : l.status === 'rented' ? '#60A5FA' : l.buy_now ? '#FACC15' : '#8DC63F', marginLeft: 8 }}>{l.status === 'sold' ? 'SOLD' : l.status === 'rented' ? 'RENTED' : l.buy_now ? 'SALE' : 'RENT'}</span>
                 </div>
 
                 {/* Top-right: Rating + photos */}

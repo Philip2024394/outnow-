@@ -12,6 +12,7 @@ import PriceHistoryChart from '@/components/property/PriceHistoryChart'
 import PropertyValuation from '@/components/property/PropertyValuation'
 import TransportProximity from '@/components/property/TransportProximity'
 import UniversalBusinessProfile from '@/components/profile/UniversalBusinessProfile'
+import RoomAvailability from '@/components/property/RoomAvailability'
 
 function PageBadge({ num, label }) {
   return (
@@ -375,9 +376,17 @@ export default function RentalDetail({ listing: initialListing, onClose, onChat,
                 </span>
               )}
             </div>
+            {/* SOLD / RENTED badge */}
+            {(listing.status === 'sold' || listing.status === 'rented') && (
+              <div style={{ padding: '6px 16px', borderRadius: 10, background: listing.status === 'sold' ? 'rgba(239,68,68,0.15)' : 'rgba(96,165,250,0.15)', border: `1.5px solid ${listing.status === 'sold' ? 'rgba(239,68,68,0.4)' : 'rgba(96,165,250,0.4)'}`, display: 'inline-flex', alignItems: 'center', gap: 6, marginBottom: 6 }}>
+                <span style={{ fontSize: 14, fontWeight: 900, color: listing.status === 'sold' ? '#EF4444' : '#60A5FA' }}>
+                  {listing.status === 'sold' ? '🔴 SOLD' : '🔵 RENTED'}
+                </span>
+              </div>
+            )}
             {/* Large price */}
             <div style={{ display: 'flex', alignItems: 'baseline', gap: 8 }}>
-              <span style={{ fontSize: 28, fontWeight: 900, color: '#FACC15', letterSpacing: '-0.02em', lineHeight: 1.1 }}>{fmtFull(mainPrice)}</span>
+              <span style={{ fontSize: 28, fontWeight: 900, color: (listing.status === 'sold' || listing.status === 'rented') ? 'rgba(255,255,255,0.3)' : '#FACC15', letterSpacing: '-0.02em', lineHeight: 1.1, textDecoration: (listing.status === 'sold' || listing.status === 'rented') ? 'line-through' : 'none' }}>{fmtFull(mainPrice)}</span>
               <span style={{ fontSize: 14, fontWeight: 600, color: 'rgba(255,255,255,0.45)' }}>{priceLabel}</span>
             </div>
           </div>
@@ -687,6 +696,16 @@ export default function RentalDetail({ listing: initialListing, onClose, onChat,
                 {listing.owner_type === 'agent' && <span style={{ padding: '4px 12px', borderRadius: 20, background: 'rgba(96,165,250,0.12)', border: '1px solid rgba(96,165,250,0.3)', color: '#60A5FA', fontSize: 12, fontWeight: 800 }}>🏢 Agent</span>}
                 {listing.owner_type === 'owner' && <span style={{ padding: '4px 12px', borderRadius: 20, background: 'rgba(141,198,63,0.12)', border: '1px solid rgba(141,198,63,0.3)', color: '#8DC63F', fontSize: 12, fontWeight: 800 }}>👤 Owner</span>}
                 <button onClick={() => setShowProfile(true)} style={{ padding: '4px 12px', borderRadius: 20, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.12)', color: '#fff', fontSize: 12, fontWeight: 800, cursor: 'pointer', fontFamily: 'inherit', display: 'flex', alignItems: 'center', gap: 4 }}>View Profile →</button>
+              </div>
+            )}
+
+            {/* ── Room Availability (Kos only) ── */}
+            {isKos && (
+              <div className="rd-section" style={{ marginBottom: 16, ...sectionDelay(sectionIdx++) }}>
+                <RoomAvailability
+                  available={ef.available_rooms || ef.kosAvailableRooms || 3}
+                  total={ef.totalRooms || 10}
+                />
               </div>
             )}
 

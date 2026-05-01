@@ -198,6 +198,42 @@ export async function toggleListingStatus(id) {
   return listings[idx]
 }
 
+/** Deactivate listing — marks as 'sold' or 'rented' for 3 days then hides */
+export async function deactivateListing(id, reason = 'sold') {
+  const status = reason === 'rented' ? 'rented' : 'sold'
+  const hideAfter = new Date(Date.now() + 3 * 24 * 60 * 60 * 1000).toISOString()
+
+  // localStorage
+  const listings = loadLocal()
+  const idx = listings.findIndex(l => l.id === id || l.ref === id)
+  if (idx >= 0) {
+    listings[idx].status = status
+    listings[idx].hideAfter = hideAfter
+    listings[idx].updatedAt = new Date().toISOString()
+    saveLocal(listings)
+  }
+
+  // Supabase
+  if (supabase) {
+    try {
+      await supabase
+        .from('rental_listings')
+        .update({ status, updated_at: new Date().toISOString() })
+        .or(`ref.eq.${id},id.eq.${id}`)
+    } catch (e) {
+      console.warn('Supabase deactivate error:', e)
+    }
+  }
+
+  return idx >= 0 ? listings[idx] : null
+}
+
+/** Check if listing should be hidden (past 3-day sold/rented window) */
+export function isListingExpired(listing) {
+  if (!listing.hideAfter) return false
+  return new Date() > new Date(listing.hideAfter)
+}
+
 /** Format price */
 export function fmtPrice(n) {
   if (!n) return '-'
