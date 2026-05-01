@@ -11,6 +11,7 @@ import NeighborhoodGuide from '@/components/property/NeighborhoodGuide'
 import PriceHistoryChart from '@/components/property/PriceHistoryChart'
 import PropertyValuation from '@/components/property/PropertyValuation'
 import TransportProximity from '@/components/property/TransportProximity'
+import UniversalBusinessProfile from '@/components/profile/UniversalBusinessProfile'
 
 function PageBadge({ num, label }) {
   return (
@@ -68,6 +69,7 @@ export default function RentalDetail({ listing: initialListing, onClose, onChat,
   const [saved, setSaved] = useState(() => isItemSaved(listing?.id))
   const [activeImg, setActiveImg] = useState(0)
   const [showKPR, setShowKPR] = useState(false)
+  const [showProfile, setShowProfile] = useState(false)
   const [showBooking, setShowBooking] = useState(false)
   const [mounted, setMounted] = useState(false)
   const [imgScale, setImgScale] = useState(1)
@@ -674,6 +676,7 @@ export default function RentalDetail({ listing: initialListing, onClose, onChat,
                 {listing.condition === 'new' && <VerifiedBadge type="new" size="md" />}
                 {listing.owner_type === 'agent' && <span style={{ padding: '4px 12px', borderRadius: 20, background: 'rgba(96,165,250,0.12)', border: '1px solid rgba(96,165,250,0.3)', color: '#60A5FA', fontSize: 12, fontWeight: 800 }}>🏢 Agent</span>}
                 {listing.owner_type === 'owner' && <span style={{ padding: '4px 12px', borderRadius: 20, background: 'rgba(141,198,63,0.12)', border: '1px solid rgba(141,198,63,0.3)', color: '#8DC63F', fontSize: 12, fontWeight: 800 }}>👤 Owner</span>}
+                <button onClick={() => setShowProfile(true)} style={{ padding: '4px 12px', borderRadius: 20, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.12)', color: '#fff', fontSize: 12, fontWeight: 800, cursor: 'pointer', fontFamily: 'inherit', display: 'flex', alignItems: 'center', gap: 4 }}>View Profile →</button>
               </div>
             )}
 
@@ -825,6 +828,23 @@ export default function RentalDetail({ listing: initialListing, onClose, onChat,
       {/* Popups */}
       {showKPR && <KPRCalculator open onClose={() => setShowKPR(false)} propertyPrice={listing.buy_now ? (typeof listing.buy_now === 'object' ? listing.buy_now.price : listing.buy_now) : 0} />}
       {showBooking && <BookingRequest open onClose={() => setShowBooking(false)} listing={listing} />}
+      {showProfile && <UniversalBusinessProfile
+        open
+        onClose={() => setShowProfile(false)}
+        profile={{
+          name: listing.title,
+          ownerType: listing.owner_type,
+          city: listing.city,
+          image: listing.images?.[0],
+          rating: listing.rating,
+          reviewCount: listing.review_count,
+          bio: listing.description,
+          whatsapp: listing.whatsapp,
+          category: listing.category,
+        }}
+        listings={SIMILAR_DEMO.filter(s => s.owner_type === listing.owner_type).slice(0, 5)}
+        onChat={onChat ? () => { setShowProfile(false); onChat(listing) } : undefined}
+      />}
     </div>
   )
 }
