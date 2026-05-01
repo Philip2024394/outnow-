@@ -131,7 +131,7 @@ export default function DestinationDirectory({ open, onClose, onSelectDestinatio
       onMouseMove={handleMouseMove} onMouseUp={handleMouseUp} onMouseLeave={handleMouseUp}
     >
       {/* ═══ Header ═══ */}
-      <div style={{ flexShrink: 0, padding: '14px 16px 0', background: 'rgba(0,0,0,0.5)', backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)', borderBottom: '1px solid rgba(255,255,255,0.06)' }}>
+      <div style={{ flexShrink: 0, padding: '14px 16px 0', background: 'transparent', borderBottom: '1px solid rgba(255,255,255,0.06)' }}>
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 10 }}>
           <div>
             <h1 style={{ fontSize: 20, fontWeight: 900, color: '#fff', margin: 0, display: 'flex', alignItems: 'center', gap: 8 }}>
@@ -318,7 +318,7 @@ export default function DestinationDirectory({ open, onClose, onSelectDestinatio
       {destinations.length > 0 && (
         <div style={{
           flexShrink: 0, padding: '12px 16px 20px',
-          background: 'rgba(0,0,0,0.6)', backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)',
+          background: 'transparent',
           borderTop: '1px solid rgba(255,255,255,0.06)',
           display: 'flex', alignItems: 'center', justifyContent: 'space-between',
         }}>
