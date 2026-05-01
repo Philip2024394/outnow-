@@ -5,6 +5,7 @@ import { useState, useEffect } from 'react'
 import { createPortal } from 'react-dom'
 import { getNewProjects, fmtRp, STATUS_LABELS } from '@/services/newProjectService'
 import NewProjectDetail from './NewProjectDetail'
+import NewProjectListingForm from './NewProjectListingForm'
 import IndooFooter from '@/components/ui/IndooFooter'
 
 const BG = 'https://ik.imagekit.io/nepgaxllc/ChatGPT%20Image%20Apr%2030,%202026,%2007_44_48%20PM.png'
@@ -13,6 +14,7 @@ const glass = { background: 'rgba(255,255,255,0.06)', backdropFilter: 'blur(16px
 export default function NewProjectsPage({ open, onClose }) {
   const [projects, setProjects] = useState([])
   const [selected, setSelected] = useState(null)
+  const [showListForm, setShowListForm] = useState(false)
   const [search, setSearch] = useState('')
 
   useEffect(() => {
@@ -33,7 +35,14 @@ export default function NewProjectsPage({ open, onClose }) {
       {/* Header */}
       <div style={{ flexShrink: 0, padding: '14px 16px 12px' }}>
         <h1 style={{ fontSize: 20, fontWeight: 900, color: '#fff', margin: '0 0 4px' }}>🏗️ <span style={{ color: '#FACC15' }}>New</span> Projects</h1>
-        <p style={{ fontSize: 12, color: 'rgba(255,255,255,0.4)', margin: 0, fontWeight: 600 }}>{filtered.length} projects · Pre-sale & under construction</p>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+          <p style={{ fontSize: 12, color: 'rgba(255,255,255,0.4)', margin: 0, fontWeight: 600 }}>{filtered.length} projects</p>
+          <button onClick={() => setShowListForm(true)} style={{
+            padding: '6px 14px', borderRadius: 20, cursor: 'pointer', fontFamily: 'inherit',
+            background: 'rgba(250,204,21,0.15)', border: '1.5px solid rgba(250,204,21,0.35)',
+            color: '#FACC15', fontSize: 11, fontWeight: 800,
+          }}>+ List Your Project</button>
+        </div>
 
         {/* Search */}
         <div style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '0 12px', height: 42, background: 'rgba(0,0,0,0.7)', border: '1.5px solid rgba(255,255,255,0.1)', borderRadius: 12, marginTop: 10 }}>
@@ -94,6 +103,7 @@ export default function NewProjectsPage({ open, onClose }) {
 
       {/* Detail overlay */}
       <NewProjectDetail open={!!selected} onClose={() => setSelected(null)} project={selected} />
+      <NewProjectListingForm open={showListForm} onClose={() => { setShowListForm(false); getNewProjects().then(setProjects) }} />
     </div>,
     document.body
   )
