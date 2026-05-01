@@ -13,6 +13,7 @@ import PropertyDetailPage from './pages/PropertyDetailPage'
 import AgentDirectoryPage from './pages/AgentDirectoryPage'
 import AgentProfilePage from './pages/AgentProfilePage'
 import NewProjectsPage from './pages/NewProjectsPage'
+import NewProjectDetail from '@/components/property/NewProjectDetail'
 
 const BG_IMG = 'https://ik.imagekit.io/nepgaxllc/ChatGPT%20Image%20May%202,%202026,%2002_15_43%20AM.png'
 
@@ -20,6 +21,7 @@ export default function WebsiteApp() {
   const [page, setPage] = useState('home')
   const [selectedListing, setSelectedListing] = useState(null)
   const [selectedAgent, setSelectedAgent] = useState(null)
+  const [selectedProject, setSelectedProject] = useState(null)
   const [searchQuery, setSearchQuery] = useState('')
   const [filterMode, setFilterMode] = useState('all')
 
@@ -102,14 +104,22 @@ export default function WebsiteApp() {
           />
         )}
 
-        {page === 'newprojects' && (
+        {page === 'newprojects' && !selectedProject && (
           <NewProjectsPage
-            onSelectProject={(p) => { /* future: project detail page */ }}
+            onSelectProject={(p) => { setSelectedProject(p); setPage('projectdetail') }}
             onBack={() => setPage('home')}
           />
         )}
 
-        <WebsiteFooter />
+        {page === 'projectdetail' && selectedProject && (
+          <NewProjectDetail
+            open
+            onClose={() => { setSelectedProject(null); setPage('newprojects') }}
+            project={selectedProject}
+          />
+        )}
+
+        <WebsiteFooter onNavigate={navigate} />
       </div>
     </div>
   )

@@ -33,7 +33,7 @@ export default function AgentProfilePage({ agent, onBack, onSelectListing }) {
   if (!agent) return null
 
   const { listings: allListings } = usePropertyListings()
-  const listings = allListings.filter(l => l.owner_type === 'agent' || l.owner_type === 'owner').slice(0, 8)
+  const listings = allListings.filter(l => l.owner_type === (agent.id ? 'agent' : 'owner')).slice(0, 10)
   const soldListings = [
     { id: 'sold1', title: 'Villa Sunset Seminyak', city: 'Bali', status: 'sold', buy_now: 2800000000 },
     { id: 'sold2', title: 'Rumah Minimalis Sleman', city: 'Yogyakarta', status: 'sold', buy_now: 850000000 },
