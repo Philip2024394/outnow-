@@ -5,6 +5,12 @@
 import { useState, useRef, useEffect } from 'react'
 import { DEMO_LISTINGS } from '@/services/rentalService'
 import { getNewProjects, STATUS_LABELS } from '@/services/newProjectService'
+import KPRCalculator from '@/components/property/KPRCalculator'
+import PriceHistoryChart from '@/components/property/PriceHistoryChart'
+import PropertyValuation from '@/components/property/PropertyValuation'
+import ComparableSales from '@/components/property/ComparableSales'
+import NeighborhoodGuide from '@/components/property/NeighborhoodGuide'
+import TransportProximity from '@/components/property/TransportProximity'
 import { ScrollReveal } from '../hooks/useScrollReveal'
 import StatsCounter from '../components/StatsCounter'
 
@@ -31,15 +37,18 @@ const CITIES = [
   { name: 'Semarang', count: 14, img: 'https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?w=400&h=200&fit=crop' },
 ]
 const FEATURES = [
-  { icon: '💳', title: 'KPR Calculator', desc: 'Konvensional, Syariah & Take-Over with 5+ bank comparison' },
-  { icon: '📊', title: 'Price History', desc: '12-month trend charts — first in Indonesia' },
-  { icon: '🏷️', title: 'Property Valuation', desc: 'A/B/C/D scoring with factor breakdown' },
-  { icon: '🏘️', title: 'Comparable Sales', desc: 'Recently sold nearby with real market data' },
-  { icon: '📍', title: 'Neighborhood Guide', desc: 'Transport, schools, hospitals, dining — walkability score' },
-  { icon: '🎬', title: 'Video Tours', desc: 'Record and watch 1-min property tours' },
-  { icon: '🏢', title: 'Agent Directory', desc: 'Verified agents with portfolios & testimonials' },
-  { icon: '🔥', title: 'Deal Hunt', desc: 'Property deals with 2.5% minimum discount' },
+  { icon: '💳', title: 'KPR Calculator', desc: 'Konvensional, Syariah & Take-Over with 5+ bank comparison', toolId: 'kpr' },
+  { icon: '📊', title: 'Price History', desc: '12-month trend charts — first in Indonesia', toolId: 'history' },
+  { icon: '🏷️', title: 'Property Valuation', desc: 'A/B/C/D scoring with factor breakdown', toolId: 'valuation' },
+  { icon: '🏘️', title: 'Comparable Sales', desc: 'Recently sold nearby with real market data', toolId: 'comparable' },
+  { icon: '📍', title: 'Neighborhood Guide', desc: 'Transport, schools, hospitals, dining — walkability score', toolId: 'neighborhood' },
+  { icon: '🚇', title: 'Transport Nearby', desc: 'MRT, KRL, LRT, bus stations with transit score', toolId: 'transport' },
+  { icon: '🏢', title: 'Agent Directory', desc: 'Verified agents with portfolios & testimonials', toolId: 'agents' },
+  { icon: '🔥', title: 'Deal Hunt', desc: 'Property deals with 2.5% minimum discount', toolId: 'dealhunt' },
 ]
+
+// Sample listing for tool demos
+const SAMPLE_LISTING = { id: 'demo', title: 'Villa Mewah Kaliurang', category: 'Property', sub_category: 'Villa', city: 'Yogyakarta', buy_now: 2800000000, price_month: 15000000, rating: 4.7, review_count: 19, condition: 'good', features: ['Pool', 'AC', 'WiFi', 'Garden'], extra_fields: { bedrooms: 3, bathrooms: 2, land_area: '300 m²', building_area: '150 m²', certificate: 'SHM', furnished: 'Fully Furnished', property_type: 'Villa' } }
 
 function AutoCarousel({ items, renderCard }) {
   const ref = useRef(null)
@@ -69,9 +78,9 @@ function PropertyCard({ l, onClick }) {
       </div>
       <div style={{ padding: '14px 16px' }}>
         <div style={{ fontSize: 15, fontWeight: 800, color: '#fff', marginBottom: 4, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{l.title}</div>
-        <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.35)', marginBottom: 8 }}>📍 {l.city} · {l.sub_category}</div>
-        <div style={{ fontSize: 20, fontWeight: 900, color: '#FACC15' }}>{fmtRp(price)}{!l.buy_now && <span style={{ fontSize: 12, color: 'rgba(255,255,255,0.3)' }}>{l.price_month ? '/mo' : '/day'}</span>}</div>
-        {(ef.bedrooms || ef.land_area) && <div style={{ marginTop: 6, fontSize: 12, color: 'rgba(255,255,255,0.25)', display: 'flex', gap: 8 }}>{ef.bedrooms && <span>🛏️ {ef.bedrooms}</span>}{ef.bathrooms && <span>🚿 {ef.bathrooms}</span>}{ef.land_area && <span>📐 {ef.land_area}</span>}</div>}
+        <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.6)', marginBottom: 8 }}>📍 {l.city} · {l.sub_category}</div>
+        <div style={{ fontSize: 20, fontWeight: 900, color: '#FACC15' }}>{fmtRp(price)}{!l.buy_now && <span style={{ fontSize: 12, color: 'rgba(255,255,255,0.5)' }}>{l.price_month ? '/mo' : '/day'}</span>}</div>
+        {(ef.bedrooms || ef.land_area) && <div style={{ marginTop: 6, fontSize: 13, color: 'rgba(255,255,255,0.5)', display: 'flex', gap: 8 }}>{ef.bedrooms && <span>🛏️ {ef.bedrooms}</span>}{ef.bathrooms && <span>🚿 {ef.bathrooms}</span>}{ef.land_area && <span>📐 {ef.land_area}</span>}</div>}
       </div>
     </div>
   )
@@ -123,9 +132,27 @@ function ProjectCircleCarousel() {
   )
 }
 
+/* ── Tool Modal wrapper ── */
+function ToolModal({ open, onClose, title, children }) {
+  if (!open) return null
+  return (
+    <div style={{ position: 'fixed', inset: 0, zIndex: 10000, background: 'rgba(0,0,0,0.7)', backdropFilter: 'blur(8px)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 24 }} onClick={onClose}>
+      <div onClick={e => e.stopPropagation()} style={{ width: '100%', maxWidth: 700, maxHeight: '90vh', overflowY: 'auto', background: '#0a0a0a', borderRadius: 20, border: '1px solid rgba(255,255,255,0.08)', padding: '28px 24px' }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
+          <h3 style={{ fontSize: 20, fontWeight: 900, color: '#fff', margin: 0 }}>{title}</h3>
+          <button onClick={onClose} style={{ width: 36, height: 36, borderRadius: 18, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)', color: '#fff', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 16 }}>✕</button>
+        </div>
+        {children}
+      </div>
+    </div>
+  )
+}
+
 export default function HomePage({ onSearch, onBrowseSale, onBrowseRent, onBrowseAll, onSelectListing }) {
   const [searchVal, setSearchVal] = useState('')
+  const [activeTool, setActiveTool] = useState(null) // kpr | history | valuation | comparable | neighborhood | transport | agents | dealhunt
   const allProperty = DEMO_LISTINGS.filter(l => l.category === 'Property' && l.images?.length > 0)
+  const sampleListing = allProperty[0] || SAMPLE_LISTING
   const forSale = allProperty.filter(l => !!l.buy_now)
   const forRent = allProperty.filter(l => !l.buy_now)
 
@@ -258,26 +285,45 @@ export default function HomePage({ onSearch, onBrowseSale, onBrowseRent, onBrows
         </div>
       </section>
 
-      {/* ═══ FEATURES ═══ */}
+      {/* ═══ PROPERTY TOOLS — clickable, open real tools ═══ */}
       <section style={{ padding: '48px 0' }}>
         <div className="ws-container">
           <ScrollReveal>
             <h2 style={{ fontSize: 28, fontWeight: 900, color: '#fff', margin: '0 0 8px' }}>Property Tools</h2>
-            <p style={{ fontSize: 15, color: 'rgba(255,255,255,0.35)', margin: '0 0 28px' }}>Features no other Indonesian property platform has</p>
+            <p style={{ fontSize: 15, color: 'rgba(255,255,255,0.35)', margin: '0 0 28px' }}>Click any tool to try it — features no other Indonesian property platform has</p>
           </ScrollReveal>
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 16 }}>
             {FEATURES.map((f, i) => (
               <ScrollReveal key={f.title} delay={i * 0.05}>
-                <div className="ws-card" style={{ padding: '24px 20px', borderRadius: 16, background: 'rgba(0,0,0,0.4)', border: '1px solid rgba(255,255,255,0.05)' }}>
+                <div className="ws-card" onClick={() => setActiveTool(f.toolId)} style={{ padding: '24px 20px', borderRadius: 16, background: 'rgba(0,0,0,0.4)', border: '1px solid rgba(255,255,255,0.05)', cursor: 'pointer' }}>
                   <div style={{ fontSize: 28, marginBottom: 10 }}>{f.icon}</div>
                   <div style={{ fontSize: 15, fontWeight: 800, color: '#fff', marginBottom: 6 }}>{f.title}</div>
                   <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.35)', lineHeight: 1.5 }}>{f.desc}</div>
+                  <div style={{ marginTop: 10, fontSize: 12, fontWeight: 800, color: '#8DC63F' }}>Try it →</div>
                 </div>
               </ScrollReveal>
             ))}
           </div>
         </div>
       </section>
+
+      {/* ═══ TOOL MODALS ═══ */}
+      {activeTool === 'kpr' && <KPRCalculator open onClose={() => setActiveTool(null)} propertyPrice={850000000} />}
+      <ToolModal open={activeTool === 'history'} onClose={() => setActiveTool(null)} title="📊 Price History">
+        <PriceHistoryChart listing={sampleListing} />
+      </ToolModal>
+      <ToolModal open={activeTool === 'valuation'} onClose={() => setActiveTool(null)} title="🏷️ Property Valuation">
+        <PropertyValuation listing={sampleListing} />
+      </ToolModal>
+      <ToolModal open={activeTool === 'comparable'} onClose={() => setActiveTool(null)} title="🏘️ Comparable Sales">
+        <ComparableSales listing={sampleListing} />
+      </ToolModal>
+      <ToolModal open={activeTool === 'neighborhood'} onClose={() => setActiveTool(null)} title="📍 Neighborhood Guide">
+        <NeighborhoodGuide listing={sampleListing} />
+      </ToolModal>
+      <ToolModal open={activeTool === 'transport'} onClose={() => setActiveTool(null)} title="🚇 Transport Nearby">
+        <TransportProximity listing={sampleListing} />
+      </ToolModal>
 
       {/* ═══ APP DOWNLOAD CTA ═══ */}
       <section style={{ padding: '64px 0', background: 'linear-gradient(135deg, rgba(141,198,63,0.08), rgba(0,0,0,0.6))', borderTop: '1px solid rgba(141,198,63,0.1)' }}>
