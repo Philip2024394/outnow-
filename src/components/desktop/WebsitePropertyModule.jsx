@@ -226,12 +226,12 @@ export default function WebsitePropertyModule() {
   const forRent = allProperty.filter(l => !l.buy_now)
 
   return (
-    <div style={{ background: `#0a0a0a url("${HERO_BG}") center top / cover no-repeat fixed`, minHeight: '100vh', width: '100%', color: '#fff', fontFamily: 'inherit', overflowX: 'hidden', overflowY: 'auto' }}>
+    <div style={{ background: `#0a0a0a url("https://ik.imagekit.io/nepgaxllc/Untitleddfsafdsssssdssdadssadsdsqwwfdd.png") center top / cover no-repeat fixed`, minHeight: '100vh', width: '100%', color: '#fff', fontFamily: 'inherit', overflowX: 'hidden', overflowY: 'auto' }}>
       <DesktopNav activeSection={activeSection} onNavigate={setActiveSection} />
 
       {/* ═══ HERO ═══ */}
-      <section style={{ position: 'relative', width: '100vw', minHeight: '100vh', display: 'flex', alignItems: 'center', background: `url("${HERO_BG}") center/cover no-repeat`, marginLeft: 'calc(-50vw + 50%)', marginRight: 'calc(-50vw + 50%)' }}>
-        <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(135deg, rgba(0,0,0,0.8), rgba(0,0,0,0.4) 50%, rgba(0,0,0,0.75))' }} />
+      <section style={{ position: 'relative', width: '100vw', minHeight: '100vh', display: 'flex', alignItems: 'center', marginLeft: 'calc(-50vw + 50%)', marginRight: 'calc(-50vw + 50%)' }}>
+        <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(135deg, rgba(0,0,0,0.6), rgba(0,0,0,0.2) 50%, rgba(0,0,0,0.5))' }} />
         <div style={{ position: 'relative', zIndex: 1, width: '100%', maxWidth: 1400, margin: '0 auto', padding: '80px 48px' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 60 }}>
             <div style={{ flex: 1 }}>
