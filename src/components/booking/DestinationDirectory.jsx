@@ -122,35 +122,58 @@ export default function DestinationDirectory({ open, onClose, onSelectDestinatio
         {search && <div style={{ marginTop: 6, fontSize: 12, fontWeight: 700, color: '#8DC63F', textAlign: 'center' }}>{destinations.length} results</div>}
       </div>
 
-      {/* ── Cards — horizontal scroll snap ── */}
-      <div
-        ref={scrollRef}
-        style={{
-          flex: 1, display: 'flex', gap: 16, overflowX: 'auto', overflowY: 'hidden',
-          padding: '12px 16px 12px', scrollSnapType: 'x mandatory',
-          scrollbarWidth: 'none', WebkitOverflowScrolling: 'touch',
-          alignItems: 'stretch',
+      {/* ── Stacked Cards ── */}
+      <div style={{ flex: 1, position: 'relative', overflow: 'hidden', margin: '0 16px' }}
+        onTouchStart={e => { scrollRef.current = { x: e.touches[0].clientX, t: Date.now() } }}
+        onTouchEnd={e => {
+          if (!scrollRef.current) return
+          const dx = e.changedTouches[0].clientX - scrollRef.current.x
+          const dt = Date.now() - scrollRef.current.t
+          const v = Math.abs(dx) / (dt || 1)
+          if (dx < -40 || (dx < -15 && v > 0.3)) setActiveIdx(prev => clamp(prev + 1))
+          else if (dx > 40 || (dx > 15 && v > 0.3)) setActiveIdx(prev => clamp(prev - 1))
+          scrollRef.current = null
+        }}
+        onMouseDown={e => { scrollRef.current = { x: e.clientX, t: Date.now() } }}
+        onMouseUp={e => {
+          if (!scrollRef.current) return
+          const dx = e.clientX - scrollRef.current.x
+          if (dx < -40) setActiveIdx(prev => clamp(prev + 1))
+          else if (dx > 40) setActiveIdx(prev => clamp(prev - 1))
+          scrollRef.current = null
         }}
       >
         {destinations.length === 0 && (
-          <div style={{ flex: '0 0 100%', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', color: 'rgba(255,255,255,0.3)' }}>
+          <div style={{ height: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', color: 'rgba(255,255,255,0.3)' }}>
             <span style={{ fontSize: 48, marginBottom: 12 }}>🔍</span>
             <span style={{ fontSize: 16, fontWeight: 700 }}>No places found</span>
           </div>
         )}
 
         {destinations.map((dest, idx) => {
+          const diff = idx - activeIdx
+          const absDiff = Math.abs(diff)
+          if (absDiff > 1) return null // only show prev, current, next
+
           const pricing = calculateDirectoryPrice(dest)
           const price = isBike ? pricing.bike : pricing.car
 
+          // Center card full, side cards smaller behind
+          const isActive = diff === 0
+          const cardStyle = isActive
+            ? { transform: 'scale(1)', opacity: 1, zIndex: 3 }
+            : { transform: `scale(0.88) translateX(${diff * 30}px)`, opacity: 0.55, zIndex: 1, filter: 'brightness(0.6)' }
+
           return (
             <div key={dest.id} style={{
-              flex: '0 0 85%', maxWidth: 340,
-              scrollSnapAlign: 'center',
-              borderRadius: 20, overflow: 'hidden', position: 'relative',
-              border: '1.5px solid rgba(255,255,255,0.1)',
-              boxShadow: '0 8px 40px rgba(0,0,0,0.6)',
+              position: 'absolute', inset: 0,
+              borderRadius: 20, overflow: 'hidden',
+              border: isActive ? '2px solid rgba(141,198,63,0.5)' : '1px solid rgba(255,255,255,0.08)',
+              boxShadow: isActive ? '0 0 30px rgba(141,198,63,0.15), 0 8px 40px rgba(0,0,0,0.6)' : '0 4px 20px rgba(0,0,0,0.4)',
               display: 'flex', flexDirection: 'column',
+              transition: 'all 0.4s cubic-bezier(0.25, 1, 0.5, 1)',
+              pointerEvents: isActive ? 'auto' : 'none',
+              ...cardStyle,
             }}>
               {/* Full background image */}
               <img src={heroImg(dest.category)} alt="" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover' }} loading="lazy" />
