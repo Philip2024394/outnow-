@@ -22,6 +22,7 @@ import { hasVisitedSection, markSectionVisited } from '@/services/sectionVisitSe
 import PriceCalculator from '@/components/rentals/PriceCalculator'
 import PropertyCard from '@/components/rentals/PropertyCard'
 import NewProjectsPage from '@/components/property/NewProjectsPage'
+import AgentDirectoryPage from '@/components/property/AgentDirectoryPage'
 import { getPropertiesByCategory, DEMO_PROPERTIES } from '@/services/propertyListingService'
 import { RentalChat, RentalBookingFlow } from '@/domains/rentals/components/RentalBooking'
 import { ReviewsPopup, getAvgRating } from '@/components/reviews/ReviewSystem'
@@ -233,6 +234,7 @@ export default function RentalSearchScreen({ onClose, initialView, initialListin
   const [showMapSearch, setShowMapSearch] = useState(false)
   const [showAlerts, setShowAlerts] = useState(false)
   const [showNewProjects, setShowNewProjects] = useState(false)
+  const [showAgentDir, setShowAgentDir] = useState(false)
   const [savedToggle, setSavedToggle] = useState(0) // force re-render on save
 
   // Seed mock/demo data on first mount (version-gated inside seedMockData)
@@ -560,6 +562,9 @@ export default function RentalSearchScreen({ onClose, initialView, initialListin
             </span>
             <span style={{ fontSize: 13, fontWeight: 600, color: 'rgba(255,255,255,0.35)', letterSpacing: '0.04em', marginTop: 2, display: 'block' }}>{listingMode === 'sale' ? 'For Sale' : listingMode === 'rent' ? 'For Rent' : 'Buy · Sell · Rentals'} in Yogyakarta</span>
           </div>
+          <button onClick={() => setShowAgentDir(true)} style={{ width: 36, height: 36, borderRadius: '50%', background: 'rgba(96,165,250,0.1)', border: '1px solid rgba(96,165,250,0.2)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', flexShrink: 0 }}>
+            <span style={{ fontSize: 16 }}>🏢</span>
+          </button>
           <button onClick={() => setShowMapSearch(true)} style={{ width: 36, height: 36, borderRadius: '50%', background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', flexShrink: 0 }}>
             <span style={{ fontSize: 16 }}>📍</span>
           </button>
@@ -1171,6 +1176,7 @@ export default function RentalSearchScreen({ onClose, initialView, initialListin
       <MessagesScreen open={showMessages} onClose={() => setShowMessages(false)} onOpenChat={(conv) => { setShowMessages(false); setChatListing(conv) }} />
       <PropertyMapSearch open={showMapSearch} onClose={() => setShowMapSearch(false)} listings={sortedListings} onSelect={(l) => { setShowMapSearch(false); setSelected(l) }} />
       <NewProjectsPage open={showNewProjects} onClose={() => setShowNewProjects(false)} />
+      <AgentDirectoryPage open={showAgentDir} onClose={() => setShowAgentDir(false)} onSelectListing={(l) => { setShowAgentDir(false); setSelected(l) }} />
       <SavedSearchAlerts open={showAlerts} onClose={() => setShowAlerts(false)} />
       {modals}
       {!rentalCategoryOpen && !selected && <IndooFooter label="Rentals" onBack={onClose} onHome={onClose} />}
