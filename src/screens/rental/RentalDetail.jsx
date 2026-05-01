@@ -12,6 +12,7 @@ import PriceHistoryChart from '@/components/property/PriceHistoryChart'
 import PropertyValuation from '@/components/property/PropertyValuation'
 import TransportProximity from '@/components/property/TransportProximity'
 import UniversalBusinessProfile from '@/components/profile/UniversalBusinessProfile'
+import AgentProfilePage from '@/components/profile/AgentProfilePage'
 import RoomAvailability from '@/components/property/RoomAvailability'
 import ComparableSales from '@/components/property/ComparableSales'
 
@@ -867,7 +868,28 @@ export default function RentalDetail({ listing: initialListing, onClose, onChat,
       {/* Popups */}
       {showKPR && <KPRCalculator open onClose={() => setShowKPR(false)} propertyPrice={listing.buy_now ? (typeof listing.buy_now === 'object' ? listing.buy_now.price : listing.buy_now) : 0} />}
       {showBooking && <BookingRequest open onClose={() => setShowBooking(false)} listing={listing} />}
-      {showProfile && <UniversalBusinessProfile
+      {showProfile && isProperty && (
+        <AgentProfilePage
+          open
+          onClose={() => setShowProfile(false)}
+          agent={{
+            name: listing.owner_type === 'agent' ? `${listing.city || ''} Property Agent` : (listing.extra_fields?.whatsapp ? 'Property Owner' : 'Owner'),
+            ownerType: listing.owner_type,
+            city: listing.city,
+            photo: listing.images?.[1] || listing.images?.[0],
+            rating: listing.rating,
+            reviewCount: listing.review_count,
+            bio: listing.description,
+            whatsapp: listing.extra_fields?.whatsapp || listing.whatsapp,
+            instagram: listing.extra_fields?.instagram,
+            verified: listing.owner_type === 'agent',
+          }}
+          listings={[listing, ...SIMILAR_DEMO.filter(s => s.owner_type === listing.owner_type)].slice(0, 10)}
+          onSelectListing={(l) => { setShowProfile(false); setActiveListing(l); setActiveImg(0); scrollRef.current?.scrollTo({ top: 0 }) }}
+          onChat={onChat ? () => { setShowProfile(false); onChat(listing) } : undefined}
+        />
+      )}
+      {showProfile && !isProperty && <UniversalBusinessProfile
         open
         onClose={() => setShowProfile(false)}
         profile={{
