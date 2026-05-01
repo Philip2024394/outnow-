@@ -599,3 +599,54 @@
 }
 .chatBtn:hover { background: #7AB635; }
 .commissionNote { display: block; text-align: center; font-size: 10px; color: rgba(255,255,255,0.25); padding: 6px 16px 16px; }
+
+/* ══════════════════════════════════════════════════════════════════════════
+   DESKTOP RESPONSIVE — 768px+
+   ══════════════════════════════════════════════════════════════════════════ */
+
+@media (min-width: 768px) {
+  .page { position: relative; inset: auto; min-height: 100vh; }
+  .body { padding: 12px 24px 48px; max-width: 1200px; margin: 0 auto; }
+  .grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px; }
+
+  .landing { position: relative; inset: auto; min-height: 100vh; }
+  .landingContent { padding: 40px 48px 100px; }
+  .landingTitle { font-size: 48px; }
+  .landingSub { font-size: 18px; max-width: 500px; }
+
+  .dirBody { padding: 16px 24px 48px; max-width: 1200px; margin: 0 auto; }
+  .dirGrid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 14px; }
+  .dirHero { padding: 80px 48px 24px; }
+  .dirHeroTitle { font-size: 42px; }
+
+  .catGrid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 14px; padding: 16px 24px 48px; max-width: 1200px; margin: 0 auto; }
+
+  .card { min-height: 140px; }
+  .cardImg { width: 160px; min-width: 160px; }
+  .cardTitle { font-size: 16px; }
+  .cardPriceMain { font-size: 20px; }
+
+  .vehicleBtns { flex-direction: row; flex-wrap: wrap; }
+  .vehicleBtn { flex: 1; min-width: 200px; }
+}
+
+@media (min-width: 1024px) {
+  .grid { grid-template-columns: repeat(3, 1fr); }
+  .dirGrid { grid-template-columns: repeat(3, 1fr); }
+  .catGrid { grid-template-columns: repeat(3, 1fr); }
+
+  .body { padding: 16px 32px 48px; }
+  .landingContent { padding: 60px 64px 120px; }
+  .landingTitle { font-size: 56px; }
+  .landingSub { font-size: 20px; max-width: 600px; }
+}
+
+@media (min-width: 1280px) {
+  .grid { grid-template-columns: repeat(4, 1fr); gap: 18px; }
+  .dirGrid { grid-template-columns: repeat(4, 1fr); }
+  .catGrid { grid-template-columns: repeat(4, 1fr); }
+
+  .body { max-width: 1400px; }
+  .card { min-height: 160px; }
+  .cardImg { width: 180px; min-width: 180px; }
+}
