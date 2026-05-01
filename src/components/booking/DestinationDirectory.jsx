@@ -207,9 +207,9 @@ export default function DestinationDirectory({ open, onClose, onSelectDestinatio
               const absDiff = Math.abs(diff)
               if (absDiff > 2) return null
 
-              const offset = diff * (CARD_W * 0.7 + GAP) + (dragRef.current.dragging ? dragX * 0.6 : 0)
-              const scale = absDiff === 0 ? 1 : absDiff === 1 ? 0.85 : 0.7
-              const opacity = absDiff === 0 ? 1 : absDiff === 1 ? 0.5 : 0.25
+              const offset = diff * (CARD_W * 0.62 + GAP) + (dragRef.current.dragging ? dragX * 0.6 : 0)
+              const scale = absDiff === 0 ? 1 : absDiff === 1 ? 0.88 : 0.78
+              const opacity = absDiff === 0 ? 1 : absDiff === 1 ? 0.75 : 0.45
               const isCenter = absDiff === 0
 
               const pricing = calculateDirectoryPrice(dest)
