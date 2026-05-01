@@ -201,17 +201,17 @@ export default function DestinationDirectory({ open, onClose, onSelectDestinatio
       </div>
 
       {/* ═══ Swipe Carousel ═══ */}
-      <div style={{ flex: 1, position: 'relative', overflow: 'hidden', touchAction: 'pan-y' }}
+      <div style={{ flex: 1, overflow: 'hidden', display: 'flex', alignItems: 'center' }}
         onTouchStart={handleTouchStart} onTouchMove={handleTouchMove} onTouchEnd={handleTouchEnd}
         onMouseDown={handleMouseDown}
       >
         {destinations.length === 0 ? (
-          <div style={{ position: 'absolute', inset: 0, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', color: 'rgba(255,255,255,0.3)' }}>
-            <span style={{ fontSize: 40, marginBottom: 12 }}>🔍</span>
+          <div style={{ width: '100%', textAlign: 'center', color: 'rgba(255,255,255,0.3)', padding: 40 }}>
+            <span style={{ fontSize: 40, display: 'block', marginBottom: 12 }}>🔍</span>
             <span style={{ fontSize: 14, fontWeight: 700 }}>No places found</span>
           </div>
         ) : (
-          <div style={{ position: 'absolute', inset: 0, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: '100%', height: '100%', position: 'relative' }}>
             {destinations.map((dest, idx) => {
               const diff = idx - activeIdx
               const absDiff = Math.abs(diff)
@@ -229,8 +229,10 @@ export default function DestinationDirectory({ open, onClose, onSelectDestinatio
               return (
                 <div key={dest.id} style={{
                   position: 'absolute',
+                  left: '50%',
+                  top: '50%',
                   width: CARD_W, maxWidth: 'calc(100vw - 48px)',
-                  transform: `translateX(${offset}px) scale(${scale})`,
+                  transform: `translate(-50%, -50%) translateX(${offset}px) scale(${scale})`,
                   opacity,
                   zIndex: 10 - absDiff,
                   transition: dragRef.current.dragging ? 'none' : 'all 0.35s cubic-bezier(0.25, 1, 0.5, 1)',
