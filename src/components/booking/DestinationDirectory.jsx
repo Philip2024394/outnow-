@@ -158,22 +158,28 @@ export default function DestinationDirectory({ open, onClose, onSelectDestinatio
           const pricing = calculateDirectoryPrice(dest)
           const price = isBike ? pricing.bike : pricing.car
 
-          // Center card full, side cards smaller behind
+          // Center card full, prev card peeking left, next card peeking right
           const isActive = diff === 0
-          const cardStyle = isActive
-            ? { transform: 'scale(1)', opacity: 1, zIndex: 3 }
-            : { transform: `scale(0.88) translateX(${diff * 30}px)`, opacity: 0.55, zIndex: 1, filter: 'brightness(0.6)' }
+          // Side cards: shifted 70% to the side, scaled down, dimmed
+          const sideShift = diff < 0 ? '-65%' : '65%'
 
           return (
             <div key={dest.id} style={{
-              position: 'absolute', inset: 0,
+              position: 'absolute',
+              top: isActive ? 0 : '5%',
+              bottom: isActive ? 0 : '5%',
+              left: isActive ? 0 : 0,
+              right: isActive ? 0 : 0,
+              transform: isActive ? 'translateX(0) scale(1)' : `translateX(${sideShift}) scale(0.82)`,
+              opacity: isActive ? 1 : 0.5,
+              zIndex: isActive ? 3 : 1,
+              filter: isActive ? 'none' : 'brightness(0.5)',
               borderRadius: 20, overflow: 'hidden',
               border: isActive ? '2px solid rgba(141,198,63,0.5)' : '1px solid rgba(255,255,255,0.08)',
               boxShadow: isActive ? '0 0 30px rgba(141,198,63,0.15), 0 8px 40px rgba(0,0,0,0.6)' : '0 4px 20px rgba(0,0,0,0.4)',
               display: 'flex', flexDirection: 'column',
               transition: 'all 0.4s cubic-bezier(0.25, 1, 0.5, 1)',
               pointerEvents: isActive ? 'auto' : 'none',
-              ...cardStyle,
             }}>
               {/* Full background image */}
               <img src={heroImg(dest.category)} alt="" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover' }} loading="lazy" />
@@ -217,14 +223,14 @@ export default function DestinationDirectory({ open, onClose, onSelectDestinatio
                       color: '#000', fontSize: 14, fontWeight: 900, cursor: 'pointer', fontFamily: 'inherit',
                       display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6,
                       boxShadow: '0 4px 20px rgba(141,198,63,0.3)',
-                    }}>🏍️ Bike — {fmtIDR(pricing.bike)}</button>
+                    }}>Bike — {fmtIDR(pricing.bike)} <img src="https://ik.imagekit.io/nepgaxllc/Sleek%20green%20and%20black%20scooter%20setup.png?updatedAt=1775634845237" alt="" style={{ width: 28, height: 28, objectFit: 'contain' }} /></button>
                     <button onClick={() => selectDest(dest, 'car_taxi')} style={{
                       flex: 1, padding: '14px 0', borderRadius: 14, border: 'none',
                       background: 'linear-gradient(135deg, #8DC63F, #6BA52A)',
                       color: '#000', fontSize: 14, fontWeight: 900, cursor: 'pointer', fontFamily: 'inherit',
                       display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6,
                       boxShadow: '0 4px 20px rgba(141,198,63,0.3)',
-                    }}>🚗 Car — {fmtIDR(pricing.car)}</button>
+                    }}>Car — {fmtIDR(pricing.car)} <img src="https://ik.imagekit.io/nepgaxllc/Sporty%20green%20and%20black%20hatchback.png?updatedAt=1775634925566" alt="" style={{ width: 28, height: 28, objectFit: 'contain' }} /></button>
                   </div>
                 ) : (
                   <button onClick={() => selectDest(dest, vehicleMode)} style={{
