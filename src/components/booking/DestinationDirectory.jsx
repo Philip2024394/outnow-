@@ -135,8 +135,8 @@ export default function DestinationDirectory({ open, onClose, onSelectDestinatio
       <div style={{ flexShrink: 0, padding: '14px 16px 0', background: 'transparent', borderBottom: '1px solid rgba(255,255,255,0.06)' }}>
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 10 }}>
           <div>
-            <h1 style={{ fontSize: 20, fontWeight: 900, color: '#fff', margin: 0, display: 'flex', alignItems: 'center', gap: 8 }}>
-              <span style={{ fontSize: 22 }}>📍</span> Discover Places
+            <h1 style={{ fontSize: 20, fontWeight: 900, color: '#fff', margin: 0, letterSpacing: '0.02em' }}>
+              <span style={{ color: '#fff' }}>INDOO</span> <span style={{ color: '#8DC63F' }}>PLACES</span>
             </h1>
             <p style={{ fontSize: 12, color: 'rgba(255,255,255,0.4)', margin: '4px 0 0', fontWeight: 600 }}>Swipe to explore · Tap to book a ride</p>
           </div>
