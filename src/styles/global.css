@@ -47,9 +47,17 @@ body {
   align-items: center;
   justify-content: center;
 }
+/* On real phones — no centering, flush layout */
+@media (max-width: 430px) {
+  body {
+    display: block !important;
+    align-items: stretch !important;
+    justify-content: stretch !important;
+  }
+}
 
-/* Desktop background pattern behind the phone frame */
-@media (min-width: 500px) {
+/* Desktop background pattern behind the phone frame — only on tablets+ */
+@media (min-width: 500px) and (max-width: 767px) {
   body::before {
     content: '';
     position: fixed;
@@ -79,17 +87,27 @@ body {
   position: relative;
   display: flex;
   flex-direction: column;
-  /* Always mobile width/height */
   width: 100%;
   max-width: 430px;
   height: 100dvh;
   max-height: 932px;
   overflow: hidden;
-  /* Phone frame on desktop */
   z-index: 1;
 }
 
-@media (min-width: 500px) {
+/* On actual mobile devices — full width, no phone frame constraint */
+@media (max-width: 430px) {
+  #root {
+    max-width: 100% !important;
+    max-height: 100% !important;
+    height: 100dvh !important;
+    border-radius: 0 !important;
+    box-shadow: none !important;
+  }
+}
+
+/* Phone frame only on medium screens (not actual phones, not desktop website) */
+@media (min-width: 500px) and (max-width: 767px) {
   #root {
     border-radius: 44px;
     box-shadow:
