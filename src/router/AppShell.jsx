@@ -472,7 +472,7 @@ export default function AppShell({ returnParams, triggerGoLive }) {
       <div className="map-bottom-fade" />
 
       {/* Header: logo + notifications + likes + settings — map tab only, hidden when any module is open */}
-      {activeTab === 'map' && !shopOpen && !foodOpen && !rideOpen && !dealHuntOpen && !(massageOpen && !massageOnLanding) && !notifOpen && !rideHistoryOpen && (
+      {activeTab === 'map' && !shopOpen && !foodOpen && !rideOpen && !dealHuntOpen && !(massageOpen && !massageOnLanding) && !notifOpen && !rideHistoryOpen && !placesOpen && (
         <MapHeader
           onOpenNotifications={() => setNotifOpen(true)}
           notifCount={notifUnreadCount}

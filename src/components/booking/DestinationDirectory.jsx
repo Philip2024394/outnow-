@@ -1,9 +1,8 @@
 /**
- * DestinationDirectory — Horizontal swipe card carousel for browsing destinations.
- * Swipe left/right to browse. Center card is highlighted with full detail.
- * Google Maps + Instagram links on each card.
+ * DestinationDirectory — Swipe card carousel for browsing places.
+ * Simple horizontal scroll snap approach — guaranteed to render.
  */
-import { useState, useRef, useCallback, useEffect } from 'react'
+import { useState, useRef, useEffect } from 'react'
 import { createPortal } from 'react-dom'
 import {
   DIRECTORY_CATEGORIES, getDestinationsByCategory, getDestinationsNearUser,
@@ -13,87 +12,54 @@ import { useGeolocation } from '@/hooks/useGeolocation'
 import SuggestPlaceSheet from './SuggestPlaceSheet'
 
 const ID_FLAG = 'https://ik.imagekit.io/nepgaxllc/Untitledxxxxcc-removebg-preview.png?updatedAt=1777592820803'
+const BG_IMG = 'https://ik.imagekit.io/nepgaxllc/ChatGPT%20Image%20May%201,%202026,%2012_24_37%20PM.png'
 
-/* ── Category → Hero image ── */
 const CAT_IMAGES = {
-  temple:       'https://images.unsplash.com/photo-1555400038-63f5ba517a47?w=400&h=250&fit=crop',
-  beach:        'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=400&h=250&fit=crop',
-  restaurant:   'https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?w=400&h=250&fit=crop',
-  shopping:     'https://images.unsplash.com/photo-1441986300917-64674bd600d8?w=400&h=250&fit=crop',
-  nightlife:    'https://images.unsplash.com/photo-1566417713940-fe7c737a9ef2?w=400&h=250&fit=crop',
-  hospital:     'https://images.unsplash.com/photo-1519494026892-80bbd2d6fd0d?w=400&h=250&fit=crop',
-  university:   'https://images.unsplash.com/photo-1562774053-701939374585?w=400&h=250&fit=crop',
-  nature:       'https://images.unsplash.com/photo-1441974231531-c6227db76b6e?w=400&h=250&fit=crop',
-  airport:      'https://images.unsplash.com/photo-1436491865332-7a61a109db05?w=400&h=250&fit=crop',
-  'art & culture': 'https://images.unsplash.com/photo-1513364776144-60967b0f800f?w=400&h=250&fit=crop',
-  transport:    'https://images.unsplash.com/photo-1544620347-c4fd4a3d5957?w=400&h=250&fit=crop',
-  government:   'https://images.unsplash.com/photo-1555848962-6e79363ec58f?w=400&h=250&fit=crop',
-  'food areas': 'https://images.unsplash.com/photo-1504674900247-0877df9cc836?w=400&h=250&fit=crop',
-  'fast food':  'https://images.unsplash.com/photo-1561758033-d89a9ad46330?w=400&h=250&fit=crop',
-  gyms:         'https://images.unsplash.com/photo-1534438327276-14e5300c3a48?w=400&h=250&fit=crop',
-  salons:       'https://images.unsplash.com/photo-1560066984-138dadb4c035?w=400&h=250&fit=crop',
-  spas:         'https://images.unsplash.com/photo-1544161515-4ab6ce6db874?w=400&h=250&fit=crop',
-  karaoke:      'https://images.unsplash.com/photo-1516280440614-37939bbacd81?w=400&h=250&fit=crop',
-  malls:        'https://images.unsplash.com/photo-1519567241046-7f570f0e1ec8?w=400&h=250&fit=crop',
-  markets:      'https://images.unsplash.com/photo-1555939594-58d7cb561ad1?w=400&h=250&fit=crop',
-  waterparks:   'https://images.unsplash.com/photo-1580587771525-78b9dba3b914?w=400&h=250&fit=crop',
-  'bus stations':'https://images.unsplash.com/photo-1570125909232-eb263c188f7e?w=400&h=250&fit=crop',
-  'train stations':'https://images.unsplash.com/photo-1474487548417-781cb71495f3?w=400&h=250&fit=crop',
-  pizza:        'https://images.unsplash.com/photo-1565299624946-b28f40a0ae38?w=400&h=250&fit=crop',
-  'chinese food':'https://images.unsplash.com/photo-1585032226651-759b368d7246?w=400&h=250&fit=crop',
-  'sushi & japanese':'https://images.unsplash.com/photo-1579871494447-9811cf80d66c?w=400&h=250&fit=crop',
-  billiards:    'https://images.unsplash.com/photo-1570283626914-5d5a1b474932?w=400&h=250&fit=crop',
-  'western food':'https://images.unsplash.com/photo-1550547660-d9450f859349?w=400&h=250&fit=crop',
-  'money exchange':'https://images.unsplash.com/photo-1526304640581-d334cdbbf45e?w=400&h=250&fit=crop',
-  dentist:      'https://images.unsplash.com/photo-1588776814546-1ffcf47267a5?w=400&h=250&fit=crop',
+  temple: 'https://images.unsplash.com/photo-1555400038-63f5ba517a47?w=400&h=300&fit=crop',
+  beach: 'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=400&h=300&fit=crop',
+  restaurant: 'https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?w=400&h=300&fit=crop',
+  shopping: 'https://images.unsplash.com/photo-1441986300917-64674bd600d8?w=400&h=300&fit=crop',
+  nightlife: 'https://images.unsplash.com/photo-1566417713940-fe7c737a9ef2?w=400&h=300&fit=crop',
+  hospital: 'https://images.unsplash.com/photo-1519494026892-80bbd2d6fd0d?w=400&h=300&fit=crop',
+  nature: 'https://images.unsplash.com/photo-1441974231531-c6227db76b6e?w=400&h=300&fit=crop',
+  airport: 'https://images.unsplash.com/photo-1436491865332-7a61a109db05?w=400&h=300&fit=crop',
+  transport: 'https://images.unsplash.com/photo-1544620347-c4fd4a3d5957?w=400&h=300&fit=crop',
+  'food areas': 'https://images.unsplash.com/photo-1504674900247-0877df9cc836?w=400&h=300&fit=crop',
+  'fast food': 'https://images.unsplash.com/photo-1561758033-d89a9ad46330?w=400&h=300&fit=crop',
+  gyms: 'https://images.unsplash.com/photo-1534438327276-14e5300c3a48?w=400&h=300&fit=crop',
+  malls: 'https://images.unsplash.com/photo-1519567241046-7f570f0e1ec8?w=400&h=300&fit=crop',
+  pizza: 'https://images.unsplash.com/photo-1565299624946-b28f40a0ae38?w=400&h=300&fit=crop',
+  spas: 'https://images.unsplash.com/photo-1544161515-4ab6ce6db874?w=400&h=300&fit=crop',
 }
-const DEFAULT_IMG = 'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=400&h=250&fit=crop'
-function getHeroImg(cat) { return CAT_IMAGES[cat] || DEFAULT_IMG }
-
-/* ── Stable session shuffle ── */
-let _shuffled = null
-function getShuffled() {
-  if (!_shuffled) {
-    const arr = [...getDestinationsByCategory('all')]
-    for (let i = arr.length - 1; i > 0; i--) {
-      const j = Math.floor(Math.random() * (i + 1));
-      [arr[i], arr[j]] = [arr[j], arr[i]]
-    }
-    _shuffled = arr
-  }
-  return _shuffled
-}
+const DEFAULT_IMG = 'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=400&h=300&fit=crop'
+function heroImg(cat) { return CAT_IMAGES[cat] || DEFAULT_IMG }
 
 export default function DestinationDirectory({ open, onClose, onSelectDestination, vehicleMode }) {
   const { coords } = useGeolocation()
   const [search, setSearch] = useState('')
-  const [activeCat, setActiveCat] = useState('all')
   const [activeIdx, setActiveIdx] = useState(0)
-  const [dragX, setDragX] = useState(0)
   const [suggestOpen, setSuggestOpen] = useState(false)
-  const [ratings] = useState(() => {
-    const r = {}
-    getShuffled().forEach(d => { r[d.id] = (4 + Math.random()).toFixed(1) })
-    return r
-  })
+  const scrollRef = useRef(null)
 
-  const dragRef = useRef({ startX: 0, dragging: false, startTime: 0 })
+  // Scroll snap to active index
+  useEffect(() => {
+    const el = scrollRef.current
+    if (!el) return
+    const card = el.children[activeIdx]
+    if (card) card.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' })
+  }, [activeIdx])
 
   if (!open) return null
 
-  // User location → nearest first within 50km, fallback to all sorted by distance
-  // First visit shows mixed cards (all categories), user can filter via pills
+  // Get destinations — user location sorted, fallback to all
   let destinations
   if (coords) {
-    destinations = getDestinationsNearUser(coords.lat, coords.lng, 50, activeCat)
-    if (destinations.length === 0) destinations = getDestinationsNearUser(coords.lat, coords.lng, 9999, activeCat)
+    destinations = getDestinationsNearUser(coords.lat, coords.lng, 50, 'all')
     if (destinations.length === 0) destinations = getDestinationsNearUser(coords.lat, coords.lng, 9999, 'all')
-  } else {
-    const all = getShuffled()
-    destinations = activeCat !== 'all' ? all.filter(d => d.category === activeCat) : all
-    if (destinations.length === 0) destinations = all
   }
+  if (!destinations || destinations.length === 0) destinations = getDestinationsByCategory('all')
 
+  // Search filter
   if (search.trim()) {
     const q = search.toLowerCase()
     destinations = destinations.filter(d =>
@@ -101,254 +67,160 @@ export default function DestinationDirectory({ open, onClose, onSelectDestinatio
     )
   }
 
-  const isBike = vehicleMode !== 'car_taxi'
   const isStandalone = vehicleMode === null || vehicleMode === undefined
-  const totalAll = coords ? getDestinationsNearUser(coords.lat, coords.lng, 50).length : getShuffled().length
-  const usedCats = [...new Set((coords ? getDestinationsNearUser(coords.lat, coords.lng, 50) : getShuffled()).map(d => d.category))]
+  const isBike = vehicleMode !== 'car_taxi'
   const clamp = (i) => Math.max(0, Math.min(destinations.length - 1, i))
 
-  /* ── Swipe handlers ── */
-  const onStart = (x) => {
-    dragRef.current = { startX: x, dragging: true, startTime: Date.now() }
-    setDragX(0)
+  const selectDest = (dest, vehicle) => {
+    const pricing = calculateDirectoryPrice(dest)
+    onSelectDestination?.({
+      ...dest,
+      price: vehicle === 'car_taxi' ? pricing.car : pricing.bike,
+      isReturn: pricing.isReturn,
+      vehiclePrice: pricing,
+      _selectedVehicle: vehicle,
+    })
+    onClose()
   }
-  const onMove = (x) => {
-    if (!dragRef.current.dragging) return
-    setDragX(x - dragRef.current.startX)
-  }
-  const onEnd = () => {
-    if (!dragRef.current.dragging) return
-    dragRef.current.dragging = false
-    const dx = dragX
-    const dt = Date.now() - dragRef.current.startTime
-    const velocity = Math.abs(dx) / (dt || 1)
-    // Swipe threshold: 50px or fast flick
-    if (dx < -50 || (dx < -20 && velocity > 0.4)) {
-      setActiveIdx(prev => clamp(prev + 1))
-    } else if (dx > 50 || (dx > 20 && velocity > 0.4)) {
-      setActiveIdx(prev => clamp(prev - 1))
-    }
-    setDragX(0)
-  }
-
-  const handleTouchStart = (e) => onStart(e.touches[0].clientX)
-  const handleTouchMove = (e) => onMove(e.touches[0].clientX)
-  const handleTouchEnd = () => onEnd()
-  const handleMouseDown = (e) => { e.preventDefault(); onStart(e.clientX) }
-  const handleMouseMove = (e) => { if (dragRef.current.dragging) onMove(e.clientX) }
-  const handleMouseUp = () => onEnd()
-
-  /* ── Card position calc ── */
-  const CARD_W = 300
-  const GAP = 20
 
   return createPortal(
-    <div style={{ position: 'fixed', inset: 0, background: '#0a0a0a url("https://ik.imagekit.io/nepgaxllc/ChatGPT%20Image%20May%201,%202026,%2012_24_37%20PM.png") center/cover no-repeat', zIndex: 420, display: 'flex', flexDirection: 'column', overflow: 'hidden', userSelect: 'none' }}
-      onMouseMove={handleMouseMove} onMouseUp={handleMouseUp} onMouseLeave={handleMouseUp}
-    >
-      {/* ═══ Header ═══ */}
-      <div style={{ flexShrink: 0, padding: '14px 16px 10px', background: 'transparent' }}>
+    <div style={{
+      position: 'fixed', inset: 0, zIndex: 9500,
+      background: `#0a0a0a url("${BG_IMG}") center/cover no-repeat`,
+      display: 'flex', flexDirection: 'column', overflow: 'hidden',
+    }}>
+
+      {/* ── Header ── */}
+      <div style={{ flexShrink: 0, padding: '14px 16px 10px' }}>
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12 }}>
-          <h1 style={{ fontSize: 20, fontWeight: 900, color: '#fff', margin: 0, letterSpacing: '0.02em' }}>
-            <span style={{ color: '#fff' }}>INDOO</span> <span style={{ color: '#8DC63F' }}>PLACES</span>
+          <h1 style={{ fontSize: 20, fontWeight: 900, color: '#fff', margin: 0 }}>
+            <span>INDOO</span> <span style={{ color: '#8DC63F' }}>PLACES</span>
           </h1>
           <div style={{ display: 'flex', gap: 8 }}>
             <button onClick={() => setSuggestOpen(true)} style={{
               padding: '7px 14px', borderRadius: 20, cursor: 'pointer', fontFamily: 'inherit',
               background: 'rgba(245,158,11,0.15)', border: '1.5px solid rgba(245,158,11,0.35)',
-              color: '#F59E0B', fontSize: 11, fontWeight: 800, display: 'flex', alignItems: 'center', gap: 5,
+              color: '#F59E0B', fontSize: 11, fontWeight: 800,
             }}>+ Suggest</button>
             <button onClick={onClose} style={{
               width: 36, height: 36, borderRadius: 18, background: 'rgba(0,0,0,0.6)',
               border: '1px solid rgba(255,255,255,0.15)', color: '#fff', cursor: 'pointer',
               display: 'flex', alignItems: 'center', justifyContent: 'center',
             }}>
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2.5" strokeLinecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
             </button>
           </div>
         </div>
 
-        {/* Search bar — black fill with Indonesia flag */}
+        {/* Search */}
         <div style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '0 14px', height: 46, background: 'rgba(0,0,0,0.85)', border: '1.5px solid rgba(255,255,255,0.1)', borderRadius: 14 }}>
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.4)" strokeWidth="2.5"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
           <input value={search} onChange={e => { setSearch(e.target.value); setActiveIdx(0) }} placeholder="Search places near you..." style={{ flex: 1, background: 'none', border: 'none', color: '#fff', fontSize: 14, fontWeight: 600, fontFamily: 'inherit', outline: 'none' }} />
-          {search && <button onClick={() => { setSearch(''); setActiveIdx(0) }} style={{ width: 28, height: 28, borderRadius: 14, background: 'rgba(255,255,255,0.1)', border: 'none', color: '#fff', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 13, fontWeight: 700 }}>✕</button>}
+          {search && <button onClick={() => { setSearch(''); setActiveIdx(0) }} style={{ width: 28, height: 28, borderRadius: 14, background: 'rgba(255,255,255,0.1)', border: 'none', color: '#fff', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 13 }}>✕</button>}
           <img src={ID_FLAG} alt="" style={{ width: 24, height: 24, objectFit: 'contain', borderRadius: '50%', flexShrink: 0 }} />
         </div>
-        {search && <div style={{ marginTop: 6, fontSize: 12, fontWeight: 700, color: '#8DC63F', textAlign: 'center' }}>{destinations.length} result{destinations.length !== 1 ? 's' : ''} for "{search}"</div>}
-
-        {/* Quick category row */}
-        <div style={{ display: 'flex', gap: 6, overflowX: 'auto', marginTop: 10, paddingBottom: 2, scrollbarWidth: 'none' }}>
-          {[
-            { id: 'all', icon: '🌐', label: 'All' },
-            { id: 'restaurant', icon: '🍽️', label: 'Food' },
-            { id: 'temple', icon: '🛕', label: 'Temple' },
-            { id: 'beach', icon: '🏖️', label: 'Beach' },
-            { id: 'shopping', icon: '🛒', label: 'Shop' },
-            { id: 'nightlife', icon: '🎵', label: 'Night' },
-            { id: 'nature', icon: '🌿', label: 'Nature' },
-            { id: 'hospital', icon: '🏥', label: 'Health' },
-          ].map(c => (
-            <button key={c.id} onClick={() => { setActiveCat(c.id); setActiveIdx(0) }} style={{
-              padding: '5px 12px', borderRadius: 16, whiteSpace: 'nowrap', flexShrink: 0, cursor: 'pointer', fontFamily: 'inherit',
-              background: activeCat === c.id ? 'rgba(141,198,63,0.15)' : 'rgba(0,0,0,0.5)',
-              border: activeCat === c.id ? '1.5px solid rgba(141,198,63,0.4)' : '1px solid rgba(255,255,255,0.08)',
-              color: activeCat === c.id ? '#8DC63F' : 'rgba(255,255,255,0.45)', fontSize: 11, fontWeight: 700,
-              display: 'flex', alignItems: 'center', gap: 3,
-            }}>{c.icon} {c.label}</button>
-          ))}
-        </div>
+        {search && <div style={{ marginTop: 6, fontSize: 12, fontWeight: 700, color: '#8DC63F', textAlign: 'center' }}>{destinations.length} results</div>}
       </div>
 
-      {/* ═══ Swipe Carousel ═══ */}
-      <div style={{ flex: '1 1 0', minHeight: 0, overflow: 'hidden', position: 'relative' }}
-        onTouchStart={handleTouchStart} onTouchMove={handleTouchMove} onTouchEnd={handleTouchEnd}
-        onMouseDown={handleMouseDown}
+      {/* ── Cards — horizontal scroll snap ── */}
+      <div
+        ref={scrollRef}
+        style={{
+          flex: 1, display: 'flex', gap: 16, overflowX: 'auto', overflowY: 'hidden',
+          padding: '12px 16px 12px', scrollSnapType: 'x mandatory',
+          scrollbarWidth: 'none', WebkitOverflowScrolling: 'touch',
+          alignItems: 'stretch',
+        }}
       >
-        {destinations.length === 0 ? (
-          <div style={{ position: 'absolute', inset: 0, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', color: 'rgba(255,255,255,0.3)' }}>
-            <span style={{ fontSize: 40, marginBottom: 12 }}>🔍</span>
-            <span style={{ fontSize: 14, fontWeight: 700 }}>No places found</span>
+        {destinations.length === 0 && (
+          <div style={{ flex: '0 0 100%', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', color: 'rgba(255,255,255,0.3)' }}>
+            <span style={{ fontSize: 48, marginBottom: 12 }}>🔍</span>
+            <span style={{ fontSize: 16, fontWeight: 700 }}>No places found</span>
           </div>
-        ) : (
-          <>
-            {destinations.map((dest, idx) => {
-              const diff = idx - activeIdx
-              const absDiff = Math.abs(diff)
-              if (absDiff > 2) return null
-
-              const centerX = `calc(50% - ${CARD_W / 2}px)`
-              const tx = diff * (CARD_W * 0.62 + GAP) + (dragRef.current.dragging ? dragX * 0.6 : 0)
-              const scale = absDiff === 0 ? 1 : absDiff === 1 ? 0.88 : 0.78
-              const opacity = absDiff === 0 ? 1 : absDiff === 1 ? 0.75 : 0.45
-              const isCenter = absDiff === 0
-
-              const pricing = calculateDirectoryPrice(dest)
-              const price = isBike ? pricing.bike : pricing.car
-
-              return (
-                <div key={dest.id} style={{
-                  position: 'absolute',
-                  left: centerX,
-                  top: 16,
-                  bottom: 16,
-                  width: CARD_W, maxWidth: 'calc(100vw - 48px)',
-                  transform: `translateX(${tx}px) scale(${scale})`,
-                  opacity,
-                  zIndex: 10 - absDiff,
-                  transition: dragRef.current.dragging ? 'none' : 'all 0.35s cubic-bezier(0.25, 1, 0.5, 1)',
-                  pointerEvents: isCenter ? 'auto' : 'none',
-                  display: 'flex', flexDirection: 'column',
-                }}>
-                  <div style={{
-                    borderRadius: 20, overflow: 'hidden', position: 'relative',
-                    flex: 1, display: 'flex', flexDirection: 'column',
-                    border: isCenter ? '2px solid rgba(141,198,63,0.5)' : '1px solid rgba(255,255,255,0.08)',
-                    boxShadow: isCenter ? '0 0 40px rgba(141,198,63,0.15), 0 12px 48px rgba(0,0,0,0.6)' : '0 4px 20px rgba(0,0,0,0.4)',
-                  }}>
-                    {/* Full background image */}
-                    <img src={getHeroImg(dest.category)} alt="" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover' }} loading="lazy" />
-                    <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(transparent 10%, rgba(0,0,0,0.75) 50%, rgba(0,0,0,0.92))' }} />
-
-                    {/* Content over image */}
-                    <div style={{ position: 'relative', zIndex: 1, padding: '14px 14px 16px', flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'flex-end' }}>
-                      {/* Top — Instagram only */}
-                      <div style={{ position: 'absolute', top: 12, right: 12, display: 'flex', gap: 6, alignItems: 'center' }}>
-                          {/* Instagram square button */}
-                          <a href={`https://www.instagram.com/explore/tags/${encodeURIComponent(dest.name.replace(/\s+/g, '').toLowerCase())}/`} target="_blank" rel="noopener noreferrer"
-                            onClick={e => e.stopPropagation()} style={{
-                              width: 32, height: 32, borderRadius: 8, textDecoration: 'none',
-                              background: 'linear-gradient(135deg, #833AB4, #E1306C, #F77737)',
-                              display: 'flex', alignItems: 'center', justifyContent: 'center',
-                              boxShadow: '0 2px 8px rgba(225,48,108,0.4)',
-                            }}>
-                            <svg width="16" height="16" viewBox="0 0 24 24" fill="#fff"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zM12 0C8.741 0 8.333.014 7.053.072 2.695.272.273 2.69.073 7.052.014 8.333 0 8.741 0 12c0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98C8.333 23.986 8.741 24 12 24c3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98C15.668.014 15.259 0 12 0zm0 5.838a6.162 6.162 0 100 12.324 6.162 6.162 0 000-12.324zM12 16a4 4 0 110-8 4 4 0 010 8zm6.406-11.845a1.44 1.44 0 100 2.881 1.44 1.44 0 000-2.881z"/></svg>
-                          </a>
-                      </div>
-
-                      {/* Name + address */}
-                      <div style={{ marginBottom: 8 }}>
-                        <div style={{ fontSize: 18, fontWeight: 900, color: '#fff', textShadow: '0 2px 8px rgba(0,0,0,0.8)', lineHeight: 1.2, marginBottom: 4 }}>{dest.name}</div>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                          <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.5)', lineHeight: 1.3, flex: 1 }}>{dest.address}</div>
-                          <div style={{ padding: '3px 8px', borderRadius: 8, background: 'rgba(250,204,21,0.15)', fontSize: 12, fontWeight: 800, color: '#FACC15', whiteSpace: 'nowrap' }}>
-                            ⭐ {ratings[dest.id]}
-                          </div>
-                        </div>
-                      </div>
-
-                      {/* Price */}
-                      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: isCenter ? 12 : 0 }}>
-                        <div>
-                          <span style={{ fontSize: 22, fontWeight: 900, color: '#FACC15', textShadow: '0 1px 6px rgba(0,0,0,0.5)' }}>{fmtIDR(price)}</span>
-                          <span style={{ fontSize: 14, marginLeft: 6 }}>{isBike ? '🏍️' : '🚗'}</span>
-                        </div>
-                        {pricing.isReturn && (
-                          <span style={{ padding: '3px 8px', borderRadius: 6, background: 'rgba(96,165,250,0.15)', fontSize: 10, fontWeight: 700, color: '#60A5FA' }}>Return trip</span>
-                        )}
-                      </div>
-
-                      {/* Center card: Book CTA */}
-                      {isCenter && isStandalone && (
-                        <div style={{ display: 'flex', gap: 8 }}>
-                          <button onClick={() => {
-                            onSelectDestination?.({ ...dest, price: pricing.bike, isReturn: pricing.isReturn, vehiclePrice: pricing, _selectedVehicle: 'bike_ride' })
-                            onClose()
-                          }} style={{
-                            flex: 1, padding: '14px 0', borderRadius: 14, border: 'none',
-                            background: 'linear-gradient(135deg, #8DC63F, #6BA52A)',
-                            color: '#000', fontSize: 14, fontWeight: 900, cursor: 'pointer', fontFamily: 'inherit',
-                            display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6,
-                            boxShadow: '0 4px 20px rgba(141,198,63,0.3)',
-                          }}>
-                            🏍️ Bike — {fmtIDR(pricing.bike)}
-                          </button>
-                          <button onClick={() => {
-                            onSelectDestination?.({ ...dest, price: pricing.car, isReturn: pricing.isReturn, vehiclePrice: pricing, _selectedVehicle: 'car_taxi' })
-                            onClose()
-                          }} style={{
-                            flex: 1, padding: '14px 0', borderRadius: 14, border: 'none',
-                            background: 'linear-gradient(135deg, #8DC63F, #6BA52A)',
-                            color: '#000', fontSize: 14, fontWeight: 900, cursor: 'pointer', fontFamily: 'inherit',
-                            display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6,
-                            boxShadow: '0 4px 20px rgba(141,198,63,0.3)',
-                          }}>
-                            🚗 Car — {fmtIDR(pricing.car)}
-                          </button>
-                        </div>
-                      )}
-                      {isCenter && !isStandalone && (
-                        <button onClick={() => {
-                          onSelectDestination?.({ ...dest, price, isReturn: pricing.isReturn, vehiclePrice: pricing })
-                          onClose()
-                        }} style={{
-                          width: '100%', padding: '14px 0', borderRadius: 14, border: 'none',
-                          background: 'linear-gradient(135deg, #8DC63F, #6BA52A)',
-                          color: '#000', fontSize: 15, fontWeight: 900, cursor: 'pointer', fontFamily: 'inherit',
-                          display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6,
-                          boxShadow: '0 4px 20px rgba(141,198,63,0.3)',
-                        }}>
-                          {isBike ? '🏍️' : '🚗'} Book Ride Here — {fmtIDR(price)}
-                        </button>
-                      )}
-                    </div>
-                  </div>
-                </div>
-              )
-            })}
-          </>
         )}
+
+        {destinations.map((dest, idx) => {
+          const pricing = calculateDirectoryPrice(dest)
+          const price = isBike ? pricing.bike : pricing.car
+
+          return (
+            <div key={dest.id} style={{
+              flex: '0 0 85%', maxWidth: 340,
+              scrollSnapAlign: 'center',
+              borderRadius: 20, overflow: 'hidden', position: 'relative',
+              border: '1.5px solid rgba(255,255,255,0.1)',
+              boxShadow: '0 8px 40px rgba(0,0,0,0.6)',
+              display: 'flex', flexDirection: 'column',
+            }}>
+              {/* Full background image */}
+              <img src={heroImg(dest.category)} alt="" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover' }} loading="lazy" />
+              <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(transparent 15%, rgba(0,0,0,0.7) 45%, rgba(0,0,0,0.93))' }} />
+
+              {/* Content */}
+              <div style={{ position: 'relative', zIndex: 1, flex: 1, padding: '14px 14px 16px', display: 'flex', flexDirection: 'column', justifyContent: 'flex-end' }}>
+
+                {/* Instagram — top right */}
+                <a href={`https://www.instagram.com/explore/tags/${encodeURIComponent(dest.name.replace(/\s+/g, '').toLowerCase())}/`}
+                  target="_blank" rel="noopener noreferrer" onClick={e => e.stopPropagation()}
+                  style={{ position: 'absolute', top: 12, right: 12, width: 32, height: 32, borderRadius: 8, textDecoration: 'none', background: 'linear-gradient(135deg, #833AB4, #E1306C, #F77737)', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 2px 8px rgba(225,48,108,0.4)' }}>
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="#fff"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zM12 0C8.741 0 8.333.014 7.053.072 2.695.272.273 2.69.073 7.052.014 8.333 0 8.741 0 12c0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98C8.333 23.986 8.741 24 12 24c3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98C15.668.014 15.259 0 12 0zm0 5.838a6.162 6.162 0 100 12.324 6.162 6.162 0 000-12.324zM12 16a4 4 0 110-8 4 4 0 010 8zm6.406-11.845a1.44 1.44 0 100 2.881 1.44 1.44 0 000-2.881z"/></svg>
+                </a>
+
+                {/* Distance — top left */}
+                {dest.distanceKm && (
+                  <div style={{ position: 'absolute', top: 12, left: 12, padding: '4px 10px', borderRadius: 8, background: 'rgba(0,0,0,0.6)', fontSize: 11, fontWeight: 800, color: '#60A5FA' }}>
+                    {dest.distanceKm} km
+                  </div>
+                )}
+
+                {/* Name + address */}
+                <div style={{ marginBottom: 10 }}>
+                  <div style={{ fontSize: 20, fontWeight: 900, color: '#fff', textShadow: '0 2px 8px rgba(0,0,0,0.8)', lineHeight: 1.2, marginBottom: 4 }}>{dest.name}</div>
+                  <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.5)', lineHeight: 1.3 }}>{dest.address}</div>
+                </div>
+
+                {/* Price */}
+                <div style={{ marginBottom: 12 }}>
+                  <span style={{ fontSize: 22, fontWeight: 900, color: '#FACC15', textShadow: '0 1px 6px rgba(0,0,0,0.5)' }}>{fmtIDR(price)}</span>
+                  {pricing.isReturn && <span style={{ marginLeft: 8, padding: '2px 8px', borderRadius: 6, background: 'rgba(96,165,250,0.15)', fontSize: 10, fontWeight: 700, color: '#60A5FA' }}>Return</span>}
+                </div>
+
+                {/* Bike + Car buttons */}
+                {isStandalone ? (
+                  <div style={{ display: 'flex', gap: 8 }}>
+                    <button onClick={() => selectDest(dest, 'bike_ride')} style={{
+                      flex: 1, padding: '14px 0', borderRadius: 14, border: 'none',
+                      background: 'linear-gradient(135deg, #8DC63F, #6BA52A)',
+                      color: '#000', fontSize: 14, fontWeight: 900, cursor: 'pointer', fontFamily: 'inherit',
+                      display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6,
+                      boxShadow: '0 4px 20px rgba(141,198,63,0.3)',
+                    }}>🏍️ Bike — {fmtIDR(pricing.bike)}</button>
+                    <button onClick={() => selectDest(dest, 'car_taxi')} style={{
+                      flex: 1, padding: '14px 0', borderRadius: 14, border: 'none',
+                      background: 'linear-gradient(135deg, #8DC63F, #6BA52A)',
+                      color: '#000', fontSize: 14, fontWeight: 900, cursor: 'pointer', fontFamily: 'inherit',
+                      display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6,
+                      boxShadow: '0 4px 20px rgba(141,198,63,0.3)',
+                    }}>🚗 Car — {fmtIDR(pricing.car)}</button>
+                  </div>
+                ) : (
+                  <button onClick={() => selectDest(dest, vehicleMode)} style={{
+                    width: '100%', padding: '14px 0', borderRadius: 14, border: 'none',
+                    background: 'linear-gradient(135deg, #8DC63F, #6BA52A)',
+                    color: '#000', fontSize: 15, fontWeight: 900, cursor: 'pointer', fontFamily: 'inherit',
+                    display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6,
+                    boxShadow: '0 4px 20px rgba(141,198,63,0.3)',
+                  }}>{isBike ? '🏍️' : '🚗'} Book Ride — {fmtIDR(price)}</button>
+                )}
+              </div>
+            </div>
+          )
+        })}
       </div>
 
-      {/* ═══ Bottom bar ═══ */}
+      {/* ── Bottom nav ── */}
       {destinations.length > 0 && (
-        <div style={{
-          flexShrink: 0, padding: '12px 16px 20px',
-          background: 'transparent',
-          borderTop: '1px solid rgba(255,255,255,0.06)',
-          display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-        }}>
-          {/* Prev */}
+        <div style={{ flexShrink: 0, padding: '10px 16px 20px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
           <button onClick={() => setActiveIdx(prev => clamp(prev - 1))} disabled={activeIdx === 0} style={{
             width: 44, height: 44, borderRadius: 22, cursor: 'pointer',
             background: 'rgba(0,0,0,0.85)', border: '1px solid rgba(255,255,255,0.12)',
@@ -358,22 +230,10 @@ export default function DestinationDirectory({ open, onClose, onSelectDestinatio
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"><polyline points="15 18 9 12 15 6"/></svg>
           </button>
 
-          {/* Progress dots */}
-          <div style={{ display: 'flex', alignItems: 'center', gap: 4, flex: 1, justifyContent: 'center' }}>
-            {destinations.length <= 20 ? destinations.map((_, i) => (
-              <div key={i} onClick={() => setActiveIdx(i)} style={{
-                width: i === activeIdx ? 16 : 6, height: 6, borderRadius: 3,
-                background: i === activeIdx ? '#8DC63F' : 'rgba(255,255,255,0.15)',
-                transition: 'all 0.3s', cursor: 'pointer',
-              }} />
-            )) : (
-              <span style={{ fontSize: 13, fontWeight: 700, color: 'rgba(255,255,255,0.4)' }}>
-                {activeIdx + 1} / {destinations.length}
-              </span>
-            )}
-          </div>
+          <span style={{ fontSize: 13, fontWeight: 700, color: 'rgba(255,255,255,0.4)' }}>
+            {activeIdx + 1} / {destinations.length}
+          </span>
 
-          {/* Next */}
           <button onClick={() => setActiveIdx(prev => clamp(prev + 1))} disabled={activeIdx >= destinations.length - 1} style={{
             width: 44, height: 44, borderRadius: 22, cursor: 'pointer',
             background: 'rgba(0,0,0,0.85)', border: '1px solid rgba(255,255,255,0.12)',
