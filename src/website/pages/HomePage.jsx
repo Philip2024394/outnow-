@@ -178,7 +178,7 @@ export default function HomePage({ onSearch, onBrowseSale, onBrowseRent, onBrows
         <div className="ws-container">
           <ScrollReveal>
             <h2 style={{ fontSize: 22, fontWeight: 900, color: '#fff', margin: '0 0 16px', display: 'flex', alignItems: 'center', gap: 8 }}>
-              🏗️ <span style={{ color: '#FACC15' }}>New</span> Projects
+              <img src="https://ik.imagekit.io/nepgaxllc/ChatGPT%20Image%20May%202,%202026,%2003_29_33%20AM.png" alt="" style={{ width: 28, height: 28, objectFit: 'contain' }} /> <span style={{ color: '#FACC15' }}>New</span> Projects
               <span style={{ fontSize: 12, fontWeight: 700, color: 'rgba(255,255,255,0.25)', marginLeft: 4 }}>Pre-sale & under construction</span>
             </h2>
           </ScrollReveal>
