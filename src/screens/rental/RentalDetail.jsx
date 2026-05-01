@@ -215,7 +215,7 @@ export default function RentalDetail({ listing: initialListing, onClose, onChat,
     const iconUrl = DETAIL_ICONS[label]
     return (
       <div style={{ display: 'flex', alignItems: 'center', padding: '12px 16px', borderBottom: isLast ? 'none' : '1px solid rgba(255,255,255,0.04)', background: idx % 2 === 0 ? 'rgba(255,255,255,0.02)' : 'transparent', gap: 10 }}>
-        {iconUrl && <img src={iconUrl} alt="" style={{ width: 22, height: 22, objectFit: 'contain', flexShrink: 0, opacity: 0.8 }} />}
+        {iconUrl && <img src={iconUrl} alt="" style={{ width: 22, height: 22, objectFit: 'contain', flexShrink: 0 }} />}
         <span style={{ fontSize: 13, fontWeight: 600, color: 'rgba(255,255,255,0.4)', flex: 1 }}>{label}</span>
         <span style={{ fontSize: 13, fontWeight: 800, color }}>{value}</span>
       </div>
@@ -296,7 +296,7 @@ export default function RentalDetail({ listing: initialListing, onClose, onChat,
       <div style={{ position: 'relative', display: 'flex', flexDirection: 'column', height: '100%' }}>
 
         {/* ═══════════ HERO IMAGE SECTION — 45% ═══════════ */}
-        <div ref={heroRef} style={{ height: '45%', flexShrink: 0, position: 'relative', overflow: 'hidden' }}
+        <div ref={heroRef} style={{ height: '52%', flexShrink: 0, position: 'relative', overflow: 'hidden' }}
           onTouchStart={handleTouchStart} onTouchEnd={handleTouchEnd}>
 
           {/* Main image with parallax */}
