@@ -127,7 +127,7 @@ export default function DestinationDirectory({ open, onClose, onSelectDestinatio
   const GAP = 20
 
   return createPortal(
-    <div style={{ position: 'fixed', inset: 0, background: '#0a0a0a', zIndex: 420, display: 'flex', flexDirection: 'column', overflow: 'hidden', userSelect: 'none' }}
+    <div style={{ position: 'fixed', inset: 0, background: '#0a0a0a url("https://ik.imagekit.io/nepgaxllc/ChatGPT%20Image%20May%201,%202026,%2012_24_37%20PM.png") center/cover no-repeat', zIndex: 420, display: 'flex', flexDirection: 'column', overflow: 'hidden', userSelect: 'none' }}
       onMouseMove={handleMouseMove} onMouseUp={handleMouseUp} onMouseLeave={handleMouseUp}
     >
       {/* ═══ Header ═══ */}
