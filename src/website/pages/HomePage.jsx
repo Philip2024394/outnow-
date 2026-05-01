@@ -133,11 +133,11 @@ function ProjectCircleCarousel() {
 }
 
 /* ── Tool Modal wrapper ── */
-function ToolModal({ open, onClose, title, children }) {
+function ToolModal({ open, onClose, title, children, small }) {
   if (!open) return null
   return (
     <div style={{ position: 'fixed', inset: 0, zIndex: 10000, background: 'rgba(0,0,0,0.7)', backdropFilter: 'blur(8px)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 24 }} onClick={onClose}>
-      <div onClick={e => e.stopPropagation()} style={{ width: '100%', maxWidth: 700, maxHeight: '90vh', overflowY: 'auto', background: '#0a0a0a', borderRadius: 20, border: '1px solid rgba(255,255,255,0.08)', padding: '28px 24px' }}>
+      <div onClick={e => e.stopPropagation()} style={{ width: '100%', maxWidth: small ? 420 : 600, maxHeight: '80vh', overflowY: 'auto', background: '#0a0a0a', borderRadius: 20, border: '1px solid rgba(255,255,255,0.08)', padding: '24px 20px' }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
           <h3 style={{ fontSize: 20, fontWeight: 900, color: '#fff', margin: 0 }}>{title}</h3>
           <button onClick={onClose} style={{ width: 36, height: 36, borderRadius: 18, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)', color: '#fff', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 16 }}>✕</button>
@@ -219,7 +219,7 @@ export default function HomePage({ onSearch, onBrowseSale, onBrowseRent, onBrows
           <div className="ws-container">
             <ScrollReveal>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 }}>
-                <h2 style={{ fontSize: 28, fontWeight: 900, color: '#FACC15', margin: 0 }}><img src="https://ik.imagekit.io/nepgaxllc/Untitledrwerwer-removebg-preview.png" alt="" style={{ width: 36, height: 36, objectFit: 'contain' }} /> For Sale</h2>
+                <h2 style={{ fontSize: 28, fontWeight: 900, color: '#FACC15', margin: 0, display: 'flex', alignItems: 'center', gap: 10 }}><img src="https://ik.imagekit.io/nepgaxllc/Untitledrwerwer-removebg-preview.png" alt="" style={{ width: 36, height: 36, objectFit: 'contain' }} />For Sale</h2>
                 <button onClick={onBrowseSale} style={{ padding: '8px 20px', borderRadius: 10, border: '1px solid rgba(250,204,21,0.3)', background: 'rgba(250,204,21,0.06)', color: '#FACC15', fontSize: 13, fontWeight: 800, cursor: 'pointer', fontFamily: 'inherit' }}>View All →</button>
               </div>
             </ScrollReveal>
@@ -309,19 +309,19 @@ export default function HomePage({ onSearch, onBrowseSale, onBrowseRent, onBrows
 
       {/* ═══ TOOL MODALS ═══ */}
       {activeTool === 'kpr' && <KPRCalculator open onClose={() => setActiveTool(null)} propertyPrice={850000000} />}
-      <ToolModal open={activeTool === 'history'} onClose={() => setActiveTool(null)} title="📊 Price History">
+      <ToolModal open={activeTool === 'history'} onClose={() => setActiveTool(null)} title="📊 Price History" small>
         <PriceHistoryChart listing={sampleListing} />
       </ToolModal>
-      <ToolModal open={activeTool === 'valuation'} onClose={() => setActiveTool(null)} title="🏷️ Property Valuation">
+      <ToolModal open={activeTool === 'valuation'} onClose={() => setActiveTool(null)} title="🏷️ Property Valuation" small>
         <PropertyValuation listing={sampleListing} />
       </ToolModal>
-      <ToolModal open={activeTool === 'comparable'} onClose={() => setActiveTool(null)} title="🏘️ Comparable Sales">
+      <ToolModal open={activeTool === 'comparable'} onClose={() => setActiveTool(null)} title="🏘️ Comparable Sales" small>
         <ComparableSales listing={sampleListing} />
       </ToolModal>
       <ToolModal open={activeTool === 'neighborhood'} onClose={() => setActiveTool(null)} title="📍 Neighborhood Guide">
         <NeighborhoodGuide listing={sampleListing} />
       </ToolModal>
-      <ToolModal open={activeTool === 'transport'} onClose={() => setActiveTool(null)} title="🚇 Transport Nearby">
+      <ToolModal open={activeTool === 'transport'} onClose={() => setActiveTool(null)} title="🚇 Transport Nearby" small>
         <TransportProximity listing={sampleListing} />
       </ToolModal>
 
