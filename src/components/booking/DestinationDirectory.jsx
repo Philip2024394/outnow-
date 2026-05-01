@@ -81,15 +81,17 @@ export default function DestinationDirectory({ open, onClose, onSelectDestinatio
 
   if (!open) return null
 
-  // Use user location for distance calc + 50km radius filter, sorted nearest first
-  // Default to restaurants on first visit so tourists always see food options
-  const defaultCat = activeCat === 'all' && !search.trim() ? 'restaurant' : activeCat
-  let destinations = coords
-    ? getDestinationsNearUser(coords.lat, coords.lng, 50, defaultCat)
-    : (defaultCat !== 'all' ? getShuffled().filter(d => d.category === defaultCat) : getShuffled())
-  // If no results in radius (user far away), fall back to all destinations sorted
-  if (destinations.length === 0 && coords) {
-    destinations = getDestinationsNearUser(coords.lat, coords.lng, 9999, defaultCat)
+  // User location → nearest first within 50km, fallback to all sorted by distance
+  // First visit shows mixed cards (all categories), user can filter via pills
+  let destinations
+  if (coords) {
+    destinations = getDestinationsNearUser(coords.lat, coords.lng, 50, activeCat)
+    if (destinations.length === 0) destinations = getDestinationsNearUser(coords.lat, coords.lng, 9999, activeCat)
+    if (destinations.length === 0) destinations = getDestinationsNearUser(coords.lat, coords.lng, 9999, 'all')
+  } else {
+    const all = getShuffled()
+    destinations = activeCat !== 'all' ? all.filter(d => d.category === activeCat) : all
+    if (destinations.length === 0) destinations = all
   }
 
   if (search.trim()) {
