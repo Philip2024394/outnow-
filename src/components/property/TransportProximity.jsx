@@ -3,6 +3,20 @@
  */
 import { useState, useMemo } from 'react'
 
+const ICON_IMAGES = {
+  '🚇': 'https://ik.imagekit.io/nepgaxllc/Untitleddfsafd-removebg-preview.png?updatedAt=1777626145573',
+  '🚂': 'https://ik.imagekit.io/nepgaxllc/Untitleddfsafd-removebg-preview.png?updatedAt=1777626145573',
+  '🚌': 'https://ik.imagekit.io/nepgaxllc/Untitleddfsafdss-removebg-preview.png?updatedAt=1777657927452',
+  '🚈': 'https://ik.imagekit.io/nepgaxllc/Untitleddfsafd-removebg-preview.png?updatedAt=1777626145573',
+  '✈️': 'https://ik.imagekit.io/nepgaxllc/Untitleddfsafdsssss-removebg-preview.png?updatedAt=1777658011640',
+  '🚐': 'https://ik.imagekit.io/nepgaxllc/Untitleddfsafdss-removebg-preview.png?updatedAt=1777657927452',
+}
+function TransitIcon({ emoji, size = 22 }) {
+  const img = ICON_IMAGES[emoji]
+  if (img) return <img src={img} alt="" style={{ width: size, height: size, objectFit: 'contain' }} />
+  return <span style={{ fontSize: size - 2 }}>{emoji}</span>
+}
+
 const glass = {
   background: 'rgba(255,255,255,0.06)',
   backdropFilter: 'blur(16px)',
@@ -112,7 +126,7 @@ export default function TransportProximity({ listing }) {
             borderBottom: i < stations.length - 1 ? '1px solid rgba(255,255,255,0.04)' : 'none',
             background: i % 2 === 0 ? 'rgba(255,255,255,0.02)' : 'transparent',
           }}>
-            <span style={{ fontSize: 20, width: 28, textAlign: 'center' }}>{s.icon}</span>
+            <span style={{ width: 28, textAlign: 'center', display: 'flex', alignItems: 'center', justifyContent: 'center' }}><TransitIcon emoji={s.icon} size={22} /></span>
             <div style={{ flex: 1 }}>
               <div style={{ fontSize: 13, fontWeight: 700, color: '#fff' }}>{s.name}</div>
               <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.35)', marginTop: 2 }}>{getWalkTime(s.dist)}</div>

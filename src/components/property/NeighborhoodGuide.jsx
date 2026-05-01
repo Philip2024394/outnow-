@@ -11,6 +11,28 @@ const glass = {
   borderRadius: 14,
 }
 
+const ICON_IMAGES = {
+  '🚌': 'https://ik.imagekit.io/nepgaxllc/Untitleddfsafdss-removebg-preview.png?updatedAt=1777657927452',
+  '🚂': 'https://ik.imagekit.io/nepgaxllc/Untitleddfsafd-removebg-preview.png?updatedAt=1777626145573',
+  '✈️': 'https://ik.imagekit.io/nepgaxllc/Untitleddfsafdsssss-removebg-preview.png?updatedAt=1777658011640',
+  '🏬': 'https://ik.imagekit.io/nepgaxllc/Untitleddfsafdsssssds-removebg-preview.png?updatedAt=1777658130387',
+  '🏫': 'https://ik.imagekit.io/nepgaxllc/Untitleddfsafdsssssdssdads-removebg-preview.png?updatedAt=1777658209572',
+  '🛍️': 'https://ik.imagekit.io/nepgaxllc/Untitleddfsafdsssssdssdadssa-removebg-preview.png?updatedAt=1777658280022',
+  '🏪': 'https://ik.imagekit.io/nepgaxllc/Untitleddfsafdsssssdssdadssa-removebg-preview.png?updatedAt=1777658280022',
+  '🌳': 'https://ik.imagekit.io/nepgaxllc/Untitleddfsafdsssssdssdadssadsds-removebg-preview.png?updatedAt=1777658367231',
+  '🚇': 'https://ik.imagekit.io/nepgaxllc/Untitleddfsafd-removebg-preview.png?updatedAt=1777626145573',
+  '🚈': 'https://ik.imagekit.io/nepgaxllc/Untitleddfsafd-removebg-preview.png?updatedAt=1777626145573',
+  '🏛️': 'https://ik.imagekit.io/nepgaxllc/Untitleddfsafdsssssdssdadssadsdsqww-removebg-preview.png?updatedAt=1777658439258',
+  '🏰': 'https://ik.imagekit.io/nepgaxllc/Untitleddfsafdsssssdssdadssadsdsqww-removebg-preview.png?updatedAt=1777658439258',
+  '👑': 'https://ik.imagekit.io/nepgaxllc/Untitleddfsafdsssssdssdadssadsdsqww-removebg-preview.png?updatedAt=1777658439258',
+}
+
+function PoiIcon({ emoji, size = 22 }) {
+  const img = ICON_IMAGES[emoji]
+  if (img) return <img src={img} alt="" style={{ width: size, height: size, objectFit: 'contain' }} />
+  return <span style={{ fontSize: size - 2 }}>{emoji}</span>
+}
+
 const CATEGORIES = [
   { id: 'transport', icon: '🚇', label: 'Transport' },
   { id: 'shopping', icon: '🛒', label: 'Shopping' },
@@ -192,7 +214,7 @@ export default function NeighborhoodGuide({ listing }) {
             borderBottom: i < pois.length - 1 ? '1px solid rgba(255,255,255,0.04)' : 'none',
             background: i % 2 === 0 ? 'rgba(255,255,255,0.02)' : 'transparent',
           }}>
-            <span style={{ fontSize: 20, width: 28, textAlign: 'center' }}>{poi.icon}</span>
+            <span style={{ width: 28, textAlign: 'center', display: 'flex', alignItems: 'center', justifyContent: 'center' }}><PoiIcon emoji={poi.icon} size={22} /></span>
             <div style={{ flex: 1 }}>
               <div style={{ fontSize: 13, fontWeight: 700, color: '#fff' }}>{poi.name}</div>
               <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.35)', marginTop: 2 }}>{getWalkTime(poi.dist)}</div>
