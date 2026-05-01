@@ -201,45 +201,48 @@ export default function DestinationDirectory({ open, onClose, onSelectDestinatio
       </div>
 
       {/* ═══ Swipe Carousel ═══ */}
-      <div style={{ flex: 1, overflow: 'hidden', display: 'flex', alignItems: 'center' }}
+      <div style={{ flex: '1 1 0', minHeight: 0, overflow: 'hidden', position: 'relative' }}
         onTouchStart={handleTouchStart} onTouchMove={handleTouchMove} onTouchEnd={handleTouchEnd}
         onMouseDown={handleMouseDown}
       >
         {destinations.length === 0 ? (
-          <div style={{ width: '100%', textAlign: 'center', color: 'rgba(255,255,255,0.3)', padding: 40 }}>
-            <span style={{ fontSize: 40, display: 'block', marginBottom: 12 }}>🔍</span>
+          <div style={{ position: 'absolute', inset: 0, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', color: 'rgba(255,255,255,0.3)' }}>
+            <span style={{ fontSize: 40, marginBottom: 12 }}>🔍</span>
             <span style={{ fontSize: 14, fontWeight: 700 }}>No places found</span>
           </div>
         ) : (
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: '100%', height: '100%', position: 'relative' }}>
+          <>
             {destinations.map((dest, idx) => {
               const diff = idx - activeIdx
               const absDiff = Math.abs(diff)
               if (absDiff > 2) return null
 
-              const offset = diff * (CARD_W * 0.62 + GAP) + (dragRef.current.dragging ? dragX * 0.6 : 0)
+              const centerX = `calc(50% - ${CARD_W / 2}px)`
+              const tx = diff * (CARD_W * 0.62 + GAP) + (dragRef.current.dragging ? dragX * 0.6 : 0)
               const scale = absDiff === 0 ? 1 : absDiff === 1 ? 0.88 : 0.78
               const opacity = absDiff === 0 ? 1 : absDiff === 1 ? 0.75 : 0.45
               const isCenter = absDiff === 0
 
               const pricing = calculateDirectoryPrice(dest)
               const price = isBike ? pricing.bike : pricing.car
-              const catObj = DIRECTORY_CATEGORIES.find(c => c.id === dest.category)
 
               return (
                 <div key={dest.id} style={{
                   position: 'absolute',
-                  left: '50%',
-                  top: '50%',
+                  left: centerX,
+                  top: 16,
+                  bottom: 16,
                   width: CARD_W, maxWidth: 'calc(100vw - 48px)',
-                  transform: `translate(-50%, -50%) translateX(${offset}px) scale(${scale})`,
+                  transform: `translateX(${tx}px) scale(${scale})`,
                   opacity,
                   zIndex: 10 - absDiff,
                   transition: dragRef.current.dragging ? 'none' : 'all 0.35s cubic-bezier(0.25, 1, 0.5, 1)',
                   pointerEvents: isCenter ? 'auto' : 'none',
+                  display: 'flex', flexDirection: 'column',
                 }}>
                   <div style={{
                     borderRadius: 20, overflow: 'hidden', position: 'relative',
+                    flex: 1, display: 'flex', flexDirection: 'column',
                     border: isCenter ? '2px solid rgba(141,198,63,0.5)' : '1px solid rgba(255,255,255,0.08)',
                     boxShadow: isCenter ? '0 0 40px rgba(141,198,63,0.15), 0 12px 48px rgba(0,0,0,0.6)' : '0 4px 20px rgba(0,0,0,0.4)',
                   }}>
@@ -248,7 +251,7 @@ export default function DestinationDirectory({ open, onClose, onSelectDestinatio
                     <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(transparent 10%, rgba(0,0,0,0.75) 50%, rgba(0,0,0,0.92))' }} />
 
                     {/* Content over image */}
-                    <div style={{ position: 'relative', zIndex: 1, padding: '14px 14px 16px', minHeight: isCenter ? 340 : 260, display: 'flex', flexDirection: 'column', justifyContent: 'flex-end' }}>
+                    <div style={{ position: 'relative', zIndex: 1, padding: '14px 14px 16px', flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'flex-end' }}>
                       {/* Top — Instagram only */}
                       <div style={{ position: 'absolute', top: 12, right: 12, display: 'flex', gap: 6, alignItems: 'center' }}>
                           {/* Instagram square button */}
@@ -333,7 +336,7 @@ export default function DestinationDirectory({ open, onClose, onSelectDestinatio
                 </div>
               )
             })}
-          </div>
+          </>
         )}
       </div>
 
