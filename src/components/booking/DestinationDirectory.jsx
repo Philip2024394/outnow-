@@ -82,9 +82,15 @@ export default function DestinationDirectory({ open, onClose, onSelectDestinatio
   if (!open) return null
 
   // Use user location for distance calc + 50km radius filter, sorted nearest first
+  // Default to restaurants on first visit so tourists always see food options
+  const defaultCat = activeCat === 'all' && !search.trim() ? 'restaurant' : activeCat
   let destinations = coords
-    ? getDestinationsNearUser(coords.lat, coords.lng, 50, activeCat)
-    : (activeCat !== 'all' ? getShuffled().filter(d => d.category === activeCat) : getShuffled())
+    ? getDestinationsNearUser(coords.lat, coords.lng, 50, defaultCat)
+    : (defaultCat !== 'all' ? getShuffled().filter(d => d.category === defaultCat) : getShuffled())
+  // If no results in radius (user far away), fall back to all destinations sorted
+  if (destinations.length === 0 && coords) {
+    destinations = getDestinationsNearUser(coords.lat, coords.lng, 9999, defaultCat)
+  }
 
   if (search.trim()) {
     const q = search.toLowerCase()
@@ -168,6 +174,28 @@ export default function DestinationDirectory({ open, onClose, onSelectDestinatio
           <img src={ID_FLAG} alt="" style={{ width: 24, height: 24, objectFit: 'contain', borderRadius: '50%', flexShrink: 0 }} />
         </div>
         {search && <div style={{ marginTop: 6, fontSize: 12, fontWeight: 700, color: '#8DC63F', textAlign: 'center' }}>{destinations.length} result{destinations.length !== 1 ? 's' : ''} for "{search}"</div>}
+
+        {/* Quick category row */}
+        <div style={{ display: 'flex', gap: 6, overflowX: 'auto', marginTop: 10, paddingBottom: 2, scrollbarWidth: 'none' }}>
+          {[
+            { id: 'all', icon: '🌐', label: 'All' },
+            { id: 'restaurant', icon: '🍽️', label: 'Food' },
+            { id: 'temple', icon: '🛕', label: 'Temple' },
+            { id: 'beach', icon: '🏖️', label: 'Beach' },
+            { id: 'shopping', icon: '🛒', label: 'Shop' },
+            { id: 'nightlife', icon: '🎵', label: 'Night' },
+            { id: 'nature', icon: '🌿', label: 'Nature' },
+            { id: 'hospital', icon: '🏥', label: 'Health' },
+          ].map(c => (
+            <button key={c.id} onClick={() => { setActiveCat(c.id); setActiveIdx(0) }} style={{
+              padding: '5px 12px', borderRadius: 16, whiteSpace: 'nowrap', flexShrink: 0, cursor: 'pointer', fontFamily: 'inherit',
+              background: activeCat === c.id ? 'rgba(141,198,63,0.15)' : 'rgba(0,0,0,0.5)',
+              border: activeCat === c.id ? '1.5px solid rgba(141,198,63,0.4)' : '1px solid rgba(255,255,255,0.08)',
+              color: activeCat === c.id ? '#8DC63F' : 'rgba(255,255,255,0.45)', fontSize: 11, fontWeight: 700,
+              display: 'flex', alignItems: 'center', gap: 3,
+            }}>{c.icon} {c.label}</button>
+          ))}
+        </div>
       </div>
 
       {/* ═══ Swipe Carousel ═══ */}
