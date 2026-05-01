@@ -8,7 +8,7 @@ import { DEMO_LISTINGS } from '@/services/rentalService'
 
 const DEMO_PROPERTY = DEMO_LISTINGS.filter(l => l.category === 'Property' && l.images?.length > 0)
 
-export function usePropertyListings() {
+export function usePropertyListings(refreshKey = 0) {
   const [listings, setListings] = useState(DEMO_PROPERTY)
   const [loading, setLoading] = useState(true)
 
@@ -29,14 +29,19 @@ export function usePropertyListings() {
           }
         } catch (e) { console.warn('Website listings fetch error:', e) }
       }
-      // Fallback to demo
-      setListings(DEMO_PROPERTY)
+      // Fallback: merge demo + localStorage owner listings
+      const localKeys = ['indoo_rental_listings_owner', 'indoo_my_property_listings']
+      const localListings = []
+      localKeys.forEach(key => { try { const d = JSON.parse(localStorage.getItem(key) || '[]'); if (Array.isArray(d)) localListings.push(...d) } catch {} })
+      const localProperty = localListings.filter(l => l.category === 'Property' && l.images?.length > 0)
+      const localIds = new Set(localProperty.map(l => l.id || l.ref))
+      setListings([...localProperty, ...DEMO_PROPERTY.filter(l => !localIds.has(l.id))])
       setLoading(false)
     }
     fetch()
-  }, [])
+  }, [refreshKey])
 
-  return { listings, loading }
+  return { listings, loading, refresh: () => {} }
 }
 
 export function useAgentListings(agentId) {

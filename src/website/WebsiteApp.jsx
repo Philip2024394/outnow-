@@ -15,6 +15,8 @@ import AgentProfilePage from './pages/AgentProfilePage'
 import NewProjectsPage from './pages/NewProjectsPage'
 import NewProjectDetail from '@/components/property/NewProjectDetail'
 import PropertyListingForm from '@/domains/rentals/forms/PropertyListingForm'
+import DashboardPage from './pages/DashboardPage'
+import { createListing } from '@/services/rentalListingService'
 
 const BG_IMG = 'https://ik.imagekit.io/nepgaxllc/ChatGPT%20Image%20May%202,%202026,%2002_15_43%20AM.png'
 
@@ -24,6 +26,7 @@ export default function WebsiteApp() {
   const [selectedAgent, setSelectedAgent] = useState(null)
   const [selectedProject, setSelectedProject] = useState(null)
   const [showListForm, setShowListForm] = useState(false)
+  const [refreshKey, setRefreshKey] = useState(0)
   const [searchQuery, setSearchQuery] = useState('')
   const [filterMode, setFilterMode] = useState('all')
 
@@ -36,7 +39,7 @@ export default function WebsiteApp() {
     else if (target === 'agents') setPage('agents')
     else if (target === 'kpr') { setPage('search'); setFilterMode('all') }
     else if (target === 'list') { setShowListForm(true) }
-    else if (target === 'mylistings') { setPage('search'); setFilterMode('all') }
+    else if (target === 'mylistings' || target === 'dashboard') { setPage('dashboard') }
     else setPage(target)
   }
 
@@ -123,6 +126,14 @@ export default function WebsiteApp() {
           />
         )}
 
+        {page === 'dashboard' && (
+          <DashboardPage
+            onBack={() => setPage('home')}
+            onSelectListing={handleSelectListing}
+            onListProperty={() => setShowListForm(true)}
+          />
+        )}
+
         <WebsiteFooter onNavigate={navigate} />
 
         {/* List Property Form */}
@@ -130,7 +141,13 @@ export default function WebsiteApp() {
           <PropertyListingForm
             open
             onClose={() => setShowListForm(false)}
-            onSubmit={(listing) => { setShowListForm(false) }}
+            onSubmit={async (listing) => {
+              await createListing(listing)
+              setShowListForm(false)
+              setRefreshKey(k => k + 1) // triggers re-fetch of listings
+              setPage('search')
+              setFilterMode('all')
+            }}
           />
         )}
       </div>

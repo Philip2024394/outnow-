@@ -113,8 +113,7 @@ export default function WebsiteNav({ activePage, onNavigate, onSearch }) {
                 </div>
                 {[
                   { icon: '📋', label: 'List Property', action: () => { setShowUserMenu(false); onNavigate?.('list') } },
-                  { icon: '🏠', label: 'My Listings', action: () => { setShowUserMenu(false); onNavigate?.('mylistings') } },
-                  { icon: '👤', label: 'My Account', action: () => setShowUserMenu(false) },
+                  { icon: '🏠', label: 'My Dashboard', action: () => { setShowUserMenu(false); onNavigate?.('dashboard') } },
                 ].map(item => (
                   <button key={item.label} onClick={item.action} style={{
                     width: '100%', padding: '12px 16px', border: 'none', borderBottom: '1px solid rgba(255,255,255,0.03)',
