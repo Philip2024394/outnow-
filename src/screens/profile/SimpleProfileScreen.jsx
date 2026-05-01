@@ -3,6 +3,7 @@ import { createPortal } from 'react-dom';
 import ContactUsPage from '@/components/ui/ContactUsPage';
 import LegalPage from '@/components/ui/LegalPage';
 import IndooFooter from '@/components/ui/IndooFooter';
+import { useLanguage, LANGUAGES as LANG_OPTIONS } from '@/i18n';
 
 const DAY_BG = 'https://ik.imagekit.io/nepgaxllc/ChatGPT%20Image%20Apr%2030,%202026,%2004_47_24%20PM.png';
 const NIGHT_BG = 'https://ik.imagekit.io/nepgaxllc/ChatGPT%20Image%20Apr%2030,%202026,%2004_47_24%20PM.png';
@@ -12,7 +13,7 @@ const CITIES = [
   'Medan', 'Makassar', 'Denpasar', 'Malang', 'Solo',
 ];
 
-const LANGUAGES = ['English', 'Bahasa Indonesia', '中文', 'العربية'];
+const LANG_NAME_MAP = { en: 'English', id: 'Bahasa Indonesia', zh: '中文', ar: 'العربية' };
 
 const GLASS = {
   borderRadius: 20,
@@ -61,6 +62,7 @@ function saveProfile(updates) {
 }
 
 export default function SimpleProfileScreen({ onClose }) {
+  const { setLang: appSetLang } = useLanguage()
   const [profile, setProfile] = useState(loadProfile);
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [editingName, setEditingName] = useState(false);
@@ -70,7 +72,7 @@ export default function SimpleProfileScreen({ onClose }) {
   const [notifications, setNotifications] = useState(profile.notifications !== false);
   const [email, setEmail] = useState(profile.email || '');
   const [city, setCity] = useState(profile.city || 'Yogyakarta');
-  const [language, setLanguage] = useState(profile.language || 'English');
+  const [language, setLanguage] = useState(profile.language || 'Bahasa Indonesia');
 
   // Saved locations
   const [locations, setLocations] = useState(() => {
@@ -433,33 +435,29 @@ export default function SimpleProfileScreen({ onClose }) {
         <div style={GLASS}>
           <div style={{ fontSize: 16, fontWeight: 'bold', color: '#fff', marginBottom: 16 }}>Preferences</div>
 
-          {/* Language */}
+          {/* Language — flag image buttons connected to app i18n */}
           <div style={{ marginBottom: 14 }}>
-            <label style={{ fontSize: 12, color: 'rgba(255,255,255,0.5)', marginBottom: 6, display: 'block' }}>
+            <label style={{ fontSize: 12, color: 'rgba(255,255,255,0.5)', marginBottom: 8, display: 'block' }}>
               Language
             </label>
-            <select
-              value={language}
-              onChange={(e) => setLanguage(e.target.value)}
-              style={{
-                width: '100%',
-                background: 'rgba(255,255,255,0.08)',
-                border: '1px solid rgba(255,255,255,0.15)',
-                borderRadius: 10,
-                padding: '10px 14px',
-                color: '#fff',
-                fontSize: 14,
-                outline: 'none',
-                minHeight: 44,
-                boxSizing: 'border-box',
-                appearance: 'none',
-                WebkitAppearance: 'none',
-              }}
-            >
-              {LANGUAGES.map((l) => (
-                <option key={l} value={l} style={{ background: '#222', color: '#fff' }}>{l}</option>
-              ))}
-            </select>
+            <div style={{ display: 'flex', gap: 10 }}>
+              {LANG_OPTIONS.map(l => {
+                const isActive = language === (LANG_NAME_MAP[l.code] || l.label)
+                return (
+                  <button key={l.code} onClick={() => { setLanguage(LANG_NAME_MAP[l.code] || l.label); appSetLang(l.code) }} style={{
+                    flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 6,
+                    padding: '10px 6px', borderRadius: 12, cursor: 'pointer', fontFamily: 'inherit',
+                    background: isActive ? 'rgba(141,198,63,0.15)' : 'rgba(255,255,255,0.04)',
+                    border: isActive ? '2px solid rgba(141,198,63,0.5)' : '1px solid rgba(255,255,255,0.08)',
+                    boxShadow: isActive ? '0 0 12px rgba(141,198,63,0.3)' : 'none',
+                    transition: 'all 0.2s',
+                  }}>
+                    <img src={l.image} alt={l.label} style={{ width: 28, height: 28, objectFit: 'contain', borderRadius: '50%' }} />
+                    <span style={{ fontSize: 11, fontWeight: 700, color: isActive ? '#8DC63F' : 'rgba(255,255,255,0.5)' }}>{l.label}</span>
+                  </button>
+                )
+              })}
+            </div>
           </div>
 
           {/* Notifications toggle */}

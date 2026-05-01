@@ -5,10 +5,10 @@ import ar from './ar'
 import zh from './zh'
 
 export const LANGUAGES = [
-  { code: 'en', label: 'English',  flag: '🇬🇧', dir: 'ltr', image: 'https://ik.imagekit.io/nepgaxllc/Untitledsfasdfasd-removebg-preview.png' },
-  { code: 'id', label: 'Bahasa',   flag: '🇮🇩', dir: 'ltr', image: 'https://ik.imagekit.io/nepgaxllc/Untitledsfasdfasdasdasd-removebg-preview.png' },
-  { code: 'ar', label: 'عربي',     flag: '🇸🇦', dir: 'rtl', image: 'https://ik.imagekit.io/nepgaxllc/Generated%20Image%20April%2010,%202026%20-%202_48PM.png' },
-  { code: 'zh', label: '中文',     flag: '🇨🇳', dir: 'ltr', image: 'https://ik.imagekit.io/nepgaxllc/Glossy%20China%20flag%20button%20design.png' },
+  { code: 'id', label: 'Bahasa',   flag: '🇮🇩', dir: 'ltr', image: 'https://ik.imagekit.io/nepgaxllc/Untitledxxxxcc-removebg-preview.png?updatedAt=1777592820803' },
+  { code: 'en', label: 'English',  flag: '🇬🇧', dir: 'ltr', image: 'https://ik.imagekit.io/nepgaxllc/Untitledxxxx-removebg-preview.png?updatedAt=1777592742536' },
+  { code: 'zh', label: '中文',     flag: '🇨🇳', dir: 'ltr', image: 'https://ik.imagekit.io/nepgaxllc/Untitledxxxxcccc-removebg-preview.png?updatedAt=1777592894702' },
+  { code: 'ar', label: 'عربي',     flag: '🇸🇦', dir: 'rtl', image: 'https://ik.imagekit.io/nepgaxllc/Untitledxxxxcccccc-removebg-preview.png?updatedAt=1777592959431' },
 ]
 
 const TRANSLATIONS = { en, id, ar, zh }

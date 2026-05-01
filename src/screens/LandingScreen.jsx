@@ -1,4 +1,4 @@
-import { useLanguage } from '@/i18n'
+import { useLanguage, LANGUAGES as LANG_LIST } from '@/i18n'
 import styles from './LandingScreen.module.css'
 
 const HERO_IMG = 'https://ik.imagekit.io/nepgaxllc/front%20app.png'
@@ -26,30 +26,24 @@ export default function LandingScreen({ onGetStarted, onSignIn, onBrowse }) {
           <p className={styles.sub}>{t('landing.sub')}</p>
         </div>
 
-        {/* Language selector — round flag buttons only */}
+        {/* Language selector — flag image buttons */}
         <div style={{ display: 'flex', gap: 10, justifyContent: 'center', marginBottom: 14 }}>
-          {[
-            { code: 'en', flag: '🇬🇧' },
-            { code: 'id', flag: '🇮🇩' },
-            { code: 'zh', flag: '🇨🇳' },
-            { code: 'ar', flag: '🇸🇦' },
-          ].map(l => (
+          {LANG_LIST.map(l => (
             <button
               key={l.code}
               onClick={() => setLang(l.code)}
               style={{
-                width: 40, height: 40, borderRadius: '50%',
+                width: 44, height: 44, borderRadius: '50%', padding: 0, overflow: 'hidden',
                 background: lang === l.code ? 'rgba(141,198,63,0.2)' : 'rgba(0,0,0,0.4)',
-                border: lang === l.code ? '2px solid rgba(141,198,63,0.6)' : '2px solid rgba(255,255,255,0.1)',
+                border: lang === l.code ? '2.5px solid rgba(141,198,63,0.7)' : '2px solid rgba(255,255,255,0.12)',
                 cursor: 'pointer',
                 backdropFilter: 'blur(8px)',
                 display: 'flex', alignItems: 'center', justifyContent: 'center',
-                fontSize: 20,
-                boxShadow: lang === l.code ? '0 0 12px rgba(141,198,63,0.3)' : 'none',
+                boxShadow: lang === l.code ? '0 0 14px rgba(141,198,63,0.4)' : 'none',
                 transition: 'all 0.2s',
               }}
             >
-              {l.flag}
+              <img src={l.image} alt={l.label} style={{ width: 30, height: 30, objectFit: 'contain' }} />
             </button>
           ))}
         </div>

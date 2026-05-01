@@ -33,7 +33,7 @@ export default function MapHeader({
           borderRadius: 12, background: 'rgba(0,0,0,0.4)', backdropFilter: 'blur(12px)',
           border: '1px solid rgba(255,255,255,0.1)', cursor: 'pointer',
         }}>
-          <span style={{ fontSize: 20 }}>{currentLang.flag}</span>
+          <img src={currentLang.image} alt={currentLang.label} style={{ width: 22, height: 22, objectFit: 'contain', borderRadius: '50%' }} />
           <span style={{ fontSize: 11, fontWeight: 700, color: 'rgba(255,255,255,0.6)' }}>{currentLang.label}</span>
         </button>
 
@@ -51,7 +51,7 @@ export default function MapHeader({
                 border: 'none', borderBottom: '1px solid rgba(255,255,255,0.06)',
                 display: 'flex', alignItems: 'center', gap: 10, cursor: 'pointer',
               }}>
-                <span style={{ fontSize: 20 }}>{l.flag}</span>
+                <img src={l.image} alt={l.label} style={{ width: 22, height: 22, objectFit: 'contain', borderRadius: '50%' }} />
                 <span style={{ fontSize: 13, fontWeight: 700, color: l.code === lang ? '#8DC63F' : '#fff' }}>{l.label}</span>
                 {l.code === lang && <span style={{ marginLeft: 'auto', fontSize: 14, color: '#8DC63F' }}>✓</span>}
               </button>
