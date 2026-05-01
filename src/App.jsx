@@ -94,11 +94,14 @@ export default function App() {
   const { user, userProfile, loading } = useAuth()
   const [guestMode, setGuestMode] = useState(() => localStorage.getItem('indoo_registered') === 'true')
 
-  // Desktop website mode — remove phone frame
+  // Desktop website mode — remove phone frame (runs immediately + on mount)
+  const isDesktopWeb = typeof window !== 'undefined' && window.innerWidth >= 768 && ['/', '/property', '/rentals', '/places', '/agents'].includes(window.location.pathname)
+  if (isDesktopWeb) {
+    document.documentElement.classList.add('desktop-website')
+    document.getElementById('root')?.classList.add('desktop-website')
+  }
   useEffect(() => {
-    const isDesktop = window.innerWidth >= 768
-    const isWebRoute = ['/', '/property', '/rentals', '/places', '/agents'].includes(window.location.pathname)
-    if (isDesktop && isWebRoute) {
+    if (isDesktopWeb) {
       document.documentElement.classList.add('desktop-website')
       document.getElementById('root')?.classList.add('desktop-website')
     } else {
