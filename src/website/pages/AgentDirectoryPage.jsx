@@ -62,14 +62,6 @@ export default function AgentDirectoryPage({ onSelectAgent, onBack }) {
           </div>
         </ScrollReveal>
 
-        {/* Top Agents This Month */}
-        <ScrollReveal delay={0.05}>
-          <div style={{ marginBottom: 24 }}>
-            <h3 style={{ fontSize: 18, fontWeight: 900, color: '#fff', margin: '0 0 14px', display: 'flex', alignItems: 'center', gap: 8 }}>🏆 <span style={{ color: '#60A5FA' }}>Top Agents</span> This Month</h3>
-            <TopAgentsRow agents={DEMO_AGENTS} />
-          </div>
-        </ScrollReveal>
-
         {/* Stats */}
         <ScrollReveal delay={0.1}>
           <div style={{ display: 'flex', gap: 16, marginBottom: 20 }}>
@@ -125,6 +117,14 @@ export default function AgentDirectoryPage({ onSelectAgent, onBack }) {
         )}
 
         {agents.length === 0 && <div style={{ textAlign: 'center', padding: 60, color: 'rgba(255,255,255,0.25)', fontSize: 16 }}>No agents found</div>}
+
+        {/* Top Agents This Month — under city groups */}
+        <ScrollReveal>
+          <div style={{ marginTop: 40, marginBottom: 20 }}>
+            <h2 style={{ fontSize: 24, fontWeight: 900, color: '#fff', margin: '0 0 16px', display: 'flex', alignItems: 'center', gap: 8 }}>🏆 <span style={{ color: '#60A5FA' }}>Top Agents</span> This Month</h2>
+            <TopAgentsRow agents={DEMO_AGENTS} />
+          </div>
+        </ScrollReveal>
       </div>
     </div>
   )

@@ -238,7 +238,7 @@ export default function HomePage({ onSearch, onBrowseSale, onBrowseRent, onBrows
           <div>
             <ScrollReveal>
               <h2 style={{ fontSize: 20, fontWeight: 900, color: '#fff', margin: '0 0 14px', display: 'flex', alignItems: 'center', gap: 8 }}>
-                <img src="https://ik.imagekit.io/nepgaxllc/ChatGPT%20Image%20May%202,%202026,%2003_29_33%20AM.png" alt="" style={{ width: 40, height: 40, objectFit: 'contain' }} /> <span style={{ color: '#FACC15' }}>New</span> Projects
+                <img src="https://ik.imagekit.io/nepgaxllc/ChatGPT%20Image%20May%202,%202026,%2003_29_33%20AM.png" alt="" style={{ width: 84, height: 84, objectFit: 'contain' }} /> <span style={{ color: '#FACC15' }}>New</span> Projects
               </h2>
             </ScrollReveal>
             <ProjectCircleCarousel />
