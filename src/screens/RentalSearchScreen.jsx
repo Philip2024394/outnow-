@@ -560,9 +560,6 @@ export default function RentalSearchScreen({ onClose, initialView, initialListin
             </span>
             <span style={{ fontSize: 13, fontWeight: 600, color: 'rgba(255,255,255,0.35)', letterSpacing: '0.04em', marginTop: 2, display: 'block' }}>{listingMode === 'sale' ? 'For Sale' : listingMode === 'rent' ? 'For Rent' : 'Buy · Sell · Rentals'} in Yogyakarta</span>
           </div>
-          <button onClick={() => setShowNewProjects(true)} style={{ width: 36, height: 36, borderRadius: '50%', background: 'rgba(250,204,21,0.12)', border: '1px solid rgba(250,204,21,0.25)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', flexShrink: 0 }}>
-            <span style={{ fontSize: 16 }}>🏗️</span>
-          </button>
           <button onClick={() => setShowMapSearch(true)} style={{ width: 36, height: 36, borderRadius: '50%', background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', flexShrink: 0 }}>
             <span style={{ fontSize: 16 }}>📍</span>
           </button>
@@ -1016,6 +1013,17 @@ export default function RentalSearchScreen({ onClose, initialView, initialListin
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 01-8 0"/></svg>
             For Sale
             {listingMode === 'sale' && <div style={{ position: 'absolute', bottom: 0, left: '25%', right: '25%', height: 2, borderRadius: 1, background: '#8DC63F' }} />}
+          </button>
+          <button onClick={() => setShowNewProjects(true)} style={{
+            flex: 1, padding: '12px 0', border: 'none', cursor: 'pointer', fontFamily: 'inherit',
+            background: 'transparent', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8,
+            color: '#FACC15',
+            fontSize: 14, fontWeight: 800,
+            borderBottom: 'none', position: 'relative',
+            transition: 'all 0.2s',
+          }}>
+            <span style={{ fontSize: 14 }}>🏗️</span>
+            New Projects
           </button>
         </div>
 
