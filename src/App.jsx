@@ -11,6 +11,7 @@ import { LanguageProvider } from '@/i18n'
 import LanguageToast from '@/components/ui/LanguageToast'
 import DesktopNav from '@/components/desktop/DesktopNav'
 import WebsiteLanding from '@/components/desktop/WebsiteLanding'
+import PropertyLanding from '@/components/desktop/PropertyLanding'
 import styles from './App.module.css'
 
 // Lazy-loaded: AppShell is the heaviest module — only needed after onboarding
@@ -215,10 +216,20 @@ export default function App() {
 
           {/* ── Desktop website landing (hidden on mobile) ── */}
           {onboardStep !== 'done' && !guestMode && (
-            <WebsiteLanding
-              onBrowse={() => { setGuestMode(true) }}
-              onSearch={() => { setGuestMode(true) }}
-            />
+            <>
+              {window.location.pathname === '/property' ? (
+                <PropertyLanding
+                  onBrowse={() => { setGuestMode(true) }}
+                  onSearch={() => { setGuestMode(true) }}
+                  onViewListing={() => { setGuestMode(true) }}
+                />
+              ) : (
+                <WebsiteLanding
+                  onBrowse={() => { setGuestMode(true) }}
+                  onSearch={() => { setGuestMode(true) }}
+                />
+              )}
+            </>
           )}
 
           {/* ── New user: welcome slides ── */}
