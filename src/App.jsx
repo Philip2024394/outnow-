@@ -214,22 +214,18 @@ export default function App() {
           <LanguageToast />
           <DesktopNav onNavigate={(section) => { /* handled by AppShell */ }} />
 
-          {/* ── Desktop website landing (hidden on mobile) ── */}
-          {onboardStep !== 'done' && !guestMode && (
-            <>
-              {window.location.pathname === '/property' ? (
-                <PropertyLanding
-                  onBrowse={() => { setGuestMode(true) }}
-                  onSearch={() => { setGuestMode(true) }}
-                  onViewListing={() => { setGuestMode(true) }}
-                />
-              ) : (
-                <WebsiteLanding
-                  onBrowse={() => { setGuestMode(true) }}
-                  onSearch={() => { setGuestMode(true) }}
-                />
-              )}
-            </>
+          {/* ── Desktop website landing (always visible on desktop 768px+) ── */}
+          {window.location.pathname === '/property' ? (
+            <PropertyLanding
+              onBrowse={() => { setGuestMode(true) }}
+              onSearch={() => { setGuestMode(true) }}
+              onViewListing={() => { setGuestMode(true) }}
+            />
+          ) : (
+            <WebsiteLanding
+              onBrowse={() => { setGuestMode(true) }}
+              onSearch={() => { setGuestMode(true) }}
+            />
           )}
 
           {/* ── New user: welcome slides ── */}
