@@ -14,6 +14,7 @@ import AgentDirectoryPage from './pages/AgentDirectoryPage'
 import AgentProfilePage from './pages/AgentProfilePage'
 import NewProjectsPage from './pages/NewProjectsPage'
 import NewProjectDetail from '@/components/property/NewProjectDetail'
+import PropertyListingForm from '@/domains/rentals/forms/PropertyListingForm'
 
 const BG_IMG = 'https://ik.imagekit.io/nepgaxllc/ChatGPT%20Image%20May%202,%202026,%2002_15_43%20AM.png'
 
@@ -22,6 +23,7 @@ export default function WebsiteApp() {
   const [selectedListing, setSelectedListing] = useState(null)
   const [selectedAgent, setSelectedAgent] = useState(null)
   const [selectedProject, setSelectedProject] = useState(null)
+  const [showListForm, setShowListForm] = useState(false)
   const [searchQuery, setSearchQuery] = useState('')
   const [filterMode, setFilterMode] = useState('all')
 
@@ -33,6 +35,8 @@ export default function WebsiteApp() {
     else if (target === 'newprojects') setPage('newprojects')
     else if (target === 'agents') setPage('agents')
     else if (target === 'kpr') { setPage('search'); setFilterMode('all') }
+    else if (target === 'list') { setShowListForm(true) }
+    else if (target === 'mylistings') { setPage('search'); setFilterMode('all') }
     else setPage(target)
   }
 
@@ -120,6 +124,15 @@ export default function WebsiteApp() {
         )}
 
         <WebsiteFooter onNavigate={navigate} />
+
+        {/* List Property Form */}
+        {showListForm && (
+          <PropertyListingForm
+            open
+            onClose={() => setShowListForm(false)}
+            onSubmit={(listing) => { setShowListForm(false) }}
+          />
+        )}
       </div>
     </div>
   )
