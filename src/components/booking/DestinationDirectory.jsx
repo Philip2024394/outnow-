@@ -123,7 +123,7 @@ export default function DestinationDirectory({ open, onClose, onSelectDestinatio
       </div>
 
       {/* ── Stacked Cards ── */}
-      <div style={{ flex: 1, position: 'relative', overflow: 'hidden', margin: '0 30px' }}
+      <div style={{ flex: 1, position: 'relative', overflow: 'visible', margin: '0 30px' }}
         onTouchStart={e => { scrollRef.current = { x: e.touches[0].clientX, t: Date.now() } }}
         onTouchEnd={e => {
           if (!scrollRef.current) return
