@@ -226,7 +226,7 @@ export default function WebsitePropertyModule() {
   const forRent = allProperty.filter(l => !l.buy_now)
 
   return (
-    <div style={{ background: '#0a0a0a', minHeight: '100vh', width: '100%', color: '#fff', fontFamily: 'inherit', overflow: 'hidden' }}>
+    <div style={{ background: '#0a0a0a', minHeight: '100vh', width: '100%', color: '#fff', fontFamily: 'inherit', overflowX: 'hidden', overflowY: 'auto' }}>
       <DesktopNav activeSection={activeSection} onNavigate={setActiveSection} />
 
       {/* ═══ HERO ═══ */}
