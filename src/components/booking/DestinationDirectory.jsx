@@ -96,7 +96,11 @@ export default function DestinationDirectory({ open, onClose, onSelectDestinatio
           <h1 style={{ fontSize: 20, fontWeight: 900, color: '#fff', margin: 0 }}>
             <span>INDOO</span> <span style={{ color: '#8DC63F' }}>PLACES</span>
           </h1>
-          <div style={{ display: 'flex', gap: 8 }}>
+          <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 4, padding: '5px 10px', borderRadius: 12, background: 'rgba(0,0,0,0.5)', border: '1px solid rgba(255,255,255,0.1)' }}>
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#8DC63F" strokeWidth="2.5" strokeLinecap="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>
+              <span style={{ fontSize: 11, fontWeight: 700, color: 'rgba(255,255,255,0.5)' }}>{coords ? `${coords.lat.toFixed(2)}, ${coords.lng.toFixed(2)}` : 'GPS'}</span>
+            </div>
             <button onClick={() => setSuggestOpen(true)} style={{
               padding: '7px 14px', borderRadius: 20, cursor: 'pointer', fontFamily: 'inherit',
               background: 'rgba(245,158,11,0.15)', border: '1.5px solid rgba(245,158,11,0.35)',
