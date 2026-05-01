@@ -695,3 +695,9 @@
   color: inherit;
   pointer-events: none;
 }
+
+/* Hide floating nav on desktop — website uses DesktopNav instead */
+@media (min-width: 768px) {
+  .nav { display: none !important; }
+}
+}

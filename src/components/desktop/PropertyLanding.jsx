@@ -117,7 +117,7 @@ export default function PropertyLanding({ onBrowse, onSearch, onViewListing }) {
     <div className="property-landing" style={{ display: 'none', background: '#0a0a0a', minHeight: '100vh' }}>
 
       {/* ═══ HERO ═══ */}
-      <section style={{ position: 'relative', minHeight: '70vh', display: 'flex', alignItems: 'center', background: `#0a0a0a url("${HERO_BG}") center/cover no-repeat` }}>
+      <section style={{ position: 'relative', minHeight: '100vh', display: 'flex', alignItems: 'center', background: `#0a0a0a url("${HERO_BG}") center/cover no-repeat` }}>
         <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(135deg, rgba(0,0,0,0.8), rgba(0,0,0,0.4) 50%, rgba(0,0,0,0.75))' }} />
         <div style={{ position: 'relative', zIndex: 1, width: '100%', maxWidth: 1400, margin: '0 auto', padding: '80px 48px 60px' }}>
           <div style={{ fontSize: 13, fontWeight: 800, color: '#8DC63F', letterSpacing: '0.15em', textTransform: 'uppercase', marginBottom: 12 }}>INDOO PROPERTY</div>
