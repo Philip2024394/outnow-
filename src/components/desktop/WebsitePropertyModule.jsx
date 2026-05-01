@@ -226,7 +226,10 @@ export default function WebsitePropertyModule() {
   const forRent = allProperty.filter(l => !l.buy_now)
 
   return (
-    <div style={{ background: `#0a0a0a url("https://ik.imagekit.io/nepgaxllc/Untitleddfsafdsssssdssdadssadsdsqwwfdd.png") center top / cover no-repeat fixed`, minHeight: '100vh', width: '100%', color: '#fff', fontFamily: 'inherit', overflowX: 'hidden', overflowY: 'auto' }}>
+    <div style={{ minHeight: '100vh', width: '100%', color: '#fff', fontFamily: 'inherit', overflowX: 'hidden', overflowY: 'auto', position: 'relative' }}>
+      {/* Full background image — fixed, covers entire viewport */}
+      <div style={{ position: 'fixed', inset: 0, zIndex: 0, background: `url("https://ik.imagekit.io/nepgaxllc/ChatGPT%20Image%20May%202,%202026,%2002_15_43%20AM.png") center center / 100% 100% no-repeat`, width: '100vw', height: '100vh' }} />
+      <div style={{ position: 'relative', zIndex: 1 }}>
       <DesktopNav activeSection={activeSection} onNavigate={setActiveSection} />
 
       {/* ═══ HERO ═══ */}
@@ -384,6 +387,7 @@ export default function WebsitePropertyModule() {
 
       {/* ═══ DETAIL OVERLAY ═══ */}
       {selectedListing && <DesktopPropertyDetail listing={selectedListing} onClose={() => setSelectedListing(null)} />}
+      </div>
     </div>
   )
 }
