@@ -87,12 +87,76 @@ export default function AgentProfilePage({ agent, onBack, onSelectListing }) {
         <ScrollReveal delay={0.1}>
           <div style={{ display: 'flex', gap: 12, marginBottom: 24 }}>
             <button onClick={() => setShowConsult(true)} style={{ flex: 1, padding: '15px', borderRadius: 14, border: 'none', background: 'linear-gradient(135deg, #8DC63F, #6BA52A)', color: '#000', fontSize: 15, fontWeight: 900, cursor: 'pointer', fontFamily: 'inherit', boxShadow: '0 4px 16px rgba(141,198,63,0.3)' }}>📞 Free Consultation</button>
-            <a href={`https://wa.me/${(agent.whatsapp || '').replace(/^0/, '62')}`} target="_blank" rel="noopener noreferrer" style={{ flex: 1, padding: '15px', borderRadius: 14, textDecoration: 'none', background: 'linear-gradient(135deg, #25D366, #128C7E)', color: '#fff', fontSize: 15, fontWeight: 900, textAlign: 'center' }}>💬 WhatsApp</a>
+            <a href={`https://wa.me/${(agent.whatsapp || '').replace(/^0/, '62')}`} target="_blank" rel="noopener noreferrer" style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', textDecoration: 'none' }}><img src="https://ik.imagekit.io/nepgaxllc/dfggdfgees-removebg-preview.png?updatedAt=1777539531358" alt="WhatsApp" style={{ height: 48, objectFit: 'contain' }} /></a>
             {agent.instagram && <a href={`https://instagram.com/${agent.instagram}`} target="_blank" rel="noopener noreferrer" style={{ width: 50, borderRadius: 14, textDecoration: 'none', background: 'linear-gradient(135deg, #833AB4, #E1306C, #F77737)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 18, flexShrink: 0 }}>📸</a>}
             {agent.facebook && <a href={`https://facebook.com/${agent.facebook}`} target="_blank" rel="noopener noreferrer" style={{ width: 50, borderRadius: 14, textDecoration: 'none', background: '#1877F2', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 18, flexShrink: 0 }}>📘</a>}
             {agent.tiktok && <a href={`https://tiktok.com/@${agent.tiktok}`} target="_blank" rel="noopener noreferrer" style={{ width: 50, borderRadius: 14, textDecoration: 'none', background: '#000', border: '1px solid rgba(255,255,255,0.2)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 18, flexShrink: 0 }}>🎵</a>}
             {agent.twitter && <a href={`https://x.com/${agent.twitter}`} target="_blank" rel="noopener noreferrer" style={{ width: 50, borderRadius: 14, textDecoration: 'none', background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 16, flexShrink: 0, color: '#fff', fontWeight: 900 }}>𝕏</a>}
           </div>
+        </ScrollReveal>
+
+        {/* ═══ OFFICE HOURS & AVAILABILITY ═══ */}
+        <ScrollReveal delay={0.12}>
+          {(() => {
+            const now = new Date()
+            const day = now.getDay() // 0=Sun
+            const hour = now.getHours()
+            const min = now.getMinutes()
+            const t = hour + min / 60
+            const isAvailable = (day >= 1 && day <= 5 && t >= 8.5 && t < 17) || (day === 6 && t >= 9 && t < 14)
+            const officeHours = [
+              { day: 'Monday - Friday', hours: '08:30 - 17:00' },
+              { day: 'Saturday', hours: '09:00 - 14:00' },
+              { day: 'Sunday', hours: 'Closed' },
+            ]
+            const viewingDays = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday']
+            const responseHours = agent.responseTime || '1 hour'
+            return (
+              <div style={{ background: 'rgba(0,0,0,0.65)', backdropFilter: 'blur(16px)', border: '1px solid rgba(255,255,255,0.06)', borderRadius: 16, padding: '24px 28px', marginBottom: 24 }}>
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 18 }}>
+                  <h2 style={{ fontSize: 20, fontWeight: 900, color: '#fff', margin: 0 }}>🕐 Office Hours & Availability</h2>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                    <span style={{ padding: '5px 14px', borderRadius: 10, background: isAvailable ? 'rgba(141,198,63,0.12)' : 'rgba(239,68,68,0.12)', border: `1px solid ${isAvailable ? 'rgba(141,198,63,0.3)' : 'rgba(239,68,68,0.3)'}`, fontSize: 12, fontWeight: 800, color: isAvailable ? '#8DC63F' : '#EF4444', display: 'flex', alignItems: 'center', gap: 6 }}>
+                      <span style={{ width: 8, height: 8, borderRadius: '50%', background: isAvailable ? '#8DC63F' : '#EF4444', display: 'inline-block', boxShadow: isAvailable ? '0 0 6px rgba(141,198,63,0.6)' : 'none' }} />
+                      {isAvailable ? 'Available Now' : 'Offline'}
+                    </span>
+                    <span style={{ padding: '5px 14px', borderRadius: 10, background: 'rgba(96,165,250,0.1)', border: '1px solid rgba(96,165,250,0.25)', fontSize: 12, fontWeight: 800, color: '#60A5FA' }}>⚡ Responds within {responseHours}</span>
+                  </div>
+                </div>
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 20 }}>
+                  {/* Office Hours Table */}
+                  <div>
+                    <div style={{ fontSize: 14, fontWeight: 800, color: 'rgba(255,255,255,0.6)', marginBottom: 10 }}>Office Hours</div>
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+                      {officeHours.map(r => (
+                        <div key={r.day} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '8px 12px', borderRadius: 10, background: 'rgba(255,255,255,0.03)' }}>
+                          <span style={{ fontSize: 13, fontWeight: 700, color: '#fff' }}>{r.day}</span>
+                          <span style={{ fontSize: 13, fontWeight: 700, color: r.hours === 'Closed' ? '#EF4444' : '#8DC63F' }}>{r.hours}</span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                  {/* Viewing Availability */}
+                  <div>
+                    <div style={{ fontSize: 14, fontWeight: 800, color: 'rgba(255,255,255,0.6)', marginBottom: 10 }}>Property Viewing Days</div>
+                    <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
+                      {['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'].map(d => {
+                        const active = viewingDays.includes(d)
+                        return (
+                          <span key={d} style={{ padding: '6px 14px', borderRadius: 10, background: active ? 'rgba(141,198,63,0.1)' : 'rgba(255,255,255,0.03)', border: `1px solid ${active ? 'rgba(141,198,63,0.25)' : 'rgba(255,255,255,0.06)'}`, fontSize: 12, fontWeight: 700, color: active ? '#8DC63F' : 'rgba(255,255,255,0.2)' }}>
+                            {active ? '✓ ' : ''}{d.slice(0, 3)}
+                          </span>
+                        )
+                      })}
+                    </div>
+                    <div style={{ marginTop: 14, fontSize: 13, color: 'rgba(255,255,255,0.35)', lineHeight: 1.6 }}>
+                      Viewings available by appointment. Contact via WhatsApp to schedule.
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )
+          })()}
         </ScrollReveal>
 
         {/* ═══ TESTIMONIALS ═══ */}
@@ -176,7 +240,7 @@ export default function AgentProfilePage({ agent, onBack, onSelectListing }) {
                 <input value={formPhone} onChange={e => setFormPhone(e.target.value)} placeholder="WhatsApp number" type="tel" style={{ width: '100%', padding: '14px', borderRadius: 12, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)', color: '#fff', fontSize: 14, fontFamily: 'inherit', outline: 'none', marginBottom: 14, boxSizing: 'border-box' }} />
                 <div style={{ display: 'flex', gap: 10 }}>
                   <button onClick={() => setShowConsult(false)} style={{ flex: 1, padding: '13px', borderRadius: 12, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)', color: '#fff', fontWeight: 700, cursor: 'pointer', fontFamily: 'inherit' }}>Cancel</button>
-                  <button onClick={() => sendWA(`Halo ${agent.name}, saya ${formName} ingin konsultasi tentang properti. HP: ${formPhone}`)} disabled={!formName.trim() || !formPhone.trim()} style={{ flex: 2, padding: '13px', borderRadius: 12, border: 'none', background: formName.trim() && formPhone.trim() ? 'linear-gradient(135deg, #8DC63F, #6BA52A)' : 'rgba(255,255,255,0.06)', color: formName.trim() && formPhone.trim() ? '#000' : 'rgba(255,255,255,0.2)', fontWeight: 900, cursor: 'pointer', fontFamily: 'inherit' }}>Send via WhatsApp</button>
+                  <button onClick={() => sendWA(`Halo ${agent.name}, saya ${formName} ingin konsultasi tentang properti. HP: ${formPhone}`)} disabled={!formName.trim() || !formPhone.trim()} style={{ flex: 2, padding: '6px', borderRadius: 12, border: 'none', background: 'transparent', cursor: 'pointer', fontFamily: 'inherit', display: 'flex', alignItems: 'center', justifyContent: 'center', opacity: formName.trim() && formPhone.trim() ? 1 : 0.3 }}><img src="https://ik.imagekit.io/nepgaxllc/dfggdfgees-removebg-preview.png?updatedAt=1777539531358" alt="Send via WhatsApp" style={{ height: 40, objectFit: 'contain' }} /></button>
                 </div>
               </>
             )}

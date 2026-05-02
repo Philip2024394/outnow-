@@ -31,7 +31,56 @@ const PROPERTY_DIRECTORY = [
 /* ══════════════════════════════════════════════════════════════════════════════
    PROPERTY OPTIONS & CONSTANTS
    ══════════════════════════════════════════════════════════════════════════════ */
-const PROPERTY_TYPES = ['Villa', 'Apartment', 'Kos', 'House', 'Room', 'Studio', 'Bungalow', 'Penthouse', 'Glamping', 'Tanah', 'Ruko', 'Gudang', 'Pabrik']
+// ── Property Classification System ──
+const PROPERTY_CATEGORIES = [
+  { id: 'residential', label: 'Residential', labelId: 'Hunian', icon: '🏠', types: [
+    { id: 'House', label: 'House', labelId: 'Rumah' },
+    { id: 'Villa', label: 'Villa', labelId: 'Vila' },
+    { id: 'Apartment', label: 'Apartment', labelId: 'Apartemen' },
+    { id: 'Condominium', label: 'Condominium', labelId: 'Kondominium' },
+    { id: 'Townhouse', label: 'Townhouse / Cluster', labelId: 'Rumah Cluster' },
+    { id: 'Studio', label: 'Studio', labelId: 'Studio' },
+    { id: 'Serviced Apartment', label: 'Serviced Apartment', labelId: 'Apartemen Servis' },
+    { id: 'Penthouse', label: 'Penthouse', labelId: 'Penthouse' },
+    { id: 'Kos', label: 'Boarding House', labelId: 'Kos / Indekos' },
+    { id: 'Room', label: 'Room Rental', labelId: 'Kamar Sewa' },
+    { id: 'Bungalow', label: 'Bungalow', labelId: 'Bungalo' },
+    { id: 'Glamping', label: 'Glamping', labelId: 'Glamping' },
+  ]},
+  { id: 'commercial', label: 'Commercial', labelId: 'Komersial', icon: '🏢', types: [
+    { id: 'Ruko', label: 'Shop House', labelId: 'Ruko' },
+    { id: 'Office', label: 'Office Space', labelId: 'Kantor' },
+    { id: 'Restaurant', label: 'Restaurant / Café', labelId: 'Restoran / Kafe' },
+    { id: 'Co-working', label: 'Co-working Space', labelId: 'Co-working' },
+    { id: 'Event Space', label: 'Event Space', labelId: 'Ruang Acara' },
+  ]},
+  { id: 'industrial', label: 'Industrial', labelId: 'Industri', icon: '🏭', types: [
+    { id: 'Gudang', label: 'Warehouse', labelId: 'Gudang' },
+    { id: 'Pabrik', label: 'Factory', labelId: 'Pabrik' },
+    { id: 'Storage', label: 'Storage Unit', labelId: 'Unit Penyimpanan' },
+  ]},
+  { id: 'land', label: 'Land', labelId: 'Tanah', icon: '🌍', types: [
+    { id: 'Tanah', label: 'Land', labelId: 'Tanah' },
+    { id: 'Parking', label: 'Parking / Garage', labelId: 'Lahan Parkir' },
+  ]},
+]
+const PROPERTY_TYPES = PROPERTY_CATEGORIES.flatMap(c => c.types.map(t => t.id))
+const RENTAL_TYPE_OPTIONS = [
+  { id: 'whole', label: 'Whole Property', labelId: 'Seluruh Properti', icon: '🏠' },
+  { id: 'room', label: 'Room Only', labelId: 'Kamar Saja', icon: '🚪' },
+  { id: 'shared', label: 'Shared', labelId: 'Berbagi', icon: '👥' },
+]
+const SPECIALTY_TAGS = [
+  { id: 'holiday', label: 'Holiday Home', labelId: 'Rumah Liburan', icon: '🌴' },
+  { id: 'beachfront', label: 'Beachfront', labelId: 'Tepi Pantai', icon: '🏖️' },
+  { id: 'mountain', label: 'Mountain View', labelId: 'Pegunungan', icon: '⛰️' },
+  { id: 'luxury', label: 'Luxury', labelId: 'Mewah', icon: '✨' },
+  { id: 'eco', label: 'Eco-friendly', labelId: 'Ramah Lingkungan', icon: '🌱' },
+  { id: 'pet_friendly', label: 'Pet Friendly', labelId: 'Boleh Hewan', icon: '🐾' },
+  { id: 'investment', label: 'Investment Ready', labelId: 'Siap Investasi', icon: '📈' },
+  { id: 'furnished_ready', label: 'Move-in Ready', labelId: 'Siap Huni', icon: '🔑' },
+]
+const LEASE_DURATION_OPTIONS = ['Daily (Harian)', 'Weekly (Mingguan)', 'Monthly (Bulanan)', 'Yearly (Tahunan)', 'Long-term Lease (Kontrak)']
 const FURNISHED_OPTIONS = ['Fully Furnished', 'Semi Furnished', 'Unfurnished']
 const AMENITIES = ['Pool', 'AC', 'WiFi', 'Kitchen', 'Laundry', 'Parking', 'Garden', 'Security', 'CCTV', 'Hot Water', 'TV', 'Balcony', 'Rooftop']
 const AMENITY_ICONS = { Pool: '🏊', AC: '❄️', WiFi: '📶', Kitchen: '🍳', Laundry: '🧺', Parking: '🅿️', Garden: '🌿', Security: '🔒', CCTV: '📹', 'Hot Water': '🚿', TV: '📺', Balcony: '🌅', Rooftop: '🏙️' }
@@ -65,7 +114,10 @@ const ROAD_ACCESS_OPTIONS = ['Asphalt', 'Concrete', 'Gravel', 'Dirt']
 const BUSINESS_TYPE_OPTIONS = ['Retail', 'Office', 'F&B', 'Mixed']
 
 // Gudang/Pabrik options
-const ELECTRICITY_KVA_OPTIONS = ['23 kVA', '53 kVA', '100 kVA', '200 kVA', '350 kVA']
+const ELECTRICITY_KVA_OPTIONS = ['23 kVA', '53 kVA', '100 kVA', '200 kVA', '350 kVA', '555 kVA', '800 kVA', '1000+ kVA']
+const POWER_VOLTAGE_OPTIONS = ['220V', '380V', '220V/380V', '20kV (Medium)', 'Custom']
+const POWER_PHASE_OPTIONS = ['1 Phase', '3 Phase']
+const PET_TYPE_OPTIONS = ['Dogs', 'Cats', 'Small Pets', 'Birds', 'All Pets']
 const WAREHOUSE_ZONING_OPTIONS = ['Industrial', 'Commercial', 'Logistics']
 const WATER_SUPPLY_OPTIONS = ['PDAM', 'Well', 'Both']
 
@@ -194,6 +246,10 @@ export default function PropertyListingForm({ open, onClose, onSubmit, editListi
   })
   const [address, setAddress] = useState(ef.address || '')
   const [propType, setPropType] = useState(ef.propType || propertyType || '')
+  const [propCategory, setPropCategory] = useState(ef.propCategory || (() => { const cat = PROPERTY_CATEGORIES.find(c => c.types.some(t => t.id === (ef.propType || propertyType))); return cat?.id || 'residential' })())
+  const [rentalType, setRentalType] = useState(ef.rentalType || 'whole')
+  const [specialtyTags, setSpecialtyTags] = useState(ef.specialtyTags || [])
+  const [leaseDuration, setLeaseDuration] = useState(ef.leaseDuration || '')
   const [bedrooms, setBedrooms] = useState(ef.bedrooms || '1')
   const [bathrooms, setBathrooms] = useState(ef.bathrooms || '1')
   const [sizeSqm, setSizeSqm] = useState(ef.sizeSqm || '')
@@ -207,8 +263,22 @@ export default function PropertyListingForm({ open, onClose, onSubmit, editListi
   const [checkOut, setCheckOut] = useState(ef.checkOut || '12:00')
   const [maxGuests, setMaxGuests] = useState(ef.maxGuests || '2')
   const [petFriendly, setPetFriendly] = useState(ef.petFriendly || false)
+  const [viewingDays, setViewingDays] = useState(ef.viewing_schedule?.days || ['mon','tue','wed','thu','fri','sat'])
+  const [viewingMorning, setViewingMorning] = useState(ef.viewing_schedule?.morning ?? true)
+  const [viewingAfternoon, setViewingAfternoon] = useState(ef.viewing_schedule?.afternoon ?? true)
+  const [viewingEvening, setViewingEvening] = useState(ef.viewing_schedule?.evening ?? false)
+  const [viewingNotes, setViewingNotes] = useState(ef.viewing_schedule?.notes || '')
+  const [officeHoursWeekdays, setOfficeHoursWeekdays] = useState(ef.office_hours?.weekdays || '09:00 - 17:00')
+  const [officeHoursSaturday, setOfficeHoursSaturday] = useState(ef.office_hours?.saturday || '09:00 - 14:00')
+  const [officeHoursSunday, setOfficeHoursSunday] = useState(ef.office_hours?.sunday || 'Closed')
   const [smokingAllowed, setSmokingAllowed] = useState(ef.smokingAllowed || false)
   const [minAge, setMinAge] = useState(ef.minAge || '18')
+  const [petsAllowed, setPetsAllowed] = useState(ef.petsAllowed || [])
+  const [petDeposit, setPetDeposit] = useState(ef.petDeposit || '')
+  const [powerSupplyVoltage, setPowerSupplyVoltage] = useState(ef.powerSupplyVoltage || '')
+  const [powerSupplyPhase, setPowerSupplyPhase] = useState(ef.powerSupplyPhase || '')
+  const [minAcceptedPrice, setMinAcceptedPrice] = useState(ef.min_accepted_price || '')
+  const [offersEnabled, setOffersEnabled] = useState(ef.offers_enabled !== false)
   const [whatsapp, setWhatsapp] = useState(() => {
     if (ef.whatsapp) return ef.whatsapp
     try { const p = JSON.parse(localStorage.getItem('indoo_rental_owner') || '{}'); return p.whatsapp || '' } catch { return '' }
@@ -245,6 +315,74 @@ export default function PropertyListingForm({ open, onClose, onSubmit, editListi
   const [floodFree, setFloodFree] = useState(ef.floodFree ?? true)
   const [nearTollRoad, setNearTollRoad] = useState(ef.nearTollRoad || false)
   const [nearPublicTransport, setNearPublicTransport] = useState(ef.nearPublicTransport || false)
+
+  // ── Interior Features ──
+  const [parkingCar, setParkingCar] = useState(ef.parkingCar || '')
+  const [parkingMotorbike, setParkingMotorbike] = useState(ef.parkingMotorbike || '')
+  const [kitchenType, setKitchenType] = useState(ef.kitchenType || '')
+  const [diningRoom, setDiningRoom] = useState(ef.diningRoom || false)
+  const [livingRoom, setLivingRoom] = useState(ef.livingRoom || false)
+  const [storageRoom, setStorageRoom] = useState(ef.storageRoom || false)
+  const [maidRoom, setMaidRoom] = useState(ef.maidRoom || false)
+  const [maidBathroom, setMaidBathroom] = useState(ef.maidBathroom || false)
+  const [walkInCloset, setWalkInCloset] = useState(ef.walkInCloset || false)
+  const [smartHome, setSmartHome] = useState(ef.smartHome || false)
+
+  // ── Exterior Features ──
+  const [frontYard, setFrontYard] = useState(ef.frontYard || false)
+  const [terrace, setTerrace] = useState(ef.terrace || false)
+  const [gatedProperty, setGatedProperty] = useState(ef.gatedProperty || false)
+  const [outdoorKitchen, setOutdoorKitchen] = useState(ef.outdoorKitchen || false)
+
+  // ── Utilities ──
+  const [internetAvail, setInternetAvail] = useState(ef.internetAvail || false)
+  const [cableTv, setCableTv] = useState(ef.cableTv || false)
+  const [drainageSystem, setDrainageSystem] = useState(ef.drainageSystem || false)
+  const [septicTank, setSepticTank] = useState(ef.septicTank || false)
+
+  // ── Security ──
+  const [security24h, setSecurity24h] = useState(ef.security24h || false)
+  const [alarmSystem, setAlarmSystem] = useState(ef.alarmSystem || false)
+  const [smartLock, setSmartLock] = useState(ef.smartLock || false)
+  const [oneGateSystem, setOneGateSystem] = useState(ef.oneGateSystem || false)
+
+  // ── Complex Facilities ──
+  const [elevator, setElevator] = useState(ef.elevator || false)
+  const [gym, setGym] = useState(ef.gym || false)
+  const [playground, setPlayground] = useState(ef.playground || false)
+  const [clubhouse, setClubhouse] = useState(ef.clubhouse || false)
+  const [joggingTrack, setJoggingTrack] = useState(ef.joggingTrack || false)
+  const [basementParking, setBasementParking] = useState(ef.basementParking || false)
+  const [sharedPool, setSharedPool] = useState(ef.sharedPool || false)
+  const [mosque, setMosque] = useState(ef.mosque || false)
+
+  // ── Access & Environment ──
+  const [cornerLot, setCornerLot] = useState(ef.cornerLot || false)
+  const [quietNeighborhood, setQuietNeighborhood] = useState(ef.quietNeighborhood || false)
+  const [nearMainRoad, setNearMainRoad] = useState(ef.nearMainRoad || false)
+  const [viewType, setViewType] = useState(ef.viewType || '')
+  const [nearSchools, setNearSchools] = useState(ef.nearSchools || false)
+  const [nearHospital, setNearHospital] = useState(ef.nearHospital || false)
+  const [nearShopping, setNearShopping] = useState(ef.nearShopping || false)
+
+  // ── Condition ──
+  const [renovationYear, setRenovationYear] = useState(ef.renovationYear || '')
+  const [occupancyStatus, setOccupancyStatus] = useState(ef.occupancyStatus || '')
+
+  // ── Construction Details ──
+  const [structureType, setStructureType] = useState(ef.structureType || '')
+  const [roofType, setRoofType] = useState(ef.roofType || '')
+  const [wallMaterial, setWallMaterial] = useState(ef.wallMaterial || '')
+  const [flooringType, setFlooringType] = useState(ef.flooringType || '')
+  const [foundationType, setFoundationType] = useState(ef.foundationType || '')
+  const [buildQuality, setBuildQuality] = useState(ef.buildQuality || '')
+
+  // ── Warranty ──
+  const [warrantyStructure, setWarrantyStructure] = useState(ef.warrantyStructure || '')
+  const [warrantyRoof, setWarrantyRoof] = useState(ef.warrantyRoof || '')
+  const [warrantyWaterproofing, setWarrantyWaterproofing] = useState(ef.warrantyWaterproofing || '')
+  const [warrantyElectrical, setWarrantyElectrical] = useState(ef.warrantyElectrical || '')
+  const [warrantyDeveloper, setWarrantyDeveloper] = useState(ef.warrantyDeveloper || '')
 
   // ── All property types — additional fields ──
   const [videoTourUrl, setVideoTourUrl] = useState(ef.videoTourUrl || '')
@@ -342,14 +480,39 @@ export default function PropertyListingForm({ open, onClose, onSubmit, editListi
       price_day: nightly, price_week: weekly, price_month: monthly, price_year: yearly,
       buy_now: buyNow ? { price: buyNowPrice, negotiable } : null,
       extra_fields: {
-        propType, address, bedrooms, bathrooms, sizeSqm, furnished, floorLevel, amenities, electricityIncluded, waterIncluded, internetIncluded, checkIn, checkOut, maxGuests, petFriendly, smokingAllowed, minAge, whatsapp, deposit, cleaningFee, lateFee, yearly,
+        propType, propCategory, rentalType, specialtyTags, leaseDuration,
+        address, bedrooms, bathrooms, sizeSqm, furnished, floorLevel, amenities, electricityIncluded, waterIncluded, internetIncluded, checkIn, checkOut, maxGuests, petFriendly, petsAllowed, petDeposit, smokingAllowed, minAge, whatsapp, deposit, cleaningFee, lateFee, yearly, powerSupplyVoltage, powerSupplyPhase,
         // Kos fields
         kosTier, kosGender, kosBedType, kosMaxOccupants, kosRoomFacilities, kosSharedFacilities, kosIncluded, kosExcluded, kosGuestHours, kosCouplesAllowed, kos24HourAccess, kosDepositAmount, kosMinStay, kosAvailableRooms, kosAvailableFrom,
         // House/Villa fields
         landArea, buildingArea, numFloors, numGarages, electricityCapacity, waterType, certificateType, facingDirection, yearBuilt, accessRoadWidth, floodFree, nearTollRoad, nearPublicTransport,
+        // Interior
+        parkingCar, parkingMotorbike, kitchenType, diningRoom, livingRoom, storageRoom, maidRoom, maidBathroom, walkInCloset, smartHome,
+        // Exterior
+        frontYard, terrace, gatedProperty, outdoorKitchen,
+        // Utilities
+        internetAvail, cableTv, drainageSystem, septicTank,
+        // Security
+        security24h, alarmSystem, smartLock, oneGateSystem,
+        // Complex
+        elevator, gym, playground, clubhouse, joggingTrack, basementParking, sharedPool, mosque,
+        // Access & Environment
+        cornerLot, quietNeighborhood, nearMainRoad, viewType, nearSchools, nearHospital, nearShopping,
+        // Condition
+        renovationYear, occupancyStatus,
+        // Construction
+        structureType, roofType, wallMaterial, flooringType, foundationType, buildQuality,
+        // Warranty
+        warrantyStructure, warrantyRoof, warrantyWaterproofing, warrantyElectrical, warrantyDeveloper,
         // Universal fields
         videoTourUrl, floorPlanImage, cancellationPolicy,
+        viewing_schedule: { days: viewingDays, morning: viewingMorning, afternoon: viewingAfternoon, evening: viewingEvening, notes: viewingNotes },
+        office_hours: { weekdays: officeHoursWeekdays, saturday: officeHoursSaturday, sunday: officeHoursSunday },
+        min_accepted_price: minAcceptedPrice ? Number(String(minAcceptedPrice).replace(/\./g, '')) : null,
+        offers_enabled: offersEnabled,
       },
+      min_accepted_price: minAcceptedPrice ? Number(String(minAcceptedPrice).replace(/\./g, '')) : null,
+      offers_enabled: offersEnabled,
       status: 'live',
       created_at: new Date().toISOString(),
     }
@@ -379,7 +542,7 @@ export default function PropertyListingForm({ open, onClose, onSubmit, editListi
   }
 
   return createPortal(
-    <div className={styles.screen} style={{ backgroundImage: `url(${step === 1 ? 'https://ik.imagekit.io/nepgaxllc/ChatGPT%20Image%20Apr%2018,%202026,%2007_07_33%20PM.png' : step === 2 ? 'https://ik.imagekit.io/nepgaxllc/ChatGPT%20Image%20Apr%2018,%202026,%2007_07_33%20PM.png' : step === 3 ? 'https://ik.imagekit.io/nepgaxllc/ChatGPT%20Image%20Apr%2018,%202026,%2010_39_50%20PM.png' : step >= 5 ? 'https://ik.imagekit.io/nepgaxllc/ChatGPT%20Image%20Apr%2018,%202026,%2011_13_56%20PM.png?updatedAt=1776528855040' : 'https://ik.imagekit.io/nepgaxllc/ChatGPT%20Image%20Apr%2018,%202026,%2006_57_42%20PM.png'})`, backgroundSize: 'cover', backgroundPosition: 'center' }}>
+    <div className={styles.screen} style={{ backgroundImage: 'url(https://ik.imagekit.io/nepgaxllc/ChatGPT%20Image%20May%202,%202026,%2002_15_43%20AM.png)', backgroundSize: 'cover', backgroundPosition: 'center' }}>
 
       <FormHeader step={step} setStep={setStep} onClose={onClose} setShowDrawer={setShowDrawer} />
 
@@ -393,6 +556,14 @@ export default function PropertyListingForm({ open, onClose, onSubmit, editListi
       ]} />
 
       <div className={styles.content} style={{ paddingTop: 97 }}>
+
+        {/* ── Hero Slogan ── */}
+        {step < 5 && (
+          <div style={{ textAlign: 'center', padding: '0 16px 20px' }}>
+            <h2 style={{ fontSize: 22, fontWeight: 900, color: '#fff', margin: '0 0 6px', letterSpacing: '-0.02em', textShadow: '0 2px 12px rgba(0,0,0,0.5)' }}>Indonesia's Most Advanced Property Marketplace</h2>
+            <p style={{ fontSize: 13, color: 'rgba(255,255,255,0.5)', margin: 0, fontWeight: 500, lineHeight: 1.5, textShadow: '0 1px 6px rgba(0,0,0,0.4)' }}>Your property deserves the best showcase. List with INDOO and reach millions of buyers and renters across Indonesia.</p>
+          </div>
+        )}
 
         {/* ═══ STEP 5: ENTERING MARKETPLACE — ping animation ═══ */}
         {step === 5 && <ProcessingStep isEditing={isEditing} emoji={"🏠"} vehicleName="Property" refCode={propRef} />}
@@ -411,50 +582,105 @@ export default function PropertyListingForm({ open, onClose, onSubmit, editListi
               if (!title) setTitle(prop.name)
             }} />
 
-            {/* ── Property Details — glass container ── */}
+            {/* ── Category Selector ── */}
             <div style={{ background: 'rgba(0,0,0,0.7)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)', border: '1.5px solid rgba(141,198,63,0.2)', borderRadius: 20, padding: '16px 14px', marginTop: 23, boxShadow: '0 0 20px rgba(141,198,63,0.08), inset 0 1px 0 rgba(141,198,63,0.05)' }}>
-            <h2 className={styles.inlineGroupTitle} style={{ paddingTop: 0, textShadow: '0 0 12px rgba(141,198,63,0.4), 0 2px 8px rgba(0,0,0,0.5)' }}>Property Details</h2>
-            <p style={{ fontSize: 11, color: 'rgba(255,255,255,0.25)', margin: '-4px 0 4px', fontWeight: 500 }}>Select or enter your property information</p>
-            <div style={{ position: 'relative', height: 2, marginBottom: 10, overflow: 'hidden' }}>
-              <div style={{ position: 'absolute', width: 60, height: 2, background: 'linear-gradient(90deg, transparent, #8DC63F, transparent)', animation: 'runGlow 3s ease-in-out infinite' }} />
-            </div>
+              <h2 className={styles.inlineGroupTitle} style={{ paddingTop: 0, textShadow: '0 0 12px rgba(141,198,63,0.4)' }}>Property Category</h2>
+              <p style={{ fontSize: 11, color: 'rgba(255,255,255,0.25)', margin: '-4px 0 8px', fontWeight: 500 }}>Select category, then property type</p>
 
-            <div className={styles.inlineGroup}>
-              {/* Property Type */}
-              <PickerField label="Type" value={propType} onChange={setPropType} options={PROPERTY_TYPES} placeholder="Villa" editing={editingType} setEditing={setEditingType} styles={styles} />
-
-              {/* Bedrooms */}
-              <PickerField label="Bedrooms" value={bedrooms} onChange={setBedrooms} options={BEDROOM_OPTIONS} placeholder="2" editing={editingBedrooms} setEditing={setEditingBedrooms} styles={styles} cols={5} />
-
-              {/* Bathrooms */}
-              <PickerField label="Bathrooms" value={bathrooms} onChange={setBathrooms} options={BATHROOM_OPTIONS} placeholder="1" editing={editingBathrooms} setEditing={setEditingBathrooms} styles={styles} cols={5} />
-
-              {/* Size */}
-              <div className={styles.inlineField}>
-                <span className={styles.inlineLabel}>Size</span>
-                <input className={`${styles.inlineInput} ${!sizeSqm ? styles.inlineInputEmpty : ''}`} value={sizeSqm} onChange={e => setSizeSqm(e.target.value.replace(/[^0-9]/g, ''))} placeholder="45" inputMode="numeric" />
-                {sizeSqm && <span className={styles.inlineSuffix}>sqm</span>}
+              {/* Category tabs */}
+              <div style={{ display: 'flex', gap: 6, marginBottom: 12 }}>
+                {PROPERTY_CATEGORIES.map(cat => (
+                  <button key={cat.id} onClick={() => { setPropCategory(cat.id); if (!cat.types.find(t => t.id === propType)) setPropType(cat.types[0]?.id || '') }} style={{ flex: 1, padding: '10px 6px', borderRadius: 12, border: propCategory === cat.id ? '1.5px solid #8DC63F' : '1.5px solid rgba(255,255,255,0.06)', background: propCategory === cat.id ? 'rgba(141,198,63,0.1)' : 'rgba(255,255,255,0.02)', cursor: 'pointer', fontFamily: 'inherit', textAlign: 'center', transition: 'all 0.2s' }}>
+                    <div style={{ fontSize: 18, marginBottom: 3 }}>{cat.icon}</div>
+                    <div style={{ fontSize: 10, fontWeight: 800, color: propCategory === cat.id ? '#8DC63F' : 'rgba(255,255,255,0.3)' }}>{cat.label}</div>
+                    <div style={{ fontSize: 8, fontWeight: 600, color: 'rgba(255,255,255,0.15)' }}>{cat.labelId}</div>
+                  </button>
+                ))}
               </div>
 
-              {/* Furnished */}
-              <PickerField label="Furnished" value={furnished} onChange={setFurnished} options={FURNISHED_OPTIONS} placeholder="Fully Furnished" editing={editingFurnished} setEditing={setEditingFurnished} styles={styles} />
+              {/* Property types for selected category */}
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 6, marginBottom: 4 }}>
+                {(PROPERTY_CATEGORIES.find(c => c.id === propCategory)?.types || []).map(t => (
+                  <button key={t.id} onClick={() => setPropType(t.id)} style={{ padding: '10px 6px', borderRadius: 10, border: propType === t.id ? '1.5px solid #FACC15' : '1.5px solid rgba(255,255,255,0.06)', background: propType === t.id ? 'rgba(250,204,21,0.08)' : 'rgba(255,255,255,0.02)', cursor: 'pointer', fontFamily: 'inherit', textAlign: 'center', transition: 'all 0.15s' }}>
+                    <div style={{ fontSize: 12, fontWeight: 800, color: propType === t.id ? '#FACC15' : 'rgba(255,255,255,0.5)' }}>{t.label}</div>
+                    <div style={{ fontSize: 9, fontWeight: 600, color: propType === t.id ? 'rgba(250,204,21,0.6)' : 'rgba(255,255,255,0.15)' }}>{t.labelId}</div>
+                  </button>
+                ))}
+              </div>
+            </div>
 
-              {/* Floor Level — for apartments/kos */}
-              {(propType === 'Apartment' || propType === 'Kos' || propType === 'Penthouse' || propType === 'Studio') && (
-                <PickerField label="Floor" value={floorLevel} onChange={setFloorLevel} options={FLOOR_OPTIONS} placeholder="Ground" editing={editingFloor} setEditing={setEditingFloor} styles={styles} cols={4} />
-              )}
+            {/* ── Rental Type ── */}
+            <div style={{ background: 'rgba(0,0,0,0.7)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)', border: '1.5px solid rgba(141,198,63,0.2)', borderRadius: 20, padding: '16px 14px', boxShadow: '0 0 20px rgba(141,198,63,0.08)' }}>
+              <h2 className={styles.inlineGroupTitle} style={{ paddingTop: 0, textShadow: '0 0 12px rgba(141,198,63,0.4)' }}>Rental Type</h2>
+              <div style={{ display: 'flex', gap: 8, marginBottom: 12 }}>
+                {RENTAL_TYPE_OPTIONS.map(r => (
+                  <button key={r.id} onClick={() => setRentalType(r.id)} style={{ flex: 1, padding: '12px 6px', borderRadius: 12, border: rentalType === r.id ? '1.5px solid #8DC63F' : '1.5px solid rgba(255,255,255,0.06)', background: rentalType === r.id ? 'rgba(141,198,63,0.1)' : 'rgba(255,255,255,0.02)', cursor: 'pointer', fontFamily: 'inherit', textAlign: 'center', transition: 'all 0.2s' }}>
+                    <div style={{ fontSize: 20, marginBottom: 4 }}>{r.icon}</div>
+                    <div style={{ fontSize: 11, fontWeight: 800, color: rentalType === r.id ? '#8DC63F' : 'rgba(255,255,255,0.4)' }}>{r.label}</div>
+                    <div style={{ fontSize: 9, color: 'rgba(255,255,255,0.15)' }}>{r.labelId}</div>
+                  </button>
+                ))}
+              </div>
 
-              {/* Max Guests */}
-              <div className={styles.inlineField}>
-                <span className={styles.inlineLabel}>Max Guests</span>
-                <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-                  <button onClick={() => setMaxGuests(String(Math.max(1, Number(maxGuests) - 1)))} style={{ width: 24, height: 24, borderRadius: '50%', background: '#8DC63F', border: 'none', color: '#000', fontSize: 14, fontWeight: 900, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', lineHeight: 1 }}>-</button>
-                  <span style={{ fontSize: 15, fontWeight: 800, color: '#fff', minWidth: 16, textAlign: 'center' }}>{maxGuests}</span>
-                  <button onClick={() => setMaxGuests(String(Math.min(20, Number(maxGuests) + 1)))} style={{ width: 24, height: 24, borderRadius: '50%', background: '#8DC63F', border: 'none', color: '#000', fontSize: 14, fontWeight: 900, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', lineHeight: 1 }}>+</button>
+              {/* Lease Duration */}
+              <div style={{ fontSize: 11, fontWeight: 700, color: 'rgba(255,255,255,0.3)', marginBottom: 6 }}>Preferred Duration</div>
+              <div style={{ display: 'flex', gap: 5, flexWrap: 'wrap' }}>
+                {LEASE_DURATION_OPTIONS.map(d => (
+                  <button key={d} onClick={() => setLeaseDuration(leaseDuration === d ? '' : d)} style={{ padding: '7px 12px', borderRadius: 8, border: leaseDuration === d ? '1.5px solid #8DC63F' : '1.5px solid rgba(255,255,255,0.06)', background: leaseDuration === d ? 'rgba(141,198,63,0.1)' : 'rgba(255,255,255,0.02)', color: leaseDuration === d ? '#8DC63F' : 'rgba(255,255,255,0.35)', fontSize: 10, fontWeight: 700, cursor: 'pointer', fontFamily: 'inherit' }}>{d}</button>
+                ))}
+              </div>
+            </div>
+
+            {/* ── Property Details ── */}
+            <div style={{ background: 'rgba(0,0,0,0.7)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)', border: '1.5px solid rgba(141,198,63,0.2)', borderRadius: 20, padding: '16px 14px', boxShadow: '0 0 20px rgba(141,198,63,0.08)' }}>
+              <h2 className={styles.inlineGroupTitle} style={{ paddingTop: 0, textShadow: '0 0 12px rgba(141,198,63,0.4)' }}>Property Details</h2>
+              <div className={styles.inlineGroup}>
+                {/* Bedrooms — hide for land/parking/storage */}
+                {!['Tanah', 'Parking', 'Storage', 'Event Space'].includes(propType) && (
+                  <PickerField label="Bedrooms" value={bedrooms} onChange={setBedrooms} options={BEDROOM_OPTIONS} placeholder="2" editing={editingBedrooms} setEditing={setEditingBedrooms} styles={styles} cols={5} />
+                )}
+                {!['Tanah', 'Parking', 'Storage', 'Event Space'].includes(propType) && (
+                  <PickerField label="Bathrooms" value={bathrooms} onChange={setBathrooms} options={BATHROOM_OPTIONS} placeholder="1" editing={editingBathrooms} setEditing={setEditingBathrooms} styles={styles} cols={5} />
+                )}
+                <div className={styles.inlineField}>
+                  <span className={styles.inlineLabel}>Size</span>
+                  <input className={`${styles.inlineInput} ${!sizeSqm ? styles.inlineInputEmpty : ''}`} value={sizeSqm} onChange={e => setSizeSqm(e.target.value.replace(/[^0-9]/g, ''))} placeholder="45" inputMode="numeric" />
+                  {sizeSqm && <span className={styles.inlineSuffix}>sqm</span>}
                 </div>
+                {!['Tanah', 'Parking', 'Storage'].includes(propType) && (
+                  <PickerField label="Furnished" value={furnished} onChange={setFurnished} options={FURNISHED_OPTIONS} placeholder="Fully Furnished" editing={editingFurnished} setEditing={setEditingFurnished} styles={styles} />
+                )}
+                {['Apartment', 'Kos', 'Penthouse', 'Studio', 'Condominium', 'Serviced Apartment', 'Co-working', 'Office'].includes(propType) && (
+                  <PickerField label="Floor" value={floorLevel} onChange={setFloorLevel} options={FLOOR_OPTIONS} placeholder="Ground" editing={editingFloor} setEditing={setEditingFloor} styles={styles} cols={4} />
+                )}
+                {!['Tanah', 'Parking', 'Storage'].includes(propType) && (
+                  <div className={styles.inlineField}>
+                    <span className={styles.inlineLabel}>Max Guests</span>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+                      <button onClick={() => setMaxGuests(String(Math.max(1, Number(maxGuests) - 1)))} style={{ width: 24, height: 24, borderRadius: '50%', background: '#8DC63F', border: 'none', color: '#000', fontSize: 14, fontWeight: 900, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', lineHeight: 1 }}>-</button>
+                      <span style={{ fontSize: 15, fontWeight: 800, color: '#fff', minWidth: 16, textAlign: 'center' }}>{maxGuests}</span>
+                      <button onClick={() => setMaxGuests(String(Math.min(20, Number(maxGuests) + 1)))} style={{ width: 24, height: 24, borderRadius: '50%', background: '#8DC63F', border: 'none', color: '#000', fontSize: 14, fontWeight: 900, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', lineHeight: 1 }}>+</button>
+                    </div>
+                  </div>
+                )}
               </div>
             </div>
 
+            {/* ── Specialty Tags ── */}
+            <div style={{ background: 'rgba(0,0,0,0.7)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)', border: '1.5px solid rgba(250,204,21,0.15)', borderRadius: 20, padding: '16px 14px', boxShadow: '0 0 20px rgba(250,204,21,0.04)' }}>
+              <h2 className={styles.inlineGroupTitle} style={{ paddingTop: 0, color: '#FACC15', textShadow: '0 0 12px rgba(250,204,21,0.4)' }}>Specialty Tags</h2>
+              <p style={{ fontSize: 11, color: 'rgba(255,255,255,0.25)', margin: '-4px 0 8px', fontWeight: 500 }}>Optional — highlight what makes your property special</p>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 6 }}>
+                {SPECIALTY_TAGS.map(tag => {
+                  const active = specialtyTags.includes(tag.id)
+                  return (
+                    <button key={tag.id} onClick={() => setSpecialtyTags(prev => active ? prev.filter(t => t !== tag.id) : [...prev, tag.id])} style={{ padding: '10px 4px', borderRadius: 10, border: active ? '1.5px solid rgba(250,204,21,0.3)' : '1.5px solid rgba(255,255,255,0.06)', background: active ? 'rgba(250,204,21,0.08)' : 'rgba(255,255,255,0.02)', cursor: 'pointer', fontFamily: 'inherit', textAlign: 'center', transition: 'all 0.15s' }}>
+                      <div style={{ fontSize: 16, marginBottom: 3 }}>{tag.icon}</div>
+                      <div style={{ fontSize: 9, fontWeight: 700, color: active ? '#FACC15' : 'rgba(255,255,255,0.3)', lineHeight: 1.3 }}>{tag.label}</div>
+                    </button>
+                  )
+                })}
+              </div>
             </div>
           </div>
         )}
@@ -469,6 +695,9 @@ export default function PropertyListingForm({ open, onClose, onSubmit, editListi
               <p style={{ fontSize: 11, color: 'rgba(255,255,255,0.25)', margin: '-4px 0 8px', fontWeight: 500 }}>No watermarks. Main + up to 4 thumbnails</p>
               <ImageUploader mainImage={mainImage} thumbImages={thumbs.slice(0, 4)} onSetMain={setMainImage} onAddThumb={u => { if (thumbs.length < 4) setThumbs(p => [...p, u]) }} onRemoveThumb={i => setThumbs(p => p.filter((_, j) => j !== i))} onRemoveMain={() => setMainImage('')} />
             </div>
+
+            {/* ── Video Tour ── */}
+            <VideoUpload listingRef={propRef} existingUrl={videoTourUrl} onVideoUploaded={(url) => setVideoTourUrl(url || '')} />
 
             {/* ── Listing Info ── */}
             <div style={{ background: 'rgba(0,0,0,0.6)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)', border: '1.5px solid rgba(141,198,63,0.2)', borderRadius: 20, padding: '16px 14px', boxShadow: '0 0 20px rgba(141,198,63,0.08)', position: 'relative', zIndex: 1 }}>
@@ -550,6 +779,75 @@ export default function PropertyListingForm({ open, onClose, onSubmit, editListi
               </div>
             </div>
 
+            {/* ── Viewing & Office Hours — glass container ── */}
+            <div style={{ background: 'rgba(0,0,0,0.6)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)', border: '1.5px solid rgba(141,198,63,0.2)', borderRadius: 20, padding: '16px 14px', boxShadow: '0 0 20px rgba(141,198,63,0.08)', position: 'relative', zIndex: 1 }}>
+              <h2 className={styles.inlineGroupTitle} style={{ paddingTop: 0, textShadow: '0 0 12px rgba(141,198,63,0.4)' }}>Viewing Schedule</h2>
+              <p style={{ fontSize: 11, color: 'rgba(255,255,255,0.25)', margin: '-4px 0 8px', fontWeight: 500 }}>When can potential tenants visit?</p>
+              <div style={{ position: 'relative', height: 2, marginBottom: 10, overflow: 'hidden' }}><div style={{ position: 'absolute', width: 60, height: 2, background: 'linear-gradient(90deg, transparent, #8DC63F, transparent)', animation: 'runGlow 3s ease-in-out infinite' }} /></div>
+
+              {/* Day selector pills */}
+              <p style={{ fontSize: 12, fontWeight: 700, color: 'rgba(255,255,255,0.5)', marginBottom: 6 }}>Available Days</p>
+              <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap', marginBottom: 14 }}>
+                {[{ id: 'mon', label: 'Mon' }, { id: 'tue', label: 'Tue' }, { id: 'wed', label: 'Wed' }, { id: 'thu', label: 'Thu' }, { id: 'fri', label: 'Fri' }, { id: 'sat', label: 'Sat' }, { id: 'sun', label: 'Sun' }].map(d => {
+                  const active = viewingDays.includes(d.id)
+                  return (
+                    <button key={d.id} onClick={() => setViewingDays(prev => active ? prev.filter(x => x !== d.id) : [...prev, d.id])} style={{
+                      padding: '6px 12px', borderRadius: 20, cursor: 'pointer', fontFamily: 'inherit', fontSize: 12, fontWeight: 700, transition: 'all 0.2s',
+                      background: active ? 'rgba(141,198,63,0.15)' : 'rgba(255,255,255,0.03)',
+                      border: active ? '1.5px solid rgba(141,198,63,0.4)' : '1.5px solid rgba(255,255,255,0.08)',
+                      color: active ? '#8DC63F' : 'rgba(255,255,255,0.3)',
+                      boxShadow: active ? '0 0 10px rgba(141,198,63,0.12)' : 'none',
+                    }}>
+                      {d.label}
+                    </button>
+                  )
+                })}
+              </div>
+
+              {/* Time slot toggles */}
+              <p style={{ fontSize: 12, fontWeight: 700, color: 'rgba(255,255,255,0.5)', marginBottom: 6 }}>Preferred Time Slots</p>
+              <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', marginBottom: 14 }}>
+                {[{ label: 'Morning', sub: '09:00 - 12:00', value: viewingMorning, set: setViewingMorning }, { label: 'Afternoon', sub: '13:00 - 17:00', value: viewingAfternoon, set: setViewingAfternoon }, { label: 'Evening', sub: '17:00 - 20:00', value: viewingEvening, set: setViewingEvening }].map(slot => (
+                  <button key={slot.label} onClick={() => slot.set(!slot.value)} style={{
+                    flex: 1, minWidth: 90, padding: '10px 8px', borderRadius: 12, cursor: 'pointer', fontFamily: 'inherit', textAlign: 'center', transition: 'all 0.2s',
+                    background: slot.value ? 'rgba(141,198,63,0.12)' : 'rgba(255,255,255,0.02)',
+                    border: slot.value ? '1.5px solid rgba(141,198,63,0.3)' : '1.5px solid rgba(255,255,255,0.06)',
+                    boxShadow: slot.value ? '0 0 12px rgba(141,198,63,0.15)' : 'none',
+                  }}>
+                    <div style={{ fontSize: 12, fontWeight: 700, color: slot.value ? '#8DC63F' : 'rgba(255,255,255,0.3)' }}>{slot.label}</div>
+                    <div style={{ fontSize: 10, color: slot.value ? 'rgba(141,198,63,0.6)' : 'rgba(255,255,255,0.15)', marginTop: 2 }}>{slot.sub}</div>
+                  </button>
+                ))}
+              </div>
+
+              {/* Notes input */}
+              <p style={{ fontSize: 12, fontWeight: 700, color: 'rgba(255,255,255,0.5)', marginBottom: 6 }}>Special Instructions</p>
+              <input
+                className={styles.inlineInput}
+                value={viewingNotes}
+                onChange={e => setViewingNotes(e.target.value)}
+                placeholder="e.g. Call before visiting, gate code required..."
+                style={{ width: '100%', boxSizing: 'border-box', marginBottom: 14 }}
+              />
+
+              {/* Office hours */}
+              <p style={{ fontSize: 12, fontWeight: 700, color: 'rgba(255,255,255,0.5)', marginBottom: 6 }}>Office Hours</p>
+              <div className={styles.inlineGroup}>
+                <div className={styles.inlineField}>
+                  <span className={styles.inlineLabel} style={{ minWidth: 70 }}>Weekdays</span>
+                  <input className={styles.inlineInput} value={officeHoursWeekdays} onChange={e => setOfficeHoursWeekdays(e.target.value)} placeholder="09:00 - 17:00" style={{ flex: 1 }} />
+                </div>
+                <div className={styles.inlineField}>
+                  <span className={styles.inlineLabel} style={{ minWidth: 70 }}>Saturday</span>
+                  <input className={styles.inlineInput} value={officeHoursSaturday} onChange={e => setOfficeHoursSaturday(e.target.value)} placeholder="09:00 - 14:00" style={{ flex: 1 }} />
+                </div>
+                <div className={styles.inlineField}>
+                  <span className={styles.inlineLabel} style={{ minWidth: 70 }}>Sunday</span>
+                  <input className={styles.inlineInput} value={officeHoursSunday} onChange={e => setOfficeHoursSunday(e.target.value)} placeholder="Closed" style={{ flex: 1 }} />
+                </div>
+              </div>
+            </div>
+
             {/* ── Utilities ── */}
             <div style={{ background: 'rgba(0,0,0,0.6)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)', border: '1.5px solid rgba(141,198,63,0.2)', borderRadius: 20, padding: '16px 14px', boxShadow: '0 0 20px rgba(141,198,63,0.08)', position: 'relative', zIndex: 1 }}>
               <h2 className={styles.inlineGroupTitle} style={{ paddingTop: 0, textShadow: '0 0 12px rgba(141,198,63,0.4)' }}>Utilities Included</h2>
@@ -614,6 +912,24 @@ export default function PropertyListingForm({ open, onClose, onSubmit, editListi
                     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#FBBF24" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
                   </button>
                 </div>
+                {/* Pet details — show when pets allowed */}
+                {petFriendly && (
+                  <>
+                    <div className={styles.inlineField}>
+                      <span className={styles.inlineLabel}>Pet Types</span>
+                      <div style={{ display: 'flex', gap: 4, flexWrap: 'wrap', flex: 1 }}>
+                        {PET_TYPE_OPTIONS.map(pt => (
+                          <button key={pt} onClick={() => setPetsAllowed(prev => prev.includes(pt) ? prev.filter(x => x !== pt) : [...prev, pt])} style={{ padding: '5px 10px', borderRadius: 7, fontSize: 10, fontWeight: 700, cursor: 'pointer', fontFamily: 'inherit', background: petsAllowed.includes(pt) ? 'rgba(141,198,63,0.12)' : 'rgba(255,255,255,0.03)', border: petsAllowed.includes(pt) ? '1.5px solid rgba(141,198,63,0.3)' : '1.5px solid rgba(255,255,255,0.06)', color: petsAllowed.includes(pt) ? '#8DC63F' : 'rgba(255,255,255,0.4)' }}>{pt}</button>
+                        ))}
+                      </div>
+                    </div>
+                    <div className={styles.inlineField}>
+                      <span className={styles.inlineLabel}>Pet Deposit</span>
+                      <input className={styles.inlineInput} value={petDeposit} onChange={e => setPetDeposit(e.target.value.replace(/[^0-9.]/g, ''))} placeholder="e.g. 500.000" inputMode="text" />
+                      {petDeposit && <span className={styles.inlineSuffix}>Rp</span>}
+                    </div>
+                  </>
+                )}
                 <div className={styles.inlineField}>
                   <span className={styles.inlineLabel}>Smoking</span>
                   <button onClick={() => setSmokingAllowed(!smokingAllowed)} style={{ background: 'none', border: 'none', color: smokingAllowed ? '#8DC63F' : 'rgba(255,255,255,0.3)', fontSize: 15, fontWeight: 700, cursor: 'pointer', fontFamily: 'inherit', padding: 0, flex: 1, textAlign: 'left' }}>
@@ -946,6 +1262,309 @@ export default function PropertyListingForm({ open, onClose, onSubmit, editListi
               </div>
             )}
 
+            {/* ── POWER SUPPLY (Gudang / Pabrik / Storage) ── */}
+            {['Gudang', 'Pabrik', 'Storage'].includes(propType) && (
+              <div style={{ background: 'rgba(0,0,0,0.6)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)', border: '1.5px solid rgba(250,204,21,0.2)', borderRadius: 20, padding: '16px 14px', boxShadow: '0 0 20px rgba(250,204,21,0.06)', position: 'relative', zIndex: 1 }}>
+                <h2 className={styles.inlineGroupTitle} style={{ paddingTop: 0, color: '#FACC15', textShadow: '0 0 12px rgba(250,204,21,0.4)' }}>Power Supply</h2>
+                <p style={{ fontSize: 11, color: 'rgba(255,255,255,0.25)', margin: '-4px 0 8px', fontWeight: 500 }}>Electrical capacity and voltage for industrial use</p>
+                <div className={styles.inlineGroup}>
+                  <div className={styles.inlineField}>
+                    <span className={styles.inlineLabel}>Voltage</span>
+                    <div style={{ display: 'flex', gap: 5, flexWrap: 'wrap', flex: 1 }}>
+                      {POWER_VOLTAGE_OPTIONS.map(v => (
+                        <button key={v} onClick={() => setPowerSupplyVoltage(v)} style={{ padding: '6px 10px', borderRadius: 8, fontSize: 11, fontWeight: 700, cursor: 'pointer', fontFamily: 'inherit', background: powerSupplyVoltage === v ? 'rgba(250,204,21,0.12)' : 'rgba(255,255,255,0.03)', border: powerSupplyVoltage === v ? '1.5px solid rgba(250,204,21,0.3)' : '1.5px solid rgba(255,255,255,0.06)', color: powerSupplyVoltage === v ? '#FACC15' : 'rgba(255,255,255,0.4)' }}>{v}</button>
+                      ))}
+                    </div>
+                  </div>
+                  <div className={styles.inlineField}>
+                    <span className={styles.inlineLabel}>Phase</span>
+                    <div style={{ display: 'flex', gap: 6, flex: 1 }}>
+                      {POWER_PHASE_OPTIONS.map(ph => (
+                        <button key={ph} onClick={() => setPowerSupplyPhase(ph)} style={{ flex: 1, padding: '8px', borderRadius: 8, fontSize: 12, fontWeight: 700, cursor: 'pointer', fontFamily: 'inherit', textAlign: 'center', background: powerSupplyPhase === ph ? 'rgba(250,204,21,0.12)' : 'rgba(255,255,255,0.03)', border: powerSupplyPhase === ph ? '1.5px solid rgba(250,204,21,0.3)' : '1.5px solid rgba(255,255,255,0.06)', color: powerSupplyPhase === ph ? '#FACC15' : 'rgba(255,255,255,0.4)' }}>{ph}</button>
+                      ))}
+                    </div>
+                  </div>
+                  <div className={styles.inlineField}>
+                    <span className={styles.inlineLabel}>Capacity</span>
+                    <div style={{ display: 'flex', gap: 5, flexWrap: 'wrap', flex: 1 }}>
+                      {ELECTRICITY_KVA_OPTIONS.map(k => (
+                        <button key={k} onClick={() => setElectricityCapacity(k)} style={{ padding: '6px 10px', borderRadius: 8, fontSize: 10, fontWeight: 700, cursor: 'pointer', fontFamily: 'inherit', background: electricityCapacity === k ? 'rgba(250,204,21,0.12)' : 'rgba(255,255,255,0.03)', border: electricityCapacity === k ? '1.5px solid rgba(250,204,21,0.3)' : '1.5px solid rgba(255,255,255,0.06)', color: electricityCapacity === k ? '#FACC15' : 'rgba(255,255,255,0.4)' }}>{k}</button>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* ── INTERIOR FEATURES (all types) ── */}
+            <div style={{ background: 'rgba(0,0,0,0.6)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)', border: '1.5px solid rgba(141,198,63,0.2)', borderRadius: 20, padding: '16px 14px', boxShadow: '0 0 20px rgba(141,198,63,0.08)', position: 'relative', zIndex: 1 }}>
+              <h2 className={styles.inlineGroupTitle} style={{ paddingTop: 0, textShadow: '0 0 12px rgba(141,198,63,0.4)' }}>Interior Features</h2>
+              <p style={{ fontSize: 11, color: 'rgba(255,255,255,0.25)', margin: '-4px 0 8px', fontWeight: 500 }}>Rooms & indoor amenities</p>
+              <div style={{ position: 'relative', height: 2, marginBottom: 10, overflow: 'hidden' }}><div style={{ position: 'absolute', width: 60, height: 2, background: 'linear-gradient(90deg, transparent, #8DC63F, transparent)', animation: 'runGlow 3s ease-in-out infinite' }} /></div>
+
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 8, marginBottom: 12 }}>
+                {[
+                  { label: 'Dining Room', val: diningRoom, set: setDiningRoom },
+                  { label: 'Living Room', val: livingRoom, set: setLivingRoom },
+                  { label: 'Storage Room', val: storageRoom, set: setStorageRoom },
+                  { label: 'Maid Room', val: maidRoom, set: setMaidRoom },
+                  { label: 'Maid Bathroom', val: maidBathroom, set: setMaidBathroom },
+                  { label: 'Walk-in Closet', val: walkInCloset, set: setWalkInCloset },
+                  { label: 'Smart Home', val: smartHome, set: setSmartHome },
+                ].map(item => (
+                  <button key={item.label} onClick={() => item.set(!item.val)} style={{ padding: '10px 8px', borderRadius: 10, textAlign: 'center', cursor: 'pointer', fontFamily: 'inherit', border: item.val ? '1.5px solid rgba(141,198,63,0.3)' : '1.5px solid rgba(255,255,255,0.06)', background: item.val ? 'rgba(141,198,63,0.12)' : 'rgba(255,255,255,0.02)' }}>
+                    <div style={{ fontSize: 10, fontWeight: 700, color: item.val ? '#8DC63F' : 'rgba(255,255,255,0.3)' }}>{item.label}</div>
+                  </button>
+                ))}
+              </div>
+
+              <div className={styles.inlineGroup}>
+                <div className={styles.inlineField}>
+                  <span className={styles.inlineLabel}>Kitchen Type</span>
+                  <div style={{ display: 'flex', gap: 6, flex: 1 }}>
+                    {['Standard', 'Modern', 'Open'].map(o => (
+                      <button key={o} onClick={() => setKitchenType(o)} style={{ padding: '6px 10px', borderRadius: 8, fontSize: 10, fontWeight: 700, cursor: 'pointer', fontFamily: 'inherit', background: kitchenType === o ? 'rgba(141,198,63,0.15)' : 'rgba(255,255,255,0.03)', border: kitchenType === o ? '1.5px solid rgba(141,198,63,0.4)' : '1.5px solid rgba(255,255,255,0.08)', color: kitchenType === o ? '#8DC63F' : 'rgba(255,255,255,0.4)' }}>{o}</button>
+                    ))}
+                  </div>
+                </div>
+                <div className={styles.inlineField}>
+                  <span className={styles.inlineLabel}>Parking Car</span>
+                  <input className={`${styles.inlineInput} ${!parkingCar ? styles.inlineInputEmpty : ''}`} value={parkingCar} onChange={e => setParkingCar(e.target.value.replace(/[^0-9]/g, ''))} placeholder="0" inputMode="numeric" />
+                </div>
+                <div className={styles.inlineField}>
+                  <span className={styles.inlineLabel}>Parking Motorbike</span>
+                  <input className={`${styles.inlineInput} ${!parkingMotorbike ? styles.inlineInputEmpty : ''}`} value={parkingMotorbike} onChange={e => setParkingMotorbike(e.target.value.replace(/[^0-9]/g, ''))} placeholder="0" inputMode="numeric" />
+                </div>
+              </div>
+            </div>
+
+            {/* ── EXTERIOR FEATURES (all types) ── */}
+            <div style={{ background: 'rgba(0,0,0,0.6)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)', border: '1.5px solid rgba(141,198,63,0.2)', borderRadius: 20, padding: '16px 14px', boxShadow: '0 0 20px rgba(141,198,63,0.08)', position: 'relative', zIndex: 1 }}>
+              <h2 className={styles.inlineGroupTitle} style={{ paddingTop: 0, textShadow: '0 0 12px rgba(141,198,63,0.4)' }}>Exterior Features</h2>
+              <p style={{ fontSize: 11, color: 'rgba(255,255,255,0.25)', margin: '-4px 0 8px', fontWeight: 500 }}>Outdoor spaces</p>
+              <div style={{ position: 'relative', height: 2, marginBottom: 10, overflow: 'hidden' }}><div style={{ position: 'absolute', width: 60, height: 2, background: 'linear-gradient(90deg, transparent, #8DC63F, transparent)', animation: 'runGlow 3s ease-in-out infinite' }} /></div>
+
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 8 }}>
+                {[
+                  { label: 'Front Yard', val: frontYard, set: setFrontYard },
+                  { label: 'Terrace/Patio', val: terrace, set: setTerrace },
+                  { label: 'Gated Property', val: gatedProperty, set: setGatedProperty },
+                  { label: 'Outdoor Kitchen/BBQ', val: outdoorKitchen, set: setOutdoorKitchen },
+                ].map(item => (
+                  <button key={item.label} onClick={() => item.set(!item.val)} style={{ padding: '10px 8px', borderRadius: 10, textAlign: 'center', cursor: 'pointer', fontFamily: 'inherit', border: item.val ? '1.5px solid rgba(141,198,63,0.3)' : '1.5px solid rgba(255,255,255,0.06)', background: item.val ? 'rgba(141,198,63,0.12)' : 'rgba(255,255,255,0.02)' }}>
+                    <div style={{ fontSize: 10, fontWeight: 700, color: item.val ? '#8DC63F' : 'rgba(255,255,255,0.3)' }}>{item.label}</div>
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* ── UTILITIES (all types) ── */}
+            <div style={{ background: 'rgba(0,0,0,0.6)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)', border: '1.5px solid rgba(141,198,63,0.2)', borderRadius: 20, padding: '16px 14px', boxShadow: '0 0 20px rgba(141,198,63,0.08)', position: 'relative', zIndex: 1 }}>
+              <h2 className={styles.inlineGroupTitle} style={{ paddingTop: 0, textShadow: '0 0 12px rgba(141,198,63,0.4)' }}>Utilities & Infrastructure</h2>
+              <p style={{ fontSize: 11, color: 'rgba(255,255,255,0.25)', margin: '-4px 0 8px', fontWeight: 500 }}>Services available</p>
+              <div style={{ position: 'relative', height: 2, marginBottom: 10, overflow: 'hidden' }}><div style={{ position: 'absolute', width: 60, height: 2, background: 'linear-gradient(90deg, transparent, #8DC63F, transparent)', animation: 'runGlow 3s ease-in-out infinite' }} /></div>
+
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 8 }}>
+                {[
+                  { label: 'Internet', val: internetAvail, set: setInternetAvail },
+                  { label: 'Cable TV', val: cableTv, set: setCableTv },
+                  { label: 'Drainage System', val: drainageSystem, set: setDrainageSystem },
+                  { label: 'Septic Tank', val: septicTank, set: setSepticTank },
+                ].map(item => (
+                  <button key={item.label} onClick={() => item.set(!item.val)} style={{ padding: '10px 8px', borderRadius: 10, textAlign: 'center', cursor: 'pointer', fontFamily: 'inherit', border: item.val ? '1.5px solid rgba(141,198,63,0.3)' : '1.5px solid rgba(255,255,255,0.06)', background: item.val ? 'rgba(141,198,63,0.12)' : 'rgba(255,255,255,0.02)' }}>
+                    <div style={{ fontSize: 10, fontWeight: 700, color: item.val ? '#8DC63F' : 'rgba(255,255,255,0.3)' }}>{item.label}</div>
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* ── SECURITY (all types) ── */}
+            <div style={{ background: 'rgba(0,0,0,0.6)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)', border: '1.5px solid rgba(141,198,63,0.2)', borderRadius: 20, padding: '16px 14px', boxShadow: '0 0 20px rgba(141,198,63,0.08)', position: 'relative', zIndex: 1 }}>
+              <h2 className={styles.inlineGroupTitle} style={{ paddingTop: 0, textShadow: '0 0 12px rgba(141,198,63,0.4)' }}>Security Features</h2>
+              <p style={{ fontSize: 11, color: 'rgba(255,255,255,0.25)', margin: '-4px 0 8px', fontWeight: 500 }}>Safety & access control</p>
+              <div style={{ position: 'relative', height: 2, marginBottom: 10, overflow: 'hidden' }}><div style={{ position: 'absolute', width: 60, height: 2, background: 'linear-gradient(90deg, transparent, #8DC63F, transparent)', animation: 'runGlow 3s ease-in-out infinite' }} /></div>
+
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 8 }}>
+                {[
+                  { label: '24h Security', val: security24h, set: setSecurity24h },
+                  { label: 'Alarm System', val: alarmSystem, set: setAlarmSystem },
+                  { label: 'Smart Lock', val: smartLock, set: setSmartLock },
+                  { label: 'One Gate System', val: oneGateSystem, set: setOneGateSystem },
+                ].map(item => (
+                  <button key={item.label} onClick={() => item.set(!item.val)} style={{ padding: '10px 8px', borderRadius: 10, textAlign: 'center', cursor: 'pointer', fontFamily: 'inherit', border: item.val ? '1.5px solid rgba(141,198,63,0.3)' : '1.5px solid rgba(255,255,255,0.06)', background: item.val ? 'rgba(141,198,63,0.12)' : 'rgba(255,255,255,0.02)' }}>
+                    <div style={{ fontSize: 10, fontWeight: 700, color: item.val ? '#8DC63F' : 'rgba(255,255,255,0.3)' }}>{item.label}</div>
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* ── COMPLEX FACILITIES (all types) ── */}
+            <div style={{ background: 'rgba(0,0,0,0.6)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)', border: '1.5px solid rgba(141,198,63,0.2)', borderRadius: 20, padding: '16px 14px', boxShadow: '0 0 20px rgba(141,198,63,0.08)', position: 'relative', zIndex: 1 }}>
+              <h2 className={styles.inlineGroupTitle} style={{ paddingTop: 0, textShadow: '0 0 12px rgba(141,198,63,0.4)' }}>Building Facilities</h2>
+              <p style={{ fontSize: 11, color: 'rgba(255,255,255,0.25)', margin: '-4px 0 8px', fontWeight: 500 }}>Shared complex amenities</p>
+              <div style={{ position: 'relative', height: 2, marginBottom: 10, overflow: 'hidden' }}><div style={{ position: 'absolute', width: 60, height: 2, background: 'linear-gradient(90deg, transparent, #8DC63F, transparent)', animation: 'runGlow 3s ease-in-out infinite' }} /></div>
+
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 8 }}>
+                {[
+                  { label: 'Elevator', val: elevator, set: setElevator },
+                  { label: 'Gym', val: gym, set: setGym },
+                  { label: 'Playground', val: playground, set: setPlayground },
+                  { label: 'Clubhouse', val: clubhouse, set: setClubhouse },
+                  { label: 'Jogging Track', val: joggingTrack, set: setJoggingTrack },
+                  { label: 'Basement Parking', val: basementParking, set: setBasementParking },
+                  { label: 'Shared Pool', val: sharedPool, set: setSharedPool },
+                  { label: 'Mosque', val: mosque, set: setMosque },
+                ].map(item => (
+                  <button key={item.label} onClick={() => item.set(!item.val)} style={{ padding: '10px 8px', borderRadius: 10, textAlign: 'center', cursor: 'pointer', fontFamily: 'inherit', border: item.val ? '1.5px solid rgba(141,198,63,0.3)' : '1.5px solid rgba(255,255,255,0.06)', background: item.val ? 'rgba(141,198,63,0.12)' : 'rgba(255,255,255,0.02)' }}>
+                    <div style={{ fontSize: 10, fontWeight: 700, color: item.val ? '#8DC63F' : 'rgba(255,255,255,0.3)' }}>{item.label}</div>
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* ── ACCESS & ENVIRONMENT (all types) ── */}
+            <div style={{ background: 'rgba(0,0,0,0.6)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)', border: '1.5px solid rgba(141,198,63,0.2)', borderRadius: 20, padding: '16px 14px', boxShadow: '0 0 20px rgba(141,198,63,0.08)', position: 'relative', zIndex: 1 }}>
+              <h2 className={styles.inlineGroupTitle} style={{ paddingTop: 0, textShadow: '0 0 12px rgba(141,198,63,0.4)' }}>Location Features</h2>
+              <p style={{ fontSize: 11, color: 'rgba(255,255,255,0.25)', margin: '-4px 0 8px', fontWeight: 500 }}>Surroundings & access</p>
+              <div style={{ position: 'relative', height: 2, marginBottom: 10, overflow: 'hidden' }}><div style={{ position: 'absolute', width: 60, height: 2, background: 'linear-gradient(90deg, transparent, #8DC63F, transparent)', animation: 'runGlow 3s ease-in-out infinite' }} /></div>
+
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 8, marginBottom: 12 }}>
+                {[
+                  { label: 'Corner Lot', val: cornerLot, set: setCornerLot },
+                  { label: 'Quiet Area', val: quietNeighborhood, set: setQuietNeighborhood },
+                  { label: 'Near Main Road', val: nearMainRoad, set: setNearMainRoad },
+                  { label: 'Near Schools', val: nearSchools, set: setNearSchools },
+                  { label: 'Near Hospital', val: nearHospital, set: setNearHospital },
+                  { label: 'Near Shopping', val: nearShopping, set: setNearShopping },
+                ].map(item => (
+                  <button key={item.label} onClick={() => item.set(!item.val)} style={{ padding: '10px 8px', borderRadius: 10, textAlign: 'center', cursor: 'pointer', fontFamily: 'inherit', border: item.val ? '1.5px solid rgba(141,198,63,0.3)' : '1.5px solid rgba(255,255,255,0.06)', background: item.val ? 'rgba(141,198,63,0.12)' : 'rgba(255,255,255,0.02)' }}>
+                    <div style={{ fontSize: 10, fontWeight: 700, color: item.val ? '#8DC63F' : 'rgba(255,255,255,0.3)' }}>{item.label}</div>
+                  </button>
+                ))}
+              </div>
+
+              <div className={styles.inlineGroup}>
+                <div className={styles.inlineField}>
+                  <span className={styles.inlineLabel}>View Type</span>
+                  <div style={{ display: 'flex', gap: 5, flexWrap: 'wrap', flex: 1 }}>
+                    {['No View', 'Sea View', 'Mountain View', 'City View', 'Garden View', 'Pool View'].map(o => (
+                      <button key={o} onClick={() => setViewType(o)} style={{ padding: '5px 8px', borderRadius: 6, fontSize: 9, fontWeight: 700, cursor: 'pointer', fontFamily: 'inherit', background: viewType === o ? 'rgba(141,198,63,0.15)' : 'rgba(255,255,255,0.03)', border: viewType === o ? '1.5px solid rgba(141,198,63,0.4)' : '1.5px solid rgba(255,255,255,0.08)', color: viewType === o ? '#8DC63F' : 'rgba(255,255,255,0.4)' }}>{o}</button>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* ── CONDITION & STATUS (all types) ── */}
+            <div style={{ background: 'rgba(0,0,0,0.6)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)', border: '1.5px solid rgba(141,198,63,0.2)', borderRadius: 20, padding: '16px 14px', boxShadow: '0 0 20px rgba(141,198,63,0.08)', position: 'relative', zIndex: 1 }}>
+              <h2 className={styles.inlineGroupTitle} style={{ paddingTop: 0, textShadow: '0 0 12px rgba(141,198,63,0.4)' }}>Condition & Status</h2>
+              <p style={{ fontSize: 11, color: 'rgba(255,255,255,0.25)', margin: '-4px 0 8px', fontWeight: 500 }}>Current state</p>
+              <div style={{ position: 'relative', height: 2, marginBottom: 10, overflow: 'hidden' }}><div style={{ position: 'absolute', width: 60, height: 2, background: 'linear-gradient(90deg, transparent, #8DC63F, transparent)', animation: 'runGlow 3s ease-in-out infinite' }} /></div>
+
+              <div className={styles.inlineGroup}>
+                <div className={styles.inlineField}>
+                  <span className={styles.inlineLabel}>Renovation Year</span>
+                  <input className={`${styles.inlineInput} ${!renovationYear ? styles.inlineInputEmpty : ''}`} value={renovationYear} onChange={e => setRenovationYear(e.target.value.replace(/[^0-9]/g, ''))} placeholder="2023" inputMode="numeric" maxLength={4} />
+                </div>
+                <div className={styles.inlineField}>
+                  <span className={styles.inlineLabel}>Occupancy Status</span>
+                  <div style={{ display: 'flex', gap: 6, flex: 1 }}>
+                    {['Vacant', 'Rented', 'Owner-Occupied'].map(o => (
+                      <button key={o} onClick={() => setOccupancyStatus(o)} style={{ padding: '6px 10px', borderRadius: 8, fontSize: 10, fontWeight: 700, cursor: 'pointer', fontFamily: 'inherit', background: occupancyStatus === o ? 'rgba(141,198,63,0.15)' : 'rgba(255,255,255,0.03)', border: occupancyStatus === o ? '1.5px solid rgba(141,198,63,0.4)' : '1.5px solid rgba(255,255,255,0.08)', color: occupancyStatus === o ? '#8DC63F' : 'rgba(255,255,255,0.4)' }}>{o}</button>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* ── Construction & Quality ── */}
+            <div style={{ background: 'rgba(0,0,0,0.6)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)', border: '1.5px solid rgba(250,204,21,0.2)', borderRadius: 20, padding: '16px 14px', boxShadow: '0 0 20px rgba(250,204,21,0.06)', position: 'relative', zIndex: 1 }}>
+              <h2 className={styles.inlineGroupTitle} style={{ paddingTop: 0, color: '#FACC15', textShadow: '0 0 12px rgba(250,204,21,0.4)' }}>Construction & Quality</h2>
+              <p style={{ fontSize: 11, color: 'rgba(255,255,255,0.25)', margin: '-4px 0 8px', fontWeight: 500 }}>Build materials, structure type & finish level</p>
+              <div style={{ position: 'relative', height: 2, marginBottom: 10, overflow: 'hidden' }}><div style={{ position: 'absolute', width: 60, height: 2, background: 'linear-gradient(90deg, transparent, #FACC15, transparent)', animation: 'runGlow 3s ease-in-out infinite' }} /></div>
+
+              <div className={styles.inlineGroup}>
+                <div className={styles.inlineField}>
+                  <span className={styles.inlineLabel}>Structure</span>
+                  <div style={{ display: 'flex', gap: 5, flexWrap: 'wrap', flex: 1 }}>
+                    {['Reinforced Concrete', 'Brick', 'Wood', 'Steel Frame', 'Prefab'].map(o => (
+                      <button key={o} onClick={() => setStructureType(o)} style={{ padding: '6px 10px', borderRadius: 8, fontSize: 10, fontWeight: 700, cursor: 'pointer', fontFamily: 'inherit', background: structureType === o ? 'rgba(250,204,21,0.12)' : 'rgba(255,255,255,0.03)', border: structureType === o ? '1.5px solid rgba(250,204,21,0.3)' : '1.5px solid rgba(255,255,255,0.06)', color: structureType === o ? '#FACC15' : 'rgba(255,255,255,0.4)' }}>{o}</button>
+                    ))}
+                  </div>
+                </div>
+                <div className={styles.inlineField}>
+                  <span className={styles.inlineLabel}>Roof</span>
+                  <div style={{ display: 'flex', gap: 5, flexWrap: 'wrap', flex: 1 }}>
+                    {['Clay Tile', 'Metal', 'Concrete', 'Thatch', 'Shingle'].map(o => (
+                      <button key={o} onClick={() => setRoofType(o)} style={{ padding: '6px 10px', borderRadius: 8, fontSize: 10, fontWeight: 700, cursor: 'pointer', fontFamily: 'inherit', background: roofType === o ? 'rgba(250,204,21,0.12)' : 'rgba(255,255,255,0.03)', border: roofType === o ? '1.5px solid rgba(250,204,21,0.3)' : '1.5px solid rgba(255,255,255,0.06)', color: roofType === o ? '#FACC15' : 'rgba(255,255,255,0.4)' }}>{o}</button>
+                    ))}
+                  </div>
+                </div>
+                <div className={styles.inlineField}>
+                  <span className={styles.inlineLabel}>Walls</span>
+                  <div style={{ display: 'flex', gap: 5, flexWrap: 'wrap', flex: 1 }}>
+                    {['Plastered Brick', 'Exposed Brick', 'Concrete', 'Wood Panel', 'Glass'].map(o => (
+                      <button key={o} onClick={() => setWallMaterial(o)} style={{ padding: '6px 10px', borderRadius: 8, fontSize: 10, fontWeight: 700, cursor: 'pointer', fontFamily: 'inherit', background: wallMaterial === o ? 'rgba(250,204,21,0.12)' : 'rgba(255,255,255,0.03)', border: wallMaterial === o ? '1.5px solid rgba(250,204,21,0.3)' : '1.5px solid rgba(255,255,255,0.06)', color: wallMaterial === o ? '#FACC15' : 'rgba(255,255,255,0.4)' }}>{o}</button>
+                    ))}
+                  </div>
+                </div>
+                <div className={styles.inlineField}>
+                  <span className={styles.inlineLabel}>Flooring</span>
+                  <div style={{ display: 'flex', gap: 5, flexWrap: 'wrap', flex: 1 }}>
+                    {['Ceramic', 'Marble', 'Granite', 'Wood/Parquet', 'Vinyl', 'Polished Concrete'].map(o => (
+                      <button key={o} onClick={() => setFlooringType(o)} style={{ padding: '6px 10px', borderRadius: 8, fontSize: 10, fontWeight: 700, cursor: 'pointer', fontFamily: 'inherit', background: flooringType === o ? 'rgba(250,204,21,0.12)' : 'rgba(255,255,255,0.03)', border: flooringType === o ? '1.5px solid rgba(250,204,21,0.3)' : '1.5px solid rgba(255,255,255,0.06)', color: flooringType === o ? '#FACC15' : 'rgba(255,255,255,0.4)' }}>{o}</button>
+                    ))}
+                  </div>
+                </div>
+                <div className={styles.inlineField}>
+                  <span className={styles.inlineLabel}>Foundation</span>
+                  <div style={{ display: 'flex', gap: 5, flexWrap: 'wrap', flex: 1 }}>
+                    {['Pile', 'Strip', 'Raft', 'Pad', 'Unknown'].map(o => (
+                      <button key={o} onClick={() => setFoundationType(o)} style={{ padding: '6px 10px', borderRadius: 8, fontSize: 10, fontWeight: 700, cursor: 'pointer', fontFamily: 'inherit', background: foundationType === o ? 'rgba(250,204,21,0.12)' : 'rgba(255,255,255,0.03)', border: foundationType === o ? '1.5px solid rgba(250,204,21,0.3)' : '1.5px solid rgba(255,255,255,0.06)', color: foundationType === o ? '#FACC15' : 'rgba(255,255,255,0.4)' }}>{o}</button>
+                    ))}
+                  </div>
+                </div>
+                <div className={styles.inlineField}>
+                  <span className={styles.inlineLabel}>Quality</span>
+                  <div style={{ display: 'flex', gap: 6, flex: 1 }}>
+                    {['Standard', 'Premium', 'Luxury'].map(o => (
+                      <button key={o} onClick={() => setBuildQuality(o)} style={{ flex: 1, padding: '10px 6px', borderRadius: 10, fontSize: 12, fontWeight: 800, cursor: 'pointer', fontFamily: 'inherit', textAlign: 'center', background: buildQuality === o ? (o === 'Luxury' ? 'rgba(250,204,21,0.15)' : o === 'Premium' ? 'rgba(141,198,63,0.12)' : 'rgba(255,255,255,0.06)') : 'rgba(255,255,255,0.03)', border: buildQuality === o ? (o === 'Luxury' ? '1.5px solid #FACC15' : o === 'Premium' ? '1.5px solid #8DC63F' : '1.5px solid rgba(255,255,255,0.2)') : '1.5px solid rgba(255,255,255,0.06)', color: buildQuality === o ? (o === 'Luxury' ? '#FACC15' : o === 'Premium' ? '#8DC63F' : '#fff') : 'rgba(255,255,255,0.4)' }}>{o}</button>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* ── Warranty & Guarantees ── */}
+            <div style={{ background: 'rgba(0,0,0,0.6)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)', border: '1.5px solid rgba(96,165,250,0.2)', borderRadius: 20, padding: '16px 14px', boxShadow: '0 0 20px rgba(96,165,250,0.06)', position: 'relative', zIndex: 1 }}>
+              <h2 className={styles.inlineGroupTitle} style={{ paddingTop: 0, color: '#60A5FA', textShadow: '0 0 12px rgba(96,165,250,0.4)' }}>Warranty & Guarantees</h2>
+              <p style={{ fontSize: 11, color: 'rgba(255,255,255,0.25)', margin: '-4px 0 8px', fontWeight: 500 }}>Optional — adds trust and boosts conversions</p>
+              <div style={{ position: 'relative', height: 2, marginBottom: 10, overflow: 'hidden' }}><div style={{ position: 'absolute', width: 60, height: 2, background: 'linear-gradient(90deg, transparent, #60A5FA, transparent)', animation: 'runGlow 3s ease-in-out infinite' }} /></div>
+
+              <div className={styles.inlineGroup}>
+                <div className={styles.inlineField}>
+                  <span className={styles.inlineLabel}>Structure</span>
+                  <input className={styles.inlineInput} value={warrantyStructure} onChange={e => setWarrantyStructure(e.target.value)} placeholder="e.g. 10 years (until 2034)" />
+                </div>
+                <div className={styles.inlineField}>
+                  <span className={styles.inlineLabel}>Roof</span>
+                  <input className={styles.inlineInput} value={warrantyRoof} onChange={e => setWarrantyRoof(e.target.value)} placeholder="e.g. 5 years" />
+                </div>
+                <div className={styles.inlineField}>
+                  <span className={styles.inlineLabel}>Waterproof</span>
+                  <input className={styles.inlineInput} value={warrantyWaterproofing} onChange={e => setWarrantyWaterproofing(e.target.value)} placeholder="e.g. 2 years" />
+                </div>
+                <div className={styles.inlineField}>
+                  <span className={styles.inlineLabel}>Electrical</span>
+                  <input className={styles.inlineInput} value={warrantyElectrical} onChange={e => setWarrantyElectrical(e.target.value)} placeholder="e.g. 1 year" />
+                </div>
+                <div className={styles.inlineField}>
+                  <span className={styles.inlineLabel}>Developer</span>
+                  <input className={styles.inlineInput} value={warrantyDeveloper} onChange={e => setWarrantyDeveloper(e.target.value)} placeholder="e.g. Ciputra Group — 5 year guarantee" />
+                </div>
+              </div>
+            </div>
+
             {/* ── UNIVERSAL FIELDS (all property types) ── */}
             <div style={{ background: 'rgba(0,0,0,0.6)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)', border: '1.5px solid rgba(141,198,63,0.2)', borderRadius: 20, padding: '16px 14px', boxShadow: '0 0 20px rgba(141,198,63,0.08)', position: 'relative', zIndex: 1 }}>
               <h2 className={styles.inlineGroupTitle} style={{ paddingTop: 0, textShadow: '0 0 12px rgba(141,198,63,0.4)' }}>Media & Policies</h2>
@@ -1107,6 +1726,32 @@ export default function PropertyListingForm({ open, onClose, onSubmit, editListi
                   <div style={{ fontSize: 12, fontWeight: 900, color: '#8DC63F', whiteSpace: 'nowrap' }}>Rp {p.price}</div>
                 </div>
               ))}
+            </div>
+
+            {/* ── Offer Settings ── */}
+            <div style={{ background: 'rgba(0,0,0,0.6)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)', border: '1.5px solid rgba(250,204,21,0.2)', borderRadius: 20, padding: '16px 14px', boxShadow: '0 0 20px rgba(250,204,21,0.06)', marginTop: 14 }}>
+              <h2 className={styles.inlineGroupTitle} style={{ paddingTop: 0, color: '#FACC15', textShadow: '0 0 12px rgba(250,204,21,0.4)' }}>Offer Settings</h2>
+              <p style={{ fontSize: 11, color: 'rgba(255,255,255,0.25)', margin: '-4px 0 8px', fontWeight: 500 }}>Let buyers make offers on your property</p>
+
+              {/* Enable offers toggle */}
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '12px 0', borderBottom: '1px solid rgba(255,255,255,0.04)' }}>
+                <div>
+                  <div style={{ fontSize: 13, fontWeight: 700, color: 'rgba(255,255,255,0.5)' }}>Accept Offers</div>
+                  <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.2)' }}>Buyers can submit offers on your listing</div>
+                </div>
+                <div onClick={() => setOffersEnabled(!offersEnabled)} style={{ width: 44, height: 24, borderRadius: 12, background: offersEnabled ? 'rgba(141,198,63,0.3)' : 'rgba(255,255,255,0.06)', border: offersEnabled ? '1.5px solid #8DC63F' : '1.5px solid rgba(255,255,255,0.06)', position: 'relative', cursor: 'pointer', transition: 'all 0.2s' }}>
+                  <div style={{ width: 18, height: 18, borderRadius: 9, background: offersEnabled ? '#8DC63F' : 'rgba(255,255,255,0.4)', position: 'absolute', top: 2, left: offersEnabled ? 22 : 2, transition: 'all 0.2s' }} />
+                </div>
+              </div>
+
+              {offersEnabled && (
+                <div className={styles.inlineField} style={{ paddingTop: 14 }}>
+                  <span className={styles.inlineLabel}>Min Price</span>
+                  <input className={styles.inlineInput} value={minAcceptedPrice} onChange={e => setMinAcceptedPrice(e.target.value.replace(/[^0-9.]/g, ''))} placeholder="Lowest you'll consider (optional)" inputMode="numeric" />
+                  {minAcceptedPrice && <span style={{ fontSize: 11, color: '#FACC15', fontWeight: 700, whiteSpace: 'nowrap', marginLeft: 8 }}>Rp {minAcceptedPrice}</span>}
+                </div>
+              )}
+              {offersEnabled && <p style={{ fontSize: 10, color: 'rgba(255,255,255,0.15)', margin: '6px 0 0', paddingLeft: 92 }}>Buyers below this amount can still offer — you'll see their budget for potential redirect</p>}
             </div>
           </div>
         )}

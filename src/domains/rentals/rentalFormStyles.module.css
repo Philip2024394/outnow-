@@ -398,3 +398,19 @@
 .doneTitle { font-size: 26px; font-weight: 900; color: #fff; margin: 0; letter-spacing: -0.02em; }
 .doneSub { font-size: 14px; color: rgba(255,255,255,0.35); max-width: 280px; line-height: 1.5; }
 .doneBtn { padding: 16px 48px; margin-top: 12px; background: #8DC63F; border: none; border-radius: 14px; color: #0a0b0d; font-size: 16px; font-weight: 800; cursor: pointer; font-family: inherit; box-shadow: 0 4px 20px rgba(141,198,63,0.3), 0 0 40px rgba(141,198,63,0.1); }
+
+/* ══════════════════════════════════════════════════════════════════════════════
+   DESKTOP — full-width layout with comfortable padding
+   ══════════════════════════════════════════════════════════════════════════════ */
+@media (min-width: 768px) {
+  .screen { background-size: cover; background-position: center; }
+  .content { padding: 4px 48px 80px; }
+  .header { padding: 18px 48px 14px; }
+  .progress { padding: 0 48px 14px; }
+  .footer { padding: 16px 48px calc(env(safe-area-inset-bottom, 8px) + 16px); }
+  .form { max-width: 100%; display: grid; grid-template-columns: 1fr 1fr; gap: 18px; }
+  .form > *:only-child,
+  .form > *:last-child:nth-child(odd) { grid-column: 1 / -1; }
+  .mainImageImg { aspect-ratio: 16/9; max-height: 360px; }
+  .mainImageAdd { aspect-ratio: 16/9; max-height: 360px; }
+}

@@ -47,6 +47,8 @@ const FEATURES = [
   { icon: '🚇', title: 'Transport Nearby', desc: 'MRT, KRL, LRT, bus stations with transit score', toolId: 'transport' },
   { icon: '🏢', title: 'Agent Directory', desc: 'Verified agents with portfolios & testimonials', toolId: 'agents' },
   { icon: '🏗️', title: 'New Projects', desc: 'Pre-sale villas, apartments — brochures & floor plans', toolId: 'newprojects' },
+  { icon: '🔍', title: 'Property Wanted', desc: 'Post what you need — agents respond with matching listings', toolId: 'wanted' },
+  { icon: '🌏', title: 'Global Invest', desc: 'Foreign-eligible properties with supervised transactions', toolId: 'invest' },
 ]
 
 // Sample listing for tool demos
@@ -71,7 +73,7 @@ function PropertyCard({ l, onClick }) {
   const price = l.buy_now ? (typeof l.buy_now === 'object' ? l.buy_now.price : l.buy_now) : l.price_month || l.price_day
   const ef = l.extra_fields || {}
   return (
-    <div className="ws-card" onClick={onClick} style={{ borderRadius: 16, overflow: 'hidden', background: 'rgba(0,0,0,0.4)', border: '1px solid rgba(255,255,255,0.06)' }}>
+    <div className="ws-card" onClick={onClick} style={{ borderRadius: 16, overflow: 'hidden', background: 'rgba(0,0,0,0.65)', border: '1px solid rgba(255,255,255,0.06)' }}>
       <div style={{ height: 200, overflow: 'hidden', position: 'relative' }}>
         <img src={l.images?.[0]} alt={l.title} style={{ width: '100%', height: '100%', objectFit: 'cover' }} loading="lazy" />
         <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(transparent 60%, rgba(0,0,0,0.6))' }} />
@@ -285,7 +287,7 @@ export default function HomePage({ onSearch, onBrowseSale, onBrowseRent, onBrows
               const count = allProperty.filter(l => l.sub_category === t.id || l.extra_fields?.property_type === t.id).length
               return (
                 <ScrollReveal key={t.id} delay={i * 0.05}>
-                  <div className="ws-card" onClick={() => onSearch?.(t.id)} style={{ padding: '22px 16px', borderRadius: 16, background: 'rgba(0,0,0,0.4)', border: '1px solid rgba(255,255,255,0.05)', textAlign: 'center' }}>
+                  <div className="ws-card" onClick={() => onSearch?.(t.id)} style={{ padding: '22px 16px', borderRadius: 16, background: 'rgba(0,0,0,0.65)', border: '1px solid rgba(255,255,255,0.05)', textAlign: 'center' }}>
                     <div style={{ fontSize: 32, marginBottom: 6 }}>{t.icon}</div>
                     <div style={{ fontSize: 15, fontWeight: 800, color: '#fff' }}>{t.label}</div>
                     <div style={{ fontSize: 12, color: '#8DC63F', fontWeight: 700, marginTop: 4 }}>{count} listings</div>
@@ -324,7 +326,7 @@ export default function HomePage({ onSearch, onBrowseSale, onBrowseRent, onBrows
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 16 }}>
             {FEATURES.map((f, i) => (
               <ScrollReveal key={f.title} delay={i * 0.05}>
-                <div className="ws-card" onClick={() => { if (f.toolId === 'agents' || f.toolId === 'dealhunt' || f.toolId === 'newprojects') { onNavigate?.(f.toolId === 'dealhunt' ? 'home' : f.toolId) } else { setActiveTool(f.toolId) } }} style={{ padding: '24px 20px', borderRadius: 16, background: 'rgba(0,0,0,0.4)', border: '1px solid rgba(255,255,255,0.05)', cursor: 'pointer' }}>
+                <div className="ws-card" onClick={() => { if (['agents', 'newprojects', 'wanted', 'invest'].includes(f.toolId)) { onNavigate?.(f.toolId) } else if (f.toolId === 'dealhunt') { onNavigate?.('home') } else { setActiveTool(f.toolId) } }} style={{ padding: '24px 20px', borderRadius: 16, background: 'rgba(0,0,0,0.65)', border: '1px solid rgba(255,255,255,0.05)', cursor: 'pointer' }}>
                   <div style={{ fontSize: 28, marginBottom: 10 }}>{f.icon}</div>
                   <div style={{ fontSize: 15, fontWeight: 800, color: '#fff', marginBottom: 6 }}>{f.title}</div>
                   <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.35)', lineHeight: 1.5 }}>{f.desc}</div>

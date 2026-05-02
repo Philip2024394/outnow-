@@ -19,9 +19,11 @@ const DEMO_PROJECTS = [
     amenities: ['Swimming Pool', 'Gym', 'Security 24h', 'Garden', 'Playground', 'Mosque', 'Jogging Track'],
     payment_schedule: 'Booking fee Rp 5M → DP 20% (3x installment over 3 months) → KPR Bank or Cash',
     images: ['https://images.unsplash.com/photo-1600585154340-be6161a56a0c?w=600', 'https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?w=600'],
-    video_url: null, brochure_url: null, floor_plans: [], site_plan_url: null, progress_photos: [],
+    video_url: 'https://www.youtube.com/embed/dQw4w9WgXcQ', brochure_url: null, floor_plans: [], site_plan_url: null, progress_photos: [],
     contact_whatsapp: '081234567890', contact_email: 'sales@ciputra.com', website: 'ciputra.com', instagram: 'ciputragroup',
     min_price: 450000000, max_price: 850000000, total_units: 50, units_sold: 25, verified: true, view_count: 342, inquiry_count: 28,
+    site_office: { address: 'Jl. Kaliurang KM 8 No. 22, Sleman', phone: '081234567890', hours: { weekdays: '08:30 - 17:00', saturday: '09:00 - 15:00', sunday: 'Closed' } },
+    viewing_schedule: { days: ['mon','tue','wed','thu','fri','sat'], morning: true, afternoon: true, evening: false, notes: 'Walk-ins welcome weekdays' },
   },
   {
     id: 'np2', project_name: 'The Green Villas Kaliurang', developer_name: 'Jogja Land Development',
@@ -39,6 +41,8 @@ const DEMO_PROJECTS = [
     video_url: null, brochure_url: null, floor_plans: [], site_plan_url: null, progress_photos: [],
     contact_whatsapp: '087654321098', contact_email: 'sales@jogjaland.com', website: null, instagram: 'jogjaland',
     min_price: 1200000000, max_price: 2800000000, total_units: 20, units_sold: 8, verified: true, view_count: 189, inquiry_count: 15,
+    site_office: { address: 'Kaliurang KM 20, Sleman', phone: '087654321098', hours: { weekdays: '09:00 - 17:00', saturday: '09:00 - 14:00', sunday: 'By Appointment' } },
+    viewing_schedule: { days: ['mon','tue','wed','thu','fri','sat'], morning: true, afternoon: true, evening: false, notes: 'Site visits by appointment only' },
   },
   {
     id: 'np3', project_name: 'Apartemen Malioboro Square', developer_name: 'PP Properti',
@@ -57,6 +61,8 @@ const DEMO_PROJECTS = [
     video_url: null, brochure_url: null, floor_plans: [], site_plan_url: null, progress_photos: [],
     contact_whatsapp: '081111222333', contact_email: 'marketing@ppproperti.com', website: 'ppproperti.com', instagram: 'ppproperti',
     min_price: 350000000, max_price: 1500000000, total_units: 200, units_sold: 56, verified: true, view_count: 567, inquiry_count: 43,
+    site_office: { address: 'Jl. Malioboro No. 52, Gedongtengen, Yogyakarta', phone: '081111222333', hours: { weekdays: '09:00 - 18:00', saturday: '10:00 - 16:00', sunday: 'Closed' } },
+    viewing_schedule: { days: ['mon','tue','wed','thu','fri','sat'], morning: true, afternoon: true, evening: false, notes: 'Show unit available daily' },
   },
 ]
 

@@ -12,7 +12,7 @@ const glass = {
   borderRadius: 14,
 }
 
-const PROPERTY_TYPES = ['Rumah', 'Apartemen', 'Villa', 'Kos', 'Tanah', 'Ruko', 'Gudang', 'Pabrik']
+const PROPERTY_TYPES = ['House', 'Villa', 'Apartment', 'Condominium', 'Townhouse', 'Studio', 'Serviced Apartment', 'Penthouse', 'Kos', 'Room', 'Bungalow', 'Ruko', 'Office', 'Restaurant', 'Co-working', 'Gudang', 'Pabrik', 'Tanah']
 const CERTIFICATES = ['SHM', 'HGB', 'PPJB', 'Hak Pakai', 'Girik', 'AJB', 'SHMSRS', 'Petok D', 'Adat']
 const FURNISHED_OPTS = ['Fully Furnished', 'Semi Furnished', 'Unfurnished']
 const AMENITIES = [

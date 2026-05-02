@@ -39,6 +39,8 @@ import WebsiteUsersTab from './tabs/WebsiteUsersTab'
 import RentalListingsAdminTab from './tabs/RentalListingsAdminTab'
 import ReviewsAdminTab from './tabs/ReviewsAdminTab'
 import NewProjectsAdminTab from './tabs/NewProjectsAdminTab'
+import WantedPropertyAdminTab from './tabs/WantedPropertyAdminTab'
+import InvestorAdminTab from './tabs/InvestorAdminTab'
 
 const LOGO = 'https://ik.imagekit.io/dateme/Logo%20with%20green%20map%20pin%20element.png'
 
@@ -83,6 +85,8 @@ const NAV = [
   { id: 'listings_admin', icon: '🏠', label: 'Listings' },
   { id: 'reviews_admin',  icon: '⭐', label: 'Reviews' },
   { id: 'projects_admin', icon: '🏗️', label: 'Projects' },
+  { id: 'wanted_admin',   icon: '🔍', label: 'Wanted' },
+  { id: 'investor_admin', icon: '🌏', label: 'Investors' },
 ]
 
 export default function AdminDashboard({ onLogout }) {
@@ -235,6 +239,8 @@ export default function AdminDashboard({ onLogout }) {
           {tab === 'listings_admin' && <RentalListingsAdminTab />}
           {tab === 'reviews_admin' && <ReviewsAdminTab />}
           {tab === 'projects_admin' && <NewProjectsAdminTab />}
+          {tab === 'wanted_admin' && <WantedPropertyAdminTab />}
+          {tab === 'investor_admin' && <InvestorAdminTab />}
         </div>
       </div>
     </div>

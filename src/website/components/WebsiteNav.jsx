@@ -11,9 +11,11 @@ const NAV = [
   { id: 'home', label: 'Home' },
   { id: 'sale', label: 'For Sale' },
   { id: 'rent', label: 'For Rent' },
+  { id: 'wanted', label: 'Wanted' },
+  { id: 'invest', label: 'Global Invest' },
   { id: 'newprojects', label: 'New Projects' },
   { id: 'agents', label: 'Agents' },
-  { id: 'kpr', label: 'KPR Calculator' },
+  { id: 'kpr', label: 'KPR' },
 ]
 
 export default function WebsiteNav({ activePage, onNavigate, onSearch }) {
@@ -42,12 +44,17 @@ export default function WebsiteNav({ activePage, onNavigate, onSearch }) {
       <nav style={{
         position: 'sticky', top: 0, zIndex: 9999,
         background: 'rgba(10,10,10,0.92)', backdropFilter: 'blur(24px)', WebkitBackdropFilter: 'blur(24px)',
-        borderBottom: '1px solid rgba(255,255,255,0.06)',
+        borderBottom: 'none',
         padding: '0 48px', height: 64, display: 'flex', alignItems: 'center', gap: 20,
       }}>
+        {/* Green rim with running light */}
+        <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, height: 2, background: 'rgba(141,198,63,0.25)', overflow: 'hidden' }}>
+          <div style={{ position: 'absolute', width: 120, height: '100%', background: 'linear-gradient(90deg, transparent, #8DC63F, #8DC63F, transparent)', animation: 'navRunLight 3s ease-in-out infinite' }} />
+        </div>
+        <style>{`@keyframes navRunLight { 0% { left: -120px; } 100% { left: 100%; } }`}</style>
         <a href="/property" onClick={e => { e.preventDefault(); onNavigate?.('home') }} style={{ display: 'flex', alignItems: 'center', gap: 8, textDecoration: 'none', flexShrink: 0, marginRight: 8 }}>
           <img src={LOGO} alt="Indoo" style={{ height: 32 }} />
-          <span style={{ fontSize: 12, fontWeight: 800, color: 'rgba(255,255,255,0.3)', letterSpacing: '0.1em' }}>PROPERTY</span>
+          <span style={{ fontSize: 16, fontWeight: 900, letterSpacing: '0.08em' }}><span style={{ color: '#fff' }}>IND</span><span style={{ color: '#8DC63F' }}>OO</span> <span style={{ color: '#fff', fontSize: 12, fontWeight: 800, letterSpacing: '0.1em' }}>PROPERTY</span></span>
         </a>
 
         {NAV.map(item => (

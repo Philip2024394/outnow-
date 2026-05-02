@@ -130,17 +130,31 @@ export default function AgentDirectoryPage({ onSelectAgent, onBack }) {
   )
 }
 
+function isAgentAvailableNow() {
+  const now = new Date()
+  const day = now.getDay()
+  const hour = now.getHours()
+  const min = now.getMinutes()
+  const t = hour + min / 60
+  return (day >= 1 && day <= 5 && t >= 8 && t < 17) || (day === 6 && t >= 9 && t < 14)
+}
+
 function AgentCard({ agent: a, delay, onSelect }) {
+  const available = isAgentAvailableNow()
   return (
     <ScrollReveal delay={delay}>
       <div className="ws-card" onClick={onSelect} style={{ ...glass, padding: '24px', cursor: 'pointer' }}>
         {/* Header */}
         <div style={{ display: 'flex', alignItems: 'center', gap: 14, marginBottom: 14 }}>
-          <img src={a.photo} alt={a.name} style={{ width: 64, height: 64, borderRadius: 18, objectFit: 'cover', border: '2.5px solid rgba(141,198,63,0.3)' }} />
+          <div style={{ position: 'relative', flexShrink: 0 }}>
+            <img src={a.photo} alt={a.name} style={{ width: 64, height: 64, borderRadius: 18, objectFit: 'cover', border: '2.5px solid rgba(141,198,63,0.3)' }} />
+            {available && <span style={{ position: 'absolute', bottom: 2, right: 2, width: 12, height: 12, borderRadius: '50%', background: '#8DC63F', border: '2px solid rgba(0,0,0,0.7)', boxShadow: '0 0 6px rgba(141,198,63,0.6)' }} />}
+          </div>
           <div style={{ flex: 1 }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
               <span style={{ fontSize: 18, fontWeight: 900, color: '#fff' }}>{a.name}</span>
               {a.verified && <span style={{ padding: '2px 6px', borderRadius: 4, background: 'rgba(96,165,250,0.12)', fontSize: 9, fontWeight: 800, color: '#60A5FA' }}>✓</span>}
+              {available && <span style={{ padding: '2px 8px', borderRadius: 6, background: 'rgba(141,198,63,0.1)', border: '1px solid rgba(141,198,63,0.25)', fontSize: 9, fontWeight: 800, color: '#8DC63F' }}>Available</span>}
             </div>
             <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.4)' }}>{a.company}</div>
             <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.25)', marginTop: 2 }}>{a.yearsActive}yr exp · 🗣️ {a.languages?.join(', ')}</div>
@@ -177,7 +191,7 @@ function AgentCard({ agent: a, delay, onSelect }) {
 
         {/* CTAs */}
         <div style={{ display: 'flex', gap: 8 }}>
-          <a href={`https://wa.me/${a.whatsapp.replace(/^0/, '62')}`} target="_blank" rel="noopener noreferrer" onClick={e => e.stopPropagation()} style={{ flex: 1, padding: '11px', borderRadius: 12, textDecoration: 'none', background: 'linear-gradient(135deg, #25D366, #128C7E)', color: '#fff', fontSize: 13, fontWeight: 900, textAlign: 'center' }}>💬 WhatsApp</a>
+          <a href={`https://wa.me/${a.whatsapp.replace(/^0/, '62')}`} target="_blank" rel="noopener noreferrer" onClick={e => e.stopPropagation()} style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', textDecoration: 'none' }}><img src="https://ik.imagekit.io/nepgaxllc/dfggdfgees-removebg-preview.png?updatedAt=1777539531358" alt="WhatsApp" style={{ height: 40, objectFit: 'contain' }} /></a>
           <button onClick={onSelect} style={{ flex: 1, padding: '11px', borderRadius: 12, border: '1.5px solid rgba(141,198,63,0.3)', background: 'rgba(141,198,63,0.08)', color: '#8DC63F', fontSize: 13, fontWeight: 800, cursor: 'pointer', fontFamily: 'inherit' }}>View Profile →</button>
         </div>
       </div>

@@ -13,6 +13,7 @@ import TransportProximity from '@/components/property/TransportProximity'
 import { ScrollReveal } from '../hooks/useScrollReveal'
 import PropertyMap from '@/components/property/PropertyMap'
 import FavoriteButton from '../components/FavoriteButton'
+import MakeOffer from '@/components/property/MakeOffer'
 import ShareButtons from '../components/ShareButtons'
 
 function fmtRp(n) {
@@ -26,7 +27,11 @@ function fmtRp(n) {
 const glass = { background: 'rgba(0,0,0,0.4)', backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)', border: '1px solid rgba(255,255,255,0.06)', borderRadius: 16 }
 
 const DETAIL_ICONS = {
-  Certificate: '📜', Furnished: '🛋️', Facing: '🧭', Floors: '🏢', 'Year Built': '📅',
+  Certificate: 'https://ik.imagekit.io/nepgaxllc/Untitledsssvvvvv-removebg-preview.png',
+  Furnished: 'https://ik.imagekit.io/nepgaxllc/Untitledsssvvvvvdd-removebg-preview.png?updatedAt=1777625220883',
+  Facing: 'https://ik.imagekit.io/nepgaxllc/Untitledssv-removebg-preview.png',
+  Floors: 'https://ik.imagekit.io/nepgaxllc/Untitled33-removebg-preview.png',
+  'Year Built': 'https://ik.imagekit.io/nepgaxllc/Untitledsssff-removebg-preview.png',
   Electricity: '⚡', Water: '💧', Parking: '🅿️', Pool: '🏊',
 }
 
@@ -104,23 +109,54 @@ export default function PropertyDetailPage({ listing, onBack, onSelectListing })
               </div>
             )}
           </div>
+          {/* Make Offer + Viewing — under thumbnails, same width as gallery */}
+          {listing.offers_enabled !== false && <div style={{ marginTop: 10 }}><MakeOffer listing={listing} viewingSchedule={ef.viewing_schedule} officeHours={ef.office_hours} /></div>}
+
+          {/* Pricing periods */}
+          {periods.length > 0 && (
+            <div style={{ ...glass, padding: '14px', marginTop: 12 }}>
+              <div style={{ display: 'flex', gap: 8 }}>
+                {periods.map(p => (
+                  <div key={p.label} style={{ flex: 1, padding: '10px', borderRadius: 10, background: 'rgba(141,198,63,0.06)', border: '1px solid rgba(141,198,63,0.12)', textAlign: 'center' }}>
+                    <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.35)' }}>{p.label}</div>
+                    <div style={{ fontSize: 15, fontWeight: 900, color: '#FACC15', marginTop: 3 }}>{fmtRp(p.price)}</div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
         </ScrollReveal>
 
         {/* Right — Info */}
         <ScrollReveal delay={0.1} style={{ width: '45%' }}>
           <div style={{ ...glass, padding: '28px 24px' }}>
             {/* Badges + Actions */}
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 10 }}>
-              <div style={{ display: 'flex', gap: 6 }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 6 }}>
+              <div style={{ display: 'flex', gap: 5, flexWrap: 'wrap' }}>
                 <span style={{ padding: '3px 10px', borderRadius: 8, background: 'rgba(96,165,250,0.12)', border: '1px solid rgba(96,165,250,0.25)', fontSize: 11, fontWeight: 800, color: '#60A5FA' }}>✓ Verified</span>
-                <span style={{ padding: '3px 10px', borderRadius: 8, background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)', fontSize: 11, fontWeight: 800, color: 'rgba(255,255,255,0.4)' }}>{listing.sub_category}</span>
-                {listing.owner_type === 'agent' && <span style={{ padding: '3px 10px', borderRadius: 8, background: 'rgba(96,165,250,0.08)', fontSize: 11, fontWeight: 800, color: '#60A5FA' }}>🏢 Agent</span>}
+                <span style={{ padding: '3px 10px', borderRadius: 8, background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)', fontSize: 11, fontWeight: 800, color: 'rgba(255,255,255,0.4)' }}>{listing.sub_category || ef.propType}</span>
+                {ef.rentalType && ef.rentalType !== 'whole' && <span style={{ padding: '3px 10px', borderRadius: 8, background: 'rgba(141,198,63,0.08)', border: '1px solid rgba(141,198,63,0.15)', fontSize: 11, fontWeight: 800, color: '#8DC63F' }}>{ef.rentalType === 'room' ? 'Room Only' : 'Shared'}</span>}
+                {listing.owner_type === 'agent' && <span style={{ padding: '3px 10px', borderRadius: 8, background: 'rgba(96,165,250,0.08)', fontSize: 11, fontWeight: 800, color: '#60A5FA' }}>Agent</span>}
+                {ef.leaseDuration && <span style={{ padding: '3px 10px', borderRadius: 8, background: 'rgba(255,255,255,0.04)', fontSize: 11, fontWeight: 700, color: 'rgba(255,255,255,0.35)' }}>{ef.leaseDuration}</span>}
               </div>
               <FavoriteButton listingId={listing.id} size="md" />
             </div>
+            {/* Specialty Tags */}
+            {ef.specialtyTags?.length > 0 && (
+              <div style={{ display: 'flex', gap: 5, flexWrap: 'wrap', marginBottom: 8 }}>
+                {ef.specialtyTags.map(tagId => {
+                  const icons = { holiday: '🌴', beachfront: '🏖️', mountain: '⛰️', luxury: '✨', eco: '🌱', pet_friendly: '🐾', investment: '📈', furnished_ready: '🔑' }
+                  const labels = { holiday: 'Holiday Home', beachfront: 'Beachfront', mountain: 'Mountain View', luxury: 'Luxury', eco: 'Eco-friendly', pet_friendly: 'Pet Friendly', investment: 'Investment Ready', furnished_ready: 'Move-in Ready' }
+                  return <span key={tagId} style={{ padding: '3px 10px', borderRadius: 8, background: 'rgba(250,204,21,0.08)', border: '1px solid rgba(250,204,21,0.15)', fontSize: 11, fontWeight: 700, color: '#FACC15' }}>{icons[tagId] || ''} {labels[tagId] || tagId}</span>
+                })}
+              </div>
+            )}
 
             <h1 style={{ fontSize: 26, fontWeight: 900, color: '#fff', margin: '0 0 6px', lineHeight: 1.2 }}>{listing.title}</h1>
-            <div style={{ fontSize: 14, color: 'rgba(255,255,255,0.4)', marginBottom: 16 }}>📍 {listing.address || listing.city}</div>
+            <div style={{ fontSize: 14, color: 'rgba(255,255,255,0.4)', marginBottom: 10 }}>📍 {listing.address || listing.city}</div>
+
+            {/* Description */}
+            {listing.description && <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.45)', lineHeight: 1.6, marginBottom: 14 }}>{listing.description}</div>}
 
             {/* Price */}
             <div style={{ fontSize: 36, fontWeight: 900, color: '#FACC15', marginBottom: 4 }}>{fmtRp(price)}</div>
@@ -134,11 +170,11 @@ export default function PropertyDetailPage({ listing, onBack, onSelectListing })
                 ef.bathrooms && { icon: '🚿', val: ef.bathrooms, label: 'Bath' },
                 ef.land_area && { icon: '📐', val: ef.land_area, label: 'Land' },
                 ef.building_area && { icon: '🏗️', val: ef.building_area, label: 'Building' },
-                ef.certificate && { icon: '📜', val: ef.certificate, label: 'Cert' },
-                ef.furnished && { icon: '🛋️', val: ef.furnished, label: 'Furnished' },
+                ef.certificate && { icon: DETAIL_ICONS.Certificate, val: ef.certificate, label: 'Cert', isImg: true },
+                ef.furnished && { icon: DETAIL_ICONS.Furnished, val: ef.furnished, label: 'Furnished', isImg: true },
               ].filter(Boolean).map(s => (
                 <div key={s.label} style={{ padding: '10px', borderRadius: 10, background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.04)', textAlign: 'center' }}>
-                  <div style={{ fontSize: 16 }}>{s.icon}</div>
+                  {s.isImg ? <img src={s.icon} alt="" style={{ width: 22, height: 22, objectFit: 'contain', display: 'inline-block' }} /> : <div style={{ fontSize: 16 }}>{s.icon}</div>}
                   <div style={{ fontSize: 14, fontWeight: 800, color: '#fff', marginTop: 2 }}>{s.val}</div>
                   <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.3)' }}>{s.label}</div>
                 </div>
@@ -146,56 +182,140 @@ export default function PropertyDetailPage({ listing, onBack, onSelectListing })
             </div>
 
             {/* CTAs */}
-            <a href={`https://wa.me/${phone.replace(/^0/, '62')}?text=${encodeURIComponent(`Halo, saya tertarik dengan ${listing.title}`)}`} target="_blank" rel="noopener noreferrer" style={{
-              display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8, width: '100%', padding: '14px', borderRadius: 14, textDecoration: 'none',
-              background: 'linear-gradient(135deg, #25D366, #128C7E)', color: '#fff', fontSize: 15, fontWeight: 900, marginBottom: 10,
-            }}>💬 Chat via WhatsApp</a>
+            <div style={{ display: 'flex', gap: 8, marginBottom: 10 }}>
+              <a href={`https://wa.me/${phone.replace(/^0/, '62')}?text=${encodeURIComponent(`Halo, saya tertarik dengan ${listing.title}`)}`} target="_blank" rel="noopener noreferrer" style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', textDecoration: 'none' }}>
+                <img src="https://ik.imagekit.io/nepgaxllc/dfggdfgees-removebg-preview.png?updatedAt=1777539531358" alt="WhatsApp" style={{ height: 44, objectFit: 'contain' }} />
+              </a>
+              {listing.buy_now && (
+                <button onClick={() => setShowKPR(true)} style={{ flex: 1, padding: '14px', borderRadius: 14, border: 'none', background: 'linear-gradient(135deg, #FACC15, #F59E0B)', color: '#000', fontSize: 14, fontWeight: 900, cursor: 'pointer', fontFamily: 'inherit' }}>🏦 KPR</button>
+              )}
+            </div>
 
-            {listing.buy_now && (
-              <button onClick={() => setShowKPR(true)} style={{ width: '100%', padding: '14px', borderRadius: 14, border: 'none', background: 'linear-gradient(135deg, #FACC15, #F59E0B)', color: '#000', fontSize: 15, fontWeight: 900, cursor: 'pointer', fontFamily: 'inherit' }}>🏦 KPR Calculator</button>
-            )}
           </div>
         </ScrollReveal>
       </div>
 
-      {/* ═══ SECTION 2: Description + Details ═══ */}
-      <div className="ws-container" style={{ display: 'flex', gap: 24, marginBottom: 32 }}>
-        <ScrollReveal style={{ flex: 1 }}>
-          <div style={{ ...glass, padding: '24px' }}>
-            <h3 style={{ fontSize: 18, fontWeight: 800, color: '#fff', margin: '0 0 14px' }}>Description</h3>
-            <div style={{ fontSize: 14, color: 'rgba(255,255,255,0.5)', lineHeight: 1.7 }}>{listing.description || 'No description available.'}</div>
+      {/* ═══ SECTION 2: Property Details — full width ═══ */}
+      <div className="ws-container" style={{ marginBottom: 32 }}>
+        <ScrollReveal>
+          <div style={{ ...glass, padding: '20px', overflow: 'hidden' }}>
+            <h3 style={{ fontSize: 16, fontWeight: 800, color: '#fff', margin: '0 0 12px' }}>Property Details</h3>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: 0 }}>
+              {details.map(([label, value], i) => (
+                <div key={label} style={{ display: 'flex', justifyContent: 'space-between', padding: '10px 12px', borderBottom: '1px solid rgba(255,255,255,0.04)', background: i % 2 === 0 ? 'rgba(255,255,255,0.01)' : 'transparent' }}>
+                  <span style={{ fontSize: 13, color: 'rgba(255,255,255,0.4)', display: 'flex', alignItems: 'center', gap: 6 }}>{DETAIL_ICONS[label]?.startsWith?.('http') ? <img src={DETAIL_ICONS[label]} alt="" style={{ width: 18, height: 18, objectFit: 'contain' }} /> : (DETAIL_ICONS[label] || '•')} {label}</span>
+                  <span style={{ fontSize: 13, fontWeight: 800, color: '#fff' }}>{value}</span>
+                </div>
+              ))}
+            </div>
+            {/* Included Features */}
             {listing.features?.length > 0 && (
-              <div style={{ marginTop: 16 }}>
-                <div style={{ fontSize: 14, fontWeight: 700, color: 'rgba(255,255,255,0.4)', marginBottom: 8 }}>Features</div>
-                <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+              <div style={{ marginTop: 14, paddingTop: 14, borderTop: '1px solid rgba(255,255,255,0.04)' }}>
+                <div style={{ fontSize: 13, fontWeight: 700, color: 'rgba(255,255,255,0.4)', marginBottom: 8 }}>Included Features</div>
+                <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
                   {listing.features.map(f => <span key={f} style={{ padding: '5px 12px', borderRadius: 8, background: 'rgba(141,198,63,0.08)', border: '1px solid rgba(141,198,63,0.15)', fontSize: 12, fontWeight: 700, color: '#8DC63F' }}>{f}</span>)}
                 </div>
               </div>
             )}
-            {periods.length > 0 && (
-              <div style={{ marginTop: 16, display: 'flex', gap: 10 }}>
-                {periods.map(p => (
-                  <div key={p.label} style={{ flex: 1, padding: '12px', borderRadius: 12, background: 'rgba(141,198,63,0.06)', border: '1px solid rgba(141,198,63,0.12)', textAlign: 'center' }}>
-                    <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.35)' }}>{p.label}</div>
-                    <div style={{ fontSize: 16, fontWeight: 900, color: '#FACC15', marginTop: 4 }}>{fmtRp(p.price)}</div>
-                  </div>
-                ))}
-              </div>
-            )}
-          </div>
-        </ScrollReveal>
-        <ScrollReveal delay={0.1} style={{ width: 340, flexShrink: 0 }}>
-          <div style={{ ...glass, padding: '20px', overflow: 'hidden' }}>
-            <h3 style={{ fontSize: 16, fontWeight: 800, color: '#fff', margin: '0 0 12px' }}>Property Details</h3>
-            {details.map(([label, value], i) => (
-              <div key={label} style={{ display: 'flex', justifyContent: 'space-between', padding: '10px 0', borderBottom: i < details.length - 1 ? '1px solid rgba(255,255,255,0.04)' : 'none' }}>
-                <span style={{ fontSize: 13, color: 'rgba(255,255,255,0.4)', display: 'flex', alignItems: 'center', gap: 6 }}>{DETAIL_ICONS[label] || '•'} {label}</span>
-                <span style={{ fontSize: 13, fontWeight: 800, color: '#fff' }}>{value}</span>
-              </div>
-            ))}
           </div>
         </ScrollReveal>
       </div>
+
+      {/* ═══ PROPERTY FEATURES GRID ═══ */}
+      {(() => {
+        const featureGroups = [
+          { title: 'Interior', items: [ef.diningRoom && 'Dining Room', ef.livingRoom && 'Living Room', ef.storageRoom && 'Storage Room', ef.maidRoom && 'Maid Room', ef.maidBathroom && 'Maid Bathroom', ef.walkInCloset && 'Walk-in Closet', ef.smartHome && 'Smart Home', ef.kitchenType && `${ef.kitchenType} Kitchen`, ef.parkingCar && `${ef.parkingCar} Car Parking`, ef.parkingMotorbike && `${ef.parkingMotorbike} Bike Parking`].filter(Boolean) },
+          { title: 'Exterior', items: [ef.frontYard && 'Front Yard', ef.terrace && 'Terrace/Patio', ef.gatedProperty && 'Gated Property', ef.outdoorKitchen && 'Outdoor Kitchen/BBQ'].filter(Boolean) },
+          { title: 'Security', items: [ef.security24h && '24h Security', ef.alarmSystem && 'Alarm System', ef.smartLock && 'Smart Lock', ef.oneGateSystem && 'One Gate System'].filter(Boolean) },
+          { title: 'Utilities', items: [ef.internetAvail && 'Internet', ef.cableTv && 'Cable TV', ef.drainageSystem && 'Drainage', ef.septicTank && 'Septic Tank', ef.powerSupplyVoltage && `${ef.powerSupplyVoltage}`, ef.powerSupplyPhase && ef.powerSupplyPhase].filter(Boolean) },
+          { title: 'Pets', items: [ef.petFriendly && 'Pets Allowed', ...(ef.petsAllowed || []), ef.petDeposit && `Deposit: Rp ${ef.petDeposit}`].filter(Boolean) },
+          { title: 'Facilities', items: [ef.elevator && 'Elevator', ef.gym && 'Gym', ef.playground && 'Playground', ef.clubhouse && 'Clubhouse', ef.joggingTrack && 'Jogging Track', ef.basementParking && 'Basement Parking', ef.sharedPool && 'Shared Pool', ef.mosque && 'Mosque'].filter(Boolean) },
+          { title: 'Location', items: [ef.cornerLot && 'Corner Lot', ef.quietNeighborhood && 'Quiet Area', ef.nearMainRoad && 'Near Main Road', ef.nearSchools && 'Near Schools', ef.nearHospital && 'Near Hospital', ef.nearShopping && 'Near Shopping', ef.viewType && ef.viewType !== 'No View' && ef.viewType].filter(Boolean) },
+        ].filter(g => g.items.length > 0)
+
+        if (!featureGroups.length) return null
+        return (
+          <div className="ws-container" style={{ marginBottom: 32 }}>
+            <ScrollReveal>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: 14 }}>
+                {featureGroups.map(g => (
+                  <div key={g.title} style={{ ...glass, padding: '16px' }}>
+                    <div style={{ fontSize: 13, fontWeight: 800, color: '#8DC63F', marginBottom: 10 }}>{g.title}</div>
+                    <div style={{ display: 'flex', gap: 5, flexWrap: 'wrap' }}>
+                      {g.items.map(item => (
+                        <span key={item} style={{ padding: '4px 10px', borderRadius: 8, background: 'rgba(141,198,63,0.08)', border: '1px solid rgba(141,198,63,0.15)', fontSize: 11, fontWeight: 700, color: '#8DC63F' }}>{item}</span>
+                      ))}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </ScrollReveal>
+            {(ef.renovationYear || ef.occupancyStatus) && (
+              <div style={{ display: 'flex', gap: 10, marginTop: 12 }}>
+                {ef.renovationYear && <span style={{ padding: '5px 12px', borderRadius: 8, background: 'rgba(255,255,255,0.04)', fontSize: 12, fontWeight: 700, color: 'rgba(255,255,255,0.4)' }}>Renovated: {ef.renovationYear}</span>}
+                {ef.occupancyStatus && <span style={{ padding: '5px 12px', borderRadius: 8, background: 'rgba(255,255,255,0.04)', fontSize: 12, fontWeight: 700, color: 'rgba(255,255,255,0.4)' }}>{ef.occupancyStatus}</span>}
+              </div>
+            )}
+          </div>
+        )
+      })()}
+
+      {/* ═══ CONSTRUCTION & WARRANTY ═══ */}
+      {(() => {
+        const hasConstruction = ef.structureType || ef.roofType || ef.wallMaterial || ef.flooringType || ef.foundationType || ef.buildQuality
+        const hasWarranty = ef.warrantyStructure || ef.warrantyRoof || ef.warrantyWaterproofing || ef.warrantyElectrical || ef.warrantyDeveloper
+        if (!hasConstruction && !hasWarranty) return null
+
+        return (
+          <div className="ws-container" style={{ display: 'grid', gridTemplateColumns: hasConstruction && hasWarranty ? '1fr 1fr' : '1fr', gap: 16, marginBottom: 32 }}>
+            {hasConstruction && (
+              <ScrollReveal>
+                <div style={{ ...glass, padding: '18px', border: '1px solid rgba(250,204,21,0.12)' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 12 }}>
+                    <span style={{ fontSize: 14, fontWeight: 800, color: '#FACC15' }}>Construction & Quality</span>
+                    {ef.buildQuality && <span style={{ padding: '3px 10px', borderRadius: 6, background: ef.buildQuality === 'Luxury' ? 'rgba(250,204,21,0.12)' : ef.buildQuality === 'Premium' ? 'rgba(141,198,63,0.1)' : 'rgba(255,255,255,0.04)', border: ef.buildQuality === 'Luxury' ? '1px solid rgba(250,204,21,0.25)' : ef.buildQuality === 'Premium' ? '1px solid rgba(141,198,63,0.2)' : '1px solid rgba(255,255,255,0.08)', fontSize: 10, fontWeight: 800, color: ef.buildQuality === 'Luxury' ? '#FACC15' : ef.buildQuality === 'Premium' ? '#8DC63F' : '#fff' }}>{ef.buildQuality}</span>}
+                  </div>
+                  {[
+                    ef.structureType && ['Structure', ef.structureType],
+                    ef.roofType && ['Roof', ef.roofType],
+                    ef.wallMaterial && ['Walls', ef.wallMaterial],
+                    ef.flooringType && ['Flooring', ef.flooringType],
+                    ef.foundationType && ef.foundationType !== 'Unknown' && ['Foundation', ef.foundationType],
+                  ].filter(Boolean).map(([label, value], i, arr) => (
+                    <div key={label} style={{ display: 'flex', justifyContent: 'space-between', padding: '8px 0', borderBottom: i < arr.length - 1 ? '1px solid rgba(255,255,255,0.04)' : 'none' }}>
+                      <span style={{ fontSize: 12, color: 'rgba(255,255,255,0.4)' }}>{label}</span>
+                      <span style={{ fontSize: 12, fontWeight: 800, color: '#fff' }}>{value}</span>
+                    </div>
+                  ))}
+                </div>
+              </ScrollReveal>
+            )}
+
+            {hasWarranty && (
+              <ScrollReveal delay={0.1}>
+                <div style={{ ...glass, padding: '18px', border: '1px solid rgba(96,165,250,0.12)' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 12 }}>
+                    <span style={{ fontSize: 14, fontWeight: 800, color: '#60A5FA' }}>Warranty & Guarantees</span>
+                    <span style={{ padding: '3px 10px', borderRadius: 6, background: 'rgba(96,165,250,0.1)', border: '1px solid rgba(96,165,250,0.2)', fontSize: 10, fontWeight: 800, color: '#60A5FA' }}>WARRANTY INCLUDED</span>
+                  </div>
+                  {[
+                    ef.warrantyStructure && ['Structural', ef.warrantyStructure],
+                    ef.warrantyRoof && ['Roof', ef.warrantyRoof],
+                    ef.warrantyWaterproofing && ['Waterproofing', ef.warrantyWaterproofing],
+                    ef.warrantyElectrical && ['Electrical', ef.warrantyElectrical],
+                    ef.warrantyDeveloper && ['Developer Guarantee', ef.warrantyDeveloper],
+                  ].filter(Boolean).map(([label, value], i, arr) => (
+                    <div key={label} style={{ display: 'flex', justifyContent: 'space-between', padding: '8px 0', borderBottom: i < arr.length - 1 ? '1px solid rgba(255,255,255,0.04)' : 'none', alignItems: 'center' }}>
+                      <span style={{ fontSize: 12, color: 'rgba(255,255,255,0.4)' }}>{label}</span>
+                      <span style={{ fontSize: 12, fontWeight: 800, color: '#60A5FA' }}>{value}</span>
+                    </div>
+                  ))}
+                </div>
+              </ScrollReveal>
+            )}
+          </div>
+        )
+      })()}
 
       {/* ═══ SECTION 3: Analytics ═══ */}
       {listing.buy_now && (

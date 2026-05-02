@@ -16,6 +16,8 @@ import NewProjectsPage from './pages/NewProjectsPage'
 import NewProjectDetail from '@/components/property/NewProjectDetail'
 import PropertyListingForm from '@/domains/rentals/forms/PropertyListingForm'
 import DashboardPage from './pages/DashboardPage'
+import WantedPropertyPage from './pages/WantedPropertyPage'
+import InvestorPage from './pages/InvestorPage'
 import { createListing } from '@/services/rentalListingService'
 
 const BG_IMG = 'https://ik.imagekit.io/nepgaxllc/ChatGPT%20Image%20May%202,%202026,%2002_15_43%20AM.png'
@@ -38,6 +40,8 @@ export default function WebsiteApp() {
     else if (target === 'newprojects') setPage('newprojects')
     else if (target === 'agents') setPage('agents')
     else if (target === 'kpr') { setPage('search'); setFilterMode('all') }
+    else if (target === 'wanted') setPage('wanted')
+    else if (target === 'invest') setPage('invest')
     else if (target === 'list') { setShowListForm(true) }
     else if (target === 'mylistings' || target === 'dashboard') { setPage('dashboard') }
     else setPage(target)
@@ -62,7 +66,6 @@ export default function WebsiteApp() {
     }}>
       {/* Fixed background image */}
       <div style={{ position: 'fixed', inset: 0, zIndex: 0, backgroundImage: `url("${BG_IMG}")`, backgroundSize: '100% 100%', backgroundPosition: 'center', backgroundRepeat: 'no-repeat', pointerEvents: 'none' }} />
-      <div style={{ position: 'fixed', inset: 0, zIndex: 0, background: 'rgba(0,0,0,0.4)', pointerEvents: 'none' }} />
 
       {/* Content */}
       <div style={{ position: 'relative', zIndex: 1 }}>
@@ -123,6 +126,19 @@ export default function WebsiteApp() {
             open
             onClose={() => { setSelectedProject(null); setPage('newprojects') }}
             project={selectedProject}
+          />
+        )}
+
+        {page === 'wanted' && (
+          <WantedPropertyPage
+            onBack={() => setPage('home')}
+          />
+        )}
+
+        {page === 'invest' && (
+          <InvestorPage
+            onBack={() => setPage('home')}
+            onSelectListing={handleSelectListing}
           />
         )}
 
